@@ -174,4 +174,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 
 # Ignore The Dependencies Git Repo
-deps/
+#deps/
