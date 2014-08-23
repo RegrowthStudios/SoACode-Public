@@ -30,6 +30,9 @@ InputManager::~InputManager() {
 }
 
 float InputManager::getAxis(const int axisID) {
+    // Check Input
+    if (axisID < 0 || axisID >= _axes.size()) return 0.0f;
+    
     Axis* axis = _axes.at(axisID);
     float result = 0;
     switch (axis->type) {
@@ -52,16 +55,25 @@ float InputManager::getAxis(const int axisID) {
 }
 
 bool InputManager::getKey(const int axisID) {
+    // Check Input
+    if (axisID < 0 || axisID >= _axes.size()) return false;
+
     Axis* axis = _axes.at(axisID);
     return _currentKeyStates[axis->positiveKey];
 }
 
 bool InputManager::getKeyDown(const int axisID) {
+    // Check Input
+    if (axisID < 0 || axisID >= _axes.size()) return false;
+
     Axis* axis = _axes.at(axisID);
     return _currentKeyStates[axis->positiveKey] && !_previousKeyStates[axis->positiveKey];
 }
 
 bool InputManager::getKeyUp(const int axisID) {
+    // Check Input
+    if (axisID < 0 || axisID >= _axes.size()) return false;
+
     Axis* axis = _axes.at(axisID);
     return !_currentKeyStates[axis->positiveKey] && _previousKeyStates[axis->positiveKey];
 }
