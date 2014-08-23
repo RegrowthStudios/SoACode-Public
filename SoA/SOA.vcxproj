@@ -73,8 +73,6 @@
       <Command>robocopy /XO /E $(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ $(OutDir) *
 robocopy /XO /E $(SolutionDir)game\ $(OutDir) *
 
-cd $(OutDir)
-
 EXIT 0</Command>
       <Message>Copying dependencies and resources to output directory</Message>
     </PostBuildEvent>
@@ -108,8 +106,6 @@ EXIT 0</Command>
     <PostBuildEvent>
       <Command>robocopy /XO /E $(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ $(OutDir) *
 robocopy /XO /E $(SolutionDir)game\ $(OutDir) *
-
-cd $(OutDir)
 
 EXIT 0</Command>
       <Message>Copying dependencies and resources to output directory</Message>
