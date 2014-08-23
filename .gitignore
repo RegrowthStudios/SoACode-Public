@@ -172,7 +172,3 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
-
-# Ignore The Dependencies And Data Git Repo
-deps/
-game/
