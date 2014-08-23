@@ -1,0 +1,40 @@
+Usage:
+ - Systems Are All Loaded Into Main Table
+ - Systems Are Initialized In Three Passes
+    * Calls init(i32 pass)
+ - Systems Are Updated Every Frame
+    * Calls update(i32 frame, const GameTime& time)
+ - Systems May Be Ordered To Load/Save Internal State
+    * Calls i32 getInternalStateSize(), save(ubyte* output), load(ubyte* data)
+
+X==========X
+|Components|
+X==========X
+
+Position
+ - f64v3 Absolute Position
+ - f64v3 Position In Local Voxel World
+Physics
+ - f32 Mass
+ - f32v3 Acceleration
+ - f32v3 Velocity
+ - std::vector<f32v3> Impulse List
+Collision
+ - "Collision Skin"
+
+X=======X
+|Systems|
+X=======X
+
+? Gravity ?
+ - Requires "Physics" Component
+ - Adds Gravitational Force To Acceleration
+Physics
+ - Requires "Position" Component
+ - Applies Impulses To Positions
+ - Simulates Positions As If They Were Point Bodies
+ - Clears Acceleration
+Collision
+ - Requires "Position" Component
+ - Takes Collision Skins And Collides Them Against
+   Each Other And The Terrain, Modifying The Position

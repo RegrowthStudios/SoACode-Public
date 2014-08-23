@@ -1,0 +1,78 @@
+== Extension ==
+keg
+
+== Summary ==
+    The KEG file extension specifies a file
+that can be parsed in a method similar to INI.
+However, some differences exist in the format
+and parsing. In particular, complex-type and
+in-situ parsing is performed and the '\r' and
+non-printable characters are ignored except for
+some instances. '\n' is kept inside of values.
+'\t' is automatically converted into a provided
+number of space characters for strings.
+
+== KegType ==
+The name for a KegType must be created with only the characters [A-Z,a-z,_,0-9]
+
+== Data Value ==
+Values are indexed by a lowercase name containing only the characters: [a-z,_,0-9]
+preceded by a '!'. Names provided in code for KegTypes with invalid characters are
+transformed into the '_' character. The value is stored with brackets surrounding it.
+
+Compact format:
+!name[values]
+
+Examples for (name = num, value = 5.23):
+!num[5.23]
+!num = [5.23]
+
+This will be ignored without generating any errors:
+! num[5.23]
+
+== Value Tips ==
+Number Types:
+ - "\x" can be used to specify hex numbers
+ - "\0" can be used to specify octal numbers
+ - "\b" can be used to specify binary numbers
+
+Strings:
+ - "\x" can be used to specify an ASCII character in hex format
+ - '\' can be used to ignore the '\n' character
+ - '\\' is used to specify the '\' character
+
+Custom Types:
+ - The value must exist as a KegType
+ - Constructors will not be called for custom data types
+ - If the type is to be sent as a pointer, the data can be initialized via a separate
+   type. Directly following the '[', the type may be specified inside of angled brackets,
+   and it will be parsed as a String value:
+       Acceptable: !ptr [<F32> !value[1.5]]
+       Ignored:    !ptr [ <F32> !value[1.5]]
+
+== Predefined KegTypes ==
+Number Types (I8, UI8, I16, UI16, I32, UI32, I64, UI64, F32, F64) have the following types defined for them:
+<NumberType> {
+    <NumberType> value, value0, x, r, s, 0;
+}
+<NumberType>_V2 {
+    <NumberType> value0, x, r, s, 0;
+    <NumberType> value1, y, g, t, 1;
+}
+<NumberType>_V3 {
+    <NumberType> value0, x, r, s, 0;
+    <NumberType> value1, y, g, t, 1;
+    <NumberType> value2, z, b, p, 2;
+}
+<NumberType>_V4 {
+    <NumberType> value0, x, r, s, 0;
+    <NumberType> value1, y, g, t, 1;
+    <NumberType> value2, z, b, p, 2;
+    <NumberType> value3, w, a, q, 3;
+}
+CString {
+    cString value, string;
+}
+String {
+    nString value, string;
+}

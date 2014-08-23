@@ -1,0 +1,293 @@
+Project:
+  DefaultTargets: Build
+  Import:
+  - Project: $(VCTargetsPath)\Microsoft.Cpp.Default.props
+  - Project: $(VCTargetsPath)\Microsoft.Cpp.props
+  - Project: $(VCTargetsPath)\Microsoft.Cpp.targets
+  ImportGroup:
+  - Label: ExtensionSettings
+  - Condition: '''$(Configuration)|$(Platform)''==''Debug|Win32'''
+    Import:
+      Condition: exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')
+      Label: LocalAppDataPlatform
+      Project: $(UserRootDir)\Microsoft.Cpp.$(Platform).user.props
+    Label: PropertySheets
+  - Condition: '''$(Configuration)|$(Platform)''==''Release|Win32'''
+    Import:
+      Condition: exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')
+      Label: LocalAppDataPlatform
+      Project: $(UserRootDir)\Microsoft.Cpp.$(Platform).user.props
+    Label: PropertySheets
+  - Label: ExtensionTargets
+  ItemDefinitionGroup:
+  - ClCompile:
+      AdditionalIncludeDirectories: $(SolutionDir)deps\include;%(AdditionalIncludeDirectories)
+      ForcedIncludeFiles: null
+      ForcedUsingFiles: null
+      Optimization: Disabled
+      PrecompiledHeader: Use
+      PreprocessorDefinitions: WINDOWS;DEBUG;%(PreprocessorDefinitions)
+      WarningLevel: Level3
+    Condition: '''$(Configuration)|$(Platform)''==''Debug|Win32'''
+    Link:
+      AdditionalDependencies: opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;fmod_vc.lib;zdll.lib;%(AdditionalDependencies)
+      AdditionalLibraryDirectories: $(SolutionDir)deps\lib;%(AdditionalLibraryDirectories)
+      GenerateDebugInformation: 'true'
+      LargeAddressAware: 'true'
+      SubSystem: Console
+  - ClCompile:
+      AdditionalIncludeDirectories: $(SolutionDir)deps\include;%(AdditionalIncludeDirectories)
+      FavorSizeOrSpeed: Speed
+      ForcedIncludeFiles: null
+      ForcedUsingFiles: null
+      FunctionLevelLinking: 'true'
+      InlineFunctionExpansion: OnlyExplicitInline
+      IntrinsicFunctions: 'true'
+      MultiProcessorCompilation: 'true'
+      Optimization: MaxSpeed
+      PrecompiledHeader: Use
+      PreprocessorDefinitions: WINDOWS;NDEBUG;%(PreprocessorDefinitions)
+      WarningLevel: Level3
+    Condition: '''$(Configuration)|$(Platform)''==''Release|Win32'''
+    Link:
+      AdditionalDependencies: opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;fmod_vc.lib;zdll.lib;%(AdditionalDependencies)
+      AdditionalLibraryDirectories: $(SolutionDir)deps\lib;%(AdditionalLibraryDirectories)
+      EnableCOMDATFolding: 'true'
+      GenerateDebugInformation: 'true'
+      LargeAddressAware: 'true'
+      OptimizeReferences: 'true'
+      SubSystem: Console
+  ItemGroup:
+  - Label: ProjectConfigurations
+    ProjectConfiguration:
+    - Configuration: Debug
+      Include: Debug|Win32
+      Platform: Win32
+    - Configuration: Release
+      Include: Release|Win32
+      Platform: Win32
+  - ClInclude:
+    - Include: src\ChunkUpdater.h
+    - Include: src\LoadBar.h
+    - Include: src\LoadScreen.h
+    - Include: src\CAEngine.h
+    - Include: src\ChunkGenerator.h
+    - Include: src\ChunkMesher.h
+    - Include: src\ChunkRenderer.h
+    - Include: src\ChunkWorker.h
+    - Include: src\DebugRenderer.h
+    - Include: src\DepthState.h
+    - Include: src\FragFile.h
+    - Include: src\IGameScreen.h
+    - Include: src\GLEnums.h
+    - Include: src\GLProgram.h
+    - Include: src\GLTexture.h
+    - Include: src\GraphicsDevice.h
+    - Include: src\IOManager.h
+    - Include: src\Item.h
+    - Include: src\MainGame.h
+    - Include: src\MaterialAtlas.h
+    - Include: src\MaterialData.h
+    - Include: src\MaterialStack.h
+    - Include: src\Particle.h
+    - Include: src\ParticleBatch.h
+    - Include: src\ParticleEmitter.h
+    - Include: src\ParticleEngine.h
+    - Include: src\ParticleMesh.h
+    - Include: src\PtrRecycler.h
+    - Include: src\RasterizerState.h
+    - Include: src\SamplerState.h
+    - Include: src\ScreenList.h
+    - Include: src\SpriteBatch.h
+    - Include: src\SpriteFont.h
+    - Include: src\stdafx.h
+    - Include: src\App.h
+    - Include: src\TextureAtlasManager.h
+    - Include: src\VoxelEditor.h
+    - Include: src\Thread.h
+    - Include: src\WSO.h
+    - Include: src\WSOAtlas.h
+    - Include: src\WSOScanner.h
+    - Include: src\WSOData.h
+    - Include: src\Inputs.h
+    - Include: src\InputManager.h
+    - Include: src\Actor.h
+    - Include: src\atomicops.h
+    - Include: src\BlockData.h
+    - Include: src\Camera.h
+    - Include: src\Chunk.h
+    - Include: src\ChunkManager.h
+    - Include: src\Collision.h
+    - Include: src\Constants.h
+    - Include: src\Errors.h
+    - Include: src\FileSystem.h
+    - Include: src\FrameBuffer.h
+    - Include: src\Frustum.h
+    - Include: src\GameControls.h
+    - Include: src\GameManager.h
+    - Include: src\GameMenu.h
+    - Include: src\global.h
+    - Include: src\ImageLoading.h
+    - Include: src\LoadTask.h
+    - Include: src\PhysicsBlocks.h
+    - Include: src\PhysicsEngine.h
+    - Include: src\Random.h
+    - Include: src\RenderTask.h
+    - Include: src\RenderUtils.h
+    - Include: src\TaskQueueManager.h
+    - Include: src\TerrainPatch.h
+    - Include: src\lodepng.h
+    - Include: src\ObjectLoader.h
+    - Include: src\OpenglManager.h
+    - Include: src\OpenGLStructs.h
+    - Include: src\Options.h
+    - Include: src\Particles.h
+    - Include: src\Planet.h
+    - Include: src\Player.h
+    - Include: src\readerwriterqueue.h
+    - Include: src\Rendering.h
+    - Include: src\shader.h
+    - Include: src\SimplexNoise.h
+    - Include: src\Sound.h
+    - Include: src\TerrainGenerator.h
+    - Include: src\Texture2d.h
+    - Include: src\ThreadPool.h
+    - Include: src\AwesomiumUI.h
+    - Include: src\FloraGenerator.h
+    - Include: src\types.h
+    - Include: src\utils.h
+    - Include: src\VoxelRay.h
+    - Include: src\VRayHelper.h
+    - Include: src\WorldEditor.h
+    - Include: src\WorldIO.h
+    - Include: src\WorldStructs.h
+    - Include: src\VoxelWorld.h
+    - Include: src\VoxDefs.h
+    - Include: src\EditorVariables.h
+    - Include: src\ZipFile.h
+  - ClCompile:
+    - Include: ..\deps\include\JSON\json_spirit_reader.cpp
+      PrecompiledHeader:
+      - Condition: '''$(Configuration)|$(Platform)''==''Debug|Win32'''
+        text: NotUsing
+      - Condition: '''$(Configuration)|$(Platform)''==''Release|Win32'''
+        text: NotUsing
+    - Include: src\ChunkUpdater.cpp
+    - Include: src\LoadBar.cpp
+    - Include: src\LoadScreen.cpp
+    - Include: src\CAEngine.cpp
+    - Include: src\ChunkGenerator.cpp
+    - Include: src\ChunkRenderer.cpp
+    - Include: src\ChunkWorker.cpp
+    - Include: src\DebugRenderer.cpp
+    - Include: src\DepthState.cpp
+    - Include: src\FragFile.cpp
+    - Include: src\GLProgram.cpp
+    - Include: src\GLTexture.cpp
+    - Include: src\GraphicsDevice.cpp
+    - Include: src\InputManager.cpp
+    - Include: src\Actor.cpp
+    - Include: src\BlockData.cpp
+    - Include: src\Camera.cpp
+    - Include: src\Chunk.cpp
+    - Include: src\Inputs.cpp
+    - Include: src\IOManager.cpp
+    - Include: src\MainGame.cpp
+    - Include: src\Particle.cpp
+    - Include: src\ParticleBatch.cpp
+    - Include: src\ParticleEmitter.cpp
+    - Include: src\ParticleEngine.cpp
+    - Include: src\PhysicsBlocks.cpp
+    - Include: src\PhysicsEngine.cpp
+    - Include: src\Random.cpp
+    - Include: src\FloraGenerator.cpp
+    - Include: src\RasterizerState.cpp
+    - Include: src\RenderUtils.cpp
+    - Include: src\SamplerState.cpp
+    - Include: src\ScreenList.cpp
+    - Include: src\SpriteBatch.cpp
+    - Include: src\SpriteFont.cpp
+    - Include: src\stdafx.cpp
+      PrecompiledHeader:
+      - Condition: '''$(Configuration)|$(Platform)''==''Debug|Win32'''
+        text: Create
+      - Condition: '''$(Configuration)|$(Platform)''==''Release|Win32'''
+        text: Create
+    - Include: src\App.cpp
+    - Include: src\TextureAtlasManager.cpp
+    - Include: src\VoxelEditor.cpp
+    - Include: src\VoxelRay.cpp
+    - Include: src\VRayHelper.cpp
+    - Include: src\WorldIO.cpp
+    - Include: src\ChunkManager.cpp
+    - Include: src\ChunkMesher.cpp
+    - Include: src\CloseTerrainPatch.cpp
+    - Include: src\Collision.cpp
+    - Include: src\Errors.cpp
+    - Include: src\FileSystem.cpp
+    - Include: src\FrameBuffer.cpp
+    - Include: src\Frustum.cpp
+    - Include: src\GameControls.cpp
+    - Include: src\GameManager.cpp
+    - Include: src\GameMenu.cpp
+    - Include: src\global.cpp
+    - Include: src\ImageLoading.cpp
+    - Include: src\TerrainPatch.cpp
+    - Include: src\lodepng.cpp
+    - Include: src\main.cpp
+    - Include: src\ObjectLoader.cpp
+    - Include: src\OpenglManager.cpp
+    - Include: src\Options.cpp
+    - Include: src\Planet.cpp
+    - Include: src\Player.cpp
+    - Include: src\Rendering.cpp
+    - Include: src\shader.cpp
+    - Include: src\SimplexNoise.cpp
+    - Include: src\Sound.cpp
+    - Include: src\TerrainGenerator.cpp
+    - Include: src\Texture2d.cpp
+    - Include: src\ThreadPool.cpp
+    - Include: src\AwesomiumUI.cpp
+    - Include: src\WorldEditor.cpp
+    - Include: src\WorldStructs.cpp
+    - Include: src\VoxelWorld.cpp
+    - Include: src\WSO.cpp
+    - Include: src\WSOAtlas.cpp
+    - Include: src\WSOScanner.cpp
+    - Include: src\ZipFile.cpp
+  - ResourceCompile:
+      Include: Resources\resources.rc
+  - Image:
+      Include: Resources\SOA.ico
+  - Text:
+    - Include: docs\FileSpecs\WSO.txt
+    - Include: TODO.txt
+  - None:
+      Include: src\Chunk.inl
+  PropertyGroup:
+  - Label: Globals
+    ProjectGuid: '{588491F3-69BA-40E7-8CE8-2382A64D86E3}'
+    RootNamespace: SOA
+  - CharacterSet: MultiByte
+    Condition: '''$(Configuration)|$(Platform)''==''Debug|Win32'''
+    ConfigurationType: Application
+    Label: Configuration
+    PlatformToolset: v120
+    UseDebugLibraries: 'true'
+  - CharacterSet: MultiByte
+    Condition: '''$(Configuration)|$(Platform)''==''Release|Win32'''
+    ConfigurationType: Application
+    Label: Configuration
+    PlatformToolset: v120_xp
+    UseDebugLibraries: 'false'
+    WholeProgramOptimization: 'true'
+  - Label: UserMacros
+  - Condition: '''$(Configuration)|$(Platform)''==''Release|Win32'''
+    IncludePath: $(SolutionDir)deps\Seed_Of_Andromeda_Deps\include;$(IncludePath)
+    LibraryPath: $(SolutionDir)deps\Seed_Of_Andromeda_Deps\lib;$(LibraryPath)
+  - Condition: '''$(Configuration)|$(Platform)''==''Debug|Win32'''
+    IncludePath: $(SolutionDir)deps\Seed_Of_Andromeda_Deps\include;$(IncludePath)
+    IntDir: $(Configuration)
+    LibraryPath: $(SolutionDir)deps\Seed_Of_Andromeda_Deps\lib;$(LibraryPath)
+  ToolsVersion: '12.0'
+  xmlns: http://schemas.microsoft.com/developer/msbuild/2003
