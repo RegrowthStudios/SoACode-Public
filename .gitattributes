@@ -1,0 +1,24 @@
+# Windows line endings on all text files
+* text eol=crlf
+
+# SOA binary asset files:
+*.png   binary
+*.ogg   binary
+
+# Visual Studio files:
+*.pbxproj binary merge=union eol=lf
+*.vcxproj text merge=union eol=crlf
+*.sln text merge=union eol=crlf
+
+# Windows binary project files:
+*.exe   binary
+*.dll   binary
+*.lib   binary
+*.a     binary
+*.hpp   binary
+
+# Language aware diffs and force line endings if git did not know they are text:
+*.h     diff=cpp eol=crlf
+*.cpp   diff=cpp eol=crlf
+*.py    diff=python eol=crlf
+*.cs    diff=csharp eol=crlf
