@@ -202,7 +202,7 @@ void Player::spaceMove()
 	//}
 	//if (rollAngle < 0){
 	//	rollAngle = 2 * M_PI;
-	//}
+	//}Fke
 	//else if (rollAngle > 2 * M_PI){
 	//	rollAngle = 0;
 	//}

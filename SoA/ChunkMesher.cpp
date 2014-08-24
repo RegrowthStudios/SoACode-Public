@@ -913,9 +913,9 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
         getTextureIndex(mi, block.pzTexInfo.overlay, overlayTextureIndex, 1, PADDED_LAYER, PADDED_WIDTH, 8, overlayColor);
 
         if (block.pzTexInfo.base.transparency) {
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 4);
-            makeFloraFace(&(_nonBlockVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pzTexInfo);
-            mi.nbIndex += 4;
+            _transparentVerts.resize(_transparentVerts.size() + 4);
+            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pzTexInfo);
+            mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2 + 2));
 
@@ -975,9 +975,9 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
         getTextureIndex(mi, block.nzTexInfo.overlay, overlayTextureIndex, -1, PADDED_LAYER, -PADDED_WIDTH, 11, overlayColor);
 
         if (block.nzTexInfo.base.transparency) {
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 4);
-            makeFloraFace(&(_nonBlockVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.nzTexInfo);
-            mi.nbIndex += 4;
+            _transparentVerts.resize(_transparentVerts.size() + 4);
+            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.nzTexInfo);
+            mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
             mi.mergeBack = false;
@@ -1032,9 +1032,9 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
         getTextureIndex(mi, block.pyTexInfo.overlay, overlayTextureIndex, 1, -PADDED_WIDTH, PADDED_LAYER, 7, overlayColor);
 
         if (block.pyTexInfo.base.transparency) {
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 4);
-            makeFloraFace(&(_nonBlockVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pyTexInfo);
-            mi.nbIndex += 4;
+            _transparentVerts.resize(_transparentVerts.size() + 4);
+            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pyTexInfo);
+            mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 2, mi.z2 + 1));
 
@@ -1091,9 +1091,9 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
         getTextureIndex(mi, block.nyTexInfo.overlay, overlayTextureIndex, -1, -PADDED_WIDTH, -PADDED_LAYER, 10, overlayColor);
 
         if (block.nyTexInfo.base.transparency) {
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 4);
-            makeFloraFace(&(_nonBlockVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.nyTexInfo);
-            mi.nbIndex += 4;
+            _transparentVerts.resize(_transparentVerts.size() + 4);
+            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.nyTexInfo);
+            mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2, mi.z2 + 1));
 
@@ -1150,9 +1150,9 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
 
 
         if (block.pxTexInfo.base.transparency) {  
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 4);
-            makeFloraFace(&(_nonBlockVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
-            mi.nbIndex += 4;
+            _transparentVerts.resize(_transparentVerts.size() + 4);
+            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
+            mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
         } else {
@@ -1191,9 +1191,9 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
         getTextureIndex(mi, block.nxTexInfo.overlay, overlayTextureIndex, PADDED_WIDTH, PADDED_LAYER, -1, 9, overlayColor);
 
         if (block.nxTexInfo.base.transparency) {
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 4);
-            makeFloraFace(&(_nonBlockVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.nxTexInfo);
-            mi.nbIndex += 4;
+            _transparentVerts.resize(_transparentVerts.size() + 4);
+            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.nxTexInfo);
+            mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
         } else {
@@ -1256,30 +1256,23 @@ void ChunkMesher::addFloraToMesh(MeshInfo& mi) {
             //Generate a random number between 0 and 3 inclusive
             r = std::bind(std::uniform_int_distribution<int>(0, 1), mt19937(getPositionSeed(mi.x, mi.z)))();
 
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 8);
-            makeFloraFace(&(_nonBlockVerts[0]), &(crossFloraVertices[r][0]), &(floraNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
-            mi.nbIndex += 4;
-            makeFloraFace(&(_nonBlockVerts[0]), &(crossFloraVertices[r][0]), &(floraNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
-            mi.nbIndex += 4;
-
-            chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2, mi.z2));
-            chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2, mi.z2));
+            _cutoutVerts.resize(_cutoutVerts.size() + 8);
+            makeFloraFace(&(_cutoutVerts[0]), &(crossFloraVertices[r][0]), &(floraNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
+            mi.cutoutIndex += 4;
+            makeFloraFace(&(_cutoutVerts[0]), &(crossFloraVertices[r][0]), &(floraNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
+            mi.cutoutIndex += 4;
             break;
         case MeshType::FLORA:
             //Generate a random number between 0 and 3 inclusive
             r = std::bind(std::uniform_int_distribution<int>(0, 3), mt19937(getPositionSeed(mi.x, mi.z)))();
 
-            _nonBlockVerts.resize(_nonBlockVerts.size() + 12);
-            makeFloraFace(&(_nonBlockVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
-            mi.nbIndex += 4;
-            makeFloraFace(&(_nonBlockVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
-            mi.nbIndex += 4;
-            makeFloraFace(&(_nonBlockVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.nbIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
-            mi.nbIndex += 4;
-
-            chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2, mi.z2));
-            chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2, mi.z2));
-            chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2, mi.z2));
+            _cutoutVerts.resize(_cutoutVerts.size() + 12);
+            makeFloraFace(&(_cutoutVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
+            mi.cutoutIndex += 4;
+            makeFloraFace(&(_cutoutVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
+            mi.cutoutIndex += 4;
+            makeFloraFace(&(_cutoutVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, light, block.pxTexInfo);
+            mi.cutoutIndex += 4;
             break;
     }
 }
@@ -2132,18 +2125,19 @@ void ChunkMesher::mergeBottomVerts(MeshInfo &mi)
 bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 {
     //Stores the number of blocks iterated for z and y
-	int zc, yc;
+    int zc, yc;
 
-	int waveEffect;
-	Block *block;
+    int waveEffect;
+    Block *block;
 
     //Stores the information about the current mesh job
     MeshInfo mi = {};
 
     _waterVboVerts.clear();
-    _nonBlockVerts.clear();
+    _transparentVerts.clear();
+    _cutoutVerts.clear();
 
-	//store the render task so we can pass it to functions
+    //store the render task so we can pass it to functions
     mi.task = renderTask;
 
     //Used in merging
@@ -2153,124 +2147,127 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     _currPrevFrontQuads = 0;
 
 
-	//create a new chunk mesh data container
-	if (chunkMeshData != NULL){
-		ERROR("Tried to create mesh with in use chunkMeshData!");
-		return 0;
-	}
-    
-    //Stores the data for a chunk mesh
-	chunkMeshData = new ChunkMeshData(renderTask->chunk);
+    //create a new chunk mesh data container
+    if (chunkMeshData != NULL){
+        ERROR("Tried to create mesh with in use chunkMeshData!");
+        return 0;
+    }
 
-	for (mi.y = 0; mi.y < CHUNK_WIDTH; mi.y++) {
+    //Stores the data for a chunk mesh
+    chunkMeshData = new ChunkMeshData(renderTask->chunk);
+
+    for (mi.y = 0; mi.y < CHUNK_WIDTH; mi.y++) {
 
         mi.y2 = mi.y * 2;
-		yc = mi.y * CHUNK_LAYER;
-        
-        //reset all indexes to zero for each layer
-		mi.topIndex = 0;
-		mi.leftIndex = 0;
-		mi.rightIndex = 0;
-		mi.frontIndex = 0;
-		mi.backIndex = 0;
-		mi.botIndex = 0;
-		for (mi.z = 0; mi.z < CHUNK_WIDTH; mi.z++){
-            
-            mi.z2 = mi.z * 2;
-			zc = yc + mi.z * CHUNK_WIDTH;
+        yc = mi.y * CHUNK_LAYER;
 
-			for (mi.x = 0; mi.x < CHUNK_WIDTH; mi.x++){
+        //reset all indexes to zero for each layer
+        mi.topIndex = 0;
+        mi.leftIndex = 0;
+        mi.rightIndex = 0;
+        mi.frontIndex = 0;
+        mi.backIndex = 0;
+        mi.botIndex = 0;
+        for (mi.z = 0; mi.z < CHUNK_WIDTH; mi.z++){
+
+            mi.z2 = mi.z * 2;
+            zc = yc + mi.z * CHUNK_WIDTH;
+
+            for (mi.x = 0; mi.x < CHUNK_WIDTH; mi.x++){
 
                 mi.x2 = mi.x * 2;
-				mi.c = zc + mi.x;
+                mi.c = zc + mi.x;
                 //We use wc instead of c, because the array is sentinalized at all edges so we dont have to access neighbor chunks with mutexes
-				mi.wc = (mi.y + 1)*(PADDED_LAYER)+(mi.z + 1)*(PADDED_WIDTH)+(mi.x + 1); //get the expanded c for our sentinelized array
-				//get the block properties
+                mi.wc = (mi.y + 1)*(PADDED_LAYER)+(mi.z + 1)*(PADDED_WIDTH)+(mi.x + 1); //get the expanded c for our sentinelized array
+                //get the block properties
                 mi.btype = GETBLOCKTYPE(renderTask->chData[mi.wc]);
-				block = &(Blocks[mi.btype]);
+                block = &(Blocks[mi.btype]);
 
-              
-				waveEffect = block->waveEffect;
-				//water is currently hardcoded 
-				if (mi.btype >= LOWWATER){
+
+                waveEffect = block->waveEffect;
+                //water is currently hardcoded 
+                if (mi.btype >= LOWWATER){
                     addLiquidToMesh(mi);
-				}
-				else 
-				{
+                } else
+                {
                     //Check the mesh type
                     mi.meshType = Blocks[mi.btype].meshType;
 
                     switch (mi.meshType){
                         case MeshType::BLOCK:
-						    addBlockToMesh(mi);
-						    break;
+                            addBlockToMesh(mi);
+                            break;
                         case MeshType::LEAVES:
                         case MeshType::CROSSFLORA:
                         case MeshType::FLORA:
                             addFloraToMesh(mi);
-						    break;
-					    default:
-					        //No mesh, do nothing
-						    break;
-					}
+                            break;
+                        default:
+                            //No mesh, do nothing
+                            break;
+                    }
 
-				}
+                }
                 //Store the current block for use next frame as the previous block
-				mi.pbtype = mi.btype;
-			}
+                mi.pbtype = mi.btype;
+            }
             //We reset +x merging for up, front, back, bottom each z iteration
-			mi.mergeUp = 0;
-			mi.mergeFront = 0;
-			mi.mergeBack = 0;
-			mi.mergeBot = 0;
-		}
+            mi.mergeUp = 0;
+            mi.mergeFront = 0;
+            mi.mergeBack = 0;
+            mi.mergeBot = 0;
+        }
         //second pass of merging for all directions
-		mergeTopVerts(mi);
-		mergeFrontVerts(mi);
+        mergeTopVerts(mi);
+        mergeFrontVerts(mi);
         mergeBackVerts(mi);
         mergeRightVerts(mi);
         mergeLeftVerts(mi);
         mergeBottomVerts(mi);
-	}
+    }
 
-	int highestY = 0, lowestY = 256, highestX = 0, lowestX = 256, highestZ = 0, lowestZ = 256;
-	int pyVboOff, pxVboOff, pzVboOff, nyVboOff, nxVboOff, nzVboOff;
-	int index = 0;
-	pyVboOff = 0;
-   
-	chunkMeshData->vertices.resize(mi.pyVboSize + mi.nxVboSize + mi.pxVboSize + mi.nzVboSize + mi.pzVboSize + mi.nyVboSize);
-	for (int i = 0; i < mi.pyVboSize; i++){ 
-		if (_finalTopVerts[i].position.y < lowestY) lowestY = _finalTopVerts[i].position.y;
-		chunkMeshData->vertices[index++] = _finalTopVerts[i];
-	}
-	nxVboOff = index;
-	for (int i = 0; i < mi.nxVboSize; i++){
-		if (_finalLeftVerts[i].position.x > highestX) highestX = _finalLeftVerts[i].position.x;
-		chunkMeshData->vertices[index++] = _finalLeftVerts[i];
-	}
-	pxVboOff = index;
-	for (int i = 0; i < mi.pxVboSize; i++){
-		if (_finalRightVerts[i].position.x < lowestX) lowestX = _finalRightVerts[i].position.x;
-		chunkMeshData->vertices[index++] = _finalRightVerts[i];
-	}
-	nzVboOff = index;
-	for (int i = 0; i < mi.nzVboSize; i++){
-		if (_finalBackVerts[i].position.z > highestZ) highestZ = _finalBackVerts[i].position.z;
-		chunkMeshData->vertices[index++] = _finalBackVerts[i];
-	}
-	pzVboOff = index;
-	for (int i = 0; i < mi.pzVboSize; i++){
-		if (_finalFrontVerts[i].position.z < lowestZ) lowestZ = _finalFrontVerts[i].position.z;
-		chunkMeshData->vertices[index++] = _finalFrontVerts[i];
-	}
-	nyVboOff = index;
-	for (int i = 0; i < mi.nyVboSize; i++){
-		if (_finalBottomVerts[i].position.y > highestY) highestY = _finalBottomVerts[i].position.y;
-		chunkMeshData->vertices[index++] = _finalBottomVerts[i];
-	}
+    int highestY = 0, lowestY = 256, highestX = 0, lowestX = 256, highestZ = 0, lowestZ = 256;
+    int pyVboOff, pxVboOff, pzVboOff, nyVboOff, nxVboOff, nzVboOff;
+    int index = 0;
+    pyVboOff = 0;
 
-    if (mi.nbIndex) {
-        chunkMeshData->transVertices.swap(_nonBlockVerts);
+    chunkMeshData->vertices.resize(mi.pyVboSize + mi.nxVboSize + mi.pxVboSize + mi.nzVboSize + mi.pzVboSize + mi.nyVboSize);
+    for (int i = 0; i < mi.pyVboSize; i++){
+        if (_finalTopVerts[i].position.y < lowestY) lowestY = _finalTopVerts[i].position.y;
+        chunkMeshData->vertices[index++] = _finalTopVerts[i];
+    }
+    nxVboOff = index;
+    for (int i = 0; i < mi.nxVboSize; i++){
+        if (_finalLeftVerts[i].position.x > highestX) highestX = _finalLeftVerts[i].position.x;
+        chunkMeshData->vertices[index++] = _finalLeftVerts[i];
+    }
+    pxVboOff = index;
+    for (int i = 0; i < mi.pxVboSize; i++){
+        if (_finalRightVerts[i].position.x < lowestX) lowestX = _finalRightVerts[i].position.x;
+        chunkMeshData->vertices[index++] = _finalRightVerts[i];
+    }
+    nzVboOff = index;
+    for (int i = 0; i < mi.nzVboSize; i++){
+        if (_finalBackVerts[i].position.z > highestZ) highestZ = _finalBackVerts[i].position.z;
+        chunkMeshData->vertices[index++] = _finalBackVerts[i];
+    }
+    pzVboOff = index;
+    for (int i = 0; i < mi.pzVboSize; i++){
+        if (_finalFrontVerts[i].position.z < lowestZ) lowestZ = _finalFrontVerts[i].position.z;
+        chunkMeshData->vertices[index++] = _finalFrontVerts[i];
+    }
+    nyVboOff = index;
+    for (int i = 0; i < mi.nyVboSize; i++){
+        if (_finalBottomVerts[i].position.y > highestY) highestY = _finalBottomVerts[i].position.y;
+        chunkMeshData->vertices[index++] = _finalBottomVerts[i];
+    }
+
+    if (mi.transparentIndex) {
+        chunkMeshData->transVertices.swap(_transparentVerts);
+    }
+
+    if (mi.cutoutIndex) {
+        chunkMeshData->cutoutVertices.swap(_cutoutVerts);
     }
 
     highestY /= 7;
@@ -2280,13 +2277,13 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     highestZ /= 7;
     lowestZ /= 7;
 
-	int indice = (index / 4) * 6;
+    int indice = (index / 4) * 6;
 
-	chunkMeshData->bAction = 0;
-	chunkMeshData->wAction = 0;
+    chunkMeshData->bAction = 0;
+    chunkMeshData->wAction = 0;
 
-	//add all vertices to the vbo
-    if (chunkMeshData->vertices.size() || chunkMeshData->transVertices.size()){
+    //add all vertices to the vbo
+    if (chunkMeshData->vertices.size() || chunkMeshData->transVertices.size() || chunkMeshData->cutoutVertices.size()){
 		chunkMeshData->indexSize = (chunkMeshData->vertices.size() * 6) / 4;
 
 		//now let the sizes represent indice sizes
@@ -2303,7 +2300,8 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 		chunkMeshData->nzVboOff = nzVboOff;
 		chunkMeshData->nzVboSize = (mi.nzVboSize / 4) * 6;
 
-        chunkMeshData->transVboSize = (mi.nbIndex / 4) * 6;
+        chunkMeshData->transVboSize = (mi.transparentIndex / 4) * 6;
+        chunkMeshData->cutoutVboSize = (mi.cutoutIndex / 4) * 6;
       
 		chunkMeshData->highestY = highestY;
 		chunkMeshData->lowestY = lowestY;

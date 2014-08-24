@@ -14,7 +14,7 @@ public:
     i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
     i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
     i32 wsize;
-    i32 pyVboSize, nxVboSize, pxVboSize, nzVboSize, pzVboSize, nyVboSize, nbIndex;
+    i32 pyVboSize, nxVboSize, pxVboSize, nzVboSize, pzVboSize, nyVboSize, transparentIndex, cutoutIndex;
     i32 y, z, x;
     i32 y2, z2, x2; //used for transparent positions. == y*2,z*2,x*2
     i32 c, wc;
@@ -74,7 +74,8 @@ private:
     std::vector<BlockVertex> _finalBottomVerts;
 
     std::vector<BlockVertex> _vboVerts;
-    std::vector<BlockVertex> _nonBlockVerts;
+    std::vector<BlockVertex> _transparentVerts;
+    std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
     ui32 _finalQuads[7000];
 

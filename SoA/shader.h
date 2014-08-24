@@ -121,7 +121,23 @@ public:
 	GLuint specularIntensityID, specularExponentID;
 };
 
-class NonBlockShader : public Shader
+class CutoutShading : public Shader
+{
+public:
+    void Initialize(std::string dirPath = "Shaders/BlockShading/");
+    void Bind();
+    void UnBind();
+    GLuint fadeDistanceID;
+    GLuint fogStartID, fogEndID, fogColorID, lightTypeID, ambientID, lightColorID;
+    GLuint sunValID, blockDtID;
+    GLuint mvpID, mID;
+    GLuint eyeVecID;
+    GLuint alphaMultID;
+    GLuint lightID;
+    GLuint specularIntensityID, specularExponentID;
+};
+
+class TransparentShading : public Shader
 {
 public:
     void Initialize(std::string dirPath = "Shaders/BlockShading/");
@@ -345,7 +361,8 @@ extern BasicColorShader basicColorShader;
 extern HDRShader hdrShader;
 extern MotionBlurShader motionBlurShader;
 extern BlockShader blockShader;
-extern NonBlockShader nonBlockShader;
+extern CutoutShading cutoutShader;
+extern TransparentShading transparentShading;
 extern TextureShader textureShader;
 extern AtmosphereToSkyShader atmosphereToSkyShader;
 extern AtmosphereToGroundShader atmosphereToGroundShader;

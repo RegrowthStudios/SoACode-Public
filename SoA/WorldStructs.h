@@ -114,7 +114,7 @@ struct ChunkMeshData
 
 	//***** This 88 byte block gets memcpyd to ChunkMesh *****
 	GLint pxVboOff, pxVboSize, nxVboOff, nxVboSize, pzVboOff, pzVboSize, nzVboOff, nzVboSize;
-	GLint pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize;
+	GLint pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize, cutoutVboSize;
 	GLint highestY, lowestY, highestX, lowestX, highestZ, lowestZ;
 	GLuint indexSize;
 	GLuint waterIndexSize;
@@ -122,6 +122,7 @@ struct ChunkMeshData
 
 	vector <BlockVertex> vertices;
     vector <BlockVertex> transVertices;
+    vector <BlockVertex> cutoutVertices;
     vector <LiquidVertex> waterVertices;
 	Chunk *chunk;
 	struct ChunkMesh *chunkMesh;

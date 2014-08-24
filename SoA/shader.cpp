@@ -17,7 +17,8 @@ BasicColorShader basicColorShader;
 HDRShader hdrShader;
 MotionBlurShader motionBlurShader;
 BlockShader blockShader;
-NonBlockShader nonBlockShader;
+CutoutShading cutoutShader;
+TransparentShading transparentShading;
 TextureShader textureShader;
 AtmosphereToSkyShader atmosphereToSkyShader;
 AtmosphereToGroundShader atmosphereToGroundShader;
@@ -319,7 +320,7 @@ void BlockShader::Initialize(string dirPath) {
     cout << "Loading blockShader\n";
 
     GLuint vID, fID;
-    shaderID = LoadShaders((dirPath + "StandardShading.vertexshader").c_str(), (dirPath + "StandardShading.fragmentshader").c_str(), vID, fID);
+    shaderID = LoadShaders((dirPath + "standardShading.vert").c_str(), (dirPath + "standardShading.frag").c_str(), vID, fID);
     glBindAttribLocation(shaderID, 0, "position_TextureType");
     glBindAttribLocation(shaderID, 1, "uvs");
     glBindAttribLocation(shaderID, 2, "textureAtlas_textureIndex");
@@ -369,12 +370,12 @@ void BlockShader::Bind() {
 }
 void BlockShader::UnBind() {}
 
-void NonBlockShader::Initialize(string dirPath) {
+void CutoutShading::Initialize(string dirPath) {
     if (isInitialized) return;
-    cout << "Loading NonBlockShading\n";
+    cout << "Loading CutoutShading\n";
 
     GLuint vID, fID;
-    shaderID = LoadShaders((dirPath + "StandardShading.vertexshader").c_str(), (dirPath + "NonBlockShading.fragmentshader").c_str(), vID, fID);
+    shaderID = LoadShaders((dirPath + "standardShading.vert").c_str(), (dirPath + "cutoutShading.frag").c_str(), vID, fID);
     glBindAttribLocation(shaderID, 0, "position_TextureType");
     glBindAttribLocation(shaderID, 1, "uvs");
     glBindAttribLocation(shaderID, 2, "textureAtlas_textureIndex");
@@ -416,10 +417,62 @@ void NonBlockShader::Initialize(string dirPath) {
     glUniform1i(texturesID, 0);
     isInitialized = 1;
 }
-void NonBlockShader::Bind() {
+void CutoutShading::Bind() {
     glUseProgram(shaderID);
 }
-void NonBlockShader::UnBind() {}
+void CutoutShading::UnBind() {}
+
+void TransparentShading::Initialize(string dirPath) {
+    if (isInitialized) return;
+    cout << "Loading TransparentShading\n";
+
+    GLuint vID, fID;
+    shaderID = LoadShaders((dirPath + "standardShading.vert").c_str(), (dirPath + "transparentShading.frag").c_str(), vID, fID);
+    glBindAttribLocation(shaderID, 0, "position_TextureType");
+    glBindAttribLocation(shaderID, 1, "uvs");
+    glBindAttribLocation(shaderID, 2, "textureAtlas_textureIndex");
+    glBindAttribLocation(shaderID, 3, "textureDimensions");
+    glBindAttribLocation(shaderID, 4, "color");
+    glBindAttribLocation(shaderID, 5, "overlayColor");
+    glBindAttribLocation(shaderID, 6, "light_sunLight_animation_blendMode");
+    glBindAttribLocation(shaderID, 7, "normal");
+    LinkShaders(shaderID, vID, fID);
+
+    texturesID = GetUniform(shaderID, "textures");
+    fadeDistanceID = GetUniform(shaderID, "fadeDistance");
+
+    fogStartID = GetUniform(shaderID, "fogStart");
+    fogEndID = GetUniform(shaderID, "fogEnd");
+    fogColorID = GetUniform(shaderID, "fogColor");
+
+    lightTypeID = GetUniform(shaderID, "lightType");
+
+    ambientID = GetUniform(shaderID, "ambientLight");
+    lightColorID = GetUniform(shaderID, "lightColor");
+    sunValID = GetUniform(shaderID, "sunVal");
+
+    mvpID = GetUniform(shaderID, "MVP");
+    mID = GetUniform(shaderID, "M");
+
+    alphaMultID = GetUniform(shaderID, "alphaMult");
+
+    specularExponentID = GetUniform(shaderID, "specularExponent");
+    specularIntensityID = GetUniform(shaderID, "specularIntensity");
+
+    lightID = GetUniform(shaderID, "lightPosition_worldspace");
+
+    blockDtID = GetUniform(shaderID, "dt");
+
+    eyeVecID = GetUniform(shaderID, "eyeNormalWorldspace");
+
+    glUseProgram(shaderID);
+    glUniform1i(texturesID, 0);
+    isInitialized = 1;
+}
+void TransparentShading::Bind() {
+    glUseProgram(shaderID);
+}
+void TransparentShading::UnBind() {}
 
 void TextureShader::Initialize() {
     if (isInitialized) return;
@@ -902,7 +955,7 @@ void FixedSizeBillboardShader::UnBind() {
 void SonarShader::Initialize() {
     cout << "Loading sonarShader\n";
     GLuint vID, fID;
-    shaderID = LoadShaders("Shaders/BlockShading/SonarShading.vertexshader", "Shaders/BlockShading/SonarShading.fragmentshader", vID, fID);
+    shaderID = LoadShaders("Shaders/BlockShading/sonarShading.vert", "Shaders/BlockShading/sonarShading.frag", vID, fID);
     glBindAttribLocation(shaderID, 0, "position_TextureType");
     glBindAttribLocation(shaderID, 1, "uvs");
     glBindAttribLocation(shaderID, 2, "textureAtlas_textureIndex");
@@ -942,7 +995,7 @@ void SonarShader::UnBind() {}
 void PhysicsBlockShader::Initialize() {
     cout << "Loading physicsBlockShader\n";
     GLuint vID, fID;
-    shaderID = LoadShaders("Shaders/PhysicsBlockShading/PhysicsBlockShading.vertexshader", "Shaders/BlockShading/StandardShading.fragmentshader", vID, fID);
+    shaderID = LoadShaders("Shaders/PhysicsBlockShading/PhysicsBlockShading.vertexshader", "Shaders/BlockShading/standardShading.frag", vID, fID);
     glBindAttribLocation(shaderID, 0, "vertexPosition_blendMode");
     glBindAttribLocation(shaderID, 1, "vertexUV");
     glBindAttribLocation(shaderID, 2, "textureAtlas_textureIndex");
