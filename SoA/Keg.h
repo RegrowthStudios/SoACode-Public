@@ -93,6 +93,14 @@ namespace Keg {
             else return nullptr;
         }
 
+        // Value Traversal
+        std::map<nString, Value>::const_iterator getIter() const {
+            return _values.cbegin();
+        }
+        std::map<nString, Value>::const_iterator getIterEnd() const {
+            return _values.cend();
+        }
+
         // Set-Once Accessor
         size_t getSizeInBytes() const {
             return _sizeInBytes;
@@ -114,9 +122,21 @@ namespace Keg {
         template<typename T>
         void addValue(const nString& s, T v) {
             _values[s] = (EnumType)v;
+            _valuesRev[(EnumType)v] = s;
         }
         void setValue(void* data, const nString& s) {
             _fSetter(data, s, this);
+        }
+        nString getValue(void* data) {
+            return _fGetter(data, this);
+        }
+
+        // Value Traversal
+        std::map<nString, EnumType>::const_iterator getIter() const {
+            return _values.cbegin();
+        }
+        std::map<nString, EnumType>::const_iterator getIterEnd() const {
+            return _values.cend();
         }
 
         // Set-Once Accessor
@@ -128,11 +148,17 @@ namespace Keg {
         static void setValue32(void* data, const nString& s, Enum* e);
         static void setValue16(void* data, const nString& s, Enum* e);
         static void setValue8(void* data, const nString& s, Enum* e);
+        static nString getValue64(void* data, Enum* e);
+        static nString getValue32(void* data, Enum* e);
+        static nString getValue16(void* data, Enum* e);
+        static nString getValue8(void* data, Enum* e);
 
         void(*_fSetter)(void*, const nString&, Enum*);
+        nString(*_fGetter)(void*, Enum*);
 
         size_t _sizeInBytes;
         std::map<nString, EnumType> _values;
+        std::map<EnumType, nString> _valuesRev;
     };
 
 
@@ -196,6 +222,10 @@ namespace Keg {
     Error parse(void* dest, const cString data, const nString& typeName, Environment* env = nullptr);
     // Parse String Of Data Into A Destination Given A Type ID And Optionally A Separate Environment
     Error parse(void* dest, const cString data, const ui32& typeID, Environment* env = nullptr);
+
+    nString write(void* src, Type* type, Environment* env = nullptr);
+    nString write(void* src, const nString& typeName, Environment* env = nullptr);
+    nString write(void* src, const ui32& typeID, Environment* env = nullptr);
 
     // Get The Global Environment Of Custom Types
     Environment* getGlobalEnvironment();

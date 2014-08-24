@@ -48,7 +48,7 @@ static enum INI_KEYS {
     TREE_INI_BRANCHSTART, TREE_INI_BRANCHCHANCETOP, TREE_INI_BRANCHCHANCECAPMOD, TREE_INI_BRANCHLEAFYMOD, TREE_INI_ROOTDEPTH,
 
     BLOCK_INI_NONE, BLOCK_INI_ID, BLOCK_INI_ALLOWSLIGHT, BLOCK_INI_BLOCKSSUNRAYS, BLOCK_INI_BREAKSBYWATER,
-    BLOCK_INI_COLLISION, 
+    BLOCK_INI_COLLISION,
     BLOCK_INI_CRUSHABLE, BLOCK_INI_EXPLOSIONPOWER, BLOCK_INI_EXPLOSIONPOWERLOSS,
     BLOCK_INI_EXPLOSIONRAYS, BLOCK_INI_EXPLOSIVERESISTANCE, BLOCK_INI_FLOATINGACTION, BLOCK_INI_HEALTH, BLOCK_INI_LIGHTACTIVE,
     BLOCK_INI_LIGHTINTENSITY, BLOCK_INI_MATERIAL, BLOCK_INI_MESHTYPE, BLOCK_INI_MOVEMENTMOD, BLOCK_INI_MOVESPOWDER,
@@ -69,7 +69,7 @@ public:
     void initialize();
     i32 readZipFile(nString fileName);
 
-    i32 deleteDirectory(const nString& refcstrRootDirectory, bool bDeleteSubdirectories = true);
+    i32 deleteDirectory(const nString& refcstrRootDirectory);
 
     i32 loadCloudNoiseFunctions(const cString filename, class Planet* planet);
     i32 loadNoiseFunctions(const cString filename, bool mandatory, Planet* planet);
@@ -98,7 +98,6 @@ public:
     nString getSaveFileNameDialog(const nString& prompt, const cString initialDir);
 
     void loadNoiseDescriptions(const cString filename);
-    int printDirectory(std::vector<nString>& fileNames, nString dirPath);
     int getDirectoryEntries(std::vector<nString>& fileNames, std::vector<nString>& descriptions, nString dirPath);
 
     INI_KEYS getIniVal(nString& s);
@@ -117,7 +116,7 @@ public:
 
     i32 loadIniFile(nString filePath, std::vector< std::vector<IniValue> >& iniValues, std::vector<nString>& iniSections, ZipFile* zipFile = nullptr);
     i32 saveIniFile(nString filePath, std::vector< std::vector<IniValue> >& iniValues, std::vector<nString>& iniSections);
-    
+
     class ParticleEmitter* loadEmitter(nString fileName);
     struct Animation* loadAnimation(nString fileName, ZipFile* zipFile = nullptr);
     i32 getParticleType(nString fileName);
