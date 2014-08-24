@@ -1256,7 +1256,8 @@ bool MainMenuControl()
         if (currMenu == loadGameMenu){
             if (menuOptions.loadGameString != ""){
                 cout << "Deleting " << "Saves/" + menuOptions.loadGameString << endl;
-                fileManager.deleteDirectory("Saves/" + menuOptions.loadGameString, 1);
+                // TODO: Silent Failure Here
+                fileManager.deleteDirectory("Saves/" + menuOptions.loadGameString);
                 menuOptions.loadGameString = "";
                 currMenu->Open();
             }

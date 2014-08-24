@@ -1,5 +1,6 @@
 #pragma once
 #include "utils.h"
+#include "Keg.h"
 
 class Chunk;
 struct TreeType;
@@ -15,7 +16,7 @@ public:
     static i32 makeLODTreeData(TreeData &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
     static i32 makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt);
     static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
-   
+
     //Places all the blocks for the tree
     static void placeTreeNodes();
     //Places all the blocks for the tree and records the old blocks
@@ -35,51 +36,72 @@ private:
     static std::vector<TreeNode> lnodes;
 
     //The root chunk for generation
-   // Chunk *_chunk;
+    // Chunk *_chunk;
 };
 
+enum class TreeLeafShape {
+    UNKNOWN,
+    ROUND,
+    CLUSTER,
+    PINE,
+    MUSHROOM
+};
+KEG_ENUM_DECL(TreeLeafShape);
+
+struct TreeBranchingProps {
+    I32Range width;
+    I32Range length;
+    F32Range chance;
+    i32 direction;
+};
+KEG_TYPE_DECL(TreeBranchingProps);
+
+
+
 //This is data specific to a breed of tree
-struct TreeType
-{
-    TreeType(){
+struct TreeType {
+    TreeType() {
         memset(this, 0, sizeof(TreeType)); //zero the memory
         name = "MISSING NAME";
         rootDepthMult = 1.0;
     }
 
     i32 idCore, idOuter, idLeaves, idRoot, idSpecial;
+
     I32Range trunkHeight;
     I32Range trunkBaseHeight;
+
     I32Range trunkBaseWidth;
     I32Range trunkMidWidth;
     I32Range trunkTopWidth;
+    i32 coreWidth;
+
     I32Range trunkStartSlope;
     I32Range trunkEndSlope;
-    I32Range bottomBranchWidth;
-    I32Range topBranchWidth;
-    I32Range bottomBranchLength;
-    I32Range topBranchLength;
+
+    TreeBranchingProps branchingPropsBottom, branchingPropsTop;
+
     I32Range droopyLength;
     I32Range leafCapSize;
 
-    i32 leafCapShape, branchLeafShape, branchLeafSizeMod;
-    i32 coreWidth;
-    i32 bottomBranchDir, topBranchDir;
-    i32 hasThickCapBranches;
+    TreeLeafShape leafCapShape, branchLeafShape;
+
+    i32 branchLeafSizeMod;
     i32 branchLeafYMod;
+
     i32 droopyLeavesSlope, droopyLeavesDSlope;
+
     i32 mushroomCapLengthMod;
     i32 mushroomCapCurlLength;
     i32 mushroomCapThickness;
     i32 mushroomCapGillThickness;
 
-    F32Range bottomBranchChance;
-    F32Range topBranchChance;
     f32 capBranchChanceMod;
     f32 trunkChangeDirChance;
     f32 rootDepthMult;
     f32 branchStart;
 
+    bool hasThickCapBranches;
     bool hasDroopyLeaves;
     bool isSlopeRandom;
     bool isMushroomCapInverted;
@@ -88,10 +110,10 @@ struct TreeType
     nString fileName;
     std::vector<i32> possibleAltLeafFlags;
 };
+KEG_TYPE_DECL(TreeType);
 
 //This is data specific to an instance of a tree
-struct TreeData
-{
+struct TreeData {
     i32 type, startc;
     i32 trunkBaseWidth, trunkMidWidth, trunkTopWidth;
     i32 trunkStartSlope, trunkEndSlope;
@@ -110,31 +132,27 @@ struct TreeData
     TreeType *treeType;
 };
 
+typedef void(*TreeBranchInterpolator)(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
+void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
+
 //This node is used in tree generation
-struct TreeNode
-{
-    TreeNode(ui16 C, ui16 BlockType, Chunk* Owner) : c(C), blockType(BlockType), owner(Owner)
-    {
-    }
-   
+struct TreeNode {
+    TreeNode(ui16 C, ui16 BlockType, Chunk* Owner) : c(C), blockType(BlockType), owner(Owner) {}
+
     ui16 c;
     ui16 blockType;
     Chunk* owner;
 };
 
 //This is data specific to a breed of plant
-struct PlantType
-{
+struct PlantType {
     nString name;
     i32 baseBlock;
 };
 
 //This is data specific to an instance of a plant
-struct PlantData
-{
-    PlantData(PlantType *plantType, i32 C) : ft(plantType), startc(C)
-    {
-    }
+struct PlantData {
+    PlantData(PlantType *plantType, i32 C) : ft(plantType), startc(C) {}
     PlantType *ft;
     i32 startc;
 };
