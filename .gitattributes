@@ -4,6 +4,7 @@
 # SOA binary asset files:
 *.png   binary
 *.ogg   binary
+*.ico   binary
 
 # Visual Studio files:
 *.pbxproj binary merge=union eol=lf

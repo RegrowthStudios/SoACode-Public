@@ -42,13 +42,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)deps\win32\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)deps\win32\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)deps\win32\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)deps\win32\lib;$(LibraryPath)</LibraryPath>
     <IntDir>$(Configuration)</IntDir>
-    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -70,7 +70,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration) $(OutDir)</Command>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
+
+EXIT 0</Command>
+      <Message>Copying dependencies and resources to output directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -100,7 +104,11 @@
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration) $(OutDir)</Command>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
+
+EXIT 0</Command>
+      <Message>Copying dependencies and resources to output directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
