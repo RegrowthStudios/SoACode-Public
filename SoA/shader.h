@@ -362,7 +362,7 @@ extern HDRShader hdrShader;
 extern MotionBlurShader motionBlurShader;
 extern BlockShader blockShader;
 extern CutoutShading cutoutShader;
-extern TransparentShading transparentShading;
+extern TransparentShading transparencyShader;
 extern TextureShader textureShader;
 extern AtmosphereToSkyShader atmosphereToSkyShader;
 extern AtmosphereToGroundShader atmosphereToGroundShader;

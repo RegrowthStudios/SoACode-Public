@@ -866,6 +866,9 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
 
     ui8 light[2] = { mi.task->chLightData[0][mi.wc], mi.task->chLightData[1][mi.wc] };
 
+    light[0] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - light[0])));
+    light[1] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - light[1])));
+
     GLfloat ambientOcclusion[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     //Lookup the current biome, temperature, and rainfall
@@ -1222,8 +1225,6 @@ void ChunkMesher::addFloraToMesh(MeshInfo& mi) {
     GLubyte color[3], overlayColor[3];
     const int wc = mi.wc;
     const int btype = mi.btype;
-    
-    const float lightMult = 0.95f, lightOff = -0.19f;
 
     Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.z*CHUNK_WIDTH + mi.x]];
     int temperature = mi.task->temperatures[mi.z*CHUNK_WIDTH + mi.x];
@@ -1234,8 +1235,8 @@ void ChunkMesher::addFloraToMesh(MeshInfo& mi) {
     light[0] = mi.task->chLightData[0][wc];
     light[1] = mi.task->chLightData[1][wc];
 
-    light[0] = (GLubyte)(255.0f*(lightOff + pow(lightMult, MAXLIGHT - light[0])));
-    light[1] = (GLubyte)(255.0f*(lightOff + pow(lightMult, MAXLIGHT - light[1])));
+    light[0] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - light[0])));
+    light[1] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - light[1])));
 
     Blocks[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.pxTexInfo);
 
