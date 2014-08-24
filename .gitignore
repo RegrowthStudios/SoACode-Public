@@ -172,3 +172,8 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+desktop.ini

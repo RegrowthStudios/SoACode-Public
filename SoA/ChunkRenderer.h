@@ -4,11 +4,11 @@
 
 struct ChunkMesh
 {
-    ChunkMesh() : vboID(0), vaoID(0), transVaoID(0), transVboID(0), indexSize(0), waterVboID(0), waterIndexSize(0), vecIndex(-1), distance(30.0f), needsSort(true) {}
+    ChunkMesh() : vboID(0), vaoID(0), transVaoID(0), transVboID(0), cutoutVaoID(0), cutoutVboID(0), indexSize(0), waterVboID(0), waterIndexSize(0), vecIndex(-1), distance(30.0f), needsSort(true) {}
 
     //***** This 84 byte block gets memcpyd from ChunkMeshData *****
     GLint pxVboOff, pxVboSize, nxVboOff, nxVboSize, pzVboOff, pzVboSize, nzVboOff, nzVboSize;
-    GLint pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize;
+    GLint pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize, cutoutVboSize;
     GLint highestY, lowestY, highestX, lowestX, highestZ, lowestZ;
     GLuint indexSize;
     GLuint waterIndexSize;
@@ -18,6 +18,8 @@ struct ChunkMesh
     GLuint vaoID;
     GLuint transVboID;
     GLuint transVaoID;
+    GLuint cutoutVboID;
+    GLuint cutoutVaoID;
     GLuint waterVboID;
     float distance;
     glm::ivec3 position;
@@ -36,9 +38,12 @@ class ChunkRenderer {
 public:
     static void draw(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
     static void drawTransparentBlocks(const ChunkMesh *CMI, const glm::dvec3 &playerPos, const glm::mat4 &VP);
+    static void drawCutoutBlocks(const ChunkMesh *CMI, const glm::dvec3 &playerPos, const glm::mat4 &VP);
     static void drawSonar(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
     static void drawWater(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
 
+    static void bindTransparentVao(ChunkMesh *CMI);
+    static void bindCutoutVao(ChunkMesh *CMI);
     static void bindVao(ChunkMesh *CMI);
-    static void bindNonBlockVao(ChunkMesh *CMI);
+    
 };

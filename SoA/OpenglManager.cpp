@@ -638,8 +638,10 @@ void InitializeShaders()
     hdrShader.Initialize();
     blockShader.DeleteShader();
     blockShader.Initialize();
-    nonBlockShader.DeleteShader();
-    nonBlockShader.Initialize();
+    cutoutShader.DeleteShader();
+    cutoutShader.Initialize();
+    transparencyShader.DeleteShader();
+    transparencyShader.Initialize();
     atmosphereToSkyShader.DeleteShader();
     atmosphereToSkyShader.Initialize();
     atmosphereToGroundShader.DeleteShader();
@@ -1859,7 +1861,7 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
 
             cm->needsSort = true; //must sort when changing the mesh
 
-            ChunkRenderer::bindNonBlockVao(cm);
+            ChunkRenderer::bindTransparentVao(cm);
         } else {
             if (cm->transVaoID != 0){
                 glDeleteVertexArrays(1, &(cm->transVaoID));
@@ -1875,8 +1877,39 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             cm->transVaoID = 0;
         }
 
+        if (cmd->cutoutVboSize) {
+            if (cm->vecIndex == -1){
+                cm->vecIndex = chunkMeshes.size();
+                chunkMeshes.push_back(cm);
+            }
+
+            if (cm->cutoutVboID == 0) {
+                glGenBuffers(1, &(cm->cutoutVboID)); // Create the buffer ID
+            }
+
+            //vertex data
+            glBindBuffer(GL_ARRAY_BUFFER, cm->cutoutVboID);
+            glBufferData(GL_ARRAY_BUFFER, cmd->cutoutVertices.size() * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
+            void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, cmd->cutoutVertices.size() * sizeof(BlockVertex), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+            if (v == NULL)pError("Failed to map transparency buffer.");
+            memcpy(v, &(cmd->cutoutVertices[0]), cmd->cutoutVertices.size() * sizeof(BlockVertex));
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+
+            ChunkRenderer::bindCutoutVao(cm);
+        } else {
+            if (cm->cutoutVaoID != 0){
+                glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+            }
+            if (cm->cutoutVboID == 0) {
+                glDeleteBuffers(1, &(cm->cutoutVboID));
+            }
+            cm->cutoutVboID = 0;
+            cm->cutoutVaoID = 0;
+        }
+
         //copy the mesh data
-        memcpy(&(cm->pxVboOff), &(cmd->pxVboOff), 84);
+        memcpy(&(cm->pxVboOff), &(cmd->pxVboOff), 88);
 
     }
     else if (cmd->bAction == 2){ //mesh is empty
@@ -1894,6 +1927,12 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
         }
         if (cm->transIndexID == 0) {
             glDeleteBuffers(1, &(cm->transIndexID));
+        }
+        if (cm->cutoutVaoID != 0){
+            glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+        }
+        if (cm->cutoutVboID == 0) {
+            glDeleteBuffers(1, &(cm->cutoutVboID));
         }
    
         cm->vboID = 0;
@@ -2153,9 +2192,12 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
     
     const glm::vec3 chunkDirection = chunkCamera.direction();
 
-    DrawBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-
+    drawBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
+    drawCutoutBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
+    
+    glDepthMask(GL_FALSE);
     drawTransparentBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
+    glDepthMask(GL_TRUE);
 
     if (sonarActive){
         glDisable(GL_DEPTH_TEST);
@@ -2271,7 +2313,7 @@ void OpenglManager::DrawSonar(glm::mat4 &VP, glm::dvec3 &position)
     sonarShader.UnBind();
 }
 
-void OpenglManager::DrawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+void OpenglManager::drawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
     blockShader.Bind();
 
@@ -2365,31 +2407,31 @@ void OpenglManager::DrawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, 
 
 }
 
-void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+void OpenglManager::drawCutoutBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
-    nonBlockShader.Bind();
+    cutoutShader.Bind();
 
-    glUniform1f(nonBlockShader.lightTypeID, lightActive);
+    glUniform1f(cutoutShader.lightTypeID, lightActive);
 
-    glUniform3fv(nonBlockShader.eyeVecID, 1, eyeDir);
-    glUniform1f(nonBlockShader.fogEndID, (GLfloat)fogEnd);
-    glUniform1f(nonBlockShader.fogStartID, (GLfloat)fogStart);
-    glUniform3fv(nonBlockShader.fogColorID, 1, fogColor);
-    glUniform3f(nonBlockShader.lightID, lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(nonBlockShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(nonBlockShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
+    glUniform3fv(cutoutShader.eyeVecID, 1, eyeDir);
+    glUniform1f(cutoutShader.fogEndID, (GLfloat)fogEnd);
+    glUniform1f(cutoutShader.fogStartID, (GLfloat)fogStart);
+    glUniform3fv(cutoutShader.fogColorID, 1, fogColor);
+    glUniform3f(cutoutShader.lightID, lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(cutoutShader.specularExponentID, graphicsOptions.specularExponent);
+    glUniform1f(cutoutShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
 
     bindBlockPacks();
 
-    glUniform1f(nonBlockShader.blockDtID, (GLfloat)bdt);
+    glUniform1f(cutoutShader.blockDtID, (GLfloat)bdt);
 
-    glUniform1f(nonBlockShader.sunValID, sunVal);
+    glUniform1f(cutoutShader.sunValID, sunVal);
 
-    glUniform1f(nonBlockShader.alphaMultID, 1.0f);
+    glUniform1f(cutoutShader.alphaMultID, 1.0f);
 
     float blockAmbient = 0.000f;
-    glUniform3f(nonBlockShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(nonBlockShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3f(cutoutShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(cutoutShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
 
     float fadeDist;
     if (NoChunkFade){
@@ -2398,7 +2440,80 @@ void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 
         fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
     }
 
-    glUniform1f(nonBlockShader.fadeDistanceID, fadeDist);
+    glUniform1f(cutoutShader.fadeDistanceID, fadeDist);
+
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    glLineWidth(3);
+
+    glDisable(GL_CULL_FACE);
+
+    glm::dvec3 cpos;
+
+    static GLuint saveTicks = SDL_GetTicks();
+    bool save = 0;
+    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
+        save = 1;
+        saveTicks = SDL_GetTicks();
+    }
+
+    int mx, my, mz;
+    double cx, cy, cz;
+    double dx, dy, dz;
+    mx = (int)position.x;
+    my = (int)position.y;
+    mz = (int)position.z;
+    ChunkMesh *cm;
+
+    for (int i = chunkMeshes.size() - 1; i >= 0; i--)
+    {
+        cm = chunkMeshes[i];
+
+        if (cm->inFrustum){
+            ChunkRenderer::drawCutoutBlocks(cm, position, VP);
+        }
+    }
+    glEnable(GL_CULL_FACE);
+
+    cutoutShader.UnBind();
+
+}
+
+void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+{
+    transparencyShader.Bind();
+
+    glUniform1f(transparencyShader.lightTypeID, lightActive);
+
+    glUniform3fv(transparencyShader.eyeVecID, 1, eyeDir);
+    glUniform1f(transparencyShader.fogEndID, (GLfloat)fogEnd);
+    glUniform1f(transparencyShader.fogStartID, (GLfloat)fogStart);
+    glUniform3fv(transparencyShader.fogColorID, 1, fogColor);
+    glUniform3f(transparencyShader.lightID, lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(transparencyShader.specularExponentID, graphicsOptions.specularExponent);
+    glUniform1f(transparencyShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
+
+    bindBlockPacks();
+
+    glUniform1f(transparencyShader.blockDtID, (GLfloat)bdt);
+
+    glUniform1f(transparencyShader.sunValID, sunVal);
+
+    glUniform1f(transparencyShader.alphaMultID, 1.0f);
+
+    float blockAmbient = 0.000f;
+    glUniform3f(transparencyShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(transparencyShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+
+    float fadeDist;
+    if (NoChunkFade){
+        fadeDist = (GLfloat)10000.0f;
+    } else{
+        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
+    }
+
+    glUniform1f(transparencyShader.fadeDistanceID, fadeDist);
 
 
     glLineWidth(3);
@@ -2456,7 +2571,7 @@ void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 
     }
     glEnable(GL_CULL_FACE);
 
-    nonBlockShader.UnBind();
+    transparencyShader.UnBind();
 
 }
 

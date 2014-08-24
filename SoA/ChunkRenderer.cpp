@@ -69,14 +69,34 @@ void ChunkRenderer::drawTransparentBlocks(const ChunkMesh *CMI, const glm::dvec3
 
     glm::mat4 MVP = VP * GlobalModelMatrix;
 
-    glUniformMatrix4fv(nonBlockShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(nonBlockShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+    glUniformMatrix4fv(cutoutShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(cutoutShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
     glBindVertexArray(CMI->transVaoID);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CMI->transIndexID);
 
     glDrawElements(GL_TRIANGLES, CMI->transVboSize, GL_UNSIGNED_INT, nullptr);
+
+    glBindVertexArray(0);
+
+}
+
+void ChunkRenderer::drawCutoutBlocks(const ChunkMesh *CMI, const glm::dvec3 &playerPos, const glm::mat4 &VP) {
+    if (CMI->cutoutVaoID == 0) return;
+
+    GlobalModelMatrix[3][0] = ((float)((double)CMI->position.x - playerPos.x));
+    GlobalModelMatrix[3][1] = ((float)((double)CMI->position.y - playerPos.y));
+    GlobalModelMatrix[3][2] = ((float)((double)CMI->position.z - playerPos.z));
+
+    glm::mat4 MVP = VP * GlobalModelMatrix;
+
+    glUniformMatrix4fv(cutoutShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(cutoutShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+
+    glBindVertexArray(CMI->cutoutVaoID);
+
+    glDrawElements(GL_TRIANGLES, CMI->cutoutVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
 
@@ -168,12 +188,44 @@ void ChunkRenderer::drawWater(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos,
     }
 }
 
-void ChunkRenderer::bindNonBlockVao(ChunkMesh *CMI)
+void ChunkRenderer::bindTransparentVao(ChunkMesh *CMI)
 {
     if (CMI->transVaoID == 0) glGenVertexArrays(1, &(CMI->transVaoID));
     glBindVertexArray(CMI->transVaoID);
 
     glBindBuffer(GL_ARRAY_BUFFER, CMI->transVboID);
+
+    for (int i = 0; i < 8; i++) {
+        glEnableVertexAttribArray(i);
+    }
+
+    //position + texture type
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
+    //UV
+    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
+    //textureAtlas_textureIndex
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
+    //Texture dimensions
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
+    //overlayColor
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
+    //light, sunlight, animation, blendMode
+    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
+    //normal
+    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
+
+    glBindVertexArray(0);
+}
+
+void ChunkRenderer::bindCutoutVao(ChunkMesh *CMI)
+{
+    if (CMI->cutoutVaoID == 0) glGenVertexArrays(1, &(CMI->cutoutVaoID));
+    glBindVertexArray(CMI->cutoutVaoID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, CMI->cutoutVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);
