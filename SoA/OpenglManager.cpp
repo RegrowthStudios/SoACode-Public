@@ -640,6 +640,8 @@ void InitializeShaders()
     blockShader.Initialize();
     cutoutShader.DeleteShader();
     cutoutShader.Initialize();
+    transparencyShader.DeleteShader();
+    transparencyShader.Initialize();
     atmosphereToSkyShader.DeleteShader();
     atmosphereToSkyShader.Initialize();
     atmosphereToGroundShader.DeleteShader();
@@ -2477,32 +2479,31 @@ void OpenglManager::drawCutoutBlocks(const glm::mat4 &VP, const glm::dvec3 &posi
 
 }
 
-
 void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
-    cutoutShader.Bind();
+    transparencyShader.Bind();
 
-    glUniform1f(cutoutShader.lightTypeID, lightActive);
+    glUniform1f(transparencyShader.lightTypeID, lightActive);
 
-    glUniform3fv(cutoutShader.eyeVecID, 1, eyeDir);
-    glUniform1f(cutoutShader.fogEndID, (GLfloat)fogEnd);
-    glUniform1f(cutoutShader.fogStartID, (GLfloat)fogStart);
-    glUniform3fv(cutoutShader.fogColorID, 1, fogColor);
-    glUniform3f(cutoutShader.lightID, lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(cutoutShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(cutoutShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
+    glUniform3fv(transparencyShader.eyeVecID, 1, eyeDir);
+    glUniform1f(transparencyShader.fogEndID, (GLfloat)fogEnd);
+    glUniform1f(transparencyShader.fogStartID, (GLfloat)fogStart);
+    glUniform3fv(transparencyShader.fogColorID, 1, fogColor);
+    glUniform3f(transparencyShader.lightID, lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(transparencyShader.specularExponentID, graphicsOptions.specularExponent);
+    glUniform1f(transparencyShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
 
     bindBlockPacks();
 
-    glUniform1f(cutoutShader.blockDtID, (GLfloat)bdt);
+    glUniform1f(transparencyShader.blockDtID, (GLfloat)bdt);
 
-    glUniform1f(cutoutShader.sunValID, sunVal);
+    glUniform1f(transparencyShader.sunValID, sunVal);
 
-    glUniform1f(cutoutShader.alphaMultID, 1.0f);
+    glUniform1f(transparencyShader.alphaMultID, 1.0f);
 
     float blockAmbient = 0.000f;
-    glUniform3f(cutoutShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(cutoutShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3f(transparencyShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(transparencyShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
 
     float fadeDist;
     if (NoChunkFade){
@@ -2511,7 +2512,7 @@ void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 
         fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
     }
 
-    glUniform1f(cutoutShader.fadeDistanceID, fadeDist);
+    glUniform1f(transparencyShader.fadeDistanceID, fadeDist);
 
 
     glLineWidth(3);
@@ -2569,7 +2570,7 @@ void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 
     }
     glEnable(GL_CULL_FACE);
 
-    cutoutShader.UnBind();
+    transparencyShader.UnBind();
 
 }
 

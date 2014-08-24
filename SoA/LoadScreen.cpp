@@ -246,7 +246,7 @@ void LoadScreen::loadShaders() {
     blockShader.DeleteShader();
     blockShader.Initialize();
     cutoutShader.Initialize();
-    transparentShading.Initialize();
+    transparencyShader.Initialize();
     atmosphereToSkyShader.DeleteShader();
     atmosphereToSkyShader.Initialize();
     atmosphereToGroundShader.DeleteShader();

@@ -18,7 +18,7 @@ HDRShader hdrShader;
 MotionBlurShader motionBlurShader;
 BlockShader blockShader;
 CutoutShading cutoutShader;
-TransparentShading transparentShading;
+TransparentShading transparencyShader;
 TextureShader textureShader;
 AtmosphereToSkyShader atmosphereToSkyShader;
 AtmosphereToGroundShader atmosphereToGroundShader;
