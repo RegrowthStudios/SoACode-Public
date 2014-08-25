@@ -4,11 +4,11 @@
 //{
 //private:
 //
-//	MeshGeometry3D geometry;
+//    MeshGeometry3D geometry;
 //    int index;
 //    Dictionary<Int64, int> middlePointIndexCache;
 //
-//	struct TriangleIndices
+//    struct TriangleIndices
 //    {
 //        int v1;
 //        int v2;
@@ -22,7 +22,7 @@
 //        }
 //    };
 //
-//	// add vertex to mesh, fix position to be on unit sphere, return index
+//    // add vertex to mesh, fix position to be on unit sphere, return index
 //    int addVertex(glm::vec3 p)
 //    {
 //        double length = sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
@@ -30,6 +30,6 @@
 //        return index++;
 //    }
 //
-//	int getMiddlePoint(int p1, int p2);
+//    int getMiddlePoint(int p1, int p2);
 //
 //};

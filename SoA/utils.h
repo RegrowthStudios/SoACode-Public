@@ -275,7 +275,7 @@ inline cString convertWToMBString(cwString ws) {
 template <typename T>
 T trilinearInterpolation_4(int x, int y, int z, T data[9][9][9])
 {
-    /*Vxyz = 	V000 (1 - x) (1 - y) (1 - z) +
+    /*Vxyz =     V000 (1 - x) (1 - y) (1 - z) +
     V100 x (1 - y) (1 - z) +
     V010 (1 - x) y (1 - z) +
     V001 (1 - x) (1 - y) z +
@@ -306,7 +306,7 @@ T trilinearInterpolation_4(int x, int y, int z, T data[9][9][9])
 template <typename T>
 T trilinearInterpolation_4_8_4(int x, int y, int z, T data[9][5][5])
 {
-    /*Vxyz = 	V000 (1 - x) (1 - y) (1 - z) +
+    /*Vxyz =     V000 (1 - x) (1 - y) (1 - z) +
     V100 x (1 - y) (1 - z) +
     V010 (1 - x) y (1 - z) +
     V001 (1 - x) (1 - y) z +

@@ -67,15 +67,15 @@ const GLfloat liquidVertices[72] = { 0, 1.0f, 1.0f, 0, 0, 1.0f, 1.0f, 0, 1.0f, 1
 const float wyOff = 0.9999f;
 const GLfloat waterCubeVertices[72] = { 0.0f, wyOff, 1.000f, 0.0f, 0.0f, 1.000f, 1.000f, 0.0f, wyOff, 1.000f, wyOff, 1.000f,  // v1-v2-v3-v0 (front)
 
-									1.000f, wyOff, 1.000f, 1.000f, 0.0f, 1.000f, 1.000f, 0.0f, 0.0f, 1.000f, wyOff, 0.0f,     // v0-v3-v4-v5 (right)
+                                    1.000f, wyOff, 1.000f, 1.000f, 0.0f, 1.000f, 1.000f, 0.0f, 0.0f, 1.000f, wyOff, 0.0f,     // v0-v3-v4-v5 (right)
 
-									0.0f, wyOff, 0.0f, 0.0f, wyOff, 1.000f, 1.000f, wyOff, 1.000f, 1.000f, wyOff, 0.0f,    // v6-v1-v0-v5 (top)
+                                    0.0f, wyOff, 0.0f, 0.0f, wyOff, 1.000f, 1.000f, wyOff, 1.000f, 1.000f, wyOff, 0.0f,    // v6-v1-v0-v5 (top)
 
-									0.0f, wyOff, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.000f, 0.0f, wyOff, 1.000f,   // v6-v7-v2-v1 (left)
+                                    0.0f, wyOff, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.000f, 0.0f, wyOff, 1.000f,   // v6-v7-v2-v1 (left)
 
-									0.0f, 0.0f, 0.0f, 1.000f, 0.0f, 0.0f, 1.000f, 0.0f, 1.000f, 0.0f, 0.0f, 1.000f,    // v7-v4-v3-v2 (bottom)
+                                    0.0f, 0.0f, 0.0f, 1.000f, 0.0f, 0.0f, 1.000f, 0.0f, 1.000f, 0.0f, 0.0f, 1.000f,    // v7-v4-v3-v2 (bottom)
 
-									1.000f, wyOff, 0.0f, 1.000f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, wyOff, 0.0f };     // v5-v4-v7-v6 (back)
+                                    1.000f, wyOff, 0.0f, 1.000f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, wyOff, 0.0f };     // v5-v4-v7-v6 (back)
 
 
 const GLbyte cubeNormals[72] = { 0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127,  // v1-v2-v3-v0 (front)
@@ -153,11 +153,11 @@ const GLfloat starboxVertices[72] = { -starboxSize, starboxSize, starboxSize, -s
 extern GLushort starboxIndices[6][6];
 
 const GLfloat starboxUVs[48] = {   1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,  // v1-v2-v3-v0 (front)
-									1.0, 1.0,  1.0, 0.0,  0.0, 0.0, 0.0, 1.0, // v0-v3-v4-v5 (right)
-									1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v1-v0-v5 (top)
-									1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v7-v2-v1 (left)
-									1.0, 0.0, 0.0, 0.0,   0.0, 1.0, 1.0, 1.0,  // v7-v4-v3-v2 (bottom)
-									1.0, 1.0,  1.0, 0.0,   0.0, 0.0,  0.0, 1.0 }; // v5-v4-v7-v6 (back)
+                                    1.0, 1.0,  1.0, 0.0,  0.0, 0.0, 0.0, 1.0, // v0-v3-v4-v5 (right)
+                                    1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v1-v0-v5 (top)
+                                    1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v7-v2-v1 (left)
+                                    1.0, 0.0, 0.0, 0.0,   0.0, 1.0, 1.0, 1.0,  // v7-v4-v3-v2 (bottom)
+                                    1.0, 1.0,  1.0, 0.0,   0.0, 0.0,  0.0, 1.0 }; // v5-v4-v7-v6 (back)
 
 extern GLfloat colorVertices[1024];
 extern GLfloat cubeSpriteVerts[24];
@@ -215,17 +215,17 @@ const bool sepVBO = 1;
 class WorldRenderer
 {
 public:
-	WorldRenderer();
-	~WorldRenderer();
-	void Initialize();
-	void DrawLine(glm::vec3 a, glm::vec3 b);
-	void DrawUnderwater();
-	void ChangeWaterTexture();
+    WorldRenderer();
+    ~WorldRenderer();
+    void Initialize();
+    void DrawLine(glm::vec3 a, glm::vec3 b);
+    void DrawUnderwater();
+    void ChangeWaterTexture();
 
-	GLuint UnderwaterTexture;
+    GLuint UnderwaterTexture;
 private:
-	void HeightToNormal();
-	//inline void CopyVertexData(Vertex &v1, Vertex &v2);
+    void HeightToNormal();
+    //inline void CopyVertexData(Vertex &v1, Vertex &v2);
 };
      
 extern WorldRenderer worldRenderer;

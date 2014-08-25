@@ -8,11 +8,11 @@ using namespace std;
 
 void printVec(string desc, glm::vec3 vec)
 {
-	cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
+    cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
 }
 void printVec(string desc, glm::dvec3 vec)
 {
-	cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
+    cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
 }
 
 GLushort boxDrawIndices[6] = {0,1,2,2,3,0};

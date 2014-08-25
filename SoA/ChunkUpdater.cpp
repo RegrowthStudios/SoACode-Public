@@ -39,7 +39,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
         if (Blocks[blockID].emitterRandom){
             // uncomment for falling leaves
-            //	particleEngine.AddAnimatedParticles(1, glm::dvec3(position.x + x, Y + y, position.z + z), Blocks[b].emitterRandom);
+            //    particleEngine.AddAnimatedParticles(1, glm::dvec3(position.x + x, Y + y, position.z + z), Blocks[b].emitterRandom);
         }
 
         //TODO: Replace most of this with block update scripts
@@ -539,7 +539,7 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
         color.r = Blocks[btype].altColors[flags - 1].r;
         color.g = Blocks[btype].altColors[flags - 1].g;
         color.b = Blocks[btype].altColors[flags - 1].b;
-        //	cout << btype << " " << flags-1 << " ";
+        //    cout << btype << " " << flags-1 << " ";
     } else{
         color.r = Blocks[btype].color[0];
         color.g = Blocks[btype].color[1];

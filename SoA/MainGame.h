@@ -35,9 +35,9 @@ public:
 // Provides Temporal Information Since The Start Of The Application
 struct GameTime {
 public:
-	// Total Time Since The Main Loop Started
-	f64 total;
-	// Elapsed Time For The Current Frame
+    // Total Time Since The Main Loop Started
+    f64 total;
+    // Elapsed Time For The Current Frame
     f64 elapsed;
 };
 
@@ -82,7 +82,7 @@ protected:
     
     GraphicsDevice* _gDevice;
     GameDisplayMode _displayMode;
-	SoundOptions _soundOptions;
+    SoundOptions _soundOptions;
 
     SDL_Window* _window;
     SDL_GLContext _glc;

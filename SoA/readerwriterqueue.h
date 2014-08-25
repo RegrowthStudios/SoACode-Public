@@ -1,4 +1,4 @@
-// ©2013 Cameron Desrochers.
+// ï¿½2013 Cameron Desrochers.
 // Distributed under the simplified BSD license 
 
 /*
@@ -75,7 +75,7 @@ namespace moodycamel {
         // allocations. Allocates maxSize + 1, rounded up to the nearest power
         // of 2, elements.
         explicit ReaderWriterQueue(size_t maxSize = 15)
-            : largestBlockSize(ceilToPow2(maxSize + 1))	// We need a spare slot to fit maxSize elements in the block
+            : largestBlockSize(ceilToPow2(maxSize + 1))    // We need a spare slot to fit maxSize elements in the block
 #ifndef NDEBUG
             , enqueuing(false)
             , dequeuing(false)
@@ -198,10 +198,10 @@ namespace moodycamel {
                 AE_UNUSED(nextBlockTail);
 
                 // We're done with this block, let the producer use it if it needs
-                fence(memory_order_release);	// Expose possibly pending changes to frontBlock->front from last dequeue
+                fence(memory_order_release);    // Expose possibly pending changes to frontBlock->front from last dequeue
                 frontBlock = frontBlock_ = nextBlock;
 
-                compiler_fence(memory_order_release);	// Not strictly needed
+                compiler_fence(memory_order_release);    // Not strictly needed
 
                 auto element = reinterpret_cast<T*>(frontBlock_->data + nextBlockFront * sizeof(T));
 
@@ -288,7 +288,7 @@ namespace moodycamel {
                 // instead of advancing to the next full block (whose values were enqueued first and so should be
                 // consumed first).
 
-                fence(memory_order_acquire);	// Ensure we get latest writes if we got the latest frontBlock
+                fence(memory_order_acquire);    // Ensure we get latest writes if we got the latest frontBlock
 
                 // tailBlock is full, but there's a free block ahead, use it
                 Block* tailBlockNext = tailBlock_->next.load();
@@ -388,15 +388,15 @@ namespace moodycamel {
         struct Block {
             // Avoid false-sharing by putting highly contended variables on their own cache lines
             AE_ALIGN(CACHE_LINE_SIZE)
-            weak_atomic<size_t> front;	// (Atomic) Elements are read from here
+            weak_atomic<size_t> front;    // (Atomic) Elements are read from here
 
             AE_ALIGN(CACHE_LINE_SIZE)
-                weak_atomic<size_t> tail;	// (Atomic) Elements are enqueued here
+                weak_atomic<size_t> tail;    // (Atomic) Elements are enqueued here
 
-            AE_ALIGN(CACHE_LINE_SIZE)	// next isn't very contended, but we don't want it on the same cache line as tail (which is)
-                weak_atomic<Block*> next;	// (Atomic)
+            AE_ALIGN(CACHE_LINE_SIZE)    // next isn't very contended, but we don't want it on the same cache line as tail (which is)
+                weak_atomic<Block*> next;    // (Atomic)
 
-            char* data;	// Contents (on heap) are aligned to T's alignment
+            char* data;    // Contents (on heap) are aligned to T's alignment
 
             const size_t size;
 
@@ -432,12 +432,12 @@ namespace moodycamel {
 
     private:
         AE_ALIGN(CACHE_LINE_SIZE)
-            weak_atomic<Block*> frontBlock;	// (Atomic) Elements are enqueued to this block
+            weak_atomic<Block*> frontBlock;    // (Atomic) Elements are enqueued to this block
 
         AE_ALIGN(CACHE_LINE_SIZE)
-            weak_atomic<Block*> tailBlock;	// (Atomic) Elements are dequeued from this block
+            weak_atomic<Block*> tailBlock;    // (Atomic) Elements are dequeued from this block
 
-        AE_ALIGN(CACHE_LINE_SIZE)	// Ensure tailBlock gets its own cache line
+        AE_ALIGN(CACHE_LINE_SIZE)    // Ensure tailBlock gets its own cache line
             size_t largestBlockSize;
 
 #ifndef NDEBUG

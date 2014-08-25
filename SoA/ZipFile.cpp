@@ -54,7 +54,7 @@ ui8* ZipFile::readFile(nString fileName, size_t& fileSize) {
             unsigned char *buffer = new unsigned char[file_info.uncompressed_size];
             // Entry is a file, so extract it.
             printf("file:%s\n", filename);
-            //	fflush(stdout);
+            //    fflush(stdout);
             if (unzOpenCurrentFile(_zipFile) != UNZ_OK) {
                 delete[] buffer;
                 printf("could not open file\n");

@@ -77,7 +77,7 @@ double scaled_ridged_octave_noise_3d(  const double octaves,
                             const double hiBound,
                             const double x,
                             const double y,
-							const double z);
+                            const double z);
 double scaled_reverse_ridged_octave_noise_3d(  const double octaves,
                             const double persistence,
                             const double freq,
@@ -85,7 +85,7 @@ double scaled_reverse_ridged_octave_noise_3d(  const double octaves,
                             const double hiBound,
                             const double x,
                             const double y,
-							const double z);
+                            const double z);
 double scaled_octave_noise_3d(  const double octaves,
                             const double persistence,
                             const double freq,

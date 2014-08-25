@@ -36,10 +36,10 @@ public:
     f64 planetRadius;
 
     f32 m_fWavelength[3], m_fWavelength4[3];
-    f32 m_Kr;		// Rayleigh scattering constant
-    f32 m_Km;		// Mie scattering constant
-    f32 m_ESun;		// Sun brightness constant
-    f32 m_g;		// The Mie phase asymmetry factor
+    f32 m_Kr;        // Rayleigh scattering constant
+    f32 m_Km;        // Mie scattering constant
+    f32 m_ESun;        // Sun brightness constant
+    f32 m_g;        // The Mie phase asymmetry factor
     f32 m_fExposure;
     f32 m_fRayleighScaleDepth;
     f32 fSamples;
@@ -102,7 +102,7 @@ public:
     std::vector<TerrainPatch*> LODUpdateList;
     std::vector<struct TerrainBuffers*> drawList[6];
 
-    //		double axialZTilt[66];
+    //        double axialZTilt[66];
 
     void clearBiomes();
     void addBaseBiome(Biome* baseBiome, i32 mapColor);

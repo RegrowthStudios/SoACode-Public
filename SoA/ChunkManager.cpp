@@ -361,7 +361,7 @@ void ChunkManager::clearAll() {
 
 //loadType 0 = Complete Generation, 1 = Only Load, 2 = only push to queue
 void ChunkManager::loadAllChunks(i32 loadType, const f64v3& position) {
-    //	tcks = SDL_GetTicks();
+    //    tcks = SDL_GetTicks();
 
     Chunk* chunk;
     ChunkSlot *cs;
@@ -1029,7 +1029,7 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
     for (i32 i = 0; i < csGridSize; i++) {
         chunk = _allChunkSlots[i].chunk;
         if (chunk) {
-            //	if (chunk->drawWater){
+            //    if (chunk->drawWater){
             switch (chunk->state) {
             case ChunkStates::DRAW:
                 color = glm::vec4(0.0, 0.0, 1.0, 1.0);
@@ -1047,7 +1047,7 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
             }
 
             if (chunk->state != ChunkStates::INACTIVE) DrawWireBox(chunk->position.x, chunk->position.y, chunk->position.z, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 2, position, VP, color);
-            //	}
+            //    }
         }
     }
 }
@@ -1461,7 +1461,7 @@ void ChunkManager::shiftHeightMap(i32 dir) {
 
             for (i32 i = 0; i < CHUNK_LAYER; i++) {
                 tmp[i].height = UNLOADED_HEIGHT; //tells our game later that it needs to load these heights
-                //		faceMap[i][j] = -1;
+                //        faceMap[i][j] = -1;
             }
             ftmp->ipos = _faceMap[csGridWidth - 2][x]->ipos + 1;
 
