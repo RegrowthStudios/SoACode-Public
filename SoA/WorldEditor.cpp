@@ -145,20 +145,20 @@ void WorldEditor::glUpdate() {
     _chunkCamera.update();
 
     //if (!chunkManager.GetPositionHeightData((int)currentCamera->focalPoint.x, (int)currentCamera->focalPoint.z, tmpHeightData)){
-    //	if (tmpHeightData.height != UNLOADED_HEIGHT){
-    //		dcurrBiome = tmpHeightData.biome;
-    //		dcurrTemp = tmpHeightData.temperature;
-    //		dcurrHumidity = tmpHeightData.rainfall;
+    //    if (tmpHeightData.height != UNLOADED_HEIGHT){
+    //        dcurrBiome = tmpHeightData.biome;
+    //        dcurrTemp = tmpHeightData.temperature;
+    //        dcurrHumidity = tmpHeightData.rainfall;
 
-    //	}else{
-    //		dcurrBiome = NULL;
-    //		dcurrTemp = -1;
-    //		dcurrHumidity = -1;
-    //	}
+    //    }else{
+    //        dcurrBiome = NULL;
+    //        dcurrTemp = -1;
+    //        dcurrHumidity = -1;
+    //    }
     //}else{
-    //	dcurrBiome = NULL;
-    //	dcurrTemp = -1;
-    //	dcurrHumidity = -1;
+    //    dcurrBiome = NULL;
+    //    dcurrTemp = -1;
+    //    dcurrHumidity = -1;
     //}
 
     //dcurrCh = chunkManager.GetChunk(currentCamera->focalPoint);
@@ -193,7 +193,7 @@ void WorldEditor::glUpdate() {
     }
 
     if (EditorState == E_BIOME_EDITOR) {
-        //		chunkManager.update(currentCamera->focalPoint, tmpmat, 0);
+        //        chunkManager.update(currentCamera->focalPoint, tmpmat, 0);
     } else {
         //chunkManager.update(glm::dvec3(chunkManager.cX, chunkManager.cY, chunkManager.cZ), tmpmat, 0);
     }
@@ -317,8 +317,8 @@ void WorldEditor::blockEditorUpdate() {
             break;
         case 11: //CHANGE TEXTURE
             //if (editorBlockID == -1){
-            //	ShowMessage("Load a block or create a new block first!");
-            //	break;
+            //    ShowMessage("Load a block or create a new block first!");
+            //    break;
             //}
             //GameState = E_SELECT_TEXTURE;
             //TextureUnitActive = 0;
@@ -326,14 +326,14 @@ void WorldEditor::blockEditorUpdate() {
             //TextureUnitSelected = 0;
             //TextureSelectState = uiUpdateData.state;
             //if (TextureSelectState == 0){
-            //	TextureUnitSelected = TextureUnitActive = Blocks[editorBlockID].topTexUnit;
-            //	TextureIndexSelected = Blocks[editorBlockID].pyTex;
+            //    TextureUnitSelected = TextureUnitActive = Blocks[editorBlockID].topTexUnit;
+            //    TextureIndexSelected = Blocks[editorBlockID].pyTex;
             //}else if (TextureSelectState == 1){
-            //	TextureUnitSelected = TextureUnitActive = Blocks[editorBlockID].sideTexUnit;
-            //	TextureIndexSelected = Blocks[editorBlockID].pxTex;
+            //    TextureUnitSelected = TextureUnitActive = Blocks[editorBlockID].sideTexUnit;
+            //    TextureIndexSelected = Blocks[editorBlockID].pxTex;
             //}else if (TextureSelectState == 2){
-            //	TextureUnitSelected = TextureUnitActive = Blocks[editorBlockID].botTexUnit;
-            //	TextureIndexSelected = Blocks[editorBlockID].nyTex;
+            //    TextureUnitSelected = TextureUnitActive = Blocks[editorBlockID].botTexUnit;
+            //    TextureIndexSelected = Blocks[editorBlockID].nyTex;
             //}
             //py = TextureIndexSelected/16;
             //px = TextureIndexSelected%16;
@@ -390,7 +390,7 @@ void WorldEditor::treeEditorUpdate() {
         case 2:  //CHANGE TREE VARIABLE
             changeTreeVariables();
             break;
-        case 3:  //NEW SEED			
+        case 3:  //NEW SEED            
             if (_editorTree->tt) {
                 srand(SDL_GetTicks());
                 globalTreeSeed = rand() % 600000 - 300000;
@@ -491,12 +491,12 @@ void WorldEditor::biomeEditorUpdate() {
         case 7: //SAVE
 
             break;
-        case 8:	//CHANGE STATE
+        case 8:    //CHANGE STATE
             if (onBiomeEditorQuit()) {
                 if (uiUpdateData.state != 4) {
-                    //		editorPlanets[1]->generator.SetHeightModifier(10.0);
-                    //		*currentEditorBiome = blankBiome;
-                    //		regenerateChunks(2, 1);
+                    //        editorPlanets[1]->generator.SetHeightModifier(10.0);
+                    //        *currentEditorBiome = blankBiome;
+                    //        regenerateChunks(2, 1);
                 }
                 changeState(uiUpdateData.state);
             }
@@ -554,7 +554,7 @@ void WorldEditor::biomeEditorUpdate() {
             }
             break;
         case 15: //HELP
-            //		ShowMessage(TerrainFunctionHelps[uiUpdateData.id].c_str());
+            //        ShowMessage(TerrainFunctionHelps[uiUpdateData.id].c_str());
             break;
         case 16: //SET TYPE
             if (noiseActive) {
@@ -602,7 +602,7 @@ void WorldEditor::sendBlockList(int active) {
     currentUserInterface->methodHandler.myObject->Invoke(WSLit("GenerateBlockList"), args);
 }
 
-#define SET_NOISE_VAR(a, b, c, d, e) variableArray.Push(JSValue(a)); variableArray.Push(JSValue(ToWebString(b))); variableArray.Push(JSValue(c)); variableArray.Push(JSValue(d)); variableArray.Push(JSValue(e)); offset = nit->second.byteOffset; variableArray.Push(JSValue(offset)); if (nit->second.varType == 0){  variableArray.Push(JSValue((int)*(GLuint *)((GLuint)np + offset))); }else if (nit->second.varType == 1){  variableArray.Push(JSValue((float)*(double *)((GLuint)np + offset))); }	
+#define SET_NOISE_VAR(a, b, c, d, e) variableArray.Push(JSValue(a)); variableArray.Push(JSValue(ToWebString(b))); variableArray.Push(JSValue(c)); variableArray.Push(JSValue(d)); variableArray.Push(JSValue(e)); offset = nit->second.byteOffset; variableArray.Push(JSValue(offset)); if (nit->second.varType == 0){  variableArray.Push(JSValue((int)*(GLuint *)((GLuint)np + offset))); }else if (nit->second.varType == 1){  variableArray.Push(JSValue((float)*(double *)((GLuint)np + offset))); }    
 
 void WorldEditor::sendNoise(int id) {}
 
@@ -751,7 +751,7 @@ void WorldEditor::refreshEditorBlocks(Block &newBlock) {
         ch = editorBlocks[i]->ch;
         c = editorBlocks[i]->c;
 
-        //		ch->RemoveBlock(c, chunkManager.setupList, 0);
+        //        ch->RemoveBlock(c, chunkManager.setupList, 0);
     }
     GETBLOCK(editorBlockID) = newBlock;
     cout << "TIME1: " << SDL_GetTicks() - strt << endl;
@@ -854,13 +854,13 @@ void WorldEditor::changeBlockVariables() {
     }
     Block tmpBlock = Blocks[editorBlockID];
     Block *bp = &(tmpBlock);
-    //	Block *bp = &(Blocks[editorBlockID]);
+    //    Block *bp = &(Blocks[editorBlockID]);
 
     for (size_t i = 0; i < uiUpdateData.variableUpdateData.size(); i++) {
         if (uiUpdateData.variableUpdateData[i]->type == 1) {
             int r, g, b;
             sscanf(uiUpdateData.variableUpdateData[i]->val.c_str(), "%d,%d,%d", &r, &g, &b);
-            //	cout << r << " " << g << " " << b << " " << uiUpdateData.variableUpdateData[i]->offset << endl;
+            //    cout << r << " " << g << " " << b << " " << uiUpdateData.variableUpdateData[i]->offset << endl;
             if (uiUpdateData.variableUpdateData[i]->offset == 0) {
                 editorAltColorActive = 0;
             } else {
@@ -1298,7 +1298,7 @@ int WorldEditor::loadEditorBiome(Biome *currEditorBiome) {
             sprintf(buffer, "Would you like to save changes to %s?", currentEditorBiome->name.c_str());
             int id = showYesNoCancelBox(buffer);
             if (id == 1) {
-                //			if (SaveEditorBiome(currentEditorBiome, currentEditorBiome->filename)) ok = 0;
+                //            if (SaveEditorBiome(currentEditorBiome, currentEditorBiome->filename)) ok = 0;
             } else if (id == -1) {
                 ok = 0; //prevents saving of the file
             }

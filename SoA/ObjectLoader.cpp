@@ -82,7 +82,7 @@ int ObjectLoader::load(const cString filename, std::vector<ColorVertex>& vertice
             glm::vec3 fv;
             sscanf(ins.c_str(), "v %f %f %f", &(fv.x), &(fv.y), &(fv.z));
 
-            //		fv = glm::normalize(fv);
+            //        fv = glm::normalize(fv);
 
             vertices.push_back(ColorVertex());
             vertices.back().position.x = fv.x;
@@ -142,88 +142,88 @@ int ObjectLoader::load(const cString filename, std::vector<ColorVertex>& vertice
 //
 //void ObjectLoader::SmoothNormals()
 //{
-//	for(int i = 1; i < vertexs.size() + 1;i++)
-//	{
-//		float vecX=0.0, vecY=0.0, vecZ=0.0;
-//		int num=0;
-//		for (int j=0; j<faces.size();j++)
-//		{
-//			if(faces[j]->vertexs[0]==i || faces[j]->vertexs[1]==i || faces[j]->vertexs[2]==i || faces[j]->vertexs[3]==i)
-//			{
-//				vecX+=normals[faces[j]->facenum-1]->x;
-//				vecY+=normals[faces[j]->facenum-1]->y;
-//				vecZ+=normals[faces[j]->facenum-1]->z;
-//				num++;
-//			}
-//		}
-//		if (num)
-//		{
-//			vecX/=num;
-//			vecY/=num;
-//			vecZ/=num;
-//		}
-//		float d=sqrt(vecX*vecX+vecY*vecY+vecZ*vecZ);
-//		if (d)
-//		{
-//			vecX/=d;
-//			vecY/=d;
-//			vecZ/=d;
-//		}
-//		vertexnormals.push_back(new coordinate3lf(vecX, vecY, vecZ));
-//	}
+//    for(int i = 1; i < vertexs.size() + 1;i++)
+//    {
+//        float vecX=0.0, vecY=0.0, vecZ=0.0;
+//        int num=0;
+//        for (int j=0; j<faces.size();j++)
+//        {
+//            if(faces[j]->vertexs[0]==i || faces[j]->vertexs[1]==i || faces[j]->vertexs[2]==i || faces[j]->vertexs[3]==i)
+//            {
+//                vecX+=normals[faces[j]->facenum-1]->x;
+//                vecY+=normals[faces[j]->facenum-1]->y;
+//                vecZ+=normals[faces[j]->facenum-1]->z;
+//                num++;
+//            }
+//        }
+//        if (num)
+//        {
+//            vecX/=num;
+//            vecY/=num;
+//            vecZ/=num;
+//        }
+//        float d=sqrt(vecX*vecX+vecY*vecY+vecZ*vecZ);
+//        if (d)
+//        {
+//            vecX/=d;
+//            vecY/=d;
+//            vecZ/=d;
+//        }
+//        vertexnormals.push_back(new coordinate3lf(vecX, vecY, vecZ));
+//    }
 //}
 //
 //void ObjectLoader::clean()
 //{
-//	for(int i = 0; i < faces.size(); i++)
-//		delete faces[i];
-//	for (int i = 0; i < normals.size(); i++)
-//		delete normals[i];
-//	for (int i = 0; i < vertexs.size(); i++)
-//		delete vertexs[i];
-//	for (int i = 0; i < texturecoordinates.size(); i++)
-//		delete texturecoordinates[i];
-//	for (int i = 0; i < materials.size(); i++)
-//		delete materials[i];
-//	for (int i = 0; i < vertexnormals.size();i++)
-//		delete vertexnormals[i];
-//	
-//	faces.clear();
-//	normals.clear();
-//	vertexs.clear();
-//	materials.clear();
-//	texturecoordinates.clear();
-//	vertexnormals.clear();
+//    for(int i = 0; i < faces.size(); i++)
+//        delete faces[i];
+//    for (int i = 0; i < normals.size(); i++)
+//        delete normals[i];
+//    for (int i = 0; i < vertexs.size(); i++)
+//        delete vertexs[i];
+//    for (int i = 0; i < texturecoordinates.size(); i++)
+//        delete texturecoordinates[i];
+//    for (int i = 0; i < materials.size(); i++)
+//        delete materials[i];
+//    for (int i = 0; i < vertexnormals.size();i++)
+//        delete vertexnormals[i];
+//    
+//    faces.clear();
+//    normals.clear();
+//    vertexs.clear();
+//    materials.clear();
+//    texturecoordinates.clear();
+//    vertexnormals.clear();
 //}
 //
 //ObjectLoader::~ObjectLoader()
 //{
-//	for(std::vector<unsigned int>::const_iterator it = texture.begin();
-//		it!=texture.end();it++)
-//	{
-//		glDeleteTextures(1, &(*it));
-//	}
-//	for(std::vector<unsigned int>::const_iterator it = lists.begin();
-//		it!=lists.end();it++)
-//	{
-//		glDeleteLists(*it, 1);
-//	}
+//    for(std::vector<unsigned int>::const_iterator it = texture.begin();
+//        it!=texture.end();it++)
+//    {
+//        glDeleteTextures(1, &(*it));
+//    }
+//    for(std::vector<unsigned int>::const_iterator it = lists.begin();
+//        it!=lists.end();it++)
+//    {
+//        glDeleteLists(*it, 1);
+//    }
 //}
 //
 //unsigned int ObjectLoader::LoadTexture(const char *filename)
 //{
-//	unsigned int num;
-//	glGenTextures(1, &num);
-//	SDL_Surface *img = SDL_LoadBMP(filename);
-//	glBindTexture(GL_TEXTURE_2D, num);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->w, img->h, 0, GL_RGB,
-//		GL_UNSIGNED_SHORT_5_6_5, img->pixels);
-//	glTexEnvi(GL_TEXTURE_2D, GL_TEXTURE_ENV_MODE,GL_MODULATE);
-//	SDL_FreeSurface(img);
-//	texture.push_back(num);
-//	return num;
+//    unsigned int num;
+//    glGenTextures(1, &num);
+//    SDL_Surface *img = SDL_LoadBMP(filename);
+//    glBindTexture(GL_TEXTURE_2D, num);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->w, img->h, 0, GL_RGB,
+//        GL_UNSIGNED_SHORT_5_6_5, img->pixels);
+//    glTexEnvi(GL_TEXTURE_2D, GL_TEXTURE_ENV_MODE,GL_MODULATE);
+//    SDL_FreeSurface(img);
+//    texture.push_back(num);
+//    return num;
 //}

@@ -15,9 +15,9 @@ BillboardVertex vboBVerts[maxParticles];
 ParticleBatch::~ParticleBatch() {
 
     //if (mesh != NULL){
-    //	ParticleMeshMessage *pmm = new ParticleMeshMessage;
-    //	pmm->mesh = mesh;
-    //	gameToGl.enqueue(Message(GL_M_PARTICLEMESH, pmm)); //tell GL thread to free the batch
+    //    ParticleMeshMessage *pmm = new ParticleMeshMessage;
+    //    pmm->mesh = mesh;
+    //    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, pmm)); //tell GL thread to free the batch
     //}
 }
 

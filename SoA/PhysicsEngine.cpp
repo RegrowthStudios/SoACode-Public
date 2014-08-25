@@ -157,7 +157,7 @@ void PhysicsEngine::pressureExplosion(glm::dvec3 &pos)
 
 void PhysicsEngine::pressureUpdate(PressureNode &pn)
 {
-    //	cout << pn.force << " ";
+    //    cout << pn.force << " ";
     int c = pn.c;
     int x = c%CHUNK_WIDTH;
     int y = c / CHUNK_LAYER;
@@ -522,7 +522,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
     glm::vec3 crs;
     glm::vec2 right;
     crs = glm::cross(glm::vec3(viewDirection.x, 0, viewDirection.z), glm::vec3(0.0, 1.0, 0.0));
-    //	if (exposion){
+    //    if (exposion){
     right = glm::normalize(glm::vec2(crs.x, crs.z));
     floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
 
@@ -687,7 +687,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
                 if (GETBLOCKTYPE(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
                 start = n;
                 //for (int j = 0; j < n; j++){
-                //	fnodes[j].ch->data[fnodes[j].c] = fnodes[j].blockType;
+                //    fnodes[j].ch->data[fnodes[j].c] = fnodes[j].blockType;
                 //}
                 break;
             }

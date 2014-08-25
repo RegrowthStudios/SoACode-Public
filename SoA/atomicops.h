@@ -1,4 +1,4 @@
-// ©2013 Cameron Desrochers.
+// ï¿½2013 Cameron Desrochers.
 // Distributed under the simplified BSD license 
 
 /*
@@ -77,17 +77,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace moodycamel {
 
-	enum memory_order {
-		memory_order_relaxed,
-		memory_order_acquire,
-		memory_order_release,
-		memory_order_acq_rel,
-		memory_order_seq_cst,
+    enum memory_order {
+        memory_order_relaxed,
+        memory_order_acquire,
+        memory_order_release,
+        memory_order_acq_rel,
+        memory_order_seq_cst,
 
-		// memory_order_sync: Forces a full sync:
-		// #LoadLoad, #LoadStore, #StoreStore, and most significantly, #StoreLoad
-		memory_order_sync = memory_order_seq_cst
-	};
+        // memory_order_sync: Forces a full sync:
+        // #LoadLoad, #LoadStore, #StoreStore, and most significantly, #StoreLoad
+        memory_order_sync = memory_order_seq_cst
+    };
 
 }    // end namespace moodycamel
 
@@ -111,72 +111,72 @@ namespace moodycamel {
 
 #ifdef AE_VCPP
 #pragma warning(push)
-#pragma warning(disable: 4365)		// Disable erroneous 'conversion from long to unsigned int, signed/unsigned mismatch' error when using `assert`
+#pragma warning(disable: 4365)        // Disable erroneous 'conversion from long to unsigned int, signed/unsigned mismatch' error when using `assert`
 #endif
 
 namespace moodycamel {
 
-	AE_FORCEINLINE void compiler_fence(memory_order order)
-	{
-		switch (order) {
-		case memory_order_relaxed: break;
-		case memory_order_acquire: _ReadBarrier(); break;
-		case memory_order_release: _WriteBarrier(); break;
-		case memory_order_acq_rel: _ReadWriteBarrier(); break;
-		case memory_order_seq_cst: _ReadWriteBarrier(); break;
-		default: assert(false);
-		}
-	}
+    AE_FORCEINLINE void compiler_fence(memory_order order)
+    {
+        switch (order) {
+        case memory_order_relaxed: break;
+        case memory_order_acquire: _ReadBarrier(); break;
+        case memory_order_release: _WriteBarrier(); break;
+        case memory_order_acq_rel: _ReadWriteBarrier(); break;
+        case memory_order_seq_cst: _ReadWriteBarrier(); break;
+        default: assert(false);
+        }
+    }
 
-	// x86/x64 have a strong memory model -- all loads and stores have
-	// acquire and release semantics automatically (so only need compiler
-	// barriers for those).
+    // x86/x64 have a strong memory model -- all loads and stores have
+    // acquire and release semantics automatically (so only need compiler
+    // barriers for those).
 #if defined(AE_ARCH_X86) || defined(AE_ARCH_X64)
-	AE_FORCEINLINE void fence(memory_order order)
-	{
-		switch (order) {
-		case memory_order_relaxed: break;
-		case memory_order_acquire: _ReadBarrier(); break;
-		case memory_order_release: _WriteBarrier(); break;
-		case memory_order_acq_rel: _ReadWriteBarrier(); break;
-		case memory_order_seq_cst:
-			_ReadWriteBarrier();
-			AeFullSync();
-			_ReadWriteBarrier();
-			break;
-		default: assert(false);
-		}
-	}
+    AE_FORCEINLINE void fence(memory_order order)
+    {
+        switch (order) {
+        case memory_order_relaxed: break;
+        case memory_order_acquire: _ReadBarrier(); break;
+        case memory_order_release: _WriteBarrier(); break;
+        case memory_order_acq_rel: _ReadWriteBarrier(); break;
+        case memory_order_seq_cst:
+            _ReadWriteBarrier();
+            AeFullSync();
+            _ReadWriteBarrier();
+            break;
+        default: assert(false);
+        }
+    }
 #else
-	AE_FORCEINLINE void fence(memory_order order)
-	{
-		// Non-specialized arch, use heavier memory barriers everywhere just in case :-(
-		switch (order) {
-		case memory_order_relaxed:
-			break;
-		case memory_order_acquire:
-			_ReadBarrier();
-			AeLiteSync();
-			_ReadBarrier();
-			break;
-		case memory_order_release:
-			_WriteBarrier();
-			AeLiteSync();
-			_WriteBarrier();
-			break;
-		case memory_order_acq_rel:
-			_ReadWriteBarrier();
-			AeLiteSync();
-			_ReadWriteBarrier();
-			break;
-		case memory_order_seq_cst:
-			_ReadWriteBarrier();
-			AeFullSync();
-			_ReadWriteBarrier();
-			break;
-		default: assert(false);
-		}
-	}
+    AE_FORCEINLINE void fence(memory_order order)
+    {
+        // Non-specialized arch, use heavier memory barriers everywhere just in case :-(
+        switch (order) {
+        case memory_order_relaxed:
+            break;
+        case memory_order_acquire:
+            _ReadBarrier();
+            AeLiteSync();
+            _ReadBarrier();
+            break;
+        case memory_order_release:
+            _WriteBarrier();
+            AeLiteSync();
+            _WriteBarrier();
+            break;
+        case memory_order_acq_rel:
+            _ReadWriteBarrier();
+            AeLiteSync();
+            _ReadWriteBarrier();
+            break;
+        case memory_order_seq_cst:
+            _ReadWriteBarrier();
+            AeFullSync();
+            _ReadWriteBarrier();
+            break;
+        default: assert(false);
+        }
+    }
 #endif
 }    // end namespace moodycamel
 #else
@@ -185,29 +185,29 @@ namespace moodycamel {
 
 namespace moodycamel {
 
-	AE_FORCEINLINE void compiler_fence(memory_order order)
-	{
-		switch (order) {
-		case memory_order_relaxed: break;
-		case memory_order_acquire: std::atomic_signal_fence(std::memory_order_acquire); break;
-		case memory_order_release: std::atomic_signal_fence(std::memory_order_release); break;
-		case memory_order_acq_rel: std::atomic_signal_fence(std::memory_order_acq_rel); break;
-		case memory_order_seq_cst: std::atomic_signal_fence(std::memory_order_seq_cst); break;
-		default: assert(false);
-		}
-	}
+    AE_FORCEINLINE void compiler_fence(memory_order order)
+    {
+        switch (order) {
+        case memory_order_relaxed: break;
+        case memory_order_acquire: std::atomic_signal_fence(std::memory_order_acquire); break;
+        case memory_order_release: std::atomic_signal_fence(std::memory_order_release); break;
+        case memory_order_acq_rel: std::atomic_signal_fence(std::memory_order_acq_rel); break;
+        case memory_order_seq_cst: std::atomic_signal_fence(std::memory_order_seq_cst); break;
+        default: assert(false);
+        }
+    }
 
-	AE_FORCEINLINE void fence(memory_order order)
-	{
-		switch (order) {
-		case memory_order_relaxed: break;
-		case memory_order_acquire: std::atomic_thread_fence(std::memory_order_acquire); break;
-		case memory_order_release: std::atomic_thread_fence(std::memory_order_release); break;
-		case memory_order_acq_rel: std::atomic_thread_fence(std::memory_order_acq_rel); break;
-		case memory_order_seq_cst: std::atomic_thread_fence(std::memory_order_seq_cst); break;
-		default: assert(false);
-		}
-	}
+    AE_FORCEINLINE void fence(memory_order order)
+    {
+        switch (order) {
+        case memory_order_relaxed: break;
+        case memory_order_acquire: std::atomic_thread_fence(std::memory_order_acquire); break;
+        case memory_order_release: std::atomic_thread_fence(std::memory_order_release); break;
+        case memory_order_acq_rel: std::atomic_thread_fence(std::memory_order_acq_rel); break;
+        case memory_order_seq_cst: std::atomic_thread_fence(std::memory_order_seq_cst); break;
+        default: assert(false);
+        }
+    }
 
 }    // end namespace moodycamel
 
@@ -230,58 +230,58 @@ namespace moodycamel {
 // The guarantee of atomicity is only made for types that already have atomic load and store guarantees
 // at the hardware level -- on most platforms this generally means aligned pointers and integers (only).
 namespace moodycamel {
-	template<typename T>
-	class weak_atomic
-	{
-	public:
-		weak_atomic() { }
+    template<typename T>
+    class weak_atomic
+    {
+    public:
+        weak_atomic() { }
 #ifdef AE_VCPP
-#pragma warning(disable: 4100)		// Get rid of (erroneous) 'unreferenced formal parameter' warning
+#pragma warning(disable: 4100)        // Get rid of (erroneous) 'unreferenced formal parameter' warning
 #endif
-		template<typename U> weak_atomic(U&& x) : value(std::forward<U>(x)) {  }
-		weak_atomic(weak_atomic const& other) : value(other.value) {  }
-		weak_atomic(weak_atomic&& other) : value(std::move(other.value)) {  }
+        template<typename U> weak_atomic(U&& x) : value(std::forward<U>(x)) {  }
+        weak_atomic(weak_atomic const& other) : value(other.value) {  }
+        weak_atomic(weak_atomic&& other) : value(std::move(other.value)) {  }
 #ifdef AE_VCPP
 #pragma warning(default: 4100)
 #endif
 
-		AE_FORCEINLINE operator T() const { return load(); }
+        AE_FORCEINLINE operator T() const { return load(); }
 
 
 #ifndef AE_USE_STD_ATOMIC_FOR_WEAK_ATOMIC
-		template<typename U> AE_FORCEINLINE weak_atomic const& operator=(U&& x) { value = std::forward<U>(x); return *this; }
-		AE_FORCEINLINE weak_atomic const& operator=(weak_atomic const& other) { value = other.value; return *this; }
+        template<typename U> AE_FORCEINLINE weak_atomic const& operator=(U&& x) { value = std::forward<U>(x); return *this; }
+        AE_FORCEINLINE weak_atomic const& operator=(weak_atomic const& other) { value = other.value; return *this; }
 
-		AE_FORCEINLINE T load() const { return value; }
+        AE_FORCEINLINE T load() const { return value; }
 #else
-		template<typename U>
-		AE_FORCEINLINE weak_atomic const& operator=(U&& x)
-		{
-			value.store(std::forward<U>(x), std::memory_order_relaxed);
-			return *this;
-		}
+        template<typename U>
+        AE_FORCEINLINE weak_atomic const& operator=(U&& x)
+        {
+            value.store(std::forward<U>(x), std::memory_order_relaxed);
+            return *this;
+        }
 
-		AE_FORCEINLINE weak_atomic const& operator=(weak_atomic const& other)
-		{
-			value.store(other.value.load(std::memory_order_relaxed), std::memory_order_relaxed);
-			return *this;
-		}
+        AE_FORCEINLINE weak_atomic const& operator=(weak_atomic const& other)
+        {
+            value.store(other.value.load(std::memory_order_relaxed), std::memory_order_relaxed);
+            return *this;
+        }
 
-		AE_FORCEINLINE T load() const { return value.load(std::memory_order_relaxed); }
+        AE_FORCEINLINE T load() const { return value.load(std::memory_order_relaxed); }
 #endif
 
 
-	private:
+    private:
 #ifndef AE_USE_STD_ATOMIC_FOR_WEAK_ATOMIC
-		// No std::atomic support, but still need to circumvent compiler optimizations.
-		// `volatile` will make memory access slow, but is guaranteed to be reliable.
-		volatile T value;
+        // No std::atomic support, but still need to circumvent compiler optimizations.
+        // `volatile` will make memory access slow, but is guaranteed to be reliable.
+        volatile T value;
 #else
-		std::atomic<T> value;
+        std::atomic<T> value;
 #endif
-	};
+    };
 
-}	// end namespace moodycamel
+}    // end namespace moodycamel
 
 
 #ifdef AE_VCPP

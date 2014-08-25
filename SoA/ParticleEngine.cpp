@@ -57,7 +57,7 @@ void ParticleEngine::addAnimatedParticles(int num, glm::dvec3 pos, int type, dou
     Color[1] = (GLubyte)(color.g);
     Color[2] = (GLubyte)(color.b);
     Color[3] = (GLubyte)(color.a);
-    //	if (graphicsOptions.enableParticles){
+    //    if (graphicsOptions.enableParticles){
     switch(type) {
     case PARTICLE_EXPLOSION:
         animatedParticles.addParticles(num, pos, tex, force, life, billSize, Color, expForce);
@@ -66,7 +66,7 @@ void ParticleEngine::addAnimatedParticles(int num, glm::dvec3 pos, int type, dou
         animatedParticles.addParticles(num, pos, tex, force, life, billSize, Color, expForce);
         break;
     }
-    //	}
+    //    }
 }
 
 void ParticleEngine::addAnimatedParticles(int num, glm::dvec3 pos, ParticleEmitter *emitter) {
