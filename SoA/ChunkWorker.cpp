@@ -78,7 +78,11 @@ void WorkerThread(WorkerData *data) {
 			taskQueueManager.renderTaskPool.push_back(renderTask);
 			rpLock.unlock();
 			frLock.lock();
-            if (chunk) chunk->inFinishedMeshes = 1;
+            if (!chunk) {
+                std::cout << "Loading Task Chunk Is Null\n";
+            } else {
+                chunk->inFinishedMeshes = 1;
+            }
 			taskQueueManager.finishedChunkMeshes.push_back(data->chunkMesher->chunkMeshData);
 			data->chunkMesher->chunkMeshData = NULL;
 			frLock.unlock();

@@ -1306,7 +1306,7 @@ void LinkShaders(GLuint ProgramID, GLuint VertexShaderID, GLuint FragmentShaderI
         glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
         fprintf(stdout, "%s\n", &ProgramErrorMessage[0]);
     }
-
+    
     glDeleteShader(VertexShaderID);
     glDeleteShader(FragmentShaderID);
 }

@@ -104,11 +104,12 @@ void Player::initialize(string playerName) {
 
 void Player::updateCameras()
 {
-	calculateHeadPosition();
-	calculateWorldPosition();
 
 	_chunkCamera.update();
 	_worldCamera.update();
+
+    calculateHeadPosition();
+    calculateWorldPosition();
 
 	//rolling
 	/*float rotTheta = _rolling * M_PI * 2;

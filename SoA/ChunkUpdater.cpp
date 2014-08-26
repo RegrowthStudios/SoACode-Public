@@ -4,6 +4,7 @@
 #include "CAEngine.h"
 #include "ChunkUpdater.h"
 #include "Chunk.h"
+#include "Errors.h"
 #include "GameManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
@@ -216,6 +217,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
     GLbyte da, db, dc;
+
     //Falling check
     if (explodeDist){
         GLubyte d;
@@ -418,7 +420,7 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     Chunk* top = chunk->top;
     Chunk* bottom = chunk->bottom;
 
-    if ((phys = GETBLOCK(chunk->data[c]).physicsProperty - physStart) >= -1) {
+    if ((phys = GETBLOCK(chunk->data[c]).physicsProperty - physStart) > -1) {
         chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
     }
 

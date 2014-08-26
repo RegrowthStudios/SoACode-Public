@@ -217,7 +217,6 @@ void OpenglManager::glThreadLoop() {
 
 		SDL_GL_SwapWindow(mainWindow);
 		
-
 		if (graphicsOptions.maxFPS != 165 && 1000.0f / (float)graphicsOptions.maxFPS > (SDL_GetTicks() - startTicks)){  //bound fps to cap
 			Sleep((Uint32)(1000.0f / (float)graphicsOptions.maxFPS - (SDL_GetTicks() - startTicks)));
 		}
@@ -2151,7 +2150,6 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
     worldCamera.updateProjection();
 
     VP = worldCamera.projectionMatrix() * worldCamera.viewMatrix();
-    glm::mat4 IMVP(VP);
 
     float ambVal = st*(0.76f) + .01f;
     if (ambVal > 1.0f) ambVal = 1.0f;
