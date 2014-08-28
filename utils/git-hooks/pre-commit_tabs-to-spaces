@@ -33,6 +33,6 @@ if __name__ == "__main__":
         print __doc__
     else:
         filepath = argv[0]
-        extensions_to_convert = ('c', 'cpp', 'h', 'hpp')
+        extensions_to_convert = ('c', 'cpp', 'h', 'hpp', 'cs', 'py')
         if filepath.endswith(extensions_to_convert):
             tabs_to_spaces(filepath)
