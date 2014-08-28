@@ -34,7 +34,6 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
 	freeWaiting = 0;
-	hadMeshLastUpdate = 0;
 	hasLoadedSunlight = 0;
 	isAccessible = 0;
 	inLoadThread = 0;
@@ -56,7 +55,7 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	hzIndex = hzI;
     position = pos;
 	drawIndex = -1;
-	num = -1;
+	numBlocks = -1;
 	state = ChunkStates::LOAD;
 	left = NULL;
 	right = NULL;
@@ -126,7 +125,6 @@ void Chunk::clearBuffers()
 	if (mesh){
 		ChunkMeshData *cmd = new ChunkMeshData(this);
 		cmd->chunkMesh = mesh;
-		cmd->bAction = cmd->wAction = 2;
 		mesh = NULL;
 		cmd->debugCode = 1; 
 		gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));

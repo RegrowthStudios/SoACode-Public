@@ -2155,7 +2155,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     }
 
     //Stores the data for a chunk mesh
-    chunkMeshData = new ChunkMeshData(renderTask->chunk);
+    chunkMeshData = new ChunkMeshData(renderTask);
 
     for (mi.y = 0; mi.y < CHUNK_WIDTH; mi.y++) {
 
@@ -2280,52 +2280,40 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     int indice = (index / 4) * 6;
 
-    chunkMeshData->bAction = 0;
-    chunkMeshData->wAction = 0;
+    ChunkMeshInfo& meshInfo = chunkMeshData->meshInfo;
 
     //add all vertices to the vbo
-    if (chunkMeshData->vertices.size() || chunkMeshData->transVertices.size() || chunkMeshData->cutoutVertices.size()){
-		chunkMeshData->indexSize = (chunkMeshData->vertices.size() * 6) / 4;
+    if (chunkMeshData->vertices.size() || chunkMeshData->transVertices.size() || chunkMeshData->cutoutVertices.size()) {
+        meshInfo.indexSize = (chunkMeshData->vertices.size() * 6) / 4;
 
 		//now let the sizes represent indice sizes
-		chunkMeshData->pyVboOff = pyVboOff;
-		chunkMeshData->pyVboSize = (mi.pyVboSize / 4) * 6;
-		chunkMeshData->nyVboOff = nyVboOff;
-		chunkMeshData->nyVboSize = (mi.nyVboSize / 4) * 6;
-		chunkMeshData->pxVboOff = pxVboOff;
-		chunkMeshData->pxVboSize = (mi.pxVboSize / 4) * 6;
-		chunkMeshData->nxVboOff = nxVboOff;
-		chunkMeshData->nxVboSize = (mi.nxVboSize / 4) * 6;
-		chunkMeshData->pzVboOff = pzVboOff;
-		chunkMeshData->pzVboSize = (mi.pzVboSize / 4) * 6;
-		chunkMeshData->nzVboOff = nzVboOff;
-		chunkMeshData->nzVboSize = (mi.nzVboSize / 4) * 6;
+		meshInfo.pyVboOff = pyVboOff;
+		meshInfo.pyVboSize = (mi.pyVboSize / 4) * 6;
+		meshInfo.nyVboOff = nyVboOff;
+		meshInfo.nyVboSize = (mi.nyVboSize / 4) * 6;
+		meshInfo.pxVboOff = pxVboOff;
+		meshInfo.pxVboSize = (mi.pxVboSize / 4) * 6;
+		meshInfo.nxVboOff = nxVboOff;
+		meshInfo.nxVboSize = (mi.nxVboSize / 4) * 6;
+		meshInfo.pzVboOff = pzVboOff;
+		meshInfo.pzVboSize = (mi.pzVboSize / 4) * 6;
+		meshInfo.nzVboOff = nzVboOff;
+		meshInfo.nzVboSize = (mi.nzVboSize / 4) * 6;
 
-        chunkMeshData->transVboSize = (mi.transparentIndex / 4) * 6;
-        chunkMeshData->cutoutVboSize = (mi.cutoutIndex / 4) * 6;
+        meshInfo.transVboSize = (mi.transparentIndex / 4) * 6;
+        meshInfo.cutoutVboSize = (mi.cutoutIndex / 4) * 6;
       
-		chunkMeshData->highestY = highestY;
-		chunkMeshData->lowestY = lowestY;
-		chunkMeshData->highestX = highestX;
-		chunkMeshData->lowestX = lowestX;
-		chunkMeshData->highestZ = highestZ;
-		chunkMeshData->lowestZ = lowestZ;
-
-		chunkMeshData->bAction = 1;
-	}
-	else{
-		chunkMeshData->indexSize = 0;
-		chunkMeshData->bAction = 2;
+		meshInfo.highestY = highestY;
+		meshInfo.lowestY = lowestY;
+		meshInfo.highestX = highestX;
+		meshInfo.lowestX = lowestX;
+		meshInfo.highestZ = highestZ;
+		meshInfo.lowestZ = lowestZ;
 	}
 
 	if (mi.liquidIndex){
-        chunkMeshData->waterIndexSize = (mi.liquidIndex * 6) / 4;
-		chunkMeshData->waterVertices.swap(_waterVboVerts);
-		chunkMeshData->wAction = 1;
-	}
-	else{
-		chunkMeshData->waterIndexSize = 0;
-		chunkMeshData->wAction = 2;
+        meshInfo.waterIndexSize = (mi.liquidIndex * 6) / 4;
+        chunkMeshData->waterVertices.swap(_waterVboVerts);
 	}
 
 	return 0;
@@ -2337,7 +2325,7 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
 		ERROR("Tried to create mesh with in use chunkMeshData!");
 		return 0;
 	}
-    chunkMeshData = new ChunkMeshData(renderTask->chunk);
+    chunkMeshData = new ChunkMeshData(renderTask);
 
     _waterVboVerts.clear();
     MeshInfo mi = {};
@@ -2354,16 +2342,9 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
         addLiquidToMesh(mi);
     }
 
-	chunkMeshData->bAction = 0;
-
 	if (mi.liquidIndex){
-        chunkMeshData->waterIndexSize = (mi.liquidIndex * 6) / 4;
+        chunkMeshData->meshInfo.waterIndexSize = (mi.liquidIndex * 6) / 4;
 		chunkMeshData->waterVertices.swap(_waterVboVerts);
-		chunkMeshData->wAction = 1;
-	}
-	else{
-		chunkMeshData->waterIndexSize = 0;
-		chunkMeshData->wAction = 2;
 	}
     
 	return 0;

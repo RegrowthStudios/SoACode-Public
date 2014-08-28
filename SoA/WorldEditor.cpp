@@ -845,7 +845,7 @@ void WorldEditor::refreshEditorBlocks(Block &newBlock)
 			SETFLAGS(id, acol);
 		}
         ChunkUpdater::placeBlock(ch, c, id);
-		if (editorBlocks[i]->ch->num == 0) editorBlocks[i]->ch->num = 1;
+		if (editorBlocks[i]->ch->numBlocks == 0) editorBlocks[i]->ch->numBlocks = 1;
 	}
 
 	cout << "TIME2: " << SDL_GetTicks() - strt << endl;

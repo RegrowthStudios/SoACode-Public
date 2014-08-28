@@ -7,6 +7,7 @@
 #include "global.h"
 #include "Keg.h"
 #include "Rendering.h"
+#include "ChunkMesh.h"
 
 #define VISITED_NODE 3945
 #define LOWWATER 3946
@@ -107,8 +108,6 @@ using namespace std;
 
 
 extern vector <int> TextureUnitIndices;
-
-enum class MeshType { NONE, BLOCK, LEAVES, FLORA, CROSSFLORA, LIQUID };
 
 const int numBlocks = 4096;
 

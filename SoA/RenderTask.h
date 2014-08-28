@@ -12,17 +12,13 @@ const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
 const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
 const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
+enum class MeshJobType { DEFAULT, LIQUID };
+
 // Represents A Mesh Creation Task
 struct RenderTask {
 public:
     // Helper Function To Set The Chunk Data
-    void setChunk(Chunk* ch, i32 cType) {
-        type = cType;
-        chunk = ch;
-        num = ch->num;
-        position = ch->position;
-        wSize = 0;
-    }
+    void setChunk(Chunk* ch, MeshJobType cType);
 
 	// Notice that the edges of the chunk data are padded. We have to do this because
 	// We don't want to have to access neighboring chunks in multiple threads, that requires
@@ -36,7 +32,7 @@ public:
 	i32 wSize;
 	ui16 wvec[CHUNK_SIZE];
 	i32 num;
-	i32 type; // RENDER_TASK_RENDER, RENDER_TASK_WATER
+    MeshJobType type; // RENDER_TASK_RENDER, RENDER_TASK_WATER
 	i32v3 position;
     Chunk* chunk;
 };

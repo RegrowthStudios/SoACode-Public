@@ -21,41 +21,38 @@ void ChunkRenderer::draw(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, cons
 
     glBindVertexArray(CMI->vaoID);
 
+    const ChunkMeshInfo& chunkMeshInfo = CMI->meshInfo;
 
-    //vertices
-    if (debugVarc){ //draw all at once
-        glDrawElements(GL_TRIANGLES, CMI->indexSize, GL_UNSIGNED_INT, 0);
-    } else{ //draw directions individually
-        //top
-        if (CMI->pyVboSize && PlayerPos.y > CMI->position.y + CMI->lowestY){
-            glDrawElements(GL_TRIANGLES, CMI->pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->pyVboOff * 6 * sizeof(GLuint)) / 4));
-        }
-
-        //front
-        if (CMI->pzVboSize && PlayerPos.z > CMI->position.z + CMI->lowestZ){
-            glDrawElements(GL_TRIANGLES, CMI->pzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->pzVboOff * 6 * sizeof(GLuint)) / 4));
-        }
-
-        //back
-        if (CMI->nzVboSize && PlayerPos.z < CMI->position.z + CMI->highestZ){
-            glDrawElements(GL_TRIANGLES, CMI->nzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->nzVboOff * 6 * sizeof(GLuint)) / 4));
-        }
-
-        //left
-        if (CMI->nxVboSize && PlayerPos.x < CMI->position.x + CMI->highestX){
-            glDrawElements(GL_TRIANGLES, CMI->nxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->nxVboOff * 6 * sizeof(GLuint)) / 4));
-        }
-
-        //right
-        if (CMI->pxVboSize && PlayerPos.x > CMI->position.x + CMI->lowestX){
-            glDrawElements(GL_TRIANGLES, CMI->pxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->pxVboOff * 6 * sizeof(GLuint)) / 4));
-        }
-
-        //bottom
-        if (CMI->nyVboSize && PlayerPos.y < CMI->position.y + CMI->highestY){
-            glDrawElements(GL_TRIANGLES, CMI->nyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->nyVboOff * 6 * sizeof(GLuint)) / 4));
-        }
+    //top
+    if (chunkMeshInfo.pyVboSize && PlayerPos.y > CMI->position.y + chunkMeshInfo.lowestY){
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pyVboOff * 6 * sizeof(GLuint)) / 4));
     }
+
+    //front
+    if (chunkMeshInfo.pzVboSize && PlayerPos.z > CMI->position.z + chunkMeshInfo.lowestZ){
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.pzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pzVboOff * 6 * sizeof(GLuint)) / 4));
+    }
+
+    //back
+    if (chunkMeshInfo.nzVboSize && PlayerPos.z < CMI->position.z + chunkMeshInfo.highestZ){
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.nzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nzVboOff * 6 * sizeof(GLuint)) / 4));
+    }
+
+    //left
+    if (chunkMeshInfo.nxVboSize && PlayerPos.x < CMI->position.x + chunkMeshInfo.highestX){
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.nxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nxVboOff * 6 * sizeof(GLuint)) / 4));
+    }
+
+    //right
+    if (chunkMeshInfo.pxVboSize && PlayerPos.x > CMI->position.x + chunkMeshInfo.lowestX){
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.pxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pxVboOff * 6 * sizeof(GLuint)) / 4));
+    }
+
+    //bottom
+    if (chunkMeshInfo.nyVboSize && PlayerPos.y < CMI->position.y + chunkMeshInfo.highestY){
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.nyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nyVboOff * 6 * sizeof(GLuint)) / 4));
+    }
+    
 
     glBindVertexArray(0);
 }
@@ -76,7 +73,7 @@ void ChunkRenderer::drawTransparentBlocks(const ChunkMesh *CMI, const glm::dvec3
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CMI->transIndexID);
 
-    glDrawElements(GL_TRIANGLES, CMI->transVboSize, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, CMI->meshInfo.transVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
 
@@ -96,7 +93,7 @@ void ChunkRenderer::drawCutoutBlocks(const ChunkMesh *CMI, const glm::dvec3 &pla
 
     glBindVertexArray(CMI->cutoutVaoID);
 
-    glDrawElements(GL_TRIANGLES, CMI->cutoutVboSize, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, CMI->meshInfo.cutoutVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
 
@@ -118,33 +115,35 @@ void ChunkRenderer::drawSonar(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos,
 
         glBindVertexArray(CMI->vaoID);
 
-        if (CMI->pyVboSize && PlayerPos.y > CMI->position.y + CMI->lowestY){
-            glDrawElements(GL_TRIANGLES, CMI->pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->pyVboOff * 6 * sizeof(GLuint)) / 4));
+        const ChunkMeshInfo& chunkMeshInfo = CMI->meshInfo;
+
+        if (chunkMeshInfo.pyVboSize && PlayerPos.y > CMI->position.y + chunkMeshInfo.lowestY){
+            glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pyVboOff * 6 * sizeof(GLuint)) / 4));
         }
 
         //front
-        if (CMI->pzVboSize && PlayerPos.z > CMI->position.z + CMI->lowestZ){
-            glDrawElements(GL_TRIANGLES, CMI->pzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->pzVboOff * 6 * sizeof(GLuint)) / 4));
+        if (chunkMeshInfo.pzVboSize && PlayerPos.z > CMI->position.z + chunkMeshInfo.lowestZ){
+            glDrawElements(GL_TRIANGLES, chunkMeshInfo.pzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pzVboOff * 6 * sizeof(GLuint)) / 4));
         }
 
         //back
-        if (CMI->nzVboSize && PlayerPos.z < CMI->position.z + CMI->highestZ){
-            glDrawElements(GL_TRIANGLES, CMI->nzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->nzVboOff * 6 * sizeof(GLuint)) / 4));
+        if (chunkMeshInfo.nzVboSize && PlayerPos.z < CMI->position.z + chunkMeshInfo.highestZ){
+            glDrawElements(GL_TRIANGLES, chunkMeshInfo.nzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nzVboOff * 6 * sizeof(GLuint)) / 4));
         }
 
         //left
-        if (CMI->nxVboSize && PlayerPos.x < CMI->position.x + CMI->highestX){
-            glDrawElements(GL_TRIANGLES, CMI->nxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->nxVboOff * 6 * sizeof(GLuint)) / 4));
+        if (chunkMeshInfo.nxVboSize && PlayerPos.x < CMI->position.x + chunkMeshInfo.highestX){
+            glDrawElements(GL_TRIANGLES, chunkMeshInfo.nxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nxVboOff * 6 * sizeof(GLuint)) / 4));
         }
 
         //right
-        if (CMI->pxVboSize && PlayerPos.x > CMI->position.x + CMI->lowestX){
-            glDrawElements(GL_TRIANGLES, CMI->pxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->pxVboOff * 6 * sizeof(GLuint)) / 4));
+        if (chunkMeshInfo.pxVboSize && PlayerPos.x > CMI->position.x + chunkMeshInfo.lowestX){
+            glDrawElements(GL_TRIANGLES, chunkMeshInfo.pxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pxVboOff * 6 * sizeof(GLuint)) / 4));
         }
 
         //bottom
-        if (CMI->nyVboSize && PlayerPos.y < CMI->position.y + CMI->highestY){
-            glDrawElements(GL_TRIANGLES, CMI->nyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (CMI->nyVboOff * 6 * sizeof(GLuint)) / 4));
+        if (chunkMeshInfo.nyVboSize && PlayerPos.y < CMI->position.y + chunkMeshInfo.highestY){
+            glDrawElements(GL_TRIANGLES, chunkMeshInfo.nyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nyVboOff * 6 * sizeof(GLuint)) / 4));
         }
 
         glBindVertexArray(0);
@@ -181,7 +180,7 @@ void ChunkRenderer::drawWater(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos,
         //light
         glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
 
-        glDrawElements(GL_TRIANGLES, CMI->waterIndexSize, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, CMI->meshInfo.waterIndexSize, GL_UNSIGNED_INT, 0);
         GlobalModelMatrix[0][0] = 1.0;
         GlobalModelMatrix[1][1] = 1.0;
         GlobalModelMatrix[2][2] = 1.0;

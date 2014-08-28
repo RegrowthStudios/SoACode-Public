@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "OpenglManager.h"
+#include "ChunkMesh.h"
+#include "RenderTask.h"
 
 #include <thread>
 #include <mutex>
@@ -1775,6 +1777,25 @@ void OpenglManager::UpdateTerrainMesh(TerrainMeshMessage *tmm)
     delete tmm;
 }
 
+inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
+    // Block Vertices
+    if (vboID == 0){
+        glGenBuffers(1, &(vboID)); // Create the buffer ID
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    glBufferData(GL_ARRAY_BUFFER, size, NULL, usage);
+
+
+    void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, size, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+    if (v == NULL) return false;
+
+    memcpy(v, src, size);
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    return true;
+}
+
 void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
 {
     ChunkMesh *cm = cmd->chunkMesh;
@@ -1788,192 +1809,106 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
     cm->transQuadIndices.swap(cmd->transQuadIndices);
     cm->transQuadPositions.swap(cmd->transQuadPositions);
 
-    //blocks
-    if (cmd->bAction == 1){ //mesh is non empty
+    switch (cmd->type) {
+        case MeshJobType::DEFAULT:
+            if (cmd->vertices.size()) {
+                if (cm->vecIndex == -1){
+                    cm->vecIndex = chunkMeshes.size();
+                    chunkMeshes.push_back(cm);
+                }
 
-        if (cmd->vertices.size()) {
-            if (cm->vecIndex == -1){
-                cm->vecIndex = chunkMeshes.size();
-                chunkMeshes.push_back(cm);
+                mapBufferData(cm->vboID, cmd->vertices.size() * sizeof(BlockVertex), &(cmd->vertices[0]), GL_STATIC_DRAW);
+
+                ChunkRenderer::bindVao(cm);
+                cout << "BOUND IT\n";
+            } else {
+                if (cm->vboID != 0){
+                    glDeleteBuffers(1, &(cm->vboID));
+                }
+                if (cm->vaoID != 0){
+                    glDeleteVertexArrays(1, &(cm->vaoID));
+                }
+                cm->vboID = 0;
+                cm->vaoID = 0;
             }
 
-            // Block Vertices
-            if (cm->vboID == 0){
-                glGenBuffers(1, &(cm->vboID)); // Create the buffer ID
-                glBindBuffer(GL_ARRAY_BUFFER, cm->vboID); // Bind the buffer (vertex array data)
-                glBufferData(GL_ARRAY_BUFFER, cmd->vertices.size() * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
-            } else{
-                glBindBuffer(GL_ARRAY_BUFFER, cm->vboID);
-                glBufferData(GL_ARRAY_BUFFER, cmd->vertices.size() * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
+            if (cmd->transVertices.size()) {
+                if (cm->vecIndex == -1){
+                    cm->vecIndex = chunkMeshes.size();
+                    chunkMeshes.push_back(cm);
+                }
+    
+                //vertex data
+                mapBufferData(cm->transVboID, cmd->transVertices.size() * sizeof(BlockVertex), &(cmd->transVertices[0]), GL_STATIC_DRAW);
+
+                //index data
+                mapBufferData(cm->transIndexID, cmd->transQuadIndices.size() * sizeof(ui32), &(cmd->transQuadIndices[0]), GL_STATIC_DRAW);
+
+                cm->needsSort = true; //must sort when changing the mesh
+
+                ChunkRenderer::bindTransparentVao(cm);
+            } else {
+                if (cm->transVaoID != 0){
+                    glDeleteVertexArrays(1, &(cm->transVaoID));
+                }
+                if (cm->transVboID == 0) {
+                    glDeleteBuffers(1, &(cm->transVboID));
+                }
+                if (cm->transIndexID == 0) {
+                    glDeleteBuffers(1, &(cm->transIndexID));
+                }
+                cm->transVboID = 0;
+                cm->transIndexID = 0;
+                cm->transVaoID = 0;
             }
 
-            void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, cmd->vertices.size() * sizeof(BlockVertex), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+            if (cmd->cutoutVertices.size()) {
+                if (cm->vecIndex == -1){
+                    cm->vecIndex = chunkMeshes.size();
+                    chunkMeshes.push_back(cm);
+                }
 
-            if (v == NULL) pError("Failed to map buffer 1.");
+                mapBufferData(cm->cutoutVboID, cmd->cutoutVertices.size() * sizeof(BlockVertex), &(cmd->cutoutVertices[0]), GL_STATIC_DRAW);
 
-            memcpy(v, &(cmd->vertices[0]), cmd->vertices.size() * sizeof(BlockVertex));
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-
-            ChunkRenderer::bindVao(cm);
-        } else {
-            if (cm->vboID != 0){
-                glDeleteBuffers(1, &(cm->vboID));
+                ChunkRenderer::bindCutoutVao(cm);
+            } else {
+                if (cm->cutoutVaoID != 0){
+                    glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+                }
+                if (cm->cutoutVboID == 0) {
+                    glDeleteBuffers(1, &(cm->cutoutVboID));
+                }
+                cm->cutoutVboID = 0;
+                cm->cutoutVaoID = 0;
             }
-            if (cm->vaoID != 0){
-                glDeleteVertexArrays(1, &(cm->vaoID));
+            cm->meshInfo = cmd->meshInfo;
+        //The missing break is deliberate!
+        case MeshJobType::LIQUID:
+
+            cm->meshInfo.waterIndexSize = cmd->meshInfo.waterIndexSize;
+            if (cmd->waterVertices.size()) {
+                if (cm->vecIndex == -1){
+                    cm->vecIndex = chunkMeshes.size();
+                    chunkMeshes.push_back(cm);
+                }
+
+                mapBufferData(cm->waterVboID, cmd->waterVertices.size() * sizeof(LiquidVertex), &(cmd->waterVertices[0]), GL_STREAM_DRAW);           
+            } else {
+                if (cm->waterVboID != 0){
+                    glDeleteBuffers(1, &(cm->waterVboID));
+                    cm->waterVboID = 0;
+                }   
             }
-            cm->vboID = 0;
-            cm->vaoID = 0;
-            cm->indexSize = 0;
-        }
-
-        // Non block vertices, like flora
-        if (cmd->transVboSize) {
-            if (cm->vecIndex == -1){
-                cm->vecIndex = chunkMeshes.size();
-                chunkMeshes.push_back(cm);
-            }
-
-            if (cm->transVboID == 0) {
-                glGenBuffers(1, &(cm->transVboID)); // Create the buffer ID
-                glGenBuffers(1, &(cm->transIndexID));
-            }
-
-            //vertex data
-            glBindBuffer(GL_ARRAY_BUFFER, cm->transVboID);
-            glBufferData(GL_ARRAY_BUFFER, cmd->transVertices.size() * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
-            void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, cmd->transVertices.size() * sizeof(BlockVertex), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-            if (v == NULL)pError("Failed to map transparency buffer.");
-            memcpy(v, &(cmd->transVertices[0]), cmd->transVertices.size() * sizeof(BlockVertex));
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-
-            //index data
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm->transIndexID);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, cm->transQuadIndices.size() * sizeof(ui32), NULL, GL_STATIC_DRAW);
-            v = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, cm->transQuadIndices.size() * sizeof(ui32), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-            if (v == NULL)pError("Failed to map transparency index buffer.");
-            memcpy(v, &(cm->transQuadIndices[0]), cm->transQuadIndices.size() * sizeof(ui32));
-            glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-
-            cm->needsSort = true; //must sort when changing the mesh
-
-            ChunkRenderer::bindTransparentVao(cm);
-        } else {
-            if (cm->transVaoID != 0){
-                glDeleteVertexArrays(1, &(cm->transVaoID));
-            }
-            if (cm->transVboID == 0) {
-                glDeleteBuffers(1, &(cm->transVboID));
-            }
-            if (cm->transIndexID == 0) {
-                glDeleteBuffers(1, &(cm->transIndexID));
-            }
-            cm->transVboID = 0;
-            cm->transIndexID = 0;
-            cm->transVaoID = 0;
-        }
-
-        if (cmd->cutoutVboSize) {
-            if (cm->vecIndex == -1){
-                cm->vecIndex = chunkMeshes.size();
-                chunkMeshes.push_back(cm);
-            }
-
-            if (cm->cutoutVboID == 0) {
-                glGenBuffers(1, &(cm->cutoutVboID)); // Create the buffer ID
-            }
-
-            //vertex data
-            glBindBuffer(GL_ARRAY_BUFFER, cm->cutoutVboID);
-            glBufferData(GL_ARRAY_BUFFER, cmd->cutoutVertices.size() * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
-            void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, cmd->cutoutVertices.size() * sizeof(BlockVertex), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-            if (v == NULL)pError("Failed to map transparency buffer.");
-            memcpy(v, &(cmd->cutoutVertices[0]), cmd->cutoutVertices.size() * sizeof(BlockVertex));
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-
-            ChunkRenderer::bindCutoutVao(cm);
-        } else {
-            if (cm->cutoutVaoID != 0){
-                glDeleteVertexArrays(1, &(cm->cutoutVaoID));
-            }
-            if (cm->cutoutVboID == 0) {
-                glDeleteBuffers(1, &(cm->cutoutVboID));
-            }
-            cm->cutoutVboID = 0;
-            cm->cutoutVaoID = 0;
-        }
-
-        //copy the mesh data
-        memcpy(&(cm->pxVboOff), &(cmd->pxVboOff), 88);
-
-    }
-    else if (cmd->bAction == 2){ //mesh is empty
-        if (cm->vboID != 0){
-            glDeleteBuffers(1, &(cm->vboID));
-        }
-        if (cm->vaoID != 0){
-            glDeleteVertexArrays(1, &(cm->vaoID));
-        }
-        if (cm->transVaoID != 0){
-            glDeleteVertexArrays(1, &(cm->transVaoID));
-        }
-        if (cm->transVboID == 0) {
-            glDeleteBuffers(1, &(cm->transVboID));
-        }
-        if (cm->transIndexID == 0) {
-            glDeleteBuffers(1, &(cm->transIndexID));
-        }
-        if (cm->cutoutVaoID != 0){
-            glDeleteVertexArrays(1, &(cm->cutoutVaoID));
-        }
-        if (cm->cutoutVboID == 0) {
-            glDeleteBuffers(1, &(cm->cutoutVboID));
-        }
-   
-        cm->vboID = 0;
-        cm->transVboID = 0;
-        cm->transIndexID = 0;
-        cm->vaoID = 0;
-        cm->transVaoID = 0;
-        cm->indexSize = 0;
-    }
-
-    //water
-    if (cmd->wAction == 1){
-        if (cm->vecIndex == -1){
-            cm->vecIndex = chunkMeshes.size();
-            chunkMeshes.push_back(cm);
-        }
-
-        if (cm->waterVboID == 0){
-            glGenBuffers(1, &(cm->waterVboID)); // Create the buffer ID
-        }
-        glBindBuffer(GL_ARRAY_BUFFER, cm->waterVboID); // Bind the buffer (vertex array data)
-        glBufferData(GL_ARRAY_BUFFER, cmd->waterVertices.size() * sizeof(LiquidVertex), NULL, GL_STREAM_DRAW);
-
-        void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, cmd->waterVertices.size() * sizeof(LiquidVertex), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-        if (v == NULL)pError("Failed to map water buffer.");
-        memcpy(v, &(cmd->waterVertices[0]), cmd->waterVertices.size() * sizeof(LiquidVertex));
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-
-        cm->waterIndexSize = cmd->waterIndexSize;
-    }
-    else if (cmd->wAction == 2){
-        if (cm->waterVboID != 0){
-            glDeleteBuffers(1, &(cm->waterVboID));
-        }
-        cm->waterVboID = 0;
-        cm->waterIndexSize = 0;
+            break;
     }
     
-    if (cm->waterIndexSize == 0 && cm->indexSize == 0 && cm->transVboSize == 0){
+    //If this mesh isnt in use anymore, delete it
+    if (cm->vboID == 0 && cm->waterVboID == 0 && cm->transVboID == 0 && cm->cutoutVboID == 0){
         if (cm->vecIndex != -1){
             chunkMeshes[cm->vecIndex] = chunkMeshes.back();
             chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
             chunkMeshes.pop_back();
+            cout << "GONE\n";
         }
         delete cm;
     }

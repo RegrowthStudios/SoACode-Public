@@ -46,7 +46,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
         //TODO: Replace most of this with block update scripts
         if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKTYPE(chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner)) < LOWWATER)){
             chunk->data[blockIndex] = NONE;
-            owner->num--;
+            owner->numBlocks--;
             needsSetup = true;
             newState = ChunkStates::WATERMESH;
             ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
@@ -115,7 +115,7 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
     Block &block = GETBLOCK(blockType);
 
     if (chunk->data[blockIndex] == NONE) {
-        chunk->num++;
+        chunk->numBlocks++;
     }
     chunk->data[blockIndex] = blockType;
 
@@ -173,7 +173,7 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
     Block &block = GETBLOCK(blockType);
 
     if (chunk->data[blockIndex] == NONE) {
-        chunk->num++;
+        chunk->numBlocks++;
     }
     chunk->data[blockIndex] = blockType;
 
@@ -215,6 +215,10 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     float explodeDist = glm::length(explodeDir);
 
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
+
+    if (chunk->getBlockID(blockIndex) == 0) {
+        cout << "ALREADY REMOVED\n";
+    }
 
     GLbyte da, db, dc;
 
@@ -288,8 +292,8 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
-    chunk->num--;
-    if (chunk->num < 0) chunk->num = 0;
+    chunk->numBlocks--;
+    if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
 
     chunk->changeState(ChunkStates::MESH);
@@ -339,8 +343,8 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
-    chunk->num--;
-    if (chunk->num < 0) chunk->num = 0;
+    chunk->numBlocks--;
+    if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
 
     chunk->changeState(ChunkStates::WATERMESH);

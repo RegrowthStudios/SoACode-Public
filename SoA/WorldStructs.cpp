@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "WorldStructs.h"
+#include "RenderTask.h"
 
 #include <cstdlib>
 
@@ -123,7 +124,12 @@ Biome::Biome()
 	for (; i < SURFACE_DEPTH; i++) surfaceLayers[i] = STONE;
 }
 
-ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), bAction(0), wAction(0), transVertIndex(0)
+
+ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), transVertIndex(0)
+{
+}
+
+ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), transVertIndex(0), type(task->type)
 {
 }
 

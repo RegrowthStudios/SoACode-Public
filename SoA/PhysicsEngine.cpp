@@ -707,7 +707,6 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
                 blockType = GETBLOCKTYPE(_fnodes[i].blockType);
                 Block &block = Blocks[blockType];
                 ch = _fnodes[i].ch;
-                ch->num--;
                 c = _fnodes[i].c;
                 if (GETBLOCK(ch->getTopBlockData(c, c / CHUNK_LAYER, &c2, &chunk2)).floatingAction == 2){
                     ChunkUpdater::removeBlock(chunk2, c2, 1);
