@@ -1,5 +1,5 @@
 # Windows line endings on all text files
-* text eol=crlf
+* text eol=auto
 
 # SOA binary asset files:
 *.png   binary
@@ -19,7 +19,7 @@
 *.hpp   binary
 
 # Language aware diffs and force line endings if git did not know they are text:
-*.h     diff=cpp eol=crlf
-*.cpp   diff=cpp eol=crlf
-*.py    diff=python eol=crlf
-*.cs    diff=csharp eol=crlf
+*.h     diff=cpp
+*.cpp   diff=cpp
+*.py    diff=python
+*.cs    diff=csharp
