@@ -3,7 +3,7 @@
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>
-          Win32
+		          Win32
  		</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
