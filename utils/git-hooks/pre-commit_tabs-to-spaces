@@ -22,7 +22,7 @@ def tabs_to_spaces(filepath):
     if changed:
         with open(filepath, 'wU' + mode) as fd:
             fd.write(untabbed_string)
-        print "Tabs to Spaces:", filepath + '.xml'
+        print "Tabs to Spaces:", filepath
 
 
 if __name__ == "__main__":
