@@ -15,6 +15,7 @@ fi
 
 if [ -n "$WORDS" ]; then
     echo "Possible spelling errors found in commit message: " $WORDS >&2
+    echo "To fix, use:  git commit --amend"
 fi
 
 exit 0
