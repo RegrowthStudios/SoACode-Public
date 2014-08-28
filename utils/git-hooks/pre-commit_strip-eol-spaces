@@ -20,7 +20,7 @@ def strip_eol_spaces(filepath):
                        filepath, filepath))
     changed = '\n'.join(diff)
     if changed:
-        with open(filepath, 'wU' + mode) as fd:
+        with open(filepath, 'w' + mode) as fd:
             fd.write(compact_string)
         print "Striped extra EOL Spaces:", filepath
 
@@ -33,6 +33,7 @@ if __name__ == "__main__":
         print __doc__
     else:
         filepath = argv[0]
-        extensions_to_convert = ('c', 'cpp', 'h', 'hpp', 'cs', 'py')
+        extensions_to_convert = ('c', 'cpp', 'h', 'hpp', 'cs', 'py',
+                                 'vcxproj', 'vcxproj.filters', 'xml')
         if filepath.endswith(extensions_to_convert):
             strip_eol_spaces(filepath)
