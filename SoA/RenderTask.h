@@ -20,9 +20,9 @@ public:
     // Helper Function To Set The Chunk Data
     void setChunk(Chunk* ch, MeshJobType cType);
 
-	// Notice that the edges of the chunk data are padded. We have to do this because
-	// We don't want to have to access neighboring chunks in multiple threads, that requires
-	// us to use mutex locks. This way is much faster and also prevents bounds checking
+    // Notice that the edges of the chunk data are padded. We have to do this because
+    // We don't want to have to access neighboring chunks in multiple threads, that requires
+    // us to use mutex locks. This way is much faster and also prevents bounds checking
     ui16 chData[PADDED_CHUNK_SIZE];
     ubyte chLightData[2][PADDED_CHUNK_SIZE];
     ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap

@@ -547,7 +547,7 @@ void CAEngine::powderPhysics(int c)
             hasChanged = 1;
         } else{ //otherwise do simple cellular automata
             b = GETBLOCKTYPE(b);
-            //	if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
+            //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
             if (GETBLOCK(owner->data[c2]).powderMove){
                 tmp = owner->data[c2];
                 ChunkUpdater::placeBlock(owner, c2, _chunk->data[c]);
@@ -652,7 +652,7 @@ void CAEngine::snowPhysics(int c)
             hasChanged = 1;
         } else{ //otherwise do simple cellular automata
             b = GETBLOCKTYPE(b);
-            //	if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
+            //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
             if (GETBLOCK(owner->data[c2]).powderMove){
                 tmp = owner->data[c2];
             } else{

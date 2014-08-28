@@ -37,49 +37,49 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-	void init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd);
-	
+    void init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd);
+    
     void changeState(ChunkStates State);
-	
-	int getLeftBlockData(int c);
-	int getLeftBlockData(int c, int x, int *c2, Chunk **owner);
-	int getRightBlockData(int c);
-	int getRightBlockData(int c, int x, int *c2, Chunk **owner);
-	int getFrontBlockData(int c);
-	int getFrontBlockData(int c, int z, int *c2, Chunk **owner);
-	int getBackBlockData(int c);
-	int getBackBlockData(int c, int z, int *c2, Chunk **owner);
-	int getBottomBlockData(int c);
-	int getBottomBlockData(int c, int y, int *c2, Chunk **owner);
-	int getTopBlockData(int c);
-	int getTopBlockData(int c, int *c2, Chunk **owner);
-	int getTopBlockData(int c, int y, int *c2, Chunk **owner);
+    
+    int getLeftBlockData(int c);
+    int getLeftBlockData(int c, int x, int *c2, Chunk **owner);
+    int getRightBlockData(int c);
+    int getRightBlockData(int c, int x, int *c2, Chunk **owner);
+    int getFrontBlockData(int c);
+    int getFrontBlockData(int c, int z, int *c2, Chunk **owner);
+    int getBackBlockData(int c);
+    int getBackBlockData(int c, int z, int *c2, Chunk **owner);
+    int getBottomBlockData(int c);
+    int getBottomBlockData(int c, int y, int *c2, Chunk **owner);
+    int getTopBlockData(int c);
+    int getTopBlockData(int c, int *c2, Chunk **owner);
+    int getTopBlockData(int c, int y, int *c2, Chunk **owner);
 
     int getTopSunlight(int c);
 
-	void getLeftLightData(int c, GLbyte &l, GLbyte &sl);
-	void getRightLightData(int c, GLbyte &l, GLbyte &sl);
-	void getFrontLightData(int c, GLbyte &l, GLbyte &sl);
-	void getBackLightData(int c, GLbyte &l, GLbyte &sl);
-	void getBottomLightData(int c, GLbyte &l, GLbyte &sl);
-	void getTopLightData(int c, GLbyte &l, GLbyte &sl);
+    void getLeftLightData(int c, GLbyte &l, GLbyte &sl);
+    void getRightLightData(int c, GLbyte &l, GLbyte &sl);
+    void getFrontLightData(int c, GLbyte &l, GLbyte &sl);
+    void getBackLightData(int c, GLbyte &l, GLbyte &sl);
+    void getBottomLightData(int c, GLbyte &l, GLbyte &sl);
+    void getTopLightData(int c, GLbyte &l, GLbyte &sl);
 
-	void clear(bool clearDraw = 1);
-	void clearBuffers();
-	
-	void CheckEdgeBlocks();
-	int GetPlantType(int x, int z, Biome *biome);
+    void clear(bool clearDraw = 1);
+    void clearBuffers();
+    
+    void CheckEdgeBlocks();
+    int GetPlantType(int x, int z, Biome *biome);
 
     void SetupMeshData(RenderTask *renderTask);
 
-	Chunk(){
-	}
-	~Chunk(){
-		clearBuffers();
-	}
+    Chunk(){
+    }
+    ~Chunk(){
+        clearBuffers();
+    }
 
-	static vector <MineralData*> possibleMinerals;
-	
+    static vector <MineralData*> possibleMinerals;
+    
     //getters
     ChunkStates getState() const { return state; }
     GLushort getBlockData(int c) const;
@@ -181,11 +181,11 @@ struct ChunkSlot
         fd = fD;
     }
 
-	Chunk *chunk;
-	glm::ivec3 position;
+    Chunk *chunk;
+    glm::ivec3 position;
 
     //squared distance
-	double distance2;
-	int ipos, jpos;
-	FaceData *fd;
+    double distance2;
+    int ipos, jpos;
+    FaceData *fd;
 };

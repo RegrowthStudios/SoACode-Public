@@ -93,7 +93,7 @@ void OpenglManager::glThreadLoop() {
 
     initResolutions();
 
-	InitializeShaders();
+    InitializeShaders();
     debugRenderer = new DebugRenderer();
 
     hudTexts.resize(100);
@@ -101,108 +101,108 @@ void OpenglManager::glThreadLoop() {
     initInputs();
 
     DrawLoadingScreen("Loading Block Data...");
-    //	GLuint stt = SDL_GetTicks();
+    //    GLuint stt = SDL_GetTicks();
 
     initConnectedTextures();
 
-	if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
-	//	cout << SDL_GetTicks() - stt << endl;
-	fileManager.saveBlocks("Data/test.ini");
-	//LoadBlockData(); //order is important.
+    if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
+    //    cout << SDL_GetTicks() - stt << endl;
+    fileManager.saveBlocks("Data/test.ini");
+    //LoadBlockData(); //order is important.
 
-	DrawLoadingScreen("Initializing Textures...");
+    DrawLoadingScreen("Initializing Textures...");
     LoadTextures();
 
-	SetBlockAvgTexColors();
+    SetBlockAvgTexColors();
 
-	DrawLoadingScreen("Initializing Menus and Objects...");
-	InitializeMenus();
-	currMenu = mainMenu;
+    DrawLoadingScreen("Initializing Menus and Objects...");
+    InitializeMenus();
+    currMenu = mainMenu;
 
-	InitializeObjects();
+    InitializeObjects();
 
-	//for use in pressure explosions
-	Blocks[VISITED_NODE] = Blocks[NONE];
-	Blocks[VISITED_NODE].ID = VISITED_NODE;
-	Blocks[VISITED_NODE].name = "Visited Node";
+    //for use in pressure explosions
+    Blocks[VISITED_NODE] = Blocks[NONE];
+    Blocks[VISITED_NODE].ID = VISITED_NODE;
+    Blocks[VISITED_NODE].name = "Visited Node";
 
-	DrawLoadingScreen("Initializing planet...");
+    DrawLoadingScreen("Initializing planet...");
 
-	GameManager::loadPlanet("Worlds/Aldrin/");
+    GameManager::loadPlanet("Worlds/Aldrin/");
 
-	mainMenuCamera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
-	mainMenuCamera.setDirection(glm::vec3(0.0, 0.0, -1.0));
-	mainMenuCamera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
-	mainMenuCamera.setUp(glm::cross(mainMenuCamera.right(), mainMenuCamera.direction()));
-	mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
+    mainMenuCamera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
+    mainMenuCamera.setDirection(glm::vec3(0.0, 0.0, -1.0));
+    mainMenuCamera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
+    mainMenuCamera.setUp(glm::cross(mainMenuCamera.right(), mainMenuCamera.direction()));
+    mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
 
-	GameManager::initializePlanet(mainMenuCamera.position());
+    GameManager::initializePlanet(mainMenuCamera.position());
 
-	mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
+    mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
 
 
-	inventoryMenu->InitializeInventory(player);
+    inventoryMenu->InitializeInventory(player);
 
-	//hudTexts.resize(30);
-	GLuint startTicks;
-	glToGame.enqueue(Message(GL_M_DONE, NULL));
+    //hudTexts.resize(30);
+    GLuint startTicks;
+    glToGame.enqueue(Message(GL_M_DONE, NULL));
     while (GameManager::gameState != GameStates::EXIT && !glExit){
-		startTicks = SDL_GetTicks();
-		GLenum err = glGetError();
-		if (CheckGLError()){
-			break;
-		}
-		if (graphicsOptions.needsFullscreenToggle){
-			if (graphicsOptions.isFullscreen){
-				SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-			}
-			else{
-				SDL_SetWindowFullscreen(mainWindow, 0);
-			}
-			graphicsOptions.needsFullscreenToggle = 0;
-			int w, h;
-			SDL_GetWindowSize(mainWindow, &w, &h);
-			graphicsOptions.windowWidth = w;
-			graphicsOptions.windowHeight = h;
-		}
-		if (graphicsOptions.needsWindowReload){
-			RebuildWindow();
-		}
-		else if (graphicsOptions.needsFboReload){
-			rebuildFrameBuffer();
-		}
-		openglManager.ProcessMessages();
+        startTicks = SDL_GetTicks();
+        GLenum err = glGetError();
+        if (CheckGLError()){
+            break;
+        }
+        if (graphicsOptions.needsFullscreenToggle){
+            if (graphicsOptions.isFullscreen){
+                SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            }
+            else{
+                SDL_SetWindowFullscreen(mainWindow, 0);
+            }
+            graphicsOptions.needsFullscreenToggle = 0;
+            int w, h;
+            SDL_GetWindowSize(mainWindow, &w, &h);
+            graphicsOptions.windowWidth = w;
+            graphicsOptions.windowHeight = h;
+        }
+        if (graphicsOptions.needsWindowReload){
+            RebuildWindow();
+        }
+        else if (graphicsOptions.needsFboReload){
+            rebuildFrameBuffer();
+        }
+        openglManager.ProcessMessages();
         if (GameManager::gameState == GameStates::PLAY){
-			static int st = 0;
-			//update mesh distances and sort them
-			if (st == 6){
-			//	UpdateMeshDistances();
-				RecursiveSortMeshList(chunkMeshes, 0, chunkMeshes.size());
-				st = 0;
-			}
-			else{
-				st++;
-			}
+            static int st = 0;
+            //update mesh distances and sort them
+            if (st == 6){
+            //    UpdateMeshDistances();
+                RecursiveSortMeshList(chunkMeshes, 0, chunkMeshes.size());
+                st = 0;
+            }
+            else{
+                st++;
+            }
 
 
-			UpdatePlayer();
-		}
+            UpdatePlayer();
+        }
         else if (GameManager::gameState == GameStates::MAINMENU){
-			mainMenuCamera.update();
-		}
+            mainMenuCamera.update();
+        }
         else if (GameManager::gameState == GameStates::ZOOMINGIN || GameManager::gameState == GameStates::ZOOMINGOUT){
-			ZoomingUpdate();
-			mainMenuCamera.update();
-		}
+            ZoomingUpdate();
+            mainMenuCamera.update();
+        }
         else if (GameManager::gameState == GameStates::WORLDEDITOR){
-			EditorState = E_MAIN;
-			glWorldEditorLoop();
-		}
-		GameManager::inputManager->update();
-		Control();
-		
+            EditorState = E_MAIN;
+            glWorldEditorLoop();
+        }
+        GameManager::inputManager->update();
+        Control();
+        
 
-		bdt += glSpeedFactor * 0.01;
+        bdt += glSpeedFactor * 0.01;
         /*BEGIN DEBUG*/
         debugRenderer->drawCube(glm::vec3(-16.0f, 260.0f, -250.0f), glm::vec3(10, 10, 10),              glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
         debugRenderer->drawCube(glm::vec3(-32.0f, 260.0f, -250.0f), glm::vec3(5, 8, 2),                 glm::vec4(0.0f, 1.0f, 1.0f, 0.5f));
@@ -223,11 +223,11 @@ void OpenglManager::glThreadLoop() {
 			Sleep((Uint32)(1000.0f / (float)graphicsOptions.maxFPS - (SDL_GetTicks() - startTicks)));
 		}
 
-		CalculateGlFps(frametimes, frametimelast, frameCount, glFps);
+        CalculateGlFps(frametimes, frametimelast, frameCount, glFps);
 
-	}
+    }
 
-	GameManager::inputManager->saveAxes();
+    GameManager::inputManager->saveAxes();
 
     for (size_t i = 0; i < Blocks.size(); i++){
         if (Blocks[i].active && !(i >= LOWWATER && i < FULLWATER || i > FULLWATER)){
@@ -237,13 +237,13 @@ void OpenglManager::glThreadLoop() {
 
     delete debugRenderer;
 
-	//SDL_FreeSurface(screen);
-	SDL_GL_DeleteContext(mainOpenGLContext);
-	cout << "QUITTING";
-	glToGame.enqueue(Message(GL_M_QUIT, NULL));
+    //SDL_FreeSurface(screen);
+    SDL_GL_DeleteContext(mainOpenGLContext);
+    cout << "QUITTING";
+    glToGame.enqueue(Message(GL_M_QUIT, NULL));
 
 #ifdef _DEBUG 
-    //	_CrtDumpMemoryLeaks();
+    //    _CrtDumpMemoryLeaks();
 #endif
 }
 
@@ -484,10 +484,10 @@ void DrawGame()
     //we need to have a camerad
 
     //if (getFrustum){
-    //	if (GameState != MAINMENU){
-    //		ExtractFrustum(player->FrustumProjectionMatrix, player->FrustumViewMatrix);
-    //	}
-    //	isChanged = 0;
+    //    if (GameState != MAINMENU){
+    //        ExtractFrustum(player->FrustumProjectionMatrix, player->FrustumViewMatrix);
+    //    }
+    //    isChanged = 0;
     //}
 
     if (GameManager::gameState == GameStates::MAINMENU || GameManager::gameState == GameStates::ZOOMINGIN || GameManager::gameState == GameStates::ZOOMINGOUT || 
@@ -500,7 +500,7 @@ void DrawGame()
             openglManager.cameraInfo->worldUp = mainMenuCamera.up();
             openglManager.cameraInfo->worldDir = mainMenuCamera.direction();
             openglManager.cameraInfo->viewMatrix = mainMenuCamera.viewMatrix();
-            openglManager.cameraInfo->projectionMatrix = mainMenuCamera.projectionMatrix();	
+            openglManager.cameraInfo->projectionMatrix = mainMenuCamera.projectionMatrix();    
         }
 
         openglManager.BindFrameBuffer();
@@ -550,7 +550,7 @@ void DrawGame()
         }
         glDisable(GL_DEPTH_TEST);
         openglManager.DrawFrameBuffer();
-    //	openglManager.DrawNoiseTest();
+    //    openglManager.DrawNoiseTest();
         glEnable(GL_DEPTH_TEST);
     }
     else if ((GameManager::gameState == GameStates::WORLDEDITOR && GameManager::worldEditor && GameManager::worldEditor->usingChunks)){
@@ -594,7 +594,7 @@ void DrawGame()
     //if (sunSinTheta < 0.1) sunSinTheta = 0.1;
 
     //if (player->underWater){
-    //	DrawFullScreenQuad(glm::vec4(sunSinTheta, sunSinTheta, sunSinTheta, 0.5) * glm::vec4(0.0, 0.5, 1.0, 1.0));
+    //    DrawFullScreenQuad(glm::vec4(sunSinTheta, sunSinTheta, sunSinTheta, 0.5) * glm::vec4(0.0, 0.5, 1.0, 1.0));
     //}
 
     switch (GameManager::gameState){
@@ -682,16 +682,16 @@ void Initialize_SDL_OpenGL()
     bmask = 0x00ff0000;
     amask = 0xff000000;
     }*/
-    //	if (graphicsOptions.isFullscreen){
-    //		screen = SDL_SetVideoMode(screenWidth, screenHeight, 16, SDL_SWSURFACE | SDL_OPENGL | SDL_FULLSCREEN); //SDL_FULLSCREEN
+    //    if (graphicsOptions.isFullscreen){
+    //        screen = SDL_SetVideoMode(screenWidth, screenHeight, 16, SDL_SWSURFACE | SDL_OPENGL | SDL_FULLSCREEN); //SDL_FULLSCREEN
     //SDL_WM_IconifyWindow(); //minimize application
-    //	}else{
-    //		screen = SDL_SetVideoMode(screenWidth, screenHeight, 16, SDL_SWSURFACE | SDL_OPENGL); //SDL_FULLSCREEN
+    //    }else{
+    //        screen = SDL_SetVideoMode(screenWidth, screenHeight, 16, SDL_SWSURFACE | SDL_OPENGL); //SDL_FULLSCREEN
     //SDL_WM_IconifyWindow(); //minimize application
-    //	}
+    //    }
 
-    //	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-    //	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+    //    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+    //    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     cout << "Video Driver: " << SDL_GetCurrentVideoDriver() << endl;
@@ -747,14 +747,14 @@ void Initialize_SDL_OpenGL()
     int vmajor;
     glGetIntegerv(GL_MAJOR_VERSION, &vmajor);
     glGetIntegerv(GL_MINOR_VERSION, &vminor);
-    printf("\n***		Opengl Version: %s\n", glGetString(GL_VERSION));
+    printf("\n***        Opengl Version: %s\n", glGetString(GL_VERSION));
     printf("\n***       CPU Threads: %u\n", thread::hardware_concurrency());
 
     if (vmajor < 3){// || (vminor == 3 && vminor < 3)){
         char buffer[2048];
         sprintf(buffer, "Your graphics card driver does not support at least OpenGL 3.3. Your OpenGL version is \"%s\". The game will most likely not work.\n\nEither your graphics card drivers are not up to date, or your computer is using an integrated graphics card instead of your gaming card.\nYou should be able to switch to your main graphics card by right clicking your desktop and going to graphics properties.", glGetString(GL_VERSION));
         pError(buffer);
-        //		exit(133);
+        //        exit(133);
     }
 
     if (!GLEW_VERSION_2_1){  // check that the machine supports the 2.1 API.
@@ -1061,9 +1061,9 @@ bool PlayerControl() {
                 break;
             case SDL_WINDOWEVENT:
                 if (evnt.window.type == SDL_WINDOWEVENT_LEAVE || evnt.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                    //			GameState = PAUSE;
-                    //			SDL_SetRelativeMouseMode(SDL_FALSE);
-                    //			isMouseIn = 0;
+                    //            GameState = PAUSE;
+                    //            SDL_SetRelativeMouseMode(SDL_FALSE);
+                    //            isMouseIn = 0;
                 }
                 break;
             }
@@ -1259,7 +1259,8 @@ bool MainMenuControl()
         if (currMenu == loadGameMenu){
             if (menuOptions.loadGameString != ""){
                 cout << "Deleting " << "Saves/" + menuOptions.loadGameString << endl;
-                fileManager.deleteDirectory("Saves/" + menuOptions.loadGameString, 1);
+                // TODO: Silent Failure Here
+                fileManager.deleteDirectory("Saves/" + menuOptions.loadGameString);
                 menuOptions.loadGameString = "";
                 currMenu->Open();
             }
@@ -1376,9 +1377,9 @@ bool MainMenuControl()
             loadGameMenu->SetOverlayActive(0);
 
             //if (GameManager::LoadGame(menuOptions.loadGameString) == 0){
-            //	GameManager::InitializePlayer(player);
-            //	GameState = ZOOMINGIN; //begin the zoom transition
-            //	zoomState = 0;
+            //    GameManager::InitializePlayer(player);
+            //    GameState = ZOOMINGIN; //begin the zoom transition
+            //    zoomState = 0;
             //}
         }
         break;
@@ -1547,9 +1548,9 @@ bool EditorControl()
             break;
         case SDL_WINDOWEVENT:
             if (evnt.window.type == SDL_WINDOWEVENT_LEAVE || evnt.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                //			GameState = PAUSE;
-                //			SDL_SetRelativeMouseMode(SDL_FALSE);
-                //			isMouseIn = 0;
+                //            GameState = PAUSE;
+                //            SDL_SetRelativeMouseMode(SDL_FALSE);
+                //            isMouseIn = 0;
             }
             break;
         }
@@ -1564,7 +1565,7 @@ void RebuildWindow()
         glFinish();
         SDL_GL_MakeCurrent(mainWindow, 0);
         SDL_DestroyWindow(mainWindow);
-        //	SDL_Window *tmp = mainWindow;
+        //    SDL_Window *tmp = mainWindow;
         mainWindow = NULL;
 
         Uint32 wflags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
@@ -1609,7 +1610,7 @@ void UpdatePlayer()
     player->setMoveMod(1.0f);
     player->canCling = 0;
     player->collisionData.yDecel = 0.0f;
-    //	cout << "C";
+    //    cout << "C";
 
     openglManager.collisionLock.lock();
     for (int i = 0; i < playerCollisionSteps; i++){
@@ -1640,9 +1641,9 @@ void ZoomingUpdate()
         else if (openglManager.zoomState == 1){
             if (mainMenuCamera.getIsZooming() == 0){
                 GameManager::gameState = GameStates::PLAY;
-                //		SDL_PumpEvents();
+                //        SDL_PumpEvents();
                 isMouseIn = 1;
-                //	SDL_SetRelativeMouseMode(SDL_TRUE);
+                //    SDL_SetRelativeMouseMode(SDL_TRUE);
                 currMenu = NULL;
                 openglManager.zoomState = 0;
             }
@@ -1660,9 +1661,9 @@ void ZoomingUpdate()
         else if (openglManager.zoomState == 1){
             if (mainMenuCamera.getIsZooming() == 0){
                 GameManager::gameState = GameStates::MAINMENU;
-                //			SDL_PumpEvents();
+                //            SDL_PumpEvents();
                 isMouseIn = 0;
-                //		SDL_SetRelativeMouseMode(SDL_FALSE);
+                //        SDL_SetRelativeMouseMode(SDL_FALSE);
                 currMenu = mainMenu;
                 openglManager.zoomState = 0;
             }
@@ -2164,8 +2165,8 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
     //********************Water********************
     DrawWater(VP, chunkCamera.position(), st, fogEnd, fogStart, FogColor, lightPos, diffColor, player->isUnderWater);
 
-	if (particleMeshes.size() > 0){
-		billboardShader.Bind();
+    if (particleMeshes.size() > 0){
+        billboardShader.Bind();
 
         glUniform1f(billboardShader.lightTypeID, (GLfloat)player->lightActive);
         glUniform3fv(billboardShader.eyeNormalID, 1, &(chunkDirection[0]));
@@ -2186,22 +2187,22 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         for (size_t i = 0; i < particleMeshes.size(); i++){
 
-			if (particleMeshes[i]->animated){
-				ParticleBatch::drawAnimated(particleMeshes[i], player->headPosition, VP);
-			}
-			else{
-				ParticleBatch::draw(particleMeshes[i], player->headPosition, VP);
-			}
-		}
-		glVertexAttribDivisor(0, 0);
-		glVertexAttribDivisor(2, 0); //restore divisors
-		glVertexAttribDivisor(3, 0);
-		glVertexAttribDivisor(4, 0);
-		glVertexAttribDivisor(5, 0);
-		//	glDepthMask(GL_TRUE);
+            if (particleMeshes[i]->animated){
+                ParticleBatch::drawAnimated(particleMeshes[i], player->headPosition, VP);
+            }
+            else{
+                ParticleBatch::draw(particleMeshes[i], player->headPosition, VP);
+            }
+        }
+        glVertexAttribDivisor(0, 0);
+        glVertexAttribDivisor(2, 0); //restore divisors
+        glVertexAttribDivisor(3, 0);
+        glVertexAttribDivisor(4, 0);
+        glVertexAttribDivisor(5, 0);
+        //    glDepthMask(GL_TRUE);
 
-		billboardShader.UnBind();
-	}
+        billboardShader.UnBind();
+    }
     debugRenderer->render(VP, glm::vec3(chunkCamera.position()));
 
 }

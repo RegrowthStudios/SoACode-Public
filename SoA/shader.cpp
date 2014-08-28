@@ -534,11 +534,11 @@ void AtmosphereToSkyShader::Initialize() {
     lightPosID = GetUniform(shaderID, "v3LightPos");
     invWavelengthID = GetUniform(shaderID, "v3InvWavelength");
     cameraHeightID = GetUniform(shaderID, "fCameraHeight");
-    //	cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
+    //    cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
     outerRadiusID = GetUniform(shaderID, "fOuterRadius");
-    //	outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
+    //    outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
     innerRadiusID = GetUniform(shaderID, "fInnerRadius");
-    //	innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
+    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
     KrESunID = GetUniform(shaderID, "fKrESun");
     KmESunID = GetUniform(shaderID, "fKmESun");
     Kr4PIID = GetUniform(shaderID, "fKr4PI");
@@ -569,16 +569,16 @@ void AtmosphereToGroundShader::Initialize() {
 
 
     mvpID = GetUniform(shaderID, "MVP");
-    //	mID = GetUniform(shaderID, "M");
+    //    mID = GetUniform(shaderID, "M");
     cameraPosID = GetUniform(shaderID, "cameraPos");
     lightPosID = GetUniform(shaderID, "lightPos");
     invWavelengthID = GetUniform(shaderID, "invWavelength");
     cameraHeightID = GetUniform(shaderID, "cameraHeight");
-    //	cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
-    //	outerRadiusID = GetUniform(shaderID, "fOuterRadius");
-    //	outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
+    //    cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
+    //    outerRadiusID = GetUniform(shaderID, "fOuterRadius");
+    //    outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
     innerRadiusID = GetUniform(shaderID, "innerRadius");
-    //	innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
+    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
     KrESunID = GetUniform(shaderID, "krESun");
     KmESunID = GetUniform(shaderID, "kmESun");
     Kr4PIID = GetUniform(shaderID, "kr4PI");
@@ -590,8 +590,8 @@ void AtmosphereToGroundShader::Initialize() {
     dtID = GetUniform(shaderID, "dt");
 
     secColorMultID = GetUniform(shaderID, "secColorMult");
-    //	gID = GetUniform(shaderID, "g");
-    //	g2ID = GetUniform(shaderID, "g2");
+    //    gID = GetUniform(shaderID, "g");
+    //    g2ID = GetUniform(shaderID, "g2");
 
     fSamplesID = GetUniform(shaderID, "fSamples");
     nSamplesID = GetUniform(shaderID, "nSamples");
@@ -650,12 +650,12 @@ void SpaceToSkyShader::Initialize() {
     cameraPosID = GetUniform(shaderID, "v3CameraPos");
     lightPosID = GetUniform(shaderID, "v3LightPos");
     invWavelengthID = GetUniform(shaderID, "v3InvWavelength");
-    //	cameraHeightID = GetUniform(shaderID, "fCameraHeight");
+    //    cameraHeightID = GetUniform(shaderID, "fCameraHeight");
     cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
     outerRadiusID = GetUniform(shaderID, "fOuterRadius");
-    //	outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
+    //    outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
     innerRadiusID = GetUniform(shaderID, "fInnerRadius");
-    //	innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
+    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
     KrESunID = GetUniform(shaderID, "fKrESun");
     KmESunID = GetUniform(shaderID, "fKmESun");
     Kr4PIID = GetUniform(shaderID, "fKr4PI");
@@ -686,16 +686,16 @@ void SpaceToGroundShader::Initialize() {
 
 
     mvpID = GetUniform(shaderID, "MVP");
-    //	mID = GetUniform(shaderID, "M");
+    //    mID = GetUniform(shaderID, "M");
     cameraPosID = GetUniform(shaderID, "cameraPos");
     lightPosID = GetUniform(shaderID, "lightPos");
     invWavelengthID = GetUniform(shaderID, "invWavelength");
-    //	cameraHeightID = GetUniform(shaderID, "cameraHeight");
+    //    cameraHeightID = GetUniform(shaderID, "cameraHeight");
     cameraHeight2ID = GetUniform(shaderID, "cameraHeight2");
     outerRadiusID = GetUniform(shaderID, "outerRadius");
     outerRadius2ID = GetUniform(shaderID, "outerRadius2");
     innerRadiusID = GetUniform(shaderID, "innerRadius");
-    //	innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
+    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
     KrESunID = GetUniform(shaderID, "krESun");
     KmESunID = GetUniform(shaderID, "kmESun");
     Kr4PIID = GetUniform(shaderID, "kr4PI");
@@ -707,8 +707,8 @@ void SpaceToGroundShader::Initialize() {
     dtID = GetUniform(shaderID, "dt");
 
     secColorMultID = GetUniform(shaderID, "secColorMult");
-    //	gID = GetUniform(shaderID, "g");
-    //	g2ID = GetUniform(shaderID, "g2");
+    //    gID = GetUniform(shaderID, "g");
+    //    g2ID = GetUniform(shaderID, "g2");
 
     worldOffsetID = GetUniform(shaderID, "worldOffset");
 
@@ -812,53 +812,53 @@ void WaterShader::UnBind() {
 
 //void ParticleShader::Initialize()
 //{
-///*	cout << "Loading particleShader\n";
-//	GLuint vID, fID;
-//	shaderID = LoadShaders( "Shaders/ParticleShading/ParticleShading.vertexshader", "Shaders/ParticleShading/ParticleShading.geometryshader","Shaders/ParticleShading/ParticleShading.fragmentshader", vID, fID );
-//	LinkShaders(shaderID, vID, fID);
-//	
+///*    cout << "Loading particleShader\n";
+//    GLuint vID, fID;
+//    shaderID = LoadShaders( "Shaders/ParticleShading/ParticleShading.vertexshader", "Shaders/ParticleShading/ParticleShading.geometryshader","Shaders/ParticleShading/ParticleShading.fragmentshader", vID, fID );
+//    LinkShaders(shaderID, vID, fID);
+//    
 //
-//	texturesID = GetUniform(shaderID, "textures");
+//    texturesID = GetUniform(shaderID, "textures");
 //
-//	ambientID = GetUniform(shaderID, "AmbientLight");
+//    ambientID = GetUniform(shaderID, "AmbientLight");
 //
-//	colorID = GetUniform(shaderID, "particleColor");
-//	textureUnitID = GetUniform(shaderID, "textureUnitID");
-//	gVPID = GetUniform(shaderID, "gVP");
-//	UVstartID = GetUniform(shaderID, "UVstart");
-//	UVwidthID = GetUniform(shaderID, "UVwidth");
-//	sunValID = GetUniform(shaderID, "sunVal");
-//	lightTypeID = GetUniform(shaderID, "lightType");
-//	eyeNormalID = GetUniform(shaderID, "eyeNormalWorldspace");
+//    colorID = GetUniform(shaderID, "particleColor");
+//    textureUnitID = GetUniform(shaderID, "textureUnitID");
+//    gVPID = GetUniform(shaderID, "gVP");
+//    UVstartID = GetUniform(shaderID, "UVstart");
+//    UVwidthID = GetUniform(shaderID, "UVwidth");
+//    sunValID = GetUniform(shaderID, "sunVal");
+//    lightTypeID = GetUniform(shaderID, "lightType");
+//    eyeNormalID = GetUniform(shaderID, "eyeNormalWorldspace");
 //
-//	int txv[8] = {0,1,2,3,4,5,6,7};
-//	glUseProgram(shaderID);
-//	glUniform1iv(texturesID, 8, txv);
-//	isInitialized = 1;*/
+//    int txv[8] = {0,1,2,3,4,5,6,7};
+//    glUseProgram(shaderID);
+//    glUniform1iv(texturesID, 8, txv);
+//    isInitialized = 1;*/
 //}
 //
 //void ParticleShader::Bind()
 //{
-///*	if (!isInitialized){
-//		printf("SHADER BINDED BEFORE INITIALIZATION");
-//		int a;
-//		cin >> a;
-//	}
-//	glUseProgram(shaderID);
-//	glEnableVertexAttribArray(0);
-//	glEnableVertexAttribArray(1);
-//	glEnableVertexAttribArray(2);
-//	glEnableVertexAttribArray(3);
-//	glEnableVertexAttribArray(4);*/
+///*    if (!isInitialized){
+//        printf("SHADER BINDED BEFORE INITIALIZATION");
+//        int a;
+//        cin >> a;
+//    }
+//    glUseProgram(shaderID);
+//    glEnableVertexAttribArray(0);
+//    glEnableVertexAttribArray(1);
+//    glEnableVertexAttribArray(2);
+//    glEnableVertexAttribArray(3);
+//    glEnableVertexAttribArray(4);*/
 //}
 //
 //void ParticleShader::UnBind()
 //{
-//	/*glDisableVertexAttribArray(0);
-//	glDisableVertexAttribArray(1);
-//	glDisableVertexAttribArray(2);
-//	glDisableVertexAttribArray(3);
-//	glDisableVertexAttribArray(4);*/
+//    /*glDisableVertexAttribArray(0);
+//    glDisableVertexAttribArray(1);
+//    glDisableVertexAttribArray(2);
+//    glDisableVertexAttribArray(3);
+//    glDisableVertexAttribArray(4);*/
 //}
 
 void BillboardShader::Initialize() {

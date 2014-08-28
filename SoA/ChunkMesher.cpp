@@ -18,7 +18,7 @@
 ChunkMesher::ChunkMesher()
 {
 
-	chunkMeshData = NULL;
+    chunkMeshData = NULL;
 
 }
 
@@ -29,28 +29,28 @@ ChunkMesher::~ChunkMesher()
 
 void ChunkMesher::bindVBOIndicesID()
 {
-	vector<GLuint> indices;
-	indices.resize(589824);
+    vector<GLuint> indices;
+    indices.resize(589824);
 
-	int j = 0;
-	for (Uint32 i = 0; i < indices.size()-12; i += 6){
-		indices[i] = j;
-		indices[i+1] = j+1;
-		indices[i+2] = j+2;
-		indices[i+3] = j+2;
-		indices[i+4] = j+3;
-		indices[i+5] = j;
-		j += 4;
-	}
+    int j = 0;
+    for (Uint32 i = 0; i < indices.size()-12; i += 6){
+        indices[i] = j;
+        indices[i+1] = j+1;
+        indices[i+2] = j+2;
+        indices[i+3] = j+2;
+        indices[i+4] = j+3;
+        indices[i+5] = j;
+        j += 4;
+    }
 
-	if (Chunk::vboIndicesID != 0){
-		glDeleteBuffers(1, &(Chunk::vboIndicesID));
-	}
-	glGenBuffers(1, &(Chunk::vboIndicesID));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
-		
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
+    if (Chunk::vboIndicesID != 0){
+        glDeleteBuffers(1, &(Chunk::vboIndicesID));
+    }
+    glGenBuffers(1, &(Chunk::vboIndicesID));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
+        
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
 #define CompareVertices(v1, v2) (v1.color[0] == v2.color[0] && v1.sunLight == v2.sunLight && v1.light == v2.light && v1.color[1] == v2.color[1] && v1.color[2] == v2.color[2] \
@@ -334,42 +334,42 @@ inline void makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i
     Verts[vertexIndex + 3].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[3]);
     Verts[vertexIndex + 3].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[3]);
 
-	Verts[vertexIndex].normal[0] = cubeNormals[vertexOffset];
-	Verts[vertexIndex].normal[1] = cubeNormals[vertexOffset + 1];
-	Verts[vertexIndex].normal[2] = cubeNormals[vertexOffset + 2];
-	Verts[vertexIndex + 1].normal[0] = cubeNormals[vertexOffset + 3];
-	Verts[vertexIndex + 1].normal[1] = cubeNormals[vertexOffset + 4];
-	Verts[vertexIndex + 1].normal[2] = cubeNormals[vertexOffset + 5];
-	Verts[vertexIndex + 2].normal[0] = cubeNormals[vertexOffset + 6];
-	Verts[vertexIndex + 2].normal[1] = cubeNormals[vertexOffset + 7];
-	Verts[vertexIndex + 2].normal[2] = cubeNormals[vertexOffset + 8];
-	Verts[vertexIndex + 3].normal[0] = cubeNormals[vertexOffset + 9];
-	Verts[vertexIndex + 3].normal[1] = cubeNormals[vertexOffset + 10];
-	Verts[vertexIndex + 3].normal[2] = cubeNormals[vertexOffset + 11];
+    Verts[vertexIndex].normal[0] = cubeNormals[vertexOffset];
+    Verts[vertexIndex].normal[1] = cubeNormals[vertexOffset + 1];
+    Verts[vertexIndex].normal[2] = cubeNormals[vertexOffset + 2];
+    Verts[vertexIndex + 1].normal[0] = cubeNormals[vertexOffset + 3];
+    Verts[vertexIndex + 1].normal[1] = cubeNormals[vertexOffset + 4];
+    Verts[vertexIndex + 1].normal[2] = cubeNormals[vertexOffset + 5];
+    Verts[vertexIndex + 2].normal[0] = cubeNormals[vertexOffset + 6];
+    Verts[vertexIndex + 2].normal[1] = cubeNormals[vertexOffset + 7];
+    Verts[vertexIndex + 2].normal[2] = cubeNormals[vertexOffset + 8];
+    Verts[vertexIndex + 3].normal[0] = cubeNormals[vertexOffset + 9];
+    Verts[vertexIndex + 3].normal[1] = cubeNormals[vertexOffset + 10];
+    Verts[vertexIndex + 3].normal[2] = cubeNormals[vertexOffset + 11];
 
-	Verts[vertexIndex].merge = 1;
-	Verts[vertexIndex + 1].merge = 1;
-	Verts[vertexIndex + 2].merge = 1;
-	Verts[vertexIndex + 3].merge = 1;
+    Verts[vertexIndex].merge = 1;
+    Verts[vertexIndex + 1].merge = 1;
+    Verts[vertexIndex + 2].merge = 1;
+    Verts[vertexIndex + 3].merge = 1;
 
-	if (waveEffect == 2){
-		Verts[vertexIndex].color[3] = 255;
-		Verts[vertexIndex + 1].color[3] = 255;
-		Verts[vertexIndex + 2].color[3] = 255;
-		Verts[vertexIndex + 3].color[3] = 255;
-	}
-	else if (waveEffect == 1){
-		Verts[vertexIndex].color[3] = 255;
-		Verts[vertexIndex + 1].color[3] = 0;
-		Verts[vertexIndex + 2].color[3] = 0;
-		Verts[vertexIndex + 3].color[3] = 255;
-	}
-	else{
-		Verts[vertexIndex].color[3] = 0;
-		Verts[vertexIndex + 1].color[3] = 0;
-		Verts[vertexIndex + 2].color[3] = 0;
-		Verts[vertexIndex + 3].color[3] = 0;
-	}
+    if (waveEffect == 2){
+        Verts[vertexIndex].color[3] = 255;
+        Verts[vertexIndex + 1].color[3] = 255;
+        Verts[vertexIndex + 2].color[3] = 255;
+        Verts[vertexIndex + 3].color[3] = 255;
+    }
+    else if (waveEffect == 1){
+        Verts[vertexIndex].color[3] = 255;
+        Verts[vertexIndex + 1].color[3] = 0;
+        Verts[vertexIndex + 2].color[3] = 0;
+        Verts[vertexIndex + 3].color[3] = 255;
+    }
+    else{
+        Verts[vertexIndex].color[3] = 0;
+        Verts[vertexIndex + 1].color[3] = 0;
+        Verts[vertexIndex + 2].color[3] = 0;
+        Verts[vertexIndex + 3].color[3] = 0;
+    }
 
     Verts[vertexIndex].tex[0] = 128 + uOffset;
     Verts[vertexIndex].tex[1] = 129 + vOffset;
@@ -381,10 +381,10 @@ inline void makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i
     Verts[vertexIndex + 3].tex[1] = 129 + vOffset;
 
     // *********** Base Texture
-	Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;
-	Verts[vertexIndex + 1].textureIndex = (GLubyte)textureIndex;
-	Verts[vertexIndex + 2].textureIndex = (GLubyte)textureIndex;
-	Verts[vertexIndex + 3].textureIndex = (GLubyte)textureIndex;
+    Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;
+    Verts[vertexIndex + 1].textureIndex = (GLubyte)textureIndex;
+    Verts[vertexIndex + 2].textureIndex = (GLubyte)textureIndex;
+    Verts[vertexIndex + 3].textureIndex = (GLubyte)textureIndex;
 
     Verts[vertexIndex].textureAtlas = (GLubyte)texAtlas;
     Verts[vertexIndex + 1].textureAtlas = (GLubyte)texAtlas;
@@ -454,153 +454,153 @@ inline void makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff
 
 void GetLeftLightData(int c, GLbyte &l, GLbyte &sl, GLushort *data, GLubyte *lightData[2])
 {
-	if (Blocks[GETBLOCKTYPE(data[c-1])].occlude){
-		l = sl = -1;
-	}else{
-		l = (lightData[0][c-1]); 
-		sl = (lightData[1][c-1]); 
-	}
+    if (Blocks[GETBLOCKTYPE(data[c-1])].occlude){
+        l = sl = -1;
+    }else{
+        l = (lightData[0][c-1]); 
+        sl = (lightData[1][c-1]); 
+    }
 }
 
 inline void GetRightLightData(int c, GLbyte &l, GLbyte &sl, GLushort *data, GLubyte *lightData[2])
 {
-	
-	if (Blocks[GETBLOCKTYPE(data[c + 1])].occlude){
-		l = sl = -1;
-	}else{
-		l = (lightData[0][c+1]); 
-		sl = (lightData[1][c+1]); 
-	}
+    
+    if (Blocks[GETBLOCKTYPE(data[c + 1])].occlude){
+        l = sl = -1;
+    }else{
+        l = (lightData[0][c+1]); 
+        sl = (lightData[1][c+1]); 
+    }
 }
 inline void GetFrontLightData(int c, GLbyte &l, GLbyte &sl, GLushort *data, GLubyte *lightData[2])
 {
-	if (Blocks[GETBLOCKTYPE(data[c + PADDED_WIDTH])].occlude){
-		l = sl = -1;
-	}else{
-		l = (lightData[0][c+PADDED_WIDTH]); 
-		sl = (lightData[1][c+PADDED_WIDTH]); 
-	}
+    if (Blocks[GETBLOCKTYPE(data[c + PADDED_WIDTH])].occlude){
+        l = sl = -1;
+    }else{
+        l = (lightData[0][c+PADDED_WIDTH]); 
+        sl = (lightData[1][c+PADDED_WIDTH]); 
+    }
 }
 inline void GetBackLightData(int c, GLbyte &l, GLbyte &sl, GLushort *data, GLubyte *lightData[2])
 {
-	if (Blocks[GETBLOCKTYPE(data[c - PADDED_WIDTH])].occlude){
-		l = sl = -1;
-	}else{
-		l = (lightData[0][c-PADDED_WIDTH]); 
-		sl = (lightData[1][c-PADDED_WIDTH]);
-	}
+    if (Blocks[GETBLOCKTYPE(data[c - PADDED_WIDTH])].occlude){
+        l = sl = -1;
+    }else{
+        l = (lightData[0][c-PADDED_WIDTH]); 
+        sl = (lightData[1][c-PADDED_WIDTH]);
+    }
 }
 inline void GetBottomLightData(int c, GLbyte &l, GLbyte &sl, GLushort *data, GLubyte *lightData[2])
 {
-	if (Blocks[GETBLOCKTYPE(data[c - PADDED_LAYER])].occlude){
-		l = sl = -1;
-	}else{
-		l = lightData[0][c - PADDED_LAYER];
-		sl = lightData[1][c - PADDED_LAYER];
-	}
+    if (Blocks[GETBLOCKTYPE(data[c - PADDED_LAYER])].occlude){
+        l = sl = -1;
+    }else{
+        l = lightData[0][c - PADDED_LAYER];
+        sl = lightData[1][c - PADDED_LAYER];
+    }
 }
 inline void GetTopLightData(int c, GLbyte &l, GLbyte &sl, GLushort *data, GLubyte *lightData[2])
 {
-	if (Blocks[GETBLOCKTYPE(data[c + PADDED_LAYER])].occlude){
-		l = sl = -1;
-	}else{
-		l = (lightData[0][c + PADDED_LAYER]);
-		sl = (lightData[1][c + PADDED_LAYER]);
-	}
+    if (Blocks[GETBLOCKTYPE(data[c + PADDED_LAYER])].occlude){
+        l = sl = -1;
+    }else{
+        l = (lightData[0][c + PADDED_LAYER]);
+        sl = (lightData[1][c + PADDED_LAYER]);
+    }
 }
 
 //Fills chLightData with the lighting information of the surrounding blocks. This will be used to calculate lighting and ambient occlusion
 //It only has to get the light voxels that were not grabbed in checkBlockFaces()
 void ChunkMesher::GetLightDataArray(int c, int &x, int &y, int &z, GLbyte lights[], GLbyte sunlights[], GLushort *chData, GLubyte *chLightData[2], bool faces[6])
 {
-	int c2;
-	//bottom 8 voxels
-	if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YNEG]){
-		c2 = c - PADDED_LAYER;
-		GetBackLightData(c2, lights[1], sunlights[1], chData, chLightData);
-		GetLeftLightData(c2, lights[3], sunlights[3], chData, chLightData);
-		GetRightLightData(c2, lights[5], sunlights[5], chData, chLightData);
-		GetFrontLightData(c2, lights[7], sunlights[7], chData, chLightData);
+    int c2;
+    //bottom 8 voxels
+    if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YNEG]){
+        c2 = c - PADDED_LAYER;
+        GetBackLightData(c2, lights[1], sunlights[1], chData, chLightData);
+        GetLeftLightData(c2, lights[3], sunlights[3], chData, chLightData);
+        GetRightLightData(c2, lights[5], sunlights[5], chData, chLightData);
+        GetFrontLightData(c2, lights[7], sunlights[7], chData, chLightData);
 
-		GetLeftLightData(c2 - PADDED_WIDTH, lights[0], sunlights[0], chData, chLightData);
-		GetRightLightData(c2 - PADDED_WIDTH, lights[2], sunlights[2], chData, chLightData);
-		
-		GetLeftLightData(c2 + PADDED_WIDTH, lights[6], sunlights[6], chData, chLightData);
-		GetRightLightData(c2 + PADDED_WIDTH, lights[8], sunlights[8], chData, chLightData);
-		
-	}
+        GetLeftLightData(c2 - PADDED_WIDTH, lights[0], sunlights[0], chData, chLightData);
+        GetRightLightData(c2 - PADDED_WIDTH, lights[2], sunlights[2], chData, chLightData);
+        
+        GetLeftLightData(c2 + PADDED_WIDTH, lights[6], sunlights[6], chData, chLightData);
+        GetRightLightData(c2 + PADDED_WIDTH, lights[8], sunlights[8], chData, chLightData);
+        
+    }
     //top 8 voxels
-	if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YPOS]){
-		c2 = c + PADDED_LAYER;
-		GetBackLightData(c2, lights[18], sunlights[18], chData, chLightData);
-		GetLeftLightData(c2, lights[20], sunlights[20], chData, chLightData);
-		GetRightLightData(c2, lights[22], sunlights[22], chData, chLightData);
-		GetFrontLightData(c2, lights[24], sunlights[24], chData, chLightData);
-			
-		GetLeftLightData(c2 - PADDED_WIDTH, lights[17], sunlights[17], chData, chLightData);
-		GetRightLightData(c2 - PADDED_WIDTH, lights[19], sunlights[19], chData, chLightData);
-		
-		GetLeftLightData(c2 + PADDED_WIDTH, lights[23], sunlights[23], chData, chLightData);
-		GetRightLightData(c2 + PADDED_WIDTH, lights[25], sunlights[25], chData, chLightData);
-	}
+    if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YPOS]){
+        c2 = c + PADDED_LAYER;
+        GetBackLightData(c2, lights[18], sunlights[18], chData, chLightData);
+        GetLeftLightData(c2, lights[20], sunlights[20], chData, chLightData);
+        GetRightLightData(c2, lights[22], sunlights[22], chData, chLightData);
+        GetFrontLightData(c2, lights[24], sunlights[24], chData, chLightData);
+            
+        GetLeftLightData(c2 - PADDED_WIDTH, lights[17], sunlights[17], chData, chLightData);
+        GetRightLightData(c2 - PADDED_WIDTH, lights[19], sunlights[19], chData, chLightData);
+        
+        GetLeftLightData(c2 + PADDED_WIDTH, lights[23], sunlights[23], chData, chLightData);
+        GetRightLightData(c2 + PADDED_WIDTH, lights[25], sunlights[25], chData, chLightData);
+    }
     //left 2 voxels
-	if (faces[XNEG] || faces[ZNEG] || faces[ZPOS]){
-		//left
-		c2 = c-1;
-		GetBackLightData(c2, lights[9], sunlights[9], chData, chLightData);
-		GetFrontLightData(c2, lights[14], sunlights[14], chData, chLightData);
-	}
+    if (faces[XNEG] || faces[ZNEG] || faces[ZPOS]){
+        //left
+        c2 = c-1;
+        GetBackLightData(c2, lights[9], sunlights[9], chData, chLightData);
+        GetFrontLightData(c2, lights[14], sunlights[14], chData, chLightData);
+    }
     //right 2 voxels
-	if (faces[XPOS] || faces[ZPOS] || faces[ZNEG]){
-		c2 = c+1;
-		GetBackLightData(c2, lights[11], sunlights[11], chData, chLightData);
-		GetFrontLightData(c2, lights[16], sunlights[16], chData, chLightData);
-	}
+    if (faces[XPOS] || faces[ZPOS] || faces[ZNEG]){
+        c2 = c+1;
+        GetBackLightData(c2, lights[11], sunlights[11], chData, chLightData);
+        GetFrontLightData(c2, lights[16], sunlights[16], chData, chLightData);
+    }
 }
 
 //This function checks all surrounding blocks and stores occlusion information in faces[]. It also stores the adjacent light and sunlight for each face.
 bool ChunkMesher::checkBlockFaces(bool faces[6], GLbyte lights[26], GLbyte sunlights[26], const RenderTask* task, const bool occlude, const int btype, const int wc)
 {
-	Block *nblock;
-	bool hasFace = false;
+    Block *nblock;
+    bool hasFace = false;
 
-	if (faces[XNEG] = ((nblock = &GETBLOCK(task->chData[wc - 1])))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype)){
-		hasFace = true;
-		lights[12] = (task->chLightData[0][wc - 1]);
-		sunlights[12] = (task->chLightData[1][wc - 1]);
-	}
-
-	if (faces[XPOS] = ((nblock = &GETBLOCK(task->chData[1 + wc]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[XNEG] = ((nblock = &GETBLOCK(task->chData[wc - 1])))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype)){
         hasFace = true;
-		lights[13] = (task->chLightData[0][1 + wc]);
-		sunlights[13] = (task->chLightData[1][1 + wc]);
-	}
+        lights[12] = (task->chLightData[0][wc - 1]);
+        sunlights[12] = (task->chLightData[1][wc - 1]);
+    }
 
-	if (faces[YNEG] = ((nblock = &GETBLOCK(task->chData[wc - PADDED_LAYER]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[XPOS] = ((nblock = &GETBLOCK(task->chData[1 + wc]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-		lights[4] = (task->chLightData[0][wc - PADDED_LAYER]);
-		sunlights[4] = (task->chLightData[1][wc - PADDED_LAYER]);
-	}
+        lights[13] = (task->chLightData[0][1 + wc]);
+        sunlights[13] = (task->chLightData[1][1 + wc]);
+    }
 
-	if (faces[YPOS] = ((nblock = &GETBLOCK(task->chData[wc + PADDED_LAYER]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[YNEG] = ((nblock = &GETBLOCK(task->chData[wc - PADDED_LAYER]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-		lights[21] = (task->chLightData[0][wc + PADDED_LAYER]);
-		sunlights[21] = (task->chLightData[1][wc + PADDED_LAYER]);
-	}
+        lights[4] = (task->chLightData[0][wc - PADDED_LAYER]);
+        sunlights[4] = (task->chLightData[1][wc - PADDED_LAYER]);
+    }
 
-	if (faces[ZNEG] = ((nblock = &GETBLOCK(task->chData[wc - PADDED_WIDTH]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[YPOS] = ((nblock = &GETBLOCK(task->chData[wc + PADDED_LAYER]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-		lights[10] = (task->chLightData[0][wc - PADDED_WIDTH]);
-		sunlights[10] = (task->chLightData[1][wc - PADDED_WIDTH]);
-	}
+        lights[21] = (task->chLightData[0][wc + PADDED_LAYER]);
+        sunlights[21] = (task->chLightData[1][wc + PADDED_LAYER]);
+    }
 
-	if (faces[ZPOS] = ((nblock = &GETBLOCK(task->chData[wc + PADDED_WIDTH]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[ZNEG] = ((nblock = &GETBLOCK(task->chData[wc - PADDED_WIDTH]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-		lights[15] = (task->chLightData[0][wc + PADDED_WIDTH]);
-		sunlights[15] = (task->chLightData[1][wc + PADDED_WIDTH]);
-	}
+        lights[10] = (task->chLightData[0][wc - PADDED_WIDTH]);
+        sunlights[10] = (task->chLightData[1][wc - PADDED_WIDTH]);
+    }
 
-	return hasFace;
+    if (faces[ZPOS] = ((nblock = &GETBLOCK(task->chData[wc + PADDED_WIDTH]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+        hasFace = true;
+        lights[15] = (task->chLightData[0][wc + PADDED_WIDTH]);
+        sunlights[15] = (task->chLightData[1][wc + PADDED_WIDTH]);
+    }
+
+    return hasFace;
 }
 
 //Calculates the smooth lighting based on accumulated light and num adjacent blocks.
@@ -893,20 +893,20 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
     ui8* lightData[2] = { mi.task->chLightData[0], mi.task->chLightData[1] };
     GetLightDataArray(wc, mi.x, mi.y, mi.z, lights, sunlights, mi.task->chData, lightData, faces);
 
-	if (faces[ZPOS]){ //0 1 2 3
+    if (faces[ZPOS]){ //0 1 2 3
         //Get the color of the block
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pzTexInfo);
 
         //Count the number of solid blocks ad add them to near blocks for ambient occlusion
-		nearBlocks[0] = (int)(lights[23] == -1) + (int)(lights[24] == -1) + (int)(lights[14] == -1);
-		nearBlocks[1] = (int)(lights[6] == -1) + (int)(lights[7] == -1) + (int)(lights[14] == -1);
-		nearBlocks[2] = (int)(lights[7] == -1) + (int)(lights[8] == -1) + (int)(lights[16] == -1);
-		nearBlocks[3] = (int)(lights[24] == -1) + (int)(lights[25] == -1) + (int)(lights[16] == -1);
+        nearBlocks[0] = (int)(lights[23] == -1) + (int)(lights[24] == -1) + (int)(lights[14] == -1);
+        nearBlocks[1] = (int)(lights[6] == -1) + (int)(lights[7] == -1) + (int)(lights[14] == -1);
+        nearBlocks[2] = (int)(lights[7] == -1) + (int)(lights[8] == -1) + (int)(lights[16] == -1);
+        nearBlocks[3] = (int)(lights[24] == -1) + (int)(lights[25] == -1) + (int)(lights[16] == -1);
         //Calculate ambient occlusion based on nearby blocks
-		ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-		ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-		ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-		ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
 
         textureIndex = block.pzTexInfo.base.textureIndex;
         overlayTextureIndex = block.pzTexInfo.overlay.textureIndex;
@@ -952,10 +952,10 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
                 mi.mergeFront = 1;
             }
         }
-	}
-	else{
-		mi.mergeFront = 0;
-	}
+    }
+    else{
+        mi.mergeFront = 0;
+    }
 
     if (faces[ZNEG]) {
         //Get the color of the block
@@ -1015,17 +1015,17 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
         mi.mergeBack = 0;
     }
 
-	if (faces[YPOS]){ //0 5 6 1                        
+    if (faces[YPOS]){ //0 5 6 1                        
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pyTexInfo);
 
-		nearBlocks[0] = (int)(lights[17] == -1) + (int)(lights[18] == -1) + (int)(lights[20] == -1);
-		nearBlocks[1] = (int)(lights[20] == -1) + (int)(lights[23] == -1) + (int)(lights[24] == -1);
-		nearBlocks[2] = (int)(lights[22] == -1) + (int)(lights[24] == -1) + (int)(lights[25] == -1);
-		nearBlocks[3] = (int)(lights[18] == -1) + (int)(lights[19] == -1) + (int)(lights[22] == -1);
-		ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-		ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-		ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-		ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        nearBlocks[0] = (int)(lights[17] == -1) + (int)(lights[18] == -1) + (int)(lights[20] == -1);
+        nearBlocks[1] = (int)(lights[20] == -1) + (int)(lights[23] == -1) + (int)(lights[24] == -1);
+        nearBlocks[2] = (int)(lights[22] == -1) + (int)(lights[24] == -1) + (int)(lights[25] == -1);
+        nearBlocks[3] = (int)(lights[18] == -1) + (int)(lights[19] == -1) + (int)(lights[22] == -1);
+        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
 
         textureIndex = block.pyTexInfo.base.textureIndex;
         overlayTextureIndex = block.pyTexInfo.overlay.textureIndex;
@@ -1059,7 +1059,7 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
             if (mi.mergeUp && mi.pbtype == btype &&
                 CompareVertices(_topVerts[mi.pupIndex], _topVerts[mi.pupIndex + 3]) && CompareVertices(_topVerts[mi.pupIndex + 3], _topVerts[mi.topIndex]) && CompareVertices(_topVerts[mi.topIndex], _topVerts[mi.topIndex + 3]) &&//-z vertices
                 CompareVertices(_topVerts[mi.pupIndex + 1], _topVerts[mi.pupIndex + 2]) && CompareVertices(_topVerts[mi.pupIndex + 2], _topVerts[mi.topIndex + 1]) && CompareVertices(_topVerts[mi.topIndex + 1], _topVerts[mi.topIndex + 2])){ //+z vertices
-                _topVerts[mi.pupIndex + 2].position.x += 7;					//change x
+                _topVerts[mi.pupIndex + 2].position.x += 7;                    //change x
                 _topVerts[mi.pupIndex + 3].position.x += 7;
                 _topVerts[mi.pupIndex + 2].tex[0]++;
                 _topVerts[mi.pupIndex + 3].tex[0]++;
@@ -1069,10 +1069,10 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
                 mi.mergeUp = true;
             }
         }
-	}
-	else{
-		mi.mergeUp = false;
-	}
+    }
+    else{
+        mi.mergeUp = false;
+    }
 
     if (faces[YNEG]) {
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.nyTexInfo);
@@ -1118,7 +1118,7 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
             if (mi.mergeBot && mi.pbtype == btype &&
                 CompareVertices(_bottomVerts[mi.pbotIndex], _bottomVerts[mi.pbotIndex + 3]) && CompareVertices(_bottomVerts[mi.pbotIndex + 3], _bottomVerts[mi.botIndex]) && CompareVertices(_bottomVerts[mi.botIndex], _bottomVerts[mi.botIndex + 3]) &&//-z vertices
                 CompareVertices(_bottomVerts[mi.pbotIndex + 1], _bottomVerts[mi.pbotIndex + 2]) && CompareVertices(_bottomVerts[mi.pbotIndex + 2], _bottomVerts[mi.botIndex + 1]) && CompareVertices(_bottomVerts[mi.botIndex + 1], _bottomVerts[mi.botIndex + 2])){ //+z vertices
-                _bottomVerts[mi.pbotIndex].position.x += 7;					//change x
+                _bottomVerts[mi.pbotIndex].position.x += 7;                    //change x
                 _bottomVerts[mi.pbotIndex + 1].position.x += 7;
                 _bottomVerts[mi.pbotIndex].tex[0]--;
                 _bottomVerts[mi.pbotIndex + 1].tex[0]--;
@@ -1631,8 +1631,8 @@ void ChunkMesher::mergeTopVerts(MeshInfo &mi)
 
 void ChunkMesher::mergeBackVerts(MeshInfo &mi)
 {
-	//***********************back Y merging
-	if (mi.backIndex){
+    //***********************back Y merging
+    if (mi.backIndex){
         //Double buffered prev list to avoid a copy
         int *prevQuads = _prevBackQuads[_currPrevBackQuads];
         if (_currPrevBackQuads == 1) {
@@ -1709,10 +1709,10 @@ void ChunkMesher::mergeBackVerts(MeshInfo &mi)
                 _finalBackVerts[mi.nzVboSize++] = _backVerts[i + 3];
             }
         }
-	}
-	else{
-		mi.pLayerBackIndex = 0;
-	}
+    }
+    else{
+        mi.pLayerBackIndex = 0;
+    }
 }
 
 void ChunkMesher::mergeFrontVerts(MeshInfo &mi)
@@ -2342,26 +2342,27 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
         addLiquidToMesh(mi);
     }
 
+
 	if (mi.liquidIndex){
         chunkMeshData->meshInfo.waterIndexSize = (mi.liquidIndex * 6) / 4;
 		chunkMeshData->waterVertices.swap(_waterVboVerts);
 	}
     
-	return 0;
+    return 0;
 }
 
 void ChunkMesher::freeBuffers()
 {
-	//free memory
-	vector <BlockVertex>().swap(_vboVerts);
+    //free memory
+    vector <BlockVertex>().swap(_vboVerts);
 
     //These dont get too big so it might be ok to not free them?
-	/*vector <Vertex>().swap(waterVboVerts);
-	vector<Vertex>().swap(finalTopVerts);
-	vector<Vertex>().swap(finalLeftVerts);
-	vector<Vertex>().swap(finalRightVerts);
-	vector<Vertex>().swap(finalFrontVerts);
-	vector<Vertex>().swap(finalBackVerts);
-	vector<Vertex>().swap(finalBottomVerts);
-	vector<Vertex>().swap(finalNbVerts);*/
+    /*vector <Vertex>().swap(waterVboVerts);
+    vector<Vertex>().swap(finalTopVerts);
+    vector<Vertex>().swap(finalLeftVerts);
+    vector<Vertex>().swap(finalRightVerts);
+    vector<Vertex>().swap(finalFrontVerts);
+    vector<Vertex>().swap(finalBackVerts);
+    vector<Vertex>().swap(finalBottomVerts);
+    vector<Vertex>().swap(finalNbVerts);*/
 }

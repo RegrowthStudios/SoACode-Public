@@ -128,7 +128,7 @@ enum LeafBlocksTextures { T_LEAVES1 = 288, T_LEAVES2 };
 enum BlockLights { LIGHT1 = 16, LIGHT2, LIGHT3 };
 
 enum BlocksMinerals { COAL = 32, IRON, GOLD, SILVER, COPPER, TIN, LEAD, PLATINUM, DOLOMITE, DIAMOND, RUBY, EMERALD, SAPPHIRE, BAUXITE, MAGNETITE, MALACHITE, 
-						EMBERNITE, SULFUR, CHROALLON, SEAMORPHITE, THORNMITE, MORPHIUM, OXYGENIUM, SUNANITE, CAMONITE, SUBMARIUM, TRITANIUM, URANIUM, TUNGSTEN};
+                        EMBERNITE, SULFUR, CHROALLON, SEAMORPHITE, THORNMITE, MORPHIUM, OXYGENIUM, SUNANITE, CAMONITE, SUBMARIUM, TRITANIUM, URANIUM, TUNGSTEN};
 enum BlocksMinerals2 { BLUECRYSTAL = 80 };
 
 enum BlocksMushroom { BLUEMUSHROOMBLOCK = 96, PURPLEMUSHROOMBLOCK, LAMELLABLOCK, MUSHROOMSTEM, GREYMUSHROOMBLOCK, DARKPURPLEMUSHROOMBLOCK, DARKBLUEMUSHROOMBLOCK};
@@ -196,79 +196,79 @@ void initConnectedTextures();
 
 struct BlockVariable
 {
-	//VarType 0 = int, 1 = float
-	BlockVariable(){}
-	BlockVariable(float Min, float Max, float Step, int ByteOffset, int VarType){ min = Min; max = Max; step = Step; byteOffset = ByteOffset; varType = VarType; controlType = 0; editorAccessible = 1;}
-	float min, max;
-	float step;
-	int byteOffset;
-	int varType; //0 = int, 1 = float, 2 = byte
-	int controlType; //0 = slider, 1 = list box
-	bool editorAccessible;
-	vector <string> listNames;
+    //VarType 0 = int, 1 = float
+    BlockVariable(){}
+    BlockVariable(float Min, float Max, float Step, int ByteOffset, int VarType){ min = Min; max = Max; step = Step; byteOffset = ByteOffset; varType = VarType; controlType = 0; editorAccessible = 1;}
+    float min, max;
+    float step;
+    int byteOffset;
+    int varType; //0 = int, 1 = float, 2 = byte
+    int controlType; //0 = slider, 1 = list box
+    bool editorAccessible;
+    vector <string> listNames;
 };
 
 extern map <string, BlockVariable> blockVariableMap;
 
 struct ItemDrop
 {
-	ItemDrop(Item *itm, int Num){
-		item = itm;
-		num = Num;
-	}
-	Item *item;
-	int num;
+    ItemDrop(Item *itm, int Num){
+        item = itm;
+        num = Num;
+    }
+    Item *item;
+    int num;
 };
 
 class Block
 {
 public:
-	Block();
+    Block();
 
-	void InitializeTexture();
+    void InitializeTexture();
     void GetBlockColor(GLubyte baseColor[3], GLubyte overlayColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
     void GetBlockColor(GLubyte baseColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
 
-	void SetAvgTexColors();
+    void SetAvgTexColors();
 
-	GLint ID;
-	GLint burnTransformID;
-	GLint waveEffect;
-	GLint health;
-	GLint lightIntensity;
-	GLint physicsProperty;
-	GLint material;
-	GLint waterMeshLevel;
-	GLint floatingAction;
-	GLint occlude;
-	GLint spawnerVal;
-	GLint sinkVal;
-	GLint explosionRays; 
+    GLint ID;
+    GLint burnTransformID;
+    GLint waveEffect;
+    GLint health;
+    GLint lightIntensity;
+    GLint physicsProperty;
+    GLint material;
+    GLint waterMeshLevel;
+    GLint floatingAction;
+    GLint occlude;
+    GLint spawnerVal;
+    GLint sinkVal;
+    GLint explosionRays; 
 
     MeshType meshType;
 
-	GLfloat moveMod;
-	GLfloat value;
-	GLfloat weight;
-	GLfloat explosionResistance;
-	GLfloat explosivePower;
-	GLfloat flammability;
-	GLfloat powerLoss; 
+    GLfloat moveMod;
+    GLfloat value;
+    GLfloat weight;
+    GLfloat explosionResistance;
+    GLfloat explosivePower;
+    GLfloat flammability;
+    GLfloat powerLoss; 
 
     GLubyte color[3];
     GLubyte overlayColor[3];
-	GLubyte averageColor[3];
-	GLubyte particleTex;
-	GLubyte powderMove;
-	GLubyte collide;
-	GLubyte waterBreak;
-	GLubyte isLight;
-	GLubyte blockLight;
-	GLubyte useable;
-	GLubyte allowLight;
-	GLubyte isCrushable;
-	GLubyte isSupportive;
-	GLubyte active;
+    GLubyte averageColor[3];
+    GLubyte particleTex;
+    GLubyte powderMove;
+    GLubyte collide;
+    GLubyte waterBreak;
+    GLubyte isLight;
+    GLubyte blockLight;
+    GLubyte useable;
+    GLubyte allowLight;
+    GLubyte isCrushable;
+    GLubyte isSupportive;
+    GLubyte active;
 
     BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
@@ -279,12 +279,12 @@ public:
     // normal maps
     int pxNMap, pyNMap, pzNMap, nxNMap, nyNMap, nzNMap;
 
-	string leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
-	string name, emitterName, emitterOnBreakName, emitterRandomName;
-	class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
+    string leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
+    string name, emitterName, emitterOnBreakName, emitterRandomName;
+    class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
-	vector <glm::ivec3> altColors;
-	vector <ItemDrop> itemDrops;
+    vector <glm::ivec3> altColors;
+    vector <ItemDrop> itemDrops;
 };
 
 void SetBlockAvgTexColors();

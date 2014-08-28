@@ -160,7 +160,7 @@ void gameLoop() {
             }
         }
 
-        //		if (graphicsOptions.needsWindowReload) RebuildWindow();
+        //        if (graphicsOptions.needsWindowReload) RebuildWindow();
 
         GameManager::inputManager->update();
 

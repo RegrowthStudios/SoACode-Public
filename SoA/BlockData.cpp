@@ -313,154 +313,154 @@ void DrawHeadBlock(glm::dvec3 position, glm::mat4 &VP, Block *block, int flags, 
     //glm::ivec3 color;
 
     //if (flags && block->altColors.size()){
-    //	color = block->altColors[flags];
+    //    color = block->altColors[flags];
     //}else{
-    //	color = glm::ivec3(block->tr, block->tg, block->tb);
+    //    color = glm::ivec3(block->tr, block->tg, block->tb);
     //}
 
     //for (int index = 0; index < 24; index+=4, vertexOffset += 12){
-    //	verts[index].location[0] = x+cubeVertices[vertexOffset]*0.8;
-    //	verts[index].location[1] = y+cubeVertices[vertexOffset+1]*0.8;
-    //	verts[index].location[2] = z+cubeVertices[vertexOffset+2]*0.8;
-    //	verts[index+1].location[0] = x+cubeVertices[vertexOffset+3]*0.8;
-    //	verts[index+1].location[1] = y+cubeVertices[vertexOffset+4]*0.8;
-    //	verts[index+1].location[2] = z+cubeVertices[vertexOffset+5]*0.8;
-    //	verts[index+2].location[0] = x+cubeVertices[vertexOffset+6]*0.8;
-    //	verts[index+2].location[1] = y+cubeVertices[vertexOffset+7]*0.8;
-    //	verts[index+2].location[2] = z+cubeVertices[vertexOffset+8]*0.8;
-    //	verts[index+3].location[0] = x+cubeVertices[vertexOffset+9]*0.8;
-    //	verts[index+3].location[1] = y+cubeVertices[vertexOffset+10]*0.8;
-    //	verts[index+3].location[2] = z+cubeVertices[vertexOffset+11]*0.8;
+    //    verts[index].location[0] = x+cubeVertices[vertexOffset]*0.8;
+    //    verts[index].location[1] = y+cubeVertices[vertexOffset+1]*0.8;
+    //    verts[index].location[2] = z+cubeVertices[vertexOffset+2]*0.8;
+    //    verts[index+1].location[0] = x+cubeVertices[vertexOffset+3]*0.8;
+    //    verts[index+1].location[1] = y+cubeVertices[vertexOffset+4]*0.8;
+    //    verts[index+1].location[2] = z+cubeVertices[vertexOffset+5]*0.8;
+    //    verts[index+2].location[0] = x+cubeVertices[vertexOffset+6]*0.8;
+    //    verts[index+2].location[1] = y+cubeVertices[vertexOffset+7]*0.8;
+    //    verts[index+2].location[2] = z+cubeVertices[vertexOffset+8]*0.8;
+    //    verts[index+3].location[0] = x+cubeVertices[vertexOffset+9]*0.8;
+    //    verts[index+3].location[1] = y+cubeVertices[vertexOffset+10]*0.8;
+    //    verts[index+3].location[2] = z+cubeVertices[vertexOffset+11]*0.8;
 
-    //	verts[index].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
-    //	verts[index+1].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index+1].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
-    //	verts[index+2].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index+2].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
-    //	verts[index+3].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index+3].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index+1].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index+1].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index+2].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index+2].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index+3].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index+3].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
 
 
-    //	verts[index].color[0] = color.r;
-    //	verts[index+1].color[0] = color.r;
-    //	verts[index+2].color[0] = color.r;
-    //	verts[index+3].color[0] = color.r;
-    //	verts[index].color[1] = color.g;
-    //	verts[index+1].color[1] = color.g;
-    //	verts[index+2].color[1] = color.g;
-    //	verts[index+3].color[1] = color.g;
-    //	verts[index].color[2] = color.b;
-    //	verts[index+1].color[2] = color.b;
-    //	verts[index+2].color[2] = color.b;
-    //	verts[index+3].color[2] = color.b;
-    //	if (waveEffect == 2){
-    //		verts[index].color[3] = 255;
-    //		verts[index+1].color[3] = 255;
-    //		verts[index+2].color[3] = 255;
-    //		verts[index+3].color[3] = 255;
-    //	}else if (waveEffect == 1){
-    //		verts[index].color[3] = 255;
-    //		verts[index+1].color[3] = 0;
-    //		verts[index+2].color[3] = 0;
-    //		verts[index+3].color[3] = 255;
-    //	}else{
-    //		verts[index].color[3] = 0;
-    //		verts[index+1].color[3] = 0;
-    //		verts[index+2].color[3] = 0;
-    //		verts[index+3].color[3] = 0;
-    //	}
+    //    verts[index].color[0] = color.r;
+    //    verts[index+1].color[0] = color.r;
+    //    verts[index+2].color[0] = color.r;
+    //    verts[index+3].color[0] = color.r;
+    //    verts[index].color[1] = color.g;
+    //    verts[index+1].color[1] = color.g;
+    //    verts[index+2].color[1] = color.g;
+    //    verts[index+3].color[1] = color.g;
+    //    verts[index].color[2] = color.b;
+    //    verts[index+1].color[2] = color.b;
+    //    verts[index+2].color[2] = color.b;
+    //    verts[index+3].color[2] = color.b;
+    //    if (waveEffect == 2){
+    //        verts[index].color[3] = 255;
+    //        verts[index+1].color[3] = 255;
+    //        verts[index+2].color[3] = 255;
+    //        verts[index+3].color[3] = 255;
+    //    }else if (waveEffect == 1){
+    //        verts[index].color[3] = 255;
+    //        verts[index+1].color[3] = 0;
+    //        verts[index+2].color[3] = 0;
+    //        verts[index+3].color[3] = 255;
+    //    }else{
+    //        verts[index].color[3] = 0;
+    //        verts[index+1].color[3] = 0;
+    //        verts[index+2].color[3] = 0;
+    //        verts[index+3].color[3] = 0;
+    //    }
 
-    //	verts[index].tex[0] = 0.0f;
-    //	verts[index].tex[1] = 1.0f;
-    //	verts[index+1].tex[0] = 0.0f;
-    //	verts[index+1].tex[1] = 0.0f;
-    //	verts[index+2].tex[0] = 1.0f;
-    //	verts[index+2].tex[1] = 0.0f;
-    //	verts[index+3].tex[0] = 1.0f;
-    //	verts[index+3].tex[1] = 1.0f;
-    //	verts[index].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
-    //	verts[index+1].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
-    //	verts[index+2].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
-    //	verts[index+3].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index].tex[0] = 0.0f;
+    //    verts[index].tex[1] = 1.0f;
+    //    verts[index+1].tex[0] = 0.0f;
+    //    verts[index+1].tex[1] = 0.0f;
+    //    verts[index+2].tex[0] = 1.0f;
+    //    verts[index+2].tex[1] = 0.0f;
+    //    verts[index+3].tex[0] = 1.0f;
+    //    verts[index+3].tex[1] = 1.0f;
+    //    verts[index].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index+1].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index+2].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index+3].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
 
-    //	verts[index].textureUnit = (GLfloat)texUnit;
-    //	verts[index+1].textureUnit = (GLfloat)texUnit;
-    //	verts[index+2].textureUnit = (GLfloat)texUnit;
-    //	verts[index+3].textureUnit = (GLfloat)texUnit;
+    //    verts[index].textureUnit = (GLfloat)texUnit;
+    //    verts[index+1].textureUnit = (GLfloat)texUnit;
+    //    verts[index+2].textureUnit = (GLfloat)texUnit;
+    //    verts[index+3].textureUnit = (GLfloat)texUnit;
     //}
     //x = y = z = -0.5;
     //vertexOffset = 0;
     //for (int index = 24; index < 48; index+=4, vertexOffset += 12){
-    //	verts[index].location[0] = x+cubeVertices[vertexOffset]*1.5;
-    //	verts[index].location[1] = y+cubeVertices[vertexOffset+1]*1.5;
-    //	verts[index].location[2] = z+cubeVertices[vertexOffset+2]*1.5;
-    //	verts[index+1].location[0] = x+cubeVertices[vertexOffset+3]*1.5;
-    //	verts[index+1].location[1] = y+cubeVertices[vertexOffset+4]*1.5;
-    //	verts[index+1].location[2] = z+cubeVertices[vertexOffset+5]*1.5;
-    //	verts[index+2].location[0] = x+cubeVertices[vertexOffset+6]*1.5;
-    //	verts[index+2].location[1] = y+cubeVertices[vertexOffset+7]*1.5;
-    //	verts[index+2].location[2] = z+cubeVertices[vertexOffset+8]*1.5;
-    //	verts[index+3].location[0] = x+cubeVertices[vertexOffset+9]*1.5;
-    //	verts[index+3].location[1] = y+cubeVertices[vertexOffset+10]*1.5;
-    //	verts[index+3].location[2] = z+cubeVertices[vertexOffset+11]*1.5;
+    //    verts[index].location[0] = x+cubeVertices[vertexOffset]*1.5;
+    //    verts[index].location[1] = y+cubeVertices[vertexOffset+1]*1.5;
+    //    verts[index].location[2] = z+cubeVertices[vertexOffset+2]*1.5;
+    //    verts[index+1].location[0] = x+cubeVertices[vertexOffset+3]*1.5;
+    //    verts[index+1].location[1] = y+cubeVertices[vertexOffset+4]*1.5;
+    //    verts[index+1].location[2] = z+cubeVertices[vertexOffset+5]*1.5;
+    //    verts[index+2].location[0] = x+cubeVertices[vertexOffset+6]*1.5;
+    //    verts[index+2].location[1] = y+cubeVertices[vertexOffset+7]*1.5;
+    //    verts[index+2].location[2] = z+cubeVertices[vertexOffset+8]*1.5;
+    //    verts[index+3].location[0] = x+cubeVertices[vertexOffset+9]*1.5;
+    //    verts[index+3].location[1] = y+cubeVertices[vertexOffset+10]*1.5;
+    //    verts[index+3].location[2] = z+cubeVertices[vertexOffset+11]*1.5;
 
-    //	verts[index].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
-    //	verts[index+1].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index+1].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
-    //	verts[index+2].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index+2].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
-    //	verts[index+3].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
-    //	verts[index+3].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index+1].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index+1].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index+2].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index+2].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
+    //    verts[index+3].light = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - light)));
+    //    verts[index+3].sunLight = (GLubyte)(255.0f*(lightOff+pow(lightMult, MAXLIGHT - sunlight)));
 
 
-    //	verts[index].color[0] = color.r;
-    //	verts[index+1].color[0] = color.r;
-    //	verts[index+2].color[0] = color.r;
-    //	verts[index+3].color[0] = color.r;
-    //	verts[index].color[1] = color.g;
-    //	verts[index+1].color[1] = color.g;
-    //	verts[index+2].color[1] = color.g;
-    //	verts[index+3].color[1] = color.g;
-    //	verts[index].color[2] = color.b;
-    //	verts[index+1].color[2] = color.b;
-    //	verts[index+2].color[2] = color.b;
-    //	verts[index+3].color[2] = color.b;
-    //	if (waveEffect == 2){
-    //		verts[index].color[3] = 255;
-    //		verts[index+1].color[3] = 255;
-    //		verts[index+2].color[3] = 255;
-    //		verts[index+3].color[3] = 255;
-    //	}else if (waveEffect == 1){
-    //		verts[index].color[3] = 255;
-    //		verts[index+1].color[3] = 0;
-    //		verts[index+2].color[3] = 0;
-    //		verts[index+3].color[3] = 255;
-    //	}else{
-    //		verts[index].color[3] = 0;
-    //		verts[index+1].color[3] = 0;
-    //		verts[index+2].color[3] = 0;
-    //		verts[index+3].color[3] = 0;
-    //	}
+    //    verts[index].color[0] = color.r;
+    //    verts[index+1].color[0] = color.r;
+    //    verts[index+2].color[0] = color.r;
+    //    verts[index+3].color[0] = color.r;
+    //    verts[index].color[1] = color.g;
+    //    verts[index+1].color[1] = color.g;
+    //    verts[index+2].color[1] = color.g;
+    //    verts[index+3].color[1] = color.g;
+    //    verts[index].color[2] = color.b;
+    //    verts[index+1].color[2] = color.b;
+    //    verts[index+2].color[2] = color.b;
+    //    verts[index+3].color[2] = color.b;
+    //    if (waveEffect == 2){
+    //        verts[index].color[3] = 255;
+    //        verts[index+1].color[3] = 255;
+    //        verts[index+2].color[3] = 255;
+    //        verts[index+3].color[3] = 255;
+    //    }else if (waveEffect == 1){
+    //        verts[index].color[3] = 255;
+    //        verts[index+1].color[3] = 0;
+    //        verts[index+2].color[3] = 0;
+    //        verts[index+3].color[3] = 255;
+    //    }else{
+    //        verts[index].color[3] = 0;
+    //        verts[index+1].color[3] = 0;
+    //        verts[index+2].color[3] = 0;
+    //        verts[index+3].color[3] = 0;
+    //    }
 
-    //	verts[index].tex[0] = 0.0f;
-    //	verts[index].tex[1] = 1.0f;
-    //	verts[index+1].tex[0] = 0.0f;
-    //	verts[index+1].tex[1] = 0.0f;
-    //	verts[index+2].tex[0] = 1.0f;
-    //	verts[index+2].tex[1] = 0.0f;
-    //	verts[index+3].tex[0] = 1.0f;
-    //	verts[index+3].tex[1] = 1.0f;
-    //	verts[index].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
-    //	verts[index+1].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
-    //	verts[index+2].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
-    //	verts[index+3].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index].tex[0] = 0.0f;
+    //    verts[index].tex[1] = 1.0f;
+    //    verts[index+1].tex[0] = 0.0f;
+    //    verts[index+1].tex[1] = 0.0f;
+    //    verts[index+2].tex[0] = 1.0f;
+    //    verts[index+2].tex[1] = 0.0f;
+    //    verts[index+3].tex[0] = 1.0f;
+    //    verts[index+3].tex[1] = 1.0f;
+    //    verts[index].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index+1].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index+2].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
+    //    verts[index+3].textureLocation = (GLubyte)blockTextureUVs[tex].textureLocation;
 
-    //	verts[index].textureUnit = (GLfloat)texUnit;
-    //	verts[index+1].textureUnit = (GLfloat)texUnit;
-    //	verts[index+2].textureUnit = (GLfloat)texUnit;
-    //	verts[index+3].textureUnit = (GLfloat)texUnit;
+    //    verts[index].textureUnit = (GLfloat)texUnit;
+    //    verts[index+1].textureUnit = (GLfloat)texUnit;
+    //    verts[index+2].textureUnit = (GLfloat)texUnit;
+    //    verts[index+3].textureUnit = (GLfloat)texUnit;
     //}
 
     //glActiveTexture(GL_TEXTURE0);

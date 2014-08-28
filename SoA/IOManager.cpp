@@ -104,7 +104,7 @@ const cString IOManager::getDirectory(const cString path) {
 
 FILE* IOManager::openFile(const cString path, const cString flags) {
     const cString filePath = resolveFile(path);
-    
+
     if (filePath) {
         FILE* f;
         errno_t err = fopen_s(&f, filePath, flags);

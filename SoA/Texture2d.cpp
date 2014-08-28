@@ -314,29 +314,29 @@ void BlockPack::initialize(TextureInfo texInfo)
  //   glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_WIDTH, &width);
 
     //while (width > 16){
-    //	width = width / 2;
-    //	mipLevel++;
+    //    width = width / 2;
+    //    mipLevel++;
     //}
  //   glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-    //	
+    //    
     //if (internalFormat != GL_RGBA){
-    //	cout << "ERROR: Internal format for texture pack is not GL_RGBA. Tell Ben!\n";
-    //	int a;
-    //	cin >> a;
+    //    cout << "ERROR: Internal format for texture pack is not GL_RGBA. Tell Ben!\n";
+    //    int a;
+    //    cin >> a;
     //}
     //
  //   glGetTexImage(GL_TEXTURE_2D_ARRAY, mipLevel, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
     //cout << endl << endl;
     //for (int i = 0; i < 16; i++){
-    //	for (int j = 0; j < 16; j++){
-    //		//note that the y axis is reversed
-    //		avgColors[i*16+j][0] = buffer[15-i][j][0];
-    //		avgColors[i*16+j][1] = buffer[15-i][j][1];
-    //		avgColors[i*16+j][2] = buffer[15-i][j][2];
+    //    for (int j = 0; j < 16; j++){
+    //        //note that the y axis is reversed
+    //        avgColors[i*16+j][0] = buffer[15-i][j][0];
+    //        avgColors[i*16+j][1] = buffer[15-i][j][1];
+    //        avgColors[i*16+j][2] = buffer[15-i][j][2];
 
-    //		//cout << (int)buffer[15-i][j][0] << " " << (int)buffer[15-i][j][1] << " " << (int)buffer[15-i][j][2] << "    ";
-    //	}
+    //        //cout << (int)buffer[15-i][j][0] << " " << (int)buffer[15-i][j][1] << " " << (int)buffer[15-i][j][2] << "    ";
+    //    }
     //}
 
     //convert rgb values into a hex int

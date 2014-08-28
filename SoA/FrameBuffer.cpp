@@ -107,8 +107,8 @@ FrameBuffer::FrameBuffer(GLint internalFormat, GLenum type, int width, int heigh
 
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depthTextureIDs[FB_MSAA]);
 
-    //	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    //	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaa, GL_DEPTH_COMPONENT32, width, height, 0);
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depthTextureIDs[FB_MSAA], 0);
@@ -254,7 +254,7 @@ void FrameBuffer::draw(int shaderMode)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, graphicsOptions.windowWidth, graphicsOptions.windowHeight); // Render on the whole screen, complete from the lower left corner to the upper right
 
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Set our "renderedTexture" sampler to user Texture Unit 0
     if (shaderMode & FB_SHADER_MOTIONBLUR){

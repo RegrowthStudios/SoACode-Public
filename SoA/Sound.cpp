@@ -69,7 +69,7 @@ void SoundEngine::PlayExistingSound(const char *name, bool loop, float volume, b
         _result = _system->playSound(FMOD_CHANNELINDEX::FMOD_CHANNEL_FREE, sound->sound, true, &channel);
         ERRCHECK(_result);
 
-        _result = channel->setVolume(volume);		// Set the volume while it is paused.
+        _result = channel->setVolume(volume);        // Set the volume while it is paused.
         ERRCHECK(_result);
 
         if (loop) channel->setMode(FMOD_LOOP_NORMAL);
@@ -100,7 +100,7 @@ void SoundEngine::PlayExistingSound(const char *name, bool loop, float volume, b
             break;
         }
 
-        _result = channel->setPaused(false);		// This is where the sound really starts.
+        _result = channel->setPaused(false);        // This is where the sound really starts.
         ERRCHECK(_result);
     }
 }
@@ -117,7 +117,7 @@ bool SoundEngine::GetSound() {
 
 void SoundEngine::Initialize() {
     //create the sound system. If fails, sound is set to impossible
-    _result = FMOD::System_Create(&_system);		// Create the main system object.
+    _result = FMOD::System_Create(&_system);        // Create the main system object.
     ERRCHECK(_result);
 
     unsigned int version;
@@ -130,7 +130,7 @@ void SoundEngine::Initialize() {
         pError("FMOD version error. See Command Prompt.");
     }
 
-    _result = _system->init(512, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
+    _result = _system->init(512, FMOD_INIT_NORMAL, 0);    // Initialize FMOD.
     ERRCHECK(_result);
 
     //Set the distance units. (meters/feet etc).

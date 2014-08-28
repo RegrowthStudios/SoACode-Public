@@ -1,16 +1,13 @@
 #include "stdafx.h"
 #include "FileSystem.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-#include <direct.h> //for chdir windows
-#include <dirent.h>
-
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 #include <ZLIB/ioapi.c>
 #include <ZLIB/unzip.c>
 
 #include "BlockData.h"
 #include "Errors.h"
-#include "FloraGenerator.h"
 #include "FloraGenerator.h"
 #include "GameManager.h"
 #include "IOManager.h"
@@ -29,97 +26,17 @@
 
 FileManager fileManager;
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <tchar.h> 
-#include <strsafe.h>
-#include <Shobjidl.h>
-
-#include <windows.h> 
-#include <windowsx.h> 
-#include <strsafe.h> 
-
-#include <new> 
-#include <shlobj.h> 
-#include <shlwapi.h> 
-
-// Enable Visual Style 
-#if defined _M_IX86 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#elif defined _M_IA64 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='ia64' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#elif defined _M_X64 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#else 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#endif 
-#pragma endregion 
-#endif
-
-
-i32 FileManager::deleteDirectory(const nString& refcstrRootDirectory, bool bDeleteSubdirectories) {
-#if defined(_WIN32) || defined(_WIN64)
-    bool            bSubdirectory = false;       // Flag, indicating whether
-    // subdirectories have been found
-    HANDLE          hFile;                       // Handle to directory
-    nString     strFilePath;                 // Filepath
-    nString     strPattern;                  // Pattern
-    WIN32_FIND_DATA FileInformation;             // File information
-
-
-    strPattern = refcstrRootDirectory + "\\*.*";
-    hFile = ::FindFirstFile(strPattern.c_str(), &FileInformation);
-    if (hFile != INVALID_HANDLE_VALUE) {
-        do {
-            if (FileInformation.cFileName[0] != '.') {
-                strFilePath.erase();
-                strFilePath = refcstrRootDirectory + "\\" + FileInformation.cFileName;
-
-                if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                    if (bDeleteSubdirectories) {
-                        // Delete subdirectory
-                        int iRC = deleteDirectory(strFilePath, bDeleteSubdirectories);
-                        if (iRC)
-                            return iRC;
-                    } else
-                        bSubdirectory = true;
-                } else {
-                    // Set file attributes
-                    if (::SetFileAttributes(strFilePath.c_str(),
-                        FILE_ATTRIBUTE_NORMAL) == FALSE)
-                        return ::GetLastError();
-
-                    // Delete file
-                    if (::DeleteFile(strFilePath.c_str()) == FALSE)
-                        return ::GetLastError();
-                }
-            }
-        } while (::FindNextFile(hFile, &FileInformation) == TRUE);
-
-        // Close handle
-        ::FindClose(hFile);
-
-        DWORD dwError = ::GetLastError();
-        if (dwError != ERROR_NO_MORE_FILES)
-            return dwError;
-        else {
-            if (!bSubdirectory) {
-                // Set directory attributes
-                if (::SetFileAttributes(refcstrRootDirectory.c_str(),
-                    FILE_ATTRIBUTE_NORMAL) == FALSE)
-                    return ::GetLastError();
-
-                // Delete directory
-                if (::RemoveDirectory(refcstrRootDirectory.c_str()) == FALSE)
-                    return ::GetLastError();
-            }
-        }
-    }
-#endif
-    return 0;
+i32 FileManager::deleteDirectory(const nString& rootDirectory) {
+    boost::system::error_code error;
+    i32 filesRemoved = boost::filesystem::remove_all(rootDirectory, error);
+#ifdef DEBUG
+    // Print Error Message For Debugging
+    if (error.value() != 0) printf("%s\n", error.message().c_str());
+#endif // DEBUG
+    return error.value();
 }
 
-FileManager::FileManager() : isInitialized(0) {}
-
+FileManager::FileManager() : isInitialized(false) {}
 void FileManager::initialize() {
     isInitialized = 1;
 
@@ -159,7 +76,6 @@ void FileManager::makeBiomeVariableMap() {
 
 
 }
-
 void FileManager::makeNoiseVariableMap() {
     NoiseInfo noise;
     noiseVariableMap.clear();
@@ -211,7 +127,7 @@ i32 FileManager::loadFloraNoiseFunctions(const cString filename, Planet* planet)
             } else {
                 type = fit->second;
                 if (!(file >> persistence >> frequency >> octaves >> lowbound >> upbound)) {
-                    printf("	ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
+                    printf("    ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
                     cin >> octaves;
                     file.close();
                     return 1;
@@ -244,52 +160,52 @@ i32 FileManager::loadCloudNoiseFunctions(const cString filename, Planet* planet)
 
     //file.open(filename);
     //if (file.fail()){
-    //	printf("ERROR: Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
-    //	cin >> octaves;
-    //	file.close();
-    //	return 1;
+    //    printf("ERROR: Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
+    //    cin >> octaves;
+    //    file.close();
+    //    return 1;
     //}
     //
     //while (file >> types){
-    //	if (types[0] == '#'){
-    //		file.getline(buffer, 512);
-    //	}else{
-    //		type = atoi(types.c_str());
+    //    if (types[0] == '#'){
+    //        file.getline(buffer, 512);
+    //    }else{
+    //        type = atoi(types.c_str());
 
-    //		if (!(file >> persistence >> frequency >> octaves >> lowbound)){
-    //			printf("	ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
-    //			cin >> octaves;
-    //			file.close();
-    //			return 1;
-    //		}
-    //		if (type == 0){
-    //			stormNoiseFunction = new NoiseInfo();
-    //			stormNoiseFunction->frequency = frequency;
-    //			stormNoiseFunction->persistence = persistence;
-    //			stormNoiseFunction->octaves = octaves;
-    //			stormNoiseFunction->type = type;
-    //			stormNoiseFunction->lowBound = lowbound;
-    //		}else if (type == 1){
-    //			sunnyCloudyNoiseFunction = new NoiseInfo();
-    //			sunnyCloudyNoiseFunction->frequency = frequency;
-    //			sunnyCloudyNoiseFunction->persistence = persistence;
-    //			sunnyCloudyNoiseFunction->octaves = octaves;
-    //			sunnyCloudyNoiseFunction->type = type;
-    //			sunnyCloudyNoiseFunction->lowBound = lowbound;
-    //		}else if (type == 2){
-    //			cumulusNoiseFunction = new NoiseInfo();
-    //			cumulusNoiseFunction->frequency = frequency;
-    //			cumulusNoiseFunction->persistence = persistence;
-    //			cumulusNoiseFunction->octaves = octaves;
-    //			cumulusNoiseFunction->type = type;
-    //			cumulusNoiseFunction->lowBound = lowbound;
-    //		}else{
-    //			printf("	ERROR: Noise Function File %s invalid type!\nEnter any key to continue: ", filename);
-    //			cin >> octaves;
-    //			file.close();
-    //			return 1;
-    //		}
-    //	}
+    //        if (!(file >> persistence >> frequency >> octaves >> lowbound)){
+    //            printf("    ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
+    //            cin >> octaves;
+    //            file.close();
+    //            return 1;
+    //        }
+    //        if (type == 0){
+    //            stormNoiseFunction = new NoiseInfo();
+    //            stormNoiseFunction->frequency = frequency;
+    //            stormNoiseFunction->persistence = persistence;
+    //            stormNoiseFunction->octaves = octaves;
+    //            stormNoiseFunction->type = type;
+    //            stormNoiseFunction->lowBound = lowbound;
+    //        }else if (type == 1){
+    //            sunnyCloudyNoiseFunction = new NoiseInfo();
+    //            sunnyCloudyNoiseFunction->frequency = frequency;
+    //            sunnyCloudyNoiseFunction->persistence = persistence;
+    //            sunnyCloudyNoiseFunction->octaves = octaves;
+    //            sunnyCloudyNoiseFunction->type = type;
+    //            sunnyCloudyNoiseFunction->lowBound = lowbound;
+    //        }else if (type == 2){
+    //            cumulusNoiseFunction = new NoiseInfo();
+    //            cumulusNoiseFunction->frequency = frequency;
+    //            cumulusNoiseFunction->persistence = persistence;
+    //            cumulusNoiseFunction->octaves = octaves;
+    //            cumulusNoiseFunction->type = type;
+    //            cumulusNoiseFunction->lowBound = lowbound;
+    //        }else{
+    //            printf("    ERROR: Noise Function File %s invalid type!\nEnter any key to continue: ", filename);
+    //            cin >> octaves;
+    //            file.close();
+    //            return 1;
+    //        }
+    //    }
     //}
     //file.close();
     return 0;
@@ -309,7 +225,7 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
     file.open(filename);
     if (file.fail()) {
         printf("ERROR: Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
-        cin >> octaves;
+        std::cin >> octaves;
         file.close();
         return 1;
     }
@@ -327,8 +243,8 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
             type = atoi(types.c_str());
 
             if (!(file >> persistence >> frequency >> octaves >> lowbound >> upbound >> scale)) {
-                printf("	ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
-                cin >> octaves;
+                printf("    ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
+                std::cin >> octaves;
                 file.close();
                 return 1;
             }
@@ -355,13 +271,13 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
     file.close();
     if (mandatory) {
         if (!hasTemp) {
-            cout << "	ERROR: Temperature noise function missing! Noise type = 30\nEnter any key to continue: ";
-            cin >> octaves;
+            std::cout << "    ERROR: Temperature noise function missing! Noise type = 30\nEnter any key to continue: ";
+            std::cin >> octaves;
             return 1;
         }
         if (!hasRainfall) {
-            cout << "	ERROR: Rainfall noise function missing! Noise type = 31\nEnter any key to continue: ";
-            cin >> octaves;
+            std::cout << "    ERROR: Rainfall noise function missing! Noise type = 31\nEnter any key to continue: ";
+            std::cin >> octaves;
             return 1;
         }
     }
@@ -388,20 +304,20 @@ i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
         }
         sscanf(&(s[0]), "%d", &blockID);
         if (!(file >> textureID >> s >> meshType)) {
-            printf("	ERROR: World/Flora/FloraData.txt has a format error!\nEnter any key to continue: ");
-            cin >> s;
+            printf("    ERROR: World/Flora/FloraData.txt has a format error!\nEnter any key to continue: ");
+            std::cin >> s;
             file.close();
             return 1;
         }
-      /*  if (meshType == 1) {
-            meshType = MeshType::FLORA;
+        /*  if (meshType == 1) {
+        meshType = MeshType::FLORA;
         } else {
-            meshType = MeshType::CROSSFLORA;
+        meshType = MeshType::CROSSFLORA;
         }*/
         if (!(Blocks[blockID].active)) { //for loading
             printf("ERROR: (FloraData.txt) block ID %d not defined!\n", blockID);
             printf("Enter any key to continue... ");
-            cin >> s;
+            std::cin >> s;
         } else {
             planet->floraLookupMap.insert(make_pair(s, planet->floraTypeVec.size()));
             PlantType *ft = new PlantType;
@@ -410,17 +326,17 @@ i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
             planet->floraTypeVec.push_back(ft);
         }
         //if (Blocks[blockID].active){ //for manual creation
-        //	printf("ERROR: (FloraData.txt) block ID %d already in use!\n", blockID);
-        //	printf("Enter any key to continue... ");
-        //	cin >> s;
+        //    printf("ERROR: (FloraData.txt) block ID %d already in use!\n", blockID);
+        //    printf("Enter any key to continue... ");
+        //    cin >> s;
         //}else{
-        //	planet->floraLookupMap.insert(make_pair(s, planet->floraTypeVec.size()));
-        //	FloraType *ft = new FloraType;
-        //	ft->name = s;
-        //	ft->baseBlock = blockID;
-        //	planet->floraTypeVec.push_back(ft);
-        //	for (int i = 0; i < s.size(); i++) if (s[i] == '_') s[i] = ' ';
-        //	Blocks[blockID].SetName(s).SetMeshType(meshType).SetHealth(100).SetPhysics(P_SOLID).SetColor(255, 255, 255).SetTexture(textureID).SetCollide(0).SetOcclude(0).SetWaveEffect(1).SetNumParticles(2).SetExplosionResistance(0.05).SetWaterBreak(1).SetWeight(0.1f).SetValue(10.0f).SetIsCrushable(1).SetFloatingAction(2).SetIsSupportive(0);
+        //    planet->floraLookupMap.insert(make_pair(s, planet->floraTypeVec.size()));
+        //    FloraType *ft = new FloraType;
+        //    ft->name = s;
+        //    ft->baseBlock = blockID;
+        //    planet->floraTypeVec.push_back(ft);
+        //    for (int i = 0; i < s.size(); i++) if (s[i] == '_') s[i] = ' ';
+        //    Blocks[blockID].SetName(s).SetMeshType(meshType).SetHealth(100).SetPhysics(P_SOLID).SetColor(255, 255, 255).SetTexture(textureID).SetCollide(0).SetOcclude(0).SetWaveEffect(1).SetNumParticles(2).SetExplosionResistance(0.05).SetWaterBreak(1).SetWeight(0.1f).SetValue(10.0f).SetIsCrushable(1).SetFloatingAction(2).SetIsSupportive(0);
         //}
     }
     file.close();
@@ -527,167 +443,13 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
     return 0;
 }
 i32 FileManager::loadTreeType(nString filePath, TreeType *tree) {
+    // TODO: This Should Be An Argument
+    IOManager iom;
 
-    //*** Begin Useful Macros ***
-#define GETFLOATPAIR(a) \
-    if (sscanf(iniVal->getStr().c_str(), "%f,%f", &(a.min), &(a.max)) != 2) { \
-    pError("error loading " + filePath + " " + iniVal->getStr() + " should be of form f,f"); \
-    continue; \
-    }
+    const cString data = iom.readFileToString(filePath.c_str());
+    if (!data) return 1;
 
-#define GETINTPAIR(a) \
-    if (sscanf(iniVal->getStr().c_str(), "%d,%d", &(a.min), &(a.max)) != 2) { \
-    pError("error loading " + filePath + " " + iniVal->getStr() + " should be of form i,i"); \
-    continue; \
-    }
-    //*** End Useful Macros ***
-
-    tree->fileName = filePath;
-
-    std::vector <std::vector <IniValue> > iniValues;
-    std::vector <nString> iniSections;
-    cout << filePath << endl;
-    if (loadIniFile(filePath, iniValues, iniSections)) return 1;
-
-    float f1, f2;
-    int i1, i2;
-    int iVal;
-    int currID = 0;
-    IniValue *iniVal;
-    for (size_t i = 0; i < iniSections.size(); i++) {
-        for (size_t j = 0; j < iniValues[i].size(); j++) {
-            iniVal = &(iniValues[i][j]);
-
-            iVal = getIniVal(iniVal->key);
-
-            switch (iVal) {
-            case TREE_INI_BRANCHCHANCEBOTTOM:
-                GETFLOATPAIR(tree->bottomBranchChance);
-                break;
-            case TREE_INI_BRANCHCHANCECAPMOD:
-                tree->capBranchChanceMod = iniVal->getFloat();
-                break;
-            case TREE_INI_BRANCHCHANCETOP:
-                GETFLOATPAIR(tree->topBranchChance);
-                break;
-            case TREE_INI_BRANCHDIRECTIONBOTTOM:
-                tree->bottomBranchDir = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHDIRECTIONTOP:
-                tree->topBranchDir = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLEAFSHAPE:
-                tree->branchLeafShape = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLEAFSIZEMOD:
-                tree->branchLeafSizeMod = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLEAFYMOD:
-                tree->branchLeafYMod = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLENGTHBOTTOM:
-                GETINTPAIR(tree->bottomBranchLength);
-                break;
-            case TREE_INI_BRANCHLENGTHTOP:
-                GETINTPAIR(tree->topBranchLength);
-                break;
-            case TREE_INI_BRANCHSTART:
-                tree->branchStart = iniVal->getFloat();
-                break;
-            case TREE_INI_BRANCHWIDTHBOTTOM:
-                GETINTPAIR(tree->bottomBranchWidth);
-                break;
-            case TREE_INI_BRANCHWIDTHTOP:
-                GETINTPAIR(tree->topBranchWidth);
-                break;
-            case TREE_INI_DROOPYLEAVESACTIVE:
-                tree->hasDroopyLeaves = iniVal->getBool();
-                break;
-            case TREE_INI_DROOPYLEAVESLENGTH:
-                GETINTPAIR(tree->droopyLength);
-                break;
-            case TREE_INI_DROOPYLEAVESSLOPE:
-                tree->droopyLeavesSlope = iniVal->getInt();
-                break;
-            case TREE_INI_DROOPYLEAVESDSLOPE:
-                tree->droopyLeavesSlope = iniVal->getInt();
-                break;
-            case TREE_INI_HASTHICKCAPBRANCHES:
-                tree->hasThickCapBranches = iniVal->getBool();
-                break;
-            case TREE_INI_IDCORE:
-                tree->idCore = iniVal->getInt();
-                break;
-            case TREE_INI_IDLEAVES:
-                tree->idLeaves = iniVal->getInt();
-                break;
-            case TREE_INI_IDBARK:
-                tree->idOuter = iniVal->getInt();
-                break;
-            case TREE_INI_IDROOT:
-                tree->idRoot = iniVal->getInt();
-                break;
-            case TREE_INI_IDSPECIALBLOCK:
-                tree->idSpecial = iniVal->getInt();
-                break;
-            case TREE_INI_ISSLOPERANDOM:
-                tree->isSlopeRandom = iniVal->getBool();
-                break;
-            case TREE_INI_LEAFCAPSHAPE:
-                tree->leafCapShape = iniVal->getInt();
-                break;
-            case TREE_INI_LEAFCAPSIZE:
-                GETINTPAIR(tree->leafCapSize);
-                break;
-            case TREE_INI_MUSHROOMCAPCURLLENGTH:
-                tree->mushroomCapCurlLength = iniVal->getInt();
-                break;
-            case TREE_INI_MUSHROOMCAPGILLTHICKNESS:
-                tree->mushroomCapGillThickness = iniVal->getInt();
-                break;
-            case TREE_INI_MUSHROOMCAPINVERTED:
-                tree->isMushroomCapInverted = iniVal->getBool();
-                break;
-            case TREE_INI_MUSHROOMCAPSTRETCHMOD:
-                tree->mushroomCapLengthMod = iniVal->getInt();
-                break;
-            case TREE_INI_MUSHROOMCAPTHICKNESS:
-                tree->mushroomCapThickness = iniVal->getInt();
-                break;
-            case TREE_INI_ROOTDEPTH:
-                tree->rootDepthMult = iniVal->getFloat();
-                break;
-            case TREE_INI_TRUNKCHANGEDIRCHANCE:
-                tree->trunkChangeDirChance = iniVal->getFloat();
-                break;
-            case TREE_INI_TRUNKCOREWIDTH:
-                tree->coreWidth = iniVal->getInt();
-                break;
-            case TREE_INI_TRUNKHEIGHT:
-                GETINTPAIR(tree->trunkHeight);
-                break;
-            case TREE_INI_TRUNKHEIGHTBASE:
-                GETINTPAIR(tree->trunkBaseHeight);
-                break;
-            case TREE_INI_TRUNKSLOPEEND:
-                GETINTPAIR(tree->trunkEndSlope);
-                break;
-            case TREE_INI_TRUNKSLOPESTART:
-                GETINTPAIR(tree->trunkStartSlope);
-                break;
-            case TREE_INI_TRUNKWIDTHBASE:
-                GETINTPAIR(tree->trunkBaseWidth);
-                break;
-            case TREE_INI_TRUNKWIDTHMID:
-                GETINTPAIR(tree->trunkMidWidth);
-                break;
-            case TREE_INI_TRUNKWIDTHTOP:
-                GETINTPAIR(tree->trunkTopWidth);
-                break;
-            }
-        }
-    }
-    return 0;
+    return Keg::parse(tree, data, "TreeType") == Keg::Error::NONE ? 0 : 1;
 }
 
 i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
@@ -713,8 +475,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
         }
         if (ts == "Biome_Map_Filename:") {
             if (!(file >> s)) {
-                printf("	ERROR: World/Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Map_Filename!\nEnter any key to continue: ");
-                cin >> s;
+                printf("    ERROR: World/Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Map_Filename!\nEnter any key to continue: ");
+                std::cin >> s;
                 file.close();
                 return 1;
             }
@@ -722,8 +484,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
             loadPNG(planet->biomeMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
         } else if (ts == "Biome_Color_Filename:") {
             if (!(file >> s)) {
-                cout << "	ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Color_Filename!\nEnter any key to continue: ";
-                cin >> s;
+                std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Color_Filename!\nEnter any key to continue: ";
+                std::cin >> s;
                 file.close();
                 return 1;
             }
@@ -731,8 +493,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
             loadPNG(planet->colorMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
         } else if (ts == "Water_Color_Filename:") {
             if (!(file >> s)) {
-                cout << "	ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Water_Color_Filename!\nEnter any key to continue: ";
-                cin >> s;
+                std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Water_Color_Filename!\nEnter any key to continue: ";
+                std::cin >> s;
                 file.close();
                 return 1;
             }
@@ -744,8 +506,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
             activeList = 2;
         } else {
             if (!(file >> bfname)) {
-                cout << "	ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt format error!\nEnter any key to continue: ";
-                cin >> s;
+                std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt format error!\nEnter any key to continue: ";
+                std::cin >> s;
                 file.close();
                 return 1;
             }
@@ -756,8 +518,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 biome->isBase = 1;
 
                 if (!(file >> s)) {
-                    printf("	ERROR: %s trouble reading mapColor!\nEnter any key to continue: ", bfname.c_str());
-                    cin >> s;
+                    printf("    ERROR: %s trouble reading mapColor!\nEnter any key to continue: ", bfname.c_str());
+                    std::cin >> s;
                     file.close();
                     return 1;
                 }
@@ -778,8 +540,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 }
                 planet->addMainBiome(biome);
             } else {
-                printf("	FORMAT ERROR: %sBiomes/BiomeDistribution/BiomeList.txt) Line: %s \nEnter any key to continue: ", worldFilePath, bfname.c_str());
-                cin >> s;
+                printf("    FORMAT ERROR: %sBiomes/BiomeDistribution/BiomeList.txt) Line: %s \nEnter any key to continue: ", worldFilePath, bfname.c_str());
+                std::cin >> s;
                 file.close();
                 return 1;
             }
@@ -860,98 +622,98 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             activeList = 5;
         } else if (ts == "Underwater_Block_ID:") {
             if (!(biomeFile >> biome->underwaterBlock)) {
-                printf("	ERROR: %s trouble reading Underwater_Block_ID!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Underwater_Block_ID!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Beach_Block_ID:") {
             if (!(biomeFile >> biome->beachBlock)) {
-                printf("	ERROR: %s trouble reading Beach_Block_ID!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Beach_Block_ID!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Apply_Biome_At:") {
             if (!(biomeFile >> biome->applyBiomeAt)) {
-                printf("	ERROR: %s trouble reading Apply_Biome_At!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Apply_Biome_At!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Terrain_Mult:") {
             if (!(biomeFile >> biome->minTerrainMult)) {
-                printf("	ERROR: %s trouble reading Min_Terrain_Mult!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Min_Terrain_Mult!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Temp:") {
             if (!(biomeFile >> biome->lowTemp)) {
-                printf("	ERROR: %s trouble reading Min_Temp!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Min_Temp!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Temp:") {
             if (!(biomeFile >> biome->highTemp)) {
-                printf("	ERROR: %s trouble reading Max_Temp!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Max_Temp!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Temp_Slope_Length:") {
             if (!(biomeFile >> biome->tempSlopeLength)) {
-                printf("	ERROR: %s trouble reading Temp_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Temp_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Rain:") {
             if (!(biomeFile >> biome->lowRain)) {
-                printf("	ERROR: %s trouble reading Min_Rain!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Min_Rain!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Rain:") {
             if (!(biomeFile >> biome->highRain)) {
-                printf("	ERROR: %s trouble reading Max_Rain!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Max_Rain!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Height:") {
             if (!(biomeFile >> biome->maxHeight)) {
-                printf("	ERROR: %s trouble reading Max_Height!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Max_Height!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Height_Slope_Length:") {
             if (!(biomeFile >> biome->maxHeightSlopeLength)) {
-                printf("	ERROR: %s trouble reading Max_Height_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Max_Height_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Rain_Slope_Length:") {
             if (!(biomeFile >> biome->rainSlopeLength)) {
-                printf("	ERROR: %s trouble reading Rain_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Rain_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Terrain_Color:") {
             if (!(biomeFile >> biome->hasAltColor)) {
-                printf("	ERROR: %s trouble reading active!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading active!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
             }
             int a, b, c;
             if (!(biomeFile >> a >> b >> c)) {
-                printf("	ERROR: %s trouble reading terrain color!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading terrain color!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
@@ -961,7 +723,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             biome->b = c;
         } else if (activeList == 1) { //tree types
             if (!(biomeFile >> d)) {
-                printf("	ERROR: %s trouble reading tree probability!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading tree probability!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
@@ -976,7 +738,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             }
         } else if (activeList == 2) { //flora types
             if (!(biomeFile >> d)) {
-                printf("	ERROR: %s trouble reading flora probability!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading flora probability!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
@@ -994,7 +756,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             childBiome->isBase = 0;
             childBiome->name = ts;
             if (!(biomeFile >> childFileName)) {
-                printf("	ERROR: %s trouble reading child filename!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading child filename!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
@@ -1007,7 +769,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             NoiseInfo noisef;
             if (sscanf(&(ts[0]), "%d", &(noisef.type)) == 0 ||
                 !(biomeFile >> noisef.persistence >> noisef.frequency >> noisef.octaves >> noisef.lowBound >> noisef.upBound >> noisef.scale >> noisef.composition)) {
-                printf("	ERROR: %s trouble reading unique terrain noise!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading unique terrain noise!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
@@ -1017,7 +779,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             if (sscanf(&(ts[0]), "%lf", &(biome->distributionNoise.persistence)) == 0 ||
                 !(biomeFile >> biome->distributionNoise.frequency >> biome->distributionNoise.octaves >>
                 biome->distributionNoise.lowBound >> biome->distributionNoise.upBound)) {
-                printf("	ERROR: %s trouble reading Distribution_Noise!\nEnter any key to continue: ", fileName.c_str());
+                printf("    ERROR: %s trouble reading Distribution_Noise!\nEnter any key to continue: ", fileName.c_str());
                 cin >> ts;
                 biomeFile.close();
                 return 1;
@@ -1141,14 +903,14 @@ i32 FileManager::saveTreeData(TreeType *tt) {
     std::vector<IniValue> &ivs = iniValues.back();
 
     ivs.push_back(IniValue("name", tt->name));
-    ivs.push_back(IniValue("branchChanceBottom", STRCOMB(tt->bottomBranchChance.min, tt->bottomBranchChance.max)));
-    ivs.push_back(IniValue("branchChanceTop", STRCOMB(tt->bottomBranchChance.min, tt->bottomBranchChance.max)));
+    ivs.push_back(IniValue("branchChanceBottom", STRCOMB(tt->branchingPropsBottom.chance.min, tt->branchingPropsBottom.chance.max)));
+    ivs.push_back(IniValue("branchChanceTop", STRCOMB(tt->branchingPropsTop.chance.min, tt->branchingPropsTop.chance.max)));
     ivs.push_back(IniValue("branchChanceCapMod", tt->capBranchChanceMod));
-    ivs.push_back(IniValue("branchDirBottom", tt->bottomBranchDir));
-    ivs.push_back(IniValue("branchDirTop", tt->topBranchDir));
-    ivs.push_back(IniValue("branchLengthBottom", STRCOMB(tt->bottomBranchLength.min, tt->topBranchLength.max)));
-    ivs.push_back(IniValue("branchWidthBottom", STRCOMB(tt->bottomBranchWidth.min, tt->bottomBranchWidth.max)));
-    ivs.push_back(IniValue("branchLeafShape", tt->branchLeafShape));
+    ivs.push_back(IniValue("branchDirBottom", tt->branchingPropsBottom.direction));
+    ivs.push_back(IniValue("branchDirTop", tt->branchingPropsTop.direction));
+    ivs.push_back(IniValue("branchLengthBottom", STRCOMB(tt->branchingPropsBottom.length.min, tt->branchingPropsBottom.length.max)));
+    ivs.push_back(IniValue("branchWidthBottom", STRCOMB(tt->branchingPropsBottom.width.min, tt->branchingPropsBottom.width.max)));
+    ivs.push_back(IniValue("branchLeafShape", (i32)tt->branchLeafShape));
     ivs.push_back(IniValue("branchLeafSizeMod", tt->branchLeafSizeMod));
     ivs.push_back(IniValue("branchLeafYMod", tt->branchLeafYMod));
     ivs.push_back(IniValue("branchStart", tt->branchStart));
@@ -1160,7 +922,7 @@ i32 FileManager::saveTreeData(TreeType *tt) {
     ivs.push_back(IniValue("hasThickCapBranches", tt->hasThickCapBranches));
     ivs.push_back(IniValue("mushroomCapInverted", tt->isMushroomCapInverted));
     ivs.push_back(IniValue("isSlopeRandom", tt->isSlopeRandom));
-    ivs.push_back(IniValue("leafCapShape", tt->leafCapShape));
+    ivs.push_back(IniValue("leafCapShape", (i32)tt->leafCapShape));
     ivs.push_back(IniValue("leafCapSize", STRCOMB(tt->leafCapSize.min, tt->leafCapSize.max)));
     ivs.push_back(IniValue("idLeaves", tt->idLeaves));
     ivs.push_back(IniValue("mushroomCapCurlLength", tt->mushroomCapCurlLength));
@@ -1171,8 +933,8 @@ i32 FileManager::saveTreeData(TreeType *tt) {
     ivs.push_back(IniValue("idRoot", tt->idRoot));
     ivs.push_back(IniValue("idRoot", tt->idRoot));
     ivs.push_back(IniValue("idSpecialBlock", tt->idSpecial));
-    ivs.push_back(IniValue("branchLengthTop", STRCOMB(tt->topBranchLength.min, tt->topBranchLength.max)));
-    ivs.push_back(IniValue("branchWidthTop", STRCOMB(tt->topBranchWidth.min, tt->topBranchWidth.max)));
+    ivs.push_back(IniValue("branchLengthTop", STRCOMB(tt->branchingPropsTop.length.min, tt->branchingPropsTop.length.max)));
+    ivs.push_back(IniValue("branchWidthTop", STRCOMB(tt->branchingPropsTop.width.min, tt->branchingPropsTop.width.max)));
     ivs.push_back(IniValue("trunkHeightBase", STRCOMB(tt->trunkBaseHeight.min, tt->trunkBaseHeight.max)));
     ivs.push_back(IniValue("trunkWidthBase", STRCOMB(tt->trunkBaseWidth.min, tt->trunkBaseWidth.max)));
     ivs.push_back(IniValue("trunkChangeDirChance", tt->trunkTopWidth.min));
@@ -1192,15 +954,11 @@ void FileManager::saveAllTreeFiles(Planet *planet) {
     }
 }
 
-const COMDLG_FILTERSPEC c_rgFileTypes[] =
-{
-    { L"Word Documents (*.docx)", L"*.docx" },
-    { L"Text Files (*.txt)", L"*.txt" },
-    { L"All Files (*.*)", L"*.*" }
-};
-
 nString FileManager::getFileNameDialog(const nString &prompt, const char *initialDir) {
-#ifdef _WIN32
+    // TODO: Probably Not Necessary, Either Way Bad Code
+
+#if 0
+    //#ifdef _WIN32
     //TODO: This sucks
     nString initdir = getFullPath(initialDir); //need to maintain working directory
     char pathBuffer[1024];
@@ -1317,11 +1075,11 @@ nString FileManager::getFileNameDialog(const nString &prompt, const char *initia
     _chdir(initdir.c_str()); //set dir back to initial dir
 
     return buffer;
-#elif
     cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;
 #endif
+
     return "";
 }
 
@@ -1378,7 +1136,7 @@ i32 SetWaterBlocks(int startID) {
 
 void FileManager::loadTexturePack(nString fileName) {
 
-    DIR *defDir = NULL;
+    //DIR *defDir = NULL;
     bool loadAll = 0;
     bool isDefault;
     bool isDefaultZip;
@@ -1387,13 +1145,13 @@ void FileManager::loadTexturePack(nString fileName) {
 
     //verify the default pack
     if (isDefaultZip == 0) {
-        defDir = opendir(defaultFileName.c_str());
-        if (defDir == NULL) {
+        //defDir = opendir(defaultFileName.c_str());
+        if (!boost::filesystem::exists(defaultFileName)) {
             defaultFileName = defaultFileName + ".zip";
             graphicsOptions.defaultTexturePack = "SoA_Default.zip";
             isDefaultZip = 1;
-        } else {
-            closedir(defDir);
+            //} else {
+            //closedir(defDir);
         }
     } else {
         struct stat statbuf;
@@ -1608,8 +1366,8 @@ void FileManager::loadTexturePack(nString fileName) {
 
 
     GameManager::textureAtlasManager->loadBlockAtlas(fileName);
-    
-    for (size_t i = 0; i < Blocks.size(); i++){
+
+    for (size_t i = 0; i < Blocks.size(); i++) {
         Blocks[i].InitializeTexture();
     }
 }
@@ -1886,7 +1644,6 @@ i32 FileManager::loadBlocks(nString filePath) {
     return 1;
 
 }
-
 i32 FileManager::saveBlocks(nString filePath) {
     //worldFilePath + "Trees/TreeTypes/"
     std::vector <std::vector <IniValue> > iniValues;
@@ -2009,64 +1766,62 @@ void FileManager::loadNoiseDescriptions(const char *filename) {
 }
 
 i32 FileManager::makeSaveDirectories(nString filePath) {
-    _mkdir(filePath.c_str());
-    _mkdir((filePath + "/Players").c_str());
-    _mkdir((filePath + "/Data").c_str());
-    _mkdir((filePath + "/World").c_str());
-    _mkdir((filePath + "/Region").c_str());
-    _mkdir((filePath + "/Region/f0").c_str());
-    _mkdir((filePath + "/Region/f1").c_str());
-    _mkdir((filePath + "/Region/f2").c_str());
-    _mkdir((filePath + "/Region/f3").c_str());
-    _mkdir((filePath + "/Region/f4").c_str());
-    _mkdir((filePath + "/Region/f5").c_str());
+    boost::filesystem::create_directory(filePath);
+    boost::filesystem::create_directory(filePath + "/Players");
+    boost::filesystem::create_directory(filePath + "/Data");
+    boost::filesystem::create_directory(filePath + "/World");
+    boost::filesystem::create_directory(filePath + "/Region");
+    boost::filesystem::create_directory(filePath + "/Region/f0");
+    boost::filesystem::create_directory(filePath + "/Region/f1");
+    boost::filesystem::create_directory(filePath + "/Region/f2");
+    boost::filesystem::create_directory(filePath + "/Region/f3");
+    boost::filesystem::create_directory(filePath + "/Region/f4");
+    boost::filesystem::create_directory(filePath + "/Region/f5");
     return 0;
 }
-
 i32 FileManager::createSaveFile(nString filePath) {
     struct stat statbuf;
 
-    if (stat(filePath.c_str(), &statbuf) == 0) {
+    if (boost::filesystem::exists(filePath)) {
         return 2;
     }
 
-    if (_mkdir(filePath.c_str()) != 0) {
+    if (!boost::filesystem::create_directory(filePath)) {
         perror(filePath.c_str()); pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Players").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Players").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Data").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Data").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/World").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/World").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f0").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f0").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f1").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f1").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f2").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f2").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f3").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f3").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f4").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f4").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f5").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f5").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
 
     return setSaveFile(filePath);
 }
-
 i32 FileManager::createWorldFile(nString filePath) {
     ofstream file(filePath + "world.txt");
     if (file.fail()) {
@@ -2077,7 +1832,6 @@ i32 FileManager::createWorldFile(nString filePath) {
     file.close();
     return 0;
 }
-
 nString FileManager::getWorldString(nString filePath) {
     ifstream file(filePath + "world.txt");
     if (file.fail()) {
@@ -2088,7 +1842,6 @@ nString FileManager::getWorldString(nString filePath) {
     file.close();
     return rv;
 }
-
 i32 FileManager::setSaveFile(nString filePath) {
     struct stat statbuf;
 
@@ -2149,7 +1902,6 @@ i32 FileManager::loadMarkers(Player *player) {
     }
     return 0;
 }
-
 i32 FileManager::loadPlayerFile(Player *player) {
     loadMarkers(player);
 
@@ -2178,7 +1930,6 @@ i32 FileManager::loadPlayerFile(Player *player) {
     fclose(file);
     return 1;
 }
-
 i32 FileManager::saveMarkers(Player *player) {
 
     std::vector <std::vector <IniValue> > iniValues;
@@ -2202,7 +1953,6 @@ i32 FileManager::saveMarkers(Player *player) {
     if (saveIniFile(saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
 
 }
-
 i32 FileManager::savePlayerFile(Player *player) {
     saveMarkers(player);
 
@@ -2251,68 +2001,49 @@ i32 FileManager::savePlayerFile(Player *player) {
     return 1;
 }
 
-i32 FileManager::printDirectory(std::vector <nString> &fileNames, nString dirPath) {
-    DIR *dir = NULL;
-    struct dirent *entry;
-    int i = 0;
-    struct stat statBuf;
-    struct tm *lt;
-    time_t t;
-
-    dir = opendir(dirPath.c_str());
-
-    if (dir == NULL) {
-        perror(dirPath.c_str());
-        pError("Could not open directory!");
-        return 0;
-    }
-
-    //iterate the directory
-    while ((entry = readdir(dir))) {
-        if (entry->d_name[0] != '.') {
-            if (stat((dirPath + entry->d_name).c_str(), &statBuf) != 0)pError("PrintDirectory() Stat error!");
-            t = statBuf.st_mtime;
-            lt = localtime(&t);
-
-            printf(("%d) %-20s Last Changed: %02d/%02d/%d  %02d:%02d\n"), i, entry->d_name, lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900,
-                lt->tm_hour, lt->tm_min);
-            fileNames.push_back(entry->d_name);
-            i++;
-        }
-    }
-    closedir(dir);
-}
-
 i32 FileManager::getDirectoryEntries(std::vector<nString>& fileNames, std::vector <nString> &descriptions, nString dirPath) {
-    DIR *dir = NULL;
-    struct dirent *entry;
-    int i = 0;
-    struct stat statBuf;
-    struct tm *lt;
-    time_t t;
-    char descBuf[1024];
-
-    dir = opendir(dirPath.c_str());
-
-    if (dir == NULL) {
-        perror(dirPath.c_str());
-        pError(("Could not open directory " + dirPath).c_str());
-        return 0;
-    }
-
-    //iterate the directory
-    while ((entry = readdir(dir))) {
-        if (entry->d_name[0] != '.') {
-            if (stat((dirPath + entry->d_name).c_str(), &statBuf) != 0)pError("GetDirectoryEntries() Stat error!");
-            t = statBuf.st_mtime;
-            lt = localtime(&t);
-
-            sprintf(descBuf, ("%04d.%02d.%02d  %02d:%02d"), lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
-            fileNames.push_back(entry->d_name);
-            descriptions.push_back(descBuf);
-            i++;
+    boost::filesystem::directory_iterator end_iter;
+    boost::filesystem::path targetDir(dirPath), file;
+    for (boost::filesystem::directory_iterator dir_iter(targetDir); dir_iter != end_iter; ++dir_iter) {
+        file = *dir_iter;
+        if (boost::filesystem::is_regular_file(dir_iter->status())) {
+            fileNames.push_back(file.filename().string());
+            descriptions.push_back(boost::lexical_cast<nString>(boost::filesystem::last_write_time(file)));
+        }
+        else {
+            fileNames.push_back(file.filename().string());
+            descriptions.push_back(boost::lexical_cast<nString>(boost::filesystem::last_write_time(file)));
         }
     }
+    //DIR *dir = NULL;
+    //struct dirent *entry;
+    //int i = 0;
+    //struct stat statBuf;
+    //struct tm *lt;
+    //time_t t;
+    //char descBuf[1024];
+
+    //dir = opendir(dirPath.c_str());
+
+    //if (dir == NULL) {
+    //    perror(dirPath.c_str());
+    //    pError(("Could not open directory " + dirPath).c_str());
+    //    return 0;
+    //}
+
+    ////iterate the directory
+    //while ((entry = readdir(dir))) {
+    //    if (entry->d_name[0] != '.') {
+    //        if (stat((dirPath + entry->d_name).c_str(), &statBuf) != 0)pError("GetDirectoryEntries() Stat error!");
+    //        t = statBuf.st_mtime;
+    //        lt = localtime(&t);
+
+    //        sprintf(descBuf, ("%04d.%02d.%02d  %02d:%02d"), lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
+    //        fileNames.push_back(entry->d_name);
+    //        descriptions.push_back(descBuf);
+    //        i++;
+    //    }
+    //}
     return 0;
 }
 
@@ -2336,8 +2067,7 @@ inline void readLine(ui8* buffer, cString dest, i32& size) {
         }
     }
 }
-
-i32 FileManager::loadIniFile(nString filePath, std::vector <std::vector <IniValue> > &iniValues, std::vector <nString> &iniSections, ZipFile *zipFile) {
+i32 FileManager::loadIniFile(nString filePath, std::vector<std::vector<IniValue>> &iniValues, std::vector <nString> &iniSections, ZipFile *zipFile) {
     char buffer[1024];
     int n;
     nString currentName = "";
@@ -2391,8 +2121,8 @@ i32 FileManager::loadIniFile(nString filePath, std::vector <std::vector <IniValu
 
         file.open((filePath).c_str());
         if (file.fail()) {
-            //	pError((filePath + " could not be opened for read").c_str());
-            //	perror((filePath).c_str());
+            //    pError((filePath + " could not be opened for read").c_str());
+            //    perror((filePath).c_str());
             return 1;
         }
 
@@ -2426,7 +2156,6 @@ i32 FileManager::loadIniFile(nString filePath, std::vector <std::vector <IniValu
 
     return 0;
 }
-
 i32 FileManager::saveIniFile(nString filePath, std::vector <std::vector <IniValue> > &iniValues, std::vector <nString> &iniSections) {
     ofstream file;
     file.open(filePath.c_str());
@@ -2537,7 +2266,6 @@ ParticleEmitter* FileManager::loadEmitter(nString fileName) {
     }
     return NULL;
 }
-
 Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
     auto it = _animationMap.find(fileName);
     if (it != _animationMap.end()) {
@@ -2584,7 +2312,6 @@ Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
     }
     return NULL;
 }
-
 bool FileManager::loadTexFile(nString fileName, ZipFile *zipFile, BlockTexture* rv) {
     // This Should Be An Argument
     IOManager iom;
@@ -2773,7 +2500,7 @@ bool FileManager::loadTexFile(nString fileName, ZipFile *zipFile, BlockTexture* 
     //return rv;
 }
 
-int FileManager::getParticleType(nString fileName) {
+i32 FileManager::getParticleType(nString fileName) {
     auto it = _particleTypeMap.find(fileName);
     if (it != _particleTypeMap.end()) {
         return it->second;
@@ -2799,6 +2526,8 @@ int FileManager::getParticleType(nString fileName) {
     }
     return -1;
 }
+
+#pragma region TODO: Marked For Removal
 
 map <nString, INI_KEYS> IniMap;
 map <nString, INI_KEYS> BlockIniMap;
@@ -3047,3 +2776,5 @@ double IniValue::getDouble() {
 nString IniValue::getStr() {
     return val;
 }
+#pragma endregion
+

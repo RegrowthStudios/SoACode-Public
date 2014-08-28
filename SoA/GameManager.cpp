@@ -117,9 +117,9 @@ int GameManager::newGame(string saveName) {
     }
     cout << "CREATING " << saveName << endl;
 
-	if (_mkdir(dirPath.c_str()) == 0){ //Create the save directory if it's not there. Will fail if it is, but that's ok. Should probably be in CreateSaveFile.
-		cout << "Save directory " + dirPath + " did not exist and was created!" << endl;
-	}
+    if (_mkdir(dirPath.c_str()) == 0){ //Create the save directory if it's not there. Will fail if it is, but that's ok. Should probably be in CreateSaveFile.
+        cout << "Save directory " + dirPath + " did not exist and was created!" << endl;
+    }
 
     int rv = fileManager.createSaveFile(dirPath + saveName);
     if (rv != 2) {
@@ -285,7 +285,7 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
             }
 
         } else {
-            //	closestLodDistance = (glm::length(player->worldPosition) - chunkManager.planet->radius - 20000)*0.7;
+            //    closestLodDistance = (glm::length(player->worldPosition) - chunkManager.planet->radius - 20000)*0.7;
             player->currBiome = NULL;
             player->currTemp = -1;
             player->currHumidity = -1;

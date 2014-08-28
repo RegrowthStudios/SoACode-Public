@@ -70,10 +70,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
-robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
-
-EXIT 0</Command>
+      <Command>
+        robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+        robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
+        EXIT 0
+      </Command>
       <Message>Copying dependencies and resources to output directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -104,10 +105,11 @@ EXIT 0</Command>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
-robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
-
-EXIT 0</Command>
+      <Command>
+        robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+        robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
+        EXIT 0
+      </Command>
       <Message>Copying dependencies and resources to output directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>

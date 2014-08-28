@@ -13,9 +13,9 @@ void ExtractFrustum(glm::dmat4 &projectionMatrix, glm::dmat4 &viewMatrix, double
    glm::highp_float clip[16];
    glm::highp_float t;
    for (int i = 0; i < 4; i++){
-	   for (int j = 0; j < 4; j++){
-		   clip[i*4+j] = model[i][j];
-	   }
+       for (int j = 0; j < 4; j++){
+           clip[i*4+j] = model[i][j];
+       }
    }
 
     /* Extract the numbers for the RIGHT plane */
@@ -108,7 +108,7 @@ bool SphereInFrustum(float x, float y, float z, float radius, double frustum[6][
 {
    for(int p = 0; p < 4; p++ ) //*************************************** IGNORING FAR AND CLOSE CLIPPING PLANE *****************************************************
    {
-	   if (frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= -radius) return false;
+       if (frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= -radius) return false;
    }
    return true;
 }
