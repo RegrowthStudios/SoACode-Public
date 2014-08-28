@@ -1,4 +1,16 @@
-# Windows line endings on all text files
+# -----------------------------------------------------------------------------
+# After much research...
+#  text should be auto, it's the only sane cross-platform option
+#
+#  See:  http://stackoverflow.com/a/10855862
+#  See also: http://adaptivepatchwork.com/2012/03/01/mind-the-end-of-your-line/
+#
+#  To squelch extraneous messages on windows, run:
+#     git --config core.autocrlf=true
+#
+#  To stay consistent on OS X and Linux, run:
+#     git --config core.autocrlf=input
+# -----------------------------------------------------------------------------
 * text eol=auto
 
 # SOA binary asset files:
@@ -19,7 +31,7 @@
 *.hpp   binary
 
 # Language aware diffs and force line endings if git did not know they are text:
-*.h     diff=cpp
-*.cpp   diff=cpp
-*.py    diff=python
-*.cs    diff=csharp
+*.h     text diff=cpp
+*.cpp   text diff=cpp
+*.py    text diff=python
+*.cs    text diff=csharp
