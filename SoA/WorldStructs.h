@@ -106,34 +106,6 @@ const int PLATEAU = 0x1;
 const int VOLCANO = 0x2;
 const int TOOSTEEP = 0x4;
 
-struct ChunkMeshData
-{
-    ChunkMeshData(class Chunk *ch);
-
-    void addTransQuad(const i8v3& pos);
-
-    //***** This 88 byte block gets memcpyd to ChunkMesh *****
-    GLint pxVboOff, pxVboSize, nxVboOff, nxVboSize, pzVboOff, pzVboSize, nzVboOff, nzVboSize;
-    GLint pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize, cutoutVboSize;
-    GLint highestY, lowestY, highestX, lowestX, highestZ, lowestZ;
-    GLuint indexSize;
-    GLuint waterIndexSize;
-    //*****  End Block *****
-
-    vector <BlockVertex> vertices;
-    vector <BlockVertex> transVertices;
-    vector <BlockVertex> cutoutVertices;
-    vector <LiquidVertex> waterVertices;
-    Chunk *chunk;
-    struct ChunkMesh *chunkMesh;
-    int bAction, wAction;
-    int debugCode;
-
-    //*** Transparency info for sorting ***
-    ui32 transVertIndex;
-    vector <i8v3> transQuadPositions;
-    vector <ui32> transQuadIndices;
-};
 
 struct LoadData
 {

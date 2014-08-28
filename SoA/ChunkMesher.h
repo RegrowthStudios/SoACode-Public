@@ -1,6 +1,7 @@
 #pragma once
 #include "OpenGLStructs.h"
 #include "BlockData.h"
+#include "ChunkMesh.h"
 
 class RenderTask;
 class Chunk;
@@ -8,25 +9,6 @@ struct ChunkMeshData;
 struct BlockTexture;
 struct BlockTextureLayer;
 
-// Stores Chunk Mesh Information
-struct MeshInfo {
-public:
-    i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
-    i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
-    i32 wsize;
-    i32 pyVboSize, nxVboSize, pxVboSize, nzVboSize, pzVboSize, nyVboSize, transparentIndex, cutoutIndex;
-    i32 y, z, x;
-    i32 y2, z2, x2; //used for transparent positions. == y*2,z*2,x*2
-    i32 c, wc;
-    i32 btype;
-    i32 pbtype;
-    i32 pupIndex, pfrontIndex, pbackIndex, pbotIndex;
-    i32 temperature, rainfall;
-    MeshType meshType;
-    bool mergeUp, mergeBot, mergeFront, mergeBack;
-
-    RenderTask* task;
-};
 
 // each worker thread gets one of these
 class ChunkMesher {
@@ -42,23 +24,23 @@ public:
 private:
     enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
 
-    inline void mergeTopVerts(MeshInfo& mi);
-    inline void mergeFrontVerts(MeshInfo& mi);
-    inline void mergeBackVerts(MeshInfo& mi);
-    inline void mergeRightVerts(MeshInfo& mi);
-    inline void mergeLeftVerts(MeshInfo& mi);
-    inline void mergeBottomVerts(MeshInfo& mi);
+    inline void mergeTopVerts(MesherInfo& mi);
+    inline void mergeFrontVerts(MesherInfo& mi);
+    inline void mergeBackVerts(MesherInfo& mi);
+    inline void mergeRightVerts(MesherInfo& mi);
+    inline void mergeLeftVerts(MesherInfo& mi);
+    inline void mergeBottomVerts(MesherInfo& mi);
 
     
-    inline void getTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]);
+    inline void getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]);
     //inline void getOverlayTextureIndex(const MeshInfo &mi, const BlockTexture& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 overlayColor[3]);
-    inline void getRandomTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
-    inline void getConnectedTextureIndex(const MeshInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
-    inline void getGrassTextureIndex(const MeshInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]);
+    inline void getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
+    inline void getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
+    inline void getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]);
 
-    void addBlockToMesh(MeshInfo& mi);
-    void addFloraToMesh(MeshInfo& mi);
-    void addLiquidToMesh(MeshInfo& mi);
+    void addBlockToMesh(MesherInfo& mi);
+    void addFloraToMesh(MesherInfo& mi);
+    void addLiquidToMesh(MesherInfo& mi);
 
     void bindVBOIndicesID();
 

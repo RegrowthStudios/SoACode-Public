@@ -4,6 +4,7 @@
 #include "CAEngine.h"
 #include "ChunkUpdater.h"
 #include "Chunk.h"
+#include "Errors.h"
 #include "GameManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
@@ -45,7 +46,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
         //TODO: Replace most of this with block update scripts
         if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKTYPE(chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner)) < LOWWATER)){
             chunk->data[blockIndex] = NONE;
-            owner->num--;
+            owner->numBlocks--;
             needsSetup = true;
             newState = ChunkStates::WATERMESH;
             ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
@@ -114,7 +115,7 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
     Block &block = GETBLOCK(blockType);
 
     if (chunk->data[blockIndex] == NONE) {
-        chunk->num++;
+        chunk->numBlocks++;
     }
     chunk->data[blockIndex] = blockType;
 
@@ -172,7 +173,7 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
     Block &block = GETBLOCK(blockType);
 
     if (chunk->data[blockIndex] == NONE) {
-        chunk->num++;
+        chunk->numBlocks++;
     }
     chunk->data[blockIndex] = blockType;
 
@@ -215,7 +216,12 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
 
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
+    if (chunk->getBlockID(blockIndex) == 0) {
+        cout << "ALREADY REMOVED\n";
+    }
+
     GLbyte da, db, dc;
+
     //Falling check
     if (explodeDist){
         GLubyte d;
@@ -286,8 +292,8 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
-    chunk->num--;
-    if (chunk->num < 0) chunk->num = 0;
+    chunk->numBlocks--;
+    if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
 
     chunk->changeState(ChunkStates::MESH);
@@ -337,8 +343,8 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
-    chunk->num--;
-    if (chunk->num < 0) chunk->num = 0;
+    chunk->numBlocks--;
+    if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
 
     chunk->changeState(ChunkStates::WATERMESH);
@@ -418,7 +424,7 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     Chunk* top = chunk->top;
     Chunk* bottom = chunk->bottom;
 
-    if ((phys = GETBLOCK(chunk->data[c]).physicsProperty - physStart) >= -1) {
+    if ((phys = GETBLOCK(chunk->data[c]).physicsProperty - physStart) > -1) {
         chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
     }
 
