@@ -16,6 +16,7 @@ if __name__ == "__main__":
             gdata = gdata.split()
             if gdata[4] in ['A', 'M']:
                 gitfiles.append(gdata[5])
+    import pdb; pdb.set_trace()
     cmd = "git rev-parse --show-toplevel".split(" ")
     gitpath = "".join(p.strip() for p in call(cmd).split("\n") if p.strip())
     folder_path = os.path.dirname(__file__)
