@@ -1,0 +1,10 @@
+#!/bin/sh
+
+ERRORS=`cat $1 | aspell pipe --encoding utf-8 | grep -E '^&' | wc -l`
+
+if test $ERRORS != 0
+then
+    echo >&2 "\033[91mSpelling errors in your Commit msg. Use commit --amend to fix them.\033[0m"
+fi
+
+exit 0
