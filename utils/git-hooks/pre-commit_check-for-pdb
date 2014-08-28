@@ -30,4 +30,4 @@ if __name__ == "__main__":
         filepath = argv[0]
         extensions_to_convert = ('py')
         if filepath.endswith(extensions_to_convert):
-            tabs_to_spaces(filepath)
+            check_for_pdb(filepath)
