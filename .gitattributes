@@ -7,9 +7,9 @@
 *.ico   binary
 
 # Visual Studio files:
-*.pbxproj binary merge=union eol=lf
-*.vcxproj text merge=union eol=crlf
-*.sln text merge=union eol=crlf
+*.pbxproj binary merge=union
+*.vcxproj text merge=union
+*.sln text merge=union
 
 # Windows binary project files:
 *.exe   binary
