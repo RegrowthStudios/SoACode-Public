@@ -14,13 +14,15 @@ def tabs_to_spaces(filepath):
     tabbed_string = ""
     with open(filepath, "rU" + mode) as fd:
         tabbed_string = fd.read()
-    untabbed_string = tabbed_string.expandtabs(tabsize=4)
+    special = ('vcxproj', 'vcxproj.filters', 'xml')
+    spacing = 4 if not filepath.endswith(special) else 2
+    untabbed_string = tabbed_string.expandtabs(spacing)
     diff = list(differ(tabbed_string.splitlines(),
                        untabbed_string.splitlines(),
                        filepath, filepath))
     changed = '\n'.join(diff)
     if changed:
-        with open(filepath, 'wU' + mode) as fd:
+        with open(filepath, 'w' + mode) as fd:
             fd.write(untabbed_string)
         print "Tabs to Spaces:", filepath
 
@@ -33,6 +35,7 @@ if __name__ == "__main__":
         print __doc__
     else:
         filepath = argv[0]
-        extensions_to_convert = ('c', 'cpp', 'h', 'hpp', 'cs', 'py')
+        extensions_to_convert = ('c', 'cpp', 'h', 'hpp', 'cs', 'py',
+                                 'vcxproj', 'vcxproj.filters', 'xml')
         if filepath.endswith(extensions_to_convert):
             tabs_to_spaces(filepath)
