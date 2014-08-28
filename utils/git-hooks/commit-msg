@@ -2,16 +2,30 @@
 
 if __name__ == "__main__":
     import os
-    from subprocess import call
-    import sys
+    from subprocess import check_output as call
+
     fname = os.path.basename(__file__)
-    argv = sys.argv[1:] if len(sys.argv) > 1 else []
+    cmd = "git rev-parse --verify HEAD".split(" ")
+    gitrev = "".join(r.strip() for r in call(cmd).split("\n") if r.strip())
+    cmd = "git diff-index --cached %s" % gitrev
+    cmd = cmd.split(" ")
+    gitdata = call(cmd).split("\n")
+    gitfiles = []
+    for gdata in gitdata:
+        if gdata != '':
+            gdata = gdata.split()
+            if gdata[4] in ['A', 'M']:
+                gitfiles.append(gdata[5])
+    cmd = "git rev-parse --show-toplevel".split(" ")
+    gitpath = "".join(p.strip() for p in call(cmd).split("\n") if p.strip())
     folder_path = os.path.dirname(__file__)
     if not folder_path:
         folder_path = os.getcwd()
     for root, folders, files in os.walk(folder_path):
         for filename in files:
             if filename.startswith(fname) and filename != fname:
-                filepath = os.path.join(root, filename)
-                cmd = [filepath] + argv
-                call(cmd)
+                hookpath = os.path.join(root, filename)
+                for gitfile in gitfiles:
+                    fpath = os.path.join(gitpath, gitfile)
+                    cmd = [hookpath, fpath]
+                    print call(cmd)
