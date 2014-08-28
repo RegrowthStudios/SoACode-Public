@@ -1,11 +1,19 @@
-#!/bin/sh
-echo $1
-ERRORS=`cat $1 | aspell pipe --encoding utf-8 | grep -E '^&' | wc -l`
-cat $1 | aspell pipe --encoding utf-8
+#!/bin/bash
 
-if test $ERRORS != 0
-then
-    echo >&2 "\033[91mSpelling errors in your Commit msg. Use commit --amend to fix them.\033[0m"
+ASPELL=$(which aspell)
+if [ $? -ne 0 ]; then
+    echo "Aspell not installed - unable to check spelling" >&2
+    exit
 fi
 
-exit 0
+AWK=$(which awk)
+if [ $? -ne 0 ]; then
+    echo "Awk not installed - unable to filter spelling errors" >&2
+    WORDS=$($ASPELL list < "$1")
+else
+    WORDS=$($ASPELL list < "$1" | $AWK '!_[$0]++')
+fi
+
+if [ -n "$WORDS" ]; then
+    echo "Possible spelling errors found in commit message: " $WORDS >&2
+fi
