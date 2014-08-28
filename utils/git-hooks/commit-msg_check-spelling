@@ -1,0 +1,21 @@
+#!/bin/bash
+ASPELL=$(which aspell)
+if [ $? -ne 0 ]; then
+    echo "Aspell not installed - unable to check spelling" >&2
+    exit 0
+fi
+
+AWK=$(which awk)
+if [ $? -ne 0 ]; then
+    echo "Awk not installed - unable to filter spelling errors" >&2
+    WORDS=$($ASPELL list < "$1")
+else
+    WORDS=$($ASPELL list < "$1" | $AWK '!_[$0]++')
+fi
+
+if [ -n "$WORDS" ]; then
+    echo "Possible spelling errors found in commit message: " $WORDS >&2
+    echo "To fix, use:  git commit --amend"
+fi
+
+exit 0

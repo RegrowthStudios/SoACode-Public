@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+"""
+Usage:
+    check-for-pdb <filepath>
+
+"""
+from difflib import unified_diff as differ
+import sys
+from xml.etree import cElementTree as ElementTree
+
+
+def check_for_pdb(filepath):
+    mode = "b" if sys.platform.startswith('win') else ""
+    has_pdb_string = ""
+    with open(filepath, "rU" + mode) as fd:
+        has_pdb_string = fd.read()
+    if "import pdb" in has_pdb_string:
+        print >> sys.stderr, "Error: '%s' has a pdb" % filepath
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    import sys
+
+    argv = sys.argv[1:] if len(sys.argv) > 1 else []
+    if not argv:
+        print __doc__
+        sys.exit(1)
+    else:
+        filepath = argv[0]
+        extensions_to_convert = ('py')
+        if filepath.endswith(extensions_to_convert):
+            check_for_pdb(filepath)

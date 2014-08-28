@@ -1,5 +1,17 @@
-# Windows line endings on all text files
-* text eol=crlf
+# -----------------------------------------------------------------------------
+# After much research...
+#  text should be auto, it's the only sane cross-platform option
+#
+#  See:  http://stackoverflow.com/a/10855862
+#  See also: http://adaptivepatchwork.com/2012/03/01/mind-the-end-of-your-line/
+#
+#  To squelch extraneous messages on windows, run:
+#     git --config core.autocrlf=true
+#
+#  To stay consistent on OS X and Linux, run:
+#     git --config core.autocrlf=input
+# -----------------------------------------------------------------------------
+* text eol=auto
 
 # SOA binary asset files:
 *.png   binary
@@ -7,9 +19,9 @@
 *.ico   binary
 
 # Visual Studio files:
-*.pbxproj binary merge=union eol=lf
-*.vcxproj text merge=union eol=crlf
-*.sln text merge=union eol=crlf
+*.pbxproj binary merge=union
+*.vcxproj text merge=union
+*.sln text merge=union
 
 # Windows binary project files:
 *.exe   binary
@@ -19,7 +31,7 @@
 *.hpp   binary
 
 # Language aware diffs and force line endings if git did not know they are text:
-*.h     diff=cpp eol=crlf
-*.cpp   diff=cpp eol=crlf
-*.py    diff=python eol=crlf
-*.cs    diff=csharp eol=crlf
+*.h     text diff=cpp
+*.cpp   text diff=cpp
+*.py    text diff=python
+*.cs    text diff=csharp

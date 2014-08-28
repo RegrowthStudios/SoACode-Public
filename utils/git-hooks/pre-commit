@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+from difflib import unified_diff as differ
+import os
+from subprocess import check_output as call, CalledProcessError
+import sys
+import shutil
+
+
+def read(filepath):
+    mode = "b" if sys.platform.startswith("win") else ""
+    data = ""
+    with open(filepath, "rU" + mode) as fd:
+        data = fd.read()
+    return data
+
+
+def get_current_revision():
+    cmd = "git rev-parse --verify HEAD".split(" ")
+    gitrev = "".join(r.strip() for r in call(cmd).split("\n") if r.strip())
+    return gitrev
+
+
+def get_commit_files():
+    gitrev = get_current_revision()
+    cmd = "git diff-index --cached %s" % gitrev
+    cmd = cmd.split(" ")
+    gitdata = call(cmd).split("\n")
+    gitfiles = []
+    for gdata in gitdata:
+        if gdata != '':
+            gdata = gdata.split()
+            if gdata[4] in ['A', 'M', 'C']:
+                gitfiles.append(gdata[5])
+    return gitfiles
+
+
+def get_project_path():
+    cmd = "git rev-parse --show-toplevel".split(" ")
+    project_path = "".join(p.strip()
+                           for p in call(cmd).split("\n")
+                           if p.strip())
+    return project_path
+
+
+def get_hooks_path():
+    gitpath = get_project_path()
+    hookspath = os.path.join(gitpath, 'utils', 'git-hooks')
+    if not hookspath:
+        hookspath = os.getcwd()
+    return hookspath
+
+
+def get_subhooks(hookspath, gitpath, fname):
+    sub_hooks = []
+    for root, folders, files in os.walk(hookspath):
+        for filename in files:
+            hookpath = os.path.join(gitpath, root, filename)
+            if filename.startswith(fname) and filename != fname:
+                sub_hooks.append(hookpath)
+    return sub_hooks
+
+
+def check_for_update():
+    fname = os.path.basename(__file__)
+    gitpath = get_project_path()
+    old_path = os.path.join(gitpath, '.git', 'hooks', fname)
+    new_path = os.path.join(gitpath, 'utils', 'git-hooks', fname)
+    old_data = read(old_path)
+    new_data = read(new_path)
+    diff = list(differ(old_data.splitlines(),
+                       new_data.splitlines(),
+                       old_path, new_path))
+    changed = '\n'.join(diff)
+    if changed:
+        shutil.copyfile(new_path, old_path)
+        shutil.copymode(new_path, old_path)
+        shutil.copystat(new_path, old_path)
+        print >> sys.stderr, "%s updated.  Please re-run." % fname
+        sys.exit(1)
+
+
+def run_sub_hooks():
+    fname = os.path.basename(__file__)
+    gitrev = get_current_revision()
+    gitfiles = get_commit_files()
+    gitpath = get_project_path()
+    hookspath = get_hooks_path()
+    sub_hooks = get_subhooks(hookspath, gitpath, fname)
+    stop_commit = False
+    for hookpath in sub_hooks:
+        for gitfile in gitfiles:
+            fpath = os.path.join(gitpath, gitfile)
+            cmd = [hookpath, fpath]
+            try:
+                output = call(cmd)
+            except CalledProcessError as e:
+                print e
+                sys.exit(1)
+            if output:
+                print output
+                stop_commit = True
+    if stop_commit:
+        print "Please re-run commit to capture changes"
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    check_for_update()
+    run_sub_hooks()
