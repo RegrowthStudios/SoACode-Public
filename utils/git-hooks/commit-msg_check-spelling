@@ -1,7 +1,7 @@
 #!/bin/sh
 echo $1
 ERRORS=`cat $1 | aspell pipe --encoding utf-8 | grep -E '^&' | wc -l`
-cat $1 | aspell pipe --encoding utf-8 | grep -E '^&'
+cat $1 | aspell pipe --encoding utf-8
 
 if test $ERRORS != 0
 then
