@@ -611,7 +611,7 @@ GLubyte ChunkMesher::calculateSmoothLighting(int accumulatedLight, int numAdjace
 
 //Gets texture offset according to the texturing method
 //Grass method may change color
-void ChunkMesher::getTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]) {
+void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]) {
     switch (blockTexture.method) {
     case ConnectedTextureMethods::CTM_CONNECTED:
         return getConnectedTextureIndex(mi, result, blockTexture.innerSeams, rightDir, upDir, frontDir, directionIndex);
@@ -642,7 +642,7 @@ void ChunkMesher::getTextureIndex(const MeshInfo &mi, const BlockTextureLayer& b
 //}
 
 //Gets a random offset for use by random textures
-void ChunkMesher::getRandomTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexInfo, int& result) {
+void ChunkMesher::getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result) {
     //TODO: MurmurHash3
     int seed = getPositionSeed(mi.x + mi.task->position.x, mi.y + mi.task->position.y, mi.z + mi.task->position.z);
 
@@ -668,7 +668,7 @@ void ChunkMesher::getRandomTextureIndex(const MeshInfo &mi, const BlockTextureLa
 }
 
 //Gets a connected texture offset by looking at the surrounding blocks
-void ChunkMesher::getConnectedTextureIndex(const MeshInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset) {
+void ChunkMesher::getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset) {
 
     int connectedOffset = 0;
     int wc = mi.wc;
@@ -777,7 +777,7 @@ void ChunkMesher::getConnectedTextureIndex(const MeshInfo &mi, int& result, bool
 }
 
 //Gets a grass side texture offset by looking at the surrounding blocks
-void ChunkMesher::getGrassTextureIndex(const MeshInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]) {
+void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]) {
 
     int connectedOffset = 0;
     int wc = mi.wc;
@@ -851,7 +851,7 @@ void ChunkMesher::getGrassTextureIndex(const MeshInfo &mi, int& result, int righ
     result += grassTextureOffsets[connectedOffset];
 }
 
-void ChunkMesher::addBlockToMesh(MeshInfo& mi)
+void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 {
     const Block &block = Blocks[mi.btype];
     const bool occlude = (block.occlude != 0);
@@ -1218,7 +1218,7 @@ void ChunkMesher::addBlockToMesh(MeshInfo& mi)
 }
 
 //adds a flora mesh
-void ChunkMesher::addFloraToMesh(MeshInfo& mi) {
+void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 
     const Block &block = Blocks[mi.btype];
 
@@ -1306,7 +1306,7 @@ void ChunkMesher::addFloraToMesh(MeshInfo& mi) {
    
 //END CALCULATE_LIQUID_VERTEX_HEIGHT
 
-void ChunkMesher::addLiquidToMesh(MeshInfo& mi) {
+void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     const Block &block = Blocks[mi.btype];
     Block* nextBlock;
@@ -1574,7 +1574,7 @@ void ChunkMesher::addLiquidToMesh(MeshInfo& mi) {
     }
 }
 
-void ChunkMesher::mergeTopVerts(MeshInfo &mi)
+void ChunkMesher::mergeTopVerts(MesherInfo &mi)
 {
     if (mi.topIndex == 0) return;
 
@@ -1629,7 +1629,7 @@ void ChunkMesher::mergeTopVerts(MeshInfo &mi)
     }
 }
 
-void ChunkMesher::mergeBackVerts(MeshInfo &mi)
+void ChunkMesher::mergeBackVerts(MesherInfo &mi)
 {
     //***********************back Y merging
     if (mi.backIndex){
@@ -1715,7 +1715,7 @@ void ChunkMesher::mergeBackVerts(MeshInfo &mi)
     }
 }
 
-void ChunkMesher::mergeFrontVerts(MeshInfo &mi)
+void ChunkMesher::mergeFrontVerts(MesherInfo &mi)
 {
     //***********************front Y merging
     if (mi.frontIndex){
@@ -1800,7 +1800,7 @@ void ChunkMesher::mergeFrontVerts(MeshInfo &mi)
     }
 }
 
-void ChunkMesher::mergeRightVerts(MeshInfo &mi) {
+void ChunkMesher::mergeRightVerts(MesherInfo &mi) {
 
     if (mi.rightIndex == 0){
         mi.pLayerRightIndex = 0;
@@ -1934,7 +1934,7 @@ void ChunkMesher::mergeRightVerts(MeshInfo &mi) {
     }
 }
 
-void ChunkMesher::mergeLeftVerts(MeshInfo &mi)
+void ChunkMesher::mergeLeftVerts(MesherInfo &mi)
 {
     if (mi.leftIndex == 0) {
         mi.pLayerLeftIndex = 0;
@@ -2068,7 +2068,7 @@ void ChunkMesher::mergeLeftVerts(MeshInfo &mi)
     }
 }
 
-void ChunkMesher::mergeBottomVerts(MeshInfo &mi)
+void ChunkMesher::mergeBottomVerts(MesherInfo &mi)
 {
     if (mi.botIndex == 0) return;
 
@@ -2132,7 +2132,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     Block *block;
 
     //Stores the information about the current mesh job
-    MeshInfo mi = {};
+    MesherInfo mi = {};
 
     _waterVboVerts.clear();
     _transparentVerts.clear();
@@ -2280,7 +2280,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     int indice = (index / 4) * 6;
 
-    ChunkMeshInfo& meshInfo = chunkMeshData->meshInfo;
+    ChunkMeshRenderData& meshInfo = chunkMeshData->meshInfo;
 
     //add all vertices to the vbo
     if (chunkMeshData->vertices.size() || chunkMeshData->transVertices.size() || chunkMeshData->cutoutVertices.size()) {
@@ -2328,7 +2328,7 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
     chunkMeshData = new ChunkMeshData(renderTask);
 
     _waterVboVerts.clear();
-    MeshInfo mi = {};
+    MesherInfo mi = {};
 
     mi.task = renderTask;
 

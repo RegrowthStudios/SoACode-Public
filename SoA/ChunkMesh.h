@@ -12,7 +12,7 @@ class RenderTask;
 class Chunk;
 
 // Stores Chunk Mesh Information
-struct MeshInfo {
+struct MesherInfo {
 public:
     i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
     i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
@@ -31,8 +31,8 @@ public:
     RenderTask* task;
 };
 
-struct ChunkMeshInfo {
-    ChunkMeshInfo() : indexSize(0), waterIndexSize(0) {}
+struct ChunkMeshRenderData {
+    ChunkMeshRenderData() : indexSize(0), waterIndexSize(0) {}
     i32 pxVboOff, pxVboSize, nxVboOff, nxVboSize, pzVboOff, pzVboSize, nzVboOff, nzVboSize;
     i32 pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize, cutoutVboSize;
     i32 highestY, lowestY, highestX, lowestX, highestZ, lowestZ;
@@ -47,7 +47,7 @@ struct ChunkMeshData
 
     void addTransQuad(const i8v3& pos);
 
-    ChunkMeshInfo meshInfo;
+    ChunkMeshRenderData meshInfo;
 
     std::vector <BlockVertex> vertices;
     std::vector <BlockVertex> transVertices;
@@ -68,7 +68,7 @@ struct ChunkMesh
 {
     ChunkMesh(Chunk *ch);
 
-    ChunkMeshInfo meshInfo;
+    ChunkMeshRenderData meshInfo;
 
     GLuint vboID;
     GLuint vaoID;

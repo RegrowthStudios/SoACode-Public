@@ -24,23 +24,23 @@ public:
 private:
     enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
 
-    inline void mergeTopVerts(MeshInfo& mi);
-    inline void mergeFrontVerts(MeshInfo& mi);
-    inline void mergeBackVerts(MeshInfo& mi);
-    inline void mergeRightVerts(MeshInfo& mi);
-    inline void mergeLeftVerts(MeshInfo& mi);
-    inline void mergeBottomVerts(MeshInfo& mi);
+    inline void mergeTopVerts(MesherInfo& mi);
+    inline void mergeFrontVerts(MesherInfo& mi);
+    inline void mergeBackVerts(MesherInfo& mi);
+    inline void mergeRightVerts(MesherInfo& mi);
+    inline void mergeLeftVerts(MesherInfo& mi);
+    inline void mergeBottomVerts(MesherInfo& mi);
 
     
-    inline void getTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]);
+    inline void getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]);
     //inline void getOverlayTextureIndex(const MeshInfo &mi, const BlockTexture& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 overlayColor[3]);
-    inline void getRandomTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
-    inline void getConnectedTextureIndex(const MeshInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
-    inline void getGrassTextureIndex(const MeshInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]);
+    inline void getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
+    inline void getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
+    inline void getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]);
 
-    void addBlockToMesh(MeshInfo& mi);
-    void addFloraToMesh(MeshInfo& mi);
-    void addLiquidToMesh(MeshInfo& mi);
+    void addBlockToMesh(MesherInfo& mi);
+    void addFloraToMesh(MesherInfo& mi);
+    void addLiquidToMesh(MesherInfo& mi);
 
     void bindVBOIndicesID();
 

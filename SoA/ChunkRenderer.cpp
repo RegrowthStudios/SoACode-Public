@@ -21,7 +21,7 @@ void ChunkRenderer::draw(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, cons
 
     glBindVertexArray(CMI->vaoID);
 
-    const ChunkMeshInfo& chunkMeshInfo = CMI->meshInfo;
+    const ChunkMeshRenderData& chunkMeshInfo = CMI->meshInfo;
 
     //top
     if (chunkMeshInfo.pyVboSize && PlayerPos.y > CMI->position.y + chunkMeshInfo.lowestY){
@@ -115,7 +115,7 @@ void ChunkRenderer::drawSonar(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos,
 
         glBindVertexArray(CMI->vaoID);
 
-        const ChunkMeshInfo& chunkMeshInfo = CMI->meshInfo;
+        const ChunkMeshRenderData& chunkMeshInfo = CMI->meshInfo;
 
         if (chunkMeshInfo.pyVboSize && PlayerPos.y > CMI->position.y + chunkMeshInfo.lowestY){
             glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pyVboOff * 6 * sizeof(GLuint)) / 4));
