@@ -1,5 +1,5 @@
 #!/bin/sh
-
+echo $1
 ERRORS=`cat $1 | aspell pipe --encoding utf-8 | grep -E '^&' | wc -l`
 
 if test $ERRORS != 0
