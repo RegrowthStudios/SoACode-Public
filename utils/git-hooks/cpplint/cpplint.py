@@ -582,7 +582,8 @@ class _CppLintState(object):
     for category, count in iteritems(self.errors_by_category):
       sys.stderr.write('Category \'%s\' errors found: %d\n' %
                        (category, count))
-    sys.stderr.write('Total errors found: %d\n' % self.error_count)
+    if count:
+      sys.stderr.write('Total errors found: %d\n' % self.error_count)
 
 _cpplint_state = _CppLintState()
 
@@ -3270,7 +3271,8 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
   # When reading from stdin, the extension is unknown, so no cpplint tests
   # should rely on the extension.
   if (filename != '-' and file_extension not in EXTENSIONS):
-    sys.stderr.write('Ignoring %s; extension not in %s\n' % (filename, EXTENSIONS))
+    pass
+    # sys.stderr.write('Ignoring %s; extension not in %s\n' % (filename, EXTENSIONS))
   else:
     ProcessFileData(filename, file_extension, lines, Error,
                     extra_check_functions)
@@ -3281,7 +3283,7 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
             'One or more unexpected \\r (^M) found;'
             'better to use only a \\n')
 
-  sys.stderr.write('Done processing %s\n' % filename)
+    sys.stderr.write('Done processing %s\n' % filename)
 
 
 def PrintUsage(message):
