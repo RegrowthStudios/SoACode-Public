@@ -120,11 +120,10 @@ public:
     FaceData faceData;
     int hzIndex, hxIndex;
     int worldX, worlxY, worldZ;
-    int num;
+    int numBlocks;
     int minh;
     double distance2;
     bool freeWaiting;
-    bool hadMeshLastUpdate;
 
     int blockUpdateIndex;
     int treeTryTicks;

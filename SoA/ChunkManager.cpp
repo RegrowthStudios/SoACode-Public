@@ -718,41 +718,43 @@ void ChunkManager::uploadFinishedMeshes() {
         if (chunk->freeWaiting) {
             cmd->chunkMesh = chunk->mesh;
             chunk->mesh = NULL;
-            chunk->hadMeshLastUpdate = 0;
-            cmd->indexSize = 0;
-            cmd->waterIndexSize = 0;
             if (cmd->chunkMesh != NULL) {
                 cmd->debugCode = 2;
                 gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
             }
             continue;
         }
+        
+        //set add the chunk mesh to the message
         cmd->chunkMesh = chunk->mesh;
 
-        if ((cmd->wAction == 2 && cmd->bAction == 2) || (cmd->wAction == 2 && cmd->bAction == 0 && chunk->hadMeshLastUpdate == 0)) {
-            chunk->mesh = NULL;
-            chunk->hadMeshLastUpdate = 0;
-            cmd->indexSize = 0;
-        } else {
-            if (chunk->mesh == NULL) {
-                chunk->mesh = new ChunkMesh;
-                chunk->mesh->position = chunk->position;
-                cmd->chunkMesh = chunk->mesh;
-            }
+        //Check if we need to allocate a new chunk mesh or orphan the current chunk mesh so that it can be freed in openglManager
+        switch (cmd->type) {
+            case MeshJobType::DEFAULT:
+                if (cmd->waterVertices.empty() && cmd->transVertices.empty() && cmd->vertices.empty() && cmd->cutoutVertices.empty()) {
+                    chunk->mesh = nullptr;
+                } else if (chunk->mesh == nullptr) {
+                    chunk->mesh = new ChunkMesh(chunk);
+                    cmd->chunkMesh = chunk->mesh;
+                }
+                break;
+            case MeshJobType::LIQUID:
+                if (cmd->waterVertices.empty() && chunk->mesh->vboID == 0 && chunk->mesh->cutoutVboID == 0 && chunk->mesh->transVboID == 0) {
+                    chunk->mesh = nullptr;
+                } else if (chunk->mesh == nullptr) {
+                    chunk->mesh = new ChunkMesh(chunk);
+                    cmd->chunkMesh = chunk->mesh;
+                }
+                break;
         }
-        if (cmd->chunkMesh != NULL) {
-            if (cmd->bAction == 1) {
-                chunk->hadMeshLastUpdate = 1;
-            } else if (cmd->bAction == 2) {
-                chunk->hadMeshLastUpdate = 0;
-            }
+
+        //if the chunk has a mesh, send it
+        if (cmd->chunkMesh) {
             cmd->debugCode = 3;
             gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
-        } else {
-            chunk->hadMeshLastUpdate = 0;
         }
-        if (chunk->setupListPtr == NULL) chunk->state = ChunkStates::DRAW;
 
+        if (chunk->setupListPtr == nullptr) chunk->state = ChunkStates::DRAW;
     }
 }
 
@@ -885,17 +887,19 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks, const f64v3& position) {
           
             VoxelLightEngine::calculateLight(chunk);
             
-
+            if (chunk->numBlocks < 0) {
+                cout << "CHUNK NUM < 0 == " << chunk->numBlocks << endl;
+            }
             //TODO: BEN, Need to make sure chunk->num is always correct
-            if (chunk->num) { 
+            if (chunk->numBlocks) { 
 
                 chunk->occlude = 0;
 
                 if (chunk->neighbors == 6 && chunk->inRenderThread == 0) {
                     if (chunk->state == ChunkStates::MESH) {
-                        if (!threadPool.addRenderJob(chunk, 0)) break; //if the queue is full, well try again next frame
+                        if (!threadPool.addRenderJob(chunk, MeshJobType::DEFAULT)) break; //if the queue is full, well try again next frame
                     } else {
-                        if (!threadPool.addRenderJob(chunk, 1)) break;
+                        if (!threadPool.addRenderJob(chunk, MeshJobType::LIQUID)) break;
                     }
                     _meshList[i] = _meshList.back();
                     _meshList[i]->updateIndex = i;

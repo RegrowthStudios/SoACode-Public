@@ -23,7 +23,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 
     TerrainGenerator &generator = *(ld->generator);
     Biome *biome;
-    chunk->num = 0;
+    chunk->numBlocks = 0;
     int temperature;
     int rainfall;
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
@@ -50,7 +50,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     chunk->minh = chunk->position.y - heightMap[CHUNK_LAYER / 2].height; //pick center height as the overall height for minerals
 
     for (int y = 0; y < CHUNK_WIDTH; y++){
-        pnum = chunk->num;
+        pnum = chunk->numBlocks;
         for (int z = 0; z < CHUNK_WIDTH; z++){
             for (int x = 0; x < CHUNK_WIDTH; x++, c++){
 
@@ -81,14 +81,14 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     if ((h - (maph - 1)) > -SURFACE_DEPTH){ //SURFACE LAYERS
                         if (nh >= SURFACE_DEPTH) exit(1);
                         data[c] = biome->surfaceLayers[nh];
-                        chunk->num++;
+                        chunk->numBlocks++;
                     } else{ //VERY LOW
                         data[c] = STONE;
-                        chunk->num++;
+                        chunk->numBlocks++;
                     }
                 } else if (h == maph && !tooSteep){ //surface
                     data[c] = heightMap[hindex].surfaceBlock;
-                    chunk->num++;
+                    chunk->numBlocks++;
                     if (!sandDepth && biome->beachBlock != SAND){
                         if (snowDepth < 7){
                             TryPlaceTree(chunk, biome, x + wx, z + wz, c);
@@ -101,16 +101,16 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     }
                 } else if (sandDepth && h == maph + sandDepth){ //tree layers
                     data[c] = SAND;
-                    chunk->num++;
+                    chunk->numBlocks++;
                     if (snowDepth < 7 && h > 0){
                         TryPlaceTree(chunk, biome, x + wx, z + wz, c);
                     }
                 } else if (sandDepth && h - maph <= sandDepth){
                     data[c] = SAND;
-                    chunk->num++;
+                    chunk->numBlocks++;
                 } else if (snowDepth && h - maph <= sandDepth + snowDepth){
                     data[c] = SNOW;
-                    chunk->num++;
+                    chunk->numBlocks++;
                 } else if (h < 0){ //
 
                     if (temperature < h + FREEZETEMP){ //underwater glacial mass
@@ -119,14 +119,14 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                         data[c] = FULLWATER;
 
                     }
-                    chunk->num++;
+                    chunk->numBlocks++;
                 } else if (h == 0 && maph < h){ //shoreline
                     if (temperature < FREEZETEMP){
                         data[c] = ICE;
                     } else{
                         data[c] = FULLWATER - 60;
                     }
-                    chunk->num++;
+                    chunk->numBlocks++;
                 } else if (h == maph + 1 && h > 0){ //FLORA!
 
                     if (biome->possibleFlora.size()){
@@ -154,7 +154,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     
                 } else if (maph < 0 && temperature < FREEZETEMP && h < (FREEZETEMP - temperature)){ //above ground glacier activity
                     data[c] = ICE;
-                    chunk->num++;
+                    chunk->numBlocks++;
                 } else{
                     sunLightData[c] = MAXLIGHT;
                     data[c] = NONE;
@@ -186,7 +186,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                                 data[c] = ICE;
                             } else{
                                 data[c] = NONE;
-                                chunk->num--;
+                                chunk->numBlocks--;
                             }
 
                         }
@@ -197,7 +197,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 }
             }
         }
-        if (pnum == chunk->num && maph - h < 0){
+        if (pnum == chunk->numBlocks && maph - h < 0){
             while (c < CHUNK_SIZE){
                  lightData[c] = 0;
                  sunLightData[c] = MAXLIGHT;
@@ -206,11 +206,11 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
             break;
         }
     }
-    if (chunk->num){
+    if (chunk->numBlocks){
         LoadMinerals(chunk);
     }
 
-    return (chunk->num != 0);
+    return (chunk->numBlocks != 0);
 }
 
 void ChunkGenerator::TryPlaceTree(Chunk* chunk, Biome *biome, int x, int z, int c)

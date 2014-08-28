@@ -66,23 +66,29 @@ void WorkerThread(WorkerData *data) {
             taskQueueManager.renderTaskQueue.pop();
             lock.unlock();
 
-            if(renderTask->type == 0) {
-                data->chunkMesher->createChunkMesh(renderTask);
-            }
-            else {
-                data->chunkMesher->createOnlyWaterMesh(renderTask);
+            switch (renderTask->type) {
+                case MeshJobType::DEFAULT:
+                    data->chunkMesher->createChunkMesh(renderTask);
+                    break;
+                case MeshJobType::LIQUID:
+                    data->chunkMesher->createOnlyWaterMesh(renderTask);
+                    break;
             }
 
-            //return to the cache/pool
-            rpLock.lock();
-            taskQueueManager.renderTaskPool.push_back(renderTask);
-            rpLock.unlock();
-            frLock.lock();
-            if (chunk) chunk->inFinishedMeshes = 1;
-            taskQueueManager.finishedChunkMeshes.push_back(data->chunkMesher->chunkMeshData);
-            data->chunkMesher->chunkMeshData = NULL;
-            frLock.unlock();
-        }
-        lock.lock();
-    }
+			//return to the cache/pool
+			rpLock.lock();
+			taskQueueManager.renderTaskPool.push_back(renderTask);
+			rpLock.unlock();
+			frLock.lock();
+            if (!chunk) {
+                std::cout << "Loading Task Chunk Is Null\n";
+            } else {
+                chunk->inFinishedMeshes = 1;
+            }
+			taskQueueManager.finishedChunkMeshes.push_back(data->chunkMesher->chunkMeshData);
+			data->chunkMesher->chunkMeshData = NULL;
+			frLock.unlock();
+		}
+		lock.lock();
+	}
 }

@@ -125,7 +125,7 @@ void ThreadPool::removeThread() {
     taskQueueManager.lock.unlock();
 }
 
-int ThreadPool::addRenderJob(Chunk *chunk, int type) {
+int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
     RenderTask *newRenderTask; //makes the task and allocates the memory for the buffers
     taskQueueManager.rpLock.lock();
     if (taskQueueManager.renderTaskPool.empty()) {

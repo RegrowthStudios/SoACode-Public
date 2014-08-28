@@ -249,9 +249,9 @@ bool PhysicsBlock::update(const deque < deque < deque < ChunkSlot* > > > &chunkL
     gridRelY = (position.y - Y);
     gridRelZ = (position.z - Z);
 
-    x = (gridRelX / CHUNK_WIDTH);
-    y = (gridRelY / CHUNK_WIDTH);
-    z = (gridRelZ / CHUNK_WIDTH);
+    x = fastFloor(gridRelX / (float)CHUNK_WIDTH);
+    y = fastFloor(gridRelY / (float)CHUNK_WIDTH);
+    z = fastFloor(gridRelZ / (float)CHUNK_WIDTH);
 
     if (x < 0 || y < 0 || z < 0 || x >= csGridWidth || y >= csGridWidth || z >= csGridWidth){
         velocity = glm::vec3(0.0f);

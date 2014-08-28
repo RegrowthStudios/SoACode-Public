@@ -1245,12 +1245,8 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
         exit(5553);
     }
 
-
-
     GLint Result = GL_FALSE;
     int InfoLogLength;
-
-
 
     // Compile Vertex Shader
     //printf("Compiling shader : %s\n", vertex_file_path);
@@ -1306,7 +1302,9 @@ void LinkShaders(GLuint ProgramID, GLuint VertexShaderID, GLuint FragmentShaderI
         glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
         fprintf(stdout, "%s\n", &ProgramErrorMessage[0]);
     }
-
+    
+    glDetachShader(ProgramID, VertexShaderID);
+    glDetachShader(ProgramID, FragmentShaderID);
     glDeleteShader(VertexShaderID);
     glDeleteShader(FragmentShaderID);
 }

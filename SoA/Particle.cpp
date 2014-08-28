@@ -29,9 +29,9 @@ bool Particle::update(const deque < deque < deque < ChunkSlot* > > > &chunkList,
     gridRelY = position.y - chunkListPos.y;
     gridRelZ = position.z - chunkListPos.z;
 
-    x = (gridRelX / CHUNK_WIDTH);
-    y = (gridRelY / CHUNK_WIDTH);
-    z = (gridRelZ / CHUNK_WIDTH);
+    x = fastFloor(gridRelX / (float)CHUNK_WIDTH);
+    y = fastFloor(gridRelY / (float)CHUNK_WIDTH);
+    z = fastFloor(gridRelZ / (float)CHUNK_WIDTH);
 
     bx = gridRelX % CHUNK_WIDTH;
     by = gridRelY % CHUNK_WIDTH;
