@@ -86,6 +86,7 @@ def run_sub_hooks():
     gitpath = get_project_path()
     hookspath = get_hooks_path()
     sub_hooks = get_subhooks(hookspath, gitpath, fname)
+    stop_commit = False
     for hookpath in sub_hooks:
         for gitfile in gitfiles:
             fpath = os.path.join(gitpath, gitfile)
@@ -97,6 +98,10 @@ def run_sub_hooks():
                 sys.exit(1)
             if output:
                 print output
+                stop_commit = True
+    if stop_commit:
+        print "Please re-run commit to capture changes"
+        sys.exit(1)
 
 
 if __name__ == "__main__":
