@@ -8,6 +8,8 @@ struct LoadData;
 
 #define NUM_WORKER_CONTEXT 20
 
+enum class MeshJobType;
+
 class ThreadPool {
 public:
     ThreadPool();
@@ -19,7 +21,7 @@ public:
     void removeThread();
     void clearJobs();
     void addLoadJob(Chunk* chunk, LoadData* ld);
-    int addRenderJob(Chunk* chunk, i32 type);
+    int addRenderJob(Chunk* chunk, MeshJobType type);
     bool isFinished();
 
     i32 size;

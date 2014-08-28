@@ -104,25 +104,26 @@ void Player::initialize(string playerName) {
 
 void Player::updateCameras()
 {
+
+	_chunkCamera.update();
+	_worldCamera.update();
+
     calculateHeadPosition();
     calculateWorldPosition();
 
-    _chunkCamera.update();
-    _worldCamera.update();
+	//rolling
+	/*float rotTheta = _rolling * M_PI * 2;
+	float rotTheta2 = sin(rotTheta/2) / 1.0f;
+	
+	vec3 rotRight = normalize(vec3(right.x, right.y + 0.3, right.z));
+	quat rollQuat = quat(-cos(rotTheta/2), rotRight.x*sin(rotTheta/2), rotRight.y*sin(rotTheta/2), rotRight.z*sin(rotTheta/2));
+	
+	dmat4 qrot = dmat4(toMat4(rollQuat));
+	
+	direction = glm::normalize(glm::dvec3(qrot * glm::dvec4(direction, 1.0)));
 
-    //rolling
-    /*float rotTheta = _rolling * M_PI * 2;
-    float rotTheta2 = sin(rotTheta/2) / 1.0f;
-    
-    vec3 rotRight = normalize(vec3(right.x, right.y + 0.3, right.z));
-    quat rollQuat = quat(-cos(rotTheta/2), rotRight.x*sin(rotTheta/2), rotRight.y*sin(rotTheta/2), rotRight.z*sin(rotTheta/2));
-    
-    dmat4 qrot = dmat4(toMat4(rollQuat));
-    
-    direction = glm::normalize(glm::dvec3(qrot * glm::dvec4(direction, 1.0)));
-
-    up = glm::normalize(glm::cross( right, direction ));
-    right = glm::cross(direction, up);*/
+	up = glm::normalize(glm::cross( right, direction ));
+	right = glm::cross(direction, up);*/
 }
 
 bool Player::update(bool isMouseIn, double Gravity, double AirFrictionForce)

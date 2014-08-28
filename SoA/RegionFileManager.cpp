@@ -516,7 +516,7 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* ch) {
     int k = kStart; //x
     int sunLightAdd = 0;
 
-    ch->num = 0;
+    ch->numBlocks = 0;
 
     //Read block data
     while (blockCounter < CHUNK_SIZE){
@@ -524,7 +524,7 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* ch) {
         runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
         blockID = BufferUtils::extractShort(_byteBuffer, byteIndex + 2);
 
-        if (blockID != 0) ch->num += runSize;
+        if (blockID != 0) ch->numBlocks += runSize;
 
         for (int q = 0; q < runSize; q++){
             blockIndex = i * CHUNK_LAYER + j * jMult + k * kMult;

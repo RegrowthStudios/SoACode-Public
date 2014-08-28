@@ -31,53 +31,53 @@ glm::mat4 GlobalModelMatrix;
 double surfaceDensity[9][5][5];
 
 void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
-    topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
-    loadStatus = 0;
-    freeWaiting = 0;
-    hadMeshLastUpdate = 0;
-    hasLoadedSunlight = 0;
-    isAccessible = 0;
-    inLoadThread = 0;
-    inGenerateThread = 0;
-    inRenderThread = 0;
-    inFinishedMeshes = 0;
-    inFinishedChunks = 0;
-    inSaveThread = 0;
-    dirty = 0;
-    //THIS MUST COME BEFORE CLEARBUFFERS
-    mesh = NULL;
-    clearBuffers();
-    setupListPtr = NULL;
-    updateIndex = -1;
-    setupWaitingTime = 0;
-    treeTryTicks = 0;
-    faceData = *fd;
-    hxIndex = hxI;
-    hzIndex = hzI;
+
+	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
+	loadStatus = 0;
+	freeWaiting = 0;
+	hasLoadedSunlight = 0;
+	isAccessible = 0;
+	inLoadThread = 0;
+	inGenerateThread = 0;
+	inRenderThread = 0;
+	inFinishedMeshes = 0;
+	inFinishedChunks = 0;
+	inSaveThread = 0;
+	dirty = 0;
+	//THIS MUST COME BEFORE CLEARBUFFERS
+	mesh = NULL;
+	clearBuffers();
+	setupListPtr = NULL;
+	updateIndex = -1;
+	setupWaitingTime = 0;
+	treeTryTicks = 0;
+	faceData = *fd;
+	hxIndex = hxI;
+	hzIndex = hzI;
     position = pos;
-    drawIndex = -1;
-    num = -1;
-    state = ChunkStates::LOAD;
-    left = NULL;
-    right = NULL;
-    back = NULL;
-    top = NULL;
-    bottom = NULL;
-    front = NULL;
-    neighbors = 0;
-    distance2 = 999999.0;
-    treesToLoad.clear();
-    blockUpdateIndex = 0;
+	drawIndex = -1;
+	numBlocks = -1;
+	state = ChunkStates::LOAD;
+	left = NULL;
+	right = NULL;
+	back = NULL;
+	top = NULL;
+	bottom = NULL;
+	front = NULL;
+	neighbors = 0;
+	distance2 = 999999.0;
+	treesToLoad.clear();
+	blockUpdateIndex = 0;
 
-    for (int i = 0; i < 8; i++){
-        blockUpdateList[i][0].clear();
-        blockUpdateList[i][1].clear();
-        activeUpdateList[i] = 0;
-    }
+	for (int i = 0; i < 8; i++){
+		blockUpdateList[i][0].clear();
+		blockUpdateList[i][1].clear();
+		activeUpdateList[i] = 0;
+	}
 
-    spawnerBlocks.clear();
-    drawWater = 0;
-    occlude = 0;
+	spawnerBlocks.clear();
+	drawWater = 0;
+	occlude = 0;
 }
 
 vector <Chunk*> *dbgst;
@@ -123,14 +123,13 @@ void Chunk::clear(bool clearDraw)
 
 void Chunk::clearBuffers()
 {
-    if (mesh){
-        ChunkMeshData *cmd = new ChunkMeshData(this);
-        cmd->chunkMesh = mesh;
-        cmd->bAction = cmd->wAction = 2;
-        mesh = NULL;
-        cmd->debugCode = 1; 
-        gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
-    }
+	if (mesh){
+		ChunkMeshData *cmd = new ChunkMeshData(this);
+		cmd->chunkMesh = mesh;
+		mesh = NULL;
+		cmd->debugCode = 1; 
+		gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
+	}
 }
 
 int Chunk::GetPlantType(int x, int z, Biome *biome)

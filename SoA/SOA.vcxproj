@@ -113,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
+    <ClInclude Include="ChunkMesh.h" />
     <ClInclude Include="ChunkRenderer.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentTable.hpp" />
@@ -235,6 +236,7 @@
     </ClCompile>
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
+    <ClCompile Include="ChunkMesh.cpp" />
     <ClCompile Include="ChunkRenderer.cpp" />
     <ClCompile Include="ComponentTableBase.cpp" />
     <ClCompile Include="AwesomiumInterface.cpp" />
@@ -272,6 +274,7 @@
     <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
+    <ClCompile Include="RenderTask.cpp" />
     <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="SamplerState.cpp" />
     <ClCompile Include="ScreenList.cpp" />
