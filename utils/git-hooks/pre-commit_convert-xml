@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+"""
+Usage:
+    convert <filepath>
+
+"""
+import os
+import re
+import sys
+from xml.etree import cElementTree as ElementTree
+from xml.dom.minidom import parseString as parse_string
+
+
+def read_xml(filepath):
+    xml_tree = ElementTree.parse(filepath)
+    xml_node = xml_tree.getroot()
+    return xml_node
+
+
+def write(data, filepath):
+    mode = "b" if sys.platform.startswith("win") else ""
+    msg = "Created:" if not os.path.exists(filepath) else "Wrote to:"
+    with open(filepath, "w" + mode) as fd:
+        fd.write(data)
+        print msg, filepath
+
+
+def convert(filepath):
+    text_re = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
+    xml_node = read_xml(filepath)
+    ms_namespace = "http://schemas.microsoft.com/developer/msbuild/2003"
+    ElementTree.register_namespace('', ms_namespace)
+    ugly_xml_string = ElementTree.tostring(xml_node, 'utf-8')
+    pretty_xml_string = text_re.sub('>\g<1></', ugly_xml_string)
+    return pretty_xml_string
+
+
+if __name__ == "__main__":
+    argv = sys.argv[1:] if len(sys.argv) > 1 else []
+    if not argv:
+        print __doc__
+    else:
+        filepath = argv[0]
+        extensions_to_convert = ('vcxproj', 'vcxproj.filters', 'csproj', 'xml')
+        if filepath.endswith(extensions_to_convert):
+            prettyXML = convert(filepath)
+            write(prettyXML, filepath)
