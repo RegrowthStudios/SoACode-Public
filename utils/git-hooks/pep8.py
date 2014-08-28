@@ -1580,7 +1580,6 @@ class StyleGuide(object):
             options.__dict__.update(options_dict)
             if 'paths' in options_dict:
                 self.paths = options_dict['paths']
-
         self.runner = self.input_file
         self.options = options
 
