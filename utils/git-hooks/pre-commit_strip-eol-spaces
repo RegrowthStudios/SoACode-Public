@@ -9,7 +9,7 @@ import sys
 from xml.etree import cElementTree as ElementTree
 
 
-def tabs_to_spaces(filepath):
+def strip_eol_spaces(filepath):
     mode = "b" if sys.platform.startswith('win') else ""
     extra_space_string = ""
     with open(filepath, "rU" + mode) as fd:
@@ -33,6 +33,6 @@ if __name__ == "__main__":
         print __doc__
     else:
         filepath = argv[0]
-        extensions_to_convert = ('c', 'cpp', 'h', 'hpp')
+        extensions_to_convert = ('c', 'cpp', 'h', 'hpp', 'cs', 'py')
         if filepath.endswith(extensions_to_convert):
-            tabs_to_spaces(filepath)
+            strip_eol_spaces(filepath)
