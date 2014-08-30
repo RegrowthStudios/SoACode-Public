@@ -149,7 +149,7 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
     }
     //Light placement
     if (block.isLight){
-        chunk->lightData[0][blockIndex] = block.lightIntensity;
+        chunk->setLampLight(blockIndex, block.lightIntensity);
         chunk->lightUpdateQueue.push_back(LightUpdateNode(blockIndex, 0, block.lightIntensity));
     }
 
@@ -180,25 +180,25 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
     //Check for light removal due to block occlusion
     if (block.blockLight) {
 
-        if (chunk->lightData[1][blockIndex]){
-            if (chunk->lightData[1][blockIndex] == MAXLIGHT){
-                chunk->lightData[1][blockIndex] = 0;
+        if (chunk->getSunlight(blockIndex)){
+            if (chunk->getSunlight(blockIndex) == MAXLIGHT){
+                chunk->setSunlight(blockIndex, 0);
                 chunk->sunRemovalList.push_back(blockIndex);
             } else {
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->lightData[1][blockIndex]));
-                chunk->lightData[1][blockIndex] = 0;
+                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->setSunlight(blockIndex, 0);
             }
         }
 
-        if (chunk->lightData[0][blockIndex]){
-            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->lightData[0][blockIndex]));
-            chunk->lightData[0][blockIndex] = 0;
+        if (chunk->getLampLight(blockIndex)){
+            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->getLampLight(blockIndex)));
+            chunk->setLampLight(blockIndex, 0);
         }
     }
 
     //Light placement
     if (block.isLight){
-        chunk->lightData[0][blockIndex] = block.lightIntensity;
+        chunk->setLampLight(blockIndex, block.lightIntensity);
         chunk->lightUpdateQueue.push_back(LightUpdateNode(blockIndex, 0, block.lightIntensity));
     }
 

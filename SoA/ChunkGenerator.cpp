@@ -29,8 +29,8 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
     ui16* data = chunk->data;
-    ui8* lightData = chunk->lightData[0];
-    ui8* sunLightData = chunk->lightData[1];
+    ui8* lightData = chunk->lampLightData;
+    ui8* sunLightData = chunk->sunlightData;
 
     chunk->neighbors = 0;
 

@@ -338,9 +338,9 @@ inline void Chunk::setSunlight(int c, int val) {
     sunlightData[c] = (sunlightData[c] & 0xE0) | val;
 }
 
-void Chunk::setLampLight(int c, int val) {
-    if (lampLightData == nullptr) {
-        lampLightData = new ui16[CHUNK_SIZE];
-    }
+inline void Chunk::setLampLight(int c, int val) {
+  //  if (lampLightData == nullptr) {
+  //      lampLightData = new ui16[CHUNK_SIZE];
+  //  }
     lampLightData[c] = val;
 }

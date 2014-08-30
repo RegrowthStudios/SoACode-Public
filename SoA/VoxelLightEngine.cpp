@@ -19,7 +19,7 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
     if (chunk->lightRemovalQueue.size()) {
         //Removal
         for (ui32 i = 0; i < chunk->lightRemovalQueue.size(); i++){
-            removeSunlightBFS(chunk, (int)chunk->lightRemovalQueue[i].c, (int)chunk->lightRemovalQueue[i].type, chunk->lightRemovalQueue[i].oldLightVal);
+            removeSunlightBFS(chunk, (int)chunk->lightRemovalQueue[i].c, chunk->lightRemovalQueue[i].oldLightVal);
         }
         vector<LightRemovalNode>().swap(chunk->lightRemovalQueue); //forces memory to be freed
     }
@@ -27,7 +27,7 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
     if (chunk->lightUpdateQueue.size()) {
         //Addition
         for (ui32 i = 0; i < chunk->lightUpdateQueue.size(); i++){
-            placeSunlight(chunk, (int)chunk->lightUpdateQueue[i].c, (int)chunk->lightUpdateQueue[i].type, (int)chunk->lightUpdateQueue[i].lightVal);
+            placeSunlight(chunk, (int)chunk->lightUpdateQueue[i].c, (int)chunk->lightUpdateQueue[i].lightVal);
         }
         vector<LightUpdateNode>().swap(chunk->lightUpdateQueue); //forces memory to be freed
     }
@@ -113,7 +113,7 @@ void VoxelLightEngine::blockSunRay(Chunk* chunk, int xz, int y)
         } else{
             if (chunk->getSunlight(xz + i*CHUNK_LAYER) == MAXLIGHT){
                 chunk->setSunlight(xz + i*CHUNK_LAYER, 0);
-                VoxelLightEngine::removeSunlightBFS(chunk, xz + i*CHUNK_LAYER, 1, MAXLIGHT);
+                VoxelLightEngine::removeSunlightBFS(chunk, xz + i*CHUNK_LAYER, MAXLIGHT);
             } else{
                 return;
             }
