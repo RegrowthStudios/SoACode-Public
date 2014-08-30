@@ -84,7 +84,8 @@ public:
     ChunkStates getState() const { return state; }
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
-    int getLight(int type, int c) const;
+    int getSunlight(int c) const;
+    ui16 getLampLight(int c) const;
     const Block& getBlock(int c) const;
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
@@ -92,8 +93,8 @@ public:
     //setters
     void setBlockID(int c, int val);
     void setBlockData(int c, GLushort val);
-    void setLight(int type, int c, int val);
-
+    void setSunlight(int c, int val);
+    void setLampLight(int c, int val);
 
     int neighbors;
     bool activeUpdateList[8];
@@ -158,9 +159,12 @@ private:
     //And one queue for the main thread updates, such as adding torches
     moodycamel::ReaderWriterQueue<ui32> lightFromMain; */
 
-
+    //The data that defines the voxels
     ui16 data[CHUNK_SIZE]; 
-    ui8 lightData[2][CHUNK_SIZE]; //0 = light 1 = sunlight
+    ui8 sunlightData[CHUNK_SIZE];
+    //Voxel light data is only allocated when needed
+    ui8 lampLightData[CHUNK_SIZE];
+
     ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
     ui8 temperatures[CHUNK_LAYER];
     ui8 rainfalls[CHUNK_LAYER];

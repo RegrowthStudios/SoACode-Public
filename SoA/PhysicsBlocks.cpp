@@ -394,8 +394,8 @@ bool PhysicsBlock::update(const deque < deque < deque < ChunkSlot* > > > &chunkL
         ChunkUpdater::removeBlock(ch, c, 1);
         return 0;
     } else{
-        light[LIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getLight(LIGHT, c))));
-        light[SUNLIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getLight(SUNLIGHT, c))));
+        light[LIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getLampLight(c))));
+        light[SUNLIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
     }
     return 0;
 }

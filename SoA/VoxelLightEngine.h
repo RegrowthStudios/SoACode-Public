@@ -41,6 +41,6 @@ private:
     
     static void blockSunRay(Chunk* chunk, int xz, int y);
     static void extendSunRay(Chunk* chunk, int xz, int y);
-    static void removeLightBFS(Chunk* chunk, int blockIndex, int type, ui8 oldLightVal);
-    static void placeLight(Chunk* chunk, int blockIndex, int type, int intensity);
+    static void removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLightVal);
+    static void placeSunlight(Chunk* chunk, int blockIndex, int intensity);
 };

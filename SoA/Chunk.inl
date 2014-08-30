@@ -157,9 +157,9 @@ inline int Chunk::getTopBlockData(int c)
 inline int Chunk::getTopSunlight(int c)
 {
     if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
-        return lightData[1][c + CHUNK_LAYER];
+        return getSunlight(c + CHUNK_LAYER);
     } else if (top && top->isAccessible){
-        return top->lightData[1][c - CHUNK_SIZE + CHUNK_LAYER];
+        return top->getSunlight(c - CHUNK_SIZE + CHUNK_LAYER);
     }
     return 0;
 }
@@ -200,15 +200,15 @@ inline void Chunk::getLeftLightData(int c, GLbyte &l, GLbyte &sl)
         if (Blocks[GETBLOCKTYPE(data[c - 1])].occlude){
             l = sl = -1;
         } else{
-            l = (lightData[0][c - 1]);
-            sl = (lightData[1][c - 1]);
+     //       l = (lightData[0][c - 1]);
+    //        sl = (lightData[1][c - 1]);
         }
     } else if (left && left->isAccessible){
         if (Blocks[GETBLOCKTYPE(left->data[c + CHUNK_WIDTH - 1])].occlude){
             l = sl = -1;
         } else{
-            l = (left->lightData[0][c + CHUNK_WIDTH - 1]);
-            sl = (left->lightData[1][c + CHUNK_WIDTH - 1]);
+       //     l = (left->lightData[0][c + CHUNK_WIDTH - 1]);
+       //     sl = (left->lightData[1][c + CHUNK_WIDTH - 1]);
         }
     } else{
         l = sl = 0;
@@ -221,15 +221,15 @@ inline void Chunk::getRightLightData(int c, GLbyte &l, GLbyte &sl)
         if (Blocks[GETBLOCKTYPE(data[c + 1])].occlude){
             l = sl = -1;
         } else{
-            l = (lightData[0][c + 1]);
-            sl = (lightData[1][c + 1]);
+   //         l = (lightData[0][c + 1]);
+   //         sl = (lightData[1][c + 1]);
         }
     } else if (right && right->isAccessible){
         if (Blocks[GETBLOCKTYPE(right->data[c - CHUNK_WIDTH + 1])].occlude){
             l = sl = -1;
         } else{
-            l = (right->lightData[0][c - CHUNK_WIDTH + 1]);
-            sl = (right->lightData[1][c - CHUNK_WIDTH + 1]);
+  //          l = (right->lightData[0][c - CHUNK_WIDTH + 1]);
+  //          sl = (right->lightData[1][c - CHUNK_WIDTH + 1]);
         }
     } else{
         l = sl = 0;
@@ -242,15 +242,15 @@ inline void Chunk::getFrontLightData(int c, GLbyte &l, GLbyte &sl)
         if (Blocks[GETBLOCKTYPE(data[c + CHUNK_WIDTH])].occlude){
             l = sl = -1;
         } else{
-            l = (lightData[0][c + CHUNK_WIDTH]);
-            sl = (lightData[1][c + CHUNK_WIDTH]);
+  //          l = (lightData[0][c + CHUNK_WIDTH]);
+  //          sl = (lightData[1][c + CHUNK_WIDTH]);
         }
     } else if (front && front->isAccessible){
         if (Blocks[GETBLOCKTYPE(front->data[c - CHUNK_LAYER + CHUNK_WIDTH])].occlude){
             l = sl = -1;
         } else{
-            l = (front->lightData[0][c - CHUNK_LAYER + CHUNK_WIDTH]);
-            sl = (front->lightData[1][c - CHUNK_LAYER + CHUNK_WIDTH]);
+  //          l = (front->lightData[0][c - CHUNK_LAYER + CHUNK_WIDTH]);
+  //          sl = (front->lightData[1][c - CHUNK_LAYER + CHUNK_WIDTH]);
         }
     } else{
         l = sl = 0;
@@ -263,15 +263,15 @@ inline void Chunk::getBackLightData(int c, GLbyte &l, GLbyte &sl)
         if (Blocks[GETBLOCKTYPE(data[c - CHUNK_WIDTH])].occlude){
             l = sl = -1;
         } else{
-            l = (lightData[0][c - CHUNK_WIDTH]);
-            sl = (lightData[1][c - CHUNK_WIDTH]);
+  //          l = (lightData[0][c - CHUNK_WIDTH]);
+  //          sl = (lightData[1][c - CHUNK_WIDTH]);
         }
     } else if (back && back->isAccessible){
         if (Blocks[GETBLOCKTYPE(back->data[c + CHUNK_LAYER - CHUNK_WIDTH])].occlude){
             l = sl = -1;
         } else{
-            l = (back->lightData[0][c + CHUNK_LAYER - CHUNK_WIDTH]);
-            sl = (back->lightData[1][c + CHUNK_LAYER - CHUNK_WIDTH]);
+    //        l = (back->lightData[0][c + CHUNK_LAYER - CHUNK_WIDTH]);
+   //         sl = (back->lightData[1][c + CHUNK_LAYER - CHUNK_WIDTH]);
         }
     } else{
         l = sl = 0;
@@ -284,15 +284,15 @@ inline void Chunk::getBottomLightData(int c, GLbyte &l, GLbyte &sl)
         if (Blocks[GETBLOCKTYPE(data[c - CHUNK_LAYER])].occlude){
             l = sl = -1;
         } else{
-            l = lightData[0][c - CHUNK_LAYER];
-            sl = lightData[1][c - CHUNK_LAYER];
+    //        l = lightData[0][c - CHUNK_LAYER];
+   //         sl = lightData[1][c - CHUNK_LAYER];
         }
     } else if (bottom && bottom->isAccessible){
         if (Blocks[GETBLOCKTYPE(bottom->data[c + CHUNK_SIZE - CHUNK_LAYER])].occlude){
             l = sl = -1;
         } else{
-            l = bottom->lightData[0][c + CHUNK_SIZE - CHUNK_LAYER];
-            sl = bottom->lightData[1][c + CHUNK_SIZE - CHUNK_LAYER];
+    //        l = bottom->lightData[0][c + CHUNK_SIZE - CHUNK_LAYER];
+    //        sl = bottom->lightData[1][c + CHUNK_SIZE - CHUNK_LAYER];
         }
     } else{
         l = sl = 0;
@@ -305,17 +305,42 @@ inline void Chunk::getTopLightData(int c, GLbyte &l, GLbyte &sl)
         if (Blocks[GETBLOCKTYPE(data[c + CHUNK_LAYER])].occlude){
             l = sl = -1;
         } else{
-            l = (lightData[0][c + CHUNK_LAYER]);
-            sl = (lightData[1][c + CHUNK_LAYER]);
+ //           l = (lightData[0][c + CHUNK_LAYER]);
+ //           sl = (lightData[1][c + CHUNK_LAYER]);
         }
     } else if (top && top->isAccessible){
         if (Blocks[GETBLOCKTYPE(top->data[c - CHUNK_SIZE + CHUNK_LAYER])].occlude){
             l = sl = -1;
         } else{
-            l = (top->lightData[0][c - CHUNK_SIZE + CHUNK_LAYER]);
-            sl = (top->lightData[1][c - CHUNK_SIZE + CHUNK_LAYER]);
+    //        l = (top->lightData[0][c - CHUNK_SIZE + CHUNK_LAYER]);
+   //         sl = (top->lightData[1][c - CHUNK_SIZE + CHUNK_LAYER]);
         }
     } else{
         l = sl = 0;
     }
+}
+
+
+inline int Chunk::getSunlight(int c) const {
+    return sunlightData[c] & 0x1F;
+}
+
+inline ui16 Chunk::getLampLight(int c) const {
+    if (lampLightData) {
+        return lampLightData[c];
+    } else {
+        return 0;
+    }
+}
+
+
+inline void Chunk::setSunlight(int c, int val) {
+    sunlightData[c] = (sunlightData[c] & 0xE0) | val;
+}
+
+void Chunk::setLampLight(int c, int val) {
+    if (lampLightData == nullptr) {
+        lampLightData = new ui16[CHUNK_SIZE];
+    }
+    lampLightData[c] = val;
 }

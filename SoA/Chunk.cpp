@@ -632,10 +632,6 @@ int Chunk::getBlockID(int c) const {
     return data[c] & 0xFFF;
 }
 
-int Chunk::getLight(int type, int c) const {
-    return lightData[type][c] & 0x1F;
-}
-
 const Block& Chunk::getBlock(int c) const {
     return Blocks[data[c] & 0xFFF];
 }
@@ -654,8 +650,4 @@ void Chunk::setBlockID(int c, int val) {
 
 void Chunk::setBlockData(int c, GLushort val) {
     data[c] = val;
-}
-
-void Chunk::setLight(int type, int c, int val) {
-    lightData[type][c] = (lightData[type][c] & 0xE0) | val;
 }

@@ -559,8 +559,8 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* ch) {
     k = kStart;
     blockCounter = 0;
 
-    //Read light data
-    while (blockCounter < CHUNK_SIZE * 2) {
+    //Read lamp light data
+    while (blockCounter < CHUNK_SIZE) {
         //Grab a run of RLE data
         runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
         lightVal = _byteBuffer[byteIndex + 2];
@@ -568,8 +568,38 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* ch) {
         for (int q = 0; q < runSize; q++){
             blockIndex = i*CHUNK_LAYER + j*jMult + k*kMult;
                 
-            ((ui8 *)(ch->lightData))[blockIndex] = lightVal;
-    
+            ch->setLampLight(blockIndex, lightVal);
+
+            blockCounter++;
+            k += kInc;
+            if (k == kEnd){
+                k = kStart;
+                j += jInc;
+                if (j == jEnd){
+                    j = jStart;
+                    i++;
+                }
+            }
+        }
+        byteIndex += 3;
+    }
+
+    i = 0;
+    j = jStart;
+    k = kStart;
+    blockCounter = 0;
+
+    //Read sunlight data
+    while (blockCounter < CHUNK_SIZE) {
+        //Grab a run of RLE data
+        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
+        lightVal = _byteBuffer[byteIndex + 2];
+
+        for (int q = 0; q < runSize; q++){
+            blockIndex = i*CHUNK_LAYER + j*jMult + k*kMult;
+
+            ch->setSunlight(blockIndex, lightVal);
+
             blockCounter++;
             k += kInc;
             if (k == kEnd){
@@ -621,7 +651,7 @@ bool RegionFileManager::loadRegionHeader() {
 
 bool RegionFileManager::rleCompress(Chunk* chunk) {
     ui16 *blockData = chunk->data;
-    ui8 *lightData = chunk->lightData[0];
+    ui8 *lightData = chunk->lampLightData;
 
     _bufferSize = 0;
 
