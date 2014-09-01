@@ -400,9 +400,9 @@ void FloraGenerator::placeTreeNodes() {
         ChunkUpdater::placeBlock(owner, c, wnodes[j].blockType);
 
         if (c >= CHUNK_LAYER) {
-            if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockData(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
+            if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
         } else if (owner->bottom && owner->bottom->isAccessible) {
-            if (owner->bottom->getBlockID(c + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockData(c + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
+            if (owner->bottom->getBlockID(c + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(c + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
         }
     }
 
@@ -430,9 +430,9 @@ void FloraGenerator::placeTreeNodesAndRecord() {
         wnodes[j].blockType = tmp;
 
         if (c >= CHUNK_LAYER) {
-            if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockData(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
+            if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
         } else if (owner->bottom && owner->bottom->isAccessible) {
-            if (owner->bottom->getBlockID(c + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockData(c + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
+            if (owner->bottom->getBlockID(c + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(c + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
         }
     }
 

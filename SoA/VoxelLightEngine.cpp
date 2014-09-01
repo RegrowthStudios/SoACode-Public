@@ -55,7 +55,7 @@ void VoxelLightEngine::calculateSunlightExtend(Chunk* chunk)
     int y;
     for (ui32 i = 0; i < chunk->sunExtendList.size(); i++){
         blockIndex = chunk->sunExtendList[i];
-        if (chunk->sunlightData[blockIndex] == MAXLIGHT){
+        if (chunk->getSunlight(blockIndex) == MAXLIGHT){
             y = blockIndex / CHUNK_LAYER;
             extendSunRay(chunk, blockIndex - y * CHUNK_LAYER, y);
         }
@@ -69,7 +69,7 @@ void VoxelLightEngine::calculateSunlightRemoval(Chunk* chunk)
     int y;
     for (ui32 i = 0; i < chunk->sunRemovalList.size(); i++){
         blockIndex = chunk->sunRemovalList[i];
-        if (chunk->sunlightData[blockIndex] == 0){
+        if (chunk->getSunlight(blockIndex) == 0){
             y = blockIndex / CHUNK_LAYER;
             blockSunRay(chunk, blockIndex - y * CHUNK_LAYER, y - 1);
         }
@@ -136,7 +136,7 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
             return;
         } else{
             blockIndex = xz + i*CHUNK_LAYER;
-            if (GETBLOCK(chunk->data[blockIndex]).blockLight == 0){
+            if (chunk->getBlock(blockIndex).blockLight == 0){
 
                 if (chunk->getSunlight(blockIndex) != MAXLIGHT){
                     chunk->lightUpdateQueue.push_back(LightUpdateNode(blockIndex, 1, MAXLIGHT));
@@ -369,7 +369,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     if (x > 0){ //left
         nextIndex = blockIndex - 1;
         if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(chunk->data[nextIndex]).allowLight){
+            if (chunk->getBlock(nextIndex).allowLight){
                 chunk->setSunlight(nextIndex, newIntensity);
                 chunk->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
             }
@@ -377,7 +377,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     } else if (left && left->isAccessible){
         nextIndex = blockIndex + CHUNK_WIDTH - 1;
         if (left->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(left->data[nextIndex]).allowLight){
+            if (left->getBlock(nextIndex).allowLight){
                 left->setSunlight(nextIndex, newIntensity);
                 left->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
                // left->lightFromRight.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
@@ -389,7 +389,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     if (x < CHUNK_WIDTH - 1){ //right
         nextIndex = blockIndex + 1;
         if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(chunk->data[nextIndex]).allowLight){
+            if (chunk->getBlock(nextIndex).allowLight){
                 chunk->setSunlight(nextIndex, newIntensity);
                 chunk->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
             }
@@ -397,7 +397,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     } else if (right && right->isAccessible){
         nextIndex = blockIndex - CHUNK_WIDTH + 1;
         if (right->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(right->data[nextIndex]).allowLight){
+            if (right->getBlock(nextIndex).allowLight){
                 right->setSunlight(nextIndex, newIntensity);
                 right->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
               //  right->lightFromLeft.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
@@ -409,7 +409,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     if (z > 0){ //back
         nextIndex = blockIndex - CHUNK_WIDTH;
         if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(chunk->data[nextIndex]).allowLight){
+            if (chunk->getBlock(nextIndex).allowLight){
                 chunk->setSunlight(nextIndex, newIntensity);
                 chunk->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
             }
@@ -417,7 +417,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     } else if (back && back->isAccessible){
         nextIndex = blockIndex + CHUNK_LAYER - CHUNK_WIDTH;
         if (back->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(back->data[nextIndex]).allowLight){
+            if (back->getBlock(nextIndex).allowLight){
                 back->setSunlight(nextIndex, newIntensity);
                 back->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
               //  back->lightFromFront.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
@@ -429,7 +429,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     if (z < CHUNK_WIDTH - 1){ //front
         nextIndex = blockIndex + CHUNK_WIDTH;
         if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(chunk->data[nextIndex]).allowLight){
+            if (chunk->getBlock(nextIndex).allowLight){
                 chunk->setSunlight(nextIndex, newIntensity);
                 chunk->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
             }
@@ -437,7 +437,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     } else if (front && front->isAccessible){
         nextIndex = blockIndex - CHUNK_LAYER + CHUNK_WIDTH;
         if (front->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(front->data[nextIndex]).allowLight){
+            if (front->getBlock(nextIndex).allowLight){
                 front->setSunlight(nextIndex, newIntensity);
                 front->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
               //  front->lightFromBack.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
@@ -449,7 +449,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     if (y > 0){ //bottom
         nextIndex = blockIndex - CHUNK_LAYER;
         if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(chunk->data[nextIndex]).allowLight){
+            if (chunk->getBlock(nextIndex).allowLight){
                 chunk->setSunlight(nextIndex, newIntensity);
                 chunk->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
             }
@@ -457,7 +457,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     } else if (bottom && bottom->isAccessible){
         nextIndex = CHUNK_SIZE - CHUNK_LAYER + blockIndex;
         if (bottom->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(bottom->data[nextIndex]).allowLight){
+            if (bottom->getBlock(nextIndex).allowLight){
                 bottom->setSunlight(nextIndex, newIntensity);
                 bottom->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
               //  bottom->lightFromTop.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
@@ -468,7 +468,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     if (y < CHUNK_WIDTH - 1){ //top
         nextIndex = blockIndex + CHUNK_LAYER;
         if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(chunk->data[nextIndex]).allowLight){
+            if (chunk->getBlock(nextIndex).allowLight){
                 chunk->setSunlight(nextIndex, newIntensity);
                 chunk->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
             }
@@ -476,7 +476,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
     } else if (top && top->isAccessible){
         nextIndex = blockIndex - CHUNK_SIZE + CHUNK_LAYER;
         if (top->getSunlight(nextIndex) < newIntensity){
-            if (GETBLOCK(top->data[nextIndex]).allowLight){
+            if (top->getBlock(nextIndex).allowLight){
                 top->setSunlight(nextIndex, newIntensity);
                 top->lightUpdateQueue.push_back(LightUpdateNode(nextIndex, 1, newIntensity));
             //    top->lightFromBottom.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));

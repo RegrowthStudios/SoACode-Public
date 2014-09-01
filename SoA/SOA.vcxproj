@@ -244,7 +244,6 @@
     <ClCompile Include="DevConsole.cpp" />
     <ClCompile Include="DevConsoleView.cpp" />
     <ClCompile Include="GeometrySorter.cpp" />
-    <ClCompile Include="IntervalTree.cpp" />
     <ClCompile Include="Keg.cpp" />
     <ClCompile Include="LoadBar.cpp" />
     <ClCompile Include="LoadScreen.cpp" />

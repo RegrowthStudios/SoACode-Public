@@ -45,7 +45,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
         //TODO: Replace most of this with block update scripts
         if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKTYPE(chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner)) < LOWWATER)){
-            chunk->data[blockIndex] = NONE;
+            chunk->setBlockID(blockIndex, NONE);
             owner->numBlocks--;
             needsSetup = true;
             newState = ChunkStates::WATERMESH;
@@ -57,14 +57,14 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
         } else if (blockID == DIRTGRASS){
             int bt = GETBLOCKTYPE(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner));
             if ((Blocks[bt].collide && bt != LEAVES1) || bt >= LOWWATER){
-                chunk->data[blockIndex] = DIRT;
+                chunk->setBlockID(blockIndex, DIRT);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
             }
         } else if (blockID == DIRT){
             if ((rand() % 10 == 0) && (GETBLOCKTYPE(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner)) == NONE) && (GETBLOCKTYPE(chunk->getLeftBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKTYPE(chunk->getRightBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS ||
                 GETBLOCKTYPE(chunk->getFrontBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKTYPE(chunk->getBackBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS)){
-                chunk->data[blockIndex] = DIRTGRASS;
+                chunk->setBlockID(blockIndex, DIRTGRASS);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
             }
@@ -114,10 +114,10 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
 
     Block &block = GETBLOCK(blockType);
 
-    if (chunk->data[blockIndex] == NONE) {
+    if (chunk->getBlockData(blockIndex) == NONE) {
         chunk->numBlocks++;
     }
-    chunk->data[blockIndex] = blockType;
+    chunk->setBlockData(blockIndex, blockType);
 
     if (block.spawnerVal || block.sinkVal){
         chunk->spawnerBlocks.push_back(blockIndex);
@@ -172,10 +172,10 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
 {
     Block &block = GETBLOCK(blockType);
 
-    if (chunk->data[blockIndex] == NONE) {
+    if (chunk->getBlockData(blockIndex) == NONE) {
         chunk->numBlocks++;
     }
-    chunk->data[blockIndex] = blockType;
+    chunk->setBlockData(blockIndex, blockType);
 
     //Check for light removal due to block occlusion
     if (block.blockLight) {
@@ -209,7 +209,7 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
 
 void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
 {
-    int blockID = GETBLOCKTYPE(chunk->data[blockIndex]);
+    int blockID = chunk->getBlockID(blockIndex);
     const Block &block = Blocks[blockID];
 
     float explodeDist = glm::length(explodeDir);
@@ -257,37 +257,37 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
             breakBlock(chunk, pos.x, pos.y, pos.z, blockID, force);
         }
     }
-    chunk->data[blockIndex] = NONE;
+    chunk->setBlockData(blockIndex, NONE);
 
     //Update lighting
     if (block.blockLight || block.isLight){
         //This will pull light from neighbors
-        chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->lampLightData[blockIndex]));
-        chunk->lampLightData[blockIndex] = 0;
+        chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->getLampLight(blockIndex)));
+        chunk->setLampLight(blockIndex, 0);
 
         //sunlight update
         if (pos.y < CHUNK_WIDTH - 1) {
             if (chunk->getSunlight(blockIndex + CHUNK_LAYER) == MAXLIGHT) {
-                chunk->sunlightData[blockIndex] = MAXLIGHT;
+                chunk->setSunlight(blockIndex, MAXLIGHT);
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->sunlightData[blockIndex]));
-                chunk->sunlightData[blockIndex] = 0;
+                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->setSunlight(blockIndex, 0);
             }
         } else if (chunk->top && chunk->top->isAccessible) {
             if (chunk->top->getSunlight(blockIndex + CHUNK_LAYER - CHUNK_SIZE) == MAXLIGHT) {
-                chunk->sunlightData[blockIndex] = MAXLIGHT;
+                chunk->setSunlight(blockIndex, MAXLIGHT);
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->sunlightData[blockIndex]));
-                chunk->sunlightData[blockIndex] = 0;
+                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->setSunlight(blockIndex, 0);
             }
         } else {
             //This will pull light from neighbors
-            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->sunlightData[blockIndex]));
-            chunk->sunlightData[blockIndex] = 0;
+            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+            chunk->setSunlight(blockIndex, 0);
         }
     }
 
@@ -308,37 +308,37 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
 
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
   
-    chunk->data[blockIndex] = NONE;
+    chunk->setBlockData(blockIndex, NONE);
 
     //Update lighting
     if (block.blockLight || block.isLight){
         //This will pull light from neighbors
-        chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->lampLightData[blockIndex]));
-        chunk->lampLightData[blockIndex] = 0;
+        chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->getLampLight(blockIndex)));
+        chunk->setLampLight(blockIndex, 0);
 
         //sunlight update
         if (pos.y < CHUNK_WIDTH - 1) {
             if (chunk->getSunlight(blockIndex + CHUNK_LAYER) == MAXLIGHT) {
-                chunk->sunlightData[blockIndex] = MAXLIGHT;
+                chunk->setSunlight(blockIndex, MAXLIGHT);
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->sunlightData[blockIndex]));
-                chunk->sunlightData[blockIndex] = 0;
+                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->setSunlight(blockIndex, 0);
             }
         } else if (chunk->top && chunk->top->isAccessible) {
             if (chunk->top->getSunlight(blockIndex + CHUNK_LAYER - CHUNK_SIZE) == MAXLIGHT) {
-                chunk->sunlightData[blockIndex] = MAXLIGHT;
+                chunk->setSunlight(blockIndex, MAXLIGHT);
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->sunlightData[blockIndex]));
-                chunk->sunlightData[blockIndex] = 0;
+                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->setSunlight(blockIndex, 0);
             }
         } else {
             //This will pull light from neighbors
-            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->sunlightData[blockIndex]));
-            chunk->sunlightData[blockIndex] = 0;
+            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+            chunk->setSunlight(blockIndex, 0);
         }
     }
 
@@ -424,16 +424,16 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     Chunk* top = chunk->top;
     Chunk* bottom = chunk->bottom;
 
-    if ((phys = GETBLOCK(chunk->data[c]).physicsProperty - physStart) > -1) {
+    if ((phys = chunk->getBlock(c).physicsProperty - physStart) > -1) {
         chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
     }
 
     if (pos.x > 0){ //left
-        if ((phys = GETBLOCK(chunk->data[c - 1]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c - 1).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - 1);
         }
     } else if (left && left->isAccessible){
-        if ((phys = GETBLOCK(left->data[c + CHUNK_WIDTH - 1]).physicsProperty - physStart) > -1) {
+        if ((phys = left->getBlock(c + CHUNK_WIDTH - 1).physicsProperty - physStart) > -1) {
             left->blockUpdateList[phys][left->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH - 1);
         }
     } else{
@@ -441,11 +441,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.x < CHUNK_WIDTH - 1){ //right
-        if ((phys = GETBLOCK(chunk->data[c + 1]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c + 1).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + 1);
         }
     } else if (right && right->isAccessible){
-        if ((phys = GETBLOCK(right->data[c - CHUNK_WIDTH + 1]).physicsProperty - physStart) > -1) {
+        if ((phys = right->getBlock(c - CHUNK_WIDTH + 1).physicsProperty - physStart) > -1) {
             right->blockUpdateList[phys][right->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH + 1);
         }
     } else{
@@ -453,11 +453,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.z > 0){ //back
-        if ((phys = GETBLOCK(chunk->data[c - CHUNK_WIDTH]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH);
         }
     } else if (back && back->isAccessible){
-        if ((phys = GETBLOCK(back->data[c + CHUNK_LAYER - CHUNK_WIDTH]).physicsProperty - physStart) > -1) {
+        if ((phys = back->getBlock(c + CHUNK_LAYER - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             back->blockUpdateList[phys][back->activeUpdateList[phys]].push_back(c + CHUNK_LAYER - CHUNK_WIDTH);
         }
     } else{
@@ -465,11 +465,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.z < CHUNK_WIDTH - 1){ //front
-        if ((phys = GETBLOCK(chunk->data[c + CHUNK_WIDTH]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH);
         }
     } else if (front && front->isAccessible){
-        if ((phys = GETBLOCK(front->data[c - CHUNK_LAYER + CHUNK_WIDTH]).physicsProperty - physStart) > -1) {
+        if ((phys = front->getBlock(c - CHUNK_LAYER + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             front->blockUpdateList[phys][front->activeUpdateList[phys]].push_back(c - CHUNK_LAYER + CHUNK_WIDTH);
         }
     } else{
@@ -477,11 +477,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.y > 0){ //bottom
-        if ((phys = GETBLOCK(chunk->data[c - CHUNK_LAYER]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_LAYER);
         }
     } else if (bottom && bottom->isAccessible){
-        if ((phys = GETBLOCK(bottom->data[CHUNK_SIZE - CHUNK_LAYER + c]).physicsProperty - physStart) > -1) {
+        if ((phys = bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
             bottom->blockUpdateList[phys][bottom->activeUpdateList[phys]].push_back(CHUNK_SIZE - CHUNK_LAYER + c);
         }
     } else{
@@ -489,11 +489,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = GETBLOCK(chunk->data[c + CHUNK_LAYER]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_LAYER);
         }
     } else if (top && top->isAccessible){
-        if ((phys = GETBLOCK(top->data[c - CHUNK_SIZE + CHUNK_LAYER]).physicsProperty - physStart) > -1) {
+        if ((phys = top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
             top->blockUpdateList[phys][top->activeUpdateList[phys]].push_back(c - CHUNK_SIZE + CHUNK_LAYER);
         }
     }
@@ -504,16 +504,16 @@ void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
     int phys;
     const i32v3 pos = getPosFromBlockIndex(c);
 
-    if ((phys = GETBLOCK(chunk->data[c]).physicsProperty - physStart) > -1) {
+    if ((phys = chunk->getBlock(c).physicsProperty - physStart) > -1) {
         chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
     }
 
     if (pos.y > 0){ //bottom
-        if ((phys = GETBLOCK(chunk->data[c - CHUNK_LAYER]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_LAYER);
         }
     } else if (chunk->bottom && chunk->bottom->isAccessible){
-        if ((phys = GETBLOCK(chunk->bottom->data[CHUNK_SIZE - CHUNK_LAYER + c]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
             chunk->bottom->blockUpdateList[phys][chunk->bottom->activeUpdateList[phys]].push_back(CHUNK_SIZE - CHUNK_LAYER + c);
         }
     } else{
@@ -521,11 +521,11 @@ void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = GETBLOCK(chunk->data[c + CHUNK_LAYER]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlock(c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_LAYER);
         }
     } else if (chunk->top && chunk->top->isAccessible){
-        if ((phys = GETBLOCK(chunk->top->data[c - CHUNK_SIZE + CHUNK_LAYER]).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
             chunk->top->blockUpdateList[phys][chunk->top->activeUpdateList[phys]].push_back(c - CHUNK_SIZE + CHUNK_LAYER);
         }
     }
@@ -748,7 +748,7 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->position.x + blockIndex2%CHUNK_WIDTH, owner2->position.y + blockIndex2 / CHUNK_LAYER, owner2->position.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->data[blockIndex2] = b->burnTransformID;
+            owner2->setBlockData(blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
@@ -762,7 +762,7 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->position.x + blockIndex2%CHUNK_WIDTH, owner2->position.y + blockIndex2 / CHUNK_LAYER, owner2->position.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->data[blockIndex2] = b->burnTransformID;
+            owner2->setBlockData(blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
@@ -776,7 +776,7 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->position.x + blockIndex2%CHUNK_WIDTH, owner2->position.y + blockIndex2 / CHUNK_LAYER, owner2->position.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->data[blockIndex2] = b->burnTransformID;
+            owner2->setBlockData(blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
@@ -790,7 +790,7 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->position.x + blockIndex2%CHUNK_WIDTH, owner2->position.y + blockIndex2 / CHUNK_LAYER, owner2->position.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->data[blockIndex2] = b->burnTransformID;
+            owner2->setBlockData(blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
@@ -804,7 +804,7 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->position.x + blockIndex2%CHUNK_WIDTH, owner2->position.y + blockIndex2 / CHUNK_LAYER, owner2->position.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->data[blockIndex2] = b->burnTransformID;
+            owner2->setBlockData(blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
@@ -818,7 +818,7 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->position.x + blockIndex2%CHUNK_WIDTH, owner2->position.y + blockIndex2 / CHUNK_LAYER, owner2->position.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->data[blockIndex2] = b->burnTransformID;
+            owner2->setBlockData(blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }

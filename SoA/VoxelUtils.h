@@ -7,6 +7,12 @@ inline void getPosFromBlockIndex(int blockIndex, int& x, int& y, int& z) {
     z = (blockIndex >> 5) & 0x1f;
 }
 
+inline void getPosFromBlockIndex(int blockIndex, i32v3& pos) {
+    pos.x = blockIndex & 0x1f;
+    pos.y = blockIndex >> 10;
+    pos.z = (blockIndex >> 5) & 0x1f;
+}
+
 inline i32v3 getPosFromBlockIndex(int blockIndex) {
     return i32v3(blockIndex & 0x1f, blockIndex >> 10, (blockIndex >> 5) & 0x1f);
 }

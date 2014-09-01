@@ -534,9 +534,9 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* ch) {
                 return 1; 
             }
 
-            ch->data[blockIndex] = blockID;
+            ch->setBlockData(blockIndex, blockID);
             //If its a spawner, mark it
-            if (GETBLOCK(ch->data[blockIndex]).spawnerVal || GETBLOCK(ch->data[blockIndex]).sinkVal){
+            if (ch->getBlock(blockIndex).spawnerVal || ch->getBlock(blockIndex).sinkVal){
                 ch->spawnerBlocks.push_back(blockIndex);
             }
 
@@ -650,146 +650,146 @@ bool RegionFileManager::loadRegionHeader() {
 }
 
 bool RegionFileManager::rleCompress(Chunk* chunk) {
-    ui16 *blockData = chunk->data;
-    ui8 *lightData = chunk->lampLightData;
+    //ui16 *blockData = chunk->data;
+    //ui8 *lightData = chunk->lampLightData;
 
-    _bufferSize = 0;
+    //_bufferSize = 0;
 
-    ui16 curr;
-    ui8 currb;
-    ui32 count = 1;
-    int c;
-    int jStart, jEnd, jInc;
-    int kStart, kEnd, kInc;
-    int jMult, kMult;
+    //ui16 curr;
+    //ui8 currb;
+    //ui32 count = 1;
+    //int c;
+    //int jStart, jEnd, jInc;
+    //int kStart, kEnd, kInc;
+    //int jMult, kMult;
 
-    switch (chunk->faceData.rotation){ //we use rotation value to un-rotate the chunk data
-    case 0: //no rotation
-        jStart = 0;
-        kStart = 0;
-        jEnd = kEnd = CHUNK_WIDTH;
-        jInc = kInc = 1;
-        jMult = CHUNK_WIDTH;
-        kMult = 1;
-        break;
-    case 1: //up is right
-        jMult = 1;
-        jStart = CHUNK_WIDTH - 1;
-        jEnd = -1;
-        jInc = -1;
-        kStart = 0;
-        kEnd = CHUNK_WIDTH;
-        kInc = 1;
-        kMult = CHUNK_WIDTH;
-        break;
-    case 2: //up is down
-        jMult = CHUNK_WIDTH;
-        jStart = CHUNK_WIDTH - 1;
-        kStart = CHUNK_WIDTH - 1;
-        jEnd = kEnd = -1;
-        jInc = kInc = -1;
-        kMult = 1;
-        break;
-    case 3: //up is left
-        jMult = 1;
-        jStart = 0;
-        jEnd = CHUNK_WIDTH;
-        jInc = 1;
-        kMult = CHUNK_WIDTH;
-        kStart = CHUNK_WIDTH - 1;
-        kEnd = -1;
-        kInc = -1;
-        break;
-    }
+    //switch (chunk->faceData.rotation){ //we use rotation value to un-rotate the chunk data
+    //case 0: //no rotation
+    //    jStart = 0;
+    //    kStart = 0;
+    //    jEnd = kEnd = CHUNK_WIDTH;
+    //    jInc = kInc = 1;
+    //    jMult = CHUNK_WIDTH;
+    //    kMult = 1;
+    //    break;
+    //case 1: //up is right
+    //    jMult = 1;
+    //    jStart = CHUNK_WIDTH - 1;
+    //    jEnd = -1;
+    //    jInc = -1;
+    //    kStart = 0;
+    //    kEnd = CHUNK_WIDTH;
+    //    kInc = 1;
+    //    kMult = CHUNK_WIDTH;
+    //    break;
+    //case 2: //up is down
+    //    jMult = CHUNK_WIDTH;
+    //    jStart = CHUNK_WIDTH - 1;
+    //    kStart = CHUNK_WIDTH - 1;
+    //    jEnd = kEnd = -1;
+    //    jInc = kInc = -1;
+    //    kMult = 1;
+    //    break;
+    //case 3: //up is left
+    //    jMult = 1;
+    //    jStart = 0;
+    //    jEnd = CHUNK_WIDTH;
+    //    jInc = 1;
+    //    kMult = CHUNK_WIDTH;
+    //    kStart = CHUNK_WIDTH - 1;
+    //    kEnd = -1;
+    //    kInc = -1;
+    //    break;
+    //}
 
-    curr = blockData[jStart*jMult + kStart*kMult];
+    //curr = blockData[jStart*jMult + kStart*kMult];
 
-    bool first = 1;
-    //compress and store block ID data
-    for (int i = 0; i < CHUNK_WIDTH; i++){ //y
-        for (int j = jStart; j != jEnd; j += jInc){ //z
-            for (int k = kStart; k != kEnd; k += kInc){ //x 
-                if (!first){ //have to ignore the first one since we set it above
-                    c = i*CHUNK_LAYER + j*jMult + k*kMult; //sometimes x is treated like z and visa versa when rotating
-                    if (blockData[c] != curr){
-                        _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-                        _byteBuffer[_bufferSize++] = (GLubyte)((curr & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (GLubyte)(curr & 0xFF);
+    //bool first = 1;
+    ////compress and store block ID data
+    //for (int i = 0; i < CHUNK_WIDTH; i++){ //y
+    //    for (int j = jStart; j != jEnd; j += jInc){ //z
+    //        for (int k = kStart; k != kEnd; k += kInc){ //x 
+    //            if (!first){ //have to ignore the first one since we set it above
+    //                c = i*CHUNK_LAYER + j*jMult + k*kMult; //sometimes x is treated like z and visa versa when rotating
+    //                if (blockData[c] != curr){
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)((curr & 0xFF00) >> 8);
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)(curr & 0xFF);
 
-                        curr = blockData[c];
-                        count = 1;
-                    } else{
-                        count++;
-                    }
-                } else{
-                    first = 0;
-                }
-            }
-        }
-    }
-    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    _byteBuffer[_bufferSize++] = (GLubyte)((curr & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (GLubyte)(curr & 0xFF);
+    //                    curr = blockData[c];
+    //                    count = 1;
+    //                } else{
+    //                    count++;
+    //                }
+    //            } else{
+    //                first = 0;
+    //            }
+    //        }
+    //    }
+    //}
+    //_byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
+    //_byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
+    //_byteBuffer[_bufferSize++] = (GLubyte)((curr & 0xFF00) >> 8);
+    //_byteBuffer[_bufferSize++] = (GLubyte)(curr & 0xFF);
 
-    //compress and store artificial light
-    count = 1;
-    currb = lightData[jStart*jMult + kStart*kMult];
-    first = 1;
-    for (int i = 0; i < CHUNK_WIDTH; i++){ //y
-        for (int j = jStart; j != jEnd; j += jInc){ //z
-            for (int k = kStart; k != kEnd; k += kInc){ //x 
-                if (!first){ //have to ignore the first one since we set it above
-                    c = i*CHUNK_LAYER + j*jMult + k*kMult;
-                    if (lightData[c] != currb){ //remove the count ==???
-                        _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-                        _byteBuffer[_bufferSize++] = currb;
+    ////compress and store artificial light
+    //count = 1;
+    //currb = lightData[jStart*jMult + kStart*kMult];
+    //first = 1;
+    //for (int i = 0; i < CHUNK_WIDTH; i++){ //y
+    //    for (int j = jStart; j != jEnd; j += jInc){ //z
+    //        for (int k = kStart; k != kEnd; k += kInc){ //x 
+    //            if (!first){ //have to ignore the first one since we set it above
+    //                c = i*CHUNK_LAYER + j*jMult + k*kMult;
+    //                if (lightData[c] != currb){ //remove the count ==???
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
+    //                    _byteBuffer[_bufferSize++] = currb;
 
-                        currb = lightData[c];
-                        count = 1;
-                    } else{
-                        count++;
-                    }
-                } else{
-                    first = 0;
-                }
-            }
-        }
-    }
-    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    _byteBuffer[_bufferSize++] = currb;
+    //                    currb = lightData[c];
+    //                    count = 1;
+    //                } else{
+    //                    count++;
+    //                }
+    //            } else{
+    //                first = 0;
+    //            }
+    //        }
+    //    }
+    //}
+    //_byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
+    //_byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
+    //_byteBuffer[_bufferSize++] = currb;
 
-    //compress and store voxel sunlight
-    count = 1;
-    currb = lightData[CHUNK_SIZE + jStart*jMult + kStart*kMult];
-    first = 1;
-    for (int i = 0; i < CHUNK_WIDTH; i++){ //y
-        for (int j = jStart; j != jEnd; j += jInc){ //z
-            for (int k = kStart; k != kEnd; k += kInc){ //x 
-                if (!first){ //have to ignore the first one since we set it above
-                    c = i*CHUNK_LAYER + j*jMult + k*kMult;
-                    if (lightData[CHUNK_SIZE + c] != currb){ //remove the count ==???
-                        _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-                        _byteBuffer[_bufferSize++] = currb;
+    ////compress and store voxel sunlight
+    //count = 1;
+    //currb = lightData[CHUNK_SIZE + jStart*jMult + kStart*kMult];
+    //first = 1;
+    //for (int i = 0; i < CHUNK_WIDTH; i++){ //y
+    //    for (int j = jStart; j != jEnd; j += jInc){ //z
+    //        for (int k = kStart; k != kEnd; k += kInc){ //x 
+    //            if (!first){ //have to ignore the first one since we set it above
+    //                c = i*CHUNK_LAYER + j*jMult + k*kMult;
+    //                if (lightData[CHUNK_SIZE + c] != currb){ //remove the count ==???
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
+    //                    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
+    //                    _byteBuffer[_bufferSize++] = currb;
 
-                        currb = lightData[CHUNK_SIZE + c];
-                        count = 1;
-                    } else{
-                        count++;
-                    }
-                } else{
-                    first = 0;
-                }
-            }
-        }
-    }
-    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    _byteBuffer[_bufferSize++] = currb;
+    //                    currb = lightData[CHUNK_SIZE + c];
+    //                    count = 1;
+    //                } else{
+    //                    count++;
+    //                }
+    //            } else{
+    //                first = 0;
+    //            }
+    //        }
+    //    }
+    //}
+    //_byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
+    //_byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
+    //_byteBuffer[_bufferSize++] = currb;
     return true;
 }
 

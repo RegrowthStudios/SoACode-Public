@@ -18,6 +18,7 @@
 #include "ThreadPool.h"
 #include "shader.h"
 #include "utils.h"
+#include "VoxelUtils.h"
 
 GLuint Chunk::vboIndicesID = 0;
 
@@ -98,6 +99,10 @@ void Chunk::clear(bool clearDraw)
     vector<ui16>().swap(sunRemovalList);
     vector<ui16>().swap(sunExtendList);
 
+    _dataTree.clear();
+    _lampLightTree.clear();
+    _sunlightTree.clear();
+
     //TODO: A better solution v v v
     //Hacky way to clear RWQ
 /*    ui32 res;
@@ -162,7 +167,7 @@ void Chunk::CheckEdgeBlocks()
     y = CHUNK_WIDTH - 1;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (Blocks[GETBLOCKTYPE(data[y*CHUNK_LAYER + z*CHUNK_WIDTH + x])].occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
                 topBlocked = 0;
                 z = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -173,7 +178,7 @@ void Chunk::CheckEdgeBlocks()
     x = 0;
     for (y = 0; y < CHUNK_WIDTH; y++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (Blocks[GETBLOCKTYPE(data[y*CHUNK_LAYER + z*CHUNK_WIDTH + x])].occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
                 leftBlocked = 0;
                 z = CHUNK_WIDTH;
                 y = CHUNK_WIDTH;
@@ -184,7 +189,7 @@ void Chunk::CheckEdgeBlocks()
     x = CHUNK_WIDTH - 1;
     for (y = 0; y < CHUNK_WIDTH; y++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (Blocks[GETBLOCKTYPE(data[y*CHUNK_LAYER + z*CHUNK_WIDTH + x])].occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
                 rightBlocked = 0;
                 z = CHUNK_WIDTH;
                 y = CHUNK_WIDTH;
@@ -196,7 +201,7 @@ void Chunk::CheckEdgeBlocks()
     y = 0;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (Blocks[GETBLOCKTYPE(data[y*CHUNK_LAYER + z*CHUNK_WIDTH + x])].occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
                 bottomBlocked = 0;
                 z = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -208,7 +213,7 @@ void Chunk::CheckEdgeBlocks()
     z = CHUNK_WIDTH - 1;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (y = 0; y < CHUNK_WIDTH; y++){
-            if (Blocks[GETBLOCKTYPE(data[y*CHUNK_LAYER + z*CHUNK_WIDTH + x])].occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
                 frontBlocked = 0;
                 y = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -220,7 +225,7 @@ void Chunk::CheckEdgeBlocks()
     z = 0;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (y = 0; y < CHUNK_WIDTH; y++){
-            if (Blocks[GETBLOCKTYPE(data[y*CHUNK_LAYER + z*CHUNK_WIDTH + x])].occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
                 backBlocked = 0;
                 y = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -237,6 +242,8 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     int wc;
     int c = 0;
 
+    i32v3 pos;
+
     ui16* wvec = renderTask->wvec;
     ui16* chData = renderTask->chData;
     ui8 *chLightData[2] = { renderTask->chLightData[0], renderTask->chLightData[1] };
@@ -249,391 +256,410 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
-    int s = 0;
-    for (y = 0; y < CHUNK_WIDTH; y++){
-        for (z = 0; z < CHUNK_WIDTH; z++){
-            for (x = 0; x < CHUNK_WIDTH; x++, c++){
-                wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                chData[wc] = data[c];
-                if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
-                    wvec[s++] = wc;
-                }
-                chLightData[0][wc] = lampLightData[c];
-                chLightData[1][wc] = sunlightData[c];
-            }
-        }
-    }
-    renderTask->wSize = s;
 
-    //top and bottom
-    ch1 = bottom;
-    ch2 = top;
-    if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            for (x = 1; x < PADDED_WIDTH - 1; x++){
-                off1 = (z - 1)*CHUNK_WIDTH + x - 1;
-                off2 = z*PADDED_WIDTH + x;        
+    //block data
+    for (auto it = _dataTree.begin(); it != _dataTree.end(); it++) {
+        for (int i = 0; i < it->second.length; i++, c++) {
 
-                //data
-                chData[off2] = (ch1->data[CHUNK_SIZE - CHUNK_LAYER + off1]); //bottom
-                chLightData[0][off2] = ch1->lampLightData[CHUNK_SIZE - CHUNK_LAYER + off1];
-                chLightData[1][off2] = ch1->sunlightData[CHUNK_SIZE - CHUNK_LAYER + off1];
-                chData[off2 + PADDED_SIZE - PADDED_LAYER] = (ch2->data[off1]); //top
-                chLightData[0][off2 + PADDED_SIZE - PADDED_LAYER] = ch2->lampLightData[off1];
-                chLightData[1][off2 + PADDED_SIZE - PADDED_LAYER] = ch2->sunlightData[off1];
-            }
-        }
-    }
-    else{
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            for (x = 1; x < PADDED_WIDTH - 1; x++){
-                off1 = (z - 1)*CHUNK_WIDTH + x - 1;
-                off2 = z*PADDED_WIDTH + x;
+            getPosFromBlockIndex(c, pos);
+            wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
             
-                chLightData[0][off2] = 0;
-                chLightData[1][off2] = 0;
-                chLightData[0][off2 + PADDED_SIZE - PADDED_LAYER] = 0;
-                chLightData[1][off2 + PADDED_SIZE - PADDED_LAYER] = 0;
-                chData[off2 + PADDED_SIZE - PADDED_LAYER] = 0;
-                chData[off2] = 0;
-            }
+            chData[wc] = it->second.data;
         }
     }
-    //bottomleft
-    ch1 = bottom->left;
-    if (ch1 && ch1->isAccessible){
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off2 = z*PADDED_WIDTH;            
+    //lamp data
+    for (auto it = _lampLightTree.begin(); it != _lampLightTree.end(); it++) {
+        for (int i = 0; i < it->second.length; i++, c++) {
 
-            chData[off2] = (ch1->data[CHUNK_SIZE - CHUNK_LAYER + off1]); //bottom
-            chLightData[0][off2] = ch1->lampLightData[CHUNK_SIZE - CHUNK_LAYER + off1];
-            chLightData[1][off2] = ch1->sunlightData[CHUNK_SIZE - CHUNK_LAYER + off1];
-        }
+            getPosFromBlockIndex(c, pos);
+            wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
-        //bottomleftback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_SIZE - 1;
-            off2 = 0;    
-
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-        //bottomleftfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_SIZE - CHUNK_LAYER + CHUNK_WIDTH - 1;
-            off2 = PADDED_LAYER - PADDED_WIDTH;    
-
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
+            chLightData[0][wc] = it->second.data;
         }
     }
-    else{
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            chData[z*PADDED_WIDTH] = 0;
-            chLightData[0][z*PADDED_WIDTH] = 0;
-            chLightData[1][z*PADDED_WIDTH] = 0;
-        }
+    //sunlight data
+    for (auto it = _sunlightTree.begin(); it != _sunlightTree.end(); it++) {
+        for (int i = 0; i < it->second.length; i++, c++) {
 
-        chData[0] = 0;
-        chLightData[0][0] = 0;
-        chLightData[1][0] = 0;
-        chData[PADDED_LAYER - PADDED_WIDTH] = 0;
-        chLightData[0][PADDED_LAYER - PADDED_WIDTH] = 0;
-        chLightData[1][PADDED_LAYER - PADDED_WIDTH] = 0;
-    }
+            getPosFromBlockIndex(c, pos);
+            wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
-    //bottomright
-    ch1 = bottom->right;
-    if (ch1 && ch1->isAccessible){
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off1 = CHUNK_SIZE - CHUNK_LAYER + (z - 1)*CHUNK_WIDTH;
-            off2 = z*PADDED_WIDTH + PADDED_WIDTH - 1;        
-
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-
-        //bottomrightback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_SIZE - CHUNK_WIDTH;
-            off2 = PADDED_WIDTH - 1;
-
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-        //bottomrightfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_SIZE - CHUNK_LAYER;
-            off2 = PADDED_LAYER - 1;
-
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
+            chLightData[1][wc] = it->second.data;
         }
     }
+    //int s = 0;
+    //for (y = 0; y < CHUNK_WIDTH; y++){
+    //    for (z = 0; z < CHUNK_WIDTH; z++){
+    //        for (x = 0; x < CHUNK_WIDTH; x++, c++){
+    //            wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+    //            chData[wc] = data[c];
+    //            if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
+    //                wvec[s++] = wc;
+    //            }
+    //            chLightData[0][wc] = lampLightData[c];
+    //            chLightData[1][wc] = sunlightData[c];
+    //        }
+    //    }
+    //}
+    //renderTask->wSize = s;
 
-    //backbottom
-    ch1 = back->bottom;
-    if (ch1 && ch1->isAccessible){
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = CHUNK_SIZE - CHUNK_WIDTH + x - 1;
-            off2 = x;
+    ////top and bottom
+    //ch1 = bottom;
+    //ch2 = top;
+    //if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //            off1 = (z - 1)*CHUNK_WIDTH + x - 1;
+    //            off2 = z*PADDED_WIDTH + x;        
 
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
+    //            //data
+    //            chData[off2] = (ch1->data[CHUNK_SIZE - CHUNK_LAYER + off1]); //bottom
+    //            chLightData[0][off2] = ch1->lampLightData[CHUNK_SIZE - CHUNK_LAYER + off1];
+    //            chLightData[1][off2] = ch1->sunlightData[CHUNK_SIZE - CHUNK_LAYER + off1];
+    //            chData[off2 + PADDED_SIZE - PADDED_LAYER] = (ch2->data[off1]); //top
+    //            chLightData[0][off2 + PADDED_SIZE - PADDED_LAYER] = ch2->lampLightData[off1];
+    //            chLightData[1][off2 + PADDED_SIZE - PADDED_LAYER] = ch2->sunlightData[off1];
+    //        }
+    //    }
+    //}
+    //else{
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //            off1 = (z - 1)*CHUNK_WIDTH + x - 1;
+    //            off2 = z*PADDED_WIDTH + x;
+    //        
+    //            chLightData[0][off2] = 0;
+    //            chLightData[1][off2] = 0;
+    //            chLightData[0][off2 + PADDED_SIZE - PADDED_LAYER] = 0;
+    //            chLightData[1][off2 + PADDED_SIZE - PADDED_LAYER] = 0;
+    //            chData[off2 + PADDED_SIZE - PADDED_LAYER] = 0;
+    //            chData[off2] = 0;
+    //        }
+    //    }
+    //}
+    ////bottomleft
+    //ch1 = bottom->left;
+    //if (ch1 && ch1->isAccessible){
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off2 = z*PADDED_WIDTH;            
 
+    //        chData[off2] = (ch1->data[CHUNK_SIZE - CHUNK_LAYER + off1]); //bottom
+    //        chLightData[0][off2] = ch1->lampLightData[CHUNK_SIZE - CHUNK_LAYER + off1];
+    //        chLightData[1][off2] = ch1->sunlightData[CHUNK_SIZE - CHUNK_LAYER + off1];
+    //    }
 
-    //frontbottom
-    ch1 = front->bottom;
-    if (ch1 && ch1->isAccessible){
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = CHUNK_SIZE - CHUNK_LAYER + x - 1;
-            off2 = PADDED_LAYER - PADDED_WIDTH + x;
-        
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
+    //    //bottomleftback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_SIZE - 1;
+    //        off2 = 0;    
 
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //    //bottomleftfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER + CHUNK_WIDTH - 1;
+    //        off2 = PADDED_LAYER - PADDED_WIDTH;    
 
-    //left and right
-    ch1 = left;
-    ch2 = right;
-    if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            for (z = 1; z < PADDED_WIDTH - 1; z++){
-                off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
-                off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
+    //else{
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        chData[z*PADDED_WIDTH] = 0;
+    //        chLightData[0][z*PADDED_WIDTH] = 0;
+    //        chLightData[1][z*PADDED_WIDTH] = 0;
+    //    }
 
-                chData[off2] = (ch1->data[off1 + CHUNK_WIDTH - 1]); //left
-                chLightData[0][off2] = ch1->lampLightData[off1 + CHUNK_WIDTH - 1];
-                chLightData[1][off2] = ch1->sunlightData[off1 + CHUNK_WIDTH - 1];
-                chData[off2 + PADDED_WIDTH - 1] = (ch2->data[off1]);
-                chLightData[0][off2 + PADDED_WIDTH - 1] = ch2->lampLightData[off1];
-                chLightData[1][off2 + PADDED_WIDTH - 1] = ch2->sunlightData[off1];
-            }
-        }
-    }
-    else{
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            for (z = 1; z < PADDED_WIDTH - 1; z++){
-                off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
-                off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
-            
-                chLightData[0][off2] = 0;
-                chLightData[1][off2] = 0;
-                chLightData[0][off2 + PADDED_WIDTH - 1] = 0;
-                chLightData[1][off2 + PADDED_WIDTH - 1] = 0;
-                chData[off2 + PADDED_WIDTH - 1] = 0;
-                chData[off2] = 0;
-            }
-        }
-    }
+    //    chData[0] = 0;
+    //    chLightData[0][0] = 0;
+    //    chLightData[1][0] = 0;
+    //    chData[PADDED_LAYER - PADDED_WIDTH] = 0;
+    //    chLightData[0][PADDED_LAYER - PADDED_WIDTH] = 0;
+    //    chLightData[1][PADDED_LAYER - PADDED_WIDTH] = 0;
+    //}
 
-    //front and back
-    ch1 = back;
-    ch2 = front;
-    if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            for (x = 1; x < PADDED_WIDTH - 1; x++){
-                off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
-                off2 = x + y*PADDED_LAYER;
-            
-                chData[off2] = (ch1->data[off1 + CHUNK_LAYER - CHUNK_WIDTH]);
-                chLightData[0][off2] = ch1->lampLightData[off1 + CHUNK_LAYER - CHUNK_WIDTH];
-                chLightData[1][off2] = ch1->sunlightData[off1 + CHUNK_LAYER - CHUNK_WIDTH];
-                chData[off2 + PADDED_LAYER - PADDED_WIDTH] = (ch2->data[off1]);
-                chLightData[0][off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->lampLightData[off1];
-                chLightData[1][off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->sunlightData[off1];
-            }
-        }
-    }
-    else{
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            for (x = 1; x < PADDED_WIDTH - 1; x++){
-                off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
-                off2 = x + y*PADDED_LAYER;
-            
-                chLightData[0][off2] = 0;
-                chLightData[1][off2] = 0;
-                chLightData[0][off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
-                chLightData[1][off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
-                chData[off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
-                chData[off2] = 0;
-            }
-        }
-    }
-    //topleft
-    ch1 = top->left;
-    if (ch1 && ch1->isAccessible){
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off1 = z*CHUNK_WIDTH - 1;
-            off2 = z*PADDED_WIDTH + PADDED_SIZE - PADDED_LAYER;
-            
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
+    ////bottomright
+    //ch1 = bottom->right;
+    //if (ch1 && ch1->isAccessible){
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER + (z - 1)*CHUNK_WIDTH;
+    //        off2 = z*PADDED_WIDTH + PADDED_WIDTH - 1;        
 
-        //topleftback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_LAYER - 1;
-            off2 = PADDED_SIZE - PADDED_LAYER;
-        
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-        //topleftfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_WIDTH - 1;
-            off2 = PADDED_SIZE - PADDED_WIDTH;
-        
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
 
-    //topright
-    ch1 = top->right;
-    if (ch1 && ch1->isAccessible){
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off1 = (z - 1)*CHUNK_WIDTH;
-            off2 = (z + 1)*PADDED_WIDTH - 1 + PADDED_SIZE - PADDED_LAYER;
-        
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
+    //    //bottomrightback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_SIZE - CHUNK_WIDTH;
+    //        off2 = PADDED_WIDTH - 1;
 
-        //toprightback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_LAYER - CHUNK_WIDTH;
-            off2 = PADDED_SIZE - PADDED_LAYER + PADDED_WIDTH - 1;
-        
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-        //toprightfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible){
-            off1 = 0;
-            off2 = PADDED_SIZE - 1;
-        
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //    //bottomrightfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER;
+    //        off2 = PADDED_LAYER - 1;
+
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
+
+    ////backbottom
+    //ch1 = back->bottom;
+    //if (ch1 && ch1->isAccessible){
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = CHUNK_SIZE - CHUNK_WIDTH + x - 1;
+    //        off2 = x;
+
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
 
 
-    //backtop
-    ch1 = back->top;
-    if (ch1 && ch1->isAccessible){
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = CHUNK_LAYER - CHUNK_WIDTH + x - 1;
-            off2 = PADDED_SIZE - PADDED_LAYER + x;
-        
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
-    
+    ////frontbottom
+    //ch1 = front->bottom;
+    //if (ch1 && ch1->isAccessible){
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER + x - 1;
+    //        off2 = PADDED_LAYER - PADDED_WIDTH + x;
+    //    
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
 
-    //fronttop
-    ch1 = front->top;
-    if (ch1 && ch1->isAccessible){
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = x - 1;
-            off2 = PADDED_SIZE - PADDED_WIDTH + x;
 
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
+    ////left and right
+    //ch1 = left;
+    //ch2 = right;
+    //if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //            off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+    //            off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
 
-    //leftback
-    ch1 = left->back;
-    if (ch1 && ch1->isAccessible){
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = y*CHUNK_LAYER - 1;
-            off2 = y*PADDED_LAYER;
+    //            chData[off2] = (ch1->data[off1 + CHUNK_WIDTH - 1]); //left
+    //            chLightData[0][off2] = ch1->lampLightData[off1 + CHUNK_WIDTH - 1];
+    //            chLightData[1][off2] = ch1->sunlightData[off1 + CHUNK_WIDTH - 1];
+    //            chData[off2 + PADDED_WIDTH - 1] = (ch2->data[off1]);
+    //            chLightData[0][off2 + PADDED_WIDTH - 1] = ch2->lampLightData[off1];
+    //            chLightData[1][off2 + PADDED_WIDTH - 1] = ch2->sunlightData[off1];
+    //        }
+    //    }
+    //}
+    //else{
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //            off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+    //            off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
+    //        
+    //            chLightData[0][off2] = 0;
+    //            chLightData[1][off2] = 0;
+    //            chLightData[0][off2 + PADDED_WIDTH - 1] = 0;
+    //            chLightData[1][off2 + PADDED_WIDTH - 1] = 0;
+    //            chData[off2 + PADDED_WIDTH - 1] = 0;
+    //            chData[off2] = 0;
+    //        }
+    //    }
+    //}
 
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
-    
-    //rightback
-    ch1 = right->back;
-    if (ch1 && ch1->isAccessible){
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = y*CHUNK_LAYER - CHUNK_WIDTH;
-            off2 = y*PADDED_LAYER + PADDED_WIDTH - 1;
-            
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
+    ////front and back
+    //ch1 = back;
+    //ch2 = front;
+    //if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //            off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
+    //            off2 = x + y*PADDED_LAYER;
+    //        
+    //            chData[off2] = (ch1->data[off1 + CHUNK_LAYER - CHUNK_WIDTH]);
+    //            chLightData[0][off2] = ch1->lampLightData[off1 + CHUNK_LAYER - CHUNK_WIDTH];
+    //            chLightData[1][off2] = ch1->sunlightData[off1 + CHUNK_LAYER - CHUNK_WIDTH];
+    //            chData[off2 + PADDED_LAYER - PADDED_WIDTH] = (ch2->data[off1]);
+    //            chLightData[0][off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->lampLightData[off1];
+    //            chLightData[1][off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->sunlightData[off1];
+    //        }
+    //    }
+    //}
+    //else{
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //            off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
+    //            off2 = x + y*PADDED_LAYER;
+    //        
+    //            chLightData[0][off2] = 0;
+    //            chLightData[1][off2] = 0;
+    //            chLightData[0][off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
+    //            chLightData[1][off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
+    //            chData[off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
+    //            chData[off2] = 0;
+    //        }
+    //    }
+    //}
+    ////topleft
+    //ch1 = top->left;
+    //if (ch1 && ch1->isAccessible){
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off1 = z*CHUNK_WIDTH - 1;
+    //        off2 = z*PADDED_WIDTH + PADDED_SIZE - PADDED_LAYER;
+    //        
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
 
-    //leftfront
-    ch1 = left->front;
-    if (ch1 && ch1->isAccessible){
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = (y - 1)*CHUNK_LAYER + CHUNK_WIDTH - 1;
-            off2 = (y + 1)*PADDED_LAYER - PADDED_WIDTH;
-            
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
+    //    //topleftback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_LAYER - 1;
+    //        off2 = PADDED_SIZE - PADDED_LAYER;
+    //    
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //    //topleftfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_WIDTH - 1;
+    //        off2 = PADDED_SIZE - PADDED_WIDTH;
+    //    
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
 
-    //rightfront
-    ch1 = right->front;
-    if (ch1 && ch1->isAccessible){
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = (y - 1)*CHUNK_LAYER;
-            off2 = (y + 1)*PADDED_LAYER - 1;
+    ////topright
+    //ch1 = top->right;
+    //if (ch1 && ch1->isAccessible){
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off1 = (z - 1)*CHUNK_WIDTH;
+    //        off2 = (z + 1)*PADDED_WIDTH - 1 + PADDED_SIZE - PADDED_LAYER;
+    //    
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
 
-            chData[off2] = (ch1->data[off1]);
-            chLightData[0][off2] = ch1->lampLightData[off1];
-            chLightData[1][off2] = ch1->sunlightData[off1];
-        }
-    }
-}
+    //    //toprightback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_LAYER - CHUNK_WIDTH;
+    //        off2 = PADDED_SIZE - PADDED_LAYER + PADDED_WIDTH - 1;
+    //    
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //    //toprightfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = 0;
+    //        off2 = PADDED_SIZE - 1;
+    //    
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
 
-GLushort Chunk::getBlockData(int c) const { 
-    return data[c]; 
-}
 
-int Chunk::getBlockID(int c) const {
-    return data[c] & 0xFFF;
-}
+    ////backtop
+    //ch1 = back->top;
+    //if (ch1 && ch1->isAccessible){
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = CHUNK_LAYER - CHUNK_WIDTH + x - 1;
+    //        off2 = PADDED_SIZE - PADDED_LAYER + x;
+    //    
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
+    //
 
-const Block& Chunk::getBlock(int c) const {
-    return Blocks[data[c] & 0xFFF];
+    ////fronttop
+    //ch1 = front->top;
+    //if (ch1 && ch1->isAccessible){
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = x - 1;
+    //        off2 = PADDED_SIZE - PADDED_WIDTH + x;
+
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
+
+    ////leftback
+    //ch1 = left->back;
+    //if (ch1 && ch1->isAccessible){
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = y*CHUNK_LAYER - 1;
+    //        off2 = y*PADDED_LAYER;
+
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
+    //
+    ////rightback
+    //ch1 = right->back;
+    //if (ch1 && ch1->isAccessible){
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = y*CHUNK_LAYER - CHUNK_WIDTH;
+    //        off2 = y*PADDED_LAYER + PADDED_WIDTH - 1;
+    //        
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
+
+    ////leftfront
+    //ch1 = left->front;
+    //if (ch1 && ch1->isAccessible){
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = (y - 1)*CHUNK_LAYER + CHUNK_WIDTH - 1;
+    //        off2 = (y + 1)*PADDED_LAYER - PADDED_WIDTH;
+    //        
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
+
+    ////rightfront
+    //ch1 = right->front;
+    //if (ch1 && ch1->isAccessible){
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = (y - 1)*CHUNK_LAYER;
+    //        off2 = (y + 1)*PADDED_LAYER - 1;
+
+    //        chData[off2] = (ch1->data[off1]);
+    //        chLightData[0][off2] = ch1->lampLightData[off1];
+    //        chLightData[1][off2] = ch1->sunlightData[off1];
+    //    }
+    //}
 }
 
 int Chunk::getRainfall(int xz) const {
@@ -642,12 +668,4 @@ int Chunk::getRainfall(int xz) const {
 
 int Chunk::getTemperature(int xz) const {
     return (int)temperatures[xz];
-}
-
-void Chunk::setBlockID(int c, int val) {
-    data[c] = (data[c] & 0xF000) | val;
-}
-
-void Chunk::setBlockData(int c, GLushort val) {
-    data[c] = val;
 }

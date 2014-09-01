@@ -1,9 +1,10 @@
+#include "stdafx.h"
 #include <map>
 
 template <typename T>
 class IntervalTree {
 public:
-    
+
     struct Node {
         Node(T Data, ui16 Length) : data(Data), length(Length) {}
         T data;
@@ -11,10 +12,10 @@ public:
     };
 
     inline void clear() {
-        std::map <ui16, Node>().swap(_tree);
+        std::map<ui16, Node>().swap(_tree);
     }
 
-    inline std::map <ui16, Node>::iterator getInterval(ui16 index) {
+    inline std::map<ui16, Node>::iterator getInterval(ui16 index) const {
         auto it = _tree.lower_bound(index);
         if (it->first != index) {
             return it--;
@@ -22,8 +23,11 @@ public:
         return it;
     }
 
+    inline std::map<ui16, Node>::iterator insert(std::pair<ui16, Node> pair) {
+        return _tree.insert(pair);
+    }
 
-    inline std::map <ui16, Node>::iterator insert(ui16 index, T data) {
+    std::map<ui16, Node>::iterator insert(ui16 index, T data) {
         //Find containing interval
         auto it = _tree.lower_bound(index);
         if (it->first != index) {
@@ -56,6 +60,11 @@ public:
                 //Insert new interval
                 return _tree.insert(make_pair(index, Node(data, 1)));
             }
+        } else if (index == it->first) { //if its at the beginning of the interval
+            //Insert right interval
+            _tree.insert(make_pair(index + 1, Node(it->second.data, it->second.length - 1)));
+            _tree.erase(it);
+            _tree.insert(make_pair(index, Node(data, 1)));
         } else { //else its in the middle of the interval
             //Insert right interval
             _tree.insert(make_pair(index + 1, Node(it->second.data, it->second.length - (index - it->first) - 1)));
@@ -67,8 +76,8 @@ public:
         return _tree.end();
     }
 
-    inline std::map <ui16, Node>::iterator begin() { return _tree.begin(); }
-    inline std::map <ui16, Node>::iterator end() { return _tree.end(); }
+    inline std::map<ui16, Node>::iterator begin() const { return _tree.begin(); }
+    inline std::map<ui16, Node>::iterator end() const { return _tree.end(); }
 
 private:
     std::map <ui16, Node> _tree;
