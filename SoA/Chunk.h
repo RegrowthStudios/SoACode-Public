@@ -5,6 +5,7 @@
 
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
+#include "IntervalTree.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
 #include "VoxelLightEngine.h"
@@ -160,10 +161,13 @@ private:
     moodycamel::ReaderWriterQueue<ui32> lightFromMain; */
 
     //The data that defines the voxels
-    ui16 data[CHUNK_SIZE]; 
-    ui8 sunlightData[CHUNK_SIZE];
+    IntervalTree<ui16> dataTree;
+    IntervalTree<ui8> sunlightTree;
+    IntervalTree<ui8> lampLightTree;
+ //   ui16 data[CHUNK_SIZE]; 
+ //   ui8 sunlightData[CHUNK_SIZE];
     //Voxel light data is only allocated when needed
-    ui8 lampLightData[CHUNK_SIZE];
+ //   ui8 lampLightData[CHUNK_SIZE];
 
     ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
     ui8 temperatures[CHUNK_LAYER];

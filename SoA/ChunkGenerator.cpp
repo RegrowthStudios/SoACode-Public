@@ -4,6 +4,7 @@
 #include "ChunkGenerator.h"
 #include "Chunk.h"
 #include "WorldStructs.h"
+#include "IntervalTree.h"
 #include "TerrainGenerator.h"
 #include "Planet.h"
 #include "GameManager.h"
@@ -28,9 +29,13 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     int rainfall;
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
-    ui16* data = chunk->data;
-    ui8* lightData = chunk->lampLightData;
-    ui8* sunLightData = chunk->sunlightData;
+    std::map <ui16, IntervalTree<ui16>::Node>::iterator dataIt;
+    std::map <ui8, IntervalTree<ui8>::Node>::iterator lampIt;
+    std::map <ui8, IntervalTree<ui8>::Node>::iterator sunIt;
+
+  //  ui16* data = chunk->data;
+ //   ui8* lightData = chunk->lampLightData;
+  //  ui8* sunLightData = chunk->sunlightData;
 
     chunk->neighbors = 0;
 
