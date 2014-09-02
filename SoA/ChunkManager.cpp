@@ -504,6 +504,8 @@ i32 ticksArrayIndex = 0;
 i32 ticksArray[10];
 
 void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
+
+   
     static f64v3 oldPosition = position;
 
     float dPos = glm::length(position - oldPosition);

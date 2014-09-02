@@ -10,6 +10,8 @@
 #include "Shader.h"
 #include "Texture2d.h"
 
+MultiplePreciseTimer globalMultiplePreciseTimer;
+
 string saveFilePath;
 class Item *ObjectList[OBJECT_LIST_SIZE];
 
