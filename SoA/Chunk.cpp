@@ -243,6 +243,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     int c = 0;
 
     i32v3 pos;
+    assert(renderTask->chunk != nullptr);
 
     ui16* wvec = renderTask->wvec;
     ui16* chData = renderTask->chData;
@@ -254,23 +255,32 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     memcpy(renderTask->rainfalls, rainfalls, sizeof(rainfalls));
     memcpy(renderTask->depthMap, depthMap, sizeof(depthMap));
 
+    assert(renderTask->chunk != nullptr);
+
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
-
+    int s = 0;
     //block data
     for (auto it = _dataTree.begin(); it != _dataTree.end(); it++) {
         for (int i = 0; i < it->second.length; i++, c++) {
 
+            assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
+
             wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-            
+            if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
+                wvec[s++] = wc;
+            }
             chData[wc] = it->second.data;
         }
     }
+    renderTask->wSize = s;
     //lamp data
+    c = 0;
     for (auto it = _lampLightTree.begin(); it != _lampLightTree.end(); it++) {
         for (int i = 0; i < it->second.length; i++, c++) {
 
+            assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
             wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
@@ -278,15 +288,19 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
         }
     }
     //sunlight data
+    c = 0;
     for (auto it = _sunlightTree.begin(); it != _sunlightTree.end(); it++) {
         for (int i = 0; i < it->second.length; i++, c++) {
 
+            assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
             wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
             chLightData[1][wc] = it->second.data;
         }
     }
+
+    assert(renderTask->chunk != nullptr);
     //int s = 0;
     //for (y = 0; y < CHUNK_WIDTH; y++){
     //    for (z = 0; z < CHUNK_WIDTH; z++){

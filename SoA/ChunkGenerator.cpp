@@ -29,9 +29,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     int rainfall;
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
-    std::map<ui16, IntervalTree<ui16>::Node>::iterator dataIt;
-    std::map<ui16, IntervalTree<ui8>::Node>::iterator lampIt;
-    std::map<ui16, IntervalTree<ui8>::Node>::iterator sunIt;
+    std::map<ui16, IntervalTree<ui16>::Node>::iterator dataIt = chunk->_dataTree.end();
+    std::map<ui16, IntervalTree<ui8>::Node>::iterator lampIt = chunk->_lampLightTree.end();
+    std::map<ui16, IntervalTree<ui8>::Node>::iterator sunIt = chunk->_sunlightTree.end();
 
   //  ui16* data = chunk->data;
  //   ui8* lightData = chunk->lampLightData;
@@ -67,6 +67,8 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 
                 data = 0;
                 sunlightData = 0;
+                lampData = 0;
+
                 snowDepth = heightMap[hindex].snowDepth;
                 sandDepth = heightMap[hindex].sandDepth;
                 maph = heightMap[hindex].height;
@@ -211,6 +213,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     lampIt = chunk->_lampLightTree.insert(std::make_pair(0, IntervalTree<ui8>::Node(lampData, 1)));
                     sunIt = chunk->_sunlightTree.insert(std::make_pair(0, IntervalTree<ui8>::Node(sunlightData, 1)));
                 } else {
+                    assert(dataIt != chunk->_dataTree.end());
+                    assert(lampIt != chunk->_lampLightTree.end());
+                    assert(sunIt != chunk->_sunlightTree.end());
                     if (data == dataIt->second.data) {
                         dataIt->second.length++;
                     } else {
@@ -297,7 +302,7 @@ void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
     int r;
     int x, y, z;
     for (int i = 0; i < size; i++){
-        if (Blocks[GETBLOCKTYPE(chunk->getBlockID(c))].material == M_STONE){
+        if (chunk->getBlock(c).material == M_STONE){
             chunk->setBlockData(c, btype);
         }
         x = c % CHUNK_WIDTH;

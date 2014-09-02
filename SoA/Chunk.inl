@@ -323,7 +323,7 @@ inline void Chunk::getTopLightData(int c, GLbyte &l, GLbyte &sl)
 
 inline int Chunk::getSunlight(int c) const {
    // return sunlightData[c] & 0x1F;
-    return _sunlightTree.getInterval(c)->second.data;
+    return _sunlightTree.getData(c);
 }
 
 inline ui16 Chunk::getLampLight(int c) const {
@@ -333,7 +333,7 @@ inline ui16 Chunk::getLampLight(int c) const {
    //     return 0;
    // }
 
-    return _lampLightTree.getInterval(c)->second.data;
+    return _lampLightTree.getData(c);
 }
 
 
@@ -362,12 +362,12 @@ inline void Chunk::setBlockData(int c, GLushort val) {
 
 inline GLushort Chunk::getBlockData(int c) const {
   //  return data[c];
-    return _dataTree.getInterval(c)->second.data;
+    return _dataTree.getData(c);
 }
 
 inline int Chunk::getBlockID(int c) const {
   //  return data[c] & 0xFFF;
-    return _dataTree.getInterval(c)->second.data;
+    return _dataTree.getData(c);
 }
 
 inline const Block& Chunk::getBlock(int c) const {

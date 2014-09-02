@@ -703,6 +703,7 @@ void ChunkManager::uploadFinishedMeshes() {
     taskQueueManager.frLock.lock();
     for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) {
         _finishedChunkMeshes.push(taskQueueManager.finishedChunkMeshes[i]);
+        assert(taskQueueManager.finishedChunkMeshes[i]->chunk != nullptr);
         taskQueueManager.finishedChunkMeshes[i]->chunk->inFinishedMeshes = 0;
     }
     taskQueueManager.finishedChunkMeshes.clear();

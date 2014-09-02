@@ -165,9 +165,9 @@ void ChunkIOManager::readWriteChunks()
                 chunksToLoad.pop();
                 queueLock.unlock();
 
-                if (_regionFileManager.tryLoadChunk(ch) == false) {
+             //   if (_regionFileManager.tryLoadChunk(ch) == false) {
                     ch->loadStatus = 1;
-                }
+             //   }
 
                 flcLock.lock();
                 finishedLoadChunks.push_back(ch);
@@ -179,7 +179,7 @@ void ChunkIOManager::readWriteChunks()
                 ch = chunksToSave.front();
                 queueLock.unlock();
 
-                _regionFileManager.saveChunk(ch);
+          //      _regionFileManager.saveChunk(ch);
             
                 queueLock.lock();
                 chunksToSave.pop();

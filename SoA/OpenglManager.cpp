@@ -1821,7 +1821,6 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
                 mapBufferData(cm->vboID, cmd->vertices.size() * sizeof(BlockVertex), &(cmd->vertices[0]), GL_STATIC_DRAW);
 
                 ChunkRenderer::bindVao(cm);
-                cout << "BOUND IT\n";
             } else {
                 if (cm->vboID != 0){
                     glDeleteBuffers(1, &(cm->vboID));
