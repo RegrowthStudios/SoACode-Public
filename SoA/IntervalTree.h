@@ -50,12 +50,6 @@ public:
         }
     }
 
-    inline typename std::map<ui16, Node>::iterator insert(std::pair<ui16, Node> pair) {
-        auto npair = _tree.insert(pair);
-        assert(npair.second == true);
-        return npair.first;
-    }
-
     void insert(ui16 index, T data) {
         int newIndex = treeInsert(index, data);
         if (newIndex == -1) return;
@@ -109,9 +103,6 @@ public:
             return;
         }
     }
-    
-    inline typename std::map<ui16, Node>::iterator begin() { return _tree.begin(); }
-    inline typename std::map<ui16, Node>::iterator end() { return _tree.end(); }
     
 private:
 
