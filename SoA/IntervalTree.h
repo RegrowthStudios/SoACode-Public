@@ -103,6 +103,9 @@ public:
             return;
         }
     }
+
+    Node& operator[](int index) { return _tree[index]; }
+    int size() const { return _tree.size(); }
     
 private:
 
@@ -260,5 +263,5 @@ private:
     }
 
     int _root;
-    typename std::vector <Node> _tree;
+    std::vector <Node> _tree;
 };
