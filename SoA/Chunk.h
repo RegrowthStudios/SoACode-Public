@@ -73,7 +73,7 @@ public:
 
     void SetupMeshData(RenderTask *renderTask);
 
-    Chunk(){
+    Chunk() : _data(nullptr), _sunlightData(nullptr), _lampLightData(nullptr){
     }
     ~Chunk(){
         clearBuffers();
@@ -164,10 +164,10 @@ private:
     IntervalTree<ui16> _dataTree;
     IntervalTree<ui8> _sunlightTree;
     IntervalTree<ui8> _lampLightTree;
- //   ui16 data[CHUNK_SIZE]; 
- //   ui8 sunlightData[CHUNK_SIZE];
+    ui16 *_data; 
+    ui8 *_sunlightData;
     //Voxel light data is only allocated when needed
- //   ui8 lampLightData[CHUNK_SIZE];
+    ui8 *_lampLightData;
 
     ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
     ui8 temperatures[CHUNK_LAYER];

@@ -323,7 +323,11 @@ inline void Chunk::getTopLightData(int c, GLbyte &l, GLbyte &sl)
 
 inline int Chunk::getSunlight(int c) const {
    // return sunlightData[c] & 0x1F;
+#ifdef USEARRAYS
+    return _sunlightData[c];
+#else
     return _sunlightTree.getData(c);
+#endif
 }
 
 inline ui16 Chunk::getLampLight(int c) const {
@@ -333,13 +337,21 @@ inline ui16 Chunk::getLampLight(int c) const {
    //     return 0;
    // }
 
+#ifdef USEARRAYS
+    return _lampLightData[c];
+#else
     return _lampLightTree.getData(c);
+#endif
 }
 
 
 inline void Chunk::setSunlight(int c, int val) {
     //sunlightData[c] = (sunlightData[c] & 0xE0) | val;
+#ifdef USEARRAYS
+    _sunlightData[c] = val;
+#else
     _sunlightTree.insert(c, val);
+#endif
 }
 
 inline void Chunk::setLampLight(int c, int val) {
@@ -347,27 +359,47 @@ inline void Chunk::setLampLight(int c, int val) {
   //      lampLightData = new ui16[CHUNK_SIZE];
   //  }
    // lampLightData[c] = val;
+#ifdef USEARRAYS
+    _lampLightData[c] = val;
+#else
     _lampLightTree.insert(c, val);
+#endif
 }
 
 inline void Chunk::setBlockID(int c, int val) {
  //   data[c] = (data[c] & 0xF000) | val;
+#ifdef USEARRAYS
+    _data[c] = val;
+#else
     _dataTree.insert(c, val);
+#endif
 }
 
 inline void Chunk::setBlockData(int c, GLushort val) {
  //   data[c] = val;
+#ifdef USEARRAYS
+    _data[c] = val;
+#else
     _dataTree.insert(c, val);
+#endif
 }
 
 inline GLushort Chunk::getBlockData(int c) const {
   //  return data[c];
+#ifdef USEARRAYS
+    return _data[c];
+#else
     return _dataTree.getData(c);
+#endif
 }
 
 inline int Chunk::getBlockID(int c) const {
   //  return data[c] & 0xFFF;
+#ifdef USEARRAYS
+    return _data[c];
+#else
     return _dataTree.getData(c);
+#endif
 }
 
 inline const Block& Chunk::getBlock(int c) const {

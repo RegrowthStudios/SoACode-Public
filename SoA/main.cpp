@@ -182,11 +182,7 @@ void gameLoop() {
             case GameStates::PLAY:
                 inGame = 1;
 
-                st = SDL_GetTicks();
                 GameManager::update(0.0, player->gridPosition, NULL);
-                if (SDL_GetTicks() - st > 100) {
-                    cout << "Ticks " << SDL_GetTicks() - st << "\n";
-                }
                 break;
             case GameStates::MAINMENU:
                 inGame = 0;
