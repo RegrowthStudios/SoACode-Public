@@ -455,7 +455,7 @@
     <ClInclude Include="ChunkMesh.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="IntervalTree.h">
+    <ClInclude Include="VoxelIntervalTree.h">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
   </ItemGroup>
@@ -737,6 +737,9 @@
     <ClCompile Include="ChunkMesh.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
+    <ClCompile Include="VoxelIntervalTree.cpp">
+      <Filter>SOA Files\Ext\ADT</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -760,6 +763,9 @@
   <ItemGroup>
     <None Include="Chunk.inl">
       <Filter>SOA Files\Voxel</Filter>
+    </None>
+    <None Include="VoxelIntervalTree.inl">
+      <Filter>SOA Files\Ext\ADT</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@
 
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
-#include "IntervalTree.h"
+#include "VoxelIntervalTree.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
 #include "VoxelLightEngine.h"
