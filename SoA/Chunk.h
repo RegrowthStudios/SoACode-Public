@@ -161,9 +161,9 @@ private:
     moodycamel::ReaderWriterQueue<ui32> lightFromMain; */
 
     //The data that defines the voxels
-    IntervalTree<ui16> _dataTree;
-    IntervalTree<ui8> _sunlightTree;
-    IntervalTree<ui8> _lampLightTree;
+    VoxelIntervalTree<ui16> _dataTree;
+    VoxelIntervalTree<ui8> _sunlightTree;
+    VoxelIntervalTree<ui8> _lampLightTree;
     ui16 *_data; 
     ui8 *_sunlightData;
     //Voxel light data is only allocated when needed

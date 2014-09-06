@@ -2,23 +2,23 @@
 #include "VoxelIntervalTree.h"
 
 template <typename T>
-inline void VoxelIntervalTree::clear() {
+void VoxelIntervalTree<typename T>::clear() {
     std::vector<Node>().swap(_tree);
     _root = 0;
-    _tree.push_back(Node(0, MAGIC_NUMBER_01));
+    _tree.push_back(Node(0, CHUNK_SIZE));
 }
 
 template <typename T>
-inline T VoxelIntervalTree::getData(ui16 index) const {
+inline T VoxelIntervalTree<typename T>::getData(ui16 index) const {
     return _tree[getInterval(index)].data;
 }
 
 //Get the enclosing interval for a given point
 template <typename T>
-inline i16 VoxelIntervalTree::getInterval(ui16 index) const {
+inline i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
     int interval = _root;
     while (true) {
-        Node& node = _tree[interval];
+        const Node& node = _tree[interval];
         if (index < node.start) { //check for go left
             interval = node.left;
         } else if (index < node.start + node.length) { //check for at interval
@@ -30,7 +30,7 @@ inline i16 VoxelIntervalTree::getInterval(ui16 index) const {
 }
 
 template <typename T>
-inline int treeInsert(int index, T data) {
+inline bool VoxelIntervalTree<typename T>::treeInsert(int index, T data, int &newIndex) {
     int interval = _root;
     while (true) {
         Node& node = _tree[interval];
@@ -39,16 +39,19 @@ inline int treeInsert(int index, T data) {
             if (node.left == -1) {
                 //We are currently in node.parent's interval, check if data is the same
                 if (node.parent != -1 && _tree[node.parent].data == data) { //if the data is the same, nothing happens
-                    return -1;
+                    newIndex = node.parent;
+                    return false;
                 } else if (index == node.start - 1 && data == node.data) {
                     --node.start;
                     ++node.length;
-                    return -1;
+                    newIndex = interval;
+                    return false;
                 }
                 node.left = _tree.size();
-                _tree.insert(Node(data, 1));
+                _tree.push_back(Node(data, 1));
                 _tree.back().parent = node.left;
-                return node.right;
+                newIndex = node.right;
+                return true;
             }
             interval = node.left;
         } else if (index > node.start) { //go right
@@ -56,21 +59,25 @@ inline int treeInsert(int index, T data) {
             if (node.right == -1) {
                 //We are currently in node's interval, check if data is the same.
                 if (node.data == data) { //if data is the same, nothing happens
-                    return -1;
+                    newIndex = interval;
+                    return false;
                 }
                 node.right = _tree.size();
-                _tree.insert(Node(data, 1));
+                _tree.push_back(Node(data, 1));
                 _tree.back().parent = node.right;
-                return node.right;
+                newIndex = node.right;
+                return true;
             }
             interval = node.right;
         } else { //we are at the start of a current interval
             if (node.data == data) { //do nothing if data is the same
-                return -1;
+                newIndex = interval;
+                return false;
             }
             if ((node.length & LENGTH_MASK) == 1) { //if we are replacing a single block, just change the data
                 node.data = data;
-                return -1;
+                newIndex = interval;
+                return false;
             }
             //move the interval over to make room for the new node
             ++node.start;
@@ -78,15 +85,17 @@ inline int treeInsert(int index, T data) {
             //We are in node.parent's interval, so check to see if we are the same data
             if (node.parent != -1 && _tree[node.parent].data == data) {
                 ++(_tree[node.parent].length); //increase the length by 1 and return
-                return -1;
+                newIndex = node.parent;
+                return false;
             }
 
             //Check for if we are at root
             if (node.left == -1) {
                 node.left = _tree.size();
-                _tree.insert(Node(data, 1));
+                _tree.push_back(Node(data, 1));
                 _tree.back().parent = node.left;
-                return node.left;
+                newIndex = node.left;
+                return true;
             }
             //If we get here, then we must continue along to the left to do the proper insertion
             interval = node.left;
@@ -95,7 +104,7 @@ inline int treeInsert(int index, T data) {
 }
 
 template <typename T>
-inline int getGrandparent(Node& node)
+inline int VoxelIntervalTree<typename T>::getGrandparent(Node& node)
 {
     if (node.parent != -1) {
         return _tree[node.parent].parent;
@@ -105,24 +114,25 @@ inline int getGrandparent(Node& node)
 }
 
 template <typename T>
-inline int getUncle(Node& node, Node* grandParent)
+inline int VoxelIntervalTree<typename T>::getUncle(Node& node, Node** grandParent)
 {
-    int grandparentIndex = grandparent(node);
+    int grandparentIndex = getGrandparent(node);
     if (grandparentIndex == -1) {
         return -1; // No grandparent means no uncle
     }
 
-    grandParent = &_tree[grandparentIndex];
+    Node* g = &_tree[grandparentIndex];
+    *grandParent = g;
 
-    if (node.parent == grandParent->left) {
-        return grandParent->right;
+    if (node.parent == g->left) {
+        return g->right;
     } else {
-        return grandParent->left;
+        return g->left;
     }
 }
 
 template <typename T>
-inline void rotateParentRight(int index, Node* grandParent) {
+inline void VoxelIntervalTree<typename T>::rotateParentRight(int index, Node* grandParent) {
     Node& node = _tree[index];
     i16 parent = node.parent, left = node.left;
 
@@ -132,7 +142,7 @@ inline void rotateParentRight(int index, Node* grandParent) {
 }
 
 template <typename T>
-inline void rotateParentLeft(int index, Node* grandParent) {
+inline void VoxelIntervalTree<typename T>::rotateParentLeft(int index, Node* grandParent) {
     Node& node = _tree[index];
     i16 parent = node.parent, right = node.right;
 
@@ -142,7 +152,7 @@ inline void rotateParentLeft(int index, Node* grandParent) {
 }
 
 template <typename T>
-inline void rotateRight(int index) {
+inline void VoxelIntervalTree<typename T>::rotateRight(int index) {
 
     Node& node = _tree[index];
     Node& left = _tree[node.left];
@@ -161,7 +171,7 @@ inline void rotateRight(int index) {
 }
 
 template <typename T>
-inline void rotateLeft(int index) {
+inline void VoxelIntervalTree<typename T>::rotateLeft(int index) {
 
     Node& node = _tree[index];
     Node& right = _tree[node.right];
@@ -177,4 +187,59 @@ inline void rotateLeft(int index) {
     }
     node.right = left;
     _tree[left].parent = index;
+}
+
+template <typename T>
+typename VoxelIntervalTree<typename T>::Node& VoxelIntervalTree<typename T>::insert(ui16 index, T data) {
+    int newIndex;
+    if (!treeInsert(index, data, newIndex)) return _tree[newIndex];
+
+    Node* grandparent;
+
+    //Balance the tree
+    while (true) {
+        Node& node = _tree[newIndex];
+
+        //Case 1: Current node is root
+        if (node.parent == -1) paintBlack(node);
+
+        //Case 2: Parent is black.
+        if ((_tree[node.parent].length & COLOR_BIT) == 0) return node;
+
+        //Case 3: Both parent and uncle are red
+        int uncleIndex = getUncle(node, &grandparent);
+        if (uncleIndex != -1) {
+            Node& uncle = _tree[uncleIndex];
+            if (isRed(uncle)) {
+                paintBlack(node.parent);
+                paintBlack(uncle);
+                paintRed(grandparent);
+                newIndex = uncle.parent; //now we operate on the grandparent and start over
+                continue;
+            }
+        }
+
+        //Case 4: Parent is red, uncle is black.
+        if (newIndex == _tree[node.parent].right && node.parent == grandparent->left) {
+            rotateParentLeft(newIndex, grandparent);
+            newIndex = node.left;
+            node = _tree[newIndex];
+            grandparent = &_tree[_tree[node.parent].parent];
+        } else if (newIndex == _tree[node.parent].left && node.parent == grandparent->right) {
+            rotateParentRight(newIndex, grandparent);
+            newIndex = node.right;
+            node = _tree[newIndex];
+            grandparent = &_tree[_tree[node.parent].parent];
+        }
+
+        //Case 5 Parent is red, Uncle is black.
+        paintBlack(node.parent);
+        paintRed(grandparent);
+        if (newIndex == _tree[node.parent].left) {
+            rotateRight(_tree[node.parent].parent);
+        } else {
+            rotateLeft(_tree[node.parent].parent);
+        }
+        return node;
+    }
 }

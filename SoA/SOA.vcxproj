@@ -290,7 +290,6 @@
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="Timing.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
-    <ClCompile Include="VoxelIntervalTree.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VRayHelper.cpp" />

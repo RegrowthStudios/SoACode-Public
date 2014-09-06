@@ -115,7 +115,6 @@ void Chunk::clear(bool clearDraw)
     vector<ui16>().swap(sunRemovalList);
     vector<ui16>().swap(sunExtendList);
 
-    _dataTree.clear();
     _lampLightTree.clear();
     _sunlightTree.clear();
 
@@ -279,8 +278,8 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     int s = 0;
     //block data
     for (int i = 0; i < _dataTree.size(); i++) {
-        for (int j = 0; j < _dataTree[i].length; j++, c++) {
-
+        for (int j = 0; j < _dataTree[i].length; j++) {
+            c = _dataTree[i].start + j;
             assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
 
@@ -295,7 +294,8 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     //lamp data
     c = 0;
     for (int i = 0; i < _lampLightTree.size(); i++) {
-        for (int j = 0; j < _lampLightTree[i].length; j++, c++) {
+        for (int j = 0; j < _lampLightTree[i].length; j++) {
+            c = _lampLightTree[i].start + j;
 
             assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
@@ -307,7 +307,8 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     //sunlight data
     c = 0;
     for (int i = 0; i < _sunlightTree.size(); i++) {
-        for (int j = 0; j < _sunlightTree[i].length; j++, c++) {
+        for (int j = 0; j < _sunlightTree[i].length; j++) {
+            c = _sunlightTree[i].start + j;
 
             assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);

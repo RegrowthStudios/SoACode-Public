@@ -1,5 +1,4 @@
 #pragma once
-#include "types.h"
 #include <map>
 #include <vector>
 
@@ -11,9 +10,7 @@ template <typename T>
 class VoxelIntervalTree {
 public:
 
-    IntervalTree() : _root(0) {
-
-    }
+    VoxelIntervalTree() : _root(0) {}
 
 #define COLOR_BIT 0x8000
 #define LENGTH_MASK 0x7FFF
@@ -27,26 +24,24 @@ public:
         T data;
     };
 
-    inline void clear();
+    void clear();
 
-    inline T getData(ui16 index) const;
+    T getData(ui16 index) const;
     //Get the enclosing interval for a given point
-    inline i16 getInterval(ui16 index) const;
+    i16 getInterval(ui16 index) const;
 
-    void insert(ui16 index, T data);
+    Node& insert(ui16 index, T data);
 
     inline Node& operator[](int index) { return _tree[index]; }
     inline int size() const { return _tree.size(); }
 
 private:
 
-    int treeInsert(int index, T data);
+    bool treeInsert(int index, T data, int &newIndex);
 
     int getGrandparent(Node& node);
 
-    int getUncle(Node& node, Node* grandParent);
-
-    void paintRed(Node* node);
+    int getUncle(Node& node, Node** grandParent);
 
     inline void paintRed(Node* node) { node->length |= COLOR_BIT; }
 

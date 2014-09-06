@@ -4,7 +4,7 @@
 #include "ChunkGenerator.h"
 #include "Chunk.h"
 #include "WorldStructs.h"
-#include "IntervalTree.h"
+#include "VoxelIntervalTree.h"
 #include "TerrainGenerator.h"
 #include "Planet.h"
 #include "GameManager.h"
@@ -30,9 +30,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
 #ifndef USEARRAYS
-    IntervalTree<ui16>::Node* dataNode(nullptr);
-    IntervalTree<ui8>::Node* lampNode(nullptr);
-    IntervalTree<ui8>::Node* sunNode(nullptr);
+    VoxelIntervalTree<ui16>::Node* dataNode(nullptr);
+    VoxelIntervalTree<ui8>::Node* lampNode(nullptr);
+    VoxelIntervalTree<ui8>::Node* sunNode(nullptr);
 #else
     ui16* _data = chunk->_data;
     ui8* _lampLightData = chunk->_lampLightData;
@@ -216,27 +216,27 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 #else
                 //modify the data
                 if (c == 0) {
-            //        dataNode = chunk->_dataTree.insert(std::make_pair(0, IntervalTree<ui16>::Node(data, 1)));
-           //         lampNode = chunk->_lampLightTree.insert(std::make_pair(0, IntervalTree<ui8>::Node(lampData, 1)));
-          //          sunNode = chunk->_sunlightTree.insert(std::make_pair(0, IntervalTree<ui8>::Node(sunlightData, 1)));
+                    dataNode = &chunk->_dataTree.insert(0, data);
+                    lampNode = &chunk->_lampLightTree.insert(0, lampData);
+                    sunNode = &chunk->_sunlightTree.insert(0, sunlightData);
                 } else {
-                    assert(dataNode != -1);
-                    assert(lampNode != -1);
-                    assert(sunNode != -1);
+                    assert(dataNode != nullptr);
+                    assert(lampNode != nullptr);
+                    assert(sunNode != nullptr);
                     if (data == dataNode->data) {
                         dataNode->length++;
                     } else {
-                  //      dataNode = chunk->_dataTree.insert(std::make_pair(c, IntervalTree<ui16>::Node(data, 1)));
+                        dataNode = &chunk->_dataTree.insert(c, data);
                     }
                     if (lampData == lampNode->data) {
                         lampNode->length++;
                     } else {
-                 //       lampNode = chunk->_lampLightTree.insert(std::make_pair(c, IntervalTree<ui8>::Node(lampData, 1)));
+                        lampNode = &chunk->_lampLightTree.insert(c, lampData);
                     }
                     if (sunlightData == sunNode->data) {
                         sunNode->length++;
                     } else {
-                  //      sunNode = chunk->_sunlightTree.insert(std::make_pair(c, IntervalTree<ui8>::Node(sunlightData, 1)));
+                        sunNode = &chunk->_sunlightTree.insert(c, sunlightData);
                     }
                 }
 #endif
@@ -251,9 +251,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 _data[c++] = NONE;
             } 
 #else
-    //        chunk->_dataTree.insert(std::make_pair(c, IntervalTree<ui16>::Node(0, CHUNK_SIZE - c)));
-    //        chunk->_lampLightTree.insert(std::make_pair(c, IntervalTree<ui8>::Node(0, CHUNK_SIZE - c)));
-    //        chunk->_sunlightTree.insert(std::make_pair(c, IntervalTree<ui8>::Node(MAXLIGHT, CHUNK_SIZE - c))); 
+            dataNode = &chunk->_dataTree.insert(c, CHUNK_SIZE - c);
+            lampNode = &chunk->_lampLightTree.insert(c, CHUNK_SIZE - c);
+            sunNode = &chunk->_sunlightTree.insert(c, MAXLIGHT);
 #endif
             break;
         }

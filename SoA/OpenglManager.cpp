@@ -750,6 +750,10 @@ void Initialize_SDL_OpenGL()
     printf("\n***        Opengl Version: %s\n", glGetString(GL_VERSION));
     printf("\n***       CPU Threads: %u\n", thread::hardware_concurrency());
 
+    GLint max_layers;
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
+    printf("\n***       Max Texture ARray Layers: %d\n", max_layers);
+
     if (vmajor < 3){// || (vminor == 3 && vminor < 3)){
         char buffer[2048];
         sprintf(buffer, "Your graphics card driver does not support at least OpenGL 3.3. Your OpenGL version is \"%s\". The game will most likely not work.\n\nEither your graphics card drivers are not up to date, or your computer is using an integrated graphics card instead of your gaming card.\nYou should be able to switch to your main graphics card by right clicking your desktop and going to graphics properties.", glGetString(GL_VERSION));
