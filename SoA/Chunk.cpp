@@ -100,6 +100,10 @@ void Chunk::clear(bool clearDraw)
     _data = nullptr;
     _sunlightData = nullptr;
     _lampLightData = nullptr;
+#else
+    _dataTree.clear(); 
+    _lampLightTree.clear();
+    _sunlightTree.clear();
 #endif
     state = ChunkStates::LOAD;
     isAccessible = 0;
@@ -113,10 +117,7 @@ void Chunk::clear(bool clearDraw)
     vector<PlantData>().swap(plantsToLoad);
     vector<LightUpdateNode>().swap(lightUpdateQueue);
     vector<ui16>().swap(sunRemovalList);
-    vector<ui16>().swap(sunExtendList);
-
-    _lampLightTree.clear();
-    _sunlightTree.clear();
+    vector<ui16>().swap(sunExtendList); 
 
     //TODO: A better solution v v v
     //Hacky way to clear RWQ
@@ -279,7 +280,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     //block data
     for (int i = 0; i < _dataTree.size(); i++) {
         for (int j = 0; j < _dataTree[i].length; j++) {
-            c = _dataTree[i].start + j;
+            c = _dataTree[i].getStart() + j;
             assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
 
@@ -295,7 +296,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     c = 0;
     for (int i = 0; i < _lampLightTree.size(); i++) {
         for (int j = 0; j < _lampLightTree[i].length; j++) {
-            c = _lampLightTree[i].start + j;
+            c = _lampLightTree[i].getStart() + j;
 
             assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
@@ -308,13 +309,13 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     c = 0;
     for (int i = 0; i < _sunlightTree.size(); i++) {
         for (int j = 0; j < _sunlightTree[i].length; j++) {
-            c = _sunlightTree[i].start + j;
+            c = _sunlightTree[i].getStart() + j;
 
             assert(c < CHUNK_SIZE);
             getPosFromBlockIndex(c, pos);
             wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
-            chLightData[1][wc] = _lampLightTree[i].data;
+            chLightData[1][wc] = _sunlightTree[i].data;
         }
     }
 

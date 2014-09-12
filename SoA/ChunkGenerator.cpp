@@ -216,9 +216,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 #else
                 //modify the data
                 if (c == 0) {
-                    dataNode = &chunk->_dataTree.insert(0, data);
-                    lampNode = &chunk->_lampLightTree.insert(0, lampData);
-                    sunNode = &chunk->_sunlightTree.insert(0, sunlightData);
+                    dataNode = chunk->_dataTree.insertFirst(data, 1);
+                    lampNode = chunk->_lampLightTree.insertFirst(lampData, 1);
+                    sunNode = chunk->_sunlightTree.insertFirst(sunlightData, 1);
                 } else {
                     assert(dataNode != nullptr);
                     assert(lampNode != nullptr);
@@ -226,23 +226,30 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     if (data == dataNode->data) {
                         dataNode->length++;
                     } else {
-                        dataNode = &chunk->_dataTree.insert(c, data);
+                        dataNode = chunk->_dataTree.insert(c, data);
                     }
                     if (lampData == lampNode->data) {
                         lampNode->length++;
                     } else {
-                        lampNode = &chunk->_lampLightTree.insert(c, lampData);
+                        lampNode = chunk->_lampLightTree.insert(c, lampData);
                     }
                     if (sunlightData == sunNode->data) {
                         sunNode->length++;
+                       
                     } else {
-                        sunNode = &chunk->_sunlightTree.insert(c, sunlightData);
+                        sunNode = chunk->_sunlightTree.insert(c, sunlightData);
                     }
+
+                    if (dataNode->length > 32768) {
+                        printf("%d %d %d OH LAWD JESUS\n", dataNode->length, c, dataNode->data);
+                        fflush(stdout);
+                    }
+                   
                 }
 #endif
             }
         }
-        if (pnum == chunk->numBlocks && maph - h < 0){
+        if (0 && pnum == chunk->numBlocks && maph - h < 0){
 
 #ifdef USEARRAYS
             while (c < CHUNK_SIZE){
@@ -251,17 +258,39 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 _data[c++] = NONE;
             } 
 #else
-            dataNode = &chunk->_dataTree.insert(c, CHUNK_SIZE - c);
-            lampNode = &chunk->_lampLightTree.insert(c, CHUNK_SIZE - c);
-            sunNode = &chunk->_sunlightTree.insert(c, MAXLIGHT);
+            if (dataNode->data == 0) {
+                dataNode->length += CHUNK_SIZE - c;
+            } else {
+                dataNode = chunk->_dataTree.insert(c, 0);
+                dataNode->length = CHUNK_SIZE - c;
+            }
+            if (lampNode->data == 0) {
+                lampNode->length += CHUNK_SIZE - c;
+            } else {
+                lampNode = chunk->_lampLightTree.insert(c, 0);
+                lampNode->length = CHUNK_SIZE - c;
+            }
+            if (sunNode->data == MAXLIGHT) {
+                sunNode->length += CHUNK_SIZE - c;
+                cout << sunNode->length << endl;
+            } else {
+                sunNode = chunk->_sunlightTree.insert(c, MAXLIGHT);
+                sunNode->length = CHUNK_SIZE - c;
+            }
+            
+            if (dataNode->length > 32768) {
+                printf("OH LAWD JESUS\n");
+            }
+
 #endif
             break;
         }
     }
+ 
     if (chunk->numBlocks){
         LoadMinerals(chunk);
     }
-
+  
     return (chunk->numBlocks != 0);
 }
 

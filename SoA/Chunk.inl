@@ -372,6 +372,7 @@ inline void Chunk::setBlockID(int c, int val) {
     _data[c] = val;
 #else
     _dataTree.insert(c, val);
+    _dataTree.checkValidity();
 #endif
 }
 
@@ -381,6 +382,7 @@ inline void Chunk::setBlockData(int c, GLushort val) {
     _data[c] = val;
 #else
     _dataTree.insert(c, val);
+    _dataTree.checkValidity();
 #endif
 }
 
