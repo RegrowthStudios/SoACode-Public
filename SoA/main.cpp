@@ -207,7 +207,6 @@ void gameLoop() {
         double ticks = (double)(SDL_GetTicks() - startTicks);
 
         if (1000.0 / maxPhysicsFps > ticks) {  //bound fps to 60
-            GLuint t = SDL_GetTicks();
             SDL_Delay((Uint32)(1000.0f / maxPhysicsFps - ticks));
         }
     }
