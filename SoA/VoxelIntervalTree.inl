@@ -19,18 +19,6 @@ template <typename T>
 i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
     int interval = _root;
     while (true) {
-        if (interval == -1) {
-            printf("HERE BEN YOU DOLT");
-            checkValidity();
-            for (int i = 0; i < _tree.size(); i++) {
-                if (interval >= _tree[i].getStart() && interval < _tree[i].getStart() + _tree[i].length) {
-
-                    printf("\nTHE NODE WORKS AT %d\n", i);
-                    break;
-                }
-            }
-            fflush(stdout);
-        }
         const Node& node = _tree[interval];
         if (index < node.getStart()) { //check for go left
             interval = node.left;

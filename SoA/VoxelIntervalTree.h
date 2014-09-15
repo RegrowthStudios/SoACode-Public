@@ -15,7 +15,17 @@ public:
 
 #define COLOR_BIT 0x8000
 #define START_MASK 0x7FFF
+
+    //Node for createFromArray
+    struct LightweightNode {
+        LightweightNode(ui16 Start, ui16 Length, T Data) : start(Start), length(Length), data(Data) {}
+        ui16 start;
+        ui16 length;
+        T data;
+    };
+
     struct Node {
+        Node() {}
         Node(T Data, ui16 start, ui16 Length) : data(Data), _start(start | COLOR_BIT), length(Length), left(-1), right(-1), parent(-1) {}
 
         inline void incrementStart() { ++_start; }
@@ -36,7 +46,7 @@ public:
         T data;
     };
 
-    bool checkValidity() const {
+    bool checkTreeValidity() const {
         if (!NOW) return true;
         int tot = 0;
         for (size_t i = 0; i < _tree.size(); i++) {
@@ -55,10 +65,10 @@ public:
             std::cout << "ROOT IS RED!\n";
             fflush(stdout);
         }
-        checkValidRB2();
+        checkValidRB();
     }
 
-    bool checkValidRB2() const {
+    bool checkValidRB() const {
         //    if (_tree[_root].isRed()) {
         //        std::cout << "ROOT IS RED!\n";
         //        fflush(stdout);
@@ -92,6 +102,16 @@ public:
 
     void clear();
 
+    void createFromSortedArray(std::vector <LightweightNode> data) {
+        _tree.resize(data.size());
+        for (int i = 0; i < _tree.size(); i++) {
+            _tree[i].setStart(data[i].start);
+            _tree[i].length = data[i].length;
+            _tree[i].data = data[i].data;
+        }
+        _root = arrayToRedBlackTree(0, data.size() - 1, -1, true);
+    }
+
     T getData(ui16 index) const;
     //Get the enclosing interval for a given point
     i16 getInterval(ui16 index) const;
@@ -105,6 +125,30 @@ public:
     bool NOW = false;
 
 private:
+
+    int arrayToRedBlackTree(int i, int j, int parent, bool isBlack) {
+        if (i > j) return -1;
+
+        int x = (j + i) / 2;
+
+        Node& node = _tree[x];
+        node.parent = parent;
+
+        if (isBlack) {
+            node.paintBlack();
+        } else{
+            node.paintRed();
+        }
+
+        if (i < j) {
+            node.left = arrayToRedBlackTree(i, x - 1, x, !isBlack);
+            node.right = arrayToRedBlackTree(x + 1, j, x, !isBlack);
+        } else {
+            node.left = -1;
+            node.right = -1;
+        }
+        return x;
+    }
 
     bool treeInsert(int index, T data, int &newIndex);
 

@@ -34,9 +34,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
 #ifndef USEARRAYS
-    VoxelIntervalTree<ui16>::Node* dataNode(nullptr);
-    VoxelIntervalTree<ui8>::Node* lampNode(nullptr);
-    VoxelIntervalTree<ui8>::Node* sunNode(nullptr);
+    std::vector<VoxelIntervalTree<ui16>::LightweightNode> dataVector;
+    std::vector<VoxelIntervalTree<ui8>::LightweightNode> lampVector;
+    std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunVector;
 #else
     ui16* _data = chunk->_data;
     ui8* _lampLightData = chunk->_lampLightData;
@@ -220,40 +220,34 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 #else
                 //modify the data
                 if (c == 0) {
-                    dataNode = chunk->_dataTree.insertFirst(data, 1);
-                    lampNode = chunk->_lampLightTree.insertFirst(lampData, 1);
-                    sunNode = chunk->_sunlightTree.insertFirst(sunlightData, 1);
-                } else {
-                    assert(dataNode != nullptr);
-                    assert(lampNode != nullptr);
-                    assert(sunNode != nullptr);
-                    if (data == dataNode->data) {
-                        dataNode->length++;
-                    } else {
-                        dataNode = chunk->_dataTree.insert(c, data);
-                    }
-                    if (lampData == lampNode->data) {
-                        lampNode->length++;
-                    } else {
-                        lampNode = chunk->_lampLightTree.insert(c, lampData);
-                    }
-                    if (sunlightData == sunNode->data) {
-                        sunNode->length++;
-                       
-                    } else {
-                        sunNode = chunk->_sunlightTree.insert(c, sunlightData);
-                    }
 
-                    if (dataNode->length > 32768) {
-                        printf("%d %d %d OH LAWD JESUS\n", dataNode->length, c, dataNode->data);
-                        fflush(stdout);
+                    dataVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, data));
+                    lampVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, lampData));
+                    sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, sunlightData));
+
+                } else {
+
+                    if (data == dataVector.back().data) {
+                        dataVector.back().length++;
+                    } else {
+                        dataVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, 1, data));
+                    }
+                    if (lampData == lampVector.back().data) {
+                        lampVector.back().length++;
+                    } else {
+                        lampVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, 1, lampData));
+                    }
+                    if (sunlightData == sunVector.back().data) {
+                        sunVector.back().length++;
+                    } else {
+                        sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, 1, sunlightData));
                     }
                    
                 }
 #endif
             }
         }
-        if (0 && pnum == chunk->numBlocks && maph - h < 0){
+        if (pnum == chunk->numBlocks && maph - h < 0){
 
 #ifdef USEARRAYS
             while (c < CHUNK_SIZE){
@@ -262,28 +256,20 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 _data[c++] = NONE;
             } 
 #else
-            if (dataNode->data == 0) {
-                dataNode->length += CHUNK_SIZE - c;
+            if (dataVector.back().data == 0) {
+                dataVector.back().length += CHUNK_SIZE - c;
             } else {
-                dataNode = chunk->_dataTree.insert(c, 0);
-                dataNode->length = CHUNK_SIZE - c;
+                dataVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, CHUNK_SIZE - c, 0));
             }
-            if (lampNode->data == 0) {
-                lampNode->length += CHUNK_SIZE - c;
+            if (lampVector.back().data == 0) {
+                lampVector.back().length += CHUNK_SIZE - c;
             } else {
-                lampNode = chunk->_lampLightTree.insert(c, 0);
-                lampNode->length = CHUNK_SIZE - c;
+                lampVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, CHUNK_SIZE - c, 0));
             }
-            if (sunNode->data == MAXLIGHT) {
-                sunNode->length += CHUNK_SIZE - c;
-                cout << sunNode->length << endl;
+            if (sunVector.back().data == MAXLIGHT) {
+                sunVector.back().length += CHUNK_SIZE - c;
             } else {
-                sunNode = chunk->_sunlightTree.insert(c, MAXLIGHT);
-                sunNode->length = CHUNK_SIZE - c;
-            }
-            
-            if (dataNode->length > 32768) {
-                printf("OH LAWD JESUS\n");
+                sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, CHUNK_SIZE - c, MAXLIGHT));
             }
 
 #endif
@@ -291,11 +277,15 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
         }
     }
  
+#ifndef USEARRAYS
+    chunk->_dataTree.createFromSortedArray(dataVector);
+    chunk->_lampLightTree.createFromSortedArray(lampVector);
+    chunk->_sunlightTree.createFromSortedArray(sunVector);
+#endif
+
     if (chunk->numBlocks){
         LoadMinerals(chunk);
     }
-  
-    std::printf("Time: %f ms\n", timer.stop());
 
     return (chunk->numBlocks != 0);
 }
