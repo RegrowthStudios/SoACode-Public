@@ -31,4 +31,4 @@
 #include "types.h"
 
 //Uncommment to use flat arrays instead of interval trees
-//#define USEARRAYS
+#define USEARRAYS

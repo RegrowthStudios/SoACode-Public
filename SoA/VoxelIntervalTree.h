@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <vector>
+#include "types.h"
 
 //Implementation of a specialized interval tree based on a red-black tree
 //Red black tree: http://en.wikipedia.org/wiki/Red%E2%80%93black_tree
@@ -15,7 +16,7 @@ public:
 #define COLOR_BIT 0x8000
 #define START_MASK 0x7FFF
     struct Node {
-        Node(T Data, ui16 start, ui16 Length) : data(Data), _start(start | COLOR_BIT), length(Length), left(-1), right(-1), parent(0) {}
+        Node(T Data, ui16 start, ui16 Length) : data(Data), _start(start | COLOR_BIT), length(Length), left(-1), right(-1), parent(-1) {}
 
         inline void incrementStart() { ++_start; }
         inline void decrementStart() { --_start; }
@@ -36,8 +37,9 @@ public:
     };
 
     bool checkValidity() const {
+        if (!NOW) return true;
         int tot = 0;
-        for (int i = 0; i < _tree.size(); i++) {
+        for (size_t i = 0; i < _tree.size(); i++) {
             if (_tree[i].length > 32768) {
                 std::cout << "AHA";
                 fflush(stdout);
@@ -48,7 +50,44 @@ public:
             std::cout << "rofl";
             fflush(stdout);
         }
-        return false;
+
+        if (_tree[_root].isRed()) {
+            std::cout << "ROOT IS RED!\n";
+            fflush(stdout);
+        }
+        checkValidRB2();
+    }
+
+    bool checkValidRB2() const {
+        //    if (_tree[_root].isRed()) {
+        //        std::cout << "ROOT IS RED!\n";
+        //        fflush(stdout);
+        //    }
+        if (_tree[_root].parent != -1) {
+            std::cout << "ROOT HAS A PARENT!\n";
+            fflush(stdout);
+        }
+        for (int i = 0; i < size(); i++) {
+            if (_tree[i].parent == i) {
+                std::cout << "Node is own parent!";
+            }
+            if (_tree[i].parent == i) {
+                std::cout << "Node is own parent!";
+            }
+            if (_tree[i].left == i) {
+                std::cout << "Node is own left!";
+            }
+            if (_tree[i].right == i) {
+                std::cout << "Node is own right!";
+            }
+            if (_tree[i].parent != -1) {
+                if (_tree[_tree[i].parent].left != i && _tree[_tree[i].parent].right != i) {
+                    std::cout << "Node is disconnected from parent!\n";
+                }
+            }
+        }
+
+        return true;
     }
 
     void clear();
@@ -63,14 +102,15 @@ public:
 
     inline Node& operator[](int index) { return _tree[index]; }
     inline int size() const { return _tree.size(); }
+    bool NOW = false;
 
 private:
 
     bool treeInsert(int index, T data, int &newIndex);
 
-    int getGrandparent(Node& node);
+    int getGrandparent(Node* node);
 
-    int getUncle(Node& node, Node** grandParent);
+    int getUncle(Node* node, Node** grandParent);
 
     void rotateParentRight(int index, Node* grandParent);
 
@@ -84,12 +124,12 @@ private:
     std::vector <Node> _tree;
 
     struct NodeToAdd {
-        NodeToAdd(i16 Parent, ui16 Length, T Data) : parent(Parent), length(Length), data(Data) {}
-        i16 parent;
+        NodeToAdd(i16 Parent, ui16 Length, T Data) : start(Parent), length(Length), data(Data) {}
+        i16 start;
         ui16 length;
         T data;
     };
-    
+
     std::vector <NodeToAdd> _nodesToAdd;
     std::vector <ui16> _nodesToRemove;
 };

@@ -9,8 +9,12 @@
 #include "Planet.h"
 #include "GameManager.h"
 
+#include "Timing.h"
+
 bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 {
+    PreciseTimer timer;
+    timer.start();
     HeightData *heightMap = ld->heightMap;
     //used for tree coords
     int wx = chunk->faceData.jpos*CHUNK_WIDTH * FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][0];
@@ -291,6 +295,8 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
         LoadMinerals(chunk);
     }
   
+    std::printf("Time: %f ms\n", timer.stop());
+
     return (chunk->numBlocks != 0);
 }
 
