@@ -115,6 +115,8 @@ extern vector <class Block> Blocks;
 
 extern vector <int> TextureUnitIndices;
 
+//TODO: KILL ALL OF THIS CRAP
+
 enum Blocks { NONE, DIRT, DIRTGRASS, STONE, WOOD, SAND, SNOW = 12, ICE = 13, REDSAND = 21, FIRE = 1000};
 
 enum Blocks2 { WHITEFLOWERS = 256, TALLGRASS, TALLWEED, YELLOWGRASS, DRYGRASS, FLOWERGRASS, TALLLIGHTGRASS, SHORTLIGHTGRASS, REDBUSH, SHORTDARKGRASS, JUNGLEPLANT1, BLUEFLOWERS, LARGEREDFLOWER, PURPLEFLOWER, HEARTFLOWER, DANDILION };
@@ -231,19 +233,19 @@ public:
 
     void SetAvgTexColors();
 
-    GLint ID;
-    GLint burnTransformID;
-    GLint waveEffect;
-    GLint health;
-    GLint lightIntensity;
-    GLint physicsProperty;
-    GLint material;
-    GLint waterMeshLevel;
-    GLint floatingAction;
-    GLint occlude;
-    GLint spawnerVal;
-    GLint sinkVal;
-    GLint explosionRays; 
+    ui16 ID;
+    ui16 burnTransformID;
+    i16 waveEffect;
+    i16 health;
+    ui16 lightColor;
+    i16 physicsProperty;
+    i16 material;
+    i16 waterMeshLevel;
+    i16 floatingAction;
+    i16 occlude;
+    ui16 spawnerVal;
+    ui16 sinkVal;
+    ui16 explosionRays;
 
     MeshType meshType;
 
@@ -255,20 +257,20 @@ public:
     GLfloat flammability;
     GLfloat powerLoss; 
 
-    GLubyte color[3];
-    GLubyte overlayColor[3];
-    GLubyte averageColor[3];
-    GLubyte particleTex;
-    GLubyte powderMove;
-    GLubyte collide;
-    GLubyte waterBreak;
-    GLubyte isLight;
-    GLubyte blockLight;
-    GLubyte useable;
-    GLubyte allowLight;
-    GLubyte isCrushable;
-    GLubyte isSupportive;
-    GLubyte active;
+    ui8 color[3];
+    ui8 overlayColor[3];
+    ui8 averageColor[3];
+    ui8 particleTex;
+    ui8 powderMove;
+    ui8 collide;
+    ui8 waterBreak;
+    ui8 isLight;
+    ui8 blockLight;
+    ui8 useable;
+    ui8 allowLight;
+    ui8 isCrushable;
+    ui8 isSupportive;
+    ui8 active;
 
     BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
@@ -283,8 +285,8 @@ public:
     string name, emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
-    vector <glm::ivec3> altColors;
-    vector <ItemDrop> itemDrops;
+    std::vector <glm::ivec3> altColors;
+    std::vector <ItemDrop> itemDrops;
 };
 
 void SetBlockAvgTexColors();

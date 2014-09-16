@@ -35,7 +35,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 
 #ifndef USEARRAYS
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> dataVector;
-    std::vector<VoxelIntervalTree<ui8>::LightweightNode> lampVector;
+    std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampVector;
     std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunVector;
 #else
     ui16* _data = chunk->_data;
@@ -222,7 +222,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 if (c == 0) {
 
                     dataVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, data));
-                    lampVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, lampData));
+                    lampVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, lampData));
                     sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, sunlightData));
 
                 } else {
@@ -235,7 +235,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     if (lampData == lampVector.back().data) {
                         lampVector.back().length++;
                     } else {
-                        lampVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, 1, lampData));
+                        lampVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, 1, lampData));
                     }
                     if (sunlightData == sunVector.back().data) {
                         sunVector.back().length++;
@@ -264,7 +264,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
             if (lampVector.back().data == 0) {
                 lampVector.back().length += CHUNK_SIZE - c;
             } else {
-                lampVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, CHUNK_SIZE - c, 0));
+                lampVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, CHUNK_SIZE - c, 0));
             }
             if (sunVector.back().data == MAXLIGHT) {
                 sunVector.back().length += CHUNK_SIZE - c;

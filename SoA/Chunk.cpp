@@ -115,7 +115,6 @@ void Chunk::clear(bool clearDraw)
     vector<ui16>().swap(spawnerBlocks);
     vector<TreeData>().swap(treesToLoad);
     vector<PlantData>().swap(plantsToLoad);
-    vector<LightUpdateNode>().swap(lightUpdateQueue);
     vector<ui16>().swap(sunRemovalList);
     vector<ui16>().swap(sunExtendList); 
 
@@ -134,8 +133,10 @@ void Chunk::clear(bool clearDraw)
         vector <GLushort>().swap(blockUpdateList[i][0]); //release the memory manually
         vector <GLushort>().swap(blockUpdateList[i][1]);
     }
-    vector<LightRemovalNode>().swap(lightRemovalQueue);
-    vector<LightUpdateNode>().swap(lightUpdateQueue);
+    vector<LampLightRemovalNode>().swap(lampLightRemovalQueue);
+    vector<LampLightUpdateNode>().swap(lampLightUpdateQueue);
+    vector<SunlightRemovalNode>().swap(sunlightRemovalQueue);
+    vector<SunlightUpdateNode>().swap(sunlightUpdateQueue);
     if (clearDraw){
         clearBuffers();
         drawIndex = -1;

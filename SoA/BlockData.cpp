@@ -145,7 +145,7 @@ Block::Block() : emitterName(""), emitterOnBreakName(""), emitter(NULL), emitter
     blockLight = 1;
     waterMeshLevel = 0;
     isLight = 0;
-    lightIntensity = 0;
+    lightColor = 0;
     waterBreak = 0;
     weight = -1;
     value = 0;

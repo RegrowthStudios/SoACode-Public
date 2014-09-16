@@ -7,6 +7,7 @@
 #include <ZLIB/unzip.c>
 
 #include "BlockData.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "FloraGenerator.h"
 #include "GameManager.h"
@@ -1535,8 +1536,11 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_LIGHTACTIVE:
                 b->isLight = iniVal->getInt();
                 break;
-            case BLOCK_INI_LIGHTINTENSITY:
-                b->lightIntensity = iniVal->getInt();
+            case BLOCK_INI_LIGHTCOLOR:
+                if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
+                    //Convert RRRRRRRR GGGGGGGG BBBBBBBB to RRRRR GGGGG BBBBB
+                    b->lightColor = ((MIN((hexColor & 0xFF0000) >> 16, 31)) << 10) | (MIN((hexColor & 0x1F00) >> 8, 31) << 5) | MIN(hexColor & 0x1f, 31);
+                }
                 break;
             case BLOCK_INI_MATERIAL:
                 b->material = iniVal->getInt();
@@ -1690,7 +1694,14 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.flammability != b->flammability) iniValues.back().push_back(IniValue("flammability", b->flammability));
             if (db.floatingAction != b->floatingAction) iniValues.back().push_back(IniValue("floatingAction", to_string(b->floatingAction)));
             if (db.isLight != b->isLight) iniValues.back().push_back(IniValue("lightActive", to_string(b->isLight)));
-            if (db.lightIntensity != b->lightIntensity) iniValues.back().push_back(IniValue("lightIntensity", to_string(b->lightIntensity)));
+           
+            if (db.lightColor != b->lightColor) {
+                sprintf(colorString, "%02x%02x%02x", Chunk::getLampRedFromHex(b->lightColor), 
+                                                     Chunk::getLampGreenFromHex(b->lightColor),
+                                                     Chunk::getLampBlueFromHex(b->lightColor));
+                iniValues.back().push_back(IniValue("lightColor", nString(colorString)));
+            }
+            
             if (db.meshType != b->meshType) iniValues.back().push_back(IniValue("meshType", to_string((int)b->meshType)));
             if (db.moveMod != b->moveMod) iniValues.back().push_back(IniValue("movementMod", b->moveMod));
             if (db.powderMove != b->powderMove) iniValues.back().push_back(IniValue("movesPowder", to_string(b->powderMove)));
@@ -2679,7 +2690,7 @@ void FileManager::initializeINIMaps() {
     BlockIniMap["floatingAction"] = BLOCK_INI_FLOATINGACTION;
     BlockIniMap["health"] = BLOCK_INI_HEALTH;
     BlockIniMap["lightActive"] = BLOCK_INI_LIGHTACTIVE;
-    BlockIniMap["lightIntensity"] = BLOCK_INI_LIGHTINTENSITY;
+    BlockIniMap["lightColor"] = BLOCK_INI_LIGHTCOLOR;
     BlockIniMap["material"] = BLOCK_INI_MATERIAL;
     BlockIniMap["meshType"] = BLOCK_INI_MESHTYPE;
     BlockIniMap["movementMod"] = BLOCK_INI_MOVEMENTMOD;

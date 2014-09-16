@@ -28,7 +28,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
     i32v3 pos;
 
-    for (int i = 0; i < 30; i++){
+    for (int i = 0; i < 15; i++){
         needsSetup = false;
 
         blockIndex = RandomUpdateOrder[chunk->blockUpdateIndex++];
@@ -123,7 +123,7 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
         chunk->spawnerBlocks.push_back(blockIndex);
     }
 
-    const  i32v3 pos = getPosFromBlockIndex(blockIndex);
+    const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
     if (block.emitter){
         particleEngine.addEmitter(block.emitter, glm::dvec3(chunk->position.x + pos.x, chunk->position.y + pos.y, chunk->position.z + pos.z), blockType);
@@ -137,23 +137,21 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
                 chunk->setSunlight(blockIndex, 0);
                 chunk->sunRemovalList.push_back(blockIndex);
             } else {
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
                 chunk->setSunlight(blockIndex, 0);
             }
         }
 
         if (chunk->getLampLight(blockIndex)){
-            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->getLampLight(blockIndex)));
+            chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
             chunk->setLampLight(blockIndex, 0);
         }
     }
     //Light placement
     if (block.isLight){
-        chunk->setLampLight(blockIndex, block.lightIntensity);
-        chunk->lightUpdateQueue.push_back(LightUpdateNode(blockIndex, 0, block.lightIntensity));
+        chunk->setLampLight(blockIndex, block.lightColor);
+        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColor));
     }
-
-   
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
     if (GETBLOCKTYPE(blockType) >= LOWWATER) {
@@ -185,21 +183,21 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
                 chunk->setSunlight(blockIndex, 0);
                 chunk->sunRemovalList.push_back(blockIndex);
             } else {
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
                 chunk->setSunlight(blockIndex, 0);
             }
         }
 
         if (chunk->getLampLight(blockIndex)){
-            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->getLampLight(blockIndex)));
+            chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
             chunk->setLampLight(blockIndex, 0);
         }
     }
 
     //Light placement
     if (block.isLight){
-        chunk->setLampLight(blockIndex, block.lightIntensity);
-        chunk->lightUpdateQueue.push_back(LightUpdateNode(blockIndex, 0, block.lightIntensity));
+        chunk->setLampLight(blockIndex, block.lightColor);
+        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColor));
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
@@ -262,7 +260,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     //Update lighting
     if (block.blockLight || block.isLight){
         //This will pull light from neighbors
-        chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->getLampLight(blockIndex)));
+        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
         chunk->setLampLight(blockIndex, 0);
 
         //sunlight update
@@ -272,7 +270,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else if (chunk->top && chunk->top->isAccessible) {
@@ -281,12 +279,12 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else {
             //This will pull light from neighbors
-            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
             chunk->setSunlight(blockIndex, 0);
         }
     }
@@ -313,7 +311,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
     //Update lighting
     if (block.blockLight || block.isLight){
         //This will pull light from neighbors
-        chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 0, chunk->getLampLight(blockIndex)));
+        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
         chunk->setLampLight(blockIndex, 0);
 
         //sunlight update
@@ -323,7 +321,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else if (chunk->top && chunk->top->isAccessible) {
@@ -332,12 +330,12 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else {
             //This will pull light from neighbors
-            chunk->lightRemovalQueue.push_back(LightRemovalNode(blockIndex, 1, chunk->getSunlight(blockIndex)));
+            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
             chunk->setSunlight(blockIndex, 0);
         }
     }

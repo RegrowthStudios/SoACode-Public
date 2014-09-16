@@ -1348,7 +1348,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 cs->chunk = nullptr;
             } else { //inside maximum range
 
-             //   if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(chunk);
+                if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(chunk);
 
                 //calculate light stuff: THIS CAN LAG THE GAME
                 if (chunk->state > ChunkStates::TREES) {

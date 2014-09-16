@@ -22,7 +22,6 @@ enum LightTypes {LIGHT, SUNLIGHT};
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
 struct LightMessage;
-struct LightRemovalNode;
 struct RenderTask;
 
 class Chunk{
@@ -86,16 +85,25 @@ public:
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
     int getSunlight(int c) const;
+
     ui16 getLampLight(int c) const;
+    ui16 getLampRed(int c) const;
+    ui16 getLampGreen(int c) const;
+    ui16 getLampBlue(int c) const;
+
     const Block& getBlock(int c) const;
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
     //setters
     void setBlockID(int c, int val);
-    void setBlockData(int c, GLushort val);
+    void setBlockData(int c, ui16 val);
     void setSunlight(int c, int val);
-    void setLampLight(int c, int val);
+    void setLampLight(int c, ui16 val);
+
+    static ui16 getLampRedFromHex(int color) { return (color & 0x7C00) >> 10; }
+    static ui16 getLampGreenFromHex(int color) { return (color & 0x3E0) >> 5; }
+    static ui16 getLampBlueFromHex(int color) { return color & 0x1F; }
 
     int neighbors;
     bool activeUpdateList[8];
@@ -134,8 +142,13 @@ public:
     float setupWaitingTime;
 
     vector <ui16> blockUpdateList[8][2];
-    vector <LightUpdateNode> lightUpdateQueue;
-    vector <LightRemovalNode> lightRemovalQueue;
+
+    //Even though these are vectors, they are treated as fifo usually, and when not, it doesn't matter
+    vector <SunlightUpdateNode> sunlightUpdateQueue;
+    vector <SunlightRemovalNode> sunlightRemovalQueue;
+    vector <LampLightUpdateNode> lampLightUpdateQueue;
+    vector <LampLightRemovalNode> lampLightRemovalQueue;
+
     vector <ui16> sunRemovalList;
     vector <ui16> sunExtendList;
 
@@ -163,7 +176,7 @@ private:
     //The data that defines the voxels
     VoxelIntervalTree<ui16> _dataTree;
     VoxelIntervalTree<ui8> _sunlightTree;
-    VoxelIntervalTree<ui8> _lampLightTree;
+    VoxelIntervalTree<ui16> _lampLightTree;
     ui16 *_data; 
     ui8 *_sunlightData;
     //Voxel light data is only allocated when needed
