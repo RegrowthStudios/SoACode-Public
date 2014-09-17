@@ -24,8 +24,17 @@ enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DR
 struct LightMessage;
 struct RenderTask;
 
+//For lamp colors. Used to extract color values from the 16 bit color code
+#define LAMP_RED_MASK 0x7C00
+#define LAMP_GREEN_MASK 0x3E0
+#define LAMP_BLUE_MASK 0x1f
+#define LAMP_RED_SHIFT 10
+#define LAMP_GREEN_SHIFT 5
+//no blue shift
+
 class Chunk{
 public:
+
     friend class ChunkManager;
     friend class EditorTree;
     friend class ChunkMesher;
@@ -98,12 +107,12 @@ public:
     //setters
     void setBlockID(int c, int val);
     void setBlockData(int c, ui16 val);
-    void setSunlight(int c, int val);
+    void setSunlight(int c, ui8 val);
     void setLampLight(int c, ui16 val);
 
-    static ui16 getLampRedFromHex(int color) { return (color & 0x7C00) >> 10; }
-    static ui16 getLampGreenFromHex(int color) { return (color & 0x3E0) >> 5; }
-    static ui16 getLampBlueFromHex(int color) { return color & 0x1F; }
+    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
+    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
+    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
 
     int neighbors;
     bool activeUpdateList[8];
@@ -123,9 +132,9 @@ public:
 
     ChunkMesh *mesh;
 
-    vector <TreeData> treesToLoad;
-    vector <PlantData> plantsToLoad;
-    vector <GLushort> spawnerBlocks;
+    std::vector <TreeData> treesToLoad;
+    std::vector <PlantData> plantsToLoad;
+    std::vector <GLushort> spawnerBlocks;
     glm::ivec3 position;
     FaceData faceData;
     int hzIndex, hxIndex;
@@ -141,20 +150,20 @@ public:
     int threadJob;
     float setupWaitingTime;
 
-    vector <ui16> blockUpdateList[8][2];
+    std::vector <ui16> blockUpdateList[8][2];
 
     //Even though these are vectors, they are treated as fifo usually, and when not, it doesn't matter
-    vector <SunlightUpdateNode> sunlightUpdateQueue;
-    vector <SunlightRemovalNode> sunlightRemovalQueue;
-    vector <LampLightUpdateNode> lampLightUpdateQueue;
-    vector <LampLightRemovalNode> lampLightRemovalQueue;
+    std::vector <SunlightUpdateNode> sunlightUpdateQueue;
+    std::vector <SunlightRemovalNode> sunlightRemovalQueue;
+    std::vector <LampLightUpdateNode> lampLightUpdateQueue;
+    std::vector <LampLightRemovalNode> lampLightRemovalQueue;
 
-    vector <ui16> sunRemovalList;
-    vector <ui16> sunExtendList;
+    std::vector <ui16> sunRemovalList;
+    std::vector <ui16> sunExtendList;
 
     static ui32 vboIndicesID;
 
-    vector <Chunk *> *setupListPtr;
+    std::vector <Chunk *> *setupListPtr;
     Chunk *right, *left, *front, *back, *top, *bottom;
 
 private:

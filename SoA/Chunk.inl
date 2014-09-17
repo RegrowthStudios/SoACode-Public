@@ -341,30 +341,30 @@ inline ui16 Chunk::getLampLight(int c) const {
 
 inline ui16 Chunk::getLampRed(int c) const {
 #ifdef USEARRAYS
-    return _lampLightData[c] & 0x7C00;
+    return _lampLightData[c] & RED_MASK;
 #else
-    return _lampLightTree.getData(c) & 0x7C00;
+    return _lampLightTree.getData(c) & LAMP_RED_MASK;
 #endif
 }
 
 inline ui16 Chunk::getLampGreen(int c) const {
 #ifdef USEARRAYS
-    return _lampLightData[c] & 0x3E0;
+    return _lampLightData[c] & GREEN_MASK;
 #else
-    return _lampLightTree.getData(c) & 0x3E0;
+    return _lampLightTree.getData(c) & LAMP_GREEN_MASK;
 #endif
 }
 
 inline ui16 Chunk::getLampBlue(int c) const {
 #ifdef USEARRAYS
-    return _lampLightData[c] & 0x1F;
+    return _lampLightData[c] & BLUE_MASK;
 #else
-    return _lampLightTree.getData(c) & 0x1F;
+    return _lampLightTree.getData(c) & LAMP_BLUE_MASK;
 #endif
 }
 
 
-inline void Chunk::setSunlight(int c, int val) {
+inline void Chunk::setSunlight(int c, ui8 val) {
     //sunlightData[c] = (sunlightData[c] & 0xE0) | val;
 #ifdef USEARRAYS
     _sunlightData[c] = val;

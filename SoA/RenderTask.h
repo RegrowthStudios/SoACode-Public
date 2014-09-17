@@ -24,7 +24,8 @@ public:
     // We don't want to have to access neighboring chunks in multiple threads, that requires
     // us to use mutex locks. This way is much faster and also prevents bounds checking
     ui16 chData[PADDED_CHUNK_SIZE];
-    ubyte chLightData[2][PADDED_CHUNK_SIZE];
+    ui16 chLampData[PADDED_CHUNK_SIZE];
+    ui8 chSunlightData[PADDED_CHUNK_SIZE];
     ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
     ui8 temperatures[CHUNK_LAYER];
     ui8 rainfalls[CHUNK_LAYER];

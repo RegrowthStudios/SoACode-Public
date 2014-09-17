@@ -588,10 +588,16 @@ inline void MakeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, int i
     Verts[index + 3].color[1] = color[1];
     Verts[index + 3].color[2] = color[2];
 
-    Verts[index].light = 255;
-    Verts[index+1].light = 255;
-    Verts[index+2].light = 255;
-    Verts[index+3].light = 255;
+    Verts[index].lampColor[0] = 255;
+    Verts[index].lampColor[1] = 255;
+    Verts[index].lampColor[2] = 255;
+    Verts[index + 1].lampColor[0] = 255;
+    Verts[index + 1].lampColor[1] = 255;
+    Verts[index + 1].lampColor[2] = 255;
+    Verts[index + 2].lampColor[0] = 255;
+    Verts[index + 2].lampColor[1] = 255;
+    Verts[index + 2].lampColor[2] = 255;
+    Verts[index + 3].lampColor[0] = 255;
 
     Verts[index].sunLight = 0;
     Verts[index + 1].sunLight = 0;

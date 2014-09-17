@@ -29,12 +29,27 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
     if (chunk->sunlightUpdateQueue.size()) {
         //Addition
         for (ui32 i = 0; i < chunk->sunlightUpdateQueue.size(); i++){
-            placeSunlight(chunk, (int)chunk->sunlightUpdateQueue[i].blockIndex, (int)chunk->sunlightUpdateQueue[i].lightVal);
+            placeSunlightBFS(chunk, (int)chunk->sunlightUpdateQueue[i].blockIndex, (int)chunk->sunlightUpdateQueue[i].lightVal);
         }
         vector<SunlightUpdateNode>().swap(chunk->sunlightUpdateQueue); //forces memory to be freed
     }
 
     //Voxel Light Calculation
+    if (chunk->lampLightRemovalQueue.size()) {
+        //Removal
+        for (ui32 i = 0; i < chunk->lampLightRemovalQueue.size(); i++){
+            removeLampLightBFS(chunk, (int)chunk->lampLightRemovalQueue[i].blockIndex, chunk->lampLightRemovalQueue[i].oldLightColor);
+        }
+        vector<LampLightRemovalNode>().swap(chunk->lampLightRemovalQueue); //forces memory to be freed
+    }
+
+    if (chunk->lampLightUpdateQueue.size()) {
+        //Addition
+        for (ui32 i = 0; i < chunk->lampLightUpdateQueue.size(); i++){
+            placeLampLightBFS(chunk, (int)chunk->lampLightUpdateQueue[i].blockIndex, chunk->lampLightUpdateQueue[i].lightColor);
+        }
+        vector<LampLightUpdateNode>().swap(chunk->lampLightUpdateQueue); //forces memory to be freed
+    }
 
 }
 
@@ -343,7 +358,7 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
 
 }
 
-void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity)
+void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intensity)
 {
     if (intensity > chunk->getSunlight(blockIndex)) {
         //Set the light value
@@ -355,7 +370,7 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
 
     if (intensity <= 1) return;
     //Reduce by 1 to prevent a bunch of -1
-    ui8 newIntensity = (ui8)(intensity - 1);
+    ui8 newIntensity = (intensity - 1);
     int nextIndex;
 
     chunk->dirty = 1;
@@ -485,6 +500,407 @@ void VoxelLightEngine::placeSunlight(Chunk* chunk, int blockIndex, int intensity
                 top->setSunlight(nextIndex, newIntensity);
                 top->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
             //    top->lightFromBottom.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
+            }
+            top->changeState(ChunkStates::MESH);
+        }
+    }
+
+    chunk->changeState(ChunkStates::MESH);
+}
+
+void VoxelLightEngine::removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 oldLightVal)
+{
+    //ui8 nextIntensity;
+    //if (oldLightVal > 0) {
+    //    nextIntensity = oldLightVal - 1;
+    //} else {
+    //    nextIntensity = 0;
+    //}
+
+    //int x = blockIndex % CHUNK_WIDTH;
+    //int y = blockIndex / CHUNK_LAYER;
+    //int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
+    //int nextBlockIndex;
+
+    //ui8 lightVal;
+
+    //Chunk* left = chunk->left;
+    //Chunk* right = chunk->right;
+    //Chunk* back = chunk->back;
+    //Chunk* front = chunk->front;
+    //Chunk* top = chunk->top;
+    //Chunk* bottom = chunk->bottom;
+
+    //if (x > 0){ //left
+    //    nextBlockIndex = blockIndex - 1;
+    //    lightVal = chunk->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            chunk->setSunlight(nextBlockIndex, 0);
+    //            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //        } else {
+    //            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //        }
+    //    }
+    //} else if (left && left->isAccessible){
+    //    nextBlockIndex = blockIndex + CHUNK_WIDTH - 1;
+    //    lightVal = left->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            left->setSunlight(nextBlockIndex, 0);
+    //            left->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //            //   left->lightFromRight.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_WIDTH - 1, type, -lightVal)));
+    //        } else {
+    //            left->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //            //   left->lightFromRight.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_WIDTH - 1, type, 0)));
+    //        }
+    //    }
+    //    left->changeState(ChunkStates::MESH);
+    //}
+
+    //if (x < CHUNK_WIDTH - 1){ //right
+    //    nextBlockIndex = blockIndex + 1;
+    //    lightVal = chunk->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            chunk->setSunlight(nextBlockIndex, 0);
+    //            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //        } else {
+    //            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //        }
+    //    }
+
+    //} else if (right && right->isAccessible){
+    //    nextBlockIndex = blockIndex - CHUNK_WIDTH + 1;
+    //    lightVal = right->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            right->setSunlight(nextBlockIndex, 0);
+    //            right->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //            //   right->lightFromLeft.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_WIDTH + 1, type, -lightVal)));
+    //        } else {
+    //            right->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //            //   right->lightFromLeft.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_WIDTH + 1, type, 0)));
+    //        }
+    //    }
+    //    right->changeState(ChunkStates::MESH);
+    //}
+
+    //if (z > 0){ //back
+    //    nextBlockIndex = blockIndex - CHUNK_WIDTH;
+    //    lightVal = chunk->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            chunk->setSunlight(nextBlockIndex, 0);
+    //            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //        } else {
+    //            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //        }
+    //    }
+    //} else if (back && back->isAccessible){
+    //    nextBlockIndex = blockIndex + CHUNK_LAYER - CHUNK_WIDTH;
+    //    lightVal = back->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            back->setSunlight(nextBlockIndex, 0);
+    //            back->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //            //    back->lightFromFront.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_LAYER - CHUNK_WIDTH, type, -lightVal)));
+    //        } else {
+    //            back->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //            //    back->lightFromFront.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_LAYER - CHUNK_WIDTH, type, 0)));
+    //        }
+    //    }
+    //    back->changeState(ChunkStates::MESH);
+    //}
+
+    //if (z < CHUNK_WIDTH - 1){ //front
+    //    nextBlockIndex = blockIndex + CHUNK_WIDTH;
+    //    lightVal = chunk->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            chunk->setSunlight(nextBlockIndex, 0);
+    //            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //        } else {
+    //            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //        }
+    //    }
+    //} else if (front && front->isAccessible){
+    //    nextBlockIndex = blockIndex - CHUNK_LAYER + CHUNK_WIDTH;
+    //    lightVal = front->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            front->setSunlight(nextBlockIndex, 0);
+    //            front->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //            //   front->lightFromBack.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_LAYER + CHUNK_WIDTH, type, -lightVal)));
+    //        } else {
+    //            front->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //            //   front->lightFromBack.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_LAYER + CHUNK_WIDTH, type, 0)));
+    //        }
+    //    }
+    //    front->changeState(ChunkStates::MESH);
+    //}
+
+    //if (y > 0){ //bottom
+    //    nextBlockIndex = blockIndex - CHUNK_LAYER;
+    //    lightVal = chunk->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            chunk->setSunlight(nextBlockIndex, 0);
+    //            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //        } else {
+    //            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //        }
+    //    }
+    //} else if (bottom && bottom->isAccessible){
+    //    nextBlockIndex = CHUNK_SIZE - CHUNK_LAYER + blockIndex;
+    //    lightVal = bottom->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            bottom->setSunlight(nextBlockIndex, 0);
+    //            bottom->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //            //    bottom->lightFromTop.enqueue(*((ui32*)&LightMessage(CHUNK_SIZE - CHUNK_LAYER + blockIndex, type, -lightVal)));
+    //        } else {
+    //            bottom->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //            //    bottom->lightFromTop.enqueue(*((ui32*)&LightMessage(CHUNK_SIZE - CHUNK_LAYER + blockIndex, type, 0)));
+    //        }
+    //    }
+    //    bottom->changeState(ChunkStates::MESH);
+    //}
+
+    //if (y < CHUNK_WIDTH - 1){ //top
+    //    nextBlockIndex = blockIndex + CHUNK_LAYER;
+    //    lightVal = chunk->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            chunk->setSunlight(nextBlockIndex, 0);
+    //            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //        } else {
+    //            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //        }
+    //    }
+    //} else if (top && top->isAccessible){
+    //    nextBlockIndex = blockIndex - CHUNK_SIZE + CHUNK_LAYER;
+    //    lightVal = top->getSunlight(nextBlockIndex);
+    //    if (lightVal > 0){
+    //        if (lightVal <= nextIntensity){
+    //            top->setSunlight(nextBlockIndex, 0);
+    //            top->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
+    //            //  top->lightFromBottom.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_SIZE + CHUNK_LAYER, type, -lightVal)));
+    //        } else {
+    //            top->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
+    //            //   top->lightFromBottom.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_SIZE + CHUNK_LAYER, type, 0)));
+    //        }
+    //    }
+    //    top->changeState(ChunkStates::MESH);
+    //}
+    //chunk->changeState(ChunkStates::MESH);
+
+}
+
+inline ui16 getMaxLampColors(ui16 redA, ui16 greenA, ui16 blueA, ui16 b) {
+    ui16 redB = b & LAMP_RED_MASK;
+    ui16 greenB = b & LAMP_GREEN_MASK;
+    ui16 blueB = b & LAMP_BLUE_MASK;
+    return MAX(redA, redB) | MAX(greenA, greenB) | MAX(blueA, blueB);
+}
+
+void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 intensity)
+{
+#define RED1 0x400
+#define GREEN1 0x20
+#define BLUE1 1
+
+    ui16 currentLight = chunk->getLampLight(blockIndex);
+    ui16 nextLight;
+
+    ui16 currentRed = currentLight & LAMP_RED_MASK;
+    ui16 currentGreen = currentLight & LAMP_GREEN_MASK;
+    ui16 currentBlue = currentLight & LAMP_BLUE_MASK;
+
+    ui16 intensityRed = intensity & LAMP_RED_MASK;
+    ui16 intensityGreen = intensity & LAMP_GREEN_MASK;
+    ui16 intensityBlue = intensity & LAMP_BLUE_MASK;
+
+    //get new intensity
+    intensity = MAX(currentRed, intensityRed) | MAX(currentGreen, intensityGreen) | MAX(currentBlue, intensityBlue);
+
+    intensityRed = intensity & LAMP_RED_MASK;
+    intensityGreen = intensity & LAMP_GREEN_MASK;
+    intensityBlue = intensity & LAMP_BLUE_MASK;
+
+    if (intensity != currentLight) {
+        //Set the light value
+        chunk->setLampLight(blockIndex, intensity);
+    }
+
+    if (currentRed <= RED1 && currentGreen <= GREEN1 && intensityBlue <= BLUE1) return;
+    //Reduce by 1
+    if (intensityRed != 0) {
+        intensityRed -= RED1;
+        intensity -= RED1;
+    }
+    if (intensityGreen != 0) {
+        intensityGreen -= GREEN1;
+        intensity -= GREEN1;
+    }
+    if (intensityBlue != 0) {
+        intensityBlue -= BLUE1;
+        intensity -= BLUE1;
+    }
+
+    int nextIndex;
+
+    chunk->dirty = 1;
+
+    int x = blockIndex % CHUNK_WIDTH;
+    int y = blockIndex / CHUNK_LAYER;
+    int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
+
+    Chunk* left = chunk->left;
+    Chunk* right = chunk->right;
+    Chunk* back = chunk->back;
+    Chunk* front = chunk->front;
+    Chunk* top = chunk->top;
+    Chunk* bottom = chunk->bottom;
+
+    if (x > 0){ //left
+        nextIndex = blockIndex - 1;
+        currentLight = chunk->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (chunk->getBlock(nextIndex).allowLight){
+                chunk->setLampLight(nextIndex, nextLight);
+                chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+            }
+        }
+    } else if (left && left->isAccessible){
+        nextIndex = blockIndex + CHUNK_WIDTH - 1;
+        currentLight = left->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (left->getBlock(nextIndex).allowLight){
+                left->setLampLight(nextIndex, nextLight);
+                left->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+                // left->lightFromRight.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
+            }
+            left->changeState(ChunkStates::MESH);
+        }
+    }
+
+    if (x < CHUNK_WIDTH - 1){ //right
+        nextIndex = blockIndex + 1;
+        currentLight = chunk->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (chunk->getBlock(nextIndex).allowLight){
+                chunk->setLampLight(nextIndex, nextLight);
+                chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+            }
+        }
+    } else if (right && right->isAccessible){
+        nextIndex = blockIndex - CHUNK_WIDTH + 1;
+        currentLight = right->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (right->getBlock(nextIndex).allowLight){
+                right->setLampLight(nextIndex, nextLight);
+                right->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+                //  right->lightFromLeft.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
+            }
+            right->changeState(ChunkStates::MESH);
+        }
+    }
+
+    if (z > 0){ //back
+        nextIndex = blockIndex - CHUNK_WIDTH;
+        currentLight = chunk->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (chunk->getBlock(nextIndex).allowLight){
+                chunk->setLampLight(nextIndex, nextLight);
+                chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+            }
+        }
+    } else if (back && back->isAccessible){
+        nextIndex = blockIndex + CHUNK_LAYER - CHUNK_WIDTH;
+        currentLight = back->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (back->getBlock(nextIndex).allowLight){
+                back->setLampLight(nextIndex, nextLight);
+                back->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+                //  back->lightFromFront.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
+            }
+            back->changeState(ChunkStates::MESH);
+        }
+    }
+
+    if (z < CHUNK_WIDTH - 1){ //front
+        nextIndex = blockIndex + CHUNK_WIDTH;
+        currentLight = chunk->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (chunk->getBlock(nextIndex).allowLight){
+                chunk->setLampLight(nextIndex, nextLight);
+                chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+            }
+        }
+    } else if (front && front->isAccessible){
+        nextIndex = blockIndex - CHUNK_LAYER + CHUNK_WIDTH;
+        currentLight = front->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (front->getBlock(nextIndex).allowLight){
+                front->setLampLight(nextIndex, nextLight);
+                front->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+                //  front->lightFromBack.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
+            }
+            front->changeState(ChunkStates::MESH);
+        }
+    }
+
+    if (y > 0){ //bottom
+        nextIndex = blockIndex - CHUNK_LAYER;
+        currentLight = chunk->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (chunk->getBlock(nextIndex).allowLight){
+                chunk->setLampLight(nextIndex, nextLight);
+                chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+            }
+        }
+    } else if (bottom && bottom->isAccessible){
+        nextIndex = CHUNK_SIZE - CHUNK_LAYER + blockIndex;
+        currentLight = bottom->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (bottom->getBlock(nextIndex).allowLight){
+                bottom->setLampLight(nextIndex, nextLight);
+                bottom->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+                //  bottom->lightFromTop.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
+            }
+            bottom->changeState(ChunkStates::MESH);
+        }
+    }
+    if (y < CHUNK_WIDTH - 1){ //top
+        nextIndex = blockIndex + CHUNK_LAYER;
+        currentLight = chunk->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (chunk->getBlock(nextIndex).allowLight){
+                chunk->setLampLight(nextIndex, nextLight);
+                chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+            }
+        }
+    } else if (top && top->isAccessible){
+        nextIndex = blockIndex - CHUNK_SIZE + CHUNK_LAYER;
+        currentLight = top->getLampLight(nextIndex);
+        nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
+        if (nextLight != currentLight){
+            if (top->getBlock(nextIndex).allowLight){
+                top->setLampLight(nextIndex, nextLight);
+                top->lampLightUpdateQueue.push_back(LampLightUpdateNode(nextIndex, nextLight));
+                //    top->lightFromBottom.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
             }
             top->changeState(ChunkStates::MESH);
         }

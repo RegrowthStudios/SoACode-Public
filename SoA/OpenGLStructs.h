@@ -32,7 +32,8 @@ public:
     // 1000 = normal map
     //10000 = specular map
     ubyte tex[2]; //6 
-    ubyte pad[2];
+    ubyte animationLength; //7
+    ubyte blendMode; //8
 
     ubyte textureAtlas; //9
     ubyte overlayTextureAtlas; //10
@@ -48,10 +49,8 @@ public:
     ubyte overlayColor[3]; //23
     ubyte pad2; //24
 
-    ubyte light; //25
-    ubyte sunLight; //26
-    ubyte animationLength; //27
-    ubyte blendMode; //28
+    ubyte lampColor[3]; //27
+    ubyte sunLight; //28
 
     sbyte normal[3]; //31
     sbyte merge; //32

@@ -322,12 +322,12 @@ void BlockShader::Initialize(string dirPath) {
     GLuint vID, fID;
     shaderID = LoadShaders((dirPath + "standardShading.vert").c_str(), (dirPath + "standardShading.frag").c_str(), vID, fID);
     glBindAttribLocation(shaderID, 0, "position_TextureType");
-    glBindAttribLocation(shaderID, 1, "uvs");
+    glBindAttribLocation(shaderID, 1, "uvs_animation_blendMode");
     glBindAttribLocation(shaderID, 2, "textureAtlas_textureIndex");
     glBindAttribLocation(shaderID, 3, "textureDimensions");
     glBindAttribLocation(shaderID, 4, "color");
     glBindAttribLocation(shaderID, 5, "overlayColor");
-    glBindAttribLocation(shaderID, 6, "light_sunLight_animation_blendMode");
+    glBindAttribLocation(shaderID, 6, "light_sunlight");
     glBindAttribLocation(shaderID, 7, "normal");
     LinkShaders(shaderID, vID, fID);
 
