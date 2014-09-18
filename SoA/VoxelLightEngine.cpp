@@ -169,6 +169,8 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
     }
 }
 
+
+
 void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLightVal)
 {
     ui8 nextIntensity;
@@ -210,10 +212,8 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
             if (lightVal <= nextIntensity){
                 left->setSunlight(nextBlockIndex, 0);
                 left->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
-             //   left->lightFromRight.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_WIDTH - 1, type, -lightVal)));
             } else {
                 left->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
-             //   left->lightFromRight.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_WIDTH - 1, type, 0)));
             }
         }
         left->changeState(ChunkStates::MESH);
@@ -238,10 +238,8 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
             if (lightVal <= nextIntensity){
                 right->setSunlight(nextBlockIndex, 0);
                 right->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
-             //   right->lightFromLeft.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_WIDTH + 1, type, -lightVal)));
             } else {
                 right->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
-             //   right->lightFromLeft.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_WIDTH + 1, type, 0)));
             }
         }
         right->changeState(ChunkStates::MESH);
@@ -265,10 +263,8 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
             if (lightVal <= nextIntensity){
                 back->setSunlight(nextBlockIndex, 0);
                 back->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
-            //    back->lightFromFront.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_LAYER - CHUNK_WIDTH, type, -lightVal)));
             } else {
                 back->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
-            //    back->lightFromFront.enqueue(*((ui32*)&LightMessage(blockIndex + CHUNK_LAYER - CHUNK_WIDTH, type, 0)));
             }
         }
         back->changeState(ChunkStates::MESH);
@@ -292,10 +288,8 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
             if (lightVal <= nextIntensity){
                 front->setSunlight(nextBlockIndex, 0);
                 front->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
-             //   front->lightFromBack.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_LAYER + CHUNK_WIDTH, type, -lightVal)));
             } else {
                 front->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
-             //   front->lightFromBack.enqueue(*((ui32*)&LightMessage(blockIndex - CHUNK_LAYER + CHUNK_WIDTH, type, 0)));
             }
         }
         front->changeState(ChunkStates::MESH);
@@ -319,10 +313,8 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
             if (lightVal <= nextIntensity){
                 bottom->setSunlight(nextBlockIndex, 0);
                 bottom->sunlightRemovalQueue.push_back(SunlightRemovalNode(nextBlockIndex, nextIntensity));
-            //    bottom->lightFromTop.enqueue(*((ui32*)&LightMessage(CHUNK_SIZE - CHUNK_LAYER + blockIndex, type, -lightVal)));
             } else {
                 bottom->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextBlockIndex, 0));
-            //    bottom->lightFromTop.enqueue(*((ui32*)&LightMessage(CHUNK_SIZE - CHUNK_LAYER + blockIndex, type, 0)));
             }
         }
         bottom->changeState(ChunkStates::MESH);
@@ -358,6 +350,15 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
 
 }
 
+inline void placeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light) {
+    if (chunk->getSunlight(blockIndex) < light){
+        if (chunk->getBlock(blockIndex).allowLight){
+            chunk->setSunlight(blockIndex, light);
+            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, light));
+        }
+    }
+}
+
 void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intensity)
 {
     if (intensity > chunk->getSunlight(blockIndex)) {
@@ -371,7 +372,6 @@ void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intens
     if (intensity <= 1) return;
     //Reduce by 1 to prevent a bunch of -1
     ui8 newIntensity = (intensity - 1);
-    int nextIndex;
 
     chunk->dirty = 1;
 
@@ -387,122 +387,44 @@ void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intens
     Chunk* bottom = chunk->bottom;
 
     if (x > 0){ //left
-        nextIndex = blockIndex - 1;
-        if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (chunk->getBlock(nextIndex).allowLight){
-                chunk->setSunlight(nextIndex, newIntensity);
-                chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-            }
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex - 1, newIntensity);
     } else if (left && left->isAccessible){
-        nextIndex = blockIndex + CHUNK_WIDTH - 1;
-        if (left->getSunlight(nextIndex) < newIntensity){
-            if (left->getBlock(nextIndex).allowLight){
-                left->setSunlight(nextIndex, newIntensity);
-                left->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-               // left->lightFromRight.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
-            }
-            left->changeState(ChunkStates::MESH);
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_WIDTH - 1, newIntensity);
+        left->changeState(ChunkStates::MESH);
     }
 
     if (x < CHUNK_WIDTH - 1){ //right
-        nextIndex = blockIndex + 1;
-        if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (chunk->getBlock(nextIndex).allowLight){
-                chunk->setSunlight(nextIndex, newIntensity);
-                chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-            }
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex + 1, newIntensity);
     } else if (right && right->isAccessible){
-        nextIndex = blockIndex - CHUNK_WIDTH + 1;
-        if (right->getSunlight(nextIndex) < newIntensity){
-            if (right->getBlock(nextIndex).allowLight){
-                right->setSunlight(nextIndex, newIntensity);
-                right->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-              //  right->lightFromLeft.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
-            }
-            right->changeState(ChunkStates::MESH);
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_WIDTH + 1, newIntensity);
+        right->changeState(ChunkStates::MESH);       
     }
 
     if (z > 0){ //back
-        nextIndex = blockIndex - CHUNK_WIDTH;
-        if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (chunk->getBlock(nextIndex).allowLight){
-                chunk->setSunlight(nextIndex, newIntensity);
-                chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-            }
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_WIDTH, newIntensity);
     } else if (back && back->isAccessible){
-        nextIndex = blockIndex + CHUNK_LAYER - CHUNK_WIDTH;
-        if (back->getSunlight(nextIndex) < newIntensity){
-            if (back->getBlock(nextIndex).allowLight){
-                back->setSunlight(nextIndex, newIntensity);
-                back->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-              //  back->lightFromFront.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
-            }
-            back->changeState(ChunkStates::MESH);
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_LAYER - CHUNK_WIDTH, newIntensity);
+        back->changeState(ChunkStates::MESH);
     }
 
     if (z < CHUNK_WIDTH - 1){ //front
-        nextIndex = blockIndex + CHUNK_WIDTH;
-        if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (chunk->getBlock(nextIndex).allowLight){
-                chunk->setSunlight(nextIndex, newIntensity);
-                chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-            }
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_WIDTH, newIntensity);
     } else if (front && front->isAccessible){
-        nextIndex = blockIndex - CHUNK_LAYER + CHUNK_WIDTH;
-        if (front->getSunlight(nextIndex) < newIntensity){
-            if (front->getBlock(nextIndex).allowLight){
-                front->setSunlight(nextIndex, newIntensity);
-                front->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-              //  front->lightFromBack.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
-            }
-            front->changeState(ChunkStates::MESH);
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_LAYER + CHUNK_WIDTH, newIntensity);
+        front->changeState(ChunkStates::MESH);
     }
 
     if (y > 0){ //bottom
-        nextIndex = blockIndex - CHUNK_LAYER;
-        if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (chunk->getBlock(nextIndex).allowLight){
-                chunk->setSunlight(nextIndex, newIntensity);
-                chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-            }
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_LAYER, newIntensity);
     } else if (bottom && bottom->isAccessible){
-        nextIndex = CHUNK_SIZE - CHUNK_LAYER + blockIndex;
-        if (bottom->getSunlight(nextIndex) < newIntensity){
-            if (bottom->getBlock(nextIndex).allowLight){
-                bottom->setSunlight(nextIndex, newIntensity);
-                bottom->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-              //  bottom->lightFromTop.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
-            }
-            bottom->changeState(ChunkStates::MESH);
-        }
+        placeSunlightNeighborUpdate(chunk, CHUNK_SIZE - CHUNK_LAYER + blockIndex, newIntensity);
+        bottom->changeState(ChunkStates::MESH);
     }
     if (y < CHUNK_WIDTH - 1){ //top
-        nextIndex = blockIndex + CHUNK_LAYER;
-        if (chunk->getSunlight(nextIndex) < newIntensity){
-            if (chunk->getBlock(nextIndex).allowLight){
-                chunk->setSunlight(nextIndex, newIntensity);
-                chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-            }
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_LAYER, newIntensity);
     } else if (top && top->isAccessible){
-        nextIndex = blockIndex - CHUNK_SIZE + CHUNK_LAYER;
-        if (top->getSunlight(nextIndex) < newIntensity){
-            if (top->getBlock(nextIndex).allowLight){
-                top->setSunlight(nextIndex, newIntensity);
-                top->sunlightUpdateQueue.push_back(SunlightUpdateNode(nextIndex, newIntensity));
-            //    top->lightFromBottom.enqueue(*((ui32*)&LightMessage(nextIndex, type, newIntensity)));
-            }
-            top->changeState(ChunkStates::MESH);
-        }
+        placeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_SIZE + CHUNK_LAYER, newIntensity);
+        top->changeState(ChunkStates::MESH);
     }
 
     chunk->changeState(ChunkStates::MESH);
