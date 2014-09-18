@@ -2357,7 +2357,6 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
         meshInfo.waterIndexSize = (mi.liquidIndex * 6) / 4;
         chunkMeshData->waterVertices.swap(_waterVboVerts);
 	}
-
 	return 0;
 }
 

@@ -146,6 +146,10 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
             chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
             chunk->setLampLight(blockIndex, 0);
         }
+    } else if (block.colorFilter != f32v3(1.0f)) {
+        //This will pull light from neighbors
+        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+        chunk->setLampLight(blockIndex, 0);
     }
     //Light placement
     if (block.isLight){

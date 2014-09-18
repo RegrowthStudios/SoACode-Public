@@ -69,16 +69,25 @@ typedef glm::highp_mat2 f64m2;
 typedef glm::highp_mat3 f64m3;
 typedef glm::highp_mat4 f64m4;
 
-struct color8 {
-public:
-    color8(ui8 r, ui8 g, ui8 b, ui8 a) :
+struct ColorRGBA8 {
+    ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a) :
         r(r), g(g), b(b), a(a) {}
-    color8() : color8(0, 0, 0, 0) {}
+    ColorRGBA8() : ColorRGBA8(0, 0, 0, 0) {}
 
     ui8 r;
     ui8 g;
     ui8 b;
     ui8 a;
+};
+
+struct ColorRGB8 {
+    ColorRGB8(ui8 r, ui8 g, ui8 b) :
+        r(r), g(g), b(b) {}
+    ColorRGB8() {}
+
+    ui8 r;
+    ui8 g;
+    ui8 b;
 };
 
 template<typename T> struct Array;

@@ -255,7 +255,7 @@ f32v2 SpriteFont::measure(const cString s) {
     return size;
 }
 
-void SpriteFont::draw(SpriteBatch* batch, const cString s, f32v2 position, f32v2 scaling, color8 tint, f32 depth) {
+void SpriteFont::draw(SpriteBatch* batch, const cString s, f32v2 position, f32v2 scaling, ColorRGBA8 tint, f32 depth) {
     f32v2 tp = position;
     for (int si = 0; s[si] != 0; si++) {
         char c = s[si];

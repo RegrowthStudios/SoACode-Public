@@ -463,14 +463,18 @@ void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 inte
     ui16 intensityGreen = intensity & LAMP_GREEN_MASK;
     ui16 intensityBlue = intensity & LAMP_BLUE_MASK;
 
-    //get new intensity
-    intensity = MAX(currentRed, intensityRed) | MAX(currentGreen, intensityGreen) | MAX(currentBlue, intensityBlue);
+    intensityRed = MAX(currentRed, intensityRed);
+    intensityGreen = MAX(currentGreen, intensityGreen);
+    intensityBlue = MAX(currentBlue, intensityBlue);
 
-    intensityRed = intensity & LAMP_RED_MASK;
-    intensityGreen = intensity & LAMP_GREEN_MASK;
-    intensityBlue = intensity & LAMP_BLUE_MASK;
+    const Block& currentBlock = chunk->getBlock(blockIndex);
 
-    if (intensity != currentLight) {
+    intensityRed = (ui16)((intensityRed >> LAMP_RED_SHIFT) * currentBlock.colorFilter.r) << LAMP_RED_SHIFT;
+    intensityGreen = (ui16)((intensityGreen >> LAMP_GREEN_SHIFT) * currentBlock.colorFilter.g) << LAMP_GREEN_SHIFT;
+    intensityBlue = (ui16)(intensityBlue * currentBlock.colorFilter.b);
+    intensity = intensityRed | intensityGreen | intensityBlue;
+
+    if (intensity != currentLight) { 
         //Set the light value
         chunk->setLampLight(blockIndex, intensity);
     }

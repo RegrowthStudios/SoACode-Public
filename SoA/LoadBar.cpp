@@ -59,7 +59,7 @@ void LoadBar::setText(const cString text) {
         }
     }
 }
-void LoadBar::setColor(const color8& colorText, const color8& colorBackground) {
+void LoadBar::setColor(const ColorRGBA8& colorText, const ColorRGBA8& colorBackground) {
     _colorText = colorText;
     _colorBackground = colorBackground;
 }
