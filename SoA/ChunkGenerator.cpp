@@ -332,7 +332,7 @@ void ChunkGenerator::LoadMinerals(Chunk* chunk)
 
 void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
 {
-    int c = (int)(((PseudoRand(chunk->position.x - seed*seed + 3 * chunk->position.y + md->blockType * 2, chunk->position.z + seed * 4 - chunk->position.y + md->blockType - 44) + 1.0) / 2.0)*CHUNK_SIZE + 0.5);
+    int c = (int)(((PseudoRand(chunk->position.x - seed*seed + 3 * chunk->position.y + md->blockType * 2, chunk->position.z + seed * 4 - chunk->position.y + md->blockType - 44) + 1.0) / 2.0)*CHUNK_SIZE);
     int btype = md->blockType;
     int size = ((PseudoRand(chunk->position.x + 2 * chunk->position.y - md->blockType * 4 + seed, chunk->position.z + chunk->position.y - md->blockType + 44) + 1.0) / 2.0)*(md->maxSize - md->minSize) + md->minSize;
     int r;

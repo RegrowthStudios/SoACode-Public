@@ -20,6 +20,14 @@ i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
     int interval = _root;
     while (true) {
         const Node& node = _tree[interval];
+        //Error checking. Ideally we can remove this when we are certain this condition can never happen
+        if (interval < 0 || interval >= _tree.size()) {
+            std::cout << "getInterval failed! Looking for index: " << index << " Interval is " << interval << std::endl;
+            checkTreeValidity();
+            int a;
+            std::cin >> a;
+        }
+
         if (index < node.getStart()) { //check for go left
             interval = node.left;
         } else if (index < node.getStart() + node.length) { //check for at interval

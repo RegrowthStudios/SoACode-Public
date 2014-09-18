@@ -296,6 +296,7 @@ void aabbChunkCollision(Player *player, glm::dvec3 *playerPos, Chunk **chunks, u
 
                                                 c = blx + bly + blz;
                                                 chunk = chunks[i];
+                                                if (chunk->isAccessible == false) continue;
                                                 blockID = chunk->getBlockID(c);
                                                 if (blockID){
                                                     blockCollision(player, chunks[i], blockID, c, bdx, bdy, bdz, dx, dy, dz);

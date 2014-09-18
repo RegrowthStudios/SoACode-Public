@@ -17,7 +17,7 @@ enum class BlendType {
 };
 KEG_ENUM_DECL(BlendType);
 
-// Size: 28 Bytes
+// Size: 32 Bytes
 struct BlockVertex {
 public:
     struct vPosition {  //3 bytes  << 1
