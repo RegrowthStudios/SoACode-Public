@@ -256,6 +256,7 @@ public:
     GLfloat explosivePower;
     GLfloat flammability;
     GLfloat powerLoss; 
+    f32v3 colorFilter;
 
     ui8 color[3];
     ui8 overlayColor[3];

@@ -161,6 +161,7 @@ Block::Block() : emitterName(""), emitterOnBreakName(""), emitter(NULL), emitter
     moveMod = 1.0f;
     spawnerVal = 0;
     sinkVal = 0;
+    colorFilter = f32v3(1.0f);
 }
 
 void Block::GetBlockColor(GLubyte baseColor[3], GLubyte overlayColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
