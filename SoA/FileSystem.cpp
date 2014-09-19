@@ -1149,7 +1149,7 @@ void FileManager::loadTexturePack(nString fileName) {
         //defDir = opendir(defaultFileName.c_str());
         if (!boost::filesystem::exists(defaultFileName)) {
             defaultFileName = defaultFileName + ".zip";
-            graphicsOptions.defaultTexturePack = "SoA_Default.zip";
+            graphicsOptions.defaultTexturePack = "Default.zip";
             isDefaultZip = 1;
             //} else {
             //closedir(defDir);
@@ -1159,13 +1159,13 @@ void FileManager::loadTexturePack(nString fileName) {
         if (stat(defaultFileName.c_str(), &statbuf) != 0) {
             isDefaultZip = 0;
             defaultFileName = defaultFileName.substr(0, defaultFileName.size() - 4); //chop off .zip
-            graphicsOptions.defaultTexturePack = "SoA_Default";
+            graphicsOptions.defaultTexturePack = "Default";
         }
     }
 
     struct stat statbuf; //check that default pack exists
     if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-        pError("Default Texture Pack SoA_Default is missing! Please re-install the game.");
+        pError("Default Texture Pack Default is missing! Please re-install the game.");
         exit(44);
     }
 

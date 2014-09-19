@@ -885,7 +885,6 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
         connectedOffset |= 0x1;
     }
 
-
     result += grassTextureOffsets[connectedOffset];
 }
 
@@ -908,6 +907,11 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     ui8 lampLight[3] = { (mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
         (mi.task->chLampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
         mi.task->chLampData[wc] & LAMP_BLUE_MASK };
+
+    sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
+    lampLight[0] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[0])));
+    lampLight[1] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[1])));
+    lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
 
     //Lookup the current biome, temperature, and rainfall
     Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.z*CHUNK_WIDTH + mi.x]];

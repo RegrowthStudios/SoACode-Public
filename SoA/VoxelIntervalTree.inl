@@ -1,5 +1,6 @@
 #pragma once
 #include "VoxelIntervalTree.h"
+#include "Errors.h"
 
 template <typename T>
 inline void VoxelIntervalTree<typename T>::clear() {
@@ -24,6 +25,7 @@ i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
         if (interval < 0 || interval >= _tree.size()) {
             std::cout << "getInterval failed! Looking for index: " << index << " Interval is " << interval << std::endl;
             checkTreeValidity();
+            pError("getInterval error! Check the command prompt!\n");
             int a;
             std::cin >> a;
         }

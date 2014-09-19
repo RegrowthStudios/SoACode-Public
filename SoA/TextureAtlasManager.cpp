@@ -106,6 +106,7 @@ void TextureAtlasManager::loadBlockAtlas(string fileName) {
 const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, ZipFile* zipFile) {
 
     BlockTexture blockTexture = {};
+    //Set base path. This can be overwritten
     size_t filesize;
     unsigned char *zipData;
 
@@ -264,7 +265,7 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
             writeToAtlas(blockTexture.base.textureIndex);
             break;
         }
-
+ 
         _blockTextureCache[tileFileName] = blockTexture;
 
         _readTexture.freeTexture();
