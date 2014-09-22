@@ -74,14 +74,21 @@ public:
 private:
     void closeRegionFile(RegionFile* regionFile);
 
-    bool readChunkHeader(Chunk* chunk);
+    bool readChunkHeader();
     bool readVoxelData_v0();
+
+    void getIterationConstantsFromRotation(int rotation, int& jStart, int& jMult, int& jEnd, int& jInc, int& kStart, int& kMult, int& kEnd, int& kInc);
+
+    int rleUncompressArray(ui8* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
+    int rleUncompressArray(ui16* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
     bool fillChunkVoxelData(Chunk* chunk);
 
     bool saveRegionHeader();
     bool loadRegionHeader();
 
-    bool rleCompress(Chunk* chunk);
+    void rleCompressArray(ui8* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
+    void rleCompressArray(ui16* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
+    bool rleCompressChunk(Chunk* chunk);
     bool zlibCompress();
 
     bool tryConvertSave(ui32 regionVersion, ui32 chunkVersion);
@@ -104,6 +111,10 @@ private:
     //Dynamic byte buffer used in copying contents of a file for resize
     ui32 _copySectorsBufferSize;
     ui8* _copySectorsBuffer;
+
+    ui16 blockIDBuffer[CHUNK_SIZE];
+    ui8 sunlightBuffer[CHUNK_SIZE];
+    ui16 lampLightBuffer[CHUNK_SIZE];
 
     ui8 _chunkHeaderBuffer[sizeof(ChunkHeader)];
     ui8 _regionFileHeaderBuffer[sizeof(RegionFileHeader)];

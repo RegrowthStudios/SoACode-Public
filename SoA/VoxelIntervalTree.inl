@@ -20,7 +20,7 @@ template <typename T>
 i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
     int interval = _root;
     while (true) {
-        const Node& node = _tree[interval];
+        
         //Error checking. Ideally we can remove this when we are certain this condition can never happen
         if (interval < 0 || interval >= _tree.size()) {
             std::cout << "getInterval failed! Looking for index: " << index << " Interval is " << interval << std::endl;
@@ -29,6 +29,8 @@ i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
             int a;
             std::cin >> a;
         }
+
+        const Node& node = _tree[interval];
 
         if (index < node.getStart()) { //check for go left
             interval = node.left;
@@ -288,6 +290,25 @@ inline typename VoxelIntervalTree<typename T>::Node* VoxelIntervalTree<typename 
     _tree.push_back(Node(data, 0, length));
     _tree[0].paintBlack();
     return &_tree.back();
+}
+
+template <typename T>
+void VoxelIntervalTree<typename T>::uncompressTraversal(int index, int& bufferIndex, T* buffer) {
+    if (_tree[index].left != -1) {
+        uncompressTraversal(_tree[index].left, bufferIndex, buffer);
+    }
+    for (int i = 0; i < _tree[index].length; i++) {
+        buffer[bufferIndex++] = _tree[index].data;
+    }
+    if (_tree[index].right != -1) {
+        uncompressTraversal(_tree[index].right, bufferIndex, buffer);
+    }
+}
+
+template <typename T>
+void VoxelIntervalTree<typename T>::uncompressIntoBuffer(T* buffer) {
+    int bufferIndex = 0;
+    uncompressTraversal(_root, bufferIndex, buffer);
 }
 
 template <typename T>

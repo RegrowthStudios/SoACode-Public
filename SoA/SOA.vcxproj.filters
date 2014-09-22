@@ -458,6 +458,9 @@
     <ClInclude Include="VoxelIntervalTree.h">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
+    <ClInclude Include="SmartVoxelContainer.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -736,6 +739,9 @@
     </ClCompile>
     <ClCompile Include="ChunkMesh.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="SmartVoxelContainer.cpp">
+      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

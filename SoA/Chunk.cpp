@@ -101,9 +101,9 @@ void Chunk::clear(bool clearDraw)
     _sunlightData = nullptr;
     _lampLightData = nullptr;
 #else
-    _dataTree.clear(); 
-    _lampLightTree.clear();
-    _sunlightTree.clear();
+    _blockIDContainer.clear();
+    _lampLightContainer.clear();
+    _sunlightContainer.clear();
 #endif
     state = ChunkStates::LOAD;
     isAccessible = 0;
@@ -278,69 +278,72 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
-#ifndef USEARRAYS
-    int s = 0;
-    //block data
-    for (int i = 0; i < _dataTree.size(); i++) {
-        for (int j = 0; j < _dataTree[i].length; j++) {
-            c = _dataTree[i].getStart() + j;
-            assert(c < CHUNK_SIZE);
-            getPosFromBlockIndex(c, pos);
+    if (_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
 
-            wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-            if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
-                wvec[s++] = wc;
-            }
-            chData[wc] = _dataTree[i].data;
-        }
-    }
-    renderTask->wSize = s;
-    //lamp data
-    c = 0;
-    for (int i = 0; i < _lampLightTree.size(); i++) {
-        for (int j = 0; j < _lampLightTree[i].length; j++) {
-            c = _lampLightTree[i].getStart() + j;
+        int s = 0;
+        //block data
+        for (int i = 0; i < _blockIDContainer._dataTree.size(); i++) {
+            for (int j = 0; j < _blockIDContainer._dataTree[i].length; j++) {
+                c = _blockIDContainer._dataTree[i].getStart() + j;
+                assert(c < CHUNK_SIZE);
+                getPosFromBlockIndex(c, pos);
 
-            assert(c < CHUNK_SIZE);
-            getPosFromBlockIndex(c, pos);
-            wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-
-            chLampData[wc] = _lampLightTree[i].data;
-        }
-    }
-    //sunlight data
-    c = 0;
-    for (int i = 0; i < _sunlightTree.size(); i++) {
-        for (int j = 0; j < _sunlightTree[i].length; j++) {
-            c = _sunlightTree[i].getStart() + j;
-
-            assert(c < CHUNK_SIZE);
-            getPosFromBlockIndex(c, pos);
-            wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-
-            chSunlightData[wc] = _sunlightTree[i].data;
-        }
-    }
-
-    assert(renderTask->chunk != nullptr);
-#else
-
-    int s = 0;
-    for (y = 0; y < CHUNK_WIDTH; y++){
-        for (z = 0; z < CHUNK_WIDTH; z++){
-            for (x = 0; x < CHUNK_WIDTH; x++, c++){
-                wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                chData[wc] = _data[c];
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
                 if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
                     wvec[s++] = wc;
                 }
-                chLampData[wc] = _lampLightData[c];
-                chSunlightData[wc] = _sunlightData[c];
+                chData[wc] = _blockIDContainer._dataTree[i].data;
             }
         }
+        renderTask->wSize = s;
+        //lamp data
+        c = 0;
+        for (int i = 0; i < _lampLightContainer._dataTree.size(); i++) {
+            for (int j = 0; j < _lampLightContainer._dataTree[i].length; j++) {
+                c = _lampLightContainer._dataTree[i].getStart() + j;
+
+                assert(c < CHUNK_SIZE);
+                getPosFromBlockIndex(c, pos);
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+
+                chLampData[wc] = _lampLightContainer._dataTree[i].data;
+            }
+        }
+        //sunlight data
+        c = 0;
+        for (int i = 0; i < _sunlightContainer._dataTree.size(); i++) {
+            for (int j = 0; j < _sunlightContainer._dataTree[i].length; j++) {
+                c = _sunlightContainer._dataTree[i].getStart() + j;
+
+                assert(c < CHUNK_SIZE);
+                getPosFromBlockIndex(c, pos);
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+
+                chSunlightData[wc] = _sunlightContainer._dataTree[i].data;
+            }
+        }
+
+        assert(renderTask->chunk != nullptr);
+    } else { //FLAT_ARRAY
+
+        int s = 0;
+        for (y = 0; y < CHUNK_WIDTH; y++){
+            for (z = 0; z < CHUNK_WIDTH; z++){
+                for (x = 0; x < CHUNK_WIDTH; x++, c++){
+                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+                    chData[wc] = _blockIDContainer._dataArray[c];
+                    if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
+                        wvec[s++] = wc;
+                    }
+                    chLampData[wc] = _lampLightContainer._dataArray[c];
+                    chSunlightData[wc] = _sunlightContainer._dataArray[c];
+                }
+            }
+        }
+        renderTask->wSize = s;
     }
-    renderTask->wSize = s;
-#endif
+
+
     //top and bottom
     ch1 = bottom;
     ch2 = top;

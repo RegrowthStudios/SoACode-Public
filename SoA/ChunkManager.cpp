@@ -634,7 +634,8 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     }
     globalMultiplePreciseTimer.start("Finished Meshes");
     uploadFinishedMeshes();
-    globalMultiplePreciseTimer.end();
+    //change the parameter to true to print out the timings
+    globalMultiplePreciseTimer.end(false);
 }
 
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded

@@ -25,7 +25,7 @@ public:
     void start(std::string tag);
     void stop();
     //Prints all timings
-    void end();
+    void end(bool print);
     void setDesiredSamples(int desiredSamples) { _desiredSamples = desiredSamples; }
 
 private:

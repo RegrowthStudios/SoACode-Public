@@ -28,15 +28,17 @@ void MultiplePreciseTimer::stop() {
 }
 
 //Prints all timings
-void MultiplePreciseTimer::end() {
+void MultiplePreciseTimer::end(bool print) {
     if (_timer.isRunning()) _timer.stop();
     if (intervals.empty()) return;
     if (_samples == _desiredSamples) {
-        printf("TIMINGS: \n");
-        for (int i = 0; i < intervals.size(); i++) {
-            printf("  %-20s: %12f ms\n", intervals[i].tag.c_str(), intervals[i].time / _samples);
+        if (print) {
+            printf("TIMINGS: \n");
+            for (int i = 0; i < intervals.size(); i++) {
+                printf("  %-20s: %12f ms\n", intervals[i].tag.c_str(), intervals[i].time / _samples);
+            }
+            printf("\n");
         }
-        printf("\n");
         intervals.clear();
         _samples = 0;
         _index = 0;

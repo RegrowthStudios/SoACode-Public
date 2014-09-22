@@ -5,7 +5,7 @@
 
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
-#include "VoxelIntervalTree.h"
+#include "SmartVoxelContainer.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
 #include "VoxelLightEngine.h"
@@ -81,7 +81,7 @@ public:
 
     void SetupMeshData(RenderTask *renderTask);
 
-    Chunk() : _data(nullptr), _sunlightData(nullptr), _lampLightData(nullptr){
+    Chunk(){
     }
     ~Chunk(){
         clearBuffers();
@@ -169,27 +169,10 @@ public:
 private:
     ChunkStates state;
 
-    //For passing light updates to neighbor chunks with multithreading.
-    //One queue per edge so there is only one writer per queue
-    //This is a queue of ints for compatability with moodycamel,
-    //but the ints are interpreted as LightMessages
-   /* moodycamel::ReaderWriterQueue<ui32> lightFromLeft;
-    moodycamel::ReaderWriterQueue<ui32> lightFromRight;
-    moodycamel::ReaderWriterQueue<ui32> lightFromFront;
-    moodycamel::ReaderWriterQueue<ui32> lightFromBack;
-    moodycamel::ReaderWriterQueue<ui32> lightFromTop;
-    moodycamel::ReaderWriterQueue<ui32> lightFromBottom;
-    //And one queue for the main thread updates, such as adding torches
-    moodycamel::ReaderWriterQueue<ui32> lightFromMain; */
-
     //The data that defines the voxels
-    VoxelIntervalTree<ui16> _dataTree;
-    VoxelIntervalTree<ui8> _sunlightTree;
-    VoxelIntervalTree<ui16> _lampLightTree;
-    ui16 *_data; 
-    ui8 *_sunlightData;
-    //Voxel light data is only allocated when needed
-    ui8 *_lampLightData;
+    SmartVoxelContainer<ui16> _blockIDContainer;
+    SmartVoxelContainer<ui8> _sunlightContainer;
+    SmartVoxelContainer<ui16> _lampLightContainer;
 
     ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
     ui8 temperatures[CHUNK_LAYER];

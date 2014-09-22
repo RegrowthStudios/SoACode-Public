@@ -47,7 +47,6 @@ public:
     };
 
     bool checkTreeValidity() const {
-        if (!NOW) return true;
         int tot = 0;
         for (size_t i = 0; i < _tree.size(); i++) {
             if (_tree[i].length > 32768) {
@@ -66,6 +65,7 @@ public:
             fflush(stdout);
         }
         checkValidRB();
+        return true;
     }
 
     bool checkValidRB() const {
@@ -102,7 +102,7 @@ public:
 
     void clear();
 
-    void createFromSortedArray(std::vector <LightweightNode> data) {
+    void createFromSortedArray(const std::vector <LightweightNode>& data) {
         _tree.resize(data.size());
         for (int i = 0; i < _tree.size(); i++) {
             _tree[i].setStart(data[i].start);
@@ -120,9 +120,11 @@ public:
 
     Node* insert(ui16 index, T data);
 
+    void uncompressTraversal(int index, int& bufferIndex, T* buffer);
+    void uncompressIntoBuffer(T* buffer);
+
     inline Node& operator[](int index) { return _tree[index]; }
     inline int size() const { return _tree.size(); }
-    bool NOW = false;
 
 private:
 
@@ -163,6 +165,7 @@ private:
     void rotateRight(int index);
 
     void rotateLeft(int index);
+
 
     int _root;
     std::vector <Node> _tree;

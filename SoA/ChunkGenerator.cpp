@@ -276,11 +276,11 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
             break;
         }
     }
- 
+
 #ifndef USEARRAYS
-    chunk->_dataTree.createFromSortedArray(dataVector);
-    chunk->_lampLightTree.createFromSortedArray(lampVector);
-    chunk->_sunlightTree.createFromSortedArray(sunVector);
+    chunk->_blockIDContainer.initFromSortedArray(dataVector);
+    chunk->_lampLightContainer.initFromSortedArray(lampVector);
+    chunk->_sunlightContainer.initFromSortedArray(sunVector);
 #endif
 
     if (chunk->numBlocks){

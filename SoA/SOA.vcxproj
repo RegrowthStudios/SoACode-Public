@@ -124,6 +124,7 @@
     <ClInclude Include="ChunkUpdater.h" />
     <ClInclude Include="GeometrySorter.h" />
     <ClInclude Include="GLStates.h" />
+    <ClInclude Include="SmartVoxelContainer.h" />
     <ClInclude Include="VoxelIntervalTree.h" />
     <ClInclude Include="Keg.h" />
     <ClInclude Include="LiquidData.h" />
@@ -289,6 +290,7 @@
     <ClCompile Include="TextureAtlasManager.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="Timing.cpp" />
+    <ClCompile Include="SmartVoxelContainer.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
     <ClCompile Include="VoxelRay.cpp" />

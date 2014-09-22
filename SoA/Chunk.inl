@@ -12,9 +12,9 @@ inline void Chunk::changeState(ChunkStates State)
         //isAccessible is a flag that prevents threads from trying to
         //acces the chunk when its loading or generating
         if (state > ChunkStates::GENERATE){
-            isAccessible = 1;
+            isAccessible = true;
         } else{
-            isAccessible = 0;
+            isAccessible = false;
         }
     }
 }
@@ -320,105 +320,48 @@ inline void Chunk::getTopLightData(int c, GLbyte &l, GLbyte &sl)
     }
 }
 
-
 inline int Chunk::getSunlight(int c) const {
-
-#ifdef USEARRAYS
-    return _sunlightData[c];
-#else
-    return _sunlightTree.getData(c);
-#endif
+    return _sunlightContainer.get(c);
 }
 
 inline ui16 Chunk::getLampLight(int c) const {
-
-#ifdef USEARRAYS
-    return _lampLightData[c];
-#else
-    return _lampLightTree.getData(c);
-#endif
+    return _lampLightContainer.get(c);
 }
 
 inline ui16 Chunk::getLampRed(int c) const {
-#ifdef USEARRAYS
-    return _lampLightData[c] & RED_MASK;
-#else
-    return _lampLightTree.getData(c) & LAMP_RED_MASK;
-#endif
+    return _lampLightContainer.get(c) & LAMP_RED_MASK;
 }
 
 inline ui16 Chunk::getLampGreen(int c) const {
-#ifdef USEARRAYS
-    return _lampLightData[c] & GREEN_MASK;
-#else
-    return _lampLightTree.getData(c) & LAMP_GREEN_MASK;
-#endif
+    return _lampLightContainer.get(c) & LAMP_GREEN_MASK;
 }
 
 inline ui16 Chunk::getLampBlue(int c) const {
-#ifdef USEARRAYS
-    return _lampLightData[c] & BLUE_MASK;
-#else
-    return _lampLightTree.getData(c) & LAMP_BLUE_MASK;
-#endif
+    return _lampLightContainer.get(c) & LAMP_BLUE_MASK;
 }
 
-
 inline void Chunk::setSunlight(int c, ui8 val) {
-    //sunlightData[c] = (sunlightData[c] & 0xE0) | val;
-#ifdef USEARRAYS
-    _sunlightData[c] = val;
-#else
-    _sunlightTree.insert(c, val);
-#endif
+    _sunlightContainer.set(c, val);
 }
 
 inline void Chunk::setLampLight(int c, ui16 val) {
-  //  if (lampLightData == nullptr) {
-  //      lampLightData = new ui16[CHUNK_SIZE];
-  //  }
-   // lampLightData[c] = val;
-#ifdef USEARRAYS
-    _lampLightData[c] = val;
-#else
-    _lampLightTree.insert(c, val);
-#endif
+    _lampLightContainer.set(c, val);
 }
 
 inline void Chunk::setBlockID(int c, int val) {
- //   data[c] = (data[c] & 0xF000) | val;
-#ifdef USEARRAYS
-    _data[c] = val;
-#else
-    _dataTree.insert(c, val);
-#endif
+    _blockIDContainer.set(c, val);
 }
 
 inline void Chunk::setBlockData(int c, ui16 val) {
- //   data[c] = val;
-#ifdef USEARRAYS
-    _data[c] = val;
-#else
-    _dataTree.insert(c, val);
-#endif
+    _blockIDContainer.set(c, val);
 }
 
 inline GLushort Chunk::getBlockData(int c) const {
-  //  return data[c];
-#ifdef USEARRAYS
-    return _data[c];
-#else
-    return _dataTree.getData(c);
-#endif
+    return _blockIDContainer.get(c);
 }
 
 inline int Chunk::getBlockID(int c) const {
-  //  return data[c] & 0xFFF;
-#ifdef USEARRAYS
-    return _data[c];
-#else
-    return _dataTree.getData(c);
-#endif
+    return _blockIDContainer.get(c) & 0x0FFF;
 }
 
 inline const Block& Chunk::getBlock(int c) const {

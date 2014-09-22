@@ -228,7 +228,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     }
 
     //Get the chunk header
-    if (!readChunkHeader(chunk)) return false;
+    if (!readChunkHeader()) return false;
 
     if (!readVoxelData_v0()) return false;
    
@@ -281,7 +281,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
         }
 
         //Get the chunk header
-        if (!readChunkHeader(chunk)) return false;
+        if (!readChunkHeader()) return false;
         oldVoxelDataSize = BufferUtils::extractInt(_chunkHeader.voxelDataSize);
         oldAuxDataSize = BufferUtils::extractInt(_chunkHeader.auxDataSize);
         numOldSectors = sectorsFromBytes(oldVoxelDataSize + oldAuxDataSize + sizeof(ChunkHeader));
@@ -293,7 +293,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
     }
 
     //Compress the chunk data
-    rleCompress(chunk);
+    rleCompressChunk(chunk);
     zlibCompress();
 
     i32 numSectors = sectorsFromBytes(_compressedBufferSize);
@@ -417,7 +417,7 @@ bool RegionFileManager::checkVersion() {
     return true;
 }
 
-bool RegionFileManager::readChunkHeader(Chunk *chunk) {
+bool RegionFileManager::readChunkHeader() {
     if (fread(&(_chunkHeader), 1, sizeof(ChunkHeader), _regionFile->file) != sizeof(ChunkHeader)) {
         return false;
     }
@@ -452,93 +452,119 @@ bool RegionFileManager::readVoxelData_v0() {
  
 }
 
-bool RegionFileManager::fillChunkVoxelData(Chunk* ch) {
-
-    ui64 byteIndex = 0;
-    ui32 blockCounter = 0;
-
-    ui16 blockID;
-    ui16 runSize;
-    ui8 lightVal;
-
-    int blockIndex;
-    int jStart, jEnd, jInc;
-    int kStart, kEnd, kInc;
-    int jMult, kMult;
-
-    switch (ch->faceData.rotation){ //we use rotation value to un-rotate the chunk data
-    case 0: //no rotation
-        jStart = 0;
-        kStart = 0;
-        jEnd = kEnd = CHUNK_WIDTH;
-        jInc = kInc = 1;
-        jMult = CHUNK_WIDTH;
-        kMult = 1;
-        break;
-    case 1: //up is right
-        jMult = 1;
-        jStart = CHUNK_WIDTH - 1;
-        jEnd = -1;
-        jInc = -1;
-        kStart = 0;
-        kEnd = CHUNK_WIDTH;
-        kInc = 1;
-        kMult = CHUNK_WIDTH;
-        break;
-    case 2: //up is down
-        jMult = CHUNK_WIDTH;
-        jStart = CHUNK_WIDTH - 1;
-        kStart = CHUNK_WIDTH - 1;
-        jEnd = kEnd = -1;
-        jInc = kInc = -1;
-        kMult = 1;
-        break;
-    case 3: //up is left
-        jMult = 1;
-        jStart = 0;
-        jEnd = CHUNK_WIDTH;
-        jInc = 1;
-        kMult = CHUNK_WIDTH;
-        kStart = CHUNK_WIDTH - 1;
-        kEnd = -1;
-        kInc = -1;
-        break;
-    default:
-        cout << "ERROR Chunk Loading: Rotation value not 0-3";
-        int a;
-        cin >> a;
-        return 1;
-        break;
+void RegionFileManager::getIterationConstantsFromRotation(int rotation, int& jStart, int& jMult, int& jEnd, int& jInc, int& kStart, int& kMult, int& kEnd, int& kInc) {
+    switch (rotation){ //we use rotation value to un-rotate the chunk data
+        case 0: //no rotation
+            jStart = 0;
+            kStart = 0;
+            jEnd = kEnd = CHUNK_WIDTH;
+            jInc = kInc = 1;
+            jMult = CHUNK_WIDTH;
+            kMult = 1;
+            break;
+        case 1: //up is right
+            jMult = 1;
+            jStart = CHUNK_WIDTH - 1;
+            jEnd = -1;
+            jInc = -1;
+            kStart = 0;
+            kEnd = CHUNK_WIDTH;
+            kInc = 1;
+            kMult = CHUNK_WIDTH;
+            break;
+        case 2: //up is down
+            jMult = CHUNK_WIDTH;
+            jStart = CHUNK_WIDTH - 1;
+            kStart = CHUNK_WIDTH - 1;
+            jEnd = kEnd = -1;
+            jInc = kInc = -1;
+            kMult = 1;
+            break;
+        case 3: //up is left
+            jMult = 1;
+            jStart = 0;
+            jEnd = CHUNK_WIDTH;
+            jInc = 1;
+            kMult = CHUNK_WIDTH;
+            kStart = CHUNK_WIDTH - 1;
+            kEnd = -1;
+            kInc = -1;
+            break;
+        default:
+            pError("ERROR Chunk Loading: Rotation value not 0-3");
+            break;
     }
+}
+
+int RegionFileManager::rleUncompressArray(ui8* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
+
+    ui8 value;
+    ui16 runSize;
+    int index;
 
     int i = 0; //y
     int j = jStart; //z
     int k = kStart; //x
-    int sunLightAdd = 0;
-
-    ch->numBlocks = 0;
+    int blockCounter = 0;
 
     //Read block data
     while (blockCounter < CHUNK_SIZE){
         //Grab a run of RLE data
         runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
-        blockID = BufferUtils::extractShort(_byteBuffer, byteIndex + 2);
-
-        if (blockID != 0) ch->numBlocks += runSize;
+        value = _byteBuffer[byteIndex + 2];
 
         for (int q = 0; q < runSize; q++){
-            blockIndex = i * CHUNK_LAYER + j * jMult + k * kMult;
+            index = i * CHUNK_LAYER + j * jMult + k * kMult;
 
-            if (blockIndex >= CHUNK_SIZE){
-                pError("Chunk File Corrupted!\n");
-                return 1; 
+            if (index >= CHUNK_SIZE){
+                pError("Chunk File Corrupted! Index >= 32768. (" + to_string(index) + ") " + to_string(q) + " " + to_string(runSize) + " " + to_string(blockCounter) );
+                return 1;
             }
 
-            ch->setBlockData(blockIndex, blockID);
-            //If its a spawner, mark it
-            if (ch->getBlock(blockIndex).spawnerVal || ch->getBlock(blockIndex).sinkVal){
-                ch->spawnerBlocks.push_back(blockIndex);
+            data[index] = value;
+
+            blockCounter++;
+            k += kInc;
+            if (k == kEnd){
+                k = kStart;
+                j += jInc;
+                if (j == jEnd){
+                    j = jStart;
+                    i++;
+                }
             }
+        }
+        byteIndex += 3;
+    }
+    return 0;
+}
+
+int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
+    
+    ui16 value;
+    ui16 runSize;
+    int index;
+
+    int i = 0; //y
+    int j = jStart; //z
+    int k = kStart; //x
+    int blockCounter = 0;
+
+    //Read block data
+    while (blockCounter < CHUNK_SIZE){
+        //Grab a run of RLE data
+        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
+        value = BufferUtils::extractShort(_byteBuffer, byteIndex + 2);
+
+        for (int q = 0; q < runSize; q++){
+            index = i * CHUNK_LAYER + j * jMult + k * kMult;
+
+            if (index >= CHUNK_SIZE){
+                pError("Chunk File Corrupted! Index >= 32768. (" + to_string(index) + ") " + to_string(q) + " " + to_string(runSize) + " " + to_string(blockCounter));
+                return 1;
+            }
+
+            data[index] = value;
 
             blockCounter++;
             k += kInc;
@@ -553,66 +579,82 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* ch) {
         }
         byteIndex += 4;
     }
-    //Reset counters
-    i = 0;
-    j = jStart;
-    k = kStart;
-    blockCounter = 0;
+    return 0;
+}
 
-    //Read lamp light data
-    while (blockCounter < CHUNK_SIZE) {
-        //Grab a run of RLE data
-        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
-        lightVal = _byteBuffer[byteIndex + 2];
+bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
+   // return false;
+    ui32 byteIndex = 0;
 
-        for (int q = 0; q < runSize; q++){
-            blockIndex = i*CHUNK_LAYER + j*jMult + k*kMult;
-                
-            ch->setLampLight(blockIndex, lightVal);
+    ui8 lightVal;
 
-            blockCounter++;
-            k += kInc;
-            if (k == kEnd){
-                k = kStart;
-                j += jInc;
-                if (j == jEnd){
-                    j = jStart;
-                    i++;
-                }
-            }
+    int blockIndex;
+    int jStart, jEnd, jInc;
+    int kStart, kEnd, kInc;
+    int jMult, kMult;
+
+    getIterationConstantsFromRotation(chunk->faceData.rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+
+    chunk->numBlocks = 0;
+
+    if (rleUncompressArray(blockIDBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
+    if (rleUncompressArray(lampLightBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
+    if (rleUncompressArray(sunlightBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
+    //Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
+    static vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    static vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    static vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
+    //Make the size 0
+    blockIDNodes.clear();
+    lampLightNodes.clear();
+    sunlightNodes.clear();
+     //   chunk->_blockIDContainer.initFromSortedArray()
+
+    ui16 blockID;
+    ui16 lampLight;
+    ui8 sunlight;
+
+    //Add first nodes
+    blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, blockIDBuffer[0]));
+    lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, lampLightBuffer[0]));
+    sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, sunlightBuffer[0]));
+
+    //Construct the node vectors
+    for (int i = 1; i < CHUNK_SIZE; i++) {
+        blockID = blockIDBuffer[i];
+        lampLight = lampLightBuffer[i];
+        sunlight = sunlightBuffer[i];
+
+        if (blockID != 0) chunk->numBlocks++;
+        
+        if (GETBLOCK(blockID).spawnerVal || GETBLOCK(blockID).sinkVal){
+            chunk->spawnerBlocks.push_back(i);
         }
-        byteIndex += 3;
-    }
 
-    i = 0;
-    j = jStart;
-    k = kStart;
-    blockCounter = 0;
-
-    //Read sunlight data
-    while (blockCounter < CHUNK_SIZE) {
-        //Grab a run of RLE data
-        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
-        lightVal = _byteBuffer[byteIndex + 2];
-
-        for (int q = 0; q < runSize; q++){
-            blockIndex = i*CHUNK_LAYER + j*jMult + k*kMult;
-
-            ch->setSunlight(blockIndex, lightVal);
-
-            blockCounter++;
-            k += kInc;
-            if (k == kEnd){
-                k = kStart;
-                j += jInc;
-                if (j == jEnd){
-                    j = jStart;
-                    i++;
-                }
-            }
+        if (blockID == blockIDNodes.back().data) {
+            blockIDNodes.back().length++;
+        } else {
+            blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, blockID));
         }
-        byteIndex += 3;
+        if (lampLight == lampLightNodes.back().data) {
+            lampLightNodes.back().length++;
+        } else {
+            lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, lampLight));
+        }
+        if (sunlight == sunlightNodes.back().data) {
+            sunlightNodes.back().length++;
+        } else {
+            sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(i, 1, sunlight));
+        }
     }
+  
+    chunk->_blockIDContainer.initFromSortedArray(blockIDNodes);
+    chunk->_lampLightContainer.initFromSortedArray(lampLightNodes);
+    chunk->_sunlightContainer.initFromSortedArray(sunlightNodes);
+
     return true;
 }
 
@@ -649,147 +691,112 @@ bool RegionFileManager::loadRegionHeader() {
     return true;
 }
 
-bool RegionFileManager::rleCompress(Chunk* chunk) {
-    //ui16 *blockData = chunk->data;
-    //ui8 *lightData = chunk->lampLightData;
+void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
+    int count = 1;
+    int tot = 0;
+    ui16 curr = data[jStart*jMult + kStart*kMult];
+    int index;
+    int z = 0;
+    bool first = true;
+    for (int i = 0; i < CHUNK_WIDTH; i++){ //y
+        for (int j = jStart; j != jEnd; j += jInc){ //z
+            for (int k = kStart; k != kEnd; k += kInc){ //x 
+                z++;
+                if (!first) {
+                    index = i*CHUNK_LAYER + j*jMult + k*kMult;
+                    if (data[index] != curr){
+                        _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+                        _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+                        _byteBuffer[_bufferSize++] = curr;
+                        tot += count;
 
-    //_bufferSize = 0;
+                        curr = data[index];
+                        count = 1;
+                    } else{
+                        count++;
+                    }
+                } else {
+                    first = false;
+                }
+            }
+        }
+    }
+    _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+    _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    tot += count;
+    _byteBuffer[_bufferSize++] = curr;
+}
 
-    //ui16 curr;
-    //ui8 currb;
-    //ui32 count = 1;
-    //int c;
-    //int jStart, jEnd, jInc;
-    //int kStart, kEnd, kInc;
-    //int jMult, kMult;
+void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
+    int count = 1;
+    ui16 curr = data[jStart*jMult + kStart*kMult];
+    int index;
+    int tot = 0;
+    bool first = true;
+    for (int i = 0; i < CHUNK_WIDTH; i++){ //y
+        for (int j = jStart; j != jEnd; j += jInc){ //z
+            for (int k = kStart; k != kEnd; k += kInc){ //x 
+                if (!first){
+                    index = i*CHUNK_LAYER + j*jMult + k*kMult;
+                    if (data[index] != curr){
+                        _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+                        _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+                        _byteBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
+                        _byteBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+                        tot += count;
+                        curr = data[index];
+                        count = 1;
+                    } else{
+                        count++;
+                    }
+                } else{
+                    first = false;
+                }
+            }
+        }
+    }
+    _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+    _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    _byteBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
+    _byteBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+    tot += count;
+}
 
-    //switch (chunk->faceData.rotation){ //we use rotation value to un-rotate the chunk data
-    //case 0: //no rotation
-    //    jStart = 0;
-    //    kStart = 0;
-    //    jEnd = kEnd = CHUNK_WIDTH;
-    //    jInc = kInc = 1;
-    //    jMult = CHUNK_WIDTH;
-    //    kMult = 1;
-    //    break;
-    //case 1: //up is right
-    //    jMult = 1;
-    //    jStart = CHUNK_WIDTH - 1;
-    //    jEnd = -1;
-    //    jInc = -1;
-    //    kStart = 0;
-    //    kEnd = CHUNK_WIDTH;
-    //    kInc = 1;
-    //    kMult = CHUNK_WIDTH;
-    //    break;
-    //case 2: //up is down
-    //    jMult = CHUNK_WIDTH;
-    //    jStart = CHUNK_WIDTH - 1;
-    //    kStart = CHUNK_WIDTH - 1;
-    //    jEnd = kEnd = -1;
-    //    jInc = kInc = -1;
-    //    kMult = 1;
-    //    break;
-    //case 3: //up is left
-    //    jMult = 1;
-    //    jStart = 0;
-    //    jEnd = CHUNK_WIDTH;
-    //    jInc = 1;
-    //    kMult = CHUNK_WIDTH;
-    //    kStart = CHUNK_WIDTH - 1;
-    //    kEnd = -1;
-    //    kInc = -1;
-    //    break;
-    //}
+bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
+    ui16* blockIDData;
+    ui8* sunlightData;
+    ui16* lampLightData;
+    if (chunk->_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+        blockIDData = blockIDBuffer;
+        chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
+    } else {
+        blockIDData = chunk->_blockIDContainer.getDataArray();
+    }
+    if (chunk->_lampLightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+        lampLightData = lampLightBuffer;
+        chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
+    } else {
+        lampLightData = chunk->_lampLightContainer.getDataArray();
+    }
+    if (chunk->_sunlightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+        sunlightData = sunlightBuffer;
+        chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
+    } else {
+        sunlightData = chunk->_sunlightContainer.getDataArray();
+    }
 
-    //curr = blockData[jStart*jMult + kStart*kMult];
+    _bufferSize = 0;
 
-    //bool first = 1;
-    ////compress and store block ID data
-    //for (int i = 0; i < CHUNK_WIDTH; i++){ //y
-    //    for (int j = jStart; j != jEnd; j += jInc){ //z
-    //        for (int k = kStart; k != kEnd; k += kInc){ //x 
-    //            if (!first){ //have to ignore the first one since we set it above
-    //                c = i*CHUNK_LAYER + j*jMult + k*kMult; //sometimes x is treated like z and visa versa when rotating
-    //                if (blockData[c] != curr){
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)((curr & 0xFF00) >> 8);
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)(curr & 0xFF);
+    int jStart, jEnd, jInc;
+    int kStart, kEnd, kInc;
+    int jMult, kMult;
 
-    //                    curr = blockData[c];
-    //                    count = 1;
-    //                } else{
-    //                    count++;
-    //                }
-    //            } else{
-    //                first = 0;
-    //            }
-    //        }
-    //    }
-    //}
-    //_byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    //_byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    //_byteBuffer[_bufferSize++] = (GLubyte)((curr & 0xFF00) >> 8);
-    //_byteBuffer[_bufferSize++] = (GLubyte)(curr & 0xFF);
+    getIterationConstantsFromRotation(chunk->faceData.rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
-    ////compress and store artificial light
-    //count = 1;
-    //currb = lightData[jStart*jMult + kStart*kMult];
-    //first = 1;
-    //for (int i = 0; i < CHUNK_WIDTH; i++){ //y
-    //    for (int j = jStart; j != jEnd; j += jInc){ //z
-    //        for (int k = kStart; k != kEnd; k += kInc){ //x 
-    //            if (!first){ //have to ignore the first one since we set it above
-    //                c = i*CHUNK_LAYER + j*jMult + k*kMult;
-    //                if (lightData[c] != currb){ //remove the count ==???
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    //                    _byteBuffer[_bufferSize++] = currb;
+    rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    rleCompressArray(sunlightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
-    //                    currb = lightData[c];
-    //                    count = 1;
-    //                } else{
-    //                    count++;
-    //                }
-    //            } else{
-    //                first = 0;
-    //            }
-    //        }
-    //    }
-    //}
-    //_byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    //_byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    //_byteBuffer[_bufferSize++] = currb;
-
-    ////compress and store voxel sunlight
-    //count = 1;
-    //currb = lightData[CHUNK_SIZE + jStart*jMult + kStart*kMult];
-    //first = 1;
-    //for (int i = 0; i < CHUNK_WIDTH; i++){ //y
-    //    for (int j = jStart; j != jEnd; j += jInc){ //z
-    //        for (int k = kStart; k != kEnd; k += kInc){ //x 
-    //            if (!first){ //have to ignore the first one since we set it above
-    //                c = i*CHUNK_LAYER + j*jMult + k*kMult;
-    //                if (lightData[CHUNK_SIZE + c] != currb){ //remove the count ==???
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    //                    _byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    //                    _byteBuffer[_bufferSize++] = currb;
-
-    //                    currb = lightData[CHUNK_SIZE + c];
-    //                    count = 1;
-    //                } else{
-    //                    count++;
-    //                }
-    //            } else{
-    //                first = 0;
-    //            }
-    //        }
-    //    }
-    //}
-    //_byteBuffer[_bufferSize++] = (GLubyte)((count & 0xFF00) >> 8);
-    //_byteBuffer[_bufferSize++] = (GLubyte)(count & 0xFF);
-    //_byteBuffer[_bufferSize++] = currb;
     return true;
 }
 
