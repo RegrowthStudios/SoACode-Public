@@ -42,11 +42,18 @@ enum class ConnectedTextureSymmetry {
 };
 KEG_ENUM_DECL(ConnectedTextureSymmetry);
 
+enum class ConnectedTextureReducedMethod {
+    NONE,
+    TOP,
+    BOTTOM
+};
+KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
 struct BlockTextureLayer {
     ConnectedTextureMethods method;
     i32v2 size;
     ConnectedTextureSymmetry symmetry;
+    ConnectedTextureReducedMethod reducedMethod;
     nString useMapColor;
     Array<i32> weights;
     i32 totalWeight;

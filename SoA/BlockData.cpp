@@ -21,10 +21,17 @@ e->addValue("grass", ConnectedTextureMethods::CTM_GRASS);
 e->addValue("horizontal", ConnectedTextureMethods::CTM_HORIZONTAL);
 e->addValue("vertical", ConnectedTextureMethods::CTM_VERTICAL);
 KEG_ENUM_INIT_END
+
 KEG_ENUM_INIT_BEGIN(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e)
 e->addValue("none", ConnectedTextureSymmetry::SYMMETRY_NONE);
 e->addValue("opposite", ConnectedTextureSymmetry::SYMMETRY_OPPOSITE);
 e->addValue("all", ConnectedTextureSymmetry::SYMMETRY_ALL);
+KEG_ENUM_INIT_END
+
+KEG_ENUM_INIT_BEGIN(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e);
+e->addValue("none", ConnectedTextureReducedMethod::NONE);
+e->addValue("top", ConnectedTextureReducedMethod::TOP);
+e->addValue("bottom", ConnectedTextureReducedMethod::BOTTOM);
 KEG_ENUM_INIT_END
 
 KEG_ENUM_INIT_BEGIN(BlendType, BlendType, e)
@@ -36,6 +43,7 @@ KEG_ENUM_INIT_END
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(BlockTextureLayer)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("method", Keg::Value::custom("ConnectedTextureMethods", offsetof(BlockTextureLayer, method), true));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("reducedMethod", Keg::Value::custom("ConnectedTextureReducedMethod", offsetof(BlockTextureLayer, reducedMethod), true));
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32_V2, size);
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("width", Keg::Value::basic(Keg::BasicType::I32, offsetof(BlockTextureLayer, size)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("height", Keg::Value::basic(Keg::BasicType::I32, offsetof(BlockTextureLayer, size) + sizeof(i32)));

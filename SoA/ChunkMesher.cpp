@@ -653,13 +653,14 @@ void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer&
     switch (blockTexture.method) {
     case ConnectedTextureMethods::CTM_CONNECTED:
         return getConnectedTextureIndex(mi, result, blockTexture.innerSeams, rightDir, upDir, frontDir, directionIndex);
-        break;
     case ConnectedTextureMethods::CTM_RANDOM:
         return getRandomTextureIndex(mi, blockTexture, result);
-        break;
     case ConnectedTextureMethods::CTM_GRASS:
         return getGrassTextureIndex(mi, result, rightDir, upDir, frontDir, directionIndex, color);
-        break;
+    case ConnectedTextureMethods::CTM_HORIZONTAL:
+        return getHorizontalTextureIndex(mi, result, blockTexture.innerSeams, rightDir, frontDir, directionIndex);
+    case ConnectedTextureMethods::CTM_VERTICAL:
+        return getVerticalTextureIndex(mi, result, blockTexture.reducedMethod, upDir, directionIndex);
     }
 }
 
@@ -886,6 +887,76 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
     }
 
     result += grassTextureOffsets[connectedOffset];
+}
+
+void ChunkMesher::getVerticalTextureIndex(const MesherInfo &mi, int& result, ConnectedTextureReducedMethod rm, int upDir, unsigned int offset) {
+
+    static int verticalOffsets[4] = { 0, 1, 3, 2 };
+
+    int connectedOffset;
+    int wc = mi.wc;
+
+    int tex = result;
+
+    ui16* chData = mi.task->chData;
+
+    if (rm == ConnectedTextureReducedMethod::NONE){
+        connectedOffset = 0;
+    } else if (rm == ConnectedTextureReducedMethod::TOP) {
+        connectedOffset = 1;
+    } else { //BOTTOM
+        connectedOffset = 2;
+    }
+
+    //top bit
+    Block *block = &GETBLOCK(chData[wc + upDir]);
+    if (*((int *)(&block->pxTex) + offset) == tex) {
+        connectedOffset |= 2;
+    }
+    //bottom bit
+    block = &GETBLOCK(chData[wc - upDir]);
+    if (*((int *)(&block->pxTex) + offset) == tex) {
+        connectedOffset |= 1;
+    }
+
+    result += verticalOffsets[connectedOffset];
+}
+
+void ChunkMesher::getHorizontalTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int frontDir, unsigned int offset) {
+    static int horizontalOffsets[4] = { 0, 1, 3, 2 };
+
+    int connectedOffset = 0;
+    int wc = mi.wc;
+
+    int tex = result;
+
+    ui16* chData = mi.task->chData;
+
+    //right bit
+    Block *block = &GETBLOCK(chData[wc + rightDir]);
+    if (*((int *)(&block->pxTex) + offset) == tex) {
+        connectedOffset |= 1;
+    }
+    //left bit
+    block = &GETBLOCK(chData[wc - rightDir]);
+    if (*((int *)(&block->pxTex) + offset) == tex) {
+        connectedOffset |= 2;
+    }
+
+    if (innerSeams) {
+        //front right bit
+        Block *block = &GETBLOCK(chData[wc + rightDir + frontDir]);
+        if (*((int *)(&block->pxTex) + offset) == tex) {
+            connectedOffset |= 1;
+        }
+        //front left bit
+        block = &GETBLOCK(chData[wc - rightDir + frontDir]);
+        if (*((int *)(&block->pxTex) + offset) == tex) {
+            connectedOffset |= 2;
+        }
+    }
+
+    result += horizontalOffsets[connectedOffset];
 }
 
 void ChunkMesher::addBlockToMesh(MesherInfo& mi)

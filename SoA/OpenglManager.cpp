@@ -299,24 +299,31 @@ void OpenglManager::endSession() {
         cm = chunkMeshes[i];
         if (cm->vboID != 0){
             glDeleteBuffers(1, &(cm->vboID));
+            cm->vboID = 0;
         }
         if (cm->vaoID != 0){
             glDeleteVertexArrays(1, &(cm->vaoID));
+            cm->vaoID = 0;
         }
         if (cm->transVaoID != 0){
             glDeleteVertexArrays(1, &(cm->transVaoID));
+            cm->transVaoID = 0;
         }
         if (cm->transVboID == 0) {
             glDeleteBuffers(1, &(cm->transVboID));
+            cm->transVboID = 0;
         }
         if (cm->transIndexID == 0) {
             glDeleteBuffers(1, &(cm->transIndexID));
+            cm->transIndexID = 0;
         }
         if (cm->cutoutVaoID != 0){
             glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+            cm->cutoutVaoID = 0;
         }
         if (cm->cutoutVboID == 0) {
             glDeleteBuffers(1, &(cm->cutoutVboID));
+            cm->cutoutVboID = 0;
         }
         if (cm->waterVboID != 0){
             glDeleteBuffers(1, &(cm->waterVboID));
