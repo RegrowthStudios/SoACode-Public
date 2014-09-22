@@ -766,6 +766,9 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     ui16* blockIDData;
     ui8* sunlightData;
     ui16* lampLightData;
+
+    //Need to lock so that nobody modifies the interval tree out from under us
+    Chunk::modifyLock.lock();
     if (chunk->_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
         blockIDData = blockIDBuffer;
         chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
@@ -784,6 +787,7 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     } else {
         sunlightData = chunk->_sunlightContainer.getDataArray();
     }
+    Chunk::modifyLock.unlock();
 
     _bufferSize = 0;
 

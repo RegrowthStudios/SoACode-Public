@@ -534,7 +534,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
         _isHugeShift = 0;
         relocateChunks(position);
     }
-
+    
     const i32 CENTER_OFFSET = (csGridWidth / 2) * CHUNK_WIDTH + CHUNK_WIDTH / 2;
     const i32 DISTANCE_THRESHOLD = CHUNK_WIDTH;
 
@@ -577,11 +577,13 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
         openglManager.collisionLock.unlock();
     }
     globalMultiplePreciseTimer.start("Update Chunks");
+    Chunk::modifyLock.lock();
     if (_isStationary) {
         updateChunks(f64v3(cornerPosition) + f64v3(CENTER_OFFSET));
     } else {
         updateChunks(position);
     }
+    Chunk::modifyLock.unlock();
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(_maxChunkTicks);
   //  globalMultiplePreciseTimer.start("CAEngine Update");
@@ -615,7 +617,9 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     //This doesnt function correctly
     //caveOcclusion(position);
   //  globalMultiplePreciseTimer.start("Physics Engine");
+    //Chunk::modifyLock.lock();
    // GameManager::physicsEngine->update(viewDir);
+    //Chunk::modifyLock.unlock();
 
     k++;
     cl++;

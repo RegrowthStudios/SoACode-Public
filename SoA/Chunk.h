@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <queue>
 #include <set>
+#include <mutex>
 
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
@@ -165,6 +166,9 @@ public:
 
     std::vector <Chunk *> *setupListPtr;
     Chunk *right, *left, *front, *back, *top, *bottom;
+
+    //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
+    static std::mutex modifyLock;
 
 private:
     ChunkStates state;
