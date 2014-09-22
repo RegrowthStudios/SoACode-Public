@@ -293,6 +293,39 @@ void OpenglManager::EndThread()
     gameThread = NULL;
 }
 
+void OpenglManager::endSession() {
+    ChunkMesh* cm;
+    for (int i = 0; i < chunkMeshes.size(); i++) {
+        cm = chunkMeshes[i];
+        if (cm->vboID != 0){
+            glDeleteBuffers(1, &(cm->vboID));
+        }
+        if (cm->vaoID != 0){
+            glDeleteVertexArrays(1, &(cm->vaoID));
+        }
+        if (cm->transVaoID != 0){
+            glDeleteVertexArrays(1, &(cm->transVaoID));
+        }
+        if (cm->transVboID == 0) {
+            glDeleteBuffers(1, &(cm->transVboID));
+        }
+        if (cm->transIndexID == 0) {
+            glDeleteBuffers(1, &(cm->transIndexID));
+        }
+        if (cm->cutoutVaoID != 0){
+            glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+        }
+        if (cm->cutoutVboID == 0) {
+            glDeleteBuffers(1, &(cm->cutoutVboID));
+        }
+        if (cm->waterVboID != 0){
+            glDeleteBuffers(1, &(cm->waterVboID));
+            cm->waterVboID = 0;
+        }
+    }
+    std::vector<ChunkMesh*>().swap(chunkMeshes);
+}
+
 Message OpenglManager::WaitForMessage(int i)
 {
     Message result;
@@ -386,6 +419,9 @@ void OpenglManager::ProcessMessages(int waitForMessage)
                 break;
             case GL_M_PHYSICSBLOCKMESH:
                 UpdatePhysicsBlockMesh((PhysicsBlockMeshMessage *)(message.data));
+                break;
+            case GL_M_ENDSESSION:
+                endSession();
                 break;
             }
         }

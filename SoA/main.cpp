@@ -352,6 +352,7 @@ int ProcessMessage(Message &message) {
             GameManager::gameState = GameStates::ZOOMINGOUT;
             openglManager.zoomState = 0;
             GameManager::endSession();
+            gameToGl.enqueue(Message(GL_M_ENDSESSION, NULL));
             break;
         case 14:
             GameManager::gameState = GameStates::WORLDEDITOR;

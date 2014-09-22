@@ -18,7 +18,7 @@ struct CameraInfo
 };
 
 enum GL_MESSAGE { GL_M_ERROR, GL_M_DONE, GL_M_QUIT, GL_M_TERRAINMESH, GL_M_REMOVETREES, GL_M_UPDATECAMERA, GL_M_UPDATEPLANET, GL_M_STATETRANSITION, GL_M_NEWPLANET, GL_M_DELETEALLMESHES, 
-                    GL_M_INITIALIZEVOXELS, GL_M_CHUNKMESH, GL_M_PARTICLEMESH, GL_M_PHYSICSBLOCKMESH, GL_M_PLACEBLOCKS, GL_M_REBUILD_TERRAIN, GL_M_ENABLE_CHUNKS, GL_M_DISABLE_CHUNKS };
+    GL_M_INITIALIZEVOXELS, GL_M_CHUNKMESH, GL_M_PARTICLEMESH, GL_M_PHYSICSBLOCKMESH, GL_M_PLACEBLOCKS, GL_M_REBUILD_TERRAIN, GL_M_ENABLE_CHUNKS, GL_M_DISABLE_CHUNKS, GL_M_ENDSESSION };
 
 extern CinematicCamera mainMenuCamera;
 extern class GameMenu *currMenu;
@@ -52,6 +52,7 @@ public:
     void glWorldEditorLoop();
     void BeginThread(void (*func)(void));
     void EndThread();
+    void endSession();
     Message WaitForMessage(int i);
     void glWaitForMessage(int i);
     void ProcessMessages(int waitForMessage = -1);
