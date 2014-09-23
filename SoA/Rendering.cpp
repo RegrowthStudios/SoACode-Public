@@ -579,45 +579,55 @@ GLuint MakeBlockVbo(Block *block){
     vertices.resize(24);
     int btype = block->ID;
 
-    GLubyte color[3], overlayColor[3];
-    
-    color[0] = Blocks[btype].color[0];
-    color[1] = Blocks[btype].color[1];
-    color[2] = Blocks[btype].color[2];
-    overlayColor[0] = Blocks[btype].overlayColor[0];
-    overlayColor[1] = Blocks[btype].overlayColor[1];
-    overlayColor[2] = Blocks[btype].overlayColor[2];
+    GLubyte sideColor[3], sideOverlayColor[3];
+    GLubyte topColor[3], topOverlayColor[3];
+    GLubyte botColor[3], botOverlayColor[3];
+
+    Blocks[btype].GetBlockColor(sideColor, sideOverlayColor, 0, 128, 128, block->pxTexInfo);
 
     GLuint vboID;
     glGenBuffers(1, &vboID); // Create the buffer ID
     glBindBuffer(GL_ARRAY_BUFFER, vboID); // Bind the buffer (vertex array data)
 
     int index = 0;
+    int sideOvTexOffset = 0; //for making inventory grass look better
 
     switch (block->meshType) {
         case MeshType::BLOCK:
+
+            Blocks[btype].GetBlockColor(topColor, topOverlayColor, 0, 128, 128, block->pyTexInfo);
+            Blocks[btype].GetBlockColor(botColor, botOverlayColor, 0, 128, 128, block->nyTexInfo);
+
+            switch (block->pxTexInfo.overlay.method) {
+                case ConnectedTextureMethods::CTM_GRASS:
+                    sideOvTexOffset = 1;
+                    break;
+                default:
+                    break;
+            }
+
             //front
-            VoxelMesher::makeCubeFace(vertices.data(), 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, ambientOcclusion, block->pzTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->pzTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //right
-            VoxelMesher::makeCubeFace(vertices.data(), 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, ambientOcclusion, block->pxTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->pxTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //top
-            VoxelMesher::makeCubeFace(vertices.data(), 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, color, overlayColor, ambientOcclusion, block->pyTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, topColor, topOverlayColor, ambientOcclusion, block->pyTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //left
-            VoxelMesher::makeCubeFace(vertices.data(), 36, block->waveEffect, i32v3(0), index, block->nxTex, block->nxOvTex, color, overlayColor, ambientOcclusion, block->nxTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 36, block->waveEffect, i32v3(0), index, block->nxTex, block->nxOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->nxTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //bottom
-            VoxelMesher::makeCubeFace(vertices.data(), 48, block->waveEffect, i32v3(0), index, block->nyTex, block->nyOvTex, color, overlayColor, ambientOcclusion, block->nyTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 48, block->waveEffect, i32v3(0), index, block->nyTex, block->nyOvTex, botColor, botOverlayColor, ambientOcclusion, block->nyTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //back
-            VoxelMesher::makeCubeFace(vertices.data(), 60, block->waveEffect, i32v3(0), index, block->nzTex, block->nzOvTex, color, overlayColor, ambientOcclusion, block->nzTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 60, block->waveEffect, i32v3(0), index, block->nzTex, block->nzOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->nzTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
 
@@ -626,20 +636,20 @@ GLuint MakeBlockVbo(Block *block){
             break;
         case MeshType::FLORA:
 
-            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, sunlight, lampColor, block->pzTexInfo);
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, sideColor, sideOverlayColor, sunlight, lampColor, block->pzTexInfo);
             index += 4;
-            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, sunlight, lampColor, block->pxTexInfo);
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, sideColor, sideOverlayColor, sunlight, lampColor, block->pxTexInfo);
             index += 4;
-            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, color, overlayColor, sunlight, lampColor, block->pyTexInfo);
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, sideColor, sideOverlayColor, sunlight, lampColor, block->pyTexInfo);
             index += 4;
 
             glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
             glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(BlockVertex), &(vertices[0]));
             break;
         case MeshType::CROSSFLORA:
-            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::crossFloraVertices[0], VoxelMesher::floraNormals, 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, sunlight, lampColor, block->pzTexInfo);
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::crossFloraVertices[0], VoxelMesher::floraNormals, 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, sideColor, sideOverlayColor, sunlight, lampColor, block->pzTexInfo);
             index += 4;
-            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::crossFloraVertices[0], VoxelMesher::floraNormals, 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, sunlight, lampColor, block->pxTexInfo);
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::crossFloraVertices[0], VoxelMesher::floraNormals, 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, sideColor, sideOverlayColor, sunlight, lampColor, block->pxTexInfo);
             index += 4;
 
             glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
