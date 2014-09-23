@@ -1,4 +1,6 @@
 #pragma once
+#include "compat.h"
+
 // Make Sure We Use Correct Debug Variables
 #ifdef DEBUG
 #ifndef _DEBUG
