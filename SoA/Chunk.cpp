@@ -83,31 +83,17 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	drawWater = 0;
 	occlude = 0;
 
-#ifdef USEARRAYS
-    if (!_data) {
-        _data = new ui16[CHUNK_SIZE];
-        _sunlightData = new ui8[CHUNK_SIZE];
-        _lampLightData = new ui8[CHUNK_SIZE];
-    }
-#endif
 }
 
 vector <Chunk*> *dbgst;
 
 void Chunk::clear(bool clearDraw)
 {
-#ifdef USEARRAYS
-    delete[] _data;
-    delete[] _sunlightData;
-    delete[] _lampLightData;
-    _data = nullptr;
-    _sunlightData = nullptr;
-    _lampLightData = nullptr;
-#else
+
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();
-#endif
+
     state = ChunkStates::LOAD;
     isAccessible = 0;
     left = right = front = back = top = bottom = NULL;

@@ -27,6 +27,7 @@ public:
         }
     }
 
+    //Creates the tree using a sorted array of data. The number of voxels should add up to 32768
     inline void initFromSortedArray(const std::vector <typename VoxelIntervalTree<T>::LightweightNode>& data) {
         if (_state == VoxelStorageState::INTERVAL_TREE) {
             _dataTree.createFromSortedArray(data);

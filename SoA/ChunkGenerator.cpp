@@ -33,15 +33,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     int rainfall;
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
-#ifndef USEARRAYS
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> dataVector;
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampVector;
     std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunVector;
-#else
-    ui16* _data = chunk->_data;
-    ui8* _lampLightData = chunk->_lampLightData;
-    ui8* _sunlightData = chunk->_sunlightData;
-#endif
 
     chunk->neighbors = 0;
 
@@ -213,11 +207,6 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     chunk->spawnerBlocks.push_back(c); 
                 }
 
-#ifdef USEARRAYS
-                _data[c] = data;
-                _lampLightData[c] = lampData;
-                _sunlightData[c] = sunlightData;
-#else
                 //modify the data
                 if (c == 0) {
 
@@ -244,18 +233,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     }
                    
                 }
-#endif
             }
         }
         if (pnum == chunk->numBlocks && maph - h < 0){
 
-#ifdef USEARRAYS
-            while (c < CHUNK_SIZE){
-                _lampLightData[c] = 0;
-                _sunlightData[c] = MAXLIGHT;
-                _data[c++] = NONE;
-            } 
-#else
             if (dataVector.back().data == 0) {
                 dataVector.back().length += CHUNK_SIZE - c;
             } else {
@@ -271,17 +252,13 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
             } else {
                 sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, CHUNK_SIZE - c, MAXLIGHT));
             }
-
-#endif
             break;
         }
     }
 
-#ifndef USEARRAYS
     chunk->_blockIDContainer.initFromSortedArray(dataVector);
     chunk->_lampLightContainer.initFromSortedArray(lampVector);
     chunk->_sunlightContainer.initFromSortedArray(sunVector);
-#endif
 
     if (chunk->numBlocks){
         LoadMinerals(chunk);

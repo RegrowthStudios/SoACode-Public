@@ -5,6 +5,7 @@
 const int NUM_FLORA_MESHES = 4;
 const int NUM_CROSSFLORA_MESHES = 2;
 
+//Provides helpful meshing functions for voxels
 class VoxelMesher
 {
 public:
