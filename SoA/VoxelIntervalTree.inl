@@ -73,7 +73,7 @@ bool VoxelIntervalTree<typename T>::treeInsert(int index, T data, int &newIndex)
 
                     node.left = _tree.size();
                     newIndex = node.left;
-                    _tree.push_back(Node(data, index, 1));
+                    _tree.emplace_back(data, index, 1);
                     _tree.back().parent = interval;
 
                     return true;
@@ -88,10 +88,10 @@ bool VoxelIntervalTree<typename T>::treeInsert(int index, T data, int &newIndex)
                     enclosingInterval->length = index - enclosingInterval->getStart();
 
                     //We need to add a new node to the tree later
-                    _nodesToAdd.push_back(NodeToAdd(index + 1, node.getStart() - index - 1, enclosingInterval->data));
+                    _nodesToAdd.emplace_back(index + 1, node.getStart() - index - 1, enclosingInterval->data);
                 }
 
-                _tree.push_back(Node(data, index, 1));
+                _tree.emplace_back(data, index, 1);
                 _tree.back().parent = interval;
                 return true;
             }
@@ -117,7 +117,7 @@ bool VoxelIntervalTree<typename T>::treeInsert(int index, T data, int &newIndex)
                 if (node.left == -1) {
                     node.left = _tree.size();
                     newIndex = node.left;
-                    _tree.push_back(Node(data, index, 1));
+                    _tree.emplace_back(data, index, 1);
                     _tree.back().parent = interval;
                     return true;
                 }
@@ -137,11 +137,11 @@ bool VoxelIntervalTree<typename T>::treeInsert(int index, T data, int &newIndex)
                     if (index == node.getStart() + node.length - 1) { //at the edge of the interval
                         --(enclosingInterval->length);
                     } else { //splitting the interval
-                        _nodesToAdd.push_back(NodeToAdd(index + 1, node.getStart() + node.length - index - 1, enclosingInterval->data));
+                        _nodesToAdd.emplace_back(index + 1, node.getStart() + node.length - index - 1, enclosingInterval->data);
                         enclosingInterval->length = index - enclosingInterval->getStart();
                     }
 
-                    _tree.push_back(Node(data, index, 1));
+                    _tree.emplace_back(data, index, 1);
                     _tree.back().parent = interval;
                     return true;
                 }
@@ -156,10 +156,10 @@ bool VoxelIntervalTree<typename T>::treeInsert(int index, T data, int &newIndex)
                 if (enclosingInterval) {
                     enclosingInterval->length = index - enclosingInterval->getStart();
                     //We need to add a new node to the tree later
-                    _nodesToAdd.push_back(NodeToAdd(index + 1, node.getStart() - index - 1, enclosingInterval->data));
+                    _nodesToAdd.emplace_back(index + 1, node.getStart() - index - 1, enclosingInterval->data);
                 }
 
-                _tree.push_back(Node(data, index, 1));
+                _tree.emplace_back(data, index, 1);
                 _tree.back().parent = interval;
                 return true;
             }
@@ -287,7 +287,7 @@ inline void VoxelIntervalTree<typename T>::rotateLeft(int index) {
 template <typename T>
 inline typename VoxelIntervalTree<typename T>::Node* VoxelIntervalTree<typename T>::insertFirst(T data, ui16 length) {
     _root = 0;
-    _tree.push_back(Node(data, 0, length));
+    _tree.emplace_back(data, 0, length);
     _tree[0].paintBlack();
     return &_tree.back();
 }

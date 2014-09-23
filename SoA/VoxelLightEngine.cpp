@@ -159,7 +159,7 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
             if (chunk->getBlock(blockIndex).blockLight == 0){
 
                 if (chunk->getSunlight(blockIndex) != MAXLIGHT){
-                    chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, MAXLIGHT));
+                    chunk->sunlightUpdateQueue.emplace_back(blockIndex, MAXLIGHT);
                 }
             } else{
                 return;
@@ -174,9 +174,9 @@ inline void removeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 ligh
     if (lightVal > 0){
         if (lightVal <= light){
             chunk->setSunlight(blockIndex, 0);
-            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, light));
+            chunk->sunlightRemovalQueue.emplace_back(blockIndex, light);
         } else {
-            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, 0));
+            chunk->sunlightUpdateQueue.emplace_back(blockIndex, 0);
         }
     }
 }
@@ -250,7 +250,7 @@ inline void placeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light
     if (chunk->getSunlight(blockIndex) < light){
         if (chunk->getBlock(blockIndex).allowLight){
             chunk->setSunlight(blockIndex, light);
-            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, light));
+            chunk->sunlightUpdateQueue.emplace_back(blockIndex, light);
         }
     }
 }

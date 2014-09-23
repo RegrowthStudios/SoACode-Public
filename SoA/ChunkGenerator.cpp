@@ -142,7 +142,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 
                     if (biome->possibleFlora.size()){
                         r = chunk->GetPlantType(x + wx, z + wz, biome);
-                        if (r) chunk->plantsToLoad.push_back(PlantData(GameManager::planet->floraTypeVec[r], c));
+                        if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[r], c);
 
                          sunlightData = MAXLIGHT;
                          data = NONE;
@@ -210,26 +210,26 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 //modify the data
                 if (c == 0) {
 
-                    dataVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, data));
-                    lampVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, lampData));
-                    sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, sunlightData));
+                    dataVector.emplace_back(0, 1, data);
+                    lampVector.emplace_back(0, 1, lampData);
+                    sunVector.emplace_back(0, 1, sunlightData);
 
                 } else {
 
                     if (data == dataVector.back().data) {
                         dataVector.back().length++;
                     } else {
-                        dataVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, 1, data));
+                        dataVector.emplace_back(c, 1, data);
                     }
                     if (lampData == lampVector.back().data) {
                         lampVector.back().length++;
                     } else {
-                        lampVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, 1, lampData));
+                        lampVector.emplace_back(c, 1, lampData);
                     }
                     if (sunlightData == sunVector.back().data) {
                         sunVector.back().length++;
                     } else {
-                        sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, 1, sunlightData));
+                        sunVector.emplace_back(c, 1, sunlightData);
                     }
                    
                 }
@@ -240,17 +240,17 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
             if (dataVector.back().data == 0) {
                 dataVector.back().length += CHUNK_SIZE - c;
             } else {
-                dataVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, CHUNK_SIZE - c, 0));
+                dataVector.emplace_back(c, CHUNK_SIZE - c, 0);
             }
             if (lampVector.back().data == 0) {
                 lampVector.back().length += CHUNK_SIZE - c;
             } else {
-                lampVector.push_back(VoxelIntervalTree<ui16>::LightweightNode(c, CHUNK_SIZE - c, 0));
+                lampVector.emplace_back(c, CHUNK_SIZE - c, 0);
             }
             if (sunVector.back().data == MAXLIGHT) {
                 sunVector.back().length += CHUNK_SIZE - c;
             } else {
-                sunVector.push_back(VoxelIntervalTree<ui8>::LightweightNode(c, CHUNK_SIZE - c, MAXLIGHT));
+                sunVector.emplace_back(c, CHUNK_SIZE - c, MAXLIGHT);
             }
             break;
         }
@@ -272,7 +272,7 @@ void ChunkGenerator::TryEnqueueTree(Chunk* chunk, Biome *biome, int x, int z, in
  
     int index = FloraGenerator::getTreeIndex(biome, x, z);
     if (index == -1) return;
-    chunk->treesToLoad.push_back(TreeData());
+    chunk->treesToLoad.emplace_back();
     chunk->treesToLoad.back().startc = c;
     FloraGenerator::makeTreeData(chunk, chunk->treesToLoad.back(), GameManager::planet->treeTypeVec[index]);
 }
