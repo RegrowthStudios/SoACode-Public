@@ -269,8 +269,8 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
                     int z = player->headPosition.z - player->currCh->position.z;
                     int c = y * CHUNK_WIDTH * CHUNK_WIDTH + z * CHUNK_WIDTH + x;
                     player->headInBlock = player->currCh->getBlockData(c);
-                    player->headVoxelLight = player->currCh->getLight(LIGHT, c) - 8;
-                    player->headSunLight = player->currCh->getLight(SUNLIGHT, c) - 8;
+                    player->headVoxelLight = player->currCh->getLampLight(c) - 8;
+                    player->headSunLight = player->currCh->getSunlight(c) - 8;
                     if (player->headVoxelLight < 0) player->headVoxelLight = 0;
                     if (player->headSunLight < 0) player->headSunLight = 0;
                 }

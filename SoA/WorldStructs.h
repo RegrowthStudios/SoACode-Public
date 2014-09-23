@@ -4,6 +4,9 @@
 #include "Constants.h"
 #include "OpenGLStructs.h"
 #include "Texture2d.h"
+#include "Timing.h"
+
+extern MultiplePreciseTimer globalMultiplePreciseTimer;
 
 extern string saveFilePath;
 extern class Item *ObjectList[OBJECT_LIST_SIZE];

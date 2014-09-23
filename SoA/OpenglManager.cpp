@@ -293,6 +293,46 @@ void OpenglManager::EndThread()
     gameThread = NULL;
 }
 
+void OpenglManager::endSession() {
+    ChunkMesh* cm;
+    for (int i = 0; i < chunkMeshes.size(); i++) {
+        cm = chunkMeshes[i];
+        if (cm->vboID != 0){
+            glDeleteBuffers(1, &(cm->vboID));
+            cm->vboID = 0;
+        }
+        if (cm->vaoID != 0){
+            glDeleteVertexArrays(1, &(cm->vaoID));
+            cm->vaoID = 0;
+        }
+        if (cm->transVaoID != 0){
+            glDeleteVertexArrays(1, &(cm->transVaoID));
+            cm->transVaoID = 0;
+        }
+        if (cm->transVboID == 0) {
+            glDeleteBuffers(1, &(cm->transVboID));
+            cm->transVboID = 0;
+        }
+        if (cm->transIndexID == 0) {
+            glDeleteBuffers(1, &(cm->transIndexID));
+            cm->transIndexID = 0;
+        }
+        if (cm->cutoutVaoID != 0){
+            glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+            cm->cutoutVaoID = 0;
+        }
+        if (cm->cutoutVboID == 0) {
+            glDeleteBuffers(1, &(cm->cutoutVboID));
+            cm->cutoutVboID = 0;
+        }
+        if (cm->waterVboID != 0){
+            glDeleteBuffers(1, &(cm->waterVboID));
+            cm->waterVboID = 0;
+        }
+    }
+    std::vector<ChunkMesh*>().swap(chunkMeshes);
+}
+
 Message OpenglManager::WaitForMessage(int i)
 {
     Message result;
@@ -386,6 +426,9 @@ void OpenglManager::ProcessMessages(int waitForMessage)
                 break;
             case GL_M_PHYSICSBLOCKMESH:
                 UpdatePhysicsBlockMesh((PhysicsBlockMeshMessage *)(message.data));
+                break;
+            case GL_M_ENDSESSION:
+                endSession();
                 break;
             }
         }
@@ -749,6 +792,10 @@ void Initialize_SDL_OpenGL()
     glGetIntegerv(GL_MINOR_VERSION, &vminor);
     printf("\n***        Opengl Version: %s\n", glGetString(GL_VERSION));
     printf("\n***       CPU Threads: %u\n", thread::hardware_concurrency());
+
+    GLint max_layers;
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
+    printf("\n***       Max Texture ARray Layers: %d\n", max_layers);
 
     if (vmajor < 3){// || (vminor == 3 && vminor < 3)){
         char buffer[2048];
@@ -1821,7 +1868,6 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
                 mapBufferData(cm->vboID, cmd->vertices.size() * sizeof(BlockVertex), &(cmd->vertices[0]), GL_STATIC_DRAW);
 
                 ChunkRenderer::bindVao(cm);
-                cout << "BOUND IT\n";
             } else {
                 if (cm->vboID != 0){
                     glDeleteBuffers(1, &(cm->vboID));

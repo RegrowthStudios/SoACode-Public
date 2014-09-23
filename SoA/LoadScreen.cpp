@@ -17,9 +17,9 @@
 #include "RasterizerState.h"
 #include "DepthState.h"
 
-const color8 LOAD_COLOR_TEXT(205, 205, 205, 255);
-const color8 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
-const color8 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
+const ColorRGBA8 LOAD_COLOR_TEXT(205, 205, 205, 255);
+const ColorRGBA8 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
+const ColorRGBA8 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 
 LoadScreen::LoadScreen() : IGameScreen(),
 rand(Random()),

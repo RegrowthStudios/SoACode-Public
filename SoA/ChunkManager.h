@@ -19,6 +19,7 @@ const i32 lodStep = 1;
 extern ui32 strtTimer;
 
 struct PlaceBlocksMessage {
+
     PlaceBlocksMessage(Item *equipped) : equippedItem(equipped) {}
 
     Item* equippedItem;

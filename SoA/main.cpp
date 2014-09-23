@@ -182,11 +182,7 @@ void gameLoop() {
             case GameStates::PLAY:
                 inGame = 1;
 
-                st = SDL_GetTicks();
                 GameManager::update(0.0, player->gridPosition, NULL);
-                if (SDL_GetTicks() - st > 100) {
-                    cout << "Ticks " << SDL_GetTicks() - st << "\n";
-                }
                 break;
             case GameStates::MAINMENU:
                 inGame = 0;
@@ -211,7 +207,6 @@ void gameLoop() {
         double ticks = (double)(SDL_GetTicks() - startTicks);
 
         if (1000.0 / maxPhysicsFps > ticks) {  //bound fps to 60
-            GLuint t = SDL_GetTicks();
             SDL_Delay((Uint32)(1000.0f / maxPhysicsFps - ticks));
         }
     }
@@ -357,6 +352,7 @@ int ProcessMessage(Message &message) {
             GameManager::gameState = GameStates::ZOOMINGOUT;
             openglManager.zoomState = 0;
             GameManager::endSession();
+            gameToGl.enqueue(Message(GL_M_ENDSESSION, NULL));
             break;
         case 14:
             GameManager::gameState = GameStates::WORLDEDITOR;

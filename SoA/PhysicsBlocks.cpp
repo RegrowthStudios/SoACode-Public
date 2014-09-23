@@ -3,6 +3,7 @@
 
 #include "Actor.h"
 #include "BlockData.h"
+#include "VoxelMesher.h"
 #include "Chunk.h"
 #include "ChunkUpdater.h"
 #include "Frustum.h"
@@ -67,155 +68,6 @@ int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0,
 3, 0, 1, 2, 3, 0, 2, 1, 3, 1, 2, 0, 3, 1, 0, 2, 3, 2, 0, 1, 3, 2, 1, 0 };
 
 const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20 };
-
-const GLfloat physicsBlockVertices[72] = { -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, 0.499f, 0.499f,  // v1-v2-v3-v0 (front)
-
-0.499f, 0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f,     // v0-v3-v4-v499 (right)
-
--0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, 0.499f, 0.499f, 0.499f, 0.499f, 0.499f, -0.499f,    // v6-v1-v0-v499 (top)
-
--0.499f, 0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, 0.499f, -0.499f, 0.499f, 0.499f,   // v6-v7-v2-v1 (left)
-
--0.499f, -0.499f, -0.499f, 0.499f, -0.499f, -0.499f, 0.499f, -0.499f, 0.499f, -0.499f, -0.499f, 0.499f,    // v7-v4-v3-v2 (bottom)
-
-0.499f, 0.499f, -0.499f, 0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, 0.499f, -0.499f };     // v5-v4-v7-v6 (back)
-
-inline void MakeFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture)
-{
-    ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / 256);
-    ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % 256);
-
-    ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.textureIndex / 256);
-    ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.textureIndex % 256);
-
-    ui8 blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (blockTexture.blendMode) {
-    case BlendType::BLEND_TYPE_REPLACE:
-        blendMode++; //Sets blendType to 00 01 01 10
-        break;
-    case BlendType::BLEND_TYPE_ADD:
-        blendMode += 4; //Sets blendType to 00 01 10 01
-        break;
-    case BlendType::BLEND_TYPE_SUBTRACT:
-        blendMode -= 4; //Sets blendType to 00 01 00 01
-        break;
-    case BlendType::BLEND_TYPE_MULTIPLY:
-        blendMode -= 16; //Sets blendType to 00 01 01 01
-        break;
-    }
-    verts[index].blendMode = blendMode;
-    verts[index + 1].blendMode = blendMode;
-    verts[index + 2].blendMode = blendMode;
-    verts[index + 3].blendMode = blendMode;
-    verts[index + 4].blendMode = blendMode;
-    verts[index + 5].blendMode = blendMode;
-
-    verts[index].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 1].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 1].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 2].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 2].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 3].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 3].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 4].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 4].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 5].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 5].textureHeight = (ui8)blockTexture.base.size.y;
-
-    verts[index].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 1].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 1].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 2].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 2].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 3].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 3].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 4].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 4].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 5].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 5].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-
-    verts[index].normal[0] = cubeNormals[vertexOffset];
-    verts[index].normal[1] = cubeNormals[vertexOffset + 1];
-    verts[index].normal[2] = cubeNormals[vertexOffset + 2];
-    verts[index + 1].normal[0] = cubeNormals[vertexOffset + 3];
-    verts[index + 1].normal[1] = cubeNormals[vertexOffset + 4];
-    verts[index + 1].normal[2] = cubeNormals[vertexOffset + 5];
-    verts[index + 2].normal[0] = cubeNormals[vertexOffset + 6];
-    verts[index + 2].normal[1] = cubeNormals[vertexOffset + 7];
-    verts[index + 2].normal[2] = cubeNormals[vertexOffset + 8];
-    verts[index + 3].normal[0] = cubeNormals[vertexOffset + 6];
-    verts[index + 3].normal[1] = cubeNormals[vertexOffset + 7];
-    verts[index + 3].normal[2] = cubeNormals[vertexOffset + 8];
-    verts[index + 4].normal[0] = cubeNormals[vertexOffset + 9];
-    verts[index + 4].normal[1] = cubeNormals[vertexOffset + 10];
-    verts[index + 4].normal[2] = cubeNormals[vertexOffset + 11];
-    verts[index + 5].normal[0] = cubeNormals[vertexOffset];
-    verts[index + 5].normal[1] = cubeNormals[vertexOffset + 1];
-    verts[index + 5].normal[2] = cubeNormals[vertexOffset + 2];
-
-    verts[index].position[0] = cubeVertices[vertexOffset];
-    verts[index].position[1] = cubeVertices[vertexOffset + 1];
-    verts[index].position[2] = cubeVertices[vertexOffset + 2];
-    verts[index + 1].position[0] = cubeVertices[vertexOffset + 3];
-    verts[index + 1].position[1] = cubeVertices[vertexOffset + 4];
-    verts[index + 1].position[2] = cubeVertices[vertexOffset + 5];
-    verts[index + 2].position[0] = cubeVertices[vertexOffset + 6];
-    verts[index + 2].position[1] = cubeVertices[vertexOffset + 7];
-    verts[index + 2].position[2] = cubeVertices[vertexOffset + 8];
-    verts[index + 3].position[0] = cubeVertices[vertexOffset + 6];
-    verts[index + 3].position[1] = cubeVertices[vertexOffset + 7];
-    verts[index + 3].position[2] = cubeVertices[vertexOffset + 8];
-    verts[index + 4].position[0] = cubeVertices[vertexOffset + 9];
-    verts[index + 4].position[1] = cubeVertices[vertexOffset + 10];
-    verts[index + 4].position[2] = cubeVertices[vertexOffset + 11];
-    verts[index + 5].position[0] = cubeVertices[vertexOffset];
-    verts[index + 5].position[1] = cubeVertices[vertexOffset + 1];
-    verts[index + 5].position[2] = cubeVertices[vertexOffset + 2];
-
-    verts[index].tex[0] = 128;
-    verts[index].tex[1] = 129;
-    verts[index + 1].tex[0] = 128;
-    verts[index + 1].tex[1] = 128;
-    verts[index + 2].tex[0] = 129;
-    verts[index + 2].tex[1] = 128;
-    verts[index + 3].tex[0] = 129;
-    verts[index + 3].tex[1] = 128;
-    verts[index + 4].tex[0] = 129;
-    verts[index + 4].tex[1] = 129;
-    verts[index + 5].tex[0] = 128;
-    verts[index + 5].tex[1] = 129;
-
-    verts[index].textureAtlas = textureAtlas;
-    verts[index + 1].textureAtlas = textureAtlas;
-    verts[index + 2].textureAtlas = textureAtlas;
-    verts[index + 3].textureAtlas = textureAtlas;
-    verts[index + 4].textureAtlas = textureAtlas;
-    verts[index + 5].textureAtlas = textureAtlas;
-
-    verts[index].textureIndex = textureIndex;
-    verts[index + 1].textureIndex = textureIndex;
-    verts[index + 2].textureIndex = textureIndex;
-    verts[index + 3].textureIndex = textureIndex;
-    verts[index + 4].textureIndex = textureIndex;
-    verts[index + 5].textureIndex = textureIndex;
-
-    verts[index].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 1].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 2].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 3].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 4].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 5].overlayTextureAtlas = overlayTextureAtlas;
-
-    verts[index].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 1].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 2].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 3].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 4].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 5].overlayTextureIndex = overlayTextureIndex;
-
-}
 
 bool PhysicsBlock::update(const deque < deque < deque < ChunkSlot* > > > &chunkList, double X, double Y, double Z)
 {
@@ -394,8 +246,8 @@ bool PhysicsBlock::update(const deque < deque < deque < ChunkSlot* > > > &chunkL
         ChunkUpdater::removeBlock(ch, c, 1);
         return 0;
     } else{
-        light[LIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getLight(LIGHT, c))));
-        light[SUNLIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getLight(SUNLIGHT, c))));
+        light[LIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getLampLight(c))));
+        light[SUNLIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
     }
     return 0;
 }
@@ -421,26 +273,26 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     Block &block = Blocks[btype];
 
     //front
-    MakeFace(verts, physicsBlockVertices, 0, index, block.pzTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 0, index, block.pzTexInfo);
     index += 6;
     //right
-    MakeFace(verts, physicsBlockVertices, 12, index, block.pxTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 12, index, block.pxTexInfo);
     index += 6;
     //top
 
-    MakeFace(verts, physicsBlockVertices, 24, index, block.pyTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 24, index, block.pyTexInfo);
     index += 6;
     //left
 
-    MakeFace(verts, physicsBlockVertices, 36, index, block.nxTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 36, index, block.nxTexInfo);
     index += 6;
     //bottom
 
-    MakeFace(verts, physicsBlockVertices, 48, index, block.nyTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 48, index, block.nyTexInfo);
     index += 6;
     //back
 
-    MakeFace(verts, physicsBlockVertices, 60, index, block.nzTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 60, index, block.nzTexInfo);
     index += 6;
 
     _mesh = new PhysicsBlockMesh;

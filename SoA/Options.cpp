@@ -33,8 +33,8 @@ void initializeOptions() {
     graphicsOptions.needsWindowReload = 0;
     graphicsOptions.fov = 70;
     graphicsOptions.hudMode = 0;
-    graphicsOptions.texturePackString = "SoA_Default";
-    graphicsOptions.defaultTexturePack = "SoA_Default.zip";
+    graphicsOptions.texturePackString = "Default";
+    graphicsOptions.defaultTexturePack = "Default.zip";
     graphicsOptions.currTexturePack = "";
     graphicsOptions.needsFboReload = 0;
     graphicsOptions.needsFullscreenToggle = 0;

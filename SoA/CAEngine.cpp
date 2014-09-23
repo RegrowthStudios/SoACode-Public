@@ -121,12 +121,12 @@ void CAEngine::updateSpawnerBlocks(bool powders)
             if (GETBLOCKTYPE(_chunk->getTopBlockData(c)) == sinkVal){
                 if (c + CHUNK_LAYER < CHUNK_SIZE){
                     c = c + CHUNK_LAYER;
-                    _chunk->setBlockData(c, NONE); //TODO: This is incorrect, should call RemoveBlock or something similar
+                    _chunk->setBlockID(c, NONE); //TODO: This is incorrect, should call RemoveBlock or something similar
                     ChunkUpdater::addBlockToUpdateList(_chunk, c);
                     _chunk->changeState(ChunkStates::MESH);
                 } else if (_chunk->top && _chunk->top->isAccessible){
                     c = c + CHUNK_LAYER - CHUNK_SIZE;
-                    _chunk->top->setBlockData(c, NONE);
+                    _chunk->top->setBlockID(c, NONE);
                     ChunkUpdater::addBlockToUpdateList(_chunk->top, c);
                     _chunk->top->changeState(ChunkStates::MESH);
                 }
@@ -520,7 +520,7 @@ const int dirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 
 //I will refactor this -Ben
 void CAEngine::powderPhysics(int c)
 {
-    int blockType = GETBLOCKTYPE(_chunk->data[c]);
+    int blockType = _chunk->getBlockID(c);
     if (Blocks[blockType].physicsProperty != P_POWDER) return;
     int x = c % CHUNK_WIDTH;
     int y = c / CHUNK_LAYER;
@@ -541,19 +541,19 @@ void CAEngine::powderPhysics(int c)
         if (!owner || (owner->isAccessible == 0)) return;
         if (GETBLOCKTYPE(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKTYPE(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
 
-            GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->data[c]);
+            GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->getBlockData(c));
 
             ChunkUpdater::removeBlock(_chunk, c, false);
             hasChanged = 1;
         } else{ //otherwise do simple cellular automata
             b = GETBLOCKTYPE(b);
             //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
-            if (GETBLOCK(owner->data[c2]).powderMove){
-                tmp = owner->data[c2];
-                ChunkUpdater::placeBlock(owner, c2, _chunk->data[c]);
+            if (owner->getBlock(c2).powderMove){
+                tmp = owner->getBlockData(c2);
+                ChunkUpdater::placeBlock(owner, c2, _chunk->getBlockData(c));
                 ChunkUpdater::placeBlock(_chunk, c, tmp);
             } else{
-                ChunkUpdater::placeBlock(owner, c2, _chunk->data[c]);
+                ChunkUpdater::placeBlock(owner, c2, _chunk->getBlockData(c));
                 ChunkUpdater::removeBlock(_chunk, c, false);
             }
        
@@ -574,8 +574,8 @@ void CAEngine::powderPhysics(int c)
                 b = _chunk->getLeftBlockData(c, x, &c2, &owner);
                 if (GETBLOCK(b).powderMove){
                     if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->data[c];
-                        ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                        tmp1 = _chunk->getBlockData(c);
+                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                         ChunkUpdater::placeBlock(owner, c2, tmp1);
                         hasChanged = 1;
                     }
@@ -586,8 +586,8 @@ void CAEngine::powderPhysics(int c)
                 b = _chunk->getRightBlockData(c, x, &c2, &owner);
                 if (GETBLOCK(b).powderMove){
                     if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->data[c];
-                        ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                        tmp1 = _chunk->getBlockData(c);
+                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                         ChunkUpdater::placeBlock(owner, c2, tmp1);
                         hasChanged = 1;
                     }
@@ -598,8 +598,8 @@ void CAEngine::powderPhysics(int c)
                 b = _chunk->getFrontBlockData(c, z, &c2, &owner);
                 if (GETBLOCK(b).powderMove){
                     if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->data[c];
-                        ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                        tmp1 = _chunk->getBlockData(c);
+                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                         ChunkUpdater::placeBlock(owner, c2, tmp1);
                         hasChanged = 1;
                     }
@@ -610,8 +610,8 @@ void CAEngine::powderPhysics(int c)
                 b = _chunk->getBackBlockData(c, z, &c2, &owner);
                 if (GETBLOCK(b).powderMove){
                     if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->data[c];
-                        ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                        tmp1 = _chunk->getBlockData(c);
+                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                         ChunkUpdater::placeBlock(owner, c2, tmp1);
                         hasChanged = 1;
                     }
@@ -632,7 +632,7 @@ void CAEngine::snowPhysics(int c)
     int y = c / CHUNK_LAYER;
     int z = (c % CHUNK_LAYER) / CHUNK_WIDTH;
     int xz;
-    int blockType = GETBLOCKTYPE(_chunk->data[c]);
+    int blockType = _chunk->getBlockID(c);
     GLushort tmp1;
     int b, c2, c3;
     Chunk *owner, *owner2;
@@ -647,22 +647,22 @@ void CAEngine::snowPhysics(int c)
     if (GETBLOCK(b = _chunk->getBottomBlockData(c, y, &c2, &owner)).isSupportive == 0){
         if (!owner || (owner->isAccessible == 0)) return;
         if (GETBLOCKTYPE(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKTYPE(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
-            GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->data[c]);
+            GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->getBlockData(c));
             ChunkUpdater::removeBlock(_chunk, c, false);
             hasChanged = 1;
         } else{ //otherwise do simple cellular automata
             b = GETBLOCKTYPE(b);
             //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
-            if (GETBLOCK(owner->data[c2]).powderMove){
-                tmp = owner->data[c2];
+            if (owner->getBlock(c2).powderMove){
+                tmp = owner->getBlockData(c2);
             } else{
                 tmp = NONE;
             }
 
-            owner->data[c2] = _chunk->data[c];
-            ChunkUpdater::placeBlock(owner, c2, _chunk->data[c]);
+            owner->setBlockData(c2, _chunk->getBlockData(c));
+            ChunkUpdater::placeBlock(owner, c2, _chunk->getBlockData(c));
             ChunkUpdater::placeBlock(_chunk, c, tmp);
-            _chunk->data[c] = tmp;
+            _chunk->setBlockData(c, tmp);
 
             owner->changeState(ChunkStates::MESH);
             ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
@@ -686,8 +686,8 @@ void CAEngine::snowPhysics(int c)
                     if (GETBLOCK(b).powderMove){
                         if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
                         
-                            tmp1 = _chunk->data[c];
-                            ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                            tmp1 = _chunk->getBlockData(c);
+                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                             ChunkUpdater::placeBlock(owner, c2, tmp1);
 
                             ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
@@ -703,8 +703,8 @@ void CAEngine::snowPhysics(int c)
                     if (GETBLOCK(b).powderMove){
                         if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
      
-                            tmp1 = _chunk->data[c];
-                            ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                            tmp1 = _chunk->getBlockData(c);
+                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                             ChunkUpdater::placeBlock(owner, c2, tmp1);
 
                             ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
@@ -720,8 +720,8 @@ void CAEngine::snowPhysics(int c)
                     if (GETBLOCK(b).powderMove){
                         if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
    
-                            tmp1 = _chunk->data[c];
-                            ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                            tmp1 = _chunk->getBlockData(c);
+                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                             ChunkUpdater::placeBlock(owner, c2, tmp1); 
                         
                             ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
@@ -737,8 +737,8 @@ void CAEngine::snowPhysics(int c)
                     if (GETBLOCK(b).powderMove){
                         if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
 
-                            tmp1 = _chunk->data[c];
-                            ChunkUpdater::placeBlock(_chunk, c, owner->data[c2]);
+                            tmp1 = _chunk->getBlockData(c);
+                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
                             ChunkUpdater::placeBlock(owner, c2, tmp1);
 
                             ChunkUpdater::snowAddBlockToUpdateList(owner, c2);

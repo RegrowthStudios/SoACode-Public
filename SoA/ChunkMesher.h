@@ -37,6 +37,9 @@ private:
     inline void getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
     inline void getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
     inline void getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]);
+    inline void getVerticalTextureIndex(const MesherInfo &mi, int& result, ConnectedTextureReducedMethod rm, int upDir, unsigned int offset);
+    inline void getHorizontalTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int frontDir, unsigned int offset);
+
 
     void addBlockToMesh(MesherInfo& mi);
     void addFloraToMesh(MesherInfo& mi);
@@ -44,9 +47,10 @@ private:
 
     void bindVBOIndicesID();
 
-    inline void GetLightDataArray(int c, int &x, int &y, int &z, GLbyte lights[], GLbyte sunlights[], GLushort *chData, GLubyte *chLightData[2], bool faces[6]);
-    inline bool checkBlockFaces(bool faces[6], sbyte lights[26], sbyte sunlights[26], const RenderTask* task, const bool occlude, const i32 btype, const i32 wc);
+    inline void GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLights[26][3], GLbyte sunlights[26], GLushort* chData, ui8* chSunData, ui16 *chLampData, bool faces[6]);
+    inline bool checkBlockFaces(bool faces[6], ui8 lampLights[26][3], sbyte sunlights[26], const RenderTask* task, const bool occlude, const i32 btype, const i32 wc);
     inline GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
+    void calculateLampColor(ui8 dst[3], ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj);
 
     std::vector<BlockVertex> _finalTopVerts;
     std::vector<BlockVertex> _finalLeftVerts;
