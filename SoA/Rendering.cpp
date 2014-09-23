@@ -573,8 +573,8 @@ void DrawLoadingScreen(string text, bool clearColor, glm::vec4 backColor, int fo
 GLuint MakeBlockVbo(Block *block){
 
     static GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    ui8 lampColor[3] = { 180, 180, 180 };
-    ui8 sunlight = 25;
+    ui8 lampColor[3] = { 100, 100, 100 };
+    ui8 sunlight = 80;
     vector <BlockVertex> vertices;
     vertices.resize(24);
     int btype = block->ID;
@@ -587,79 +587,94 @@ GLuint MakeBlockVbo(Block *block){
     overlayColor[0] = Blocks[btype].overlayColor[0];
     overlayColor[1] = Blocks[btype].overlayColor[1];
     overlayColor[2] = Blocks[btype].overlayColor[2];
-    
-    int index = 0;
-    //front
-    VoxelMesher::makeCubeFace(vertices.data(), 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, ambientOcclusion, block->pzTexInfo);
-    VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
-    index += 4;
-    //right
-    VoxelMesher::makeCubeFace(vertices.data(), 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, ambientOcclusion, block->pxTexInfo);
-    VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
-    index += 4;
-    //top
-    VoxelMesher::makeCubeFace(vertices.data(), 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, color, overlayColor, ambientOcclusion, block->pyTexInfo);
-    VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
-    index += 4;
-    //left
-    VoxelMesher::makeCubeFace(vertices.data(), 36, block->waveEffect, i32v3(0), index, block->nxTex, block->nxOvTex, color, overlayColor, ambientOcclusion, block->nxTexInfo);
-    VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
-    index += 4;
-    //bottom
-    VoxelMesher::makeCubeFace(vertices.data(), 48, block->waveEffect, i32v3(0), index, block->nyTex, block->nyOvTex, color, overlayColor, ambientOcclusion, block->nyTexInfo);
-    VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
-    index += 4;
-    //back
-    VoxelMesher::makeCubeFace(vertices.data(), 60, block->waveEffect, i32v3(0), index, block->nzTex, block->nzOvTex, color, overlayColor, ambientOcclusion, block->nzTexInfo);
-    VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
-    index += 4;
 
     GLuint vboID;
     glGenBuffers(1, &vboID); // Create the buffer ID
     glBindBuffer(GL_ARRAY_BUFFER, vboID); // Bind the buffer (vertex array data)
-    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, 24 * sizeof(BlockVertex), &(vertices[0]));
+
+    int index = 0;
+
+    switch (block->meshType) {
+        case MeshType::BLOCK:
+            //front
+            VoxelMesher::makeCubeFace(vertices.data(), 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, ambientOcclusion, block->pzTexInfo);
+            VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
+            index += 4;
+            //right
+            VoxelMesher::makeCubeFace(vertices.data(), 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, ambientOcclusion, block->pxTexInfo);
+            VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
+            index += 4;
+            //top
+            VoxelMesher::makeCubeFace(vertices.data(), 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, color, overlayColor, ambientOcclusion, block->pyTexInfo);
+            VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
+            index += 4;
+            //left
+            VoxelMesher::makeCubeFace(vertices.data(), 36, block->waveEffect, i32v3(0), index, block->nxTex, block->nxOvTex, color, overlayColor, ambientOcclusion, block->nxTexInfo);
+            VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
+            index += 4;
+            //bottom
+            VoxelMesher::makeCubeFace(vertices.data(), 48, block->waveEffect, i32v3(0), index, block->nyTex, block->nyOvTex, color, overlayColor, ambientOcclusion, block->nyTexInfo);
+            VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
+            index += 4;
+            //back
+            VoxelMesher::makeCubeFace(vertices.data(), 60, block->waveEffect, i32v3(0), index, block->nzTex, block->nzOvTex, color, overlayColor, ambientOcclusion, block->nzTexInfo);
+            VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
+            index += 4;
+
+            glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, 24 * sizeof(BlockVertex), &(vertices[0]));
+            break;
+        case MeshType::FLORA:
+
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, sunlight, lampColor, block->pzTexInfo);
+            index += 4;
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, sunlight, lampColor, block->pxTexInfo);
+            index += 4;
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::floraVertices[0], VoxelMesher::floraNormals, 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, color, overlayColor, sunlight, lampColor, block->pyTexInfo);
+            index += 4;
+
+            glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(BlockVertex), &(vertices[0]));
+            break;
+        case MeshType::CROSSFLORA:
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::crossFloraVertices[0], VoxelMesher::floraNormals, 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, sunlight, lampColor, block->pzTexInfo);
+            index += 4;
+            VoxelMesher::makeFloraFace(vertices.data(), VoxelMesher::crossFloraVertices[0], VoxelMesher::floraNormals, 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, sunlight, lampColor, block->pxTexInfo);
+            index += 4;
+
+            glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(BlockVertex), NULL, GL_STATIC_DRAW);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(BlockVertex), &(vertices[0]));
+            break;
+    }
+   
+
     return vboID;
 }
 
 void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation){
 
-    blockShader.Bind();
+#define USESHADER(a) a.Bind(); \
+    glUniform1f(a.lightTypeID, 0);\
+    glUniform3fv(a.eyeVecID, 1, eyeDir); \
+    glUniform1f(a.fogEndID, (GLfloat)100000.0f); \
+    glUniform1f(a.fogStartID, (GLfloat)10000.0f); \
+    glUniform3fv(a.fogColorID, 1, eyeDir); \
+    glUniform3f(a.lightID, light.x, light.y, light.z); \
+    glUniform1f(a.specularExponentID, graphicsOptions.specularExponent); \
+    glUniform1f(a.specularIntensityID, graphicsOptions.specularIntensity*0.3); \
+    glUniform1f(a.blockDtID, (GLfloat)bdt); \
+    glUniform1f(a.sunValID, 1.0f); \
+    glUniform1f(a.alphaMultID, 1.0f); \
+    glUniform3f(a.ambientID, blockAmbient, blockAmbient, blockAmbient); \
+    glUniform3f(a.lightColorID, (GLfloat)1.0f, (GLfloat)1.0f, (GLfloat)1.0f); \
+    glUniform1f(a.fadeDistanceID, fadeDist); \
+    glUniformMatrix4fv(a.mvpID, 1, GL_FALSE, &MVP[0][0]); \
+    glUniformMatrix4fv(a.mID, 1, GL_FALSE, &M[0][0]);
 
-    //    GLuint beamWidthID = GetUniform(blockShader, "beamWidth");
-
-    glUniform1f(blockShader.lightTypeID, 0);
-
-    float eyeDir[3] = { 0.0f, 0.0f, -1.0f };
-    glUniform3fv(blockShader.eyeVecID, 1, eyeDir);
-    glUniform1f(blockShader.fogEndID, (GLfloat)100000.0f);
-    glUniform1f(blockShader.fogStartID, (GLfloat)10000.0f);
-    glUniform3fv(blockShader.fogColorID, 1, eyeDir);
-    glm::vec3 light = glm::vec3(glm::inverse(rotation) * glm::vec4(glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)), 1.0));
-    glUniform3f(blockShader.lightID, light.x, light.y, light.z);
-    glUniform1f(blockShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(blockShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
-
-    bindBlockPacks();
-
-    glUniform1f(blockShader.blockDtID, (GLfloat)bdt);
-
-    glUniform1f(blockShader.sunValID, 1.0f);
-
-    glUniform1f(blockShader.alphaMultID, 1.0f);
-
-    float blockAmbient = 0.000f;
-    glUniform3f(blockShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(blockShader.lightColorID, (GLfloat)1.0f, (GLfloat)1.0f, (GLfloat)1.0f);
-
-    float fadeDist;
-    fadeDist = (GLfloat)10000.0f;
-
-    GLuint vboID = MakeBlockVbo(block);
-
-    glUniform1f(blockShader.fadeDistanceID, fadeDist);
-
-    glDisable(GL_CULL_FACE);
+    const float eyeDir[3] = { 0.0f, 0.0f, -1.0f };
+    const float fadeDist = (GLfloat)10000.0f;
+    const float blockAmbient = 0.000f;
+    const glm::vec3 light = glm::vec3(glm::inverse(rotation) * glm::vec4(glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)), 1.0));
 
     GlobalModelMatrix[3][0] = (x);
     GlobalModelMatrix[3][1] = (y);
@@ -670,12 +685,25 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     translation[3][1] = -0.5;
     translation[3][2] = -0.5;
 
-
     glm::mat4 M = GlobalModelMatrix * rotation * translation;
     glm::mat4 MVP = VP * M;
 
-    glUniformMatrix4fv(blockShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(blockShader.mID, 1, GL_FALSE, &M[0][0]);
+    switch (block->meshType) {
+        case MeshType::BLOCK:
+            USESHADER(blockShader);
+            break;
+        case MeshType::CROSSFLORA:
+        case MeshType::FLORA:
+            USESHADER(cutoutShader);
+            break;
+    }
+
+    bindBlockPacks();
+
+    GLuint vboID = MakeBlockVbo(block);
+
+    glDisable(GL_CULL_FACE);
+
 
     glBindBuffer(GL_ARRAY_BUFFER, vboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
@@ -700,9 +728,21 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
     //normal
     glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
-
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     
+    switch (block->meshType) {
+        case MeshType::BLOCK:
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            blockShader.UnBind();
+            break;
+        case MeshType::CROSSFLORA:
+            glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+            cutoutShader.UnBind();
+            break;
+        case MeshType::FLORA:
+            glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
+            cutoutShader.UnBind();
+            break;
+    }
 
     glEnable(GL_CULL_FACE);
 
@@ -711,6 +751,4 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     for (int i = 0; i < 8; i++) {
         glDisableVertexAttribArray(i);
     }
-
-    blockShader.UnBind();
 }

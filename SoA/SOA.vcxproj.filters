@@ -462,7 +462,7 @@
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="VoxelMesher.h">
-      <Filter>SOA Files\Voxel</Filter>
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -747,7 +747,7 @@
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="VoxelMesher.cpp">
-      <Filter>SOA Files\Voxel</Filter>
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
