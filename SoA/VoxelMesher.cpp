@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "BlockMesher.h"
+#include "VoxelMesher.h"
 
 // cube //
 //    v6----- v5
@@ -10,7 +10,7 @@
 //  |/      |/
 //  v2------v3 
 
-const GLfloat BlockMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f,  // v1-v2-v3-v0 (front)
+const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f,  // v1-v2-v3-v0 (front)
 
     0.5f, 1.0f, 1.0f, 0.5f, -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f,     // v0-v3-v4-v5 (right)
 
@@ -23,7 +23,7 @@ const GLfloat BlockMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f,
     1.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f };     // v5-v4-v7-v6 (back)
 
 // Each block has a positional resolution of 7
-const GLubyte BlockMesher::cubeVertices[72] = { 0, 7, 7, 0, 0, 7, 7, 0, 7, 7, 7, 7,  // v1-v2-v3-v0 (front)
+const GLubyte VoxelMesher::cubeVertices[72] = { 0, 7, 7, 0, 0, 7, 7, 0, 7, 7, 7, 7,  // v1-v2-v3-v0 (front)
 
     7, 7, 7, 7, 0, 7, 7, 0, 0, 7, 7, 0,     // v0-v3-v4-v5 (right)
 
@@ -36,11 +36,11 @@ const GLubyte BlockMesher::cubeVertices[72] = { 0, 7, 7, 0, 0, 7, 7, 0, 7, 7, 7,
     7, 7, 0, 7, 0, 0, 0, 0, 0, 0, 7, 0 };     // v5-v4-v7-v6 (back)
 
 //0 = x, 1 = y, 2 = z
-const int BlockMesher::cubeFaceAxis[6][2] = { { 0, 1 }, { 2, 1 }, { 0, 2 }, { 2, 1 }, { 0, 2 }, { 0, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
+const int VoxelMesher::cubeFaceAxis[6][2] = { { 0, 1 }, { 2, 1 }, { 0, 2 }, { 2, 1 }, { 0, 2 }, { 0, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
 
-const int BlockMesher::cubeFaceAxisSign[6][2] = { { 1, 1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -1, -1 }, { -1, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
+const int VoxelMesher::cubeFaceAxisSign[6][2] = { { 1, 1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -1, -1 }, { -1, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
 
-const GLfloat BlockMesher::liquidVertices[72] = { 0, 1.0f, 1.0f, 0, 0, 1.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f,  // v1-v2-v3-v0 (front)
+const GLfloat VoxelMesher::liquidVertices[72] = { 0, 1.0f, 1.0f, 0, 0, 1.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f,  // v1-v2-v3-v0 (front)
 
     1.0f, 1.0f, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, 0, 1.0f, 1.0f, 0,     // v0-v3-v4-v5 (right)
 
@@ -54,7 +54,7 @@ const GLfloat BlockMesher::liquidVertices[72] = { 0, 1.0f, 1.0f, 0, 0, 1.0f, 1.0
 
 
 const float wyOff = 0.9999f;
-const GLfloat BlockMesher::waterCubeVertices[72] = { 0.0f, wyOff, 1.000f, 0.0f, 0.0f, 1.000f, 1.000f, 0.0f, wyOff, 1.000f, wyOff, 1.000f,  // v1-v2-v3-v0 (front)
+const GLfloat VoxelMesher::waterCubeVertices[72] = { 0.0f, wyOff, 1.000f, 0.0f, 0.0f, 1.000f, 1.000f, 0.0f, wyOff, 1.000f, wyOff, 1.000f,  // v1-v2-v3-v0 (front)
 
     1.000f, wyOff, 1.000f, 1.000f, 0.0f, 1.000f, 1.000f, 0.0f, 0.0f, 1.000f, wyOff, 0.0f,     // v0-v3-v4-v5 (right)
 
@@ -67,7 +67,7 @@ const GLfloat BlockMesher::waterCubeVertices[72] = { 0.0f, wyOff, 1.000f, 0.0f, 
     1.000f, wyOff, 0.0f, 1.000f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, wyOff, 0.0f };     // v5-v4-v7-v6 (back)
 
 
-const GLbyte BlockMesher::cubeNormals[72] = { 0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127,  // v1-v2-v3-v0 (front)
+const GLbyte VoxelMesher::cubeNormals[72] = { 0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127,  // v1-v2-v3-v0 (front)
 
     127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0,     // v0-v3-v4-v5 (right)
 
@@ -80,7 +80,7 @@ const GLbyte BlockMesher::cubeNormals[72] = { 0, 0, 127, 0, 0, 127, 0, 0, 127, 0
     0, 0, -127, 0, 0, -127, 0, 0, -127, 0, 0, -127 };     // v5-v4-v7-v6 (back)
 
 //For flora, normal is strait up
-const GLbyte BlockMesher::floraNormals[72] = { 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
+const GLbyte VoxelMesher::floraNormals[72] = { 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
     0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
     0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
     0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
@@ -88,7 +88,7 @@ const GLbyte BlockMesher::floraNormals[72] = { 0, 127, 0, 0, 127, 0, 0, 127, 0, 
     0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0 };
 
 //We use 4 meshes so that we can add variation to the flora meshes
-const ui8 BlockMesher::floraVertices[NUM_FLORA_MESHES][36] = {
+const ui8 VoxelMesher::floraVertices[NUM_FLORA_MESHES][36] = {
     {
         0, 7, 5, 0, 0, 5, 7, 0, 5, 7, 7, 5,
         6, 7, 7, 6, 0, 7, 1, 0, 0, 1, 7, 0,
@@ -106,7 +106,7 @@ const ui8 BlockMesher::floraVertices[NUM_FLORA_MESHES][36] = {
         7, 7, 1, 7, 0, 1, 0, 0, 6, 0, 7, 6,
         7, 7, 6, 7, 0, 6, 0, 0, 1, 0, 7, 1 } };
 
-const ui8 BlockMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
+const ui8 VoxelMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
     {
         0, 7, 0, 0, 0, 0, 7, 0, 7, 7, 7, 7,
         0, 7, 7, 0, 0, 7, 7, 0, 0, 7, 7, 0 },
@@ -114,7 +114,7 @@ const ui8 BlockMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
         7, 7, 7, 7, 0, 7, 0, 0, 0, 0, 7, 0,
         7, 7, 0, 7, 0, 0, 0, 0, 7, 0, 7, 7 } };
 
-const GLfloat BlockMesher::physicsBlockVertices[72] = { -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, 0.499f, 0.499f,  // v1-v2-v3-v0 (front)
+const GLfloat VoxelMesher::physicsBlockVertices[72] = { -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, 0.499f, 0.499f,  // v1-v2-v3-v0 (front)
 
     0.499f, 0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f,     // v0-v3-v4-v499 (right)
 
@@ -127,7 +127,7 @@ const GLfloat BlockMesher::physicsBlockVertices[72] = { -0.499f, 0.499f, 0.499f,
     0.499f, 0.499f, -0.499f, 0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, 0.499f, -0.499f };     // v5-v4-v7-v6 (back)
 
 
-void BlockMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo)
+void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo)
 {
 
     //get the face index so we can determine the axis alignment
@@ -311,7 +311,7 @@ void BlockMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     Verts[vertexIndex + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
 }
 
-void BlockMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo)
+void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo)
 {
 
     //get the face index so we can determine the axis alignment
@@ -477,7 +477,7 @@ void BlockMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEff
     Verts[vertexIndex + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
 }
 
-void BlockMesher::setFaceLight(BlockVertex* Verts, int index, ui8 lampColor[3], ui8 sunlight) {
+void VoxelMesher::setFaceLight(BlockVertex* Verts, int index, ui8 lampColor[3], ui8 sunlight) {
     Verts[index].lampColor[0] = lampColor[0];
     Verts[index].lampColor[1] = lampColor[1];
     Verts[index].lampColor[2] = lampColor[2];
@@ -499,7 +499,7 @@ void BlockMesher::setFaceLight(BlockVertex* Verts, int index, ui8 lampColor[3], 
 
 const GLubyte waterUVs[8] = { 0, 7, 0, 0, 7, 0, 7, 7 };
 
-void BlockMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 light[2], ui8 color[3], ui8 textureUnit) {
+void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 light[2], ui8 color[3], ui8 textureUnit) {
 
     verts.resize(verts.size() + 4);
     verts[index].tex[0] = waterUVs[0] + uOff;
@@ -539,7 +539,7 @@ void BlockMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
     verts[index + 3].textureUnit = (GLubyte)textureUnit;
 }
 
-void BlockMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture)
+void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture)
 {
     ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / 256);
     ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % 256);

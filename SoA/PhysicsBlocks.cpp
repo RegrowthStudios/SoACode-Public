@@ -3,7 +3,7 @@
 
 #include "Actor.h"
 #include "BlockData.h"
-#include "BlockMesher.h"
+#include "VoxelMesher.h"
 #include "Chunk.h"
 #include "ChunkUpdater.h"
 #include "Frustum.h"
@@ -273,26 +273,26 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     Block &block = Blocks[btype];
 
     //front
-    BlockMesher::makePhysicsBlockFace(verts, BlockMesher::physicsBlockVertices, 0, index, block.pzTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 0, index, block.pzTexInfo);
     index += 6;
     //right
-    BlockMesher::makePhysicsBlockFace(verts, BlockMesher::physicsBlockVertices, 12, index, block.pxTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 12, index, block.pxTexInfo);
     index += 6;
     //top
 
-    BlockMesher::makePhysicsBlockFace(verts, BlockMesher::physicsBlockVertices, 24, index, block.pyTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 24, index, block.pyTexInfo);
     index += 6;
     //left
 
-    BlockMesher::makePhysicsBlockFace(verts, BlockMesher::physicsBlockVertices, 36, index, block.nxTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 36, index, block.nxTexInfo);
     index += 6;
     //bottom
 
-    BlockMesher::makePhysicsBlockFace(verts, BlockMesher::physicsBlockVertices, 48, index, block.nyTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 48, index, block.nyTexInfo);
     index += 6;
     //back
 
-    BlockMesher::makePhysicsBlockFace(verts, BlockMesher::physicsBlockVertices, 60, index, block.nzTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 60, index, block.nzTexInfo);
     index += 6;
 
     _mesh = new PhysicsBlockMesh;

@@ -5,7 +5,7 @@
 const int NUM_FLORA_MESHES = 4;
 const int NUM_CROSSFLORA_MESHES = 2;
 
-class BlockMesher
+class VoxelMesher
 {
 public:
     static void makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo);

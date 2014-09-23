@@ -461,8 +461,8 @@
     <ClInclude Include="SmartVoxelContainer.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="BlockMesher.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="VoxelMesher.h">
+      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -746,7 +746,9 @@
     <ClCompile Include="SmartVoxelContainer.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
-    <ClCompile Include="BlockMesher.cpp" />
+    <ClCompile Include="VoxelMesher.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
