@@ -4,6 +4,7 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "BlockData.h"
+#include "BlockMesher.h"
 #include "Chunk.h"
 #include "ObjectLoader.h"
 #include "OpenGLStructs.h"
@@ -569,187 +570,11 @@ void DrawLoadingScreen(string text, bool clearColor, glm::vec4 backColor, int fo
     glClear(GL_COLOR_BUFFER_BIT); //always clear color after in case next loading screen doesnt clear
 }
 
-//TODO: Delete this and just use the chunkmesher function
-inline void MakeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, int index, int textureIndex, int overlayTextureIndex, ui8 color[3], ui8 overlayColor[3], const BlockTexture& texInfo)
-{
-    //get the face index so we can determine the axis alignment
-    int faceIndex = vertexOffset / 12;
-    //Multiply the axis by the sign bit to get the correct offset
-    GLubyte uOffset = 0;
-    GLubyte vOffset = 0;
-
-    //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
-    //They are used in the shader to determine how to blend.
-    ubyte blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (texInfo.blendMode) {
-        case BlendType::BLEND_TYPE_REPLACE:
-            blendMode++; //Sets blendType to 00 01 01 10
-            break;
-        case BlendType::BLEND_TYPE_ADD:
-            blendMode += 4; //Sets blendType to 00 01 10 01
-            break;
-        case BlendType::BLEND_TYPE_SUBTRACT:
-            blendMode -= 4; //Sets blendType to 00 01 00 01
-            break;
-        case BlendType::BLEND_TYPE_MULTIPLY:
-            blendMode -= 16; //Sets blendType to 00 01 01 01
-            break;
-    }
-    Verts[index].blendMode = blendMode;
-    Verts[index + 1].blendMode = blendMode;
-    Verts[index + 2].blendMode = blendMode;
-    Verts[index + 3].blendMode = blendMode;
-
-    GLubyte texAtlas = (GLubyte)(textureIndex / 256);
-    textureIndex %= 256;
-
-    GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / 256);
-    GLubyte overlayTex = (GLubyte)(overlayTextureIndex % 256);
-
-    Verts[index].lampColor[0] = 185;
-    Verts[index].lampColor[1] = 185;
-    Verts[index].lampColor[2] = 185;
-    Verts[index + 1].lampColor[0] = 185;
-    Verts[index + 1].lampColor[1] = 185;
-    Verts[index + 1].lampColor[2] = 185;
-    Verts[index + 2].lampColor[0] = 185;
-    Verts[index + 2].lampColor[1] = 185;
-    Verts[index + 2].lampColor[2] = 185;
-    Verts[index + 3].lampColor[0] = 185;
-    Verts[index + 3].lampColor[1] = 185;
-    Verts[index + 3].lampColor[2] = 185;
-
-    Verts[index].sunLight = 25;
-    Verts[index + 1].sunLight = 25;
-    Verts[index + 2].sunLight = 25;
-    Verts[index + 3].sunLight = 25;
-
-    Verts[index].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[index].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[index + 1].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[index + 1].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[index + 2].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[index + 2].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[index + 3].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[index + 3].textureHeight = (ubyte)texInfo.base.size.y;
-
-    Verts[index].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[index].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[index + 1].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[index + 1].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[index + 2].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[index + 2].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[index + 3].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[index + 3].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-
-    Verts[index].position.x = cubeVertices[vertexOffset];
-    Verts[index].position.y = cubeVertices[vertexOffset + 1];
-    Verts[index].position.z = cubeVertices[vertexOffset + 2];
-    Verts[index + 1].position.x = cubeVertices[vertexOffset + 3];
-    Verts[index + 1].position.y = cubeVertices[vertexOffset + 4];
-    Verts[index + 1].position.z = cubeVertices[vertexOffset + 5];
-    Verts[index + 2].position.x = cubeVertices[vertexOffset + 6];
-    Verts[index + 2].position.y = cubeVertices[vertexOffset + 7];
-    Verts[index + 2].position.z = cubeVertices[vertexOffset + 8];
-    Verts[index + 3].position.x = cubeVertices[vertexOffset + 9];
-    Verts[index + 3].position.y = cubeVertices[vertexOffset + 10];
-    Verts[index + 3].position.z = cubeVertices[vertexOffset + 11];
-
-    Verts[index].color[0] = (GLubyte)color[0];
-    Verts[index].color[1] = (GLubyte)color[1];
-    Verts[index].color[2] = (GLubyte)color[2];
-    Verts[index + 1].color[0] = (GLubyte)color[0];
-    Verts[index + 1].color[1] = (GLubyte)color[1];
-    Verts[index + 1].color[2] = (GLubyte)color[2];
-    Verts[index + 2].color[0] = (GLubyte)color[0];
-    Verts[index + 2].color[1] = (GLubyte)color[1];
-    Verts[index + 2].color[2] = (GLubyte)color[2];
-    Verts[index + 3].color[0] = (GLubyte)color[0];
-    Verts[index + 3].color[1] = (GLubyte)color[1];
-    Verts[index + 3].color[2] = (GLubyte)color[2];
-
-    Verts[index].overlayColor[0] = (GLubyte)overlayColor[0];
-    Verts[index].overlayColor[1] = (GLubyte)overlayColor[1];
-    Verts[index].overlayColor[2] = (GLubyte)overlayColor[2];
-    Verts[index + 1].overlayColor[0] = (GLubyte)overlayColor[0];
-    Verts[index + 1].overlayColor[1] = (GLubyte)overlayColor[1];
-    Verts[index + 1].overlayColor[2] = (GLubyte)overlayColor[2];
-    Verts[index + 2].overlayColor[0] = (GLubyte)overlayColor[0];
-    Verts[index + 2].overlayColor[1] = (GLubyte)overlayColor[1];
-    Verts[index + 2].overlayColor[2] = (GLubyte)overlayColor[2];
-    Verts[index + 3].overlayColor[0] = (GLubyte)overlayColor[0];
-    Verts[index + 3].overlayColor[1] = (GLubyte)overlayColor[1];
-    Verts[index + 3].overlayColor[2] = (GLubyte)overlayColor[2];
-
-    Verts[index].normal[0] = cubeNormals[vertexOffset];
-    Verts[index].normal[1] = cubeNormals[vertexOffset + 1];
-    Verts[index].normal[2] = cubeNormals[vertexOffset + 2];
-    Verts[index + 1].normal[0] = cubeNormals[vertexOffset + 3];
-    Verts[index + 1].normal[1] = cubeNormals[vertexOffset + 4];
-    Verts[index + 1].normal[2] = cubeNormals[vertexOffset + 5];
-    Verts[index + 2].normal[0] = cubeNormals[vertexOffset + 6];
-    Verts[index + 2].normal[1] = cubeNormals[vertexOffset + 7];
-    Verts[index + 2].normal[2] = cubeNormals[vertexOffset + 8];
-    Verts[index + 3].normal[0] = cubeNormals[vertexOffset + 9];
-    Verts[index + 3].normal[1] = cubeNormals[vertexOffset + 10];
-    Verts[index + 3].normal[2] = cubeNormals[vertexOffset + 11];
-
-    Verts[index].merge = 1;
-    Verts[index + 1].merge = 1;
-    Verts[index + 2].merge = 1;
-    Verts[index + 3].merge = 1;
-
-    if (waveEffect == 2){
-        Verts[index].color[3] = 255;
-        Verts[index + 1].color[3] = 255;
-        Verts[index + 2].color[3] = 255;
-        Verts[index + 3].color[3] = 255;
-    } else if (waveEffect == 1){
-        Verts[index].color[3] = 255;
-        Verts[index + 1].color[3] = 0;
-        Verts[index + 2].color[3] = 0;
-        Verts[index + 3].color[3] = 255;
-    } else{
-        Verts[index].color[3] = 0;
-        Verts[index + 1].color[3] = 0;
-        Verts[index + 2].color[3] = 0;
-        Verts[index + 3].color[3] = 0;
-    }
-
-    Verts[index].tex[0] = 128 + uOffset;
-    Verts[index].tex[1] = 129 + vOffset;
-    Verts[index + 1].tex[0] = 128 + uOffset;
-    Verts[index + 1].tex[1] = 128 + vOffset;
-    Verts[index + 2].tex[0] = 129 + uOffset;
-    Verts[index + 2].tex[1] = 128 + vOffset;
-    Verts[index + 3].tex[0] = 129 + uOffset;
-    Verts[index + 3].tex[1] = 129 + vOffset;
-
-    // *********** Base Texture
-    Verts[index].textureIndex = (GLubyte)textureIndex;
-    Verts[index + 1].textureIndex = (GLubyte)textureIndex;
-    Verts[index + 2].textureIndex = (GLubyte)textureIndex;
-    Verts[index + 3].textureIndex = (GLubyte)textureIndex;
-
-    Verts[index].textureAtlas = (GLubyte)texAtlas;
-    Verts[index + 1].textureAtlas = (GLubyte)texAtlas;
-    Verts[index + 2].textureAtlas = (GLubyte)texAtlas;
-    Verts[index + 3].textureAtlas = (GLubyte)texAtlas;
-
-    // *********** Overlay texture
-    Verts[index].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[index + 1].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[index + 2].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[index + 3].overlayTextureIndex = (GLubyte)overlayTex;
-
-    Verts[index].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[index + 1].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[index + 2].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[index + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-}
-
 GLuint MakeBlockVbo(Block *block){
 
+    static GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    ui8 lampColor[3] = { 180, 180, 180 };
+    ui8 sunlight = 25;
     vector <BlockVertex> vertices;
     vertices.resize(24);
     int btype = block->ID;
@@ -765,22 +590,28 @@ GLuint MakeBlockVbo(Block *block){
     
     int index = 0;
     //front
-    MakeFace(&(vertices[0]), 0, block->waveEffect, index, block->pzTex, block->pzOvTex, color, overlayColor, block->pzTexInfo);
+    BlockMesher::makeCubeFace(vertices.data(), 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex, color, overlayColor, ambientOcclusion, block->pzTexInfo);
+    BlockMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
     index += 4;
     //right
-    MakeFace(&(vertices[0]), 12, block->waveEffect, index, block->pxTex, block->pxOvTex, color, overlayColor, block->pxTexInfo);
+    BlockMesher::makeCubeFace(vertices.data(), 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex, color, overlayColor, ambientOcclusion, block->pxTexInfo);
+    BlockMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
     index += 4;
     //top
-    MakeFace(&(vertices[0]), 24, block->waveEffect, index, block->pyTex, block->pyOvTex, color, overlayColor, block->pyTexInfo);
+    BlockMesher::makeCubeFace(vertices.data(), 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, color, overlayColor, ambientOcclusion, block->pyTexInfo);
+    BlockMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
     index += 4;
     //left
-    MakeFace(&(vertices[0]), 36, block->waveEffect, index, block->nxTex, block->nxOvTex, color, overlayColor, block->nxTexInfo);
+    BlockMesher::makeCubeFace(vertices.data(), 36, block->waveEffect, i32v3(0), index, block->nxTex, block->nxOvTex, color, overlayColor, ambientOcclusion, block->nxTexInfo);
+    BlockMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
     index += 4;
     //bottom
-    MakeFace(&(vertices[0]), 48, block->waveEffect, index, block->nyTex, block->nyOvTex, color, overlayColor, block->nyTexInfo);
+    BlockMesher::makeCubeFace(vertices.data(), 48, block->waveEffect, i32v3(0), index, block->nyTex, block->nyOvTex, color, overlayColor, ambientOcclusion, block->nyTexInfo);
+    BlockMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
     index += 4;
     //back
-    MakeFace(&(vertices[0]), 60, block->waveEffect, index, block->nzTex, block->nzOvTex, color, overlayColor, block->nzTexInfo);
+    BlockMesher::makeCubeFace(vertices.data(), 60, block->waveEffect, i32v3(0), index, block->nzTex, block->nzOvTex, color, overlayColor, ambientOcclusion, block->nzTexInfo);
+    BlockMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
     index += 4;
 
     GLuint vboID;

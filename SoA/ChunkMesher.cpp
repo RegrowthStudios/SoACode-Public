@@ -3,6 +3,7 @@
 
 #include <random>
 
+#include "BlockMesher.h"
 #include "BlockData.h"
 #include "Chunk.h"
 #include "Errors.h"
@@ -53,405 +54,11 @@ void ChunkMesher::bindVBOIndicesID()
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-#define CompareVertices(v1, v2) (!memcmp(v1.color, v2.color, 3) && v1.sunLight == v2.sunLight && !memcmp(v1.lampColor, v2.lampColor, 3)  \
+#define CompareVertices(v1, v2) (!memcmp(v1.color, v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3)  \
     && !memcmp(v1.overlayColor, v2.overlayColor, 3) \
     && v1.textureAtlas == v2.textureAtlas && v1.textureIndex == v2.textureIndex && v1.overlayTextureAtlas == v2.overlayTextureAtlas && v1.overlayTextureIndex == v2.overlayTextureIndex)
 
-#define CompareVerticesLight(v1, v2) (v1.sunLight == v2.sunLight && !memcmp(v1.lampColor, v2.lampColor, 3) && !memcmp(v1.color, v2.color, 3))
-
-inline void makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo)
-{
-
-    //get the face index so we can determine the axis alignment
-    int faceIndex = vertexOffset / 12;
-    //Multiply the axis by the sign bit to get the correct offset
-    GLubyte uOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][0]] * cubeFaceAxisSign[faceIndex][0]);
-    GLubyte vOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][1]] * cubeFaceAxisSign[faceIndex][1]);
-
-    // 7 per coord
-    pos.x *= 7;
-    pos.y *= 7;
-    pos.z *= 7;
-
-    //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
-    //They are used in the shader to determine how to blend.
-    ubyte blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (texInfo.blendMode) {
-    case BlendType::BLEND_TYPE_REPLACE:
-        blendMode++; //Sets blendType to 00 01 01 10
-        break;
-    case BlendType::BLEND_TYPE_ADD:
-        blendMode += 4; //Sets blendType to 00 01 10 01
-        break;
-    case BlendType::BLEND_TYPE_SUBTRACT:
-        blendMode -= 4; //Sets blendType to 00 01 00 01
-        break;
-    case BlendType::BLEND_TYPE_MULTIPLY:
-        blendMode -= 16; //Sets blendType to 00 01 01 01
-        break;
-    }
-    Verts[vertexIndex].blendMode = blendMode;
-    Verts[vertexIndex + 1].blendMode = blendMode;
-    Verts[vertexIndex + 2].blendMode = blendMode;
-    Verts[vertexIndex + 3].blendMode = blendMode;
-
-    GLubyte texAtlas = (GLubyte)(textureIndex / 256);
-    textureIndex %= 256;
-
-    GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / 256);
-    GLubyte overlayTex = (GLubyte)(overlayTextureIndex % 256);
-
-    Verts[vertexIndex].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo.base.size.y;
-
-    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-
-    Verts[vertexIndex].position.x = pos.x + positions[vertexOffset];
-    Verts[vertexIndex].position.y = pos.y + positions[vertexOffset + 1];
-    Verts[vertexIndex].position.z = pos.z + positions[vertexOffset + 2];
-    Verts[vertexIndex + 1].position.x = pos.x + positions[vertexOffset + 3];
-    Verts[vertexIndex + 1].position.y = pos.y + positions[vertexOffset + 4];
-    Verts[vertexIndex + 1].position.z = pos.z + positions[vertexOffset + 5];
-    Verts[vertexIndex + 2].position.x = pos.x + positions[vertexOffset + 6];
-    Verts[vertexIndex + 2].position.y = pos.y + positions[vertexOffset + 7];
-    Verts[vertexIndex + 2].position.z = pos.z + positions[vertexOffset + 8];
-    Verts[vertexIndex + 3].position.x = pos.x + positions[vertexOffset + 9];
-    Verts[vertexIndex + 3].position.y = pos.y + positions[vertexOffset + 10];
-    Verts[vertexIndex + 3].position.z = pos.z + positions[vertexOffset + 11];
-
-    Verts[vertexIndex].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex].color[2] = (GLubyte)(color[2]);
-    Verts[vertexIndex + 1].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex + 1].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex + 1].color[2] = (GLubyte)(color[2]);
-    Verts[vertexIndex + 2].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex + 2].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex + 2].color[2] = (GLubyte)(color[2]);
-    Verts[vertexIndex + 3].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex + 3].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex + 3].color[2] = (GLubyte)(color[2]);
-
-    Verts[vertexIndex].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex].overlayColor[2] = (GLubyte)(overlayColor[2]);
-    Verts[vertexIndex + 1].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex + 1].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex + 1].overlayColor[2] = (GLubyte)(overlayColor[2]);
-    Verts[vertexIndex + 2].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex + 2].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex + 2].overlayColor[2] = (GLubyte)(overlayColor[2]);
-    Verts[vertexIndex + 3].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex + 3].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex + 3].overlayColor[2] = (GLubyte)(overlayColor[2]);
-
-    Verts[vertexIndex].normal[0] = normals[vertexOffset];
-    Verts[vertexIndex].normal[1] = normals[vertexOffset + 1];
-    Verts[vertexIndex].normal[2] = normals[vertexOffset + 2];
-    Verts[vertexIndex + 1].normal[0] = normals[vertexOffset + 3];
-    Verts[vertexIndex + 1].normal[1] = normals[vertexOffset + 4];
-    Verts[vertexIndex + 1].normal[2] = normals[vertexOffset + 5];
-    Verts[vertexIndex + 2].normal[0] = normals[vertexOffset + 6];
-    Verts[vertexIndex + 2].normal[1] = normals[vertexOffset + 7];
-    Verts[vertexIndex + 2].normal[2] = normals[vertexOffset + 8];
-    Verts[vertexIndex + 3].normal[0] = normals[vertexOffset + 9];
-    Verts[vertexIndex + 3].normal[1] = normals[vertexOffset + 10];
-    Verts[vertexIndex + 3].normal[2] = normals[vertexOffset + 11];
-
-    Verts[vertexIndex].lampColor[0] = lampColor[0];
-    Verts[vertexIndex].lampColor[1] = lampColor[1];
-    Verts[vertexIndex].lampColor[2] = lampColor[2];
-    Verts[vertexIndex + 1].lampColor[0] = lampColor[0];
-    Verts[vertexIndex + 1].lampColor[1] = lampColor[1];
-    Verts[vertexIndex + 1].lampColor[2] = lampColor[2];
-    Verts[vertexIndex + 2].lampColor[0] = lampColor[0];
-    Verts[vertexIndex + 2].lampColor[1] = lampColor[1];
-    Verts[vertexIndex + 2].lampColor[2] = lampColor[2];
-    Verts[vertexIndex + 3].lampColor[0] = lampColor[0];
-    Verts[vertexIndex + 3].lampColor[1] = lampColor[1];
-    Verts[vertexIndex + 3].lampColor[2] = lampColor[2];
-
-    Verts[vertexIndex].sunLight = sunlight;
-    Verts[vertexIndex + 1].sunLight = sunlight;
-    Verts[vertexIndex + 2].sunLight = sunlight;
-    Verts[vertexIndex + 3].sunLight = sunlight;
-
-    Verts[vertexIndex].merge = 0;
-    Verts[vertexIndex + 1].merge = 0;
-    Verts[vertexIndex + 2].merge = 0;
-    Verts[vertexIndex + 3].merge = 0;
-
-    if (waveEffect == 2){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 255;
-        Verts[vertexIndex + 2].color[3] = 255;
-        Verts[vertexIndex + 3].color[3] = 255;
-    } else if (waveEffect == 1){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 255;
-    } else{
-        Verts[vertexIndex].color[3] = 0;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 0;
-    }
-
-    Verts[vertexIndex].tex[0] = 128 + uOffset;
-    Verts[vertexIndex].tex[1] = 129 + vOffset;
-    Verts[vertexIndex + 1].tex[0] = 128 + uOffset;
-    Verts[vertexIndex + 1].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 2].tex[0] = 129 + uOffset;
-    Verts[vertexIndex + 2].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 3].tex[0] = 129 + uOffset;
-    Verts[vertexIndex + 3].tex[1] = 129 + vOffset;
-
-    // *********** Base Texture
-    Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;
-    Verts[vertexIndex + 1].textureIndex = (GLubyte)textureIndex;
-    Verts[vertexIndex + 2].textureIndex = (GLubyte)textureIndex;
-    Verts[vertexIndex + 3].textureIndex = (GLubyte)textureIndex;
-
-    Verts[vertexIndex].textureAtlas = (GLubyte)texAtlas;
-    Verts[vertexIndex + 1].textureAtlas = (GLubyte)texAtlas;
-    Verts[vertexIndex + 2].textureAtlas = (GLubyte)texAtlas;
-    Verts[vertexIndex + 3].textureAtlas = (GLubyte)texAtlas;
-
-    // *********** Overlay texture
-    Verts[vertexIndex].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[vertexIndex + 1].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[vertexIndex + 2].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[vertexIndex + 3].overlayTextureIndex = (GLubyte)overlayTex;
-
-    Verts[vertexIndex].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[vertexIndex + 1].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[vertexIndex + 2].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[vertexIndex + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-}
-
-inline void makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo)
-{
-
-    //get the face index so we can determine the axis alignment
-    int faceIndex = vertexOffset / 12;
-    //Multiply the axis by the sign bit to get the correct offset
-    GLubyte uOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][0]] * cubeFaceAxisSign[faceIndex][0]);
-    GLubyte vOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][1]] * cubeFaceAxisSign[faceIndex][1]);
-
-    // 7 per coord
-    pos.x *= 7;
-    pos.y *= 7;
-    pos.z *= 7;
-
-    //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
-    //They are used in the shader to determine how to blend.
-    ubyte blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (texInfo.blendMode) {
-    case BlendType::BLEND_TYPE_REPLACE:
-        blendMode++; //Sets blendType to 00 01 01 10
-        break;
-    case BlendType::BLEND_TYPE_ADD:
-        blendMode += 4; //Sets blendType to 00 01 10 01
-        break;
-    case BlendType::BLEND_TYPE_SUBTRACT:
-        blendMode -= 4; //Sets blendType to 00 01 00 01
-        break;
-    case BlendType::BLEND_TYPE_MULTIPLY:
-        blendMode -= 16; //Sets blendType to 00 01 01 01
-        break;
-    }
-    Verts[vertexIndex].blendMode = blendMode;
-    Verts[vertexIndex + 1].blendMode = blendMode;
-    Verts[vertexIndex + 2].blendMode = blendMode;
-    Verts[vertexIndex + 3].blendMode = blendMode;
-
-    GLubyte texAtlas = (GLubyte)(textureIndex / 256);
-    textureIndex %= 256;
-
-    GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / 256);
-    GLubyte overlayTex = (GLubyte)(overlayTextureIndex % 256);
-
-    Verts[vertexIndex].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo.base.size.y;
-
-    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-
-    Verts[vertexIndex].position.x = pos.x + cubeVertices[vertexOffset];
-    Verts[vertexIndex].position.y = pos.y + cubeVertices[vertexOffset + 1];
-    Verts[vertexIndex].position.z = pos.z + cubeVertices[vertexOffset + 2];
-    Verts[vertexIndex + 1].position.x = pos.x + cubeVertices[vertexOffset + 3];
-    Verts[vertexIndex + 1].position.y = pos.y + cubeVertices[vertexOffset + 4];
-    Verts[vertexIndex + 1].position.z = pos.z + cubeVertices[vertexOffset + 5];
-    Verts[vertexIndex + 2].position.x = pos.x + cubeVertices[vertexOffset + 6];
-    Verts[vertexIndex + 2].position.y = pos.y + cubeVertices[vertexOffset + 7];
-    Verts[vertexIndex + 2].position.z = pos.z + cubeVertices[vertexOffset + 8];
-    Verts[vertexIndex + 3].position.x = pos.x + cubeVertices[vertexOffset + 9];
-    Verts[vertexIndex + 3].position.y = pos.y + cubeVertices[vertexOffset + 10];
-    Verts[vertexIndex + 3].position.z = pos.z + cubeVertices[vertexOffset + 11];
-
-    Verts[vertexIndex].color[0] = (GLubyte)(color[0] * ambientOcclusion[0]);
-    Verts[vertexIndex].color[1] = (GLubyte)(color[1] * ambientOcclusion[0]);
-    Verts[vertexIndex].color[2] = (GLubyte)(color[2] * ambientOcclusion[0]);
-    Verts[vertexIndex + 1].color[0] = (GLubyte)(color[0] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].color[1] = (GLubyte)(color[1] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].color[2] = (GLubyte)(color[2] * ambientOcclusion[1]);
-    Verts[vertexIndex + 2].color[0] = (GLubyte)(color[0] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].color[1] = (GLubyte)(color[1] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].color[2] = (GLubyte)(color[2] * ambientOcclusion[2]);
-    Verts[vertexIndex + 3].color[0] = (GLubyte)(color[0] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].color[1] = (GLubyte)(color[1] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].color[2] = (GLubyte)(color[2] * ambientOcclusion[3]);
-
-    Verts[vertexIndex].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[0]);
-    Verts[vertexIndex].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[0]);
-    Verts[vertexIndex].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[0]);
-    Verts[vertexIndex + 1].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[1]);
-    Verts[vertexIndex + 2].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[2]);
-    Verts[vertexIndex + 3].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[3]);
-
-    Verts[vertexIndex].normal[0] = cubeNormals[vertexOffset];
-    Verts[vertexIndex].normal[1] = cubeNormals[vertexOffset + 1];
-    Verts[vertexIndex].normal[2] = cubeNormals[vertexOffset + 2];
-    Verts[vertexIndex + 1].normal[0] = cubeNormals[vertexOffset + 3];
-    Verts[vertexIndex + 1].normal[1] = cubeNormals[vertexOffset + 4];
-    Verts[vertexIndex + 1].normal[2] = cubeNormals[vertexOffset + 5];
-    Verts[vertexIndex + 2].normal[0] = cubeNormals[vertexOffset + 6];
-    Verts[vertexIndex + 2].normal[1] = cubeNormals[vertexOffset + 7];
-    Verts[vertexIndex + 2].normal[2] = cubeNormals[vertexOffset + 8];
-    Verts[vertexIndex + 3].normal[0] = cubeNormals[vertexOffset + 9];
-    Verts[vertexIndex + 3].normal[1] = cubeNormals[vertexOffset + 10];
-    Verts[vertexIndex + 3].normal[2] = cubeNormals[vertexOffset + 11];
-
-    Verts[vertexIndex].merge = 1;
-    Verts[vertexIndex + 1].merge = 1;
-    Verts[vertexIndex + 2].merge = 1;
-    Verts[vertexIndex + 3].merge = 1;
-
-    if (waveEffect == 2){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 255;
-        Verts[vertexIndex + 2].color[3] = 255;
-        Verts[vertexIndex + 3].color[3] = 255;
-    }
-    else if (waveEffect == 1){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 255;
-    }
-    else{
-        Verts[vertexIndex].color[3] = 0;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 0;
-    }
-
-    Verts[vertexIndex].tex[0] = 128 + uOffset;
-    Verts[vertexIndex].tex[1] = 129 + vOffset;
-    Verts[vertexIndex + 1].tex[0] = 128 + uOffset;
-    Verts[vertexIndex + 1].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 2].tex[0] = 129 + uOffset;
-    Verts[vertexIndex + 2].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 3].tex[0] = 129 + uOffset;
-    Verts[vertexIndex + 3].tex[1] = 129 + vOffset;
-
-    // *********** Base Texture
-    Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;
-    Verts[vertexIndex + 1].textureIndex = (GLubyte)textureIndex;
-    Verts[vertexIndex + 2].textureIndex = (GLubyte)textureIndex;
-    Verts[vertexIndex + 3].textureIndex = (GLubyte)textureIndex;
-
-    Verts[vertexIndex].textureAtlas = (GLubyte)texAtlas;
-    Verts[vertexIndex + 1].textureAtlas = (GLubyte)texAtlas;
-    Verts[vertexIndex + 2].textureAtlas = (GLubyte)texAtlas;
-    Verts[vertexIndex + 3].textureAtlas = (GLubyte)texAtlas;
-
-    // *********** Overlay texture
-    Verts[vertexIndex].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[vertexIndex + 1].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[vertexIndex + 2].overlayTextureIndex = (GLubyte)overlayTex;
-    Verts[vertexIndex + 3].overlayTextureIndex = (GLubyte)overlayTex;
-
-    Verts[vertexIndex].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[vertexIndex + 1].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[vertexIndex + 2].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-    Verts[vertexIndex + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
-}
-
-const GLubyte waterUVs[8] = { 0, 7, 0, 0, 7, 0, 7, 7 };
-
-inline void makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 light[2], ui8 color[3], ui8 textureUnit) {
-
-    verts.resize(verts.size() + 4);
-    verts[index].tex[0] = waterUVs[0] + uOff;
-    verts[index].tex[1] = waterUVs[1] + vOff;
-    verts[index + 1].tex[0] = waterUVs[2] + uOff;
-    verts[index + 1].tex[1] = waterUVs[3] + vOff;
-    verts[index + 2].tex[0] = waterUVs[4] + uOff;
-    verts[index + 2].tex[1] = waterUVs[5] + vOff;
-    verts[index + 3].tex[0] = waterUVs[6] + uOff;
-    verts[index + 3].tex[1] = waterUVs[7] + vOff;
-
-    verts[index].light = light[0];
-    verts[index + 1].light = light[0];
-    verts[index + 2].light = light[0];
-    verts[index + 3].light = light[0];
-    verts[index].sunLight = light[1];
-    verts[index + 1].sunLight = light[1];
-    verts[index + 2].sunLight = light[1];
-    verts[index + 3].sunLight = light[1];
-
-    verts[index].color[0] = color[0];
-    verts[index].color[1] = color[1];
-    verts[index].color[2] = color[2];
-    verts[index + 1].color[0] = color[0];
-    verts[index + 1].color[1] = color[1];
-    verts[index + 1].color[2] = color[2];
-    verts[index + 2].color[0] = color[0];
-    verts[index + 2].color[1] = color[1];
-    verts[index + 2].color[2] = color[2];
-    verts[index + 3].color[0] = color[0];
-    verts[index + 3].color[1] = color[1];
-    verts[index + 3].color[2] = color[2];
-
-    verts[index].textureUnit = (GLubyte)textureUnit;
-    verts[index + 1].textureUnit = (GLubyte)textureUnit;
-    verts[index + 2].textureUnit = (GLubyte)textureUnit;
-    verts[index + 3].textureUnit = (GLubyte)textureUnit;
-}
+#define CompareVerticesLight(v1, v2) (v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3) && !memcmp(v1.color, v2.color, 3))
 
 #define CTOP + PADDED_LAYER
 #define CBOT - PADDED_LAYER
@@ -1030,7 +637,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.pzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pzTexInfo);
+            BlockMesher::makeFloraFace(&(_transparentVerts[0]), BlockMesher::cubeVertices, BlockMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pzTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2 + 2));
@@ -1038,7 +645,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             mi.mergeFront = false;
         } else {
             //Set up most of the vertex data for a face
-            makeCubeFace(_frontVerts, 0, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
+            BlockMesher::makeCubeFace(_frontVerts, 0, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
 
             //Set up the light data using smooth lighting
 
@@ -1046,10 +653,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateLampColor(_frontVerts[mi.frontIndex + 1].lampColor, lampLights[6], lampLights[7], lampLights[14], lampLights[15], nearBlocks[1]);
             calculateLampColor(_frontVerts[mi.frontIndex + 2].lampColor, lampLights[7], lampLights[8], lampLights[15], lampLights[16], nearBlocks[2]);
             calculateLampColor(_frontVerts[mi.frontIndex + 3].lampColor, lampLights[24], lampLights[25], lampLights[15], lampLights[16], nearBlocks[3]);
-            _frontVerts[mi.frontIndex].sunLight = calculateSmoothLighting(sunlights[23] + sunlights[24] + sunlights[14] + sunlights[15] + nearBlocks[0], nearBlocks[0]);
-            _frontVerts[mi.frontIndex + 1].sunLight = calculateSmoothLighting(sunlights[6] + sunlights[7] + sunlights[14] + sunlights[15] + nearBlocks[1], nearBlocks[1]);
-            _frontVerts[mi.frontIndex + 2].sunLight = calculateSmoothLighting(sunlights[7] + sunlights[8] + sunlights[15] + sunlights[16] + nearBlocks[2], nearBlocks[2]);
-            _frontVerts[mi.frontIndex + 3].sunLight = calculateSmoothLighting(sunlights[24] + sunlights[25] + sunlights[15] + sunlights[16] + nearBlocks[3], nearBlocks[3]);
+            _frontVerts[mi.frontIndex].sunlight = calculateSmoothLighting(sunlights[23] + sunlights[24] + sunlights[14] + sunlights[15] + nearBlocks[0], nearBlocks[0]);
+            _frontVerts[mi.frontIndex + 1].sunlight = calculateSmoothLighting(sunlights[6] + sunlights[7] + sunlights[14] + sunlights[15] + nearBlocks[1], nearBlocks[1]);
+            _frontVerts[mi.frontIndex + 2].sunlight = calculateSmoothLighting(sunlights[7] + sunlights[8] + sunlights[15] + sunlights[16] + nearBlocks[2], nearBlocks[2]);
+            _frontVerts[mi.frontIndex + 3].sunlight = calculateSmoothLighting(sunlights[24] + sunlights[25] + sunlights[15] + sunlights[16] + nearBlocks[3], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeFront && mi.pbtype == btype &&
@@ -1093,22 +700,22 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.nzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nzTexInfo);
+            BlockMesher::makeFloraFace(&(_transparentVerts[0]), BlockMesher::cubeVertices, BlockMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nzTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
             mi.mergeBack = false;
         } else {
-            makeCubeFace(_backVerts, 60, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
+            BlockMesher::makeCubeFace(_backVerts, 60, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
 
             calculateLampColor(_backVerts[mi.backIndex].lampColor, lampLights[18], lampLights[19], lampLights[11], lampLights[10], nearBlocks[0]);
             calculateLampColor(_backVerts[mi.backIndex + 1].lampColor, lampLights[1], lampLights[2], lampLights[11], lampLights[10], nearBlocks[1]);
             calculateLampColor(_backVerts[mi.backIndex + 2].lampColor, lampLights[0], lampLights[1], lampLights[9], lampLights[10], nearBlocks[2]);
             calculateLampColor(_backVerts[mi.backIndex + 3].lampColor, lampLights[17], lampLights[18], lampLights[9], lampLights[10], nearBlocks[3]);
-            _backVerts[mi.backIndex].sunLight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[11] + sunlights[10] + nearBlocks[0], nearBlocks[0]);
-            _backVerts[mi.backIndex + 1].sunLight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[11] + sunlights[10] + nearBlocks[1], nearBlocks[1]);
-            _backVerts[mi.backIndex + 2].sunLight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[9] + sunlights[10] + nearBlocks[2], nearBlocks[2]);
-            _backVerts[mi.backIndex + 3].sunLight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[9] + sunlights[10] + nearBlocks[3], nearBlocks[3]);
+            _backVerts[mi.backIndex].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[11] + sunlights[10] + nearBlocks[0], nearBlocks[0]);
+            _backVerts[mi.backIndex + 1].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[11] + sunlights[10] + nearBlocks[1], nearBlocks[1]);
+            _backVerts[mi.backIndex + 2].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[9] + sunlights[10] + nearBlocks[2], nearBlocks[2]);
+            _backVerts[mi.backIndex + 3].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[9] + sunlights[10] + nearBlocks[3], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBack && mi.pbtype == btype &&
@@ -1150,24 +757,24 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.pyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pyTexInfo);
+            BlockMesher::makeFloraFace(&(_transparentVerts[0]), BlockMesher::cubeVertices, BlockMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pyTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 2, mi.z2 + 1));
 
             mi.mergeUp = false;
         } else {
-            makeCubeFace(_topVerts, 24, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
+            BlockMesher::makeCubeFace(_topVerts, 24, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
 
             //Check for +x direction merging
             calculateLampColor(_topVerts[mi.topIndex].lampColor, lampLights[17], lampLights[18], lampLights[20], lampLights[21], nearBlocks[0]);
             calculateLampColor(_topVerts[mi.topIndex + 1].lampColor, lampLights[20], lampLights[21], lampLights[23], lampLights[24], nearBlocks[1]);
             calculateLampColor(_topVerts[mi.topIndex + 2].lampColor, lampLights[21], lampLights[22], lampLights[24], lampLights[25], nearBlocks[2]);
             calculateLampColor(_topVerts[mi.topIndex + 3].lampColor, lampLights[18], lampLights[19], lampLights[21], lampLights[22], nearBlocks[3]);
-            _topVerts[mi.topIndex].sunLight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[20] + sunlights[21] + nearBlocks[0], nearBlocks[0]);
-            _topVerts[mi.topIndex + 1].sunLight = calculateSmoothLighting(sunlights[20] + sunlights[21] + sunlights[23] + sunlights[24] + nearBlocks[1], nearBlocks[1]);
-            _topVerts[mi.topIndex + 2].sunLight = calculateSmoothLighting(sunlights[21] + sunlights[22] + sunlights[24] + sunlights[25] + nearBlocks[2], nearBlocks[2]);
-            _topVerts[mi.topIndex + 3].sunLight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[21] + sunlights[22] + nearBlocks[3], nearBlocks[3]);
+            _topVerts[mi.topIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[20] + sunlights[21] + nearBlocks[0], nearBlocks[0]);
+            _topVerts[mi.topIndex + 1].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[21] + sunlights[23] + sunlights[24] + nearBlocks[1], nearBlocks[1]);
+            _topVerts[mi.topIndex + 2].sunlight = calculateSmoothLighting(sunlights[21] + sunlights[22] + sunlights[24] + sunlights[25] + nearBlocks[2], nearBlocks[2]);
+            _topVerts[mi.topIndex + 3].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[21] + sunlights[22] + nearBlocks[3], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeUp && mi.pbtype == btype &&
@@ -1209,7 +816,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.nyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nyTexInfo);
+            BlockMesher::makeFloraFace(&(_transparentVerts[0]), BlockMesher::cubeVertices, BlockMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nyTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2, mi.z2 + 1));
@@ -1217,16 +824,16 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             mi.mergeBot = false;
         } else {
 
-            makeCubeFace(_bottomVerts, 48, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
+            BlockMesher::makeCubeFace(_bottomVerts, 48, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
 
             calculateLampColor(_bottomVerts[mi.botIndex].lampColor, lampLights[1], lampLights[2], lampLights[4], lampLights[5], nearBlocks[0]);
             calculateLampColor(_bottomVerts[mi.botIndex + 1].lampColor, lampLights[4], lampLights[5], lampLights[7], lampLights[8], nearBlocks[1]);
             calculateLampColor(_bottomVerts[mi.botIndex + 2].lampColor, lampLights[3], lampLights[4], lampLights[6], lampLights[7], nearBlocks[2]);
             calculateLampColor(_bottomVerts[mi.botIndex + 3].lampColor, lampLights[0], lampLights[1], lampLights[3], lampLights[4], nearBlocks[3]);
-            _bottomVerts[mi.botIndex].sunLight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[4] + sunlights[5] + nearBlocks[0], nearBlocks[0]);
-            _bottomVerts[mi.botIndex + 1].sunLight = calculateSmoothLighting(sunlights[4] + sunlights[5] + sunlights[7] + sunlights[8] + nearBlocks[1], nearBlocks[1]);
-            _bottomVerts[mi.botIndex + 2].sunLight = calculateSmoothLighting(sunlights[3] + sunlights[4] + sunlights[6] + sunlights[7] + nearBlocks[2], nearBlocks[2]);
-            _bottomVerts[mi.botIndex + 3].sunLight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[3] + sunlights[4] + nearBlocks[3], nearBlocks[3]);
+            _bottomVerts[mi.botIndex].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[4] + sunlights[5] + nearBlocks[0], nearBlocks[0]);
+            _bottomVerts[mi.botIndex + 1].sunlight = calculateSmoothLighting(sunlights[4] + sunlights[5] + sunlights[7] + sunlights[8] + nearBlocks[1], nearBlocks[1]);
+            _bottomVerts[mi.botIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[4] + sunlights[6] + sunlights[7] + nearBlocks[2], nearBlocks[2]);
+            _bottomVerts[mi.botIndex + 3].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[3] + sunlights[4] + nearBlocks[3], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBot && mi.pbtype == btype &&
@@ -1268,21 +875,21 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.pxTexInfo.base.transparency) {  
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            BlockMesher::makeFloraFace(&(_transparentVerts[0]), BlockMesher::cubeVertices, BlockMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            makeCubeFace(_rightVerts, 12, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
+            BlockMesher::makeCubeFace(_rightVerts, 12, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
 
             calculateLampColor(_rightVerts[mi.rightIndex].lampColor, lampLights[25], lampLights[22], lampLights[13], lampLights[16], nearBlocks[0]);
             calculateLampColor(_rightVerts[mi.rightIndex + 1].lampColor, lampLights[5], lampLights[8], lampLights[13], lampLights[16], nearBlocks[1]);
             calculateLampColor(_rightVerts[mi.rightIndex + 2].lampColor, lampLights[2], lampLights[5], lampLights[11], lampLights[13], nearBlocks[2]);
             calculateLampColor(_rightVerts[mi.rightIndex + 3].lampColor, lampLights[19], lampLights[22], lampLights[11], lampLights[13], nearBlocks[3]);
-            _rightVerts[mi.rightIndex].sunLight = calculateSmoothLighting(sunlights[25] + sunlights[22] + sunlights[13] + sunlights[16] + nearBlocks[0], nearBlocks[0]);
-            _rightVerts[mi.rightIndex + 1].sunLight = calculateSmoothLighting(sunlights[5] + sunlights[8] + sunlights[13] + sunlights[16] + nearBlocks[1], nearBlocks[1]);
-            _rightVerts[mi.rightIndex + 2].sunLight = calculateSmoothLighting(sunlights[2] + sunlights[5] + sunlights[11] + sunlights[13] + nearBlocks[2], nearBlocks[2]);
-            _rightVerts[mi.rightIndex + 3].sunLight = calculateSmoothLighting(sunlights[19] + sunlights[22] + sunlights[11] + sunlights[13] + nearBlocks[3], nearBlocks[3]);
+            _rightVerts[mi.rightIndex].sunlight = calculateSmoothLighting(sunlights[25] + sunlights[22] + sunlights[13] + sunlights[16] + nearBlocks[0], nearBlocks[0]);
+            _rightVerts[mi.rightIndex + 1].sunlight = calculateSmoothLighting(sunlights[5] + sunlights[8] + sunlights[13] + sunlights[16] + nearBlocks[1], nearBlocks[1]);
+            _rightVerts[mi.rightIndex + 2].sunlight = calculateSmoothLighting(sunlights[2] + sunlights[5] + sunlights[11] + sunlights[13] + nearBlocks[2], nearBlocks[2]);
+            _rightVerts[mi.rightIndex + 3].sunlight = calculateSmoothLighting(sunlights[19] + sunlights[22] + sunlights[11] + sunlights[13] + nearBlocks[3], nearBlocks[3]);
 
             mi.rightIndex += 4;
         }
@@ -1309,21 +916,21 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.nxTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            makeFloraFace(&(_transparentVerts[0]), &(cubeVertices[0]), &(cubeNormals[0]), 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nxTexInfo);
+            BlockMesher::makeFloraFace(&(_transparentVerts[0]), BlockMesher::cubeVertices, BlockMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nxTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            makeCubeFace(_leftVerts, 36, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
+            BlockMesher::makeCubeFace(_leftVerts, 36, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
 
             calculateLampColor(_leftVerts[mi.leftIndex].lampColor, lampLights[17], lampLights[20], lampLights[9], lampLights[12], nearBlocks[0]);
             calculateLampColor(_leftVerts[mi.leftIndex + 1].lampColor, lampLights[0], lampLights[3], lampLights[9], lampLights[12], nearBlocks[1]);
             calculateLampColor(_leftVerts[mi.leftIndex + 2].lampColor, lampLights[3], lampLights[6], lampLights[14], lampLights[12], nearBlocks[2]);
             calculateLampColor(_leftVerts[mi.leftIndex + 3].lampColor, lampLights[20], lampLights[23], lampLights[14], lampLights[12], nearBlocks[3]);
-            _leftVerts[mi.leftIndex].sunLight = calculateSmoothLighting(sunlights[17] + sunlights[20] + sunlights[9] + sunlights[12] + nearBlocks[0], nearBlocks[0]);
-            _leftVerts[mi.leftIndex + 1].sunLight = calculateSmoothLighting(sunlights[0] + sunlights[3] + sunlights[9] + sunlights[12] + nearBlocks[1], nearBlocks[1]);
-            _leftVerts[mi.leftIndex + 2].sunLight = calculateSmoothLighting(sunlights[3] + sunlights[6] + sunlights[14] + sunlights[12] + nearBlocks[2], nearBlocks[2]);
-            _leftVerts[mi.leftIndex + 3].sunLight = calculateSmoothLighting(sunlights[20] + sunlights[23] + sunlights[14] + sunlights[12] + nearBlocks[3], nearBlocks[3]);
+            _leftVerts[mi.leftIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[20] + sunlights[9] + sunlights[12] + nearBlocks[0], nearBlocks[0]);
+            _leftVerts[mi.leftIndex + 1].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[3] + sunlights[9] + sunlights[12] + nearBlocks[1], nearBlocks[1]);
+            _leftVerts[mi.leftIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[6] + sunlights[14] + sunlights[12] + nearBlocks[2], nearBlocks[2]);
+            _leftVerts[mi.leftIndex + 3].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[23] + sunlights[14] + sunlights[12] + nearBlocks[3], nearBlocks[3]);
 
             mi.leftIndex += 4;
         }
@@ -1375,9 +982,9 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             r = std::bind(std::uniform_int_distribution<int>(0, 1), mt19937(getPositionSeed(mi.x, mi.z)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 8);
-            makeFloraFace(&(_cutoutVerts[0]), &(crossFloraVertices[r][0]), &(floraNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            BlockMesher::makeFloraFace(&(_cutoutVerts[0]), BlockMesher::crossFloraVertices[r], BlockMesher::floraNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
-            makeFloraFace(&(_cutoutVerts[0]), &(crossFloraVertices[r][0]), &(floraNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            BlockMesher::makeFloraFace(&(_cutoutVerts[0]), BlockMesher::crossFloraVertices[r], BlockMesher::floraNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
             break;
         case MeshType::FLORA:
@@ -1385,11 +992,11 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             r = std::bind(std::uniform_int_distribution<int>(0, 3), mt19937(getPositionSeed(mi.x, mi.z)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 12);
-            makeFloraFace(&(_cutoutVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            BlockMesher::makeFloraFace(&(_cutoutVerts[0]), BlockMesher::floraVertices[r], BlockMesher::floraNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
-            makeFloraFace(&(_cutoutVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            BlockMesher::makeFloraFace(&(_cutoutVerts[0]), BlockMesher::floraVertices[r], BlockMesher::floraNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
-            makeFloraFace(&(_cutoutVerts[0]), &(floraVertices[r][0]), &(floraNormals[0]), 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            BlockMesher::makeFloraFace(&(_cutoutVerts[0]), BlockMesher::floraVertices[r], BlockMesher::floraNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
             break;
     }
@@ -1542,20 +1149,20 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     //Add vertices for the faces
     if (faces[YNEG]){
 
-        makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        BlockMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
         
-        _waterVboVerts[mi.liquidIndex].position[0] = x + liquidVertices[48];
-        _waterVboVerts[mi.liquidIndex].position[1] = y + liquidVertices[49] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + liquidVertices[50];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + liquidVertices[51];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + liquidVertices[52] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + liquidVertices[53];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + liquidVertices[54];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + liquidVertices[55] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + liquidVertices[56];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + liquidVertices[57];
-        _waterVboVerts[mi.liquidIndex + 3].position[1] = y + liquidVertices[58] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + liquidVertices[59];
+        _waterVboVerts[mi.liquidIndex].position[0] = x + BlockMesher::liquidVertices[48];
+        _waterVboVerts[mi.liquidIndex].position[1] = y + BlockMesher::liquidVertices[49] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex].position[2] = z + BlockMesher::liquidVertices[50];
+        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + BlockMesher::liquidVertices[51];
+        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + BlockMesher::liquidVertices[52] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + BlockMesher::liquidVertices[53];
+        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + BlockMesher::liquidVertices[54];
+        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + BlockMesher::liquidVertices[55] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + BlockMesher::liquidVertices[56];
+        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + BlockMesher::liquidVertices[57];
+        _waterVboVerts[mi.liquidIndex + 3].position[1] = y + BlockMesher::liquidVertices[58] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + BlockMesher::liquidVertices[59];
 
         //set alpha
         _waterVboVerts[mi.liquidIndex].color[3] = backLeftAlpha;
@@ -1568,20 +1175,20 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     if (faces[ZPOS]){
 
-        makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        BlockMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position[0] = x + liquidVertices[0];
+        _waterVboVerts[mi.liquidIndex].position[0] = x + BlockMesher::liquidVertices[0];
         _waterVboVerts[mi.liquidIndex].position[1] = y + frontLeftHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + liquidVertices[2];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + liquidVertices[3];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + liquidVertices[4] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + liquidVertices[5];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + liquidVertices[6];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + liquidVertices[7] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + liquidVertices[8];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + liquidVertices[9];
+        _waterVboVerts[mi.liquidIndex].position[2] = z + BlockMesher::liquidVertices[2];
+        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + BlockMesher::liquidVertices[3];
+        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + BlockMesher::liquidVertices[4] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + BlockMesher::liquidVertices[5];
+        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + BlockMesher::liquidVertices[6];
+        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + BlockMesher::liquidVertices[7] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + BlockMesher::liquidVertices[8];
+        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + BlockMesher::liquidVertices[9];
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontRightHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + liquidVertices[11];
+        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + BlockMesher::liquidVertices[11];
 
         _waterVboVerts[mi.liquidIndex].color[3] = frontLeftAlpha;
         _waterVboVerts[mi.liquidIndex + 1].color[3] = frontLeftAlpha;
@@ -1593,21 +1200,21 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     if (faces[YPOS]){
 
-        makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        BlockMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
 
         _waterVboVerts.resize(_waterVboVerts.size() + 4);
-        _waterVboVerts[mi.liquidIndex].position[0] = x + liquidVertices[24];
+        _waterVboVerts[mi.liquidIndex].position[0] = x + BlockMesher::liquidVertices[24];
         _waterVboVerts[mi.liquidIndex].position[1] = y + backLeftHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + liquidVertices[26];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + liquidVertices[27];
+        _waterVboVerts[mi.liquidIndex].position[2] = z + BlockMesher::liquidVertices[26];
+        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + BlockMesher::liquidVertices[27];
         _waterVboVerts[mi.liquidIndex + 1].position[1] = y + frontLeftHeight;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + liquidVertices[29];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + liquidVertices[30];
+        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + BlockMesher::liquidVertices[29];
+        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + BlockMesher::liquidVertices[30];
         _waterVboVerts[mi.liquidIndex + 2].position[1] = y + frontRightHeight;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + liquidVertices[32];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + liquidVertices[33];
+        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + BlockMesher::liquidVertices[32];
+        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + BlockMesher::liquidVertices[33];
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backRightHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + liquidVertices[35];
+        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + BlockMesher::liquidVertices[35];
 
         _waterVboVerts[mi.liquidIndex].color[3] = backLeftAlpha;
         _waterVboVerts[mi.liquidIndex + 1].color[3] = frontLeftAlpha;
@@ -1619,20 +1226,20 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     if (faces[ZNEG]){
 
-        makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        BlockMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position[0] = x + liquidVertices[60];
+        _waterVboVerts[mi.liquidIndex].position[0] = x + BlockMesher::liquidVertices[60];
         _waterVboVerts[mi.liquidIndex].position[1] = y + backRightHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + liquidVertices[62];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + liquidVertices[63];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + liquidVertices[64] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + liquidVertices[65];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + liquidVertices[66];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + liquidVertices[67] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + liquidVertices[68];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + liquidVertices[69];
+        _waterVboVerts[mi.liquidIndex].position[2] = z + BlockMesher::liquidVertices[62];
+        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + BlockMesher::liquidVertices[63];
+        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + BlockMesher::liquidVertices[64] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + BlockMesher::liquidVertices[65];
+        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + BlockMesher::liquidVertices[66];
+        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + BlockMesher::liquidVertices[67] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + BlockMesher::liquidVertices[68];
+        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + BlockMesher::liquidVertices[69];
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backLeftHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + liquidVertices[71];
+        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + BlockMesher::liquidVertices[71];
 
         _waterVboVerts[mi.liquidIndex].color[3] = backRightAlpha;
         _waterVboVerts[mi.liquidIndex + 1].color[3] = backRightAlpha;
@@ -1643,20 +1250,20 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     }
     if (faces[XPOS]){
 
-        makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        BlockMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position.x = x + liquidVertices[12];
+        _waterVboVerts[mi.liquidIndex].position.x = x + BlockMesher::liquidVertices[12];
         _waterVboVerts[mi.liquidIndex].position.y = y + frontRightHeight;
-        _waterVboVerts[mi.liquidIndex].position.z = z + liquidVertices[14];
-        _waterVboVerts[mi.liquidIndex + 1].position.x = x + liquidVertices[15];
-        _waterVboVerts[mi.liquidIndex + 1].position.y = y + liquidVertices[16] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position.z = z + liquidVertices[17];
-        _waterVboVerts[mi.liquidIndex + 2].position.x = x + liquidVertices[18];
-        _waterVboVerts[mi.liquidIndex + 2].position.y = y + liquidVertices[19] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position.z = z + liquidVertices[20];
-        _waterVboVerts[mi.liquidIndex + 3].position.x = x + liquidVertices[21];
+        _waterVboVerts[mi.liquidIndex].position.z = z + BlockMesher::liquidVertices[14];
+        _waterVboVerts[mi.liquidIndex + 1].position.x = x + BlockMesher::liquidVertices[15];
+        _waterVboVerts[mi.liquidIndex + 1].position.y = y + BlockMesher::liquidVertices[16] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 1].position.z = z + BlockMesher::liquidVertices[17];
+        _waterVboVerts[mi.liquidIndex + 2].position.x = x + BlockMesher::liquidVertices[18];
+        _waterVboVerts[mi.liquidIndex + 2].position.y = y + BlockMesher::liquidVertices[19] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 2].position.z = z + BlockMesher::liquidVertices[20];
+        _waterVboVerts[mi.liquidIndex + 3].position.x = x + BlockMesher::liquidVertices[21];
         _waterVboVerts[mi.liquidIndex + 3].position.y = y + backRightHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position.z = z + liquidVertices[23];
+        _waterVboVerts[mi.liquidIndex + 3].position.z = z + BlockMesher::liquidVertices[23];
 
         _waterVboVerts[mi.liquidIndex].color[3] = frontRightAlpha;
         _waterVboVerts[mi.liquidIndex + 1].color[3] = frontRightAlpha;
@@ -1667,20 +1274,20 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     }
     if (faces[XNEG]){
 
-        makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        BlockMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position[0] = x + liquidVertices[36];
+        _waterVboVerts[mi.liquidIndex].position[0] = x + BlockMesher::liquidVertices[36];
         _waterVboVerts[mi.liquidIndex].position[1] = y + backLeftHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + liquidVertices[38];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + liquidVertices[39];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + liquidVertices[40] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + liquidVertices[41];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + liquidVertices[42];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + liquidVertices[43] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + liquidVertices[44];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + liquidVertices[45];
+        _waterVboVerts[mi.liquidIndex].position[2] = z + BlockMesher::liquidVertices[38];
+        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + BlockMesher::liquidVertices[39];
+        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + BlockMesher::liquidVertices[40] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + BlockMesher::liquidVertices[41];
+        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + BlockMesher::liquidVertices[42];
+        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + BlockMesher::liquidVertices[43] - fallingReduction;
+        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + BlockMesher::liquidVertices[44];
+        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + BlockMesher::liquidVertices[45];
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontLeftHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + liquidVertices[47];
+        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + BlockMesher::liquidVertices[47];
 
         _waterVboVerts[mi.liquidIndex].color[3] = backLeftAlpha;
         _waterVboVerts[mi.liquidIndex + 1].color[3] = backLeftAlpha;
