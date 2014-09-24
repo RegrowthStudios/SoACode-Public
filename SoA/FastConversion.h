@@ -61,7 +61,7 @@ class FastConversion {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
                 output = static_cast<OUT>(std::ceil(static_cast<double>(x)));
-            #elif
+            #elif defined(WIN32)
                 __asm {
                     fld x;
                     fadd st, st(0);
@@ -82,7 +82,7 @@ class FastConversion {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
                 output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
-            #elif
+            #elif defined(WIN32)
                 output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
             #else
                 output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
@@ -99,7 +99,7 @@ class FastConversion {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
                 output = static_cast<OUT>(std::round(static_cast<double>(x)));
-            #elif
+            #elif defined(WIN32)
                 output = static_cast<OUT>(std::round(static_cast<double>(x)));
             #else
                 output = static_cast<OUT>(std::round(static_cast<double>(x)));
