@@ -325,6 +325,10 @@ void OpenglManager::endSession() {
             glDeleteBuffers(1, &(cm->cutoutVboID));
             cm->cutoutVboID = 0;
         }
+        if (cm->waterVaoID != 0){
+            glDeleteBuffers(1, &(cm->waterVaoID));
+            cm->waterVaoID = 0;
+        }
         if (cm->waterVboID != 0){
             glDeleteBuffers(1, &(cm->waterVboID));
             cm->waterVboID = 0;
@@ -1940,11 +1944,17 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
                 }
 
                 mapBufferData(cm->waterVboID, cmd->waterVertices.size() * sizeof(LiquidVertex), &(cmd->waterVertices[0]), GL_STREAM_DRAW);           
+
+                ChunkRenderer::bindWaterVao(cm);
             } else {
                 if (cm->waterVboID != 0){
                     glDeleteBuffers(1, &(cm->waterVboID));
                     cm->waterVboID = 0;
                 }   
+                if (cm->waterVaoID != 0){
+                    glDeleteVertexArrays(1, &(cm->waterVaoID));
+                    cm->waterVaoID = 0;
+                }
             }
             break;
     }

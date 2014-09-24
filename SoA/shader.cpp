@@ -797,16 +797,9 @@ void WaterShader::Bind()
         cin >> a;
     }
     glUseProgram(shaderID);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
 }
 void WaterShader::UnBind() {
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(3);
+
 }
 
 //void ParticleShader::Initialize()
