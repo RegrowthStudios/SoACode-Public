@@ -209,6 +209,7 @@ struct Array : public ArrayBase<T> {
         T& at(size_t i) const {
             return ((T*)_data)[i];
         }
+
     protected:
         T* _data;
 };
