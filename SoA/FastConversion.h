@@ -41,6 +41,7 @@ class FastConversion {
             OUT output = 0;
             // slowest version
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+                // std::floor expects a double
                 output = static_cast<OUT>(std::floor(static_cast<double>(x)));
             #elif defined(WIN32)
                 __asm {
@@ -51,6 +52,7 @@ class FastConversion {
                     sar i, 1;
                 };
             #else
+                // std::floor expects a double
                 output = static_cast<OUT>(std::floor(static_cast<double>(x)));
             #endif
             return output;
@@ -62,6 +64,7 @@ class FastConversion {
         inline OUT ceiling(const IN& x) {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+                // std::ceil expects a double
                 output = static_cast<OUT>(std::ceil(static_cast<double>(x)));
             #elif defined(WIN32)
                 __asm {
@@ -72,6 +75,7 @@ class FastConversion {
                     sar i, 1;
                 };
             #else
+                // std::ceil expects a double
                 output = static_cast<OUT>(std::ceil(static_cast<double>(x)));
             #endif
             return output;
@@ -83,10 +87,13 @@ class FastConversion {
         inline OUT trunc(const IN& x) {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+                // std::trunc expects a double
                 output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
             #elif defined(WIN32)
+                // std::trunc expects a double
                 output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
             #else
+                // std::trunc expects a double
                 output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
             #endif
             return output;
@@ -100,10 +107,13 @@ class FastConversion {
         inline OUT round(const IN& x) {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+                // std::round expects a double
                 output = static_cast<OUT>(std::round(static_cast<double>(x)));
             #elif defined(WIN32)
+                // std::round expects a double
                 output = static_cast<OUT>(std::round(static_cast<double>(x)));
             #else
+                // std::round expects a double
                 output = static_cast<OUT>(std::round(static_cast<double>(x)));
             #endif
             return output;
