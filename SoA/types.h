@@ -2,8 +2,11 @@
 #include <string>
 #include <stdint.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-register"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#pragma clang diagnostic pop
 
 // Note: char, size_t, And 3rd-Party Types May Be Used When Deemed Necessary
 
