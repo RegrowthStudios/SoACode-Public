@@ -109,6 +109,7 @@ struct ArrayBase {
                 _data = nullptr;
             }
         }
+
         ArrayBase(const ArrayBase& other)
         : ArrayBase(other._elementSize, other._data, other._length) {
             // empty
