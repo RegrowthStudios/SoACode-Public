@@ -76,11 +76,11 @@ typedef glm::highp_mat4 f64m4;
 
 struct ColorRGBA8 {
     ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a)
-        : r(r), g(g), b(b), a(a) {
+    : r(r), g(g), b(b), a(a) {
     }
 
     ColorRGBA8()
-        : ColorRGBA8(0, 0, 0, 0) {
+    : ColorRGBA8(0, 0, 0, 0) {
     }
 
     ui8 r;
@@ -92,7 +92,7 @@ struct ColorRGBA8 {
 
 struct ColorRGB8 {
     ColorRGB8(ui8 r, ui8 g, ui8 b)
-        : r(r), g(g), b(b) {
+    : r(r), g(g), b(b) {
     }
 
     ColorRGB8() {
@@ -107,107 +107,108 @@ struct ColorRGB8 {
 // A Better Array
 template<typename DataType>
 struct ArrayBase {
-public:
-    ArrayBase(i32 elemSize)
+    public:
+        ArrayBase(i32 elemSize)
         : _data(nullptr), _elementSize(elemSize), _length(0) {
-    }
+        }
 
-    ArrayBase(i32 elemSize,  DataType* d, i32 l)
+        ArrayBase(i32 elemSize,  DataType* d, i32 l)
         : _elementSize(elemSize), _length(l) {
-        if (_length > 0) {
-            _data = new DataType[_elementSize * _length];
-            memcpy(_data, d, _elementSize * _length);
-        } else {
-            _data = nullptr;
+            if (_length > 0) {
+                _data = new DataType[_elementSize * _length];
+                memcpy(_data, d, _elementSize * _length);
+            } else {
+                _data = nullptr;
+            }
         }
-    }
 
-    ArrayBase(const ArrayBase& other)
+        ArrayBase(const ArrayBase& other)
         : ArrayBase(other._elementSize, other._data, other._length) {
-    }
-
-    ArrayBase& operator=(const ArrayBase& other) {
-        _elementSize = other._elementSize;
-        _length = other._length;
-        if (other._data) {
-            _data = new DataType[_elementSize * _length];
-            memcpy(_data, other._data, _elementSize * _length);
-        } else {
-            _data = nullptr;
-        }
-        return *this;
-    }
-
-    ~ArrayBase() {
-        if (_data) {
-            delete[] _data;
-            _data = nullptr;
-            _length = 0;
-        }
-    }
-
-    const i32& length() const {
-        return _length;
-    }
-
-    void setData(DataType* data, i32 len) {
-        // Delete Previous Data
-        if (_data) {
-            delete[] _data;
-            _data = nullptr;
-            _length = 0;
         }
 
-        // Set New Data
-        if (data && len > 0) {
-            _length = len;
-            _data = new DataType[_length * _elementSize];
-            memcpy(_data, data, _length * _elementSize);
+        ArrayBase& operator=(const ArrayBase& other) {
+            _elementSize = other._elementSize;
+            _length = other._length;
+            if (other._data) {
+                _data = new DataType[_elementSize * _length];
+                memcpy(_data, other._data, _elementSize * _length);
+            } else {
+                _data = nullptr;
+            }
+            return *this;
         }
-    }
 
-    void setData(i32 len = 0) {
-        // Delete Previous Data
-        if (_data) {
-            delete[] _data;
-            _data = nullptr;
-            _length = 0;
+        ~ArrayBase() {
+            if (_data) {
+                delete[] _data;
+                _data = nullptr;
+                _length = 0;
+            }
         }
-        // Set New Data
-        if (len > 0) {
-            _length = len;
-            _data = new DataType[_length * _elementSize]();
+
+        const i32& length() const {
+            return _length;
         }
-    }
 
-    DataType& operator[] (size_t i) const {
-        return ((DataType*)_data)[i];
-    }
+        void setData(DataType* data, i32 len) {
+            // Delete Previous Data
+            if (_data) {
+                delete[] _data;
+                _data = nullptr;
+                _length = 0;
+            }
+            // Set New Data
+            if (data && len > 0) {
+                _length = len;
+                _data = new DataType[_length * _elementSize];
+                memcpy(_data, data, _length * _elementSize);
+            }
+        }
 
-    DataType& at(size_t i) const {
-        return ((DataType*)_data)[i];
-    }
+        void setData(i32 len = 0) {
+            // Delete Previous Data
+            if (_data) {
+                delete[] _data;
+                _data = nullptr;
+                _length = 0;
+            }
+            // Set New Data
+            if (len > 0) {
+                _length = len;
+                _data = new DataType[_length * _elementSize]();
+            }
+        }
 
-protected:
-    DataType* _data;
-    i32 _elementSize;
-    i32 _length;
+        DataType& operator[] (size_t i) const {
+            return ((DataType*)_data)[i];
+        }
+
+        DataType& at(size_t i) const {
+            return ((DataType*)_data)[i];
+        }
+
+    protected:
+        DataType* _data;
+        i32 _elementSize;
+        i32 _length;
 };
 
 
 // A Better Array
 template<typename T>
 struct Array : public ArrayBase {
-public:
-    Array() : ArrayBase(sizeof(T)) {}
+    public:
+        Array()
+        : ArrayBase(sizeof(T)) {
+        }
 
-    T& operator[] (size_t i) const {
-        return ((T*)_data)[i];
-    }
+        T& operator[] (size_t i) const {
+            return ((T*)_data)[i];
+        }
 
-    T& at(size_t i) const {
-        return ((T*)_data)[i];
-    }
+        T& at(size_t i) const {
+            return ((T*)_data)[i];
+        }
 };
 
 
