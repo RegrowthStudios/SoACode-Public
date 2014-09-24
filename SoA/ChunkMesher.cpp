@@ -554,12 +554,12 @@ void ChunkMesher::getHorizontalTextureIndex(const MesherInfo &mi, int& result, b
         //front right bit
         Block *block = &GETBLOCK(chData[wc + rightDir + frontDir]);
         if (*((int *)(&block->pxTex) + offset) == tex) {
-            connectedOffset |= 1;
+            connectedOffset &= 2;
         }
         //front left bit
         block = &GETBLOCK(chData[wc - rightDir + frontDir]);
         if (*((int *)(&block->pxTex) + offset) == tex) {
-            connectedOffset |= 2;
+            connectedOffset &= 1;
         }
     }
 
