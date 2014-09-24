@@ -104,16 +104,17 @@ struct ColorRGB8 {
 
 
 // A Better Array
+template<typename DataType>
 struct ArrayBase {
 public:
     ArrayBase(i32 elemSize)
-        : _length(0), _elementSize(elemSize), _data(nullptr) {
+        : _data(nullptr), _elementSize(elemSize), _length(0) {
     }
 
-    ArrayBase(i32 elemSize, void* d, i32 l)
-        : _length(l), _elementSize(elemSize) {
+    ArrayBase(i32 elemSize,  DataType* d, i32 l)
+        : _elementSize(elemSize), _length(l) {
         if (_length > 0) {
-            _data = new ui8[_elementSize * _length];
+            _data = new DataType[_elementSize * _length];
             memcpy(_data, d, _elementSize * _length);
         } else {
             _data = nullptr;
@@ -128,7 +129,7 @@ public:
         _elementSize = other._elementSize;
         _length = other._length;
         if (other._data) {
-            _data = new ui8[_elementSize * _length];
+            _data = new DataType[_elementSize * _length];
             memcpy(_data, other._data, _elementSize * _length);
         } else {
             _data = nullptr;
@@ -148,7 +149,7 @@ public:
         return _length;
     }
 
-    const void setData(void* data, i32 len) {
+    void setData(DataType* data, i32 len) {
         // Delete Previous Data
         if (_data) {
             delete[] _data;
@@ -159,12 +160,12 @@ public:
         // Set New Data
         if (data && len > 0) {
             _length = len;
-            _data = new ui8[_length * _elementSize];
+            _data = new DataType[_length * _elementSize];
             memcpy(_data, data, _length * _elementSize);
         }
     }
 
-    const void setData(i32 len = 0) {
+    void setData(i32 len = 0) {
         // Delete Previous Data
         if (_data) {
             delete[] _data;
@@ -174,22 +175,20 @@ public:
         // Set New Data
         if (len > 0) {
             _length = len;
-            _data = new ui8[_length * _elementSize]();
+            _data = new DataType[_length * _elementSize]();
         }
     }
 
-    template<typename T>
-    T& operator[] (size_t i) const {
-        return ((T*)_data)[i];
+    DataType& operator[] (size_t i) const {
+        return ((DataType*)_data)[i];
     }
 
-    template<typename T>
-    T& at(size_t i) const {
-        return ((T*)_data)[i];
+    DataType& at(size_t i) const {
+        return ((DataType*)_data)[i];
     }
 
 protected:
-    void* _data;
+    DataType* _data;
     i32 _elementSize;
     i32 _length;
 };
