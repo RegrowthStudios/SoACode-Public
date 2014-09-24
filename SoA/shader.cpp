@@ -359,6 +359,8 @@ void BlockShader::Initialize(string dirPath) {
 
     blockDtID = GetUniform(shaderID, "dt");
 
+    eyeVecID = GetUniform(shaderID, "eyeNormalWorldspace");
+
     glUseProgram(shaderID);
     glUniform1i(texturesID, 0);
     isInitialized = 1;
