@@ -126,6 +126,7 @@ void ThreadPool::removeThread() {
 }
 
 int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
+    assert(chunk != nullptr);
     RenderTask *newRenderTask; //makes the task and allocates the memory for the buffers
     taskQueueManager.rpLock.lock();
     if (taskQueueManager.renderTaskPool.empty()) {
@@ -136,11 +137,13 @@ int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
     taskQueueManager.renderTaskPool.pop_back();
     taskQueueManager.rpLock.unlock(); //we can free lock while we work on data
     newRenderTask->setChunk(chunk, type);
-
+    assert(newRenderTask->chunk != nullptr);
     chunk->SetupMeshData(newRenderTask);
+    assert(newRenderTask->chunk != nullptr);
 
     chunk->inRenderThread = 1;
     taskQueueManager.lock.lock();
+    assert(newRenderTask->chunk != nullptr);
     taskQueueManager.renderTaskQueue.push(newRenderTask);
     taskQueueManager.lock.unlock();
 

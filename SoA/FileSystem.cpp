@@ -7,6 +7,7 @@
 #include <ZLIB/unzip.c>
 
 #include "BlockData.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "FloraGenerator.h"
 #include "GameManager.h"
@@ -1148,7 +1149,7 @@ void FileManager::loadTexturePack(nString fileName) {
         //defDir = opendir(defaultFileName.c_str());
         if (!boost::filesystem::exists(defaultFileName)) {
             defaultFileName = defaultFileName + ".zip";
-            graphicsOptions.defaultTexturePack = "SoA_Default.zip";
+            graphicsOptions.defaultTexturePack = "Default.zip";
             isDefaultZip = 1;
             //} else {
             //closedir(defDir);
@@ -1158,13 +1159,13 @@ void FileManager::loadTexturePack(nString fileName) {
         if (stat(defaultFileName.c_str(), &statbuf) != 0) {
             isDefaultZip = 0;
             defaultFileName = defaultFileName.substr(0, defaultFileName.size() - 4); //chop off .zip
-            graphicsOptions.defaultTexturePack = "SoA_Default";
+            graphicsOptions.defaultTexturePack = "Default";
         }
     }
 
     struct stat statbuf; //check that default pack exists
     if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-        pError("Default Texture Pack SoA_Default is missing! Please re-install the game.");
+        pError("Default Texture Pack Default is missing! Please re-install the game.");
         exit(44);
     }
 
@@ -1492,6 +1493,12 @@ i32 FileManager::loadBlocks(nString filePath) {
                     b->color[2] = (hexColor & 0xFF);
                 }
                 break;
+            case BLOCK_INI_COLORFILTER:
+                if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
+                    b->colorFilter[0] = ((hexColor >> 16) & 0xFF) / 255.0f;
+                    b->colorFilter[1] = ((hexColor >> 8) & 0xFF) / 255.0f;
+                    b->colorFilter[2] = (hexColor & 0xFF) / 255.0f;
+                }
             case BLOCK_INI_OVERLAYCOLOR:
                 if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
                     b->overlayColor[0] = ((hexColor >> 16) & 0xFF);
@@ -1535,8 +1542,11 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_LIGHTACTIVE:
                 b->isLight = iniVal->getInt();
                 break;
-            case BLOCK_INI_LIGHTINTENSITY:
-                b->lightIntensity = iniVal->getInt();
+            case BLOCK_INI_LIGHTCOLOR:
+                if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
+                    //Convert RRRRRRRR GGGGGGGG BBBBBBBB to RRRRR GGGGG BBBBB
+                    b->lightColor = ((MIN((hexColor & 0xFF0000) >> 16, 31)) << 10) | (MIN((hexColor & 0x1F00) >> 8, 31) << 5) | MIN(hexColor & 0x1f, 31);
+                }
                 break;
             case BLOCK_INI_MATERIAL:
                 b->material = iniVal->getInt();
@@ -1644,6 +1654,7 @@ i32 FileManager::loadBlocks(nString filePath) {
     return 1;
 
 }
+
 i32 FileManager::saveBlocks(nString filePath) {
     //worldFilePath + "Trees/TreeTypes/"
     std::vector <std::vector <IniValue> > iniValues;
@@ -1679,6 +1690,10 @@ i32 FileManager::saveBlocks(nString filePath) {
                 sprintf(colorString, "%02x%02x%02x", b->color[0], b->color[1], b->color[2]);
                 iniValues.back().push_back(IniValue("color", nString(colorString)));
             }
+            if (db.colorFilter != b->colorFilter) {
+                sprintf(colorString, "%02x%02x%02x", (ui32)round(b->colorFilter[0] * 255.0f), (ui32)round(b->colorFilter[1] * 255.0f), (ui32)round(b->colorFilter[2] * 255.0f));
+                iniValues.back().push_back(IniValue("color", nString(colorString)));
+            }
             if (db.isCrushable != b->isCrushable) iniValues.back().push_back(IniValue("crushable", to_string(b->isCrushable)));
             if (db.emitterName != b->emitterName) iniValues.back().push_back(IniValue("emitter", b->emitterName));
             if (db.emitterOnBreakName != b->emitterOnBreakName) iniValues.back().push_back(IniValue("emitterOnBreak", b->emitterOnBreakName));
@@ -1690,7 +1705,14 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.flammability != b->flammability) iniValues.back().push_back(IniValue("flammability", b->flammability));
             if (db.floatingAction != b->floatingAction) iniValues.back().push_back(IniValue("floatingAction", to_string(b->floatingAction)));
             if (db.isLight != b->isLight) iniValues.back().push_back(IniValue("lightActive", to_string(b->isLight)));
-            if (db.lightIntensity != b->lightIntensity) iniValues.back().push_back(IniValue("lightIntensity", to_string(b->lightIntensity)));
+           
+            if (db.lightColor != b->lightColor) {
+                sprintf(colorString, "%02x%02x%02x", Chunk::getLampRedFromHex(b->lightColor), 
+                                                     Chunk::getLampGreenFromHex(b->lightColor),
+                                                     Chunk::getLampBlueFromHex(b->lightColor));
+                iniValues.back().push_back(IniValue("lightColor", nString(colorString)));
+            }
+            
             if (db.meshType != b->meshType) iniValues.back().push_back(IniValue("meshType", to_string((int)b->meshType)));
             if (db.moveMod != b->moveMod) iniValues.back().push_back(IniValue("movementMod", b->moveMod));
             if (db.powderMove != b->powderMove) iniValues.back().push_back(IniValue("movesPowder", to_string(b->powderMove)));
@@ -2679,7 +2701,7 @@ void FileManager::initializeINIMaps() {
     BlockIniMap["floatingAction"] = BLOCK_INI_FLOATINGACTION;
     BlockIniMap["health"] = BLOCK_INI_HEALTH;
     BlockIniMap["lightActive"] = BLOCK_INI_LIGHTACTIVE;
-    BlockIniMap["lightIntensity"] = BLOCK_INI_LIGHTINTENSITY;
+    BlockIniMap["lightColor"] = BLOCK_INI_LIGHTCOLOR;
     BlockIniMap["material"] = BLOCK_INI_MATERIAL;
     BlockIniMap["meshType"] = BLOCK_INI_MESHTYPE;
     BlockIniMap["movementMod"] = BLOCK_INI_MOVEMENTMOD;
@@ -2689,6 +2711,7 @@ void FileManager::initializeINIMaps() {
     BlockIniMap["useable"] = BLOCK_INI_USEABLE;
     BlockIniMap["value"] = BLOCK_INI_VALUE;
     BlockIniMap["color"] = BLOCK_INI_COLOR;
+    BlockIniMap["colorFilter"] = BLOCK_INI_COLORFILTER;
     BlockIniMap["overlayColor"] = BLOCK_INI_OVERLAYCOLOR;
     BlockIniMap["waterMeshLevel"] = BLOCK_INI_WATERMESHLEVEL;
     BlockIniMap["waveEffect"] = BLOCK_INI_WAVEEFFECT;

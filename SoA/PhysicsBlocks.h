@@ -4,29 +4,9 @@
 
 #include "ImageLoading.h"
 #include "WorldStructs.h"
+#include "OpenGLStructs.h"
 
 struct ChunkSlot;
-
-struct PhysicsBlockVertex {
-public:
-    ui8 position[3]; //3
-    ui8 blendMode; //4
-    ui8 tex[2]; //6
-    ui8 pad1[2]; //8
-
-    ui8 textureAtlas; //9
-    ui8 overlayTextureAtlas; //10
-    ui8 textureIndex; //11
-    ui8 overlayTextureIndex; //12
-
-    ui8 textureWidth; //13
-    ui8 textureHeight; //14
-    ui8 overlayTextureWidth; //15
-    ui8 overlayTextureHeight; //16
-
-    i8 normal[3]; //19
-    i8 pad2; //20
-};
 
 struct PhysicsBlockMesh {
 public:

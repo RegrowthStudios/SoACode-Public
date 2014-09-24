@@ -17,7 +17,7 @@ enum class BlendType {
 };
 KEG_ENUM_DECL(BlendType);
 
-// Size: 28 Bytes
+// Size: 32 Bytes
 struct BlockVertex {
 public:
     struct vPosition {  //3 bytes  << 1
@@ -32,7 +32,8 @@ public:
     // 1000 = normal map
     //10000 = specular map
     ubyte tex[2]; //6 
-    ubyte pad[2];
+    ubyte animationLength; //7
+    ubyte blendMode; //8
 
     ubyte textureAtlas; //9
     ubyte overlayTextureAtlas; //10
@@ -48,10 +49,8 @@ public:
     ubyte overlayColor[3]; //23
     ubyte pad2; //24
 
-    ubyte light; //25
-    ubyte sunLight; //26
-    ubyte animationLength; //27
-    ubyte blendMode; //28
+    ubyte lampColor[3]; //27
+    ubyte sunlight; //28
 
     sbyte normal[3]; //31
     sbyte merge; //32
@@ -66,7 +65,7 @@ public:
     GLubyte textureIndex; //16
     GLubyte color[4]; //20
     GLubyte light; //21
-    GLubyte sunLight; //22
+    GLubyte sunlight; //22
     GLubyte pad1[2]; //24
 };
 
@@ -82,6 +81,27 @@ public:
     GLubyte temperature;
     GLubyte rainfall;
     GLubyte specular; //48
+};
+
+struct PhysicsBlockVertex {
+public:
+    ui8 position[3]; //3
+    ui8 blendMode; //4
+    ui8 tex[2]; //6
+    ui8 pad1[2]; //8
+
+    ui8 textureAtlas; //9
+    ui8 overlayTextureAtlas; //10
+    ui8 textureIndex; //11
+    ui8 overlayTextureIndex; //12
+
+    ui8 textureWidth; //13
+    ui8 textureHeight; //14
+    ui8 overlayTextureWidth; //15
+    ui8 overlayTextureHeight; //16
+
+    i8 normal[3]; //19
+    i8 pad2; //20
 };
 
 struct Face {

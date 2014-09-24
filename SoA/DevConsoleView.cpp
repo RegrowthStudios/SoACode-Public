@@ -108,7 +108,7 @@ void DevConsoleView::redrawBatch() {
             _batch->drawString(_font, cStr,
                 f32v2(10, textHeight * i + 10),
                 f32v2(1),
-                color8(0, 255, 0, 255),
+                ColorRGBA8(0, 255, 0, 255),
                 0.9f
                 );
         }

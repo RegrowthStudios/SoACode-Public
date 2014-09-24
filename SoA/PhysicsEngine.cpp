@@ -480,7 +480,7 @@ void PhysicsEngine::detectFloatingBlocks(const glm::dvec3 &viewDir)
     for (Uint32 ni = 0; ni < _fallingCheckNodes.size(); ni++){ //allocate only enough time per frame.
         if (detectFloatingSize >= F_NODES_MAX_SIZE - MAX_SEARCH_LENGTH){
             for (int i = 0; i < MAX_SEARCH_LENGTH; i++){
-                _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].ch->setBlockData(_fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].c, _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].blockType);
+                _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].ch->setBlockID(_fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].c, _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].blockType);
             }
             detectFloatingSize -= MAX_SEARCH_LENGTH;
         }
@@ -617,7 +617,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
             }
 
             floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
-            if (nSinceWood && !support && GETBLOCK(blockType).isSupportive){ ch->setBlockData(c, btype); continue; }//belongs to another tree!
+            if (nSinceWood && !support && GETBLOCK(blockType).isSupportive){ ch->setBlockID(c, btype); continue; }//belongs to another tree!
             if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
                 if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
                     _fnodes[n++].setValues(c + CHUNK_LAYER, ch, nSinceWood);
@@ -628,7 +628,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
 
 
             floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getLeftBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockData(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockData(c, btype); continue; }
+            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
             if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
                 if (c%CHUNK_WIDTH > 0){
                     _fnodes[n++].setValues(c - 1, ch, nSinceWood);
@@ -638,7 +638,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
             }
 
             floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getRightBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockData(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockData(c, btype); continue; }
+            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
             if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
                 if (c%CHUNK_WIDTH < CHUNK_WIDTH - 1){
                     _fnodes[n++].setValues(c + 1, ch, nSinceWood);
@@ -648,7 +648,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
             }
 
             floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getFrontBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockData(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockData(c, btype); continue; }
+            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
             if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
                 if ((c%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
                     _fnodes[n++].setValues(c + CHUNK_WIDTH, ch, nSinceWood);
@@ -658,7 +658,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
             }
 
             floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getBackBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockData(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockData(c, btype); continue; }
+            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
             if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
                 if ((c%CHUNK_LAYER) / CHUNK_WIDTH > 0){
                     _fnodes[n++].setValues(c - CHUNK_WIDTH, ch, nSinceWood);
@@ -668,7 +668,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
             }
 
             floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getBottomBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockData(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockData(c, btype); continue; }
+            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
             if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
                 if (c / CHUNK_LAYER > 0){
                     _fnodes[n++].setValues(c - CHUNK_LAYER, ch, nSinceWood);
@@ -724,7 +724,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
                 //TODO: BAD! Make this a script
                 if (blockType != FIRE) addPhysicsBlock(glm::dvec3(ch->position) + glm::dvec3(c%CHUNK_WIDTH + 0.5, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _fnodes[i].blockType, ydiff, right, explosionDir, ch->getTemperature(xz), ch->getRainfall(xz));
 
-                ch->data[c] = blockType; //so that removeBlock functions correctly
+                ch->setBlockData(c, blockType); //so that removeBlock functions correctly
                 ChunkUpdater::removeBlock(ch, c, false);
             }
         }
@@ -734,7 +734,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
 void PhysicsEngine::restoreDetectFloatingBlocks(int &size)
 {
     for (int i = 0; i < size; i++){
-        _fnodes[i].ch->setBlockData(_fnodes[i].c, _fnodes[i].blockType);
+        _fnodes[i].ch->setBlockID(_fnodes[i].c, _fnodes[i].blockType);
     }
     size = 0;
 }
@@ -778,6 +778,6 @@ void FallingNode::setValues(GLushort C, Chunk *Ch, int nsw){
     c = C;
     ch = Ch;
     blockType = ch->getBlockData(c);
-    ch->setBlockData(c, NONE); //set the actual block to none for now
+    ch->setBlockID(c, NONE); //set the actual block to none for now
     nSinceWood = nsw;
 }

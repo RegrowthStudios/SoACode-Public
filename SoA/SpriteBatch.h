@@ -9,12 +9,12 @@ class SpriteFont;
 struct VertexSpriteBatch {
 public:
     VertexSpriteBatch();
-    VertexSpriteBatch(const f32v3& pos, const f32v2& uv, const f32v4& uvr, const color8& color);
+    VertexSpriteBatch(const f32v3& pos, const f32v2& uv, const f32v4& uvr, const ColorRGBA8& color);
 
     f32v3 position;
     f32v2 uv;
     f32v4 uvRect;
-    color8 color;
+    ColorRGBA8 color;
 };
 
 enum class SpriteSortMode {
@@ -48,13 +48,13 @@ public:
 
     void begin();
 
-    void draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, f32 rotation, color8 tint, f32 depth = 0.0f);
-    void draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, color8 tint, f32 depth = 0.0f);
-    void draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 size, color8 tint, f32 depth = 0.0f);
-    void draw(ui32 t, f32v4* uvRect, f32v2 position, f32v2 size, color8 tint, f32 depth = 0.0f);
-    void draw(ui32 t, f32v2 position, f32v2 size, color8 tint, f32 depth = 0.0f);
-    void drawString(SpriteFont* font, const cString s, f32v2 position, f32v2 scaling, color8 tint, f32 depth = 0.0f);
-    void drawString(SpriteFont* font, const cString s, f32v2 position, f32 desiredHeight, f32 scaleX, color8 tint, f32 depth = 0.0f);
+    void draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, f32 rotation, ColorRGBA8 tint, f32 depth = 0.0f);
+    void draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, ColorRGBA8 tint, f32 depth = 0.0f);
+    void draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth = 0.0f);
+    void draw(ui32 t, f32v4* uvRect, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth = 0.0f);
+    void draw(ui32 t, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth = 0.0f);
+    void drawString(SpriteFont* font, const cString s, f32v2 position, f32v2 scaling, ColorRGBA8 tint, f32 depth = 0.0f);
+    void drawString(SpriteFont* font, const cString s, f32v2 position, f32 desiredHeight, f32 scaleX, ColorRGBA8 tint, f32 depth = 0.0f);
     void end(SpriteSortMode ssm = SpriteSortMode::TEXTURE);
 
     void renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr);

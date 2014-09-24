@@ -125,8 +125,8 @@ bool Particle::update(const deque < deque < deque < ChunkSlot* > > > &chunkList,
             }
 
         } else {
-            light[0] = (GLubyte)((pow(LIGHT_MULT, MAXLIGHT - (int)ch->getLight(0, c)) - 0.18f) * 255);
-            light[1] = (GLubyte)((pow(LIGHT_MULT, MAXLIGHT - (int)ch->getLight(1, c)) - 0.18f) * 255);
+            light[0] = (GLubyte)((pow(LIGHT_MULT, MAXLIGHT - (int)ch->getLampLight(c)) - 0.18f) * 255);
+            light[1] = (GLubyte)((pow(LIGHT_MULT, MAXLIGHT - (int)ch->getSunlight(c)) - 0.18f) * 255);
         }
 
     }

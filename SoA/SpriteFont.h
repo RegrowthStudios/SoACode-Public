@@ -29,7 +29,7 @@ public:
 
     f32v2 measure(const cString s);
 
-    void draw(SpriteBatch* batch, const cString s, f32v2 position, f32v2 scaling, color8 tint, f32 depth);
+    void draw(SpriteBatch* batch, const cString s, f32v2 position, f32v2 scaling, ColorRGBA8 tint, f32 depth);
 private:
     static std::vector<i32>* createRows(i32v4* rects, i32 rectsLength, i32 r, i32 padding, i32& w);
 

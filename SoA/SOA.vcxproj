@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="12.0">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -110,6 +110,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
     <ClInclude Include="ChunkMesh.h" />
@@ -124,6 +125,8 @@
     <ClInclude Include="ChunkUpdater.h" />
     <ClInclude Include="GeometrySorter.h" />
     <ClInclude Include="GLStates.h" />
+    <ClInclude Include="SmartVoxelContainer.h" />
+    <ClInclude Include="VoxelIntervalTree.h" />
     <ClInclude Include="Keg.h" />
     <ClInclude Include="LiquidData.h" />
     <ClInclude Include="LoadBar.h" />
@@ -233,6 +236,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
     <ClCompile Include="ChunkMesh.cpp" />
@@ -288,6 +292,7 @@
     <ClCompile Include="TextureAtlasManager.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="Timing.cpp" />
+    <ClCompile Include="SmartVoxelContainer.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
@@ -342,6 +347,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Chunk.inl" />
+    <None Include="VoxelIntervalTree.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

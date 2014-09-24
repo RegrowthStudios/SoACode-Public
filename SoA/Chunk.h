@@ -2,9 +2,11 @@
 #include <algorithm>
 #include <queue>
 #include <set>
+#include <mutex>
 
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
+#include "SmartVoxelContainer.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
 #include "VoxelLightEngine.h"
@@ -21,11 +23,19 @@ enum LightTypes {LIGHT, SUNLIGHT};
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
 struct LightMessage;
-struct LightRemovalNode;
 struct RenderTask;
+
+//For lamp colors. Used to extract color values from the 16 bit color code
+#define LAMP_RED_MASK 0x7C00
+#define LAMP_GREEN_MASK 0x3E0
+#define LAMP_BLUE_MASK 0x1f
+#define LAMP_RED_SHIFT 10
+#define LAMP_GREEN_SHIFT 5
+//no blue shift
 
 class Chunk{
 public:
+
     friend class ChunkManager;
     friend class EditorTree;
     friend class ChunkMesher;
@@ -84,16 +94,26 @@ public:
     ChunkStates getState() const { return state; }
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
-    int getLight(int type, int c) const;
+    int getSunlight(int c) const;
+
+    ui16 getLampLight(int c) const;
+    ui16 getLampRed(int c) const;
+    ui16 getLampGreen(int c) const;
+    ui16 getLampBlue(int c) const;
+
     const Block& getBlock(int c) const;
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
     //setters
     void setBlockID(int c, int val);
-    void setBlockData(int c, GLushort val);
-    void setLight(int type, int c, int val);
+    void setBlockData(int c, ui16 val);
+    void setSunlight(int c, ui8 val);
+    void setLampLight(int c, ui16 val);
 
+    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
+    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
+    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
 
     int neighbors;
     bool activeUpdateList[8];
@@ -113,9 +133,9 @@ public:
 
     ChunkMesh *mesh;
 
-    vector <TreeData> treesToLoad;
-    vector <PlantData> plantsToLoad;
-    vector <GLushort> spawnerBlocks;
+    std::vector <TreeData> treesToLoad;
+    std::vector <PlantData> plantsToLoad;
+    std::vector <GLushort> spawnerBlocks;
     glm::ivec3 position;
     FaceData faceData;
     int hzIndex, hxIndex;
@@ -131,36 +151,33 @@ public:
     int threadJob;
     float setupWaitingTime;
 
-    vector <ui16> blockUpdateList[8][2];
-    vector <LightUpdateNode> lightUpdateQueue;
-    vector <LightRemovalNode> lightRemovalQueue;
-    vector <ui16> sunRemovalList;
-    vector <ui16> sunExtendList;
+    std::vector <ui16> blockUpdateList[8][2];
+
+    //Even though these are vectors, they are treated as fifo usually, and when not, it doesn't matter
+    std::vector <SunlightUpdateNode> sunlightUpdateQueue;
+    std::vector <SunlightRemovalNode> sunlightRemovalQueue;
+    std::vector <LampLightUpdateNode> lampLightUpdateQueue;
+    std::vector <LampLightRemovalNode> lampLightRemovalQueue;
+
+    std::vector <ui16> sunRemovalList;
+    std::vector <ui16> sunExtendList;
 
     static ui32 vboIndicesID;
 
-    vector <Chunk *> *setupListPtr;
+    std::vector <Chunk *> *setupListPtr;
     Chunk *right, *left, *front, *back, *top, *bottom;
+
+    //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
+    static std::mutex modifyLock;
 
 private:
     ChunkStates state;
 
-    //For passing light updates to neighbor chunks with multithreading.
-    //One queue per edge so there is only one writer per queue
-    //This is a queue of ints for compatability with moodycamel,
-    //but the ints are interpreted as LightMessages
-   /* moodycamel::ReaderWriterQueue<ui32> lightFromLeft;
-    moodycamel::ReaderWriterQueue<ui32> lightFromRight;
-    moodycamel::ReaderWriterQueue<ui32> lightFromFront;
-    moodycamel::ReaderWriterQueue<ui32> lightFromBack;
-    moodycamel::ReaderWriterQueue<ui32> lightFromTop;
-    moodycamel::ReaderWriterQueue<ui32> lightFromBottom;
-    //And one queue for the main thread updates, such as adding torches
-    moodycamel::ReaderWriterQueue<ui32> lightFromMain; */
+    //The data that defines the voxels
+    SmartVoxelContainer<ui16> _blockIDContainer;
+    SmartVoxelContainer<ui8> _sunlightContainer;
+    SmartVoxelContainer<ui16> _lampLightContainer;
 
-
-    ui16 data[CHUNK_SIZE]; 
-    ui8 lightData[2][CHUNK_SIZE]; //0 = light 1 = sunlight
     ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
     ui8 temperatures[CHUNK_LAYER];
     ui8 rainfalls[CHUNK_LAYER];

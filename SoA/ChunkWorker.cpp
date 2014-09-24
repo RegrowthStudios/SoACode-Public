@@ -63,6 +63,7 @@ void WorkerThread(WorkerData *data) {
         }
         else { //loading gets priority
             renderTask = taskQueueManager.renderTaskQueue.front();
+            chunk = renderTask->chunk;
             taskQueueManager.renderTaskQueue.pop();
             lock.unlock();
 
@@ -80,6 +81,7 @@ void WorkerThread(WorkerData *data) {
 			taskQueueManager.renderTaskPool.push_back(renderTask);
 			rpLock.unlock();
 			frLock.lock();
+            assert(chunk != nullptr);
             if (!chunk) {
                 std::cout << "Loading Task Chunk Is Null\n";
             } else {

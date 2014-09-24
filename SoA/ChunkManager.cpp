@@ -504,6 +504,9 @@ i32 ticksArrayIndex = 0;
 i32 ticksArray[10];
 
 void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
+    globalMultiplePreciseTimer.setDesiredSamples(50);
+    globalMultiplePreciseTimer.start("Update");
+   
     static f64v3 oldPosition = position;
 
     float dPos = glm::length(position - oldPosition);
@@ -531,7 +534,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
         _isHugeShift = 0;
         relocateChunks(position);
     }
-
+    
     const i32 CENTER_OFFSET = (csGridWidth / 2) * CHUNK_WIDTH + CHUNK_WIDTH / 2;
     const i32 DISTANCE_THRESHOLD = CHUNK_WIDTH;
 
@@ -573,18 +576,23 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
         }
         openglManager.collisionLock.unlock();
     }
-
+    globalMultiplePreciseTimer.start("Update Chunks");
+    Chunk::modifyLock.lock();
     if (_isStationary) {
         updateChunks(f64v3(cornerPosition) + f64v3(CENTER_OFFSET));
     } else {
         updateChunks(position);
     }
+    Chunk::modifyLock.unlock();
+    globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(_maxChunkTicks);
+  //  globalMultiplePreciseTimer.start("CAEngine Update");
+  //  GameManager::caEngine->update(*this);
 
-    GameManager::caEngine->update(*this);
-
+    globalMultiplePreciseTimer.start("Loaded Chunks");
     updateLoadedChunks();
 
+    globalMultiplePreciseTimer.start("Sort");
     if (!shiftType && pshift) {
 
         recursiveSortSetupList(_setupList, 0, _setupList.size(), 2);
@@ -599,19 +607,24 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
         }
     }
 
+    globalMultiplePreciseTimer.start("Mesh List");
     updateMeshList(_maxChunkTicks, position);
+    globalMultiplePreciseTimer.start("Generate List");
     updateGenerateList(_maxChunkTicks);
+    globalMultiplePreciseTimer.start("Setup List");
     updateSetupList(_maxChunkTicks);
 
     //This doesnt function correctly
     //caveOcclusion(position);
-
-    GameManager::physicsEngine->update(viewDir);
+  //  globalMultiplePreciseTimer.start("Physics Engine");
+    //Chunk::modifyLock.lock();
+   // GameManager::physicsEngine->update(viewDir);
+    //Chunk::modifyLock.unlock();
 
     k++;
     cl++;
     pshift = shiftType;
-
+    globalMultiplePreciseTimer.start("Thread Waiting");
     Chunk* ch;
     for (size_t i = 0; i < _threadWaitingChunks.size();) {
         ch = _threadWaitingChunks[i];
@@ -623,8 +636,10 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
             i++;
         }
     }
-
+    globalMultiplePreciseTimer.start("Finished Meshes");
     uploadFinishedMeshes();
+    //change the parameter to true to print out the timings
+    globalMultiplePreciseTimer.end(false);
 }
 
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded
@@ -703,6 +718,7 @@ void ChunkManager::uploadFinishedMeshes() {
     taskQueueManager.frLock.lock();
     for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) {
         _finishedChunkMeshes.push(taskQueueManager.finishedChunkMeshes[i]);
+        assert(taskQueueManager.finishedChunkMeshes[i]->chunk != nullptr);
         taskQueueManager.finishedChunkMeshes[i]->chunk->inFinishedMeshes = 0;
     }
     taskQueueManager.finishedChunkMeshes.clear();

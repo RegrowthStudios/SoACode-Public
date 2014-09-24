@@ -106,6 +106,7 @@ void TextureAtlasManager::loadBlockAtlas(string fileName) {
 const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, ZipFile* zipFile) {
 
     BlockTexture blockTexture = {};
+    //Set base path. This can be overwritten
     size_t filesize;
     unsigned char *zipData;
 
@@ -165,6 +166,12 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
                             break;
                         case ConnectedTextureMethods::CTM_REPEAT:
                             writeToAtlasRepeat(blockTexture.overlay.textureIndex, blockTexture.overlay.size.x, blockTexture.overlay.size.y);
+                            break;
+                        case ConnectedTextureMethods::CTM_HORIZONTAL:
+                            writeToAtlasContiguous(blockTexture.overlay.textureIndex, 4, 1, 4);
+                            break;
+                        case ConnectedTextureMethods::CTM_VERTICAL:
+                            writeToAtlasContiguous(blockTexture.overlay.textureIndex, 1, 4, 4);
                             break;
                         default:
                             writeToAtlas(blockTexture.overlay.textureIndex);
@@ -260,11 +267,17 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
         case ConnectedTextureMethods::CTM_GRASS:
             writeToAtlasContiguous(blockTexture.base.textureIndex, 3, 3, 9);
             break;
+        case ConnectedTextureMethods::CTM_HORIZONTAL:
+            writeToAtlasContiguous(blockTexture.base.textureIndex, 4, 1, 4);
+            break;
+        case ConnectedTextureMethods::CTM_VERTICAL:
+            writeToAtlasContiguous(blockTexture.base.textureIndex, 1, 4, 4);
+            break;
         default:
             writeToAtlas(blockTexture.base.textureIndex);
             break;
         }
-
+ 
         _blockTextureCache[tileFileName] = blockTexture;
 
         _readTexture.freeTexture();
