@@ -1,6 +1,6 @@
 #include "stdafx.h"
-
 #include "App.h"
+
 #include "ScreenList.h"
 #include "TestScreen.h"
 
