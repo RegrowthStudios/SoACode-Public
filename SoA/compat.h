@@ -18,9 +18,10 @@
 #endif
 
 // register keyword creates a warning and is deprecated
-#ifndef REGISTER
+#if !defined(REGISTER)
 #if defined(WIN32) || defined(WIN64)
 #define REGISTER register
 #else
 #define REGISTER
+#endif
 #endif
