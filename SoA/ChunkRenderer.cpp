@@ -154,16 +154,10 @@ void ChunkRenderer::drawWater(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos,
 {
     //use drawWater bool to avoid checking frustum twice
     if (CMI->inFrustum && CMI->waterVboID){
-        float xscale = 1.0 / jDistort;
-        float zscale = 1.0 / iDistort;
-        //float scale = MAX(xscale, zscale);
-        float scale = 1.0;
-        GlobalModelMatrix[0][0] = scale;
-        GlobalModelMatrix[1][1] = scale;
-        GlobalModelMatrix[2][2] = scale;
-        GlobalModelMatrix[3][0] = ((float)((double)CMI->position.x - PlayerPos.x) * scale);
-        GlobalModelMatrix[3][1] = ((float)((double)CMI->position.y - PlayerPos.y) * scale);
-        GlobalModelMatrix[3][2] = ((float)((double)CMI->position.z - PlayerPos.z) * scale);
+
+        GlobalModelMatrix[3][0] = (float)((double)CMI->position.x - PlayerPos.x);
+        GlobalModelMatrix[3][1] = (float)((double)CMI->position.y - PlayerPos.y);
+        GlobalModelMatrix[3][2] = (float)((double)CMI->position.z - PlayerPos.z);
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
@@ -178,7 +172,7 @@ void ChunkRenderer::drawWater(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos,
         //color
         glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (16)));
         //light
-        glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
+        glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
 
         glDrawElements(GL_TRIANGLES, CMI->meshInfo.waterIndexSize, GL_UNSIGNED_INT, 0);
         GlobalModelMatrix[0][0] = 1.0;

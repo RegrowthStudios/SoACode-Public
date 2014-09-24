@@ -359,6 +359,8 @@ void BlockShader::Initialize(string dirPath) {
 
     blockDtID = GetUniform(shaderID, "dt");
 
+    eyeVecID = GetUniform(shaderID, "eyeNormalWorldspace");
+
     glUseProgram(shaderID);
     glUniform1i(texturesID, 0);
     isInitialized = 1;
@@ -759,11 +761,11 @@ void SpaceToGroundShader::UnBind() {
 void WaterShader::Initialize() {
     cout << "Loading waterShader\n";
     GLuint vID, fID;
-    shaderID = LoadShaders("Shaders/WaterShading/WaterShading.vertexshader", "Shaders/WaterShading/WaterShading.fragmentshader", vID, fID);
+    shaderID = LoadShaders("Shaders/WaterShading/WaterShading.vert", "Shaders/WaterShading/WaterShading.frag", vID, fID);
     glBindAttribLocation(shaderID, 0, "vertexPosition_modelspace");
     glBindAttribLocation(shaderID, 1, "vertexUv_texUnit_texIndex");
     glBindAttribLocation(shaderID, 2, "vertexColor");
-    glBindAttribLocation(shaderID, 3, "vertexLight");
+    glBindAttribLocation(shaderID, 3, "light_sunlight");
     LinkShaders(shaderID, vID, fID);
 
     lightID = GetUniform(shaderID, "LightPosition_worldspace");
@@ -788,7 +790,6 @@ void WaterShader::Initialize() {
     isInitialized = 1;
 }
 void WaterShader::Bind()
-
 {
     if (!isInitialized) {
         printf("SHADER BINDED BEFORE INITIALIZATION");
@@ -800,14 +801,12 @@ void WaterShader::Bind()
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
-    glEnableVertexAttribArray(4);
 }
 void WaterShader::UnBind() {
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
     glDisableVertexAttribArray(3);
-    glDisableVertexAttribArray(4);
 }
 
 //void ParticleShader::Initialize()

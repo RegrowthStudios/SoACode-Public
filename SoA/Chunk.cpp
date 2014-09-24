@@ -263,8 +263,6 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     memcpy(renderTask->rainfalls, rainfalls, sizeof(rainfalls));
     memcpy(renderTask->depthMap, depthMap, sizeof(depthMap));
 
-    assert(renderTask->chunk != nullptr);
-
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
     if (_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
@@ -278,10 +276,11 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
                 getPosFromBlockIndex(c, pos);
 
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+                chData[wc] = _blockIDContainer._dataTree[i].data;
                 if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
                     wvec[s++] = wc;
                 }
-                chData[wc] = _blockIDContainer._dataTree[i].data;
+                
             }
         }
         renderTask->wSize = s;

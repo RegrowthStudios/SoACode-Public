@@ -1078,9 +1078,15 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     color[1] = waterColorMap[depth][temperature][1];
     color[2] = waterColorMap[depth][temperature][2];
 
-    ui8 light[2];
-   // light[0] = (ui8)(255.0f * (LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - (int)(task->chLightData[0][wc]))));
-   // light[1] = (ui8)(255.0f * (LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - (int)(task->chLightData[1][wc]))));
+    ui8 sunlight = mi.task->chSunlightData[wc];
+    ui8 lampLight[3] = { (mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+        (mi.task->chLampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
+        mi.task->chLampData[wc] & LAMP_BLUE_MASK };
+
+    sunlight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunlight)));
+    lampLight[0] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[0])));
+    lampLight[1] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[1])));
+    lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
 
     nextBlockID = task->chData[wc + PADDED_OFFSETS::BOTTOM];
     nextBlock = &GETBLOCK(nextBlockID);
@@ -1149,7 +1155,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     //Add vertices for the faces
     if (faces[YNEG]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
         
         _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[48];
         _waterVboVerts[mi.liquidIndex].position[1] = y + VoxelMesher::liquidVertices[49] - fallingReduction;
@@ -1175,7 +1181,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     if (faces[ZPOS]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
         _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[0];
         _waterVboVerts[mi.liquidIndex].position[1] = y + frontLeftHeight;
@@ -1200,7 +1206,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     if (faces[YPOS]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
         _waterVboVerts.resize(_waterVboVerts.size() + 4);
         _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[24];
@@ -1226,7 +1232,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     if (faces[ZNEG]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
         _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[60];
         _waterVboVerts[mi.liquidIndex].position[1] = y + backRightHeight;
@@ -1250,7 +1256,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     }
     if (faces[XPOS]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
         _waterVboVerts[mi.liquidIndex].position.x = x + VoxelMesher::liquidVertices[12];
         _waterVboVerts[mi.liquidIndex].position.y = y + frontRightHeight;
@@ -1274,7 +1280,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     }
     if (faces[XNEG]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, light, color, textureUnit);
+        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
         _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[36];
         _waterVboVerts[mi.liquidIndex].position[1] = y + backLeftHeight;
@@ -1913,8 +1919,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
                 //water is currently hardcoded 
                 if (mi.btype >= LOWWATER){
                     addLiquidToMesh(mi);
-                } else
-                {
+                } else {
                     //Check the mesh type
                     mi.meshType = Blocks[mi.btype].meshType;
 

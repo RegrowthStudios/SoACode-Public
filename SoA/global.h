@@ -69,9 +69,6 @@ extern bool chunkMeshShortcutActive;
 extern int globalTreeSeed;
 extern float planetDrawMode;
 
-extern double iDistort;
-extern double jDistort;
-
 extern GLuint EditorState;
 extern volatile float physicsFps;
 extern float glFps;
