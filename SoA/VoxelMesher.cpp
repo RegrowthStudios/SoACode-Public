@@ -499,7 +499,7 @@ void VoxelMesher::setFaceLight(BlockVertex* Verts, int index, ui8 lampColor[3], 
 
 const GLubyte waterUVs[8] = { 0, 7, 0, 0, 7, 0, 7, 7 };
 
-void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 light[2], ui8 color[3], ui8 textureUnit) {
+void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 lampColor[3], ui8 sunlight, ui8 color[3], ui8 textureUnit) {
 
     verts.resize(verts.size() + 4);
     verts[index].tex[0] = waterUVs[0] + uOff;
@@ -511,14 +511,23 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
     verts[index + 3].tex[0] = waterUVs[6] + uOff;
     verts[index + 3].tex[1] = waterUVs[7] + vOff;
 
-    verts[index].light = light[0];
-    verts[index + 1].light = light[0];
-    verts[index + 2].light = light[0];
-    verts[index + 3].light = light[0];
-    verts[index].sunlight = light[1];
-    verts[index + 1].sunlight = light[1];
-    verts[index + 2].sunlight = light[1];
-    verts[index + 3].sunlight = light[1];
+    verts[index].lampColor[0] = lampColor[0];
+    verts[index].lampColor[1] = lampColor[1];
+    verts[index].lampColor[2] = lampColor[2];
+    verts[index + 1].lampColor[0] = lampColor[0];
+    verts[index + 1].lampColor[1] = lampColor[1];
+    verts[index + 1].lampColor[2] = lampColor[2];
+    verts[index + 2].lampColor[0] = lampColor[0];
+    verts[index + 2].lampColor[1] = lampColor[1];
+    verts[index + 2].lampColor[2] = lampColor[2];
+    verts[index + 3].lampColor[0] = lampColor[0];
+    verts[index + 3].lampColor[1] = lampColor[1];
+    verts[index + 3].lampColor[2] = lampColor[2];
+
+    verts[index].sunlight = sunlight;
+    verts[index + 1].sunlight = sunlight;
+    verts[index + 2].sunlight = sunlight;
+    verts[index + 3].sunlight = sunlight;
 
     verts[index].color[0] = color[0];
     verts[index].color[1] = color[1];

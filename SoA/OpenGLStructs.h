@@ -64,9 +64,8 @@ public:
     GLubyte textureUnit; //15 
     GLubyte textureIndex; //16
     GLubyte color[4]; //20
-    GLubyte light; //21
-    GLubyte sunlight; //22
-    GLubyte pad1[2]; //24
+    GLubyte lampColor[3]; //23
+    GLubyte sunlight; //24
 };
 
 struct TerrainVertex {
