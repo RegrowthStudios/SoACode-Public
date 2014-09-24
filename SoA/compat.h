@@ -8,3 +8,7 @@
 #if !defined(WIN64) && defined(_WIN64)
 #define WIN64 _WIN64
 #endif
+
+#if defined(WIN32) || defined(WIN64)
+#include "Windows.h"
+#endif
