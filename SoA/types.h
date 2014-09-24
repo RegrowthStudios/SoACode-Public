@@ -74,9 +74,13 @@ typedef glm::highp_mat3 f64m3;
 typedef glm::highp_mat4 f64m4;
 
 struct ColorRGBA8 {
-    ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a) :
-        r(r), g(g), b(b), a(a) {}
-    ColorRGBA8() : ColorRGBA8(0, 0, 0, 0) {}
+    ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a)
+        : r(r), g(g), b(b), a(a) {
+    }
+
+    ColorRGBA8()
+        : ColorRGBA8(0, 0, 0, 0) {
+    }
 
     ui8 r;
     ui8 g;
@@ -85,9 +89,12 @@ struct ColorRGBA8 {
 };
 
 struct ColorRGB8 {
-    ColorRGB8(ui8 r, ui8 g, ui8 b) :
-        r(r), g(g), b(b) {}
-    ColorRGB8() {}
+    ColorRGB8(ui8 r, ui8 g, ui8 b)
+        : r(r), g(g), b(b) {
+    }
+
+    ColorRGB8() {
+    }
 
     ui8 r;
     ui8 g;
