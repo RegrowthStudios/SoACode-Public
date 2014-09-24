@@ -30,12 +30,14 @@ static const f32 negOneHalf = -0.5f;
 template<typename IN, typename OUT>
 class FastConversion {
     public:
-        FastConversion() {}
+        FastConversion() {
+            // empty
+        }
 
         // rounds to the next lowest whole number
         //     1.5 -->  1.0
         //    -1.5 --> -2.0
-        inline OUT floor(const IN& x) {
+        inline typename OUT floor(const typename IN& x) {
             OUT output = 0;
             // slowest version
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
@@ -57,7 +59,7 @@ class FastConversion {
         // rounds to the next highest whole number
         //     1.5 -->  2.0
         //    -1.5 --> -1.0
-        inline OUT ceiling(const IN& x) {
+        inline typename OUT ceiling(const typename IN& x) {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
                 output = static_cast<OUT>(std::ceil(static_cast<double>(x)));
@@ -78,7 +80,7 @@ class FastConversion {
         // rounds towards zero
         //     1.5 -->  1.0
         //    -1.5 --> -1.0
-        inline OUT trunc(const IN& x) {
+        inline typename OUT trunc(const typename IN& x) {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
                 output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
@@ -95,7 +97,7 @@ class FastConversion {
         //     1.4 -->  1.0
         //    -1.5 --> -2.0
         //    -1.4 --> -1.0
-        inline OUT round(const IN& x) {
+        inline typename OUT round(const typename IN& x) {
             OUT output = 0;
             #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
                 output = static_cast<OUT>(std::round(static_cast<double>(x)));
