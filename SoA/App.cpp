@@ -12,8 +12,10 @@ void App::addScreens() {
 
 
 void App::onInit() {
+    // empty
 }
 
 
 void App::onExit() {
+    // empty
 }

@@ -77,10 +77,12 @@ typedef glm::highp_mat4 f64m4;
 struct ColorRGBA8 {
     ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a)
     : r(r), g(g), b(b), a(a) {
+        // empty
     }
 
     ColorRGBA8()
     : ColorRGBA8(0, 0, 0, 0) {
+        // empty
     }
 
     ui8 r;
@@ -93,9 +95,11 @@ struct ColorRGBA8 {
 struct ColorRGB8 {
     ColorRGB8(ui8 r, ui8 g, ui8 b)
     : r(r), g(g), b(b) {
+        // empty
     }
 
     ColorRGB8() {
+        // empty
     }
 
     ui8 r;
@@ -110,6 +114,7 @@ struct ArrayBase {
     public:
         ArrayBase(i32 elemSize)
         : _data(nullptr), _elementSize(elemSize), _length(0) {
+            // empty
         }
 
         ArrayBase(i32 elemSize,  DataType* d, i32 l)
@@ -124,6 +129,7 @@ struct ArrayBase {
 
         ArrayBase(const ArrayBase& other)
         : ArrayBase(other._elementSize, other._data, other._length) {
+            // empty
         }
 
         ArrayBase& operator=(const ArrayBase& other) {
@@ -200,6 +206,7 @@ struct Array : public ArrayBase<T> {
     public:
         Array()
         : ArrayBase<T>(sizeof(T)) {
+            // empty
         }
 
         T& operator[] (size_t i) const {
