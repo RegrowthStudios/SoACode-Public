@@ -196,10 +196,10 @@ struct ArrayBase {
 
 // A Better Array
 template<typename T>
-struct Array : public ArrayBase {
+struct Array : public ArrayBase<T> {
     public:
         Array()
-        : ArrayBase(sizeof(T)) {
+        : ArrayBase<T>(sizeof(T)) {
         }
 
         T& operator[] (size_t i) const {
@@ -209,6 +209,8 @@ struct Array : public ArrayBase {
         T& at(size_t i) const {
             return ((T*)_data)[i];
         }
+    protected:
+        T* _data;
 };
 
 
