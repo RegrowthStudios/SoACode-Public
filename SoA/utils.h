@@ -1,5 +1,5 @@
 #pragma once
-#include "compat.h"
+#include "stdafx.h"
 #include "FastConversion.h"
 
 
