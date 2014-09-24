@@ -297,13 +297,13 @@ inline i32 fastFloor(f32 x) {
 // /////////////////////////////////////////////////////////////////////
 //    Fast Ceilings
 // /////////////////////////////////////////////////////////////////////
-inline i32 fastCeiling(f64 x) {
+inline i32 fastCeil(f64 x) {
     FastConversion<f64, i32> f;
     i32 raised = f.ceiling(x);
     return raised;
 }
 
-inline i32 fastCeiling(f32 x) {
+inline i32 fastCeil(f32 x) {
     FastConversion<f32, i32> f;
     i32 raised = f.ceiling(x);
     return raised;
