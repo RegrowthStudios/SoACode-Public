@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <stdint.h>
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
 #include <glm/glm.hpp>
@@ -73,6 +72,7 @@ typedef glm::highp_mat2 f64m2;
 typedef glm::highp_mat3 f64m3;
 typedef glm::highp_mat4 f64m4;
 
+
 struct ColorRGBA8 {
     ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a)
         : r(r), g(g), b(b), a(a) {
@@ -88,6 +88,7 @@ struct ColorRGBA8 {
     ui8 a;
 };
 
+
 struct ColorRGB8 {
     ColorRGB8(ui8 r, ui8 g, ui8 b)
         : r(r), g(g), b(b) {
@@ -101,7 +102,6 @@ struct ColorRGB8 {
     ui8 b;
 };
 
-template<typename T> struct Array;
 
 // A Better Array
 struct ArrayBase {
@@ -194,6 +194,7 @@ protected:
     i32 _length;
 };
 
+
 // A Better Array
 template<typename T>
 struct Array : public ArrayBase {
@@ -208,6 +209,7 @@ public:
         return ((T*)_data)[i];
     }
 };
+
 
 // String
 #define cString char*
