@@ -27,7 +27,7 @@
 static const f32 negOneHalf = -0.5f;
 
 
-template<class IN, class OUT>
+template<class T, class U>
 class FastConversion {
     public:
         FastConversion() {
@@ -37,13 +37,13 @@ class FastConversion {
         // rounds to the next lowest whole number
         //     1.5 -->  1.0
         //    -1.5 --> -2.0
-        inline OUT floor(const IN& x) {
-            OUT output = 0;
+        inline U floor(const T& x) {
+            U output = 0;
             // slowest version
-            #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+            #if defined(__APPLE__) || defined(__linux__) || defined(WT64)
                 // std::floor expects a double
-                output = static_cast<OUT>(std::floor(static_cast<double>(x)));
-            #elif defined(WIN32)
+                output = static_cast<U>(std::floor(static_cast<double>(x)));
+            #elif defined(WT32)
                 __asm {
                     fld x;
                     fadd st, st(0);
@@ -53,7 +53,7 @@ class FastConversion {
                 };
             #else
                 // std::floor expects a double
-                output = static_cast<OUT>(std::floor(static_cast<double>(x)));
+                output = static_cast<U>(std::floor(static_cast<double>(x)));
             #endif
             return output;
         }
@@ -61,12 +61,12 @@ class FastConversion {
         // rounds to the next highest whole number
         //     1.5 -->  2.0
         //    -1.5 --> -1.0
-        inline OUT ceiling(const IN& x) {
-            OUT output = 0;
-            #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+        inline U ceiling(const T& x) {
+            U output = 0;
+            #if defined(__APPLE__) || defined(__linux__) || defined(WT64)
                 // std::ceil expects a double
-                output = static_cast<OUT>(std::ceil(static_cast<double>(x)));
-            #elif defined(WIN32)
+                output = static_cast<U>(std::ceil(static_cast<double>(x)));
+            #elif defined(WT32)
                 __asm {
                     fld x;
                     fadd st, st(0);
@@ -76,7 +76,7 @@ class FastConversion {
                 };
             #else
                 // std::ceil expects a double
-                output = static_cast<OUT>(std::ceil(static_cast<double>(x)));
+                output = static_cast<U>(std::ceil(static_cast<double>(x)));
             #endif
             return output;
         }
@@ -84,17 +84,17 @@ class FastConversion {
         // rounds towards zero
         //     1.5 -->  1.0
         //    -1.5 --> -1.0
-        inline OUT trunc(const IN& x) {
-            OUT output = 0;
-            #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+        inline U trunc(const T& x) {
+            U output = 0;
+            #if defined(__APPLE__) || defined(__linux__) || defined(WT64)
                 // std::trunc expects a double
-                output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
-            #elif defined(WIN32)
+                output = static_cast<U>(std::trunc(static_cast<double>(x)));
+            #elif defined(WT32)
                 // std::trunc expects a double
-                output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
+                output = static_cast<U>(std::trunc(static_cast<double>(x)));
             #else
                 // std::trunc expects a double
-                output = static_cast<OUT>(std::trunc(static_cast<double>(x)));
+                output = static_cast<U>(std::trunc(static_cast<double>(x)));
             #endif
             return output;
         }
@@ -104,17 +104,17 @@ class FastConversion {
         //     1.4 -->  1.0
         //    -1.5 --> -2.0
         //    -1.4 --> -1.0
-        inline OUT round(const IN& x) {
-            OUT output = 0;
-            #if defined(__APPLE__) || defined(__linux__) || defined(WIN64)
+        inline U round(const T& x) {
+            U output = 0;
+            #if defined(__APPLE__) || defined(__linux__) || defined(WT64)
                 // std::round expects a double
-                output = static_cast<OUT>(std::round(static_cast<double>(x)));
-            #elif defined(WIN32)
+                output = static_cast<U>(std::round(static_cast<double>(x)));
+            #elif defined(WT32)
                 // std::round expects a double
-                output = static_cast<OUT>(std::round(static_cast<double>(x)));
+                output = static_cast<U>(std::round(static_cast<double>(x)));
             #else
                 // std::round expects a double
-                output = static_cast<OUT>(std::round(static_cast<double>(x)));
+                output = static_cast<U>(std::round(static_cast<double>(x)));
             #endif
             return output;
         }
