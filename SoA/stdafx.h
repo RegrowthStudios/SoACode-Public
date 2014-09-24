@@ -2,16 +2,12 @@
 #include "compat.h"
 
 // Make Sure We Use Correct Debug Variables
-#ifdef DEBUG
-#ifndef _DEBUG
+#if defined(DEBUG) && !defined(_DEBUG)
 #define _DEBUG
 #endif
-#endif // DEBUG
-#ifdef _DEBUG
-#ifndef DEBUG
+#if defined(_DEBUG) && !defined(DEBUG)
 #define DEBUG
 #endif
-#endif // _DEBUG
 
 #define MACRO_PARAN_L {
 #define MACRO_PARAN_R }
