@@ -8,7 +8,8 @@
 #include <glm/gtc/quaternion.hpp>
 #pragma clang diagnostic pop
 
-// Note: char, size_t, And 3rd-Party Types May Be Used When Deemed Necessary
+// Note: char, size_t, And 3rd-Party Types May Be Used When Deemed
+// Necessary
 
 // Integer Values
 typedef int8_t i8;
@@ -98,8 +99,12 @@ template<typename T> struct Array;
 // A Better Array
 struct ArrayBase {
 public:
-    ArrayBase(i32 elemSize) : _length(0), _elementSize(elemSize), _data(nullptr) {}
-    ArrayBase(i32 elemSize, void* d, i32 l) : _length(l), _elementSize(elemSize) {
+    ArrayBase(i32 elemSize)
+        : _length(0), _elementSize(elemSize), _data(nullptr) {
+    }
+
+    ArrayBase(i32 elemSize, void* d, i32 l)
+        : _length(l), _elementSize(elemSize) {
         if (_length > 0) {
             _data = new ui8[_elementSize * _length];
             memcpy(_data, d, _elementSize * _length);
@@ -107,7 +112,11 @@ public:
             _data = nullptr;
         }
     }
-    ArrayBase(const ArrayBase& other) : ArrayBase(other._elementSize, other._data, other._length) {}
+
+    ArrayBase(const ArrayBase& other)
+        : ArrayBase(other._elementSize, other._data, other._length) {
+    }
+
     ArrayBase& operator=(const ArrayBase& other) {
         _elementSize = other._elementSize;
         _length = other._length;
@@ -119,6 +128,7 @@ public:
         }
         return *this;
     }
+
     ~ArrayBase() {
         if (_data) {
             delete[] _data;
@@ -146,6 +156,7 @@ public:
             memcpy(_data, data, _length * _elementSize);
         }
     }
+
     const void setData(i32 len = 0) {
         // Delete Previous Data
         if (_data) {
@@ -153,7 +164,6 @@ public:
             _data = nullptr;
             _length = 0;
         }
-
         // Set New Data
         if (len > 0) {
             _length = len;
@@ -165,10 +175,12 @@ public:
     T& operator[] (size_t i) const {
         return ((T*)_data)[i];
     }
+
     template<typename T>
     T& at(size_t i) const {
         return ((T*)_data)[i];
     }
+
 protected:
     void* _data;
     i32 _elementSize;
@@ -184,6 +196,7 @@ public:
     T& operator[] (size_t i) const {
         return ((T*)_data)[i];
     }
+
     T& at(size_t i) const {
         return ((T*)_data)[i];
     }
