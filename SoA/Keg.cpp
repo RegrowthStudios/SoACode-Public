@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Keg.h"
 
-#include <yaml-cpp\yaml.h>
+#include <yaml-cpp/yaml.h>
 
 #pragma region YAML Conversion Functions For GLM Types And cStrings
 namespace YAML {
@@ -96,9 +96,9 @@ namespace YAML {
 namespace Keg {
 #define KEG_BASIC_NUM_MAP(TYPE) \
     { BasicType::TYPE, #TYPE }, \
-    {BasicType::TYPE##_V2, #TYPE##"_V2"}, \
-    {BasicType::TYPE##_V3, #TYPE##"_V3"}, \
-    {BasicType::TYPE##_V4, #TYPE##"_V4"}
+    { BasicType::TYPE##_V2, #TYPE "_V2" }, \
+    { BasicType::TYPE##_V3, #TYPE "_V3" }, \
+    { BasicType::TYPE##_V4, #TYPE "_V4" }
     std::map<BasicType, nString> basicTypes = {
         KEG_BASIC_NUM_MAP(I8),
         KEG_BASIC_NUM_MAP(I16),
@@ -306,7 +306,7 @@ namespace Keg {
         _internalTypes[(i32)BasicType::BOOL].addValue("bool", kv);
         addType("Bool", &_internalTypes[(i32)BasicType::BOOL]);
 
-        _internalTypes[(i32)BasicType::ARRAY]._sizeInBytes = sizeof(ArrayBase);
+        _internalTypes[(i32)BasicType::ARRAY]._sizeInBytes = sizeof(ArrayBase<Type>);
         kv = Value::array(0, Value::custom("", 0, 0));
         _internalTypes[(i32)BasicType::ARRAY].addValue("value", kv);
         _internalTypes[(i32)BasicType::ARRAY].addValue("array", kv);
@@ -316,12 +316,14 @@ namespace Keg {
         _internalTypes[(i32)BasicType::ARRAY].addValue("data", kv);
         addType("Array", &_internalTypes[(i32)BasicType::ARRAY]);
     }
+
     ui32 Environment::addType(const nString& name, Type* type) {
         _uuid++;
         _typesByName[name] = type;
         _typesByID[_uuid] = type;
         return _uuid;
     }
+
     ui32 Environment::addEnum(const nString& name, Enum* type) {
         _uuid++;
         _enumsByName[name] = type;
@@ -344,6 +346,7 @@ namespace Keg {
         // Parse
         return parse((ui8*)dest, baseNode, env, type);
     }
+
     Error parse(void* dest, const cString data, const nString& typeName, Environment* env /*= nullptr*/) {
         // Test Arguments
         if (env == nullptr) env = getGlobalEnvironment();
@@ -362,6 +365,7 @@ namespace Keg {
         // Parse
         return parse((ui8*)dest, baseNode, env, type);
     }
+
     Error parse(void* dest, const cString data, const ui32& typeID, Environment* env /*= nullptr*/) {
         // Test Arguments
         if (env == nullptr) env = getGlobalEnvironment();
@@ -395,6 +399,7 @@ namespace Keg {
         }
         return nString(e.c_str());
     }
+
     nString write(void* src, const nString& typeName, Environment* env /*= nullptr*/) {
         // Test Arguments
         if (env == nullptr) env = getGlobalEnvironment();
@@ -412,6 +417,7 @@ namespace Keg {
         }
         return nString(e.c_str());
     }
+
     nString write(void* src, const ui32& typeID, Environment* env /*= nullptr*/) {
         // Test Arguments
         if (env == nullptr) env = getGlobalEnvironment();
@@ -442,6 +448,7 @@ namespace Keg {
 
         return parse(dest, value, env, type);
     }
+
     inline Error evalValueEnum(ui8* dest, YAML::Node& value, const Value* decl, Environment* env) {
         // Test Arguments
         if (decl->typeName.empty()) return Error::TYPE_NOT_FOUND;
@@ -452,6 +459,7 @@ namespace Keg {
         type->setValue(dest, value.as<nString>());
         return Error::NONE;
     }
+
     inline Error evalValuePtr(void** dest, YAML::Node& value, const Value* decl, Environment* env) {
         // The Type We Will Be Allocating
         nString typeName = decl->typeName;
@@ -477,39 +485,42 @@ namespace Keg {
 
         return parse((ui8*)*dest, value, env, type);
     }
-    inline Error evalValueArray(ArrayBase* dest, YAML::Node& value, const Value* decl, Environment* env) {
+
+    inline Error evalValueArray(ArrayBase<Type>* dest, YAML::Node& value, const Value* decl, Environment* env) {
         nString typeName = decl->typeName;
         if (typeName.empty()) {
             auto kvp = basicTypes.find(decl->interiorValue->type);
             if (kvp != basicTypes.end()) typeName = kvp->second;
             else typeName = decl->interiorValue->typeName;
         }
-
         YAML::Node nArray;
         if (value.IsSequence()) {
             nArray = value;
         } else {
             if (value["__DATA__"]) {
                 nArray = value["__DATA__"];
-                if (!nArray.IsSequence()) return Error::BAD_VALUE;
+                if (!nArray.IsSequence()) {
+                    return Error::BAD_VALUE;
+                }
                 if (value["__TYPE__"]) {
                     typeName = value["__TYPE__"].as<nString>();
                 }
             }
         }
-
         // Test Arguments
-        if (typeName.empty()) return Error::TYPE_NOT_FOUND;
-
+        if (typeName.empty()) {
+            return Error::TYPE_NOT_FOUND;
+        }
         // Attempt To Find The Type
         Type* type = env->getType(typeName);
-        if (type == nullptr) return Error::TYPE_NOT_FOUND;
-
-        *dest = ArrayBase(type->getSizeInBytes());
+        if (type == nullptr) {
+            return Error::TYPE_NOT_FOUND;
+        }
+        *dest = ArrayBase<Type>(type->getSizeInBytes());
         i32 len = nArray.size();
         if (nArray.size() > 0) {
             dest->setData(nArray.size());
-            ui8* newDest = &dest->at<ui8>(0);
+            ui8* newDest = &dest->at<len>(0);
             for (i32 i = 0; i < dest->length(); i++) {
                 evalData(newDest, decl->interiorValue, nArray[i], env);
                 newDest += type->getSizeInBytes();
@@ -518,7 +529,7 @@ namespace Keg {
     }
 
     void evalData(ui8* dest, const Value* decl, YAML::Node &node, Environment* env) {
-#define KEG_EVAL_CASE_NUM(ENUM, TYPE) \
+        #define KEG_EVAL_CASE_NUM(ENUM, TYPE) \
         case BasicType::ENUM: *((TYPE*)dest) = node.as<TYPE>(); break; \
         case BasicType::ENUM##_V2: *((TYPE##v2*)dest) = node.as<TYPE##v2>(); break; \
         case BasicType::ENUM##_V3: *((TYPE##v3*)dest) = node.as<TYPE##v3>(); break; \
@@ -538,7 +549,7 @@ namespace Keg {
             *((bool*)dest) = node.as<bool>();
             break;
         case BasicType::ARRAY:
-            evalValueArray((ArrayBase*)dest, node, decl, env);
+            evalValueArray((ArrayBase<Type>*)dest, node, decl, env);
             break;
         case BasicType::C_STRING:
             *((cString*)dest) = node.as<cString>();
@@ -562,39 +573,40 @@ namespace Keg {
 
     Error parse(ui8* dest, YAML::Node& data, Environment* env, Type* type) {
         if (data.Type() != YAML::NodeType::Map) return Error::BAD_VALUE;
-
         // Attempt To Redefine Type
         if (data["__TYPE__"]) {
             YAML::Node nodeType = data["__TYPE__"];
             if (nodeType.IsScalar()) {
                 Type* nType = env->getType(nodeType.as<nString>());
-                if (nType) type == nullptr;
+                if (nType) {
+                    type = nullptr;
+                }
             }
         }
-
         // We Need A Type
-        if (!type) return Error::TYPE_NOT_FOUND;
-
+        if (!type) {
+            return Error::TYPE_NOT_FOUND;
+        }
         // Iterate Values
         for (auto nv : data) {
             const Value* v = type->getValue(nv.first.as<nString>());
-            if (v) evalData(dest + v->offset, v, nv.second, env);
+            if (v) {
+                evalData(dest + v->offset, v, nv.second, env);
+            }
         }
         return Error::NONE;
     }
+
     bool write(ui8* src, YAML::Emitter& e, Environment* env, Type* type) {
         // TODO: Add Ptr And Array Support
-
         Type* interiorType = nullptr;
         Enum* interiorEnum = nullptr;
-
         e << YAML::BeginMap;
         auto iter = type->getIter();
         while (iter != type->getIterEnd()) {
             // Write The Key
             e << YAML::Key << iter->first;
             e << YAML::Value;
-
             // Write The Value
             Value v = iter->second;
             ui8* data = src + v.offset;
@@ -603,7 +615,6 @@ namespace Keg {
                 // Attempt To Find The Enum
                 interiorEnum = env->getEnum(v.typeName);
                 if (interiorEnum == nullptr) return false;
-
                 // Write Enum String
                 e << interiorEnum->getValue(data);
                 break;
@@ -611,7 +622,6 @@ namespace Keg {
                 // Attempt To Find The Type
                 interiorType = env->getType(v.typeName);
                 if (interiorType == nullptr) return false;
-
                 // Write To Interior Node
                 write(data, e, env, interiorType);
                 break;
@@ -621,7 +631,6 @@ namespace Keg {
                 // Attempt To Find The Type
                 interiorType = env->getType(v.interiorValue->typeName);
                 if (interiorType == nullptr) return false;
-
                 // Write To Interior Array
                 //writeArray(*(ArrayBase*)data, e, env, interiorType);
                 break;
@@ -634,7 +643,7 @@ namespace Keg {
             case BasicType::STRING:
                 e << (*(nString*)data).c_str();
                 break;
-#define EMIT_NUM(TYPE, C_TYPE) \
+            #define EMIT_NUM(TYPE, C_TYPE) \
             case BasicType::TYPE: e << *(C_TYPE*)data; break; \
             case BasicType::TYPE##_V2: e << *(C_TYPE##v2*)data; break; \
             case BasicType::TYPE##_V3: e << *(C_TYPE##v3*)data; break; \
@@ -657,9 +666,9 @@ namespace Keg {
         e << YAML::EndMap;
         return true;
     }
-    bool writeArray(ArrayBase src, YAML::Emitter& e, Environment* env, Type* type) {
-        e << YAML::BeginSeq;
 
+    bool writeArray(ArrayBase<Type> src, YAML::Emitter& e, Environment* env, Type* type) {
+        e << YAML::BeginSeq;
         e << YAML::EndSeq;
         return true;
     }
