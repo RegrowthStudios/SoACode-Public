@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <stdint.h>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
 #include <glm/glm.hpp>
