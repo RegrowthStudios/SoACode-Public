@@ -94,96 +94,110 @@ template<typename T> struct Array;
 
 // A Better Array
 struct ArrayBase {
-public:
-    ArrayBase(i32 elemSize) : _length(0), _elementSize(elemSize), _data(nullptr) {}
-    ArrayBase(i32 elemSize, void* d, i32 l) : _length(l), _elementSize(elemSize) {
-        if (_length > 0) {
-            _data = new ui8[_elementSize * _length];
-            memcpy(_data, d, _elementSize * _length);
-        } else {
-            _data = nullptr;
-        }
-    }
-    ArrayBase(const ArrayBase& other) : ArrayBase(other._elementSize, other._data, other._length) {}
-    ArrayBase& operator=(const ArrayBase& other) {
-        _elementSize = other._elementSize;
-        _length = other._length;
-        if (other._data) {
-            _data = new ui8[_elementSize * _length];
-            memcpy(_data, other._data, _elementSize * _length);
-        } else {
-            _data = nullptr;
-        }
-        return *this;
-    }
-    ~ArrayBase() {
-        if (_data) {
-            delete[] static_cast<ui8*>(_data);
-            _data = nullptr;
-            _length = 0;
-        }
-    }
-
-    const i32& length() const {
-        return _length;
-    }
-
-    void setData(void* data, i32 len) {
-        // Delete Previous Data
-        if (_data) {
-            delete[] static_cast<ui8*>(_data);
-            _data = nullptr;
-            _length = 0;
+    public:
+        ArrayBase(i32 elemSize)
+        : _data(nullptr), _elementSize(elemSize), _length(0) {
+            // empty
         }
 
-        // Set New Data
-        if (data && len > 0) {
-            _length = len;
-            _data = new ui8[_length * _elementSize];
-            memcpy(_data, data, _length * _elementSize);
+        ArrayBase(i32 elemSize, void* d, i32 l)
+        : _elementSize(elemSize), _length(l) {
+            if (_length > 0) {
+                _data = new ui8[_elementSize * _length];
+                memcpy(_data, d, _elementSize * _length);
+            } else {
+                _data = nullptr;
+            }
         }
-    }
-    void setData(i32 len = 0) {
-        // Delete Previous Data
-        if (_data) {
-            delete[] static_cast<ui8*>(_data);
-            _data = nullptr;
-            _length = 0;
+        ArrayBase(const ArrayBase& other)
+        : ArrayBase(other._elementSize, other._data, other._length) {
+            // empty
         }
 
-        // Set New Data
-        if (len > 0) {
-            _length = len;
-            _data = new ui8[_length * _elementSize]();
+        ArrayBase& operator=(const ArrayBase& other) {
+            _elementSize = other._elementSize;
+            _length = other._length;
+            if (other._data) {
+                _data = new ui8[_elementSize * _length];
+                memcpy(_data, other._data, _elementSize * _length);
+            } else {
+                _data = nullptr;
+            }
+            return *this;
         }
-    }
 
-    template<typename T>
-    T& operator[] (size_t i) const {
-        return ((T*)_data)[i];
-    }
-    template<typename T>
-    T& at(size_t i) const {
-        return ((T*)_data)[i];
-    }
-protected:
-    void* _data;
-    i32 _elementSize;
-    i32 _length;
+        ~ArrayBase() {
+            if (_data) {
+                delete[] static_cast<ui8*>(_data);
+                _data = nullptr;
+                _length = 0;
+            }
+        }
+
+        const i32& length() const {
+            return _length;
+        }
+
+        void setData(void* data, i32 len) {
+            // Delete Previous Data
+            if (_data) {
+                delete[] static_cast<ui8*>(_data);
+                _data = nullptr;
+                _length = 0;
+            }
+            // Set New Data
+            if (data && len > 0) {
+                _length = len;
+                _data = new ui8[_length * _elementSize];
+                memcpy(_data, data, _length * _elementSize);
+            }
+        }
+
+        void setData(i32 len = 0) {
+            // Delete Previous Data
+            if (_data) {
+                delete[] static_cast<ui8*>(_data);
+                _data = nullptr;
+                _length = 0;
+            }
+            // Set New Data
+            if (len > 0) {
+                _length = len;
+                _data = new ui8[_length * _elementSize]();
+            }
+        }
+
+        template<typename T>
+        T& operator[] (size_t i) const {
+            return ((T*)_data)[i];
+        }
+
+        template<typename T>
+        T& at(size_t i) const {
+            return ((T*)_data)[i];
+        }
+
+    protected:
+        void* _data;
+        i32 _elementSize;
+        i32 _length;
 };
 
 // A Better Array
 template<typename T>
 struct Array : public ArrayBase {
-public:
-    Array() : ArrayBase(sizeof(T)) {}
+    public:
+        Array() : ArrayBase(sizeof(T)) {
+            // empty
+        }
 
-    T& operator[] (size_t i) const {
-        return ((T*)_data)[i];
-    }
-    T& at(size_t i) const {
-        return ((T*)_data)[i];
-    }
+        T& operator[] (size_t i) const {
+            return ((T*)_data)[i];
+        }
+
+        T& at(size_t i) const {
+            return ((T*)_data)[i];
+        }
 };
 
 // String
