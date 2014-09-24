@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -128,7 +128,7 @@ public:
         return _length;
     }
 
-    const void setData(void* data, i32 len) {
+    void setData(void* data, i32 len) {
         // Delete Previous Data
         if (_data) {
             delete[] static_cast<ui8*>(_data);
@@ -143,7 +143,7 @@ public:
             memcpy(_data, data, _length * _elementSize);
         }
     }
-    const void setData(i32 len = 0) {
+    void setData(i32 len = 0) {
         // Delete Previous Data
         if (_data) {
             delete[] static_cast<ui8*>(_data);
