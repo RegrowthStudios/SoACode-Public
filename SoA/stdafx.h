@@ -28,7 +28,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <GL\glew.h>
+#include <GL/glew.h>
 
 #include "types.h"
 
