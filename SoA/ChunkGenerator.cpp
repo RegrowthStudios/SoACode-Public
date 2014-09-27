@@ -83,9 +83,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 nh = (maph - 1) - h;
                 
                 if (y == 0){
-                    chunk->biomes[c] = biome->vecIndex;
-                    chunk->rainfalls[c] = rainfall;
-                    chunk->temperatures[c] = temperature;
+                    chunk->_biomes[c] = biome->vecIndex;
+                    chunk->_rainfalls[c] = rainfall;
+                    chunk->_temperatures[c] = temperature;
                 }
 
                 if ((h <= maph - 1) && (!tooSteep || maph - h > (biome->looseSoilDepth - 1))){ //ROCK LAYERS check for loose soil too

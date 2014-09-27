@@ -134,14 +134,14 @@ private:
     void recursiveSortSetupList(std::vector<Chunk*>& v, i32 start, i32 size, i32 type);
     void caveOcclusion(const f64v3& ppos);
     void recursiveFloodFill(bool left, bool right, bool front, bool back, bool top, bool bottom, Chunk* chunk);
-    inline void removeFromSetupList(Chunk* ch);
-    inline void freeChunk(Chunk* chunk);
-    inline void addToSetupList(Chunk* chunk);
-    inline void addToLoadList(Chunk* chunk);
-    inline void addToGenerateList(Chunk* chunk);
-    inline void addToMeshList(Chunk* chunk);
-    inline void recycleChunk(Chunk* chunk);
-    inline Chunk* produceChunk();
+    void removeFromSetupList(Chunk* ch);
+    void freeChunk(Chunk* chunk);
+    void addToSetupList(Chunk* chunk);
+    void addToLoadList(Chunk* chunk);
+    void addToGenerateList(Chunk* chunk);
+    void addToMeshList(Chunk* chunk);
+    void recycleChunk(Chunk* chunk);
+    Chunk* produceChunk();
     void deleteAllChunks();
 
     //used to reference the current world face of the player

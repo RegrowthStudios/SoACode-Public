@@ -91,7 +91,7 @@ public:
     static vector <MineralData*> possibleMinerals;
     
     //getters
-    ChunkStates getState() const { return state; }
+    ChunkStates getState() const { return _state; }
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
     int getSunlight(int c) const;
@@ -105,15 +105,20 @@ public:
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
+    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
+    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
+    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
+
+    int getLevelOfDetail() const { return _levelOfDetail; }
+
     //setters
     void setBlockID(int c, int val);
     void setBlockData(int c, ui16 val);
     void setSunlight(int c, ui8 val);
     void setLampLight(int c, ui16 val);
 
-    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
-    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
-    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
+    void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
+    
 
     int neighbors;
     bool activeUpdateList[8];
@@ -170,18 +175,22 @@ public:
     //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
     static std::mutex modifyLock;
 
+
+
 private:
-    ChunkStates state;
+    ChunkStates _state;
 
     //The data that defines the voxels
     SmartVoxelContainer<ui16> _blockIDContainer;
     SmartVoxelContainer<ui8> _sunlightContainer;
     SmartVoxelContainer<ui16> _lampLightContainer;
 
-    ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
-    ui8 temperatures[CHUNK_LAYER];
-    ui8 rainfalls[CHUNK_LAYER];
-    ui8 depthMap[CHUNK_LAYER];
+    ui8 _biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
+    ui8 _temperatures[CHUNK_LAYER];
+    ui8 _rainfalls[CHUNK_LAYER];
+    ui8 _depthMap[CHUNK_LAYER];
+
+    int _levelOfDetail;
 
 };
 

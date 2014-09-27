@@ -63,7 +63,7 @@ void EditorTree::grow() {
     //startChunk->placeTreeNodesAndRecord(wnodes, lnodes);
 
     needsToGrow = 0;
-    startChunk->state = ChunkStates::MESH;
+    startChunk->_state = ChunkStates::MESH;
 }
 
 void EditorTree::unGrow() {

@@ -5,7 +5,6 @@
 
 #include "VoxelMesher.h"
 #include "BlockData.h"
-#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "Options.h"
@@ -54,90 +53,11 @@ void ChunkMesher::bindVBOIndicesID()
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-#define CompareVertices(v1, v2) (!memcmp(v1.color, v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3)  \
+#define CompareVertices(v1, v2) (0 && !memcmp(v1.color, v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3)  \
     && !memcmp(v1.overlayColor, v2.overlayColor, 3) \
     && v1.textureAtlas == v2.textureAtlas && v1.textureIndex == v2.textureIndex && v1.overlayTextureAtlas == v2.overlayTextureAtlas && v1.overlayTextureIndex == v2.overlayTextureIndex)
 
-#define CompareVerticesLight(v1, v2) (v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3) && !memcmp(v1.color, v2.color, 3))
-
-#define CTOP + PADDED_LAYER
-#define CBOT - PADDED_LAYER
-#define CLEFT - 1
-#define CRIGHT + 1
-#define CBACK - PADDED_WIDTH
-#define CFRONT + PADDED_WIDTH
-
-#define GET_L_COLOR(a) a[0] = (lightColor & LAMP_RED_MASK) >> LAMP_RED_SHIFT; \
-    a[1] = (lightColor & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; \
-    a[2] = lightColor & LAMP_BLUE_MASK;
-
-inline void GetLeftLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
-{
-    if (Blocks[GETBLOCKTYPE(data[c-1])].occlude){
-        memset(l, 0, 3);
-        sl = -1;
-    }else{
-        ui16 lightColor = lampData[c - 1];
-        GET_L_COLOR(l);
-        sl = sunlightData[c-1]; 
-    }
-}
-inline void GetRightLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
-{
-    
-    if (Blocks[GETBLOCKTYPE(data[c + 1])].occlude){
-        memset(l, 0, 3);
-        sl = -1;
-    }else{
-        ui16 lightColor = lampData[c + 1];
-        GET_L_COLOR(l);
-        sl = sunlightData[c+1]; 
-    }
-}
-inline void GetFrontLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
-{
-    if (Blocks[GETBLOCKTYPE(data[c + PADDED_WIDTH])].occlude){
-        memset(l, 0, 3);
-        sl = -1;
-    }else{
-        ui16 lightColor = lampData[c + PADDED_WIDTH];
-        GET_L_COLOR(l);
-        sl = sunlightData[c+PADDED_WIDTH]; 
-    }
-}
-inline void GetBackLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
-{
-    if (Blocks[GETBLOCKTYPE(data[c - PADDED_WIDTH])].occlude){
-        memset(l, 0, 3);
-        sl = -1;
-    }else{
-        ui16 lightColor = lampData[c - PADDED_WIDTH];
-        GET_L_COLOR(l);
-        sl = sunlightData[c-PADDED_WIDTH];
-    }
-}
-inline void GetBottomLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
-{
-    if (Blocks[GETBLOCKTYPE(data[c - PADDED_LAYER])].occlude){
-        memset(l, 0, 3);
-        sl = -1;
-    }else{
-        ui16 lightColor = lampData[c - PADDED_LAYER];
-        GET_L_COLOR(l);
-        sl = sunlightData[c - PADDED_LAYER];
-    }
-}
-inline void GetTopLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
-{
-    if (Blocks[GETBLOCKTYPE(data[c + PADDED_LAYER])].occlude){
-        memset(l, 0, 3);
-        sl = -1;
-    }else{
-        ui16 lightColor = lampData[c + PADDED_LAYER];
-        GET_L_COLOR(l);
-        sl = sunlightData[c + PADDED_LAYER];
-    }
-}
+#define CompareVerticesLight(v1, v2) (0 && v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3) && !memcmp(v1.color, v2.color, 3))
 
 //Fills chLightData with the lighting information of the surrounding blocks. This will be used to calculate lighting and ambient occlusion
 //It only has to get the light voxels that were not grabbed in checkBlockFaces()
@@ -146,32 +66,32 @@ void ChunkMesher::GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLight
     int c2;
     //bottom 8 voxels
     if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YNEG]){
-        c2 = c - PADDED_LAYER;
+        c2 = c - dataLayer;
         GetBackLightData(c2, lampLights[1], sunlights[1], chData, chSunData, chLampData);
         GetLeftLightData(c2, lampLights[3], sunlights[3], chData, chSunData, chLampData);
         GetRightLightData(c2, lampLights[5], sunlights[5], chData, chSunData, chLampData);
         GetFrontLightData(c2, lampLights[7], sunlights[7], chData, chSunData, chLampData);
 
-        GetLeftLightData(c2 - PADDED_WIDTH, lampLights[0], sunlights[0], chData, chSunData, chLampData);
-        GetRightLightData(c2 - PADDED_WIDTH, lampLights[2], sunlights[2], chData, chSunData, chLampData);
+        GetLeftLightData(c2 - dataWidth, lampLights[0], sunlights[0], chData, chSunData, chLampData);
+        GetRightLightData(c2 - dataWidth, lampLights[2], sunlights[2], chData, chSunData, chLampData);
         
-        GetLeftLightData(c2 + PADDED_WIDTH, lampLights[6], sunlights[6], chData, chSunData, chLampData);
-        GetRightLightData(c2 + PADDED_WIDTH, lampLights[8], sunlights[8], chData, chSunData, chLampData);
+        GetLeftLightData(c2 + dataWidth, lampLights[6], sunlights[6], chData, chSunData, chLampData);
+        GetRightLightData(c2 + dataWidth, lampLights[8], sunlights[8], chData, chSunData, chLampData);
         
     }
     //top 8 voxels
     if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YPOS]){
-        c2 = c + PADDED_LAYER;
+        c2 = c + dataLayer;
         GetBackLightData(c2, lampLights[18], sunlights[18], chData, chSunData, chLampData);
         GetLeftLightData(c2, lampLights[20], sunlights[20], chData, chSunData, chLampData);
         GetRightLightData(c2, lampLights[22], sunlights[22], chData, chSunData, chLampData);
         GetFrontLightData(c2, lampLights[24], sunlights[24], chData, chSunData, chLampData);
             
-        GetLeftLightData(c2 - PADDED_WIDTH, lampLights[17], sunlights[17], chData, chSunData, chLampData);
-        GetRightLightData(c2 - PADDED_WIDTH, lampLights[19], sunlights[19], chData, chSunData, chLampData);
+        GetLeftLightData(c2 - dataWidth, lampLights[17], sunlights[17], chData, chSunData, chLampData);
+        GetRightLightData(c2 - dataWidth, lampLights[19], sunlights[19], chData, chSunData, chLampData);
         
-        GetLeftLightData(c2 + PADDED_WIDTH, lampLights[23], sunlights[23], chData, chSunData, chLampData);
-        GetRightLightData(c2 + PADDED_WIDTH, lampLights[25], sunlights[25], chData, chSunData, chLampData);
+        GetLeftLightData(c2 + dataWidth, lampLights[23], sunlights[23], chData, chSunData, chLampData);
+        GetRightLightData(c2 + dataWidth, lampLights[25], sunlights[25], chData, chSunData, chLampData);
     }
     //left 2 voxels
     if (faces[XNEG] || faces[ZNEG] || faces[ZPOS]){
@@ -197,46 +117,46 @@ bool ChunkMesher::checkBlockFaces(bool faces[6], ui8 lampLights[26][3], i8 sunli
     bool hasFace = false;
     ui16 lightColor;
 
-    if (faces[XNEG] = ((nblock = &GETBLOCK(task->chData[wc - 1])))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype)){
+    if (faces[XNEG] = ((nblock = &GETBLOCK(blockIDData[wc - 1]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-        lightColor = task->chLampData[wc - 1];
+        lightColor = lampLightData[wc - 1];
         GET_L_COLOR(lampLights[12]);
-        sunlights[12] = task->chSunlightData[wc - 1];
+        sunlights[12] = sunlightData[wc - 1];
     }
 
-    if (faces[XPOS] = ((nblock = &GETBLOCK(task->chData[1 + wc]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[XPOS] = ((nblock = &GETBLOCK(blockIDData[1 + wc]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-        lightColor = task->chLampData[1 + wc];
+        lightColor = lampLightData[1 + wc];
         GET_L_COLOR(lampLights[13]);
-        sunlights[13] = (task->chSunlightData[1 + wc]);
+        sunlights[13] = (sunlightData[1 + wc]);
     }
 
-    if (faces[YNEG] = ((nblock = &GETBLOCK(task->chData[wc - PADDED_LAYER]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[YNEG] = ((nblock = &GETBLOCK(blockIDData[wc - dataLayer]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-        lightColor = task->chLampData[wc - PADDED_LAYER];
+        lightColor = lampLightData[wc - dataLayer];
         GET_L_COLOR(lampLights[4]);
-        sunlights[4] = task->chSunlightData[wc - PADDED_LAYER];
+        sunlights[4] = sunlightData[wc - dataLayer];
     }
 
-    if (faces[YPOS] = ((nblock = &GETBLOCK(task->chData[wc + PADDED_LAYER]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[YPOS] = ((nblock = &GETBLOCK(blockIDData[wc + dataLayer]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-        lightColor = task->chLampData[wc + PADDED_LAYER];
+        lightColor = lampLightData[wc + dataLayer];
         GET_L_COLOR(lampLights[21]);
-        sunlights[21] = task->chSunlightData[wc + PADDED_LAYER];
+        sunlights[21] = sunlightData[wc + dataLayer];
     }
 
-    if (faces[ZNEG] = ((nblock = &GETBLOCK(task->chData[wc - PADDED_WIDTH]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[ZNEG] = ((nblock = &GETBLOCK(blockIDData[wc - dataWidth]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-        lightColor = task->chLampData[wc - PADDED_WIDTH];
+        lightColor = lampLightData[wc - dataWidth];
         GET_L_COLOR(lampLights[10]);
-        sunlights[10] = task->chSunlightData[wc - PADDED_WIDTH];
+        sunlights[10] = sunlightData[wc - dataWidth];
     }
 
-    if (faces[ZPOS] = ((nblock = &GETBLOCK(task->chData[wc + PADDED_WIDTH]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[ZPOS] = ((nblock = &GETBLOCK(blockIDData[wc + dataWidth]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
         hasFace = true;
-        lightColor = task->chLampData[wc + PADDED_WIDTH];
+        lightColor = lampLightData[wc + dataWidth];
         GET_L_COLOR(lampLights[15]);
-        sunlights[15] = task->chSunlightData[wc + PADDED_WIDTH];
+        sunlights[15] = sunlightData[wc + dataWidth];
     }
 
     return hasFace;
@@ -319,100 +239,100 @@ void ChunkMesher::getConnectedTextureIndex(const MesherInfo &mi, int& result, bo
     int connectedOffset = 0;
     int wc = mi.wc;
     int tex = result;
-    ui16* chData = mi.task->chData;
+   
     // Top Left
-    Block *block = &GETBLOCK(chData[wc + upDir - rightDir]);
+    Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0x80;
     }
 
     // Top
-    block = &GETBLOCK(chData[wc + upDir]);
+    block = &GETBLOCK(blockIDData[wc + upDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0xE0;
     }
 
     // Top Right
-    block = &GETBLOCK(chData[wc + upDir + rightDir]);
+    block = &GETBLOCK(blockIDData[wc + upDir + rightDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0x20;
     }
 
     // Right
-    block = &GETBLOCK(chData[wc + rightDir]);
+    block = &GETBLOCK(blockIDData[wc + rightDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0x38;
     }
 
     // Bottom Right
-    block = &GETBLOCK(chData[wc - upDir + rightDir]);
+    block = &GETBLOCK(blockIDData[wc - upDir + rightDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0x8;
     }
 
     // Bottom
-    block = &GETBLOCK(chData[wc - upDir]);
+    block = &GETBLOCK(blockIDData[wc - upDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0xE;
     }
 
     // Bottom Left
-    block = &GETBLOCK(chData[wc - upDir - rightDir]);
+    block = &GETBLOCK(blockIDData[wc - upDir - rightDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0x2;
     }
 
     // Left
-    block = &GETBLOCK(chData[wc - rightDir]);
+    block = &GETBLOCK(blockIDData[wc - rightDir]);
     if (*((int *)(&block->pxTex) + offset) != tex) {
         connectedOffset |= 0x83;
     }
 
     if (innerSeams) {
         // Top Front Left
-        Block *block = &GETBLOCK(chData[wc + upDir - rightDir + frontDir]);
+        Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0x80;
         }
 
         // Top Front Right
-        block = &GETBLOCK(chData[wc + upDir + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc + upDir + rightDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0x20;
         }
 
         // Bottom front Right
-        block = &GETBLOCK(chData[wc - upDir + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc - upDir + rightDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0x8;
         }
 
         //Bottom front
-        block = &GETBLOCK(chData[wc - upDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0xE;
         }
 
         // Bottom front Left
-        block = &GETBLOCK(chData[wc - upDir - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc - upDir - rightDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0x2;
         }
 
         //Left front
-        block = &GETBLOCK(chData[wc - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0x83;
         }
 
         //Top front
-        block = &GETBLOCK(chData[wc + upDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc + upDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0xE0;
         }
 
         //Right front
-        block = &GETBLOCK(chData[wc + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
         if (block->occlude) {
             connectedOffset |= 0x38;
         }
@@ -430,57 +350,55 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
 
     int tex = result;
 
-    ui16* chData = mi.task->chData;
-
     // Bottom Front
-    Block* block = &GETBLOCK(chData[wc - upDir + frontDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
-        block = &GETBLOCK(chData[wc]);
+    Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
+    if (mi.levelOfDetail > 1 || *((int *)(&block->pxTex) + offset) == tex) {
+        block = &GETBLOCK(blockIDData[wc]);
         result = block->pyTexInfo.base.textureIndex;
-        getTextureIndex(mi, block->pyTexInfo.base, result, 1, -PADDED_WIDTH, PADDED_LAYER, 1, color);
+        getTextureIndex(mi, block->pyTexInfo.base, result, rightDir, upDir, frontDir, 1, color);
         block->GetBlockColor(color, 0, mi.temperature, mi.rainfall, block->pyTexInfo);
         return;
     }
 
     // Left
-    block = &GETBLOCK(chData[wc - rightDir]);
+    block = &GETBLOCK(blockIDData[wc - rightDir]);
     if (*((int *)(&block->pxTex) + offset) == tex || block->occlude == 0) {
         connectedOffset |= 0x8;
 
         if (*((int *)(&block->pxTex) + offset) == tex) {
             // bottom front Left
-            block = &GETBLOCK(chData[wc - upDir - rightDir + frontDir]);
+            block = &GETBLOCK(blockIDData[wc - upDir - rightDir + frontDir]);
             if (*((int *)(&block->pxTex) + offset) == tex) {
                 connectedOffset |= 0xC;
             }
         }
     }
     // Front left
-    block = &GETBLOCK(chData[wc - rightDir + frontDir]);
+    block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 0x8;
     }
  
     // Bottom left
-    block = &GETBLOCK(chData[wc - upDir - rightDir]);
+    block = &GETBLOCK(blockIDData[wc - upDir - rightDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 0xC;
     }
 
     // bottom right
-    block = &GETBLOCK(chData[wc - upDir + rightDir]);
+    block = &GETBLOCK(blockIDData[wc - upDir + rightDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 0x3;
     }
 
     // Right
-    block = &GETBLOCK(chData[wc + rightDir]);
+    block = &GETBLOCK(blockIDData[wc + rightDir]);
     if (*((int *)(&block->pxTex) + offset) == tex || block->occlude == 0) {
         connectedOffset |= 0x1;
 
         if (*((int *)(&block->pxTex) + offset) == tex) {
             // bottom front Right
-            block = &GETBLOCK(chData[wc - upDir + rightDir + frontDir]);
+            block = &GETBLOCK(blockIDData[wc - upDir + rightDir + frontDir]);
             if (*((int *)(&block->pxTex) + offset) == tex) {
                 connectedOffset |= 0x3;
             }
@@ -488,7 +406,7 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
     }
 
     // Front right
-    block = &GETBLOCK(chData[wc + rightDir + frontDir]);
+    block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 0x1;
     }
@@ -505,8 +423,6 @@ void ChunkMesher::getVerticalTextureIndex(const MesherInfo &mi, int& result, Con
 
     int tex = result;
 
-    ui16* chData = mi.task->chData;
-
     if (rm == ConnectedTextureReducedMethod::NONE){
         connectedOffset = 0;
     } else if (rm == ConnectedTextureReducedMethod::TOP) {
@@ -516,12 +432,12 @@ void ChunkMesher::getVerticalTextureIndex(const MesherInfo &mi, int& result, Con
     }
 
     //top bit
-    Block *block = &GETBLOCK(chData[wc + upDir]);
+    Block *block = &GETBLOCK(blockIDData[wc + upDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 2;
     }
     //bottom bit
-    block = &GETBLOCK(chData[wc - upDir]);
+    block = &GETBLOCK(blockIDData[wc - upDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 1;
     }
@@ -537,27 +453,25 @@ void ChunkMesher::getHorizontalTextureIndex(const MesherInfo &mi, int& result, b
 
     int tex = result;
 
-    ui16* chData = mi.task->chData;
-
     //right bit
-    Block *block = &GETBLOCK(chData[wc + rightDir]);
+    Block *block = &GETBLOCK(blockIDData[wc + rightDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 1;
     }
     //left bit
-    block = &GETBLOCK(chData[wc - rightDir]);
+    block = &GETBLOCK(blockIDData[wc - rightDir]);
     if (*((int *)(&block->pxTex) + offset) == tex) {
         connectedOffset |= 2;
     }
 
     if (innerSeams) {
         //front right bit
-        Block *block = &GETBLOCK(chData[wc + rightDir + frontDir]);
+        Block *block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
         if (*((int *)(&block->pxTex) + offset) == tex) {
             connectedOffset &= 2;
         }
         //front left bit
-        block = &GETBLOCK(chData[wc - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
         if (*((int *)(&block->pxTex) + offset) == tex) {
             connectedOffset &= 1;
         }
@@ -579,12 +493,12 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     int textureIndex, overlayTextureIndex;
     const GLfloat OCCLUSION_FACTOR = 0.2f;
 
-    GLfloat ambientOcclusion[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    ui8 sunLight = mi.task->chSunlightData[wc];
-    ui8 lampLight[3] = { (mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
-        (mi.task->chLampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-        mi.task->chLampData[wc] & LAMP_BLUE_MASK };
+    ui8 sunLight = sunlightData[wc];
+    ui8 lampLight[3] = { (lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+        (lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
+        lampLightData[wc] & LAMP_BLUE_MASK };
 
     sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
     lampLight[0] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[0])));
@@ -592,9 +506,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
 
     //Lookup the current biome, temperature, and rainfall
-    Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.z*CHUNK_WIDTH + mi.x]];
-    mi.temperature = mi.task->temperatures[mi.z*CHUNK_WIDTH + mi.x];
-    mi.rainfall = mi.task->rainfalls[mi.z*CHUNK_WIDTH + mi.x];
+    Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.nz*CHUNK_WIDTH + mi.nx]];
+    mi.temperature = mi.task->temperatures[mi.nz*CHUNK_WIDTH + mi.nx];
+    mi.rainfall = mi.task->rainfalls[mi.nz*CHUNK_WIDTH + mi.nx];
 
     //get bit flags (needs to be changed) -Ben
     GLuint flags = GETFLAGS(mi.task->chData[mi.wc]);
@@ -623,21 +537,24 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         nearBlocks[2] = (int)(sunlights[7] == -1) + (int)(sunlights[8] == -1) + (int)(sunlights[16] == -1);
         nearBlocks[3] = (int)(sunlights[24] == -1) + (int)(sunlights[25] == -1) + (int)(sunlights[16] == -1);
         //Calculate ambient occlusion based on nearby blocks
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+
+        if (mi.levelOfDetail == 1) {
+            ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+            ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+            ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+            ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        }
 
         textureIndex = block.pzTexInfo.base.textureIndex;
         overlayTextureIndex = block.pzTexInfo.overlay.textureIndex;
 
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.pzTexInfo.base, textureIndex, 1, PADDED_LAYER, PADDED_WIDTH, 2, color);
-        getTextureIndex(mi, block.pzTexInfo.overlay, overlayTextureIndex, 1, PADDED_LAYER, PADDED_WIDTH, 8, overlayColor);
+        getTextureIndex(mi, block.pzTexInfo.base, textureIndex, 1, dataLayer, dataWidth, 2, color);
+        getTextureIndex(mi, block.pzTexInfo.overlay, overlayTextureIndex, 1, dataLayer, dataWidth, 8, overlayColor);
 
         if (block.pzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pzTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pzTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2 + 2));
@@ -645,7 +562,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             mi.mergeFront = false;
         } else {
             //Set up most of the vertex data for a face
-            VoxelMesher::makeCubeFace(_frontVerts, 0, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
+            VoxelMesher::makeCubeFace(_frontVerts, mi.levelOfDetail, 0, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
 
             //Set up the light data using smooth lighting
 
@@ -686,27 +603,29 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         nearBlocks[1] = (int)(sunlights[1] == -1) + (int)(sunlights[2] == -1) + (int)(sunlights[11] == -1);
         nearBlocks[2] = (int)(sunlights[0] == -1) + (int)(sunlights[1] == -1) + (int)(sunlights[9] == -1);
         nearBlocks[3] = (int)(sunlights[17] == -1) + (int)(sunlights[18] == -1) + (int)(sunlights[9] == -1);
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        if (mi.levelOfDetail == 1) {
+            ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+            ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+            ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+            ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        }
        
         textureIndex = block.nzTexInfo.base.textureIndex;
         overlayTextureIndex = block.nzTexInfo.overlay.textureIndex;
 
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.nzTexInfo.base, textureIndex, -1, PADDED_LAYER, -PADDED_WIDTH, 5, color);
-        getTextureIndex(mi, block.nzTexInfo.overlay, overlayTextureIndex, -1, PADDED_LAYER, -PADDED_WIDTH, 11, overlayColor);
+        getTextureIndex(mi, block.nzTexInfo.base, textureIndex, -1, dataLayer, -dataWidth, 5, color);
+        getTextureIndex(mi, block.nzTexInfo.overlay, overlayTextureIndex, -1, dataLayer, -dataWidth, 11, overlayColor);
 
         if (block.nzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nzTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nzTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
             mi.mergeBack = false;
         } else {
-            VoxelMesher::makeCubeFace(_backVerts, 60, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
+            VoxelMesher::makeCubeFace(_backVerts, mi.levelOfDetail, 60, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
 
             calculateLampColor(_backVerts[mi.backIndex].lampColor, lampLights[18], lampLights[19], lampLights[11], lampLights[10], nearBlocks[0]);
             calculateLampColor(_backVerts[mi.backIndex + 1].lampColor, lampLights[1], lampLights[2], lampLights[11], lampLights[10], nearBlocks[1]);
@@ -743,28 +662,30 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         nearBlocks[1] = (int)(sunlights[20] == -1) + (int)(sunlights[23] == -1) + (int)(sunlights[24] == -1);
         nearBlocks[2] = (int)(sunlights[22] == -1) + (int)(sunlights[24] == -1) + (int)(sunlights[25] == -1);
         nearBlocks[3] = (int)(sunlights[18] == -1) + (int)(sunlights[19] == -1) + (int)(sunlights[22] == -1);
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        if (mi.levelOfDetail == 1) {
+            ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+            ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+            ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+            ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        }
 
         textureIndex = block.pyTexInfo.base.textureIndex;
         overlayTextureIndex = block.pyTexInfo.overlay.textureIndex;
 
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.pyTexInfo.base, textureIndex, 1, -PADDED_WIDTH, PADDED_LAYER, 1, color);
-        getTextureIndex(mi, block.pyTexInfo.overlay, overlayTextureIndex, 1, -PADDED_WIDTH, PADDED_LAYER, 7, overlayColor);
+        getTextureIndex(mi, block.pyTexInfo.base, textureIndex, 1, -dataWidth, dataLayer, 1, color);
+        getTextureIndex(mi, block.pyTexInfo.overlay, overlayTextureIndex, 1, -dataWidth, dataLayer, 7, overlayColor);
 
         if (block.pyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pyTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pyTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 2, mi.z2 + 1));
 
             mi.mergeUp = false;
         } else {
-            VoxelMesher::makeCubeFace(_topVerts, 24, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
+            VoxelMesher::makeCubeFace(_topVerts, mi.levelOfDetail, 24, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
 
             //Check for +x direction merging
             calculateLampColor(_topVerts[mi.topIndex].lampColor, lampLights[17], lampLights[18], lampLights[20], lampLights[21], nearBlocks[0]);
@@ -802,21 +723,23 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         nearBlocks[1] = (int)(sunlights[5] == -1) + (int)(sunlights[7] == -1) + (int)(sunlights[8] == -1);
         nearBlocks[2] = (int)(sunlights[3] == -1) + (int)(sunlights[6] == -1) + (int)(sunlights[7] == -1);
         nearBlocks[3] = (int)(sunlights[0] == -1) + (int)(sunlights[1] == -1) + (int)(sunlights[3] == -1);
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        if (mi.levelOfDetail == 1) {
+            ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+            ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+            ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+            ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        }
        
         textureIndex = block.nyTexInfo.base.textureIndex;
         overlayTextureIndex = block.nyTexInfo.overlay.textureIndex;
 
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.nyTexInfo.base, textureIndex, -1, -PADDED_WIDTH, -PADDED_LAYER, 4, color);
-        getTextureIndex(mi, block.nyTexInfo.overlay, overlayTextureIndex, -1, -PADDED_WIDTH, -PADDED_LAYER, 10, overlayColor);
+        getTextureIndex(mi, block.nyTexInfo.base, textureIndex, -1, -dataWidth, -dataLayer, 4, color);
+        getTextureIndex(mi, block.nyTexInfo.overlay, overlayTextureIndex, -1, -dataWidth, -dataLayer, 10, overlayColor);
 
         if (block.nyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nyTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nyTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2, mi.z2 + 1));
@@ -824,7 +747,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             mi.mergeBot = false;
         } else {
 
-            VoxelMesher::makeCubeFace(_bottomVerts, 48, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
+            VoxelMesher::makeCubeFace(_bottomVerts, mi.levelOfDetail, 48, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
 
             calculateLampColor(_bottomVerts[mi.botIndex].lampColor, lampLights[1], lampLights[2], lampLights[4], lampLights[5], nearBlocks[0]);
             calculateLampColor(_bottomVerts[mi.botIndex + 1].lampColor, lampLights[4], lampLights[5], lampLights[7], lampLights[8], nearBlocks[1]);
@@ -860,27 +783,29 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         nearBlocks[1] = (int)(sunlights[5] == -1) + (int)(sunlights[8] == -1) + (int)(sunlights[16] == -1);
         nearBlocks[2] = (int)(sunlights[2] == -1) + (int)(sunlights[5] == -1) + (int)(sunlights[11] == -1);
         nearBlocks[3] = (int)(sunlights[19] == -1) + (int)(sunlights[22] == -1) + (int)(sunlights[11] == -1);
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        if (mi.levelOfDetail == 1) {
+            ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+            ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+            ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+            ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        }
       
         textureIndex = block.pxTexInfo.base.textureIndex;
         overlayTextureIndex = block.pxTexInfo.overlay.textureIndex;
 
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.pxTexInfo.base, textureIndex, -PADDED_WIDTH, PADDED_LAYER, 1, 0, color);
-        getTextureIndex(mi, block.pxTexInfo.overlay, overlayTextureIndex, -PADDED_WIDTH, PADDED_LAYER, 1, 6, overlayColor);
+        getTextureIndex(mi, block.pxTexInfo.base, textureIndex, -dataWidth, dataLayer, 1, 0, color);
+        getTextureIndex(mi, block.pxTexInfo.overlay, overlayTextureIndex, -dataWidth, dataLayer, 1, 6, overlayColor);
 
 
         if (block.pxTexInfo.base.transparency) {  
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            VoxelMesher::makeCubeFace(_rightVerts, 12, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
+            VoxelMesher::makeCubeFace(_rightVerts, mi.levelOfDetail, 12, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
 
             calculateLampColor(_rightVerts[mi.rightIndex].lampColor, lampLights[25], lampLights[22], lampLights[13], lampLights[16], nearBlocks[0]);
             calculateLampColor(_rightVerts[mi.rightIndex + 1].lampColor, lampLights[5], lampLights[8], lampLights[13], lampLights[16], nearBlocks[1]);
@@ -902,26 +827,28 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         nearBlocks[1] = (int)(sunlights[0] == -1) + (int)(sunlights[3] == -1) + (int)(sunlights[9] == -1);
         nearBlocks[2] = (int)(sunlights[3] == -1) + (int)(sunlights[6] == -1) + (int)(sunlights[14] == -1);
         nearBlocks[3] = (int)(sunlights[20] == -1) + (int)(sunlights[23] == -1) + (int)(sunlights[14] == -1);
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        if (mi.levelOfDetail == 1) {
+            ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
+            ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
+            ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
+            ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
+        }
 
         textureIndex = block.nxTexInfo.base.textureIndex;
         overlayTextureIndex = block.nxTexInfo.overlay.textureIndex;
 
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.nxTexInfo.base, textureIndex, PADDED_WIDTH, PADDED_LAYER, -1, 3, color);
-        getTextureIndex(mi, block.nxTexInfo.overlay, overlayTextureIndex, PADDED_WIDTH, PADDED_LAYER, -1, 9, overlayColor);
+        getTextureIndex(mi, block.nxTexInfo.base, textureIndex, dataWidth, dataLayer, -1, 3, color);
+        getTextureIndex(mi, block.nxTexInfo.overlay, overlayTextureIndex, dataWidth, dataLayer, -1, 9, overlayColor);
 
         if (block.nxTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nxTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nxTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            VoxelMesher::makeCubeFace(_leftVerts, 36, (int)block.waveEffect, glm::ivec3(mi.x, mi.y, mi.z), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
+            VoxelMesher::makeCubeFace(_leftVerts, mi.levelOfDetail, 36, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
 
             calculateLampColor(_leftVerts[mi.leftIndex].lampColor, lampLights[17], lampLights[20], lampLights[9], lampLights[12], nearBlocks[0]);
             calculateLampColor(_leftVerts[mi.leftIndex + 1].lampColor, lampLights[0], lampLights[3], lampLights[9], lampLights[12], nearBlocks[1]);
@@ -947,10 +874,10 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     const int wc = mi.wc;
     const int btype = mi.btype;
 
-    Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.z*CHUNK_WIDTH + mi.x]];
-    int temperature = mi.task->temperatures[mi.z*CHUNK_WIDTH + mi.x];
-    int rainfall = mi.task->rainfalls[mi.z*CHUNK_WIDTH + mi.x];
-    GLuint flags = GETFLAGS(mi.task->chData[mi.wc]);
+    Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.nz*CHUNK_WIDTH + mi.nx]];
+    int temperature = mi.task->temperatures[mi.nz*CHUNK_WIDTH + mi.nx];
+    int rainfall = mi.task->rainfalls[mi.nz*CHUNK_WIDTH + mi.nx];
+    GLuint flags = GETFLAGS(blockIDData[mi.wc]);
 
     ui8 sunLight = mi.task->chSunlightData[wc];
     ui8 lampLight[3] = { (mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
@@ -968,8 +895,8 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     i32 overlayTextureIndex = block.pxTexInfo.overlay.textureIndex;
 
     //We will offset the texture index based on the texture method
-    getTextureIndex(mi, block.pxTexInfo.base, textureIndex, -PADDED_WIDTH, PADDED_LAYER, 1, 0, color);
-    getTextureIndex(mi, block.pxTexInfo.overlay, overlayTextureIndex, -PADDED_WIDTH, PADDED_LAYER, 1, 6, overlayColor);
+    getTextureIndex(mi, block.pxTexInfo.base, textureIndex, -dataWidth, dataLayer, 1, 0, color);
+    getTextureIndex(mi, block.pxTexInfo.overlay, overlayTextureIndex, -dataWidth, dataLayer, 1, 6, overlayColor);
 
     int r;
 
@@ -979,24 +906,24 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             break;
         case MeshType::CROSSFLORA:
             //Generate a random number between 0 and 3 inclusive
-            r = std::bind(std::uniform_int_distribution<int>(0, 1), mt19937(getPositionSeed(mi.x, mi.z)))();
+            r = std::bind(std::uniform_int_distribution<int>(0, 1), mt19937(getPositionSeed(mi.nx, mi.nz)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 8);
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
             break;
         case MeshType::FLORA:
             //Generate a random number between 0 and 3 inclusive
-            r = std::bind(std::uniform_int_distribution<int>(0, 3), mt19937(getPositionSeed(mi.x, mi.z)))();
+            r = std::bind(std::uniform_int_distribution<int>(0, 3), mt19937(getPositionSeed(mi.nx, mi.nz)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 12);
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 24, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.cutoutIndex += 4;
             break;
     }
@@ -1031,7 +958,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 //END CALCULATE_LIQUID_VERTEX_HEIGHT
 
 void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
-
+    return;
     const Block &block = Blocks[mi.btype];
     Block* nextBlock;
     i32 nextBlockID;
@@ -1088,7 +1015,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     lampLight[1] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[1])));
     lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
 
-    nextBlockID = task->chData[wc + PADDED_OFFSETS::BOTTOM];
+    nextBlockID = blockIDData[wc + PADDED_OFFSETS::BOTTOM];
     nextBlock = &GETBLOCK(nextBlockID);
     //Check if the block is falling
     if (nextBlockID == 0 || nextBlock->waterBreak || (nextBlock->physicsProperty == block.physicsProperty && nextBlock->waterMeshLevel != maxLevel)) {
@@ -1098,19 +1025,19 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     } else {
 
         //Get occlusion
-        nextBlock = &GETBLOCK(task->chData[wc + PADDED_OFFSETS::LEFT]);
+        nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::LEFT]);
         faces[XNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
 
-        nextBlock = &GETBLOCK(task->chData[wc + PADDED_OFFSETS::BACK]);
+        nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::BACK]);
         faces[ZNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
 
-        nextBlock = &GETBLOCK(task->chData[wc + PADDED_OFFSETS::RIGHT]);
+        nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::RIGHT]);
         faces[XPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
 
-        nextBlock = &GETBLOCK(task->chData[wc + PADDED_OFFSETS::FRONT]);
+        nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::FRONT]);
         faces[ZPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
 
-        nextBlock = &GETBLOCK(task->chData[wc + PADDED_OFFSETS::BOTTOM]);
+        nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::BOTTOM]);
         faces[YNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
     }
 
@@ -1855,8 +1782,6 @@ void ChunkMesher::mergeBottomVerts(MesherInfo &mi)
 
 bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 {
-    //Stores the number of blocks iterated for z and y
-    int zc, yc;
 
     int waveEffect;
     Block *block;
@@ -1877,7 +1802,6 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     _currPrevBackQuads = 0;
     _currPrevFrontQuads = 0;
 
-
     //create a new chunk mesh data container
     if (chunkMeshData != NULL){
         ERROR("Tried to create mesh with in use chunkMeshData!");
@@ -1887,10 +1811,25 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //Stores the data for a chunk mesh
     chunkMeshData = new ChunkMeshData(renderTask);
 
-    for (mi.y = 0; mi.y < CHUNK_WIDTH; mi.y++) {
+    blockIDData = renderTask->chData;
+    lampLightData = renderTask->chLampData;
+    sunlightData = renderTask->chSunlightData;
+
+    if (renderTask->levelOfDetail > 1) {
+        computeLODData(renderTask->levelOfDetail);
+    } else {
+        dataLayer = PADDED_CHUNK_LAYER;
+        dataWidth = PADDED_CHUNK_WIDTH;
+        dataSize = PADDED_CHUNK_SIZE;
+    }
+
+    mi.levelOfDetail = renderTask->levelOfDetail;
+    int lodStep = (1 << (mi.levelOfDetail - 1));
+
+    for (mi.y = 0; mi.y < dataWidth-2; mi.y++) {
 
         mi.y2 = mi.y * 2;
-        yc = mi.y * CHUNK_LAYER;
+        mi.ny = mi.y * lodStep;
 
         //reset all indexes to zero for each layer
         mi.topIndex = 0;
@@ -1899,19 +1838,20 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
         mi.frontIndex = 0;
         mi.backIndex = 0;
         mi.botIndex = 0;
-        for (mi.z = 0; mi.z < CHUNK_WIDTH; mi.z++){
+        for (mi.z = 0; mi.z < dataWidth-2; mi.z++){
 
             mi.z2 = mi.z * 2;
-            zc = yc + mi.z * CHUNK_WIDTH;
+            mi.nz = mi.z * lodStep;
 
-            for (mi.x = 0; mi.x < CHUNK_WIDTH; mi.x++){
+            for (mi.x = 0; mi.x < dataWidth-2; mi.x++){
 
                 mi.x2 = mi.x * 2;
-                mi.c = zc + mi.x;
+                mi.nx = mi.x * lodStep;
+ 
                 //We use wc instead of c, because the array is sentinalized at all edges so we dont have to access neighbor chunks with mutexes
-                mi.wc = (mi.y + 1)*(PADDED_LAYER)+(mi.z + 1)*(PADDED_WIDTH)+(mi.x + 1); //get the expanded c for our sentinelized array
+                mi.wc = (mi.y + 1)*(dataLayer)+(mi.z + 1)*(dataWidth)+(mi.x + 1); //get the expanded c for our sentinelized array
                 //get the block properties
-                mi.btype = GETBLOCKTYPE(renderTask->chData[mi.wc]);
+                mi.btype = GETBLOCKTYPE(blockIDData[mi.wc]);
                 block = &(Blocks[mi.btype]);
 
 
@@ -2093,4 +2033,170 @@ void ChunkMesher::freeBuffers()
     vector<Vertex>().swap(finalBackVerts);
     vector<Vertex>().swap(finalBottomVerts);
     vector<Vertex>().swap(finalNbVerts);*/
+}
+
+void ChunkMesher::computeLODData(int levelOfDetail) {
+
+    int lodStep = 1 << (levelOfDetail - 1);
+    dataWidth = CHUNK_WIDTH / lodStep + 2;
+    dataLayer = dataWidth * dataWidth;
+    dataSize = dataLayer * dataWidth;
+
+    int lodIndex;
+    int index;
+
+    //******* Set edge data *******
+
+    //Hardcoded mapping of LOD map to default map
+    static const int lodMapping[5][18] = {
+        { 0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33 },
+        { 0, 1, 5, 9, 13, 17, 21, 25, 29, 33, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 1, 9, 17, 15, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 1, 17, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 1, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+    const int* lodMap = lodMapping[levelOfDetail-2];
+
+    //bottom edge
+    for (int z = 0; z < dataWidth; z++) {
+        for (int x = 0; x < dataWidth; x++) {
+            index = lodMap[z] * PADDED_CHUNK_WIDTH + lodMap[x];
+            lodIndex = z * dataWidth + x;
+            lodIDData[lodIndex] = blockIDData[index];
+            lodLampData[lodIndex] = lampLightData[index];
+            lodSunData[lodIndex] = MAXLIGHT;
+      /*      for (int z2 = 0; z2 < lodStep; z2++) {
+                for (int x2 = 0; x2 < lodStep; x2++) {
+                    if (GETBLOCK(blockIDData[index + z2 * PADDED_CHUNK_WIDTH + x2]).meshType != MeshType::BLOCK) {
+                        lodIDData[lodIndex] = 0;
+                        z2 = lodStep; break;
+                    }
+                }
+            }*/
+        }
+    }
+    //top edge
+    for (int z = 0; z < dataWidth; z++) {
+        for (int x = 0; x < dataWidth; x++) {
+            index = (PADDED_CHUNK_SIZE - PADDED_CHUNK_LAYER) + lodMap[z] * PADDED_CHUNK_WIDTH + lodMap[x];
+            lodIndex = (dataSize - dataLayer) + z * dataWidth + x;
+            lodIDData[lodIndex] = blockIDData[index];
+            lodLampData[lodIndex] = lampLightData[index];
+            lodSunData[lodIndex] = MAXLIGHT;
+          /*  for (int z2 = 0; z2 < lodStep; z2++) {
+                for (int x2 = 0; x2 < lodStep; x2++) {
+                    if (GETBLOCK(blockIDData[index + z2 * PADDED_CHUNK_WIDTH + x2]).meshType != MeshType::BLOCK) {
+                        lodIDData[lodIndex] = 0;
+                        z2 = lodStep; break;
+                    }
+                }
+            }*/
+        }
+    }
+    //back edge
+    for (int y = 1; y < dataWidth-1; y++) {
+        for (int x = 0; x < dataWidth; x++) {
+            index = lodMap[y] * PADDED_CHUNK_LAYER + lodMap[x];
+            lodIndex = y * dataLayer + x;
+            lodIDData[lodIndex] = blockIDData[index];
+            lodLampData[lodIndex] = lampLightData[index];
+            lodSunData[lodIndex] = MAXLIGHT;
+            for (int y2 = 0; y2 < lodStep; y2++) {
+                for (int x2 = 0; x2 < lodStep; x2++) {
+                    if (GETBLOCK(blockIDData[index + y2 * PADDED_CHUNK_LAYER + x2]).meshType != MeshType::BLOCK) {
+                        lodIDData[lodIndex] = 0;
+                        y2 = lodStep; break;
+                    }
+                }
+            }
+        }
+    }
+    //front edge
+    for (int y = 1; y < dataWidth - 1; y++) {
+        for (int x = 0; x < dataWidth; x++) {
+            index = (PADDED_CHUNK_LAYER - PADDED_CHUNK_WIDTH) + lodMap[y] * PADDED_CHUNK_LAYER + lodMap[x];
+            lodIndex = (dataLayer - dataWidth) + y * dataLayer + x;
+            lodIDData[lodIndex] = blockIDData[index];
+            lodLampData[lodIndex] = lampLightData[index];
+            lodSunData[lodIndex] = MAXLIGHT;
+            for (int y2 = 0; y2 < lodStep; y2++) {
+                for (int x2 = 0; x2 < lodStep; x2++) {
+                    if (GETBLOCK(blockIDData[index + y2 * PADDED_CHUNK_LAYER + x2]).meshType != MeshType::BLOCK) {
+                        lodIDData[lodIndex] = 0;
+                        y2 = lodStep; break;
+                    }
+                }
+            }
+        }
+    }
+    //left edge
+    for (int y = 1; y < dataWidth - 1; y++) {
+        for (int z = 1; z < dataWidth - 1; z++) {
+            index = lodMap[y] * PADDED_CHUNK_LAYER + lodMap[z] * PADDED_CHUNK_WIDTH;
+            lodIndex = y * dataLayer + z * dataWidth;
+            lodIDData[lodIndex] = blockIDData[index];
+            lodLampData[lodIndex] = lampLightData[index];
+            lodSunData[lodIndex] = MAXLIGHT;
+            for (int y2 = 0; y2 < lodStep; y2++) {
+                for (int z2 = 0; z2 < lodStep; z2++) {
+                    if (GETBLOCK(blockIDData[index + y2 * PADDED_CHUNK_LAYER + z2 * PADDED_CHUNK_WIDTH]).meshType != MeshType::BLOCK) {
+                        lodIDData[lodIndex] = 0;
+                        y2 = lodStep; break;
+                    }
+                }
+            }
+        }
+    }
+    //right edge
+    for (int y = 1; y < dataWidth - 1; y++) {
+        for (int z = 1; z < dataWidth - 1; z++) {
+            index = (PADDED_CHUNK_WIDTH - 1) + lodMap[y] * PADDED_CHUNK_LAYER + lodMap[z] * PADDED_CHUNK_WIDTH;
+            lodIndex = (dataWidth - 1) + y * dataLayer + z * dataWidth;
+            lodIDData[lodIndex] = blockIDData[index];
+            lodLampData[lodIndex] = lampLightData[index];
+            lodSunData[lodIndex] = MAXLIGHT;
+            for (int y2 = 0; y2 < lodStep; y2++) {
+                for (int z2 = 0; z2 < lodStep; z2++) {
+                    if (GETBLOCK(blockIDData[index + y2 * PADDED_CHUNK_LAYER + z2 * PADDED_CHUNK_WIDTH]).meshType != MeshType::BLOCK) {
+                        lodIDData[lodIndex] = 0;
+                        y2 = lodStep; break;
+                    }
+                }
+            }
+        }
+    }
+    vector <ui16> blocks;
+    //******* End edge data *******
+    for (int y = 1; y < dataWidth - 1; y++) {
+        for (int z = 1; z < dataWidth - 1; z++) {
+            for (int x = 1; x < dataWidth - 1; x++) {
+
+                for (int z2 = lodMap[z]; z2 < lodMap[z] + lodStep; z2++) {
+                    for (int x2 = lodMap[x]; x2 < lodMap[x] + lodStep; x2++) {
+                        for (int y2 = lodMap[y] + lodStep - 1; y2 >= lodMap[y]; y2--) {
+                            index = y2 * PADDED_CHUNK_LAYER + z2 * PADDED_CHUNK_WIDTH + x2;
+                                //grab the topmost solid block
+                                if (GETBLOCK(blockIDData[index]).meshType == MeshType::BLOCK) {
+                                    blocks.push_back(blockIDData[index]);
+                                    break;
+                                }
+                        }
+                    }
+                }
+                lodIndex = y * dataLayer + z * dataWidth + x;
+                if (blocks.empty()) {
+                    lodIDData[lodIndex] = 0;
+                } else {
+                    lodIDData[lodIndex] = blocks[0];
+                }
+                lodLampData[lodIndex] = 0;
+                lodSunData[lodIndex] = 31;
+                blocks.clear();
+            }
+        }
+    }
+
+    blockIDData = lodIDData;
+    lampLightData = lodLampData;
+    sunlightData = lodSunData;
 }

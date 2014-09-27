@@ -1875,12 +1875,12 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             } else {
                 if (cm->vboID != 0){
                     glDeleteBuffers(1, &(cm->vboID));
+                    cm->vboID = 0;
                 }
                 if (cm->vaoID != 0){
                     glDeleteVertexArrays(1, &(cm->vaoID));
-                }
-                cm->vboID = 0;
-                cm->vaoID = 0;
+                    cm->vaoID = 0;
+                } 
             }
 
             if (cmd->transVertices.size()) {
@@ -1901,16 +1901,16 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             } else {
                 if (cm->transVaoID != 0){
                     glDeleteVertexArrays(1, &(cm->transVaoID));
+                    cm->transVaoID = 0;
                 }
                 if (cm->transVboID == 0) {
                     glDeleteBuffers(1, &(cm->transVboID));
+                    cm->transVboID = 0;
                 }
                 if (cm->transIndexID == 0) {
                     glDeleteBuffers(1, &(cm->transIndexID));
+                    cm->transIndexID = 0;
                 }
-                cm->transVboID = 0;
-                cm->transIndexID = 0;
-                cm->transVaoID = 0;
             }
 
             if (cmd->cutoutVertices.size()) {
@@ -1925,12 +1925,12 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             } else {
                 if (cm->cutoutVaoID != 0){
                     glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+                    cm->cutoutVaoID = 0;
                 }
                 if (cm->cutoutVboID == 0) {
                     glDeleteBuffers(1, &(cm->cutoutVboID));
+                    cm->cutoutVboID = 0;
                 }
-                cm->cutoutVboID = 0;
-                cm->cutoutVaoID = 0;
             }
             cm->meshInfo = cmd->meshInfo;
         //The missing break is deliberate!
@@ -1965,7 +1965,6 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             chunkMeshes[cm->vecIndex] = chunkMeshes.back();
             chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
             chunkMeshes.pop_back();
-            cout << "GONE\n";
         }
         delete cm;
     }

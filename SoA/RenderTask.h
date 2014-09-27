@@ -36,4 +36,5 @@ public:
     MeshJobType type; // RENDER_TASK_RENDER, RENDER_TASK_WATER
 	i32v3 position;
     Chunk* chunk;
+    int levelOfDetail;
 };

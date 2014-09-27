@@ -396,7 +396,7 @@ void ChunkManager::relocateChunks(const f64v3& gpos) {
     for (i32 i = 0; i < csGridSize; i++) {
         chunk = _allChunkSlots[i].chunk;
         if (chunk) {
-            if (chunk->dirty && chunk->state > ChunkStates::TREES) {
+            if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
                 toSave.push_back(chunk);
             }
         }
@@ -504,7 +504,7 @@ i32 ticksArrayIndex = 0;
 i32 ticksArray[10];
 
 void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
-    globalMultiplePreciseTimer.setDesiredSamples(50);
+    globalMultiplePreciseTimer.setDesiredSamples(10);
     globalMultiplePreciseTimer.start("Update");
    
     static f64v3 oldPosition = position;
@@ -520,18 +520,18 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     i32 shiftType = 0; //1 = only sort chunks, 2 = chunks and lods
     glm::ivec3 playerVoxelPosition;
-    playerVoxelPosition.x = floor(position.x);
-    playerVoxelPosition.y = floor(position.y);
-    playerVoxelPosition.z = floor(position.z);
+    playerVoxelPosition.x = fastFloor(position.x);
+    playerVoxelPosition.y = fastFloor(position.y);
+    playerVoxelPosition.z = fastFloor(position.z);
 
     shiftType = 0;
 
     const double maxDPos = 64;
     if (dPos >= maxDPos) {
-        _isHugeShift = 1;
+        _isHugeShift = true;
         shiftType = 1;
     } else if (_isHugeShift) {
-        _isHugeShift = 0;
+        _isHugeShift = false;
         relocateChunks(position);
     }
     
@@ -639,7 +639,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     globalMultiplePreciseTimer.start("Finished Meshes");
     uploadFinishedMeshes();
     //change the parameter to true to print out the timings
-    globalMultiplePreciseTimer.end(false);
+    globalMultiplePreciseTimer.end(true);
 }
 
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded
@@ -686,9 +686,9 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         chunk->isAccessible = 0;
 
         for (i32 i = 0; i < CHUNK_LAYER; i++) {
-            chunk->biomes[i] = _heightMap[startZ][startX][i].biome->vecIndex; // maybe we could bypass this by just giving the chunk a damn pointer rather than copying everything. ugh
-            chunk->rainfalls[i] = _heightMap[startZ][startX][i].rainfall;
-            chunk->temperatures[i] = _heightMap[startZ][startX][i].temperature;
+            chunk->_biomes[i] = _heightMap[startZ][startX][i].biome->vecIndex; // maybe we could bypass this by just giving the chunk a damn pointer rather than copying everything. ugh
+            chunk->_rainfalls[i] = _heightMap[startZ][startX][i].rainfall;
+            chunk->_temperatures[i] = _heightMap[startZ][startX][i].temperature;
 
             depth = -_heightMap[startZ][startX][i].height / 5;
             if (depth > 255) {
@@ -697,7 +697,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
                 depth = 0;
             }
             depth = 255 - depth;
-            chunk->depthMap[i] = depth;
+            chunk->_depthMap[i] = depth;
         }
 
         chunksToLoad.push_back(chunk);
@@ -770,7 +770,7 @@ void ChunkManager::uploadFinishedMeshes() {
             gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
         }
 
-        if (chunk->setupListPtr == nullptr) chunk->state = ChunkStates::DRAW;
+        if (chunk->setupListPtr == nullptr) chunk->_state = ChunkStates::DRAW;
     }
 }
 
@@ -791,10 +791,10 @@ void ChunkManager::updateLoadedChunks() {
             VoxelLightEngine::checkTopForSunlight(ch);
 
             if (ch->treesToLoad.size() || ch->plantsToLoad.size()) {
-                ch->state = ChunkStates::TREES;
+                ch->_state = ChunkStates::TREES;
                 addToSetupList(ch);
             } else {
-                ch->state = ChunkStates::MESH;
+                ch->_state = ChunkStates::MESH;
                 addToMeshList(ch);
             }
         }
@@ -820,7 +820,7 @@ void ChunkManager::updateLoadedChunks() {
                 addToGenerateList(ch);
             } else {
                 setupNeighbors(ch);
-                ch->state = ChunkStates::MESH;
+                ch->_state = ChunkStates::MESH;
                 addToMeshList(ch);
                 ch->dirty = false;
                 ch->isAccessible = true;
@@ -843,14 +843,14 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
         //limit the time
         chunk = _setupList[i];
         chunk->setupWaitingTime = 0;
-        state = chunk->state;
+        state = chunk->_state;
 
         switch (state) {
         case ChunkStates::TREES:
             if (chunk->neighbors == 6) {
                 if (chunk->treeTryTicks == 0) { //keep us from continuing to try a tree when it wont ever load
                     if (FloraGenerator::generateFlora(chunk)) {
-                        chunk->state = ChunkStates::MESH;
+                        chunk->_state = ChunkStates::MESH;
 
                         _setupList[i] = _setupList.back();
                         _setupList[i]->updateIndex = i;
@@ -895,7 +895,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks, const f64v3& position) {
     Chunk* chunk;
 
     for (i32 i = _meshList.size() - 1; i >= 0; i--) {
-        state = _meshList[i]->state;
+        state = _meshList[i]->_state;
         chunk = _meshList[i];
 
         if (chunk->neighbors == 6 && SphereInFrustum((float)(chunk->position.x + CHUNK_WIDTH / 2 - position.x), (float)(chunk->position.y + CHUNK_WIDTH / 2 - position.y), (float)(chunk->position.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)) {
@@ -912,7 +912,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks, const f64v3& position) {
                 chunk->occlude = 0;
 
                 if (chunk->neighbors == 6 && chunk->inRenderThread == 0) {
-                    if (chunk->state == ChunkStates::MESH) {
+                    if (chunk->_state == ChunkStates::MESH) {
                         if (!threadPool.addRenderJob(chunk, MeshJobType::DEFAULT)) break; //if the queue is full, well try again next frame
                     } else {
                         if (!threadPool.addRenderJob(chunk, MeshJobType::LIQUID)) break;
@@ -933,7 +933,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks, const f64v3& position) {
                 chunk->setupListPtr = NULL;
                 _meshList.pop_back();
 
-                chunk->state = ChunkStates::INACTIVE;
+                chunk->_state = ChunkStates::INACTIVE;
             }
         }
 
@@ -1050,7 +1050,7 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
         chunk = _allChunkSlots[i].chunk;
         if (chunk) {
             //    if (chunk->drawWater){
-            switch (chunk->state) {
+            switch (chunk->_state) {
             case ChunkStates::DRAW:
                 color = glm::vec4(0.0, 0.0, 1.0, 1.0);
                 break;
@@ -1066,7 +1066,7 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
                 break;
             }
 
-            if (chunk->state != ChunkStates::INACTIVE) DrawWireBox(chunk->position.x, chunk->position.y, chunk->position.z, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 2, position, VP, color);
+            if (chunk->_state != ChunkStates::INACTIVE) DrawWireBox(chunk->position.x, chunk->position.y, chunk->position.z, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 2, position, VP, color);
             //    }
         }
     }
@@ -1074,7 +1074,7 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
 
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
-        if (!generateOnly && chunk->dirty && chunk->state > ChunkStates::TREES) {
+        if (!generateOnly && chunk->dirty && chunk->_state > ChunkStates::TREES) {
             GameManager::chunkIOManager->addToSaveList(chunk);
         }
         if (chunk->inSaveThread || chunk->inRenderThread || chunk->inLoadThread || chunk->inGenerateThread) {
@@ -1095,14 +1095,14 @@ void ChunkManager::addToSetupList(Chunk* chunk) {
 }
 
 void ChunkManager::addToLoadList(Chunk* chunk) {
-    chunk->state = ChunkStates::LOAD;
+    chunk->_state = ChunkStates::LOAD;
     chunk->setupListPtr = &_loadList;
     chunk->updateIndex = _loadList.size();
     _loadList.push_back(chunk);
 }
 
 void ChunkManager::addToGenerateList(Chunk* chunk) {
-    chunk->state = ChunkStates::GENERATE;
+    chunk->_state = ChunkStates::GENERATE;
     chunk->setupListPtr = &_generateList;
     chunk->updateIndex = _generateList.size();
     _generateList.push_back(chunk);
@@ -1327,7 +1327,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
         cout << "SAVING\n";
         saveTicks = SDL_GetTicks();
     }
-
+  //  cout << csGridSize << endl;
     for (i32 i = 0; i < csGridSize; i++) { //update distances for all chunks
         cs = &(_allChunkSlots[i]);
         const glm::ivec3 &csPos = cs->position;
@@ -1346,17 +1346,26 @@ void ChunkManager::updateChunks(const f64v3& position) {
             chunk->distance2 = cs->distance2;
 
             if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
-                if (!generateOnly && chunk->dirty && chunk->state > ChunkStates::TREES) {
+                if (!generateOnly && chunk->dirty && chunk->_state > ChunkStates::TREES) {
                     GameManager::chunkIOManager->addToSaveList(cs->chunk);
                 }
                 freeChunk(chunk);
                 cs->chunk = nullptr;
             } else { //inside maximum range
 
+                //Calculate the LOD as a power of two
+                int newLOD = (int)(sqrt(chunk->distance2) / graphicsOptions.voxelLODThreshold) + 1;
+              //  newLOD = 2;
+                if (newLOD > 6) newLOD = 6;
+                if (newLOD != chunk->getLevelOfDetail()) {
+                    chunk->setLevelOfDetail(newLOD);
+                    chunk->changeState(ChunkStates::MESH);
+                }
+
                 if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(chunk);
 
                 //calculate light stuff: THIS CAN LAG THE GAME
-                if (chunk->state > ChunkStates::TREES) {
+                if (chunk->_state > ChunkStates::TREES) {
                     if (chunk->sunRemovalList.size()) {
                         VoxelLightEngine::calculateSunlightRemoval(chunk);
                     }
@@ -1365,9 +1374,9 @@ void ChunkManager::updateChunks(const f64v3& position) {
                     }
                     VoxelLightEngine::calculateLight(chunk);
                 }
-                //Check to see if it needs to be added to the setup list
+                //Check to see if it needs to be added to the mesh list
                 if (chunk->setupListPtr == nullptr && chunk->inRenderThread == false) {
-                    switch (chunk->state) {
+                    switch (chunk->_state) {
                     case ChunkStates::WATERMESH:
                     case ChunkStates::MESH:
                         addToMeshList(chunk);
@@ -1398,7 +1407,7 @@ void ChunkManager::saveAllChunks() {
     Chunk* chunk;
     for (i32 i = 0; i < csGridSize; i++) { //update distances for all chunks
         chunk = _allChunkSlots[i].chunk;
-        if (chunk && chunk->dirty && chunk->state > ChunkStates::TREES) {
+        if (chunk && chunk->dirty && chunk->_state > ChunkStates::TREES) {
             GameManager::chunkIOManager->addToSaveList(chunk);
         }
     }
@@ -2005,7 +2014,7 @@ void ChunkManager::caveOcclusion(const f64v3& ppos) {
         if (x < 0 || y < 0 || z < 0 || x >= csGridWidth || y >= csGridWidth || z >= csGridWidth) return;
 
         ch = _chunkList[y][z][x]->chunk;
-        if ((!ch) || ch->state == ChunkStates::LOAD) return;
+        if ((!ch) || ch->_state == ChunkStates::LOAD) return;
 
         recursiveFloodFill(1, 1, 1, 1, 1, 1, ch);
     }
@@ -2016,7 +2025,7 @@ void ChunkManager::caveOcclusion(const f64v3& ppos) {
 //6 5 4
 
 void ChunkManager::recursiveFloodFill(bool left, bool right, bool front, bool back, bool top, bool bottom, Chunk* chunk) {
-    if (chunk->state == ChunkStates::LOAD || chunk->occlude == 0) return;
+    if (chunk->_state == ChunkStates::LOAD || chunk->occlude == 0) return;
     chunk->occlude = 0;
     if (left && chunk->left && chunk->leftBlocked == 0) {
         if (chunk->left->rightBlocked == 0) {

@@ -61,7 +61,7 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
     position = pos;
 	drawIndex = -1;
 	numBlocks = -1;
-	state = ChunkStates::LOAD;
+	_state = ChunkStates::LOAD;
 	left = NULL;
 	right = NULL;
 	back = NULL;
@@ -72,6 +72,7 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	distance2 = 999999.0;
 	treesToLoad.clear();
 	blockUpdateIndex = 0;
+    _levelOfDetail = 1;
 
 	for (int i = 0; i < 8; i++){
 		blockUpdateList[i][0].clear();
@@ -94,7 +95,7 @@ void Chunk::clear(bool clearDraw)
     _lampLightContainer.clear();
     _sunlightContainer.clear();
 
-    state = ChunkStates::LOAD;
+    _state = ChunkStates::LOAD;
     isAccessible = 0;
     left = right = front = back = top = bottom = NULL;
     setupListPtr = NULL;
@@ -258,10 +259,13 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     ui8* chSunlightData = renderTask->chSunlightData;
 
     //copy tables
-    memcpy(renderTask->biomes, biomes, sizeof(biomes));
-    memcpy(renderTask->temperatures, temperatures, sizeof(temperatures));
-    memcpy(renderTask->rainfalls, rainfalls, sizeof(rainfalls));
-    memcpy(renderTask->depthMap, depthMap, sizeof(depthMap));
+    memcpy(renderTask->biomes, _biomes, sizeof(_biomes));
+    memcpy(renderTask->temperatures, _temperatures, sizeof(_temperatures));
+    memcpy(renderTask->rainfalls, _rainfalls, sizeof(_rainfalls));
+    memcpy(renderTask->depthMap, _depthMap, sizeof(_depthMap));
+
+    //Set LOD
+    renderTask->levelOfDetail = _levelOfDetail;
 
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
@@ -312,6 +316,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
         }
 
         assert(renderTask->chunk != nullptr);
+
     } else { //FLAT_ARRAY
 
         int s = 0;
@@ -692,9 +697,9 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 }
 
 int Chunk::getRainfall(int xz) const {
-    return (int)rainfalls[xz];
+    return (int)_rainfalls[xz];
 }
 
 int Chunk::getTemperature(int xz) const {
-    return (int)temperatures[xz];
+    return (int)_temperatures[xz];
 }

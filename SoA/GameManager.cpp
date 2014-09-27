@@ -243,6 +243,7 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
 
     if (gameInitialized) {
         if (player->isOnPlanet) {
+
             HeightData tmpHeightData;
             if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
                 if (tmpHeightData.height != UNLOADED_HEIGHT) {

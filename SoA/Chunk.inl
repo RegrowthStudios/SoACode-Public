@@ -6,12 +6,12 @@
 inline void Chunk::changeState(ChunkStates State)
 {
     //Only set the state if the new state is higher priority
-    if (state > State){
-        state = State;
+    if (_state > State){
+        _state = State;
 
         //isAccessible is a flag that prevents threads from trying to
         //acces the chunk when its loading or generating
-        if (state > ChunkStates::GENERATE){
+        if (_state > ChunkStates::GENERATE){
             isAccessible = true;
         } else{
             isAccessible = false;

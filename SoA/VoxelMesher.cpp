@@ -22,18 +22,44 @@ const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f,
 
     1.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f };     // v5-v4-v7-v6 (back)
 
-// Each block has a positional resolution of 7
-const GLubyte VoxelMesher::cubeVertices[72] = { 0, 7, 7, 0, 0, 7, 7, 0, 7, 7, 7, 7,  // v1-v2-v3-v0 (front)
-
+// Each block has a positional resolution of 7. There are 6 arrays for the LOD levels
+const GLubyte VoxelMesher::cubeVertices[6][72] = {
+    { 0, 7, 7, 0, 0, 7, 7, 0, 7, 7, 7, 7,  // v1-v2-v3-v0 (front)
     7, 7, 7, 7, 0, 7, 7, 0, 0, 7, 7, 0,     // v0-v3-v4-v5 (right)
-
     0, 7, 0, 0, 7, 7, 7, 7, 7, 7, 7, 0,    // v6-v1-v0-v5 (top)
-
     0, 7, 0, 0, 0, 0, 0, 0, 7, 0, 7, 7,   // v6-v7-v2-v1 (left)
-
     7, 0, 0, 7, 0, 7, 0, 0, 7, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-
-    7, 7, 0, 7, 0, 0, 0, 0, 0, 0, 7, 0 };     // v5-v4-v7-v6 (back)
+    7, 7, 0, 7, 0, 0, 0, 0, 0, 0, 7, 0 },     // v5-v4-v7-v6 (back)
+    { 0, 14, 14, 0, 0, 14, 14, 0, 14, 14, 14, 14,  // v1-v2-v3-v0 (front)
+    14, 14, 14, 14, 0, 14, 14, 0, 0, 14, 14, 0,     // v0-v3-v4-v5 (right)
+    0, 14, 0, 0, 14, 14, 14, 14, 14, 14, 14, 0,    // v6-v1-v0-v5 (top)
+    0, 14, 0, 0, 0, 0, 0, 0, 14, 0, 14, 14,   // v6-v7-v2-v1 (left)
+    14, 0, 0, 14, 0, 14, 0, 0, 14, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    14, 14, 0, 14, 0, 0, 0, 0, 0, 0, 14, 0 },     // v5-v4-v7-v6 (back)
+    { 0, 28, 28, 0, 0, 28, 28, 0, 28, 28, 28, 28,  // v1-v2-v3-v0 (front)
+    28, 28, 28, 28, 0, 28, 28, 0, 0, 28, 28, 0,     // v0-v3-v4-v5 (right)
+    0, 28, 0, 0, 28, 28, 28, 28, 28, 28, 28, 0,    // v6-v1-v0-v5 (top)
+    0, 28, 0, 0, 0, 0, 0, 0, 28, 0, 28, 28,   // v6-v7-v2-v1 (left)
+    28, 0, 0, 28, 0, 28, 0, 0, 28, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    28, 28, 0, 28, 0, 0, 0, 0, 0, 0, 28, 0 },     // v5-v4-v7-v6 (back)
+    { 0, 56, 56, 0, 0, 56, 56, 0, 56, 56, 56, 56,  // v1-v2-v3-v0 (front)
+    56, 56, 56, 56, 0, 56, 56, 0, 0, 56, 56, 0,     // v0-v3-v4-v5 (right)
+    0, 56, 0, 0, 56, 56, 56, 56, 56, 56, 56, 0,    // v6-v1-v0-v5 (top)
+    0, 56, 0, 0, 0, 0, 0, 0, 56, 0, 56, 56,   // v6-v7-v2-v1 (left)
+    56, 0, 0, 56, 0, 56, 0, 0, 56, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    56, 56, 0, 56, 0, 0, 0, 0, 0, 0, 56, 0 },     // v5-v4-v7-v6 (back)
+    { 0, 112, 112, 0, 0, 112, 112, 0, 112, 112, 112, 112,  // v1-v2-v3-v0 (front)
+    112, 112, 112, 112, 0, 112, 112, 0, 0, 112, 112, 0,     // v0-v3-v4-v5 (right)
+    0, 112, 0, 0, 112, 112, 112, 112, 112, 112, 112, 0,    // v6-v1-v0-v5 (top)
+    0, 112, 0, 0, 0, 0, 0, 0, 112, 0, 112, 112,   // v6-v7-v2-v1 (left)
+    112, 0, 0, 112, 0, 112, 0, 0, 112, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    112, 112, 0, 112, 0, 0, 0, 0, 0, 0, 112, 0 },     // v5-v4-v7-v6 (back)
+    { 0, 224, 224, 0, 0, 224, 224, 0, 224, 224, 224, 224,  // v1-v2-v3-v0 (front)
+    224, 224, 224, 224, 0, 224, 224, 0, 0, 224, 224, 0,     // v0-v3-v4-v5 (right)
+    0, 224, 0, 0, 224, 224, 224, 224, 224, 224, 224, 0,    // v6-v1-v0-v5 (top)
+    0, 224, 0, 0, 0, 0, 0, 0, 224, 0, 224, 224,   // v6-v7-v2-v1 (left)
+    224, 0, 0, 224, 0, 224, 0, 0, 224, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    224, 224, 0, 224, 0, 0, 0, 0, 0, 0, 224, 0 } };     // v5-v4-v7-v6 (back)
 
 //0 = x, 1 = y, 2 = z
 const int VoxelMesher::cubeFaceAxis[6][2] = { { 0, 1 }, { 2, 1 }, { 0, 2 }, { 2, 1 }, { 0, 2 }, { 0, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
@@ -311,7 +337,7 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     Verts[vertexIndex + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
 }
 
-void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo)
+void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo)
 {
 
     //get the face index so we can determine the axis alignment
@@ -319,6 +345,9 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEff
     //Multiply the axis by the sign bit to get the correct offset
     GLubyte uOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][0]] * cubeFaceAxisSign[faceIndex][0]);
     GLubyte vOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][1]] * cubeFaceAxisSign[faceIndex][1]);
+
+    const GLubyte* cverts = cubeVertices[levelOfDetail-1];
+    int lodTexOffset = (1 << (levelOfDetail - 1));
 
     // 7 per coord
     pos.x *= 7;
@@ -371,18 +400,18 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEff
     Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
     Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
 
-    Verts[vertexIndex].position.x = pos.x + cubeVertices[vertexOffset];
-    Verts[vertexIndex].position.y = pos.y + cubeVertices[vertexOffset + 1];
-    Verts[vertexIndex].position.z = pos.z + cubeVertices[vertexOffset + 2];
-    Verts[vertexIndex + 1].position.x = pos.x + cubeVertices[vertexOffset + 3];
-    Verts[vertexIndex + 1].position.y = pos.y + cubeVertices[vertexOffset + 4];
-    Verts[vertexIndex + 1].position.z = pos.z + cubeVertices[vertexOffset + 5];
-    Verts[vertexIndex + 2].position.x = pos.x + cubeVertices[vertexOffset + 6];
-    Verts[vertexIndex + 2].position.y = pos.y + cubeVertices[vertexOffset + 7];
-    Verts[vertexIndex + 2].position.z = pos.z + cubeVertices[vertexOffset + 8];
-    Verts[vertexIndex + 3].position.x = pos.x + cubeVertices[vertexOffset + 9];
-    Verts[vertexIndex + 3].position.y = pos.y + cubeVertices[vertexOffset + 10];
-    Verts[vertexIndex + 3].position.z = pos.z + cubeVertices[vertexOffset + 11];
+    Verts[vertexIndex].position.x = pos.x + cverts[vertexOffset];
+    Verts[vertexIndex].position.y = pos.y + cverts[vertexOffset + 1];
+    Verts[vertexIndex].position.z = pos.z + cverts[vertexOffset + 2];
+    Verts[vertexIndex + 1].position.x = pos.x + cverts[vertexOffset + 3];
+    Verts[vertexIndex + 1].position.y = pos.y + cverts[vertexOffset + 4];
+    Verts[vertexIndex + 1].position.z = pos.z + cverts[vertexOffset + 5];
+    Verts[vertexIndex + 2].position.x = pos.x + cverts[vertexOffset + 6];
+    Verts[vertexIndex + 2].position.y = pos.y + cverts[vertexOffset + 7];
+    Verts[vertexIndex + 2].position.z = pos.z + cverts[vertexOffset + 8];
+    Verts[vertexIndex + 3].position.x = pos.x + cverts[vertexOffset + 9];
+    Verts[vertexIndex + 3].position.y = pos.y + cverts[vertexOffset + 10];
+    Verts[vertexIndex + 3].position.z = pos.z + cverts[vertexOffset + 11];
 
     Verts[vertexIndex].color[0] = (GLubyte)(color[0] * ambientOcclusion[0]);
     Verts[vertexIndex].color[1] = (GLubyte)(color[1] * ambientOcclusion[0]);
@@ -446,13 +475,13 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEff
     }
 
     Verts[vertexIndex].tex[0] = 128 + uOffset;
-    Verts[vertexIndex].tex[1] = 129 + vOffset;
+    Verts[vertexIndex].tex[1] = 128 + vOffset + lodTexOffset;
     Verts[vertexIndex + 1].tex[0] = 128 + uOffset;
     Verts[vertexIndex + 1].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 2].tex[0] = 129 + uOffset;
+    Verts[vertexIndex + 2].tex[0] = 128 + uOffset + lodTexOffset;
     Verts[vertexIndex + 2].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 3].tex[0] = 129 + uOffset;
-    Verts[vertexIndex + 3].tex[1] = 129 + vOffset;
+    Verts[vertexIndex + 3].tex[0] = 128 + uOffset + lodTexOffset;
+    Verts[vertexIndex + 3].tex[1] = 128 + vOffset + lodTexOffset;
 
     // *********** Base Texture
     Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;
@@ -571,6 +600,9 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const
             blendMode -= 16; //Sets blendType to 00 01 01 01
             break;
     }
+
+    const GLubyte* cverts = cubeVertices[0];
+
     verts[index].blendMode = blendMode;
     verts[index + 1].blendMode = blendMode;
     verts[index + 2].blendMode = blendMode;
@@ -623,24 +655,24 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const
     verts[index + 5].normal[1] = cubeNormals[vertexOffset + 1];
     verts[index + 5].normal[2] = cubeNormals[vertexOffset + 2];
 
-    verts[index].position[0] = cubeVertices[vertexOffset];
-    verts[index].position[1] = cubeVertices[vertexOffset + 1];
-    verts[index].position[2] = cubeVertices[vertexOffset + 2];
-    verts[index + 1].position[0] = cubeVertices[vertexOffset + 3];
-    verts[index + 1].position[1] = cubeVertices[vertexOffset + 4];
-    verts[index + 1].position[2] = cubeVertices[vertexOffset + 5];
-    verts[index + 2].position[0] = cubeVertices[vertexOffset + 6];
-    verts[index + 2].position[1] = cubeVertices[vertexOffset + 7];
-    verts[index + 2].position[2] = cubeVertices[vertexOffset + 8];
-    verts[index + 3].position[0] = cubeVertices[vertexOffset + 6];
-    verts[index + 3].position[1] = cubeVertices[vertexOffset + 7];
-    verts[index + 3].position[2] = cubeVertices[vertexOffset + 8];
-    verts[index + 4].position[0] = cubeVertices[vertexOffset + 9];
-    verts[index + 4].position[1] = cubeVertices[vertexOffset + 10];
-    verts[index + 4].position[2] = cubeVertices[vertexOffset + 11];
-    verts[index + 5].position[0] = cubeVertices[vertexOffset];
-    verts[index + 5].position[1] = cubeVertices[vertexOffset + 1];
-    verts[index + 5].position[2] = cubeVertices[vertexOffset + 2];
+    verts[index].position[0] = cverts[vertexOffset];
+    verts[index].position[1] = cverts[vertexOffset + 1];
+    verts[index].position[2] = cverts[vertexOffset + 2];
+    verts[index + 1].position[0] = cverts[vertexOffset + 3];
+    verts[index + 1].position[1] = cverts[vertexOffset + 4];
+    verts[index + 1].position[2] = cverts[vertexOffset + 5];
+    verts[index + 2].position[0] = cverts[vertexOffset + 6];
+    verts[index + 2].position[1] = cverts[vertexOffset + 7];
+    verts[index + 2].position[2] = cverts[vertexOffset + 8];
+    verts[index + 3].position[0] = cverts[vertexOffset + 6];
+    verts[index + 3].position[1] = cverts[vertexOffset + 7];
+    verts[index + 3].position[2] = cverts[vertexOffset + 8];
+    verts[index + 4].position[0] = cverts[vertexOffset + 9];
+    verts[index + 4].position[1] = cverts[vertexOffset + 10];
+    verts[index + 4].position[2] = cverts[vertexOffset + 11];
+    verts[index + 5].position[0] = cverts[vertexOffset];
+    verts[index + 5].position[1] = cverts[vertexOffset + 1];
+    verts[index + 5].position[2] = cverts[vertexOffset + 2];
 
     verts[index].tex[0] = 128;
     verts[index].tex[1] = 129;

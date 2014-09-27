@@ -10,13 +10,13 @@ class VoxelMesher
 {
 public:
     static void makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo);
-    static void makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo);
+    static void makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo);
     static void setFaceLight(BlockVertex* Verts, int index, ui8 lampColor[3], ui8 sunlight);
     static void makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 lampColor[3], ui8 sunlight, ui8 color[3], ui8 textureUnit);
     static void makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture);
 
     static const GLfloat leafVertices[72];
-    static const GLubyte cubeVertices[72];
+    static const GLubyte cubeVertices[6][72];
     static const int cubeFaceAxis[6][2];
     static const int cubeFaceAxisSign[6][2];
     static const GLfloat liquidVertices[72];
