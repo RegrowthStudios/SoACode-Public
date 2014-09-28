@@ -8,9 +8,9 @@
 
 std::vector <ParticleType> particleTypes;
 
-bool Particle::update(const deque < deque < deque < ChunkSlot* > > > &chunkList, const glm::dvec3 &chunkListPos) {
+bool Particle::update(const f64v3& chunkListPos) {
 
-    short x, y, z;
+    i32v3 chPos;
     int gridRelY, gridRelX, gridRelZ;
     int bx, by, bz;
     bool fc = 1, bc = 1, lc = 1, rc = 1, tc = 1;
@@ -29,9 +29,9 @@ bool Particle::update(const deque < deque < deque < ChunkSlot* > > > &chunkList,
     gridRelY = position.y - chunkListPos.y;
     gridRelZ = position.z - chunkListPos.z;
 
-    x = fastFloor(gridRelX / (float)CHUNK_WIDTH);
-    y = fastFloor(gridRelY / (float)CHUNK_WIDTH);
-    z = fastFloor(gridRelZ / (float)CHUNK_WIDTH);
+    chPos.x = fastFloor(gridRelX / (float)CHUNK_WIDTH);
+    chPos.y = fastFloor(gridRelY / (float)CHUNK_WIDTH);
+    chPos.z = fastFloor(gridRelZ / (float)CHUNK_WIDTH);
 
     bx = gridRelX % CHUNK_WIDTH;
     by = gridRelY % CHUNK_WIDTH;
@@ -41,12 +41,9 @@ bool Particle::update(const deque < deque < deque < ChunkSlot* > > > &chunkList,
 
     if(c != pc) {
         pc = c;
-        if(x < 0 || y < 0 || z < 0 || x >= csGridWidth || y >= csGridWidth || z >= csGridWidth) {
-            velocity = glm::vec3(0.0f);
-            return 0;
-        }
 
-        ch = chunkList[y][z][x]->chunk;
+
+        ch = GameManager::chunkManager->getChunk(chPos);
 
         if((!ch) || ch->isAccessible == 0) return 0;
 

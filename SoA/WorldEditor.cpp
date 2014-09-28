@@ -937,32 +937,32 @@ inline void addVar(JSArray &v, int id, float v1, bool hasSecond = 0, float v2 = 
 }
 
 void WorldEditor::initializeEditorTree(EditorTree *et) {
-    const deque < deque < deque < ChunkSlot *> > > &chunkList = _voxelWorld->getChunkManager().getChunkList(); //3d deque for chunks
-    Chunk *chunk;
+    //const deque < deque < deque < ChunkSlot *> > > &chunkList = _voxelWorld->getChunkManager().getChunkList(); //3d deque for chunks
+    //Chunk *chunk;
 
-    int startX = chunkList.size() / 2;
-    int startY = 0;
-    int startZ = chunkList[0].size() / 2;
-    int blockID;
+    //int startX = chunkList.size() / 2;
+    //int startY = 0;
+    //int startZ = chunkList[0].size() / 2;
+    //int blockID;
 
-    for (startY = 0; (startY <= chunkList[0][0].size()) && (et->startChunk == NULL); startY++) {
-        cout << "X Y Z: " << startX << " " << startY << " " << startZ << endl;
-        if (chunkList[startX][startZ][startY]) {
-            chunk = chunkList[startX][startZ][startY]->chunk;
+    //for (startY = 0; (startY <= chunkList[0][0].size()) && (et->startChunk == NULL); startY++) {
+    //    cout << "X Y Z: " << startX << " " << startY << " " << startZ << endl;
+    //    if (chunkList[startX][startZ][startY]) {
+    //        chunk = chunkList[startX][startZ][startY]->chunk;
 
-            if (chunk && chunk->isAccessible) {
-                for (int y = CHUNK_WIDTH - 1; y >= 0; y--) {
-                    blockID = chunk->getBlockID(y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16);
-                    if (blockID != 0) {
-                        cout << Blocks[blockID].name << endl;
-                        et->startChunk = chunk;
-                        et->startc = y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16;
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    //        if (chunk && chunk->isAccessible) {
+    //            for (int y = CHUNK_WIDTH - 1; y >= 0; y--) {
+    //                blockID = chunk->getBlockID(y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16);
+    //                if (blockID != 0) {
+    //                    cout << Blocks[blockID].name << endl;
+    //                    et->startChunk = chunk;
+    //                    et->startc = y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16;
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void WorldEditor::changeEditorTree(bool resendData, TreeType *tt) {

@@ -6,7 +6,7 @@
 #include "WorldStructs.h"
 #include "OpenGLStructs.h"
 
-struct ChunkSlot;
+class Chunk;
 
 struct PhysicsBlockMesh {
 public:
@@ -32,7 +32,7 @@ struct PhysicsBlockMeshMessage {
 class PhysicsBlock {
 public:
     PhysicsBlock(const f64v3& pos, i32 BlockType, i32 ydiff, f32v2& dir, f32v3 extraForce);
-    bool update(const std::deque< std::deque< std::deque<ChunkSlot*> > >& chunkList, f64 X, f64 Y, f64 Z);
+    bool update();
 
     f64v3 position;
     f32v3 velocity;
@@ -48,7 +48,7 @@ public:
     ~PhysicsBlockBatch();
 
     static void draw(PhysicsBlockMesh* pbm, const f64v3& PlayerPos, f32m4& VP);
-    bool update(const std::deque< std::deque< std::deque<ChunkSlot*> > >& chunkList, f64 wX, f64 wY, f64 wZ);
+    bool update();
     void addBlock(const f64v3& pos, i32 ydiff, f32v2& dir, f32v3 extraForce);
 
     std::vector<PhysicsBlock> physicsBlocks;

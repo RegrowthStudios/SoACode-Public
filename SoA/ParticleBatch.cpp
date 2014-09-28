@@ -173,7 +173,6 @@ void ParticleBatch::addParticles(int num, glm::dvec3 pos, ParticleEmitter *emitt
 
 int ParticleBatch::update() {
 
-    const deque < deque < deque < ChunkSlot* > > > &chunkList = GameManager::getChunkList();
     glm::dvec3 chunkListPos(GameManager::chunkManager->cornerPosition);
     glm::quat quaternion;
     glm::dvec3 pos;
@@ -194,7 +193,7 @@ int ParticleBatch::update() {
                 psize = particles[i].size * 0.0875;
             }
 
-            particles[i].update(chunkList, chunkListPos - position);
+            particles[i].update(chunkListPos - position);
 
             vboBVerts[n].pos = particles[i].position;
             vboBVerts[n].light[0] = particles[i].light[0];

@@ -138,9 +138,9 @@ void aabbChunkCollision(Player *player, glm::dvec3 *playerPos, Chunk **chunks, u
         if (!(chunks[i]) || chunks[i]->isAccessible == false) continue; //avoid errors
 
         //find the midpoint so that we can subdivide the chunk into 8 sections
-        x = chunks[i]->position.x + CHUNK_WIDTH / 2;
-        y = chunks[i]->position.y + CHUNK_WIDTH / 2;
-        z = chunks[i]->position.z + CHUNK_WIDTH / 2;
+        x = chunks[i]->gridPosition.x + CHUNK_WIDTH / 2;
+        y = chunks[i]->gridPosition.y + CHUNK_WIDTH / 2;
+        z = chunks[i]->gridPosition.z + CHUNK_WIDTH / 2;
 
         //checks to see if the distance between the players midpoint and the box midpoint is greater than the radius
         //all three axis must be colliding for a collision

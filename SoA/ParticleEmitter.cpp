@@ -12,7 +12,6 @@ ParticleEmitter::ParticleEmitter(glm::dvec3 pos, int typ) : position(pos), type(
 maxSizeE(0), minSizeS(0), maxSizeS(0), spawnTimeS(100), spawnTimeE(100) {}
 
 i32 ParticleEmitter::update() {
-    const deque < deque < deque < ChunkSlot* > > > &chunkList = GameManager::getChunkList();
     const glm::dvec3 chunkListPos(GameManager::chunkManager->cornerPosition);
     GLuint currSpawnTime;
     switch(type) {
@@ -37,18 +36,19 @@ i32 ParticleEmitter::update() {
 
                 Chunk *ch;
 
-                int x = (gx / CHUNK_WIDTH);
-                int y = (gy / CHUNK_WIDTH);
-                int z = (gz / CHUNK_WIDTH);
+                i32v3 pos;
+                pos.x = (gx / CHUNK_WIDTH);
+                pos.y = (gy / CHUNK_WIDTH);
+                pos.z = (gz / CHUNK_WIDTH);
 
-                ch = chunkList[y][z][x]->chunk;
+                ch = GameManager::chunkManager->getChunk(pos);
                 if((!ch) || ch->isAccessible == 0) return 1;
 
-                x = gx % CHUNK_WIDTH;
-                y = gy % CHUNK_WIDTH;
-                z = gz % CHUNK_WIDTH;
+                pos.x = gx % CHUNK_WIDTH;
+                pos.y = gy % CHUNK_WIDTH;
+                pos.z = gz % CHUNK_WIDTH;
 
-                int c = x + y*CHUNK_LAYER + z*CHUNK_WIDTH;
+                int c = pos.x + pos.y*CHUNK_LAYER + pos.z*CHUNK_WIDTH;
                 if(ch->getBlockData(c) != blockType) {
                     return 1;
                 }

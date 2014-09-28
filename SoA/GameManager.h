@@ -3,9 +3,10 @@
 
 #include "WorldStructs.h"
 
-struct ChunkSlot;
+class ChunkSlot;
 class Player;
 class VoxelEditor;
+class Chunk;
 
 enum class GameStates { PLAY, PAUSE, INVENTORY, MAINMENU, ZOOMINGIN, ZOOMINGOUT, WORLDEDITOR, EXIT };
 
@@ -39,7 +40,7 @@ public:
     static void endSession();
 
     //getters
-    static const deque <deque <deque <ChunkSlot *> > >& getChunkList();
+    static const std::unordered_map<i32v3, ChunkSlot*>& getChunkSlotHashMap();
 
     static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;

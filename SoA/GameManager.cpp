@@ -265,9 +265,9 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
             player->currCh = NULL;
             if (player->currCh != NULL) {
                 if (player->currCh->isAccessible) {
-                    int x = player->headPosition.x - player->currCh->position.x;
-                    int y = player->headPosition.y - player->currCh->position.y;
-                    int z = player->headPosition.z - player->currCh->position.z;
+                    int x = player->headPosition.x - player->currCh->gridPosition.x;
+                    int y = player->headPosition.y - player->currCh->gridPosition.y;
+                    int z = player->headPosition.z - player->currCh->gridPosition.z;
                     int c = y * CHUNK_WIDTH * CHUNK_WIDTH + z * CHUNK_WIDTH + x;
                     player->headInBlock = player->currCh->getBlockData(c);
                     player->headVoxelLight = player->currCh->getLampLight(c) - 8;
@@ -421,7 +421,7 @@ void GameManager::endSession() {
 #endif
 }
 
-const deque <deque <deque <ChunkSlot *> > >& GameManager::getChunkList() {
-    return chunkManager->getChunkList();
+const std::unordered_map<i32v3, ChunkSlot*>& GameManager::getChunkSlotHashMap() {
+    return chunkManager->getChunkSlotHashMap();
 }
 

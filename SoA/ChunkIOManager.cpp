@@ -114,7 +114,7 @@ void ChunkIOManager::addToLoadList(vector <Chunk *> &chunks)
             chunksToLoad.push(ch);
         }
         else{
-            cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << ch->position.x << " " << ch->position.y << " " << ch->position.z << endl;
+            cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << ch->gridPosition.x << " " << ch->gridPosition.y << " " << ch->gridPosition.z << endl;
         }
     }
     _queueLock.unlock();

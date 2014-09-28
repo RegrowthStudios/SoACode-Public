@@ -380,7 +380,7 @@ int FloraGenerator::generateTreeNodes(Chunk *chunk, int sc, TreeData &treeData) 
         if (tt->trunkChangeDirChance > 0.0f) {
             float rnd = (rand() % RAND_MAX) / ((float)RAND_MAX);
             if (rnd >= tt->trunkChangeDirChance) {
-                trunkDir = (int)((PseudoRand(ch->position.x - c*c + c, c*c - c * 3 - ch->position.z) + 1.0)*2.0);
+                trunkDir = (int)((PseudoRand(ch->gridPosition.x - c*c + c, c*c - c * 3 - ch->gridPosition.z) + 1.0)*2.0);
                 if (trunkDir == 4) trunkDir = 3;
             }
         }
@@ -474,15 +474,15 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
     int c = td.startc;
     int x = c%CHUNK_WIDTH;
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
-    srand(chunk->position.z*chunk->position.x - x*z - globalTreeSeed);
+    srand(chunk->gridPosition.z*chunk->gridPosition.x - x*z - globalTreeSeed);
 
-    float mod = ((PseudoRand(globalTreeSeed + chunk->position.x*CHUNK_SIZE + z - chunk->position.x, chunk->position.z*chunk->position.z - x*z - globalTreeSeed) + 1.0) / 2.0);
+    float mod = ((PseudoRand(globalTreeSeed + chunk->gridPosition.x*CHUNK_SIZE + z - chunk->gridPosition.x, chunk->gridPosition.z*chunk->gridPosition.z - x*z - globalTreeSeed) + 1.0) / 2.0);
     td.ageMod = mod;
     td.treeHeight = (int)(mod*(tt->trunkHeight.max - tt->trunkHeight.min) + tt->trunkHeight.min);
     td.droopyLength = mod * (tt->droopyLength.max - tt->droopyLength.min) + tt->droopyLength.min;
     td.branchStart = (int)(tt->branchStart*td.treeHeight);
     td.topLeafSize = mod * (tt->leafCapSize.max - tt->leafCapSize.min) + tt->leafCapSize.min;
-    td.trunkDir = (int)((PseudoRand(chunk->position.x + z - x, x*z - z*z + x - chunk->position.z) + 1.0)*2.0);
+    td.trunkDir = (int)((PseudoRand(chunk->gridPosition.x + z - x, x*z - z*z + x - chunk->gridPosition.z) + 1.0)*2.0);
     if (td.trunkDir == 4) td.trunkDir = 3;
     if (tt->isSlopeRandom == 0) {
         td.trunkStartSlope = mod*(tt->trunkStartSlope.max - tt->trunkStartSlope.min) + tt->trunkStartSlope.min;
@@ -548,7 +548,7 @@ int FloraGenerator::makeLeaves(Chunk *chunk, int step, int c, int dir, bool bran
         lnodes.push_back(TreeNode(c, ntype, chunk));
 
         if (step == 0) {
-            if (PseudoRand(chunk->position.x + c - chunk->position.z, chunk->position.z + c) > 0.85) lnodes.pop_back();
+            if (PseudoRand(chunk->gridPosition.x + c - chunk->gridPosition.z, chunk->gridPosition.z + c) > 0.85) lnodes.pop_back();
         }
     }
 
@@ -677,7 +677,7 @@ int FloraGenerator::makeRoundLeaves(Chunk *chunk, int c, int dir, bool branch, b
     }
 
     if ((int)(sqrt((double)(dx*dx + dy*dy + dz*dz))) >= rad) {
-        if (PseudoRand(chunk->position.x + c - chunk->position.z, chunk->position.z + c) > 0.8 && lnodes.size()) lnodes.pop_back();
+        if (PseudoRand(chunk->gridPosition.x + c - chunk->gridPosition.z, chunk->gridPosition.z + c) > 0.8 && lnodes.size()) lnodes.pop_back();
         return 0;
     }
 
@@ -761,7 +761,7 @@ int FloraGenerator::makeMushroomLeaves(Chunk *chunk, int c, int dir, bool branch
     }
 
     if (dist >= rad) {
-        if (PseudoRand(chunk->position.x + c - chunk->position.z, chunk->position.z + c) > 0.8 && lnodes.size()) lnodes.pop_back();
+        if (PseudoRand(chunk->gridPosition.x + c - chunk->gridPosition.z, chunk->gridPosition.z + c) > 0.8 && lnodes.size()) lnodes.pop_back();
         return 0;
     }
 
@@ -1024,7 +1024,7 @@ int FloraGenerator::makeBranch(Chunk *chunk, int step, int initStep, int c, int 
             makeCluster(ch, size, c, woodBlock);
 
 
-            int r = (int)((PseudoRand(ch->position.x*c + c + step, c*c - ch->position.z + step) + 1)*7.5); //between 0 and 14
+            int r = (int)((PseudoRand(ch->gridPosition.x*c + c + step, c*c - ch->gridPosition.z + step) + 1)*7.5); //between 0 and 14
 
             if (r > 8 + isRoot * 2) {
                 branchDir = initDir;

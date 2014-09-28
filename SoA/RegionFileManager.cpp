@@ -873,7 +873,7 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
         jp = tmp;
     }
 
-    int ym = ((int)floor(chunk->position.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
+    int ym = ((int)floor(chunk->gridPosition.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
     int im = ip % REGION_WIDTH;
     int jm = jp % REGION_WIDTH;
 
@@ -899,8 +899,8 @@ nString RegionFileManager::getRegionString(Chunk *ch)
     int jp = (ch->faceData.jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
 
     if (rot % 2){ //when rot%2 i and j must switch
-        return "r." + to_string(ip >> RSHIFT) + "." + to_string((int)floor(ch->position.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(jp >> RSHIFT);
+        return "r." + to_string(ip >> RSHIFT) + "." + to_string((int)floor(ch->gridPosition.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(jp >> RSHIFT);
     } else{
-        return "r." + to_string(jp >> RSHIFT) + "." + to_string((int)floor(ch->position.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(ip >> RSHIFT);
+        return "r." + to_string(jp >> RSHIFT) + "." + to_string((int)floor(ch->gridPosition.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(ip >> RSHIFT);
     }
 }

@@ -17,7 +17,7 @@ ChunkMesh::ChunkMesh(Chunk *ch) : vboID(0),
     distance(30.0f),
     needsSort(true), 
     inFrustum(false), 
-    position(ch->position)
+    position(ch->gridPosition)
 {}
 
 ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), transVertIndex(0), type(MeshJobType::DEFAULT) {

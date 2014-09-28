@@ -33,6 +33,8 @@ struct RenderTask;
 #define LAMP_GREEN_SHIFT 5
 //no blue shift
 
+class ChunkSlot;
+
 class Chunk{
 public:
 
@@ -47,7 +49,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd);
+    void init(const i32v3 &gridPos, int hzI, int hxI, FaceData *fd, ChunkSlot* Owner);
     
     void changeState(ChunkStates State);
     
@@ -76,6 +78,7 @@ public:
 
     void clear(bool clearDraw = 1);
     void clearBuffers();
+    void clearNeighbors();
     
     void CheckEdgeBlocks();
     int GetPlantType(int x, int z, Biome *biome);
@@ -120,7 +123,7 @@ public:
     void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
     
 
-    int neighbors;
+    int numNeighbors;
     bool activeUpdateList[8];
     bool drawWater;
     bool hasLoadedSunlight;
@@ -141,7 +144,8 @@ public:
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
     std::vector <GLushort> spawnerBlocks;
-    glm::ivec3 position;
+    i32v3 gridPosition;  // Position relative to the voxel grid
+    i32v3 chunkPosition; // floor(gridPosition / (float)CHUNK_WIDTH)
     FaceData faceData;
     int hzIndex, hxIndex;
     int worldX, worlxY, worldZ;
@@ -175,7 +179,7 @@ public:
     //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
     static std::mutex modifyLock;
 
-
+    ChunkSlot* owner;
 
 private:
     ChunkStates _state;
@@ -197,21 +201,154 @@ private:
 //INLINE FUNCTION DEFINITIONS
 #include "Chunk.inl"
 
-struct ChunkSlot
+class ChunkSlot
 {
-    void Initialize(const glm::ivec3 &pos, Chunk *ch, int Ipos, int Jpos, FaceData *fD){
-        chunk = ch;
-        position = pos;
-        ipos = Ipos;
-        jpos = Jpos;
-        fd = fD;
+public:
+
+    friend class ChunkManager;
+
+    ChunkSlot(const glm::ivec3 &pos, Chunk *ch, int Ipos, int Jpos, FaceData *fD) :
+        chunk(ch),
+        position(pos),
+        ipos(Ipos),
+        jpos(Jpos),
+        faceData(fD),
+        left(nullptr),
+        right(nullptr),
+        back(nullptr),
+        front(nullptr),
+        bottom(nullptr),
+        top(nullptr),
+        numNeighbors(0){}
+
+    inline void calculateDistance2(const i32v3& cameraPos) {
+        distance2 = getDistance2(position, cameraPos);
+        chunk->distance2 = distance2;
+    }
+
+    void clearNeighbors() {
+        if (left && left->right == this) {
+            left->right = nullptr;
+            left->numNeighbors--;
+        }
+        if (right && right->left == this) {
+            right->left = nullptr;
+            right->numNeighbors--;
+        }
+        if (top && top->bottom == this) {
+            top->bottom = nullptr;
+            top->numNeighbors--;
+        }
+        if (bottom && bottom->top == this) {
+            bottom->top = nullptr;
+            bottom->numNeighbors--;
+        }
+        if (front && front->back == this) {
+            front->back = nullptr;
+            front->numNeighbors--;
+        }
+        if (back && back->front == this) {
+            back->front = nullptr;
+            back->numNeighbors--;
+        }
+        numNeighbors = 0;
+        left = right = top = bottom = back = front = nullptr;
+    }
+
+    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotHashMap) {
+       
+        std::unordered_map<i32v3, ChunkSlot*>::iterator it;
+
+        i32v3 chPos;
+        chPos.x = fastFloor(position.x / (float)CHUNK_WIDTH);
+        chPos.y = fastFloor(position.y / (float)CHUNK_WIDTH);
+        chPos.z = fastFloor(position.z / (float)CHUNK_WIDTH);
+
+        //left
+        if (!left) {
+            it = chunkSlotHashMap.find(chPos + i32v3(-1, 0, 0));
+            if (it != chunkSlotHashMap.end()) {
+                left = it->second;
+                left->right = this;
+                numNeighbors++;
+                left->right->numNeighbors++;
+            }
+        }
+        //right
+        if (!right) {
+            it = chunkSlotHashMap.find(chPos + i32v3(1, 0, 0));
+            if (it != chunkSlotHashMap.end()) {
+                right = it->second;
+                right->left = this;
+                numNeighbors++;
+                right->left->numNeighbors++;
+            }
+        }
+
+        //back
+        if (!back) {
+            it = chunkSlotHashMap.find(chPos + i32v3(0, 0, -1));
+            if (it != chunkSlotHashMap.end()) {
+                back = it->second;
+                back->front = this;
+                numNeighbors++;
+                back->front->numNeighbors++;
+            }
+        }
+
+        //front
+        if (!front) {
+            it = chunkSlotHashMap.find(chPos + i32v3(0, 0, 1));
+            if (it != chunkSlotHashMap.end()) {
+                front = it->second;
+                front->back = this;
+                numNeighbors++;
+                front->back->numNeighbors++;
+            }
+        }
+
+        //bottom
+        if (!bottom) {
+            it = chunkSlotHashMap.find(chPos + i32v3(0, -1, 0));
+            if (it != chunkSlotHashMap.end()) {
+                bottom = it->second;
+                bottom->top = this;
+                numNeighbors++;
+                bottom->top->numNeighbors++;
+            }
+        }
+
+        //top
+        if (!top) {
+            it = chunkSlotHashMap.find(chPos + i32v3(0, 1, 0));
+            if (it != chunkSlotHashMap.end()) {
+                top = it->second;
+                top->bottom = this;
+                numNeighbors++;
+                top->bottom->numNeighbors++;
+            }
+        }
     }
 
     Chunk *chunk;
     glm::ivec3 position;
 
+    int numNeighbors;
+    ChunkSlot* left, *right, *back, *front, *top, *bottom;
+
     //squared distance
     double distance2;
     int ipos, jpos;
-    FaceData *fd;
+    FaceData *faceData;
+private:
+    static double getDistance2(const i32v3& pos, const i32v3& cameraPos) {
+        double dx = (cameraPos.x <= pos.x) ? pos.x : ((cameraPos.x > pos.x + CHUNK_WIDTH) ? (pos.x + CHUNK_WIDTH) : cameraPos.x);
+        double dy = (cameraPos.y <= pos.y) ? pos.y : ((cameraPos.y > pos.y + CHUNK_WIDTH) ? (pos.y + CHUNK_WIDTH) : cameraPos.y);
+        double dz = (cameraPos.z <= pos.z) ? pos.z : ((cameraPos.z > pos.z + CHUNK_WIDTH) ? (pos.z + CHUNK_WIDTH) : cameraPos.z);
+        dx = dx - cameraPos.x;
+        dy = dy - cameraPos.y;
+        dz = dz - cameraPos.z;
+        //we dont sqrt the distance since sqrt is slow
+        return dx*dx + dy*dy + dz*dz;
+    }
 };

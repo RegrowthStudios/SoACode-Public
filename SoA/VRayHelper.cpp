@@ -9,7 +9,6 @@
 
 const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, ChunkManager* cm, PredBlockID f) {
     // First Convert To Voxel Coordinates
-    const deque< deque< deque<ChunkSlot*> > >& chunkList = cm->getChunkList();
     f64v3 relativePosition = pos - f64v3(cm->cornerPosition);
     VoxelRay vr(f32v3(relativePosition), dir);
 
@@ -27,8 +26,9 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, Chu
         if (!cm->isChunkPositionInBounds(chunkPos))
             return query;
 
-        query.chunk = chunkList[chunkPos.y][chunkPos.z][chunkPos.x]->chunk;
-        if (query.chunk) {
+        query.chunk = cm->getChunk(chunkPos);
+      
+        if (query.chunk && query.chunk->isAccessible) {
             // Calculate Voxel Index
             query.voxelIndex =
                 query.location.x % CHUNK_WIDTH +
@@ -41,7 +41,7 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, Chu
             // Check For The Block ID
             if (f(query.id)) return query;
         }
-
+        
         // Traverse To The Next
         query.location = vr.getNextVoxelPosition();
         query.distance = vr.getDistanceTraversed();
@@ -50,7 +50,6 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, Chu
 }
 const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, ChunkManager* cm, PredBlockID f) {
     // First Convert To Voxel Coordinates
-    const deque< deque< deque<ChunkSlot*> > >& chunkList = cm->getChunkList();
     f64v3 relativePosition = pos - f64v3(cm->cornerPosition);
     VoxelRay vr(f32v3(relativePosition), dir);
 
@@ -70,8 +69,9 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
         if (!cm->isChunkPositionInBounds(chunkPos))
             return query;
 
-        query.inner.chunk = chunkList[chunkPos.y][chunkPos.z][chunkPos.x]->chunk;
-        if (query.inner.chunk) {
+        query.inner.chunk = cm->getChunk(chunkPos);
+       
+        if (query.inner.chunk && query.inner.chunk->isAccessible) {
             // Calculate Voxel Index
             query.inner.voxelIndex =
                 query.inner.location.x % CHUNK_WIDTH +
@@ -87,7 +87,7 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
             // Refresh Previous Query
             query.outer = query.inner;
         }
-
+       
         // Traverse To The Next
         query.inner.location = vr.getNextVoxelPosition();
         query.inner.distance = vr.getDistanceTraversed();

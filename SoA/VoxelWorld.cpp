@@ -52,7 +52,7 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, FaceData *faceData, Planet *
 
 void VoxelWorld::beginSession(const glm::dvec3 &gridPosition)
 {
-    _chunkManager->InitializeChunks();
+    _chunkManager->initializeChunks();
     _chunkManager->loadAllChunks(2, gridPosition);
 }
 

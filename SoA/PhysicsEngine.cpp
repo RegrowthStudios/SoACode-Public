@@ -55,14 +55,8 @@ void PhysicsEngine::update(const glm::dvec3 &viewDir) {
     performExplosions();
     detectFloatingBlocks(viewDir);
 
-    int X = GameManager::chunkManager->cornerPosition.x;
-    int Y = GameManager::chunkManager->cornerPosition.y;
-    int Z = GameManager::chunkManager->cornerPosition.z;
-
-    const deque <deque < deque<ChunkSlot *> > > &chunkList = GameManager::getChunkList();
-
     for (Uint32 i = 0; i < _activePhysicsBlockBatches.size();){
-        if (_activePhysicsBlockBatches[i]->update(chunkList, (double)X, (double)Y, (double)Z)){
+        if (_activePhysicsBlockBatches[i]->update()){
             _physicsBlockBatches[_activePhysicsBlockBatches[i]->blockType] = NULL;
             delete _activePhysicsBlockBatches[i];
             _activePhysicsBlockBatches[i] = _activePhysicsBlockBatches.back();
@@ -170,7 +164,7 @@ void PhysicsEngine::pressureUpdate(PressureNode &pn)
 
     _visitedNodes.push_back(VisitedNode(ch, c));
 
-    glm::dvec3 worldSpaceCoords(ch->position * CHUNK_WIDTH + glm::ivec3(x, y, z));
+    glm::dvec3 worldSpaceCoords(ch->gridPosition * CHUNK_WIDTH + glm::ivec3(x, y, z));
 
     double distance = glm::length(worldSpaceCoords - explosionInfo->pos) - 30;
 
@@ -413,44 +407,44 @@ void PhysicsEngine::pressureUpdate(PressureNode &pn)
 
 void PhysicsEngine::explosionRay(const glm::dvec3 &pos, float force, float powerLoss, const glm::vec3 &dir) {
 
-    const deque< deque< deque<ChunkSlot*> > >& chunkList = GameManager::chunkManager->getChunkList();
-    f32v3 relativePos = f32v3(pos - f64v3(GameManager::chunkManager->cornerPosition));
-    VoxelRay vr(relativePos, dir);
-    i32v3 loc = vr.getNextVoxelPosition();
-    i32v3 chunkPos = loc / CHUNK_WIDTH;
-    f32v3 rayToBlock;
+    //const deque< deque< deque<ChunkSlot*> > >& chunkList = GameManager::chunkManager->getChunkList();
+    //f32v3 relativePos = f32v3(pos - f64v3(GameManager::chunkManager->cornerPosition));
+    //VoxelRay vr(relativePos, dir);
+    //i32v3 loc = vr.getNextVoxelPosition();
+    //i32v3 chunkPos = loc / CHUNK_WIDTH;
+    //f32v3 rayToBlock;
 
-    const float maxDistance = 10;
+    //const float maxDistance = 10;
 
-    // Loop Traversal
-    while (vr.getDistanceTraversed() < maxDistance) {
-        // Make Sure Ray Stays In Bounds
-        if (!GameManager::chunkManager->isChunkPositionInBounds(chunkPos)) return;
+    //// Loop Traversal
+    //while (vr.getDistanceTraversed() < maxDistance) {
+    //    // Make Sure Ray Stays In Bounds
+    //    if (!GameManager::chunkManager->isChunkPositionInBounds(chunkPos)) return;
 
-        Chunk* currentChunk = chunkList[chunkPos.y][chunkPos.z][chunkPos.x]->chunk;
-        if (currentChunk) {
-            // Calculate Voxel Index
-            i32 voxelIndex = loc.x % CHUNK_WIDTH + (loc.y % CHUNK_WIDTH) * CHUNK_LAYER + (loc.z % CHUNK_WIDTH) * CHUNK_WIDTH;
+    //    Chunk* currentChunk = chunkList[chunkPos.y][chunkPos.z][chunkPos.x]->chunk;
+    //    if (currentChunk) {
+    //        // Calculate Voxel Index
+    //        i32 voxelIndex = loc.x % CHUNK_WIDTH + (loc.y % CHUNK_WIDTH) * CHUNK_LAYER + (loc.z % CHUNK_WIDTH) * CHUNK_WIDTH;
 
-            // Get Block ID
-            i32 blockID = currentChunk->getBlockID(voxelIndex);
+    //        // Get Block ID
+    //        i32 blockID = currentChunk->getBlockID(voxelIndex);
 
-            // Check For The Block ID
-            if (blockID && (blockID < LOWWATER)) {
-                force -= Blocks[blockID].explosionResistance;
+    //        // Check For The Block ID
+    //        if (blockID && (blockID < LOWWATER)) {
+    //            force -= Blocks[blockID].explosionResistance;
 
-                rayToBlock = dir * vr.getDistanceTraversed();
-                ChunkUpdater::removeBlock(currentChunk, voxelIndex, 1, 0.4*force, rayToBlock);
-                if (Blocks[blockID].explosivePower){
-                    _deferredExplosions.push(ExplosionNode(pos + f64v3(rayToBlock), blockID));
-                }
-            }
+    //            rayToBlock = dir * vr.getDistanceTraversed();
+    //            ChunkUpdater::removeBlock(currentChunk, voxelIndex, 1, 0.4*force, rayToBlock);
+    //            if (Blocks[blockID].explosivePower){
+    //                _deferredExplosions.push(ExplosionNode(pos + f64v3(rayToBlock), blockID));
+    //            }
+    //        }
 
-        }
-        // Traverse To The Next
-        loc = vr.getNextVoxelPosition();
-        chunkPos = loc / CHUNK_WIDTH;
-    }
+    //    }
+    //    // Traverse To The Next
+    //    loc = vr.getNextVoxelPosition();
+    //    chunkPos = loc / CHUNK_WIDTH;
+    //}
 }
 
 void PhysicsEngine::performExplosions()
@@ -502,7 +496,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
     glm::dvec3 explosionLoc((double)fallNode->explosionDir[0], (double)fallNode->explosionDir[1], (double)fallNode->explosionDir[2]);
     if (explosionDist != 0){
         searchLength /= 5;
-        explosionLoc = explosionLoc + glm::dvec3(ch->position * CHUNK_WIDTH) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH);
+        explosionLoc = explosionLoc + glm::dvec3(ch->gridPosition * CHUNK_WIDTH) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH);
     }
 
     Chunk *sch = ch;
@@ -514,7 +508,7 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
     int c2;
     int startY, btype;
     int floatingAction, nSinceWood, btypeMasked;
-    startY = ch->position.y + c / CHUNK_LAYER;
+    startY = ch->gridPosition.y + c / CHUNK_LAYER;
     bool isLeaf, fall;
     GLubyte support;
     bool toDo[6] = { 1, 1, 1, 1, 1, 1 }; //left right front back bottom
@@ -713,16 +707,16 @@ void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const
                 }
 
                 if (explosionDist != 0){
-                    explosionDir = glm::vec3((glm::dvec3(ch->position) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH)) - explosionLoc);
+                    explosionDir = glm::vec3((glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH)) - explosionLoc);
                 }
 
                 int y = c / CHUNK_LAYER;
                 int xz = c - y*CHUNK_LAYER;
-                int ydiff = startY - (ch->position.y + c / CHUNK_LAYER);
+                int ydiff = startY - (ch->gridPosition.y + c / CHUNK_LAYER);
                 if (ydiff > 0) ydiff = 0;
 
                 //TODO: BAD! Make this a script
-                if (blockType != FIRE) addPhysicsBlock(glm::dvec3(ch->position) + glm::dvec3(c%CHUNK_WIDTH + 0.5, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _fnodes[i].blockType, ydiff, right, explosionDir, ch->getTemperature(xz), ch->getRainfall(xz));
+                if (blockType != FIRE) addPhysicsBlock(glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH + 0.5, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _fnodes[i].blockType, ydiff, right, explosionDir, ch->getTemperature(xz), ch->getRainfall(xz));
 
                 ch->setBlockData(c, blockType); //so that removeBlock functions correctly
                 ChunkUpdater::removeBlock(ch, c, false);

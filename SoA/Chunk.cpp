@@ -34,7 +34,7 @@ std::mutex Chunk::modifyLock;
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
+void Chunk::init(const i32v3 &gridPos, int hzI, int hxI, FaceData *fd, ChunkSlot* Owner){
 
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
@@ -58,7 +58,10 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	faceData = *fd;
 	hxIndex = hxI;
 	hzIndex = hzI;
-    position = pos;
+    gridPosition = gridPos;
+    chunkPosition.x = fastFloor(gridPosition.x / (float)CHUNK_WIDTH);
+    chunkPosition.y = fastFloor(gridPosition.y / (float)CHUNK_WIDTH);
+    chunkPosition.z = fastFloor(gridPosition.z / (float)CHUNK_WIDTH);
 	drawIndex = -1;
 	numBlocks = -1;
 	_state = ChunkStates::LOAD;
@@ -68,7 +71,7 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	top = NULL;
 	bottom = NULL;
 	front = NULL;
-	neighbors = 0;
+	numNeighbors = 0;
 	distance2 = 999999.0;
 	treesToLoad.clear();
 	blockUpdateIndex = 0;
@@ -83,7 +86,7 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	spawnerBlocks.clear();
 	drawWater = 0;
 	occlude = 0;
-
+    owner = Owner;
 }
 
 vector <Chunk*> *dbgst;
@@ -144,12 +147,41 @@ void Chunk::clearBuffers()
 	}
 }
 
+void Chunk::clearNeighbors() {
+    if (left && left->right == this) {
+        left->right = nullptr;
+        left->numNeighbors--;
+    }
+    if (right && right->left == this) {
+        right->left = nullptr;
+        right->numNeighbors--;
+    }
+    if (top && top->bottom == this) {
+        top->bottom = nullptr;
+        top->numNeighbors--;
+    }
+    if (bottom && bottom->top == this) {
+        bottom->top = nullptr;
+        bottom->numNeighbors--;
+    }
+    if (front && front->back == this) {
+        front->back = nullptr;
+        front->numNeighbors--;
+    }
+    if (back && back->front == this) {
+        back->front = nullptr;
+        back->numNeighbors--;
+    }
+    numNeighbors = 0;
+    left = right = top = bottom = back = front = nullptr;
+}
+
 int Chunk::GetPlantType(int x, int z, Biome *biome)
 {
     double typer;
     NoiseInfo *nf;
     for (Uint32 i = 0; i < biome->possibleFlora.size(); i++){
-        typer = PseudoRand(x + i*(z + 555) + position.x, z - i*(x + 666) + position.z) + 1.0;
+        typer = PseudoRand(x + i*(z + 555) + gridPosition.x, z - i*(x + 666) + gridPosition.z) + 1.0;
         nf = GameManager::planet->floraNoiseFunctions[biome->possibleFlora[i].floraIndex];
         if (nf != NULL){
             if (typer < (biome->possibleFlora[i].probability*scaled_octave_noise_2d(nf->octaves, nf->persistence, nf->frequency, nf->lowBound, nf->upBound, x + i * 6666, z - i * 5555))){

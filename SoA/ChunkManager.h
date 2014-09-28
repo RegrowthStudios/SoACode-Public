@@ -40,7 +40,7 @@ public:
     i32 numAwaitingReuse;
 };
 
-struct ChunkSlot;
+class ChunkSlot;
 
 class ChunkManager {
 public:
@@ -68,14 +68,15 @@ public:
     void uploadFinishedMeshes();
     void clearChunkData();
     i32 getPositionHeightData(i32 posX, i32 posZ, HeightData& hd);
-    Chunk* getChunk(f64v3& position);
+    Chunk* getChunk(const f64v3& position);
+    Chunk* getChunk(const i32v3& worldPos);
+    const Chunk* getChunk(const i32v3& worldPos) const;
 
     void initializeHeightMap();
-    void InitializeChunks();
+    void initializeChunks();
     void clearAllChunks(bool clearDrawing);
     void clearAll();
     void loadAllChunks(i32 loadType, const f64v3& position);
-    inline void updateChunks(const f64v3& position);
     void saveAllChunks();
     void recursiveSortChunks(std::vector<Chunk*>& v, i32 start, i32 size, i32 type);
 
@@ -84,11 +85,11 @@ public:
     void getBlockAndChunk(const i32v3& relativePosition, Chunk** chunk, int& blockIndex) const;
 
     //getters
-    const std::deque< std::deque< std::deque<ChunkSlot*> > >& getChunkList() const {
-        return _chunkList;
+    const std::unordered_map<i32v3, ChunkSlot*>& getChunkSlotHashMap() const {
+        return _chunkSlotHashMap;
     }
-    const ChunkSlot* getAllChunkSlots() const {
-        return _allChunkSlots;
+    const vector<ChunkSlot>* getChunkSlots() const {
+        return _chunkSlots;
     }
     const ChunkDiagnostics& getChunkDiagnostics() const {
         return _chunkDiagnostics;
@@ -144,14 +145,18 @@ private:
     Chunk* produceChunk();
     void deleteAllChunks();
 
+    void updateChunks(const f64v3& position);
+    void updateChunkslotNeighbors(ChunkSlot* cs, const i32v3& cameraPos);
+    ChunkSlot* tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& cameraPos, const i32v3& offset);
+
     //used to reference the current world face of the player
     FaceData* _playerFace;
 
     ui32 _maxChunkTicks;
 
-    ChunkSlot* _allChunkSlots;
+    std::vector<ChunkSlot> _chunkSlots[6]; //one per LOD
     std::vector<Chunk*> _threadWaitingChunks;
-    std::deque< std::deque< std::deque<ChunkSlot*> > > _chunkList; //3d deque for ChunkSlots
+    std::unordered_map<i32v3, ChunkSlot*> _chunkSlotHashMap;
 
     std::vector<Chunk*> _freeList;
     std::vector<Chunk*> _setupList;

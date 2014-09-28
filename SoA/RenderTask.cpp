@@ -7,6 +7,6 @@ void RenderTask::setChunk(Chunk* ch, MeshJobType cType) {
     type = cType;
     chunk = ch;
     num = ch->numBlocks;
-    position = ch->position;
+    position = ch->gridPosition;
     wSize = 0;
 }

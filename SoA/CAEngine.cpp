@@ -37,34 +37,34 @@ void CAEngine::update(const ChunkManager &chunkManager) {
         waterCounter = 0;
     }
 
-    const ChunkSlot *allChunkSlots = chunkManager.getAllChunkSlots();
+    //const ChunkSlot *allChunkSlots = chunkManager.getAllChunkSlots();
 
-    Chunk* chunk;
-    if (updateWater && updatePowders) {
-        for (int i = 0; i < chunkManager.csGridSize; i++){
-            _chunk = allChunkSlots[i].chunk;
-            if (_chunk){
-                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-                updateLiquidBlocks();
-                updatePowderBlocks();
-            }
-        }
-    } else if (updateWater) {
-        for (int i = 0; i < chunkManager.csGridSize; i++){
-            _chunk = allChunkSlots[i].chunk;
-            if (_chunk){
-                updateLiquidBlocks();
-            }
-        }
-    } else if (updatePowders) {
-        for (int i = 0; i < chunkManager.csGridSize; i++){
-            _chunk = allChunkSlots[i].chunk;
-            if (_chunk){
-                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-                updatePowderBlocks();
-            }
-        }
-    }
+    //Chunk* chunk;
+    //if (updateWater && updatePowders) {
+    //    for (int i = 0; i < chunkManager.csGridSize; i++){
+    //        _chunk = allChunkSlots[i].chunk;
+    //        if (_chunk){
+    //            updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
+    //            updateLiquidBlocks();
+    //            updatePowderBlocks();
+    //        }
+    //    }
+    //} else if (updateWater) {
+    //    for (int i = 0; i < chunkManager.csGridSize; i++){
+    //        _chunk = allChunkSlots[i].chunk;
+    //        if (_chunk){
+    //            updateLiquidBlocks();
+    //        }
+    //    }
+    //} else if (updatePowders) {
+    //    for (int i = 0; i < chunkManager.csGridSize; i++){
+    //        _chunk = allChunkSlots[i].chunk;
+    //        if (_chunk){
+    //            updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
+    //            updatePowderBlocks();
+    //        }
+    //    }
+    //}
 
     frameCounter++;
     powderCounter++;
@@ -102,7 +102,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                         ChunkUpdater::placeBlock(_chunk, c, spawnerVal);
                         ChunkUpdater::addBlockToUpdateList(_chunk, c);
                     } else if (powders){
-                        physicsBlockPos = glm::dvec3((double)_chunk->position.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->position.y + c / CHUNK_LAYER, (double)_chunk->position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
+                        physicsBlockPos = glm::dvec3((double)_chunk->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->gridPosition.y + c / CHUNK_LAYER, (double)_chunk->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
                         GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 } else if (bottom && bottom->isAccessible){
@@ -111,7 +111,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                         ChunkUpdater::placeBlock(bottom, c, spawnerVal);
                         ChunkUpdater::addBlockToUpdateList(bottom, c);
                     } else if (powders){
-                        physicsBlockPos = glm::dvec3((double)bottom->position.x + c%CHUNK_WIDTH + 0.5, (double)bottom->position.y + c / CHUNK_LAYER, (double)bottom->position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
+                        physicsBlockPos = glm::dvec3((double)bottom->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)bottom->gridPosition.y + c / CHUNK_LAYER, (double)bottom->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
                         GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 }
@@ -239,7 +239,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
 
     bool hasChanged = false;
     bool inFrustum = (!_chunk->mesh || _chunk->mesh->inFrustum);
-    const i32v3 &position = _chunk->position;
+    const i32v3 &position = _chunk->gridPosition;
 
     // Get the block index and owner for the bottom chunk
     if (pos.y > 0){
@@ -527,7 +527,7 @@ void CAEngine::powderPhysics(int c)
     int z = (c % CHUNK_LAYER) / CHUNK_WIDTH;
     int xz;
 
-    const glm::ivec3 &position = _chunk->position;
+    const glm::ivec3 &position = _chunk->gridPosition;
 
     GLushort tmp1;
     int b, c2, c3;
@@ -641,7 +641,7 @@ void CAEngine::snowPhysics(int c)
     int r;
     bool isSnow = 0; // (blockType == SNOW);
 
-    const glm::ivec3 &position = _chunk->position;
+    const glm::ivec3 &position = _chunk->gridPosition;
 
     //bottom
     if (GETBLOCK(b = _chunk->getBottomBlockData(c, y, &c2, &owner)).isSupportive == 0){
