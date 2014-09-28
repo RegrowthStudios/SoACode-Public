@@ -438,6 +438,12 @@ void VoxelLightEngine::removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 lig
 
 inline void placeLampNeighborUpdate(Chunk* chunk, int blockIndex, ui16 intensityRed, ui16 intensityGreen, ui16 intensityBlue) {
     ui16 currentLight = chunk->getLampLight(blockIndex);
+    const Block& block = chunk->getBlock(blockIndex);
+
+    intensityRed = (ui16)((intensityRed >> LAMP_RED_SHIFT) * block.colorFilter.r) << LAMP_RED_SHIFT;
+    intensityGreen = (ui16)((intensityGreen >> LAMP_GREEN_SHIFT) * block.colorFilter.g) << LAMP_GREEN_SHIFT;
+    intensityBlue = (ui16)(intensityBlue * block.colorFilter.b);
+
     ui16 nextLight = getMaxLampColors(intensityRed, intensityGreen, intensityBlue, currentLight);
     if (nextLight != currentLight){
         if (chunk->getBlock(blockIndex).allowLight){
@@ -479,7 +485,7 @@ void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 inte
         chunk->setLampLight(blockIndex, intensity);
     }
 
-    if (currentRed <= RED1 && currentGreen <= GREEN1 && intensityBlue <= BLUE1) return;
+    if (intensityRed <= RED1 && intensityGreen <= GREEN1 && intensityBlue <= BLUE1) return;
     //Reduce by 1
     if (intensityRed != 0) {
         intensityRed -= RED1;
@@ -499,6 +505,7 @@ void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 inte
     int x = blockIndex % CHUNK_WIDTH;
     int y = blockIndex / CHUNK_LAYER;
     int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
+    cout << x << " " << y << " " << z << endl;
 
     Chunk* left = chunk->left;
     Chunk* right = chunk->right;
