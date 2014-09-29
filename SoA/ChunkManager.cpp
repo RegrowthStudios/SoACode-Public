@@ -755,7 +755,7 @@ void ChunkManager::uploadFinishedMeshes() {
                 }
                 break;
             case MeshJobType::LIQUID:
-                if (cmd->waterVertices.empty() && chunk->mesh->vboID == 0 && chunk->mesh->cutoutVboID == 0 && chunk->mesh->transVboID == 0) {
+                if (cmd->waterVertices.empty() && (chunk->mesh == nullptr || (chunk->mesh->vboID == 0 && chunk->mesh->cutoutVboID == 0 && chunk->mesh->transVboID == 0))) {
                     chunk->mesh = nullptr;
                 } else if (chunk->mesh == nullptr) {
                     chunk->mesh = new ChunkMesh(chunk);
