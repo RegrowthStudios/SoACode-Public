@@ -12,18 +12,18 @@
 #define SHIFT_ONE_BYTE 8
 #define SHIFT_TWO_BYTES SHIFT_ONE_BYTE * 2
 #define SHIFT_THREE_BYTES SHIFT_ONE_BYTE * 3
-#define BYTE01 0xff000000
-#define BYTE02 0x00ff0000
-#define BYTE03 0x0000ff00
-#define BYTE04 0x000000ff
+#define BYTE04 0xff000000
+#define BYTE03 0x00ff0000
+#define BYTE02 0x0000ff00
+#define BYTE01 0x000000ff
 
 // Endianness Change
 inline ui32 changeEndian(ui32 val) {
     // TODO: Use Assembly
-    return (((val << SHIFT_THREE_BYTES) & BYTE01) |
-            ((val << SHIFT_ONE_BYTE) & BYTE02) |
-            ((val >> SHIFT_ONE_BYTE) & BYTE03) |
-            ((val >> SHIFT_THREE_BYTES) & BYTE04));
+    return (((val << SHIFT_THREE_BYTES) & BYTE04) |
+            ((val << SHIFT_ONE_BYTE) & BYTE03) |
+            ((val >> SHIFT_ONE_BYTE) & BYTE02) |
+            ((val >> SHIFT_THREE_BYTES) & BYTE01));
 }
 
 #define RADIX_MAX_MASK_BITS 8
@@ -352,28 +352,28 @@ namespace BufferUtils {
 
     inline i32 setInt(ui8* a, ui32 i, ui32 data) {
         a[i] = (ui8)(data >> SHIFT_THREE_BYTES);
-        a[i + 1] = (ui8)((data & BYTE02) >> SHIFT_TWO_BYTES);
-        a[i + 2] = (ui8)((data & BYTE03) >> SHIFT_ONE_BYTE);
-        a[i + 3] = (ui8)(data & BYTE04);
+        a[i + 1] = (ui8)((data & BYTE03) >> SHIFT_TWO_BYTES);
+        a[i + 2] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[i + 3] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
 
     inline i32 setInt(ui8* a, ui32 data) {
         a[0] = (ui8)(data >> SHIFT_THREE_BYTES);
-        a[1] = (ui8)((data & BYTE02) >> SHIFT_TWO_BYTES);
-        a[2] = (ui8)((data & BYTE03) >> SHIFT_ONE_BYTE);
-        a[3] = (ui8)(data & BYTE04);
+        a[1] = (ui8)((data & BYTE03) >> SHIFT_TWO_BYTES);
+        a[2] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[3] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
 
     inline i32 setShort(ui8* a, ui32 i, ui32 data) {
-        a[i] = (ui8)((data & BYTE03) >> SHIFT_ONE_BYTE);
-        a[i + 1] = (ui8)(data & BYTE04);
+        a[i] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[i + 1] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
     inline i32 setShort(ui8* a, ui32 data) {
-        a[0] = (ui8)((data & BYTE03) >> SHIFT_ONE_BYTE);
-        a[1] = (ui8)(data & BYTE04);
+        a[0] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[1] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
 
