@@ -20,6 +20,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
         -std=c++11
         -std=c++0x
         # Other flags
+        ${warnings}
     )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /EHsc")
@@ -84,10 +85,7 @@ file(GLOB engine_files
 )
 
 set(skip_these_for_now
-  BlockData.cpp
-  Keg.cpp
-  OpenglManager.cpp
-  )
+)
 
 foreach(eng_file in ${skip_these_for_now})
   list(REMOVE_ITEM engine_files ${CMAKE_CURRENT_SOURCE_DIR}/${eng_file})

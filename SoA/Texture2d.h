@@ -1,6 +1,6 @@
 #pragma once
+#include "stdafx.h"
 #include <SDL/SDL.h>
-#include <Windows.h>
 
 #include "Constants.h"
 #include "ImageLoading.h"
