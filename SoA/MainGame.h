@@ -53,9 +53,11 @@ public:
     SDL_GLContext getGLContext() const {
         return _glc;
     }
+    #if defined(WIN32) || defined(WIN64)
     HGLRC getGLRHandle() const {
         return _hndGLRC;
     }
+    #endif
     FrameBuffer* getFrameBuffer() const {
         return _frameBuffer;
     }
@@ -86,7 +88,9 @@ protected:
 
     SDL_Window* _window;
     SDL_GLContext _glc;
+    #if defined(WIN32) || defined(WIN64)
     HGLRC _hndGLRC;
+    #endif
     FrameBuffer* _frameBuffer;
 
     ui32 _lastMS;
