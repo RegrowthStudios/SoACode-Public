@@ -40,7 +40,7 @@ public:
     static void endSession();
 
     //getters
-    static const std::unordered_map<i32v3, ChunkSlot*>& getChunkSlotHashMap();
+    static const std::unordered_map<i32v3, int>& getChunkSlotIndexMap();
 
     static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;

@@ -85,8 +85,8 @@ public:
     void getBlockAndChunk(const i32v3& relativePosition, Chunk** chunk, int& blockIndex) const;
 
     //getters
-    const std::unordered_map<i32v3, ChunkSlot*>& getChunkSlotHashMap() const {
-        return _chunkSlotHashMap;
+    const std::unordered_map<i32v3, int>& getChunkSlotIndexMap() const {
+        return _chunkSlotIndexMap;
     }
     const vector<ChunkSlot>* getChunkSlots() const {
         return _chunkSlots;
@@ -156,7 +156,7 @@ private:
 
     std::vector<ChunkSlot> _chunkSlots[6]; //one per LOD
     std::vector<Chunk*> _threadWaitingChunks;
-    std::unordered_map<i32v3, ChunkSlot*> _chunkSlotHashMap;
+    std::unordered_map<i32v3, int> _chunkSlotIndexMap;
 
     std::vector<Chunk*> _freeList;
     std::vector<Chunk*> _setupList;

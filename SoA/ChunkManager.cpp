@@ -130,7 +130,7 @@ void ChunkManager::initializeGrid(const f64v3& gpos, ui32 flags) {
     csGridWidth = 1 + (graphicsOptions.voxelRenderDistance / 32) * 2;
     cout << "GRID WIDTH: " << csGridWidth << endl;
     csGridSize = csGridWidth * csGridWidth * csGridWidth;
-    _chunkSlotHashMap.reserve(csGridSize);
+    _chunkSlotIndexMap.reserve(csGridSize);
 
     _hz = 0;
     _hx = 0;
@@ -289,9 +289,10 @@ void ChunkManager::initializeChunks() {
     chunk->init(_chunkSlots[0][0].position, _chunkSlots[0][0].ipos, _chunkSlots[0][0].jpos, _chunkSlots[0][0].faceData, &_chunkSlots[0][0]);
     chunk->distance2 = _chunkSlots[0][0].distance2;
     _chunkSlots[0][0].chunk = chunk;
+    _chunkSlots[0][0].vecIndex = 0;
     addToLoadList(chunk);
 
-    _chunkSlotHashMap[chunk->chunkPosition] = &_chunkSlots[0][0];
+    _chunkSlotIndexMap[chunk->chunkPosition] = 0;
 }
 
 void ChunkManager::clearAllChunks(bool clearDrawing) {
@@ -641,7 +642,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     }
     globalMultiplePreciseTimer.start("Finished Meshes");
     uploadFinishedMeshes();
-    //change the parameter to true to print out the timings
+    //change the parameter to true to print out the timingsm
     globalMultiplePreciseTimer.end(true);
 }
 
@@ -984,59 +985,72 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     chPos.z = fastFloor(chunk->gridPosition.z / (float)CHUNK_WIDTH);
     ChunkSlot* neighborSlot;
     ChunkSlot* owner = chunk->owner;
+    vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
     //left
-    neighborSlot = owner->left;
-    if (!(chunk->left) && neighborSlot && neighborSlot->chunk->isAccessible) {
-        chunk->left = neighborSlot->chunk;
-        chunk->numNeighbors++;
-        chunk->left->right = chunk;
-        chunk->left->numNeighbors++;
+    if (owner->left != -1) {
+        neighborSlot = &chunkSlots[owner->left];
+        if (!(chunk->left) && neighborSlot->chunk->isAccessible) {
+            chunk->left = neighborSlot->chunk;
+            chunk->numNeighbors++;
+            chunk->left->right = chunk;
+            chunk->left->numNeighbors++;
+        }
     }
     
     //right
-    neighborSlot = owner->right;
-    if (!(chunk->right) && neighborSlot && neighborSlot->chunk->isAccessible) {
-        chunk->right = neighborSlot->chunk;
-        chunk->numNeighbors++;
-        chunk->right->left = chunk;
-        chunk->right->numNeighbors++;
+    if (owner->right != -1) {
+        neighborSlot = &chunkSlots[owner->right];
+        if (!(chunk->right) && neighborSlot->chunk->isAccessible) {
+            chunk->right = neighborSlot->chunk;
+            chunk->numNeighbors++;
+            chunk->right->left = chunk;
+            chunk->right->numNeighbors++;
+        }
     }
     
     //back
-    neighborSlot = owner->back;
-    if (!(chunk->back) && neighborSlot && neighborSlot->chunk->isAccessible) {
-        chunk->back = neighborSlot->chunk;
-        chunk->numNeighbors++;
-        chunk->back->front = chunk;
-        chunk->back->numNeighbors++;
+    if (owner->back != -1) {
+        neighborSlot = &chunkSlots[owner->back];
+        if (!(chunk->back) && neighborSlot->chunk->isAccessible) {
+            chunk->back = neighborSlot->chunk;
+            chunk->numNeighbors++;
+            chunk->back->front = chunk;
+            chunk->back->numNeighbors++;
+        }
     }
     
     //front
-    neighborSlot = owner->front;
-    if (!(chunk->front) && neighborSlot && neighborSlot->chunk->isAccessible) {
-        chunk->front = neighborSlot->chunk;
-        chunk->numNeighbors++;
-        chunk->front->back = chunk;
-        chunk->front->numNeighbors++;
+    if (owner->front != -1) {
+        neighborSlot = &chunkSlots[owner->front];
+        if (!(chunk->front) && neighborSlot->chunk->isAccessible) {
+            chunk->front = neighborSlot->chunk;
+            chunk->numNeighbors++;
+            chunk->front->back = chunk;
+            chunk->front->numNeighbors++;
+        }
     }
     
     //bottom
-    neighborSlot = owner->bottom;
-    if (!(chunk->bottom) && neighborSlot && neighborSlot->chunk->isAccessible) {
-        chunk->bottom = neighborSlot->chunk;
-        chunk->numNeighbors++;
-        chunk->bottom->top = chunk;
-        chunk->bottom->numNeighbors++;
+    if (owner->bottom != -1) {
+        neighborSlot = &chunkSlots[owner->bottom];
+        if (!(chunk->bottom) && neighborSlot->chunk->isAccessible) {
+            chunk->bottom = neighborSlot->chunk;
+            chunk->numNeighbors++;
+            chunk->bottom->top = chunk;
+            chunk->bottom->numNeighbors++;
+        }
     }
     
     //top
-    neighborSlot = owner->top;
-    if (!(chunk->top) && neighborSlot && neighborSlot->chunk->isAccessible) {
-        chunk->top = neighborSlot->chunk;
-        chunk->numNeighbors++;
-        chunk->top->bottom = chunk;
-        chunk->top->numNeighbors++;
-    } 
+    if (owner->top != -1) {
+        neighborSlot = &chunkSlots[owner->top];
+        if (!(chunk->top) && neighborSlot->chunk->isAccessible) {
+            chunk->top = neighborSlot->chunk;
+            chunk->numNeighbors++;
+            chunk->top->bottom = chunk;
+            chunk->top->numNeighbors++;
+        }
+    }
 }
 
 void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
@@ -1045,7 +1059,6 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
         chunk = _chunkSlots[0][i].chunk;
         if (chunk) {
-            //    if (chunk->drawWater){
             switch (chunk->_state) {
             case ChunkStates::DRAW:
                 color = glm::vec4(0.0, 0.0, 1.0, 1.0);
@@ -1063,7 +1076,6 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
             }
 
             if (chunk->_state != ChunkStates::INACTIVE) DrawWireBox(chunk->gridPosition.x, chunk->gridPosition.y, chunk->gridPosition.z, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 2, position, VP, color);
-            //    }
         }
     }
 }
@@ -1216,8 +1228,10 @@ void ChunkManager::updateChunks(const f64v3& position) {
             }
             freeChunk(chunk);
             cs->chunk = nullptr;
-            _chunkSlots[0][i].clearNeighbors();
+            _chunkSlots[0][i].clearNeighbors(_chunkSlots[0]);
             _chunkSlots[0][i] = _chunkSlots[0].back();
+            _chunkSlots[0][i].vecIndex = i;
+            _chunkSlotIndexMap[_chunkSlots[0][i].position] = i;
             _chunkSlots[0].pop_back();
         } else { //inside maximum range
 
@@ -1266,46 +1280,53 @@ void ChunkManager::updateChunks(const f64v3& position) {
 }
 
 void ChunkManager::updateChunkslotNeighbors(ChunkSlot* cs, const i32v3& cameraPos) {
-    if (!cs->left) {
-        cs->left = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(-1, 0, 0));
-        if (cs->left) {
-            cs->left->right = cs;
-            cs->left->detectNeighbors(_chunkSlotHashMap);
+    ChunkSlot* newCs;
+    if (cs->left == -1) {
+        newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(-1, 0, 0));
+        if (newCs) {
+            cs->left = newCs->vecIndex;
+            newCs->right = cs->vecIndex;
+            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
         }
     }
-    if (!cs->right) {
-        cs->right = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(1, 0, 0));
-        if (cs->right) {
-            cs->right->left = cs;
-            cs->right->detectNeighbors(_chunkSlotHashMap);
+    if (cs->right == -1) {
+        newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(1, 0, 0));
+        if (newCs) {
+            cs->right = newCs->vecIndex;
+            newCs->left = cs->vecIndex;
+            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
         }
     }
-    if (!cs->back) {
-        cs->back = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 0, -1));
-        if (cs->back) {
-            cs->back->front = cs;
-            cs->back->detectNeighbors(_chunkSlotHashMap);
+    if (cs->back == -1) {
+        newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 0, -1));
+        if (newCs) {
+            cs->back = newCs->vecIndex;
+            newCs->front = cs->vecIndex;
+            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
         }
     }
-    if (!cs->front) {
-        cs->front = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 0, 1));
-        if (cs->front) {
-            cs->front->back = cs;
-            cs->front->detectNeighbors(_chunkSlotHashMap);
+    if (cs->front == -1) {
+        newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 0, 1));
+        if (newCs) {
+            cs->front = newCs->vecIndex;
+            newCs->back = cs->vecIndex;
+            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
         }
     }
-    if (!cs->bottom) {
-        cs->bottom = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, -1, 0));
-        if (cs->bottom) {
-            cs->bottom->top = cs;
-            cs->bottom->detectNeighbors(_chunkSlotHashMap);
+    if (cs->bottom == -1) {
+        newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, -1, 0));
+        if (newCs) {
+            cs->bottom = newCs->vecIndex;
+            newCs->top = cs->vecIndex;
+            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
         }
     }
-    if (!cs->top) {
-        cs->top = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 1, 0));
-        if (cs->top) {
-            cs->top->bottom = cs;
-            cs->top->detectNeighbors(_chunkSlotHashMap);
+    if (cs->top == -1) {
+        newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 1, 0));
+        if (newCs) {
+            cs->top = newCs->vecIndex;
+            newCs->bottom = cs->vecIndex;
+            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
         }
     }
 }
@@ -1327,6 +1348,7 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
 
             ChunkSlot* newcs = &_chunkSlots[0].back();
             newcs->numNeighbors = 1;
+            newcs->vecIndex = _chunkSlots[0].size() - 1;
 
             Chunk* chunk = produceChunk();
             chunk->init(newcs->position, newcs->ipos, newcs->jpos, newcs->faceData, newcs);
@@ -1340,7 +1362,7 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
                 cout << "WHOOPSIEDAISY\n";
                 fflush(stdout);
             }
-            _chunkSlotHashMap[chunk->chunkPosition] = newcs;
+            _chunkSlotIndexMap[chunk->chunkPosition] = newcs->vecIndex;
             cs->numNeighbors++;
             return newcs;
         }
@@ -1550,13 +1572,16 @@ void ChunkManager::prepareHeightMap(HeightData heightData[CHUNK_LAYER], i32 star
     }
 }
 
-i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk* *chunks) {
-#define GETCHUNK(y, z, x) it = _chunkSlotHashMap.find(chPos + i32v3(x, y, z)); chunk = (it == _chunkSlotHashMap.end() ? nullptr : it->second->chunk);
+i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
+#define GETCHUNK(y, z, x) it = _chunkSlotIndexMap.find(chPos + i32v3(x, y, z)); chunk = (it == _chunkSlotIndexMap.end() ? nullptr : chunkSlots[it->second].chunk);
 
     i32 xDir, yDir, zDir;
     Chunk* chunk;
 
-    std::unordered_map<i32v3, ChunkSlot*>::iterator it;
+    
+
+    std::unordered_map<i32v3, int>::iterator it;
+    vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
 
     f64v3 relativePos = coords - f64v3(cornerPosition);
 
@@ -1645,7 +1670,7 @@ void ChunkManager::clearChunkFromLists(Chunk* chunk) {
     chunk->clearNeighbors();
 
 
-    _chunkSlotHashMap.erase(chunk->chunkPosition);
+    _chunkSlotIndexMap.erase(chunk->chunkPosition);
 }
 
 void ChunkManager::clearChunk(Chunk* chunk) {
@@ -1780,13 +1805,13 @@ void ChunkManager::getBlockAndChunk(const i32v3& relativePosition, Chunk** chunk
 
     //Bounds checking
 
-    auto it = _chunkSlotHashMap.find(chunkPosition);
-    if (it == _chunkSlotHashMap.end()) {
+    auto it = _chunkSlotIndexMap.find(chunkPosition);
+    if (it == _chunkSlotIndexMap.end()) {
         *chunk = nullptr;
         return;
     }
 
-    *chunk = it->second->chunk;
+    *chunk = _chunkSlots[0][it->second].chunk;
 
     if (chunk) {
         //reuse chunkPosition variable to get the position relative to owner chunk
@@ -2017,22 +2042,22 @@ Chunk* ChunkManager::getChunk(const f64v3& position) {
     i32v3 chPos;
     chPos = i32v3((position - f64v3(cornerPosition)) / (double)CHUNK_WIDTH);
 
-    auto it = _chunkSlotHashMap.find(chPos);
-    if (it == _chunkSlotHashMap.end()) return nullptr;
-    return it->second->chunk;
+    auto it = _chunkSlotIndexMap.find(chPos);
+    if (it == _chunkSlotIndexMap.end()) return nullptr;
+    return _chunkSlots[0][it->second].chunk;
 
 }
 
 Chunk* ChunkManager::getChunk(const i32v3& worldPos) {
-    auto it = _chunkSlotHashMap.find(worldPos);
-    if (it == _chunkSlotHashMap.end()) return nullptr;
-    return it->second->chunk;
+    auto it = _chunkSlotIndexMap.find(worldPos);
+    if (it == _chunkSlotIndexMap.end()) return nullptr;
+    return _chunkSlots[0][it->second].chunk;
 }
 
 const Chunk* ChunkManager::getChunk(const i32v3& worldPos) const {
-    auto it = _chunkSlotHashMap.find(worldPos);
-    if (it == _chunkSlotHashMap.end()) return nullptr;
-    return it->second->chunk;
+    auto it = _chunkSlotIndexMap.find(worldPos);
+    if (it == _chunkSlotIndexMap.end()) return nullptr;
+    return _chunkSlots[0][it->second].chunk;
 }
 
 void ChunkManager::removeFromSetupList(Chunk* ch) {

@@ -421,7 +421,7 @@ void GameManager::endSession() {
 #endif
 }
 
-const std::unordered_map<i32v3, ChunkSlot*>& GameManager::getChunkSlotHashMap() {
-    return chunkManager->getChunkSlotHashMap();
+const std::unordered_map<i32v3, int>& GameManager::getChunkSlotIndexMap() {
+    return chunkManager->getChunkSlotIndexMap();
 }
 
