@@ -18,11 +18,14 @@ enum class ScreenState {
 // Common Interface For A Game Screen
 class IGameScreen {
 public:
-    IGameScreen() :
-        _index(-1),
-        _game(nullptr),
-        _state(ScreenState::NONE) {}
-    ~IGameScreen() {}
+    IGameScreen()
+    : _state(ScreenState::NONE), _game(nullptr), _index(-1) {
+        // empty
+    }
+
+    ~IGameScreen() {
+        // empty
+    }
 
     // All Screens Should Have A Parent
     void setParentGame(MainGame* game, i32 index) {
@@ -31,7 +34,7 @@ public:
     }
 
     // The Screen's Location In The List
-    const i32 getIndex() const {
+    i32 getIndex() const {
         return _index;
     }
 
@@ -40,7 +43,7 @@ public:
     virtual i32 getPreviousScreen() const = 0;
 
     // Screen State Functions
-    const ScreenState getState() const {
+    ScreenState getState() const {
         return _state;
     }
     void setRunning() {
