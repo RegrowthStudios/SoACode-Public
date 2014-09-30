@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL\SDL.h>
+#include <SDL/SDL.h>
 
 #include "GraphicsDevice.h"
 #include "Options.h"
@@ -59,7 +59,7 @@ public:
     FrameBuffer* getFrameBuffer() const {
         return _frameBuffer;
     }
-    
+
     void getDisplayMode(GameDisplayMode* displayMode);
     void setDisplayMode(const GameDisplayMode& displayMode);
 
@@ -79,7 +79,7 @@ protected:
     void onRenderFrame();
 
     void initSystems();
-    
+
     GraphicsDevice* _gDevice;
     GameDisplayMode _displayMode;
     SoundOptions _soundOptions;
@@ -91,7 +91,7 @@ protected:
 
     ui32 _lastMS;
     GameTime _curTime, _lastTime;
-    
+
     bool _isRunning;
     ScreenList* _screenList;
     IGameScreen* _screen;
