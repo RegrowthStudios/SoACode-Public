@@ -4,7 +4,7 @@ REM ====================================================================
 REM   Build: Clean
 REM ====================================================================
 IF "%~1"=="clean" (
-    RMDIR build /S
+    RMDIR build /S /Q
     shift
 )
 
@@ -16,8 +16,8 @@ IF NOT EXIST "build" MKDIR build
 REM ====================================================================
 REM   CMake: Clean any top-level cmake buid artifacts
 REM ====================================================================
-IF EXIST "cmake" RMDIR cmake /S
-IF EXIST "CMakeFiles" RMDIR CMakeFiles /S
+IF EXIST "cmake" RMDIR cmake /S /Q
+IF EXIST "CMakeFiles" RMDIR CMakeFiles /S /Q
 IF EXIST "CmakeCache.txt" DEL CmakeCache.txt
 
 
