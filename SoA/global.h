@@ -79,8 +79,6 @@ const float invPlanetScale = 1.0f/planetScale;
 const float GRAVITY = 0.0065f;
 const int MAXLEAFRADIUS = 12;
 
-const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.
-
 extern int csGridWidth;
 
 extern float bdt;

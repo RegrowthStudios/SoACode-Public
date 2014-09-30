@@ -11,6 +11,8 @@ extern MultiplePreciseTimer globalMultiplePreciseTimer;
 extern string saveFilePath;
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
+const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.
+
 struct FixedSizeBillboardVertex{
     glm::vec3 pos;
     GLubyte uv[2];
@@ -145,6 +147,7 @@ struct HeightData
     GLint snowDepth;
     GLint sandDepth;
     GLint flags;
+    GLubyte depth;
     Biome *biome;
     GLushort surfaceBlock;
 };
@@ -161,6 +164,17 @@ struct FaceData
     int ipos;
     int jpos;
     int rotation;
+};
+
+class ChunkGridData {
+public:
+    ChunkGridData() : refCount(1) {     
+        //Mark the data as unloaded
+        heightData[0].height = UNLOADED_HEIGHT;
+    }
+    FaceData faceData;
+    HeightData heightData[CHUNK_LAYER];
+    int refCount;
 };
 
 struct MineralData

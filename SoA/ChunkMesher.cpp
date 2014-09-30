@@ -506,9 +506,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
 
     //Lookup the current biome, temperature, and rainfall
-    Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.nz*CHUNK_WIDTH + mi.nx]];
-    mi.temperature = mi.task->temperatures[mi.nz*CHUNK_WIDTH + mi.nx];
-    mi.rainfall = mi.task->rainfalls[mi.nz*CHUNK_WIDTH + mi.nx];
+    Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
+    mi.temperature = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].temperature;
+    mi.rainfall = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].rainfall;
 
     //get bit flags (needs to be changed) -Ben
     GLuint flags = GETFLAGS(mi.task->chData[mi.wc]);
@@ -874,9 +874,10 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     const int wc = mi.wc;
     const int btype = mi.btype;
 
-    Biome *biome = GameManager::planet->allBiomesLookupVector[mi.task->biomes[mi.nz*CHUNK_WIDTH + mi.nx]];
-    int temperature = mi.task->temperatures[mi.nz*CHUNK_WIDTH + mi.nx];
-    int rainfall = mi.task->rainfalls[mi.nz*CHUNK_WIDTH + mi.nx];
+    Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
+    int temperature = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].temperature;
+    int rainfall = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].rainfall;
+
     GLuint flags = GETFLAGS(blockIDData[mi.wc]);
 
     ui8 sunLight = mi.task->chSunlightData[wc];
@@ -997,8 +998,8 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     ui8 uOff = x * 7;
     ui8 vOff = 224 - z * 7;
 
-    ui8 temperature = task->temperatures[x + z*CHUNK_WIDTH];
-    ui8 depth = task->depthMap[x + z*CHUNK_WIDTH];
+    ui8 temperature = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
+    ui8 depth = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
 
     ui8 color[3];
     color[0] = waterColorMap[depth][temperature][0];
@@ -1795,6 +1796,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     //store the render task so we can pass it to functions
     mi.task = renderTask;
+    mi.chunkGridData = renderTask->chunkGridData;
 
     //Used in merging
     _currPrevRightQuads = 0;

@@ -10,6 +10,7 @@ enum class MeshJobType;
 
 class RenderTask;
 class Chunk;
+class ChunkGridData;
 
 // Stores Chunk Mesh Information
 struct MesherInfo {
@@ -31,6 +32,7 @@ public:
     bool mergeUp, mergeBot, mergeFront, mergeBack;
 
     RenderTask* task;
+    ChunkGridData* chunkGridData;
 };
 
 struct ChunkMeshRenderData {

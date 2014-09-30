@@ -290,11 +290,8 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     ui16* chLampData = renderTask->chLampData;
     ui8* chSunlightData = renderTask->chSunlightData;
 
-    //copy tables
-    memcpy(renderTask->biomes, _biomes, sizeof(_biomes));
-    memcpy(renderTask->temperatures, _temperatures, sizeof(_temperatures));
-    memcpy(renderTask->rainfalls, _rainfalls, sizeof(_rainfalls));
-    memcpy(renderTask->depthMap, _depthMap, sizeof(_depthMap));
+    //set chunkGridData
+    renderTask->chunkGridData = chunkGridData;
 
     //Set LOD
     renderTask->levelOfDetail = _levelOfDetail;
@@ -729,9 +726,9 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 }
 
 int Chunk::getRainfall(int xz) const {
-    return (int)_rainfalls[xz];
+    return (int)chunkGridData->heightData[xz].rainfall;
 }
 
 int Chunk::getTemperature(int xz) const {
-    return (int)_temperatures[xz];
+    return (int)chunkGridData->heightData[xz].temperature;
 }

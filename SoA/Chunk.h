@@ -180,6 +180,7 @@ public:
     static std::mutex modifyLock;
 
     ChunkSlot* owner;
+    ChunkGridData* chunkGridData;
 
 private:
     ChunkStates _state;
@@ -188,11 +189,6 @@ private:
     SmartVoxelContainer<ui16> _blockIDContainer;
     SmartVoxelContainer<ui8> _sunlightContainer;
     SmartVoxelContainer<ui16> _lampLightContainer;
-
-    ui8 _biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
-    ui8 _temperatures[CHUNK_LAYER];
-    ui8 _rainfalls[CHUNK_LAYER];
-    ui8 _depthMap[CHUNK_LAYER];
 
     int _levelOfDetail;
 

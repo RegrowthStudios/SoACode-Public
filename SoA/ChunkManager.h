@@ -58,7 +58,6 @@ public:
 
     void resizeGrid(const f64v3& gpos);
     void relocateChunks(const f64v3& gpos);
-    void regenerateHeightMap(i32 loadType);
 
     void update(const f64v3& position, const f64v3& viewDir);
     i32 getClosestChunks(f64v3& coord, class Chunk** chunks);
@@ -71,12 +70,12 @@ public:
     Chunk* getChunk(const f64v3& position);
     Chunk* getChunk(const i32v3& worldPos);
     const Chunk* getChunk(const i32v3& worldPos) const;
+    ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
     void initializeHeightMap();
     void initializeChunks();
     void clearAllChunks(bool clearDrawing);
     void clearAll();
-    void loadAllChunks(i32 loadType, const f64v3& position);
     void saveAllChunks();
     void recursiveSortChunks(std::vector<Chunk*>& v, i32 start, i32 size, i32 type);
 
@@ -128,7 +127,6 @@ private:
     inline void shiftY(i32 dir);
     inline void shiftZ(i32 dir);
     void calculateCornerPosition(const f64v3& centerPosition);
-    void shiftHeightMap(i32 dir);
     void prepareHeightMap(HeightData heightData[CHUNK_LAYER], i32 startX, i32 startZ, i32 width, i32 height);
     void clearChunkFromLists(Chunk* chunk);
     void clearChunk(Chunk* chunk);
@@ -171,8 +169,7 @@ private:
     i32 _maxLoads;
     i32 _hz, _hx;
 
-    std::vector< std::vector< HeightData*> > _heightMap; //not a 2d array like you expect. i is the ith chunk grid, j is all the data in that grid
-    std::vector< std::vector<FaceData*> > _faceMap;
+    std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
 
     i32 _poccx, _poccy, _poccz;
 

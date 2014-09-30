@@ -140,7 +140,7 @@ void ChunkManager::initializeGrid(const f64v3& gpos, ui32 flags) {
     initializeHeightMap();
 
     if (flags & FLAT_GRASS) {
-        for (size_t i = 0; i < _heightMap.size(); i++) {
+       /* for (size_t i = 0; i < _heightMap.size(); i++) {
             for (size_t j = 0; j < _heightMap[i].size(); j++) {
                 for (i32 k = 0; k < CHUNK_LAYER; k++) {
                     _heightMap[i][j][k].height = 1;
@@ -154,7 +154,7 @@ void ChunkManager::initializeGrid(const f64v3& gpos, ui32 flags) {
                 }
                 prepareHeightMap(_heightMap[i][j], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
             }
-        }
+        }*/
     }
 
     i32 mid = csGridWidth / 2;
@@ -162,12 +162,16 @@ void ChunkManager::initializeGrid(const f64v3& gpos, ui32 flags) {
     //flatgrass map
     if (flags & SET_Y_TO_SURFACE) {
         if (!(flags & FLAT_GRASS)) {//generate a single height so we know where the player should go
-            currTerrainGenerator->GenerateHeightMap(_heightMap[mid][mid], (_faceMap[mid][mid]->ipos*CHUNK_WIDTH - planet->radius), (_faceMap[mid][mid]->jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            prepareHeightMap(_heightMap[mid][mid], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
+    //        currTerrainGenerator->GenerateHeightMap(_heightMap[mid][mid], (_faceMap[mid][mid]->ipos*CHUNK_WIDTH - planet->radius), (_faceMap[mid][mid]->jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+   //         prepareHeightMap(_heightMap[mid][mid], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
 
         }
+        i32v2 centerPos;
+        centerPos.x = cornerPosition.x + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
+        centerPos.y = cornerPosition.z + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
 
-        i32 yPos = _heightMap[mid][mid][CHUNK_LAYER / 2].height + _heightMap[mid][mid][CHUNK_LAYER / 2].snowDepth + _heightMap[mid][mid][CHUNK_LAYER / 2].sandDepth + 15;
+        ChunkGridData* chunkGridData = getChunkGridData(centerPos);
+        i32 yPos = chunkGridData->heightData[CHUNK_LAYER / 2].height + chunkGridData->heightData[CHUNK_LAYER / 2].snowDepth + chunkGridData->heightData[CHUNK_LAYER / 2].sandDepth + 15;
         if (yPos < 2) yPos = 2; //keeps player from spawning at the bottom of the ocean
 
         cornerPosition.y = (i32)floor((yPos - CHUNK_WIDTH * csGridWidth / 2.0) / 32.0) * 32;
@@ -196,20 +200,16 @@ void ChunkManager::resizeGrid(const f64v3& gpos) {
 
     initializeGrid(gpos, 0);
     initializeChunks();
-    loadAllChunks(2, gpos);
 }
 
 void ChunkManager::initializeHeightMap() {
-    _heightMap.resize(csGridWidth);
-    _faceMap.resize(csGridWidth);
-    for (ui32 i = 0; i < _heightMap.size(); i++) {
-        _heightMap[i].resize(csGridWidth);
-        _faceMap[i].resize(csGridWidth);
-    }
+    i32v2 centerPos;
+    centerPos.x = cornerPosition.x + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
+    centerPos.y = cornerPosition.z + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
 
     i32 rot = _playerFace->rotation;
-    i32 istrt = (cornerPosition.z + planet->radius) / CHUNK_WIDTH;
-    i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH;
+    i32 istrt = (cornerPosition.z + planet->radius) / CHUNK_WIDTH + csGridWidth / 2 + 1;
+    i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH + csGridWidth / 2 + 1;
     i32 face = _playerFace->face;
 
 
@@ -221,55 +221,11 @@ void ChunkManager::initializeHeightMap() {
 
     currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadSign[face] * planet->radius, idir, jdir, 1.0);
 
-    for (i32 i = 0; i < csGridWidth; i++) {
-        for (i32 j = 0; j < csGridWidth; j++) {
-            //TODO: Store as POD? (instead of new)
-            _faceMap[i][j] = new FaceData();
-            _faceMap[i][j]->Set(face, istrt + i, jstrt + j, rot);
-            _heightMap[i][j] = new HeightData[CHUNK_LAYER];
-            for (i32 k = 0; k < CHUNK_LAYER; k++) {
-                _heightMap[i][j][k].height = UNLOADED_HEIGHT;
-            }
-            /*currTerrainGenerator->GenerateHeightMap(heightMap[i][j], Z+i*chunkWidth, X+j*chunkWidth, chunkWidth, chunkWidth, chunkWidth, 1, 0);
-            PrepareHeightMap(heightMap[i][j], 0, 0, chunkWidth, chunkWidth);*/
-        }
-    }
-}
+    ChunkGridData* newData = new ChunkGridData;
+    _chunkGridDataMap[centerPos] = newData;
 
-void ChunkManager::regenerateHeightMap(i32 loadType) {
-    i32 mid = (csGridWidth*CHUNK_WIDTH) / 2;
-    i32 istrt = (cornerPosition.z + planet->radius) / CHUNK_WIDTH;
-    i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH;
-    for (i32 i = 0; i < csGridWidth; i++) {
-        for (i32 j = 0; j < csGridWidth; j++) {
-            _faceMap[i][j]->Set(0, istrt + i, jstrt + j, 0);
-        }
-    }
-
-    currTerrainGenerator->SetLODFace(2, 0, 1, planet->radius);
-
-    if (loadType == 2) { //dont load whole thing
-        for (size_t i = 0; i < _heightMap.size(); i++) {
-            for (size_t j = 0; j < _heightMap[j].size(); j++) {
-                for (i32 k = 0; k < CHUNK_LAYER; k++) {
-                    _heightMap[i][j][k].height = UNLOADED_HEIGHT; //flag for reload
-                }
-            }
-        }
-        for (i32 i = 0; i < csGridWidth; i++) {
-            for (i32 j = 0; j < csGridWidth; j++) {
-                currTerrainGenerator->GenerateHeightMap(_heightMap[i][j], (cornerPosition.z + i), (cornerPosition.x + j)*CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-                prepareHeightMap(_heightMap[i][j], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
-            }
-        }
-    } else { //load the whole thing
-        for (i32 i = 0; i < csGridWidth; i++) {
-            for (i32 j = 0; j < csGridWidth; j++) {
-                currTerrainGenerator->GenerateHeightMap(_heightMap[i][j], (cornerPosition.z + i)*CHUNK_WIDTH, (cornerPosition.x + j)*CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-                prepareHeightMap(_heightMap[i][j], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
-            }
-        }
-    }
+    newData->faceData.Set(face, istrt, jstrt, rot);   
+    
 }
 
 void ChunkManager::initializeChunks() {
@@ -279,8 +235,12 @@ void ChunkManager::initializeChunks() {
     int y = csGridWidth / 2 + 1;
 
     _chunkSlots[0].reserve(125000);
-
-    _chunkSlots[0].emplace_back(cornerPosition + glm::ivec3(x, y, z) * CHUNK_WIDTH, nullptr, z, x, _faceMap[z][x]);
+    i32v2 gridPos(x * CHUNK_WIDTH + cornerPosition.x, z * CHUNK_WIDTH + cornerPosition.z);
+    ChunkGridData* chunkGridData = getChunkGridData(gridPos);
+    if (chunkGridData == nullptr) {
+        pError("NULL grid data at initializeChunks()");
+    }
+    _chunkSlots[0].emplace_back(cornerPosition + glm::ivec3(x, y, z) * CHUNK_WIDTH, nullptr, z, x, &chunkGridData->faceData);
 
     //we dont sqrt the distance since sqrt is slow
     _chunkSlots[0][0].distance2 = 1;
@@ -293,6 +253,8 @@ void ChunkManager::initializeChunks() {
     addToLoadList(chunk);
 
     _chunkSlotIndexMap[chunk->chunkPosition] = 0;
+
+    addToGenerateList(chunk);
 }
 
 void ChunkManager::clearAllChunks(bool clearDrawing) {
@@ -341,12 +303,11 @@ void ChunkManager::clearAll() {
     }
     Chunk::possibleMinerals.clear();
 
-    for (i32 z = 0; z < csGridWidth; z++) {
-        for (i32 x = 0; x < csGridWidth; x++) {
-            delete _faceMap[z][x];
-            delete[] _heightMap[z][x];
-        }
+    for (auto it = _chunkGridDataMap.begin(); it != _chunkGridDataMap.end(); it++) {
+        delete it->second;
     }
+    _chunkGridDataMap.clear();
+
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
         freeChunk(_chunkSlots[0][i].chunk);
     }
@@ -361,36 +322,6 @@ void ChunkManager::clearAll() {
     deleteAllChunks();
 
     vector<ChunkSlot>().swap(_chunkSlots[0]);
-}
-
-//loadType 0 = Complete Generation, 1 = Only Load, 2 = only push to queue
-void ChunkManager::loadAllChunks(i32 loadType, const f64v3& position) {
-    //    tcks = SDL_GetTicks();
-
-    Chunk* chunk;
-    ChunkSlot *cs;
-    updateChunks(position);
-
-    for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
-        cs = &(_chunkSlots[0][i]);
-        chunk = cs->chunk;
-        if (chunk != NULL) {
-            if (chunk->numNeighbors != 6) { //prevent residue from carrying over to new biome setup
-                chunk->clearBuffers();
-            }
-            chunk->changeState(ChunkStates::LOAD);
-        } else {
-            if (cs->distance2 <= (graphicsOptions.voxelRenderDistance + 32) * (graphicsOptions.voxelRenderDistance + 32)) {
-
-                cs->chunk = produceChunk();
-                cs->chunk->init(cs->position, cs->ipos, cs->jpos, cs->faceData, cs);
-            }
-        }
-    }
-    recursiveSortChunks(_loadList, 0, _loadList.size(), 2);
-    updateLoadList(100);
-    updateLoadedChunks();
-
 }
 
 void ChunkManager::relocateChunks(const f64v3& gpos) {
@@ -457,11 +388,10 @@ void ChunkManager::relocateChunks(const f64v3& gpos) {
         jstrt -= (planet->radius * 2) / CHUNK_WIDTH;
     }
 
-    for (i32 z = 0; z < csGridWidth; z++) {
-        for (i32 x = 0; x < csGridWidth; x++) {
-            _faceMap[z][x]->Set(face, istrt + z, jstrt + x, rot);
-        }
+    for (auto it = _chunkGridDataMap.begin(); it != _chunkGridDataMap.end(); it++) {
+        delete it->second;
     }
+    _chunkGridDataMap.clear();
 
     for (int i = 0; i < _chunkSlots[0].size(); i++) {
         chunk = _chunkSlots[0][i].chunk;
@@ -473,14 +403,6 @@ void ChunkManager::relocateChunks(const f64v3& gpos) {
     }
 
     initializeChunks();
-
-    for (Uint32 y = 0; y < _heightMap.size(); y++) {
-        for (Uint32 z = 0; z < _heightMap.size(); z++) {
-            for (i32 x = 0; x < CHUNK_LAYER; x++) {
-                _heightMap[y][z][x].height = UNLOADED_HEIGHT;
-            }
-        }
-    }
 }
 
 void ChunkManager::clearChunkData() {
@@ -657,6 +579,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
     i32 rot, face;
     Chunk* chunk;
     vector<Chunk* > chunksToLoad;
+    ChunkGridData* chunkGridData;
 
     ui32 sticks = SDL_GetTicks();
     for (i32 i = size - 1; i >= 0; i--) {
@@ -664,18 +587,14 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         _loadList.pop_back();
         chunk->updateIndex = -1;
         chunk->setupListPtr = NULL;
+        chunkGridData = chunk->chunkGridData;
 
-        startZ = (chunk->hzIndex - _hz);
-        startX = (chunk->hxIndex - _hx);
-        if (startX < 0 || startZ < 0 || startX >= csGridWidth || startZ >= csGridWidth) {
-            continue; //chunk is out of bounds, we will remove it.
-        }
         //If the heightmap has not been generated, generate it.
-        if (_heightMap[startZ][startX][0].height == UNLOADED_HEIGHT) {
+        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
 
             //set up the directions
-            rot = _faceMap[startZ][startX]->rotation;
-            face = _faceMap[startZ][startX]->face;
+            rot = chunkGridData->faceData.rotation;
+            face = chunkGridData->faceData.face;
             ipos = FaceCoords[face][rot][0];
             jpos = FaceCoords[face][rot][1];
             rpos = FaceCoords[face][rot][2];
@@ -684,25 +603,10 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
 
             currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadSign[face] * planet->radius, idir, jdir, 1.0);
 
-            currTerrainGenerator->GenerateHeightMap(_heightMap[startZ][startX], (_faceMap[startZ][startX]->ipos*CHUNK_WIDTH - planet->radius), (_faceMap[startZ][startX]->jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            prepareHeightMap(_heightMap[startZ][startX], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
+            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, (chunkGridData->faceData.ipos*CHUNK_WIDTH - planet->radius), (chunkGridData->faceData.jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            prepareHeightMap(chunkGridData->heightData, 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
         }
         chunk->isAccessible = 0;
-
-        for (i32 i = 0; i < CHUNK_LAYER; i++) {
-            chunk->_biomes[i] = _heightMap[startZ][startX][i].biome->vecIndex; // maybe we could bypass this by just giving the chunk a damn pointer rather than copying everything. ugh
-            chunk->_rainfalls[i] = _heightMap[startZ][startX][i].rainfall;
-            chunk->_temperatures[i] = _heightMap[startZ][startX][i].temperature;
-
-            depth = -_heightMap[startZ][startX][i].height / 5;
-            if (depth > 255) {
-                depth = 255;
-            } else if (depth < 0) {
-                depth = 0;
-            }
-            depth = 255 - depth;
-            chunk->_depthMap[i] = depth;
-        }
 
         chunksToLoad.push_back(chunk);
 
@@ -963,15 +867,9 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         chunk->setupListPtr = NULL;
         _generateList.pop_back();
 
-        startZ = (chunk->hzIndex - _hz);
-        startX = (chunk->hxIndex - _hx);
-        if (startX < 0 || startZ < 0 || startZ >= _heightMap.size() || startX >= _heightMap[0].size()) {
-            pError("Chunk startX or startZ out of bounds " + to_string(startX) + " " + to_string(startZ));
-        }
-
         chunk->isAccessible = 0;
 
-        threadPool.addLoadJob(chunk, new LoadData(_heightMap[startZ][startX], cornerPosition.x, cornerPosition.z, currTerrainGenerator));
+        threadPool.addLoadJob(chunk, new LoadData(chunk->chunkGridData->heightData, cornerPosition.x, cornerPosition.z, currTerrainGenerator));
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }
@@ -1155,14 +1053,9 @@ void ChunkManager::shiftX(i32 dir) {
         cornerPosition.x += CHUNK_WIDTH;
         _hx++;
 
-        //Shift the 2d heightmap
-        shiftHeightMap(2);
-
     } else { //Negative x
         cornerPosition.x -= CHUNK_WIDTH;
         _hx--;
-
-        shiftHeightMap(4);
     }
 }
 
@@ -1179,14 +1072,9 @@ void ChunkManager::shiftZ(i32 dir) {
     if (dir == 1) {
         cornerPosition.z += CHUNK_WIDTH;
         _hz++;
-
-        shiftHeightMap(3);
-
     } else {
         cornerPosition.z -= CHUNK_WIDTH;
         _hz--;
-
-        shiftHeightMap(1);
     }
 }
 
@@ -1338,34 +1226,37 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
     double dist = sqrt(dist2);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
 
-        i32v2 relPos;
-        relPos.x = fastFloor((newPosition.x - cornerPosition.x) / (float)CHUNK_WIDTH);
-        relPos.y = fastFloor((newPosition.z - cornerPosition.z) / (float)CHUNK_WIDTH);
-
-        if (!(relPos.x < 0 || relPos.y < 0 || relPos.x >= _faceMap.size() || relPos.y >= _faceMap.size())) {
-
-            _chunkSlots[0].emplace_back(newPosition, nullptr, cs->ipos + offset.z, cs->jpos + offset.x, _faceMap[relPos.y][relPos.x]);
-
-            ChunkSlot* newcs = &_chunkSlots[0].back();
-            newcs->numNeighbors = 1;
-            newcs->vecIndex = _chunkSlots[0].size() - 1;
-
-            Chunk* chunk = produceChunk();
-            chunk->init(newcs->position, newcs->ipos, newcs->jpos, newcs->faceData, newcs);
-            chunk->distance2 = newcs->distance2;
-            newcs->chunk = chunk;
-            addToLoadList(chunk);
-            // cout << _chunkHashMap.size() << " ";
-            // fflush(stdout);
-            Chunk* ch = getChunk(chunk->chunkPosition);
-            if (ch != nullptr) {
-                cout << "WHOOPSIEDAISY\n";
-                fflush(stdout);
-            }
-            _chunkSlotIndexMap[chunk->chunkPosition] = newcs->vecIndex;
-            cs->numNeighbors++;
-            return newcs;
+        i32v2 gridPosition(newPosition.x, newPosition.y);
+        ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
+        if (chunkGridData == nullptr) {
+            chunkGridData = new ChunkGridData();
+            _chunkGridDataMap[gridPosition] = chunkGridData;
+        } else {
+            chunkGridData->refCount++;
         }
+
+        _chunkSlots[0].emplace_back(newPosition, nullptr, cs->ipos + offset.z, cs->jpos + offset.x, &chunkGridData->faceData);
+
+        ChunkSlot* newcs = &_chunkSlots[0].back();
+        newcs->numNeighbors = 1;
+        newcs->vecIndex = _chunkSlots[0].size() - 1;
+
+        Chunk* chunk = produceChunk();
+        chunk->init(newcs->position, newcs->ipos, newcs->jpos, newcs->faceData, newcs);
+        chunk->distance2 = newcs->distance2;
+        newcs->chunk = chunk;
+        addToLoadList(chunk);
+        // cout << _chunkHashMap.size() << " ";
+        // fflush(stdout);
+        Chunk* ch = getChunk(chunk->chunkPosition);
+        if (ch != nullptr) {
+            cout << "WHOOPSIEDAISY\n";
+            fflush(stdout);
+        }
+        _chunkSlotIndexMap[chunk->chunkPosition] = newcs->vecIndex;
+        cs->numNeighbors++;
+        return newcs;
+        
     }
     return nullptr;
 }
@@ -1377,134 +1268,6 @@ void ChunkManager::saveAllChunks() {
         chunk = _chunkSlots[0][i].chunk;
         if (chunk && chunk->dirty && chunk->_state > ChunkStates::TREES) {
             GameManager::chunkIOManager->addToSaveList(chunk);
-        }
-    }
-}
-
-void ChunkManager::shiftHeightMap(i32 dir) {
-    HeightData *tmp;
-    FaceData *ftmp;
-
-    if (dir == 1) { // -z
-        for (i32 x = 0; x < csGridWidth; x++) {
-            tmp = _heightMap[csGridWidth - 1][x];
-            ftmp = _faceMap[csGridWidth - 1][x];
-            for (i32 z = csGridWidth - 1; z > 0; z--) {
-                _heightMap[z][x] = _heightMap[z - 1][x];
-                _faceMap[z][x] = _faceMap[z - 1][x];
-            }
-            _heightMap[0][x] = tmp;
-            _faceMap[0][x] = ftmp;
-            for (i32 i = 0; i < CHUNK_LAYER; i++) {
-                tmp[i].height = UNLOADED_HEIGHT;
-            }
-            ftmp->ipos = _faceMap[1][x]->ipos - 1;
-
-            //check for face change
-            if (ftmp->ipos < 0) {
-                ftmp->ipos += (planet->radius * 2) / CHUNK_WIDTH;
-                ftmp->face = FaceNeighbors[_faceMap[1][x]->face][(1 + _faceMap[1][x]->rotation) % 4];
-                ftmp->rotation = _faceMap[1][x]->rotation + FaceTransitions[_faceMap[1][x]->face][ftmp->face];
-                if (ftmp->rotation < 0) {
-                    ftmp->rotation += 4;
-                } else {
-                    ftmp->rotation %= 4;
-                }
-            } else {
-                ftmp->face = _faceMap[1][x]->face;
-                ftmp->rotation = _faceMap[1][x]->rotation;
-            }
-        }
-    } else if (dir == 2) { // +x
-        for (i32 z = 0; z < csGridWidth; z++) {
-            tmp = _heightMap[z][0];
-            ftmp = _faceMap[z][0];
-            for (i32 x = 0; x < csGridWidth - 1; x++) {
-                _heightMap[z][x] = _heightMap[z][x + 1];
-                _faceMap[z][x] = _faceMap[z][x + 1];
-            }
-            _heightMap[z][csGridWidth - 1] = tmp;
-            _faceMap[z][csGridWidth - 1] = ftmp;
-            for (i32 i = 0; i < CHUNK_LAYER; i++) {
-                tmp[i].height = UNLOADED_HEIGHT;
-            }
-            ftmp->jpos = _faceMap[z][csGridWidth - 2]->jpos + 1;
-
-            //check for face change
-            if (ftmp->jpos >= (planet->radius * 2) / CHUNK_WIDTH) {
-                ftmp->jpos -= (planet->radius * 2) / CHUNK_WIDTH;
-                ftmp->face = FaceNeighbors[_faceMap[z][csGridWidth - 2]->face][_faceMap[z][csGridWidth - 2]->rotation];
-                ftmp->rotation = _faceMap[z][csGridWidth - 2]->rotation + FaceTransitions[_faceMap[z][csGridWidth - 2]->face][ftmp->face];
-                if (ftmp->rotation < 0) {
-                    ftmp->rotation += 4;
-                } else {
-                    ftmp->rotation %= 4;
-                }
-            } else {
-                ftmp->face = _faceMap[z][csGridWidth - 2]->face;
-                ftmp->rotation = _faceMap[z][csGridWidth - 2]->rotation;
-            }
-        }
-    } else if (dir == 3) { // +z
-        for (i32 x = 0; x < csGridWidth; x++) {
-            tmp = _heightMap[0][x];
-            ftmp = _faceMap[0][x];
-            for (i32 z = 0; z < csGridWidth - 1; z++) {
-                _heightMap[z][x] = _heightMap[z + 1][x];
-                _faceMap[z][x] = _faceMap[z + 1][x];
-            }
-            _heightMap[csGridWidth - 1][x] = tmp;
-            _faceMap[csGridWidth - 1][x] = ftmp;
-
-            for (i32 i = 0; i < CHUNK_LAYER; i++) {
-                tmp[i].height = UNLOADED_HEIGHT; //tells our game later that it needs to load these heights
-                //        faceMap[i][j] = -1;
-            }
-            ftmp->ipos = _faceMap[csGridWidth - 2][x]->ipos + 1;
-
-            //check for face change
-            if (ftmp->ipos >= (planet->radius * 2) / CHUNK_WIDTH) {
-                ftmp->ipos -= (planet->radius * 2) / CHUNK_WIDTH;
-                ftmp->face = FaceNeighbors[_faceMap[csGridWidth - 2][x]->face][(3 + _faceMap[csGridWidth - 2][x]->rotation) % 4];
-                ftmp->rotation = _faceMap[csGridWidth - 2][x]->rotation + FaceTransitions[_faceMap[csGridWidth - 2][x]->face][ftmp->face];
-                if (ftmp->rotation < 0) {
-                    ftmp->rotation += 4;
-                } else {
-                    ftmp->rotation %= 4;
-                }
-            } else {
-                ftmp->face = _faceMap[csGridWidth - 2][x]->face;
-                ftmp->rotation = _faceMap[csGridWidth - 2][x]->rotation;
-            }
-        }
-    } else if (dir == 4) { // -x
-        for (i32 z = 0; z < csGridWidth; z++) {
-            tmp = _heightMap[z][csGridWidth - 1];
-            ftmp = _faceMap[z][csGridWidth - 1];
-            for (i32 x = csGridWidth - 1; x > 0; x--) {
-                _heightMap[z][x] = _heightMap[z][x - 1];
-                _faceMap[z][x] = _faceMap[z][x - 1];
-            }
-            _heightMap[z][0] = tmp;
-            _faceMap[z][0] = ftmp;
-            for (i32 i = 0; i < CHUNK_LAYER; i++) {
-                tmp[i].height = UNLOADED_HEIGHT;
-            }
-            ftmp->jpos = _faceMap[z][1]->jpos - 1;
-            //check for face change
-            if (ftmp->jpos < 0) {
-                ftmp->jpos += (planet->radius * 2) / CHUNK_WIDTH;
-                ftmp->face = FaceNeighbors[_faceMap[z][1]->face][(2 + _faceMap[z][1]->rotation) % 4];
-                ftmp->rotation = _faceMap[z][1]->rotation + FaceTransitions[_faceMap[z][1]->face][ftmp->face];
-                if (ftmp->rotation < 0) {
-                    ftmp->rotation += 4;
-                } else {
-                    ftmp->rotation %= 4;
-                }
-            } else {
-                ftmp->face = _faceMap[z][1]->face;
-                ftmp->rotation = _faceMap[z][1]->rotation;
-            }
         }
     }
 }
@@ -2027,10 +1790,10 @@ void ChunkManager::recursiveFloodFill(bool left, bool right, bool front, bool ba
 //returns 0 on success, 1 on fail
 i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
     //player biome
-    posZ -= cornerPosition.z;
-    posX -= cornerPosition.x;
-    if (posX >= 0 && posZ >= 0 && posX / CHUNK_WIDTH < (i32)_heightMap[0].size() && posZ / CHUNK_WIDTH < (i32)_heightMap.size()) { //CRASH HERE 11/27/2013
-        hd = _heightMap[posZ / CHUNK_WIDTH][posX / CHUNK_WIDTH][(posZ%CHUNK_WIDTH) * CHUNK_WIDTH + posX%CHUNK_WIDTH];
+    i32v2 gridPosition(fastFloor(posX / (float)CHUNK_WIDTH) * CHUNK_WIDTH, fastFloor(posZ / (float)CHUNK_WIDTH) * CHUNK_WIDTH);
+    ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
+    if (chunkGridData) {
+        hd = chunkGridData->heightData[(posZ%CHUNK_WIDTH) * CHUNK_WIDTH + posX%CHUNK_WIDTH];
         return 0;
     } else {
         return 1; //fail
@@ -2058,6 +1821,12 @@ const Chunk* ChunkManager::getChunk(const i32v3& worldPos) const {
     auto it = _chunkSlotIndexMap.find(worldPos);
     if (it == _chunkSlotIndexMap.end()) return nullptr;
     return _chunkSlots[0][it->second].chunk;
+}
+
+ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
+    auto it = _chunkGridDataMap.find(gridPos);
+    if (it == _chunkGridDataMap.end()) return nullptr;
+    return it->second;
 }
 
 void ChunkManager::removeFromSetupList(Chunk* ch) {

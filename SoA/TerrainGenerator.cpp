@@ -412,6 +412,7 @@ void TerrainGenerator::GenerateHeightMap(HeightData *lodMap, int icoord, int jco
     double temperature;
     double rainfall;
     Biome *mainBiome;
+    int depth;
 
     double ic, jc;
     
@@ -497,6 +498,15 @@ void TerrainGenerator::GenerateHeightMap(HeightData *lodMap, int icoord, int jco
             if (rainfall > 255.0) rainfall = 255.0;
             lodMap[i*size+j].temperature = (int)temperature;
             lodMap[i*size+j].rainfall = (int)rainfall;
+
+            //water depth
+            depth = -lodMap[i*size + j].height / 5;
+            if (depth > 255) {
+                depth = 255;
+            } else if (depth < 0) {
+                depth = 0;
+            }
+            lodMap[i*size + j].depth = (ui8)(255 - depth);
         }
     }
 }
