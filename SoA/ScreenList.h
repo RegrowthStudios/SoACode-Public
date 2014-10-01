@@ -8,7 +8,10 @@ public:
     ScreenList(MainGame* g);
 
     IGameScreen* getCurrent() const {
-        if (_current < 0 || _current >= _screens.size()) return nullptr;
+        const i32 screen_size = static_cast<const i32>(_screens.size());
+        if (_current < 0 || _current >= screen_size) {
+            return nullptr;
+        }
         else return _screens[_current];
     }
     IGameScreen* moveNext();
