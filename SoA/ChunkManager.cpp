@@ -222,6 +222,10 @@ void ChunkManager::initializeHeightMap() {
     currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadSign[face] * planet->radius, idir, jdir, 1.0);
 
     ChunkGridData* newData = new ChunkGridData;
+    newData->faceData.rotation = rot;
+    newData->faceData.ipos = istrt;
+    newData->faceData.jpos = jstrt;
+    newData->faceData.face = face;
     _chunkGridDataMap[centerPos] = newData;
 
     newData->faceData.Set(face, istrt, jstrt, rot);   
@@ -248,13 +252,12 @@ void ChunkManager::initializeChunks() {
     Chunk* chunk = produceChunk();
     chunk->init(_chunkSlots[0][0].position, _chunkSlots[0][0].ipos, _chunkSlots[0][0].jpos, _chunkSlots[0][0].faceData, &_chunkSlots[0][0]);
     chunk->distance2 = _chunkSlots[0][0].distance2;
+    chunk->chunkGridData = chunkGridData;
     _chunkSlots[0][0].chunk = chunk;
     _chunkSlots[0][0].vecIndex = 0;
     addToLoadList(chunk);
 
     _chunkSlotIndexMap[chunk->chunkPosition] = 0;
-
-    addToGenerateList(chunk);
 }
 
 void ChunkManager::clearAllChunks(bool clearDrawing) {
@@ -1235,6 +1238,12 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
             chunkGridData->refCount++;
         }
 
+        //TODO: properFaceData
+        chunkGridData->faceData.face = cs->faceData->face;
+        chunkGridData->faceData.ipos = cs->faceData->ipos + offset.z;
+        chunkGridData->faceData.ipos = cs->faceData->jpos + offset.x;
+        chunkGridData->faceData.rotation = cs->faceData->rotation;
+
         _chunkSlots[0].emplace_back(newPosition, nullptr, cs->ipos + offset.z, cs->jpos + offset.x, &chunkGridData->faceData);
 
         ChunkSlot* newcs = &_chunkSlots[0].back();
@@ -1244,6 +1253,7 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
         Chunk* chunk = produceChunk();
         chunk->init(newcs->position, newcs->ipos, newcs->jpos, newcs->faceData, newcs);
         chunk->distance2 = newcs->distance2;
+        chunk->chunkGridData = chunkGridData;
         newcs->chunk = chunk;
         addToLoadList(chunk);
         // cout << _chunkHashMap.size() << " ";
