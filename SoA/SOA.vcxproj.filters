@@ -464,6 +464,9 @@
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -748,6 +751,9 @@
     </ClCompile>
     <ClCompile Include="VoxelMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
