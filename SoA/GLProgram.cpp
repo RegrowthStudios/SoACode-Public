@@ -95,6 +95,14 @@ void GLProgram::addShaderFile(ShaderType type, const cString file) {
     delete [] src;
 }
 
+void GLProgram::setAttribute(nString name, ui32 index) {
+    // Don't Add Attributes If The Program Is Already Linked
+    if (_isLinked) return;
+
+    glBindAttribLocation(_id, index, name.c_str());
+    _attributes[name] = index;
+}
+
 void GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
     // Don't Add Attributes If The Program Is Already Linked
     if (_isLinked) return;
@@ -107,6 +115,20 @@ void GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
         attrIter++;
     }
 }
+
+void GLProgram::setAttributes(const std::vector<std::pair<nString, ui32> >& attr) {
+    // Don't Add Attributes If The Program Is Already Linked
+    if (_isLinked) return;
+
+    // Set The Custom Attributes
+    auto attrIter = attr.begin();
+    while (attrIter != attr.end()) {
+        glBindAttribLocation(_id, attrIter->second, attrIter->first.c_str());
+        _attributes[attrIter->first] = attrIter->second;
+        attrIter++;
+    }
+}
+
 bool GLProgram::link() {
     // Don't Relink Or Attempt A Non-initialized Link
     if (getIsLinked() || !getIsCreated()) return false;

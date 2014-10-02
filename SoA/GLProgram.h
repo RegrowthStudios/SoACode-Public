@@ -27,7 +27,9 @@ public:
     void addShaderFile(ShaderType type, const cString file);
 
     // Build The Program
+    void setAttribute(nString name, ui32 index);
     void setAttributes(const std::map<nString, ui32>& attr);
+    void setAttributes(const std::vector<std::pair<nString, ui32> >& attr);
     bool link();
     const bool& getIsLinked() const {
         return _isLinked;

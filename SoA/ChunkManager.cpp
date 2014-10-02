@@ -17,6 +17,7 @@
 #include "FloraGenerator.h"
 #include "FrameBuffer.h"
 #include "Frustum.h"
+#include "Mesh.h"
 #include "OpenglManager.h"
 #include "Options.h"
 #include "Particles.h"
@@ -31,6 +32,7 @@
 #include "VRayHelper.h"
 #include "VoxelLightEngine.h"
 #include "VoxelRay.h"
+#include "Vorb.h"
 #include "ChunkIOManager.h"
 #include "shader.h"
 
@@ -955,6 +957,16 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
 }
 
 void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
+    // Shader that is lazily initialized
+    static GLProgram* chunkLineProgram = nullptr;
+    // Lazily initialize shader
+    if (chunkLineProgram == nullptr) {
+        chunkLineProgram = new GLProgram(true);
+        chunkLineProgram->addShader(ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
+        chunkLineProgram->addShader(ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
+        chunkLineProgram->
+    }
+
     Chunk* chunk;
     glm::vec4 color;
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) {

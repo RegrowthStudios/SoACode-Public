@@ -5,9 +5,10 @@
 namespace vorb{
 namespace core{
 
-#pragma region Shader Source
+#pragma region Default Shader
 
-const cString VS_SRC = R"(#version 130
+// Default shader source
+const cString Mesh::defaultVertexShaderSource = R"(#version 130
 uniform mat4 MVP;
 
 in vec3 vPosition;
@@ -23,7 +24,7 @@ void main() {
     gl_Position = MVP * vec4(vPosition, 1.0);
 }
 )";
-const cString FS_SRC = R"(#version 130
+const cString Mesh::defaultFragmentShaderSource = R"(#version 130
 uniform sampler2D SBTex;
 
 in vec2 fUV;
@@ -35,6 +36,13 @@ void main() {
     fColor = texture(SBTex, fUV) * fTint;
 }
 )";
+
+// Default shader attributes
+const std::vector<std::pair<nString, ui32> > Mesh::defaultShaderAttributes = { 
+    std::pair<nString, ui32>("vPosition", 0),
+    std::pair<nString, ui32>("vUV", 1),
+    std::pair<nString, ui32>("vTint", 2)
+};
 
 #pragma endregion
 

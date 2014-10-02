@@ -1,6 +1,6 @@
 // 
 //  Mesh.h
-//  Vorb
+//  Vorb Engine
 //
 //  Created by Ben Arnold on 30/9/2014
 //  Copyright 2014 Regrowth Studios
@@ -86,6 +86,11 @@ public:
     f32m4 getModelMatrix() const { return _modelMatrix; }
     int getNumVertices() const { return _vertices.size(); }
     int getNumPrimitives() const;
+
+    // Default shader source
+    static const cString defaultVertexShaderSource;
+    static const cString defaultFragmentShaderSource;
+    static const std::vector<std::pair<nString, ui32> > defaultShaderAttributes;
 
 private:
     void createVertexArray();
