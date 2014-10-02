@@ -9,6 +9,8 @@
 // Will Our Variable Names Honestly Be More Than A KB
 #define PROGRAM_VARIABLE_MAX_LENGTH 1024
 
+GLProgram* GLProgram::_programInUse = nullptr;
+
 GLProgram::GLProgram(bool init /*= false*/) :
 _id(0),
 _idVS(0),
@@ -42,10 +44,12 @@ void GLProgram::destroy() {
     }
 }
 
-void GLProgram::addShader(i32 type, const cString src) {
+void GLProgram::addShader(ShaderType type, const cString src) {
+    // Get the GLenum shader type from the wrapper
+    i32 glType = (GLenum)type;
     // Check Current State
     if (getIsLinked() || !getIsCreated()) return;
-    switch (type) {
+    switch (glType) {
     case GL_VERTEX_SHADER:
         if (_idVS != 0) {
             printf("Attempting To Add Another Vertex Shader To Program\n");
@@ -64,7 +68,7 @@ void GLProgram::addShader(i32 type, const cString src) {
     }
 
     // Compile The Shader
-    ui32 idS = glCreateShader(type);
+    ui32 idS = glCreateShader(glType);
     glShaderSource(idS, 1, &src, 0);
     glCompileShader(idS);
 
@@ -79,12 +83,12 @@ void GLProgram::addShader(i32 type, const cString src) {
 
     // Bind Shader To Program
     glAttachShader(_id, idS);
-    switch (type) {
+    switch (glType) {
     case GL_VERTEX_SHADER: _idVS = idS; break;
     case GL_FRAGMENT_SHADER: _idFS = idS; break;
     }
 }
-void GLProgram::addShaderFile(i32 type, const cString file) {
+void GLProgram::addShaderFile(ShaderType type, const cString file) {
     IOManager iom;
     const cString src = iom.readFileToString(file);
     addShader(type, src);
@@ -183,5 +187,3 @@ void GLProgram::unuse() {
         glUseProgram(0);
     }
 }
-
-GLProgram* GLProgram::_programInUse = nullptr;

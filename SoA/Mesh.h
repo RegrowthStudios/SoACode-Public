@@ -20,11 +20,12 @@
 #include "RasterizerState.h"
 
 namespace vorb {
+namespace core {
 
-enum class PrimitiveType { 
-    TRIANGLES = GL_TRIANGLES, 
-    LINES = GL_LINES, 
-    POINTS = GL_POINTS 
+enum class PrimitiveType {
+    TRIANGLES = GL_TRIANGLES,
+    LINES = GL_LINES,
+    POINTS = GL_POINTS
 };
 
 struct MeshVertex {
@@ -34,12 +35,16 @@ struct MeshVertex {
 };
 
 // TODO(Ben): This belongs in Vorb.h or VorbErrors.h
-enum class VorbError { NONE, INVALID_PARAMETER, INVALID_STATE };
+enum class VorbError { 
+    NONE,
+    INVALID_PARAMETER,
+    INVALID_STATE
+};
 
 class Mesh
 {
 public:
-    
+
     Mesh();
     ~Mesh();
 
@@ -59,20 +64,20 @@ public:
     // @param ss: sampler state, that holds texture info
     // @param ds: depth state, which holds depth info
     // @param rs: rasterizer state, which holds culling info
-    void draw(const f32m4& viewProjectionMatrix, 
-              const SamplerState* ss = &SamplerState::LINEAR_WRAP,
-              const DepthState* ds = &DepthState::NONE,
-              const RasterizerState* rs = &RasterizerState::CULL_NONE);
+    void draw(const f32m4& viewProjectionMatrix,
+                const SamplerState* ss = &SamplerState::LINEAR_WRAP,
+                const DepthState* ds = &DepthState::NONE,
+                const RasterizerState* rs = &RasterizerState::CULL_NONE);
 
     // Adds vertices to the mesh
     // @param _vertices: vector of vertices to add
     void addVertices(const std::vector<MeshVertex>& vertices);
- 
+
     // Adds indexed vertices to the mesh
     // @param _vertices: vector of vertices to add
     // @param _indices: vector of indices to add
-    void addVertices(const std::vector<MeshVertex>& vertices, 
-                     const std::vector<ui32>& indices);
+    void addVertices(const std::vector<MeshVertex>& vertices,
+                        const std::vector<ui32>& indices);
 
     // Setters
     void setModelMatrix(const f32m4& modelMatrix) { _modelMatrix = modelMatrix; }
@@ -87,8 +92,8 @@ private:
 
     f32m4 _modelMatrix;
 
-    GLuint _vbo;
-    GLuint _vao;
+    ui32 _vbo;
+    ui32 _vao;
 
     PrimitiveType _primitiveType;
 
@@ -99,5 +104,5 @@ private:
 };
 
 }
-
+}
 #endif //MESH_H_

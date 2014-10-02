@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Mesh.h"
+#include "GLProgram.h"
 
 namespace vorb{
+namespace core{
 
 #pragma region Shader Source
 
@@ -33,6 +35,7 @@ void main() {
     fColor = texture(SBTex, fUV) * fTint;
 }
 )";
+
 #pragma endregion
 
 Mesh::Mesh() :
@@ -58,6 +61,8 @@ void Mesh::reserve(int numVertices) {
 }
 
 void Mesh::draw(const f32m4& viewProjectionMatrix, const SamplerState* ss, const DepthState* ds, const RasterizerState* rs) {
+    // A shader needs to be bound
+    assert(GLProgram::getCurrentProgram() != nullptr);
     // Set depth and sampler states
     ds->set();
     rs->set();
@@ -143,4 +148,4 @@ void Mesh::createVertexArray() {
 }
 
 }
-
+}
