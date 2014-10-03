@@ -28,6 +28,12 @@ enum class PrimitiveType {
     POINTS = GL_POINTS
 };
 
+enum class MeshUsage {
+    STATIC = GL_STATIC_DRAW,
+    DYNAMIC = GL_DYNAMIC_DRAW,
+    STREAM = GL_STREAM_DRAW
+};
+
 struct MeshVertex {
     f32v3 position;
     f32v2 uv;
@@ -48,26 +54,22 @@ public:
     Mesh();
     ~Mesh();
 
+    // Frees all resources
+    void destroy();
+
     // Initializes the mesh
     // @param primitiveType: type of primitive for this mesh
     // @param isIndexed: true when using glDrawElements, false for
     // glDrawArrays
     void init(PrimitiveType primitiveType, bool isIndexed);
 
-    // Reserves a specific number of vertices
+    // Reserves a specific number of vertices and indices
     // @param numVertices: the number of vertices to reserve
-    void reserve(int numVertices);
+    // @param numIndices: the number of indices to reserve
+    void reserve(int numVertices, int numIndices = 0);
 
     // Draws the mesh
-    // @param viewProjectionMatrix: the combined view and projection matrix 
-    // for the scene
-    // @param ss: sampler state, that holds texture info
-    // @param ds: depth state, which holds depth info
-    // @param rs: rasterizer state, which holds culling info
-    void draw(const f32m4& viewProjectionMatrix,
-                const SamplerState* ss = &SamplerState::LINEAR_WRAP,
-                const DepthState* ds = &DepthState::NONE,
-                const RasterizerState* rs = &RasterizerState::CULL_NONE);
+    void draw();
 
     // Adds vertices to the mesh
     // @param _vertices: vector of vertices to add
@@ -78,6 +80,11 @@ public:
     // @param _indices: vector of indices to add
     void addVertices(const std::vector<MeshVertex>& vertices,
                         const std::vector<ui32>& indices);
+
+    // Uploads all data to the GPU and clears the local buffers
+    void uploadAndClearLocal(MeshUsage usage = MeshUsage::STATIC);
+    // Uploads all data to the GPU and keeps the local buffers
+    void uploadAndKeepLocal(MeshUsage usage = MeshUsage::STATIC);
 
     // Setters
     void setModelMatrix(const f32m4& modelMatrix) { _modelMatrix = modelMatrix; }
@@ -93,19 +100,25 @@ public:
     static const std::vector<std::pair<nString, ui32> > defaultShaderAttributes;
 
 private:
+    void upload(MeshUsage usage);
     void createVertexArray();
 
     f32m4 _modelMatrix;
 
     ui32 _vbo;
     ui32 _vao;
+    ui32 _ibo;
+
+    bool _isIndexed;
+    bool _isUploaded;
 
     PrimitiveType _primitiveType;
 
+    int _numVertices;
+    int _numIndices;
+
     std::vector <MeshVertex> _vertices;
     std::vector <ui32> _indices;
-
-    bool _isIndexed;
 };
 
 }

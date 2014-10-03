@@ -2,6 +2,8 @@
 #include "Mesh.h"
 #include "GLProgram.h"
 
+#undef NDEBUG
+
 namespace vorb{
 namespace core{
 
@@ -12,8 +14,8 @@ const cString Mesh::defaultVertexShaderSource = R"(#version 130
 uniform mat4 MVP;
 
 in vec3 vPosition;
-in vec2 vUV;
 in vec4 vTint;
+in vec2 vUV;
 
 out vec2 fUV;
 out vec4 fTint;
@@ -25,7 +27,7 @@ void main() {
 }
 )";
 const cString Mesh::defaultFragmentShaderSource = R"(#version 130
-uniform sampler2D SBTex;
+uniform sampler2D tex;
 
 in vec2 fUV;
 in vec4 fTint;
@@ -33,15 +35,15 @@ in vec4 fTint;
 out vec4 fColor;
 
 void main() {
-    fColor = texture(SBTex, fUV) * fTint;
+    fColor = fTint; //texture(tex, fUV) * fTint;
 }
 )";
 
 // Default shader attributes
 const std::vector<std::pair<nString, ui32> > Mesh::defaultShaderAttributes = { 
     std::pair<nString, ui32>("vPosition", 0),
-    std::pair<nString, ui32>("vUV", 1),
-    std::pair<nString, ui32>("vTint", 2)
+    std::pair<nString, ui32>("vTint", 1),
+    std::pair<nString, ui32>("vUV", 2)
 };
 
 #pragma endregion
@@ -50,12 +52,35 @@ Mesh::Mesh() :
     _modelMatrix(1.0f),
     _vbo(0),
     _vao(0),
+    _ibo(0),
+    _isUploaded(0),
+    _isIndexed(0),
+    _numVertices(0),
+    _numIndices(0),
     _primitiveType(PrimitiveType::TRIANGLES)
 {
 };
 
-Mesh::~Mesh()
-{
+Mesh::~Mesh() {
+    destroy();
+}
+
+void Mesh::destroy() {
+    if (_vao != 0) {
+        glDeleteVertexArrays(1, &_vao);
+        _vao = 0;
+    }
+    if (_vbo != 0) {
+        glDeleteBuffers(1, &_vbo);
+        _vbo = 0;
+    }
+    if (_ibo != 0) {
+        glDeleteBuffers(1, &_ibo);
+        _ibo = 0;
+    }
+    std::vector <MeshVertex>().swap(_vertices);
+    std::vector <ui32>().swap(_indices);
+    _isUploaded = false;
 }
 
 void Mesh::init(PrimitiveType primitiveType, bool isIndexed) {
@@ -64,23 +89,24 @@ void Mesh::init(PrimitiveType primitiveType, bool isIndexed) {
     createVertexArray();
 }
 
-void Mesh::reserve(int numVertices) {
+void Mesh::reserve(int numVertices, int numIndices) {
     _vertices.reserve(numVertices);
+    _indices.reserve(numIndices);
 }
 
-void Mesh::draw(const f32m4& viewProjectionMatrix, const SamplerState* ss, const DepthState* ds, const RasterizerState* rs) {
+void Mesh::draw() {
+    // Need to have uploaded our data
+    assert(_isUploaded);
     // A shader needs to be bound
     assert(GLProgram::getCurrentProgram() != nullptr);
-    // Set depth and sampler states
-    ds->set();
-    rs->set();
-    // TODO(Ben): shader and stuff
+
+    // Bind the VAO
     glBindVertexArray(_vao);
     // Perform draw call
     if (_isIndexed) {
-        glDrawElements(static_cast <GLenum>(_primitiveType), 0, getNumPrimitives(), (void*)0);
+        glDrawElements(static_cast<GLenum>(_primitiveType), _numIndices, GL_UNSIGNED_INT, (void*)0);
     } else {
-        glDrawArrays(static_cast<GLenum>(_primitiveType), 0, _vertices.size());
+        glDrawArrays(static_cast<GLenum>(_primitiveType), 0, _numVertices);
     }
     glBindVertexArray(0);
 }
@@ -108,21 +134,55 @@ void Mesh::addVertices(const std::vector<MeshVertex>& newVertices, const std::ve
         _vertices[i++] = newVertices[j++];
     }
     // Add the newIndices onto the _indices array
-    int i = _indices.size();
-    int j = 0;
+    i = _indices.size();
+    j = 0;
     _indices.resize(_indices.size() + newIndices.size());
     while (i < _indices.size()) {
         _indices[i++] = newIndices[j++];
     }
 }
 
+void Mesh::uploadAndClearLocal(MeshUsage usage) {
+    upload(usage);
+    std::vector <MeshVertex>().swap(_vertices);
+    std::vector <ui32>().swap(_indices);
+}
+
+void Mesh::uploadAndKeepLocal(MeshUsage usage) {
+    upload(usage);
+}
+
+void Mesh::upload(MeshUsage usage) {
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVertex)* _vertices.size(), nullptr, static_cast<GLenum>(usage));
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MeshVertex)* _vertices.size(), _vertices.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    _numVertices = _vertices.size();
+
+    if (_isIndexed) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ui32)* _indices.size(), nullptr, static_cast<GLenum>(usage));
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(ui32)* _indices.size(), _indices.data());
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+    _numIndices = _indices.size();
+}
+
 int Mesh::getNumPrimitives() const {
     // If indexed, we use indices. Otherwise verts
     int n;
-    if (_isIndexed) {
-        n = _indices.size();
+    if (!_isUploaded) {
+        if (_isIndexed) {
+            n = _indices.size();
+        } else {
+            n = _vertices.size();
+        }
     } else {
-        n = _vertices.size();
+        if (_isIndexed) {
+            n = _numIndices;
+        } else {
+            n = _numVertices;
+        }
     }
     // Primitive count is based on type
     switch (_primitiveType) {
@@ -143,6 +203,11 @@ void Mesh::createVertexArray() {
     // Generate and bind vbo
     glGenBuffers(1, &_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    // Generate and bind element buffer
+    if (_isIndexed) {
+        glGenBuffers(1, &_ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+    }
     // Set attribute arrays
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

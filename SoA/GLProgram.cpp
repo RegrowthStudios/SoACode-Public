@@ -46,7 +46,7 @@ void GLProgram::destroy() {
 
 void GLProgram::addShader(ShaderType type, const cString src) {
     // Get the GLenum shader type from the wrapper
-    i32 glType = (GLenum)type;
+    i32 glType = static_cast<GLenum>(type);
     // Check Current State
     if (getIsLinked() || !getIsCreated()) return;
     switch (glType) {
@@ -76,8 +76,13 @@ void GLProgram::addShader(ShaderType type, const cString src) {
     i32 status;
     glGetShaderiv(idS, GL_COMPILE_STATUS, &status);
     if (status != 1) {
-        glDeleteShader(idS);
+        int infoLogLength;
         printf("Shader Had Compilation Errors\n");
+        glGetShaderiv(idS, GL_INFO_LOG_LENGTH, &infoLogLength);
+        std::vector<char> FragmentShaderErrorMessage(infoLogLength);
+        glGetShaderInfoLog(idS, infoLogLength, NULL, FragmentShaderErrorMessage.data());
+        fprintf(stdout, "%s\n", &FragmentShaderErrorMessage[0]);
+        glDeleteShader(idS);
         throw 2;
     }
 

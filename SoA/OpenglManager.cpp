@@ -2183,6 +2183,10 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
     drawBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
     drawCutoutBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
     
+    if (gridState != 0){
+        GameManager::voxelWorld->getChunkManager().drawChunkLines(VP, chunkCamera.position());
+    }
+
     glDepthMask(GL_FALSE);
     drawTransparentBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
     glDepthMask(GL_TRUE);
@@ -2193,10 +2197,6 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
         glEnable(GL_DEPTH_TEST);
     }
 
-
-    if (gridState != 0){
-        GameManager::voxelWorld->getChunkManager().drawChunkLines(VP, chunkCamera.position());
-    }
 
     if (GameManager::voxelEditor->isEditing()){
         int ID;

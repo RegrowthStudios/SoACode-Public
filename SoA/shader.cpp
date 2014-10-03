@@ -48,8 +48,8 @@ void BasicColorShader::Initialize() {
     if (isInitialized) return;
     program.init();
     printf("Loading basicColorShader\n");
-    program.addShaderFile(GL_VERTEX_SHADER, "Shaders/BasicShading/BasicColorShading.vert");
-    program.addShaderFile(GL_FRAGMENT_SHADER, "Shaders/BasicShading/BasicColorShading.frag");
+    program.addShaderFile(ShaderType::VERTEX, "Shaders/BasicShading/BasicColorShading.vert");
+    program.addShaderFile(ShaderType::FRAGMENT, "Shaders/BasicShading/BasicColorShading.frag");
     glBindAttribLocation(program.getID(), 0, "vertexPosition_modelspace");
     program.link();
     program.initAttributes();
