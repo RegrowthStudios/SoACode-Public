@@ -35,7 +35,7 @@ in vec4 fTint;
 out vec4 fColor;
 
 void main() {
-    fColor = fTint; //texture(tex, fUV) * fTint;
+    fColor = texture(tex, fUV) * fTint;
 }
 )";
 

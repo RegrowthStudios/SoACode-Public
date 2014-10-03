@@ -246,16 +246,9 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
 
             HeightData tmpHeightData;
             if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
-                if (tmpHeightData.height != UNLOADED_HEIGHT) {
-                    player->currBiome = tmpHeightData.biome;
-                    player->currTemp = tmpHeightData.temperature;
-                    player->currHumidity = tmpHeightData.rainfall;
-
-                } else {
-                    player->currBiome = NULL;
-                    player->currTemp = -1;
-                    player->currHumidity = -1;
-                }
+                player->currBiome = tmpHeightData.biome;
+                player->currTemp = tmpHeightData.temperature;
+                player->currHumidity = tmpHeightData.rainfall;
             } else {
                 player->currBiome = NULL;
                 player->currTemp = -1;

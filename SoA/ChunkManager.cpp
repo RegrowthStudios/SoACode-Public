@@ -1038,9 +1038,9 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
         // Set Matrix
         glUniformMatrix4fv(chunkLineProgram->getUniform("MVP"), 1, GL_FALSE, &(VP[0][0]));
         // Set Texture
-    //    glUniform1i(chunkLineProgram->getUniform("tex"), 0);
+        glUniform1i(chunkLineProgram->getUniform("tex"), 0);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, BlankTextureID.ID);
         // Draw the grid
         mesh.draw();
         // Unuse the program
@@ -1869,6 +1869,7 @@ i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
     //player biome
     i32v2 gridPosition(fastFloor(posX / (float)CHUNK_WIDTH) * CHUNK_WIDTH, fastFloor(posZ / (float)CHUNK_WIDTH) * CHUNK_WIDTH);
     ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
+    if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) return 1;
     if (chunkGridData) {
         hd = chunkGridData->heightData[(posZ%CHUNK_WIDTH) * CHUNK_WIDTH + posX%CHUNK_WIDTH];
         return 0;
