@@ -862,8 +862,8 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
 }
 
 ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
-    int idir = FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][0];
-    int jdir = FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][1];
+    int idir = FaceSigns[chunk->faceData.face][chunk->faceData.rotation][0];
+    int jdir = FaceSigns[chunk->faceData.face][chunk->faceData.rotation][1];
     int ip = (chunk->faceData.ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
     int jp = (chunk->faceData.jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
 
@@ -893,8 +893,8 @@ nString RegionFileManager::getRegionString(Chunk *ch)
 {
     int rot = ch->faceData.rotation;
     int face = ch->faceData.face;
-    int idir = FaceOffsets[face][rot][0];
-    int jdir = FaceOffsets[face][rot][1];
+    int idir = FaceSigns[face][rot][0];
+    int jdir = FaceSigns[face][rot][1];
     int ip = (ch->faceData.ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
     int jp = (ch->faceData.jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
 

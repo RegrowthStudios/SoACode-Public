@@ -278,8 +278,8 @@ bool CloseTerrainPatch::CreateMesh()
     }
 
     //used for tree coords
-    int wx = faceData.jpos*CHUNK_WIDTH * FaceOffsets[faceData.face][faceData.rotation][0];
-    int wz = faceData.ipos*CHUNK_WIDTH * FaceOffsets[faceData.face][faceData.rotation][0];
+    int wx = faceData.jpos*CHUNK_WIDTH * FaceSigns[faceData.face][faceData.rotation][0];
+    int wz = faceData.ipos*CHUNK_WIDTH * FaceSigns[faceData.face][faceData.rotation][0];
     //swap em if rot%2
     if (faceData.rotation % 2){
         int t = wx;
@@ -292,10 +292,10 @@ bool CloseTerrainPatch::CreateMesh()
     int ipos = FaceCoords[face][rot][0];
     int jpos = FaceCoords[face][rot][1];
     int rpos = FaceCoords[face][rot][2];
-    int idir = FaceOffsets[face][rot][0];
-    int jdir = FaceOffsets[face][rot][1];
+    int idir = FaceSigns[face][rot][0];
+    int jdir = FaceSigns[face][rot][1];
 
-    currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadSign[face] * GameManager::planet->radius, idir, jdir, 1.0);
+    currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadialSign[face] * GameManager::planet->radius, idir, jdir, 1.0);
 
     int size = width / step + 3;
     int h;

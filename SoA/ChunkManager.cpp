@@ -134,6 +134,12 @@ void ChunkManager::initializeGrid(const f64v3& gpos, ui32 flags) {
     csGridSize = csGridWidth * csGridWidth * csGridWidth;
     _chunkSlotIndexMap.reserve(csGridSize);
 
+    _freeList.set_capacity(csGridSize);
+    _setupList.set_capacity(csGridSize);
+    _meshList.set_capacity(csGridSize);
+    _loadList.set_capacity(csGridSize);
+    _generateList.set_capacity(csGridSize);
+
     _hz = 0;
     _hx = 0;
 
@@ -214,14 +220,13 @@ void ChunkManager::initializeHeightMap() {
     i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH + csGridWidth / 2 + 1;
     i32 face = _playerFace->face;
 
-
     i32 ipos = FaceCoords[face][rot][0];
     i32 jpos = FaceCoords[face][rot][1];
     i32 rpos = FaceCoords[face][rot][2];
-    i32 idir = FaceOffsets[face][rot][0];
-    i32 jdir = FaceOffsets[face][rot][1];
+    i32 idir = FaceSigns[face][rot][0];
+    i32 jdir = FaceSigns[face][rot][1];
 
-    currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadSign[face] * planet->radius, idir, jdir, 1.0);
+    currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadialSign[face] * planet->radius, idir, jdir, 1.0);
 
     ChunkGridData* newData = new ChunkGridData;
     newData->faceData.rotation = rot;
@@ -230,8 +235,7 @@ void ChunkManager::initializeHeightMap() {
     newData->faceData.face = face;
     _chunkGridDataMap[centerPos] = newData;
 
-    newData->faceData.Set(face, istrt, jstrt, rot);   
-    
+    newData->faceData.Set(face, istrt, jstrt, rot);
 }
 
 void ChunkManager::initializeChunks() {
@@ -575,42 +579,18 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded
 void ChunkManager::updateLoadList(ui32 maxTicks) {
-    ui32 sss = SDL_GetTicks();
-    i32 depth;
-    i32 size = _loadList.size();
-    i32 startX, startZ;
-    i32 ipos, jpos, rpos;
-    i32 idir, jdir;
-    i32 rot, face;
+
     Chunk* chunk;
     vector<Chunk* > chunksToLoad;
     ChunkGridData* chunkGridData;
 
     ui32 sticks = SDL_GetTicks();
-    for (i32 i = size - 1; i >= 0; i--) {
+    for (i32 i = _loadList.size() - 1; i >= 0; i--) {
         chunk = _loadList[i];
         _loadList.pop_back();
         chunk->updateIndex = -1;
         chunk->setupListPtr = NULL;
-        chunkGridData = chunk->chunkGridData;
-
-        //If the heightmap has not been generated, generate it.
-        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-
-            //set up the directions
-            rot = chunkGridData->faceData.rotation;
-            face = chunkGridData->faceData.face;
-            ipos = FaceCoords[face][rot][0];
-            jpos = FaceCoords[face][rot][1];
-            rpos = FaceCoords[face][rot][2];
-            idir = FaceOffsets[face][rot][0];
-            jdir = FaceOffsets[face][rot][1];
-
-            currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadSign[face] * planet->radius, idir, jdir, 1.0);
-
-            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, (chunkGridData->faceData.ipos*CHUNK_WIDTH - planet->radius), (chunkGridData->faceData.jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            prepareHeightMap(chunkGridData->heightData, 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
-        }
+     
         chunk->isAccessible = 0;
 
         chunksToLoad.push_back(chunk);
@@ -861,7 +841,11 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
     i32 state;
     Chunk* chunk;
+    ChunkGridData* chunkGridData;
     i32 startX, startZ;
+    i32 ipos, jpos, rpos;
+    i32 idir, jdir;
+    i32 rot, face;
 
     for (i32 i = _generateList.size() - 1; i >= 0; i--) {
         chunk = _generateList[i];
@@ -871,6 +855,26 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         chunk->updateIndex = -1;
         chunk->setupListPtr = NULL;
         _generateList.pop_back();
+
+        chunkGridData = chunk->chunkGridData;
+
+        //If the heightmap has not been generated, generate it.
+        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
+
+            //set up the directions
+            rot = chunkGridData->faceData.rotation;
+            face = chunkGridData->faceData.face;
+            ipos = FaceCoords[face][rot][0];
+            jpos = FaceCoords[face][rot][1];
+            rpos = FaceCoords[face][rot][2];
+            idir = FaceSigns[face][rot][0];
+            jdir = FaceSigns[face][rot][1];
+
+            currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadialSign[face] * planet->radius, idir, jdir, 1.0);
+
+            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, (chunkGridData->faceData.ipos*CHUNK_WIDTH - planet->radius), (chunkGridData->faceData.jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            prepareHeightMap(chunkGridData->heightData);
+        }
 
         chunk->isAccessible = 0;
 
@@ -978,10 +982,22 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
 
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
         chunk = _chunkSlots[0][i].chunk;
-        if (chunk && chunk->mesh && chunk->mesh->inFrustum) {
+        if (chunk) {// && chunk->mesh && chunk->mesh->inFrustum) {
             posOffset = f32v3(f64v3(chunk->gridPosition) - position);
 
             switch (chunk->_state) {
+            case ChunkStates::GENERATE:
+                color = ColorRGBA8(255, 0, 255, 255);
+                break;
+            case ChunkStates::LOAD:
+                color = ColorRGBA8(255, 255, 255, 255);
+                break;
+            case ChunkStates::LIGHT:
+                color = ColorRGBA8(255, 255, 0, 255);
+                break;
+            case ChunkStates::TREES:
+                color = ColorRGBA8(0, 128, 0, 255);
+                break;
             case ChunkStates::DRAW:
                 color = ColorRGBA8(0, 0, 255, 255);
                 break;
@@ -1301,15 +1317,14 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
         if (chunkGridData == nullptr) {
             chunkGridData = new ChunkGridData();
             _chunkGridDataMap[gridPosition] = chunkGridData;
+            //TODO: properFaceData
+            chunkGridData->faceData.face = cs->faceData->face;
+            chunkGridData->faceData.ipos = cs->faceData->ipos + offset.z;
+            chunkGridData->faceData.jpos = cs->faceData->jpos + offset.x;
+            chunkGridData->faceData.rotation = cs->faceData->rotation;
         } else {
             chunkGridData->refCount++;
         }
-
-        //TODO: properFaceData
-        chunkGridData->faceData.face = cs->faceData->face;
-        chunkGridData->faceData.ipos = cs->faceData->ipos + offset.z;
-        chunkGridData->faceData.ipos = cs->faceData->jpos + offset.x;
-        chunkGridData->faceData.rotation = cs->faceData->rotation;
 
         _chunkSlots[0].emplace_back(newPosition, nullptr, cs->ipos + offset.z, cs->jpos + offset.x, &chunkGridData->faceData);
 
@@ -1349,49 +1364,49 @@ void ChunkManager::saveAllChunks() {
     }
 }
 
-void ChunkManager::prepareHeightMap(HeightData heightData[CHUNK_LAYER], i32 startX, i32 startZ, i32 width, i32 height) {
+void ChunkManager::prepareHeightMap(HeightData heightData[CHUNK_LAYER]) {
     i32 minNearHeight; //to determine if we should remove surface blocks
     i32 heightDiffThreshold = 3;
     i32 tmp;
     i32 maph;
     Biome *biome;
     i32 sandDepth, snowDepth;
-    for (i32 i = startZ; i < startZ + height; i++) {
-        for (i32 j = startX; j < startX + width; j++) {
+    for (i32 z = 0; z < CHUNK_WIDTH; z++) {
+        for (i32 x = 0; x < CHUNK_WIDTH; x++) {
 
             //*************Calculate if it is too steep ***********************
-            maph = heightData[i*CHUNK_WIDTH + j].height;
-            biome = heightData[i*CHUNK_WIDTH + j].biome;
-            sandDepth = heightData[i*CHUNK_WIDTH + j].sandDepth;
-            snowDepth = heightData[i*CHUNK_WIDTH + j].snowDepth;
+            maph = heightData[z*CHUNK_WIDTH + x].height;
+            biome = heightData[z*CHUNK_WIDTH + x].biome;
+            sandDepth = heightData[z*CHUNK_WIDTH + x].sandDepth;
+            snowDepth = heightData[z*CHUNK_WIDTH + x].snowDepth;
 
             minNearHeight = maph;
-            if (j > 0) { //Could sentinalize this in the future
-                minNearHeight = heightData[i*CHUNK_WIDTH + j - 1].height;
+            if (x > 0) { //Could sentinalize this in the future
+                minNearHeight = heightData[z*CHUNK_WIDTH + x - 1].height;
             } else {
-                minNearHeight = maph + (maph - heightData[i*CHUNK_WIDTH + j + 1].height); //else use opposite side but negating the difference
+                minNearHeight = maph + (maph - heightData[z*CHUNK_WIDTH + x + 1].height); //else use opposite side but negating the difference
             }
-            if (j < CHUNK_WIDTH - 1) {
-                tmp = heightData[i*CHUNK_WIDTH + j + 1].height;
+            if (x < CHUNK_WIDTH - 1) {
+                tmp = heightData[z*CHUNK_WIDTH + x + 1].height;
             } else {
-                tmp = maph + (maph - heightData[i*CHUNK_WIDTH + j - 1].height);
-            }
-            if (tmp < minNearHeight) minNearHeight = tmp;
-            if (i > 0) {
-                tmp = heightData[(i - 1)*CHUNK_WIDTH + j].height;
-            } else {
-                tmp = maph + (maph - heightData[(i + 1)*CHUNK_WIDTH + j].height);
+                tmp = maph + (maph - heightData[z*CHUNK_WIDTH + x - 1].height);
             }
             if (tmp < minNearHeight) minNearHeight = tmp;
-            if (i < CHUNK_WIDTH - 1) {
-                tmp = heightData[(i + 1)*CHUNK_WIDTH + j].height;
+            if (z > 0) {
+                tmp = heightData[(z - 1)*CHUNK_WIDTH + x].height;
             } else {
-                tmp = maph + (maph - heightData[(i - 1)*CHUNK_WIDTH + j].height);
+                tmp = maph + (maph - heightData[(z + 1)*CHUNK_WIDTH + x].height);
+            }
+            if (tmp < minNearHeight) minNearHeight = tmp;
+            if (z < CHUNK_WIDTH - 1) {
+                tmp = heightData[(z + 1)*CHUNK_WIDTH + x].height;
+            } else {
+                tmp = maph + (maph - heightData[(z - 1)*CHUNK_WIDTH + x].height);
             }
             if (tmp < minNearHeight) minNearHeight = tmp;
 
-            if (maph - minNearHeight >= heightDiffThreshold && heightData[i*CHUNK_WIDTH + j].biome->looseSoilDepth) {
-                heightData[i*CHUNK_WIDTH + j].flags |= TOOSTEEP;
+            if (maph - minNearHeight >= heightDiffThreshold && heightData[z*CHUNK_WIDTH + x].biome->looseSoilDepth) {
+                heightData[z*CHUNK_WIDTH + x].flags |= TOOSTEEP;
             }
             //*************End TOOSTEEP calculation ***********************
 
@@ -1405,7 +1420,7 @@ void ChunkManager::prepareHeightMap(HeightData heightData[CHUNK_LAYER], i32 star
                 surfaceBlock = biome->surfaceBlock;
                 if (surfaceBlock == DIRTGRASS && (snowDepth || sandDepth)) surfaceBlock = DIRT;
             }
-            heightData[i*CHUNK_WIDTH + j].surfaceBlock = surfaceBlock;
+            heightData[z*CHUNK_WIDTH + x].surfaceBlock = surfaceBlock;
 
             //**************END SURFACE BLOCK CALCULATION******************
         }
@@ -1465,7 +1480,7 @@ i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
 void ChunkManager::clearChunkFromLists(Chunk* chunk) {
     i32 dindex = chunk->drawIndex;
     i32 uindex = chunk->updateIndex;
-    vector<Chunk*> *sp;
+    boost::circular_buffer<Chunk*> *sp;
 
     chunk->clearBuffers();
 
@@ -1525,7 +1540,7 @@ void ChunkManager::clearChunk(Chunk* chunk) {
     chunk->inLoadThread = 0;
 }
 
-void ChunkManager::recursiveSortChunks(vector<Chunk*> &v, i32 start, i32 size, i32 type) {
+void ChunkManager::recursiveSortChunks(boost::circular_buffer<Chunk*> &v, i32 start, i32 size, i32 type) {
     if (size < 2) return;
     i32 i, j;
     Chunk* pivot, *mid, *last, *tmp;
@@ -1671,7 +1686,7 @@ void ChunkManager::remeshAllChunks() {
     }
 }
 
-void ChunkManager::recursiveSortSetupList(vector<Chunk*>& v, i32 start, i32 size, i32 type) {
+void ChunkManager::recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32 start, i32 size, i32 type) {
     if (size < 2) return;
     i32 i, j;
     Chunk* pivot, *mid, *last, *tmp;

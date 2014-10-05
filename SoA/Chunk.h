@@ -4,6 +4,8 @@
 #include <set>
 #include <mutex>
 
+#include <boost/circular_buffer_fwd.hpp>
+
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "SmartVoxelContainer.h"
@@ -173,7 +175,7 @@ public:
 
     static ui32 vboIndicesID;
 
-    std::vector <Chunk *> *setupListPtr;
+    boost::circular_buffer<Chunk*> *setupListPtr;
     Chunk *right, *left, *front, *back, *top, *bottom;
 
     //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.

@@ -579,11 +579,11 @@ void Player::calculateWorldPosition()
     ipos = FaceCoords[faceData.face][faceData.rotation][0];
     jpos = FaceCoords[faceData.face][faceData.rotation][1];
     rpos = FaceCoords[faceData.face][faceData.rotation][2];
-    incI = FaceOffsets[faceData.face][faceData.rotation][0];
-    incJ = FaceOffsets[faceData.face][faceData.rotation][1];
+    incI = FaceSigns[faceData.face][faceData.rotation][0];
+    incJ = FaceSigns[faceData.face][faceData.rotation][1];
     v1[ipos] = incI * facePosition.z;
     v1[jpos] = incJ * facePosition.x;
-    v1[rpos] = FaceRadSign[faceData.face] * _worldRadius * planetScale;
+    v1[rpos] = FaceRadialSign[faceData.face] * _worldRadius * planetScale;
 
     worldPosition = (headPosition.y*invPlanetScale + (double)_worldRadius)*glm::normalize(v1);
     incI *= 100;

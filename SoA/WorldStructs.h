@@ -161,8 +161,8 @@ struct FaceData
         rotation = Rot;
     }
     int face;
-    int ipos;
-    int jpos;
+    int ipos; //front-back axis
+    int jpos; //left-right axis
     int rotation;
 };
 

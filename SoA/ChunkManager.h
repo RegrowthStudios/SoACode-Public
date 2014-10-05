@@ -7,6 +7,8 @@
 #include <set>
 #include <thread>
 
+#include <boost/circular_buffer.hpp>
+
 #include "BlockData.h"
 #include "Chunk.h"
 #include "GameManager.h"
@@ -77,7 +79,7 @@ public:
     void clearAllChunks(bool clearDrawing);
     void clearAll();
     void saveAllChunks();
-    void recursiveSortChunks(std::vector<Chunk*>& v, i32 start, i32 size, i32 type);
+    void recursiveSortChunks(boost::circular_buffer<Chunk*>& v, i32 start, i32 size, i32 type);
 
     bool isChunkPositionInBounds(const i32v3& position) const;
 
@@ -127,10 +129,10 @@ private:
     inline void shiftY(i32 dir);
     inline void shiftZ(i32 dir);
     void calculateCornerPosition(const f64v3& centerPosition);
-    void prepareHeightMap(HeightData heightData[CHUNK_LAYER], i32 startX, i32 startZ, i32 width, i32 height);
+    void prepareHeightMap(HeightData heightData[CHUNK_LAYER]);
     void clearChunkFromLists(Chunk* chunk);
     void clearChunk(Chunk* chunk);
-    void recursiveSortSetupList(std::vector<Chunk*>& v, i32 start, i32 size, i32 type);
+    void recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32 start, i32 size, i32 type);
     void caveOcclusion(const f64v3& ppos);
     void recursiveFloodFill(bool left, bool right, bool front, bool back, bool top, bool bottom, Chunk* chunk);
     void removeFromSetupList(Chunk* ch);
@@ -156,11 +158,11 @@ private:
     std::vector<Chunk*> _threadWaitingChunks;
     std::unordered_map<i32v3, int> _chunkSlotIndexMap;
 
-    std::vector<Chunk*> _freeList;
-    std::vector<Chunk*> _setupList;
-    std::vector<Chunk*> _generateList;
-    std::vector<Chunk*> _meshList;
-    std::vector<Chunk*> _loadList;
+    boost::circular_buffer<Chunk*> _freeList;
+    boost::circular_buffer<Chunk*> _setupList;
+    boost::circular_buffer<Chunk*> _meshList;
+    boost::circular_buffer<Chunk*> _loadList;
+    boost::circular_buffer<Chunk*> _generateList;
 
     queue<ChunkMeshData*> _finishedChunkMeshes;
 

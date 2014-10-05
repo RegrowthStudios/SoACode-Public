@@ -17,8 +17,8 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     timer.start();
     HeightData *heightMap = ld->heightMap;
     //used for tree coords
-    int wx = chunk->faceData.jpos*CHUNK_WIDTH * FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][0];
-    int wz = chunk->faceData.ipos*CHUNK_WIDTH * FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][1];
+    int wx = chunk->faceData.jpos*CHUNK_WIDTH * FaceSigns[chunk->faceData.face][chunk->faceData.rotation][0];
+    int wz = chunk->faceData.ipos*CHUNK_WIDTH * FaceSigns[chunk->faceData.face][chunk->faceData.rotation][1];
     //swap em if rot%2
     if (chunk->faceData.rotation % 2){
         int t = wx;

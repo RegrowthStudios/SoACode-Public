@@ -49,14 +49,14 @@ const int FaceCoords[6][4][3] = { { {2,0,1}, {0,2,1}, {2,0,1}, {0,2,1} },  //top
 
 // 6 faces, 4 rotations, ioff joff
 //determined by taking the base case for i and j direction, and then rotating it 3 times, recording the new i j directions
-const int FaceOffsets[6][4][2] = { { {1, 1}, {1, -1}, {-1, -1}, {-1, 1} }, //top
+const int FaceSigns[6][4][2] = { { {1, 1}, {1, -1}, {-1, -1}, {-1, 1} }, //top
                                     { {-1, 1}, {1, 1}, {1, -1}, {-1, -1} }, //left
                                     { {-1, -1}, {-1, 1}, {1, 1}, {1, -1} }, //right
                                     { {-1, 1}, {1, 1}, {1, -1}, {-1, -1} }, //front
                                     { {-1, -1}, {-1, 1}, {1, 1}, {1, -1} }, //back
-                                    { {-1, 1}, {1, 1}, {1, -1}, {-1, -1} } };
+                                    { {-1, 1}, {1, 1}, {1, -1}, {-1, -1} } }; //bottom
 
-const int FaceRadSign[6] = {1, -1, 1, 1, -1, -1};
+const int FaceRadialSign[6] = {1, -1, 1, 1, -1, -1};
 
 extern bool debugVarc;
 extern bool debugVarh;

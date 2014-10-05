@@ -1996,10 +1996,10 @@ i32 FileManager::savePlayerFile(Player *player) {
     float facey = player->facePosition.y;
     float facez = player->facePosition.z;
 
-    if (FaceOffsets[face][rot][0] != FaceOffsets[face][0][0]) {
+    if (FaceSigns[face][rot][0] != FaceSigns[face][0][0]) {
         facez = -facez;
     }
-    if (FaceOffsets[face][rot][1] != FaceOffsets[face][0][1]) {
+    if (FaceSigns[face][rot][1] != FaceSigns[face][0][1]) {
         facex = -facex;
     }
 
