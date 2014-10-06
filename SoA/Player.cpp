@@ -61,11 +61,9 @@ Player::Player() : scannedBlock(0),
                     isSwimming(0),
                     isUnderWater(0),
                     isDragBreak(0),
-                    dragBlock(NULL)
+                    dragBlock(NULL),
+                    faceData(0,0,0,0)
 {
-    faceData.rotation = 0;
-
-    faceData.face = 0;
 
     velocity.x = 0;
     velocity.y = 0;

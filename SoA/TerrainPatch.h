@@ -113,7 +113,7 @@ class CloseTerrainPatch{
 public:
     int X, Y, Z;
     int cX, cY, cZ;
-    FaceData faceData;
+  //  FaceData faceData;
     int step;
     int lodMapStep;
     int lodMapSize;

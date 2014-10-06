@@ -173,7 +173,7 @@ void ParticleBatch::addParticles(int num, glm::dvec3 pos, ParticleEmitter *emitt
 
 int ParticleBatch::update() {
 
-    glm::dvec3 chunkListPos(GameManager::chunkManager->cornerPosition);
+    glm::dvec3 chunkListPos(0);// GameManager::chunkManager->cornerPosition);
     glm::quat quaternion;
     glm::dvec3 pos;
     int n = 0;

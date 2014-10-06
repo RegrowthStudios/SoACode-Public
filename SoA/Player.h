@@ -4,6 +4,9 @@
 #include "Texture2d.h"
 #include "global.h"
 
+#include "Vorb.h"
+#include "VoxelPlanetMapper.h"
+
 class Chunk;
 
 struct CollisionData {
@@ -129,7 +132,7 @@ public:
 
     i32 planetRowSize;
 
-    FaceData faceData;
+    vvoxel::VoxelPlanetMapData voxelMapData;
     CollisionData collisionData;
 
     f32m4 worldRotationMatrix;

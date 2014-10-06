@@ -110,6 +110,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="VoxelMesher.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="WSO.h" />
     <ClInclude Include="WSOAtlas.h" />
@@ -298,6 +300,7 @@
     <ClCompile Include="SmartVoxelContainer.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
+    <ClCompile Include="VoxelPlanetMapper.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VRayHelper.cpp" />
     <ClCompile Include="ChunkIOManager.cpp" />

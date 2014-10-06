@@ -2,7 +2,7 @@
 //  Mesh.h
 //  Vorb Engine
 //
-//  Created by Ben Arnold on 30/9/2014
+//  Created by Ben Arnold on 30 Sep 2014
 //  Copyright 2014 Regrowth Studios
 //  All Rights Reserved
 //  

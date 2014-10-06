@@ -6,6 +6,9 @@
 
 #include <boost/circular_buffer_fwd.hpp>
 
+#include "Vorb.h"
+#include "IVoxelMapper.h"
+
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "SmartVoxelContainer.h"
@@ -35,6 +38,17 @@ struct RenderTask;
 #define LAMP_GREEN_SHIFT 5
 //no blue shift
 
+class ChunkGridData {
+public:
+    ChunkGridData(vvoxel::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData), refCount(1) {
+        //Mark the data as unloaded
+        heightData[0].height = UNLOADED_HEIGHT;
+    }
+    vvoxel::VoxelMapData* voxelMapData;
+    HeightData heightData[CHUNK_LAYER];
+    int refCount;
+};
+
 class ChunkSlot;
 
 class Chunk{
@@ -51,7 +65,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &gridPos, int hzI, int hxI, FaceData *fd, ChunkSlot* Owner);
+    void init(const i32v3 &gridPos, ChunkSlot* Owner);
     
     void changeState(ChunkStates State);
     
@@ -148,9 +162,7 @@ public:
     std::vector <GLushort> spawnerBlocks;
     i32v3 gridPosition;  // Position relative to the voxel grid
     i32v3 chunkPosition; // floor(gridPosition / (float)CHUNK_WIDTH)
-    FaceData faceData;
-    int hzIndex, hxIndex;
-    int worldX, worlxY, worldZ;
+
     int numBlocks;
     int minh;
     double distance2;
@@ -205,12 +217,10 @@ public:
 
     friend class ChunkManager;
 
-    ChunkSlot(const glm::ivec3 &pos, Chunk *ch, int Ipos, int Jpos, FaceData *fD) :
+    ChunkSlot(const glm::ivec3 &pos, Chunk *ch, ChunkGridData* cgd) :
         chunk(ch),
         position(pos),
-        ipos(Ipos),
-        jpos(Jpos),
-        faceData(fD),
+        chunkGridData(cgd),
         left(-1),
         right(-1),
         back(-1),
@@ -365,8 +375,8 @@ public:
 
     //squared distance
     double distance2;
-    int ipos, jpos;
-    FaceData *faceData;
+
+    ChunkGridData* chunkGridData;
 private:
     static double getDistance2(const i32v3& pos, const i32v3& cameraPos) {
         double dx = (cameraPos.x <= pos.x) ? pos.x : ((cameraPos.x > pos.x + CHUNK_WIDTH) ? (pos.x + CHUNK_WIDTH) : cameraPos.x);

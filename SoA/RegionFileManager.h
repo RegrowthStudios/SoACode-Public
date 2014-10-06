@@ -4,6 +4,9 @@
 #include <deque>
 #include <map>
 
+#include "Vorb.h"
+#include "IVoxelMapper.h"
+
 //Size of a sector in bytes
 #define SECTOR_SIZE 512
 
@@ -62,7 +65,7 @@ public:
 
     void clear();
 
-    bool openRegionFile(nString region, i32 face, bool create);
+    bool openRegionFile(nString region, vvoxel::VoxelMapData* voxelMapData, bool create);
 
     bool tryLoadChunk(Chunk* chunk);
     bool saveChunk(Chunk* chunk);

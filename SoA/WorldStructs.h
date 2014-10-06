@@ -152,31 +152,6 @@ struct HeightData
     GLushort surfaceBlock;
 };
 
-struct FaceData
-{
-    void Set(int Face, int Ipos, int Jpos, int Rot){
-        face = Face;
-        ipos = Ipos;
-        jpos = Jpos;
-        rotation = Rot;
-    }
-    int face;
-    int ipos; //front-back axis
-    int jpos; //left-right axis
-    int rotation;
-};
-
-class ChunkGridData {
-public:
-    ChunkGridData() : refCount(1) {     
-        //Mark the data as unloaded
-        heightData[0].height = UNLOADED_HEIGHT;
-    }
-    FaceData faceData;
-    HeightData heightData[CHUNK_LAYER];
-    int refCount;
-};
-
 struct MineralData
 {
     MineralData(GLint btype, GLint startheight, float startchance, GLint centerheight, float centerchance, GLint endheight, float endchance, GLint minsize, GLint maxsize)

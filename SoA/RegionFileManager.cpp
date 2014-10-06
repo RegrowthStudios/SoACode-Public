@@ -95,7 +95,7 @@ void RegionFileManager::clear() {
     _regionFile = nullptr;
 }
 
-bool RegionFileManager::openRegionFile(nString region, i32 face, bool create) {
+bool RegionFileManager::openRegionFile(nString region, vvoxel::VoxelMapData* voxelMapData, bool create) {
 
     nString filePath;
     struct stat statbuf;
@@ -131,7 +131,7 @@ bool RegionFileManager::openRegionFile(nString region, i32 face, bool create) {
     } 
 
 
-    filePath = GameManager::saveFilePath + "/Region/f" + std::to_string(face) + "/" + region + ".soar";
+    filePath = GameManager::saveFilePath + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
    
     //open file if it exists
     FILE* file = fopen(filePath.c_str(), "rb+");
@@ -209,7 +209,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     nString regionString = getRegionString(chunk);
 
     //Open the region file
-    if (!openRegionFile(regionString, chunk->faceData.face, false)) return false;
+    if (!openRegionFile(regionString, chunk->owner->chunkGridData->voxelMapData, false)) return false;
 
     //Get the chunk sector offset
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk);
@@ -248,7 +248,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     nString regionString = getRegionString(chunk);
 
-    if (!openRegionFile(regionString, chunk->faceData.face, true)) return false;
+    if (!openRegionFile(regionString, chunk->owner->chunkGridData->voxelMapData, true)) return false;
 
     ui32 tableOffset;
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
@@ -593,7 +593,7 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
     int kStart, kEnd, kInc;
     int jMult, kMult;
 
-    getIterationConstantsFromRotation(chunk->faceData.rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    getIterationConstantsFromRotation(chunk->faceData->rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
     chunk->numBlocks = 0;
 
@@ -795,7 +795,7 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     int kStart, kEnd, kInc;
     int jMult, kMult;
 
-    getIterationConstantsFromRotation(chunk->faceData.rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    getIterationConstantsFromRotation(chunk->faceData->rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
     rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
     rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
@@ -862,12 +862,12 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
 }
 
 ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
-    int idir = FaceSigns[chunk->faceData.face][chunk->faceData.rotation][0];
-    int jdir = FaceSigns[chunk->faceData.face][chunk->faceData.rotation][1];
-    int ip = (chunk->faceData.ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
-    int jp = (chunk->faceData.jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
+    int idir = FaceSigns[chunk->faceData->face][chunk->faceData->rotation][0];
+    int jdir = FaceSigns[chunk->faceData->face][chunk->faceData->rotation][1];
+    int ip = (chunk->faceData->ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
+    int jp = (chunk->faceData->jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
 
-    if (chunk->faceData.rotation % 2){ //when rot%2 i and j must switch
+    if (chunk->faceData->rotation % 2){ //when rot%2 i and j must switch
         int tmp = ip;
         ip = jp;
         jp = tmp;
@@ -891,12 +891,12 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
 
 nString RegionFileManager::getRegionString(Chunk *ch)
 {
-    int rot = ch->faceData.rotation;
-    int face = ch->faceData.face;
+    int rot = ch->faceData->rotation;
+    int face = ch->faceData->face;
     int idir = FaceSigns[face][rot][0];
     int jdir = FaceSigns[face][rot][1];
-    int ip = (ch->faceData.ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
-    int jp = (ch->faceData.jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
+    int ip = (ch->faceData->ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
+    int jp = (ch->faceData->jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
 
     if (rot % 2){ //when rot%2 i and j must switch
         return "r." + to_string(ip >> RSHIFT) + "." + to_string((int)floor(ch->gridPosition.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(jp >> RSHIFT);

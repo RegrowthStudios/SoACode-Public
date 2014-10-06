@@ -515,7 +515,7 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
     return 0;
 }
 
-int FloraGenerator::getTreeIndex(Biome *biome, int x, int z) {
+i32 FloraGenerator::getTreeIndex(Biome *biome, i32 x, i32 z) {
     float noTreeChance = 1.0f - biome->treeChance;
     float treeSum = 0.0f;
     int index = -1;

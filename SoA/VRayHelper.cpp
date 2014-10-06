@@ -9,7 +9,8 @@
 
 const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, ChunkManager* cm, PredBlockID f) {
     // First Convert To Voxel Coordinates
-    f64v3 relativePosition = pos - f64v3(cm->cornerPosition);
+    //TODO(Cristian) use new mapping for this
+    f64v3 relativePosition = pos;// -f64v3(cm->cornerPosition);
     VoxelRay vr(f32v3(relativePosition), dir);
 
     // Create The Query At The Current Position
@@ -50,7 +51,8 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, Chu
 }
 const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, ChunkManager* cm, PredBlockID f) {
     // First Convert To Voxel Coordinates
-    f64v3 relativePosition = pos - f64v3(cm->cornerPosition);
+    //TODO(Cristian) use new mapping for this
+    f64v3 relativePosition = pos;// -f64v3(cm->cornerPosition);
     VoxelRay vr(f32v3(relativePosition), dir);
 
     // Create The Query At The Current Position

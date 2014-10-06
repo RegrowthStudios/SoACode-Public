@@ -86,7 +86,7 @@ void EditorTree::unGrow() {
     lnodes.clear();
 }
 
-WorldEditor::WorldEditor(void) : usingChunks(0), _voxelWorld(NULL), _planet(NULL), _editorTree(NULL) {
+WorldEditor::WorldEditor(void) : usingChunks(0), _voxelWorld(NULL), _planet(NULL), _editorTree(NULL), _worldFaceData(0, 0, 0, 0){
 
 }
 
@@ -109,8 +109,7 @@ void WorldEditor::initialize(Planet *planet) {
 
     _voxelWorld = GameManager::voxelWorld;
 
-    FaceData faceData = {};
-    _voxelWorld->initialize(glm::dvec3(0, 0, 0), &faceData, _planet, 0, 1);
+    _voxelWorld->initialize(glm::dvec3(0, 0, 0), 0, _planet, 0, 1);
     _voxelWorld->getChunkManager().generateOnly = true;
     _voxelWorld->getChunkManager().setIsStationary(true);
     GameManager::chunkIOManager->setDisableLoading(true);
@@ -1168,9 +1167,10 @@ void WorldEditor::enableChunks() {
         _chunkCamera.setPosition(glm::dvec3(0.0));
         //DrawLoadingScreen("Initializing chunk manager...");
 
-        _worldFaceData.Set(0, 0, 0, 0);
-        _voxelWorld->initialize(_chunkCamera.position(), &(_worldFaceData), GameManager::planet, 1, 1);
-        _chunkCamera.setPosition(glm::dvec3(_chunkCamera.position().x, _voxelWorld->getCenterY(), _chunkCamera.position().z));
+        _voxelWorld->initialize(_chunkCamera.position(), 0, GameManager::planet, 1, 1);
+        _chunkCamera.setPosition(glm::dvec3(_chunkCamera.position().x, 
+            0,//_voxelWorld->getCenterY(), 
+            _chunkCamera.position().z));
 
         _chunkCamera.update();
 

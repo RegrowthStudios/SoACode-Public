@@ -24,7 +24,7 @@ VoxelWorld::~VoxelWorld()
 }
 
 
-void VoxelWorld::initialize(const glm::dvec3 &gpos, FaceData *faceData, Planet *planet, bool atSurface, bool flatgrass)
+void VoxelWorld::initialize(const glm::dvec3 &gpos, int face, Planet *planet, bool atSurface, bool flatgrass)
 {
     if (_chunkManager) {
         pError("VoxelWorld::initialize() called twice before end session!");
@@ -42,12 +42,10 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, FaceData *faceData, Planet *
     if (atSurface) flags |= ChunkManager::SET_Y_TO_SURFACE;
     if (flatgrass) flags |= ChunkManager::FLAT_GRASS;
 
-    _chunkManager->initialize(gpos, faceData, flags);
+    _chunkManager->initialize(gpos, face, flags);
 
     setPlanet(planet);
     //    drawList.reserve(64*64);
-
-    _faceData = faceData;
 }
 
 void VoxelWorld::beginSession(const glm::dvec3 &gridPosition)
@@ -84,8 +82,6 @@ void VoxelWorld::setPlanet(Planet *planet)
     _planet = planet;
     GameManager::planet = planet;
 }
-
-int VoxelWorld::getCenterY() const { return _chunkManager->cornerPosition.y + (csGridWidth/2) * CHUNK_WIDTH + CHUNK_WIDTH/2; }
 
 void VoxelWorld::resizeGrid(const glm::dvec3 &gpos)
 {

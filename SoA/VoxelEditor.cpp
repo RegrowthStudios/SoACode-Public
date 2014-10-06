@@ -28,7 +28,7 @@ void VoxelEditor::editVoxels(Item *block) {
 }
 
 void VoxelEditor::placeAABox(Item *block) {
-
+    pError("NEED TO FIX placeAABox");
     Chunk* chunk = nullptr;
     int blockIndex = -1, blockID;
     int soundNum = 0;
@@ -39,8 +39,9 @@ void VoxelEditor::placeAABox(Item *block) {
     ChunkManager* chunkManager = GameManager::chunkManager;
 
     //Coordinates relative to the ChunkManager
-    i32v3 relStart = _startPosition - chunkManager->cornerPosition;
-    i32v3 relEnd = _endPosition - chunkManager->cornerPosition;
+    //TODO: FIX
+    i32v3 relStart = _startPosition;// -chunkManager->cornerPosition;
+    i32v3 relEnd = _endPosition;// - chunkManager->cornerPosition;
 
     bool breakBlocks = false;
     if (block == nullptr){
@@ -83,14 +84,14 @@ void VoxelEditor::placeAABox(Item *block) {
 
                     if (breakBlocks){
                         if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)){
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z) + f64v3(chunkManager->cornerPosition));
+                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
                             ChunkUpdater::removeBlock(chunk, blockIndex, true);
                         }
                     } else {
                         if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0))
                         {
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z) + f64v3(chunkManager->cornerPosition));
+                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
                             ChunkUpdater::placeBlock(chunk, blockIndex, block->ID);
                             block->count--;

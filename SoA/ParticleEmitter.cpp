@@ -12,7 +12,7 @@ ParticleEmitter::ParticleEmitter(glm::dvec3 pos, int typ) : position(pos), type(
 maxSizeE(0), minSizeS(0), maxSizeS(0), spawnTimeS(100), spawnTimeE(100) {}
 
 i32 ParticleEmitter::update() {
-    const glm::dvec3 chunkListPos(GameManager::chunkManager->cornerPosition);
+    const glm::dvec3 chunkListPos(0);// GameManager::chunkManager->cornerPosition);
     GLuint currSpawnTime;
     switch(type) {
     case EMITTER_LINEAR:

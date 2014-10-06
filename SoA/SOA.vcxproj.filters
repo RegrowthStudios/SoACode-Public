@@ -102,6 +102,9 @@
     <Filter Include="SOA Files\Data\Keg">
       <UniqueIdentifier>{ac47e175-d93f-4b05-bb81-caa1090f397f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Mapping">
+      <UniqueIdentifier>{f10c4941-dfe2-4bfb-a029-a82ec2a097dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -470,6 +473,12 @@
     <ClInclude Include="Vorb.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelPlanetMapper.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="IVoxelMapper.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -757,6 +766,9 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelPlanetMapper.cpp">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -109,8 +109,8 @@ void ChunkManager::initializeMinerals() {
     Chunk::possibleMinerals.push_back(new MineralData(COAL, -10, 3.0f, -500, 35.0f, -5000000, 10.0f, 3, 300));
 }
 
-void ChunkManager::initialize(const f64v3& gridPosition, FaceData *playerFaceData, ui32 flags) {
-    _playerFace = playerFaceData;
+void ChunkManager::initialize(const f64v3& gridPosition, int face, ui32 flags) {
+    _playerFace = new FaceData(face, 0, 0, 0);
     initializeMinerals();
     GLubyte sbuffer[64][3];
     //sun color map!
@@ -220,22 +220,8 @@ void ChunkManager::initializeHeightMap() {
     i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH + csGridWidth / 2 + 1;
     i32 face = _playerFace->face;
 
-    i32 ipos = FaceCoords[face][rot][0];
-    i32 jpos = FaceCoords[face][rot][1];
-    i32 rpos = FaceCoords[face][rot][2];
-    i32 idir = FaceSigns[face][rot][0];
-    i32 jdir = FaceSigns[face][rot][1];
-
-    currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadialSign[face] * planet->radius, idir, jdir, 1.0);
-
-    ChunkGridData* newData = new ChunkGridData;
-    newData->faceData.rotation = rot;
-    newData->faceData.ipos = istrt;
-    newData->faceData.jpos = jstrt;
-    newData->faceData.face = face;
+    ChunkGridData* newData = new ChunkGridData(face, istrt, jstrt, rot);
     _chunkGridDataMap[centerPos] = newData;
-
-    newData->faceData.Set(face, istrt, jstrt, rot);
 }
 
 void ChunkManager::initializeChunks() {
@@ -250,13 +236,13 @@ void ChunkManager::initializeChunks() {
     if (chunkGridData == nullptr) {
         pError("NULL grid data at initializeChunks()");
     }
-    _chunkSlots[0].emplace_back(cornerPosition + glm::ivec3(x, y, z) * CHUNK_WIDTH, nullptr, z, x, &chunkGridData->faceData);
+    _chunkSlots[0].emplace_back(cornerPosition + glm::ivec3(x, y, z) * CHUNK_WIDTH, nullptr, z, x, chunkGridData);
 
     //we dont sqrt the distance since sqrt is slow
     _chunkSlots[0][0].distance2 = 1;
 
     Chunk* chunk = produceChunk();
-    chunk->init(_chunkSlots[0][0].position, _chunkSlots[0][0].ipos, _chunkSlots[0][0].jpos, _chunkSlots[0][0].faceData, &_chunkSlots[0][0]);
+    chunk->init(_chunkSlots[0][0].position, &_chunkSlots[0][0]);
     chunk->distance2 = _chunkSlots[0][0].distance2;
     chunk->chunkGridData = chunkGridData;
     _chunkSlots[0][0].chunk = chunk;
@@ -376,10 +362,8 @@ void ChunkManager::relocateChunks(const f64v3& gpos) {
     _hx = 0;
     _hz = 0;
 
-    i32 rot = _playerFace->rotation;
     i32 istrt = (cornerPosition.z + planet->radius) / CHUNK_WIDTH;
     i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH;
-    i32 face = _playerFace->face;
 
     while (istrt < 0) {
         istrt += (planet->radius * 2) / CHUNK_WIDTH;
@@ -847,14 +831,12 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
     i32 idir, jdir;
     i32 rot, face;
 
-    for (i32 i = _generateList.size() - 1; i >= 0; i--) {
-        chunk = _generateList[i];
-        _generateList[i] = _generateList.back();
-        _generateList[i]->updateIndex = i;
-
+    while (_generateList.size()) {
+        chunk = _generateList.front();
         chunk->updateIndex = -1;
-        chunk->setupListPtr = NULL;
-        _generateList.pop_back();
+        chunk->setupListPtr = nullptr;
+
+        _generateList.pop_front();
 
         chunkGridData = chunk->chunkGridData;
 
@@ -982,8 +964,10 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
 
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
         chunk = _chunkSlots[0][i].chunk;
-        if (chunk) {// && chunk->mesh && chunk->mesh->inFrustum) {
-            posOffset = f32v3(f64v3(chunk->gridPosition) - position);
+        posOffset = f32v3(f64v3(chunk->gridPosition) - position);
+
+        if (chunk && ((chunk->mesh && chunk->mesh->inFrustum) || SphereInFrustum((float)(posOffset.x + CHUNK_WIDTH / 2), (float)(posOffset.y + CHUNK_WIDTH / 2), (float)(posOffset.z + CHUNK_WIDTH / 2), 28.0f, gridFrustum))) {
+            
 
             switch (chunk->_state) {
             case ChunkStates::GENERATE:
@@ -1133,42 +1117,14 @@ void ChunkManager::deleteAllChunks() {
     _freeList.clear();
 }
 
-void ChunkManager::shiftX(i32 dir) {
-    if (dir == 1) { //Positive x
-        //We are now one more chunk further in +x
-        cornerPosition.x += CHUNK_WIDTH;
-        _hx++;
-
-    } else { //Negative x
-        cornerPosition.x -= CHUNK_WIDTH;
-        _hx--;
-    }
-}
-
-void ChunkManager::shiftY(i32 dir) {
-    if (dir == 1) {
-        cornerPosition.y += CHUNK_WIDTH;
-    } else {
-        cornerPosition.y -= CHUNK_WIDTH;
-    }
-}
-
-void ChunkManager::shiftZ(i32 dir) {
-
-    if (dir == 1) {
-        cornerPosition.z += CHUNK_WIDTH;
-        _hz++;
-    } else {
-        cornerPosition.z -= CHUNK_WIDTH;
-        _hz--;
-    }
-}
-
-void ChunkManager::calculateCornerPosition(const f64v3& centerPosition) {
-    //Based on the player position, calculate a corner position for the chunks
-    cornerPosition.x = (i32)floor((centerPosition.x - CHUNK_WIDTH * csGridWidth / 2.0) / 32.0) * 32;
-    cornerPosition.y = (i32)floor((centerPosition.y - CHUNK_WIDTH * csGridWidth / 2.0) / 32.0) * 32;
-    cornerPosition.z = (i32)floor((centerPosition.z - CHUNK_WIDTH * csGridWidth / 2.0) / 32.0) * 32;
+i32v3 ChunkManager::getChunkPosition(const f64v3& position) {
+    //Based on the position, calculate a corner position for the chunk
+    
+    i32v3 rval;
+    rval.x = (int)fastFloor(position.x / (double)CHUNK_WIDTH);
+    rval.y = (int)fastFloor(position.y / (double)CHUNK_WIDTH);
+    rval.z = (int)fastFloor(position.z / (double)CHUNK_WIDTH);
+    return rval;
 }
 
 void ChunkManager::updateChunks(const f64v3& position) {
@@ -1315,13 +1271,11 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
         i32v2 gridPosition(newPosition.x, newPosition.y);
         ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
         if (chunkGridData == nullptr) {
-            chunkGridData = new ChunkGridData();
+            chunkGridData = new ChunkGridData(cs->faceData->face, 
+                                              cs->faceData->ipos + offset.z, 
+                                              cs->faceData->jpos + offset.z, 
+                                              cs->faceData->rotation);
             _chunkGridDataMap[gridPosition] = chunkGridData;
-            //TODO: properFaceData
-            chunkGridData->faceData.face = cs->faceData->face;
-            chunkGridData->faceData.ipos = cs->faceData->ipos + offset.z;
-            chunkGridData->faceData.jpos = cs->faceData->jpos + offset.x;
-            chunkGridData->faceData.rotation = cs->faceData->rotation;
         } else {
             chunkGridData->refCount++;
         }
@@ -1333,7 +1287,7 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
         newcs->vecIndex = _chunkSlots[0].size() - 1;
 
         Chunk* chunk = produceChunk();
-        chunk->init(newcs->position, newcs->ipos, newcs->jpos, newcs->faceData, newcs);
+        chunk->init(newcs->position, newcs);
         chunk->distance2 = newcs->distance2;
         chunk->chunkGridData = chunkGridData;
         newcs->chunk = chunk;
@@ -1884,8 +1838,8 @@ i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
     //player biome
     i32v2 gridPosition(fastFloor(posX / (float)CHUNK_WIDTH) * CHUNK_WIDTH, fastFloor(posZ / (float)CHUNK_WIDTH) * CHUNK_WIDTH);
     ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
-    if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) return 1;
     if (chunkGridData) {
+        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) return 1;
         hd = chunkGridData->heightData[(posZ%CHUNK_WIDTH) * CHUNK_WIDTH + posX%CHUNK_WIDTH];
         return 0;
     } else {

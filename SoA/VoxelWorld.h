@@ -12,7 +12,7 @@ class VoxelWorld
 public:
     VoxelWorld();
     ~VoxelWorld();
-    void initialize(const glm::dvec3 &gpos, FaceData *faceData, Planet *planet, bool setYfromHeight, bool flatgrass);
+    void initialize(const glm::dvec3 &gpos, int face, Planet *planet, bool setYfromHeight, bool flatgrass);
     void beginSession(const glm::dvec3 &gridPosition);
     void update(const glm::dvec3 &position, const glm::dvec3 &viewDir);
     void closeThreadPool();
@@ -21,8 +21,6 @@ public:
     void endSession();
 
     void setPlanet(class Planet *planet);
-
-    int getCenterY() const;
 
     Planet *getPlanet() { return _planet; }
 
@@ -33,9 +31,6 @@ private:
 
     //the planet associated with this world
     Planet* _planet;
-
-    //faceData stores the info about the current world cube face
-    FaceData* _faceData;
 
     //chunk manager manages and updates the chunk grid
     ChunkManager* _chunkManager;

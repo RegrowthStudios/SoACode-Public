@@ -221,9 +221,9 @@ void GameManager::initializeVoxelWorld(Player *playr) {
             atSurface = 0; //dont need to set height
         }
     }
-    voxelWorld->initialize(player->facePosition, &(player->faceData), planet, atSurface, 0);
+    voxelWorld->initialize(player->facePosition, player->faceData.face, planet, atSurface, 0);
 
-    if (atSurface) player->facePosition.y = voxelWorld->getCenterY();
+    if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
 
     player->gridPosition = player->facePosition;
 
@@ -367,7 +367,7 @@ void GameManager::clickDragRay(bool isBreakRay) {
         return;
     }
 
-    i32v3 position = chunkManager->cornerPosition + rq.location;
+    i32v3 position;// = chunkManager->cornerPosition + rq.location;
     if (voxelEditor->isEditing() == false) {
         voxelEditor->setStartPosition(position);
         voxelEditor->setEndPosition(position);

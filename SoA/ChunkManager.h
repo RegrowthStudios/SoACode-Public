@@ -9,11 +9,14 @@
 
 #include <boost/circular_buffer.hpp>
 
+#include "Vorb.h"
+
 #include "BlockData.h"
 #include "Chunk.h"
 #include "GameManager.h"
 #include "ThreadPool.h"
 #include "ChunkIOManager.h"
+#include "IVoxelMapper.h"
 #include "WorldStructs.h"
 
 const i32 lodStep = 1;
@@ -56,7 +59,7 @@ public:
         SET_Y_TO_SURFACE
     };
     // initializes the grid at the surface and returns the Y value
-    void initialize(const f64v3& gridPosition, FaceData* playerFaceData, ui32 flags);
+    void initialize(const f64v3& gridPosition, int face, ui32 flags);
 
     void resizeGrid(const f64v3& gpos);
     void relocateChunks(const f64v3& gpos);
@@ -105,8 +108,6 @@ public:
 
     const i16* getIDQuery(const i32v3& start, const i32v3& end) const;
 
-    i32v3 cornerPosition;
-
     i32 csGridSize;
 
     //TODO: Implement this
@@ -117,6 +118,8 @@ public:
 
     bool generateOnly;
 
+    static i32v3 getChunkPosition(const f64v3& position);
+
 private:
     void initializeGrid(const f64v3& gpos, GLuint flags);
     void initializeMinerals();
@@ -125,10 +128,6 @@ private:
     i32 updateMeshList(ui32 maxTicks, const f64v3& position);
     i32 updateGenerateList(ui32 maxTicks);
     void setupNeighbors(Chunk* chunk);
-    inline void shiftX(i32 dir);
-    inline void shiftY(i32 dir);
-    inline void shiftZ(i32 dir);
-    void calculateCornerPosition(const f64v3& centerPosition);
     void prepareHeightMap(HeightData heightData[CHUNK_LAYER]);
     void clearChunkFromLists(Chunk* chunk);
     void clearChunk(Chunk* chunk);
@@ -148,9 +147,6 @@ private:
     void updateChunks(const f64v3& position);
     void updateChunkslotNeighbors(ChunkSlot* cs, const i32v3& cameraPos);
     ChunkSlot* tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& cameraPos, const i32v3& offset);
-
-    //used to reference the current world face of the player
-    FaceData* _playerFace;
 
     ui32 _maxChunkTicks;
 

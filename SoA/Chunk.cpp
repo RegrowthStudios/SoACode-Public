@@ -34,7 +34,7 @@ std::mutex Chunk::modifyLock;
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const i32v3 &gridPos, int hzI, int hxI, FaceData *fd, ChunkSlot* Owner){
+void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
@@ -55,9 +55,6 @@ void Chunk::init(const i32v3 &gridPos, int hzI, int hxI, FaceData *fd, ChunkSlot
 	updateIndex = -1;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
-	faceData = *fd;
-	hxIndex = hxI;
-	hzIndex = hzI;
     gridPosition = gridPos;
     chunkPosition.x = fastFloor(gridPosition.x / (float)CHUNK_WIDTH);
     chunkPosition.y = fastFloor(gridPosition.y / (float)CHUNK_WIDTH);
@@ -76,7 +73,7 @@ void Chunk::init(const i32v3 &gridPos, int hzI, int hxI, FaceData *fd, ChunkSlot
 	treesToLoad.clear();
 	blockUpdateIndex = 0;
     _levelOfDetail = 1;
-
+    
 	for (int i = 0; i < 8; i++){
 		blockUpdateList[i][0].clear();
 		blockUpdateList[i][1].clear();
@@ -87,6 +84,7 @@ void Chunk::init(const i32v3 &gridPos, int hzI, int hxI, FaceData *fd, ChunkSlot
 	drawWater = 0;
 	occlude = 0;
     owner = Owner;
+
 }
 
 vector <Chunk*> *dbgst;
