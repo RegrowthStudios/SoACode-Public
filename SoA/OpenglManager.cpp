@@ -203,17 +203,6 @@ void OpenglManager::glThreadLoop() {
         
 
         bdt += glSpeedFactor * 0.01;
-        /*BEGIN DEBUG*/
-        debugRenderer->drawCube(glm::vec3(-16.0f, 260.0f, -250.0f), glm::vec3(10, 10, 10),              glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
-        debugRenderer->drawCube(glm::vec3(-32.0f, 260.0f, -250.0f), glm::vec3(5, 8, 2),                 glm::vec4(0.0f, 1.0f, 1.0f, 0.5f));
-        debugRenderer->drawLine(glm::vec3(-32.0f, 252.5f, -250.0f), glm::vec3(0.0f, 252.5f, -250.0f),   glm::vec4(1.0f, 0.0f, 1.0f, 0.5f));
-        debugRenderer->drawIcosphere(glm::vec3(-16.0f, 240.0f, -250.0f), 10.0f,                         glm::vec4(1.0f, 1.0f, 0.0f, 0.5f), 4);
-        debugRenderer->drawIcosphere(glm::vec3(-32.0f, 240.0f, -250.0f), 5.0f,                          glm::vec4(0.0f, 1.0f, 0.0f, 0.5f), 2);
-        
-        if(GameManager::inputManager->getKeyDown(INPUT_RANDOM_DEBUG)) {
-            debugRenderer->drawCube(glm::vec3(player->headPosition), glm::vec3(1, 1, 1), glm::vec4(1.0f, 1.0f, 1.0f, 0.5f), 5.0);
-        }
-        /*END DEBUG*/
 
         DrawGame();
 
