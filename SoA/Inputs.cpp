@@ -39,8 +39,10 @@ i32 INPUT_RANDOM_DEBUG = -1;
 
 // Reduce Some Code
 #define CREATE_INPUT(ID,KEY,VAR) \
-    GameManager::inputManager->createAxis(#ID, KEY); \
-    VAR = GameManager::inputManager->getAxisID(#ID)
+    VAR = GameManager::inputManager->createAxis(#ID, KEY);
+
+#define CREATE_INPUT_D(ID, KEY_NEG, KEY_POS, VAR) \
+    VAR = GameManager::inputManager->createAxis(#ID, KEY_NEG, KEY_POS);
 
 // Generate Input Handles
 void initInputs() {
@@ -72,12 +74,12 @@ void initInputs() {
 
     // Movement
     CREATE_INPUT(Fly, SDLK_f, INPUT_FLY);
-    INPUT_VERTICAL = GameManager::inputManager->getAxisID("Vertical");
-    INPUT_HORIZONTAL = GameManager::inputManager->getAxisID("Horizontal");
-    INPUT_SPRINT = GameManager::inputManager->getAxisID("Sprint");
-    INPUT_CROUCH = GameManager::inputManager->getAxisID("Crouch");
-    INPUT_MEGA_SPEED = GameManager::inputManager->getAxisID("Mega Speed");
-    INPUT_JUMP = GameManager::inputManager->getAxisID("Jump");
+    CREATE_INPUT_D(Vertical, SDLK_w, SDLK_s, INPUT_VERTICAL);
+    CREATE_INPUT_D(Horizontal, SDLK_d, SDLK_a, INPUT_HORIZONTAL);
+    CREATE_INPUT(Sprint, SDLK_LSHIFT, INPUT_SPRINT);
+    CREATE_INPUT(Crouch, SDLK_LCTRL, INPUT_CROUCH);
+    CREATE_INPUT(Mega Speed, SDLK_LALT, INPUT_MEGA_SPEED);
+    CREATE_INPUT(Jump, SDLK_SPACE, INPUT_JUMP);
 
     // Gameplay
     CREATE_INPUT(Marker, SDLK_c, INPUT_MARKER);
@@ -86,13 +88,14 @@ void initInputs() {
     // Physics
     CREATE_INPUT(Water Update, SDLK_n, INPUT_WATER_UPDATE);
     CREATE_INPUT(Update Physics Blocks, SDLK_p, INPUT_PHYSICS_BLOCK_UPDATES);
-    INPUT_PLANET_ROTATION = GameManager::inputManager->getAxisID("Planet Rotation");
-
+    CREATE_INPUT_D(Planet Rotation, SDLK_MINUS, SDLK_PLUS, INPUT_PLANET_ROTATION);
+    
     // Mouse Buttons
-    INPUT_MOUSE_RIGHT = GameManager::inputManager->getAxisID("Mouse Right");
-    INPUT_MOUSE_LEFT = GameManager::inputManager->getAxisID("Mouse Left");
+    CREATE_INPUT(Mouse Right, SDL_BUTTON_RIGHT, INPUT_MOUSE_RIGHT);
+    CREATE_INPUT(Mouse Left, SDL_BUTTON_LEFT, INPUT_MOUSE_LEFT);
     
     // Block Utilities
-    INPUT_BLOCK_SCANNER = GameManager::inputManager->getAxisID("Block Scanner");
-    INPUT_BLOCK_SELECT = GameManager::inputManager->getAxisID("Block Select");
+    CREATE_INPUT(Block Scanner, SDLK_q, INPUT_BLOCK_SCANNER);
+    CREATE_INPUT(Block Select, SDLK_b, INPUT_BLOCK_SELECT);
+
 }
