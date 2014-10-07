@@ -16,15 +16,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     PreciseTimer timer;
     timer.start();
     HeightData *heightMap = ld->heightMap;
-    //used for tree coords
-    int wx = chunk->faceData->jpos*CHUNK_WIDTH * FaceSigns[chunk->faceData->face][chunk->faceData->rotation][0];
-    int wz = chunk->faceData->ipos*CHUNK_WIDTH * FaceSigns[chunk->faceData->face][chunk->faceData->rotation][1];
-    //swap em if rot%2
-    if (chunk->faceData->rotation % 2){
-        int t = wx;
-        wx = wz;
-        wz = t;
-    }
+
+    // used for tree coords
+    int wz, wx;
+    chunk->voxelMapData->getVoxelGridPos(wz, wx);
 
     TerrainGenerator &generator = *(ld->generator);
     Biome *biome;

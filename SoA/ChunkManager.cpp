@@ -109,11 +109,14 @@ void ChunkManager::initializeMinerals() {
     Chunk::possibleMinerals.push_back(new MineralData(COAL, -10, 3.0f, -500, 35.0f, -5000000, 10.0f, 3, 300));
 }
 
-void ChunkManager::initialize(const f64v3& gridPosition, int face, ui32 flags) {
-    _playerFace = new FaceData(face, 0, 0, 0);
+void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
+
+    // Minerals //TODO(Ben): THIS IS RETARDED
     initializeMinerals();
+
+    // Sun Color Map
     GLubyte sbuffer[64][3];
-    //sun color map!
+
     glBindTexture(GL_TEXTURE_2D, GameManager::planet->sunColorMapTexture.ID);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, sbuffer);
     for (i32 i = 0; i < 64; i++) {
@@ -122,13 +125,10 @@ void ChunkManager::initialize(const f64v3& gridPosition, int face, ui32 flags) {
         sunColor[i][2] = (i32)sbuffer[i][0];
     }
 
+    // IO thread
     GameManager::chunkIOManager->beginThread();
 
-    initializeGrid(gridPosition, flags);
-}
-
-void ChunkManager::initializeGrid(const f64v3& gpos, ui32 flags) {
-
+    // Initialize grid
     csGridWidth = 1 + (graphicsOptions.voxelRenderDistance / 32) * 2;
     cout << "GRID WIDTH: " << csGridWidth << endl;
     csGridSize = csGridWidth * csGridWidth * csGridWidth;
@@ -140,88 +140,10 @@ void ChunkManager::initializeGrid(const f64v3& gpos, ui32 flags) {
     _loadList.set_capacity(csGridSize);
     _generateList.set_capacity(csGridSize);
 
-    _hz = 0;
-    _hx = 0;
-
-    calculateCornerPosition(gpos);
-
-    initializeHeightMap();
-
-    if (flags & FLAT_GRASS) {
-       /* for (size_t i = 0; i < _heightMap.size(); i++) {
-            for (size_t j = 0; j < _heightMap[i].size(); j++) {
-                for (i32 k = 0; k < CHUNK_LAYER; k++) {
-                    _heightMap[i][j][k].height = 1;
-                    _heightMap[i][j][k].rainfall = 128;
-                    _heightMap[i][j][k].temperature = 128;
-                    _heightMap[i][j][k].flags = 0;
-                    _heightMap[i][j][k].biome = planet->allBiomesLookupVector[0];
-                    _heightMap[i][j][k].sandDepth = 0;
-                    _heightMap[i][j][k].snowDepth = 0;
-                    _heightMap[i][j][k].surfaceBlock = DIRTGRASS;
-                }
-                prepareHeightMap(_heightMap[i][j], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
-            }
-        }*/
-    }
-
-    i32 mid = csGridWidth / 2;
-
-    //flatgrass map
-    if (flags & SET_Y_TO_SURFACE) {
-        if (!(flags & FLAT_GRASS)) {//generate a single height so we know where the player should go
-    //        currTerrainGenerator->GenerateHeightMap(_heightMap[mid][mid], (_faceMap[mid][mid]->ipos*CHUNK_WIDTH - planet->radius), (_faceMap[mid][mid]->jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-   //         prepareHeightMap(_heightMap[mid][mid], 0, 0, CHUNK_WIDTH, CHUNK_WIDTH);
-
-        }
-        i32v2 centerPos;
-        centerPos.x = cornerPosition.x + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
-        centerPos.y = cornerPosition.z + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
-
-        ChunkGridData* chunkGridData = getChunkGridData(centerPos);
-        i32 yPos = chunkGridData->heightData[CHUNK_LAYER / 2].height + chunkGridData->heightData[CHUNK_LAYER / 2].snowDepth + chunkGridData->heightData[CHUNK_LAYER / 2].sandDepth + 15;
-        if (yPos < 2) yPos = 2; //keeps player from spawning at the bottom of the ocean
-
-        cornerPosition.y = (i32)floor((yPos - CHUNK_WIDTH * csGridWidth / 2.0) / 32.0) * 32;
-    }
-}
-
-void ChunkManager::resizeGrid(const f64v3& gpos) {
-    //DrawLoadingScreen("Resizing Chunk Grid...", false, glm::vec4(0.0, 0.0, 0.0, 0.3));
-
-    clearAllChunks(1);
-
-  /*  for (i32 y = 0; y < csGridWidth; y++) {
-        for (i32 z = 0; z < csGridWidth; z++) {
-            for (i32 x = 0; x < csGridWidth; x++) {
-                freeChunk(_chunkList[y][z][x]->chunk);
-            }
-        }
-    }*/
-
-    for (size_t i = 0; i < _threadWaitingChunks.size(); i++) { //kill the residual waiting threads too
-        recycleChunk(_threadWaitingChunks[i]);
-    }
-    _threadWaitingChunks.clear();
-
-    vector<ChunkSlot>().swap(_chunkSlots[0]);
-
-    initializeGrid(gpos, 0);
-    initializeChunks();
-}
-
-void ChunkManager::initializeHeightMap() {
-    i32v2 centerPos;
-    centerPos.x = cornerPosition.x + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
-    centerPos.y = cornerPosition.z + (csGridWidth / 2 + 1) * CHUNK_WIDTH;
-
-    i32 rot = _playerFace->rotation;
-    i32 istrt = (cornerPosition.z + planet->radius) / CHUNK_WIDTH + csGridWidth / 2 + 1;
-    i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH + csGridWidth / 2 + 1;
-    i32 face = _playerFace->face;
-
-    ChunkGridData* newData = new ChunkGridData(face, istrt, jstrt, rot);
-    _chunkGridDataMap[centerPos] = newData;
+    // Set center grid data
+    i32v2 startingGridPos(0);
+    ChunkGridData* newData = new ChunkGridData(startingMapData);
+    _chunkGridDataMap[startingGridPos] = newData;
 }
 
 void ChunkManager::initializeChunks() {
@@ -231,22 +153,20 @@ void ChunkManager::initializeChunks() {
     int y = csGridWidth / 2 + 1;
 
     _chunkSlots[0].reserve(125000);
-    i32v2 gridPos(x * CHUNK_WIDTH + cornerPosition.x, z * CHUNK_WIDTH + cornerPosition.z);
+    i32v2 gridPos(0);
     ChunkGridData* chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         pError("NULL grid data at initializeChunks()");
     }
-    _chunkSlots[0].emplace_back(cornerPosition + glm::ivec3(x, y, z) * CHUNK_WIDTH, nullptr, z, x, chunkGridData);
+    _chunkSlots[0].emplace_back(gridPos, nullptr, chunkGridData);
 
-    //we dont sqrt the distance since sqrt is slow
-    _chunkSlots[0][0].distance2 = 1;
 
     Chunk* chunk = produceChunk();
     chunk->init(_chunkSlots[0][0].position, &_chunkSlots[0][0]);
-    chunk->distance2 = _chunkSlots[0][0].distance2;
-    chunk->chunkGridData = chunkGridData;
+
     _chunkSlots[0][0].chunk = chunk;
     _chunkSlots[0][0].vecIndex = 0;
+
     addToLoadList(chunk);
 
     _chunkSlotIndexMap[chunk->chunkPosition] = 0;
@@ -319,85 +239,6 @@ void ChunkManager::clearAll() {
     vector<ChunkSlot>().swap(_chunkSlots[0]);
 }
 
-void ChunkManager::relocateChunks(const f64v3& gpos) {
-    //save all chunks
-    vector<Chunk*> toSave;
-    Chunk* chunk;
-    for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
-        chunk = _chunkSlots[0][i].chunk;
-        if (chunk) {
-            if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
-                toSave.push_back(chunk);
-            }
-        }
-    }
-    GameManager::chunkIOManager->addToSaveList(toSave);
-
-    calculateCornerPosition(gpos);
-
-    threadPool.clearJobs();
-    while (!(threadPool.isFinished()));
-    taskQueueManager.finishedChunks.clear(); //we know they are finished so just clear it
-    for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) delete taskQueueManager.finishedChunkMeshes[i];
-    taskQueueManager.finishedChunkMeshes.clear(); //we know they are finished so just clear it
-    GameManager::chunkIOManager->clear();
-    _setupList.clear();
-    _generateList.clear();
-    _meshList.clear();
-    _loadList.clear();
-
-    _finishedChunkMeshes.swap(queue <ChunkMeshData *>()); //clear it
-
-    for (size_t i = 0; i < _threadWaitingChunks.size(); i++) {
-        recycleChunk(_threadWaitingChunks[i]);
-        _threadWaitingChunks[i]->inRenderThread = 0;
-        _threadWaitingChunks[i]->inLoadThread = 0;
-        _threadWaitingChunks[i]->inGenerateThread = 0;
-        _threadWaitingChunks[i]->inSaveThread = 0;
-        _threadWaitingChunks[i]->inFinishedChunks = 0;
-        _threadWaitingChunks[i]->inFinishedMeshes = 0;
-    }
-    _threadWaitingChunks.clear();
-
-    _hx = 0;
-    _hz = 0;
-
-    i32 istrt = (cornerPosition.z + planet->radius) / CHUNK_WIDTH;
-    i32 jstrt = (cornerPosition.x + planet->radius) / CHUNK_WIDTH;
-
-    while (istrt < 0) {
-        istrt += (planet->radius * 2) / CHUNK_WIDTH;
-    }
-
-    while (istrt >= (planet->radius * 2) / CHUNK_WIDTH) {
-        istrt -= (planet->radius * 2) / CHUNK_WIDTH;
-    }
-
-    while (jstrt < 0) {
-        jstrt += (planet->radius * 2) / CHUNK_WIDTH;
-    }
-
-    while (jstrt >= (planet->radius * 2) / CHUNK_WIDTH) {
-        jstrt -= (planet->radius * 2) / CHUNK_WIDTH;
-    }
-
-    for (auto it = _chunkGridDataMap.begin(); it != _chunkGridDataMap.end(); it++) {
-        delete it->second;
-    }
-    _chunkGridDataMap.clear();
-
-    for (int i = 0; i < _chunkSlots[0].size(); i++) {
-        chunk = _chunkSlots[0][i].chunk;
-        chunk->updateIndex = -1;
-        chunk->drawIndex = -1;
-        chunk->setupListPtr = NULL; //we already cleared the setup lists
-        chunk->inLoadThread = chunk->inSaveThread = 0;
-        freeChunk(chunk);
-    }
-
-    initializeChunks();
-}
-
 void ChunkManager::clearChunkData() {
 
     Chunk* chunk;
@@ -434,68 +275,11 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     sonarDt += 0.003f*physSpeedFactor;
     if (sonarDt > 1.0f) sonarDt = 0.0f;
 
-    i32 shiftType = 0; //1 = only sort chunks, 2 = chunks and lods
-    glm::ivec3 playerVoxelPosition;
-    playerVoxelPosition.x = fastFloor(position.x);
-    playerVoxelPosition.y = fastFloor(position.y);
-    playerVoxelPosition.z = fastFloor(position.z);
 
-    shiftType = 0;
-
-    const double maxDPos = 64;
-    if (dPos >= maxDPos) {
-        _isHugeShift = true;
-        shiftType = 1;
-    } else if (_isHugeShift) {
-        _isHugeShift = false;
-        relocateChunks(position);
-    }
-    
-    const i32 CENTER_OFFSET = (csGridWidth / 2) * CHUNK_WIDTH + CHUNK_WIDTH / 2;
-    const i32 DISTANCE_THRESHOLD = CHUNK_WIDTH;
-
-    //lock to prevent collision race condition with player in opengl thread
-    if (!_isStationary && dPos && dPos < maxDPos) {
-        openglManager.collisionLock.lock();
-        if (playerVoxelPosition.y > cornerPosition.y + CENTER_OFFSET + DISTANCE_THRESHOLD) {
-            while (playerVoxelPosition.y > cornerPosition.y + CENTER_OFFSET + DISTANCE_THRESHOLD) {
-                shiftY(1);
-                shiftType = 1;
-            }
-        } else if (playerVoxelPosition.y < cornerPosition.y + CENTER_OFFSET - DISTANCE_THRESHOLD) {
-            while (playerVoxelPosition.y < cornerPosition.y + CENTER_OFFSET - DISTANCE_THRESHOLD) {
-                shiftY(-1);
-                shiftType = 1;
-            }
-        }
-        if (playerVoxelPosition.x > cornerPosition.x + CENTER_OFFSET + DISTANCE_THRESHOLD) {
-            while (playerVoxelPosition.x > cornerPosition.x + CENTER_OFFSET + DISTANCE_THRESHOLD) {
-                shiftX(1);
-                shiftType = 2;
-            }
-        } else if (playerVoxelPosition.x < cornerPosition.x + CENTER_OFFSET - DISTANCE_THRESHOLD) {
-            while (playerVoxelPosition.x < cornerPosition.x + CENTER_OFFSET - DISTANCE_THRESHOLD) {
-                shiftX(-1);
-                shiftType = 2;
-            }
-        }
-        if (playerVoxelPosition.z > cornerPosition.z + CENTER_OFFSET + DISTANCE_THRESHOLD) {
-            while (playerVoxelPosition.z > cornerPosition.z + CENTER_OFFSET + DISTANCE_THRESHOLD) {
-                shiftZ(1);
-                shiftType = 2;
-            }
-        } else if (playerVoxelPosition.z < cornerPosition.z + CENTER_OFFSET - DISTANCE_THRESHOLD) {
-            while (playerVoxelPosition.z < cornerPosition.z + CENTER_OFFSET - DISTANCE_THRESHOLD) {
-                shiftZ(-1);
-                shiftType = 2;
-            }
-        }
-        openglManager.collisionLock.unlock();
-    }
     globalMultiplePreciseTimer.start("Update Chunks");
     Chunk::modifyLock.lock();
     if (_isStationary) {
-        updateChunks(f64v3(cornerPosition) + f64v3(CENTER_OFFSET));
+  //      updateChunks(f64v3(cornerPosition) + f64v3(CENTER_OFFSET));
     } else {
         updateChunks(position);
     }
@@ -827,9 +611,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
     Chunk* chunk;
     ChunkGridData* chunkGridData;
     i32 startX, startZ;
-    i32 ipos, jpos, rpos;
-    i32 idir, jdir;
-    i32 rot, face;
+    i32 ip, jp;
 
     while (_generateList.size()) {
         chunk = _generateList.front();
@@ -843,18 +625,12 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         //If the heightmap has not been generated, generate it.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
 
-            //set up the directions
-            rot = chunkGridData->faceData.rotation;
-            face = chunkGridData->faceData.face;
-            ipos = FaceCoords[face][rot][0];
-            jpos = FaceCoords[face][rot][1];
-            rpos = FaceCoords[face][rot][2];
-            idir = FaceSigns[face][rot][0];
-            jdir = FaceSigns[face][rot][1];
+            currTerrainGenerator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
 
-            currTerrainGenerator->SetLODFace(ipos, jpos, rpos, FaceRadialSign[face] * planet->radius, idir, jdir, 1.0);
+            int ip, jp;
+            chunkGridData->voxelMapData->getVoxelGridPos(ip, jp);
 
-            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, (chunkGridData->faceData.ipos*CHUNK_WIDTH - planet->radius), (chunkGridData->faceData.jpos*CHUNK_WIDTH - planet->radius), CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, ip, jp, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
             prepareHeightMap(chunkGridData->heightData);
         }
 

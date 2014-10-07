@@ -1,6 +1,9 @@
 #pragma once
 #include "global.h"
 
+#include "Vorb.h"
+#include "IVoxelMapper.h"
+
 // TODO: Remove This
 using namespace std;
 
@@ -18,6 +21,7 @@ public:
     double findnoise2(double x,double z);
     double interpolate1(double a,double b,double x);
     double noise(double x,double z);
+    void setVoxelMapping(vvoxel::VoxelMapData* voxelMapData, int Radius, int pScale);
     void SetLODFace(int Ipos, int Jpos, int Rpos, int Radius, int idir = 1, int jdir = 1, float pscale = 1.0f);
     void GenerateHeightMap(HeightData *lodMap, int icoord, int jcoord, int size, int iend, int jend, int step, int iskip, bool *hasWater = NULL);
     double GenerateSingleHeight(int x, int y, int z);

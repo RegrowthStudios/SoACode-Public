@@ -2,6 +2,9 @@
 #include "ThreadPool.h"
 #include "WorldStructs.h"
 
+#include "Vorb.h"
+#include "IVoxelMapper.h"
+
 class ChunkManager;
 class Planet;
 class VoxelEditor;
@@ -12,11 +15,10 @@ class VoxelWorld
 public:
     VoxelWorld();
     ~VoxelWorld();
-    void initialize(const glm::dvec3 &gpos, int face, Planet *planet, bool setYfromHeight, bool flatgrass);
+    void initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* startingMapData, Planet *planet, GLuint flags);
     void beginSession(const glm::dvec3 &gridPosition);
     void update(const glm::dvec3 &position, const glm::dvec3 &viewDir);
     void closeThreadPool();
-    void resizeGrid(const glm::dvec3 &gpos);
     int getClosestChunks(glm::dvec3 &coord, class Chunk **chunks);
     void endSession();
 

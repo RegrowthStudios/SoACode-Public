@@ -1933,7 +1933,7 @@ i32 FileManager::loadPlayerFile(Player *player) {
         //file doesnt exist so set spawn to random
         srand(time(NULL));
         int spawnFace = rand() % 4 + 1;
-        player->faceData.face = spawnFace;
+        player->voxelMapData.face = spawnFace;
         return 0;
     }
 
@@ -1945,11 +1945,14 @@ i32 FileManager::loadPlayerFile(Player *player) {
     player->facePosition.x = BufferUtils::extractFloat(buffer, (byte++) * 4);
     player->facePosition.y = BufferUtils::extractFloat(buffer, (byte++) * 4);
     player->facePosition.z = BufferUtils::extractFloat(buffer, (byte++) * 4);
-    player->faceData.face = BufferUtils::extractInt(buffer, (byte++) * 4);
+    player->voxelMapData.face = BufferUtils::extractInt(buffer, (byte++) * 4);
     player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
     player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
     player->isFlying = BufferUtils::extractBool(buffer, byte * 4);
     fclose(file);
+
+    player->voxelMapData.ipos = fastFloor(player->facePosition.z / (double)CHUNK_WIDTH);
+    player->voxelMapData.jpos = fastFloor(player->facePosition.x / (double)CHUNK_WIDTH);
     return 1;
 }
 i32 FileManager::saveMarkers(Player *player) {
@@ -1989,17 +1992,17 @@ i32 FileManager::savePlayerFile(Player *player) {
 
     int byte = 0;
 
-    int rot = player->faceData.rotation;
-    int face = player->faceData.face;
+    int rot = player->voxelMapData.rotation;
+    int face = player->voxelMapData.face;
 
     float facex = player->facePosition.x;
     float facey = player->facePosition.y;
     float facez = player->facePosition.z;
 
-    if (FaceSigns[face][rot][0] != FaceSigns[face][0][0]) {
+    if (vvoxel::FaceSigns[face][rot][0] != vvoxel::FaceSigns[face][0][0]) {
         facez = -facez;
     }
-    if (FaceSigns[face][rot][1] != FaceSigns[face][0][1]) {
+    if (vvoxel::FaceSigns[face][rot][1] != vvoxel::FaceSigns[face][0][1]) {
         facex = -facex;
     }
 

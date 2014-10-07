@@ -62,7 +62,7 @@ Player::Player() : scannedBlock(0),
                     isUnderWater(0),
                     isDragBreak(0),
                     dragBlock(NULL),
-                    faceData(0,0,0,0)
+                    voxelMapData(0,0,0,0)
 {
 
     velocity.x = 0;
@@ -529,33 +529,33 @@ void Player::checkFaceTransition()
     int newFace;
     if (facePosition.x/32 > planetRowSize*0.5){
         facePosition.x -= planetRowSize*32;
-        i = faceData.rotation;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = voxelMapData.rotation;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }else if (facePosition.x/32 < -planetRowSize*0.5){
         facePosition.x += planetRowSize*32;
-        i = (2 + faceData.rotation)%4;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = (2 + voxelMapData.rotation)%4;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }
     if (facePosition.z/32 > planetRowSize*0.5){
         facePosition.z -= planetRowSize*32;
-        i = (3 + faceData.rotation)%4;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = (3 + voxelMapData.rotation)%4;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }else if (facePosition.z/32 < -planetRowSize*0.5){
         facePosition.z += planetRowSize*32;
-        i = (1 + faceData.rotation)%4;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = (1 + voxelMapData.rotation)%4;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }
 }
 

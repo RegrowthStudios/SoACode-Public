@@ -59,10 +59,7 @@ public:
         SET_Y_TO_SURFACE
     };
     // initializes the grid at the surface and returns the Y value
-    void initialize(const f64v3& gridPosition, int face, ui32 flags);
-
-    void resizeGrid(const f64v3& gpos);
-    void relocateChunks(const f64v3& gpos);
+    void initialize(const f64v3& gridPosition, vvoxel::VoxelMapData* startingMapData, ui32 flags);
 
     void update(const f64v3& position, const f64v3& viewDir);
     i32 getClosestChunks(f64v3& coord, class Chunk** chunks);
@@ -77,7 +74,6 @@ public:
     const Chunk* getChunk(const i32v3& worldPos) const;
     ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
-    void initializeHeightMap();
     void initializeChunks();
     void clearAllChunks(bool clearDrawing);
     void clearAll();
@@ -121,7 +117,7 @@ public:
     static i32v3 getChunkPosition(const f64v3& position);
 
 private:
-    void initializeGrid(const f64v3& gpos, GLuint flags);
+
     void initializeMinerals();
     void updateLoadList(ui32 maxTicks);
     i32 updateSetupList(ui32 maxTicks);
@@ -165,7 +161,6 @@ private:
     struct RenderTask* _mRenderTask;
 
     i32 _maxLoads;
-    i32 _hz, _hx;
 
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
 
@@ -174,7 +169,6 @@ private:
     f64v3 _cright, _cup, _cfront, _wpos;
 
     bool _physicsDisabled;
-    bool _isHugeShift;
     bool _isStationary;
 
     ChunkDiagnostics _chunkDiagnostics;

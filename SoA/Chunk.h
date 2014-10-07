@@ -195,6 +195,7 @@ public:
 
     ChunkSlot* owner;
     ChunkGridData* chunkGridData;
+    vvoxel::VoxelMapData* voxelMapData;
 
 private:
     ChunkStates _state;
@@ -228,7 +229,8 @@ public:
         bottom(-1),
         top(-1),
         vecIndex(-2),
-        numNeighbors(0){}
+        numNeighbors(0),
+        distance2(1){}
 
     inline void calculateDistance2(const i32v3& cameraPos) {
         distance2 = getDistance2(position, cameraPos);

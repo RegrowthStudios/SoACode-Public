@@ -221,7 +221,8 @@ void GameManager::initializeVoxelWorld(Player *playr) {
             atSurface = 0; //dont need to set height
         }
     }
-    voxelWorld->initialize(player->facePosition, player->faceData.face, planet, atSurface, 0);
+
+    voxelWorld->initialize(player->facePosition, &player->voxelMapData, planet, 0);
 
     if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
 
