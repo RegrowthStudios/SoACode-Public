@@ -141,8 +141,6 @@ int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
     chunk->SetupMeshData(newRenderTask);
     assert(newRenderTask->chunk != nullptr);
 
-    if (type == MeshJobType::LIQUID) cout << "LIQUIIIIID\n";
-
     chunk->inRenderThread = 1;
     taskQueueManager.lock.lock();
     assert(newRenderTask->chunk != nullptr);

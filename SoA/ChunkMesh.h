@@ -77,6 +77,7 @@ struct ChunkMesh
     GLuint cutoutVboID;
     GLuint cutoutVaoID;
     GLuint waterVboID;
+    GLuint waterVaoID;
     float distance;
     glm::ivec3 position;
     int vecIndex;

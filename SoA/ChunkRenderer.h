@@ -14,5 +14,6 @@ public:
     static void bindTransparentVao(ChunkMesh *CMI);
     static void bindCutoutVao(ChunkMesh *CMI);
     static void bindVao(ChunkMesh *CMI);
+    static void bindWaterVao(ChunkMesh *CMI);
     
 };
