@@ -145,7 +145,9 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     startingGridPos.x = fastFloor(gridPosition.x / (f64)CHUNK_WIDTH);
     startingGridPos.y = fastFloor(gridPosition.z / (f64)CHUNK_WIDTH);
     vvoxel::VoxelMapData* newVoxelMapData = _voxelMapper->getNewVoxelMapData();
-    ChunkGridData* newData = new ChunkGridData(startingMapData);
+    *newVoxelMapData = *startingMapData;
+
+    ChunkGridData* newData = new ChunkGridData(newVoxelMapData);
     _chunkGridDataMap[startingGridPos] = newData;
 
     initializeChunks(gridPosition);
