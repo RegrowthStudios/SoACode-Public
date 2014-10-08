@@ -74,7 +74,7 @@ public:
     const Chunk* getChunk(const i32v3& worldPos) const;
     ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
-    void initializeChunks();
+    void initializeChunks(const f64v3& gridPosition);
     void clearAllChunks(bool clearDrawing);
     void clearAll();
     void saveAllChunks();
@@ -162,6 +162,7 @@ private:
 
     i32 _maxLoads;
 
+    //Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
 
     i32 _poccx, _poccy, _poccz;

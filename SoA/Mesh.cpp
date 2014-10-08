@@ -166,6 +166,8 @@ void Mesh::upload(MeshUsage usage) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
     _numIndices = _indices.size();
+
+    _isUploaded = true;
 }
 
 int Mesh::getNumPrimitives() const {

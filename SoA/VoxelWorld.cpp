@@ -47,11 +47,6 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
     setPlanet(planet);
 }
 
-void VoxelWorld::beginSession(const glm::dvec3 &gridPosition)
-{
-    _chunkManager->initializeChunks();
-}
-
 void VoxelWorld::update(const glm::dvec3 &position, const glm::dvec3 &viewDir)
 {
     _chunkManager->update(position, viewDir);

@@ -16,7 +16,6 @@ public:
     VoxelWorld();
     ~VoxelWorld();
     void initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* startingMapData, Planet *planet, GLuint flags);
-    void beginSession(const glm::dvec3 &gridPosition);
     void update(const glm::dvec3 &position, const glm::dvec3 &viewDir);
     void closeThreadPool();
     int getClosestChunks(glm::dvec3 &coord, class Chunk **chunks);

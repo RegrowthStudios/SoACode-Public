@@ -230,7 +230,7 @@ public:
         top(-1),
         vecIndex(-2),
         numNeighbors(0),
-        distance2(1){}
+        distance2(1.0f){}
 
     inline void calculateDistance2(const i32v3& cameraPos) {
         distance2 = getDistance2(position, cameraPos);

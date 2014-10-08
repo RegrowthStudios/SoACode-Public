@@ -232,8 +232,6 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 
     double dist = player->facePosition.y + planet->radius;
     player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
-
-    voxelWorld->beginSession(player->gridPosition);
 }
 
 int ticksArray2[10];

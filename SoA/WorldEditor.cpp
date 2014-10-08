@@ -113,7 +113,6 @@ void WorldEditor::initialize(Planet *planet) {
     _voxelWorld->getChunkManager().generateOnly = true;
     _voxelWorld->getChunkManager().setIsStationary(true);
     GameManager::chunkIOManager->setDisableLoading(true);
-    _voxelWorld->beginSession(glm::dvec3(0, 0, 0));
 }
 
 //called by main thread
@@ -1173,9 +1172,6 @@ void WorldEditor::enableChunks() {
             _chunkCamera.position().z));
 
         _chunkCamera.update();
-
-        //DrawLoadingScreen("Loading Chunks...");
-        _voxelWorld->beginSession(_chunkCamera.position());
 
         usingChunks = 1;
     }

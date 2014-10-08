@@ -141,27 +141,36 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     _generateList.set_capacity(csGridSize);
 
     // Set center grid data
-    i32v2 startingGridPos(0);
+    i32v2 startingGridPos;
+    startingGridPos.x = fastFloor(gridPosition.x / (f64)CHUNK_WIDTH);
+    startingGridPos.y = fastFloor(gridPosition.z / (f64)CHUNK_WIDTH);
     vvoxel::VoxelMapData* newVoxelMapData = _voxelMapper->getNewVoxelMapData();
     ChunkGridData* newData = new ChunkGridData(startingMapData);
     _chunkGridDataMap[startingGridPos] = newData;
+
+    initializeChunks(gridPosition);
 }
 
-void ChunkManager::initializeChunks() {
+void ChunkManager::initializeChunks(const f64v3& gridPosition) {
     i32 c = 0;
     int z = csGridWidth / 2 + 1;
     int x = csGridWidth / 2 + 1;
     int y = csGridWidth / 2 + 1;
 
     _chunkSlots[0].reserve(125000);
-    i32v2 gridPos(0);
+    i32v3 chPos;
+    chPos.x = fastFloor(gridPosition.x / (float)CHUNK_WIDTH);
+    chPos.y = fastFloor(gridPosition.y / (float)CHUNK_WIDTH);
+    chPos.z = fastFloor(gridPosition.z / (float)CHUNK_WIDTH);
+
+    i32v2 gridPos(chPos.x, chPos.z);
+
     ChunkGridData* chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         pError("NULL grid data at initializeChunks()");
     }
-    i32v3 slotPos(0);
-    _chunkSlots[0].emplace_back(slotPos, nullptr, chunkGridData);
-
+    
+    _chunkSlots[0].emplace_back(chPos * CHUNK_WIDTH, nullptr, chunkGridData);
 
     Chunk* chunk = produceChunk();
     chunk->init(_chunkSlots[0][0].position, &_chunkSlots[0][0]);
@@ -624,7 +633,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
             int ip, jp;
             chunkGridData->voxelMapData->getVoxelGridPos(ip, jp);
-
+            cout << ip << " " << jp << endl;
             currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, ip, jp, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
             prepareHeightMap(chunkGridData->heightData);
         }
@@ -1039,7 +1048,7 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
     double dist = sqrt(dist2);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
 
-        i32v2 gridPosition(newPosition.x, newPosition.y);
+        i32v2 gridPosition(newPosition.x, newPosition.z);
         ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
         if (chunkGridData == nullptr) {
             vvoxel::VoxelMapData* voxelMapData;
