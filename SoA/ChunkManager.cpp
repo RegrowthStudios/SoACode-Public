@@ -144,10 +144,10 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     i32v2 startingGridPos;
     startingGridPos.x = fastFloor(gridPosition.x / (f64)CHUNK_WIDTH);
     startingGridPos.y = fastFloor(gridPosition.z / (f64)CHUNK_WIDTH);
-    vvoxel::VoxelMapData* newVoxelMapData = _voxelMapper->getNewVoxelMapData();
-    *newVoxelMapData = *startingMapData;
+    vvoxel::VoxelMapData* newVoxelMapData = _voxelMapper->getNewVoxelMapData(startingMapData);
 
     ChunkGridData* newData = new ChunkGridData(newVoxelMapData);
+    cout << newVoxelMapData->ipos << " " << newVoxelMapData->jpos << endl;
     _chunkGridDataMap[startingGridPos] = newData;
 
     initializeChunks(gridPosition);
@@ -366,6 +366,18 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         chunk->setupListPtr = NULL;
      
         chunk->isAccessible = 0;
+
+        chunkGridData = chunk->chunkGridData;
+
+        //If the heightmap has not been generated, generate it.
+        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
+
+            currTerrainGenerator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
+
+            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            prepareHeightMap(chunkGridData->heightData);
+        }
+
 
         chunksToLoad.push_back(chunk);
 
@@ -615,7 +627,6 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
     i32 state;
     Chunk* chunk;
-    ChunkGridData* chunkGridData;
     i32 startX, startZ;
     i32 ip, jp;
 
@@ -625,20 +636,6 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         chunk->setupListPtr = nullptr;
 
         _generateList.pop_front();
-
-        chunkGridData = chunk->chunkGridData;
-
-        //If the heightmap has not been generated, generate it.
-        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-
-            currTerrainGenerator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
-
-            int ip, jp;
-            chunkGridData->voxelMapData->getVoxelGridPos(ip, jp);
-            cout << ip << " " << jp << endl;
-            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, ip, jp, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            prepareHeightMap(chunkGridData->heightData);
-        }
 
         chunk->isAccessible = 0;
 

@@ -62,6 +62,11 @@ public:
     virtual VoxelMapData* getNewVoxelMapData() {
         return new VoxelMapData();
     }
+    virtual VoxelMapData* getNewVoxelMapData(VoxelMapData* copy) {
+        VoxelMapData* newData = new VoxelMapData;
+        *newData = *copy;
+        return newData;
+    }
 protected:
 
 };
