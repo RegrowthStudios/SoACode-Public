@@ -15,7 +15,7 @@ VoxelPlanetMapper::~VoxelPlanetMapper()
 
 i32v3 VoxelPlanetMapper::getWorldCoords(VoxelMapData* voxelGridData) {
     VoxelPlanetMapData* vpmd = static_cast<VoxelPlanetMapData*>(voxelGridData);
-
+    return i32v3(0);
 }
 
 }

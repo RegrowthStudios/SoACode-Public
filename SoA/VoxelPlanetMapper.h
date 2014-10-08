@@ -142,6 +142,13 @@ public:
         rdir = FaceRadialSign[face];
     }
 
+    VoxelMapData* getNewNeighborData(const i32v2& ijOffset) {
+        return new VoxelPlanetMapData(face, 
+                                                       ipos + ijOffset.x,
+                                                       jpos + ijOffset.y,
+                                                       rotation);
+    }
+
     // Used to get the directory path for chunks, based on which planet face
     nString getFilePath() {
         return "f" + std::to_string(face) + "/";
@@ -157,6 +164,10 @@ public:
     ~VoxelPlanetMapper();
 
     i32v3 getWorldCoords(VoxelMapData* voxelGridData);
+
+    VoxelMapData* getNewVoxelMapData() {
+        return new VoxelPlanetMapData(0, 0, 0, 0);
+    }
 
 private:
     

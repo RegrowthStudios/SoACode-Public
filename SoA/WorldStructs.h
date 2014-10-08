@@ -117,25 +117,18 @@ struct LoadData
     LoadData()
     {
     }
-    LoadData(struct HeightData *hmap, int x, int z, class TerrainGenerator *gen)
+    LoadData(struct HeightData *hmap, class TerrainGenerator *gen)
     {
         heightMap = hmap;
-        wx = x;
-        wz = z;
         generator = gen;
     }
     
-    inline void init(HeightData *hmap, int x, int z, TerrainGenerator *gen)
+    inline void init(HeightData *hmap, TerrainGenerator *gen)
     {
-        heightMap = hmap;
-        wx = x;
-        wz = z;
         generator = gen;
     }
 
     HeightData *heightMap;
-    int wx;
-    int wz;
     TerrainGenerator *generator;
 };
 

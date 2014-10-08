@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "VoxelWorld.h"
 
+#include "VoxelPlanetMapper.h"
+
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
@@ -39,7 +41,8 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
 
     _chunkManager->planet = planet;
 
-    _chunkManager->initialize(gpos, startingMapData, flags);
+    vvoxel::VoxelPlanetMapper* voxelPlanetMapper = new vvoxel::VoxelPlanetMapper();
+    _chunkManager->initialize(gpos, voxelPlanetMapper, startingMapData, flags);
 
     setPlanet(planet);
 }

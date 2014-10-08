@@ -46,7 +46,6 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 ChunkManager::ChunkManager() : _isStationary(0) {
     generateOnly = false;
     _mRenderTask = new RenderTask;
-    _isHugeShift = 0;
     NoChunkFade = 0;
     _physicsDisabled = 0;
     planet = NULL;
@@ -109,8 +108,9 @@ void ChunkManager::initializeMinerals() {
     Chunk::possibleMinerals.push_back(new MineralData(COAL, -10, 3.0f, -500, 35.0f, -5000000, 10.0f, 3, 300));
 }
 
-void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
+void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
 
+    _voxelMapper = voxelMapper;
     // Minerals //TODO(Ben): THIS IS RETARDED
     initializeMinerals();
 
@@ -142,6 +142,7 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::VoxelMapData* s
 
     // Set center grid data
     i32v2 startingGridPos(0);
+    vvoxel::VoxelMapData* newVoxelMapData = _voxelMapper->getNewVoxelMapData();
     ChunkGridData* newData = new ChunkGridData(startingMapData);
     _chunkGridDataMap[startingGridPos] = newData;
 }
@@ -158,7 +159,8 @@ void ChunkManager::initializeChunks() {
     if (chunkGridData == nullptr) {
         pError("NULL grid data at initializeChunks()");
     }
-    _chunkSlots[0].emplace_back(gridPos, nullptr, chunkGridData);
+    i32v3 slotPos(0);
+    _chunkSlots[0].emplace_back(slotPos, nullptr, chunkGridData);
 
 
     Chunk* chunk = produceChunk();
@@ -255,8 +257,6 @@ void ChunkManager::clearChunkData() {
     }
 }
 
-i32 pshift = 0;
-
 i32 ticksArrayIndex = 0;
 i32 ticksArray[10];
 
@@ -295,19 +295,14 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     globalMultiplePreciseTimer.start("Sort");
   //  cout << "BEGIN SORT\n";
  //   fflush(stdout);
-    if (!shiftType && pshift) {
-
+  
+    if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
         recursiveSortSetupList(_setupList, 0, _setupList.size(), 2);
         recursiveSortSetupList(_meshList, 0, _meshList.size(), 2);
         recursiveSortChunks(_loadList, 0, _loadList.size(), 2);
-    } else if (!shiftType) {
-        if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
-            recursiveSortSetupList(_setupList, 0, _setupList.size(), 2);
-            recursiveSortSetupList(_meshList, 0, _meshList.size(), 2);
-            recursiveSortChunks(_loadList, 0, _loadList.size(), 2);
-            k = 0;
-        }
+        k = 0;
     }
+    
    // cout << "END SORT\n";
    // fflush(stdout);
     globalMultiplePreciseTimer.start("Mesh List");
@@ -326,7 +321,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     k++;
     cl++;
-    pshift = shiftType;
+
     globalMultiplePreciseTimer.start("Thread Waiting");
     Chunk* ch;
     for (size_t i = 0; i < _threadWaitingChunks.size();) {
@@ -636,7 +631,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
         chunk->isAccessible = 0;
 
-        threadPool.addLoadJob(chunk, new LoadData(chunk->chunkGridData->heightData, cornerPosition.x, cornerPosition.z, currTerrainGenerator));
+        threadPool.addLoadJob(chunk, new LoadData(chunk->chunkGridData->heightData, currTerrainGenerator));
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }
@@ -1047,16 +1042,20 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
         i32v2 gridPosition(newPosition.x, newPosition.y);
         ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
         if (chunkGridData == nullptr) {
-            chunkGridData = new ChunkGridData(cs->faceData->face, 
-                                              cs->faceData->ipos + offset.z, 
-                                              cs->faceData->jpos + offset.z, 
-                                              cs->faceData->rotation);
+            vvoxel::VoxelMapData* voxelMapData;
+            if (offset.y != 0) {
+                voxelMapData = cs->chunkGridData->voxelMapData;
+            } else {
+                i32v2 ijOffset(offset.z, offset.x);
+                voxelMapData = cs->chunkGridData->voxelMapData->getNewNeighborData(ijOffset);
+            }
+            chunkGridData = new ChunkGridData(voxelMapData);
             _chunkGridDataMap[gridPosition] = chunkGridData;
         } else {
             chunkGridData->refCount++;
         }
 
-        _chunkSlots[0].emplace_back(newPosition, nullptr, cs->ipos + offset.z, cs->jpos + offset.x, &chunkGridData->faceData);
+        _chunkSlots[0].emplace_back(newPosition, nullptr, chunkGridData);
 
         ChunkSlot* newcs = &_chunkSlots[0].back();
         newcs->numNeighbors = 1;
@@ -1163,23 +1162,19 @@ i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     i32 xDir, yDir, zDir;
     Chunk* chunk;
 
-    
-
     std::unordered_map<i32v3, int>::iterator it;
     vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
 
-    f64v3 relativePos = coords - f64v3(cornerPosition);
-
     //Get the chunk coordinates (assume its always positive)
     i32v3 chPos;
-    chPos.x = (i32)relativePos.x / CHUNK_WIDTH;
-    chPos.y = (i32)relativePos.y / CHUNK_WIDTH;
-    chPos.z = (i32)relativePos.z / CHUNK_WIDTH;
+    chPos.x = fastFloor(coords.x / (f64)CHUNK_WIDTH);
+    chPos.y = fastFloor(coords.y / (f64)CHUNK_WIDTH);
+    chPos.z = fastFloor(coords.z / (f64)CHUNK_WIDTH);
 
     //Determines if were closer to positive or negative chunk
-    xDir = (relativePos.x - chPos.x > 0.5f) ? 1 : -1;
-    yDir = (relativePos.y - chPos.y > 0.5f) ? 1 : -1;
-    zDir = (relativePos.z - chPos.z > 0.5f) ? 1 : -1;
+    xDir = (coords.x - chPos.x > 0.5f) ? 1 : -1;
+    yDir = (coords.y - chPos.y > 0.5f) ? 1 : -1;
+    zDir = (coords.z - chPos.z > 0.5f) ? 1 : -1;
 
     //clear the memory for the chunk pointer array
     chunks[0] = chunks[1] = chunks[2] = chunks[3] = chunks[4] = chunks[5] = chunks[6] = chunks[7] = nullptr;
@@ -1532,15 +1527,16 @@ i32 ChunkManager::getBlockFromDir(f64v3& dir, f64v3& pos) {
 }
 
 void ChunkManager::caveOcclusion(const f64v3& ppos) {
+    return; // TODO(Ben): tis broken
     static ui32 frameCounter = 0;
     frameCounter++;
 
     i32v3 chPos;
     Chunk* ch;
 
-    chPos.x = (ppos.x - cornerPosition.x) / CHUNK_WIDTH;
-    chPos.y = (ppos.y - cornerPosition.y) / CHUNK_WIDTH;
-    chPos.z = (ppos.z - cornerPosition.z) / CHUNK_WIDTH;
+//    chPos.x = (ppos.x - cornerPosition.x) / CHUNK_WIDTH;
+//    chPos.y = (ppos.y - cornerPosition.y) / CHUNK_WIDTH;
+//    chPos.z = (ppos.z - cornerPosition.z) / CHUNK_WIDTH;
 
     if (frameCounter == 10 || chPos.x != _poccx || chPos.y != _poccy || chPos.z != _poccz) {
         _poccx = chPos.x;
@@ -1626,7 +1622,9 @@ i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
 Chunk* ChunkManager::getChunk(const f64v3& position) {
 
     i32v3 chPos;
-    chPos = i32v3((position - f64v3(cornerPosition)) / (double)CHUNK_WIDTH);
+    chPos.x = fastFloor(position.x / (f64)CHUNK_WIDTH);
+    chPos.y = fastFloor(position.y / (f64)CHUNK_WIDTH);
+    chPos.z = fastFloor(position.z / (f64)CHUNK_WIDTH);
 
     auto it = _chunkSlotIndexMap.find(chPos);
     if (it == _chunkSlotIndexMap.end()) return nullptr;
@@ -1680,10 +1678,10 @@ const i16* ChunkManager::getIDQuery(const i32v3& start, const i32v3& end) const 
         }
     }
 
-    openglManager.debugRenderer->drawCube(
-        f32v3(start + end) * 0.5f + f32v3(cornerPosition) + f32v3(0.5f), f32v3(size) + f32v3(0.4f),
-        f32v4(1.0f, 0.0f, 0.0f, 0.3f), 1.0f
-        );
+ //   openglManager.debugRenderer->drawCube(
+ //       f32v3(start + end) * 0.5f + f32v3(cornerPosition) + f32v3(0.5f), f32v3(size) + f32v3(0.4f),
+ //       f32v4(1.0f, 0.0f, 0.0f, 0.3f), 1.0f
+ //       );
 
     return q;
 }

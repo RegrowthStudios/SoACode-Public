@@ -46,13 +46,22 @@ public:
         rdir = 1;
     }
 
+    virtual VoxelMapData* getNewNeighborData(const i32v2& ijOffset) {
+        VoxelMapData* newData = new VoxelMapData();
+        newData->ipos = ipos + ijOffset.x;
+        newData->jpos = jpos + ijOffset.y;
+        return newData;
+    }
+
     int ipos; //front-back axis
     int jpos; //left-right axis
 };
 
 class IVoxelMapper {
 public:
-        
+    virtual VoxelMapData* getNewVoxelMapData() {
+        return new VoxelMapData();
+    }
 protected:
 
 };

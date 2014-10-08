@@ -59,7 +59,7 @@ public:
         SET_Y_TO_SURFACE
     };
     // initializes the grid at the surface and returns the Y value
-    void initialize(const f64v3& gridPosition, vvoxel::VoxelMapData* startingMapData, ui32 flags);
+    void initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags);
 
     void update(const f64v3& position, const f64v3& viewDir);
     i32 getClosestChunks(f64v3& coord, class Chunk** chunks);
@@ -172,5 +172,7 @@ private:
     bool _isStationary;
 
     ChunkDiagnostics _chunkDiagnostics;
+
+    vvoxel::IVoxelMapper* _voxelMapper;
 };
 

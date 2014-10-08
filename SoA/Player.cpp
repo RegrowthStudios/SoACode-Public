@@ -574,14 +574,14 @@ void Player::calculateWorldPosition()
     // |     |i    |
     // |_____V_____|
 
-    ipos = FaceCoords[faceData.face][faceData.rotation][0];
-    jpos = FaceCoords[faceData.face][faceData.rotation][1];
-    rpos = FaceCoords[faceData.face][faceData.rotation][2];
-    incI = FaceSigns[faceData.face][faceData.rotation][0];
-    incJ = FaceSigns[faceData.face][faceData.rotation][1];
+    ipos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][0];
+    jpos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][1];
+    rpos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][2];
+    incI = vvoxel::FaceSigns[voxelMapData.face][voxelMapData.rotation][0];
+    incJ = vvoxel::FaceSigns[voxelMapData.face][voxelMapData.rotation][1];
     v1[ipos] = incI * facePosition.z;
     v1[jpos] = incJ * facePosition.x;
-    v1[rpos] = FaceRadialSign[faceData.face] * _worldRadius * planetScale;
+    v1[rpos] = vvoxel::FaceRadialSign[voxelMapData.face] * _worldRadius * planetScale;
 
     worldPosition = (headPosition.y*invPlanetScale + (double)_worldRadius)*glm::normalize(v1);
     incI *= 100;

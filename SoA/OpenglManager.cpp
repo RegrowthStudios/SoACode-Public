@@ -1012,9 +1012,6 @@ bool Control()
             }
             break;
         }
-        if (graphicsOptions.voxelRenderDistance != oldVoxelRenderDistance){
-            GameManager::voxelWorld->resizeGrid(player->gridPosition);
-        }
         return 1;
     }
     else{
