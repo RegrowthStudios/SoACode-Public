@@ -412,8 +412,3 @@ void GameManager::endSession() {
     //_CrtDumpMemoryLeaks();
 #endif
 }
-
-const std::unordered_map<i32v3, int>& GameManager::getChunkSlotIndexMap() {
-    return chunkManager->getChunkSlotIndexMap();
-}
-

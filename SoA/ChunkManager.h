@@ -84,10 +84,6 @@ public:
 
     void getBlockAndChunk(const i32v3& relativePosition, Chunk** chunk, int& blockIndex) const;
 
-    //getters
-    const std::unordered_map<i32v3, int>& getChunkSlotIndexMap() const {
-        return _chunkSlotIndexMap;
-    }
     const vector<ChunkSlot>* getChunkSlots() const {
         return _chunkSlots;
     }
@@ -146,9 +142,10 @@ private:
 
     ui32 _maxChunkTicks;
 
+   // int _chunkSlotsSizes[6];
     std::vector<ChunkSlot> _chunkSlots[6]; //one per LOD
     std::vector<Chunk*> _threadWaitingChunks;
-    std::unordered_map<i32v3, int> _chunkSlotIndexMap;
+    std::unordered_map<i32v3, ChunkSlot*> _chunkSlotMap;
 
     boost::circular_buffer<Chunk*> _freeList;
     boost::circular_buffer<Chunk*> _setupList;

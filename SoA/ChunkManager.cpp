@@ -132,7 +132,7 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     csGridWidth = 1 + (graphicsOptions.voxelRenderDistance / 32) * 2;
     cout << "GRID WIDTH: " << csGridWidth << endl;
     csGridSize = csGridWidth * csGridWidth * csGridWidth;
-    _chunkSlotIndexMap.reserve(csGridSize);
+    _chunkSlotMap.reserve(csGridSize);
 
     _freeList.set_capacity(csGridSize);
     _setupList.set_capacity(csGridSize);
@@ -159,7 +159,8 @@ void ChunkManager::initializeChunks(const f64v3& gridPosition) {
     int x = csGridWidth / 2 + 1;
     int y = csGridWidth / 2 + 1;
 
-    _chunkSlots[0].reserve(125000);
+    _chunkSlots[0].reserve(200000);
+
     i32v3 chPos;
     chPos.x = fastFloor(gridPosition.x / (float)CHUNK_WIDTH);
     chPos.y = fastFloor(gridPosition.y / (float)CHUNK_WIDTH);
@@ -178,11 +179,10 @@ void ChunkManager::initializeChunks(const f64v3& gridPosition) {
     chunk->init(_chunkSlots[0][0].position, &_chunkSlots[0][0]);
 
     _chunkSlots[0][0].chunk = chunk;
-    _chunkSlots[0][0].vecIndex = 0;
 
     addToLoadList(chunk);
 
-    _chunkSlotIndexMap[chunk->chunkPosition] = 0;
+    _chunkSlotMap[chunk->chunkPosition] = &_chunkSlots[0][0];
 }
 
 void ChunkManager::clearAllChunks(bool clearDrawing) {
@@ -377,7 +377,6 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
             currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
             prepareHeightMap(chunkGridData->heightData);
         }
-
 
         chunksToLoad.push_back(chunk);
 
@@ -653,10 +652,10 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     chPos.z = fastFloor(chunk->gridPosition.z / (float)CHUNK_WIDTH);
     ChunkSlot* neighborSlot;
     ChunkSlot* owner = chunk->owner;
-    vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
+
     //left
-    if (owner->left != -1) {
-        neighborSlot = &chunkSlots[owner->left];
+    if (owner->left != nullptr) {
+        neighborSlot = owner->left;
         if (!(chunk->left) && neighborSlot->chunk->isAccessible) {
             chunk->left = neighborSlot->chunk;
             chunk->numNeighbors++;
@@ -666,8 +665,8 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     }
     
     //right
-    if (owner->right != -1) {
-        neighborSlot = &chunkSlots[owner->right];
+    if (owner->right != nullptr) {
+        neighborSlot = owner->right;
         if (!(chunk->right) && neighborSlot->chunk->isAccessible) {
             chunk->right = neighborSlot->chunk;
             chunk->numNeighbors++;
@@ -677,8 +676,8 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     }
     
     //back
-    if (owner->back != -1) {
-        neighborSlot = &chunkSlots[owner->back];
+    if (owner->back != nullptr) {
+        neighborSlot = owner->back;
         if (!(chunk->back) && neighborSlot->chunk->isAccessible) {
             chunk->back = neighborSlot->chunk;
             chunk->numNeighbors++;
@@ -688,8 +687,8 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     }
     
     //front
-    if (owner->front != -1) {
-        neighborSlot = &chunkSlots[owner->front];
+    if (owner->front != nullptr) {
+        neighborSlot = owner->front;
         if (!(chunk->front) && neighborSlot->chunk->isAccessible) {
             chunk->front = neighborSlot->chunk;
             chunk->numNeighbors++;
@@ -699,8 +698,8 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     }
     
     //bottom
-    if (owner->bottom != -1) {
-        neighborSlot = &chunkSlots[owner->bottom];
+    if (owner->bottom != nullptr) {
+        neighborSlot = owner->bottom;
         if (!(chunk->bottom) && neighborSlot->chunk->isAccessible) {
             chunk->bottom = neighborSlot->chunk;
             chunk->numNeighbors++;
@@ -710,8 +709,8 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     }
     
     //top
-    if (owner->top != -1) {
-        neighborSlot = &chunkSlots[owner->top];
+    if (owner->top != nullptr) {
+        neighborSlot = owner->top;
         if (!(chunk->top) && neighborSlot->chunk->isAccessible) {
             chunk->top = neighborSlot->chunk;
             chunk->numNeighbors++;
@@ -743,9 +742,10 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
 
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
         chunk = _chunkSlots[0][i].chunk;
+        if (!chunk) continue;
         posOffset = f32v3(f64v3(chunk->gridPosition) - position);
 
-        if (chunk && ((chunk->mesh && chunk->mesh->inFrustum) || SphereInFrustum((float)(posOffset.x + CHUNK_WIDTH / 2), (float)(posOffset.y + CHUNK_WIDTH / 2), (float)(posOffset.z + CHUNK_WIDTH / 2), 28.0f, gridFrustum))) {
+        if (((chunk->mesh && chunk->mesh->inFrustum) || SphereInFrustum((float)(posOffset.x + CHUNK_WIDTH / 2), (float)(posOffset.y + CHUNK_WIDTH / 2), (float)(posOffset.z + CHUNK_WIDTH / 2), 28.0f, gridFrustum))) {
             
 
             switch (chunk->_state) {
@@ -907,6 +907,7 @@ i32v3 ChunkManager::getChunkPosition(const f64v3& position) {
 }
 
 void ChunkManager::updateChunks(const f64v3& position) {
+
     ChunkSlot *cs;
     Chunk* chunk;
 
@@ -932,16 +933,20 @@ void ChunkManager::updateChunks(const f64v3& position) {
         chunk = cs->chunk;
 
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
+           
             if (!generateOnly && chunk->dirty && chunk->_state > ChunkStates::TREES) {
                 GameManager::chunkIOManager->addToSaveList(cs->chunk);
             }
             freeChunk(chunk);
             cs->chunk = nullptr;
-            _chunkSlots[0][i].clearNeighbors(_chunkSlots[0]);
+            _chunkSlotMap.erase(cs->position);
+            cs->clearNeighbors();
             _chunkSlots[0][i] = _chunkSlots[0].back();
-            _chunkSlots[0][i].vecIndex = i;
-            _chunkSlotIndexMap[_chunkSlots[0][i].position] = i;
             _chunkSlots[0].pop_back();
+            if (_chunkSlots[0].size()) {
+                _chunkSlots[0][i].reconnectToNeighbors(_chunkSlots[0]);
+                _chunkSlotMap[_chunkSlots[0][i].position] = &(_chunkSlots[0][i]);
+            }
         } else { //inside maximum range
 
             //See if neighbors need to be added
@@ -990,52 +995,52 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
 void ChunkManager::updateChunkslotNeighbors(ChunkSlot* cs, const i32v3& cameraPos) {
     ChunkSlot* newCs;
-    if (cs->left == -1) {
+    if (cs->left == nullptr) {
         newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(-1, 0, 0));
         if (newCs) {
-            cs->left = newCs->vecIndex;
-            newCs->right = cs->vecIndex;
-            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
+            cs->left = newCs;
+            newCs->right = cs;
+            newCs->detectNeighbors(_chunkSlotMap);
         }
     }
-    if (cs->right == -1) {
+    if (cs->right == nullptr) {
         newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(1, 0, 0));
         if (newCs) {
-            cs->right = newCs->vecIndex;
-            newCs->left = cs->vecIndex;
-            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
+            cs->right = newCs;
+            newCs->left = cs;
+            newCs->detectNeighbors(_chunkSlotMap);
         }
     }
-    if (cs->back == -1) {
+    if (cs->back == nullptr) {
         newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 0, -1));
         if (newCs) {
-            cs->back = newCs->vecIndex;
-            newCs->front = cs->vecIndex;
-            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
+            cs->back = newCs;
+            newCs->front = cs;
+            newCs->detectNeighbors(_chunkSlotMap);
         }
     }
-    if (cs->front == -1) {
+    if (cs->front == nullptr) {
         newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 0, 1));
         if (newCs) {
-            cs->front = newCs->vecIndex;
-            newCs->back = cs->vecIndex;
-            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
+            cs->front = newCs;
+            newCs->back = cs;
+            newCs->detectNeighbors(_chunkSlotMap);
         }
     }
-    if (cs->bottom == -1) {
+    if (cs->bottom == nullptr) {
         newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, -1, 0));
         if (newCs) {
-            cs->bottom = newCs->vecIndex;
-            newCs->top = cs->vecIndex;
-            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
+            cs->bottom = newCs;
+            newCs->top = cs;
+            newCs->detectNeighbors(_chunkSlotMap);
         }
     }
-    if (cs->top == -1) {
+    if (cs->top == nullptr) {
         newCs = tryLoadChunkslotNeighbor(cs, cameraPos, i32v3(0, 1, 0));
         if (newCs) {
-            cs->top = newCs->vecIndex;
-            newCs->bottom = cs->vecIndex;
-            newCs->detectNeighbors(_chunkSlots[0], _chunkSlotIndexMap);
+            cs->top = newCs;
+            newCs->bottom = cs;
+            newCs->detectNeighbors(_chunkSlotMap);
         }
     }
 }
@@ -1065,11 +1070,14 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
 
         _chunkSlots[0].emplace_back(newPosition, nullptr, chunkGridData);
 
+        cout << _chunkSlots[0].size() << endl;
+        fflush(stdout);
+
         ChunkSlot* newcs = &_chunkSlots[0].back();
         newcs->numNeighbors = 1;
-        newcs->vecIndex = _chunkSlots[0].size() - 1;
 
         Chunk* chunk = produceChunk();
+
         chunk->init(newcs->position, newcs);
         chunk->distance2 = newcs->distance2;
         chunk->chunkGridData = chunkGridData;
@@ -1082,7 +1090,7 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
             cout << "WHOOPSIEDAISY\n";
             fflush(stdout);
         }
-        _chunkSlotIndexMap[chunk->chunkPosition] = newcs->vecIndex;
+        _chunkSlotMap[chunk->chunkPosition] = newcs;
         cs->numNeighbors++;
         return newcs;
         
@@ -1165,12 +1173,12 @@ void ChunkManager::prepareHeightMap(HeightData heightData[CHUNK_LAYER]) {
 }
 
 i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
-#define GETCHUNK(y, z, x) it = _chunkSlotIndexMap.find(chPos + i32v3(x, y, z)); chunk = (it == _chunkSlotIndexMap.end() ? nullptr : chunkSlots[it->second].chunk);
+#define GETCHUNK(y, z, x) it = _chunkSlotMap.find(chPos + i32v3(x, y, z)); chunk = (it == _chunkSlotMap.end() ? nullptr : it->second->chunk);
 
     i32 xDir, yDir, zDir;
     Chunk* chunk;
 
-    std::unordered_map<i32v3, int>::iterator it;
+    std::unordered_map<i32v3, ChunkSlot*>::iterator it;
     vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
 
     //Get the chunk coordinates (assume its always positive)
@@ -1186,7 +1194,7 @@ i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
 
     //clear the memory for the chunk pointer array
     chunks[0] = chunks[1] = chunks[2] = chunks[3] = chunks[4] = chunks[5] = chunks[6] = chunks[7] = nullptr;
-
+    return 1;
     //If the 8 nnearby exist and are accessible then set them in the array. NOTE: Perhaps order matters? 
 
     GETCHUNK(0, 0, 0);
@@ -1206,8 +1214,6 @@ i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     GETCHUNK(yDir, zDir, xDir);
     if (chunk && chunk->isAccessible) chunks[7] = chunk;
     return 1;
-    
-    return 0;
 }
 
 void ChunkManager::clearChunkFromLists(Chunk* chunk) {
@@ -1256,9 +1262,6 @@ void ChunkManager::clearChunkFromLists(Chunk* chunk) {
     }
 
     chunk->clearNeighbors();
-
-
-    _chunkSlotIndexMap.erase(chunk->chunkPosition);
 }
 
 void ChunkManager::clearChunk(Chunk* chunk) {
@@ -1393,13 +1396,13 @@ void ChunkManager::getBlockAndChunk(const i32v3& relativePosition, Chunk** chunk
 
     //Bounds checking
 
-    auto it = _chunkSlotIndexMap.find(chunkPosition);
-    if (it == _chunkSlotIndexMap.end()) {
+    auto it = _chunkSlotMap.find(chunkPosition);
+    if (it == _chunkSlotMap.end()) {
         *chunk = nullptr;
         return;
     }
 
-    *chunk = _chunkSlots[0][it->second].chunk;
+    *chunk = it->second->chunk;
 
     if (chunk) {
         //reuse chunkPosition variable to get the position relative to owner chunk
@@ -1634,22 +1637,22 @@ Chunk* ChunkManager::getChunk(const f64v3& position) {
     chPos.y = fastFloor(position.y / (f64)CHUNK_WIDTH);
     chPos.z = fastFloor(position.z / (f64)CHUNK_WIDTH);
 
-    auto it = _chunkSlotIndexMap.find(chPos);
-    if (it == _chunkSlotIndexMap.end()) return nullptr;
-    return _chunkSlots[0][it->second].chunk;
+    auto it = _chunkSlotMap.find(chPos);
+    if (it == _chunkSlotMap.end()) return nullptr;
+    return it->second->chunk;
 
 }
 
 Chunk* ChunkManager::getChunk(const i32v3& worldPos) {
-    auto it = _chunkSlotIndexMap.find(worldPos);
-    if (it == _chunkSlotIndexMap.end()) return nullptr;
-    return _chunkSlots[0][it->second].chunk;
+    auto it = _chunkSlotMap.find(worldPos);
+    if (it == _chunkSlotMap.end()) return nullptr;
+    return it->second->chunk;
 }
 
 const Chunk* ChunkManager::getChunk(const i32v3& worldPos) const {
-    auto it = _chunkSlotIndexMap.find(worldPos);
-    if (it == _chunkSlotIndexMap.end()) return nullptr;
-    return _chunkSlots[0][it->second].chunk;
+    auto it = _chunkSlotMap.find(worldPos);
+    if (it == _chunkSlotMap.end()) return nullptr;
+    return it->second->chunk;
 }
 
 ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {

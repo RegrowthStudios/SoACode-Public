@@ -141,7 +141,6 @@ public:
         jdir = FaceSigns[face][rotation][1];
         rdir = FaceRadialSign[face];
 
-        std::cout << rotation << " " << face << " " << ipos << " " << jpos << " " << rpos << " " << idir << " " << jdir << std::endl;
     }
 
     VoxelMapData* getNewNeighborData(const i32v2& ijOffset) {

@@ -2125,8 +2125,9 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
 
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
+   
     double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)( GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
- 
+    if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
 
     a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);

@@ -39,9 +39,6 @@ public:
     static void onQuit();
     static void endSession();
 
-    //getters
-    static const std::unordered_map<i32v3, int>& getChunkSlotIndexMap();
-
     static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;
     static class PhysicsEngine* physicsEngine;

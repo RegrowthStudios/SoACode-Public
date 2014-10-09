@@ -222,13 +222,12 @@ public:
         chunk(ch),
         position(pos),
         chunkGridData(cgd),
-        left(-1),
-        right(-1),
-        back(-1),
-        front(-1),
-        bottom(-1),
-        top(-1),
-        vecIndex(-2),
+        left(nullptr),
+        right(nullptr),
+        back(nullptr),
+        front(nullptr),
+        bottom(nullptr),
+        top(nullptr),
         numNeighbors(0),
         distance2(1.0f){}
 
@@ -237,133 +236,140 @@ public:
         chunk->distance2 = distance2;
     }
 
-    void clearNeighbors(vector <ChunkSlot>& chunkSlots) {
-        ChunkSlot* cs;
-        if (left != -1) {
-            cs = &chunkSlots[left];
-            if (cs->right == vecIndex) {
-                cs->right = -1;
-                cs->numNeighbors--;
+    void clearNeighbors() {
+        if (left) {
+            if (left->right == this) {
+                left->right = nullptr;
+                left->numNeighbors--;
             }
         }
-        if (right != -1) {
-            cs = &chunkSlots[right];
-            if (cs->left == vecIndex) {
-                cs->left = -1;
-                cs->numNeighbors--;
+        if (right) {
+            if (right->left == this) {
+                right->left = nullptr;
+                right->numNeighbors--;
             }
         }
-        if (top != -1) {
-            cs = &chunkSlots[top];
-            if (cs->bottom == vecIndex) {
-                cs->bottom = -1;
-                cs->numNeighbors--;
+        if (top) {
+            if (top->bottom == this) {
+                top->bottom = nullptr;
+                top->numNeighbors--;
             }
         }
-        if (bottom != -1) {
-            cs = &chunkSlots[bottom];
-            if (cs->top == vecIndex) {
-                cs->top = -1;
-                cs->numNeighbors--;
+        if (bottom) {
+            if (bottom->top == this) {
+                bottom->top = nullptr;
+                bottom->numNeighbors--;
             }
         }
-        if (front != -1) {
-            cs = &chunkSlots[front];
-            if (cs->back == vecIndex) {
-                cs->back = -1;
-                cs->numNeighbors--;
+        if (front) {
+            if (front->back == this) {
+                front->back = nullptr;
+                front->numNeighbors--;
             }
         }
-        if (back != -1) {
-            cs = &chunkSlots[back];
-            if (cs->front == vecIndex) {
-                cs->front = -1;
-                cs->numNeighbors--;
+        if (back) {
+            if (back->front == this) {
+                back->front = nullptr;
+                back->numNeighbors--;
             }
         }
         numNeighbors = 0;
-        left = right = top = bottom = back = front = -1;
+        left = right = top = bottom = back = front = nullptr;
     }
 
-    void detectNeighbors(vector <ChunkSlot>& chunkSlots, std::unordered_map<i32v3, int>& chunkSlotIndexMap) {
+    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap) {
        
-        std::unordered_map<i32v3, int>::iterator it;
+        std::unordered_map<i32v3, ChunkSlot*>::iterator it;
 
         i32v3 chPos;
         chPos.x = fastFloor(position.x / (float)CHUNK_WIDTH);
         chPos.y = fastFloor(position.y / (float)CHUNK_WIDTH);
         chPos.z = fastFloor(position.z / (float)CHUNK_WIDTH);
-        ChunkSlot* cs;
 
         //left
-        if (left == -1) {
-            it = chunkSlotIndexMap.find(chPos + i32v3(-1, 0, 0));
-            if (it != chunkSlotIndexMap.end()) {
-                left = it->second;
-                cs = &chunkSlots[left];
-                cs->right = vecIndex;
+        if (left == nullptr) {
+            it = chunkSlotMap.find(chPos + i32v3(-1, 0, 0));
+            if (it != chunkSlotMap.end()) {
+                left = it->second; 
+                left->right = this;
                 numNeighbors++;
-                cs->numNeighbors++;
+                left->numNeighbors++;
             }
         }
         //right
-        if (right == -1) {
-            it = chunkSlotIndexMap.find(chPos + i32v3(1, 0, 0));
-            if (it != chunkSlotIndexMap.end()) {
+        if (right == nullptr) {
+            it = chunkSlotMap.find(chPos + i32v3(1, 0, 0));
+            if (it != chunkSlotMap.end()) {
                 right = it->second;
-                cs = &chunkSlots[right];
-                cs->left = vecIndex;
+                right->left = this;
                 numNeighbors++;
-                cs->numNeighbors++;
+                right->numNeighbors++;
             }
         }
 
         //back
-        if (back == -1) {
-            it = chunkSlotIndexMap.find(chPos + i32v3(0, 0, -1));
-            if (it != chunkSlotIndexMap.end()) {
+        if (back == nullptr) {
+            it = chunkSlotMap.find(chPos + i32v3(0, 0, -1));
+            if (it != chunkSlotMap.end()) {
                 back = it->second;
-                cs = &chunkSlots[back];
-                cs->front = vecIndex;
+                back->front = this;
                 numNeighbors++;
-                cs->numNeighbors++;
+                back->numNeighbors++;
             }
         }
 
         //front
-        if (front == -1) {
-            it = chunkSlotIndexMap.find(chPos + i32v3(0, 0, 1));
-            if (it != chunkSlotIndexMap.end()) {
+        if (front == nullptr) {
+            it = chunkSlotMap.find(chPos + i32v3(0, 0, 1));
+            if (it != chunkSlotMap.end()) {
                 front = it->second;
-                cs = &chunkSlots[front];
-                cs->back = vecIndex;
+                front->back = this;
                 numNeighbors++;
-                cs->numNeighbors++;
+                front->numNeighbors++;
             }
         }
 
         //bottom
-        if (bottom == -1) {
-            it = chunkSlotIndexMap.find(chPos + i32v3(0, -1, 0));
-            if (it != chunkSlotIndexMap.end()) {
+        if (bottom == nullptr) {
+            it = chunkSlotMap.find(chPos + i32v3(0, -1, 0));
+            if (it != chunkSlotMap.end()) {
                 bottom = it->second;
-                cs = &chunkSlots[bottom];
-                cs->top = vecIndex;
+                bottom->top = this;
                 numNeighbors++;
-                cs->numNeighbors++;
+                bottom->numNeighbors++;
             }
         }
 
         //top
-        if (top == -1) {
-            it = chunkSlotIndexMap.find(chPos + i32v3(0, 1, 0));
-            if (it != chunkSlotIndexMap.end()) {
+        if (top == nullptr) {
+            it = chunkSlotMap.find(chPos + i32v3(0, 1, 0));
+            if (it != chunkSlotMap.end()) {
                 top = it->second;
-                cs = &chunkSlots[top];
-                cs->bottom = vecIndex;
+                top->bottom = this;
                 numNeighbors++;
-                cs->numNeighbors++;
+                top->numNeighbors++;
             }
+        }
+    }
+
+    void reconnectToNeighbors(vector <ChunkSlot>& chunkSlots) {
+        if (left) {
+            left->right = this;
+        }
+        if (right) {
+            right->left = this;
+        }
+        if (back) {
+            back->front = this;
+        }
+        if (front) {
+            front->back = this;
+        }
+        if (top) {
+            top->bottom = this;
+        }
+        if (bottom) {
+            bottom->top = this;
         }
     }
 
@@ -371,9 +377,8 @@ public:
     glm::ivec3 position;
 
     int numNeighbors;
-    int vecIndex;
     //Indices of neighbors
-    int left, right, back, front, top, bottom;
+    ChunkSlot* left, *right, *back, *front, *top, *bottom;
 
     //squared distance
     double distance2;
