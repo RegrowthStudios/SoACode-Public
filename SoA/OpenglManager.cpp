@@ -1890,7 +1890,7 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
                 mapBufferData(cm->transVboID, cmd->transVertices.size() * sizeof(BlockVertex), &(cmd->transVertices[0]), GL_STATIC_DRAW);
 
                 //index data
-                mapBufferData(cm->transIndexID, cmd->transQuadIndices.size() * sizeof(ui32), &(cmd->transQuadIndices[0]), GL_STATIC_DRAW);
+                mapBufferData(cm->transIndexID, cm->transQuadIndices.size() * sizeof(ui32), &(cm->transQuadIndices[0]), GL_STATIC_DRAW);
 
                 cm->needsSort = true; //must sort when changing the mesh
 

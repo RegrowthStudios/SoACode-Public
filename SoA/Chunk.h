@@ -352,7 +352,7 @@ public:
         }
     }
 
-    void reconnectToNeighbors(vector <ChunkSlot>& chunkSlots) {
+    void reconnectToNeighbors() {
         if (left) {
             left->right = this;
         }

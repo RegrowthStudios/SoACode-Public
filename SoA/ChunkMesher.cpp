@@ -1936,6 +1936,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     if (mi.transparentIndex) {
         chunkMeshData->transVertices.swap(_transparentVerts);
+        assert(chunkMeshData->transQuadIndices.size() != 0);
     }
 
     if (mi.cutoutIndex) {

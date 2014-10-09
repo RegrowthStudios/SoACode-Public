@@ -937,15 +937,16 @@ void ChunkManager::updateChunks(const f64v3& position) {
             if (!generateOnly && chunk->dirty && chunk->_state > ChunkStates::TREES) {
                 GameManager::chunkIOManager->addToSaveList(cs->chunk);
             }
+            _chunkSlotMap.erase(chunk->chunkPosition);
             freeChunk(chunk);
             cs->chunk = nullptr;
-            _chunkSlotMap.erase(cs->position);
+            
             cs->clearNeighbors();
             _chunkSlots[0][i] = _chunkSlots[0].back();
             _chunkSlots[0].pop_back();
             if (_chunkSlots[0].size()) {
-                _chunkSlots[0][i].reconnectToNeighbors(_chunkSlots[0]);
-                _chunkSlotMap[_chunkSlots[0][i].position] = &(_chunkSlots[0][i]);
+                _chunkSlots[0][i].reconnectToNeighbors();
+                _chunkSlotMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
             }
         } else { //inside maximum range
 
@@ -1069,9 +1070,6 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
         }
 
         _chunkSlots[0].emplace_back(newPosition, nullptr, chunkGridData);
-
-        cout << _chunkSlots[0].size() << endl;
-        fflush(stdout);
 
         ChunkSlot* newcs = &_chunkSlots[0].back();
         newcs->numNeighbors = 1;
