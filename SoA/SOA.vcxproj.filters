@@ -102,6 +102,15 @@
     <Filter Include="SOA Files\Data\Keg">
       <UniqueIdentifier>{ac47e175-d93f-4b05-bb81-caa1090f397f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Screens\Init">
+      <UniqueIdentifier>{27507245-c888-4a05-b0ca-9890d99db1a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\Team">
+      <UniqueIdentifier>{758ecc5b-469e-40d2-8fbd-04a555025339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\Load\Tasks">
+      <UniqueIdentifier>{d4b19aff-5e0f-4ac5-a831-548286691b82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -464,6 +473,18 @@
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
+    <ClInclude Include="LoadMonitor.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="InitScreen.h">
+      <Filter>SOA Files\Screens\Init</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskInput.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskGameManager.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -748,6 +769,18 @@
     </ClCompile>
     <ClCompile Include="VoxelMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="InitScreen.cpp">
+      <Filter>SOA Files\Screens\Init</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadMonitor.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClCompile>
+    <ClCompile Include="colors.cpp">
+      <Filter>SOA Files\Ext</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadTaskInput.cpp">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

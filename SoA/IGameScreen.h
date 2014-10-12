@@ -69,3 +69,18 @@ private:
     // Location In The ScreenList
     i32 _index;
 };
+
+template<typename T>
+class IAppScreen : public IGameScreen {
+public:
+    IAppScreen(const T* app)
+        : _app(app) {
+    }
+protected:
+    const T* const _app;
+};
+
+// Shorten Super-Constructors
+#define CTOR_APP_SCREEN_INL(SCR_CLASS, APP_CLASS) SCR_CLASS(const APP_CLASS* app) : IAppScreen<APP_CLASS>(app)
+#define CTOR_APP_SCREEN_DECL(SCR_CLASS, APP_CLASS) SCR_CLASS(const APP_CLASS* app)
+#define CTOR_APP_SCREEN_DEF(SCR_CLASS, APP_CLASS) SCR_CLASS::SCR_CLASS(const APP_CLASS* app) : IAppScreen<APP_CLASS>(app)

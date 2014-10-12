@@ -110,6 +110,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="InitScreen.h" />
+    <ClInclude Include="LoadMonitor.h" />
+    <ClInclude Include="LoadTaskGameManager.h" />
+    <ClInclude Include="LoadTaskInput.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -236,6 +240,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="colors.cpp" />
+    <ClCompile Include="InitScreen.cpp" />
+    <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="LoadTaskInput.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
