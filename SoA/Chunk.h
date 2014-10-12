@@ -236,142 +236,11 @@ public:
         chunk->distance2 = distance2;
     }
 
-    void clearNeighbors() {
-        if (left) {
-            if (left->right == this) {
-                left->right = nullptr;
-                left->numNeighbors--;
-            }
-        }
-        if (right) {
-            if (right->left == this) {
-                right->left = nullptr;
-                right->numNeighbors--;
-            }
-        }
-        if (top) {
-            if (top->bottom == this) {
-                top->bottom = nullptr;
-                top->numNeighbors--;
-            }
-        }
-        if (bottom) {
-            if (bottom->top == this) {
-                bottom->top = nullptr;
-                bottom->numNeighbors--;
-            }
-        }
-        if (front) {
-            if (front->back == this) {
-                front->back = nullptr;
-                front->numNeighbors--;
-            }
-        }
-        if (back) {
-            if (back->front == this) {
-                back->front = nullptr;
-                back->numNeighbors--;
-            }
-        }
-        numNeighbors = 0;
-        left = right = top = bottom = back = front = nullptr;
-    }
+    void clearNeighbors();
 
-    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap) {
-       
-        std::unordered_map<i32v3, ChunkSlot*>::iterator it;
+    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap);
 
-        i32v3 chPos;
-        chPos.x = fastFloor(position.x / (float)CHUNK_WIDTH);
-        chPos.y = fastFloor(position.y / (float)CHUNK_WIDTH);
-        chPos.z = fastFloor(position.z / (float)CHUNK_WIDTH);
-
-        //left
-        if (left == nullptr) {
-            it = chunkSlotMap.find(chPos + i32v3(-1, 0, 0));
-            if (it != chunkSlotMap.end()) {
-                left = it->second; 
-                left->right = this;
-                numNeighbors++;
-                left->numNeighbors++;
-            }
-        }
-        //right
-        if (right == nullptr) {
-            it = chunkSlotMap.find(chPos + i32v3(1, 0, 0));
-            if (it != chunkSlotMap.end()) {
-                right = it->second;
-                right->left = this;
-                numNeighbors++;
-                right->numNeighbors++;
-            }
-        }
-
-        //back
-        if (back == nullptr) {
-            it = chunkSlotMap.find(chPos + i32v3(0, 0, -1));
-            if (it != chunkSlotMap.end()) {
-                back = it->second;
-                back->front = this;
-                numNeighbors++;
-                back->numNeighbors++;
-            }
-        }
-
-        //front
-        if (front == nullptr) {
-            it = chunkSlotMap.find(chPos + i32v3(0, 0, 1));
-            if (it != chunkSlotMap.end()) {
-                front = it->second;
-                front->back = this;
-                numNeighbors++;
-                front->numNeighbors++;
-            }
-        }
-
-        //bottom
-        if (bottom == nullptr) {
-            it = chunkSlotMap.find(chPos + i32v3(0, -1, 0));
-            if (it != chunkSlotMap.end()) {
-                bottom = it->second;
-                bottom->top = this;
-                numNeighbors++;
-                bottom->numNeighbors++;
-            }
-        }
-
-        //top
-        if (top == nullptr) {
-            it = chunkSlotMap.find(chPos + i32v3(0, 1, 0));
-            if (it != chunkSlotMap.end()) {
-                top = it->second;
-                top->bottom = this;
-                numNeighbors++;
-                top->numNeighbors++;
-            }
-        }
-    }
-
-    void reconnectToNeighbors() {
-        if (left) {
-            left->right = this;
-        }
-        if (right) {
-            right->left = this;
-        }
-        if (back) {
-            back->front = this;
-        }
-        if (front) {
-            front->back = this;
-        }
-        if (top) {
-            top->bottom = this;
-        }
-        if (bottom) {
-            bottom->top = this;
-        }
-    }
+    void reconnectToNeighbors();
 
     Chunk *chunk;
     glm::ivec3 position;
@@ -385,14 +254,5 @@ public:
 
     ChunkGridData* chunkGridData;
 private:
-    static double getDistance2(const i32v3& pos, const i32v3& cameraPos) {
-        double dx = (cameraPos.x <= pos.x) ? pos.x : ((cameraPos.x > pos.x + CHUNK_WIDTH) ? (pos.x + CHUNK_WIDTH) : cameraPos.x);
-        double dy = (cameraPos.y <= pos.y) ? pos.y : ((cameraPos.y > pos.y + CHUNK_WIDTH) ? (pos.y + CHUNK_WIDTH) : cameraPos.y);
-        double dz = (cameraPos.z <= pos.z) ? pos.z : ((cameraPos.z > pos.z + CHUNK_WIDTH) ? (pos.z + CHUNK_WIDTH) : cameraPos.z);
-        dx = dx - cameraPos.x;
-        dy = dy - cameraPos.y;
-        dz = dz - cameraPos.z;
-        //we dont sqrt the distance since sqrt is slow
-        return dx*dx + dy*dy + dz*dz;
-    }
+    static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 };

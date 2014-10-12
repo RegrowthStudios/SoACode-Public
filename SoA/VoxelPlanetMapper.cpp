@@ -4,7 +4,9 @@
 namespace vorb {
 namespace voxel {
 
-VoxelPlanetMapper::VoxelPlanetMapper()
+VoxelPlanetMapper::VoxelPlanetMapper(int gridWidth) :
+    _gridWidth(gridWidth),
+    _halfGridWidth(_gridWidth/2)
 {
 }
 

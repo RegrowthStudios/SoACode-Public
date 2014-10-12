@@ -74,7 +74,7 @@ public:
     const Chunk* getChunk(const i32v3& worldPos) const;
     ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
-    void initializeChunks(const f64v3& gridPosition);
+    void makeChunkAt(const vvoxel::VoxelMapData* mapData, const i32v3& chunkPosition);
     void clearAllChunks(bool clearDrawing);
     void clearAll();
     void saveAllChunks();
@@ -87,6 +87,7 @@ public:
     const vector<ChunkSlot>* getChunkSlots() const {
         return _chunkSlots;
     }
+
     const ChunkDiagnostics& getChunkDiagnostics() const {
         return _chunkDiagnostics;
     }
@@ -172,5 +173,7 @@ private:
     ChunkDiagnostics _chunkDiagnostics;
 
     vvoxel::IVoxelMapper* _voxelMapper;
+
+    vvoxel::VoxelMapData* _cameraVoxelMapData;
 };
 

@@ -143,25 +143,20 @@ public:
 
     }
 
-    VoxelMapData* getNewNeighborData(const i32v2& ijOffset) {
-        return new VoxelPlanetMapData(face, 
-                                                       ipos + ijOffset.x,
-                                                       jpos + ijOffset.y,
-                                                       rotation);
-    }
-
     // Used to get the directory path for chunks, based on which planet face
     nString getFilePath() {
         return "f" + std::to_string(face) + "/";
     }
     int face;
     int rotation;
+
+    static int _gridWidth, _halfGridWidth;
 };
 
 class VoxelPlanetMapper : public IVoxelMapper
 {
 public:
-    VoxelPlanetMapper();
+    VoxelPlanetMapper(int gridWidth);
     ~VoxelPlanetMapper();
 
     i32v3 getWorldCoords(VoxelMapData* voxelGridData);
@@ -170,14 +165,67 @@ public:
         return new VoxelPlanetMapData(0, 0, 0, 0);
     }
 
-    VoxelMapData* getNewVoxelMapData(VoxelMapData* copy) {
+    VoxelMapData* getNewVoxelMapData(const VoxelMapData* copy) {
         VoxelPlanetMapData* newData = new VoxelPlanetMapData(0, 0, 0, 0);
-        *newData = *static_cast<VoxelPlanetMapData*>(copy);
+        *newData = *static_cast<const VoxelPlanetMapData*>(copy);
         return newData;
     }
 
+    VoxelMapData* getNewRelativeData(const VoxelMapData* relative, const i32v2& ijOffset) {
+        const VoxelPlanetMapData* mapData = static_cast<const VoxelPlanetMapData*>(relative);
+
+       
+
+        VoxelMapData* newMapData = new VoxelPlanetMapData(mapData->face,
+                                                          mapData->ipos,
+                                                          mapData->jpos,
+                                                          mapData->rotation);
+        offsetPosition(newMapData, ijOffset);
+
+        return newMapData;
+    }
+
+    void offsetPosition(VoxelMapData* vmapData, const i32v2& ijOffset) {
+        VoxelPlanetMapData* mapData = static_cast<VoxelPlanetMapData*>(vmapData);
+
+        mapData->ipos += ijOffset.x;
+        mapData->jpos += ijOffset.y;
+        int newFace = mapData->face;
+
+        if (mapData->ipos < -_halfGridWidth) {
+            mapData->ipos += _gridWidth;
+
+            newFace = FaceNeighbors[mapData->face][(1 + mapData->rotation) % 4];
+            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
+        } else if (mapData->ipos > _halfGridWidth) {
+            mapData->ipos -= _gridWidth;
+
+            newFace = FaceNeighbors[mapData->face][(3 + mapData->rotation) % 4];
+            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
+        }
+
+        if (mapData->jpos < -_halfGridWidth) {
+            mapData->jpos += _gridWidth;
+
+            newFace = FaceNeighbors[mapData->face][(2 + mapData->rotation) % 4];
+            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
+        } else if (mapData->jpos > _halfGridWidth) {
+            mapData->jpos -= _gridWidth;
+
+            newFace = FaceNeighbors[mapData->face][mapData->rotation];
+            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
+        }
+
+        mapData->face = newFace;
+    }
+
 private:
-    
+    int _gridWidth;
+    int _halfGridWidth;
 
 };
 

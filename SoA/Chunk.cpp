@@ -56,9 +56,9 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
     gridPosition = gridPos;
-    chunkPosition.x = fastFloor(gridPosition.x / (float)CHUNK_WIDTH);
-    chunkPosition.y = fastFloor(gridPosition.y / (float)CHUNK_WIDTH);
-    chunkPosition.z = fastFloor(gridPosition.z / (float)CHUNK_WIDTH);
+    chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
+    chunkPosition.y = fastFloor(gridPosition.y / (double)CHUNK_WIDTH);
+    chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
 	drawIndex = -1;
 	numBlocks = -1;
 	_state = ChunkStates::LOAD;
@@ -276,7 +276,12 @@ void Chunk::CheckEdgeBlocks()
 
 void Chunk::SetupMeshData(RenderTask *renderTask)
 {
-   
+    if (!left || !right || !front || !back || !bottom || !top) {
+        cout << numNeighbors << endl;
+        cout << owner->numNeighbors << endl;
+        printf("LOL");
+        fflush(stdout);
+    }
     int x, y, z, off1, off2;
 
     Chunk *ch1, *ch2;
@@ -732,4 +737,161 @@ int Chunk::getRainfall(int xz) const {
 
 int Chunk::getTemperature(int xz) const {
     return (int)chunkGridData->heightData[xz].temperature;
+}
+
+void ChunkSlot::clearNeighbors() {
+    if (left) {
+        if (left->right == this) {
+            left->right = nullptr;
+            left->numNeighbors--;
+        }
+        left = nullptr;
+    }
+    if (right) {
+        if (right->left == this) {
+            right->left = nullptr;
+            right->numNeighbors--;
+        }
+        right = nullptr;
+    }
+    if (top) {
+        if (top->bottom == this) {
+            top->bottom = nullptr;
+            top->numNeighbors--;
+        }
+        top = nullptr;
+    }
+    if (bottom) {
+        if (bottom->top == this) {
+            bottom->top = nullptr;
+            bottom->numNeighbors--;
+        }
+        bottom = nullptr;
+    }
+    if (front) {
+        if (front->back == this) {
+            front->back = nullptr;
+            front->numNeighbors--;
+        }
+        front = nullptr;
+    }
+    if (back) {
+        if (back->front == this) {
+            back->front = nullptr;
+            back->numNeighbors--;
+        }
+        back = nullptr;
+    }
+    numNeighbors = 0;
+}
+
+void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap) {
+
+    std::unordered_map<i32v3, ChunkSlot*>::iterator it;
+
+    i32v3 chPos;
+    chPos.x = fastFloor(position.x / (double)CHUNK_WIDTH);
+    chPos.y = fastFloor(position.y / (double)CHUNK_WIDTH);
+    chPos.z = fastFloor(position.z / (double)CHUNK_WIDTH);
+
+    //left
+    if (left == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(-1, 0, 0));
+        if (it != chunkSlotMap.end()) {
+            left = it->second;
+            left->right = this;
+            numNeighbors++;
+            left->numNeighbors++;
+        }
+    }
+    //right
+    if (right == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(1, 0, 0));
+        if (it != chunkSlotMap.end()) {
+            right = it->second;
+            right->left = this;
+            numNeighbors++;
+            right->numNeighbors++;
+        }
+    }
+
+    //back
+    if (back == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, 0, -1));
+        if (it != chunkSlotMap.end()) {
+            back = it->second;
+            back->front = this;
+            numNeighbors++;
+            back->numNeighbors++;
+        }
+    }
+
+    //front
+    if (front == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, 0, 1));
+        if (it != chunkSlotMap.end()) {
+            front = it->second;
+            front->back = this;
+            numNeighbors++;
+            front->numNeighbors++;
+        }
+    }
+
+    //bottom
+    if (bottom == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, -1, 0));
+        if (it != chunkSlotMap.end()) {
+            bottom = it->second;
+            bottom->top = this;
+            numNeighbors++;
+            bottom->numNeighbors++;
+        }
+    }
+
+    //top
+    if (top == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, 1, 0));
+        if (it != chunkSlotMap.end()) {
+            top = it->second;
+            top->bottom = this;
+            numNeighbors++;
+            top->numNeighbors++;
+        }
+    }
+}
+
+void ChunkSlot::reconnectToNeighbors() {
+
+    if (chunk) {
+        chunk->owner = this;
+    }
+    if (left) {
+        left->right = this;
+    }
+    if (right) {
+        right->left = this;
+    }
+    if (back) {
+        back->front = this;
+    }
+    if (front) {
+        front->back = this;
+    }
+    if (top) {
+        top->bottom = this;
+    }
+    if (bottom) {
+        bottom->top = this;
+    }
+}
+
+double ChunkSlot::getDistance2(const i32v3& pos, const i32v3& cameraPos) {
+    double dx = (cameraPos.x <= pos.x) ? pos.x : ((cameraPos.x > pos.x + CHUNK_WIDTH) ? (pos.x + CHUNK_WIDTH) : cameraPos.x);
+    double dy = (cameraPos.y <= pos.y) ? pos.y : ((cameraPos.y > pos.y + CHUNK_WIDTH) ? (pos.y + CHUNK_WIDTH) : cameraPos.y);
+    double dz = (cameraPos.z <= pos.z) ? pos.z : ((cameraPos.z > pos.z + CHUNK_WIDTH) ? (pos.z + CHUNK_WIDTH) : cameraPos.z);
+    dx = dx - cameraPos.x;
+    dy = dy - cameraPos.y;
+    dz = dz - cameraPos.z;
+    //we dont sqrt the distance since sqrt is slow
+    return dx*dx + dy*dy + dz*dz;
 }

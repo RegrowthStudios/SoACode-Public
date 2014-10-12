@@ -46,13 +46,6 @@ public:
         rdir = 1;
     }
 
-    virtual VoxelMapData* getNewNeighborData(const i32v2& ijOffset) {
-        VoxelMapData* newData = new VoxelMapData();
-        newData->ipos = ipos + ijOffset.x;
-        newData->jpos = jpos + ijOffset.y;
-        return newData;
-    }
-
     int ipos; //front-back axis
     int jpos; //left-right axis
 };
@@ -62,11 +55,25 @@ public:
     virtual VoxelMapData* getNewVoxelMapData() {
         return new VoxelMapData();
     }
-    virtual VoxelMapData* getNewVoxelMapData(VoxelMapData* copy) {
+    virtual VoxelMapData* getNewVoxelMapData(const VoxelMapData* copy) {
         VoxelMapData* newData = new VoxelMapData;
         *newData = *copy;
         return newData;
     }
+
+    // Generates a new voxelMapData with ijOffset relative to the relative
+    virtual VoxelMapData* getNewRelativeData(const VoxelMapData* relative, const i32v2& ijOffset) {
+        VoxelMapData* newData = new VoxelMapData();
+        newData->ipos = relative->ipos + ijOffset.x;
+        newData->jpos = relative->jpos + ijOffset.y;
+        return newData;
+    }
+
+    virtual void offsetPosition(VoxelMapData* mapData, const i32v2& ijOffset) {
+        mapData->ipos += ijOffset.x;
+        mapData->jpos += ijOffset.y;
+    }
+
 protected:
 
 };

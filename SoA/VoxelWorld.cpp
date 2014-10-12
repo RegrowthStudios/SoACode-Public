@@ -41,7 +41,7 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
 
     _chunkManager->planet = planet;
 
-    vvoxel::VoxelPlanetMapper* voxelPlanetMapper = new vvoxel::VoxelPlanetMapper();
+    vvoxel::VoxelPlanetMapper* voxelPlanetMapper = new vvoxel::VoxelPlanetMapper(planet->facecsGridWidth);
     _chunkManager->initialize(gpos, voxelPlanetMapper, startingMapData, flags);
 
     setPlanet(planet);
