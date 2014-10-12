@@ -10,7 +10,7 @@ public:
     virtual void onInit();
     virtual void onExit();
 
-    // Accessible Pointers To The Screens
+    // Accessible Pointers To Screens
     InitScreen* scrInit;
     LoadScreen* scrLoad;
 };

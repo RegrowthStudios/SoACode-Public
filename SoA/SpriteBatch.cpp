@@ -123,7 +123,7 @@ void SpriteBatch::begin() {
     _batches.swap(std::vector<SpriteBatchCall*>());
 }
 
-void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, f32 rotation, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
+void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, f32 rotation, const ColorRGBA8& tint, f32 depth /*= 0.0f*/) {
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     f32v2 uvt = uvTiling != nullptr ? *uvTiling : f32v2(1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
@@ -171,7 +171,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f
 
     _glyphs.push_back(g);
 }
-void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
+void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 offset, f32v2 size, const ColorRGBA8& tint, f32 depth /*= 0.0f*/) {
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     f32v2 uvt = uvTiling != nullptr ? *uvTiling : f32v2(1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
@@ -217,7 +217,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f
 
     _glyphs.push_back(g);
 }
-void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
+void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f32v2 size, const ColorRGBA8& tint, f32 depth /*= 0.0f*/) {
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     f32v2 uvt = uvTiling != nullptr ? *uvTiling : f32v2(1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
@@ -258,7 +258,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f
 
     _glyphs.push_back(g);
 }
-void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
+void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2 position, f32v2 size, const ColorRGBA8& tint, f32 depth /*= 0.0f*/) {
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
     g->textureID = t == 0 ? _texPixel : t;
@@ -298,7 +298,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2 position, f32v2 size, ColorR
 
     _glyphs.push_back(g);
 }
-void SpriteBatch::draw(ui32 t, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
+void SpriteBatch::draw(ui32 t, f32v2 position, f32v2 size, const ColorRGBA8& tint, f32 depth /*= 0.0f*/) {
     SpriteGlyph* g = _glyphRecycler.create();
     g->textureID = t == 0 ? _texPixel : t;
     g->depth = depth;
@@ -337,11 +337,11 @@ void SpriteBatch::draw(ui32 t, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 
 
     _glyphs.push_back(g);
 }
-void SpriteBatch::drawString(SpriteFont* font, const cString s, f32v2 position, f32v2 scaling, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
+void SpriteBatch::drawString(SpriteFont* font, const cString s, f32v2 position, f32v2 scaling, const ColorRGBA8& tint, f32 depth /*= 0.0f*/) {
     if (s == nullptr) s = "";
     font->draw(this, s, position, scaling, tint, depth);
 }
-void SpriteBatch::drawString(SpriteFont* font, const cString s, f32v2 position, f32 desiredHeight, f32 scaleX, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
+void SpriteBatch::drawString(SpriteFont* font, const cString s, f32v2 position, f32 desiredHeight, f32 scaleX, const ColorRGBA8& tint, f32 depth /*= 0.0f*/) {
     if (s == nullptr) s = "";
     f32v2 scaling(desiredHeight / (f32)font->getFontHeight());
     scaling.x *= scaleX;

@@ -26,11 +26,12 @@ public:
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
 private:
+    // Visualization Of Loading Tasks
     LoadBar* _loadBars;
     SpriteBatch* _sb;
     SpriteFont* _sf;
-    ui32 _texID;
 
+    // Loading Tasks
     LoadMonitor _monitor;
     std::vector<ILoadTask*> _loadTasks;
 };

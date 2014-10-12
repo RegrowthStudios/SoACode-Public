@@ -5,6 +5,7 @@
 #include "InputManager.h"
 #include "LoadMonitor.h"
 
+// Sample Dependency Task
 class LoadTaskGameManager : public ILoadTask {
     virtual void load() {
         Sleep(2000);

@@ -5,17 +5,17 @@
 
 ScreenList::ScreenList(MainGame* g) {
     _game = g;
-    _current = NO_START_SELECTED;
+    _current = SCREEN_INDEX_NO_START_SELECTED;
 }
 
 IGameScreen* ScreenList::moveNext() {
     const IGameScreen* cur = getCurrent();
-    _current = cur == 0 ? NO_SCREEN : cur->getNextScreen();
+    _current = cur == 0 ? SCREEN_INDEX_NO_SCREEN : cur->getNextScreen();
     return getCurrent();
 }
 IGameScreen* ScreenList::movePrevious() {
     const IGameScreen* cur = getCurrent();
-    _current = cur == 0 ? NO_SCREEN : cur->getPreviousScreen();
+    _current = cur == 0 ? SCREEN_INDEX_NO_SCREEN : cur->getPreviousScreen();
     return getCurrent();
 }
 
@@ -59,6 +59,3 @@ void ScreenList::destroy(GameTime gameTime) {
     }
     _screens.resize(0);
 }
-
-const i32 ScreenList::NO_SCREEN = -1;
-const i32 ScreenList::NO_START_SELECTED = -2;

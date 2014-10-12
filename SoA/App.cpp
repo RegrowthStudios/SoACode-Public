@@ -4,7 +4,6 @@
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "ScreenList.h"
-#include "TestScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -12,11 +11,12 @@ void App::addScreens() {
 
     _screenList->addScreen(scrInit);
     _screenList->addScreen(scrLoad);
+
     _screenList->setScreen(scrInit->getIndex());
 }
 void App::onInit() {
-    // empty
+    // Empty
 }
 void App::onExit() {
-    // empty
+    // Empty
 }

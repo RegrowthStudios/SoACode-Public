@@ -3,11 +3,11 @@
 
 #include "App.h"
 #include "BlendState.h"
+#include "colors.h"
 #include "DepthState.h"
 #include "LoadScreen.h"
 #include "RasterizerState.h"
 #include "SamplerState.h"
-#include "ScreenList.h"
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
 
@@ -20,14 +20,14 @@ i32 InitScreen::getNextScreen() const {
     return _app->scrLoad->getIndex();
 }
 i32 InitScreen::getPreviousScreen() const {
-    return ScreenList::NO_SCREEN;
+    return SCREEN_INDEX_NO_SCREEN;
 }
 
 void InitScreen::build() {
-
+    // Empty
 }
 void InitScreen::destroy(const GameTime& gameTime) {
-
+    // Empty
 }
 
 void InitScreen::onEntry(const GameTime& gameTime) {
@@ -44,11 +44,14 @@ void InitScreen::onExit(const GameTime& gameTime) {
 }
 
 void InitScreen::onEvent(const SDL_Event& e) {
+    // Go To Next Screen When Key Is Pressed
     if (e.type == SDL_KEYDOWN) {
         _state = _canContinue ? ScreenState::CHANGE_NEXT : ScreenState::EXIT_APPLICATION;
     }
 }
-void InitScreen::update(const GameTime& gameTime) {}
+void InitScreen::update(const GameTime& gameTime) {
+    // Empty
+}
 void InitScreen::draw(const GameTime& gameTime) {
     GameDisplayMode gdm;
     _game->getDisplayMode(&gdm);

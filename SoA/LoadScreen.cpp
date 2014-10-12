@@ -2,6 +2,7 @@
 #include "LoadScreen.h"
 
 #include "BlockData.h"
+#include "colors.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "FrameBuffer.h"
@@ -27,31 +28,27 @@ CTOR_APP_SCREEN_DEF(LoadScreen, App),
 _sf(nullptr),
 _sb(nullptr),
 _monitor() {
+    // Empty
 }
 
 i32 LoadScreen::getNextScreen() const {
-    return -1;
+    return SCREEN_INDEX_NO_SCREEN;
 }
 i32 LoadScreen::getPreviousScreen() const {
-    return -1;
+    return SCREEN_INDEX_NO_SCREEN;
 }
 
 void LoadScreen::build() {
+    // Empty
 }
 void LoadScreen::destroy(const GameTime& gameTime) {
+    // Empty
 }
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
     // Make LoadBar Resources
-    glGenTextures(1, &_texID);
-    glBindTexture(GL_TEXTURE_2D, _texID);
-    ui32 pix[4] = { 0xffffffff, 0xff0000ff, 0xff0000ff, 0xffffffff };
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    _sb = new SpriteBatch(false);
-    _sb->init();
+    _sb = new SpriteBatch(false, true);
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
-
 
     // Add Tasks Here
     _loadTasks.push_back(new LoadTaskGameManager);
@@ -86,7 +83,6 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     glClearDepth(1.0);
 }
 void LoadScreen::onExit(const GameTime& gameTime) {
-    // Delete LoadBar Resources
     _sf->dispose();
     delete _sf;
     _sf = nullptr;
@@ -95,41 +91,28 @@ void LoadScreen::onExit(const GameTime& gameTime) {
     delete _sb;
     _sb = nullptr;
 
-    glDeleteTextures(1, &_texID);
-    _texID = 0;
-
     delete[] _loadBars;
     _loadBars = nullptr;
+
+    _loadTasks.clear();
 }
 
 void LoadScreen::onEvent(const SDL_Event& e) {
-    switch (e.type) {
-    case SDL_KEYDOWN:
-        switch (e.key.keysym.sym) {
-        case SDLK_a:
-            for (i32 i = 0; i < 4; i++) {
-                _loadBars[i].retract();
-            }
-            break;
-        case SDLK_d:
-            for (i32 i = 0; i < 4; i++) {
-                _loadBars[i].expand();
-            }
-            break;
-        default:
-            break;
-        }
-    default:
-        break;
-    }
+    // Empty
 }
 void LoadScreen::update(const GameTime& gameTime) {
     for (i32 i = 0; i < _loadTasks.size(); i++) {
         if (_loadTasks[i] != nullptr && _loadTasks[i]->isFinished()) {
+            // Make The Task Visuals Disappear
             _loadBars[i].setColor(color::Black, color::Teal);
             _loadBars[i].retract();
+
+            // Delete Our Task Instance
+            delete _loadTasks[i];
             _loadTasks[i] = nullptr;
         }
+
+        // Update Visual Position
         _loadBars[i].update((f32)gameTime.elapsed);
     }
 }
@@ -140,6 +123,7 @@ void LoadScreen::draw(const GameTime& gameTime) {
     glViewport(0, 0, gdm.screenWidth, gdm.screenHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Draw Loading Information
     _sb->begin();
     for (i32 i = 0; i < _loadTasks.size(); i++) {
         _loadBars[i].draw(_sb, _sf, 0, 0.8f);

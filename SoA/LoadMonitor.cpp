@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "LoadMonitor.h"
 
-LoadMonitor::LoadMonitor() : _lock() ,_completionCondition() {
-
+LoadMonitor::LoadMonitor() :
+_lock(),
+_completionCondition() {
+    // Empty
 }
 LoadMonitor::~LoadMonitor() {
     for (ILoadTask* t : _internalTasks) delete t;

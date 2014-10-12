@@ -1,6 +1,9 @@
 #pragma once
 #include "MainGame.h"
 
+#define SCREEN_INDEX_NO_SCREEN -1
+#define SCREEN_INDEX_NO_START_SELECTED -2
+
 // A Screen Must Be In One Of These States
 enum class ScreenState {
     // The Screen Is Doing Nothing At The Moment

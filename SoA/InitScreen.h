@@ -27,6 +27,7 @@ private:
     void buildSpriteResources();
     void destroySpriteResources();
 
+    // Check Requirements And Draws Results
     void checkRequirements();
 
     SpriteBatch* _sb;
