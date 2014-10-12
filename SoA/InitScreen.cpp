@@ -113,7 +113,7 @@ void InitScreen::checkRequirements() {
         _sb->draw(0, pos, rectSize, color::COLOR_FAILURE, 0.5f);
         _sb->drawString(_font, "Application Will Now Exit", pos + textOff, textSize, 1.0f, color::White, 0.0f);
     }
-
+    _sb->drawString(_font, "Press Any Key To Continue", f32v2(10.0f, gdm.screenHeight - 30.0f), 24.0f, 1.0f, color::LightGray, 0.0f);
     _sb->end(SpriteSortMode::TEXTURE);
 
 #ifdef DEBUG
