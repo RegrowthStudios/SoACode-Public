@@ -45,7 +45,7 @@ public:
 class MainGame {
 public:
     MainGame();
-    ~MainGame();
+    virtual ~MainGame();
 
     SDL_Window* getWindowHandle() const {
         return _window;

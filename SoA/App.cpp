@@ -20,3 +20,15 @@ void App::onInit() {
 void App::onExit() {
     // Empty
 }
+
+App::~App() {
+    if (scrInit) {
+        delete scrInit;
+        scrInit = nullptr;
+    }
+
+    if (scrLoad) {
+        delete scrLoad;
+        scrLoad = nullptr;
+    }
+}

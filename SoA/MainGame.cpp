@@ -17,7 +17,9 @@
 MainGame::MainGame() {
     _displayMode = {};
 }
-MainGame::~MainGame() {}
+MainGame::~MainGame() {
+    // Empty
+}
 
 void MainGame::getDisplayMode(GameDisplayMode* displayMode) {
     // Get Display Info From SDL
