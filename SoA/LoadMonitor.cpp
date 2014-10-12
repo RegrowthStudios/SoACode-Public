@@ -7,8 +7,14 @@ _completionCondition() {
     // Empty
 }
 LoadMonitor::~LoadMonitor() {
-    for (ILoadTask* t : _internalTasks) delete t;
-    _internalTasks.clear();
+    if (_internalTasks.size() > 0) {
+        for (ILoadTask* t : _internalTasks) {
+            if (t) delete t;
+        }
+    }
+    for (auto& t : _internalThreads) {
+        t.detach();
+    }
 }
 
 void LoadMonitor::addTask(nString name, ILoadTask* task) {
@@ -56,7 +62,12 @@ void LoadMonitor::start() {
     }
 }
 void LoadMonitor::wait() {
-    for (auto& t : _internalThreads) t.join();
+    for (auto& t : _internalThreads) {
+        t.join();
+        t.detach();
+    }
+    _internalThreads.clear();
+
     for (ILoadTask* t : _internalTasks) delete t;
     _internalTasks.clear();
 }
