@@ -40,7 +40,7 @@ public:
 
 class SpriteBatch {
 public:
-    SpriteBatch(bool isDynamic = true);
+    SpriteBatch(bool isDynamic = true, bool init = false);
     ~SpriteBatch();
 
     void init();
@@ -77,6 +77,7 @@ private:
     void createProgram();
     void searchUniforms();
     void createVertexArray();
+    void createPixelTexture();
 
     class SpriteBatchCall {
     public:
@@ -102,6 +103,9 @@ private:
     // Custom Shader
     ui32 _idProg, _idVS, _idFS;
     ui32 _unWorld, _unVP, _unTexture;
+
+    // Default White Pixel Texture
+    ui32 _texPixel;
 
     static const i32 _INITIAL_GLYPH_CAPACITY = 32;
 };

@@ -63,13 +63,13 @@ SpriteGlyph(0, 0) {}
 SpriteGlyph::SpriteGlyph(ui32 texID, f32 d) :
 textureID(texID), depth(d) {}
 
-SpriteBatch::SpriteBatch(bool isDynamic /*= true*/) :
+SpriteBatch::SpriteBatch(bool isDynamic /*= true*/, bool doInit /*= false*/) :
 _bufUsage(isDynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW),
 _glyphCapacity(0),
 _vao(0), _vbo(0),
 _idProg(0), _idVS(0), _idFS(0),
 _unWorld(0), _unVP(0), _unTexture(0) {
-
+    if (doInit) init();
 }
 SpriteBatch::~SpriteBatch() {
     _batchRecycler.freeAll();
@@ -80,6 +80,7 @@ void SpriteBatch::init() {
     createProgram();
     searchUniforms();
     createVertexArray();
+    createPixelTexture();
 }
 void SpriteBatch::dispose() {
     if (_vbo != 0) {
@@ -105,6 +106,11 @@ void SpriteBatch::dispose() {
         glDeleteProgram(_idProg);
         _idProg = 0;
     }
+
+    if (_texPixel != 0) {
+        glDeleteTextures(1, &_texPixel);
+        _texPixel = 0;
+    }
 }
 
 void SpriteBatch::begin() {
@@ -121,7 +127,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     f32v2 uvt = uvTiling != nullptr ? *uvTiling : f32v2(1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
-    g->textureID = t;
+    g->textureID = t == 0 ? _texPixel : t;
     g->depth = depth;
 
     f32 rxx = (f32)cos(-rotation);
@@ -169,7 +175,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     f32v2 uvt = uvTiling != nullptr ? *uvTiling : f32v2(1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
-    g->textureID = t;
+    g->textureID = t == 0 ? _texPixel : t;
     g->depth = depth;
 
     f32 cl = size.x * (-offset.x);
@@ -215,7 +221,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     f32v2 uvt = uvTiling != nullptr ? *uvTiling : f32v2(1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
-    g->textureID = t;
+    g->textureID = t == 0 ? _texPixel : t;
     g->depth = depth;
 
     g->vtl.position.x = position.x;
@@ -255,7 +261,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2* uvTiling, f32v2 position, f
 void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
     f32v4 uvr = uvRect != nullptr ? *uvRect : f32v4(0, 0, 1, 1);
     SpriteGlyph* g = _glyphRecycler.create();
-    g->textureID = t;
+    g->textureID = t == 0 ? _texPixel : t;
     g->depth = depth;
 
     g->vtl.position.x = position.x;
@@ -294,7 +300,7 @@ void SpriteBatch::draw(ui32 t, f32v4* uvRect, f32v2 position, f32v2 size, ColorR
 }
 void SpriteBatch::draw(ui32 t, f32v2 position, f32v2 size, ColorRGBA8 tint, f32 depth /*= 0.0f*/) {
     SpriteGlyph* g = _glyphRecycler.create();
-    g->textureID = t;
+    g->textureID = t == 0 ? _texPixel : t;
     g->depth = depth;
 
     g->vtl.position.x = position.x;
@@ -527,6 +533,13 @@ void SpriteBatch::createVertexArray() {
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+void SpriteBatch::createPixelTexture() {
+    glGenTextures(1, &_texPixel);
+    glBindTexture(GL_TEXTURE_2D, _texPixel);
+    ui32 pix = 0xffffffffu;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pix);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void SpriteBatch::SpriteBatchCall::set(i32 iOff, ui32 texID, std::vector<SpriteBatchCall*>& calls) {
