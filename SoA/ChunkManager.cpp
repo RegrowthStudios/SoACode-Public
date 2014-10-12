@@ -300,6 +300,17 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     if (getChunk(chunkPosition) == nullptr) {
         makeChunkAt(_cameraVoxelMapData, chunkPosition);
+    } else {
+        ChunkGridData* cgd = getChunkGridData(gridPosition);
+        if (cgd) {
+            vvoxel::VoxelMapData* vmd = cgd->voxelMapData;
+            if (vmd->ipos != _cameraVoxelMapData->ipos || vmd->jpos != _cameraVoxelMapData->jpos) {
+                cout << vmd->ipos << " " << _cameraVoxelMapData->ipos << endl;
+                cout << vmd->jpos << " " << _cameraVoxelMapData->jpos << endl;
+                cout << endl;
+            }
+        }
+
     }
 
     sonarDt += 0.003f*physSpeedFactor;
