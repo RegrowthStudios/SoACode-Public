@@ -9,7 +9,7 @@
 std::vector <ParticleType> particleTypes;
 
 bool Particle::update(const f64v3& chunkListPos) {
-
+    return 0;
     i32v3 chPos;
     int gridRelY, gridRelX, gridRelZ;
     int bx, by, bz;
