@@ -368,10 +368,11 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
 }
 
 i32 ChunkManager::getBlockFromDir(f64v3& dir, f64v3& pos) {
+#define MAX_RANGE 200.0
     static const PredBlockID predBlock = [](const i32& id) {
         return id && (id < LOWWATER || id > FULLWATER);
     };
-    return VRayHelper::getQuery(pos, f32v3(dir), this, predBlock).id;
+    return VRayHelper::getQuery(pos, f32v3(dir), MAX_RANGE, this, predBlock).id;
 }
 
 i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {

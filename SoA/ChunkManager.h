@@ -139,6 +139,13 @@ public:
                      fastFloor(blockPosition.y / (f64)CHUNK_WIDTH),
                      fastFloor(blockPosition.z / (f64)CHUNK_WIDTH));
     }
+    // Returns a chunk position given a floating point grid position
+    // @param gridPosition: the block position
+    inline i32v3 getChunkPosition(const f64v3& blockPosition) const {
+        return i32v3(fastFloor(blockPosition.x / (f64)CHUNK_WIDTH),
+                     fastFloor(blockPosition.y / (f64)CHUNK_WIDTH),
+                     fastFloor(blockPosition.z / (f64)CHUNK_WIDTH));
+    }
 
     // Returns the current chunk diagnostics
     const ChunkDiagnostics& getChunkDiagnostics() const {
