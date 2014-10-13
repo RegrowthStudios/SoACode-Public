@@ -5,9 +5,11 @@
 #include <mutex>
 #include <thread>
 
-#include <boost\filesystem\operations.hpp>
-#include <glm\gtc\matrix_transform.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#if defined(WIN32) || defined(WIN64)
 #include <SDL/SDL_syswm.h>
+#endif
 
 #include "BlockData.h"
 #include "Camera.h"

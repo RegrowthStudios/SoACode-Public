@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include "compat.h"
 
 #include "Errors.h"
 

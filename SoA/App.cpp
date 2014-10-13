@@ -4,11 +4,18 @@
 #include "ScreenList.h"
 #include "TestScreen.h"
 
+
 void App::addScreens() {
     _screenList->addScreen(new TestScreen);
     _screenList->setScreen(0);
 }
+
+
 void App::onInit() {
+    // empty
 }
+
+
 void App::onExit() {
+    // empty
 }

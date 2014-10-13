@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include "stdafx.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 

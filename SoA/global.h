@@ -1,6 +1,5 @@
 #pragma once
-#define _CRT_SECURE_NO_DEPRECATE
-#define SOA_GAME
+#include "stdafx.h"
 #include <mutex>
 
 #include <SDL/SDL.h>
@@ -16,7 +15,9 @@ extern Biome blankBiome;
 
 using namespace std;
 
+#if defined(WIN32) || defined(WIN64)
 extern HGLRC mainHGLRC;
+#endif
 extern SDL_Window* mainWindow;
 
 extern bool NoChunkFade;
@@ -54,7 +55,7 @@ static GLfloat wholeScreenVertices[] = { 0, 1, 0, 0, 1, 0, 1, 1 };
 static GLfloat cubeSpriteVertices[] = {0, 50, 0, 10, 30, 0, 30, 40,
                                         30, 40, 30, 0, 60, 10, 60, 50,
                                         30, 60, 0, 50, 30, 40, 60, 50};
-                                        
+
 
 extern bool globalDebug1, globalDebug2;
 extern bool clickDragActive;
@@ -63,7 +64,7 @@ extern GLuint GuiTextureID;
 
 //debug variables, counts the triangles generated when initial world is created
 
-//temporary 
+//temporary
 extern int lodLength;
 const int TerrainPatchWidth = 262144*8/planetScale;
 

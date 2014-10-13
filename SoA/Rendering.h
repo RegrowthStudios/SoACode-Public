@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include "stdafx.h"
 
 #include "Constants.h"
 
@@ -19,20 +19,20 @@ extern int sunColor[64][3];
 //  | |     | |
 //  | |v7---|-|v4
 //  |/      |/
-//  v2------v3 
+//  v2------v3
 
 
 const float starboxSize = 15000000.0f;
 const GLfloat starboxVertices[72] = { -starboxSize, starboxSize, starboxSize, -starboxSize, -starboxSize, starboxSize, starboxSize, -starboxSize, starboxSize, starboxSize, starboxSize, starboxSize,  // v1-v2-v3-v0 (front)
-                       
+
                         starboxSize, starboxSize, starboxSize,   starboxSize, -starboxSize, starboxSize,   starboxSize, -starboxSize, -starboxSize,  starboxSize, starboxSize, -starboxSize,     // v0-v3-v4-v5 (right)
-                       
+
                         -starboxSize, starboxSize, -starboxSize,   -starboxSize, starboxSize, starboxSize,   starboxSize, starboxSize, starboxSize,  starboxSize, starboxSize, -starboxSize,    // v6-v1-v0-v5 (top)
-                 
+
                         -starboxSize, starboxSize, -starboxSize,   -starboxSize, -starboxSize, -starboxSize,  -starboxSize, -starboxSize, starboxSize,   -starboxSize, starboxSize, starboxSize,   // v6-v7-v2-v1 (left)
-                       
+
                         -starboxSize, -starboxSize, -starboxSize,   starboxSize, -starboxSize, -starboxSize,   starboxSize, -starboxSize, starboxSize,  -starboxSize, -starboxSize, starboxSize,    // v7-v4-v3-v2 (bottom)
-                       
+
                         starboxSize, starboxSize, -starboxSize,   starboxSize, -starboxSize, -starboxSize,   -starboxSize, -starboxSize, -starboxSize,  -starboxSize, starboxSize, -starboxSize};     // v5-v4-v7-v6 (back)
 
 // cube //
@@ -42,7 +42,7 @@ const GLfloat starboxVertices[72] = { -starboxSize, starboxSize, starboxSize, -s
 //  | |     | |
 //  | |v7---|-|v4
 //  |/      |/
-//  v2------v3 
+//  v2------v3
 
 extern GLushort starboxIndices[6][6];
 
@@ -79,7 +79,7 @@ namespace PADDED_OFFSETS {
     const int BACK_RIGHT = BACK + RIGHT;
     const int FRONT_RIGHT = FRONT + RIGHT;
     const int FRONT_LEFT = FRONT + LEFT;
-    
+
     const int BOTTOM_LEFT = BOTTOM + LEFT;
     const int BOTTOM_BACK_LEFT = BOTTOM + BACK_LEFT;
     const int BOTTOM_BACK = BOTTOM + BACK;
@@ -121,7 +121,7 @@ private:
     void HeightToNormal();
     //inline void CopyVertexData(Vertex &v1, Vertex &v2);
 };
-     
+
 extern WorldRenderer worldRenderer;
 
 void DrawCubeSpriteImage2D(GLfloat *vertices, int sizeOfvertices, GLfloat *uvs, int sizeOfuvs, GLushort *indices,int sizeOfindices, GLuint textureID, glm::vec4 color);

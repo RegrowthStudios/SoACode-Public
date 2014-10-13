@@ -105,9 +105,9 @@ namespace Keg {
         size_t getSizeInBytes() const {
             return _sizeInBytes;
         }
-    private:
         Type();
 
+    private:
         size_t _sizeInBytes;
         std::map<nString, Value> _values;
     };
