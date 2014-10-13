@@ -366,7 +366,7 @@ void GameManager::clickDragRay(bool isBreakRay) {
         return;
     }
 
-    i32v3 position;// = chunkManager->cornerPosition + rq.location;
+    i32v3 position = rq.location;
     if (voxelEditor->isEditing() == false) {
         voxelEditor->setStartPosition(position);
         voxelEditor->setEndPosition(position);

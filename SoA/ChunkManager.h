@@ -59,7 +59,6 @@ public:
         SET_Y_TO_SURFACE
     };
 
-
     // Initializes the grid at the surface and returns the Y value
     // @param gridPosition: the floating point starting grid position.
     // @param voxelMapper: The chosen voxel mapping scheme

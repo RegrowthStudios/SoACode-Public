@@ -742,10 +742,6 @@ void ChunkManager::initializeMinerals() {
     Chunk::possibleMinerals.push_back(new MineralData(COAL, -10, 3.0f, -500, 35.0f, -5000000, 10.0f, 3, 300));
 }
 
-
-i32 ticksArrayIndex = 0;
-i32 ticksArray[10];
-
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded
 void ChunkManager::updateLoadList(ui32 maxTicks) {
 

@@ -10,19 +10,25 @@
 const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, ChunkManager* cm, PredBlockID f) {
     // First Convert To Voxel Coordinates
     //TODO(Cristian) use new mapping for this
-    f64v3 relativePosition = pos;// -f64v3(cm->cornerPosition);
-    VoxelRay vr(f32v3(relativePosition), dir);
+
+    VoxelRay vr(f32v3(pos), dir);
 
     // Create The Query At The Current Position
     VoxelRayQuery query = {};
+    
     query.location = vr.getNextVoxelPosition();
     query.distance = vr.getDistanceTraversed();
-    i32v3 chunkPos = query.location / CHUNK_WIDTH;
+    
+
+    i32v3 chunkPos = cm->getChunkPosition(query.location);
 
     // TODO: Use A Bounding Box Intersection First And Allow Traversal Beginning Outside The Voxel World
 
+    openglManager.debugRenderer->drawLine(f32v3(pos), f32v3(pos) + dir * 100.0f, glm::vec4(0.0f, 1.0f, 0.0f, 0.8f), 10.0);
+
     // Loop Traversal
     while (true) {
+        openglManager.debugRenderer->drawCube(f32v3(query.location), glm::vec3(1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 0.5f), 10.0);
 
 
         query.chunk = cm->getChunk(chunkPos);
@@ -44,14 +50,12 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, Chu
         // Traverse To The Next
         query.location = vr.getNextVoxelPosition();
         query.distance = vr.getDistanceTraversed();
-        chunkPos = query.location / CHUNK_WIDTH;
+        chunkPos = cm->getChunkPosition(query.location);
     }
 }
 const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, ChunkManager* cm, PredBlockID f) {
     // First Convert To Voxel Coordinates
-    //TODO(Cristian) use new mapping for this
-    f64v3 relativePosition = pos;// -f64v3(cm->cornerPosition);
-    VoxelRay vr(f32v3(relativePosition), dir);
+    VoxelRay vr(f32v3(pos), dir);
 
     // Create The Query At The Current Position
     VoxelRayFullQuery query = {};
@@ -59,7 +63,8 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
     query.inner.distance = vr.getDistanceTraversed();
     query.outer.location = query.inner.location;
     query.outer.distance = query.inner.distance;
-    i32v3 chunkPos = query.inner.location / CHUNK_WIDTH;
+
+    i32v3 chunkPos = cm->getChunkPosition(query.inner.location);
 
     // TODO: Use A Bounding Box Intersection First And Allow Traversal Beginning Outside The Voxel World
 
@@ -88,7 +93,7 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
         // Traverse To The Next
         query.inner.location = vr.getNextVoxelPosition();
         query.inner.distance = vr.getDistanceTraversed();
-        chunkPos = query.inner.location / CHUNK_WIDTH;
+        chunkPos = cm->getChunkPosition(query.inner.location);
     }
 }
 
