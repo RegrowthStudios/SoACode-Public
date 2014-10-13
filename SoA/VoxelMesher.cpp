@@ -10,6 +10,9 @@
 //  |/      |/
 //  v2------v3 
 
+#define POSITION_RESOLUTION 7
+#define ATLAS_SIZE 256
+
 const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f,  // v1-v2-v3-v0 (front)
 
     0.5f, 1.0f, 1.0f, 0.5f, -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f,     // v0-v3-v4-v5 (right)
@@ -169,8 +172,6 @@ const GLfloat VoxelMesher::physicsBlockVertices[72] = { -PHYS_V, PHYS_V, PHYS_V,
 void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo)
 {
 
-#define POSITION_RESOLUTION 7
-#define ATLAS_SIZE 256
 
     //get the face index so we can determine the axis alignment
     int faceIndex = vertexOffset / CUBE_FACE_1_VERTEX_OFFSET;
@@ -369,9 +370,9 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     int lodTexOffset = (1 << (levelOfDetail - 1));
 
     // 7 per coord
-    pos.x *= 7;
-    pos.y *= 7;
-    pos.z *= 7;
+    pos.x *= POSITION_RESOLUTION;
+    pos.y *= POSITION_RESOLUTION;
+    pos.z *= POSITION_RESOLUTION;
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
@@ -395,11 +396,11 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     Verts[vertexIndex + 2].blendMode = blendMode;
     Verts[vertexIndex + 3].blendMode = blendMode;
 
-    GLubyte texAtlas = (GLubyte)(textureIndex / 256);
-    textureIndex %= 256;
+    GLubyte texAtlas = (GLubyte)(textureIndex / ATLAS_SIZE);
+    textureIndex %= ATLAS_SIZE;
 
-    GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / 256);
-    GLubyte overlayTex = (GLubyte)(overlayTextureIndex % 256);
+    GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / ATLAS_SIZE);
+    GLubyte overlayTex = (GLubyte)(overlayTextureIndex % ATLAS_SIZE);
 
     Verts[vertexIndex].textureWidth = (ubyte)texInfo.base.size.x;
     Verts[vertexIndex].textureHeight = (ubyte)texInfo.base.size.y;
@@ -493,14 +494,16 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
         Verts[vertexIndex + 3].color[3] = 0;
     }
 
-    Verts[vertexIndex].tex[0] = 128 + uOffset;
-    Verts[vertexIndex].tex[1] = 128 + vOffset + lodTexOffset;
-    Verts[vertexIndex + 1].tex[0] = 128 + uOffset;
-    Verts[vertexIndex + 1].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 2].tex[0] = 128 + uOffset + lodTexOffset;
-    Verts[vertexIndex + 2].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 3].tex[0] = 128 + uOffset + lodTexOffset;
-    Verts[vertexIndex + 3].tex[1] = 128 + vOffset + lodTexOffset;
+#define UV_0 128
+
+    Verts[vertexIndex].tex[0] = UV_0 + uOffset;
+    Verts[vertexIndex].tex[1] = UV_0 + vOffset + lodTexOffset;
+    Verts[vertexIndex + 1].tex[0] = UV_0 + uOffset;
+    Verts[vertexIndex + 1].tex[1] = UV_0 + vOffset;
+    Verts[vertexIndex + 2].tex[0] = UV_0 + uOffset + lodTexOffset;
+    Verts[vertexIndex + 2].tex[1] = UV_0 + vOffset;
+    Verts[vertexIndex + 3].tex[0] = UV_0 + uOffset + lodTexOffset;
+    Verts[vertexIndex + 3].tex[1] = UV_0 + vOffset + lodTexOffset;
 
     // *********** Base Texture
     Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;
@@ -598,11 +601,11 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
 
 void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture)
 {
-    ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / 256);
-    ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % 256);
+    ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / ATLAS_SIZE);
+    ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % ATLAS_SIZE);
 
-    ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.textureIndex / 256);
-    ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.textureIndex % 256);
+    ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.textureIndex / ATLAS_SIZE);
+    ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.textureIndex % ATLAS_SIZE);
 
     ui8 blendMode = 0x25; //0x25 = 00 10 01 01
     switch (blockTexture.blendMode) {
@@ -693,18 +696,21 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const
     verts[index + 5].position[1] = cverts[vertexOffset + 1];
     verts[index + 5].position[2] = cverts[vertexOffset + 2];
 
-    verts[index].tex[0] = 128;
-    verts[index].tex[1] = 129;
-    verts[index + 1].tex[0] = 128;
-    verts[index + 1].tex[1] = 128;
-    verts[index + 2].tex[0] = 129;
-    verts[index + 2].tex[1] = 128;
-    verts[index + 3].tex[0] = 129;
-    verts[index + 3].tex[1] = 128;
-    verts[index + 4].tex[0] = 129;
-    verts[index + 4].tex[1] = 129;
-    verts[index + 5].tex[0] = 128;
-    verts[index + 5].tex[1] = 129;
+#define UV_0 128
+#define UV_1 129
+
+    verts[index].tex[0] = UV_0;
+    verts[index].tex[1] = UV_1;
+    verts[index + 1].tex[0] = UV_0;
+    verts[index + 1].tex[1] = UV_0;
+    verts[index + 2].tex[0] = UV_1;
+    verts[index + 2].tex[1] = UV_0;
+    verts[index + 3].tex[0] = UV_1;
+    verts[index + 3].tex[1] = UV_0;
+    verts[index + 4].tex[0] = UV_1;
+    verts[index + 4].tex[1] = UV_1;
+    verts[index + 5].tex[0] = UV_0;
+    verts[index + 5].tex[1] = UV_1;
 
     verts[index].textureAtlas = textureAtlas;
     verts[index + 1].textureAtlas = textureAtlas;
