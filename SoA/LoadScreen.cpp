@@ -63,7 +63,7 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     // Make LoadBars
     LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
     _loadBars = new LoadBar[_loadTasks.size()];
-    for (i32 i = 0; i < _loadTasks.size(); i++) {
+    for (ui32 i = 0; i < _loadTasks.size(); i++) {
         _loadBars[i].setCommonProperties(lbcp);
         _loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
         _loadBars[i].expand();
@@ -72,7 +72,7 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
 
     // Put Text For The Load Bars
     {
-        i32 i = 0;
+        ui32 i = 0;
         _loadBars[i++].setText("Game Manager");
         _loadBars[i++].setText("Input Manager");
     }
@@ -101,7 +101,7 @@ void LoadScreen::onEvent(const SDL_Event& e) {
     // Empty
 }
 void LoadScreen::update(const GameTime& gameTime) {
-    for (i32 i = 0; i < _loadTasks.size(); i++) {
+    for (ui32 i = 0; i < _loadTasks.size(); i++) {
         if (_loadTasks[i] != nullptr && _loadTasks[i]->isFinished()) {
             // Make The Task Visuals Disappear
             _loadBars[i].setColor(color::Black, color::Teal);
@@ -125,7 +125,7 @@ void LoadScreen::draw(const GameTime& gameTime) {
 
     // Draw Loading Information
     _sb->begin();
-    for (i32 i = 0; i < _loadTasks.size(); i++) {
+    for (ui32 i = 0; i < _loadTasks.size(); i++) {
         _loadBars[i].draw(_sb, _sf, 0, 0.8f);
     }
     _sb->end(SpriteSortMode::BACK_TO_FRONT);

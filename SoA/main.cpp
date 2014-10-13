@@ -83,12 +83,10 @@ int main(int argc, char **argv) {
     initIOEnvironment(argv);
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 
-//#ifdef NEW
     MainGame* mg = new App;
     mg->run();
     delete mg;
     mg = nullptr;
-//#endif // NEW
 
     Initialize();
     //ExtractFrustum(mainMenuCamera->FrustumProjectionMatrix, player->FrustumViewMatrix);
