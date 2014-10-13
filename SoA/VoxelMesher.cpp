@@ -10,9 +10,6 @@
 //  |/      |/
 //  v2------v3 
 
-#define POSITION_RESOLUTION 7
-#define ATLAS_SIZE 256
-
 const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f,  // v1-v2-v3-v0 (front)
 
     0.5f, 1.0f, 1.0f, 0.5f, -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f,     // v0-v3-v4-v5 (right)

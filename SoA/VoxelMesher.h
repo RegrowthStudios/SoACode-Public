@@ -2,8 +2,11 @@
 #include "OpenGLStructs.h"
 #include "BlockData.h"
 
-const int NUM_FLORA_MESHES = 4;
-const int NUM_CROSSFLORA_MESHES = 2;
+#define NUM_FLORA_MESHES 4
+#define NUM_FLORA_VERTICES 36
+
+#define NUM_CROSSFLORA_MESHES 2
+#define NUM_CROSSFLORA_VERTICES 24
 
 // Offsets into CubeVertices
 #define CUBE_FACE_0_VERTEX_OFFSET 0
@@ -23,16 +26,22 @@ public:
     static void makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 lampColor[3], ui8 sunlight, ui8 color[3], ui8 textureUnit);
     static void makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture);
 
-    static const GLfloat leafVertices[72];
-    static const GLubyte cubeVertices[6][72];
-    static const int cubeFaceAxis[6][2];
-    static const int cubeFaceAxisSign[6][2];
-    static const GLfloat liquidVertices[72];
-    static const GLfloat waterCubeVertices[72];
-    static const GLbyte cubeNormals[72];
-    static const GLbyte floraNormals[72];
-    static const ui8 floraVertices[NUM_FLORA_MESHES][36];
-    static const ui8 crossFloraVertices[NUM_CROSSFLORA_MESHES][24];
-    static const GLfloat physicsBlockVertices[72];
+#define POSITION_RESOLUTION 7
+#define ATLAS_SIZE 256
+
+#define NUM_FACES 6
+#define NUM_VERTICES 72
+
+    static const GLfloat leafVertices[NUM_VERTICES];
+    static const GLubyte cubeVertices[NUM_FACES][NUM_VERTICES];
+    static const int cubeFaceAxis[NUM_FACES][2];
+    static const int cubeFaceAxisSign[NUM_FACES][2];
+    static const GLfloat liquidVertices[NUM_VERTICES];
+    static const GLfloat waterCubeVertices[NUM_VERTICES];
+    static const GLbyte cubeNormals[NUM_VERTICES];
+    static const GLbyte floraNormals[NUM_VERTICES];
+    static const ui8 floraVertices[NUM_FLORA_MESHES][NUM_FLORA_VERTICES];
+    static const ui8 crossFloraVertices[NUM_CROSSFLORA_MESHES][NUM_CROSSFLORA_VERTICES];
+    static const GLfloat physicsBlockVertices[NUM_VERTICES];
 };
 
