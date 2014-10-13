@@ -45,6 +45,7 @@
 #endif
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
+#include "LoadMonitor.h"
 
 Uint32 rmask, gmask, bmask, amask;
 
@@ -77,18 +78,15 @@ bool hasFocus = 0;
 void initIOEnvironment(char** argv);
 
 int main(int argc, char **argv) {
-
     checkTypes();
 
     initIOEnvironment(argv);
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 
-#ifdef NEW
     MainGame* mg = new App;
     mg->run();
     delete mg;
     mg = nullptr;
-#endif // NEW
 
     Initialize();
     //ExtractFrustum(mainMenuCamera->FrustumProjectionMatrix, player->FrustumViewMatrix);

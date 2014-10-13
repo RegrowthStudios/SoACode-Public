@@ -110,6 +110,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="colors.h" />
+    <ClInclude Include="InitScreen.h" />
+    <ClInclude Include="LoadMonitor.h" />
+    <ClInclude Include="LoadTaskGameManager.h" />
+    <ClInclude Include="LoadTaskInput.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -162,7 +167,6 @@
     <ClInclude Include="SpriteFont.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="App.h" />
-    <ClInclude Include="TestScreen.h" />
     <ClInclude Include="TextureAtlasManager.h" />
     <ClInclude Include="TextureAtlasStitcher.h" />
     <ClInclude Include="Timing.h" />
@@ -236,6 +240,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="colors.cpp" />
+    <ClCompile Include="InitScreen.cpp" />
+    <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="LoadTaskInput.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
@@ -288,7 +296,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="TestScreen.cpp" />
     <ClCompile Include="TextureAtlasManager.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="Timing.cpp" />

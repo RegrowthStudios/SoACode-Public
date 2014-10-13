@@ -9,7 +9,7 @@ public:
     // Create And Free GPU Resources
     void init();
     void destroy();
-    const bool& getIsCreated() const {
+    bool getIsCreated() const {
         return _id != 0;
     }
     const int& getID() const  {
