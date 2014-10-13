@@ -110,7 +110,7 @@ void ChunkIOManager::addToLoadList(vector <Chunk *> &chunks)
         ch = chunks[i];
        
         if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
-            ch->inLoadThread = 1;
+            ch->inLoadThread = true;
             chunksToLoad.push(ch);
         }
         else{

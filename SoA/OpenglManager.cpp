@@ -1660,7 +1660,7 @@ void UpdatePlayer()
     player->collisionData.yDecel = 0.0f;
     //    cout << "C";
 
-    openglManager.collisionLock.lock();
+    Chunk::modifyLock.lock();
     for (int i = 0; i < playerCollisionSteps; i++){
         player->gridPosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
         player->facePosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
@@ -1670,7 +1670,7 @@ void UpdatePlayer()
         }
         player->applyCollisionData();
     }
-    openglManager.collisionLock.unlock();
+    Chunk::modifyLock.unlock();
 
     delete[] chunks;
 }

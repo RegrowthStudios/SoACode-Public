@@ -45,6 +45,8 @@ public:
     void GetBaseBiome(int x, int y, int z, Biome **b, int h);
     void InfluenceTerrainWithBiome(Biome *b, HeightData *hv, double x, double y, double z, double &temp, double &rain, double &height, double &sandDepth, GLuint &flags, double terrainMult);
 
+    void postProcessHeightmap(HeightData heightData[CHUNK_LAYER]);
+
     int numFunctions;
 
     int BiomeMap[256][256]; //[rainfall][temperature]

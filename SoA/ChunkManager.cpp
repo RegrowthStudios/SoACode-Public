@@ -36,6 +36,8 @@
 #include "ChunkIOManager.h"
 #include "shader.h"
 
+#include "VoxelPlanetMapper.h"
+
 const f32 skyR = 135.0f / 255.0f, skyG = 206.0f / 255.0f, skyB = 250.0f / 255.0f;
 
 const i32 CTERRAIN_PATCH_WIDTH = 5;
@@ -44,12 +46,8 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 
 //5846 5061
 ChunkManager::ChunkManager() : _isStationary(0), _cameraVoxelMapData(nullptr) {
-    generateOnly = false;
-    _mRenderTask = new RenderTask;
     NoChunkFade = 0;
-    _physicsDisabled = 0;
     planet = NULL;
-    _maxLoads = 80;
     _poccx = _poccy = _poccz = -1;
 
     // Clear Out The Chunk Diagnostics
@@ -65,14 +63,11 @@ ChunkManager::ChunkManager() : _isStationary(0), _cameraVoxelMapData(nullptr) {
         starboxIndices[i / 6][i % 6 + 5] = ci;
     }
 
-    _maxChunkTicks = 4;
-
     GlobalModelMatrix = glm::mat4(1.0);
 }
 
 ChunkManager::~ChunkManager() {
     deleteAllChunks();
-    delete _mRenderTask;
 }
 
 //This is hard coded and bad, we need a better method
@@ -110,6 +105,9 @@ void ChunkManager::initializeMinerals() {
 
 void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
 
+    // Initialize the threadpool for chunk loading
+    initializeThreadPool();
+
     _voxelMapper = voxelMapper;
     // Minerals //TODO(Ben): THIS IS RETARDED
     initializeMinerals();
@@ -131,19 +129,18 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     // Initialize grid
     csGridWidth = 1 + (graphicsOptions.voxelRenderDistance / 32) * 2;
     cout << "GRID WIDTH: " << csGridWidth << endl;
-    csGridSize = csGridWidth * csGridWidth * csGridWidth;
-    _chunkSlotMap.reserve(csGridSize);
+    _csGridSize = csGridWidth * csGridWidth * csGridWidth;
+    _chunkSlotMap.reserve(_csGridSize);
 
     // Set initial capacity of circular buffers
-    _freeList.set_capacity(csGridSize);
-    _setupList.set_capacity(csGridSize);
-    _meshList.set_capacity(csGridSize);
-    _loadList.set_capacity(csGridSize);
-    _generateList.set_capacity(csGridSize);
+    _setupList.set_capacity(_csGridSize * 2);
+    _meshList.set_capacity(_csGridSize * 2);
+    _loadList.set_capacity(_csGridSize * 2);
+    _generateList.set_capacity(_csGridSize * 2);
 
     // Reserve capacity for chunkslots. If this capacity is not enough, we will get a 
     // crash. We use * 4 just in case. It should be plenty
-    _chunkSlots[0].reserve(csGridSize * 4);
+    _chunkSlots[0].reserve(_csGridSize * 4);
 
     // Allocate the camera voxel map data so we can tell where on the grid the camera exists
     _cameraVoxelMapData = _voxelMapper->getNewVoxelMapData(startingMapData);
@@ -155,10 +152,23 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     chunkPosition.z = fastFloor(gridPosition.z / (float)CHUNK_WIDTH);
 
     // Make the first chunk
-    makeChunkAt(startingMapData, chunkPosition);
+    makeChunkAt(chunkPosition, startingMapData);
 }
 
-void ChunkManager::makeChunkAt(const vvoxel::VoxelMapData* mapData, const i32v3& chunkPosition) {
+void ChunkManager::initializeThreadPool() {
+    // Check the hardware concurrency
+    size_t hc = thread::hardware_concurrency();
+    // Remove two threads for the render thread and main thread
+    if (hc > 1) hc--;
+    if (hc > 1) hc--;
+   
+    // Initialize the threadpool with hc threads
+    threadPool.initialize(hc);
+    // Give some time for the threads to spin up
+    SDL_Delay(100);
+}
+
+void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
 
     // Get the voxel grid position
     i32v2 gridPos(chunkPosition.x, chunkPosition.z);
@@ -167,7 +177,7 @@ void ChunkManager::makeChunkAt(const vvoxel::VoxelMapData* mapData, const i32v3&
     ChunkGridData* chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         // If its not allocated, make a new one with a new voxelMapData
-        chunkGridData = new ChunkGridData(_voxelMapper->getNewVoxelMapData(mapData));
+        chunkGridData = new ChunkGridData(_voxelMapper->getNewRelativeData(relativeMapData, ijOffset));
         _chunkGridDataMap[gridPos] = chunkGridData;
     } else {
         chunkGridData->refCount++;
@@ -193,93 +203,63 @@ void ChunkManager::makeChunkAt(const vvoxel::VoxelMapData* mapData, const i32v3&
     _chunkSlots[0].back().detectNeighbors(_chunkSlotMap);
 }
 
-void ChunkManager::clearAllChunks(bool clearDrawing) {
+void ChunkManager::clearAll() {
+    // Clear the threadpool
     threadPool.clearJobs();
     while (!(threadPool.isFinished()));
 
-    taskQueueManager.finishedChunks.clear(); //we know they are finished so just clear it
+    // Clear finished generating chunks
+    std::vector<Chunk*>().swap(taskQueueManager.finishedChunks); 
+
+    // Clear finished chunk meshes
     for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) delete taskQueueManager.finishedChunkMeshes[i];
-    taskQueueManager.finishedChunkMeshes.clear(); //we know they are finished so just clear it
+    queue <ChunkMeshData *>().swap(_finishedChunkMeshes); 
+
+    // Clear the chunk IO thread
     GameManager::chunkIOManager->clear();
-  
+
+    // Close the threadpool
+    threadPool.close();
+
     _setupList.clear();
     _generateList.clear();
     _meshList.clear();
     _loadList.clear();
-    queue <ChunkMeshData *>().swap(_finishedChunkMeshes); //clear it
-
-    for (size_t i = 0; i < _threadWaitingChunks.size(); i++) {
-        recycleChunk(_threadWaitingChunks[i]);
-        _threadWaitingChunks[i]->inRenderThread = 0;
-        _threadWaitingChunks[i]->inLoadThread = 0;
-        _threadWaitingChunks[i]->inGenerateThread = 0;
-        _threadWaitingChunks[i]->inSaveThread = 0;
-        _threadWaitingChunks[i]->inFinishedChunks = 0;
-        _threadWaitingChunks[i]->inFinishedMeshes = 0;
-    }
-    _threadWaitingChunks.clear();
-
-    if (clearDrawing) {
-        for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
-            if (_chunkSlots[0][i].chunk) _chunkSlots[0][i].chunk->clear();
-        }
-    } else {
-        for (i32 i = 0; i < csGridSize; i++) {
-            if (_chunkSlots[0][i].chunk) _chunkSlots[0][i].chunk->clear(0);
-        }
-    }
-}
-
-void ChunkManager::clearAll() {
-    clearAllChunks(true);
-    threadPool.close();
 
     for (size_t i = 0; i < Chunk::possibleMinerals.size(); i++) {
         delete Chunk::possibleMinerals[i];
     }
     Chunk::possibleMinerals.clear();
 
+    for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
+        freeChunk(_chunkSlots[0][i].chunk);
+    }
+
     for (auto it = _chunkGridDataMap.begin(); it != _chunkGridDataMap.end(); it++) {
         delete it->second;
     }
     _chunkGridDataMap.clear();
 
-    for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
-        freeChunk(_chunkSlots[0][i].chunk);
-    }
-
     GameManager::physicsEngine->clearAll();
 
     for (size_t i = 0; i < _threadWaitingChunks.size(); i++) { //kill the residual waiting threads too
+        _threadWaitingChunks[i]->clear();
         recycleChunk(_threadWaitingChunks[i]);
     }
-    _threadWaitingChunks.clear();
+    std::vector<Chunk*>().swap(_threadWaitingChunks);
 
     deleteAllChunks();
 
     vector<ChunkSlot>().swap(_chunkSlots[0]);
 }
 
-void ChunkManager::clearChunkData() {
-
-    Chunk* chunk;
-    for (i32 y = 0; y < csGridWidth; y++) {
-        for (i32 z = 0; z < csGridWidth; z++) {
-            for (i32 x = 0; x < csGridWidth; x++) {
-                chunk = _chunkSlots[0][y * csGridWidth * csGridWidth + z * csGridWidth + x].chunk;
-                if (chunk) {
-                    clearChunk(chunk);
-                    recycleChunk(chunk);
-                }
-            }
-        }
-    }
-}
-
 i32 ticksArrayIndex = 0;
 i32 ticksArray[10];
 
 void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
+
+    timeBeginPeriod(1);
+
     globalMultiplePreciseTimer.setDesiredSamples(10);
     globalMultiplePreciseTimer.start("Update");
 
@@ -291,26 +271,16 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     chunkPosition.y = fastFloor(position.y / (double)CHUNK_WIDTH);
     chunkPosition.z = fastFloor(position.z / (double)CHUNK_WIDTH);
 
-    i32v2 gridPosition(chunkPosition.z, chunkPosition.x);
+    i32v2 gridPosition(chunkPosition.x, chunkPosition.z);
     static i32v2 oldGridPosition = gridPosition;
     
     if (gridPosition != oldGridPosition) {
-        _voxelMapper->offsetPosition(_cameraVoxelMapData, gridPosition - oldGridPosition);
+        _voxelMapper->offsetPosition(_cameraVoxelMapData, i32v2(gridPosition.y - oldGridPosition.y, gridPosition.x - oldGridPosition.x));
     }
+    oldGridPosition = gridPosition;
 
     if (getChunk(chunkPosition) == nullptr) {
-        makeChunkAt(_cameraVoxelMapData, chunkPosition);
-    } else {
-        ChunkGridData* cgd = getChunkGridData(gridPosition);
-        if (cgd) {
-            vvoxel::VoxelMapData* vmd = cgd->voxelMapData;
-            if (vmd->ipos != _cameraVoxelMapData->ipos || vmd->jpos != _cameraVoxelMapData->jpos) {
-                cout << vmd->ipos << " " << _cameraVoxelMapData->ipos << endl;
-                cout << vmd->jpos << " " << _cameraVoxelMapData->jpos << endl;
-                cout << endl;
-            }
-        }
-
+        makeChunkAt(chunkPosition, _cameraVoxelMapData);
     }
 
     sonarDt += 0.003f*physSpeedFactor;
@@ -318,14 +288,13 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Update Chunks");
     Chunk::modifyLock.lock();
-    if (_isStationary) {
-  //      updateChunks(f64v3(cornerPosition) + f64v3(CENTER_OFFSET));
-    } else {
-        updateChunks(position);
-    }
+ 
+    updateChunks(position);
+    
     Chunk::modifyLock.unlock();
+
     globalMultiplePreciseTimer.start("Update Load List");
-    updateLoadList(_maxChunkTicks);
+    updateLoadList(4);
   //  globalMultiplePreciseTimer.start("CAEngine Update");
   //  GameManager::caEngine->update(*this);
 
@@ -335,11 +304,13 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     globalMultiplePreciseTimer.start("Sort");
   //  cout << "BEGIN SORT\n";
  //   fflush(stdout);
+
+   
   
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
-        recursiveSortSetupList(_setupList, 0, _setupList.size(), 2);
-        recursiveSortSetupList(_meshList, 0, _meshList.size(), 2);
-        recursiveSortChunks(_loadList, 0, _loadList.size(), 2);
+        recursiveSortChunkList(_setupList, 0, _setupList.size());
+        recursiveSortChunkList(_meshList, 0, _meshList.size());
+        recursiveSortChunkList(_loadList, 0, _loadList.size());
         k = 0;
     }
     k++;
@@ -347,11 +318,11 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
    // cout << "END SORT\n";
    // fflush(stdout);
     globalMultiplePreciseTimer.start("Mesh List");
-    updateMeshList(_maxChunkTicks, position);
+    updateMeshList(4);
     globalMultiplePreciseTimer.start("Generate List");
-    updateGenerateList(_maxChunkTicks);
+    updateGenerateList(4);
     globalMultiplePreciseTimer.start("Setup List");
-    updateSetupList(_maxChunkTicks);
+    updateSetupList(4);
 
     //This doesnt function correctly
     //caveOcclusion(position);
@@ -375,7 +346,9 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     globalMultiplePreciseTimer.start("Finished Meshes");
     uploadFinishedMeshes();
     //change the parameter to true to print out the timingsm
-    globalMultiplePreciseTimer.end(true);
+    globalMultiplePreciseTimer.end(false);
+
+    timeEndPeriod(1);
 }
 
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded
@@ -386,11 +359,11 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
     ChunkGridData* chunkGridData;
 
     ui32 sticks = SDL_GetTicks();
-    for (i32 i = _loadList.size() - 1; i >= 0; i--) {
-        chunk = _loadList[i];
+    while (!_loadList.empty()) {
+        chunk = _loadList.back();
         _loadList.pop_back();
-        chunk->updateIndex = -1;
-        chunk->setupListPtr = NULL;
+
+        chunk->clearChunkListPtr();
      
         chunk->isAccessible = 0;
 
@@ -402,7 +375,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
             currTerrainGenerator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
 
             currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            prepareHeightMap(chunkGridData->heightData);
+            currTerrainGenerator->postProcessHeightmap(chunkGridData->heightData);
         }
 
         chunksToLoad.push_back(chunk);
@@ -422,7 +395,7 @@ void ChunkManager::uploadFinishedMeshes() {
 
     taskQueueManager.frLock.lock();
     for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) {
-        _finishedChunkMeshes.push(taskQueueManager.finishedChunkMeshes[i]);
+        _finishedChunkMeshes.push_back(taskQueueManager.finishedChunkMeshes[i]);
         assert(taskQueueManager.finishedChunkMeshes[i]->chunk != nullptr);
         taskQueueManager.finishedChunkMeshes[i]->chunk->inFinishedMeshes = 0;
     }
@@ -431,8 +404,8 @@ void ChunkManager::uploadFinishedMeshes() {
 
     //use the temp vector so that the threads dont have to wait.
     while (_finishedChunkMeshes.size()) {
-        cmd = _finishedChunkMeshes.front();
-        _finishedChunkMeshes.pop();
+        cmd = _finishedChunkMeshes.back();
+        _finishedChunkMeshes.pop_back();
         chunk = cmd->chunk;
         chunk->inRenderThread = 0;
         //remove the chunk if it is waiting to be freed
@@ -475,7 +448,7 @@ void ChunkManager::uploadFinishedMeshes() {
             gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
         }
 
-        if (chunk->setupListPtr == nullptr) chunk->_state = ChunkStates::DRAW;
+        if (chunk->_chunkListPtr == nullptr) chunk->_state = ChunkStates::DRAW;
     }
 }
 
@@ -558,12 +531,7 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
                     if (FloraGenerator::generateFlora(chunk)) {
                         chunk->_state = ChunkStates::MESH;
 
-                        _setupList[i] = _setupList.back();
-                        _setupList[i]->updateIndex = i;
-
-                        chunk->updateIndex = -1;
-                        chunk->setupListPtr = NULL;
-                        _setupList.pop_back();
+                        chunk->removeFromChunkList();
 
                         addToMeshList(chunk);
 
@@ -580,11 +548,7 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
             break;
         default: // chunks that should not be here should be removed
             cout << "ERROR: Chunk with state " << (int)state << " in setup list.\n";
-            _setupList[i] = _setupList.back();
-            _setupList[i]->updateIndex = i;
-            chunk->updateIndex = -1;
-            chunk->setupListPtr = NULL;
-            _setupList.pop_back();
+            chunk->removeFromChunkList();
             break;
         }
 
@@ -594,7 +558,7 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
     return i;
 }
 
-i32 ChunkManager::updateMeshList(ui32 maxTicks, const f64v3& position) {
+i32 ChunkManager::updateMeshList(ui32 maxTicks) {
 
     ui32 startTicks = SDL_GetTicks();
     ChunkStates state;
@@ -604,9 +568,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks, const f64v3& position) {
         state = _meshList[i]->_state;
         chunk = _meshList[i];
 
-        if (chunk->numNeighbors == 6 && SphereInFrustum((float)(chunk->gridPosition.x + CHUNK_WIDTH / 2 - position.x), (float)(chunk->gridPosition.y + CHUNK_WIDTH / 2 - position.y), (float)(chunk->gridPosition.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)) {
-
-          
+        if (chunk->numNeighbors == 6 && chunk->owner->inFrustum) {     
             VoxelLightEngine::calculateLight(chunk);
             
             if (chunk->numBlocks < 0) {
@@ -623,21 +585,11 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks, const f64v3& position) {
                     } else {
                         if (!threadPool.addRenderJob(chunk, MeshJobType::LIQUID)) break;
                     }
-                    _meshList[i] = _meshList.back();
-                    _meshList[i]->updateIndex = i;
-
-                    chunk->updateIndex = -1;
-                    chunk->setupListPtr = NULL;
-                    _meshList.pop_back();
+                    chunk->removeFromChunkList();
                 }
             } else {
                 chunk->clearBuffers();
-                _meshList[i] = _meshList.back();
-                _meshList[i]->updateIndex = i;
-
-                chunk->updateIndex = -1;
-                chunk->setupListPtr = NULL;
-                _meshList.pop_back();
+                chunk->removeFromChunkList();
 
                 chunk->_state = ChunkStates::INACTIVE;
             }
@@ -659,8 +611,8 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
     while (_generateList.size()) {
         chunk = _generateList.front();
-        chunk->updateIndex = -1;
-        chunk->setupListPtr = nullptr;
+       
+        chunk->clearChunkListPtr();
 
         _generateList.pop_front();
 
@@ -863,44 +815,47 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
 
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
-        if (!generateOnly && chunk->dirty && chunk->_state > ChunkStates::TREES) {
+        if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
             GameManager::chunkIOManager->addToSaveList(chunk);
         }
+        // Remove the chunk from any important lists
+        clearChunkFromLists(chunk);
         if (chunk->inSaveThread || chunk->inRenderThread || chunk->inLoadThread || chunk->inGenerateThread) {
-            clearChunkFromLists(chunk);
+            // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             _threadWaitingChunks.push_back(chunk);
         } else {
-            clearChunk(chunk);
+            // Reduce the ref count since the chunk no longer needs chunkGridData
+            chunk->chunkGridData->refCount--;
+            // Check to see if we should free the grid data
+            if (chunk->chunkGridData->refCount == 0) {
+                i32v2 gridPosition(chunk->chunkPosition.x, chunk->chunkPosition.z);
+                _chunkGridDataMap.erase(gridPosition);
+                delete chunk->chunkGridData;
+            }
+            // Completely clear the chunk and then recycle it
+            chunk->clear();
             recycleChunk(chunk);
         }
     }
 }
 
 void ChunkManager::addToSetupList(Chunk* chunk) {
-    chunk->setupListPtr = &_setupList;
-    chunk->updateIndex = _setupList.size();
-    _setupList.push_back(chunk);
+    chunk->addToChunkList(&_setupList);
 }
 
 void ChunkManager::addToLoadList(Chunk* chunk) {
     chunk->_state = ChunkStates::LOAD;
-    chunk->setupListPtr = &_loadList;
-    chunk->updateIndex = _loadList.size();
-    _loadList.push_back(chunk);
+    chunk->addToChunkList(&_loadList);
 }
 
 void ChunkManager::addToGenerateList(Chunk* chunk) {
     chunk->_state = ChunkStates::GENERATE;
-    chunk->setupListPtr = &_generateList;
-    chunk->updateIndex = _generateList.size();
-    _generateList.push_back(chunk);
+    chunk->addToChunkList(&_generateList);
 }
 
 void ChunkManager::addToMeshList(Chunk* chunk) {
-    chunk->setupListPtr = &_meshList;
-    chunk->updateIndex = _meshList.size();
-    _meshList.push_back(chunk);
+    chunk->addToChunkList(&_meshList);
 }
 
 void ChunkManager::recycleChunk(Chunk* chunk) {
@@ -930,16 +885,6 @@ void ChunkManager::deleteAllChunks() {
     _freeList.clear();
 }
 
-i32v3 ChunkManager::getChunkPosition(const f64v3& position) {
-    //Based on the position, calculate a corner position for the chunk
-    
-    i32v3 rval;
-    rval.x = (int)fastFloor(position.x / (double)CHUNK_WIDTH);
-    rval.y = (int)fastFloor(position.y / (double)CHUNK_WIDTH);
-    rval.z = (int)fastFloor(position.z / (double)CHUNK_WIDTH);
-    return rval;
-}
-
 void ChunkManager::updateChunks(const f64v3& position) {
 
     ChunkSlot *cs;
@@ -954,7 +899,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
     bool save = 0;
 
-    if (SDL_GetTicks() - saveTicks >= 60000 && !generateOnly) { //save once per minute
+    if (SDL_GetTicks() - saveTicks >= 60000) { //save once per minute
         save = 1;
         cout << "SAVING\n";
         saveTicks = SDL_GetTicks();
@@ -968,7 +913,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
-            if (!generateOnly && chunk->dirty && chunk->_state > ChunkStates::TREES) {
+            if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
                 GameManager::chunkIOManager->addToSaveList(cs->chunk);
             }
             _chunkSlotMap.erase(chunk->chunkPosition);
@@ -978,6 +923,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
             cs->chunk = nullptr;
             
             cs->clearNeighbors();
+          
             _chunkSlots[0][i] = _chunkSlots[0].back();
             _chunkSlots[0].pop_back();
             if (i < _chunkSlots[0].size()) {
@@ -986,12 +932,17 @@ void ChunkManager::updateChunks(const f64v3& position) {
             }
         } else { //inside maximum range
 
-            //See if neighbors need to be added
+            // Check if it is in the view frustum
+            cs->inFrustum = SphereInFrustum((float)(cs->position.x + CHUNK_WIDTH / 2 - position.x),
+                                            (float)(cs->position.y + CHUNK_WIDTH / 2 - position.y),
+                                            (float)(cs->position.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum);
+
+            // See if neighbors need to be added
             if (cs->numNeighbors != 6) {
                 updateChunkslotNeighbors(cs, intPosition);
             }
 
-            //Calculate the LOD as a power of two
+            // Calculate the LOD as a power of two
             int newLOD = (int)(sqrt(chunk->distance2) / graphicsOptions.voxelLODThreshold) + 1;
             //  newLOD = 2;
             if (newLOD > 6) newLOD = 6;
@@ -1002,7 +953,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
             if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(chunk);
 
-            //calculate light stuff: THIS CAN LAG THE GAME
+            // calculate light stuff: THIS CAN LAG THE GAME
             if (chunk->_state > ChunkStates::TREES) {
                 if (chunk->sunRemovalList.size()) {
                     VoxelLightEngine::calculateSunlightRemoval(chunk);
@@ -1012,8 +963,8 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 }
                 VoxelLightEngine::calculateLight(chunk);
             }
-            //Check to see if it needs to be added to the mesh list
-            if (chunk->setupListPtr == nullptr && chunk->inRenderThread == false) {
+            // Check to see if it needs to be added to the mesh list
+            if (chunk->_chunkListPtr == nullptr && chunk->inRenderThread == false) {
                 switch (chunk->_state) {
                 case ChunkStates::WATERMESH:
                 case ChunkStates::MESH:
@@ -1022,12 +973,13 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 }
             }
 
-            //save if its been a minute
+            // save if its been a minute
             if (save && chunk->dirty) {
                 GameManager::chunkIOManager->addToSaveList(chunk);  
             }
         }
     }
+
 }
 
 void ChunkManager::updateChunkslotNeighbors(ChunkSlot* cs, const i32v3& cameraPos) {
@@ -1059,52 +1011,21 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
     double dist = sqrt(dist2);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
 
-        i32v2 gridPosition(newPosition.x, newPosition.z);
-        ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
-        if (chunkGridData == nullptr) {
-            vvoxel::VoxelMapData* voxelMapData;
-            if (offset.y != 0) {
-                voxelMapData = cs->chunkGridData->voxelMapData;
-            } else {
-                i32v2 ijOffset(offset.z, offset.x);
-                voxelMapData = _voxelMapper->getNewRelativeData(cs->chunkGridData->voxelMapData, ijOffset);
-            }
-            chunkGridData = new ChunkGridData(voxelMapData);
-            _chunkGridDataMap[gridPosition] = chunkGridData;
-        } else {
-            chunkGridData->refCount++;
-        }
+        i32v3 chunkPosition(fastFloor(newPosition.x / (f64)CHUNK_WIDTH), 
+                            fastFloor(newPosition.y / (f64)CHUNK_WIDTH),
+                            fastFloor(newPosition.z / (f64)CHUNK_WIDTH));
 
-        _chunkSlots[0].emplace_back(newPosition, nullptr, chunkGridData);
+        i32v2 ijOffset(offset.z, offset.x);
+        makeChunkAt(chunkPosition, cs->chunkGridData->voxelMapData, ijOffset);
 
-        ChunkSlot* newcs = &_chunkSlots[0].back();
-
-        Chunk* chunk = produceChunk();
-
-        chunk->init(newcs->position, newcs);
-
-        newcs->chunk = chunk;
-
-        addToLoadList(chunk);
-        // cout << _chunkHashMap.size() << " ";
-        // fflush(stdout);
-        Chunk* ch = getChunk(chunk->chunkPosition);
-        if (ch != nullptr) {
-            cout << "WHOOPSIEDAISY\n";
-            fflush(stdout);
-        }
-        _chunkSlotMap[chunk->chunkPosition] = newcs;
-
-        newcs->detectNeighbors(_chunkSlotMap);
-
-        return newcs;
+        return nullptr;
         
     }
     return nullptr;
 }
 
 void ChunkManager::saveAllChunks() {
-    if (generateOnly) return;
+
     Chunk* chunk;
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) { //update distances for all chunks
         chunk = _chunkSlots[0][i].chunk;
@@ -1114,70 +1035,7 @@ void ChunkManager::saveAllChunks() {
     }
 }
 
-void ChunkManager::prepareHeightMap(HeightData heightData[CHUNK_LAYER]) {
-    i32 minNearHeight; //to determine if we should remove surface blocks
-    i32 heightDiffThreshold = 3;
-    i32 tmp;
-    i32 maph;
-    Biome *biome;
-    i32 sandDepth, snowDepth;
-    for (i32 z = 0; z < CHUNK_WIDTH; z++) {
-        for (i32 x = 0; x < CHUNK_WIDTH; x++) {
-
-            //*************Calculate if it is too steep ***********************
-            maph = heightData[z*CHUNK_WIDTH + x].height;
-            biome = heightData[z*CHUNK_WIDTH + x].biome;
-            sandDepth = heightData[z*CHUNK_WIDTH + x].sandDepth;
-            snowDepth = heightData[z*CHUNK_WIDTH + x].snowDepth;
-
-            minNearHeight = maph;
-            if (x > 0) { //Could sentinalize this in the future
-                minNearHeight = heightData[z*CHUNK_WIDTH + x - 1].height;
-            } else {
-                minNearHeight = maph + (maph - heightData[z*CHUNK_WIDTH + x + 1].height); //else use opposite side but negating the difference
-            }
-            if (x < CHUNK_WIDTH - 1) {
-                tmp = heightData[z*CHUNK_WIDTH + x + 1].height;
-            } else {
-                tmp = maph + (maph - heightData[z*CHUNK_WIDTH + x - 1].height);
-            }
-            if (tmp < minNearHeight) minNearHeight = tmp;
-            if (z > 0) {
-                tmp = heightData[(z - 1)*CHUNK_WIDTH + x].height;
-            } else {
-                tmp = maph + (maph - heightData[(z + 1)*CHUNK_WIDTH + x].height);
-            }
-            if (tmp < minNearHeight) minNearHeight = tmp;
-            if (z < CHUNK_WIDTH - 1) {
-                tmp = heightData[(z + 1)*CHUNK_WIDTH + x].height;
-            } else {
-                tmp = maph + (maph - heightData[(z - 1)*CHUNK_WIDTH + x].height);
-            }
-            if (tmp < minNearHeight) minNearHeight = tmp;
-
-            if (maph - minNearHeight >= heightDiffThreshold && heightData[z*CHUNK_WIDTH + x].biome->looseSoilDepth) {
-                heightData[z*CHUNK_WIDTH + x].flags |= TOOSTEEP;
-            }
-            //*************End TOOSTEEP calculation ***********************
-
-            //**************START SURFACE BLOCK CALCULATION******************
-            GLushort surfaceBlock = DIRT;
-            if (maph == 0) {
-                surfaceBlock = biome->beachBlock;
-            } else if (maph < 0) {
-                surfaceBlock = biome->underwaterBlock;
-            } else {
-                surfaceBlock = biome->surfaceBlock;
-                if (surfaceBlock == DIRTGRASS && (snowDepth || sandDepth)) surfaceBlock = DIRT;
-            }
-            heightData[z*CHUNK_WIDTH + x].surfaceBlock = surfaceBlock;
-
-            //**************END SURFACE BLOCK CALCULATION******************
-        }
-    }
-}
-
-i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
+void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
 #define GETCHUNK(y, z, x) it = _chunkSlotMap.find(chPos + i32v3(x, y, z)); chunk = (it == _chunkSlotMap.end() ? nullptr : it->second->chunk);
 
     i32 xDir, yDir, zDir;
@@ -1218,27 +1076,20 @@ i32 ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     if (chunk && chunk->isAccessible) chunks[6] = chunk;
     GETCHUNK(yDir, zDir, xDir);
     if (chunk && chunk->isAccessible) chunks[7] = chunk;
-    return 1;
 }
 
 void ChunkManager::clearChunkFromLists(Chunk* chunk) {
-    i32 dindex = chunk->drawIndex;
-    i32 uindex = chunk->updateIndex;
-    boost::circular_buffer<Chunk*> *sp;
 
+    // Clear any opengl buffers
     chunk->clearBuffers();
 
-    if (uindex != -1 || chunk->setupListPtr != nullptr) { //load and render
-        sp = chunk->setupListPtr;
-        (*sp)[uindex] = sp->back();
-        (*sp)[uindex]->updateIndex = uindex;
-        sp->pop_back();
-
-        chunk->updateIndex = -1;
-        chunk->setupListPtr = nullptr;
+    // Remove from any chunk list
+    if (chunk->_chunkListPtr != nullptr) {
+        chunk->removeFromChunkList();
     }
 
-    if (chunk->inFinishedChunks) { //it is in finished chunks queue
+    // Remove from finished chunks queue
+    if (chunk->inFinishedChunks) {
         taskQueueManager.fcLock.lock();
         for (size_t i = 0; i < taskQueueManager.finishedChunks.size(); i++) {
             if (taskQueueManager.finishedChunks[i] == chunk) {
@@ -1251,7 +1102,9 @@ void ChunkManager::clearChunkFromLists(Chunk* chunk) {
         }
         taskQueueManager.fcLock.unlock();
     }
-    if (chunk->inFinishedMeshes) { //it is in finished meshes queue
+
+    // Remove from finished meshes queue
+    if (chunk->inFinishedMeshes) {
         taskQueueManager.frLock.lock();
         for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) {
             if (taskQueueManager.finishedChunkMeshes[i]->chunk == chunk) {
@@ -1266,155 +1119,27 @@ void ChunkManager::clearChunkFromLists(Chunk* chunk) {
         taskQueueManager.frLock.unlock();
     }
 
+    // Sever any connections with neighbor chunks
     chunk->clearNeighbors();
 }
 
-void ChunkManager::clearChunk(Chunk* chunk) {
-
-    clearChunkFromLists(chunk);
-    chunk->clearBuffers();
-   
-    chunk->freeWaiting = false;
-    chunk->clear();
-
-    chunk->inSaveThread = 0;
-    chunk->inLoadThread = 0;
-}
-
-void ChunkManager::recursiveSortChunks(boost::circular_buffer<Chunk*> &v, i32 start, i32 size, i32 type) {
-    if (size < 2) return;
-    i32 i, j;
-    Chunk* pivot, *mid, *last, *tmp;
-
-    pivot = v[start];
-
-    //end recursion when small enough
-    if (size == 2) {
-        if (pivot->distance2 < v[start + 1]->distance2) {
-            v[start] = v[start + 1];
-            v[start + 1] = pivot;
-            if (type == 1) {
-                v[start]->drawIndex = start;
-                v[start + 1]->drawIndex = start + 1;
-            } else {
-                v[start]->updateIndex = start;
-                v[start + 1]->updateIndex = start + 1;
-            }
-        }
-        return;
-    }
-
-    mid = v[start + size / 2];
-    last = v[start + size - 1];
-
-    //variables to minimize dereferences
-    i32 md, ld, pd;
-    pd = pivot->distance2;
-    md = mid->distance2;
-    ld = last->distance2;
-
-    //calculate pivot
-    if ((pd > md && md > ld) || (pd < md && md < ld)) {
-        v[start] = mid;
-
-        v[start + size / 2] = pivot;
-
-        if (type == 1) {
-            mid->drawIndex = start;
-            pivot->drawIndex = start + size / 2;
-        } else {
-            mid->updateIndex = start;
-            pivot->updateIndex = start + size / 2;
-        }
-
-        pivot = mid;
-        pd = md;
-    } else if ((pd > ld && ld > md) || (pd < ld && ld < md)) {
-        v[start] = last;
-
-        v[start + size - 1] = pivot;
-
-        if (type == 1) {
-            last->drawIndex = start;
-            pivot->drawIndex = start + size - 1;
-        } else {
-            last->updateIndex = start;
-            pivot->updateIndex = start + size - 1;
-        }
-
-        pivot = last;
-        pd = ld;
-    }
-
-    i = start + 1;
-    j = start + size - 1;
-
-    //increment and decrement pointers until they are past each other
-    while (i <= j) {
-        while (i < start + size - 1 && v[i]->distance2 > pd) i++;
-        while (j > start + 1 && v[j]->distance2 < pd) j--;
-
-        if (i <= j) {
-            tmp = v[i];
-            v[i] = v[j];
-            v[j] = tmp;
-
-            if (type == 1) {
-                v[i]->drawIndex = i;
-                v[j]->drawIndex = j;
-            } else {
-                v[i]->updateIndex = i;
-                v[j]->updateIndex = j;
-            }
-
-            i++;
-            j--;
-        }
-    }
-
-    //swap pivot with rightmost element in left set
-    v[start] = v[j];
-    v[j] = pivot;
-
-    if (type == 1) {
-        v[start]->drawIndex = start;
-        v[j]->drawIndex = j;
-    } else {
-        v[start]->updateIndex = start;
-        v[j]->updateIndex = j;
-    }
-
-    //sort the two subsets excluding the pivot point
-    recursiveSortChunks(v, start, j - start, type);
-    recursiveSortChunks(v, j + 1, start + size - j - 1, type);
-}
-
-bool ChunkManager::isChunkPositionInBounds(const i32v3& position) const {
-    return !(position.x < 0 || position.x >= csGridWidth || position.y < 0 || position.y >= csGridWidth || position.z < 0 || position.z >= csGridWidth);
-}
-
 //Lookup a chunk and block index for a specific integer position in the world. chunk will be NULL if none is found.
-void ChunkManager::getBlockAndChunk(const i32v3& relativePosition, Chunk** chunk, int& blockIndex) const {
+void ChunkManager::getBlockAndChunk(const i32v3& blockPosition, Chunk** chunk, int& blockIndex) {
 
     //Get the chunk coordinates
-    i32v3 chunkPosition = relativePosition / CHUNK_WIDTH;
+    i32v3 chunkPosition = getChunkPosition(blockPosition);
 
-    //Bounds checking
-
-    auto it = _chunkSlotMap.find(chunkPosition);
-    if (it == _chunkSlotMap.end()) {
-        *chunk = nullptr;
+    // Get the chunk if it exists
+    *chunk = getChunk(chunkPosition);
+    if (*chunk == nullptr) {
         return;
     }
 
-    *chunk = it->second->chunk;
+    // Get the voxel offset
+    i32v3 blockOffset = blockPosition - chunkPosition * CHUNK_WIDTH;
 
-    if (chunk) {
-        //reuse chunkPosition variable to get the position relative to owner chunk
-        chunkPosition = relativePosition - chunkPosition * CHUNK_WIDTH;
-
-        blockIndex = chunkPosition.y * CHUNK_LAYER + chunkPosition.z * CHUNK_WIDTH + chunkPosition.x;
-    }
+    // Calculate the voxel index
+    blockIndex = blockOffset.y * CHUNK_LAYER + blockOffset.z * CHUNK_WIDTH + blockOffset.x;
 }
 
 void ChunkManager::remeshAllChunks() {
@@ -1427,7 +1152,7 @@ void ChunkManager::remeshAllChunks() {
     }
 }
 
-void ChunkManager::recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32 start, i32 size, i32 type) {
+void ChunkManager::recursiveSortChunkList(boost::circular_buffer<Chunk*>& v, i32 start, i32 size) {
     if (size < 2) return;
     i32 i, j;
     Chunk* pivot, *mid, *last, *tmp;
@@ -1439,13 +1164,10 @@ void ChunkManager::recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32
         if ((pivot->distance2 - pivot->setupWaitingTime) < (v[start + 1]->distance2 - v[start + 1]->setupWaitingTime)) {
             v[start] = v[start + 1];
             v[start + 1] = pivot;
-            if (type == 1) {
-                v[start]->drawIndex = start;
-                v[start + 1]->drawIndex = start + 1;
-            } else {
-                v[start]->updateIndex = start;
-                v[start + 1]->updateIndex = start + 1;
-            }
+
+            v[start]->_chunkListIndex = start;
+            v[start + 1]->_chunkListIndex = start + 1;
+            
         }
         return;
     }
@@ -1465,13 +1187,10 @@ void ChunkManager::recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32
 
         v[start + size / 2] = pivot;
 
-        if (type == 1) {
-            mid->drawIndex = start;
-            pivot->drawIndex = start + size / 2;
-        } else {
-            mid->updateIndex = start;
-            pivot->updateIndex = start + size / 2;
-        }
+     
+        mid->_chunkListIndex = start;
+        pivot->_chunkListIndex = start + size / 2;
+        
 
         pivot = mid;
         pd = md;
@@ -1480,13 +1199,10 @@ void ChunkManager::recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32
 
         v[start + size - 1] = pivot;
 
-        if (type == 1) {
-            last->drawIndex = start;
-            pivot->drawIndex = start + size - 1;
-        } else {
-            last->updateIndex = start;
-            pivot->updateIndex = start + size - 1;
-        }
+
+        last->_chunkListIndex = start;
+        pivot->_chunkListIndex = start + size - 1;
+        
 
         pivot = last;
         pd = ld;
@@ -1505,14 +1221,9 @@ void ChunkManager::recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32
             v[i] = v[j];
             v[j] = tmp;
 
-            if (type == 1) {
-                v[i]->drawIndex = i;
-                v[j]->drawIndex = j;
-            } else {
-                v[i]->updateIndex = i;
-                v[j]->updateIndex = j;
-            }
-
+            v[i]->_chunkListIndex = i;
+            v[j]->_chunkListIndex = j;
+            
             i++;
             j--;
         }
@@ -1522,17 +1233,13 @@ void ChunkManager::recursiveSortSetupList(boost::circular_buffer<Chunk*>& v, i32
     v[start] = v[j];
     v[j] = pivot;
 
-    if (type == 1) {
-        v[start]->drawIndex = start;
-        v[j]->drawIndex = j;
-    } else {
-        v[start]->updateIndex = start;
-        v[j]->updateIndex = j;
-    }
+    v[start]->_chunkListIndex = start;
+    v[j]->_chunkListIndex = j;
+    
 
     //sort the two subsets excluding the pivot point
-    recursiveSortSetupList(v, start, j - start, type);
-    recursiveSortSetupList(v, j + 1, start + size - j - 1, type);
+    recursiveSortChunkList(v, start, j - start);
+    recursiveSortChunkList(v, j + 1, start + size - j - 1);
 }
 
 i32 ChunkManager::getBlockFromDir(f64v3& dir, f64v3& pos) {
@@ -1648,14 +1355,14 @@ Chunk* ChunkManager::getChunk(const f64v3& position) {
 
 }
 
-Chunk* ChunkManager::getChunk(const i32v3& worldPos) {
-    auto it = _chunkSlotMap.find(worldPos);
+Chunk* ChunkManager::getChunk(const i32v3& chunkPos) {
+    auto it = _chunkSlotMap.find(chunkPos);
     if (it == _chunkSlotMap.end()) return nullptr;
     return it->second->chunk;
 }
 
-const Chunk* ChunkManager::getChunk(const i32v3& worldPos) const {
-    auto it = _chunkSlotMap.find(worldPos);
+const Chunk* ChunkManager::getChunk(const i32v3& chunkPos) const {
+    auto it = _chunkSlotMap.find(chunkPos);
     if (it == _chunkSlotMap.end()) return nullptr;
     return it->second->chunk;
 }
@@ -1664,10 +1371,6 @@ ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
     auto it = _chunkGridDataMap.find(gridPos);
     if (it == _chunkGridDataMap.end()) return nullptr;
     return it->second;
-}
-
-void ChunkManager::removeFromSetupList(Chunk* ch) {
-
 }
 
 const i16* ChunkManager::getIDQuery(const i32v3& start, const i32v3& end) const {

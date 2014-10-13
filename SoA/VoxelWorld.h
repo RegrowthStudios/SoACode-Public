@@ -17,7 +17,6 @@ public:
     ~VoxelWorld();
     void initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* startingMapData, Planet *planet, GLuint flags);
     void update(const glm::dvec3 &position, const glm::dvec3 &viewDir);
-    void closeThreadPool();
     int getClosestChunks(glm::dvec3 &coord, class Chunk **chunks);
     void endSession();
 
@@ -28,7 +27,6 @@ public:
     inline ChunkManager &getChunkManager() { return *_chunkManager; }
 
 private:
-    void initializeThreadPool();
 
     //the planet associated with this world
     Planet* _planet;

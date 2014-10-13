@@ -110,7 +110,6 @@ void WorldEditor::initialize(Planet *planet) {
     _voxelWorld = GameManager::voxelWorld;
 
  //   _voxelWorld->initialize(glm::dvec3(0, 0, 0), _planet, 0);
-    _voxelWorld->getChunkManager().generateOnly = true;
     _voxelWorld->getChunkManager().setIsStationary(true);
     GameManager::chunkIOManager->setDisableLoading(true);
 }

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Chunk.h"
 
+#include <boost\circular_buffer.hpp>
+
 #include "BlockData.h"
 #include "Errors.h"
 #include "Frustum.h"
@@ -51,15 +53,14 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	//THIS MUST COME BEFORE CLEARBUFFERS
 	mesh = NULL;
 	clearBuffers();
-	setupListPtr = NULL;
-	updateIndex = -1;
+	_chunkListPtr = NULL;
+	_chunkListIndex = -1;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
     gridPosition = gridPos;
     chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
     chunkPosition.y = fastFloor(gridPosition.y / (double)CHUNK_WIDTH);
     chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
-	drawIndex = -1;
 	numBlocks = -1;
 	_state = ChunkStates::LOAD;
 	left = NULL;
@@ -94,6 +95,9 @@ vector <Chunk*> *dbgst;
 
 void Chunk::clear(bool clearDraw)
 {
+    clearBuffers();
+    freeWaiting = false;
+    voxelMapData = nullptr;
 
     _blockIDContainer.clear();
     _lampLightContainer.clear();
@@ -102,8 +106,8 @@ void Chunk::clear(bool clearDraw)
     _state = ChunkStates::LOAD;
     isAccessible = 0;
     left = right = front = back = top = bottom = NULL;
-    setupListPtr = NULL;
-    updateIndex = -1;
+    _chunkListPtr = NULL;
+    _chunkListIndex = -1;
     treeTryTicks = 0;
 
     vector<ui16>().swap(spawnerBlocks);
@@ -111,17 +115,6 @@ void Chunk::clear(bool clearDraw)
     vector<PlantData>().swap(plantsToLoad);
     vector<ui16>().swap(sunRemovalList);
     vector<ui16>().swap(sunExtendList); 
-
-    //TODO: A better solution v v v
-    //Hacky way to clear RWQ
-/*    ui32 res;
-    while (lightFromMain.try_dequeue(res));
-    while (lightFromRight.try_dequeue(res));
-    while (lightFromLeft.try_dequeue(res));
-    while (lightFromFront.try_dequeue(res));
-    while (lightFromBack.try_dequeue(res));
-    while (lightFromTop.try_dequeue(res));
-    while (lightFromBottom.try_dequeue(res)); */
 
     for (int i = 0; i < 8; i++){
         vector <GLushort>().swap(blockUpdateList[i][0]); //release the memory manually
@@ -133,7 +126,6 @@ void Chunk::clear(bool clearDraw)
     vector<SunlightUpdateNode>().swap(sunlightUpdateQueue);
     if (clearDraw){
         clearBuffers();
-        drawIndex = -1;
     }
 }
 
@@ -729,6 +721,24 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chSunlightData[off2] = ch1->getSunlight(off1);
         }
     }
+}
+
+void Chunk::addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr) {
+    _chunkListPtr = chunkListPtr;
+    _chunkListIndex = chunkListPtr->size();
+    chunkListPtr->push_back(this);
+}
+
+void Chunk::removeFromChunkList() {
+    (*_chunkListPtr)[_chunkListIndex] = _chunkListPtr->back();
+    (*_chunkListPtr)[_chunkListIndex]->_chunkListIndex = _chunkListIndex;
+    _chunkListPtr->pop_back();
+    clearChunkListPtr();
+}
+
+void Chunk::clearChunkListPtr() {
+    _chunkListPtr = nullptr;
+    _chunkListIndex = -1;
 }
 
 int Chunk::getRainfall(int xz) const {

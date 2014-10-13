@@ -117,7 +117,7 @@
 
 //This method could be easily implimented as a recursive function, but is more efficient if unfolded
 
-void aabbChunkCollision(Player *player, glm::dvec3 *playerPos, Chunk **chunks, unsigned char size)
+void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 size)
 {
     int x, y, z, x1, y1, z1 ,x2, y2, z2, x3, y3, z3, x4, y4, z4, c; //midpoints
     int blockID;
@@ -297,9 +297,9 @@ void aabbChunkCollision(Player *player, glm::dvec3 *playerPos, Chunk **chunks, u
                                                 c = blx + bly + blz;
                                                 chunk = chunks[i];
                                                 if (chunk->isAccessible == false) continue;
-                                                Chunk::modifyLock.lock();
+
                                                 blockID = chunk->getBlockID(c);
-                                                Chunk::modifyLock.unlock();
+
                                                 if (blockID){
                                                     blockCollision(player, chunks[i], blockID, c, bdx, bdy, bdz, dx, dy, dz);
                                                 }

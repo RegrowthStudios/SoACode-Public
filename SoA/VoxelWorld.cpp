@@ -34,8 +34,6 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
     }
     _chunkManager = new ChunkManager();
     GameManager::chunkManager = _chunkManager;
-
-    initializeThreadPool();
     
     if (planet == NULL) showMessage("Initialized chunkmanager with NULL planet!");
 
@@ -50,24 +48,6 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
 void VoxelWorld::update(const glm::dvec3 &position, const glm::dvec3 &viewDir)
 {
     _chunkManager->update(position, viewDir);
-}
-
-void VoxelWorld::initializeThreadPool()
-{
-    size_t hc = thread::hardware_concurrency();
-    if (hc > 1) hc--;
-    if (hc > 1) hc--;
-    SDL_GL_MakeCurrent(mainWindow, NULL);
-    _chunkManager->threadPool.initialize(hc);
-    SDL_Delay(100);
-    mainContextLock.lock();
-    SDL_GL_MakeCurrent(mainWindow, mainOpenGLContext);
-    mainContextLock.unlock();
-}
-
-void VoxelWorld::closeThreadPool()
-{
-    _chunkManager->threadPool.close();
 }
 
 void VoxelWorld::setPlanet(Planet *planet)

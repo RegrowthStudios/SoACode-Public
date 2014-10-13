@@ -44,6 +44,9 @@ public:
         //Mark the data as unloaded
         heightData[0].height = UNLOADED_HEIGHT;
     }
+    ~ChunkGridData() {
+        delete voxelMapData;
+    }
     vvoxel::VoxelMapData* voxelMapData;
     HeightData heightData[CHUNK_LAYER];
     int refCount;
@@ -101,6 +104,10 @@ public:
 
     void SetupMeshData(RenderTask *renderTask);
 
+    void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
+    void removeFromChunkList();
+    void clearChunkListPtr();
+
     Chunk(){
     }
     ~Chunk(){
@@ -138,7 +145,6 @@ public:
 
     void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
     
-
     int numNeighbors;
     bool activeUpdateList[8];
     bool drawWater;
@@ -147,12 +153,12 @@ public:
     bool topBlocked, leftBlocked, rightBlocked, bottomBlocked, frontBlocked, backBlocked;
     bool dirty;
     int loadStatus;
-    bool inLoadThread;
+    volatile bool inLoadThread;
     volatile bool inSaveThread;
     volatile bool inRenderThread;
-    bool inGenerateThread;
-    bool inFinishedMeshes;
-    bool inFinishedChunks;
+    volatile bool inGenerateThread;
+    volatile bool inFinishedMeshes;
+    volatile bool inFinishedChunks;
     bool isAccessible;
 
     ChunkMesh *mesh;
@@ -170,7 +176,7 @@ public:
 
     int blockUpdateIndex;
     int treeTryTicks;
-    int drawIndex, updateIndex;
+    
     int threadJob;
     float setupWaitingTime;
 
@@ -187,7 +193,7 @@ public:
 
     static ui32 vboIndicesID;
 
-    boost::circular_buffer<Chunk*> *setupListPtr;
+    
     Chunk *right, *left, *front, *back, *top, *bottom;
 
     //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
@@ -198,6 +204,10 @@ public:
     vvoxel::VoxelMapData* voxelMapData;
 
 private:
+    // Keeps track of which setup list we belong to, and where we are in the list.
+    int _chunkListIndex;
+    boost::circular_buffer<Chunk*> *_chunkListPtr;
+
     ChunkStates _state;
 
     //The data that defines the voxels
@@ -229,6 +239,7 @@ public:
         bottom(nullptr),
         top(nullptr),
         numNeighbors(0),
+        inFrustum(false),
         distance2(1.0f){}
 
     inline void calculateDistance2(const i32v3& cameraPos) {
@@ -253,6 +264,8 @@ public:
     double distance2;
 
     ChunkGridData* chunkGridData;
+
+    bool inFrustum;
 private:
     static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 };

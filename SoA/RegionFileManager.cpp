@@ -841,7 +841,12 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
 nString RegionFileManager::getRegionString(Chunk *ch)
 {
     int ip, jp;
+
+    if (ch->voxelMapData == nullptr) {
+        cout << "LOL";
+    }
+
     ch->voxelMapData->getChunkGridPos(ip, jp);
 
-    return "r." + to_string(jp >> RSHIFT) + "." + to_string((int)floor(ch->gridPosition.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(ip >> RSHIFT);
+    return "r." + to_string(jp >> RSHIFT) + "." + to_string(fastFloor(ch->gridPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + to_string(ip >> RSHIFT);
 }

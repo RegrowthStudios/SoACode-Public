@@ -23,9 +23,7 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, Chu
 
     // Loop Traversal
     while (true) {
-        // Make Sure Ray Stays In Bounds
-        if (!cm->isChunkPositionInBounds(chunkPos))
-            return query;
+
 
         query.chunk = cm->getChunk(chunkPos);
       
@@ -67,9 +65,6 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
 
     // Loop Traversal
     while (true) {
-        // Make Sure Ray Stays In Bounds
-        if (!cm->isChunkPositionInBounds(chunkPos))
-            return query;
 
         query.inner.chunk = cm->getChunk(chunkPos);
        

@@ -31,11 +31,11 @@ void WorkerThread(WorkerData *data) {
     while(1) {
         while(taskQueueManager.loadTaskQueue.empty() && taskQueueManager.renderTaskQueue.empty()) { //thread might wake up only to need to go right back to sleep
             data->chunkMesher->freeBuffers();
-            data->waiting = 1;
+            data->waiting = true;
             //taskQueueManager.mainThreadCond.notify_one();
             if(data->stop) {
                 if(data->chunkMesher) delete data->chunkMesher;
-                data->finished = 1;
+                data->finished = true;
                 lock.unlock();
                 return;
             }
@@ -44,7 +44,7 @@ void WorkerThread(WorkerData *data) {
         }
         if(data->stop) {
             if(data->chunkMesher) delete data->chunkMesher;
-            data->finished = 1;
+            data->finished = true;
             lock.unlock();
             return;
         }
@@ -57,7 +57,7 @@ void WorkerThread(WorkerData *data) {
             delete loadTask.loadData;
 
             fcLock.lock();
-            chunk->inFinishedChunks = 1;
+            chunk->inFinishedChunks = true;
             taskQueueManager.finishedChunks.push_back(chunk);
             fcLock.unlock();
         }
