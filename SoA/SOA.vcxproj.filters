@@ -96,14 +96,17 @@
     <Filter Include="SOA Files\Rendering\Dev">
       <UniqueIdentifier>{a8613ee5-a6ad-4b60-8567-0a15bb9ae82c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Screens\Test">
-      <UniqueIdentifier>{61aca36f-536f-484f-a542-d3b27512bd0a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\Data\Keg">
       <UniqueIdentifier>{ac47e175-d93f-4b05-bb81-caa1090f397f}</UniqueIdentifier>
     </Filter>
     <Filter Include="SOA Files\Voxel\Mapping">
       <UniqueIdentifier>{f10c4941-dfe2-4bfb-a029-a82ec2a097dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\Init">
+      <UniqueIdentifier>{27507245-c888-4a05-b0ca-9890d99db1a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\Load\Tasks">
+      <UniqueIdentifier>{d4b19aff-5e0f-4ac5-a831-548286691b82}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -386,9 +389,6 @@
     <ClInclude Include="TerrainPatch.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="TestScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
     <ClInclude Include="Texture2d.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
@@ -478,6 +478,21 @@
     </ClInclude>
     <ClInclude Include="IVoxelMapper.h">
       <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadMonitor.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="InitScreen.h">
+      <Filter>SOA Files\Screens\Init</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskInput.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskGameManager.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="colors.h">
+      <Filter>SOA Files\Ext</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -700,9 +715,6 @@
     <ClCompile Include="TerrainPatch.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="TestScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
     <ClCompile Include="Texture2d.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
@@ -769,6 +781,18 @@
     </ClCompile>
     <ClCompile Include="VoxelPlanetMapper.cpp">
       <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="InitScreen.cpp">
+      <Filter>SOA Files\Screens\Init</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadMonitor.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClCompile>
+    <ClCompile Include="colors.cpp">
+      <Filter>SOA Files\Ext</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadTaskInput.cpp">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

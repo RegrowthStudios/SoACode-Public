@@ -1,11 +1,15 @@
 #pragma once
 #include "IGameScreen.h"
 
-class DevConsole;
-class DevConsoleView;
+class App;
+class SpriteBatch;
+class SpriteFont;
 
-class TestScreen : public IGameScreen {
+class InitScreen : public IAppScreen<App> {
 public:
+    CTOR_APP_SCREEN_INL(InitScreen, App) {
+    }
+
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;
 
@@ -18,7 +22,15 @@ public:
     virtual void onEvent(const SDL_Event& e);
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
+
 private:
-    DevConsole* _console;
-    DevConsoleView* _consoleView;
+    void buildSpriteResources();
+    void destroySpriteResources();
+
+    // Check Requirements And Draws Results
+    void checkRequirements();
+
+    SpriteBatch* _sb;
+    SpriteFont* _font;
+    bool _canContinue;
 };

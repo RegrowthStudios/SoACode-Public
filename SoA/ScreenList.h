@@ -23,8 +23,6 @@ public:
 
     void destroy(GameTime gameTime);
 
-    static const i32 NO_START_SELECTED;
-    static const i32 NO_SCREEN;
 protected:
     MainGame* _game;
 
