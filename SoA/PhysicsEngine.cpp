@@ -405,46 +405,50 @@ void PhysicsEngine::pressureUpdate(PressureNode &pn)
 
 }
 
-void PhysicsEngine::explosionRay(const glm::dvec3 &pos, float force, float powerLoss, const glm::vec3 &dir) {
+void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, const f32v3 &dir) {
 
-    //const deque< deque< deque<ChunkSlot*> > >& chunkList = GameManager::chunkManager->getChunkList();
-    //f32v3 relativePos = f32v3(pos - f64v3(GameManager::chunkManager->cornerPosition));
-    //VoxelRay vr(relativePos, dir);
-    //i32v3 loc = vr.getNextVoxelPosition();
-    //i32v3 chunkPos = loc / CHUNK_WIDTH;
-    //f32v3 rayToBlock;
+  
+    VoxelRay vr(pos, f64v3(dir));
+    i32v3 loc = vr.getNextVoxelPosition();
+    i32v3 chunkPos;
+    f32v3 rayToBlock;
 
-    //const float maxDistance = 10;
+    const float maxDistance = 10;
 
-    //// Loop Traversal
-    //while (vr.getDistanceTraversed() < maxDistance) {
-    //    // Make Sure Ray Stays In Bounds
-    //    if (!GameManager::chunkManager->isChunkPositionInBounds(chunkPos)) return;
+    Chunk* currentChunk;
 
-    //    Chunk* currentChunk = chunkList[chunkPos.y][chunkPos.z][chunkPos.x]->chunk;
-    //    if (currentChunk) {
-    //        // Calculate Voxel Index
-    //        i32 voxelIndex = loc.x % CHUNK_WIDTH + (loc.y % CHUNK_WIDTH) * CHUNK_LAYER + (loc.z % CHUNK_WIDTH) * CHUNK_WIDTH;
+    // Loop Traversal
+    while (vr.getDistanceTraversed() < maxDistance) {
 
-    //        // Get Block ID
-    //        i32 blockID = currentChunk->getBlockID(voxelIndex);
+        chunkPos = GameManager::chunkManager->getChunkPosition(loc);
 
-    //        // Check For The Block ID
-    //        if (blockID && (blockID < LOWWATER)) {
-    //            force -= Blocks[blockID].explosionResistance;
+        Chunk* currentChunk = GameManager::chunkManager->getChunk(chunkPos);
+        if (currentChunk) {
+            // Calculate Voxel Index
+            i32 voxelIndex = loc.x % CHUNK_WIDTH + (loc.y % CHUNK_WIDTH) * CHUNK_LAYER + (loc.z % CHUNK_WIDTH) * CHUNK_WIDTH;
 
-    //            rayToBlock = dir * vr.getDistanceTraversed();
-    //            ChunkUpdater::removeBlock(currentChunk, voxelIndex, 1, 0.4*force, rayToBlock);
-    //            if (Blocks[blockID].explosivePower){
-    //                _deferredExplosions.push(ExplosionNode(pos + f64v3(rayToBlock), blockID));
-    //            }
-    //        }
+            // Get Block ID
+            i32 blockID = currentChunk->getBlockID(voxelIndex);
 
-    //    }
-    //    // Traverse To The Next
-    //    loc = vr.getNextVoxelPosition();
-    //    chunkPos = loc / CHUNK_WIDTH;
-    //}
+            // Check For The Block ID
+            if (blockID && (blockID < LOWWATER)) {
+                // Reduce force by the explosion resistance
+                force -= Blocks[blockID].explosionResistance;
+
+                // If the ray is out of force, return.
+                if (force < 0.0f) return;
+
+                rayToBlock = dir * vr.getDistanceTraversed();
+                ChunkUpdater::removeBlock(currentChunk, voxelIndex, 1, 0.4*force, rayToBlock);
+                if (Blocks[blockID].explosivePower){
+                    _deferredExplosions.push(ExplosionNode(pos + f64v3(rayToBlock), blockID));
+                }
+            }
+
+        }
+        // Traverse To The Next
+        loc = vr.getNextVoxelPosition();
+    }
 }
 
 void PhysicsEngine::performExplosions()

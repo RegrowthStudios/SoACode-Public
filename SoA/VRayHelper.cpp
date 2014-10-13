@@ -22,14 +22,16 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
     i32v3 relativeChunkSpot = cm->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
-    // Get chunk position
-    i32v3 chunkPos = cm->getChunkPosition(query.location);
+    // Chunk position
+    i32v3 chunkPos;
 
     // TODO: Use A Bounding Box Intersection First And Allow Traversal Beginning Outside The Voxel World
 
     // Loop Traversal
-    while (true) {
+    while (query.distance < maxDistance) {
        
+        chunkPos = cm->getChunkPosition(query.location);
+
         relativeLocation = query.location - relativeChunkSpot;
         query.chunk = cm->getChunk(chunkPos);
       
@@ -50,9 +52,8 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
         // Traverse To The Next
         query.location = vr.getNextVoxelPosition();
         query.distance = vr.getDistanceTraversed();
-        if (query.distance > maxDistance) return query;
-        chunkPos = cm->getChunkPosition(query.location);
     }
+    return query;
 }
 const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkManager* cm, PredBlockID f) {
     // First Convert To Voxel Coordinates
@@ -69,12 +70,14 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
     i32v3 relativeChunkSpot = cm->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
-    i32v3 chunkPos = cm->getChunkPosition(query.inner.location);
+    i32v3 chunkPos;
 
     // TODO: Use A Bounding Box Intersection First And Allow Traversal Beginning Outside The Voxel World
 
     // Loop Traversal
-    while (true) {
+    while (query.inner.distance < maxDistance) {
+
+        chunkPos = cm->getChunkPosition(query.inner.location);
 
         query.inner.chunk = cm->getChunk(chunkPos);
        
@@ -100,8 +103,7 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
         // Traverse To The Next
         query.inner.location = vr.getNextVoxelPosition();
         query.inner.distance = vr.getDistanceTraversed();
-        if (query.inner.distance > maxDistance) return query;
-        chunkPos = cm->getChunkPosition(query.inner.location);
     }
+    return query;
 }
 
