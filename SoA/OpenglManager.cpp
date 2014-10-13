@@ -1665,9 +1665,8 @@ void UpdatePlayer()
         player->gridPosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
         player->facePosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
         player->collisionData.clear();
-        if (GameManager::voxelWorld->getClosestChunks(player->gridPosition, chunks)){ //DANGER HERE!
-            aabbChunkCollision(player, &(player->gridPosition), chunks, 8);
-        }
+        GameManager::voxelWorld->getClosestChunks(player->gridPosition, chunks); //DANGER HERE!
+        aabbChunkCollision(player, &(player->gridPosition), chunks, 8);
         player->applyCollisionData();
     }
     Chunk::modifyLock.unlock();

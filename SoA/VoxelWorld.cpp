@@ -56,9 +56,9 @@ void VoxelWorld::setPlanet(Planet *planet)
     GameManager::planet = planet;
 }
 
-int VoxelWorld::getClosestChunks(glm::dvec3 &coord, class Chunk **chunks)
+void VoxelWorld::getClosestChunks(glm::dvec3 &coord, class Chunk **chunks)
 {
-    return _chunkManager->getClosestChunks(coord, chunks);
+    _chunkManager->getClosestChunks(coord, chunks);
 }
 
 void VoxelWorld::endSession()
