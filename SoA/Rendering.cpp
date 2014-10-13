@@ -607,27 +607,27 @@ GLuint MakeBlockVbo(Block *block){
             }
 
             //front
-            VoxelMesher::makeCubeFace(vertices.data(), 1, 0, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->pzTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 1, CUBE_FACE_0_VERTEX_OFFSET, block->waveEffect, i32v3(0), index, block->pzTex, block->pzOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->pzTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //right
-            VoxelMesher::makeCubeFace(vertices.data(), 1, 12, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->pxTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 1, CUBE_FACE_1_VERTEX_OFFSET, block->waveEffect, i32v3(0), index, block->pxTex, block->pxOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->pxTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //top
-            VoxelMesher::makeCubeFace(vertices.data(), 1, 24, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, topColor, topOverlayColor, ambientOcclusion, block->pyTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 1, CUBE_FACE_2_VERTEX_OFFSET, block->waveEffect, i32v3(0), index, block->pyTex, block->pyOvTex, topColor, topOverlayColor, ambientOcclusion, block->pyTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //left
-            VoxelMesher::makeCubeFace(vertices.data(), 1, 36, block->waveEffect, i32v3(0), index, block->nxTex, block->nxOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->nxTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 1, CUBE_FACE_3_VERTEX_OFFSET, block->waveEffect, i32v3(0), index, block->nxTex, block->nxOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->nxTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //bottom
-            VoxelMesher::makeCubeFace(vertices.data(), 1, 48, block->waveEffect, i32v3(0), index, block->nyTex, block->nyOvTex, botColor, botOverlayColor, ambientOcclusion, block->nyTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 1, CUBE_FACE_4_VERTEX_OFFSET, block->waveEffect, i32v3(0), index, block->nyTex, block->nyOvTex, botColor, botOverlayColor, ambientOcclusion, block->nyTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
             //back
-            VoxelMesher::makeCubeFace(vertices.data(), 1, 60, block->waveEffect, i32v3(0), index, block->nzTex, block->nzOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->nzTexInfo);
+            VoxelMesher::makeCubeFace(vertices.data(), 1, CUBE_FACE_5_VERTEX_OFFSET, block->waveEffect, i32v3(0), index, block->nzTex, block->nzOvTex + sideOvTexOffset, sideColor, sideOverlayColor, ambientOcclusion, block->nzTexInfo);
             VoxelMesher::setFaceLight(vertices.data(), index, lampColor, sunlight);
             index += 4;
 

@@ -98,17 +98,20 @@ bool PhysicsBlock::update()
     velocity.z *= fric;
     velocity.x *= fric;
 
-    chPos.x = fastFloor(position.x / (float)CHUNK_WIDTH);
-    chPos.y = fastFloor(position.y / (float)CHUNK_WIDTH);
-    chPos.z = fastFloor(position.z / (float)CHUNK_WIDTH);
+    chPos = GameManager::chunkManager->getChunkPosition(position);
 
     ch = GameManager::chunkManager->getChunk(chPos);
 
+    i32v3 relativePos;
+    relativePos.x = position.x - chPos.x * CHUNK_WIDTH;
+    relativePos.y = position.y - chPos.y * CHUNK_WIDTH;
+    relativePos.z = position.z - chPos.z * CHUNK_WIDTH;
+
     if ((!ch) || ch->isAccessible == 0) return 1;
 
-    bx = fastFloor(position.x) % CHUNK_WIDTH;
-    by = fastFloor(position.y) % CHUNK_WIDTH;
-    bz = fastFloor(position.z) % CHUNK_WIDTH;
+    bx = relativePos.x % CHUNK_WIDTH;
+    by = relativePos.y % CHUNK_WIDTH;
+    bz = relativePos.z % CHUNK_WIDTH;
 
     c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
     val = ch->getBlockID(c);

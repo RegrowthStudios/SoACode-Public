@@ -5,6 +5,14 @@
 const int NUM_FLORA_MESHES = 4;
 const int NUM_CROSSFLORA_MESHES = 2;
 
+// Offsets into CubeVertices
+#define CUBE_FACE_0_VERTEX_OFFSET 0
+#define CUBE_FACE_1_VERTEX_OFFSET 12
+#define CUBE_FACE_2_VERTEX_OFFSET 24
+#define CUBE_FACE_3_VERTEX_OFFSET 36
+#define CUBE_FACE_4_VERTEX_OFFSET 48
+#define CUBE_FACE_5_VERTEX_OFFSET 60
+
 //Provides helpful meshing functions for voxels
 class VoxelMesher
 {

@@ -562,7 +562,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             mi.mergeFront = false;
         } else {
             //Set up most of the vertex data for a face
-            VoxelMesher::makeCubeFace(_frontVerts, mi.levelOfDetail, 0, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
+            VoxelMesher::makeCubeFace(_frontVerts, mi.levelOfDetail, CUBE_FACE_0_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
 
             //Set up the light data using smooth lighting
 
@@ -625,7 +625,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
             mi.mergeBack = false;
         } else {
-            VoxelMesher::makeCubeFace(_backVerts, mi.levelOfDetail, 60, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
+            VoxelMesher::makeCubeFace(_backVerts, mi.levelOfDetail, CUBE_FACE_5_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
 
             calculateLampColor(_backVerts[mi.backIndex].lampColor, lampLights[18], lampLights[19], lampLights[11], lampLights[10], nearBlocks[0]);
             calculateLampColor(_backVerts[mi.backIndex + 1].lampColor, lampLights[1], lampLights[2], lampLights[11], lampLights[10], nearBlocks[1]);
@@ -685,7 +685,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             mi.mergeUp = false;
         } else {
-            VoxelMesher::makeCubeFace(_topVerts, mi.levelOfDetail, 24, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
+            VoxelMesher::makeCubeFace(_topVerts, mi.levelOfDetail, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
 
             //Check for +x direction merging
             calculateLampColor(_topVerts[mi.topIndex].lampColor, lampLights[17], lampLights[18], lampLights[20], lampLights[21], nearBlocks[0]);
@@ -747,7 +747,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             mi.mergeBot = false;
         } else {
 
-            VoxelMesher::makeCubeFace(_bottomVerts, mi.levelOfDetail, 48, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
+            VoxelMesher::makeCubeFace(_bottomVerts, mi.levelOfDetail, CUBE_FACE_4_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
 
             calculateLampColor(_bottomVerts[mi.botIndex].lampColor, lampLights[1], lampLights[2], lampLights[4], lampLights[5], nearBlocks[0]);
             calculateLampColor(_bottomVerts[mi.botIndex + 1].lampColor, lampLights[4], lampLights[5], lampLights[7], lampLights[8], nearBlocks[1]);
@@ -805,7 +805,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            VoxelMesher::makeCubeFace(_rightVerts, mi.levelOfDetail, 12, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
+            VoxelMesher::makeCubeFace(_rightVerts, mi.levelOfDetail, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
 
             calculateLampColor(_rightVerts[mi.rightIndex].lampColor, lampLights[25], lampLights[22], lampLights[13], lampLights[16], nearBlocks[0]);
             calculateLampColor(_rightVerts[mi.rightIndex + 1].lampColor, lampLights[5], lampLights[8], lampLights[13], lampLights[16], nearBlocks[1]);
@@ -848,7 +848,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            VoxelMesher::makeCubeFace(_leftVerts, mi.levelOfDetail, 36, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
+            VoxelMesher::makeCubeFace(_leftVerts, mi.levelOfDetail, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
 
             calculateLampColor(_leftVerts[mi.leftIndex].lampColor, lampLights[17], lampLights[20], lampLights[9], lampLights[12], nearBlocks[0]);
             calculateLampColor(_leftVerts[mi.leftIndex + 1].lampColor, lampLights[0], lampLights[3], lampLights[9], lampLights[12], nearBlocks[1]);

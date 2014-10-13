@@ -22,44 +22,52 @@ const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f,
 
     1.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f };     // v5-v4-v7-v6 (back)
 
+// Cube Vertex Positional Resolution
+#define C_RES0 7
+#define C_RES1 C_RES0 << 1
+#define C_RES2 C_RES0 << 2
+#define C_RES3 C_RES0 << 3
+#define C_RES4 C_RES0 << 4
+#define C_RES5 C_RES0 << 5
+
 // Each block has a positional resolution of 7. There are 6 arrays for the LOD levels
 const GLubyte VoxelMesher::cubeVertices[6][72] = {
-    { 0, 7, 7, 0, 0, 7, 7, 0, 7, 7, 7, 7,  // v1-v2-v3-v0 (front)
-    7, 7, 7, 7, 0, 7, 7, 0, 0, 7, 7, 0,     // v0-v3-v4-v5 (right)
-    0, 7, 0, 0, 7, 7, 7, 7, 7, 7, 7, 0,    // v6-v1-v0-v5 (top)
-    0, 7, 0, 0, 0, 0, 0, 0, 7, 0, 7, 7,   // v6-v7-v2-v1 (left)
-    7, 0, 0, 7, 0, 7, 0, 0, 7, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    7, 7, 0, 7, 0, 0, 0, 0, 0, 0, 7, 0 },     // v5-v4-v7-v6 (back)
-    { 0, 14, 14, 0, 0, 14, 14, 0, 14, 14, 14, 14,  // v1-v2-v3-v0 (front)
-    14, 14, 14, 14, 0, 14, 14, 0, 0, 14, 14, 0,     // v0-v3-v4-v5 (right)
-    0, 14, 0, 0, 14, 14, 14, 14, 14, 14, 14, 0,    // v6-v1-v0-v5 (top)
-    0, 14, 0, 0, 0, 0, 0, 0, 14, 0, 14, 14,   // v6-v7-v2-v1 (left)
-    14, 0, 0, 14, 0, 14, 0, 0, 14, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    14, 14, 0, 14, 0, 0, 0, 0, 0, 0, 14, 0 },     // v5-v4-v7-v6 (back)
-    { 0, 28, 28, 0, 0, 28, 28, 0, 28, 28, 28, 28,  // v1-v2-v3-v0 (front)
-    28, 28, 28, 28, 0, 28, 28, 0, 0, 28, 28, 0,     // v0-v3-v4-v5 (right)
-    0, 28, 0, 0, 28, 28, 28, 28, 28, 28, 28, 0,    // v6-v1-v0-v5 (top)
-    0, 28, 0, 0, 0, 0, 0, 0, 28, 0, 28, 28,   // v6-v7-v2-v1 (left)
-    28, 0, 0, 28, 0, 28, 0, 0, 28, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    28, 28, 0, 28, 0, 0, 0, 0, 0, 0, 28, 0 },     // v5-v4-v7-v6 (back)
-    { 0, 56, 56, 0, 0, 56, 56, 0, 56, 56, 56, 56,  // v1-v2-v3-v0 (front)
-    56, 56, 56, 56, 0, 56, 56, 0, 0, 56, 56, 0,     // v0-v3-v4-v5 (right)
-    0, 56, 0, 0, 56, 56, 56, 56, 56, 56, 56, 0,    // v6-v1-v0-v5 (top)
-    0, 56, 0, 0, 0, 0, 0, 0, 56, 0, 56, 56,   // v6-v7-v2-v1 (left)
-    56, 0, 0, 56, 0, 56, 0, 0, 56, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    56, 56, 0, 56, 0, 0, 0, 0, 0, 0, 56, 0 },     // v5-v4-v7-v6 (back)
-    { 0, 112, 112, 0, 0, 112, 112, 0, 112, 112, 112, 112,  // v1-v2-v3-v0 (front)
-    112, 112, 112, 112, 0, 112, 112, 0, 0, 112, 112, 0,     // v0-v3-v4-v5 (right)
-    0, 112, 0, 0, 112, 112, 112, 112, 112, 112, 112, 0,    // v6-v1-v0-v5 (top)
-    0, 112, 0, 0, 0, 0, 0, 0, 112, 0, 112, 112,   // v6-v7-v2-v1 (left)
-    112, 0, 0, 112, 0, 112, 0, 0, 112, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    112, 112, 0, 112, 0, 0, 0, 0, 0, 0, 112, 0 },     // v5-v4-v7-v6 (back)
-    { 0, 224, 224, 0, 0, 224, 224, 0, 224, 224, 224, 224,  // v1-v2-v3-v0 (front)
-    224, 224, 224, 224, 0, 224, 224, 0, 0, 224, 224, 0,     // v0-v3-v4-v5 (right)
-    0, 224, 0, 0, 224, 224, 224, 224, 224, 224, 224, 0,    // v6-v1-v0-v5 (top)
-    0, 224, 0, 0, 0, 0, 0, 0, 224, 0, 224, 224,   // v6-v7-v2-v1 (left)
-    224, 0, 0, 224, 0, 224, 0, 0, 224, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    224, 224, 0, 224, 0, 0, 0, 0, 0, 0, 224, 0 } };     // v5-v4-v7-v6 (back)
+    { 0, C_RES0, C_RES0, 0, 0, C_RES0, C_RES0, 0, C_RES0, C_RES0, C_RES0, C_RES0,  // v1-v2-v3-v0 (front)
+    C_RES0, C_RES0, C_RES0, C_RES0, 0, C_RES0, C_RES0, 0, 0, C_RES0, C_RES0, 0,     // v0-v3-v4-v5 (right)
+    0, C_RES0, 0, 0, C_RES0, C_RES0, C_RES0, C_RES0, C_RES0, C_RES0, C_RES0, 0,    // v6-v1-v0-v5 (top)
+    0, C_RES0, 0, 0, 0, 0, 0, 0, C_RES0, 0, C_RES0, C_RES0,   // v6-v7-v2-v1 (left)
+    C_RES0, 0, 0, C_RES0, 0, C_RES0, 0, 0, C_RES0, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    C_RES0, C_RES0, 0, C_RES0, 0, 0, 0, 0, 0, 0, C_RES0, 0 },     // v5-v4-v7-v6 (back)
+    { 0, C_RES1, C_RES1, 0, 0, C_RES1, C_RES1, 0, C_RES1, C_RES1, C_RES1, C_RES1,  // v1-v2-v3-v0 (front)
+    C_RES1, C_RES1, C_RES1, C_RES1, 0, C_RES1, C_RES1, 0, 0, C_RES1, C_RES1, 0,     // v0-v3-v4-v5 (right)
+    0, C_RES1, 0, 0, C_RES1, C_RES1, C_RES1, C_RES1, C_RES1, C_RES1, C_RES1, 0,    // v6-v1-v0-v5 (top)
+    0, C_RES1, 0, 0, 0, 0, 0, 0, C_RES1, 0, C_RES1, C_RES1,   // v6-v7-v2-v1 (left)
+    C_RES1, 0, 0, C_RES1, 0, C_RES1, 0, 0, C_RES1, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    C_RES1, C_RES1, 0, C_RES1, 0, 0, 0, 0, 0, 0, C_RES1, 0 },     // v5-v4-v7-v6 (back)
+    { 0, C_RES2, C_RES2, 0, 0, C_RES2, C_RES2, 0, C_RES2, C_RES2, C_RES2, C_RES2,  // v1-v2-v3-v0 (front)
+    C_RES2, C_RES2, C_RES2, C_RES2, 0, C_RES2, C_RES2, 0, 0, C_RES2, C_RES2, 0,     // v0-v3-v4-v5 (right)
+    0, C_RES2, 0, 0, C_RES2, C_RES2, C_RES2, C_RES2, C_RES2, C_RES2, C_RES2, 0,    // v6-v1-v0-v5 (top)
+    0, C_RES2, 0, 0, 0, 0, 0, 0, C_RES2, 0, C_RES2, C_RES2,   // v6-v7-v2-v1 (left)
+    C_RES2, 0, 0, C_RES2, 0, C_RES2, 0, 0, C_RES2, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    C_RES2, C_RES2, 0, C_RES2, 0, 0, 0, 0, 0, 0, C_RES2, 0 },     // v5-v4-v7-v6 (back)
+    { 0, C_RES3, C_RES3, 0, 0, C_RES3, C_RES3, 0, C_RES3, C_RES3, C_RES3, C_RES3,  // v1-v2-v3-v0 (front)
+    C_RES3, C_RES3, C_RES3, C_RES3, 0, C_RES3, C_RES3, 0, 0, C_RES3, C_RES3, 0,     // v0-v3-v4-v5 (right)
+    0, C_RES3, 0, 0, C_RES3, C_RES3, C_RES3, C_RES3, C_RES3, C_RES3, C_RES3, 0,    // v6-v1-v0-v5 (top)
+    0, C_RES3, 0, 0, 0, 0, 0, 0, C_RES3, 0, C_RES3, C_RES3,   // v6-v7-v2-v1 (left)
+    C_RES3, 0, 0, C_RES3, 0, C_RES3, 0, 0, C_RES3, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    C_RES3, C_RES3, 0, C_RES3, 0, 0, 0, 0, 0, 0, C_RES3, 0 },     // v5-v4-v7-v6 (back)
+    { 0, C_RES4, C_RES4, 0, 0, C_RES4, C_RES4, 0, C_RES4, C_RES4, C_RES4, C_RES4,  // v1-v2-v3-v0 (front)
+    C_RES4, C_RES4, C_RES4, C_RES4, 0, C_RES4, C_RES4, 0, 0, C_RES4, C_RES4, 0,     // v0-v3-v4-v5 (right)
+    0, C_RES4, 0, 0, C_RES4, C_RES4, C_RES4, C_RES4, C_RES4, C_RES4, C_RES4, 0,    // v6-v1-v0-v5 (top)
+    0, C_RES4, 0, 0, 0, 0, 0, 0, C_RES4, 0, C_RES4, C_RES4,   // v6-v7-v2-v1 (left)
+    C_RES4, 0, 0, C_RES4, 0, C_RES4, 0, 0, C_RES4, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    C_RES4, C_RES4, 0, C_RES4, 0, 0, 0, 0, 0, 0, C_RES4, 0 },     // v5-v4-v7-v6 (back)
+    { 0, C_RES5, C_RES5, 0, 0, C_RES5, C_RES5, 0, C_RES5, C_RES5, C_RES5, C_RES5,  // v1-v2-v3-v0 (front)
+    C_RES5, C_RES5, C_RES5, C_RES5, 0, C_RES5, C_RES5, 0, 0, C_RES5, C_RES5, 0,     // v0-v3-v4-v5 (right)
+    0, C_RES5, 0, 0, C_RES5, C_RES5, C_RES5, C_RES5, C_RES5, C_RES5, C_RES5, 0,    // v6-v1-v0-v5 (top)
+    0, C_RES5, 0, 0, 0, 0, 0, 0, C_RES5, 0, C_RES5, C_RES5,   // v6-v7-v2-v1 (left)
+    C_RES5, 0, 0, C_RES5, 0, C_RES5, 0, 0, C_RES5, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    C_RES5, C_RES5, 0, C_RES5, 0, 0, 0, 0, 0, 0, C_RES5, 0 } };     // v5-v4-v7-v6 (back)
 
 //0 = x, 1 = y, 2 = z
 const int VoxelMesher::cubeFaceAxis[6][2] = { { 0, 1 }, { 2, 1 }, { 0, 2 }, { 2, 1 }, { 0, 2 }, { 0, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
@@ -92,26 +100,28 @@ const GLfloat VoxelMesher::waterCubeVertices[72] = { 0.0f, wyOff, 1.000f, 0.0f, 
 
     1.000f, wyOff, 0.0f, 1.000f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, wyOff, 0.0f };     // v5-v4-v7-v6 (back)
 
+// 1 for normalized bytes
+#define N_1 127
 
-const GLbyte VoxelMesher::cubeNormals[72] = { 0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127,  // v1-v2-v3-v0 (front)
+const GLbyte VoxelMesher::cubeNormals[72] = { 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1,  // v1-v2-v3-v0 (front)
 
-    127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0,     // v0-v3-v4-v5 (right)
+    N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0,     // v0-v3-v4-v5 (right)
 
-    0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,    // v6-v1-v0-v5 (top)
+    0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0,    // v6-v1-v0-v5 (top)
 
-    -127, 0, 0, -127, 0, 0, -127, 0, 0, -127, 0, 0,   // v6-v7-v2-v1 (left)
+    -N_1, 0, 0, -N_1, 0, 0, -N_1, 0, 0, -N_1, 0, 0,   // v6-v7-v2-v1 (left)
 
-    0, -127, 0, 0, -127, 0, 0, -127, 0, 0, -127, 0,    // v4-v3-v2-v7  (bottom)
+    0, -N_1, 0, 0, -N_1, 0, 0, -N_1, 0, 0, -N_1, 0,    // v4-v3-v2-v7  (bottom)
 
-    0, 0, -127, 0, 0, -127, 0, 0, -127, 0, 0, -127 };     // v5-v4-v7-v6 (back)
+    0, 0, -N_1, 0, 0, -N_1, 0, 0, -N_1, 0, 0, -N_1 };     // v5-v4-v7-v6 (back)
 
 //For flora, normal is strait up
-const GLbyte VoxelMesher::floraNormals[72] = { 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
-    0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
-    0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
-    0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
-    0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0,
-    0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127, 0 };
+const GLbyte VoxelMesher::floraNormals[72] = { 0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0,
+    0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0,
+    0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0,
+    0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0,
+    0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0,
+    0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0 };
 
 //We use 4 meshes so that we can add variation to the flora meshes
 const ui8 VoxelMesher::floraVertices[NUM_FLORA_MESHES][36] = {
@@ -140,32 +150,38 @@ const ui8 VoxelMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
         7, 7, 7, 7, 0, 7, 0, 0, 0, 0, 7, 0,
         7, 7, 0, 7, 0, 0, 0, 0, 7, 0, 7, 7 } };
 
-const GLfloat VoxelMesher::physicsBlockVertices[72] = { -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, 0.499f, 0.499f,  // v1-v2-v3-v0 (front)
 
-    0.499f, 0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f,     // v0-v3-v4-v499 (right)
+//Physics block vertex data
+#define PHYS_V 0.499f
+const GLfloat VoxelMesher::physicsBlockVertices[72] = { -PHYS_V, PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, PHYS_V, -PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V,  // v1-v2-v3-v0 (front)
 
-    -0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, 0.499f, 0.499f, 0.499f, 0.499f, 0.499f, -0.499f,    // v6-v1-v0-v499 (top)
+    PHYS_V, PHYS_V, PHYS_V, PHYS_V, -PHYS_V, PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, PHYS_V, -PHYS_V,     // v0-v3-v4-v499 (right)
 
-    -0.499f, 0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, 0.499f, -0.499f, 0.499f, 0.499f,   // v6-v7-v2-v1 (left)
+    -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, -PHYS_V,    // v6-v1-v0-v499 (top)
 
-    -0.499f, -0.499f, -0.499f, 0.499f, -0.499f, -0.499f, 0.499f, -0.499f, 0.499f, -0.499f, -0.499f, 0.499f,    // v7-v4-v3-v2 (bottom)
+    -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, PHYS_V, PHYS_V,   // v6-v7-v2-v1 (left)
 
-    0.499f, 0.499f, -0.499f, 0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, -0.499f, 0.499f, -0.499f };     // v5-v4-v7-v6 (back)
+    -PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V,    // v7-v4-v3-v2 (bottom)
+
+    PHYS_V, PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V };     // v5-v4-v7-v6 (back)
 
 
 void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo)
 {
 
+#define POSITION_RESOLUTION 7
+#define ATLAS_SIZE 256
+
     //get the face index so we can determine the axis alignment
-    int faceIndex = vertexOffset / 12;
+    int faceIndex = vertexOffset / CUBE_FACE_1_VERTEX_OFFSET;
     //Multiply the axis by the sign bit to get the correct offset
     GLubyte uOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][0]] * cubeFaceAxisSign[faceIndex][0]);
     GLubyte vOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][1]] * cubeFaceAxisSign[faceIndex][1]);
 
     // 7 per coord
-    pos.x *= 7;
-    pos.y *= 7;
-    pos.z *= 7;
+    pos.x *= POSITION_RESOLUTION;
+    pos.y *= POSITION_RESOLUTION;
+    pos.z *= POSITION_RESOLUTION;
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
@@ -189,11 +205,11 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     Verts[vertexIndex + 2].blendMode = blendMode;
     Verts[vertexIndex + 3].blendMode = blendMode;
 
-    GLubyte texAtlas = (GLubyte)(textureIndex / 256);
-    textureIndex %= 256;
+    GLubyte texAtlas = (GLubyte)(textureIndex / ATLAS_SIZE);
+    textureIndex %= ATLAS_SIZE;
 
-    GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / 256);
-    GLubyte overlayTex = (GLubyte)(overlayTextureIndex % 256);
+    GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / ATLAS_SIZE);
+    GLubyte overlayTex = (GLubyte)(overlayTextureIndex % ATLAS_SIZE);
 
     Verts[vertexIndex].textureWidth = (ubyte)texInfo.base.size.x;
     Verts[vertexIndex].textureHeight = (ubyte)texInfo.base.size.y;
@@ -305,14 +321,17 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
         Verts[vertexIndex + 3].color[3] = 0;
     }
 
-    Verts[vertexIndex].tex[0] = 128 + uOffset;
-    Verts[vertexIndex].tex[1] = 129 + vOffset;
-    Verts[vertexIndex + 1].tex[0] = 128 + uOffset;
-    Verts[vertexIndex + 1].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 2].tex[0] = 129 + uOffset;
-    Verts[vertexIndex + 2].tex[1] = 128 + vOffset;
-    Verts[vertexIndex + 3].tex[0] = 129 + uOffset;
-    Verts[vertexIndex + 3].tex[1] = 129 + vOffset;
+#define UV_0 128
+#define UV_1 129
+
+    Verts[vertexIndex].tex[0] = UV_0 + uOffset;
+    Verts[vertexIndex].tex[1] = UV_1 + vOffset;
+    Verts[vertexIndex + 1].tex[0] = UV_0 + uOffset;
+    Verts[vertexIndex + 1].tex[1] = UV_0 + vOffset;
+    Verts[vertexIndex + 2].tex[0] = UV_1 + uOffset;
+    Verts[vertexIndex + 2].tex[1] = UV_0 + vOffset;
+    Verts[vertexIndex + 3].tex[0] = UV_1 + uOffset;
+    Verts[vertexIndex + 3].tex[1] = UV_1 + vOffset;
 
     // *********** Base Texture
     Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;

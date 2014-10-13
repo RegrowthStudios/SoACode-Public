@@ -46,5 +46,5 @@ public:
 
     bool billboardUpdate(const std::deque< std::deque< std::deque<class ChunkSlot*> > >& chunkList, f64v3&, class Actor* player);
     bool update();
-    bool update(const f64v3& chunkListPos);
+    bool update(const f64v3& batchPosition);
 };
