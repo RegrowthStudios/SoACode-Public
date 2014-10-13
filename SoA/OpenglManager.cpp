@@ -1001,9 +1001,6 @@ bool Control()
             }
             break;
         }
-        if (graphicsOptions.voxelRenderDistance != oldVoxelRenderDistance){
-            GameManager::voxelWorld->resizeGrid(player->gridPosition);
-        }
         return 1;
     }
     else{
@@ -1652,17 +1649,16 @@ void UpdatePlayer()
     player->collisionData.yDecel = 0.0f;
     //    cout << "C";
 
-    openglManager.collisionLock.lock();
+    Chunk::modifyLock.lock();
     for (int i = 0; i < playerCollisionSteps; i++){
         player->gridPosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
         player->facePosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
         player->collisionData.clear();
-        if (GameManager::voxelWorld->getClosestChunks(player->gridPosition, chunks)){ //DANGER HERE!
-            aabbChunkCollision(player, &(player->gridPosition), chunks, 8);
-        }
+        GameManager::voxelWorld->getClosestChunks(player->gridPosition, chunks); //DANGER HERE!
+        aabbChunkCollision(player, &(player->gridPosition), chunks, 8);
         player->applyCollisionData();
     }
-    openglManager.collisionLock.unlock();
+    Chunk::modifyLock.unlock();
 
     delete[] chunks;
 }
@@ -1864,12 +1860,12 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             } else {
                 if (cm->vboID != 0){
                     glDeleteBuffers(1, &(cm->vboID));
+                    cm->vboID = 0;
                 }
                 if (cm->vaoID != 0){
                     glDeleteVertexArrays(1, &(cm->vaoID));
-                }
-                cm->vboID = 0;
-                cm->vaoID = 0;
+                    cm->vaoID = 0;
+                } 
             }
 
             if (cmd->transVertices.size()) {
@@ -1882,7 +1878,7 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
                 mapBufferData(cm->transVboID, cmd->transVertices.size() * sizeof(BlockVertex), &(cmd->transVertices[0]), GL_STATIC_DRAW);
 
                 //index data
-                mapBufferData(cm->transIndexID, cmd->transQuadIndices.size() * sizeof(ui32), &(cmd->transQuadIndices[0]), GL_STATIC_DRAW);
+                mapBufferData(cm->transIndexID, cm->transQuadIndices.size() * sizeof(ui32), &(cm->transQuadIndices[0]), GL_STATIC_DRAW);
 
                 cm->needsSort = true; //must sort when changing the mesh
 
@@ -1890,16 +1886,16 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             } else {
                 if (cm->transVaoID != 0){
                     glDeleteVertexArrays(1, &(cm->transVaoID));
+                    cm->transVaoID = 0;
                 }
                 if (cm->transVboID == 0) {
                     glDeleteBuffers(1, &(cm->transVboID));
+                    cm->transVboID = 0;
                 }
                 if (cm->transIndexID == 0) {
                     glDeleteBuffers(1, &(cm->transIndexID));
+                    cm->transIndexID = 0;
                 }
-                cm->transVboID = 0;
-                cm->transIndexID = 0;
-                cm->transVaoID = 0;
             }
 
             if (cmd->cutoutVertices.size()) {
@@ -1914,12 +1910,12 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             } else {
                 if (cm->cutoutVaoID != 0){
                     glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+                    cm->cutoutVaoID = 0;
                 }
                 if (cm->cutoutVboID == 0) {
                     glDeleteBuffers(1, &(cm->cutoutVboID));
+                    cm->cutoutVboID = 0;
                 }
-                cm->cutoutVboID = 0;
-                cm->cutoutVaoID = 0;
             }
             cm->meshInfo = cmd->meshInfo;
         //The missing break is deliberate!
@@ -1954,7 +1950,6 @@ void OpenglManager::UpdateChunkMesh(ChunkMeshData *cmd)
             chunkMeshes[cm->vecIndex] = chunkMeshes.back();
             chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
             chunkMeshes.pop_back();
-            cout << "GONE\n";
         }
         delete cm;
     }
@@ -2118,8 +2113,9 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
 
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
+   
     double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)( GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
- 
+    if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
 
     a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
@@ -2173,6 +2169,10 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
     drawBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
     drawCutoutBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
     
+    if (gridState != 0){
+        GameManager::voxelWorld->getChunkManager().drawChunkLines(VP, chunkCamera.position());
+    }
+
     glDepthMask(GL_FALSE);
     drawTransparentBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
     glDepthMask(GL_TRUE);
@@ -2183,10 +2183,6 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
         glEnable(GL_DEPTH_TEST);
     }
 
-
-    if (gridState != 0){
-        GameManager::voxelWorld->getChunkManager().drawChunkLines(VP, chunkCamera.position());
-    }
 
     if (GameManager::voxelEditor->isEditing()){
         int ID;

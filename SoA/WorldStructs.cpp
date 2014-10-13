@@ -125,27 +125,3 @@ Biome::Biome()
     for (; i < 160; i++) surfaceLayers[i] = GRANITE;
     for (; i < SURFACE_DEPTH; i++) surfaceLayers[i] = STONE;
 }
-
-
-ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), transVertIndex(0)
-{
-}
-
-ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), transVertIndex(0), type(task->type)
-{
-}
-
-void ChunkMeshData::addTransQuad(const i8v3& pos) {
-    transQuadPositions.push_back(pos);
-
-    int size = transQuadIndices.size();
-    transQuadIndices.resize(size + 6);
-    transQuadIndices[size++] = transVertIndex;
-    transQuadIndices[size++] = transVertIndex + 1;
-    transQuadIndices[size++] = transVertIndex + 2;
-    transQuadIndices[size++] = transVertIndex + 2;
-    transQuadIndices[size++] = transVertIndex + 3;
-    transQuadIndices[size] = transVertIndex;
-
-    transVertIndex += 4;
-}

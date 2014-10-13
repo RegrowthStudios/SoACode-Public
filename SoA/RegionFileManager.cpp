@@ -95,7 +95,7 @@ void RegionFileManager::clear() {
     _regionFile = nullptr;
 }
 
-bool RegionFileManager::openRegionFile(nString region, i32 face, bool create) {
+bool RegionFileManager::openRegionFile(nString region, vvoxel::VoxelMapData* voxelMapData, bool create) {
 
     nString filePath;
     struct stat statbuf;
@@ -131,7 +131,7 @@ bool RegionFileManager::openRegionFile(nString region, i32 face, bool create) {
     } 
 
 
-    filePath = GameManager::saveFilePath + "/Region/f" + std::to_string(face) + "/" + region + ".soar";
+    filePath = GameManager::saveFilePath + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
    
     //open file if it exists
     FILE* file = fopen(filePath.c_str(), "rb+");
@@ -209,7 +209,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     nString regionString = getRegionString(chunk);
 
     //Open the region file
-    if (!openRegionFile(regionString, chunk->faceData.face, false)) return false;
+    if (!openRegionFile(regionString, chunk->voxelMapData, false)) return false;
 
     //Get the chunk sector offset
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk);
@@ -248,7 +248,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     nString regionString = getRegionString(chunk);
 
-    if (!openRegionFile(regionString, chunk->faceData.face, true)) return false;
+    if (!openRegionFile(regionString, chunk->voxelMapData, true)) return false;
 
     ui32 tableOffset;
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
@@ -452,50 +452,6 @@ bool RegionFileManager::readVoxelData_v0() {
  
 }
 
-void RegionFileManager::getIterationConstantsFromRotation(int rotation, int& jStart, int& jMult, int& jEnd, int& jInc, int& kStart, int& kMult, int& kEnd, int& kInc) {
-    switch (rotation){ //we use rotation value to un-rotate the chunk data
-        case 0: //no rotation
-            jStart = 0;
-            kStart = 0;
-            jEnd = kEnd = CHUNK_WIDTH;
-            jInc = kInc = 1;
-            jMult = CHUNK_WIDTH;
-            kMult = 1;
-            break;
-        case 1: //up is right
-            jMult = 1;
-            jStart = CHUNK_WIDTH - 1;
-            jEnd = -1;
-            jInc = -1;
-            kStart = 0;
-            kEnd = CHUNK_WIDTH;
-            kInc = 1;
-            kMult = CHUNK_WIDTH;
-            break;
-        case 2: //up is down
-            jMult = CHUNK_WIDTH;
-            jStart = CHUNK_WIDTH - 1;
-            kStart = CHUNK_WIDTH - 1;
-            jEnd = kEnd = -1;
-            jInc = kInc = -1;
-            kMult = 1;
-            break;
-        case 3: //up is left
-            jMult = 1;
-            jStart = 0;
-            jEnd = CHUNK_WIDTH;
-            jInc = 1;
-            kMult = CHUNK_WIDTH;
-            kStart = CHUNK_WIDTH - 1;
-            kEnd = -1;
-            kInc = -1;
-            break;
-        default:
-            pError("ERROR Chunk Loading: Rotation value not 0-3");
-            break;
-    }
-}
-
 int RegionFileManager::rleUncompressArray(ui8* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
 
     ui8 value;
@@ -593,7 +549,7 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
     int kStart, kEnd, kInc;
     int jMult, kMult;
 
-    getIterationConstantsFromRotation(chunk->faceData.rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
     chunk->numBlocks = 0;
 
@@ -795,7 +751,8 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     int kStart, kEnd, kInc;
     int jMult, kMult;
 
-    getIterationConstantsFromRotation(chunk->faceData.rotation, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+
 
     rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
     rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
@@ -862,18 +819,10 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
 }
 
 ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
-    int idir = FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][0];
-    int jdir = FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][1];
-    int ip = (chunk->faceData.ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
-    int jp = (chunk->faceData.jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
+    int ip, jp;
+    chunk->voxelMapData->getChunkGridPos(ip, jp);
 
-    if (chunk->faceData.rotation % 2){ //when rot%2 i and j must switch
-        int tmp = ip;
-        ip = jp;
-        jp = tmp;
-    }
-
-    int ym = ((int)floor(chunk->position.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
+    int ym = ((int)floor(chunk->gridPosition.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
     int im = ip % REGION_WIDTH;
     int jm = jp % REGION_WIDTH;
 
@@ -891,16 +840,13 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
 
 nString RegionFileManager::getRegionString(Chunk *ch)
 {
-    int rot = ch->faceData.rotation;
-    int face = ch->faceData.face;
-    int idir = FaceOffsets[face][rot][0];
-    int jdir = FaceOffsets[face][rot][1];
-    int ip = (ch->faceData.ipos - GameManager::planet->radius / CHUNK_WIDTH)*idir;
-    int jp = (ch->faceData.jpos - GameManager::planet->radius / CHUNK_WIDTH)*jdir;
+    int ip, jp;
 
-    if (rot % 2){ //when rot%2 i and j must switch
-        return "r." + to_string(ip >> RSHIFT) + "." + to_string((int)floor(ch->position.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(jp >> RSHIFT);
-    } else{
-        return "r." + to_string(jp >> RSHIFT) + "." + to_string((int)floor(ch->position.y / CHUNK_WIDTH) >> RSHIFT) + "." + to_string(ip >> RSHIFT);
+    if (ch->voxelMapData == nullptr) {
+        cout << "LOL";
     }
+
+    ch->voxelMapData->getChunkGridPos(ip, jp);
+
+    return "r." + to_string(jp >> RSHIFT) + "." + to_string(fastFloor(ch->gridPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + to_string(ip >> RSHIFT);
 }

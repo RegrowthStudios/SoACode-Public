@@ -16,6 +16,7 @@ struct GraphicsOptions {
     f32 hdrExposure, gamma;
     f32 secColorMult, fov;
     i32 maxFPS;
+    f32 voxelLODThreshold, voxelLODThreshold2;
     bool isFullscreen, isBorderless, isVsync, needsWindowReload, needsFboReload, needsFullscreenToggle;
     nString texturePackString, currTexturePack, defaultTexturePack;
 };

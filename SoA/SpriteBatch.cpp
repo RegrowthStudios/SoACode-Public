@@ -370,10 +370,6 @@ void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* b
     glUniformMatrix4fv(_unVP, 1, false, (f32*)&mCamera);
 
     glBindVertexArray(_vao);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
 
     // Draw All The Batches
     i32 bc = _batches.size();
@@ -519,12 +515,10 @@ void SpriteBatch::createVertexArray() {
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, _glyphCapacity * 6 * sizeof(VertexSpriteBatch), nullptr, _bufUsage);
 
-    int offsets[4] = {
-        offsetof(VertexSpriteBatch, position),
-        offsetof(VertexSpriteBatch, color),
-        offsetof(VertexSpriteBatch, uv),
-        offsetof(VertexSpriteBatch, uvRect)
-    };
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, position));
     glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, color));

@@ -221,9 +221,10 @@ void GameManager::initializeVoxelWorld(Player *playr) {
             atSurface = 0; //dont need to set height
         }
     }
-    voxelWorld->initialize(player->facePosition, &(player->faceData), planet, atSurface, 0);
 
-    if (atSurface) player->facePosition.y = voxelWorld->getCenterY();
+    voxelWorld->initialize(player->facePosition, &player->voxelMapData, planet, 0);
+
+    if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
 
     player->gridPosition = player->facePosition;
 
@@ -231,8 +232,6 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 
     double dist = player->facePosition.y + planet->radius;
     player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
-
-    voxelWorld->beginSession(player->gridPosition);
 }
 
 int ticksArray2[10];
@@ -243,18 +242,12 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
 
     if (gameInitialized) {
         if (player->isOnPlanet) {
+
             HeightData tmpHeightData;
             if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
-                if (tmpHeightData.height != UNLOADED_HEIGHT) {
-                    player->currBiome = tmpHeightData.biome;
-                    player->currTemp = tmpHeightData.temperature;
-                    player->currHumidity = tmpHeightData.rainfall;
-
-                } else {
-                    player->currBiome = NULL;
-                    player->currTemp = -1;
-                    player->currHumidity = -1;
-                }
+                player->currBiome = tmpHeightData.biome;
+                player->currTemp = tmpHeightData.temperature;
+                player->currHumidity = tmpHeightData.rainfall;
             } else {
                 player->currBiome = NULL;
                 player->currTemp = -1;
@@ -264,9 +257,9 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
             player->currCh = NULL;
             if (player->currCh != NULL) {
                 if (player->currCh->isAccessible) {
-                    int x = player->headPosition.x - player->currCh->position.x;
-                    int y = player->headPosition.y - player->currCh->position.y;
-                    int z = player->headPosition.z - player->currCh->position.z;
+                    int x = player->headPosition.x - player->currCh->gridPosition.x;
+                    int y = player->headPosition.y - player->currCh->gridPosition.y;
+                    int z = player->headPosition.z - player->currCh->gridPosition.z;
                     int c = y * CHUNK_WIDTH * CHUNK_WIDTH + z * CHUNK_WIDTH + x;
                     player->headInBlock = player->currCh->getBlockData(c);
                     player->headVoxelLight = player->currCh->getLampLight(c) - 8;
@@ -354,13 +347,13 @@ void GameManager::clickDragRay(bool isBreakRay) {
     VoxelRayQuery rq;
     if (isBreakRay) {
         // Obtain The Simple Query
-        rq = VRayHelper::getQuery(player->getChunkCamera().position(), player->chunkDirection(), chunkManager, isSolidBlock);
+        rq = VRayHelper::getQuery(player->getChunkCamera().position(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rq.distance > MAX_RANGE || rq.id == NONE) return;
     } else {
         // Obtain The Full Query
-        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().position(), player->chunkDirection(), chunkManager, isSolidBlock);
+        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().position(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
@@ -373,7 +366,7 @@ void GameManager::clickDragRay(bool isBreakRay) {
         return;
     }
 
-    i32v3 position = chunkManager->cornerPosition + rq.location;
+    i32v3 position = rq.location;
     if (voxelEditor->isEditing() == false) {
         voxelEditor->setStartPosition(position);
         voxelEditor->setEndPosition(position);
@@ -382,10 +375,12 @@ void GameManager::clickDragRay(bool isBreakRay) {
     }
 }
 void GameManager::scanWSO() {
+
 #define SCAN_MAX_DISTANCE 20.0
     VoxelRayQuery rq = VRayHelper::getQuery(
         player->getChunkCamera().position(),
         player->getChunkCamera().direction(),
+        SCAN_MAX_DISTANCE,
         GameManager::chunkManager,
         isSolidBlock
         );
@@ -419,8 +414,3 @@ void GameManager::endSession() {
     //_CrtDumpMemoryLeaks();
 #endif
 }
-
-const deque <deque <deque <ChunkSlot *> > >& GameManager::getChunkList() {
-    return chunkManager->getChunkList();
-}
-

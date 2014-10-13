@@ -9,6 +9,8 @@
 // Will Our Variable Names Honestly Be More Than A KB
 #define PROGRAM_VARIABLE_MAX_LENGTH 1024
 
+GLProgram* GLProgram::_programInUse = nullptr;
+
 GLProgram::GLProgram(bool init /*= false*/) :
 _id(0),
 _idVS(0),
@@ -42,10 +44,12 @@ void GLProgram::destroy() {
     }
 }
 
-void GLProgram::addShader(i32 type, const cString src) {
+void GLProgram::addShader(ShaderType type, const cString src) {
+    // Get the GLenum shader type from the wrapper
+    i32 glType = static_cast<GLenum>(type);
     // Check Current State
     if (getIsLinked() || !getIsCreated()) return;
-    switch (type) {
+    switch (glType) {
     case GL_VERTEX_SHADER:
         if (_idVS != 0) {
             printf("Attempting To Add Another Vertex Shader To Program\n");
@@ -64,7 +68,7 @@ void GLProgram::addShader(i32 type, const cString src) {
     }
 
     // Compile The Shader
-    ui32 idS = glCreateShader(type);
+    ui32 idS = glCreateShader(glType);
     glShaderSource(idS, 1, &src, 0);
     glCompileShader(idS);
 
@@ -72,23 +76,36 @@ void GLProgram::addShader(i32 type, const cString src) {
     i32 status;
     glGetShaderiv(idS, GL_COMPILE_STATUS, &status);
     if (status != 1) {
-        glDeleteShader(idS);
+        int infoLogLength;
         printf("Shader Had Compilation Errors\n");
+        glGetShaderiv(idS, GL_INFO_LOG_LENGTH, &infoLogLength);
+        std::vector<char> FragmentShaderErrorMessage(infoLogLength);
+        glGetShaderInfoLog(idS, infoLogLength, NULL, FragmentShaderErrorMessage.data());
+        fprintf(stdout, "%s\n", &FragmentShaderErrorMessage[0]);
+        glDeleteShader(idS);
         throw 2;
     }
 
     // Bind Shader To Program
     glAttachShader(_id, idS);
-    switch (type) {
+    switch (glType) {
     case GL_VERTEX_SHADER: _idVS = idS; break;
     case GL_FRAGMENT_SHADER: _idFS = idS; break;
     }
 }
-void GLProgram::addShaderFile(i32 type, const cString file) {
+void GLProgram::addShaderFile(ShaderType type, const cString file) {
     IOManager iom;
     const cString src = iom.readFileToString(file);
     addShader(type, src);
     delete [] src;
+}
+
+void GLProgram::setAttribute(nString name, ui32 index) {
+    // Don't Add Attributes If The Program Is Already Linked
+    if (_isLinked) return;
+
+    glBindAttribLocation(_id, index, name.c_str());
+    _attributes[name] = index;
 }
 
 void GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
@@ -103,6 +120,20 @@ void GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
         attrIter++;
     }
 }
+
+void GLProgram::setAttributes(const std::vector<std::pair<nString, ui32> >& attr) {
+    // Don't Add Attributes If The Program Is Already Linked
+    if (_isLinked) return;
+
+    // Set The Custom Attributes
+    auto attrIter = attr.begin();
+    while (attrIter != attr.end()) {
+        glBindAttribLocation(_id, attrIter->second, attrIter->first.c_str());
+        _attributes[attrIter->first] = attrIter->second;
+        attrIter++;
+    }
+}
+
 bool GLProgram::link() {
     // Don't Relink Or Attempt A Non-initialized Link
     if (getIsLinked() || !getIsCreated()) return false;
@@ -183,5 +214,3 @@ void GLProgram::unuse() {
         glUseProgram(0);
     }
 }
-
-GLProgram* GLProgram::_programInUse = nullptr;

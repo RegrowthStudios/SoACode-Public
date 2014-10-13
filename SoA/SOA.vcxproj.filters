@@ -99,6 +99,9 @@
     <Filter Include="SOA Files\Data\Keg">
       <UniqueIdentifier>{ac47e175-d93f-4b05-bb81-caa1090f397f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Mapping">
+      <UniqueIdentifier>{f10c4941-dfe2-4bfb-a029-a82ec2a097dd}</UniqueIdentifier>
+    </Filter>
     <Filter Include="SOA Files\Screens\Init">
       <UniqueIdentifier>{27507245-c888-4a05-b0ca-9890d99db1a2}</UniqueIdentifier>
     </Filter>
@@ -464,6 +467,18 @@
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Vorb.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelPlanetMapper.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="IVoxelMapper.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
     <ClInclude Include="LoadMonitor.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
@@ -761,6 +776,12 @@
     <ClCompile Include="VoxelMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelPlanetMapper.cpp">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClCompile>
     <ClCompile Include="InitScreen.cpp">
       <Filter>SOA Files\Screens\Init</Filter>
     </ClCompile>
@@ -799,6 +820,9 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
+    </None>
+    <None Include="ChunkMesher.inl">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </None>
   </ItemGroup>
 </Project>

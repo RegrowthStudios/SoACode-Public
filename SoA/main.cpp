@@ -151,7 +151,7 @@ void gameLoop() {
         startTicks = SDL_GetTicks();
         GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-         GameManager::soundEngine->update(player->headPosition, player->chunkDirection(), player->chunkUp());
+        GameManager::soundEngine->update(player->headPosition, player->chunkDirection(), player->chunkUp());
 
         while (glToGame.try_dequeue(message)) {
             if (ProcessMessage(message)) {

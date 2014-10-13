@@ -4,6 +4,7 @@
 #include "GameManager.h"
 #include "Planet.h"
 #include "SimplexNoise.h"
+#include "BlockData.h"
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -388,6 +389,13 @@ void TerrainGenerator::GetBaseBiome(int x, int y, int z, Biome **b, int h)
     *b = (GameManager::planet->baseBiomesLookupMap.find(BiomeMap[rainfall][temperature]))->second;
 }
 
+void TerrainGenerator::setVoxelMapping(vvoxel::VoxelMapData* voxelMapData, int Radius, int pScale) {
+    int rdir;
+    voxelMapData->getGenerationIterationConstants(iPos, jPos, rPos, iDir, jDir, rdir);
+    radius = Radius * rdir;
+    scale = pScale;
+}
+
 void TerrainGenerator::SetLODFace(int Ipos, int Jpos, int Rpos, int Radius, int idir, int jdir, float pscale)
 {
     iPos = Ipos;
@@ -412,6 +420,7 @@ void TerrainGenerator::GenerateHeightMap(HeightData *lodMap, int icoord, int jco
     double temperature;
     double rainfall;
     Biome *mainBiome;
+    int depth;
 
     double ic, jc;
     
@@ -497,6 +506,15 @@ void TerrainGenerator::GenerateHeightMap(HeightData *lodMap, int icoord, int jco
             if (rainfall > 255.0) rainfall = 255.0;
             lodMap[i*size+j].temperature = (int)temperature;
             lodMap[i*size+j].rainfall = (int)rainfall;
+
+            //water depth
+            depth = -lodMap[i*size + j].height / 5;
+            if (depth > 255) {
+                depth = 255;
+            } else if (depth < 0) {
+                depth = 0;
+            }
+            lodMap[i*size + j].depth = (ui8)(255 - depth);
         }
     }
 }
@@ -755,4 +773,67 @@ void TerrainGenerator::SetRainfallNoiseFunction(double persistence, double frequ
     rainfallNoiseFunction->upBound = upBound;
     rainfallNoiseFunction->type = type;
     rainfallNoiseFunction->scale = Scale;
+}
+
+void TerrainGenerator::postProcessHeightmap(HeightData heightData[CHUNK_LAYER]) {
+    i32 minNearHeight; //to determine if we should remove surface blocks
+    i32 heightDiffThreshold = 3;
+    i32 tmp;
+    i32 maph;
+    Biome *biome;
+    i32 sandDepth, snowDepth;
+    for (i32 z = 0; z < CHUNK_WIDTH; z++) {
+        for (i32 x = 0; x < CHUNK_WIDTH; x++) {
+
+            //*************Calculate if it is too steep ***********************
+            maph = heightData[z*CHUNK_WIDTH + x].height;
+            biome = heightData[z*CHUNK_WIDTH + x].biome;
+            sandDepth = heightData[z*CHUNK_WIDTH + x].sandDepth;
+            snowDepth = heightData[z*CHUNK_WIDTH + x].snowDepth;
+
+            minNearHeight = maph;
+            if (x > 0) { //Could sentinalize this in the future
+                minNearHeight = heightData[z*CHUNK_WIDTH + x - 1].height;
+            } else {
+                minNearHeight = maph + (maph - heightData[z*CHUNK_WIDTH + x + 1].height); //else use opposite side but negating the difference
+            }
+            if (x < CHUNK_WIDTH - 1) {
+                tmp = heightData[z*CHUNK_WIDTH + x + 1].height;
+            } else {
+                tmp = maph + (maph - heightData[z*CHUNK_WIDTH + x - 1].height);
+            }
+            if (tmp < minNearHeight) minNearHeight = tmp;
+            if (z > 0) {
+                tmp = heightData[(z - 1)*CHUNK_WIDTH + x].height;
+            } else {
+                tmp = maph + (maph - heightData[(z + 1)*CHUNK_WIDTH + x].height);
+            }
+            if (tmp < minNearHeight) minNearHeight = tmp;
+            if (z < CHUNK_WIDTH - 1) {
+                tmp = heightData[(z + 1)*CHUNK_WIDTH + x].height;
+            } else {
+                tmp = maph + (maph - heightData[(z - 1)*CHUNK_WIDTH + x].height);
+            }
+            if (tmp < minNearHeight) minNearHeight = tmp;
+
+            if (maph - minNearHeight >= heightDiffThreshold && heightData[z*CHUNK_WIDTH + x].biome->looseSoilDepth) {
+                heightData[z*CHUNK_WIDTH + x].flags |= TOOSTEEP;
+            }
+            //*************End TOOSTEEP calculation ***********************
+
+            //**************START SURFACE BLOCK CALCULATION******************
+            GLushort surfaceBlock = DIRT;
+            if (maph == 0) {
+                surfaceBlock = biome->beachBlock;
+            } else if (maph < 0) {
+                surfaceBlock = biome->underwaterBlock;
+            } else {
+                surfaceBlock = biome->surfaceBlock;
+                if (surfaceBlock == DIRTGRASS && (snowDepth || sandDepth)) surfaceBlock = DIRT;
+            }
+            heightData[z*CHUNK_WIDTH + x].surfaceBlock = surfaceBlock;
+
+            //**************END SURFACE BLOCK CALCULATION******************
+        }
+    }
 }

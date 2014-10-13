@@ -28,7 +28,6 @@ void VoxelEditor::editVoxels(Item *block) {
 }
 
 void VoxelEditor::placeAABox(Item *block) {
-
     Chunk* chunk = nullptr;
     int blockIndex = -1, blockID;
     int soundNum = 0;
@@ -38,9 +37,8 @@ void VoxelEditor::placeAABox(Item *block) {
 
     ChunkManager* chunkManager = GameManager::chunkManager;
 
-    //Coordinates relative to the ChunkManager
-    i32v3 relStart = _startPosition - chunkManager->cornerPosition;
-    i32v3 relEnd = _endPosition - chunkManager->cornerPosition;
+    i32v3 start = _startPosition;
+    i32v3 end = _endPosition;
 
     bool breakBlocks = false;
     if (block == nullptr){
@@ -48,28 +46,28 @@ void VoxelEditor::placeAABox(Item *block) {
     }
 
     //Set up iteration bounds
-    if (relStart.y < relEnd.y) {
-        yStart = relStart.y;
-        yEnd = relEnd.y;
+    if (start.y < end.y) {
+        yStart = start.y;
+        yEnd = end.y;
     } else {
-        yEnd = relStart.y;
-        yStart = relEnd.y;
+        yEnd = start.y;
+        yStart = end.y;
     }
 
-    if (relStart.z < relEnd.z) {
-        zStart = relStart.z;
-        zEnd = relEnd.z;
+    if (start.z < end.z) {
+        zStart = start.z;
+        zEnd = end.z;
     } else {
-        zEnd = relStart.z;
-        zStart = relEnd.z;
+        zEnd = start.z;
+        zStart = end.z;
     }
 
-    if (relStart.x < relEnd.x) {
-        xStart = relStart.x;
-        xEnd = relEnd.x;
+    if (start.x < end.x) {
+        xStart = start.x;
+        xEnd = end.x;
     } else {
-        xEnd = relStart.x;
-        xStart = relEnd.x;
+        xEnd = start.x;
+        xStart = end.x;
     }
 
     for (int y = yStart; y <= yEnd; y++) {
@@ -83,14 +81,14 @@ void VoxelEditor::placeAABox(Item *block) {
 
                     if (breakBlocks){
                         if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)){
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z) + f64v3(chunkManager->cornerPosition));
+                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
                             ChunkUpdater::removeBlock(chunk, blockIndex, true);
                         }
                     } else {
                         if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0))
                         {
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z) + f64v3(chunkManager->cornerPosition));
+                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
                             ChunkUpdater::placeBlock(chunk, blockIndex, block->ID);
                             block->count--;
