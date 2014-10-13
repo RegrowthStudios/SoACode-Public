@@ -42,7 +42,7 @@ void initializeOptions() {
     graphicsOptions.motionBlur = 8;
     graphicsOptions.msaa = 0;
     graphicsOptions.maxMsaa = 32;
-    graphicsOptions.voxelLODThreshold = 256.0f;
+    graphicsOptions.voxelLODThreshold = 128.0f;
     graphicsOptions.voxelLODThreshold2 = graphicsOptions.voxelLODThreshold * graphicsOptions.voxelLODThreshold;
 
     gameOptions.invertMouse = 0;
