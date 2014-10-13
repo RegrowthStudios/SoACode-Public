@@ -8,14 +8,52 @@
 #include "DepthState.h"
 #include "FrameBuffer.h"
 #include "IGameScreen.h"
+#include "IOManager.h"
 #include "GraphicsDevice.h"
 #include "RasterizerState.h"
 #include "SamplerState.h"
 #include "ScreenList.h"
 #include "utils.h"
 
+KEG_ENUM_INIT_BEGIN(GameSwapInterval, GameSwapInterval, etype)
+using namespace Keg;
+etype->addValue("Unlimited", GameSwapInterval::UNLIMITED_FPS);
+etype->addValue("VSync", GameSwapInterval::V_SYNC);
+etype->addValue("LowSync", GameSwapInterval::LOW_SYNC);
+etype->addValue("PowerSaver", GameSwapInterval::POWER_SAVER);
+etype->addValue("ValueCap", GameSwapInterval::USE_VALUE_CAP);
+KEG_ENUM_INIT_END
+
+KEG_TYPE_INIT_BEGIN(GameDisplayMode, GameDisplayMode, type)
+using namespace Keg;
+type->addValue("ScreenWidth", Value::basic(BasicType::I32, offsetof(GameDisplayMode, screenWidth)));
+type->addValue("ScreenHeight", Value::basic(BasicType::I32, offsetof(GameDisplayMode, screenHeight)));
+type->addValue("IsFullscreen", Value::basic(BasicType::BOOL, offsetof(GameDisplayMode, isFullscreen)));
+type->addValue("IsBorderless", Value::basic(BasicType::BOOL, offsetof(GameDisplayMode, isBorderless)));
+type->addValue("SwapInterval", Value::custom("GameSwapInterval", offsetof(GameDisplayMode, swapInterval), true));
+type->addValue("MaxFPS", Value::basic(BasicType::F32, offsetof(GameDisplayMode, maxFPS)));
+KEG_TYPE_INIT_END
+
+// For Comparing Display Modes When Saving Data
+static bool operator==(const GameDisplayMode& m1, const GameDisplayMode& m2) {
+    return 
+        m1.screenWidth == m2.screenWidth &&
+        m1.screenHeight == m2.screenHeight &&
+        m1.isFullscreen == m2.isFullscreen &&
+        m1.isBorderless == m2.isBorderless &&
+        m1.swapInterval == m2.swapInterval &&
+        m1.maxFPS == m2.maxFPS
+        ;
+}
+static bool operator!=(const GameDisplayMode& m1, const GameDisplayMode& m2) {
+    return !(m1 == m2);
+}
+
 MainGame::MainGame() {
+    // Create A Default Display Mode
     _displayMode = {};
+    setDefaultSettings(&_displayMode);
+    readSettings();
 }
 MainGame::~MainGame() {
     // Empty
@@ -23,14 +61,13 @@ MainGame::~MainGame() {
 
 void MainGame::getDisplayMode(GameDisplayMode* displayMode) {
     // Get Display Info From SDL
-    SDL_GetWindowSize(_window, &displayMode->screenWidth, &displayMode->screenHeight);
+    SDL_GetWindowSize(_window, &_displayMode.screenWidth, &_displayMode.screenHeight);
     ui32 flags = SDL_GetWindowFlags(_window);
-    displayMode->isBorderless = flags & SDL_WINDOW_BORDERLESS;
-    displayMode->isFullscreen = flags & SDL_WINDOW_FULLSCREEN_DESKTOP;
-    displayMode->swapInterval = static_cast<GameSwapInterval>(SDL_GL_GetSwapInterval());
+    _displayMode.isBorderless = (flags & SDL_WINDOW_BORDERLESS) != 0;
+    _displayMode.isFullscreen = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
 
-    // Also Update Our Display Mode
-    _displayMode = *displayMode;
+    // Update Argument Display Mode
+    *displayMode = _displayMode;
 }
 void MainGame::setDisplayMode(const GameDisplayMode& displayMode) {
     // Apply A Minimal State Change
@@ -49,7 +86,15 @@ void MainGame::setDisplayMode(const GameDisplayMode& displayMode) {
     }
     if (_displayMode.swapInterval != displayMode.swapInterval) {
         _displayMode.swapInterval = displayMode.swapInterval;
-        SDL_GL_SetSwapInterval(static_cast<i32>(displayMode.swapInterval));
+        switch (_displayMode.swapInterval) {
+        case GameSwapInterval::UNLIMITED_FPS:
+        case GameSwapInterval::USE_VALUE_CAP:
+            SDL_GL_SetSwapInterval(0);
+            break;
+        default:
+            SDL_GL_SetSwapInterval(static_cast<i32>(DEFAULT_SWAP_INTERVAL));
+            break;
+        }
     }
 }
 
@@ -60,7 +105,7 @@ void MainGame::setWindowTitle(const cString title) {
 
 void MainGame::initSystems() {
     // Create The Window
-    _window = SDL_CreateWindow(DEFAULT_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_FLAGS);
+    _window = SDL_CreateWindow(DEFAULT_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _displayMode.screenWidth, _displayMode.screenHeight, DEFAULT_WINDOW_FLAGS);
     if (_window == NULL) exit(343);
 
     // Initialize OpenGL
@@ -70,22 +115,31 @@ void MainGame::initSystems() {
 #endif
     _glc = SDL_GL_CreateContext(_window);
     if (_glc == nullptr) {
-        pError("Could not make openGL context!");
+        // pError("Could not make openGL context!");
         SDL_Quit();
     }
     SDL_GL_MakeCurrent(_window, _glc);
-    SDL_GL_SetSwapInterval(static_cast<i32>(DEFAULT_SWAP_INTERVAL));
+
+    switch (_displayMode.swapInterval) {
+    case GameSwapInterval::UNLIMITED_FPS:
+    case GameSwapInterval::USE_VALUE_CAP:
+        SDL_GL_SetSwapInterval(0);
+        break;
+    default:
+        SDL_GL_SetSwapInterval(static_cast<i32>(DEFAULT_SWAP_INTERVAL));
+        break;
+    }
 #if defined _WIN32 || defined _WIN64
     _hndGLRC = wglGetCurrentContext();
     if (_hndGLRC == nullptr) {
-        pError("Call to wglGetCurrentContext failed in main thread!");
+        // pError("Call to wglGetCurrentContext failed in main thread!");
     }
 #endif
 
     
     // Initialize GLEW
     if (glewInit() != GLEW_OK) {
-        pError("Glew failed to initialize. Your graphics card is probably WAY too old. Or you forgot to extract the .zip. It might be time for an upgrade :)");
+        // pError("Glew failed to initialize. Your graphics card is probably WAY too old. Or you forgot to extract the .zip. It might be time for an upgrade :)");
         exit(133);
     }
 
@@ -104,13 +158,12 @@ void MainGame::initSystems() {
     SamplerState::initPredefined();
 
     // Initialize Frame Buffer
-    getDisplayMode(&_displayMode);
     glViewport(0, 0, _displayMode.screenWidth, _displayMode.screenHeight);
 
     // Initialize Fonts Library
     if (TTF_Init() == -1) {
         printf("TTF_Init Error: %s\n", TTF_GetError());
-        pError("TTF COULD NOT INIT!");
+        // pError("TTF COULD NOT INIT!");
         exit(331);
     }
 }
@@ -134,10 +187,11 @@ void MainGame::run() {
         SDL_GL_SwapWindow(_window);
 
         // Limit FPS
-        if (graphicsOptions.maxFPS < 165) {
-            f32 desiredFPS = 1000.0f / (f32)graphicsOptions.maxFPS;
+        if (_displayMode.swapInterval == GameSwapInterval::USE_VALUE_CAP) {
+            f32 desiredFPS = 1000.0f / (f32)_displayMode.maxFPS;
             ui32 diff = SDL_GetTicks() - _lastMS;
-            if (desiredFPS > diff) Sleep((ui32)(desiredFPS - diff));
+            ui32 sleepTime = (ui32)(desiredFPS - diff);
+            if (desiredFPS > diff && sleepTime > 0) SDL_Delay(sleepTime);
         }
     }
 
@@ -150,6 +204,7 @@ void MainGame::exitGame() {
     if (_screenList) {
         _screenList->destroy(_lastTime);
     }
+    saveSettings();
     _isRunning = false;
 }
 
@@ -242,5 +297,31 @@ void MainGame::onRenderFrame() {
     glViewport(0, 0, _displayMode.screenWidth, _displayMode.screenHeight);
     if (_screen != nullptr && _screen->getState() == ScreenState::RUNNING) {
         _screen->draw(_curTime);
+    }
+}
+
+void MainGame::setDefaultSettings(GameDisplayMode* mode) {
+    mode->screenWidth = DEFAULT_WINDOW_WIDTH;
+    mode->screenHeight = DEFAULT_WINDOW_HEIGHT;
+    mode->isBorderless = true;
+    mode->isFullscreen = false;
+    mode->maxFPS = DEFAULT_MAX_FPS;
+    mode->swapInterval = DEFAULT_SWAP_INTERVAL;
+}
+void MainGame::readSettings() {
+    IOManager iom;
+    const cString data = iom.readFileToString(DEFAULT_APP_CONFIG_FILE);
+    if (data) Keg::parse(&_displayMode, data, "GameDisplayMode");
+}
+void MainGame::saveSettings() {
+    GameDisplayMode modeBasis = {};
+    setDefaultSettings(&modeBasis);
+
+    if (_displayMode != modeBasis) {
+        nString data = Keg::write(&_displayMode, "GameDisplayMode");
+        std::ofstream file(DEFAULT_APP_CONFIG_FILE);
+        file << data << std::endl;
+        file.flush();
+        file.close();
     }
 }

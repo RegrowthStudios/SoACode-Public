@@ -479,6 +479,9 @@
     <ClInclude Include="colors.h">
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>
+    <ClInclude Include="AppSettings.h">
+      <Filter>SOA Files\Screens\Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -772,6 +775,9 @@
     </ClCompile>
     <ClCompile Include="LoadTaskInput.cpp">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="AppSettings.cpp">
+      <Filter>SOA Files\Screens\Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

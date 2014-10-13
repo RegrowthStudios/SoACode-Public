@@ -47,7 +47,7 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
     // Make LoadBar Resources
-    _sb = new SpriteBatch(false, true);
+    _sb = new SpriteBatch(true, true);
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
 
     // Add Tasks Here
