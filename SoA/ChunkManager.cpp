@@ -132,10 +132,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     static i32 k = 0;
 
     //Grid position is used to determine the _cameraVoxelMapData
-    i32v3 chunkPosition;
-    chunkPosition.x = fastFloor(position.x / (double)CHUNK_WIDTH);
-    chunkPosition.y = fastFloor(position.y / (double)CHUNK_WIDTH);
-    chunkPosition.z = fastFloor(position.z / (double)CHUNK_WIDTH);
+    i32v3 chunkPosition = getChunkPosition(position);
 
     i32v2 gridPosition(chunkPosition.x, chunkPosition.z);
     static i32v2 oldGridPosition = gridPosition;
@@ -227,10 +224,7 @@ void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
 
     //Get the chunk coordinates (assume its always positive)
-    i32v3 chPos;
-    chPos.x = fastFloor(coords.x / (f64)CHUNK_WIDTH);
-    chPos.y = fastFloor(coords.y / (f64)CHUNK_WIDTH);
-    chPos.z = fastFloor(coords.z / (f64)CHUNK_WIDTH);
+    i32v3 chPos = getChunkPosition(coords);
 
     //Determines if were closer to positive or negative chunk
     xDir = (coords.x - chPos.x > 0.5f) ? 1 : -1;
@@ -390,10 +384,7 @@ i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
 
 Chunk* ChunkManager::getChunk(const f64v3& position) {
 
-    i32v3 chPos;
-    chPos.x = fastFloor(position.x / (f64)CHUNK_WIDTH);
-    chPos.y = fastFloor(position.y / (f64)CHUNK_WIDTH);
-    chPos.z = fastFloor(position.z / (f64)CHUNK_WIDTH);
+    i32v3 chPos = getChunkPosition(position);
 
     auto it = _chunkSlotMap.find(chPos);
     if (it == _chunkSlotMap.end()) return nullptr;
@@ -1220,9 +1211,7 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
     double dist = sqrt(dist2);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
 
-        i32v3 chunkPosition(fastFloor(newPosition.x / (f64)CHUNK_WIDTH), 
-                            fastFloor(newPosition.y / (f64)CHUNK_WIDTH),
-                            fastFloor(newPosition.z / (f64)CHUNK_WIDTH));
+        i32v3 chunkPosition = getChunkPosition(newPosition);
 
         i32v2 ijOffset(offset.z, offset.x);
         makeChunkAt(chunkPosition, cs->chunkGridData->voxelMapData, ijOffset);
