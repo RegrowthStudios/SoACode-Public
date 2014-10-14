@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include "stdafx.h"
 
 #include <SDL/SDL.h>
 
@@ -136,7 +136,7 @@ enum LeafBlocksTextures { T_LEAVES1 = 288, T_LEAVES2 };
 
 enum BlockLights { LIGHT1 = 16, LIGHT2, LIGHT3 };
 
-enum BlocksMinerals { COAL = 32, IRON, GOLD, SILVER, COPPER, TIN, LEAD, PLATINUM, DOLOMITE, DIAMOND, RUBY, EMERALD, SAPPHIRE, BAUXITE, MAGNETITE, MALACHITE, 
+enum BlocksMinerals { COAL = 32, IRON, GOLD, SILVER, COPPER, TIN, LEAD, PLATINUM, DOLOMITE, DIAMOND, RUBY, EMERALD, SAPPHIRE, BAUXITE, MAGNETITE, MALACHITE,
                         EMBERNITE, SULFUR, CHROALLON, SEAMORPHITE, THORNMITE, MORPHIUM, OXYGENIUM, SUNANITE, CAMONITE, SUBMARIUM, TRITANIUM, URANIUM, TUNGSTEN};
 enum BlocksMinerals2 { BLUECRYSTAL = 80 };
 
@@ -188,12 +188,12 @@ enum BuildingBlocksTextures { T_CONCRETE = 161, T_BRICKS, T_PLANKS, T_COBBLE };
 //
 //    int numTiles;
 //    int overlayNumTiles;
-//   
+//
 //    int textureIndex;
 //    int overlayTextureIndex;
-//   
+//
 //    int blendMode;
-//    
+//
 //    string basePath;
 //    string overlayPath;
 //};
@@ -262,7 +262,7 @@ public:
     GLfloat explosionResistance;
     GLfloat explosivePower;
     GLfloat flammability;
-    GLfloat powerLoss; 
+    GLfloat powerLoss;
     f32v3 colorFilter;
 
     ui8 color[3];

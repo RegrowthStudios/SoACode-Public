@@ -1,9 +1,9 @@
 #pragma once
+#include "compat.h"
 #include <condition_variable>
 #include <mutex>
 #include <queue>
 #include <thread>
-#include <Windows.h>
 
 #include <ZLIB/zlib.h>
 
@@ -35,7 +35,7 @@ public:
     bool checkVersion();
 
     std::queue<Chunk*> chunksToLoad;
-    std::queue<Chunk*> chunksToSave; 
+    std::queue<Chunk*> chunksToSave;
     std::thread* readWriteThread;
     std::mutex flcLock;
     std::vector<Chunk*> finishedLoadChunks;

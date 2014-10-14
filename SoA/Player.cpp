@@ -61,11 +61,9 @@ Player::Player() : scannedBlock(0),
                     isSwimming(0),
                     isUnderWater(0),
                     isDragBreak(0),
-                    dragBlock(NULL)
+                    dragBlock(NULL),
+                    voxelMapData(0,0,0,0)
 {
-    faceData.rotation = 0;
-
-    faceData.face = 0;
 
     velocity.x = 0;
     velocity.y = 0;
@@ -531,33 +529,33 @@ void Player::checkFaceTransition()
     int newFace;
     if (facePosition.x/32 > planetRowSize*0.5){
         facePosition.x -= planetRowSize*32;
-        i = faceData.rotation;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = voxelMapData.rotation;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }else if (facePosition.x/32 < -planetRowSize*0.5){
         facePosition.x += planetRowSize*32;
-        i = (2 + faceData.rotation)%4;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = (2 + voxelMapData.rotation)%4;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }
     if (facePosition.z/32 > planetRowSize*0.5){
         facePosition.z -= planetRowSize*32;
-        i = (3 + faceData.rotation)%4;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = (3 + voxelMapData.rotation)%4;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }else if (facePosition.z/32 < -planetRowSize*0.5){
         facePosition.z += planetRowSize*32;
-        i = (1 + faceData.rotation)%4;
-        newFace = FaceNeighbors[faceData.face][i];
-        faceData.rotation += FaceTransitions[faceData.face][newFace];
-        if (faceData.rotation < 0){ faceData.rotation += 4; }else{ faceData.rotation %= 4; }
-        faceData.face = newFace;
+        i = (1 + voxelMapData.rotation)%4;
+        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
+        voxelMapData.face = newFace;
     }
 }
 
@@ -576,14 +574,14 @@ void Player::calculateWorldPosition()
     // |     |i    |
     // |_____V_____|
 
-    ipos = FaceCoords[faceData.face][faceData.rotation][0];
-    jpos = FaceCoords[faceData.face][faceData.rotation][1];
-    rpos = FaceCoords[faceData.face][faceData.rotation][2];
-    incI = FaceOffsets[faceData.face][faceData.rotation][0];
-    incJ = FaceOffsets[faceData.face][faceData.rotation][1];
+    ipos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][0];
+    jpos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][1];
+    rpos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][2];
+    incI = vvoxel::FaceSigns[voxelMapData.face][voxelMapData.rotation][0];
+    incJ = vvoxel::FaceSigns[voxelMapData.face][voxelMapData.rotation][1];
     v1[ipos] = incI * facePosition.z;
     v1[jpos] = incJ * facePosition.x;
-    v1[rpos] = FaceRadSign[faceData.face] * _worldRadius * planetScale;
+    v1[rpos] = vvoxel::FaceRadialSign[voxelMapData.face] * _worldRadius * planetScale;
 
     worldPosition = (headPosition.y*invPlanetScale + (double)_worldRadius)*glm::normalize(v1);
     incI *= 100;

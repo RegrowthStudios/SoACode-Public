@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Keg.h"
 
-#include <yaml-cpp\yaml.h>
+#include <yaml-cpp/yaml.h>
 
 #pragma region YAML Conversion Functions For GLM Types And cStrings
 namespace YAML {
@@ -96,9 +96,9 @@ namespace YAML {
 namespace Keg {
 #define KEG_BASIC_NUM_MAP(TYPE) \
     { BasicType::TYPE, #TYPE }, \
-    {BasicType::TYPE##_V2, #TYPE##"_V2"}, \
-    {BasicType::TYPE##_V3, #TYPE##"_V3"}, \
-    {BasicType::TYPE##_V4, #TYPE##"_V4"}
+    {BasicType::TYPE##_V2, #TYPE "_V2"}, \
+    {BasicType::TYPE##_V3, #TYPE "_V3"}, \
+    {BasicType::TYPE##_V4, #TYPE "_V4"}
     std::map<BasicType, nString> basicTypes = {
         KEG_BASIC_NUM_MAP(I8),
         KEG_BASIC_NUM_MAP(I16),
@@ -503,18 +503,21 @@ namespace Keg {
 
         // Attempt To Find The Type
         Type* type = env->getType(typeName);
-        if (type == nullptr) return Error::TYPE_NOT_FOUND;
-
+        if (type == nullptr) {
+            return Error::TYPE_NOT_FOUND;
+        }
         *dest = ArrayBase(type->getSizeInBytes());
         i32 len = nArray.size();
         if (nArray.size() > 0) {
             dest->setData(nArray.size());
             ui8* newDest = &dest->at<ui8>(0);
             for (i32 i = 0; i < dest->length(); i++) {
-                evalData(newDest, decl->interiorValue, nArray[i], env);
+                YAML::Node tmp = nArray[i];
+                evalData(newDest, decl->interiorValue, tmp, env);
                 newDest += type->getSizeInBytes();
             }
         }
+        return Error::TYPE_NOT_FOUND;
     }
 
     void evalData(ui8* dest, const Value* decl, YAML::Node &node, Environment* env) {
@@ -568,7 +571,9 @@ namespace Keg {
             YAML::Node nodeType = data["__TYPE__"];
             if (nodeType.IsScalar()) {
                 Type* nType = env->getType(nodeType.as<nString>());
-                if (nType) type == nullptr;
+                if (nType) {
+                    type = nullptr;
+                }
             }
         }
 
@@ -671,4 +676,3 @@ namespace Keg {
         return kegGE;
     }
 }
-

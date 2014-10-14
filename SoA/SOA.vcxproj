@@ -97,7 +97,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmd.lib;awesomium.lib;fmodex_vc.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Winmm.lib;opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmd.lib;awesomium.lib;fmodex_vc.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
@@ -110,6 +110,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="IVoxelMapper.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Vorb.h" />
+    <ClInclude Include="colors.h" />
+    <ClInclude Include="InitScreen.h" />
+    <ClInclude Include="LoadMonitor.h" />
+    <ClInclude Include="LoadTaskGameManager.h" />
+    <ClInclude Include="LoadTaskInput.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -162,13 +170,13 @@
     <ClInclude Include="SpriteFont.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="App.h" />
-    <ClInclude Include="TestScreen.h" />
     <ClInclude Include="TextureAtlasManager.h" />
     <ClInclude Include="TextureAtlasStitcher.h" />
     <ClInclude Include="Timing.h" />
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="WSO.h" />
     <ClInclude Include="WSOAtlas.h" />
@@ -236,6 +244,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="colors.cpp" />
+    <ClCompile Include="InitScreen.cpp" />
+    <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="LoadTaskInput.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
@@ -288,13 +301,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="TestScreen.cpp" />
     <ClCompile Include="TextureAtlasManager.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="Timing.cpp" />
     <ClCompile Include="SmartVoxelContainer.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
+    <ClCompile Include="VoxelPlanetMapper.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VRayHelper.cpp" />
     <ClCompile Include="ChunkIOManager.cpp" />
@@ -347,6 +360,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Chunk.inl" />
+    <None Include="ChunkMesher.inl" />
     <None Include="VoxelIntervalTree.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

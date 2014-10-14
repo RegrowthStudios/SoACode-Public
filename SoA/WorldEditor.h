@@ -105,7 +105,6 @@ private:
     AwesomiumUI _UI;
     VoxelWorld *_voxelWorld;
     Camera _chunkCamera;
-    FaceData _worldFaceData;
     Planet *_planet;
 };
 

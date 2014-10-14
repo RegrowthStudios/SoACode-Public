@@ -63,7 +63,7 @@ void EditorTree::grow() {
     //startChunk->placeTreeNodesAndRecord(wnodes, lnodes);
 
     needsToGrow = 0;
-    startChunk->state = ChunkStates::MESH;
+    startChunk->_state = ChunkStates::MESH;
 }
 
 void EditorTree::unGrow() {
@@ -86,7 +86,7 @@ void EditorTree::unGrow() {
     lnodes.clear();
 }
 
-WorldEditor::WorldEditor(void) : usingChunks(0), _voxelWorld(NULL), _planet(NULL), _editorTree(NULL) {
+WorldEditor::WorldEditor(void) : usingChunks(0), _voxelWorld(NULL), _planet(NULL), _editorTree(NULL){
 
 }
 
@@ -109,12 +109,9 @@ void WorldEditor::initialize(Planet *planet) {
 
     _voxelWorld = GameManager::voxelWorld;
 
-    FaceData faceData = {};
-    _voxelWorld->initialize(glm::dvec3(0, 0, 0), &faceData, _planet, 0, 1);
-    _voxelWorld->getChunkManager().generateOnly = true;
+ //   _voxelWorld->initialize(glm::dvec3(0, 0, 0), _planet, 0);
     _voxelWorld->getChunkManager().setIsStationary(true);
     GameManager::chunkIOManager->setDisableLoading(true);
-    _voxelWorld->beginSession(glm::dvec3(0, 0, 0));
 }
 
 //called by main thread
@@ -937,32 +934,32 @@ inline void addVar(JSArray &v, int id, float v1, bool hasSecond = 0, float v2 = 
 }
 
 void WorldEditor::initializeEditorTree(EditorTree *et) {
-    const deque < deque < deque < ChunkSlot *> > > &chunkList = _voxelWorld->getChunkManager().getChunkList(); //3d deque for chunks
-    Chunk *chunk;
+    //const deque < deque < deque < ChunkSlot *> > > &chunkList = _voxelWorld->getChunkManager().getChunkList(); //3d deque for chunks
+    //Chunk *chunk;
 
-    int startX = chunkList.size() / 2;
-    int startY = 0;
-    int startZ = chunkList[0].size() / 2;
-    int blockID;
+    //int startX = chunkList.size() / 2;
+    //int startY = 0;
+    //int startZ = chunkList[0].size() / 2;
+    //int blockID;
 
-    for (startY = 0; (startY <= chunkList[0][0].size()) && (et->startChunk == NULL); startY++) {
-        cout << "X Y Z: " << startX << " " << startY << " " << startZ << endl;
-        if (chunkList[startX][startZ][startY]) {
-            chunk = chunkList[startX][startZ][startY]->chunk;
+    //for (startY = 0; (startY <= chunkList[0][0].size()) && (et->startChunk == NULL); startY++) {
+    //    cout << "X Y Z: " << startX << " " << startY << " " << startZ << endl;
+    //    if (chunkList[startX][startZ][startY]) {
+    //        chunk = chunkList[startX][startZ][startY]->chunk;
 
-            if (chunk && chunk->isAccessible) {
-                for (int y = CHUNK_WIDTH - 1; y >= 0; y--) {
-                    blockID = chunk->getBlockID(y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16);
-                    if (blockID != 0) {
-                        cout << Blocks[blockID].name << endl;
-                        et->startChunk = chunk;
-                        et->startc = y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16;
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    //        if (chunk && chunk->isAccessible) {
+    //            for (int y = CHUNK_WIDTH - 1; y >= 0; y--) {
+    //                blockID = chunk->getBlockID(y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16);
+    //                if (blockID != 0) {
+    //                    cout << Blocks[blockID].name << endl;
+    //                    et->startChunk = chunk;
+    //                    et->startc = y * CHUNK_LAYER + 16 * CHUNK_WIDTH + 16;
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void WorldEditor::changeEditorTree(bool resendData, TreeType *tt) {
@@ -1168,14 +1165,12 @@ void WorldEditor::enableChunks() {
         _chunkCamera.setPosition(glm::dvec3(0.0));
         //DrawLoadingScreen("Initializing chunk manager...");
 
-        _worldFaceData.Set(0, 0, 0, 0);
-        _voxelWorld->initialize(_chunkCamera.position(), &(_worldFaceData), GameManager::planet, 1, 1);
-        _chunkCamera.setPosition(glm::dvec3(_chunkCamera.position().x, _voxelWorld->getCenterY(), _chunkCamera.position().z));
+       // _voxelWorld->initialize(_chunkCamera.position(), 0, GameManager::planet, 1, 1);
+        _chunkCamera.setPosition(glm::dvec3(_chunkCamera.position().x, 
+            0,//_voxelWorld->getCenterY(), 
+            _chunkCamera.position().z));
 
         _chunkCamera.update();
-
-        //DrawLoadingScreen("Loading Chunks...");
-        _voxelWorld->beginSession(_chunkCamera.position());
 
         usingChunks = 1;
     }

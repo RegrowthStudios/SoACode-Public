@@ -3,8 +3,10 @@
 
 
 Actor::Actor(void) {
+    // empty
 }
 
 
 Actor::~Actor(void) {
+    // empty
 }

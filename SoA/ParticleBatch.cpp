@@ -46,13 +46,16 @@ int ParticleBatch::findUnusedParticle() {
     return -1; // All particles are taken, fail
 }
 
-void ParticleBatch::addParticles(int num, glm::dvec3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], glm::vec3 extraForce) {
+void ParticleBatch::addParticles(int num, f64v3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], f32v3 extraForce) {
+#define POS_OFFSET 10000.0
+    
     if(size + num >= maxParticles) return;
-    glm::dvec3 spos;
-    glm::dvec3 dpos;
+    f64v3 spos;
+    f64v3 dpos;
 
     if(size == 0) { //new origin
-        position = pos;
+        // We offset by POS_OFFSET so we can guarentee the batch will always be positive
+        position = f64v3(GameManager::chunkManager->getChunkPosition(pos - POS_OFFSET) * CHUNK_WIDTH);
     } else {
         dpos = position - pos;
     }
@@ -173,8 +176,6 @@ void ParticleBatch::addParticles(int num, glm::dvec3 pos, ParticleEmitter *emitt
 
 int ParticleBatch::update() {
 
-    const deque < deque < deque < ChunkSlot* > > > &chunkList = GameManager::getChunkList();
-    glm::dvec3 chunkListPos(GameManager::chunkManager->cornerPosition);
     glm::quat quaternion;
     glm::dvec3 pos;
     int n = 0;
@@ -194,7 +195,7 @@ int ParticleBatch::update() {
                 psize = particles[i].size * 0.0875;
             }
 
-            particles[i].update(chunkList, chunkListPos - position);
+            particles[i].update(position);
 
             vboBVerts[n].pos = particles[i].position;
             vboBVerts[n].light[0] = particles[i].light[0];

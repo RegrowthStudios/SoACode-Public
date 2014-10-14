@@ -1,8 +1,6 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "stdafx.h"
 #include "Errors.h"
 
-#include <Windows.h>
 #include <cstdlib>
 
 #include <SDL/SDL.h>
@@ -26,7 +24,7 @@ void showMessage(const string& message)
 //yes 1, no 0
 int showYesNoBox(const string& message)
 {
-#if defined(_WIN32) || defined(_WIN64) 
+#if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);
     SDL_SetRelativeMouseMode(SDL_FALSE);
     int id = MessageBox(NULL, message.c_str(), "SoA", MB_YESNO);
@@ -43,7 +41,7 @@ int showYesNoBox(const string& message)
 ///yes 1, no 0, cancel -1
 int showYesNoCancelBox(const string& message)
 {
-#if defined(_WIN32) || defined(_WIN64) 
+#if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);
     SDL_SetRelativeMouseMode(SDL_FALSE);
     int id = MessageBox(NULL, message.c_str(), "SoA", MB_YESNOCANCEL);

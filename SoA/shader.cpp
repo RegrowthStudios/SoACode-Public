@@ -48,8 +48,8 @@ void BasicColorShader::Initialize() {
     if (isInitialized) return;
     program.init();
     printf("Loading basicColorShader\n");
-    program.addShaderFile(GL_VERTEX_SHADER, "Shaders/BasicShading/BasicColorShading.vert");
-    program.addShaderFile(GL_FRAGMENT_SHADER, "Shaders/BasicShading/BasicColorShading.frag");
+    program.addShaderFile(ShaderType::VERTEX, "Shaders/BasicShading/BasicColorShading.vert");
+    program.addShaderFile(ShaderType::FRAGMENT, "Shaders/BasicShading/BasicColorShading.frag");
     glBindAttribLocation(program.getID(), 0, "vertexPosition_modelspace");
     program.link();
     program.initAttributes();
@@ -797,16 +797,9 @@ void WaterShader::Bind()
         cin >> a;
     }
     glUseProgram(shaderID);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
 }
 void WaterShader::UnBind() {
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(3);
+
 }
 
 //void ParticleShader::Initialize()

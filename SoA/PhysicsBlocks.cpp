@@ -6,6 +6,7 @@
 #include "VoxelMesher.h"
 #include "Chunk.h"
 #include "ChunkUpdater.h"
+#include "ChunkManager.h"
 #include "Frustum.h"
 #include "GameManager.h"
 #include "OpenglManager.h"
@@ -69,7 +70,7 @@ int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0,
 
 const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20 };
 
-bool PhysicsBlock::update(const deque < deque < deque < ChunkSlot* > > > &chunkList, double X, double Y, double Z)
+bool PhysicsBlock::update()
 {
     if (done == 2) return 1; //defer destruction by two frames for good measure
     if (done != 0) {
@@ -77,8 +78,8 @@ bool PhysicsBlock::update(const deque < deque < deque < ChunkSlot* > > > &chunkL
         return 0;
     }
 
-    int x, y, z, val;
-    int gridRelY, gridRelX, gridRelZ;
+    i32v3 chPos;
+    int val;
     int bx, by, bz, btype;
     int c;
     int r;
@@ -97,24 +98,20 @@ bool PhysicsBlock::update(const deque < deque < deque < ChunkSlot* > > > &chunkL
     velocity.z *= fric;
     velocity.x *= fric;
 
-    gridRelX = (position.x - X);
-    gridRelY = (position.y - Y);
-    gridRelZ = (position.z - Z);
+    chPos = GameManager::chunkManager->getChunkPosition(position);
 
-    x = fastFloor(gridRelX / (float)CHUNK_WIDTH);
-    y = fastFloor(gridRelY / (float)CHUNK_WIDTH);
-    z = fastFloor(gridRelZ / (float)CHUNK_WIDTH);
+    ch = GameManager::chunkManager->getChunk(chPos);
 
-    if (x < 0 || y < 0 || z < 0 || x >= csGridWidth || y >= csGridWidth || z >= csGridWidth){
-        velocity = glm::vec3(0.0f);
-        return 1;
-    }
-    ch = chunkList[y][z][x]->chunk;
+    i32v3 relativePos;
+    relativePos.x = position.x - chPos.x * CHUNK_WIDTH;
+    relativePos.y = position.y - chPos.y * CHUNK_WIDTH;
+    relativePos.z = position.z - chPos.z * CHUNK_WIDTH;
+
     if ((!ch) || ch->isAccessible == 0) return 1;
 
-    bx = gridRelX % CHUNK_WIDTH;
-    by = gridRelY % CHUNK_WIDTH;
-    bz = gridRelZ % CHUNK_WIDTH;
+    bx = relativePos.x % CHUNK_WIDTH;
+    by = relativePos.y % CHUNK_WIDTH;
+    bz = relativePos.z % CHUNK_WIDTH;
 
     c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
     val = ch->getBlockID(c);
@@ -365,7 +362,7 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const f64v3 &PlayerPos, f32m
     glDrawArraysInstanced(GL_TRIANGLES, 0, 36, pbm->numBlocks); //draw instanced arrays
 }
 
-bool PhysicsBlockBatch::update(const deque < deque < deque < ChunkSlot* > > > &chunkList, double wX, double wY, double wZ)
+bool PhysicsBlockBatch::update()
 {
     size_t i = 0;
 
@@ -379,7 +376,7 @@ bool PhysicsBlockBatch::update(const deque < deque < deque < ChunkSlot* > > > &c
     Blocks[physicsBlocks[0].blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[physicsBlocks[0].blockType].pzTexInfo);
 
     while (i < physicsBlocks.size()){
-        if (physicsBlocks[i].update(chunkList, wX, wY, wZ)){
+        if (physicsBlocks[i].update()){
             physicsBlocks[i] = physicsBlocks.back();
             physicsBlocks.pop_back(); //dont need to increment i 
         } else{ //if it was successfully updated, add its data to the buffers

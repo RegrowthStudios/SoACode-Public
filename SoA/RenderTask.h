@@ -2,6 +2,7 @@
 #include "Constants.h"
 
 class Chunk;
+class ChunkGridData;
 
 // For Use With Render Task's Type
 #define RENDER_TASK_RENDER 0
@@ -26,14 +27,12 @@ public:
     ui16 chData[PADDED_CHUNK_SIZE];
     ui16 chLampData[PADDED_CHUNK_SIZE];
     ui8 chSunlightData[PADDED_CHUNK_SIZE];
-    ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
-    ui8 temperatures[CHUNK_LAYER];
-    ui8 rainfalls[CHUNK_LAYER];
-    ui8 depthMap[CHUNK_LAYER];
+    ChunkGridData* chunkGridData;
 	i32 wSize;
 	ui16 wvec[CHUNK_SIZE];
 	i32 num;
     MeshJobType type; // RENDER_TASK_RENDER, RENDER_TASK_WATER
 	i32v3 position;
     Chunk* chunk;
+    int levelOfDetail;
 };

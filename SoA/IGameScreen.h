@@ -1,6 +1,9 @@
 #pragma once
 #include "MainGame.h"
 
+#define SCREEN_INDEX_NO_SCREEN -1
+#define SCREEN_INDEX_NO_START_SELECTED -2
+
 // A Screen Must Be In One Of These States
 enum class ScreenState {
     // The Screen Is Doing Nothing At The Moment
@@ -18,11 +21,14 @@ enum class ScreenState {
 // Common Interface For A Game Screen
 class IGameScreen {
 public:
-    IGameScreen() :
-        _index(-1),
-        _game(nullptr),
-        _state(ScreenState::NONE) {}
-    ~IGameScreen() {}
+    IGameScreen()
+    : _state(ScreenState::NONE), _game(nullptr), _index(-1) {
+        // empty
+    }
+
+    ~IGameScreen() {
+        // empty
+    }
 
     // All Screens Should Have A Parent
     void setParentGame(MainGame* game, i32 index) {
@@ -31,7 +37,7 @@ public:
     }
 
     // The Screen's Location In The List
-    const i32 getIndex() const {
+    i32 getIndex() const {
         return _index;
     }
 
@@ -40,7 +46,7 @@ public:
     virtual i32 getPreviousScreen() const = 0;
 
     // Screen State Functions
-    const ScreenState getState() const {
+    ScreenState getState() const {
         return _state;
     }
     void setRunning() {
@@ -66,3 +72,18 @@ private:
     // Location In The ScreenList
     i32 _index;
 };
+
+template<typename T>
+class IAppScreen : public IGameScreen {
+public:
+    IAppScreen(const T* app)
+        : _app(app) {
+    }
+protected:
+    const T* const _app;
+};
+
+// Shorten Super-Constructors
+#define CTOR_APP_SCREEN_INL(SCR_CLASS, APP_CLASS) SCR_CLASS(const APP_CLASS* app) : IAppScreen<APP_CLASS>(app)
+#define CTOR_APP_SCREEN_DECL(SCR_CLASS, APP_CLASS) SCR_CLASS(const APP_CLASS* app)
+#define CTOR_APP_SCREEN_DEF(SCR_CLASS, APP_CLASS) SCR_CLASS::SCR_CLASS(const APP_CLASS* app) : IAppScreen<APP_CLASS>(app)

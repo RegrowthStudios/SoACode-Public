@@ -16,15 +16,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     PreciseTimer timer;
     timer.start();
     HeightData *heightMap = ld->heightMap;
-    //used for tree coords
-    int wx = chunk->faceData.jpos*CHUNK_WIDTH * FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][0];
-    int wz = chunk->faceData.ipos*CHUNK_WIDTH * FaceOffsets[chunk->faceData.face][chunk->faceData.rotation][1];
-    //swap em if rot%2
-    if (chunk->faceData.rotation % 2){
-        int t = wx;
-        wx = wz;
-        wz = t;
-    }
+
+    // used for tree coords
+    int wz, wx;
+    chunk->voxelMapData->getVoxelGridPos(wz, wx);
 
     TerrainGenerator &generator = *(ld->generator);
     Biome *biome;
@@ -37,7 +32,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampVector;
     std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunVector;
 
-    chunk->neighbors = 0;
+    chunk->numNeighbors = 0;
 
     int c = 0;
     int flags;
@@ -52,7 +47,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     double ti, tj;
     bool tooSteep;
 
-    chunk->minh = chunk->position.y - heightMap[CHUNK_LAYER / 2].height; //pick center height as the overall height for minerals
+    chunk->minh = chunk->gridPosition.y - heightMap[CHUNK_LAYER / 2].height; //pick center height as the overall height for minerals
 
     ui16 data;
     ui8 lampData;
@@ -79,14 +74,8 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 
                 tooSteep = (flags & TOOSTEEP) != 0;
 
-                h = y +  chunk->position.y;
+                h = y +  chunk->gridPosition.y;
                 nh = (maph - 1) - h;
-                
-                if (y == 0){
-                    chunk->biomes[c] = biome->vecIndex;
-                    chunk->rainfalls[c] = rainfall;
-                    chunk->temperatures[c] = temperature;
-                }
 
                 if ((h <= maph - 1) && (!tooSteep || maph - h > (biome->looseSoilDepth - 1))){ //ROCK LAYERS check for loose soil too
                     if ((h - (maph - 1)) > -SURFACE_DEPTH){ //SURFACE LAYERS
@@ -179,13 +168,13 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 if (data != NONE && (GETBLOCKTYPE(data) < LOWWATER) && nh <= 1){
 
                     if (needsCave == 3){
-                        generator.CalculateCaveDensity( chunk->position, (double *)CaveDensity1, 9, 0, 5, 0.6, 0.0004);
+                        generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity1, 9, 0, 5, 0.6, 0.0004);
                         needsCave = 2;
                     }
                     ti = trilinearInterpolation_4_8_4(x, y, z, CaveDensity1);
                     if (ti > 0.905 && ti < 0.925){
                         if (needsCave == 2){
-                            generator.CalculateCaveDensity( chunk->position, (double *)CaveDensity2, 9, 8000, 4, 0.67, 0.0004);
+                            generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity2, 9, 8000, 4, 0.67, 0.0004);
                             needsCave = 1;
                         }
                         tj = trilinearInterpolation_4_8_4(x, y, z, CaveDensity2);
@@ -292,7 +281,7 @@ void ChunkGenerator::LoadMinerals(Chunk* chunk)
         } else{
             chance = 0;
         }
-        d = (float)(PseudoRand(chunk->position.x + chunk->position.y - i*i * 11, chunk->position.z + 8 * i - 2 * chunk->position.y) + 1.0)*50.0;
+        d = (float)(PseudoRand(chunk->gridPosition.x + chunk->gridPosition.y - i*i * 11, chunk->gridPosition.z + 8 * i - 2 * chunk->gridPosition.y) + 1.0)*50.0;
 
         if (d <= chance - 10.0){ //3 ore veins
             MakeMineralVein(chunk, md, 32);
@@ -309,9 +298,9 @@ void ChunkGenerator::LoadMinerals(Chunk* chunk)
 
 void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
 {
-    int c = (int)(((PseudoRand(chunk->position.x - seed*seed + 3 * chunk->position.y + md->blockType * 2, chunk->position.z + seed * 4 - chunk->position.y + md->blockType - 44) + 1.0) / 2.0)*CHUNK_SIZE);
+    int c = (int)(((PseudoRand(chunk->gridPosition.x - seed*seed + 3 * chunk->gridPosition.y + md->blockType * 2, chunk->gridPosition.z + seed * 4 - chunk->gridPosition.y + md->blockType - 44) + 1.0) / 2.0)*CHUNK_SIZE);
     int btype = md->blockType;
-    int size = ((PseudoRand(chunk->position.x + 2 * chunk->position.y - md->blockType * 4 + seed, chunk->position.z + chunk->position.y - md->blockType + 44) + 1.0) / 2.0)*(md->maxSize - md->minSize) + md->minSize;
+    int size = ((PseudoRand(chunk->gridPosition.x + 2 * chunk->gridPosition.y - md->blockType * 4 + seed, chunk->gridPosition.z + chunk->gridPosition.y - md->blockType + 44) + 1.0) / 2.0)*(md->maxSize - md->minSize) + md->minSize;
     int r;
     int x, y, z;
     for (int i = 0; i < size; i++){
@@ -322,7 +311,7 @@ void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
         y = c / CHUNK_LAYER;
         z = (c % CHUNK_LAYER) / CHUNK_WIDTH;
 
-        r = (int)((PseudoRand(chunk->position.x * c + c * i + btype + seed * 2, c * c - chunk->position.z + 6 - chunk->position.y * btype - i * 3 - seed) + 1.0) * 2.5 + 0.5); //0-5
+        r = (int)((PseudoRand(chunk->gridPosition.x * c + c * i + btype + seed * 2, c * c - chunk->gridPosition.z + 6 - chunk->gridPosition.y * btype - i * 3 - seed) + 1.0) * 2.5 + 0.5); //0-5
         if (r == 0 && y > 0){
             c -= CHUNK_LAYER;
         } else if (r == 1 && x > 0){

@@ -11,6 +11,8 @@ extern MultiplePreciseTimer globalMultiplePreciseTimer;
 extern string saveFilePath;
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
+const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.
+
 struct FixedSizeBillboardVertex{
     glm::vec3 pos;
     GLubyte uv[2];
@@ -115,25 +117,18 @@ struct LoadData
     LoadData()
     {
     }
-    LoadData(struct HeightData *hmap, int x, int z, class TerrainGenerator *gen)
+    LoadData(struct HeightData *hmap, class TerrainGenerator *gen)
     {
         heightMap = hmap;
-        wx = x;
-        wz = z;
         generator = gen;
     }
     
-    inline void init(HeightData *hmap, int x, int z, TerrainGenerator *gen)
+    inline void init(HeightData *hmap, TerrainGenerator *gen)
     {
-        heightMap = hmap;
-        wx = x;
-        wz = z;
         generator = gen;
     }
 
     HeightData *heightMap;
-    int wx;
-    int wz;
     TerrainGenerator *generator;
 };
 
@@ -145,22 +140,9 @@ struct HeightData
     GLint snowDepth;
     GLint sandDepth;
     GLint flags;
+    GLubyte depth;
     Biome *biome;
     GLushort surfaceBlock;
-};
-
-struct FaceData
-{
-    void Set(int Face, int Ipos, int Jpos, int Rot){
-        face = Face;
-        ipos = Ipos;
-        jpos = Jpos;
-        rotation = Rot;
-    }
-    int face;
-    int ipos;
-    int jpos;
-    int rotation;
 };
 
 struct MineralData

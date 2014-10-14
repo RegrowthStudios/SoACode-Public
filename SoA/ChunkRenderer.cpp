@@ -164,20 +164,14 @@ void ChunkRenderer::drawWater(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos,
         glUniformMatrix4fv(waterShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
         glUniformMatrix4fv(waterShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
-        glBindBuffer(GL_ARRAY_BUFFER, CMI->waterVboID);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
-        //uvs_texUnit_texIndex
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (12)));
-        //color
-        glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (16)));
-        //light
-        glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
+        glBindVertexArray(CMI->waterVaoID);
 
         glDrawElements(GL_TRIANGLES, CMI->meshInfo.waterIndexSize, GL_UNSIGNED_INT, 0);
         GlobalModelMatrix[0][0] = 1.0;
         GlobalModelMatrix[1][1] = 1.0;
         GlobalModelMatrix[2][2] = 1.0;
+
+        glBindVertexArray(0);
     }
 }
 
@@ -272,6 +266,31 @@ void ChunkRenderer::bindVao(ChunkMesh *CMI)
     glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
     //normal
     glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
+
+    glBindVertexArray(0);
+}
+
+void ChunkRenderer::bindWaterVao(ChunkMesh *CMI)
+{
+    if (CMI->waterVaoID == 0) glGenVertexArrays(1, &(CMI->waterVaoID));
+    glBindVertexArray(CMI->waterVaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, CMI->waterVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+
+    glBindBuffer(GL_ARRAY_BUFFER, CMI->waterVboID);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
+    //uvs_texUnit_texIndex
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (16)));
+    //light
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
 
     glBindVertexArray(0);
 }

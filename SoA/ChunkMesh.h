@@ -10,6 +10,7 @@ enum class MeshJobType;
 
 class RenderTask;
 class Chunk;
+class ChunkGridData;
 
 // Stores Chunk Mesh Information
 struct MesherInfo {
@@ -20,15 +21,18 @@ public:
     i32 pyVboSize, nxVboSize, pxVboSize, nzVboSize, pzVboSize, nyVboSize, transparentIndex, cutoutIndex;
     i32 y, z, x;
     i32 y2, z2, x2; //used for transparent positions. == y*2,z*2,x*2
-    i32 c, wc;
+    i32 nx, ny, nz; //normal positions, as if it was at LOD 1.
+    i32 wc;
     i32 btype;
     i32 pbtype;
     i32 pupIndex, pfrontIndex, pbackIndex, pbotIndex;
     i32 temperature, rainfall;
+    i32 levelOfDetail;
     MeshType meshType;
     bool mergeUp, mergeBot, mergeFront, mergeBack;
 
     RenderTask* task;
+    ChunkGridData* chunkGridData;
 };
 
 struct ChunkMeshRenderData {
@@ -77,6 +81,7 @@ struct ChunkMesh
     GLuint cutoutVboID;
     GLuint cutoutVaoID;
     GLuint waterVboID;
+    GLuint waterVaoID;
     float distance;
     glm::ivec3 position;
     int vecIndex;

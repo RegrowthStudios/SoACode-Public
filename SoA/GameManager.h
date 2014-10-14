@@ -3,9 +3,10 @@
 
 #include "WorldStructs.h"
 
-struct ChunkSlot;
+class ChunkSlot;
 class Player;
 class VoxelEditor;
+class Chunk;
 
 enum class GameStates { PLAY, PAUSE, INVENTORY, MAINMENU, ZOOMINGIN, ZOOMINGOUT, WORLDEDITOR, EXIT };
 
@@ -37,9 +38,6 @@ public:
     static void scanWSO();
     static void onQuit();
     static void endSession();
-
-    //getters
-    static const deque <deque <deque <ChunkSlot *> > >& getChunkList();
 
     static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;

@@ -4,6 +4,9 @@
 #include <deque>
 #include <map>
 
+#include "Vorb.h"
+#include "IVoxelMapper.h"
+
 //Size of a sector in bytes
 #define SECTOR_SIZE 512
 
@@ -62,7 +65,7 @@ public:
 
     void clear();
 
-    bool openRegionFile(nString region, i32 face, bool create);
+    bool openRegionFile(nString region, vvoxel::VoxelMapData* voxelMapData, bool create);
 
     bool tryLoadChunk(Chunk* chunk);
     bool saveChunk(Chunk* chunk);
@@ -76,8 +79,6 @@ private:
 
     bool readChunkHeader();
     bool readVoxelData_v0();
-
-    void getIterationConstantsFromRotation(int rotation, int& jStart, int& jMult, int& jEnd, int& jInc, int& kStart, int& kMult, int& kEnd, int& kInc);
 
     int rleUncompressArray(ui8* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
     int rleUncompressArray(ui16* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);

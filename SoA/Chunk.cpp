@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Chunk.h"
 
+#include <boost\circular_buffer.hpp>
+
 #include "BlockData.h"
 #include "Errors.h"
 #include "Frustum.h"
@@ -34,7 +36,7 @@ std::mutex Chunk::modifyLock;
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
+void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
@@ -51,28 +53,28 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	//THIS MUST COME BEFORE CLEARBUFFERS
 	mesh = NULL;
 	clearBuffers();
-	setupListPtr = NULL;
-	updateIndex = -1;
+	_chunkListPtr = NULL;
+	_chunkListIndex = -1;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
-	faceData = *fd;
-	hxIndex = hxI;
-	hzIndex = hzI;
-    position = pos;
-	drawIndex = -1;
+    gridPosition = gridPos;
+    chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
+    chunkPosition.y = fastFloor(gridPosition.y / (double)CHUNK_WIDTH);
+    chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
 	numBlocks = -1;
-	state = ChunkStates::LOAD;
+	_state = ChunkStates::LOAD;
 	left = NULL;
 	right = NULL;
 	back = NULL;
 	top = NULL;
 	bottom = NULL;
 	front = NULL;
-	neighbors = 0;
+	numNeighbors = 0;
 	distance2 = 999999.0;
 	treesToLoad.clear();
 	blockUpdateIndex = 0;
-
+    _levelOfDetail = 1;
+    
 	for (int i = 0; i < 8; i++){
 		blockUpdateList[i][0].clear();
 		blockUpdateList[i][1].clear();
@@ -82,6 +84,10 @@ void Chunk::init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd){
 	spawnerBlocks.clear();
 	drawWater = 0;
 	occlude = 0;
+    owner = Owner;
+    distance2 = Owner->distance2;
+    chunkGridData = owner->chunkGridData;
+    voxelMapData = chunkGridData->voxelMapData;
 
 }
 
@@ -89,16 +95,19 @@ vector <Chunk*> *dbgst;
 
 void Chunk::clear(bool clearDraw)
 {
+    clearBuffers();
+    freeWaiting = false;
+    voxelMapData = nullptr;
 
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();
 
-    state = ChunkStates::LOAD;
+    _state = ChunkStates::LOAD;
     isAccessible = 0;
     left = right = front = back = top = bottom = NULL;
-    setupListPtr = NULL;
-    updateIndex = -1;
+    _chunkListPtr = NULL;
+    _chunkListIndex = -1;
     treeTryTicks = 0;
 
     vector<ui16>().swap(spawnerBlocks);
@@ -106,17 +115,6 @@ void Chunk::clear(bool clearDraw)
     vector<PlantData>().swap(plantsToLoad);
     vector<ui16>().swap(sunRemovalList);
     vector<ui16>().swap(sunExtendList); 
-
-    //TODO: A better solution v v v
-    //Hacky way to clear RWQ
-/*    ui32 res;
-    while (lightFromMain.try_dequeue(res));
-    while (lightFromRight.try_dequeue(res));
-    while (lightFromLeft.try_dequeue(res));
-    while (lightFromFront.try_dequeue(res));
-    while (lightFromBack.try_dequeue(res));
-    while (lightFromTop.try_dequeue(res));
-    while (lightFromBottom.try_dequeue(res)); */
 
     for (int i = 0; i < 8; i++){
         vector <GLushort>().swap(blockUpdateList[i][0]); //release the memory manually
@@ -128,7 +126,6 @@ void Chunk::clear(bool clearDraw)
     vector<SunlightUpdateNode>().swap(sunlightUpdateQueue);
     if (clearDraw){
         clearBuffers();
-        drawIndex = -1;
     }
 }
 
@@ -143,12 +140,41 @@ void Chunk::clearBuffers()
 	}
 }
 
+void Chunk::clearNeighbors() {
+    if (left && left->right == this) {
+        left->right = nullptr;
+        left->numNeighbors--;
+    }
+    if (right && right->left == this) {
+        right->left = nullptr;
+        right->numNeighbors--;
+    }
+    if (top && top->bottom == this) {
+        top->bottom = nullptr;
+        top->numNeighbors--;
+    }
+    if (bottom && bottom->top == this) {
+        bottom->top = nullptr;
+        bottom->numNeighbors--;
+    }
+    if (front && front->back == this) {
+        front->back = nullptr;
+        front->numNeighbors--;
+    }
+    if (back && back->front == this) {
+        back->front = nullptr;
+        back->numNeighbors--;
+    }
+    numNeighbors = 0;
+    left = right = top = bottom = back = front = nullptr;
+}
+
 int Chunk::GetPlantType(int x, int z, Biome *biome)
 {
     double typer;
     NoiseInfo *nf;
     for (Uint32 i = 0; i < biome->possibleFlora.size(); i++){
-        typer = PseudoRand(x + i*(z + 555) + position.x, z - i*(x + 666) + position.z) + 1.0;
+        typer = PseudoRand(x + i*(z + 555) + gridPosition.x, z - i*(x + 666) + gridPosition.z) + 1.0;
         nf = GameManager::planet->floraNoiseFunctions[biome->possibleFlora[i].floraIndex];
         if (nf != NULL){
             if (typer < (biome->possibleFlora[i].probability*scaled_octave_noise_2d(nf->octaves, nf->persistence, nf->frequency, nf->lowBound, nf->upBound, x + i * 6666, z - i * 5555))){
@@ -242,7 +268,12 @@ void Chunk::CheckEdgeBlocks()
 
 void Chunk::SetupMeshData(RenderTask *renderTask)
 {
-   
+    if (!left || !right || !front || !back || !bottom || !top) {
+        cout << numNeighbors << endl;
+        cout << owner->numNeighbors << endl;
+        printf("LOL");
+        fflush(stdout);
+    }
     int x, y, z, off1, off2;
 
     Chunk *ch1, *ch2;
@@ -257,11 +288,11 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     ui16* chLampData = renderTask->chLampData;
     ui8* chSunlightData = renderTask->chSunlightData;
 
-    //copy tables
-    memcpy(renderTask->biomes, biomes, sizeof(biomes));
-    memcpy(renderTask->temperatures, temperatures, sizeof(temperatures));
-    memcpy(renderTask->rainfalls, rainfalls, sizeof(rainfalls));
-    memcpy(renderTask->depthMap, depthMap, sizeof(depthMap));
+    //set chunkGridData
+    renderTask->chunkGridData = chunkGridData;
+
+    //Set LOD
+    renderTask->levelOfDetail = _levelOfDetail;
 
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
@@ -312,6 +343,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
         }
 
         assert(renderTask->chunk != nullptr);
+
     } else { //FLAT_ARRAY
 
         int s = 0;
@@ -691,10 +723,185 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     }
 }
 
+void Chunk::addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr) {
+    _chunkListPtr = chunkListPtr;
+    _chunkListIndex = chunkListPtr->size();
+    chunkListPtr->push_back(this);
+}
+
+void Chunk::removeFromChunkList() {
+    (*_chunkListPtr)[_chunkListIndex] = _chunkListPtr->back();
+    (*_chunkListPtr)[_chunkListIndex]->_chunkListIndex = _chunkListIndex;
+    _chunkListPtr->pop_back();
+    clearChunkListPtr();
+}
+
+void Chunk::clearChunkListPtr() {
+    _chunkListPtr = nullptr;
+    _chunkListIndex = -1;
+}
+
 int Chunk::getRainfall(int xz) const {
-    return (int)rainfalls[xz];
+    return (int)chunkGridData->heightData[xz].rainfall;
 }
 
 int Chunk::getTemperature(int xz) const {
-    return (int)temperatures[xz];
+    return (int)chunkGridData->heightData[xz].temperature;
+}
+
+void ChunkSlot::clearNeighbors() {
+    if (left) {
+        if (left->right == this) {
+            left->right = nullptr;
+            left->numNeighbors--;
+        }
+        left = nullptr;
+    }
+    if (right) {
+        if (right->left == this) {
+            right->left = nullptr;
+            right->numNeighbors--;
+        }
+        right = nullptr;
+    }
+    if (top) {
+        if (top->bottom == this) {
+            top->bottom = nullptr;
+            top->numNeighbors--;
+        }
+        top = nullptr;
+    }
+    if (bottom) {
+        if (bottom->top == this) {
+            bottom->top = nullptr;
+            bottom->numNeighbors--;
+        }
+        bottom = nullptr;
+    }
+    if (front) {
+        if (front->back == this) {
+            front->back = nullptr;
+            front->numNeighbors--;
+        }
+        front = nullptr;
+    }
+    if (back) {
+        if (back->front == this) {
+            back->front = nullptr;
+            back->numNeighbors--;
+        }
+        back = nullptr;
+    }
+    numNeighbors = 0;
+}
+
+void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap) {
+
+    std::unordered_map<i32v3, ChunkSlot*>::iterator it;
+
+    i32v3 chPos;
+    chPos.x = fastFloor(position.x / (double)CHUNK_WIDTH);
+    chPos.y = fastFloor(position.y / (double)CHUNK_WIDTH);
+    chPos.z = fastFloor(position.z / (double)CHUNK_WIDTH);
+
+    //left
+    if (left == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(-1, 0, 0));
+        if (it != chunkSlotMap.end()) {
+            left = it->second;
+            left->right = this;
+            numNeighbors++;
+            left->numNeighbors++;
+        }
+    }
+    //right
+    if (right == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(1, 0, 0));
+        if (it != chunkSlotMap.end()) {
+            right = it->second;
+            right->left = this;
+            numNeighbors++;
+            right->numNeighbors++;
+        }
+    }
+
+    //back
+    if (back == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, 0, -1));
+        if (it != chunkSlotMap.end()) {
+            back = it->second;
+            back->front = this;
+            numNeighbors++;
+            back->numNeighbors++;
+        }
+    }
+
+    //front
+    if (front == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, 0, 1));
+        if (it != chunkSlotMap.end()) {
+            front = it->second;
+            front->back = this;
+            numNeighbors++;
+            front->numNeighbors++;
+        }
+    }
+
+    //bottom
+    if (bottom == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, -1, 0));
+        if (it != chunkSlotMap.end()) {
+            bottom = it->second;
+            bottom->top = this;
+            numNeighbors++;
+            bottom->numNeighbors++;
+        }
+    }
+
+    //top
+    if (top == nullptr) {
+        it = chunkSlotMap.find(chPos + i32v3(0, 1, 0));
+        if (it != chunkSlotMap.end()) {
+            top = it->second;
+            top->bottom = this;
+            numNeighbors++;
+            top->numNeighbors++;
+        }
+    }
+}
+
+void ChunkSlot::reconnectToNeighbors() {
+
+    if (chunk) {
+        chunk->owner = this;
+    }
+    if (left) {
+        left->right = this;
+    }
+    if (right) {
+        right->left = this;
+    }
+    if (back) {
+        back->front = this;
+    }
+    if (front) {
+        front->back = this;
+    }
+    if (top) {
+        top->bottom = this;
+    }
+    if (bottom) {
+        bottom->top = this;
+    }
+}
+
+double ChunkSlot::getDistance2(const i32v3& pos, const i32v3& cameraPos) {
+    double dx = (cameraPos.x <= pos.x) ? pos.x : ((cameraPos.x > pos.x + CHUNK_WIDTH) ? (pos.x + CHUNK_WIDTH) : cameraPos.x);
+    double dy = (cameraPos.y <= pos.y) ? pos.y : ((cameraPos.y > pos.y + CHUNK_WIDTH) ? (pos.y + CHUNK_WIDTH) : cameraPos.y);
+    double dz = (cameraPos.z <= pos.z) ? pos.z : ((cameraPos.z > pos.z + CHUNK_WIDTH) ? (pos.z + CHUNK_WIDTH) : cameraPos.z);
+    dx = dx - cameraPos.x;
+    dy = dy - cameraPos.y;
+    dz = dz - cameraPos.z;
+    //we dont sqrt the distance since sqrt is slow
+    return dx*dx + dy*dy + dz*dz;
 }

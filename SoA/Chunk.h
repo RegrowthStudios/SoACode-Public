@@ -4,6 +4,11 @@
 #include <set>
 #include <mutex>
 
+#include <boost/circular_buffer_fwd.hpp>
+
+#include "Vorb.h"
+#include "IVoxelMapper.h"
+
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "SmartVoxelContainer.h"
@@ -33,6 +38,22 @@ struct RenderTask;
 #define LAMP_GREEN_SHIFT 5
 //no blue shift
 
+class ChunkGridData {
+public:
+    ChunkGridData(vvoxel::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData), refCount(1) {
+        //Mark the data as unloaded
+        heightData[0].height = UNLOADED_HEIGHT;
+    }
+    ~ChunkGridData() {
+        delete voxelMapData;
+    }
+    vvoxel::VoxelMapData* voxelMapData;
+    HeightData heightData[CHUNK_LAYER];
+    int refCount;
+};
+
+class ChunkSlot;
+
 class Chunk{
 public:
 
@@ -47,7 +68,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd);
+    void init(const i32v3 &gridPos, ChunkSlot* Owner);
     
     void changeState(ChunkStates State);
     
@@ -76,11 +97,16 @@ public:
 
     void clear(bool clearDraw = 1);
     void clearBuffers();
+    void clearNeighbors();
     
     void CheckEdgeBlocks();
     int GetPlantType(int x, int z, Biome *biome);
 
     void SetupMeshData(RenderTask *renderTask);
+
+    void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
+    void removeFromChunkList();
+    void clearChunkListPtr();
 
     Chunk(){
     }
@@ -91,7 +117,7 @@ public:
     static vector <MineralData*> possibleMinerals;
     
     //getters
-    ChunkStates getState() const { return state; }
+    ChunkStates getState() const { return _state; }
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
     int getSunlight(int c) const;
@@ -105,17 +131,21 @@ public:
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
+    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
+    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
+    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
+
+    int getLevelOfDetail() const { return _levelOfDetail; }
+
     //setters
     void setBlockID(int c, int val);
     void setBlockData(int c, ui16 val);
     void setSunlight(int c, ui8 val);
     void setLampLight(int c, ui16 val);
 
-    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
-    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
-    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
-
-    int neighbors;
+    void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
+    
+    int numNeighbors;
     bool activeUpdateList[8];
     bool drawWater;
     bool hasLoadedSunlight;
@@ -123,12 +153,12 @@ public:
     bool topBlocked, leftBlocked, rightBlocked, bottomBlocked, frontBlocked, backBlocked;
     bool dirty;
     int loadStatus;
-    bool inLoadThread;
+    volatile bool inLoadThread;
     volatile bool inSaveThread;
     volatile bool inRenderThread;
-    bool inGenerateThread;
-    bool inFinishedMeshes;
-    bool inFinishedChunks;
+    volatile bool inGenerateThread;
+    volatile bool inFinishedMeshes;
+    volatile bool inFinishedChunks;
     bool isAccessible;
 
     ChunkMesh *mesh;
@@ -136,10 +166,9 @@ public:
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
     std::vector <GLushort> spawnerBlocks;
-    glm::ivec3 position;
-    FaceData faceData;
-    int hzIndex, hxIndex;
-    int worldX, worlxY, worldZ;
+    i32v3 gridPosition;  // Position relative to the voxel grid
+    i32v3 chunkPosition; // floor(gridPosition / (float)CHUNK_WIDTH)
+
     int numBlocks;
     int minh;
     double distance2;
@@ -147,7 +176,7 @@ public:
 
     int blockUpdateIndex;
     int treeTryTicks;
-    int drawIndex, updateIndex;
+    
     int threadJob;
     float setupWaitingTime;
 
@@ -164,45 +193,79 @@ public:
 
     static ui32 vboIndicesID;
 
-    std::vector <Chunk *> *setupListPtr;
+    
     Chunk *right, *left, *front, *back, *top, *bottom;
 
     //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
     static std::mutex modifyLock;
 
+    ChunkSlot* owner;
+    ChunkGridData* chunkGridData;
+    vvoxel::VoxelMapData* voxelMapData;
+
 private:
-    ChunkStates state;
+    // Keeps track of which setup list we belong to, and where we are in the list.
+    int _chunkListIndex;
+    boost::circular_buffer<Chunk*> *_chunkListPtr;
+
+    ChunkStates _state;
 
     //The data that defines the voxels
     SmartVoxelContainer<ui16> _blockIDContainer;
     SmartVoxelContainer<ui8> _sunlightContainer;
     SmartVoxelContainer<ui16> _lampLightContainer;
 
-    ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
-    ui8 temperatures[CHUNK_LAYER];
-    ui8 rainfalls[CHUNK_LAYER];
-    ui8 depthMap[CHUNK_LAYER];
+    int _levelOfDetail;
 
 };
 
 //INLINE FUNCTION DEFINITIONS
 #include "Chunk.inl"
 
-struct ChunkSlot
+class ChunkSlot
 {
-    void Initialize(const glm::ivec3 &pos, Chunk *ch, int Ipos, int Jpos, FaceData *fD){
-        chunk = ch;
-        position = pos;
-        ipos = Ipos;
-        jpos = Jpos;
-        fd = fD;
+public:
+
+    friend class ChunkManager;
+
+    ChunkSlot(const glm::ivec3 &pos, Chunk *ch, ChunkGridData* cgd) :
+        chunk(ch),
+        position(pos),
+        chunkGridData(cgd),
+        left(nullptr),
+        right(nullptr),
+        back(nullptr),
+        front(nullptr),
+        bottom(nullptr),
+        top(nullptr),
+        numNeighbors(0),
+        inFrustum(false),
+        distance2(1.0f){}
+
+    inline void calculateDistance2(const i32v3& cameraPos) {
+        distance2 = getDistance2(position, cameraPos);
+        chunk->distance2 = distance2;
     }
+
+    void clearNeighbors();
+
+    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap);
+
+    void reconnectToNeighbors();
 
     Chunk *chunk;
     glm::ivec3 position;
 
+    int numNeighbors;
+    //Indices of neighbors
+    ChunkSlot* left, *right, *back, *front, *top, *bottom;
+
     //squared distance
     double distance2;
-    int ipos, jpos;
-    FaceData *fd;
+
+    ChunkGridData* chunkGridData;
+
+    bool inFrustum;
+private:
+    static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 };
