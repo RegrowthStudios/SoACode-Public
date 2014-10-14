@@ -52,6 +52,7 @@ ChunkIOManager* GameManager::chunkIOManager = nullptr;
 MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
+DebugRenderer* GameManager::debugRenderer = nullptr;
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;
@@ -76,6 +77,8 @@ void GameManager::initializeSystems() {
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
         
+        debugRenderer = new DebugRenderer();
+
         initializeSound();
         _systemsInitialized = true;
     }

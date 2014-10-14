@@ -111,6 +111,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="IVoxelMapper.h" />
+    <ClInclude Include="LoadBlockDataTask.h" />
     <ClInclude Include="LoadTaskOptions.h" />
     <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="MainMenuScreen.h" />

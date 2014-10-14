@@ -107,10 +107,10 @@ void OpenglManager::glThreadLoop() {
 
     if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
     //    cout << SDL_GetTicks() - stt << endl;
-    fileManager.saveBlocks("Data/test.ini");
+    fileManager.saveBlocks("Data/test.ini");//
     //LoadBlockData(); //order is important.
 
-    DrawLoadingScreen("Initializing Textures...");
+    DrawLoadingScreen("Initializing Textures..."); //
     LoadTextures();
 
     SetBlockAvgTexColors();

@@ -58,6 +58,7 @@ public:
     static class Planet* planet;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
+    static class DebugRenderer* debugRenderer;
 
     static GameStates gameState;
     static nString saveFilePath;

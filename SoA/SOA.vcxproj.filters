@@ -509,6 +509,9 @@
     <ClInclude Include="LoadTaskShaders.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="LoadBlockDataTask.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
