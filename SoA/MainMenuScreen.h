@@ -25,6 +25,10 @@ public:
     virtual void draw(const GameTime& gameTime);
 
 private:
-    bool _isInitialized;
+
+    void updateThreadFunc();
+
+    std::thread* _updateThread;
+    bool _threadRunning;
 };
 

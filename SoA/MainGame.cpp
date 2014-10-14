@@ -160,12 +160,31 @@ void MainGame::initSystems() {
     // Initialize Frame Buffer
     glViewport(0, 0, _displayMode.screenWidth, _displayMode.screenHeight);
 
+    // Initialize resolutions
+    initResolutions();
+
     // Initialize Fonts Library
     if (TTF_Init() == -1) {
         printf("TTF_Init Error: %s\n", TTF_GetError());
         // pError("TTF COULD NOT INIT!");
         exit(331);
     }
+}
+
+void MainGame::initResolutions() {
+    i32 dispIndex = SDL_GetWindowDisplayIndex(_window);
+    i32 dispCount = SDL_GetNumDisplayModes(dispIndex);
+    SDL_DisplayMode dMode;
+    for (i32 dmi = 0; dmi < dispCount; dmi++) {
+        SDL_GetDisplayMode(dispIndex, dmi, &dMode);
+        SCREEN_RESOLUTIONS.push_back(ui32v2(dMode.w, dMode.h));
+    }
+    std::sort(SCREEN_RESOLUTIONS.begin(), SCREEN_RESOLUTIONS.end(), [](const ui32v2& r1, const ui32v2& r2) {
+        if (r1.x == r2.x) return r1.y > r2.y;
+        else return r1.x > r2.x;
+    });
+    auto iter = std::unique(SCREEN_RESOLUTIONS.begin(), SCREEN_RESOLUTIONS.end());
+    SCREEN_RESOLUTIONS.resize(iter - SCREEN_RESOLUTIONS.begin());
 }
 
 void MainGame::run() {

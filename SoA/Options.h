@@ -39,6 +39,6 @@ struct MenuOptions {
 };
 extern MenuOptions menuOptions;
 
-void initializeOptions();
-int loadOptions();
-int saveOptions();
+extern void initializeOptions();
+extern int loadOptions();
+extern int saveOptions();

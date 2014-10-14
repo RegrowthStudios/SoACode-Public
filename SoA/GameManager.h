@@ -61,8 +61,6 @@ public:
 
     static GameStates gameState;
     static nString saveFilePath;
-
-    static std::thread* physicsThread;
 private:
     static bool _systemsInitialized;
 

@@ -6,7 +6,8 @@
 enum class MessageID {
     NONE,
     DONE,
-    QUIT
+    QUIT,
+    NEW_PLANET
 };
 
 struct Message

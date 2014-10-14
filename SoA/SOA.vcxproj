@@ -116,7 +116,6 @@
     <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MessageManager.h" />
-    <ClInclude Include="PhysicsThread.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
     <ClInclude Include="InitScreen.h" />
@@ -255,7 +254,6 @@
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MessageManager.cpp" />
-    <ClCompile Include="PhysicsThread.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />

@@ -8,9 +8,9 @@ class FrameBuffer;
 class IGameScreen;
 class ScreenList;
 
-#define DEFAULT_TITLE "SDL PROGRAM"
-#define DEFAULT_WINDOW_WIDTH 600
-#define DEFAULT_WINDOW_HEIGHT 480
+#define DEFAULT_TITLE "Seed Of Andromeda"
+#define DEFAULT_WINDOW_WIDTH 1600
+#define DEFAULT_WINDOW_HEIGHT 900
 #define DEFAULT_WINDOW_FLAGS (SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)
 #define DEFAULT_SWAP_INTERVAL GameSwapInterval::V_SYNC
 #define DEFAULT_MAX_FPS 60.0f
@@ -94,6 +94,7 @@ protected:
     // Initializes Necessary Children Systems (OpenGL, TTF, etc.)
     void init();
     void initSystems();
+    void initResolutions();
 
     void refreshElapsedTime();
     void checkInput();
@@ -121,4 +122,6 @@ protected:
     bool _isRunning;
     ScreenList* _screenList;
     IGameScreen* _screen;
+
+    std::vector<ui32v2> SCREEN_RESOLUTIONS;
 };

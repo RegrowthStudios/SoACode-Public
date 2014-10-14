@@ -60,8 +60,6 @@ Planet *GameManager::planet = nullptr;
 nString GameManager::saveFilePath = "";
 GameStates GameManager::gameState = GameStates::MAINMENU;
 
-std::thread* GameManager::physicsThread = nullptr;
-
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
         voxelWorld = new VoxelWorld();

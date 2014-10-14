@@ -506,9 +506,6 @@
     <ClInclude Include="MessageManager.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsThread.h">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -813,9 +810,6 @@
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClCompile>
     <ClCompile Include="MessageManager.cpp" />
-    <ClCompile Include="PhysicsThread.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
