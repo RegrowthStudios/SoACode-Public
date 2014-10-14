@@ -56,7 +56,6 @@ int counter = 0;
 
 void gameLoop();
 void worldEditorLoop();
-void Initialize();
 bool Control();
 bool MainMenuControl();
 void CalculateFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, volatile float &framespersecond);
@@ -88,7 +87,9 @@ int main(int argc, char **argv) {
     delete mg;
     mg = nullptr;
 
-    Initialize();
+    player = new Player();
+    player->isFlying = 0;
+    player->setMoveSpeed(speedMod, 0.166f); //Average Human Running Speed = .12, 17 is a good speed
     //ExtractFrustum(mainMenuCamera->FrustumProjectionMatrix, player->FrustumViewMatrix);
     bool isChanged = 1;
 
@@ -132,8 +133,6 @@ void initIOEnvironment(char** argv) {
 
 //this runs in a separate thread
 void gameLoop() {
-    GameManager::initializeSound();
-
     Uint32 frameCount = 0;
     Uint32 startTicks;
     Uint32 frametimes[10];
@@ -256,26 +255,6 @@ void worldEditorLoop() {
             Sleep((Uint32)(1000.0f / maxPhysicsFps - (SDL_GetTicks() - startTicks)));
         }
     }
-}
-
-void Initialize() {
-    initializeOptions();
-
-    player = new Player();
-    player->isFlying = 0;
-    player->setMoveSpeed(speedMod, 0.166f); //Average Human Running Speed = .12, 17 is a good speed
-
-    cout << "Data uses " << sizeof(Chunk) / CHUNK_SIZE * 8 << " bits per voxel. " << endl;
-    cout << "Vertices use " << sizeof(BlockVertex) << " bytes per vertex. " << endl;
-
-    loadOptions();
-    GameManager::inputManager = new InputManager();
-    GameManager::inputManager->loadAxes();
-
-
-    GameManager::gameState = GameStates::MAINMENU;
-
-    GameManager::initializeSystems();
 }
 
 bool HasSettingsChanged() {

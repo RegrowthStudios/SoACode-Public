@@ -12,6 +12,7 @@
 #include "FileSystem.h"
 #include "InputManager.h"
 #include "Inputs.h"
+#include "MessageManager.h"
 #include "OpenglManager.h"
 #include "Options.h"
 #include "Particles.h"
@@ -48,6 +49,7 @@ ChunkManager *GameManager::chunkManager = nullptr;
 InputManager *GameManager::inputManager = nullptr;
 TextureAtlasManager *GameManager::textureAtlasManager = nullptr;
 ChunkIOManager* GameManager::chunkIOManager = nullptr;
+MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 
@@ -57,6 +59,8 @@ WorldEditor *GameManager::worldEditor = nullptr;
 Planet *GameManager::planet = nullptr;
 nString GameManager::saveFilePath = "";
 GameStates GameManager::gameState = GameStates::MAINMENU;
+
+std::thread* GameManager::physicsThread = nullptr;
 
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
@@ -68,11 +72,13 @@ void GameManager::initializeSystems() {
         chunkManager = &voxelWorld->getChunkManager();
         textureAtlasManager = new TextureAtlasManager();
         chunkIOManager = new ChunkIOManager();
+        messageManager = new MessageManager();
         
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
         
+        initializeSound();
         _systemsInitialized = true;
     }
 }

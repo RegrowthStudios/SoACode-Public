@@ -363,6 +363,7 @@ void OpenglManager::ProcessMessages(int waitForMessage)
             if (message.code == waitForMessage){
                 waiting = 0;
             }
+
             d = message.data;
             switch (message.code){
             case GL_M_ERROR: //error

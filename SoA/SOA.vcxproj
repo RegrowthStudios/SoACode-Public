@@ -111,13 +111,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="IVoxelMapper.h" />
+    <ClInclude Include="LoadTaskOptions.h" />
+    <ClInclude Include="MainMenuScreen.h" />
+    <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="PhysicsThread.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="LoadTaskGameManager.h" />
-    <ClInclude Include="LoadTaskInput.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -244,11 +248,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="MainMenuScreen.cpp" />
+    <ClCompile Include="MenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="colors.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
-    <ClCompile Include="LoadTaskInput.cpp" />
+    <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="PhysicsThread.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />

@@ -108,6 +108,9 @@
     <Filter Include="SOA Files\Screens\Load\Tasks">
       <UniqueIdentifier>{d4b19aff-5e0f-4ac5-a831-548286691b82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Screens\Menu">
+      <UniqueIdentifier>{0d210193-9560-40f1-a16b-af80064b7293}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -485,14 +488,26 @@
     <ClInclude Include="InitScreen.h">
       <Filter>SOA Files\Screens\Init</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskInput.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskGameManager.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="colors.h">
       <Filter>SOA Files\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskOptions.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuScreen.h">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuScreen.h">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageManager.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsThread.h">
+      <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -791,8 +806,15 @@
     <ClCompile Include="colors.cpp">
       <Filter>SOA Files\Ext</Filter>
     </ClCompile>
-    <ClCompile Include="LoadTaskInput.cpp">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    <ClCompile Include="MainMenuScreen.cpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScreen.cpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="PhysicsThread.cpp">
+      <Filter>SOA Files\Game\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

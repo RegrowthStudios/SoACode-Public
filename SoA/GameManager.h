@@ -48,6 +48,7 @@ public:
     static class InputManager* inputManager;
     static class TextureAtlasManager* textureAtlasManager;
     static class ChunkIOManager* chunkIOManager;
+    static class MessageManager* messageManager;
 
     static bool gameInitialized;
     static float fogStart, fogEnd;
@@ -60,6 +61,8 @@ public:
 
     static GameStates gameState;
     static nString saveFilePath;
+
+    static std::thread* physicsThread;
 private:
     static bool _systemsInitialized;
 

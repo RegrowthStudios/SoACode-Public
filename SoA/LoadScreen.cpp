@@ -11,7 +11,7 @@
 #include "Inputs.h"
 #include "LoadBar.h"
 #include "LoadTaskGameManager.h"
-#include "LoadTaskInput.h"
+#include "LoadTaskOptions.h"
 #include "Player.h"
 #include "SamplerState.h"
 #include "shader.h"
@@ -54,9 +54,8 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     _loadTasks.push_back(new LoadTaskGameManager);
     _monitor.addTask("GameManager", _loadTasks.back());
 
-    _loadTasks.push_back(new LoadTaskInput);
-    _monitor.addTask("InputManager", _loadTasks.back());
-    _monitor.setDep("InputManager", "GameManager");
+    _loadTasks.push_back(new LoadTaskOptions);
+    _monitor.addTask("Game Options", _loadTasks.back());
 
     _monitor.start();
 
