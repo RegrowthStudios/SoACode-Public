@@ -48,6 +48,7 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
     // Make LoadBar Resources
+    _sb = nullptr;
     _sb = new SpriteBatch(true, true);
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
 
@@ -58,13 +59,10 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     _loadTasks.push_back(new LoadTaskOptions);
     _monitor.addTask("Game Options", _loadTasks.back());
 
-    // LoadTaskShaders needs a context so we create a shared context and pass it
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
-    SDL_GLContext newContext = SDL_GL_CreateContext(_game->getWindowHandle());
-    SDL_GL_MakeCurrent(_game->getWindowHandle(), _game->getGLContext());
-
-    _loadTasks.push_back(new LoadTaskShaders(newContext, _game->getWindowHandle()));
+    _loadTasks.push_back(new LoadTaskShaders(&_sb, SDL_GL_CreateContext(_game->getWindowHandle()), _game->getWindowHandle()));
     _monitor.addTask("Shaders", _loadTasks.back());
+    SDL_GL_MakeCurrent(_game->getWindowHandle(), _game->getGLContext());
 
     _monitor.start();
 
@@ -133,11 +131,14 @@ void LoadScreen::draw(const GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw Loading Information
-    _sb->begin();
-    for (ui32 i = 0; i < _loadTasks.size(); i++) {
-        _loadBars[i].draw(_sb, _sf, 0, 0.8f);
-    }
-    _sb->end(SpriteSortMode::BACK_TO_FRONT);
+    if (_monitor.isTaskFinished("Shaders")) {
+        _sb->begin();
+        for (ui32 i = 0; i < _loadTasks.size(); i++) {
+            _loadBars[i].draw(_sb, _sf, 0, 0.8f);
+        }
+        _sb->end(SpriteSortMode::BACK_TO_FRONT);
 
-    _sb->renderBatch(f32v2(gdm.screenWidth, gdm.screenHeight), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+        _sb->renderBatch(f32v2(gdm.screenWidth, gdm.screenHeight), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+        checkGlError("Draw()");
+    }
 }

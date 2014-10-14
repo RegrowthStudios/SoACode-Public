@@ -2,6 +2,7 @@
 #include <SDL\SDL.h>
 
 #include "Shader.h"
+#include "SpriteBatch.h"
 #include "Errors.h"
 #include "LoadMonitor.h"
 
@@ -11,16 +12,18 @@
 // Sample Dependency Task
 class LoadTaskShaders : public ILoadTask {
 public:
-    LoadTaskShaders(SDL_GLContext context, SDL_Window* window) :
+    LoadTaskShaders(SpriteBatch** sb, SDL_GLContext context, SDL_Window* window) :
+        _sb(sb),
         _context(context),
-        _window(window)
-    {
-
+        _window(window) {
+        // Empty
     }
 private:
     virtual void load() {
-        
         SDL_GL_MakeCurrent(_window, _context);
+
+        //(*_sb)->dispose();
+        //*_sb = new SpriteBatch(true, true);
 
         textureShader.Initialize();
         basicColorShader.DeleteShader();
@@ -65,4 +68,5 @@ private:
 
     SDL_GLContext _context;
     SDL_Window* _window;
+    SpriteBatch** _sb;
 };
