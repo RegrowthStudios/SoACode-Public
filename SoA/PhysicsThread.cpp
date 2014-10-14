@@ -28,10 +28,6 @@ void physicsThread() {
 
     bool inGame = false;
 
-    Uint32 frameCount = 0;
-    Uint32 startTicks;
-    Uint32 frametimes[10];
-    Uint32 frametimelast;
     Message message;
 
     MessageManager* messageManager = GameManager::messageManager;
@@ -41,9 +37,13 @@ void physicsThread() {
         std::terminate();
     }
 
-    frametimelast = SDL_GetTicks();
+    FpsLimiter fpsLimiter;
+    fpsLimiter.init(maxPhysicsFps);
+
     while (GameManager::gameState != GameStates::EXIT) {
-        startTicks = SDL_GetTicks();
+
+        fpsLimiter.begin();
+        
         GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
         GameManager::soundEngine->update();
@@ -82,13 +82,7 @@ void physicsThread() {
             //    break;
         }
 
-        CalculateFps(frametimes, frametimelast, frameCount, physicsFps);
-
-        double ticks = (double)(SDL_GetTicks() - startTicks);
-
-        if (1000.0 / maxPhysicsFps > ticks) {  //bound fps to 60
-            SDL_Delay((Uint32)(1000.0f / maxPhysicsFps - ticks));
-        }
+        physicsFps = fpsLimiter.end();
     }
 
     if (inGame) {
