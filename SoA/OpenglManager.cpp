@@ -45,8 +45,8 @@
 vector <TextInfo> hudTexts;
 
 
-moodycamel::ReaderWriterQueue <Message> gameToGl;
-moodycamel::ReaderWriterQueue <Message> glToGame;
+moodycamel::ReaderWriterQueue <OMessage> gameToGl;
+moodycamel::ReaderWriterQueue <OMessage> glToGame;
 
 OpenglManager openglManager;
 
@@ -94,7 +94,7 @@ void OpenglManager::glThreadLoop() {
     initResolutions();
 
     InitializeShaders();
-    debugRenderer = new DebugRenderer();
+    debugRenderer = new DebugRenderer(); //
 
     hudTexts.resize(100);
 
@@ -145,7 +145,7 @@ void OpenglManager::glThreadLoop() {
 
     //hudTexts.resize(30);
     GLuint startTicks;
-    glToGame.enqueue(Message(GL_M_DONE, NULL));
+    glToGame.enqueue(OMessage(GL_M_DONE, NULL));
     while (GameManager::gameState != GameStates::EXIT && !glExit){
         startTicks = SDL_GetTicks();
         GLenum err = glGetError();
@@ -229,7 +229,7 @@ void OpenglManager::glThreadLoop() {
     //SDL_FreeSurface(screen);
     SDL_GL_DeleteContext(mainOpenGLContext);
     cout << "QUITTING";
-    glToGame.enqueue(Message(GL_M_QUIT, NULL));
+    glToGame.enqueue(OMessage(GL_M_QUIT, NULL));
 
 #ifdef _DEBUG 
     //    _CrtDumpMemoryLeaks();
@@ -266,7 +266,7 @@ void OpenglManager::glWorldEditorLoop()
         CalculateGlFps(frametimes, frametimelast, frameCount, glFps);
 
     }
-    glToGame.enqueue(Message(GL_M_STATETRANSITION, new int(15)));
+    glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(15)));
     openglManager.glWaitForMessage(GL_M_STATETRANSITION);
     GameManager::exitWorldEditor();
 }
@@ -326,9 +326,9 @@ void OpenglManager::endSession() {
     std::vector<ChunkMesh*>().swap(chunkMeshes);
 }
 
-Message OpenglManager::WaitForMessage(int i)
+OMessage OpenglManager::WaitForMessage(int i)
 {
-    Message result;
+    OMessage result;
     while (1){
         if (glToGame.try_dequeue(result)){
             if (result.code == i){
@@ -348,7 +348,7 @@ void OpenglManager::glWaitForMessage(int i)
 
 void OpenglManager::ProcessMessages(int waitForMessage)
 {
-    Message message;
+    OMessage message;
     void *d;
     TerrainMeshMessage *tmm;
     PlanetUpdateMessage *pum;
@@ -369,7 +369,7 @@ void OpenglManager::ProcessMessages(int waitForMessage)
             case GL_M_ERROR: //error
                 showMessage("ERROR: " + string((char *)message.data));
                 delete[] message.data;
-                glToGame.enqueue(Message(GL_M_DONE, NULL));
+                glToGame.enqueue(OMessage(GL_M_DONE, NULL));
                 break;
             case GL_M_TERRAINMESH:
                 tmm = (TerrainMeshMessage *)d;
@@ -405,12 +405,12 @@ void OpenglManager::ProcessMessages(int waitForMessage)
                 graphicsOptions.lodDetail = oldDetail;
                 mainMenuCamera.setPosition(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, -50000000.0));
                 mainMenuCamera.zoomTo(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, GameManager::planet->radius*0.75), 0.5, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-                glToGame.enqueue(Message(GL_M_DONE, NULL));
+                glToGame.enqueue(OMessage(GL_M_DONE, NULL));
                 break;
             case GL_M_INITIALIZEVOXELS:
                 player->initialize("Ben"); //What an awesome name that is
                 GameManager::initializeVoxelWorld(player);
-                glToGame.enqueue(Message(GL_M_DONE, NULL));
+                glToGame.enqueue(OMessage(GL_M_DONE, NULL));
                 break;
             case GL_M_CHUNKMESH:
                 UpdateChunkMesh((ChunkMeshData *)(message.data));
@@ -664,8 +664,6 @@ void InitializeShaders()
 {
     textureShader.Initialize();
 
-    DrawLoadingScreen("Initializing Shaders...");
-
     basicColorShader.DeleteShader();
     basicColorShader.Initialize();
     simplexNoiseShader.DeleteShader();
@@ -707,28 +705,7 @@ void InitializeShaders()
 void Initialize_SDL_OpenGL()
 {
     SDL_Init(SDL_INIT_EVERYTHING);
-    /*if (SDL_BYTEORDER == SDL_BIG_ENDIAN){
-    rmask = 0xff000000;
-    gmask = 0x00ff0000;
-    bmask = 0x0000ff00;
-    amask = 0x000000ff;
-    }
-    else{
-    rmask = 0x000000ff;
-    gmask = 0x0000ff00;
-    bmask = 0x00ff0000;
-    amask = 0xff000000;
-    }*/
-    //    if (graphicsOptions.isFullscreen){
-    //        screen = SDL_SetVideoMode(screenWidth, screenHeight, 16, SDL_SWSURFACE | SDL_OPENGL | SDL_FULLSCREEN); //SDL_FULLSCREEN
-    //SDL_WM_IconifyWindow(); //minimize application
-    //    }else{
-    //        screen = SDL_SetVideoMode(screenWidth, screenHeight, 16, SDL_SWSURFACE | SDL_OPENGL); //SDL_FULLSCREEN
-    //SDL_WM_IconifyWindow(); //minimize application
-    //    }
-
-    //    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-    //    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+  
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     cout << "Video Driver: " << SDL_GetCurrentVideoDriver() << endl;
@@ -982,7 +959,7 @@ bool Control()
             currMenu->FlushControlStates();
             break;
         case -1:
-            glToGame.enqueue(Message(GL_M_STATETRANSITION, new int(13)));
+            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(13)));
             DrawLoadingScreen("Deallocating Chunks...", false, glm::vec4(0.0, 0.0, 0.0, 0.3));
             openglManager.glWaitForMessage(GL_M_STATETRANSITION);
             break;
@@ -1157,7 +1134,7 @@ bool PlayerControl() {
 
     if (rightRelease && GameManager::voxelEditor->isEditing()){
         if ((player->rightEquippedItem && player->rightEquippedItem->type == ITEM_BLOCK) || !player->rightEquippedItem){
-            glToGame.enqueue(Message(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(player->rightEquippedItem)));
+            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(player->rightEquippedItem)));
         }
         player->dragBlock = NULL;    
     }
@@ -1165,7 +1142,7 @@ bool PlayerControl() {
     if (leftRelease && GameManager::voxelEditor->isEditing()){
         if ((player->leftEquippedItem && player->leftEquippedItem->type == ITEM_BLOCK) || !player->leftEquippedItem){ //if he has a block or nothing for place or break
             //error checking for unloaded chunks
-            glToGame.enqueue(Message(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(player->leftEquippedItem)));
+            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(player->leftEquippedItem)));
         }
         player->dragBlock = NULL;
     }
@@ -1387,7 +1364,7 @@ bool MainMenuControl()
 
             if ((rv = GameManager::newGame(menuOptions.newGameString)) == 0){
                 //DrawLoadingScreen("Initializing Chunks...", false, glm::vec4(0.0, 0.0, 0.0, 0.3));
-                glToGame.enqueue(Message(GL_M_STATETRANSITION, new int(10)));
+                glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(10)));
                 openglManager.glWaitForMessage(GL_M_STATETRANSITION);
             }
             else if (rv == 1){
@@ -1404,7 +1381,7 @@ bool MainMenuControl()
         if (menuOptions.loadGameString != ""){
             if (GameManager::loadGame(menuOptions.loadGameString) == 0){
                 //DrawLoadingScreen("Initializing Chunks...", false, glm::vec4(0.0, 0.0, 0.0, 0.3));
-                glToGame.enqueue(Message(GL_M_STATETRANSITION, new int(11)));
+                glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(11)));
                 openglManager.glWaitForMessage(GL_M_STATETRANSITION);
             }
         }
@@ -1425,7 +1402,7 @@ bool MainMenuControl()
         if (menuOptions.selectPlanetName != ""){
             mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, 0.0), 2.0, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, GameManager::planet->radius * 2.0);
             GameManager::initializeWorldEditor();
-            glToGame.enqueue(Message(GL_M_STATETRANSITION, new int(14)));
+            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(14)));
             openglManager.glWaitForMessage(GL_M_STATETRANSITION);
         }
         break;
@@ -1447,13 +1424,13 @@ bool MainMenuControl()
     }
     if (currMenu == newGameMenu || currMenu == worldEditorSelectMenu){
         if (menuOptions.selectPlanetName != "" && ("Worlds/" + menuOptions.selectPlanetName + "/") != GameManager::planet->dirName){
-            glToGame.enqueue(Message(GL_M_STATETRANSITION, new int(12)));
+            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(12)));
             openglManager.glWaitForMessage(GL_M_STATETRANSITION);
         }
     }
     else if (currMenu == loadGameMenu){
         if (menuOptions.selectPlanetName != "" && ("Worlds/" + menuOptions.selectPlanetName + "/") != GameManager::planet->dirName){
-            glToGame.enqueue(Message(GL_M_STATETRANSITION, new int(12)));
+            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(12)));
             openglManager.glWaitForMessage(GL_M_STATETRANSITION);
         }
     }
@@ -1711,7 +1688,7 @@ void ZoomingUpdate()
         }
         else if (openglManager.zoomState == 3){
             if (mainMenuCamera.getIsZooming() == 0){
-                glToGame.enqueue(Message(GL_M_NEWPLANET, NULL));
+                glToGame.enqueue(OMessage(GL_M_NEWPLANET, NULL));
                 openglManager.zoomState = 4;
                 openglManager.glWaitForMessage(GL_M_DONE);
             }

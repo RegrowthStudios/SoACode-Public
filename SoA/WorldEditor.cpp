@@ -833,7 +833,7 @@ void WorldEditor::changeClimateVariables() {
         }
     }
     uiUpdateData.variableUpdateData.clear();
-    glToGame.enqueue(Message(GL_M_REBUILD_TERRAIN, NULL));
+    glToGame.enqueue(OMessage(GL_M_REBUILD_TERRAIN, NULL));
 }
 
 void WorldEditor::changeTreeVariables() {

@@ -59,7 +59,7 @@ void worldEditorLoop();
 bool Control();
 bool MainMenuControl();
 void CalculateFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, volatile float &framespersecond);
-int ProcessMessage(Message &message);
+int ProcessMessage(OMessage &message);
 void checkTypes();
 
 bool mtRender = 0;
@@ -137,7 +137,7 @@ void gameLoop() {
     Uint32 startTicks;
     Uint32 frametimes[10];
     Uint32 frametimelast;
-    Message message;
+    OMessage message;
 
     if (openglManager.WaitForMessage(GL_M_DONE).code == GL_M_QUIT) {
         cout << "ENDING";
@@ -218,7 +218,7 @@ void gameLoop() {
 }
 
 void worldEditorLoop() {
-    Message message;
+    OMessage message;
     Uint32 frameCount = 0;
     Uint32 startTicks;
     Uint32 frametimes[10];
@@ -303,7 +303,7 @@ void CalculateFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecou
     }
 }
 
-int ProcessMessage(Message &message) {
+int ProcessMessage(OMessage &message) {
     PlaceBlocksMessage *pbm;
 
     switch (message.code) {
@@ -312,12 +312,12 @@ int ProcessMessage(Message &message) {
     case GL_M_STATETRANSITION:
         switch (*((int*)message.data)) {
         case 10:
-            gameToGl.enqueue(Message(GL_M_INITIALIZEVOXELS, NULL));
+            gameToGl.enqueue(OMessage(GL_M_INITIALIZEVOXELS, NULL));
             GameManager::gameState = GameStates::ZOOMINGIN; //begin the zoom transition
             openglManager.zoomState = 0;
             break;
         case 11:
-            gameToGl.enqueue(Message(GL_M_INITIALIZEVOXELS, NULL));
+            gameToGl.enqueue(OMessage(GL_M_INITIALIZEVOXELS, NULL));
             openglManager.WaitForMessage(GL_M_DONE);
             GameManager::gameState = GameStates::ZOOMINGIN; //begin the zoom transition
             openglManager.zoomState = 0;
@@ -331,7 +331,7 @@ int ProcessMessage(Message &message) {
             GameManager::gameState = GameStates::ZOOMINGOUT;
             openglManager.zoomState = 0;
             GameManager::endSession();
-            gameToGl.enqueue(Message(GL_M_ENDSESSION, NULL));
+            gameToGl.enqueue(OMessage(GL_M_ENDSESSION, NULL));
             break;
         case 14:
             GameManager::gameState = GameStates::WORLDEDITOR;
@@ -341,7 +341,7 @@ int ProcessMessage(Message &message) {
             break;
         }
         delete message.data;
-        gameToGl.enqueue(Message(GL_M_STATETRANSITION, NULL));
+        gameToGl.enqueue(OMessage(GL_M_STATETRANSITION, NULL));
         break;
     case GL_M_PLACEBLOCKS:
         pbm = (PlaceBlocksMessage *)message.data;
@@ -361,8 +361,8 @@ int ProcessMessage(Message &message) {
 
         break;
     case GL_M_NEWPLANET:
-        gameToGl.enqueue(Message(GL_M_NEWPLANET, NULL));
-        gameToGl.enqueue(Message(GL_M_DONE, NULL));
+        gameToGl.enqueue(OMessage(GL_M_NEWPLANET, NULL));
+        gameToGl.enqueue(OMessage(GL_M_DONE, NULL));
         openglManager.WaitForMessage(GL_M_DONE);
         break;
     case GL_M_REBUILD_TERRAIN:

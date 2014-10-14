@@ -279,30 +279,30 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     if (!ignoreBiomes){
         if (fileManager.loadNoiseFunctions((filePath + "Noise/TerrainNoise.SOANOISE").c_str(), 0, this)) {
             pError("Failed to load terrain noise functions!");
-            glToGame.enqueue(Message(GL_M_QUIT, nullptr));
+            glToGame.enqueue(OMessage(GL_M_QUIT, nullptr));
             exit(75);
         }
         if (fileManager.loadNoiseFunctions((filePath + "Noise/MandatoryNoise.SOANOISE").c_str(), 1, this)) {
             pError("Failed to load mandatory noise functions!");
-            glToGame.enqueue(Message(GL_M_QUIT, nullptr));
+            glToGame.enqueue(OMessage(GL_M_QUIT, nullptr));
             exit(76);
         }
     }
     
     if (fileManager.loadFloraData(this, filePath)) {
         pError("Failed to load flora data!");
-        glToGame.enqueue(Message(GL_M_QUIT, nullptr));
+        glToGame.enqueue(OMessage(GL_M_QUIT, nullptr));
         exit(77);
     }
     if (fileManager.loadAllTreeData(this, filePath)) {
         pError("Failed to load tree data");
-        glToGame.enqueue(Message(GL_M_QUIT, nullptr));
+        glToGame.enqueue(OMessage(GL_M_QUIT, nullptr));
         exit(78);
     }
     if (!ignoreBiomes){
         if (fileManager.loadBiomeData(this, filePath)) {
             pError("Failed to load biome data!");
-            glToGame.enqueue(Message(GL_M_QUIT, nullptr));
+            glToGame.enqueue(OMessage(GL_M_QUIT, nullptr));
             exit(79);
         }
     }
@@ -472,7 +472,7 @@ void Planet::rotationUpdate()
 
     glm::vec3 EulerAngles(0, rotationTheta, axialZTilt);
     rotateQuaternion = glm::quat(EulerAngles);
-    gameToGl.enqueue(Message(GL_M_UPDATEPLANET, (void *)(new PlanetUpdateMessage(glm::toMat4(rotateQuaternion)))));
+    gameToGl.enqueue(OMessage(GL_M_UPDATEPLANET, (void *)(new PlanetUpdateMessage(glm::toMat4(rotateQuaternion)))));
     //rotationMatrix = glm::toMat4(rotateQuaternion);
     //invRotationMatrix = glm::inverse(rotationMatrix);
 }

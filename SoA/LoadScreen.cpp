@@ -10,6 +10,7 @@
 #include "InputManager.h"
 #include "Inputs.h"
 #include "LoadBar.h"
+#include "LoadTaskShaders.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskOptions.h"
 #include "Player.h"
@@ -57,6 +58,14 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     _loadTasks.push_back(new LoadTaskOptions);
     _monitor.addTask("Game Options", _loadTasks.back());
 
+    // LoadTaskShaders needs a context so we create a shared context and pass it
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+    SDL_GLContext newContext = SDL_GL_CreateContext(_game->getWindowHandle());
+    SDL_GL_MakeCurrent(_game->getWindowHandle(), _game->getGLContext());
+
+    _loadTasks.push_back(new LoadTaskShaders(newContext, _game->getWindowHandle()));
+    _monitor.addTask("Shaders", _loadTasks.back());
+
     _monitor.start();
 
     // Make LoadBars
@@ -72,8 +81,9 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     // Put Text For The Load Bars
     {
         ui32 i = 0;
-        _loadBars[i++].setText("Game Manager");
-        _loadBars[i++].setText("Input Manager");
+        _loadBars[i++].setText("Core Systems");
+        _loadBars[i++].setText("Game Options");
+        _loadBars[i++].setText("Shaders");
     }
 
 

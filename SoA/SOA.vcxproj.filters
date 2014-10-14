@@ -506,6 +506,9 @@
     <ClInclude Include="MessageManager.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="LoadTaskShaders.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

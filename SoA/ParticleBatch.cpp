@@ -226,7 +226,7 @@ int ParticleBatch::update() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, (void *)pmm));
+    gameToGl.enqueue(OMessage(GL_M_PARTICLEMESH, (void *)pmm));
 
     return 0;
 }
@@ -319,7 +319,7 @@ int ParticleBatch::updateAnimated() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, (void *)pmm));
+    gameToGl.enqueue(OMessage(GL_M_PARTICLEMESH, (void *)pmm));
 
     return 0;
 }

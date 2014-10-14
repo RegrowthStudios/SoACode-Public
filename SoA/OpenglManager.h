@@ -29,16 +29,16 @@ struct PlanetUpdateMessage
     glm::mat4 rotationMatrix;
 };
 
-struct Message
+struct OMessage
 {
-    Message() : code(0), data(NULL){}
-    Message(int i, void *d) : code(i), data(d) {}
+    OMessage() : code(0), data(NULL){}
+    OMessage(int i, void *d) : code(i), data(d) {}
     int code;
     void *data;
 };
 
-extern moodycamel::ReaderWriterQueue <Message> gameToGl;
-extern moodycamel::ReaderWriterQueue <Message> glToGame;
+extern moodycamel::ReaderWriterQueue <OMessage> gameToGl;
+extern moodycamel::ReaderWriterQueue <OMessage> glToGame;
 
 class OpenglManager
 {
@@ -53,7 +53,7 @@ public:
     void BeginThread(void (*func)(void));
     void EndThread();
     void endSession();
-    Message WaitForMessage(int i);
+    OMessage WaitForMessage(int i);
     void glWaitForMessage(int i);
     void ProcessMessages(int waitForMessage = -1);
     void InitializeFrameBuffer();

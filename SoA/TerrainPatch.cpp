@@ -80,7 +80,7 @@ void TerrainPatch::ClearBuffers()
         tmm->terrainBuffers = terrainBuffers;
         hasBuffers = 0;
         terrainBuffers = NULL;
-        gameToGl.enqueue(Message(GL_M_TERRAINMESH, (void *)tmm));
+        gameToGl.enqueue(OMessage(GL_M_TERRAINMESH, (void *)tmm));
     }
 }
 
@@ -90,7 +90,7 @@ void TerrainPatch::ClearTreeBuffers()
         TerrainMeshMessage *tmm = new TerrainMeshMessage;
         tmm->face = face;
         tmm->terrainBuffers = terrainBuffers;
-        gameToGl.enqueue(Message(GL_M_REMOVETREES, (void *)tmm));
+        gameToGl.enqueue(OMessage(GL_M_REMOVETREES, (void *)tmm));
     }
 }
 
@@ -1088,7 +1088,7 @@ bool TerrainPatch::CreateMesh()
     tmm->indexSize = indice;
     tmm->treeIndexSize = treeIndex * 6 / 4;
     tmm->index = index;
-    gameToGl.enqueue(Message(GL_M_TERRAINMESH, (void *)tmm));
+    gameToGl.enqueue(OMessage(GL_M_TERRAINMESH, (void *)tmm));
     hasBuffers = 1;
 
     if (removeChildren){

@@ -136,7 +136,7 @@ void Chunk::clearBuffers()
 		cmd->chunkMesh = mesh;
 		mesh = NULL;
 		cmd->debugCode = 1; 
-		gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
+        gameToGl.enqueue(OMessage(GL_M_CHUNKMESH, cmd));
 	}
 }
 

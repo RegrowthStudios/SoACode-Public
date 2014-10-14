@@ -75,7 +75,7 @@ void mError(const string& message)
         fclose(logFile);
     }
     printf("*ERROR: %s \n", message);
-    gameToGl.enqueue(Message(GL_M_ERROR, strdup(message.c_str())));
+    gameToGl.enqueue(OMessage(GL_M_ERROR, strdup(message.c_str())));
     openglManager.WaitForMessage(GL_M_DONE);
 }
 

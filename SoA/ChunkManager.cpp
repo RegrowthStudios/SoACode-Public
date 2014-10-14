@@ -627,7 +627,7 @@ void ChunkManager::uploadFinishedMeshes() {
             chunk->mesh = NULL;
             if (cmd->chunkMesh != NULL) {
                 cmd->debugCode = 2;
-                gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
+                gameToGl.enqueue(OMessage(GL_M_CHUNKMESH, cmd));
             }
             continue;
         }
@@ -658,7 +658,7 @@ void ChunkManager::uploadFinishedMeshes() {
         //if the chunk has a mesh, send it
         if (cmd->chunkMesh) {
             cmd->debugCode = 3;
-            gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
+            gameToGl.enqueue(OMessage(GL_M_CHUNKMESH, cmd));
         }
 
         if (chunk->_chunkListPtr == nullptr) chunk->_state = ChunkStates::DRAW;

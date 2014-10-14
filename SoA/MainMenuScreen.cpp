@@ -20,6 +20,21 @@ _threadRunning(true){
     // Empty
 }
 
+i32 MainMenuScreen::getNextScreen() const {
+    return 0;
+}
+i32 MainMenuScreen::getPreviousScreen() const {
+    return 0;
+}
+
+void MainMenuScreen::build() {
+
+}
+
+void MainMenuScreen::destroy(const GameTime& gameTime) {
+
+}
+
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
 
@@ -28,6 +43,18 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 void MainMenuScreen::onExit(const GameTime& gameTime) {
     _threadRunning = false;
     _updateThread->join();
+}
+
+void MainMenuScreen::onEvent(const SDL_Event& e) {
+
+}
+
+void MainMenuScreen::update(const GameTime& gameTime) {
+
+}
+
+void MainMenuScreen::draw(const GameTime& gameTime) {
+
 }
 
 void MainMenuScreen::updateThreadFunc() {
