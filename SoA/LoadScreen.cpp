@@ -60,9 +60,9 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     _monitor.addTask("Game Options", _loadTasks.back());
 
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
-    _loadTasks.push_back(new LoadTaskShaders(&_sb, SDL_GL_CreateContext(_game->getWindowHandle()), _game->getWindowHandle()));
+    _loadTasks.push_back(new LoadTaskShaders(&_sb, SDL_GL_CreateContext(_game->getWindow()), _game->getWindow()));
     _monitor.addTask("Shaders", _loadTasks.back());
-    SDL_GL_MakeCurrent(_game->getWindowHandle(), _game->getGLContext());
+    SDL_GL_MakeCurrent(_game->getWindow(), _game->getWindow().getGLContext());
 
     _monitor.start();
 
@@ -124,10 +124,8 @@ void LoadScreen::update(const GameTime& gameTime) {
     }
 }
 void LoadScreen::draw(const GameTime& gameTime) {
-    GameDisplayMode gdm;
-    _game->getDisplayMode(&gdm);
+    const GameWindow* w = &_game->getWindow();
 
-    glViewport(0, 0, gdm.screenWidth, gdm.screenHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw Loading Information
@@ -138,7 +136,7 @@ void LoadScreen::draw(const GameTime& gameTime) {
         }
         _sb->end(SpriteSortMode::BACK_TO_FRONT);
 
-        _sb->renderBatch(f32v2(gdm.screenWidth, gdm.screenHeight), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+        _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
         checkGlError("Draw()");
     }
 }
