@@ -20,6 +20,12 @@ LoadMonitor::~LoadMonitor() {
 void LoadMonitor::addTask(nString name, ILoadTask* task) {
     _tasks.emplace(name, task);
 }
+bool LoadMonitor::isTaskFinished(nString task) {
+    _lock.lock();
+    bool state = isFinished(task);
+    _lock.unlock();
+    return state;
+}
 
 bool LoadMonitor::isFinished(nString task) {
     auto& kvp = _tasks.find(task);
@@ -45,7 +51,13 @@ void LoadMonitor::start() {
         _internalThreads.emplace_back([=] () {
             // Wait For Dependencies To Complete
             std::unique_lock<std::mutex> uLock(monitor->_lock);
-            _completionCondition.wait(uLock, [=] { return canStart(name); });
+            _completionCondition.wait(uLock, [=] {
+#ifdef DEBUG
+                printf("CHECK: %s\r\n", name.c_str());
+#endif
+                return canStart(name);
+            });
+            uLock.unlock();
 
 #ifdef DEBUG
             printf("BEGIN: %s\r\n", name.c_str());
@@ -56,7 +68,6 @@ void LoadMonitor::start() {
 #endif // DEBUG
 
             // Notify That This Task Is Completed
-            uLock.unlock();
             _completionCondition.notify_all();
         });
     }
@@ -78,4 +89,5 @@ void LoadMonitor::setDep(nString name, nString dep) {
 
     kvp->second->dependencies.insert(dep);
 }
+
 

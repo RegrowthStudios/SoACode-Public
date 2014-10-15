@@ -67,8 +67,7 @@ SpriteBatch::SpriteBatch(bool isDynamic /*= true*/, bool doInit /*= false*/) :
 _bufUsage(isDynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW),
 _glyphCapacity(0),
 _vao(0), _vbo(0),
-_idProg(0), _idVS(0), _idFS(0),
-_unWorld(0), _unVP(0), _unTexture(0) {
+_shader({}), _idVS(0), _idFS(0) {
     if (doInit) init();
 }
 SpriteBatch::~SpriteBatch() {
@@ -92,19 +91,19 @@ void SpriteBatch::dispose() {
         _vao = 0;
     }
 
-    if (_idProg != 0) {
+    if (_shader.program != 0) {
         if (_idVS != 0) {
-            glDetachShader(_idProg, _idVS);
+            glDetachShader(_shader.program, _idVS);
             glDeleteShader(_idVS);
             _idVS = 0;
         }
         if (_idFS != 0) {
-            glDetachShader(_idProg, _idFS);
+            glDetachShader(_shader.program, _idFS);
             glDeleteShader(_idFS);
             _idFS = 0;
         }
-        glDeleteProgram(_idProg);
-        _idProg = 0;
+        glDeleteProgram(_shader.program);
+        _shader.program = 0;
     }
 
     if (_texPixel != 0) {
@@ -353,21 +352,22 @@ void SpriteBatch::end(SpriteSortMode ssm /*= SpriteSortMode::Texture*/) {
     generateBatches();
 }
 
-void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, const SpriteBatchShader* shader /*= nullptr*/) {
     //if (bs == nullptr) bs = BlendState::PremultipliedAlphaBlend;
     if (ds == nullptr) ds = &DepthState::NONE;
     if (rs == nullptr) rs = &RasterizerState::CULL_NONE;
     if (ss == nullptr) ss = &SamplerState::LINEAR_WRAP;
+    if (shader == nullptr) shader = &_shader;
 
     // Setup The Shader
     //bs->set();
     ds->set();
     rs->set();
 
-    glUseProgram(_idProg);
+    glUseProgram(shader->program);
 
-    glUniformMatrix4fv(_unWorld, 1, false, (f32*)&mWorld);
-    glUniformMatrix4fv(_unVP, 1, false, (f32*)&mCamera);
+    glUniformMatrix4fv(shader->unWorld, 1, false, (f32*)&mWorld);
+    glUniformMatrix4fv(shader->unVP, 1, false, (f32*)&mCamera);
 
     glBindVertexArray(_vao);
 
@@ -377,7 +377,7 @@ void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* b
         SpriteBatchCall* batch = _batches[i];
 
         glActiveTexture(GL_TEXTURE0);
-        glUniform1i(_unTexture, 0);
+        glUniform1i(shader->unTexture, 0);
         glBindTexture(GL_TEXTURE_2D, batch->textureID);
         ss->setObject(0);
 
@@ -387,23 +387,23 @@ void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* b
     glUseProgram(0);
     glBindVertexArray(0);
 }
-void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, const SpriteBatchShader* shader /*= nullptr*/) {
     f32m4 mCamera(
         2.0f / screenSize.x, 0, 0, 0,
         0, -2.0f / screenSize.y, 0, 0,
         0, 0, 1, 0,
         -1, 1, 0, 1
         );
-    renderBatch(mWorld, mCamera, /*bs, */ ss, ds, rs);
+    renderBatch(mWorld, mCamera, /*bs, */ ss, ds, rs, shader);
 }
-void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/) {
+void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, const SpriteBatchShader* shader /*= nullptr*/) {
     f32m4 mIdentity(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
         0, 0, 0, 1
         );
-    renderBatch(mIdentity, screenSize, /*bs, */ ss, ds, rs);
+    renderBatch(mIdentity, screenSize, /*bs, */ ss, ds, rs, shader);
 }
 
 void SpriteBatch::sortGlyphs(SpriteSortMode ssm) {
@@ -471,7 +471,7 @@ void SpriteBatch::generateBatches() {
 
 void SpriteBatch::createProgram() {
     // Create The Program
-    _idProg = glCreateProgram();
+    _shader.program = glCreateProgram();
     int status;
 
     // Make Vertex Shader
@@ -480,7 +480,7 @@ void SpriteBatch::createProgram() {
     glCompileShader(_idVS);
     glGetShaderiv(_idVS, GL_COMPILE_STATUS, &status);
     if (status != 1) throw std::runtime_error("Vertex Shader Had Compilation Errors");
-    glAttachShader(_idProg, _idVS);
+    glAttachShader(_shader.program, _idVS);
 
     // Make Fragment Shader
     _idFS = glCreateShader(GL_FRAGMENT_SHADER);
@@ -488,23 +488,23 @@ void SpriteBatch::createProgram() {
     glCompileShader(_idFS);
     glGetShaderiv(_idFS, GL_COMPILE_STATUS, &status);
     if (status != 1) throw std::runtime_error("Fragment Shader Had Compilation Errors");
-    glAttachShader(_idProg, _idFS);
+    glAttachShader(_shader.program, _idFS);
 
     // Setup Vertex Attribute Locations
-    glBindAttribLocation(_idProg, 0, "vPosition");
-    glBindAttribLocation(_idProg, 1, "vTint");
-    glBindAttribLocation(_idProg, 2, "vUV");
-    glBindAttribLocation(_idProg, 3, "vUVRect");
+    glBindAttribLocation(_shader.program, 0, "vPosition");
+    glBindAttribLocation(_shader.program, 1, "vTint");
+    glBindAttribLocation(_shader.program, 2, "vUV");
+    glBindAttribLocation(_shader.program, 3, "vUVRect");
 
-    glLinkProgram(_idProg);
-    glValidateProgram(_idProg);
-    glGetProgramiv(_idProg, GL_LINK_STATUS, &status);
+    glLinkProgram(_shader.program);
+    glValidateProgram(_shader.program);
+    glGetProgramiv(_shader.program, GL_LINK_STATUS, &status);
     if (status != 1) throw std::runtime_error("Program Had Compilation Errors");
 }
 void SpriteBatch::searchUniforms() {
-    _unWorld = glGetUniformLocation(_idProg, "World");
-    _unVP = glGetUniformLocation(_idProg, "VP");
-    _unTexture = glGetUniformLocation(_idProg, "SBTex");
+    _shader.unWorld = glGetUniformLocation(_shader.program, "World");
+    _shader.unVP = glGetUniformLocation(_shader.program, "VP");
+    _shader.unTexture = glGetUniformLocation(_shader.program, "SBTex");
 }
 void SpriteBatch::createVertexArray() {
     glGenVertexArrays(1, &_vao);
