@@ -13,4 +13,5 @@ if [ "$1" == "clean" ] ; then
     make clean
     shift
 fi
+make doc
 make $@
