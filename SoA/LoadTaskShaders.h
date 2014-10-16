@@ -6,24 +6,15 @@
 #include "Errors.h"
 #include "LoadMonitor.h"
 
-//SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
-//SDL_GL_CreateContext(scr->_game->getWindowHandle())
-
-// Sample Dependency Task
+// TODO(Ben): Somehow make this asynhronous
 class LoadTaskShaders : public ILoadTask {
+    friend class LoadScreen;
 public:
-    LoadTaskShaders(SpriteBatch** sb, SDL_GLContext context, SDL_Window* window) :
-        _sb(sb),
-        _context(context),
-        _window(window) {
+    LoadTaskShaders() {
         // Empty
     }
 private:
     virtual void load() {
-        SDL_GL_MakeCurrent(_window, _context);
-
-        //(*_sb)->dispose();
-        //*_sb = new SpriteBatch(true, true);
 
         textureShader.Initialize();
         basicColorShader.DeleteShader();
@@ -63,10 +54,5 @@ private:
 
         checkGlError("InitializeShaders()");
 
-        SDL_GL_DeleteContext(_context);
     }
-
-    SDL_GLContext _context;
-    SDL_Window* _window;
-    SpriteBatch** _sb;
 };

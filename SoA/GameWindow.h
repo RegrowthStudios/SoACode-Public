@@ -1,6 +1,10 @@
 #pragma once
 #include <SDL/SDL.h>
 
+#if defined(WIN32) || defined(WIN64)
+#include <SDL/SDL_syswm.h>
+#endif
+
 #include "Keg.h"
 
 #define DEFAULT_TITLE "Seed Of Andromeda"
@@ -97,4 +101,5 @@ private:
 
     // Display Settings
     GameDisplayMode _displayMode;
+
 };

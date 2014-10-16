@@ -47,10 +47,12 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 }
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
+
     // Make LoadBar Resources
     _sb = nullptr;
     _sb = new SpriteBatch(true, true);
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
+
 
     // Add Tasks Here
     _loadTasks.push_back(new LoadTaskGameManager);
@@ -59,12 +61,11 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     _loadTasks.push_back(new LoadTaskOptions);
     _monitor.addTask("Game Options", _loadTasks.back());
 
-    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
-    _loadTasks.push_back(new LoadTaskShaders(&_sb, SDL_GL_CreateContext(_game->getWindow()), _game->getWindow()));
-    _monitor.addTask("Shaders", _loadTasks.back());
-    SDL_GL_MakeCurrent(_game->getWindow(), _game->getWindow().getGLContext());
-
     _monitor.start();
+
+    // Do this synchronously for now
+    LoadTaskShaders loadTaskShader;
+    loadTaskShader.load();
 
     // Make LoadBars
     LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
@@ -81,7 +82,6 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
         ui32 i = 0;
         _loadBars[i++].setText("Core Systems");
         _loadBars[i++].setText("Game Options");
-        _loadBars[i++].setText("Shaders");
     }
 
 
@@ -128,15 +128,13 @@ void LoadScreen::draw(const GameTime& gameTime) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Draw Loading Information
-    if (_monitor.isTaskFinished("Shaders")) {
-        _sb->begin();
-        for (ui32 i = 0; i < _loadTasks.size(); i++) {
-            _loadBars[i].draw(_sb, _sf, 0, 0.8f);
-        }
-        _sb->end(SpriteSortMode::BACK_TO_FRONT);
-
-        _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
-        checkGlError("Draw()");
+    _sb->begin();
+    for (ui32 i = 0; i < _loadTasks.size(); i++) {
+        _loadBars[i].draw(_sb, _sf, 0, 0.8f);
     }
+    _sb->end(SpriteSortMode::BACK_TO_FRONT);
+
+    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+    checkGlError("Draw()");
+    
 }

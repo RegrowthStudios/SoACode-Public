@@ -72,13 +72,11 @@ void GameManager::initializeSystems() {
         textureAtlasManager = new TextureAtlasManager();
         chunkIOManager = new ChunkIOManager();
         messageManager = new MessageManager();
-        
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
         
         debugRenderer = new DebugRenderer();
-
         initializeSound();
         _systemsInitialized = true;
     }
@@ -100,7 +98,6 @@ void GameManager::exitWorldEditor() {
 
 void GameManager::initializeSound() {
     soundEngine->Initialize();
-
     soundEngine->LoadAllSounds();
 }
 
