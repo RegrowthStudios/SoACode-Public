@@ -304,9 +304,9 @@ void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
     int r;
     int x, y, z;
     for (int i = 0; i < size; i++){
-        if (chunk->getBlock(c).material == M_STONE){
-            chunk->setBlockData(c, btype);
-        }
+        
+        chunk->setBlockData(c, btype);
+
         x = c % CHUNK_WIDTH;
         y = c / CHUNK_LAYER;
         z = (c % CHUNK_LAYER) / CHUNK_WIDTH;

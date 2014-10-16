@@ -4,7 +4,7 @@
 
 #include <vector>
 
-enum class MeshType { NONE, BLOCK, LEAVES, FLORA, CROSSFLORA, LIQUID };
+enum class MeshType { NONE, BLOCK, LEAVES, FLORA, CROSSFLORA, LIQUID, FLAT };
 
 enum class MeshJobType;
 

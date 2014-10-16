@@ -243,10 +243,8 @@ public:
     ui16 ID;
     ui16 burnTransformID;
     i16 waveEffect;
-    i16 health;
     ui16 lightColor;
     i16 physicsProperty;
-    i16 material;
     i16 waterMeshLevel;
     i16 floatingAction;
     i16 occlude;
@@ -257,8 +255,6 @@ public:
     MeshType meshType;
 
     GLfloat moveMod;
-    GLfloat value;
-    GLfloat weight;
     GLfloat explosionResistance;
     GLfloat explosivePower;
     GLfloat flammability;

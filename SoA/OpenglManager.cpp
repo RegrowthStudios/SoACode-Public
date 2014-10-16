@@ -840,8 +840,8 @@ void InitializeObjects()
                 cin >> a;
                 exit(198);
             }
-            ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, Blocks[i].weight, 0, Blocks[i].value);
-            player->inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, Blocks[i].weight, 0, Blocks[i].value));
+            ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, 0, 0, 0);
+            player->inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, 0, 0, 0));
         }
     }
 }

@@ -607,16 +607,18 @@ namespace Keg {
             case BasicType::ENUM:
                 // Attempt To Find The Enum
                 interiorEnum = env->getEnum(v.typeName);
-                if (interiorEnum == nullptr) return false;
-
+                if (interiorEnum == nullptr) {
+                    return false;
+                }
                 // Write Enum String
                 e << interiorEnum->getValue(data);
                 break;
             case BasicType::CUSTOM:
                 // Attempt To Find The Type
                 interiorType = env->getType(v.typeName);
-                if (interiorType == nullptr) return false;
-
+                if (interiorType == nullptr) {
+                    return false;
+                }
                 // Write To Interior Node
                 write(data, e, env, interiorType);
                 break;

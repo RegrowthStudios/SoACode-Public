@@ -77,7 +77,7 @@ void GameManager::initializeSystems() {
         wsoScanner = new WSOScanner(wsoAtlas);
         
         debugRenderer = new DebugRenderer();
-        initializeSound();
+ 
         _systemsInitialized = true;
     }
 }

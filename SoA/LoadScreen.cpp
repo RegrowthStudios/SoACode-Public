@@ -13,6 +13,9 @@
 #include "LoadTaskShaders.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskOptions.h"
+#include "LoadTaskBlockData.h"
+#include "LoadTaskSound.h"
+#include "ParticleEmitter.h"
 #include "Player.h"
 #include "SamplerState.h"
 #include "shader.h"
@@ -53,13 +56,21 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     _sb = new SpriteBatch(true, true);
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
 
-
     // Add Tasks Here
     _loadTasks.push_back(new LoadTaskGameManager);
     _monitor.addTask("GameManager", _loadTasks.back());
 
+    _loadTasks.push_back(new LoadTaskSound);
+    _monitor.addTask("Sound", _loadTasks.back());
+    _monitor.setDep("Sound", "GameManager");
+
     _loadTasks.push_back(new LoadTaskOptions);
     _monitor.addTask("Game Options", _loadTasks.back());
+
+    _loadTasks.push_back(new LoadTaskBlockData);
+    _monitor.addTask("BlockData", _loadTasks.back());
+    _monitor.setDep("BlockData", "GameManager");
+    _monitor.setDep("BlockData", "Game Options");
 
     _monitor.start();
 
@@ -81,7 +92,9 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     {
         ui32 i = 0;
         _loadBars[i++].setText("Core Systems");
+        _loadBars[i++].setText("Sound");
         _loadBars[i++].setText("Game Options");
+        _loadBars[i++].setText("Block Data");
     }
 
 
@@ -122,6 +135,42 @@ void LoadScreen::update(const GameTime& gameTime) {
         // Update Visual Position
         _loadBars[i].update((f32)gameTime.elapsed);
     }
+
+    // Defer texture loading
+    static bool loadedTextures = false;
+    if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
+        InitializeText2D("Fonts/OrbitronBold.png", "Fonts/FontData.dat");
+        LoadTextures();
+        //load the texture pack
+        fileManager.loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
+        SetBlockAvgTexColors();
+
+        //load the emitters
+        for (int i = 0; i < 4096; i++) {
+            if (Blocks[i].active) {
+                if (Blocks[i].emitterName.size()) {
+                    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
+                }
+                if (Blocks[i].emitterOnBreakName.size()) {
+                    Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
+                }
+                if (Blocks[i].emitterRandomName.size()) {
+                    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
+                }
+            }
+        }
+
+        //It has no texture
+        Blocks[0].pxTex = -1;
+        Blocks[0].pyTex = -1;
+        Blocks[0].pzTex = -1;
+        Blocks[0].nxTex = -1;
+        Blocks[0].nyTex = -1;
+        Blocks[0].nzTex = -1;
+
+        loadedTextures = true;
+    }
+
 }
 void LoadScreen::draw(const GameTime& gameTime) {
     const GameWindow* w = &_game->getWindow();

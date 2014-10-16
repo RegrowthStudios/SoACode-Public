@@ -5,7 +5,7 @@
 #include "Planet.h"
 #include "OpenglManager.h"
 
-class LoadPlanetTask : public ILoadTask {
+class LoadTaskPlanet : public ILoadTask {
     virtual void load() {
         GameManager::loadPlanet("Worlds/Aldrin/");
 

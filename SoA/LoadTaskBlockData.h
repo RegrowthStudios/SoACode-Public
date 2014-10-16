@@ -6,17 +6,13 @@
 #include "Player.h"
 
 // This is hacky and temporary, it does way to much
-class LoadBlockDataTask : public ILoadTask {
+class LoadTaskBlockData : public ILoadTask {
     virtual void load() {
         initConnectedTextures();
 
         if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
         //    cout << SDL_GetTicks() - stt << endl;
-        fileManager.saveBlocks("Data/test.ini");
-
-        LoadTextures();
-
-        SetBlockAvgTexColors();
+        fileManager.saveBlocks("Data/test.yaml");
 
         // Hacky shit.
         GameManager::player = new Player();
@@ -34,8 +30,8 @@ class LoadBlockDataTask : public ILoadTask {
                     cin >> a;
                     exit(198);
                 }
-                ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, Blocks[i].weight, 0, Blocks[i].value);
-                player->inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, Blocks[i].weight, 0, Blocks[i].value));
+                ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, 0, 0, 0);
+                player->inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, 0, 0, 0));
             }
         }
 

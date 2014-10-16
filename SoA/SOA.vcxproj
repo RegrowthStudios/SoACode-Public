@@ -110,16 +110,19 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="IVoxelMapper.h" />
-    <ClInclude Include="LoadBlockDataTask.h" />
-    <ClInclude Include="LoadPlanetTask.h" />
+    <ClInclude Include="LoadTaskBlockData.h" />
+    <ClInclude Include="LoadTaskPlanet.h" />
     <ClInclude Include="LoadTaskOptions.h" />
     <ClInclude Include="LoadTaskShaders.h" />
+    <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="SpriteBatchShader.h" />
+    <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
     <ClInclude Include="InitScreen.h" />
@@ -251,6 +254,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -258,6 +262,7 @@
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />

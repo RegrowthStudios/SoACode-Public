@@ -179,9 +179,9 @@ void SoundEngine::update(const glm::dvec3 &listenerPos, const glm::vec3 &listene
 
 void SoundEngine::LoadAllSounds() {
     //effects
-    AddSound("PlaceBlock", "Sounds/Effects/Block/standardvariation1.ogg", S_DEFAULT, true, true, 2.0f);
-    AddSound("BreakBlock", "Sounds/Effects/Block/Breakblock.ogg", S_DEFAULT, true, true, 2.0f);
-    AddSound("Explosion", "Sounds/Effects/Block/Nitro1.ogg", S_DEFAULT, true, true, 8.0f);
+    AddSound("PlaceBlock", "Sounds/Effects/Block/standardvariation1.ogg", S_DEFAULT, false, true, 2.0f);
+    AddSound("BreakBlock", "Sounds/Effects/Block/Breakblock.ogg", S_DEFAULT, false, true, 2.0f);
+    AddSound("Explosion", "Sounds/Effects/Block/Nitro1.ogg", S_DEFAULT, false, true, 8.0f);
 
     //music
     AddSound("CaveMusic", "Sounds/Music/cavemusic1.ogg", S_MUSIC_CAVE, true, false);

@@ -3,6 +3,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <ZLIB/ioapi.c>
 #include <ZLIB/unzip.c>
 
@@ -1107,7 +1108,7 @@ nString FileManager::getSaveFileNameDialog(const nString &prompt, const char *in
 }
 
 i32 SetWaterBlocks(int startID) {
-    float weight = Blocks[startID].weight;
+    float weight = 0;
     Blocks[startID].name = "Water (1)"; //now build rest of water blocks
     for (int i = startID + 1; i <= startID + 99; i++) {
         if (Blocks[i].active) {
@@ -1119,7 +1120,6 @@ i32 SetWaterBlocks(int startID) {
         Blocks[i] = Blocks[startID];
         Blocks[i].name = "Water (" + to_string(i - startID + 1) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
-        Blocks[i].weight = (i - startID + 1) / 100.0f * weight;
     }
     for (int i = startID + 100; i < startID + 150; i++) {
         if (Blocks[i].active) {
@@ -1131,7 +1131,6 @@ i32 SetWaterBlocks(int startID) {
         Blocks[i] = Blocks[startID];
         Blocks[i].name = "Water Pressurized (" + to_string(i - (startID + 99)) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
-        Blocks[i].weight = 100.0f * weight;
     }
 }
 
@@ -1536,9 +1535,6 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_FLOATINGACTION:
                 b->floatingAction = iniVal->getInt();
                 break;
-            case BLOCK_INI_HEALTH:
-                b->health = iniVal->getInt();
-                break;
             case BLOCK_INI_LIGHTACTIVE:
                 b->isLight = iniVal->getInt();
                 break;
@@ -1547,9 +1543,6 @@ i32 FileManager::loadBlocks(nString filePath) {
                     //Convert RRRRRRRR GGGGGGGG BBBBBBBB to RRRRR GGGGG BBBBB
                     b->lightColor = ((MIN((hexColor & 0xFF0000) >> 16, 31)) << 10) | (MIN((hexColor & 0x1F00) >> 8, 31) << 5) | MIN(hexColor & 0x1f, 31);
                 }
-                break;
-            case BLOCK_INI_MATERIAL:
-                b->material = iniVal->getInt();
                 break;
             case BLOCK_INI_MESHTYPE:
                 b->meshType = static_cast<MeshType>(iniVal->getInt() + 1);
@@ -1590,17 +1583,11 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_USEABLE:
                 b->useable = iniVal->getInt();
                 break;
-            case BLOCK_INI_VALUE:
-                b->value = iniVal->getFloat();
-                break;
             case BLOCK_INI_WATERMESHLEVEL:
                 b->waterMeshLevel = iniVal->getInt();
                 break;
             case BLOCK_INI_WAVEEFFECT:
                 b->waveEffect = iniVal->getInt();
-                break;
-            case BLOCK_INI_WEIGHT:
-                b->weight = iniVal->getFloat();
                 break;
             case BLOCK_INI_OCCLUDE:
                 b->occlude = iniVal->getInt();
@@ -1625,32 +1612,6 @@ i32 FileManager::loadBlocks(nString filePath) {
 
     if (!(SetWaterBlocks(LOWWATER))) return 0;
 
-    //load the texture pack
-    loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
-
-    //load the emitters
-    for (int i = 0; i < 4096; i++) {
-        if (Blocks[i].active) {
-            if (Blocks[i].emitterName.size()) {
-                Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
-            }
-            if (Blocks[i].emitterOnBreakName.size()) {
-                Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
-            }
-            if (Blocks[i].emitterRandomName.size()) {
-                Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
-            }
-        }
-    }
-
-    //It has no texture
-    Blocks[0].pxTex = -1;
-    Blocks[0].pyTex = -1;
-    Blocks[0].pzTex = -1;
-    Blocks[0].nxTex = -1;
-    Blocks[0].nyTex = -1;
-    Blocks[0].nzTex = -1;
-
     return 1;
 
 }
@@ -1663,6 +1624,8 @@ i32 FileManager::saveBlocks(nString filePath) {
 
     iniSections.push_back("");
     iniValues.push_back(std::vector<IniValue>());
+
+
 
     Block db; //default block
     Block *b;
@@ -1754,7 +1717,30 @@ i32 FileManager::saveBlocks(nString filePath) {
 
         }
     }
-    if (saveIniFile(filePath, iniValues, iniSections)) return 0;
+   
+
+    std::ofstream file(filePath);
+    for (size_t i = 0; i < Blocks.size(); i++) {
+        if (Blocks[i].active) {
+            if (i >= LOWWATER) {
+                if (i == LOWWATER) {
+                    file << "Water:\n";
+                } else {
+                    continue;
+                }
+            } else {
+                file << Blocks[i].name << ":\n";
+            }
+
+            nString data = "  " + Keg::write(&Blocks[i], "Block", nullptr);
+            // This is hacky until cristian changes write
+            boost::replace_all(data, "\n", "\n  ");
+
+            file << data << std::endl;
+        }
+    }
+    file.flush();
+    file.close();
 
     return 1;
 }
