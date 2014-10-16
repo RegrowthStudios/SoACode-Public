@@ -5,6 +5,7 @@
 #include "LoadMonitor.h"
 
 class App;
+struct TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
 {
@@ -27,6 +28,7 @@ public:
 private:
 
     void updateThreadFunc();
+    void UpdateTerrainMesh(TerrainMeshMessage *tmm);
 
     std::thread* _updateThread;
     bool _threadRunning;

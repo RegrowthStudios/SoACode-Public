@@ -4,6 +4,7 @@
 #include "BlockData.h"
 #include "Chunk.h"
 #include "FloraGenerator.h"
+#include "MessageManager.h"
 #include "GameManager.h"
 #include "OpenglManager.h"
 #include "Options.h"
@@ -80,7 +81,8 @@ void TerrainPatch::ClearBuffers()
         tmm->terrainBuffers = terrainBuffers;
         hasBuffers = 0;
         terrainBuffers = NULL;
-        gameToGl.enqueue(OMessage(GL_M_TERRAINMESH, (void *)tmm));
+        Message message(MessageID::TERRAIN_MESH, (void *)tmm);
+        GameManager::messageManager->enqueue(ThreadName::PHYSICS, message);
     }
 }
 
@@ -90,7 +92,8 @@ void TerrainPatch::ClearTreeBuffers()
         TerrainMeshMessage *tmm = new TerrainMeshMessage;
         tmm->face = face;
         tmm->terrainBuffers = terrainBuffers;
-        gameToGl.enqueue(OMessage(GL_M_REMOVETREES, (void *)tmm));
+        Message message(MessageID::REMOVE_TREES, (void *)tmm);
+        GameManager::messageManager->enqueue(ThreadName::PHYSICS, message);
     }
 }
 
@@ -1088,7 +1091,10 @@ bool TerrainPatch::CreateMesh()
     tmm->indexSize = indice;
     tmm->treeIndexSize = treeIndex * 6 / 4;
     tmm->index = index;
-    gameToGl.enqueue(OMessage(GL_M_TERRAINMESH, (void *)tmm));
+
+    Message message(MessageID::TERRAIN_MESH, (void *)tmm);
+    GameManager::messageManager->enqueue(ThreadName::PHYSICS, message);
+
     hasBuffers = 1;
 
     if (removeChildren){

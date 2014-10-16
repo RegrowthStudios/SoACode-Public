@@ -3,14 +3,17 @@
 
 #include "InitScreen.h"
 #include "LoadScreen.h"
+#include "MainMenuScreen.h"
 #include "ScreenList.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
     scrLoad = new LoadScreen(this);
+    scrMainMenu = new MainMenuScreen(this);
 
     _screenList->addScreen(scrInit);
     _screenList->addScreen(scrLoad);
+    _screenList->addScreen(scrMainMenu);
 
     _screenList->setScreen(scrInit->getIndex());
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL/SDL.h>
 
+#include "Player.h"
 #include "GameManager.h"
 #include "InputManager.h"
 #include "LoadMonitor.h"
@@ -13,5 +14,8 @@ class LoadTaskGameManager : public ILoadTask {
         GameManager::inputManager->loadAxes();
         GameManager::gameState = GameStates::MAINMENU;
         GameManager::initializeSystems();
+        GameManager::player = new Player();
+#define SPEEDMOD 0.0095f
+        GameManager::player->setMoveSpeed(SPEEDMOD, 0.166f);
     }
 };

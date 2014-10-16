@@ -3,6 +3,7 @@
 
 class InitScreen;
 class LoadScreen;
+class MainMenuScreen;
 
 class App : public MainGame {
 public:
@@ -15,4 +16,5 @@ public:
     // Accessible Pointers To Screens
     InitScreen* scrInit;
     LoadScreen* scrLoad;
+    MainMenuScreen* scrMainMenu;
 };

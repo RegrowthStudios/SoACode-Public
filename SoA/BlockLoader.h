@@ -2,11 +2,8 @@
 class BlockLoader
 {
 public:
-    BlockLoader();
-    ~BlockLoader();
 
-    void loadBlocks(nString filePath);
-
-private:
+    static void loadBlocks(nString filePath);
+    static void saveBlocks(nString filePath);
 };
 

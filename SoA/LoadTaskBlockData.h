@@ -1,6 +1,7 @@
 #pragma once
 #include "LoadMonitor.h"
 #include "BlockData.h"
+#include "BlockLoader.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "Player.h"
@@ -12,14 +13,10 @@ class LoadTaskBlockData : public ILoadTask {
 
         if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
         //    cout << SDL_GetTicks() - stt << endl;
-        fileManager.saveBlocks("Data/test.yaml");
 
-        // Hacky shit.
-        GameManager::player = new Player();
+        BlockLoader::saveBlocks("Data/BlockData.yaml");
+
         Player* player = GameManager::player;
-
-#define SPEEDMOD 0.0095f
-        player->setMoveSpeed(SPEEDMOD, 0.166f);
 
         // Initialize objects
         for (size_t i = 1; i < Blocks.size(); i++){

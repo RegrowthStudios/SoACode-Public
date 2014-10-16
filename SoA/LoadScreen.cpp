@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "LoadScreen.h"
 
+#include "App.h"
 #include "BlockData.h"
 #include "colors.h"
 #include "DebugRenderer.h"
@@ -14,7 +15,9 @@
 #include "LoadTaskGameManager.h"
 #include "LoadTaskOptions.h"
 #include "LoadTaskBlockData.h"
+#include "LoadTaskPlanet.h"
 #include "LoadTaskSound.h"
+#include "MainMenuScreen.h"
 #include "ParticleEmitter.h"
 #include "Player.h"
 #include "SamplerState.h"
@@ -36,7 +39,7 @@ _monitor() {
 }
 
 i32 LoadScreen::getNextScreen() const {
-    return SCREEN_INDEX_NO_SCREEN;
+    return _app->scrMainMenu->getIndex();
 }
 i32 LoadScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
@@ -168,13 +171,20 @@ void LoadScreen::update(const GameTime& gameTime) {
         Blocks[0].nyTex = -1;
         Blocks[0].nzTex = -1;
 
+        LoadTaskPlanet loadTaskPlanet;
+        loadTaskPlanet.load();
+
+        openglManager.InitializeFrameBuffer();
+        worldRenderer.Initialize();
+
+        _state = ScreenState::CHANGE_NEXT;
         loadedTextures = true;
     }
-
 }
 void LoadScreen::draw(const GameTime& gameTime) {
     const GameWindow* w = &_game->getWindow();
 
+    glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     _sb->begin();

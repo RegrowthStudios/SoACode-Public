@@ -1717,30 +1717,6 @@ i32 FileManager::saveBlocks(nString filePath) {
 
         }
     }
-   
-
-    std::ofstream file(filePath);
-    for (size_t i = 0; i < Blocks.size(); i++) {
-        if (Blocks[i].active) {
-            if (i >= LOWWATER) {
-                if (i == LOWWATER) {
-                    file << "Water:\n";
-                } else {
-                    continue;
-                }
-            } else {
-                file << Blocks[i].name << ":\n";
-            }
-
-            nString data = "  " + Keg::write(&Blocks[i], "Block", nullptr);
-            // This is hacky until cristian changes write
-            boost::replace_all(data, "\n", "\n  ");
-
-            file << data << std::endl;
-        }
-    }
-    file.flush();
-    file.close();
 
     return 1;
 }
