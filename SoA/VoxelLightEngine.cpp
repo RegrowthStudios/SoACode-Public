@@ -505,7 +505,6 @@ void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 inte
     int x = blockIndex % CHUNK_WIDTH;
     int y = blockIndex / CHUNK_LAYER;
     int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
-    cout << x << " " << y << " " << z << endl;
 
     Chunk* left = chunk->left;
     Chunk* right = chunk->right;
