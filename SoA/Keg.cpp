@@ -202,25 +202,25 @@ namespace Keg {
         auto kv = e->_values.find(s);
         if (kv != e->_values.end()) *((ui8*)data) = (ui8)kv->second;
     }
-    nString Enum::getValue64(void* data, Enum* e) {
+    nString Enum::getValue64(const void* data, Enum* e) {
         ui64 key = *((ui64*)data);
         auto kv = e->_valuesRev.find(key);
         if (kv != e->_valuesRev.end()) return kv->second;
         return "";
     }
-    nString Enum::getValue32(void* data, Enum* e) {
+    nString Enum::getValue32(const void* data, Enum* e) {
         ui32 key = *((ui32*)data);
         auto kv = e->_valuesRev.find(key);
         if (kv != e->_valuesRev.end()) return kv->second;
         return "";
     }
-    nString Enum::getValue16(void* data, Enum* e) {
+    nString Enum::getValue16(const void* data, Enum* e) {
         ui16 key = *((ui16*)data);
         auto kv = e->_valuesRev.find(key);
         if (kv != e->_valuesRev.end()) return kv->second;
         return "";
     }
-    nString Enum::getValue8(void* data, Enum* e) {
+    nString Enum::getValue8(const void* data, Enum* e) {
         ui8 key = *((ui8*)data);
         auto kv = e->_valuesRev.find(key);
         if (kv != e->_valuesRev.end()) return kv->second;
@@ -381,8 +381,8 @@ namespace Keg {
         return parse((ui8*)dest, baseNode, env, type);
     }
 
-    bool write(ui8* src, YAML::Emitter& e, Environment* env, Type* type);
-    nString write(void* src, Type* type, Environment* env /*= nullptr*/) {
+    bool write(const ui8* src, YAML::Emitter& e, Environment* env, Type* type);
+    nString write(const void* src, Type* type, Environment* env /*= nullptr*/) {
         // Test Arguments
         if (env == nullptr) env = getGlobalEnvironment();
         if (src == nullptr || type == nullptr) {
@@ -395,7 +395,7 @@ namespace Keg {
         }
         return nString(e.c_str());
     }
-    nString write(void* src, const nString& typeName, Environment* env /*= nullptr*/) {
+    nString write(const void* src, const nString& typeName, Environment* env /*= nullptr*/) {
         // Test Arguments
         if (env == nullptr) env = getGlobalEnvironment();
         if (src == nullptr || typeName.empty()) {
@@ -412,7 +412,7 @@ namespace Keg {
         }
         return nString(e.c_str());
     }
-    nString write(void* src, const ui32& typeID, Environment* env /*= nullptr*/) {
+    nString write(const void* src, const ui32& typeID, Environment* env /*= nullptr*/) {
         // Test Arguments
         if (env == nullptr) env = getGlobalEnvironment();
         if (src == nullptr || typeID == KEG_BAD_TYPE_ID) {
@@ -587,7 +587,7 @@ namespace Keg {
         }
         return Error::NONE;
     }
-    bool write(ui8* src, YAML::Emitter& e, Environment* env, Type* type) {
+    bool write(const ui8* src, YAML::Emitter& e, Environment* env, Type* type) {
         // TODO: Add Ptr And Array Support
 
         Type* interiorType = nullptr;
@@ -602,7 +602,7 @@ namespace Keg {
 
             // Write The Value
             Value v = iter->second;
-            ui8* data = src + v.offset;
+            const ui8* data = src + v.offset;
             switch (v.type) {
             case BasicType::ENUM:
                 // Attempt To Find The Enum

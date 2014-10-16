@@ -64,7 +64,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmdd.lib;awesomium.lib;fmodexL_vc.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmdd.lib;awesomium.lib;fmodexL_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -110,15 +110,16 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="GameWindow.h" />
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LoadBlockDataTask.h" />
     <ClInclude Include="LoadPlanetTask.h" />
     <ClInclude Include="LoadTaskOptions.h" />
     <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="MainMenuScreen.h" />
-    <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="SpriteBatchShader.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
     <ClInclude Include="InitScreen.h" />
@@ -250,8 +251,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
-    <ClCompile Include="MenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="colors.cpp" />
     <ClCompile Include="InitScreen.cpp" />

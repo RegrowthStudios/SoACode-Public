@@ -3,7 +3,9 @@
 
 #include <SDL\SDL.h>
 
-GraphicsDevice::GraphicsDevice() : _props({}) {
+GraphicsDevice::GraphicsDevice(SDL_Window* w) :
+_props({}) {
+    initResolutions(w);
 }
 
 void GraphicsDevice::refreshInformation() {
@@ -55,6 +57,22 @@ void GraphicsDevice::refreshInformation() {
     printf("Max 3D Texture Size:      %d\n", _props.max3DTextureSize);
     printf("Max Array Texture Layers: %d\n", _props.maxArrayTextureLayers);
 #endif // DEBUG
+}
+
+void GraphicsDevice::initResolutions(SDL_Window* w) {
+    i32 dispIndex = SDL_GetWindowDisplayIndex(w);
+    i32 dispCount = SDL_GetNumDisplayModes(dispIndex);
+    SDL_DisplayMode dMode;
+    for (i32 dmi = 0; dmi < dispCount; dmi++) {
+        SDL_GetDisplayMode(dispIndex, dmi, &dMode);
+        _props.resolutionOptions.push_back(ui32v2(dMode.w, dMode.h));
+    }
+    std::sort(_props.resolutionOptions.begin(), _props.resolutionOptions.end(), [] (const ui32v2& r1, const ui32v2& r2) {
+        if (r1.x == r2.x) return r1.y > r2.y;
+        else return r1.x > r2.x;
+    });
+    auto& iter = std::unique(_props.resolutionOptions.begin(), _props.resolutionOptions.end());
+    _props.resolutionOptions.resize(iter - _props.resolutionOptions.begin());
 }
 
 GraphicsDevice* GraphicsDevice::_current = nullptr;

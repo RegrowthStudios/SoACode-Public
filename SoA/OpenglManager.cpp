@@ -740,7 +740,7 @@ void Initialize_SDL_OpenGL()
 
     SDL_GL_SetSwapInterval((int)graphicsOptions.isVsync);
 
-    GraphicsDevice* gd = new GraphicsDevice();
+    GraphicsDevice* gd = new GraphicsDevice(mainWindow);
     gd->refreshInformation();
 
 
