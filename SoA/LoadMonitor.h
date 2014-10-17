@@ -25,7 +25,7 @@ public:
     std::unordered_set<nString> dependencies;
 private:
     // Loading State
-    bool _isFinished;
+    volatile bool _isFinished;
 };
 
 // Loading Task Closure Wrapper
@@ -95,5 +95,5 @@ private:
 
     // Monitor Lock
     std::mutex _lock;
-    std::condition_variable_any _completionCondition;
+    std::condition_variable _completionCondition;
 };
