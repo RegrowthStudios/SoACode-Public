@@ -32,7 +32,7 @@
 #include "Threadpool.h"
 #include "VoxelEditor.h"
 #include "WorldEditor.h"
-#include "shader.h"
+
 #include "utils.h"
 
 #include "App.h"

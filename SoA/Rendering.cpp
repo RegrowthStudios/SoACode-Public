@@ -6,13 +6,15 @@
 #include "BlockData.h"
 #include "VoxelMesher.h"
 #include "Chunk.h"
+#include "GLProgramManager.h"
+#include "GameManager.h"
 #include "ObjectLoader.h"
 #include "OpenGLStructs.h"
 #include "Options.h"
 #include "Texture2d.h"
 #include "Texture2d.h"
 #include "WorldStructs.h"
-#include "shader.h"
+
 
 // TODO: Remove This
 using namespace glm;
@@ -525,9 +527,13 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     glm::mat4 MVP = VP * GlobalModelMatrix;
 
-    basicColorShader.Bind();
-    glUniformMatrix4fv(basicColorShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
-    glUniform4f(basicColorShader.colorID, (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
+
+    program->use();
+    program->enableVertexAttribArrays();
+
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform4f(program->getUniform("Color"), (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
 
     glBindBuffer(GL_ARRAY_BUFFER, gridvboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gridelID);
@@ -540,7 +546,8 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
     glDrawElements(GL_LINES, 24, GL_UNSIGNED_SHORT, (void *)0);
     glEnable(GL_CULL_FACE);
 
-    basicColorShader.UnBind();
+    program->disableVertexAttribArrays();
+    program->unuse();
 
     GlobalModelMatrix[0][0] = 1.0;
     GlobalModelMatrix[1][1] = 1.0;

@@ -11,7 +11,7 @@
 #include "BlockData.h"
 #include "ChunkManager.h"
 #include "Errors.h"
-#include "shader.h"
+
 #include "Options.h"
 #include "FileSystem.h"
 #include "GameManager.h"
@@ -119,11 +119,6 @@ void InitializeTTF()
         exit(331);
     }
     // handle error
-}
-
-
-void InitializeText2D(const char * texturePath, const char * dataPath){
-    texture2Dshader.Initialize();
 }
 
 void SetText(Texture2D &tex, const char * text, int x, int y, int size, int fontIndex, int justification, int maxWidth, int ycentered, glm::vec4 color){

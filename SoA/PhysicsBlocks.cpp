@@ -15,7 +15,7 @@
 #include "PhysicsEngine.h"
 #include "TerrainGenerator.h"
 #include "Texture2d.h"
-#include "shader.h"
+
 #include "utils.h"
 
 PhysicsBlock::PhysicsBlock(const glm::dvec3 &pos, int BlockType, int ydiff, glm::vec2 &dir, glm::vec3 extraForce)

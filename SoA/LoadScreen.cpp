@@ -21,7 +21,7 @@
 #include "ParticleEmitter.h"
 #include "Player.h"
 #include "SamplerState.h"
-#include "shader.h"
+
 #include "SpriteFont.h"
 #include "SpriteBatch.h";
 #include "RasterizerState.h"

@@ -365,9 +365,6 @@
     <ClInclude Include="ScreenList.h">
       <Filter>SOA Files\Screens\Base</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="SimplexNoise.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
@@ -726,9 +723,6 @@
     </ClCompile>
     <ClCompile Include="ScreenList.cpp">
       <Filter>SOA Files\Screens\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="SimplexNoise.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>

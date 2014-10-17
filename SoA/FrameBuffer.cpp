@@ -3,7 +3,7 @@
 
 #include "global.h"
 #include "Options.h"
-#include "shader.h"
+
 
 static const GLfloat g_quad_vertex_buffer_data[] = {
     -1.0f, -1.0f, 0.0f,

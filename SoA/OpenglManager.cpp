@@ -39,7 +39,7 @@
 #include "VoxelEditor.h"
 #include "VRayHelper.h"
 #include "WorldEditor.h"
-#include "shader.h"
+
 #include "utils.h"
 
 vector <TextInfo> hudTexts;
@@ -662,36 +662,7 @@ void DrawGame()
 
 void InitializeShaders()
 {
-    textureShader.Initialize();
-
-    basicColorShader.DeleteShader();
-    basicColorShader.Initialize();
-    simplexNoiseShader.DeleteShader();
-    //simplexNoiseShader.Initialize();
-    hdrShader.DeleteShader();
-    motionBlurShader.DeleteShader();
-    motionBlurShader.Initialize();
-    hdrShader.Initialize();
-    blockShader.DeleteShader();
-    blockShader.Initialize();
-    cutoutShader.DeleteShader();
-    cutoutShader.Initialize();
-    transparencyShader.DeleteShader();
-    transparencyShader.Initialize();
-    waterShader.DeleteShader();
-    waterShader.Initialize();
-    billboardShader.DeleteShader();
-    billboardShader.Initialize();
-    fixedSizeBillboardShader.DeleteShader();
-    fixedSizeBillboardShader.Initialize();
-    sonarShader.DeleteShader();
-    sonarShader.Initialize();
-    physicsBlockShader.DeleteShader();
-    physicsBlockShader.Initialize();
-    treeShader.DeleteShader();
-    treeShader.Initialize();
-
-    checkGlError("InitializeShaders()");
+    
 }
 
 void Initialize_SDL_OpenGL()
@@ -2353,6 +2324,7 @@ void OpenglManager::drawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, 
 
 void OpenglManager::drawCutoutBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
+
     cutoutShader.Bind();
 
     glUniform1f(cutoutShader.lightTypeID, lightActive);

@@ -8,7 +8,7 @@
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
 #include "ParticleMesh.h"
-#include "shader.h"
+
 
 BillboardVertex vboBVerts[maxParticles];
 
@@ -329,7 +329,9 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, ballMaskTexture.ID);
 
-    glUniform1f(billboardShader.alphaThresholdID, 0.01f);
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+
+    glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -339,8 +341,8 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(billboardShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(billboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
@@ -377,8 +379,9 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
         }
     }
 
-   
-    glUniform1f(billboardShader.alphaThresholdID, 0.01f);
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+
+    glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -388,8 +391,8 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(billboardShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(billboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);

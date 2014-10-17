@@ -6,7 +6,7 @@
 
 #include "BlockData.h"
 #include "Errors.h"
-#include "shader.h"
+
 #include "TerrainGenerator.h"
 
 // TODO: Remove This

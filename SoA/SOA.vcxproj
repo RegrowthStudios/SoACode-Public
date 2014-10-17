@@ -230,7 +230,6 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
-    <ClInclude Include="shader.h" />
     <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="TerrainGenerator.h" />
@@ -348,7 +347,6 @@
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rendering.cpp" />
-    <ClCompile Include="shader.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="TerrainGenerator.cpp" />

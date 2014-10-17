@@ -35,7 +35,6 @@
 #include "VoxelRay.h"
 #include "Vorb.h"
 #include "ChunkIOManager.h"
-#include "shader.h"
 
 #include "VoxelPlanetMapper.h"
 

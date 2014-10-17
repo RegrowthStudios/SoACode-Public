@@ -10,7 +10,7 @@
 #include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
-#include "shader.h"
+
 #include "utils.h"
 
 int lodDetailLevels[DetailLevels+3] = {8/scale, 16/scale, 32/scale, 64/scale, 128/scale, 256/scale, 512/scale, 1024/scale, 2048/scale, 4096/scale, 8192/scale, 16384/scale, 32768/scale, 65536/scale, 131072/scale, 262144/scale, 524228/scale};

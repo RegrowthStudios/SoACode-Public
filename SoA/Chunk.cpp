@@ -18,7 +18,6 @@
 #include "Sound.h"
 #include "TerrainGenerator.h"
 #include "ThreadPool.h"
-#include "shader.h"
 #include "utils.h"
 #include "VoxelUtils.h"
 

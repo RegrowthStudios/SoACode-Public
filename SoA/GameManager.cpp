@@ -30,7 +30,7 @@
 #include "WSOData.h"
 #include "WSOScanner.h"
 #include "WorldEditor.h"
-#include "shader.h"
+
 #include "utils.h"
 #include "VoxelEditor.h"
 #include "voxelWorld.h"

@@ -16,6 +16,8 @@
 #ifndef GLPROGRAM_H_
 #define GLPROGRAM_H_
 
+#include "Vorb.h"
+
 namespace vorb {
 namespace core {
 
@@ -85,13 +87,13 @@ public:
     /// Gets an attribute index
     /// @param name: the attribute to get the index for
     /// returns the integer attribute index
-    const ui32& getAttribute(const nString& name) const {
+    inline const ui32& getAttribute(const nString& name) const {
         return _attributes.at(name);
     }
     /// Gets a uniform index
     /// @param name: the uniform to get the index for
     /// returns the integer uniform index
-    const ui32& getUniform(const nString& name) const {
+    inline const ui32& getUniform(const nString& name) const {
         return _uniforms.at(name);
     }
 

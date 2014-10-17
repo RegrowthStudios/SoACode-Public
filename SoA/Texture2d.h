@@ -62,7 +62,6 @@ void FreeTextures();
 
 void InitializeTTF();
 
-void InitializeText2D(const char *texturePath, const char *dataPath);
 void SetText(class Texture2D &tex, const char * text, int x, int y, int size, int fontIndex, int justification = 0, int maxWidth = 0, int ycentered = 1, glm::vec4 color = glm::vec4(1.0));
 void PrintText(const char * text, int x, int y, int size, int fontIndex, int justification=0, int ycentered = 1, glm::vec4 color = glm::vec4(1.0));
 //void ClearText();

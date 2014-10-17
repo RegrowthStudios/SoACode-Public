@@ -7,7 +7,9 @@
 #include "BlockData.h"
 #include "Chunk.h"
 #include "Options.h"
-#include "Shader.h"
+#include "GameManager.h"
+#include "GLProgramManager.h"
+
 #include "Texture2d.h"
 
 MultiplePreciseTimer globalMultiplePreciseTimer;
@@ -25,25 +27,28 @@ void Marker::Draw(glm::mat4 &VP, const glm::dvec3 &playerPos)
     static double oldDist = 0.0f;
     dist = glm::length(pos - playerPos)*0.5;
 
-    fixedSizeBillboardShader.Bind();
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("FixedSizeBillboard");
+    program->use();
+    program->enableVertexAttribArrays();
+
     GlobalModelMatrix[3][0] = (0.0);
     GlobalModelMatrix[3][1] = (0.0);
     GlobalModelMatrix[3][2] = (0.0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
     glm::mat4 MVP = VP;
-    glUniform2f(fixedSizeBillboardShader.uVstartID, 0.0f, 0.0f);
+    glUniform2f(program->getUniform("UVstart"), 0.0f, 0.0f);
     float pixSize = 40.0f;
     float width = pixSize / screenWidth2d;
     float height = (pixSize * ((float)screenHeight2d / screenWidth2d)) / screenHeight2d;
-    glUniform1f(fixedSizeBillboardShader.widthID, width);
-    glUniform1f(fixedSizeBillboardShader.heightID, height);
-    glUniform2f(fixedSizeBillboardShader.uVwidthID, 1.0f, 1.0f);
-    glUniform4f(fixedSizeBillboardShader.colorID, color.color.r, color.color.g, color.color.b, 0.5f);
-    glUniform1f(fixedSizeBillboardShader.textureUnitID, 0.0f);
-    glUniform2f(fixedSizeBillboardShader.uvModID, -0.5f, 0.0f);
+    glUniform1f(program->getUniform("width"), width);
+    glUniform1f(program->getUniform("height"), height);
+    glUniform2f(program->getUniform("UVstart"), 1.0f, 1.0f);
+    glUniform4f(program->getUniform("particleColor"), color.color.r, color.color.g, color.color.b, 0.5f);
+    glUniform1f(program->getUniform("textureUnitID"), 0.0f);
+    glUniform2f(program->getUniform("UVmod"), -0.5f, 0.0f);
 
-    glUniformMatrix4fv(fixedSizeBillboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, markerTexture.ID);
 
@@ -68,18 +73,19 @@ void Marker::Draw(glm::mat4 &VP, const glm::dvec3 &playerPos)
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(FixedSizeBillboardVertex)* billVerts.size(), NULL, GL_STREAM_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FixedSizeBillboardVertex)* billVerts.size(), &(billVerts[0]));
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FixedSizeBillboardVertex), 0);
-    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(FixedSizeBillboardVertex), (void *)12);
+    glVertexAttribPointer(program->getAttribute("position"), 3, GL_FLOAT, GL_FALSE, sizeof(FixedSizeBillboardVertex), 0);
+    glVertexAttribPointer(program->getAttribute("uv"), 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(FixedSizeBillboardVertex), (void *)12);
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
-    glUniform4f(fixedSizeBillboardShader.colorID, color.color.r, color.color.g, color.color.b, 1.0f);
+    glUniform4f(program->getUniform("particleColor"), color.color.r, color.color.g, color.color.b, 1.0f);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
-    fixedSizeBillboardShader.UnBind();
+    program->disableVertexAttribArrays();
+    program->unuse();
 
     char diststr[64];
     sprintf(diststr, "%.2lf km", dist*0.001);

@@ -10,7 +10,6 @@
 
 #include "SDL\SDL.h"
 #include "Errors.h"
-#include "shader.h"
 #include "Options.h"
 
 AwesomiumInterface::AwesomiumInterface() : _isInitialized(0), _width(0), _height(0), _vboID(0), _elementBufferID(0){}

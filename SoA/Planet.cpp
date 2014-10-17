@@ -16,7 +16,7 @@
 #include "Rendering.h"
 #include "TerrainGenerator.h"
 #include "TerrainPatch.h"
-#include "shader.h"
+
 
 ObjectLoader objectLoader;
 

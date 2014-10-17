@@ -4,7 +4,7 @@
 
 #include "Chunk.h"
 #include "global.h"
-#include "shader.h"
+
 
 void ChunkRenderer::draw(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
