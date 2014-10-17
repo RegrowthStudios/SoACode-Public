@@ -503,9 +503,6 @@
     <ClInclude Include="LoadTaskShaders.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="SpriteBatchShader.h">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
-    </ClInclude>
     <ClInclude Include="GameWindow.h">
       <Filter>SOA Files\Screens\Base</Filter>
     </ClInclude>

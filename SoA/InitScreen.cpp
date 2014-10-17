@@ -6,6 +6,7 @@
 #include "colors.h"
 #include "DepthState.h"
 #include "LoadScreen.h"
+#include "GameManager.h"
 #include "RasterizerState.h"
 #include "SamplerState.h"
 #include "SpriteBatch.h"
@@ -51,7 +52,7 @@ void InitScreen::onEvent(const SDL_Event& e) {
 }
 void InitScreen::update(const GameTime& gameTime) {
     // Immediatly move to next state
-    _state = ScreenState::CHANGE_NEXT;
+  //  _state = ScreenState::CHANGE_NEXT;
 }
 void InitScreen::draw(const GameTime& gameTime) {
     const GameWindow* w = &_game->getWindow();
@@ -62,7 +63,7 @@ void InitScreen::draw(const GameTime& gameTime) {
 }
 
 void InitScreen::buildSpriteResources() {
-    _sb = new SpriteBatch(true, true);
+    _sb = new SpriteBatch(GameManager::glProgramManager, true, true);
     _font = new SpriteFont(INIT_SCREEN_FONT, INIT_SCREEN_FONT_SIZE);
 }
 void InitScreen::destroySpriteResources() {

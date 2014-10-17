@@ -21,7 +21,7 @@ DevConsoleView::~DevConsoleView() {
     dispose();
 }
 
-void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
+void DevConsoleView::init(DevConsole* console, i32 linesToRender, vcore::GLProgramManager* glProgramManager) {
     _renderRing.set_capacity(linesToRender);
     _renderRing.clear();
 
@@ -32,8 +32,7 @@ void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
     _console->addListener(_fHook, this);
     _isViewModified = true;
 
-    _batch = new SpriteBatch(true);
-    _batch->init();
+    _batch = new SpriteBatch(glProgramManager, true, true);
 
     _font = new SpriteFont("Fonts\\chintzy.ttf", 32);
 }

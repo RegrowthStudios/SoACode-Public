@@ -1,6 +1,6 @@
 #pragma once
 #include "PtrRecycler.h"
-#include "SpriteBatchShader.h"
+#include "GLProgramManager.h"
 
 class DepthState;
 class RasterizerState;
@@ -41,10 +41,10 @@ public:
 
 class SpriteBatch {
 public:
-    SpriteBatch(bool isDynamic = true, bool init = false);
+    SpriteBatch(vcore::GLProgramManager* glProgramManager, bool isDynamic = true, bool init = false);
     ~SpriteBatch();
 
-    void init();
+    void init(vcore::GLProgramManager* glProgramManager);
     void dispose();
 
     void begin();
@@ -58,9 +58,9 @@ public:
     void drawString(SpriteFont* font, const cString s, f32v2 position, f32 desiredHeight, f32 scaleX, const ColorRGBA8& tint, f32 depth = 0.0f);
     void end(SpriteSortMode ssm = SpriteSortMode::TEXTURE);
 
-    void renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, const SpriteBatchShader* shader = nullptr);
-    void renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, const SpriteBatchShader* shader = nullptr);
-    void renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, const SpriteBatchShader* shader = nullptr);
+    void renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
+    void renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
+    void renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
 
     void sortGlyphs(SpriteSortMode ssm);
     void generateBatches();
@@ -75,8 +75,7 @@ private:
         return g1->depth > g2->depth;
     }
 
-    void createProgram();
-    void searchUniforms();
+    void createProgram(vcore::GLProgramManager* glProgramManager);
     void createVertexArray();
     void createPixelTexture();
 
@@ -102,8 +101,7 @@ private:
     PtrRecycler<SpriteBatchCall> _batchRecycler;
 
     // Custom Shader
-    SpriteBatchShader _shader;
-    ui32 _idVS, _idFS;
+    vcore::GLProgram* _program;
 
     // Default White Pixel Texture
     ui32 _texPixel;

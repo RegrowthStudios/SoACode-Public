@@ -98,10 +98,10 @@ public:
     }
 
     /// Enables all vertex attrib arrays used by the program
-    void enableVertexAttribArrays();
+    void enableVertexAttribArrays() const;
 
     /// Disables all vertex attrib arrays used by the program
-    void disableVertexAttribArrays();
+    void disableVertexAttribArrays() const;
 
     /// Tell the GPU to use the program
     void use();

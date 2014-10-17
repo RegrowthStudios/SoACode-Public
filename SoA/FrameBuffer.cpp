@@ -3,7 +3,7 @@
 
 #include "Errors.h"
 
-static const GLfloat g_quad_vertex_buffer_data[] = {
+static const f32 g_quad_vertex_buffer_data[] = {
     -1.0f, -1.0f, 0.0f,
     1.0f, -1.0f, 0.0f,
     -1.0f, 1.0f, 0.0f,
@@ -12,9 +12,9 @@ static const GLfloat g_quad_vertex_buffer_data[] = {
     1.0f, 1.0f, 0.0f,
 };
 
-static const GLfloat wholeScreenVertices[] = { 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f };
+static const f32 wholeScreenVertices[] = { 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f };
 
-static const GLushort boxDrawIndices[6] = { 0, 1, 2, 2, 3, 0 };
+static const ui16 boxDrawIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
 FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 height, ui32 msaa) :
     _vbo(0),

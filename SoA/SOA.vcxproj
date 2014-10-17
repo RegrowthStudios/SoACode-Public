@@ -122,7 +122,6 @@
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MessageManager.h" />
-    <ClInclude Include="SpriteBatchShader.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />

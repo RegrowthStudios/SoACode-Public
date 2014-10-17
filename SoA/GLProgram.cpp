@@ -220,13 +220,13 @@ void GLProgram::initUniforms() {
     }
 }
 
-void GLProgram::enableVertexAttribArrays() {
+void GLProgram::enableVertexAttribArrays() const {
     for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
         glEnableVertexAttribArray(it->second);
     }
 }
 
-void GLProgram::disableVertexAttribArrays() {
+void GLProgram::disableVertexAttribArrays() const {
     for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
         glDisableVertexAttribArray(it->second);
     }

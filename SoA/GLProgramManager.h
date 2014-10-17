@@ -37,6 +37,11 @@ public:
     /// @param attr: The vector of attributes for the shader. If it is nullptr
     /// attributes will be set automatically
     void addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr = nullptr);
+    /// Adds an existing shader to the cache of programs
+    /// @param shaderName: The string handle for the shader. Use this string
+    /// to get the shader in the future.
+    /// @param program: The program to add
+    void addProgram(nString shaderName, GLProgram* program);
 
     /// Gets a shader from the cache
     /// returns nullptr if the shader doesn't exist

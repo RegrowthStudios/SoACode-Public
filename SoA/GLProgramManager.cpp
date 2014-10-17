@@ -53,6 +53,18 @@ void GLProgramManager::addProgram(nString shaderName, cString vertexPath, cStrin
     _programs[shaderName] = newProgram;
 }
 
+void GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
+    // Check to see if the program is already made
+    auto it = _programs.find(shaderName);
+    if (it != _programs.end()) {
+        std::cerr << "Error: Already loaded shader " << shaderName << ". Reloading...\n";
+        delete it->second;
+    }
+
+    // Add program to the map
+    _programs[shaderName] = program;
+}
+
 GLProgram* GLProgramManager::getProgram(nString shaderName) {
     auto it = _programs.find(shaderName);
     if (it != _programs.end()) {
