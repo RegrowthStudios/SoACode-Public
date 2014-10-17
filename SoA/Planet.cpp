@@ -524,7 +524,9 @@ void Planet::drawTrees(glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVa
 {
     glm::vec3 worldUp = glm::vec3(glm::normalize(PlayerPos));
 //    glDisable(GL_CULL_FACE);
-    treeShader.Bind();
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("TreeBillboard");
+    program->use();
+    program->enableVertexAttribArrays();
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, treeTrunkTexture1.ID);
@@ -535,18 +537,18 @@ void Planet::drawTrees(glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVa
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, mushroomCapTexture.ID);
 
-    glUniform3f(treeShader.worldUpID, worldUp.x, worldUp.y, worldUp.z);
-    glUniform1f(treeShader.fadeDistanceID, (GLfloat)((csGridWidth/2) * CHUNK_WIDTH)*invPlanetScale);
-    glUniform1f(treeShader.sunValID, sunVal);
+    glUniform3f(program->getUniform("worldUp"), worldUp.x, worldUp.y, worldUp.z);
+    glUniform1f(program->getUniform("FadeDistance"), (GLfloat)((csGridWidth / 2) * CHUNK_WIDTH)*invPlanetScale);
+    glUniform1f(program->getUniform("sunVal"), sunVal);
 
     for (size_t f = 0; f < 6; f++){
         for (size_t i = 0; i < drawList[f].size(); i++){
-            if (drawList[f][i]->treeIndexSize) TerrainPatch::DrawTrees(drawList[f][i], PlayerPos, VP);
+            if (drawList[f][i]->treeIndexSize) TerrainPatch::DrawTrees(drawList[f][i], program, PlayerPos, VP);
         }
     }
 
-    
-    treeShader.UnBind();
+    program->disableVertexAttribArrays();
+    program->unuse();
 
 }
 

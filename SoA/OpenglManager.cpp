@@ -483,7 +483,7 @@ void OpenglManager::DrawFrameBuffer()
     else{
         start = 0;
     }
-    frameBuffer->draw(flags);
+    frameBuffer->draw();
 }
 
 void DrawGame()

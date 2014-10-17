@@ -410,42 +410,42 @@ int AwesomiumUI::update()
 
 void AwesomiumUI::Draw()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPos), vertexPos, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(uiboxUVs), uiboxUVs, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(uiboxDrawIndices), uiboxDrawIndices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexColor), vertexColor, GL_STATIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPos), vertexPos, GL_STATIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(uiboxUVs), uiboxUVs, GL_STATIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(uiboxDrawIndices), uiboxDrawIndices, GL_STATIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertexColor), vertexColor, GL_STATIC_DRAW);
 
-    // Bind shader
-    texture2Dshader.Bind((GLfloat)ScreenWidth, (GLfloat)ScreenHeight);
-    glUniform1f(texture2Dshader.Text2DUseRoundMaskID, 0.0f);
-    
-    // Bind texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    //// Bind shader
+    //texture2Dshader.Bind((GLfloat)ScreenWidth, (GLfloat)ScreenHeight);
+    //glUniform1f(texture2Dshader.Text2DUseRoundMaskID, 0.0f);
+    //
+    //// Bind texture
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(texture2Dshader.Text2DUniformID, 0);
+    //// Set our "myTextureSampler" sampler to user Texture Unit 0
+    //glUniform1i(texture2Dshader.Text2DUniformID, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+    //glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
+    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
-    // 2nd attribute buffer : UVs
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+    //// 2nd attribute buffer : UVs
+    //glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
+    //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
-    // 3rd attribute buffer : Colors
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+    //// 3rd attribute buffer : Colors
+    //glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
+    //glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
-    // Draw call
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    //// Draw call
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
+    //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
-    texture2Dshader.UnBind();
+    //texture2Dshader.UnBind();
 }
 
 void AwesomiumUI::SetColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)

@@ -8,6 +8,9 @@
 
 #include "AwesomiumInterface.h"
 
+#include "GameManager.h"
+#include "GLProgramManager.h"
+
 #include "SDL\SDL.h"
 #include "Errors.h"
 #include "Options.h"
@@ -115,6 +118,7 @@ void AwesomiumInterface::update()
     }
 }
 
+// TODO(Ben): Update this to use spritebatch or something other than Texture2D
 void AwesomiumInterface::draw()
 {
     //Check if draw coords were set
@@ -124,24 +128,33 @@ void AwesomiumInterface::draw()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferID);
 
     // Bind shader
-    texture2Dshader.Bind((GLfloat)graphicsOptions.screenWidth, (GLfloat)graphicsOptions.screenHeight);
-    glUniform1f(texture2Dshader.Text2DUseRoundMaskID, 0.0f);
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture2D");
+    program->use();
+    program->enableVertexAttribArrays();
+
+    glUniform1f(program->getUniform("xdim"), (GLfloat)graphicsOptions.screenWidth);
+    glUniform1f(program->getUniform("ydim"), (GLfloat)graphicsOptions.screenHeight);
+
+    glUniform1f(program->getUniform("roundMaskTexture"), 0.0f);
+    glUniform1f(program->getUniform("xmod"), 0.0f);
+    glUniform1f(program->getUniform("ymod"), 0.0f);
 
     // Bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _renderedTexture);
 
-    glUniform1i(texture2Dshader.Text2DUniformID, 0);
+    glUniform1i(program->getUniform("myTextureSampler"), 0);
    
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)12);
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)16);
+    glVertexAttribPointer(program->getAttribute("vertexPosition_screenspace"), 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)12);
+    glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)16);
 
     // Draw call
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
-    texture2Dshader.UnBind();
+    program->disableVertexAttribArrays();
+    program->unuse();
+    
 }
 
 const GLubyte uiBoxUVs[8] = { 0, 0, 0, 255, 255, 255, 255, 0 };

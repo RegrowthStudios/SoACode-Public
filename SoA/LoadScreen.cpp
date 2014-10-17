@@ -148,7 +148,6 @@ void LoadScreen::update(const GameTime& gameTime) {
     static bool loadedTextures = false;
     std::cout << (int)_monitor.isTaskFinished("BlockData") << " ";
     if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
-        InitializeText2D("Fonts/OrbitronBold.png", "Fonts/FontData.dat");
         LoadTextures();
         //load the texture pack
         fileManager.loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);

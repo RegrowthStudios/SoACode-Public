@@ -447,14 +447,30 @@ void Texture2D::SetUvs(GLfloat ustrt, GLfloat vstrt, GLfloat uwidth, GLfloat vwi
 
 GLfloat colorVertices2D[32];
 
+
+// Jesus christ this is shit
+// TODO(Ben): This is fucking terrible
 void Texture2D::Draw(int xmod, int ymod, GLfloat xdim, GLfloat ydim)
 {
     if (texInfo.ID == 0) return;
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
+
+    // Buffers are lazily initialized
+    static ui32 vboID = 0;
+    static ui32 uvBufferID = 0;
+    static ui32 elementBufferID = 0;
+    static ui32 colorBufferID = 0;
+    if (vboID == 0) {
+        glGenBuffers(1, &vboID);
+        glGenBuffers(1, &uvBufferID);
+        glGenBuffers(1, &elementBufferID);
+        glGenBuffers(1, &colorBufferID);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
     glBufferData(GL_ARRAY_BUFFER, 8*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
     glBufferData(GL_ARRAY_BUFFER, 8*sizeof(GLfloat), uvs, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(GLushort), boxDrawIndices, GL_STATIC_DRAW);
 
     lcolor.update(lcolor.mod);
@@ -474,43 +490,49 @@ void Texture2D::Draw(int xmod, int ymod, GLfloat xdim, GLfloat ydim)
         colorVertices[j + 3] = rcolor.color[3] * fade;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
     glBufferData(GL_ARRAY_BUFFER, 16*sizeof(GLfloat), colorVertices, GL_STATIC_DRAW);
 
     // Bind shader
-    texture2Dshader.Bind(xdim, ydim);
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture2D");
+    program->use();
+    program->enableVertexAttribArrays();
+
+    glUniform1f(program->getUniform("xdim"), xdim);
+    glUniform1f(program->getUniform("ydim"), ydim);
     
-    glUniform1f(texture2Dshader.Text2DUseRoundMaskID, 0.0f);
-    glUniform1f(texture2Dshader.xModID, (GLfloat)xmod);
-    glUniform1f(texture2Dshader.yModID, (GLfloat)ymod);
+    glUniform1f(program->getUniform("roundMaskTexture"), 0.0f);
+    glUniform1f(program->getUniform("xmod"), (GLfloat)xmod);
+    glUniform1f(program->getUniform("ymod"), (GLfloat)ymod);
     
 
     // Bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texInfo.ID);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(texture2Dshader.Text2DUniformID, 0);
+    glUniform1i(program->getUniform("myTextureSampler"), 0);
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
     // 2nd attribute buffer : UVs
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
     // 3rd attribute buffer : Colors
     glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
     glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
     // Draw call
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferID);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
-    texture2Dshader.UnBind();
+    program->disableVertexAttribArrays();
+    program->unuse();
 }
 
 void Texture2D::DrawFixedSize3D(const glm::mat4 &VP, const glm::dvec3 &playerPos, const glm::dvec3 &pos, glm::vec2 uvMod, glm::vec4 color)

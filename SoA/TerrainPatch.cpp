@@ -275,7 +275,7 @@ void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayer
     }
 }
 
-void TerrainPatch::DrawTrees(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+void TerrainPatch::DrawTrees(TerrainBuffers *tb, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
 
     if (tb->inFrustum){
@@ -285,8 +285,8 @@ void TerrainPatch::DrawTrees(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, co
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(treeShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
-        glUniformMatrix4fv(treeShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, tb->treeVboID);
 

@@ -2,6 +2,8 @@
 #include "Frustum.h"
 #include "TerrainGenerator.h"
 
+#include "GLProgram.h"
+
 const int scale = (int)planetScale;
 
 const int maxVertexWidth = 32;
@@ -94,7 +96,7 @@ public:
     void Initialize(int x, int y, int z, int wx, int wy, int wz, int Radius, int Face, TerrainPatch *Parent = NULL, int ChildNum = -1, int initialDetail = -1);
     static void Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
     void Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
-    static void DrawTrees(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
+    static void DrawTrees(TerrainBuffers *tb, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
     static bool CheckHorizon(const glm::dvec3 &PlayerPoss, const glm::dvec3 &ClosestPoint);
     //inline void ExtractChildData();
     bool CreateMesh();

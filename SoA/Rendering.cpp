@@ -107,7 +107,11 @@ void DrawSun(float theta, glm::mat4 &MVP){
     float cosTheta2 = cos(theta + off);
     float sinTheta2 = sin(theta + off);
 
-    textureShader.Bind();
+    // Bind shader
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture");
+    program->use();
+    program->enableVertexAttribArrays();
+
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
 
@@ -115,9 +119,9 @@ void DrawSun(float theta, glm::mat4 &MVP){
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sunTexture.ID);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(textureShader.texID, 0);
+    glUniform1i(program->getUniform("myTextureSampler"), 0);
 
-    glUniformMatrix4fv(textureShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -173,7 +177,9 @@ void DrawSun(float theta, glm::mat4 &MVP){
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, sunIndices);
 
-    textureShader.UnBind();
+    program->disableVertexAttribArrays();
+    program->unuse();
+    
     glDepthMask(GL_TRUE);
     glEnable(GL_CULL_FACE);
 
@@ -184,14 +190,18 @@ void DrawSun(float theta, glm::mat4 &MVP){
 void DrawStars(float theta, glm::mat4 &MVP)
 {
     glDisable(GL_CULL_FACE);
-    textureShader.Bind();
+
+    // Bind shader
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture");
+    program->use();
+    program->enableVertexAttribArrays();
 
         // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(textureShader.texID, 0);
+    glUniform1i(program->getUniform("myTextureSampler"), 0);
 
-    glUniformMatrix4fv(textureShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -221,7 +231,8 @@ void DrawStars(float theta, glm::mat4 &MVP)
     glDeleteBuffers(1, &vertexbuffer);
     glDeleteBuffers(1, &uvbuffer);
 
-    textureShader.UnBind();
+    program->disableVertexAttribArrays();
+    program->unuse();
 
     glEnable(GL_CULL_FACE);
 }
