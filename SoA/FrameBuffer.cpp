@@ -25,9 +25,9 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
 
     GLint maxTextureSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-    std::cout << "Creating framebuffer of width " << width << " / " << maxTextureSize << std::endl;
-    if (width > maxTextureSize){
-        pError("Framebuffer of width" + std::to_string(width) + " exceeds maximum supported size of " + std::to_string(maxTextureSize));
+    std::cout << "Creating framebuffer of width " << _width << " / " << maxTextureSize << std::endl;
+    if (_width > maxTextureSize){
+        pError("Framebuffer of width" + std::to_string(_width) + " exceeds maximum supported size of " + std::to_string(maxTextureSize));
     }
 
     frameBufferIDs[FB_DRAW] = 0;
@@ -55,7 +55,7 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // Give an empty image to OpenGL
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_BGRA, type, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, GL_BGRA, type, NULL);
     // Set "renderedTexture" as our colour attachement #0
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTextureIDs[FB_DRAW], 0);
 
@@ -68,7 +68,7 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, _width, _height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTextureIDs[FB_DRAW], 0);
 
@@ -90,7 +90,7 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
 
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, renderedTextureIDs[FB_MSAA]);
         
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _msaa, internalFormat, width, height, 0);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _msaa, internalFormat, _width, _height, 0);
 
         GLuint err = glGetError();
         if (err != GL_NO_ERROR){
@@ -107,7 +107,7 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
 
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depthTextureIDs[FB_MSAA]);
 
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaa, GL_DEPTH_COMPONENT32, width, height, 0);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaa, GL_DEPTH_COMPONENT32, _width, _height, 0);
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depthTextureIDs[FB_MSAA], 0);
 

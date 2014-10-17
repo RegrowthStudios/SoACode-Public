@@ -33,10 +33,11 @@ bool LoadMonitor::isFinished(nString task) {
     return kvp->second->isFinished();
 }
 bool LoadMonitor::canStart(nString task) {
+    // Check that the dependency exists
     auto& kvp = _tasks.find(task);
     if (kvp == _tasks.end()) return false;
 
-    // Check All Dependencies
+    // Check all dependencies
     for (auto& dep : kvp->second->dependencies) {
         if (!isFinished(dep)) return false;
     }
@@ -75,20 +76,35 @@ void LoadMonitor::start() {
     }
 }
 void LoadMonitor::wait() {
+    // Wait for all threads to complete
     for (auto& t : _internalThreads) {
         t.join();
         t.detach();
     }
+
     _internalThreads.clear();
 
+    // Free all tasks
     for (ILoadTask* t : _internalTasks) delete t;
     _internalTasks.clear();
 }
 
 void LoadMonitor::setDep(nString name, nString dep) {
+    // Check that the task exists
     auto& kvp = _tasks.find(name);
-    if (kvp == _tasks.end()) return;
+    if (kvp == _tasks.end()) {
+        std::cerr << "LoadMonitor Warning: Task " << name << " doesn't exist.\n";
+        return;
+    }
 
+    // Check that the dependency exists
+    auto& dvp = _tasks.find(dep);
+    if (dvp == _tasks.end()) {
+        std::cerr << "LoadMonitor Warning: Dependency " << dep << " doesn't exist.\n";
+        return;
+    }
+
+    // Add the dependency
     kvp->second->dependencies.insert(dep);
 }
 

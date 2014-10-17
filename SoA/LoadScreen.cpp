@@ -10,7 +10,6 @@
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "LoadBar.h"
 #include "LoadTaskShaders.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskOptions.h"
@@ -60,42 +59,19 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
 
     // Add Tasks Here
-    _loadTasks.push_back(new LoadTaskGameManager);
-    _monitor.addTask("GameManager", _loadTasks.back());
-
-    _loadTasks.push_back(new LoadTaskSound);
-    _monitor.addTask("Sound", _loadTasks.back());
+    addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
+  
+    addLoadTask("Sound", "Sound", new LoadTaskSound);
     _monitor.setDep("Sound", "GameManager");
 
-    _loadTasks.push_back(new LoadTaskOptions);
-    _monitor.addTask("Game Options", _loadTasks.back());
+    addLoadTask("Game Options", "Game Options", new LoadTaskOptions);
 
-    _loadTasks.push_back(new LoadTaskBlockData);
-    _monitor.addTask("BlockData", _loadTasks.back());
+    addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     _monitor.setDep("BlockData", "GameManager");
     _monitor.setDep("BlockData", "Game Options");
 
+    // Start the tasks
     _monitor.start();
-
-    // Make LoadBars
-    LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
-    _loadBars = new LoadBar[_loadTasks.size()];
-    for (ui32 i = 0; i < _loadTasks.size(); i++) {
-        _loadBars[i].setCommonProperties(lbcp);
-        _loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
-        _loadBars[i].expand();
-        _loadBars[i].setColor(color::Black, color::Maroon);
-    }
-
-    // Put Text For The Load Bars
-    {
-        ui32 i = 0;
-        _loadBars[i++].setText("Core Systems");
-        _loadBars[i++].setText("Sound");
-        _loadBars[i++].setText("Game Options");
-        _loadBars[i++].setText("Block Data");
-    }
-
 
     // Clear State For The Screen
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -110,8 +86,8 @@ void LoadScreen::onExit(const GameTime& gameTime) {
     delete _sb;
     _sb = nullptr;
 
-    delete[] _loadBars;
-    _loadBars = nullptr;
+    // Free the vector memory
+    std::vector<LoadBar>().swap(_loadBars);
 
     _loadTasks.clear();
 }
@@ -200,4 +176,23 @@ void LoadScreen::draw(const GameTime& gameTime) {
     _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
     checkGlError("Draw()");
     
+}
+
+void LoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadTask* task) {
+    // Add the load task to the monitor
+    _loadTasks.push_back(task);
+    _monitor.addTask(name, _loadTasks.back());
+
+    // Load bar properties
+    LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
+    // Add the new loadbar and get its index
+    int i = _loadBars.size();
+    _loadBars.emplace_back();
+
+    // Set the properties
+    _loadBars[i].setCommonProperties(lbcp);
+    _loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
+    _loadBars[i].expand();
+    _loadBars[i].setColor(color::Black, color::Maroon);
+    _loadBars[i].setText(loadText);
 }
