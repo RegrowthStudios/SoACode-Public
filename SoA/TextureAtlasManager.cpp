@@ -84,7 +84,9 @@ void TextureAtlasManager::loadBlockAtlas(string fileName) {
     for (auto it = _blockTexturesToLoad.begin(); it != _blockTexturesToLoad.end(); it++) {
         addTextureToAtlas(*it, zipFile);
     }
-    _atlasList.back()->frameBuffer->unBind();
+
+    ui32v2 viewport(graphicsOptions.windowWidth, graphicsOptions.windowHeight);
+    _atlasList.back()->frameBuffer->unBind(viewport);
 
     atlasTex.ID = makeBlockPackTexture(_atlasList, _resolution * BLOCKS_PER_ROW);
     blockPack.initialize(atlasTex);
@@ -512,7 +514,9 @@ void TextureAtlasManager::clearAll() {
 }
 
 ui32 TextureAtlasManager::makeBlockPackTexture(const vector <Atlas*> &atlasList, int imageWidth) {
-    _atlasList.back()->frameBuffer->unBind();
+
+    const ui32v2 viewport(graphicsOptions.windowWidth, graphicsOptions.windowHeight);
+    _atlasList.back()->frameBuffer->unBind(viewport);
 
     printf("Creating texture atlas that is %u pages.\n", atlasList.size());
 
@@ -574,8 +578,8 @@ BlockTexture* TextureAtlasManager::getBlockTexture(const std::string& key) {
 
 //Will dump all atlases to files for debugging
 void TextureAtlasManager::writeDebugAtlases() {
-    int width = _atlasList.back()->frameBuffer->fbWidth;
-    int height = _atlasList.back()->frameBuffer->fbHeight;
+    int width = _atlasList.back()->frameBuffer->getWidth();
+    int height = _atlasList.back()->frameBuffer->getHeight();
     GLubyte *pixels = new GLubyte[width * height * 4];
     GLubyte *flip = new GLubyte[width * height * 4];
     for (int i = 0; i < _atlasList.size(); i++) {

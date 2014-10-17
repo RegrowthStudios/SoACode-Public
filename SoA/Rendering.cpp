@@ -239,7 +239,7 @@ void DrawStars(float theta, glm::mat4 &MVP)
 
 void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color)
 {
-    GlobalModelMatrix[0][0] = xw;
+   /* GlobalModelMatrix[0][0] = xw;
     GlobalModelMatrix[1][1] = yh;
     GlobalModelMatrix[2][2] = zw;
     GlobalModelMatrix[3][0] = (float)((double)x - playerPos.x);
@@ -272,7 +272,7 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     GlobalModelMatrix[0][0] = 1.0;
     GlobalModelMatrix[1][1] = 1.0;
-    GlobalModelMatrix[2][2] = 1.0;
+    GlobalModelMatrix[2][2] = 1.0;*/
 }
 
 void DrawLoadingScreen(string text, bool clearColor, glm::vec4 backColor, int fontSize)
