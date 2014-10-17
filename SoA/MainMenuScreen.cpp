@@ -18,6 +18,11 @@
 #include "Frustum.h"
 #include "TerrainPatch.h"
 
+#include "SpriteBatch.h"
+#include "colors.h"
+#include "DepthState.h"
+#include "SamplerState.h"
+#include "RasterizerState.h"
 #define THREAD ThreadName::PHYSICS
 
 CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
@@ -80,7 +85,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 void MainMenuScreen::draw(const GameTime& gameTime) {
 
     openglManager.BindFrameBuffer();
-
+  
     mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
     mainMenuCamera.updateProjection();
     glm::mat4 VP = mainMenuCamera.projectionMatrix() * mainMenuCamera.viewMatrix();
@@ -105,9 +110,10 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     ExtractFrustum(glm::dmat4(mainMenuCamera.projectionMatrix()), fvm, worldFrustum);
     GameManager::drawPlanet(mainMenuCamera.position(), VP, mainMenuCamera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
 
+
+
     glDisable(GL_DEPTH_TEST);
     openglManager.DrawFrameBuffer();
-    //    openglManager.DrawNoiseTest();
     glEnable(GL_DEPTH_TEST);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

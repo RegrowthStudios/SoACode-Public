@@ -123,7 +123,6 @@ void LoadScreen::update(const GameTime& gameTime) {
 
     // Defer texture loading
     static bool loadedTextures = false;
-
     if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
         LoadTextures();
         //load the texture pack
@@ -172,6 +171,7 @@ void LoadScreen::draw(const GameTime& gameTime) {
     for (ui32 i = 0; i < _loadTasks.size(); i++) {
         _loadBars[i].draw(_sb, _sf, 0, 0.8f);
     }
+
     _sb->end(SpriteSortMode::BACK_TO_FRONT);
 
     _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
