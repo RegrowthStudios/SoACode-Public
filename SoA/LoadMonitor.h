@@ -85,7 +85,7 @@ private:
     bool canStart(nString task);
 
     // Tasks Mapped By Name
-    volatile std::unordered_map<nString, ILoadTask*> _tasks;
+    std::unordered_map<nString, ILoadTask*> _tasks;
     
     // Thread For Each Task
     std::vector<std::thread> _internalThreads;
