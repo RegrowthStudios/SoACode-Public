@@ -495,16 +495,18 @@ void Texture2D::Draw(int xmod, int ymod, GLfloat xdim, GLfloat ydim)
 
     // Bind shader
     vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture2D");
+    
     program->use();
     program->enableVertexAttribArrays();
 
     glUniform1f(program->getUniform("xdim"), xdim);
     glUniform1f(program->getUniform("ydim"), ydim);
     
-    glUniform1f(program->getUniform("roundMaskTexture"), 0.0f);
+    glUniform1i(program->getUniform("roundMaskTexture"), 1);
+    glUniform1f(program->getUniform("isRound"), 0.0f);
+
     glUniform1f(program->getUniform("xmod"), (GLfloat)xmod);
     glUniform1f(program->getUniform("ymod"), (GLfloat)ymod);
-    
 
     // Bind texture
     glActiveTexture(GL_TEXTURE0);

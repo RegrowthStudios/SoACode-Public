@@ -81,7 +81,6 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 
     openglManager.BindFrameBuffer();
 
-
     mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
     mainMenuCamera.updateProjection();
     glm::mat4 VP = mainMenuCamera.projectionMatrix() * mainMenuCamera.viewMatrix();

@@ -501,7 +501,7 @@ void OpenglManager::DrawFrameBuffer()
     }
 
     const ui32v2 viewport(graphicsOptions.windowWidth, graphicsOptions.windowHeight);
-    frameBuffer->draw(viewport);
+    frameBuffer->draw(viewport, drawMode);
 
     program->disableVertexAttribArrays();
     program->unuse();

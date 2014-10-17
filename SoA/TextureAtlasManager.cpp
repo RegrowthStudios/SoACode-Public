@@ -154,7 +154,7 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
                     loadPNG(_readTexture, (_fileName + blockTexture.overlay.path).c_str(), PNGLoadInfo(&BLOCK_PACK_SAMPLING_STATE, 12), true);
 
                     if (_readTexture.ID != 0) {
-
+   
                         switch (blockTexture.overlay.method) {
                         case ConnectedTextureMethods::CTM_CONNECTED:
                             writeToAtlasContiguous(blockTexture.overlay.textureIndex, 12, 4, 47);
@@ -162,6 +162,7 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
                         case ConnectedTextureMethods::CTM_RANDOM:
                             addRandomTexture(blockTexture.overlay.weights, blockTexture.overlay.textureIndex,
                                              blockTexture.overlay.numTiles, blockTexture.overlay.totalWeight);
+                            checkGlError("NNNN");
                             break;
                         case ConnectedTextureMethods::CTM_GRASS:
                             writeToAtlasContiguous(blockTexture.overlay.textureIndex, 3, 3, 9);
@@ -179,6 +180,7 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
                             writeToAtlas(blockTexture.overlay.textureIndex);
                             break;
                         }
+
                         _readTexture.freeTexture();
                         //Add overlay texture info to cache
                         _overlayTextureCache[blockTexture.overlay.path] = blockTexture;
@@ -495,9 +497,11 @@ void TextureAtlasManager::writeToAtlasContiguous(int &texIndex, int width, int h
             //write to the atlas using a temporary Texture2D
             tempTexture2D.Initialize(_readTexture.ID, 0, 0, _resolution, _resolution, Color(glm::vec4(1.0)), uStart, vStart, tileResU, tileResV);
             tempTexture2D.Draw((i % BLOCKS_PER_ROW) * _resolution, (15 - (i % 256) / BLOCKS_PER_ROW) * _resolution, _resolution*BLOCKS_PER_ROW, _resolution*BLOCKS_PER_ROW);
+            checkGlError("DRAW");
             index++;
         }
     }
+    
 }
 
 void TextureAtlasManager::addBlockTexture(string file) {

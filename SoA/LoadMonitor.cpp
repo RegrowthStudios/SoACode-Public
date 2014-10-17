@@ -29,17 +29,24 @@ bool LoadMonitor::isTaskFinished(nString task) {
 
 bool LoadMonitor::isFinished(nString task) {
     auto& kvp = _tasks.find(task);
-    if (kvp == _tasks.end()) return false;
+    if (kvp == _tasks.end()) {
+        std::cerr << "LoadMonitor Warning: dependency " << task << " does not exist\n";
+        return false;
+    }
     return kvp->second->isFinished();
 }
 bool LoadMonitor::canStart(nString task) {
     // Check that the dependency exists
     auto& kvp = _tasks.find(task);
-    if (kvp == _tasks.end()) return false;
-
+    if (kvp == _tasks.end()) {
+        std::cerr << "LoadMonitor Warning: task " << task << " does not exist\n";
+        return false;
+    }
     // Check all dependencies
     for (auto& dep : kvp->second->dependencies) {
-        if (!isFinished(dep)) return false;
+        if (!isFinished(dep)) {
+            return false;
+        }
     }
     return true;
 }

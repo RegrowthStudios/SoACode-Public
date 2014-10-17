@@ -135,7 +135,9 @@ void AwesomiumInterface::draw()
     glUniform1f(program->getUniform("xdim"), (GLfloat)graphicsOptions.screenWidth);
     glUniform1f(program->getUniform("ydim"), (GLfloat)graphicsOptions.screenHeight);
 
-    glUniform1f(program->getUniform("roundMaskTexture"), 0.0f);
+    glUniform1i(program->getUniform("roundMaskTexture"), 1);
+    glUniform1f(program->getUniform("isRound"), 0.0f);
+
     glUniform1f(program->getUniform("xmod"), 0.0f);
     glUniform1f(program->getUniform("ymod"), 0.0f);
 

@@ -89,7 +89,12 @@ void LoadScreen::onExit(const GameTime& gameTime) {
     // Free the vector memory
     std::vector<LoadBar>().swap(_loadBars);
 
-    _loadTasks.clear();
+    for (ui32 i = 0; i < _loadTasks.size(); i++) {
+        // Free memory
+        delete _loadTasks[i];
+        _loadTasks[i] = nullptr;
+    }
+    std::vector<ILoadTask*>().swap(_loadTasks);
 }
 
 void LoadScreen::onEvent(const SDL_Event& e) {
@@ -101,10 +106,6 @@ void LoadScreen::update(const GameTime& gameTime) {
             // Make The Task Visuals Disappear
             _loadBars[i].setColor(color::Black, color::Teal);
             _loadBars[i].retract();
-
-            // Delete Our Task Instance
-            delete _loadTasks[i];
-            _loadTasks[i] = nullptr;
         }
 
         // Update Visual Position
@@ -122,7 +123,7 @@ void LoadScreen::update(const GameTime& gameTime) {
 
     // Defer texture loading
     static bool loadedTextures = false;
-    std::cout << (int)_monitor.isTaskFinished("BlockData") << " ";
+
     if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
         LoadTextures();
         //load the texture pack

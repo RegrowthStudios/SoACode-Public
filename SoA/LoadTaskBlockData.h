@@ -10,8 +10,6 @@
 class LoadTaskBlockData : public ILoadTask {
     virtual void load() {
 
-     //   std::cout << "\n\n\BEGIN LOADING\n\n\n";
-
         initConnectedTextures();
 
         if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);

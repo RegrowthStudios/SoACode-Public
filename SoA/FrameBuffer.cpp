@@ -22,7 +22,7 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
     _width(width),
     _height(height),
     _msaa(msaa) {
-
+    
     GLint maxTextureSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
     std::cout << "Creating framebuffer of width " << _width << " / " << maxTextureSize << std::endl;
@@ -57,7 +57,6 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
     // Give an empty image to OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, GL_BGRA, type, NULL);
     // Set "renderedTexture" as our colour attachement #0
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTextureIDs[FB_DRAW], 0);
 
     // The depth buffer
     glGenTextures(1, &depthTextureIDs[FB_DRAW]);
@@ -72,7 +71,7 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTextureIDs[FB_DRAW], 0);
 
-
+ 
     // Set the list of draw buffers.
     GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 
@@ -175,6 +174,7 @@ FrameBuffer::~FrameBuffer()
     
     glBindVertexArray(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 }
 
 void FrameBuffer::bind()
@@ -253,7 +253,6 @@ void FrameBuffer::draw(const ui32v2& destDimensions, i32 drawMode /* = 0 */)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, destDimensions.x, destDimensions.y); // Render on the whole screen, complete from the lower left corner to the upper right
-
 
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
