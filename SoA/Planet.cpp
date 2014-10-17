@@ -552,175 +552,143 @@ void Planet::drawTrees(glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVa
 
 void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, float fadeDistance, bool onPlanet)
 {
-    atmosphereToGroundShader.Bind();
+    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
+    shader->use();
 
     float m_Kr4PI = atmosphere.m_Kr*4.0f*M_PI;
     float m_Km4PI = atmosphere.m_Km*4.0f*M_PI;
     float m_fScale = 1.0 / (atmosphere.radius - scaledRadius);
 
-    glUniform3f(atmosphereToGroundShader.cameraPosID, (float)rotPlayerPos.x, (float)rotPlayerPos.y, (float)rotPlayerPos.z);
+    glUniform3f(shader->getUniform("cameraPos"), (float)rotPlayerPos.x, (float)rotPlayerPos.y, (float)rotPlayerPos.z);
 
-    glUniform3f(atmosphereToGroundShader.lightPosID, lightPos.x, lightPos.y, lightPos.z);
-//    glUniform1f(atmosphereToGroundShader.gammaID, gamma);
-    glUniform3f(atmosphereToGroundShader.invWavelengthID, 1/atmosphere.m_fWavelength4[0], 1/atmosphere.m_fWavelength4[1], 1/atmosphere.m_fWavelength4[2]);
+    glUniform3f(shader->getUniform("lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+    glUniform3f(shader->getUniform("invWavelength"), 1 / atmosphere.m_fWavelength4[0], 1 / atmosphere.m_fWavelength4[1], 1 / atmosphere.m_fWavelength4[2]);
     float height = glm::length(rotPlayerPos);
     if (height < scaledRadius+1) height = scaledRadius+1;
-    glUniform1f(atmosphereToGroundShader.cameraHeightID, height);
+    glUniform1f(shader->getUniform("cameraHeight"), height);
 
-    glUniform1f(atmosphereToGroundShader.dtID, bdt);
+    glUniform1f(shader->getUniform("dt"), bdt);
 
-    glUniform1f(atmosphereToGroundShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(atmosphereToGroundShader.specularIntensityID, graphicsOptions.specularIntensity);
+    glUniform1f(shader->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(shader->getUniform("specularIntensity"), graphicsOptions.specularIntensity);
 
-    glUniform1f(atmosphereToGroundShader.freezeTempID, FREEZETEMP/255.0f);
+    glUniform1f(shader->getUniform("freezeTemp"), FREEZETEMP / 255.0f);
     
-//    glUniform1f(atmosphereToGroundShader.cameraHeight2ID, glm::length(ppos)*glm::length(ppos));
-//    glUniform1f(atmosphereToGroundShader.outerRadiusID, atmosphere.radius);
-//    glUniform1f(atmosphereToGroundShader.outerRadius2ID, outerRad*outerRad);
-    glUniform1f(atmosphereToGroundShader.innerRadiusID, scaledRadius);
-//    glUniform1f(atmosphereToGroundShader.innerRadius2ID, innerRad*innerRad);
-    glUniform1f(atmosphereToGroundShader.KrESunID, atmosphere.m_Kr*atmosphere.m_ESun);
-    glUniform1f(atmosphereToGroundShader.KmESunID, atmosphere.m_Km*atmosphere.m_ESun);
-    glUniform1f(atmosphereToGroundShader.Kr4PIID, m_Kr4PI);
-    glUniform1f(atmosphereToGroundShader.Km4PIID, m_Km4PI);
-    glUniform1f(atmosphereToGroundShader.scaleID, m_fScale);
-    glUniform1f(atmosphereToGroundShader.scaleDepthID, atmosphere.m_fRayleighScaleDepth);
-    glUniform1f(atmosphereToGroundShader.scaleOverScaleDepthID, m_fScale/atmosphere.m_fRayleighScaleDepth);
-    glUniform1f(atmosphereToGroundShader.fSamplesID, atmosphere.fSamples);
-    glUniform1i(atmosphereToGroundShader.nSamplesID, atmosphere.nSamples);
+    glUniform1f(shader->getUniform("innerRadius"), scaledRadius);
+    glUniform1f(shader->getUniform("krESun"), atmosphere.m_Kr*atmosphere.m_ESun);
+    glUniform1f(shader->getUniform("kmESun"), atmosphere.m_Km*atmosphere.m_ESun);
+    glUniform1f(shader->getUniform("kr4PI"), m_Kr4PI);
+    glUniform1f(shader->getUniform("km4PI"), m_Km4PI);
+    glUniform1f(shader->getUniform("fScale"), m_fScale);
+    glUniform1f(shader->getUniform("scaleDepth"), atmosphere.m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("fScaleOverScaleDepth"), m_fScale / atmosphere.m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("fSamples"), atmosphere.fSamples);
+    glUniform1i(shader->getUniform("nSamples"), atmosphere.nSamples);
 
-    glUniform1f(atmosphereToGroundShader.secColorMultID, graphicsOptions.secColorMult);
+    glUniform1f(shader->getUniform("secColorMult"), graphicsOptions.secColorMult);
 
-    glUniform1f(atmosphereToGroundShader.fadeDistanceID, fadeDistance);
-//    glUniform1f(atmosphereToGroundShader.gID, atmosphere.m_g);
-//    glUniform1f(atmosphereToGroundShader.g2ID, atmosphere.m_g*atmosphere.m_g);
-//    debugVarc;
+    glUniform1f(shader->getUniform("FadeDistance"), fadeDistance);
+
+    const ui32& mvpID = shader->getUniform("MVP");
+    const ui32& worldOffsetID = shader->getUniform("worldOffset");
+
+    shader->enableVertexAttribArrays();
 
     for (size_t i = 0; i < drawList[0].size(); i++){
-        TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[2].size(); i++){
-        TerrainPatch::Draw(drawList[2][i], PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[2][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[4].size(); i++){
-        TerrainPatch::Draw(drawList[4][i], PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[4][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CW);
     for (size_t i = 0; i < drawList[5].size(); i++){
-        TerrainPatch::Draw(drawList[5][i], PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[5][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[1].size(); i++){
-        TerrainPatch::Draw(drawList[1][i], PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[1][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[3].size(); i++){
-        TerrainPatch::Draw(drawList[3][i], PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[3][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CCW);
 
-    /*for (int i = 0; i < faces[P_TOP].size(); i++){
-        for (int j = 0; j < faces[P_TOP][0].size(); j++){
-            faces[P_TOP][i][j]->Draw(PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
-        }
-    }
-    for (int i = 0; i < faces[P_RIGHT].size(); i++){
-        for (int j = 0; j < faces[P_RIGHT][0].size(); j++){
-            faces[P_RIGHT][i][j]->Draw(PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
-        }
-    }
-    for (int i = 0; i < faces[P_BACK].size(); i++){
-        for (int j = 0; j < faces[P_BACK][0].size(); j++){
-            faces[P_BACK][i][j]->Draw(PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
-        }
-    }
-    glFrontFace(GL_CW);
-    for (int i = 0; i < faces[P_BOTTOM].size(); i++){
-        for (int j = 0; j < faces[P_BOTTOM][0].size(); j++){
-            faces[P_BOTTOM][i][j]->Draw(PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
-        }
-    }
-    for (int i = 0; i < faces[P_LEFT].size(); i++){
-        for (int j = 0; j < faces[P_LEFT][0].size(); j++){
-            faces[P_LEFT][i][j]->Draw(PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
-        }
-    }
-    for (int i = 0; i < faces[P_FRONT].size(); i++){
-        for (int j = 0; j < faces[P_FRONT][0].size(); j++){
-            faces[P_FRONT][i][j]->Draw(PlayerPos, rotPlayerPos, VP, atmosphereToGroundShader.mvpID, atmosphereToGroundShader.worldOffsetID, onPlanet);
-        }
-    }
-    glFrontFace(GL_CCW);*/
-
-    atmosphereToGroundShader.UnBind();
+    shader->disableVertexAttribArrays();
+    shader->unuse();
 }
 
 void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, bool onPlanet)
 {
-    spaceToGroundShader.Bind();
+    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
+    shader->use();
 
     float m_Kr4PI = atmosphere.m_Kr*4.0f*M_PI;
     float m_Km4PI = atmosphere.m_Km*4.0f*M_PI;
     float m_fScale = 1 / (atmosphere.radius - scaledRadius);
 
-    glUniform3f(spaceToGroundShader.cameraPosID, (float)rotPlayerPos.x, (float)rotPlayerPos.y, (float)rotPlayerPos.z);
+    glUniform3f(shader->getUniform("cameraPos"), (float)rotPlayerPos.x, (float)rotPlayerPos.y, (float)rotPlayerPos.z);
 
-    glUniform3f(spaceToGroundShader.lightPosID, lightPos.x, lightPos.y, lightPos.z);
-//    glUniform1f(spaceToGroundShader.gammaID, gamma);
-    glUniform3f(spaceToGroundShader.invWavelengthID, 1/atmosphere.m_fWavelength4[0], 1/atmosphere.m_fWavelength4[1], 1/atmosphere.m_fWavelength4[2]);
-//glUniform1f(spaceToGroundShader.cameraHeightID, glm::length(PlayerPos));
+    glUniform3f(shader->getUniform("lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-    glUniform1f(spaceToGroundShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(spaceToGroundShader.specularIntensityID, graphicsOptions.specularIntensity);
+    glUniform3f(shader->getUniform("invWavelength"), 1 / atmosphere.m_fWavelength4[0], 1 / atmosphere.m_fWavelength4[1], 1 / atmosphere.m_fWavelength4[2]);
+
+    glUniform1f(shader->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(shader->getUniform("specularIntensity"), graphicsOptions.specularIntensity);
     
-    glUniform1f(spaceToGroundShader.freezeTempID, FREEZETEMP/255.0f);
+    glUniform1f(shader->getUniform("freezeTemp"), FREEZETEMP / 255.0f);
 
-    glUniform1f(spaceToGroundShader.cameraHeight2ID, glm::length(PlayerPos)*glm::length(PlayerPos));
-    glUniform1f(spaceToGroundShader.outerRadiusID, atmosphere.radius);
-    glUniform1f(spaceToGroundShader.outerRadius2ID, atmosphere.radius*atmosphere.radius);
-    glUniform1f(spaceToGroundShader.innerRadiusID, scaledRadius);
-//    glUniform1f(spaceToGroundShader.innerRadius2ID, innerRad*innerRad);
-    glUniform1f(spaceToGroundShader.KrESunID, atmosphere.m_Kr*atmosphere.m_ESun);
-    glUniform1f(spaceToGroundShader.KmESunID, atmosphere.m_Km*atmosphere.m_ESun);
-    glUniform1f(spaceToGroundShader.Kr4PIID, m_Kr4PI);
-    glUniform1f(spaceToGroundShader.Km4PIID, m_Km4PI);
-    glUniform1f(spaceToGroundShader.scaleID, m_fScale);
-    glUniform1f(spaceToGroundShader.scaleDepthID, atmosphere.m_fRayleighScaleDepth);
-    glUniform1f(spaceToGroundShader.scaleOverScaleDepthID, m_fScale/atmosphere.m_fRayleighScaleDepth);
-    glUniform1f(spaceToGroundShader.fSamplesID, atmosphere.fSamples);
-    glUniform1f(spaceToGroundShader.drawModeID, planetDrawMode);
-    glUniform1i(spaceToGroundShader.nSamplesID, atmosphere.nSamples);
+    glUniform1f(shader->getUniform("cameraHeight2"), glm::length(PlayerPos)*glm::length(PlayerPos));
+    glUniform1f(shader->getUniform("outerRadius"), atmosphere.radius);
+    glUniform1f(shader->getUniform("outerRadius2"), atmosphere.radius*atmosphere.radius);
+    glUniform1f(shader->getUniform("innerRadius"), scaledRadius);
 
-    glUniform1f(spaceToGroundShader.dtID, bdt);
-//    glUniform1f(spaceToGroundShader.gID, atmosphere.m_g);
-//    glUniform1f(spaceToGroundShader.g2ID, atmosphere.m_g*atmosphere.m_g);
+    glUniform1f(shader->getUniform("krESun"), atmosphere.m_Kr*atmosphere.m_ESun);
+    glUniform1f(shader->getUniform("kmESun"), atmosphere.m_Km*atmosphere.m_ESun);
+    glUniform1f(shader->getUniform("kr4PI"), m_Kr4PI);
+    glUniform1f(shader->getUniform("km4PI"), m_Km4PI);
+    glUniform1f(shader->getUniform("fScale"), m_fScale);
+    glUniform1f(shader->getUniform("scaleDepth"), atmosphere.m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("fScaleOverScaleDepth"), m_fScale / atmosphere.m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("fSamples"), atmosphere.fSamples);
+    glUniform1f(shader->getUniform("drawMode"), planetDrawMode);
+    glUniform1i(shader->getUniform("nSamples"), atmosphere.nSamples);
 
-    glUniform1f(spaceToGroundShader.secColorMultID, graphicsOptions.secColorMult);
+    glUniform1f(shader->getUniform("dt"), bdt);
 
-//    glDisable(GL_CULL_FACE);
-    
-//    glEnable(GL_CULL_FACE);
+    glUniform1f(shader->getUniform("secColorMult"), graphicsOptions.secColorMult);
+
+    shader->enableVertexAttribArrays();
+
+    const ui32& mvpID = shader->getUniform("MVP");
+    const ui32& worldOffsetID = shader->getUniform("worldOffset");
 
     for (size_t i = 0; i < drawList[0].size(); i++){
-        TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, spaceToGroundShader.mvpID, spaceToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[2].size(); i++){
-        TerrainPatch::Draw(drawList[2][i], PlayerPos, rotPlayerPos, VP, spaceToGroundShader.mvpID, spaceToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[2][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[4].size(); i++){
-        TerrainPatch::Draw(drawList[4][i], PlayerPos, rotPlayerPos, VP, spaceToGroundShader.mvpID, spaceToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[4][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CW);
     for (size_t i = 0; i < drawList[5].size(); i++){
-        TerrainPatch::Draw(drawList[5][i], PlayerPos, rotPlayerPos, VP, spaceToGroundShader.mvpID, spaceToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[5][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[1].size(); i++){
-        TerrainPatch::Draw(drawList[1][i], PlayerPos, rotPlayerPos, VP, spaceToGroundShader.mvpID, spaceToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[1][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[3].size(); i++){
-        TerrainPatch::Draw(drawList[3][i], PlayerPos, rotPlayerPos, VP, spaceToGroundShader.mvpID, spaceToGroundShader.worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[3][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CCW);
 
-    spaceToGroundShader.UnBind();
+    shader->disableVertexAttribArrays();
+
+    shader->unuse();
 }
 
 void Planet::updateLODs(glm::dvec3 &worldPosition, GLuint maxTicks)
@@ -1057,7 +1025,8 @@ void Atmosphere::draw(float theta, glm::mat4 &MVP, glm::vec3 lightPos, glm::dvec
 
 void Atmosphere::drawSkyFromAtmosphere(float theta, glm::mat4 &MVP, glm::vec3 lightPos, glm::dvec3 &ppos)
 {
-    atmosphereToSkyShader.Bind();
+    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromAtmosphere");
+    shader->use();
 
     glm::mat4 GlobalModelMatrix(1.0);
     GlobalModelMatrix[0][0] = radius;
@@ -1079,72 +1048,48 @@ void Atmosphere::drawSkyFromAtmosphere(float theta, glm::mat4 &MVP, glm::vec3 li
     float m_Km4PI = m_Km*4.0f*M_PI;
     float m_fScale = 1.0 / (radius - planetRadius);
 
-    glUniformMatrix4fv(atmosphereToSkyShader.mvpID, 1, GL_FALSE, &MVPr[0][0]);
-//    glUniformMatrix4fv(atmosphereShader.mID, 1, GL_FALSE, &M[0][0]);
-    glUniform3f(atmosphereToSkyShader.cameraPosID, (float)ppos.x, (float)ppos.y, (float)ppos.z);
+    glUniformMatrix4fv(shader->getUniform("MVP"), 1, GL_FALSE, &MVPr[0][0]);
 
-    glUniform3f(atmosphereToSkyShader.lightPosID, lightPos.x, lightPos.y, lightPos.z);
-//    glUniform1f(atmosphereShader.gammaID, gamma);
-    glUniform3f(atmosphereToSkyShader.invWavelengthID, 1/m_fWavelength4[0], 1/m_fWavelength4[1], 1/m_fWavelength4[2]);
-    glUniform1f(atmosphereToSkyShader.cameraHeightID, glm::length(ppos));
+    glUniform3f(shader->getUniform("v3CameraPos"), (float)ppos.x, (float)ppos.y, (float)ppos.z);
+
+    glUniform3f(shader->getUniform("v3LightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+    glUniform3f(shader->getUniform("v3InvWavelength"), 1 / m_fWavelength4[0], 1 / m_fWavelength4[1], 1 / m_fWavelength4[2]);
+    glUniform1f(shader->getUniform("fCameraHeight"), glm::length(ppos));
     
-//    glUniform1f(atmosphereShader.cameraHeight2ID, glm::length(ppos)*glm::length(ppos));
-    glUniform1f(atmosphereToSkyShader.outerRadiusID, radius);
-//    glUniform1f(atmosphereShader.outerRadius2ID, outerRad*outerRad);
-    glUniform1f(atmosphereToSkyShader.innerRadiusID, planetRadius);
-//    //glUniform1f(atmosphereShader.innerRadius2ID, innerRad*innerRad);
-    glUniform1f(atmosphereToSkyShader.KrESunID, m_Kr*m_ESun);
-    glUniform1f(atmosphereToSkyShader.KmESunID, m_Km*m_ESun);
-    glUniform1f(atmosphereToSkyShader.Kr4PIID, m_Kr4PI);
-    glUniform1f(atmosphereToSkyShader.Km4PIID, m_Km4PI);
-    glUniform1f(atmosphereToSkyShader.scaleID, m_fScale);
-    glUniform1f(atmosphereToSkyShader.scaleDepthID, m_fRayleighScaleDepth);
-    glUniform1f(atmosphereToSkyShader.scaleOverScaleDepthID, m_fScale/m_fRayleighScaleDepth);
-    glUniform1f(atmosphereToSkyShader.gID, m_g);
-    glUniform1f(atmosphereToSkyShader.g2ID, m_g*m_g);
-    glUniform1f(atmosphereToSkyShader.fSamplesID, fSamples);
-    glUniform1i(atmosphereToSkyShader.nSamplesID, nSamples);
+    glUniform1f(shader->getUniform("fOuterRadius"), radius);
+    glUniform1f(shader->getUniform("fInnerRadius"), planetRadius);
 
-    //if (debugVarc){
-        glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
+    glUniform1f(shader->getUniform("fKrESun"), m_Kr*m_ESun);
+    glUniform1f(shader->getUniform("fKmESun"), m_Km*m_ESun);
+    glUniform1f(shader->getUniform("fKr4PI"), m_Kr4PI);
+    glUniform1f(shader->getUniform("fKm4PI"), m_Km4PI);
+    glUniform1f(shader->getUniform("fScale"), m_fScale);
+    glUniform1f(shader->getUniform("fScaleDepth"), m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("fScaleOverScaleDepth"), m_fScale / m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("g"), m_g);
+    glUniform1f(shader->getUniform("g2"), m_g*m_g);
+    glUniform1f(shader->getUniform("fSamples"), fSamples);
+    glUniform1i(shader->getUniform("nSamples"), nSamples);
 
-    //}else{
-    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID2);
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
 
-    //    glBindBuffer(GL_ARRAY_BUFFER, vbo2ID);
-    //}
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColorVertex), (void*)0);
+    shader->enableVertexAttribArrays();
 
-    //glDisable(GL_CULL_FACE);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColorVertex), (void*)0);
 
-    //if (debugVarc){
     glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
-    //}else{
-    //glDrawElements(GL_TRIANGLES, debugIndex, GL_UNSIGNED_SHORT, 0);
-    
-    //}
-//    M = M * RotationMatrix;
-//    MVPr = MVPr * RotationMatrix;
-//    glUniformMatrix4fv(atmosphereToSkyShader.mvpID, 1, GL_FALSE, &MVPr[0][0]);
-//    glUniformMatrix4fv(atmosphereShader.mID, 1, GL_FALSE, &M[0][0]);
 
-    //glBindBuffer(GL_ARRAY_BUFFER, vbo2ID);
+    shader->disableVertexAttribArrays();
 
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
-    //glFrontFace(GL_CW);
-    //glDrawElements(GL_TRIANGLES, indiceSize, GL_UNSIGNED_SHORT, 0);
-    //glFrontFace(GL_CCW);
-
-    //glEnable(GL_CULL_FACE);
-
-    atmosphereToSkyShader.UnBind();
+    shader->unuse();
 }
 
 void Atmosphere::drawSkyFromSpace(float theta, glm::mat4 &MVP, glm::vec3 lightPos, glm::dvec3 &ppos)
 {
-    spaceToSkyShader.Bind();
+    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromSpace");
+    shader->use();
 
     glm::mat4 GlobalModelMatrix(1.0);
     GlobalModelMatrix[0][0] = radius;
@@ -1166,52 +1111,42 @@ void Atmosphere::drawSkyFromSpace(float theta, glm::mat4 &MVP, glm::vec3 lightPo
     float m_Km4PI = m_Km*4.0f*M_PI;
     float m_fScale = 1.0 / (radius - planetRadius);
 
-    glUniformMatrix4fv(spaceToSkyShader.mvpID, 1, GL_FALSE, &MVPr[0][0]);
-//    glUniformMatrix4fv(atmosphereShader.mID, 1, GL_FALSE, &M[0][0]);
-    glUniform3f(spaceToSkyShader.cameraPosID, (float)ppos.x, (float)ppos.y, (float)ppos.z);
+    glUniformMatrix4fv(shader->getUniform("MVP"), 1, GL_FALSE, &MVPr[0][0]);
 
-    glUniform3f(spaceToSkyShader.lightPosID, lightPos.x, lightPos.y, lightPos.z);
-//    glUniform1f(atmosphereShader.gammaID, gamma);
-    glUniform3f(spaceToSkyShader.invWavelengthID, 1/m_fWavelength4[0], 1/m_fWavelength4[1], 1/m_fWavelength4[2]);
-    //glUniform1f(spaceToSkyShader.cameraHeightID, glm::length(ppos));
-    
-    glUniform1f(spaceToSkyShader.cameraHeight2ID, glm::length(ppos)*glm::length(ppos));
-    glUniform1f(spaceToSkyShader.outerRadiusID, radius);
-    //glUniform1f(spaceToSkyShader.outerRadius2ID, radius*radius);
-    glUniform1f(spaceToSkyShader.innerRadiusID, planetRadius);
-    //glUniform1f(spaceToSkyShader.innerRadius2ID, planetRadius*planetRadius);
-    glUniform1f(spaceToSkyShader.KrESunID, m_Kr*m_ESun);
-    glUniform1f(spaceToSkyShader.KmESunID, m_Km*m_ESun);
-    glUniform1f(spaceToSkyShader.Kr4PIID, m_Kr4PI);
-    glUniform1f(spaceToSkyShader.Km4PIID, m_Km4PI);
-    glUniform1f(spaceToSkyShader.scaleID, m_fScale);
-    glUniform1f(spaceToSkyShader.scaleDepthID, m_fRayleighScaleDepth);
-    glUniform1f(spaceToSkyShader.scaleOverScaleDepthID, m_fScale/m_fRayleighScaleDepth);
-    glUniform1f(spaceToSkyShader.gID, m_g);
-    glUniform1f(spaceToSkyShader.g2ID, m_g*m_g);
-    glUniform1f(spaceToSkyShader.fSamplesID, fSamples);
-    glUniform1i(spaceToSkyShader.nSamplesID, nSamples);
+    glUniform3f(shader->getUniform("v3CameraPos"), (float)ppos.x, (float)ppos.y, (float)ppos.z);
+
+    glUniform3f(shader->getUniform("v3LightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+    glUniform3f(shader->getUniform("v3InvWavelength"), 1 / m_fWavelength4[0], 1 / m_fWavelength4[1], 1 / m_fWavelength4[2]);
+  
+    glUniform1f(shader->getUniform("fCameraHeight2"), glm::length(ppos)*glm::length(ppos));
+    glUniform1f(shader->getUniform("fOuterRadius"), radius);
+    glUniform1f(shader->getUniform("fOuterRadius2"), radius*radius);
+    glUniform1f(shader->getUniform("fInnerRadius"), planetRadius);
+
+    glUniform1f(shader->getUniform("fKrESun"), m_Kr*m_ESun);
+    glUniform1f(shader->getUniform("fKmESun"), m_Km*m_ESun);
+    glUniform1f(shader->getUniform("fKr4PI"), m_Kr4PI);
+    glUniform1f(shader->getUniform("fKm4PI"), m_Km4PI);
+    glUniform1f(shader->getUniform("fScale"), m_fScale);
+    glUniform1f(shader->getUniform("fScaleDepth"), m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("fScaleOverScaleDepth"), m_fScale/m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("g"), m_g);
+    glUniform1f(shader->getUniform("g2"), m_g*m_g);
+    glUniform1f(shader->getUniform("fSamples"), fSamples);
+    glUniform1i(shader->getUniform("nSamples"), nSamples);
 
     glBindBuffer(GL_ARRAY_BUFFER, vboID);
+
+    shader->enableVertexAttribArrays();
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColorVertex), (void*)0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
 
-    //glDisable(GL_CULL_FACE);
-
-
     glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
 
-    /*glBindBuffer(GL_ARRAY_BUFFER, vbo2ID);
+    shader->disableVertexAttribArrays();
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
-    glFrontFace(GL_CW);
-    glDrawElements(GL_TRIANGLES, indiceSize, GL_UNSIGNED_SHORT, 0);
-    glFrontFace(GL_CCW);*/
-
-    //glEnable(GL_CULL_FACE);
-
-    spaceToSkyShader.UnBind();
+    shader->unuse();
 }

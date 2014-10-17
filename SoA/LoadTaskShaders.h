@@ -5,6 +5,7 @@
 #include "SpriteBatch.h"
 #include "Errors.h"
 #include "LoadMonitor.h"
+#include "GLProgramManager.h"
 
 // TODO(Ben): Somehow make this asynhronous
 class LoadTaskShaders : public ILoadTask {
@@ -15,6 +16,25 @@ public:
     }
 private:
     virtual void load() {
+        vcore::GLProgramManager* glProgramManager = GameManager::glProgramManager;
+
+        /***** GroundFromAtmosphere *****/
+        glProgramManager->addProgram("GroundFromAtmosphere",
+                                    "Shaders/TerrainShading/GroundFromAtmosphere.vert",
+                                    "Shaders/TerrainShading/GroundFromAtmosphere.frag");
+        /***** SkyFromAtmosphere *****/
+        glProgramManager->addProgram("SkyFromAtmosphere",
+                                     "Shaders/AtmosphereShading/SkyFromAtmosphere.vert",
+                                     "Shaders/AtmosphereShading/SkyFromAtmosphere.frag");
+        /***** GroundFromSpace *****/
+        glProgramManager->addProgram("GroundFromSpace",
+                                     "Shaders/TerrainShading/GroundFromSpace.vert",
+                                     "Shaders/TerrainShading/GroundFromSpace.frag");
+        /***** SkyFromSpace *****/
+        glProgramManager->addProgram("SkyFromSpace",
+                                     "Shaders/AtmosphereShading/SkyFromSpace.vert",
+                                     "Shaders/AtmosphereShading/SkyFromSpace.frag");
+     
 
         textureShader.Initialize();
         basicColorShader.DeleteShader();
@@ -31,14 +51,6 @@ private:
         cutoutShader.Initialize();
         transparencyShader.DeleteShader();
         transparencyShader.Initialize();
-        atmosphereToSkyShader.DeleteShader();
-        atmosphereToSkyShader.Initialize();
-        atmosphereToGroundShader.DeleteShader();
-        atmosphereToGroundShader.Initialize();
-        spaceToSkyShader.DeleteShader();
-        spaceToSkyShader.Initialize();
-        spaceToGroundShader.DeleteShader();
-        spaceToGroundShader.Initialize();
         waterShader.DeleteShader();
         waterShader.Initialize();
         billboardShader.DeleteShader();

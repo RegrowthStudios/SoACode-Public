@@ -132,7 +132,7 @@ const cString IOManager::readFileToString(const cString path) {
         t.read(buffer, length);
         t.close();
 
-        buffer[length] = 0;
+        buffer[length] = '\0';
         return buffer;
     }
 }

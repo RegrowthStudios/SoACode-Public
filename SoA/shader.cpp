@@ -20,10 +20,6 @@ BlockShader blockShader;
 CutoutShading cutoutShader;
 TransparentShading transparencyShader;
 TextureShader textureShader;
-AtmosphereToSkyShader atmosphereToSkyShader;
-AtmosphereToGroundShader atmosphereToGroundShader;
-SpaceToSkyShader spaceToSkyShader;
-SpaceToGroundShader spaceToGroundShader;
 WaterShader waterShader;
 //ParticleShader particleShader;
 BillboardShader billboardShader;
@@ -48,8 +44,8 @@ void BasicColorShader::Initialize() {
     if (isInitialized) return;
     program.init();
     printf("Loading basicColorShader\n");
-    program.addShaderFile(ShaderType::VERTEX, "Shaders/BasicShading/BasicColorShading.vert");
-    program.addShaderFile(ShaderType::FRAGMENT, "Shaders/BasicShading/BasicColorShading.frag");
+    program.addShaderFile(vcore::ShaderType::VERTEX, "Shaders/BasicShading/BasicColorShading.vert");
+    program.addShaderFile(vcore::ShaderType::FRAGMENT, "Shaders/BasicShading/BasicColorShading.frag");
     glBindAttribLocation(program.getID(), 0, "vertexPosition_modelspace");
     program.link();
     program.initAttributes();
@@ -70,7 +66,7 @@ void BasicColorShader::Bind() {
     glEnableVertexAttribArray(0);
 }
 void BasicColorShader::UnBind() {
-    GLProgram::unuse();
+    vcore::GLProgram::unuse();
     glDisableVertexAttribArray(0);
 }
 
@@ -503,259 +499,6 @@ void TextureShader::Bind() {
 void TextureShader::UnBind() {
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
-}
-
-void AtmosphereShader::Initialize() {
-    cout << "ERROR: LOADING AtmosphereShader, which is only meant to be base class!\n";
-    int a;
-    cin >> a;
-}
-void AtmosphereShader::Bind() {
-    if (!isInitialized) {
-        printf("SHADER BINDED BEFORE INITIALIZATION");
-        int a;
-        cin >> a;
-    }
-    glUseProgram(shaderID);
-    glEnableVertexAttribArray(0);
-}
-void AtmosphereShader::UnBind() {
-    glDisableVertexAttribArray(0);
-}
-
-void AtmosphereToSkyShader::Initialize() {
-    cout << "Loading SkyFromAtmosphere shader\n";
-    GLuint vID, fID;
-    shaderID = LoadShaders("Shaders/AtmosphereShading/SkyFromAtmosphere.vert", "Shaders/AtmosphereShading/SkyFromAtmosphere.frag", vID, fID);
-    glBindAttribLocation(shaderID, 0, "vertexPosition_modelspace");
-    LinkShaders(shaderID, vID, fID);
-
-
-    mvpID = GetUniform(shaderID, "MVP");
-    cameraPosID = GetUniform(shaderID, "v3CameraPos");
-    lightPosID = GetUniform(shaderID, "v3LightPos");
-    invWavelengthID = GetUniform(shaderID, "v3InvWavelength");
-    cameraHeightID = GetUniform(shaderID, "fCameraHeight");
-    //    cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
-    outerRadiusID = GetUniform(shaderID, "fOuterRadius");
-    //    outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
-    innerRadiusID = GetUniform(shaderID, "fInnerRadius");
-    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
-    KrESunID = GetUniform(shaderID, "fKrESun");
-    KmESunID = GetUniform(shaderID, "fKmESun");
-    Kr4PIID = GetUniform(shaderID, "fKr4PI");
-    Km4PIID = GetUniform(shaderID, "fKm4PI");
-    scaleID = GetUniform(shaderID, "fScale");
-    scaleDepthID = GetUniform(shaderID, "fScaleDepth");
-    scaleOverScaleDepthID = GetUniform(shaderID, "fScaleOverScaleDepth");
-    gID = GetUniform(shaderID, "g");
-    g2ID = GetUniform(shaderID, "g2");
-
-    fSamplesID = GetUniform(shaderID, "fSamples");
-    nSamplesID = GetUniform(shaderID, "nSamples");
-
-    isInitialized = 1;
-}
-void AtmosphereToGroundShader::Initialize() {
-    cout << "Loading GroundFromAtmosphere shader\n";
-    GLuint vID, fID;
-    shaderID = LoadShaders("Shaders/TerrainShading/GroundFromAtmosphere.vert", "Shaders/TerrainShading/GroundFromAtmosphere.frag", vID, fID);
-    glBindAttribLocation(shaderID, 0, "vertexPosition_modelspace");
-    glBindAttribLocation(shaderID, 1, "vertexUV");
-    glBindAttribLocation(shaderID, 2, "vertexNormal_modelspace");
-    glBindAttribLocation(shaderID, 3, "vertexColor");
-    glBindAttribLocation(shaderID, 4, "vertexSlopeColor");
-    glBindAttribLocation(shaderID, 5, "vertexBeachColor");
-    glBindAttribLocation(shaderID, 6, "texTempRainSpec");
-    LinkShaders(shaderID, vID, fID);
-
-
-    mvpID = GetUniform(shaderID, "MVP");
-    //    mID = GetUniform(shaderID, "M");
-    cameraPosID = GetUniform(shaderID, "cameraPos");
-    lightPosID = GetUniform(shaderID, "lightPos");
-    invWavelengthID = GetUniform(shaderID, "invWavelength");
-    cameraHeightID = GetUniform(shaderID, "cameraHeight");
-    //    cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
-    //    outerRadiusID = GetUniform(shaderID, "fOuterRadius");
-    //    outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
-    innerRadiusID = GetUniform(shaderID, "innerRadius");
-    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
-    KrESunID = GetUniform(shaderID, "krESun");
-    KmESunID = GetUniform(shaderID, "kmESun");
-    Kr4PIID = GetUniform(shaderID, "kr4PI");
-    Km4PIID = GetUniform(shaderID, "km4PI");
-    scaleID = GetUniform(shaderID, "fScale");
-    scaleDepthID = GetUniform(shaderID, "scaleDepth");
-    scaleOverScaleDepthID = GetUniform(shaderID, "fScaleOverScaleDepth");
-
-    dtID = GetUniform(shaderID, "dt");
-
-    secColorMultID = GetUniform(shaderID, "secColorMult");
-    //    gID = GetUniform(shaderID, "g");
-    //    g2ID = GetUniform(shaderID, "g2");
-
-    fSamplesID = GetUniform(shaderID, "fSamples");
-    nSamplesID = GetUniform(shaderID, "nSamples");
-
-    worldOffsetID = GetUniform(shaderID, "worldOffset");
-
-    specularExponentID = GetUniform(shaderID, "specularExponent");
-    specularIntensityID = GetUniform(shaderID, "specularIntensity");
-
-    sunColorTextureID = GetUniform(shaderID, "sunColorTexture");
-    texturesID = GetUniform(shaderID, "textures");
-
-    fadeDistanceID = GetUniform(shaderID, "FadeDistance");
-
-    colorTextureID = GetUniform(shaderID, "colorTexture");
-    waterColorTextureID = GetUniform(shaderID, "waterColorTexture");
-
-    freezeTempID = GetUniform(shaderID, "freezeTemp");
-
-    int txv[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-    glUseProgram(shaderID);
-    glUniform1iv(texturesID, 6, txv);
-    glUniform1i(sunColorTextureID, txv[6]);
-    glUniform1i(colorTextureID, txv[7]);
-    glUniform1i(waterColorTextureID, txv[3]);
-
-    isInitialized = 1;
-}
-void AtmosphereToGroundShader::Bind() {
-    if (!isInitialized) {
-        printf("SHADER BINDED BEFORE INITIALIZATION");
-        int a;
-        cin >> a;
-    }
-    glUseProgram(shaderID);
-}
-void AtmosphereToGroundShader::UnBind() {
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(3);
-    glDisableVertexAttribArray(4);
-    glDisableVertexAttribArray(5);
-    glDisableVertexAttribArray(6);
-}
-
-void SpaceToSkyShader::Initialize() {
-    cout << "Loading SkyFromSpace shader\n";
-    GLuint vID, fID;
-    shaderID = LoadShaders("Shaders/AtmosphereShading/SkyFromSpace.vert", "Shaders/AtmosphereShading/SkyFromSpace.frag", vID, fID);
-    glBindAttribLocation(shaderID, 0, "vertexPosition_modelspace");
-    LinkShaders(shaderID, vID, fID);
-
-
-    mvpID = GetUniform(shaderID, "MVP");
-    cameraPosID = GetUniform(shaderID, "v3CameraPos");
-    lightPosID = GetUniform(shaderID, "v3LightPos");
-    invWavelengthID = GetUniform(shaderID, "v3InvWavelength");
-    //    cameraHeightID = GetUniform(shaderID, "fCameraHeight");
-    cameraHeight2ID = GetUniform(shaderID, "fCameraHeight2");
-    outerRadiusID = GetUniform(shaderID, "fOuterRadius");
-    //    outerRadius2ID = GetUniform(shaderID, "fOuterRadius2");
-    innerRadiusID = GetUniform(shaderID, "fInnerRadius");
-    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
-    KrESunID = GetUniform(shaderID, "fKrESun");
-    KmESunID = GetUniform(shaderID, "fKmESun");
-    Kr4PIID = GetUniform(shaderID, "fKr4PI");
-    Km4PIID = GetUniform(shaderID, "fKm4PI");
-    scaleID = GetUniform(shaderID, "fScale");
-    scaleDepthID = GetUniform(shaderID, "fScaleDepth");
-    scaleOverScaleDepthID = GetUniform(shaderID, "fScaleOverScaleDepth");
-    gID = GetUniform(shaderID, "g");
-    g2ID = GetUniform(shaderID, "g2");
-
-    fSamplesID = GetUniform(shaderID, "fSamples");
-    nSamplesID = GetUniform(shaderID, "nSamples");
-
-    isInitialized = 1;
-}
-void SpaceToGroundShader::Initialize() {
-    cout << "Loading GroundFromSpace shader\n";
-    GLuint vID, fID;
-    shaderID = LoadShaders("Shaders/TerrainShading/GroundFromSpace.vert", "Shaders/TerrainShading/GroundFromSpace.frag", vID, fID);
-    glBindAttribLocation(shaderID, 0, "vertexPosition_modelspace");
-    glBindAttribLocation(shaderID, 1, "vertexUV");
-    glBindAttribLocation(shaderID, 2, "vertexNormal_modelspace");
-    glBindAttribLocation(shaderID, 3, "vertexColor");
-    glBindAttribLocation(shaderID, 4, "vertexSlopeColor");
-    glBindAttribLocation(shaderID, 5, "vertexBeachColor");
-    glBindAttribLocation(shaderID, 6, "texTempRainSpec");
-    LinkShaders(shaderID, vID, fID);
-
-
-    mvpID = GetUniform(shaderID, "MVP");
-    //    mID = GetUniform(shaderID, "M");
-    cameraPosID = GetUniform(shaderID, "cameraPos");
-    lightPosID = GetUniform(shaderID, "lightPos");
-    invWavelengthID = GetUniform(shaderID, "invWavelength");
-    //    cameraHeightID = GetUniform(shaderID, "cameraHeight");
-    cameraHeight2ID = GetUniform(shaderID, "cameraHeight2");
-    outerRadiusID = GetUniform(shaderID, "outerRadius");
-    outerRadius2ID = GetUniform(shaderID, "outerRadius2");
-    innerRadiusID = GetUniform(shaderID, "innerRadius");
-    //    innerRadius2ID = GetUniform(shaderID, "fInnerRadius2");
-    KrESunID = GetUniform(shaderID, "krESun");
-    KmESunID = GetUniform(shaderID, "kmESun");
-    Kr4PIID = GetUniform(shaderID, "kr4PI");
-    Km4PIID = GetUniform(shaderID, "km4PI");
-    scaleID = GetUniform(shaderID, "fScale");
-    scaleDepthID = GetUniform(shaderID, "scaleDepth");
-    scaleOverScaleDepthID = GetUniform(shaderID, "fScaleOverScaleDepth");
-
-    dtID = GetUniform(shaderID, "dt");
-
-    secColorMultID = GetUniform(shaderID, "secColorMult");
-    //    gID = GetUniform(shaderID, "g");
-    //    g2ID = GetUniform(shaderID, "g2");
-
-    worldOffsetID = GetUniform(shaderID, "worldOffset");
-
-    specularExponentID = GetUniform(shaderID, "specularExponent");
-    specularIntensityID = GetUniform(shaderID, "specularIntensity");
-
-    fSamplesID = GetUniform(shaderID, "fSamples");
-    nSamplesID = GetUniform(shaderID, "nSamples");
-
-    sunColorTextureID = GetUniform(shaderID, "sunColorTexture");
-    texturesID = GetUniform(shaderID, "textures");
-
-    colorTextureID = GetUniform(shaderID, "colorTexture");
-    waterColorTextureID = GetUniform(shaderID, "waterColorTexture");
-
-    drawModeID = GetUniform(shaderID, "drawMode");
-
-    freezeTempID = GetUniform(shaderID, "freezeTemp");
-
-    int txv[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-    glUseProgram(shaderID);
-    glUniform1iv(texturesID, 6, txv);
-    glUniform1i(sunColorTextureID, txv[6]);
-    glUniform1i(colorTextureID, txv[7]);
-    glUniform1i(waterColorTextureID, txv[3]);
-
-    isInitialized = 1;
-}
-void SpaceToGroundShader::Bind() {
-    if (!isInitialized) {
-        printf("SHADER BINDED BEFORE INITIALIZATION");
-        int a;
-        cin >> a;
-    }
-    glUseProgram(shaderID);
-
-}
-void SpaceToGroundShader::UnBind() {
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(3);
-    glDisableVertexAttribArray(4);
-    glDisableVertexAttribArray(5);
-    glDisableVertexAttribArray(6);
 }
 
 void WaterShader::Initialize() {

@@ -9,12 +9,14 @@
 // This is hacky and temporary, it does way to much
 class LoadTaskBlockData : public ILoadTask {
     virtual void load() {
+
+     //   std::cout << "\n\n\BEGIN LOADING\n\n\n";
+
         initConnectedTextures();
 
         if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
-        //    cout << SDL_GetTicks() - stt << endl;
 
-        BlockLoader::saveBlocks("Data/BlockData.yaml");
+       // BlockLoader::saveBlocks("Data/BlockData.yaml");
 
         Player* player = GameManager::player;
 
@@ -36,5 +38,7 @@ class LoadTaskBlockData : public ILoadTask {
         Blocks[VISITED_NODE] = Blocks[NONE];
         Blocks[VISITED_NODE].ID = VISITED_NODE;
         Blocks[VISITED_NODE].name = "Visited Node";
+
+     //   std::cout << "\n\n\nDONE LOADING\n\n\n";
     }
 };

@@ -53,6 +53,7 @@ MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 DebugRenderer* GameManager::debugRenderer = nullptr;
+vcore::GLProgramManager* GameManager::glProgramManager = nullptr;
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;
@@ -77,6 +78,7 @@ void GameManager::initializeSystems() {
         wsoScanner = new WSOScanner(wsoAtlas);
         
         debugRenderer = new DebugRenderer();
+        glProgramManager = new vcore::GLProgramManager();
  
         _systemsInitialized = true;
     }

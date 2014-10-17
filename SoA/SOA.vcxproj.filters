@@ -527,6 +527,9 @@
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
+    <ClInclude Include="GLProgramManager.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -836,6 +839,9 @@
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgramManager.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

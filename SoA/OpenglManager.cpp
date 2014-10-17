@@ -678,14 +678,6 @@ void InitializeShaders()
     cutoutShader.Initialize();
     transparencyShader.DeleteShader();
     transparencyShader.Initialize();
-    atmosphereToSkyShader.DeleteShader();
-    atmosphereToSkyShader.Initialize();
-    atmosphereToGroundShader.DeleteShader();
-    atmosphereToGroundShader.Initialize();
-    spaceToSkyShader.DeleteShader();
-    spaceToSkyShader.Initialize();
-    spaceToGroundShader.DeleteShader();
-    spaceToGroundShader.Initialize();
     waterShader.DeleteShader();
     waterShader.Initialize();
     billboardShader.DeleteShader();

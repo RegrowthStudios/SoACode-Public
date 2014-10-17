@@ -77,10 +77,6 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
 
     _monitor.start();
 
-    // Do this synchronously for now
-    LoadTaskShaders loadTaskShader;
-    loadTaskShader.load();
-
     // Make LoadBars
     LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
     _loadBars = new LoadBar[_loadTasks.size()];
@@ -139,8 +135,18 @@ void LoadScreen::update(const GameTime& gameTime) {
         _loadBars[i].update((f32)gameTime.elapsed);
     }
 
+    // Defer shader loading
+    static bool loadedShaders = false;
+    if (!loadedShaders && _monitor.isTaskFinished("GameManager")) {
+        // Do this synchronously for now
+        LoadTaskShaders loadTaskShader;
+        loadTaskShader.load();
+        loadedShaders = true;
+    }
+
     // Defer texture loading
     static bool loadedTextures = false;
+    std::cout << (int)_monitor.isTaskFinished("BlockData") << " ";
     if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
         InitializeText2D("Fonts/OrbitronBold.png", "Fonts/FontData.dat");
         LoadTextures();

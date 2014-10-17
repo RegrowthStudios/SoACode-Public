@@ -112,6 +112,7 @@
   <ItemGroup>
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="GLProgramManager.h" />
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskPlanet.h" />
@@ -256,6 +257,7 @@
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="GLProgramManager.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="colors.cpp" />

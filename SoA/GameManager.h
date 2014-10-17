@@ -2,6 +2,8 @@
 #include <deque>
 
 #include "WorldStructs.h"
+#include "GLProgramManager.h"
+#include "Vorb.h"
 
 class ChunkSlot;
 class Player;
@@ -59,6 +61,7 @@ public:
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
     static class DebugRenderer* debugRenderer;
+    static vcore::GLProgramManager* glProgramManager;
 
     static GameStates gameState;
     static nString saveFilePath;

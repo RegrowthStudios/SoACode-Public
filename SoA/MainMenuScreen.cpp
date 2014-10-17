@@ -78,9 +78,8 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::draw(const GameTime& gameTime) {
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //openglManager.BindFrameBuffer();
+
+    openglManager.BindFrameBuffer();
 
 
     mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
@@ -107,10 +106,10 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     ExtractFrustum(glm::dmat4(mainMenuCamera.projectionMatrix()), fvm, worldFrustum);
     GameManager::drawPlanet(mainMenuCamera.position(), VP, mainMenuCamera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
 
- //   glDisable(GL_DEPTH_TEST);
- //   openglManager.DrawFrameBuffer();
+    glDisable(GL_DEPTH_TEST);
+    openglManager.DrawFrameBuffer();
     //    openglManager.DrawNoiseTest();
- //   glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -165,6 +164,8 @@ void MainMenuScreen::UpdateTerrainMesh(TerrainMeshMessage *tmm)
 {
     TerrainBuffers *tb = tmm->terrainBuffers;
 
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromSpace");
+
     if (tmm->indexSize){
         if (tb->vaoID == 0) glGenVertexArrays(1, &(tb->vaoID));
         glBindVertexArray(tb->vaoID);
@@ -180,27 +181,21 @@ void MainMenuScreen::UpdateTerrainMesh(TerrainMeshMessage *tmm)
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, tmm->indexSize * sizeof(GLushort), &(tmm->indices[0]));
 
         //vertices
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), 0);
+        glVertexAttribPointer(program->getAttribute("vertexPosition_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), 0);
         //UVs
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (12)));
+        glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (12)));
         //normals
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (20)));
+        glVertexAttribPointer(program->getAttribute("vertexNormal_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (20)));
         //colors
-        glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (32)));
+        glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (32)));
         //slope color
-        glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (36)));
+        glVertexAttribPointer(program->getAttribute("vertexSlopeColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (36)));
         //beach color
-        glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (40)));
+        //glVertexAttribPointer(program->getAttribute("vertexBeachColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (40)));
         //texureUnit, temperature, rainfall, specular
-        glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (44)));
+        glVertexAttribPointer(program->getAttribute("texTempRainSpec"), 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (44)));
 
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
-        glEnableVertexAttribArray(3);
-        glEnableVertexAttribArray(4);
-        glEnableVertexAttribArray(5);
-        glEnableVertexAttribArray(6);
+        program->enableVertexAttribArrays();
         glBindVertexArray(0); // Disable our Vertex Buffer Object  
 
         if (tmm->treeIndexSize){

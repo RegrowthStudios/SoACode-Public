@@ -1,6 +1,7 @@
 #pragma once
 #include "Constants.h"
 #include "GLProgram.h"
+#include "Vorb.h"
 
 class Shader
 {
@@ -28,7 +29,7 @@ public:
     GLuint mvpID;
     GLuint colorID;
 private:
-    GLProgram program;
+    vcore::GLProgram program;
 };
 
 class SimplexNoiseShader : public Shader
@@ -164,73 +165,6 @@ public:
     GLuint texID;
 };
 
-class AtmosphereShader : public Shader
-{
-public:
-    void Initialize();
-    void Bind();
-    void UnBind();
-
-    GLuint mvpID;
-    GLuint mID;
-    GLuint cameraPosID, lightPosID, invWavelengthID;
-    GLuint cameraHeightID, cameraHeight2ID;
-    GLuint outerRadiusID, outerRadius2ID;
-    GLuint innerRadiusID, innerRadius2ID;
-    GLuint KrESunID, KmESunID, Kr4PIID, Km4PIID;
-    GLuint scaleID, scaleDepthID, scaleOverScaleDepthID;
-    GLuint gID, g2ID;
-    GLuint fSamplesID, nSamplesID;
-};
-
-class AtmosphereToSkyShader : public AtmosphereShader
-{
-public:
-    void Initialize();
-};
-
-class SpaceToSkyShader : public AtmosphereShader
-{
-public:
-    void Initialize();
-};
-
-class AtmosphereToGroundShader : public AtmosphereShader
-{
-public:
-    void Initialize();
-    void Bind();
-    void UnBind();
-
-    GLuint worldOffsetID;
-    GLuint specularIntensityID, specularExponentID;
-    GLuint sunColorTextureID;
-    GLuint waterColorTextureID;
-    GLuint fadeDistanceID;
-    GLuint colorTextureID;
-    GLuint secColorMultID;
-    GLuint dtID;
-    GLuint freezeTempID;
-};
-
-class SpaceToGroundShader : public AtmosphereShader
-{
-public: 
-    void Initialize();
-    void Bind();
-    void UnBind();
-
-    GLuint worldOffsetID;
-    GLuint specularIntensityID, specularExponentID;
-    GLuint sunColorTextureID;
-    GLuint colorTextureID;
-    GLuint waterColorTextureID;
-    GLuint drawModeID;
-    GLuint secColorMultID;
-    GLuint dtID;
-    GLuint freezeTempID;
-};
-
 class WaterShader : public Shader
 {
 public:
@@ -364,10 +298,6 @@ extern BlockShader blockShader;
 extern CutoutShading cutoutShader;
 extern TransparentShading transparencyShader;
 extern TextureShader textureShader;
-extern AtmosphereToSkyShader atmosphereToSkyShader;
-extern AtmosphereToGroundShader atmosphereToGroundShader;
-extern SpaceToSkyShader spaceToSkyShader;
-extern SpaceToGroundShader spaceToGroundShader;
 extern WaterShader waterShader;
 //extern ParticleShader particleShader;
 extern BillboardShader billboardShader;
