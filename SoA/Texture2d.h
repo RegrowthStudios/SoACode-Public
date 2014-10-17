@@ -64,12 +64,6 @@ void InitializeTTF();
 
 void SetText(class Texture2D &tex, const char * text, int x, int y, int size, int fontIndex, int justification = 0, int maxWidth = 0, int ycentered = 1, glm::vec4 color = glm::vec4(1.0));
 void PrintText(const char * text, int x, int y, int size, int fontIndex, int justification=0, int ycentered = 1, glm::vec4 color = glm::vec4(1.0));
-//void ClearText();
-//void AddText2D(const char * text, int x, int y, int size, int fontIndex, int justification=0, int centered = 1, glm::vec4 color = glm::vec4(1.0));
-void CleanupText2D();
-//    TEXTURE2D
-
-extern void DrawImage2D(GLfloat *vertices, int sizeOfvertices, GLfloat *uvs, int sizeOfuvs, GLushort *indices, int sizeOfindices, GLuint textureID, glm::vec4 color, bool roundMask = 0, float xdim = 1360.0f, float ydim = 768.0f);
 
 class Texture2D
 {

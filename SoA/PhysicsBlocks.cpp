@@ -306,7 +306,7 @@ PhysicsBlockBatch::~PhysicsBlockBatch()
     }
 }
 
-void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const f64v3 &PlayerPos, f32m4 &VP)
+void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vcore::GLProgram* program, const f64v3 &PlayerPos, f32m4 &VP)
 {
     if (pbm == NULL) return;
     if (pbm->numBlocks == 0) return;
@@ -316,8 +316,8 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const f64v3 &PlayerPos, f32m
 
     glm::mat4 MVP = VP * GlobalModelMatrix;
 
-    glUniformMatrix4fv(physicsBlockShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(physicsBlockShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
     // 1rst attribute buffer : vertices
     glBindBuffer(GL_ARRAY_BUFFER, pbm->vboID);

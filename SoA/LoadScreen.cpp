@@ -181,7 +181,6 @@ void LoadScreen::update(const GameTime& gameTime) {
         loadTaskPlanet.load();
 
         openglManager.InitializeFrameBuffer();
-        worldRenderer.Initialize();
 
         _state = ScreenState::CHANGE_NEXT;
         loadedTextures = true;

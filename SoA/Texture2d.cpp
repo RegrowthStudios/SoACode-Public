@@ -279,21 +279,6 @@ void ClearText(){
     UVs.clear();
 }
 
-
-void CleanupText2D(){
-
-    // Delete buffers
-    glDeleteBuffers(1, &(texture2Dshader.Text2DVertexBufferID));
-    glDeleteBuffers(1, &(texture2Dshader.Text2DUVBufferID));
-
-    // Delete texture
-    glDeleteTextures(1, &(texture2Dshader.Text2DTextureID));
-
-    // Delete shader
-    glDeleteProgram(texture2Dshader.shaderID);
-
-}
-
 void BlockPack::initialize(TextureInfo texInfo)
 {
     //GLubyte buffer[16][16][4];
@@ -391,64 +376,6 @@ void FreeTextures()
     starboxTextures[5].freeTexture();
     BlankTextureID.freeTexture();
     ballMaskTexture.freeTexture();
-}
-
-void DrawImage2D(GLfloat *vertices, int sizeOfvertices, GLfloat *uvs, int sizeOfuvs, GLushort *indices,int sizeOfindices, GLuint textureID, glm::vec4 color, bool roundMask, float xdim, float ydim)
-{
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeOfvertices, vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeOfuvs, uvs, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeOfindices, indices, GL_STATIC_DRAW);
-
-    int j = 0;
-    for (int i = 0; i < sizeOfvertices; i+=2, j+=4){
-        colorVertices[j] = color[0];
-        colorVertices[j+1] = color[1];
-        colorVertices[j+2] = color[2];
-        colorVertices[j+3] = color[3];
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeOfvertices*2, colorVertices, GL_STATIC_DRAW);
-
-    // Bind shader
-    texture2Dshader.Bind(xdim, ydim);
-    if (roundMask){
-        glUniform2f(texture2Dshader.Text2DStartUVID, uvs[2], uvs[3]);
-        glUniform1i(texture2Dshader.Text2DRoundMaskID, 6);
-        glUniform1f(texture2Dshader.Text2DUseRoundMaskID, 1.0f);
-    }else{
-        glUniform1f(texture2Dshader.Text2DUseRoundMaskID, 0.0f);
-    }
-
-    // Bind texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(texture2Dshader.Text2DUniformID, 0);
-
-    // 1rst attribute buffer : vertices
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
-
-    // 2nd attribute buffer : UVs
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DUVBufferID);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
-
-    // 3rd attribute buffer : Colors
-    glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DColorBufferID);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (void*)0 );
-
-    // Draw call
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
-    glDrawElements(GL_TRIANGLES, sizeOfindices/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
-
-    texture2Dshader.UnBind();
 }
 
 void Texture2D::Initialize(GLuint texID, GLfloat sx, GLfloat sy, GLfloat w, GLfloat h, Color color, GLfloat ustrt, GLfloat vstrt, GLfloat uwidth, GLfloat vwidth)
@@ -588,7 +515,12 @@ void Texture2D::Draw(int xmod, int ymod, GLfloat xdim, GLfloat ydim)
 
 void Texture2D::DrawFixedSize3D(const glm::mat4 &VP, const glm::dvec3 &playerPos, const glm::dvec3 &pos, glm::vec2 uvMod, glm::vec4 color)
 {
-    fixedSizeBillboardShader.Bind();
+    
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("FixedSizeBillboard");
+ 
+    program->use();
+    program->disableVertexAttribArrays();
+
     GlobalModelMatrix[3][0] = 0.0;
     GlobalModelMatrix[3][1] = 0.0;
     GlobalModelMatrix[3][2] = 0.0;
@@ -611,36 +543,45 @@ void Texture2D::DrawFixedSize3D(const glm::mat4 &VP, const glm::dvec3 &playerPos
     billVerts[n + 3].uv[0] = 255;
     billVerts[n + 3].uv[1] = 0;
 
-    glBindBuffer(GL_ARRAY_BUFFER, texture2Dshader.Text2DVertexBufferID);
+    // Buffers are lazily initialized
+    static ui32 vertexBufferID = 0;
+    static ui32 elementBufferID = 0;
+    if (vertexBufferID == 0) {
+        glGenBuffers(1, &vertexBufferID);
+        glGenBuffers(1, &elementBufferID);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(FixedSizeBillboardVertex)* billVerts.size(), NULL, GL_STREAM_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FixedSizeBillboardVertex)* billVerts.size(), &(billVerts[0]));
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FixedSizeBillboardVertex), 0);
     glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(FixedSizeBillboardVertex), (void *)12);
 
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLushort), boxDrawIndices, GL_STREAM_DRAW);
 
     glm::mat4 MVP = VP;
-    glUniform2f(fixedSizeBillboardShader.uVstartID, 0.0f, 1.0f);
+    glUniform2f(program->getUniform("UVstart"), 0.0f, 1.0f);
     float width = (float)texInfo.width / screenWidth2d;
     float height = ((float)texInfo.height * ((float)screenHeight2d / screenWidth2d)) / screenHeight2d;
-    glUniform1f(fixedSizeBillboardShader.widthID, width);
-    glUniform1f(fixedSizeBillboardShader.heightID, height);
-    glUniform2f(fixedSizeBillboardShader.uVwidthID, 1.0f, -1.0f);
-    glUniform4f(fixedSizeBillboardShader.colorID, color.r, color.g, color.b, color.a);
-    glUniform1f(fixedSizeBillboardShader.textureUnitID, 0.0f);
-    glUniform2f(fixedSizeBillboardShader.uvModID, uvMod.x, uvMod.y);
+    glUniform1f(program->getUniform("width"), width);
+    glUniform1f(program->getUniform("height"), height);
+    glUniform2f(program->getUniform("UVwidth"), 1.0f, -1.0f);
+    glUniform4f(program->getUniform("particleColor"), color.r, color.g, color.b, color.a);
+    glUniform1f(program->getUniform("textureUnitID"), 0.0f);
+    glUniform2f(program->getUniform("UVmod"), uvMod.x, uvMod.y);
 
-    glUniformMatrix4fv(fixedSizeBillboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texInfo.ID);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture2Dshader.Text2DElementBufferID);
     glDisable(GL_CULL_FACE);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
     glEnable(GL_CULL_FACE);
-    fixedSizeBillboardShader.UnBind();
+    
+    program->disableVertexAttribArrays();
+    program->unuse(); 
 }
 
 TextInfo::TextInfo():  text(""), justification(0), xm(0), ym(0){}

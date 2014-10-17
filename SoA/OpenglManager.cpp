@@ -486,33 +486,6 @@ void OpenglManager::DrawFrameBuffer()
     frameBuffer->draw(flags);
 }
 
-void OpenglManager::DrawNoiseTest()
-{
-
-    /*glBindTexture(GL_TEXTURE_2D, frameBuffer->renderedTextureID);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    SDL_Surface *s = SDL_CreateRGBSurfaceFrom(data, graphicsOptions.screenWidth, graphicsOptions.screenHeight, 32, graphicsOptions.screenWidth * 4, 0, 0, 0, 0);
-    SDL_SaveBMP(s, "testtest.bmp");
-    */
-    frameBuffer->bind();
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    simplexNoiseShader.Bind();
-    GLfloat boxVerts[8] = { -1, 1, -1, -1, 1, -1, 1, 1 };
-    static GLuint vboid = 0;
-    if (vboid == 0) glGenBuffers(1, &vboid);
-    glBindBuffer(GL_ARRAY_BUFFER, vboid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(boxVerts), boxVerts, GL_STREAM_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    simplexNoiseShader.UnBind();
-
-    frameBuffer->draw(0);
-}
-
 void DrawGame()
 {
 
@@ -587,7 +560,7 @@ void DrawGame()
         }
         glDisable(GL_DEPTH_TEST);
         openglManager.DrawFrameBuffer();
-    //    openglManager.DrawNoiseTest();
+
         glEnable(GL_DEPTH_TEST);
     }
     else if ((GameManager::gameState == GameStates::WORLDEDITOR && GameManager::worldEditor && GameManager::worldEditor->usingChunks)){
@@ -768,12 +741,12 @@ void Initialize_SDL_OpenGL()
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
 
-    InitializeText2D("Fonts/OrbitronBold.png", "Fonts/FontData.dat");
+   // InitializeText2D("Fonts/OrbitronBold.png", "Fonts/FontData.dat");
     InitializeTTF();
     
     DrawLoadingScreen("Initializing Framebuffer...");
     openglManager.InitializeFrameBuffer();
-    worldRenderer.Initialize();
+
 
 }
 
@@ -2148,20 +2121,21 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
     DrawWater(VP, chunkCamera.position(), st, fogEnd, fogStart, FogColor, lightPos, diffColor, player->isUnderWater);
 
     if (particleMeshes.size() > 0){
-        billboardShader.Bind();
+        vcore::GLProgram* bProgram = GameManager::glProgramManager->getProgram("Billboard");
+        bProgram->use();
 
-        glUniform1f(billboardShader.lightTypeID, (GLfloat)player->lightActive);
-        glUniform3fv(billboardShader.eyeNormalID, 1, &(chunkDirection[0]));
-        glUniform1f(billboardShader.sunValID, st);
-        glUniform3f(billboardShader.ambientID, (GLfloat)1.1f, (GLfloat)1.1f, (GLfloat)1.1f);
+        glUniform1f(bProgram->getUniform("lightType"), (GLfloat)player->lightActive);
+        glUniform3fv(bProgram->getUniform("eyeNormalWorldspace"), 1, &(chunkDirection[0]));
+        glUniform1f(bProgram->getUniform("sunVal"), st);
+        glUniform3f(bProgram->getUniform("AmbientLight"), (GLfloat)1.1f, (GLfloat)1.1f, (GLfloat)1.1f);
 
         const glm::mat4 &chunkViewMatrix = chunkCamera.viewMatrix();
 
         glm::vec3 cameraRight(chunkViewMatrix[0][0], chunkViewMatrix[1][0], chunkViewMatrix[2][0]);
         glm::vec3 cameraUp(chunkViewMatrix[0][1], chunkViewMatrix[1][1], chunkViewMatrix[2][1]);
 
-        glUniform3f(billboardShader.cameraUpID, cameraUp.x, cameraUp.y, cameraUp.z);
-        glUniform3f(billboardShader.cameraRightID, cameraRight.x, cameraRight.y, cameraRight.z);
+        glUniform3f(bProgram->getUniform("cameraUp_worldspace"), cameraUp.x, cameraUp.y, cameraUp.z);
+        glUniform3f(bProgram->getUniform("cameraRight_worldspace"), cameraRight.x, cameraRight.y, cameraRight.z);
 
 
         //glDepthMask(GL_FALSE);
@@ -2176,14 +2150,15 @@ void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
                 ParticleBatch::draw(particleMeshes[i], player->headPosition, VP);
             }
         }
+        // TODO(Ben): Maybe make this a part of GLProgram?
         glVertexAttribDivisor(0, 0);
         glVertexAttribDivisor(2, 0); //restore divisors
         glVertexAttribDivisor(3, 0);
         glVertexAttribDivisor(4, 0);
         glVertexAttribDivisor(5, 0);
-        //    glDepthMask(GL_TRUE);
+        
 
-        billboardShader.UnBind();
+        bProgram->unuse();
     }
     debugRenderer->render(VP, glm::vec3(chunkCamera.position()));
 
@@ -2195,16 +2170,16 @@ void OpenglManager::DrawSonar(glm::mat4 &VP, glm::dvec3 &position)
 {
     //*********************Blocks*******************
 
-    sonarShader.Bind();
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Sonar");
+    program->use();
 
     bindBlockPacks();
-
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
-    glUniform1f(sonarShader.distanceID, sonarDistance);
-    glUniform1f(sonarShader.waveID, sonarWidth);
-    glUniform1f(sonarShader.dtID, sonarDt);
+    glUniform1f(program->getUniform("sonarDistance"), sonarDistance);
+    glUniform1f(program->getUniform("waveWidth"), sonarWidth);
+    glUniform1f(program->getUniform("dt"), sonarDt);
 
     float fadeDist;
     if (NoChunkFade){
@@ -2213,46 +2188,47 @@ void OpenglManager::DrawSonar(glm::mat4 &VP, glm::dvec3 &position)
     else{
         fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
     }
-    glUniform1f(sonarShader.fadeDistanceID, fadeDist);
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
 
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
     for (unsigned int i = 0; i < chunkMeshes.size(); i++)
     {
-        ChunkRenderer::drawSonar(chunkMeshes[i], position, VP);
+        ChunkRenderer::drawBlocks(chunkMeshes[i], program, position, VP);
     }
     
     glDepthMask(GL_TRUE);
     glEnable(GL_CULL_FACE);
 
-    sonarShader.UnBind();
+    program->unuse();
 }
 
 void OpenglManager::drawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
-    blockShader.Bind();
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Block");
+    program->use();
 
-    glUniform1f(blockShader.lightTypeID, lightActive);
+    glUniform1f(program->getUniform("lightType"), lightActive);
 
-    glUniform3fv(blockShader.eyeVecID, 1, eyeDir);
-    glUniform1f(blockShader.fogEndID, (GLfloat)fogEnd);
-    glUniform1f(blockShader.fogStartID, (GLfloat)fogStart);
-    glUniform3fv(blockShader.fogColorID, 1, fogColor);
-    glUniform3f(blockShader.lightID, lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(blockShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(blockShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
 
     bindBlockPacks();
 
-    glUniform1f(blockShader.blockDtID, (GLfloat)bdt);
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
-    glUniform1f(blockShader.sunValID, sunVal);
+    glUniform1f(program->getUniform("sunVal"), sunVal);
 
-    glUniform1f(blockShader.alphaMultID, 1.0f);
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
     float blockAmbient = 0.000f;
-    glUniform3f(blockShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(blockShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
 
     float fadeDist;
     if (NoChunkFade){
@@ -2262,7 +2238,7 @@ void OpenglManager::drawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, 
         fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
     }
 
-    glUniform1f(blockShader.fadeDistanceID, fadeDist);
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
 
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
@@ -2306,7 +2282,7 @@ void OpenglManager::drawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, 
         if (SphereInFrustum((float)(cmPos.x + CHUNK_WIDTH / 2 - position.x), (float)(cmPos.y + CHUNK_WIDTH / 2 - position.y), (float)(cmPos.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)){
             if (cm->distance < fadeDist + 12.5){
                 cm->inFrustum = 1;
-                ChunkRenderer::draw(cm, position, VP);
+                ChunkRenderer::drawBlocks(cm, program, position, VP);
             }
             else{
                 cm->inFrustum = 0;
@@ -2318,36 +2294,35 @@ void OpenglManager::drawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, 
     }
     glEnable(GL_CULL_FACE);
 
-    blockShader.UnBind();
-
+    program->unuse();
 }
 
 void OpenglManager::drawCutoutBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Cutout");
+    program->use();
 
-    cutoutShader.Bind();
+    glUniform1f(program->getUniform("lightType"), lightActive);
 
-    glUniform1f(cutoutShader.lightTypeID, lightActive);
-
-    glUniform3fv(cutoutShader.eyeVecID, 1, eyeDir);
-    glUniform1f(cutoutShader.fogEndID, (GLfloat)fogEnd);
-    glUniform1f(cutoutShader.fogStartID, (GLfloat)fogStart);
-    glUniform3fv(cutoutShader.fogColorID, 1, fogColor);
-    glUniform3f(cutoutShader.lightID, lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(cutoutShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(cutoutShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+    glUniform3f(program->getUniform("lightType"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("alphaMult"), graphicsOptions.specularIntensity*0.3);
 
     bindBlockPacks();
 
-    glUniform1f(cutoutShader.blockDtID, (GLfloat)bdt);
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
-    glUniform1f(cutoutShader.sunValID, sunVal);
+    glUniform1f(program->getUniform("sunVal"), sunVal);
 
-    glUniform1f(cutoutShader.alphaMultID, 1.0f);
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
     float blockAmbient = 0.000f;
-    glUniform3f(cutoutShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(cutoutShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
 
     float fadeDist;
     if (NoChunkFade){
@@ -2356,7 +2331,7 @@ void OpenglManager::drawCutoutBlocks(const glm::mat4 &VP, const glm::dvec3 &posi
         fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
     }
 
-    glUniform1f(cutoutShader.fadeDistanceID, fadeDist);
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
 
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
@@ -2387,40 +2362,41 @@ void OpenglManager::drawCutoutBlocks(const glm::mat4 &VP, const glm::dvec3 &posi
         cm = chunkMeshes[i];
 
         if (cm->inFrustum){
-            ChunkRenderer::drawCutoutBlocks(cm, position, VP);
+            ChunkRenderer::drawCutoutBlocks(cm, program, position, VP);
         }
     }
     glEnable(GL_CULL_FACE);
 
-    cutoutShader.UnBind();
+    program->unuse();
 
 }
 
 void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
-    transparencyShader.Bind();
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Transparency");
+    program->use();
 
-    glUniform1f(transparencyShader.lightTypeID, lightActive);
+    glUniform1f(program->getUniform("lightType"), lightActive);
 
-    glUniform3fv(transparencyShader.eyeVecID, 1, eyeDir);
-    glUniform1f(transparencyShader.fogEndID, (GLfloat)fogEnd);
-    glUniform1f(transparencyShader.fogStartID, (GLfloat)fogStart);
-    glUniform3fv(transparencyShader.fogColorID, 1, fogColor);
-    glUniform3f(transparencyShader.lightID, lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(transparencyShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(transparencyShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
 
     bindBlockPacks();
 
-    glUniform1f(transparencyShader.blockDtID, (GLfloat)bdt);
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
-    glUniform1f(transparencyShader.sunValID, sunVal);
+    glUniform1f(program->getUniform("sunVal"), sunVal);
 
-    glUniform1f(transparencyShader.alphaMultID, 1.0f);
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
     float blockAmbient = 0.000f;
-    glUniform3f(transparencyShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(transparencyShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
 
     float fadeDist;
     if (NoChunkFade){
@@ -2429,7 +2405,7 @@ void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 
         fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
     }
 
-    glUniform1f(transparencyShader.fadeDistanceID, fadeDist);
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
 
 
     glLineWidth(3);
@@ -2482,83 +2458,85 @@ void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 
                 }
             }
             
-            ChunkRenderer::drawTransparentBlocks(cm, position, VP);
+            ChunkRenderer::drawTransparentBlocks(cm, program, position, VP);
         } 
     }
     glEnable(GL_CULL_FACE);
 
-    transparencyShader.UnBind();
+    program->unuse();
 
 }
 
 void OpenglManager::DrawPhysicsBlocks(glm::mat4& VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 {
-    physicsBlockShader.Bind();
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
+    program->use();
 
-    glUniform1f(physicsBlockShader.lightTypeID, lightActive);
+    glUniform1f(program->getUniform("lightType"), lightActive);
 
-    glUniform1f(physicsBlockShader.alphaMultID, 1.0f);
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
-    glUniform3fv(physicsBlockShader.eyeVecID, 1, eyeDir);
-    glUniform1f(physicsBlockShader.fogEndID, (GLfloat)fogEnd);
-    glUniform1f(physicsBlockShader.fogStartID, (GLfloat)fogStart);
-    glUniform3fv(physicsBlockShader.fogColorID, 1, fogColor);
-    glUniform3f(physicsBlockShader.lightID, lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(physicsBlockShader.specularExponentID, graphicsOptions.specularExponent);
-    glUniform1f(physicsBlockShader.specularIntensityID, graphicsOptions.specularIntensity*0.3);
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
 
     bindBlockPacks();
 
-    glUniform1f(physicsBlockShader.sunValID, sunVal);
+    glUniform1f(program->getUniform("sunVal"), sunVal);
 
     float blockAmbient = 0.000f;
-    glUniform3f(physicsBlockShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(physicsBlockShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
 
     if (NoChunkFade){
-        glUniform1f(physicsBlockShader.fadeDistanceID, (GLfloat)10000.0f);
+        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)10000.0f);
     }
     else{
-        glUniform1f(physicsBlockShader.fadeDistanceID, (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
+        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
     }
 
     for (Uint32 i = 0; i < physicsBlockMeshes.size(); i++){
-        PhysicsBlockBatch::draw(physicsBlockMeshes[i], position, VP);
+        PhysicsBlockBatch::draw(physicsBlockMeshes[i], program, position, VP);
     }
     glVertexAttribDivisor(5, 0); //restore divisors
     glVertexAttribDivisor(6, 0);
     glVertexAttribDivisor(7, 0);
-    physicsBlockShader.UnBind();
+    program->unuse();
 }
 
 void OpenglManager::DrawWater(glm::mat4 &VP, const glm::dvec3 &position, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, glm::vec3 &lightPos, glm::vec3 &lightColor, bool underWater)
 {
-    waterShader.Bind();
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
+    program->use();
 
-    glUniform1f(waterShader.sunValID, sunVal);
+    glUniform1f(program->getUniform("sunVal"), sunVal);
 
-    glUniform1f(waterShader.fogEndID, (GLfloat)fogEnd);
-    glUniform1f(waterShader.fogStartID, (GLfloat)fogStart);
-    glUniform3fv(waterShader.fogColorID, 1, fogColor);
+    glUniform1f(program->getUniform("FogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("FogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("FogColor"), 1, fogColor);
 
-    glUniform3fv(waterShader.lightID, 1, &(lightPos[0]));
+    glUniform3fv(program->getUniform("LightPosition_worldspace"), 1, &(lightPos[0]));
 
     if (NoChunkFade){
-        glUniform1f(waterShader.fadeDistanceID, (GLfloat)10000.0f);
+        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)10000.0f);
     }
     else{
-        glUniform1f(waterShader.fadeDistanceID, (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
+        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
     }
 
     float blockAmbient = 0.000f;
-    glUniform3f(waterShader.ambientID, blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(waterShader.lightColorID, (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3f(program->getUniform("AmbientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("LightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
 
-    glUniform1f(waterShader.dtID, (GLfloat)bdt);
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
-    glUniform1i(waterShader.normalMapID, 6);
+    glUniform1i(program->getUniform("normalMap"), 6);
 
     if (underWater) glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
@@ -2570,13 +2548,13 @@ void OpenglManager::DrawWater(glm::mat4 &VP, const glm::dvec3 &position, GLfloat
     {
         cm = chunkMeshes[i];
     
-        ChunkRenderer::drawWater(cm, position, VP);
+        ChunkRenderer::drawWater(cm, program, position, VP);
     }
 
     glDepthMask(GL_TRUE);
     if (underWater) glEnable(GL_CULL_FACE);
 
-    waterShader.UnBind();
+    program->unuse();
 }
 
 const float crossWidth = 6;
@@ -2694,10 +2672,10 @@ void OpenglManager::DrawHud()
         }
     }
 
-    if (graphicsOptions.hudMode != 2){
-        DrawImage2D(crossHairVerts1, sizeof(crossHairVerts1), boxUVs, sizeof(boxUVs), boxDrawIndices, sizeof(boxDrawIndices), BlankTextureID.ID, glm::vec4(0.5, 0.0, 0.0, 0.6));
-        DrawImage2D(crossHairVerts2, sizeof(crossHairVerts2), boxUVs, sizeof(boxUVs), boxDrawIndices, sizeof(boxDrawIndices), BlankTextureID.ID, glm::vec4(0.5, 0.0, 0.0, 0.6));
-    }
+  //  if (graphicsOptions.hudMode != 2){
+  //      DrawImage2D(crossHairVerts1, sizeof(crossHairVerts1), boxUVs, sizeof(boxUVs), boxDrawIndices, sizeof(boxDrawIndices), BlankTextureID.ID, glm::vec4(0.5, 0.0, 0.0, 0.6));
+  //      DrawImage2D(crossHairVerts2, sizeof(crossHairVerts2), boxUVs, sizeof(boxUVs), boxDrawIndices, sizeof(boxDrawIndices), BlankTextureID.ID, glm::vec4(0.5, 0.0, 0.0, 0.6));
+  //  }
 
     if (drawMode == 2){
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

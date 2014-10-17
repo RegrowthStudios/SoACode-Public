@@ -224,7 +224,7 @@ void FrameBuffer::checkErrors(string name)
     }
 }
 
-void FrameBuffer::draw(int shaderMode)
+void FrameBuffer::draw()
 {
     if (vertexBufferID == 0){
         glGenBuffers(1, &vertexBufferID);

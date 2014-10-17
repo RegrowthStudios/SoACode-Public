@@ -11,7 +11,7 @@ public:
     void checkErrors(nString name = "Frame Buffer");
 #define FB_SHADER_MOTIONBLUR 0x1
 
-    void draw(int shaderMode);
+    void draw();
 
 #define FB_DRAW 0
 #define FB_MSAA 1

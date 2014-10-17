@@ -60,7 +60,6 @@ public:
     void BindFrameBuffer();
     void FreeFrameBuffer();
     void DrawFrameBuffer();
-    void DrawNoiseTest();
     void UpdateTerrainMesh(struct TerrainMeshMessage *tmm);
     void UpdateChunkMesh(struct ChunkMeshData *cmd);
     void UpdateParticleMesh(struct ParticleMeshMessage *pmm);

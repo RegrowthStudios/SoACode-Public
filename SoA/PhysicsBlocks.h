@@ -2,6 +2,7 @@
 #include <deque>
 #include <queue>
 
+#include "GLProgram.h"
 #include "ImageLoading.h"
 #include "WorldStructs.h"
 #include "OpenGLStructs.h"
@@ -47,7 +48,7 @@ public:
     PhysicsBlockBatch(i32 BlockType, ui8 temp, ui8 rain);
     ~PhysicsBlockBatch();
 
-    static void draw(PhysicsBlockMesh* pbm, const f64v3& PlayerPos, f32m4& VP);
+    static void draw(PhysicsBlockMesh* pbm, const vcore::GLProgram* program, const f64v3& PlayerPos, f32m4& VP);
     bool update();
     void addBlock(const f64v3& pos, i32 ydiff, f32v2& dir, f32v3 extraForce);
 
