@@ -55,7 +55,7 @@ void LoadMonitor::start() {
 #ifdef DEBUG
                 printf("CHECK: %s\r\n", name.c_str());
 #endif
-                return canStart(name);
+                return monitor->canStart(name);
             });
             uLock.unlock();
 
@@ -68,7 +68,9 @@ void LoadMonitor::start() {
 #endif // DEBUG
 
             // Notify That This Task Is Completed
+            uLock.lock();
             _completionCondition.notify_all();
+            uLock.unlock();
         });
     }
 }
