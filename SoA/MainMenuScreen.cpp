@@ -136,6 +136,10 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+void MainMenuScreen::loadGame(const nString& fileName) {
+    std::cout << "Loading Game: " << fileName << std::endl;
+}
+
 void MainMenuScreen::updateThreadFunc() {
 
     _threadRunning = true;

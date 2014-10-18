@@ -71,6 +71,11 @@ private:
     /// @param args: Argument can be a string, int, float, or bool
     void print(const Awesomium::JSArray& args);
 
+    /// Loads a save game and begins playing
+    /// @param args: Argument should be the string name
+    /// provided by getSaveFiles
+    void loadSaveGame(const Awesomium::JSArray& args);
+
     MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 

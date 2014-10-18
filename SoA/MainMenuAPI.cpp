@@ -10,6 +10,8 @@
 
 void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 
+#define ADDFUNC(a) addFunction(""#a"", &MainMenuAPI::##a)
+
     // Set up the interface object so we can talk to the JS
     _interfaceObject = interfaceObject;
 
@@ -17,15 +19,14 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     setOwnerScreen(ownerScreen);
 
     // Add functions here
-    addFunction("getCameraPosition", &MainMenuAPI::getCameraPosition);
-    addFunction("getPlanetRadius", &MainMenuAPI::getPlanetRadius);
-    addFunction("getSaveFiles", &MainMenuAPI::getSaveFiles);
+    ADDFUNC(getCameraPosition);
+    ADDFUNC(getPlanetRadius);
+    ADDFUNC(getSaveFiles);
 
-    addFunction("setCameraFocalLength", &MainMenuAPI::setCameraFocalLength);
-    addFunction("setCameraPosition", &MainMenuAPI::setCameraPosition);
-    addFunction("setCameraTarget", &MainMenuAPI::setCameraTarget);
-    addFunction("print", &MainMenuAPI::print);
-
+    ADDFUNC(setCameraFocalLength);
+    ADDFUNC(setCameraPosition);
+    ADDFUNC(setCameraTarget);
+    ADDFUNC(print);
 }
 
 void MainMenuAPI::setOwnerScreen(IGameScreen* ownerScreen) {
@@ -97,15 +98,22 @@ void MainMenuAPI::setCameraTarget(const Awesomium::JSArray& args) {
 }
 
 void MainMenuAPI::print(const Awesomium::JSArray& args) {
-    if (args.size()) {
-        if (args[0].IsDouble()) {
-            std::cout << args[0].ToDouble() << std::endl;
-        } else if (args[0].IsString()) {
-            std::cout << args[0].ToString() << std::endl;
-        } else if (args[0].IsInteger()) {
-            std::cout << args[0].ToInteger() << std::endl;
-        } else if (args[0].IsBoolean()) {
-            std::cout << (int)args[0].ToBoolean() << std::endl;
-        }
-    }
+    if (!args.size()) return;
+
+    if (args[0].IsDouble()) {
+        std::cout << args[0].ToDouble() << std::endl;
+    } else if (args[0].IsString()) {
+        std::cout << args[0].ToString() << std::endl;
+    } else if (args[0].IsInteger()) {
+        std::cout << args[0].ToInteger() << std::endl;
+    } else if (args[0].IsBoolean()) {
+        std::cout << (int)args[0].ToBoolean() << std::endl;
+    } 
+}
+
+void MainMenuAPI::loadSaveGame(const Awesomium::JSArray& args) {
+    if (!args.size()) return;
+
+    nString fileName = "Saves/" + Awesomium::ToString(args[0].ToString());
+    _ownerScreen->loadGame(fileName);
 }

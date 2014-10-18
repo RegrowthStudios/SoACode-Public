@@ -11,6 +11,7 @@ struct TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
 {
+    friend class MainMenuAPI;
 public:
     CTOR_APP_SCREEN_DECL(MainMenuScreen, App);
 
@@ -32,6 +33,8 @@ public:
     IOManager& getIOManager() { return _ioManager; }
 
 private:
+
+    void loadGame(const nString& fileName);
 
     void updateThreadFunc();
     void UpdateTerrainMesh(TerrainMeshMessage *tmm);
