@@ -85,7 +85,7 @@ void TextureAtlasManager::loadBlockAtlas(string fileName) {
         addTextureToAtlas(*it, zipFile);
     }
 
-    ui32v2 viewport(graphicsOptions.windowWidth, graphicsOptions.windowHeight);
+    ui32v2 viewport(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     _atlasList.back()->frameBuffer->unBind(viewport);
 
     atlasTex.ID = makeBlockPackTexture(_atlasList, _resolution * BLOCKS_PER_ROW);
@@ -519,7 +519,7 @@ void TextureAtlasManager::clearAll() {
 
 ui32 TextureAtlasManager::makeBlockPackTexture(const vector <Atlas*> &atlasList, int imageWidth) {
 
-    const ui32v2 viewport(graphicsOptions.windowWidth, graphicsOptions.windowHeight);
+    const ui32v2 viewport(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     _atlasList.back()->frameBuffer->unBind(viewport);
 
     printf("Creating texture atlas that is %u pages.\n", atlasList.size());

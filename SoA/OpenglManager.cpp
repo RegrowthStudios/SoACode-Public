@@ -162,8 +162,8 @@ void OpenglManager::glThreadLoop() {
             graphicsOptions.needsFullscreenToggle = 0;
             int w, h;
             SDL_GetWindowSize(mainWindow, &w, &h);
-            graphicsOptions.windowWidth = w;
-            graphicsOptions.windowHeight = h;
+            graphicsOptions.screenWidth = w;
+            graphicsOptions.screenHeight = h;
         }
         if (graphicsOptions.needsWindowReload){
             RebuildWindow();
@@ -501,7 +501,7 @@ void OpenglManager::DrawFrameBuffer()
         glUniform1f(program->getUniform("fExposure"), graphicsOptions.hdrExposure);
     }
 
-    const ui32v2 viewport(graphicsOptions.windowWidth, graphicsOptions.windowHeight);
+    const ui32v2 viewport(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     frameBuffer->draw(viewport, drawMode);
 
     program->disableVertexAttribArrays();
@@ -686,8 +686,8 @@ void Initialize_SDL_OpenGL()
 
     int w, h;
     SDL_GetWindowSize(mainWindow, &w, &h);
-    graphicsOptions.windowWidth = w;
-    graphicsOptions.windowHeight = h;
+    graphicsOptions.screenWidth = w;
+    graphicsOptions.screenHeight = h;
 
     mainOpenGLContext = SDL_GL_CreateContext(mainWindow);
     if (mainOpenGLContext == NULL){
@@ -1553,8 +1553,8 @@ void RebuildWindow()
 
         int w, h;
         SDL_GetWindowSize(mainWindow, &w, &h);
-        graphicsOptions.windowWidth = w;
-        graphicsOptions.windowHeight = h;
+        graphicsOptions.screenWidth = w;
+        graphicsOptions.screenHeight = h;
 
         SDL_GL_MakeCurrent(mainWindow, mainOpenGLContext);
 

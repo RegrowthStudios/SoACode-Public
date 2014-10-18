@@ -763,8 +763,8 @@ int GameMenu::Control()
     int xpos, ypos;
     SDL_GetMouseState(&xpos, &ypos);
 
-    int mx = (int)(xpos / (float)graphicsOptions.windowWidth * (float)screenWidth2d);
-    int my = (int)(screenHeight2d - (ypos / (float)graphicsOptions.windowHeight * (float)screenHeight2d));
+    int mx = (int)(xpos / (float)graphicsOptions.screenWidth * (float)screenWidth2d);
+    int my = (int)(screenHeight2d - (ypos / (float)graphicsOptions.screenHeight * (float)screenHeight2d));
     bool updateListBoxes = 1;
     TextField *tf;
 
@@ -2037,8 +2037,8 @@ int InventoryMenu::Control(InventoryArgs &args)
     int xpos, ypos;
     SDL_GetMouseState(&xpos, &ypos);
 
-    int mx = (int)(xpos / (float)graphicsOptions.windowWidth * (float)screenWidth2d);
-    int my = (int)(screenHeight2d - (ypos / (float)graphicsOptions.windowHeight * (float)screenHeight2d));
+    int mx = (int)(xpos / (float)graphicsOptions.screenWidth * (float)screenWidth2d);
+    int my = (int)(screenHeight2d - (ypos / (float)graphicsOptions.screenHeight * (float)screenHeight2d));
     bool updateListBoxes = 1;
     Button *b;
     TextField *tf;

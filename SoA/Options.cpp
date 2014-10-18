@@ -15,8 +15,8 @@ GameOptions gameOptions;
 MenuOptions menuOptions;
 
 void initializeOptions() {
-    graphicsOptions.nativeWidth = graphicsOptions.windowWidth = graphicsOptions.screenWidth = 1280;
-    graphicsOptions.nativeHeight = graphicsOptions.windowHeight = graphicsOptions.screenHeight = 720;
+    graphicsOptions.nativeWidth = graphicsOptions.screenWidth = 1280;
+    graphicsOptions.nativeHeight = graphicsOptions.screenHeight = 720;
     graphicsOptions.cloudDetail = 1;
     graphicsOptions.lookSensitivity = 0.0026;
     graphicsOptions.voxelRenderDistance = 144;
