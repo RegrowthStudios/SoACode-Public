@@ -5,6 +5,8 @@
 #include "Errors.h"
 #include "Options.h"
 
+#include <SDL/SDL.h>
+
 AwesomiumInterface::AwesomiumInterface() : _isInitialized(0), _openglSurfaceFactory(nullptr), _renderedTexture(0), _width(0), _height(0), _vboID(0), _elementBufferID(0){}
 
 AwesomiumInterface::~AwesomiumInterface(void) {
@@ -45,7 +47,7 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
     _webSession->AddDataSource(Awesomium::WSLit("UI"), _data_source);
 
     // Load a certain URL into our WebView instance. In this case, it must always start with Index.html
-    Awesomium::WebURL url(Awesomium::WSLit("asset://UI/Index.html"));
+    Awesomium::WebURL url(Awesomium::WSLit("asset://UI/index.html"));
 
     if (!url.IsValid()){
         pError("UI Initialization Error: URL was unable to be parsed.");
@@ -214,9 +216,9 @@ void AwesomiumInterface::draw(vcore::GLProgram* program)
 
     glUniform1i(program->getUniform("myTextureSampler"), 0);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
-    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)8);
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)12);
+    glVertexAttribPointer(program->getAttribute("vertexPosition_screenspace"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
+    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)8);
+    glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)12);
 
     // Draw call
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);

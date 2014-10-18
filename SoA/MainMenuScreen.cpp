@@ -17,12 +17,8 @@
 #include "VoxelEditor.h"
 #include "Frustum.h"
 #include "TerrainPatch.h"
+#include "FrameBuffer.h"
 
-#include "SpriteBatch.h"
-#include "colors.h"
-#include "DepthState.h"
-#include "SamplerState.h"
-#include "RasterizerState.h"
 #define THREAD ThreadName::PHYSICS
 
 CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
@@ -48,8 +44,8 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
-    awesomiumInterface.init("game/UI/MainMenu/", graphicsOptions.screenWidth, graphicsOptions.screenHeight);
-
+    awesomiumInterface.init("UI/MainMenu/", graphicsOptions.screenWidth, graphicsOptions.screenHeight);
+    awesomiumInterface.setDrawCoords(0, 0, graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
 }
 
@@ -59,7 +55,7 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
-    // Empty
+    awesomiumInterface.handleEvent(e);
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {
@@ -116,12 +112,14 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     ExtractFrustum(glm::dmat4(mainMenuCamera.projectionMatrix()), fvm, worldFrustum);
     GameManager::drawPlanet(mainMenuCamera.position(), VP, mainMenuCamera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
 
-
-
     glDisable(GL_DEPTH_TEST);
-    awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
-
+    
     openglManager.DrawFrameBuffer();
+
+    ui32v2 viewPort(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
+    openglManager.frameBuffer->unBind(viewPort);
+
+    awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
     glEnable(GL_DEPTH_TEST);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
