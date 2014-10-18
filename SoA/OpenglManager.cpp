@@ -21,7 +21,6 @@
 #include "FrameBuffer.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "GameMenu.h"
 #include "GraphicsDevice.h"
 #include "GeometrySorter.h"
 #include "InputManager.h"
@@ -52,8 +51,6 @@ OpenglManager openglManager;
 
 CinematicCamera mainMenuCamera;
 
-GameMenu *currMenu;
-
 bool glExit = 0;
 bool getFrustum = 1;
 
@@ -62,13 +59,11 @@ void InitializeShaders();
 void Initialize_SDL_OpenGL();
 void InitializeObjects();
 bool CheckGLError();
-bool Control();
 bool PlayerControl();
 bool MainMenuControl();
 void RebuildWindow();
 void rebuildFrameBuffer();
 void UpdatePlayer();
-void ZoomingUpdate();
 void CalculateGlFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, float &framespersecond);
 void RecursiveSortMeshList(vector <ChunkMesh*> &v, int start, int size);
 
@@ -115,8 +110,6 @@ void OpenglManager::glThreadLoop() {
     SetBlockAvgTexColors();
 
     DrawLoadingScreen("Initializing Menus and Objects...");
-    InitializeMenus();
-    currMenu = mainMenu;
 
     InitializeObjects();
 
@@ -138,9 +131,6 @@ void OpenglManager::glThreadLoop() {
     GameManager::initializePlanet(mainMenuCamera.position());
 
     mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
-
-
-    inventoryMenu->InitializeInventory(player);
 
     //hudTexts.resize(30);
     GLuint startTicks;
@@ -190,14 +180,12 @@ void OpenglManager::glThreadLoop() {
             mainMenuCamera.update();
         }
         else if (GameManager::gameState == GameStates::ZOOMINGIN || GameManager::gameState == GameStates::ZOOMINGOUT){
-            ZoomingUpdate();
             mainMenuCamera.update();
         }
         else if (GameManager::gameState == GameStates::WORLDEDITOR){
             EditorState = E_MAIN;
         }
         GameManager::inputManager->update();
-        Control();
         
 
         bdt += glSpeedFactor * 0.01;
@@ -574,29 +562,6 @@ void DrawGame()
     //    DrawFullScreenQuad(glm::vec4(sunSinTheta, sunSinTheta, sunSinTheta, 0.5) * glm::vec4(0.0, 0.5, 1.0, 1.0));
     //}
 
-    switch (GameManager::gameState){
-    case GameStates::PLAY:
-        if (currMenu){
-            currMenu->Draw();
-        }
-        else{
-            openglManager.DrawHud();
-        }
-        break;
-    case GameStates::ZOOMINGIN:
-    case GameStates::ZOOMINGOUT:
-    case GameStates::MAINMENU:
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glClearDepth(1.0);
-        if (currMenu) currMenu->Draw();
-        break;
-    case GameStates::PAUSE:
-        if (currMenu) currMenu->Draw();
-        break;
-    case GameStates::INVENTORY:
-        inventoryMenu->Draw();
-        break;
-    }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -776,217 +741,47 @@ bool CheckGLError(){
     return 0;
 }
 
-bool Control()
-{
-    
-    if (GameManager::gameState == GameStates::PLAY){
-        return PlayerControl();
-    }
-    else if (GameManager::gameState == GameStates::INVENTORY){
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        InventoryArgs args;
-        int ret = inventoryMenu->Control(args);
-        if (ret == -1 || ret == -5){
-            GameManager::gameState = GameStates::PLAY;
-
-            SDL_PumpEvents();
-            SDL_SetRelativeMouseMode(SDL_TRUE);
-        }
-        else if (ret > 0){
-            if (args.arm == 0){
-                if (player->leftEquippedItem == player->inventory[args.selected - 1]){
-                    player->leftEquippedItem = NULL;
-                }
-                else{
-                    player->leftEquippedItem = player->inventory[args.selected - 1];
-                }
-            }
-            else{
-                if (player->rightEquippedItem == player->inventory[args.selected - 1]){
-                    player->rightEquippedItem = NULL;
-                }
-                else{
-                    player->rightEquippedItem = player->inventory[args.selected - 1];
-                }
-            }
-            inventoryMenu->UpdateInventoryList();
-        }
-        else if (ret < -1){
-            if (ret > -9){ //-2 to -9 is category
-                inventoryMenu->selectedCategory = ABS(ret) - 2;
-                //cout << "A " << inventoryMenu->selectedCategory << endl;
-                inventoryMenu->UpdateInventoryList();
-            }
-        }
-    }
-    else if (GameManager::gameState == GameStates::MAINMENU){
-        if (MainMenuControl() == 0) return 0;
-    }
-    else if (GameManager::gameState == GameStates::PAUSE){
-        int oldVoxelRenderDistance = graphicsOptions.voxelRenderDistance;
-        isMouseIn = 0;
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        int ret = currMenu->Control();
-        switch (ret){
-        case -5:
-        case 1:
-            GameManager::gameState = GameStates::PLAY;
-            GameManager::saveState();
-            SDL_PumpEvents();
-            isMouseIn = 1;
-            SDL_SetRelativeMouseMode(SDL_TRUE);
-            currMenu = NULL;
-            break;
-        case 4: // texture packs
-            currMenu = texturePackMenu;
-            currMenu->FlushControlStates();
-            break;
-        case 5: // game options
-            currMenu = gameOptionsMenu;
-            currMenu->FlushControlStates();
-            break;
-        case 6: // video options
-            currMenu = videoOptionsMenu;
-            currMenu->FlushControlStates();
-            break;
-        case 7: // audio options
-            currMenu = audioOptionsMenu;
-            currMenu->FlushControlStates();
-            break;
-        case 8: //controls
-            currMenu = controlsMenu;
-            currMenu->FlushControlStates();
-            break;
-        case 10:
-            currMenu = pauseMenu;
-            currMenu->FlushControlStates();
-            break;
-        case -1:
-            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(13)));
-            DrawLoadingScreen("Deallocating Chunks...", false, glm::vec4(0.0, 0.0, 0.0, 0.3));
-            openglManager.glWaitForMessage(GL_M_STATETRANSITION);
-            break;
-        case -2:
-            GameManager::gameState = GameStates::EXIT;
-            return 0;
-        case 5000: //decrease texture res
-            if (graphicsOptions.currTextureRes > 16){
-                graphicsOptions.currTextureRes >>= 1;
-                fileManager.loadTexturePack(graphicsOptions.currTexturePack);
-            }
-            break;
-        case 5001: //increase texture res
-            if (graphicsOptions.currTextureRes < graphicsOptions.defaultTextureRes){
-                graphicsOptions.currTextureRes <<= 1;
-                fileManager.loadTexturePack(graphicsOptions.currTexturePack);
-            }
-            break;
-        }
-        return 1;
-    }
-    else{
-        SDL_Event evnt;
-        while (SDL_PollEvent(&evnt))
-        {
-            GameManager::inputManager->pushEvent(evnt);
-            switch (evnt.type)
-            {
-            case SDL_QUIT:
-                return 1;
-            }
-        }
-    }
-
-    return 1;
-}
-
 bool PlayerControl() {
-    if (currMenu){
-        isMouseIn = 0;
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        int ret = currMenu->Control();
-        if (ret == 1 || ret == -5){
-            SDL_PumpEvents();
-            isMouseIn = 1;
-            SDL_SetRelativeMouseMode(SDL_TRUE);
-            currMenu = NULL;
-        }
-        if (currMenu == markerMenu){
-            switch (ret){
-            case 2:
-                currMenu = newMarkerMenu;
-                break;
-            case 3:
-                currMenu = deleteMarkerMenu;
-                deleteMarkerMenu->Open();
-                break;
-            }
-        }
-        else if (currMenu == newMarkerMenu){
-            switch (ret){
-            case 2:
-                if (GameManager::markers.size() < 10){
-                    GameManager::addMarker(player->worldPosition, menuOptions.markerName, glm::vec3(menuOptions.markerR / 255.0f, menuOptions.markerG / 255.0f, menuOptions.markerB / 255.0f));
-                }
-                SDL_PumpEvents();
-                isMouseIn = 1;
-                SDL_SetRelativeMouseMode(SDL_TRUE);
-                currMenu = NULL;
-            }
-        }
-        else if (currMenu == deleteMarkerMenu){
-            if (ret >= 1000){
-                int markerIndex = ret - 1000;
-                if (markerIndex < (int)GameManager::markers.size()){
-                    GameManager::markers.erase(GameManager::markers.begin() + markerIndex);
-                    SDL_PumpEvents();
-                    isMouseIn = 1;
-                    SDL_SetRelativeMouseMode(SDL_TRUE);
-                    currMenu = NULL;
-                }
-            }
-        }
-    }
-    else{
-        isMouseIn = 1;
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-        SDL_Event evnt;
-        while (SDL_PollEvent(&evnt))
+  
+    isMouseIn = 1;
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_Event evnt;
+    while (SDL_PollEvent(&evnt))
+    {
+        switch (evnt.type)
         {
-            switch (evnt.type)
-            {
-            case SDL_QUIT:
-                return 0;
-            case SDL_MOUSEMOTION:
-                if (GameManager::gameState == GameStates::PLAY){
-                    player->mouseMove(evnt.motion.xrel, evnt.motion.yrel);
-                }
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                GameManager::inputManager->pushEvent(evnt);
-                break;
-            case SDL_MOUSEBUTTONUP:
-                GameManager::inputManager->pushEvent(evnt);
-                break;
-            case SDL_KEYDOWN:
-                GameManager::inputManager->pushEvent(evnt);
-                break;
-            case SDL_KEYUP:
-                GameManager::inputManager->pushEvent(evnt);
-                break;
-            case SDL_MOUSEWHEEL:
-                GameManager::inputManager->pushEvent(evnt);
-                break;
-            case SDL_WINDOWEVENT:
-                if (evnt.window.type == SDL_WINDOWEVENT_LEAVE || evnt.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                    //            GameState = PAUSE;
-                    //            SDL_SetRelativeMouseMode(SDL_FALSE);
-                    //            isMouseIn = 0;
-                }
-                break;
+        case SDL_QUIT:
+            return 0;
+        case SDL_MOUSEMOTION:
+            if (GameManager::gameState == GameStates::PLAY){
+                player->mouseMove(evnt.motion.xrel, evnt.motion.yrel);
             }
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            GameManager::inputManager->pushEvent(evnt);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            GameManager::inputManager->pushEvent(evnt);
+            break;
+        case SDL_KEYDOWN:
+            GameManager::inputManager->pushEvent(evnt);
+            break;
+        case SDL_KEYUP:
+            GameManager::inputManager->pushEvent(evnt);
+            break;
+        case SDL_MOUSEWHEEL:
+            GameManager::inputManager->pushEvent(evnt);
+            break;
+        case SDL_WINDOWEVENT:
+            if (evnt.window.type == SDL_WINDOWEVENT_LEAVE || evnt.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
+                //            GameState = PAUSE;
+                //            SDL_SetRelativeMouseMode(SDL_FALSE);
+                //            isMouseIn = 0;
+            }
+            break;
         }
     }
+    
 
     bool leftPress = GameManager::inputManager->getKeyDown(INPUT_MOUSE_LEFT);
     bool rightPress = GameManager::inputManager->getKeyDown(INPUT_MOUSE_RIGHT);
@@ -1057,9 +852,7 @@ bool PlayerControl() {
         graphicsOptions.hudMode++;
         if (graphicsOptions.hudMode == 3) graphicsOptions.hudMode = 0;
     }
-    if (GameManager::inputManager->getKeyDown(INPUT_MARKER)){
-        currMenu = markerMenu;
-    }
+    
     if (GameManager::inputManager->getKeyDown(INPUT_WATER_UPDATE)){
         isWaterUpdating = !isWaterUpdating;
     }
@@ -1104,13 +897,7 @@ bool PlayerControl() {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //Wireframe mode
         }
     }
-    if (GameManager::inputManager->getKeyDown(INPUT_PAUSE)){
-        GameManager::gameState = GameStates::PAUSE;
-        currMenu = pauseMenu;
-        isMouseIn = 0;
-        GameManager::savePlayerState();
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-    }
+   
     if (GameManager::inputManager->getKeyDown(INPUT_INVENTORY)){
         GameManager::gameState = GameStates::INVENTORY;
         isMouseIn = 0;
@@ -1142,202 +929,6 @@ bool PlayerControl() {
         InitializeObjects();
     }
     return false;
-}
-
-bool MainMenuControl()
-{
-    string oldLoadString = menuOptions.loadGameString;
-
-    SDL_SetRelativeMouseMode(SDL_FALSE);
-    int ret = currMenu->Control();
-    int rv;
-
-    //cout << oldLoadString << " " << menuOptions.loadGameString << endl;
-    if (oldLoadString != menuOptions.loadGameString){ //load game new planet selection
-        string ws = fileManager.getWorldString("Saves/" + menuOptions.loadGameString + "/World/");
-        if (ws != ""){
-            menuOptions.selectPlanetName = ws;
-        }
-        else{
-            fileManager.createWorldFile("Saves/" + menuOptions.loadGameString + "/World/");
-        }
-    }
-    switch (ret){
-    case -6:
-        glExit = 1;
-        return 0;
-        break;
-    case -4:
-        if (currMenu->overlayActive != -1){
-            currMenu->overlays[currMenu->overlayActive]->FlushControlStates();
-            currMenu->overlayActive = -1;
-        }
-        break;
-    case -3:
-        if (currMenu == loadGameMenu){
-            if (menuOptions.loadGameString != ""){
-                cout << "Deleting " << "Saves/" + menuOptions.loadGameString << endl;
-                // TODO: Silent Failure Here
-                fileManager.deleteDirectory("Saves/" + menuOptions.loadGameString);
-                menuOptions.loadGameString = "";
-                currMenu->Open();
-            }
-            if (currMenu->overlayActive != -1){
-                currMenu->overlays[currMenu->overlayActive]->FlushControlStates();
-                currMenu->overlayActive = -1;
-            }
-        }
-        break;
-    case -2:
-        glExit = 1;
-        return 0;
-        break;
-    case -1: //exit
-        mainMenu->SetOverlayActive(0);
-        mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 2.00), 2.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        break;
-    case 1: // new Game
-        mainMenuCamera.zoomTo(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, GameManager::planet->radius*0.75), 5.0, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(2000000.0, 0.0, 2000000.0), GameManager::planet->radius, 0.0);
-        currMenu = newGameMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 2: // load game
-        menuOptions.loadGameString = "";
-        mainMenuCamera.zoomTo(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, GameManager::planet->radius*0.75), 5.0, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        currMenu = loadGameMenu;
-        currMenu->Open();
-        currMenu->FlushControlStates();
-        break;
-    case 3:
-        mainMenuCamera.zoomTo(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, GameManager::planet->radius*0.75), 5.0, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(2000000.0, 0.0, 2000000.0), GameManager::planet->radius, 0.0);
-        currMenu = worldEditorSelectMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 4: // texture pack
-        mainMenuCamera.zoomTo(glm::dvec3(0.0, GameManager::planet->radius * 1.3, 0.0), 5.0, glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        currMenu = texturePackMenu;
-        currMenu->Open();
-        currMenu->FlushControlStates();
-        break;
-    case 5: // game options
-        mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, -GameManager::planet->radius * 1.01), 5.0, glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, 1.0, 0.0), glm::dvec3(-8000000.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        currMenu = gameOptionsMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 6: // video options
-        mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, -GameManager::planet->radius * 1.01), 5.0, glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, 1.0, 0.0), glm::dvec3(-8000000.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        currMenu = videoOptionsMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 7: // audio options
-        mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, -GameManager::planet->radius * 1.01), 5.0, glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, 1.0, 0.0), glm::dvec3(-8000000.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        currMenu = audioOptionsMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 8: //controls
-        mainMenuCamera.zoomTo(glm::dvec3(-GameManager::planet->radius * 2.55, 0.0, 0.0), 5.0, glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        currMenu = controlsMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 9: //credits
-        mainMenuCamera.zoomTo(glm::dvec3(-GameManager::planet->radius * 1.55, 0.0, GameManager::planet->radius), 5.0, glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        currMenu = creditsMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 10:
-        if (currMenu == videoOptionsMenu){
-            mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 5.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(-8000000.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        }
-        else{
-            mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 5.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        }
-        saveOptions();
-        currMenu = mainMenu;
-        currMenu->FlushControlStates();
-        break;
-    case 20:
-        mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 2.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-        if (currMenu->overlayActive != -1){
-            currMenu->overlays[currMenu->overlayActive]->FlushControlStates();
-            currMenu->overlayActive = -1;
-        }
-        break;
-    case 31:
-        if (menuOptions.newGameString != "" && menuOptions.selectPlanetName != ""){
-
-            if ((rv = GameManager::newGame(menuOptions.newGameString)) == 0){
-                //DrawLoadingScreen("Initializing Chunks...", false, glm::vec4(0.0, 0.0, 0.0, 0.3));
-                glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(10)));
-                openglManager.glWaitForMessage(GL_M_STATETRANSITION);
-            }
-            else if (rv == 1){
-                newGameMenu->overlays[0]->SetOverlayText("INVALID FILENAME: Must use numbers, ascii letters, spaces, or underscores.");
-                newGameMenu->SetOverlayActive(0);
-            }
-            else if (rv == 2){
-                newGameMenu->overlays[0]->SetOverlayText("INVALID FILENAME: That save file name is already in use.");
-                newGameMenu->SetOverlayActive(0);
-            }
-        }
-        break;
-    case 32:
-        if (menuOptions.loadGameString != ""){
-            if (GameManager::loadGame(menuOptions.loadGameString) == 0){
-                //DrawLoadingScreen("Initializing Chunks...", false, glm::vec4(0.0, 0.0, 0.0, 0.3));
-                glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(11)));
-                openglManager.glWaitForMessage(GL_M_STATETRANSITION);
-            }
-        }
-        break;
-    case 33:
-        if (menuOptions.loadGameString != ""){
-            loadGameMenu->overlays[0]->SetOverlayText("Are you sure you want to delete " + menuOptions.loadGameString + "?");
-            loadGameMenu->SetOverlayActive(0);
-
-            //if (GameManager::LoadGame(menuOptions.loadGameString) == 0){
-            //    GameManager::InitializePlayer(player);
-            //    GameState = ZOOMINGIN; //begin the zoom transition
-            //    zoomState = 0;
-            //}
-        }
-        break;
-    case 38:// world editor
-        if (menuOptions.selectPlanetName != ""){
-            mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, 0.0), 2.0, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, GameManager::planet->radius * 2.0);
-            GameManager::initializeWorldEditor();
-            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(14)));
-            openglManager.glWaitForMessage(GL_M_STATETRANSITION);
-        }
-        break;
-    case 945:
-        InitializeShaders();
-        break;
-    case 5000: //decrease texture res
-        if (graphicsOptions.currTextureRes > 16){
-            graphicsOptions.currTextureRes >>= 1;
-            fileManager.loadTexturePack(graphicsOptions.currTexturePack);
-        }
-        break;
-    case 5001: //increase texture res
-        if (graphicsOptions.currTextureRes < graphicsOptions.defaultTextureRes){
-            graphicsOptions.currTextureRes <<= 1;
-            fileManager.loadTexturePack(graphicsOptions.currTexturePack);
-        }
-        break;
-    }
-    if (currMenu == newGameMenu || currMenu == worldEditorSelectMenu){
-        if (menuOptions.selectPlanetName != "" && ("Worlds/" + menuOptions.selectPlanetName + "/") != GameManager::planet->dirName){
-            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(12)));
-            openglManager.glWaitForMessage(GL_M_STATETRANSITION);
-        }
-    }
-    else if (currMenu == loadGameMenu){
-        if (menuOptions.selectPlanetName != "" && ("Worlds/" + menuOptions.selectPlanetName + "/") != GameManager::planet->dirName){
-            glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(12)));
-            openglManager.glWaitForMessage(GL_M_STATETRANSITION);
-        }
-    }
-    return 1;
 }
 
 void RebuildWindow()
@@ -1405,71 +996,6 @@ void UpdatePlayer()
     Chunk::modifyLock.unlock();
 
     delete[] chunks;
-}
-
-void ZoomingUpdate()
-{
-    if (GameManager::gameState == GameStates::ZOOMINGIN){
-        if (openglManager.zoomState == 0){
-            currMenu = NULL;
-            glm::dvec3 targetPos = glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(player->worldPosition, 1.0));
-            glm::dvec3 targetDir = glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(player->worldDirection(), 1.0));
-            glm::dvec3 targetRight = glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(player->worldRight(), 1.0));
-            mainMenuCamera.zoomTo(targetPos, 5.0, targetDir, targetRight, glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-            openglManager.zoomState = 1;
-        }
-        else if (openglManager.zoomState == 1){
-            if (mainMenuCamera.getIsZooming() == 0){
-                GameManager::gameState = GameStates::PLAY;
-                //        SDL_PumpEvents();
-                isMouseIn = 1;
-                //    SDL_SetRelativeMouseMode(SDL_TRUE);
-                currMenu = NULL;
-                openglManager.zoomState = 0;
-            }
-        }
-    }
-    else if (GameManager::gameState == GameStates::ZOOMINGOUT){
-        if (openglManager.zoomState == 0){
-            currMenu = NULL;
-            mainMenuCamera.setPosition(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(player->worldPosition, 1.0)));
-            mainMenuCamera.setDirection(glm::vec3(GameManager::planet->rotationMatrix * glm::vec4(player->worldDirection(), 1.0)));
-            mainMenuCamera.setRight(glm::vec3(GameManager::planet->rotationMatrix * glm::vec4(player->worldRight(), 1.0f)));
-            mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 4.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(2000000.0, 0.0, 2000000.0), GameManager::planet->radius, 0.0);
-            openglManager.zoomState = 1;
-        }
-        else if (openglManager.zoomState == 1){
-            if (mainMenuCamera.getIsZooming() == 0){
-                GameManager::gameState = GameStates::MAINMENU;
-                //            SDL_PumpEvents();
-                isMouseIn = 0;
-                //        SDL_SetRelativeMouseMode(SDL_FALSE);
-                currMenu = mainMenu;
-                openglManager.zoomState = 0;
-            }
-        }
-        else if (openglManager.zoomState == 2){ //zooming to a new planet
-            mainMenuCamera.zoomTo(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, 50000000.0), 0.5, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
-            openglManager.zoomState = 3;
-        }
-        else if (openglManager.zoomState == 3){
-            if (mainMenuCamera.getIsZooming() == 0){
-                glToGame.enqueue(OMessage(GL_M_NEWPLANET, NULL));
-                openglManager.zoomState = 4;
-                openglManager.glWaitForMessage(GL_M_DONE);
-            }
-        }
-        else if (openglManager.zoomState == 4){
-            if (mainMenuCamera.getIsZooming() == 0){
-                GameManager::gameState = GameStates::MAINMENU;
-                openglManager.zoomState = 0;
-            }
-        }
-    }
-    else{
-        pError("Zooming update called with invalid gamestate.");
-        exit(1);
-    }
 }
 
 void OpenglManager::UpdateTerrainMesh(TerrainMeshMessage *tmm)

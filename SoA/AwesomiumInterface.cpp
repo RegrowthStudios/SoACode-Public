@@ -5,8 +5,6 @@
 #include "Errors.h"
 #include "Options.h"
 
-#include <SDL/SDL.h>
-
 AwesomiumInterface::AwesomiumInterface() : _isInitialized(0), _openglSurfaceFactory(nullptr), _renderedTexture(0), _width(0), _height(0), _vboID(0), _elementBufferID(0){}
 
 AwesomiumInterface::~AwesomiumInterface(void) {

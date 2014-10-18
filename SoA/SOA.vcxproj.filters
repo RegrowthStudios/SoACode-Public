@@ -212,14 +212,8 @@
     <ClInclude Include="Frustum.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameControls.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="GameManager.h">
       <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="GameMenu.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="GeometrySorter.h">
       <Filter>SOA Files\Rendering</Filter>
@@ -610,14 +604,8 @@
     <ClCompile Include="Frustum.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="GameControls.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="GameManager.cpp">
       <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="GameMenu.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="GeometrySorter.cpp">
       <Filter>SOA Files\Rendering</Filter>
@@ -784,7 +772,6 @@
     <ClCompile Include="ZipFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\deps\include\JSON\json_spirit_reader.cpp" />
     <ClCompile Include="RenderTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>

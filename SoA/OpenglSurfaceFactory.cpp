@@ -34,8 +34,6 @@ namespace Awesomium {
             memcpy(_pixels + y * (src_rect.width * 4), src_buffer + (y + src_rect.y) * src_row_span + src_rect.x * 4, src_rect.width * 4);
         }
 
-        std::cout << "Paint\n";
-
         //Add it do the GL texture
         glTexSubImage2D(GL_TEXTURE_2D, 0, dest_rect.x, dest_rect.y, dest_rect.width, dest_rect.height, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
     }

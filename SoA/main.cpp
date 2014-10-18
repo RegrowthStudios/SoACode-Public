@@ -19,7 +19,6 @@
 #include "FileSystem.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "GameMenu.h"
 #include "IOManager.h"
 #include "InputManager.h"
 #include "Item.h"
@@ -53,9 +52,6 @@ float speedMod = 0.0095f;
 bool inGame = 0;
 int counter = 0;
 
-void gameLoop();
-bool Control();
-bool MainMenuControl();
 void CalculateFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, volatile float &framespersecond);
 int ProcessMessage(OMessage &message);
 void checkTypes();
@@ -85,19 +81,6 @@ int main(int argc, char **argv) {
     delete mg;
     mg = nullptr;
 
-    player = new Player();
-    player->isFlying = 0;
-    player->setMoveSpeed(speedMod, 0.166f); //Average Human Running Speed = .12, 17 is a good speed
-    //ExtractFrustum(mainMenuCamera->FrustumProjectionMatrix, player->FrustumViewMatrix);
-    bool isChanged = 1;
-
-    currMenu = mainMenu;
-
-    openglManager.BeginThread(gameLoop);
-    openglManager.glThreadLoop();
-    openglManager.EndThread();
-
-    if (player) delete player;
     //GameManager::chunkManager.FreeFrameBuffer();
     FreeConsole(); //WINDOWS ONLY
     //CleanupText2D();
@@ -127,91 +110,6 @@ void initIOEnvironment(char** argv) {
         ? IOManager::getCurrentWorkingDirectory()
         : "None Specified");
 #endif // DEBUG
-}
-
-//this runs in a separate thread
-void gameLoop() {
-    Uint32 frameCount = 0;
-    Uint32 startTicks;
-    Uint32 frametimes[10];
-    Uint32 frametimelast;
-    OMessage message;
-
-    if (openglManager.WaitForMessage(GL_M_DONE).code == GL_M_QUIT) {
-        cout << "ENDING";
-        std::terminate();
-    }
-
-
-    frametimelast = SDL_GetTicks();
-    while (GameManager::gameState != GameStates::EXIT) {
-        startTicks = SDL_GetTicks();
-        GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-        GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-        GameManager::soundEngine->update(player->headPosition, player->chunkDirection(), player->chunkUp());
-
-        while (glToGame.try_dequeue(message)) {
-            if (ProcessMessage(message)) {
-                GameManager::gameState = GameStates::EXIT;
-                break;
-            }
-        }
-
-        //        if (graphicsOptions.needsWindowReload) RebuildWindow();
-
-        GameManager::inputManager->update();
-
-        glm::dvec3 camPos;
-        GLuint st;
-
-        if (GameManager::chunkManager) {
-            const ChunkDiagnostics& cd = GameManager::chunkManager->getChunkDiagnostics();
-            static unsigned int diagnosticsFrameCount = 0;
-            if (diagnosticsFrameCount % 600 == 0) {
-                printf("\nChunk Diagnostics:\nAwaiting Reuse:      %d\nIn Memory:           %d\nAllocation History:  %d\nFreed:               %d\n",
-                    cd.numAwaitingReuse, cd.numCurrentlyAllocated, cd.totalAllocated, cd.totalFreed);
-            }
-            diagnosticsFrameCount++;
-        }
-
-        switch (GameManager::gameState) {
-
-            case GameStates::PLAY:
-                inGame = 1;
-
-                GameManager::update(0.0, player->gridPosition, NULL);
-                break;
-            case GameStates::MAINMENU:
-                inGame = 0;
-                camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(mainMenuCamera.position(), 1.0));
-                GameManager::planet->rotationUpdate();
-                GameManager::updatePlanet(camPos, 10);
-                break;
-            case GameStates::ZOOMINGIN:
-            case GameStates::ZOOMINGOUT:
-                inGame = 0;
-                mainMenuCamera.update();
-                camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(mainMenuCamera.position(), 1.0));
-                GameManager::updatePlanet(camPos, 10);
-                break;
-            case GameStates::WORLDEDITOR:
-                break;
-        }
-
-        CalculateFps(frametimes, frametimelast, frameCount, physicsFps);
-
-        double ticks = (double)(SDL_GetTicks() - startTicks);
-
-        if (1000.0 / maxPhysicsFps > ticks) {  //bound fps to 60
-            SDL_Delay((Uint32)(1000.0f / maxPhysicsFps - ticks));
-        }
-    }
-
-    if (inGame) {
-        GameManager::onQuit();
-    }
-
-    if (GameManager::planet) delete GameManager::planet;
 }
 
 bool HasSettingsChanged() {
@@ -304,17 +202,17 @@ int ProcessMessage(OMessage &message) {
         pbm = (PlaceBlocksMessage *)message.data;
         GameManager::voxelEditor->editVoxels(pbm->equippedItem);
 
-        if (player->leftEquippedItem && player->leftEquippedItem->count == 0) {
-            if (player->leftEquippedItem == player->rightEquippedItem) player->rightEquippedItem = NULL;
-            player->removeItem(player->leftEquippedItem);
-            player->leftEquippedItem = NULL;
-        }
+        //if (player->leftEquippedItem && player->leftEquippedItem->count == 0) {
+        //    if (player->leftEquippedItem == player->rightEquippedItem) player->rightEquippedItem = NULL;
+        //    player->removeItem(player->leftEquippedItem);
+        //    player->leftEquippedItem = NULL;
+        //}
 
-        if (player->rightEquippedItem && player->rightEquippedItem->count == 0) {
-            if (player->leftEquippedItem == player->rightEquippedItem) player->leftEquippedItem = NULL;
-            player->removeItem(player->rightEquippedItem);
-            player->rightEquippedItem = NULL;
-        }
+        //if (player->rightEquippedItem && player->rightEquippedItem->count == 0) {
+        //    if (player->leftEquippedItem == player->rightEquippedItem) player->leftEquippedItem = NULL;
+        //    player->removeItem(player->rightEquippedItem);
+        //    player->rightEquippedItem = NULL;
+        //}
 
         break;
     case GL_M_NEWPLANET:
