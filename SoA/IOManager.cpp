@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "IOManager.h"
 
-#include <boost\filesystem.hpp>
-
 #include "utils.h"
 
 IOManager::IOManager() :

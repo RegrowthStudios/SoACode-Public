@@ -17,13 +17,14 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     setOwnerScreen(ownerScreen);
 
     // Add functions here
-    addFunctionWithReturnValue("getCameraPosition", &MainMenuAPI::getCameraPosition);
-    addFunctionWithReturnValue("getPlanetRadius", &MainMenuAPI::getPlanetRadius);
-    addFunctionWithReturnValue("getSaveFiles", &MainMenuAPI::getSaveFiles);
+    addFunction("getCameraPosition", &MainMenuAPI::getCameraPosition);
+    addFunction("getPlanetRadius", &MainMenuAPI::getPlanetRadius);
+    addFunction("getSaveFiles", &MainMenuAPI::getSaveFiles);
 
-    addVoidFunction("setCameraFocalLength", &MainMenuAPI::setCameraFocalLength);
-    addVoidFunction("setCameraPosition", &MainMenuAPI::setCameraPosition);
-    addVoidFunction("setCameraTarget", &MainMenuAPI::setCameraTarget);
+    addFunction("setCameraFocalLength", &MainMenuAPI::setCameraFocalLength);
+    addFunction("setCameraPosition", &MainMenuAPI::setCameraPosition);
+    addFunction("setCameraTarget", &MainMenuAPI::setCameraTarget);
+    addFunction("print", &MainMenuAPI::print);
 
 }
 
@@ -45,6 +46,7 @@ Awesomium::JSValue MainMenuAPI::getPlanetRadius(const Awesomium::JSArray& args) 
 }
 
 Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
+    std::cout << "Getting Save Files\n" << std::endl;
     // Read the contents of the Saves directory
     std::vector<boost::filesystem::path> paths;
     _ownerScreen->getIOManager().getDirectoryEntries("Saves", paths);
@@ -53,9 +55,11 @@ Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
     for (int i = 0; i < paths.size(); i++) {
         if (boost::filesystem::is_directory(paths[i])) {
             // Add the filename
-            entries.Push(Awesomium::WSLit(paths[i].filename));
-            // Add the access times
-            entries.Push(Awesomium::WSLit(boost::lexical_cast<nString>(boost::filesystem::last_write_time(paths[i])).c_str()));
+            const char* fileName = paths[i].filename().string().c_str();
+            entries.Push(Awesomium::WSLit(fileName));
+            // Add the access time
+            const char* writeTime = boost::lexical_cast<nString>(boost::filesystem::last_write_time(paths[i])).c_str();
+            entries.Push(Awesomium::WSLit(writeTime));
         }
     }
     return Awesomium::JSValue(entries);
@@ -76,4 +80,10 @@ void MainMenuAPI::setCameraTarget(const Awesomium::JSArray& args) {
     f64v3 targetDir(args[5].ToDouble(), args[6].ToDouble(), args[7].ToDouble());
     f64v3 targetRight(args[8].ToDouble(), args[9].ToDouble(), args[10].ToDouble());
     _ownerScreen->getCamera().zoomTo(targetPos, time, glm::normalize(targetDir), glm::normalize(targetRight), glm::dvec3(0.0), GameManager::planet->radius, focalLength);
+}
+
+void MainMenuAPI::print(const Awesomium::JSArray& args) {
+    if (args.size()) {
+        std::cout << args[0].ToString() << std::endl;
+    }
 }

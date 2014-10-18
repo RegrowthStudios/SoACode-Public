@@ -61,11 +61,11 @@ protected:
     /// Adds a function with return value to the API
     /// @param name: The name of the function
     /// @param func: The function pointer
-    virtual void addFunctionWithReturnValue(const nString& name, getptr func);
+    virtual void addFunction(const nString& name, getptr func);
     /// Adds a void function the API
     /// @param name: The name of the function
     /// @param func: The void function pointer
-    virtual void addVoidFunction(const nString& name, setptr func);
+    virtual void addFunction(const nString& name, setptr func);
 
     std::map<nString, setptr> _voidFunctions; ///< map of void functions
     std::map<nString, getptr> _returnFunctions; ///< map of get functions

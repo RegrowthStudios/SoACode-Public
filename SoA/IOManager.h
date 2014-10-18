@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/filesystem.hpp>
+
 // Manages Simple IO Operations Within A File System
 class IOManager {
 public:

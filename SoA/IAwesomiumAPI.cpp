@@ -20,13 +20,13 @@ IAwesomiumAPI<C>::IAwesomiumAPI() :
 }
 
 template <class C>
-void IAwesomiumAPI<C>::addFunctionWithReturnValue(const nString& name, typename IAwesomiumAPI<C>::getptr func) {
+void IAwesomiumAPI<C>::addFunction(const nString& name, typename IAwesomiumAPI<C>::getptr func) {
     _returnFunctions[name] = func;
     _interfaceObject->SetCustomMethod(Awesomium::WSLit(name.c_str()), true);
 }
 
 template <class C>
-void IAwesomiumAPI<C>::addVoidFunction(const nString& name, typename IAwesomiumAPI<C>::setptr func) {
+void IAwesomiumAPI<C>::addFunction(const nString& name, typename IAwesomiumAPI<C>::setptr func) {
     _voidFunctions[name] = func;
     _interfaceObject->SetCustomMethod(Awesomium::WSLit(name.c_str()), false);
 }
