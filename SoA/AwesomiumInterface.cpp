@@ -5,10 +5,20 @@
 #include "Errors.h"
 #include "Options.h"
 
-AwesomiumInterface::AwesomiumInterface() : _isInitialized(0), _openglSurfaceFactory(nullptr), _renderedTexture(0), _width(0), _height(0), _vboID(0), _elementBufferID(0){}
+AwesomiumInterface::AwesomiumInterface() :
+    _isInitialized(0), 
+    _openglSurfaceFactory(nullptr),
+    _renderedTexture(0), 
+    _width(0), 
+    _height(0), 
+    _vboID(0),
+    _elementBufferID(0),
+    _color(255, 255, 255, 255) {
+    // Empty
+}
 
 AwesomiumInterface::~AwesomiumInterface(void) {
-    if (_openglSurfaceFactory) delete _openglSurfaceFactory;
+    delete _openglSurfaceFactory;
 }
 
 //Initializes the interface. Returns false on failure
@@ -17,7 +27,10 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
     _width = width;
     _height = height;
 
-    //Sets up the webCore, which is the main process
+    // Set default draw rectangle
+    setDrawRect(0, 0, _width, _height);
+
+    // Sets up the webCore, which is the main process
     _webCore = Awesomium::WebCore::instance();
     if (_webCore == nullptr){
         _webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
@@ -227,7 +240,7 @@ void AwesomiumInterface::draw(vcore::GLProgram* program)
 
 const GLubyte uiBoxUVs[8] = { 0, 0, 0, 255, 255, 255, 255, 0 };
 
-void AwesomiumInterface::setDrawCoords(int x, int y, int width, int height) {
+void AwesomiumInterface::setDrawRect(int x, int y, int width, int height) {
 
     _drawX = x;
     _drawY = y;
@@ -246,7 +259,6 @@ void AwesomiumInterface::setDrawCoords(int x, int y, int width, int height) {
 
     Vertex2D vertices[4];
 
-
     vertices[0].pos.x = x;
     vertices[0].pos.y = y + height;
 
@@ -263,10 +275,7 @@ void AwesomiumInterface::setDrawCoords(int x, int y, int width, int height) {
         vertices[i].uv[0] = uiBoxUVs[i * 2];
         vertices[i].uv[1] = uiBoxUVs[i * 2 + 1];
 
-        vertices[i].color[0] = _color[0];
-        vertices[i].color[1] = _color[1];
-        vertices[i].color[2] = _color[2];
-        vertices[i].color[3] = _color[3];
+        vertices[i].color = _color;
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
@@ -274,11 +283,10 @@ void AwesomiumInterface::setDrawCoords(int x, int y, int width, int height) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void AwesomiumInterface::setColor(i32v4 color) {
-    _color[0] = color[0];
-    _color[1] = color[1];
-    _color[2] = color[2];
-    _color[3] = color[3];
+void AwesomiumInterface::setColor(const ColorRGBA8& color) {
+    _color = color;
+    // Update the vbo
+    setDrawRect(_drawX, _drawY, _drawWidth, _drawHeight);
 }
 
 void CustomJSMethodHandler::OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {

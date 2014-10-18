@@ -41,8 +41,8 @@ public:
     void update();
     void draw(vcore::GLProgram* program);
 
-    void setDrawCoords(int x, int y, int width, int height);
-    void setColor(i32v4 color);
+    void setDrawRect(int x, int y, int width, int height);
+    void setColor(const ColorRGBA8& color);
 
 private:
     int getWebKeyFromSDLKey(SDL_Scancode key);
@@ -59,7 +59,7 @@ private:
     GLuint _vboID;
     GLuint _elementBufferID;
 
-    ui8 _color[4];
+    ColorRGBA8 _color;
 
     unsigned short _numFiles;
 
@@ -81,6 +81,6 @@ private:
         f32v2 pos;
         ui8 uv[2];
         ui8 pad[2];
-        ui8 color[4];
+        ColorRGBA8 color;
     };
 };

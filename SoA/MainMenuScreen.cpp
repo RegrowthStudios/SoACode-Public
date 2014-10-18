@@ -45,7 +45,6 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     awesomiumInterface.init("UI/MainMenu/", graphicsOptions.screenWidth, graphicsOptions.screenHeight);
-    awesomiumInterface.setDrawCoords(0, 0, graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
 }
 

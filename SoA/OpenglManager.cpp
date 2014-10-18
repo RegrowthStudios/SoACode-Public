@@ -88,7 +88,7 @@ void OpenglManager::glThreadLoop() {
     initResolutions();
 
     InitializeShaders();
-    debugRenderer = new DebugRenderer(); //
+    debugRenderer = new DebugRenderer(); 
 
     hudTexts.resize(100);
 
