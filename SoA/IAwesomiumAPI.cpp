@@ -29,7 +29,7 @@ void IAwesomiumAPI<C>::addVoidFunction(const nString& name, setptr func) {
 }
 
 template <class C>
-IAwesomiumAPI<C>::getptr IAwesomiumAPI<C>::getFunctionWithReturnValue(const nString& name) {
+typename IAwesomiumAPI<C>::getptr IAwesomiumAPI<C>::getFunctionWithReturnValue(const nString& name) {
     auto it = _returnFunctions.find(name);
 
     if (it != _returnFunctions.end()) {
@@ -40,7 +40,7 @@ IAwesomiumAPI<C>::getptr IAwesomiumAPI<C>::getFunctionWithReturnValue(const nStr
 }
 
 template <class C>
-IAwesomiumAPI<C>::setptr IAwesomiumAPI<C>::getVoidFunction(const nString& name) {
+typename IAwesomiumAPI<C>::setptr IAwesomiumAPI<C>::getVoidFunction(const nString& name) {
     auto it = _voidFunctions.find(name);
 
     if (it != _voidFunctions.end()) {

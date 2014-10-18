@@ -16,9 +16,8 @@
 #define MAINMENUAPI_H_
 
 #include "IAwesomiumAPI.h"
-#include "IGameScreen.h"
 
-
+class IGameScreen;
 class MainMenuScreen;
 
 class MainMenuAPI : public vui::IAwesomiumAPI<MainMenuAPI>

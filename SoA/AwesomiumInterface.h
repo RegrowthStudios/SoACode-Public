@@ -122,7 +122,7 @@ private:
 
     C* _awesomiumAPI; ///< the API to use for custom function calls
 
-    CustomJSMethodHandler _methodHandler; ///< the method handler for the function calls
+    CustomJSMethodHandler<C> _methodHandler; ///< the method handler for the function calls
 
     /// the vertex struct for rendering
     struct Vertex2D {
