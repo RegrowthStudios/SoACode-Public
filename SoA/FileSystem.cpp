@@ -1988,52 +1988,6 @@ i32 FileManager::savePlayerFile(Player *player) {
     return 1;
 }
 
-i32 FileManager::getDirectoryEntries(std::vector<nString>& fileNames, std::vector <nString> &descriptions, nString dirPath) {
-    boost::filesystem::directory_iterator end_iter;
-    boost::filesystem::path targetDir(dirPath), file;
-    for (boost::filesystem::directory_iterator dir_iter(targetDir); dir_iter != end_iter; ++dir_iter) {
-        file = *dir_iter;
-        if (boost::filesystem::is_regular_file(dir_iter->status())) {
-            fileNames.push_back(file.filename().string());
-            descriptions.push_back(boost::lexical_cast<nString>(boost::filesystem::last_write_time(file)));
-        }
-        else {
-            fileNames.push_back(file.filename().string());
-            descriptions.push_back(boost::lexical_cast<nString>(boost::filesystem::last_write_time(file)));
-        }
-    }
-    //DIR *dir = NULL;
-    //struct dirent *entry;
-    //int i = 0;
-    //struct stat statBuf;
-    //struct tm *lt;
-    //time_t t;
-    //char descBuf[1024];
-
-    //dir = opendir(dirPath.c_str());
-
-    //if (dir == NULL) {
-    //    perror(dirPath.c_str());
-    //    pError(("Could not open directory " + dirPath).c_str());
-    //    return 0;
-    //}
-
-    ////iterate the directory
-    //while ((entry = readdir(dir))) {
-    //    if (entry->d_name[0] != '.') {
-    //        if (stat((dirPath + entry->d_name).c_str(), &statBuf) != 0)pError("GetDirectoryEntries() Stat error!");
-    //        t = statBuf.st_mtime;
-    //        lt = localtime(&t);
-
-    //        sprintf(descBuf, ("%04d.%02d.%02d  %02d:%02d"), lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
-    //        fileNames.push_back(entry->d_name);
-    //        descriptions.push_back(descBuf);
-    //        i++;
-    //    }
-    //}
-    return 0;
-}
-
 inline void readLine(ui8* buffer, cString dest, i32& size) {
 
     for (int i = 0; i < size; i++) {

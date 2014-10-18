@@ -5,6 +5,9 @@
 #include "GameManager.h"
 #include "Planet.h"
 
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+
 void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 
     // Set up the interface object so we can talk to the JS
@@ -16,6 +19,7 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     // Add functions here
     addFunctionWithReturnValue("getCameraPosition", &MainMenuAPI::getCameraPosition);
     addFunctionWithReturnValue("getPlanetRadius", &MainMenuAPI::getPlanetRadius);
+    addFunctionWithReturnValue("getSaveFiles", &MainMenuAPI::getSaveFiles);
 
     addVoidFunction("setCameraFocalLength", &MainMenuAPI::setCameraFocalLength);
     addVoidFunction("setCameraPosition", &MainMenuAPI::setCameraPosition);
@@ -38,6 +42,23 @@ Awesomium::JSValue MainMenuAPI::getCameraPosition(const Awesomium::JSArray& args
 
 Awesomium::JSValue MainMenuAPI::getPlanetRadius(const Awesomium::JSArray& args) {
     return Awesomium::JSValue(GameManager::planet->radius);
+}
+
+Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
+    // Read the contents of the Saves directory
+    std::vector<boost::filesystem::path> paths;
+    _ownerScreen->getIOManager().getDirectoryEntries("Saves", paths);
+
+    Awesomium::JSArray entries;
+    for (int i = 0; i < paths.size(); i++) {
+        if (boost::filesystem::is_directory(paths[i])) {
+            // Add the filename
+            entries.Push(Awesomium::WSLit(paths[i].filename));
+            // Add the access times
+            entries.Push(Awesomium::WSLit(boost::lexical_cast<nString>(boost::filesystem::last_write_time(paths[i])).c_str()));
+        }
+    }
+    return Awesomium::JSValue(entries);
 }
 
 void MainMenuAPI::setCameraFocalLength(const Awesomium::JSArray& args) {

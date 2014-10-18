@@ -25,6 +25,12 @@ public:
 
     // Return A String (Must Be Deleted) Which Is The Root Absolute Directory Of The Path
     static const cString getDirectory(const cString path);
+
+    /// Gets all the entries in a directory
+    /// @param dirPath: The directory to search
+    /// @param entries: The store for all the resulting paths
+    void getDirectoryEntries(nString dirPath, std::vector<boost::filesystem::path>& entries);
+
     // Attempt To Find An Absolute File Path (Must Be Deleted) With This Environment
     const cString resolveFile(const cString path);
 

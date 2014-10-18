@@ -102,6 +102,14 @@ const cString IOManager::getDirectory(const cString path) {
     return convertWToMBString((cwString)p.c_str());
 }
 
+void IOManager::getDirectoryEntries(nString dirPath, std::vector<boost::filesystem::path>& entries) {
+    boost::filesystem::directory_iterator end_iter;
+    boost::filesystem::path targetDir(dirPath);
+    for (boost::filesystem::directory_iterator dir_iter(targetDir); dir_iter != end_iter; ++dir_iter) {
+        entries.push_back(*dir_iter);  
+    }
+}
+
 FILE* IOManager::openFile(const cString path, const cString flags) {
     const cString filePath = resolveFile(path);
 

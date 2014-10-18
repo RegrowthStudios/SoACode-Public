@@ -34,14 +34,40 @@ public:
     void setOwnerScreen(IGameScreen* ownerScreen);
 
 private:
+    /// Gets the camera position
+    /// @param args: Empty arguments.
+    /// @return float[3] position
     Awesomium::JSValue getCameraPosition(const Awesomium::JSArray& args);
+
+    /// Gets the current planet radius
+    /// @param args: Empty arguments.
+    /// @return float radius
     Awesomium::JSValue getPlanetRadius(const Awesomium::JSArray& args);
 
+    /// Gets a list of all save games
+    /// @param args: Empty arguments.
+    /// @return array of pairs specified as:
+    /// pair<string filename, string timestamp>
+    Awesomium::JSValue getSaveFiles(const Awesomium::JSArray& args);
+
+    /// Sets the camera focal length
+    /// @param args: Argument should be float.
     void setCameraFocalLength(const Awesomium::JSArray& args);
+
+    /// Sets the camera position length
+    /// @param args: Argument should be float[3].
     void setCameraPosition(const Awesomium::JSArray& args);
+
+    /// Sets the camera position length
+    /// @param args: Arguments should be 
+    /// float[3]: camera pos,
+    /// float: move time
+    /// float: focal length
+    /// float[3]: target dir vector
+    /// float[3]: target right vector
     void setCameraTarget(const Awesomium::JSArray& args);
 
-    MainMenuScreen* _ownerScreen;
+    MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 
 #endif // MAINMENUAPI_H_

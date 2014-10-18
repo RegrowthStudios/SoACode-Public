@@ -29,6 +29,7 @@ public:
 
     // Getters
     CinematicCamera& getCamera() { return _camera; }
+    IOManager& getIOManager() { return _ioManager; }
 
 private:
 
@@ -38,6 +39,8 @@ private:
     vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface;
     
     MainMenuAPI _api;
+
+    IOManager _ioManager;
 
     CinematicCamera _camera;
 

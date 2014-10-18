@@ -98,7 +98,6 @@ public:
     nString getSaveFileNameDialog(const nString& prompt, const cString initialDir);
 
     void loadNoiseDescriptions(const cString filename);
-    int getDirectoryEntries(std::vector<nString>& fileNames, std::vector<nString>& descriptions, nString dirPath);
 
     INI_KEYS getIniVal(nString& s);
     INI_KEYS getBlockIniVal(nString& s);
