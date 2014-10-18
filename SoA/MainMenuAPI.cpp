@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MainMenuAPI.h"
 
+#include "MainMenuScreen.h"
 #include "GameManager.h"
 #include "Planet.h"
 
@@ -20,6 +21,10 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     addVoidFunction("setCameraPosition", &MainMenuAPI::setCameraPosition);
     addVoidFunction("setCameraTarget", &MainMenuAPI::setCameraTarget);
 
+}
+
+void MainMenuAPI::setOwnerScreen(IGameScreen* ownerScreen) {
+    _ownerScreen = static_cast<MainMenuScreen*>(ownerScreen);
 }
 
 Awesomium::JSValue MainMenuAPI::getCameraPosition(const Awesomium::JSArray& args) {

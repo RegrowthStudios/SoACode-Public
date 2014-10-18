@@ -44,7 +44,10 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
+    // Initialize the user interface
     _awesomiumInterface.init("UI/MainMenu/", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
+
+    // Run the update thread for updating the planet
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
 }
 

@@ -17,16 +17,16 @@
 
 #include "IAwesomiumAPI.h"
 #include "IGameScreen.h"
-#include "MainMenuScreen.h"
+
+
+class MainMenuScreen;
 
 class MainMenuAPI : public vui::IAwesomiumAPI<MainMenuAPI>
 {
 public:
     void init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen);
 
-    void setOwnerScreen(IGameScreen* ownerScreen) {
-        _ownerScreen = static_cast<MainMenuScreen*>(ownerScreen);
-    }
+    void setOwnerScreen(IGameScreen* ownerScreen);
 
     
 private:
