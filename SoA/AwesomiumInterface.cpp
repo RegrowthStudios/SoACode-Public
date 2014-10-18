@@ -5,27 +5,37 @@
 #include "Errors.h"
 #include "Options.h"
 
-AwesomiumInterface::AwesomiumInterface() :
-    _isInitialized(0), 
+namespace vorb {
+namespace ui {
+
+template <class C>
+AwesomiumInterface<C>::AwesomiumInterface() :
+    _isInitialized(0),
     _openglSurfaceFactory(nullptr),
-    _renderedTexture(0), 
-    _width(0), 
-    _height(0), 
-    _vboID(0),
-    _elementBufferID(0),
+    _renderedTexture(0),
+    _width(0),
+    _height(0),
+    _vbo(0),
+    _ibo(0),
     _color(255, 255, 255, 255) {
     // Empty
 }
 
-AwesomiumInterface::~AwesomiumInterface(void) {
+template <class C>
+AwesomiumInterface<C>::~AwesomiumInterface(void) {
     delete _openglSurfaceFactory;
 }
 
 //Initializes the interface. Returns false on failure
-bool AwesomiumInterface::init(const char *inputDir, int width, int height)
+template <class C>
+bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen)
 {
+    // Set dimensions
     _width = width;
     _height = height;
+
+    // Set the API
+    _awesomiumAPI = api;
 
     // Set default draw rectangle
     setDrawRect(0, 0, _width, _height);
@@ -42,7 +52,7 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
 
     //Sets up the session
     _webSession = _webCore->CreateWebSession(Awesomium::WSLit("WebSession"), Awesomium::WebPreferences());
-    _webView = _webCore->CreateWebView(_width, _height, _webSession, Awesomium::kWebViewType_Offscreen);
+    _webView = _webCore->CreateWebView((i32)_width, (i32)_height, _webSession, Awesomium::kWebViewType_Offscreen);
 
     if (!_webView){
         pError("Awesomium WebView could not be created!\n");
@@ -76,8 +86,9 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
     _webCore->Update();
     _webView->SetTransparent(true);
     _webView->set_js_method_handler(&_methodHandler);
-    //Set the callback API
-    _methodHandler.setAPI(&_awesomiumAPI);
+
+    // Set the callback API
+    _methodHandler.setAPI(_awesomiumAPI);
 
     Awesomium::Error error = _webView->last_error();
     if (error) {
@@ -95,7 +106,7 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
         _methodHandler.gameInterface = &_gameInterface.ToObject();
 
         //Initialize the callback API
-        _awesomiumAPI.init(_methodHandler.gameInterface);
+        _awesomiumAPI->init(_methodHandler.gameInterface, ownerScreen);
     }
 
     _isInitialized = true;
@@ -115,7 +126,8 @@ Awesomium::MouseButton getAwesomiumButtonFromSDL(Uint8 SDLButton) {
     return Awesomium::MouseButton::kMouseButton_Left;
 }
 
-void AwesomiumInterface::handleEvent(const SDL_Event& evnt) {
+template <class C>
+void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
     float relX, relY;
     Awesomium::WebKeyboardEvent keyEvent;
 
@@ -145,7 +157,7 @@ void AwesomiumInterface::handleEvent(const SDL_Event& evnt) {
             char* buf = new char[20];
             keyEvent.virtual_key_code = getWebKeyFromSDLKey(evnt.key.keysym.scancode);
             Awesomium::GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code,
-                                                          &buf);
+                                                            &buf);
             strcpy(keyEvent.key_identifier, buf);
 
             delete[] buf;
@@ -187,7 +199,8 @@ void AwesomiumInterface::handleEvent(const SDL_Event& evnt) {
     }
 }
 
-void AwesomiumInterface::update()
+template <class C>
+void AwesomiumInterface<C>::update()
 {
     _webCore->Update();
 
@@ -200,13 +213,14 @@ void AwesomiumInterface::update()
     }
 }
 
-void AwesomiumInterface::draw(vcore::GLProgram* program)
+template <class C>
+void AwesomiumInterface<C>::draw(vcore::GLProgram* program)
 {
     //Check if draw coords were set
-    if (_vboID == 0 || _renderedTexture == 0) return;
+    if (_vbo == 0 || _renderedTexture == 0) return;
 
-    glBindBuffer(GL_ARRAY_BUFFER, _vboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 
     // Bind shader
     program->use();
@@ -235,41 +249,39 @@ void AwesomiumInterface::draw(vcore::GLProgram* program)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
     program->disableVertexAttribArrays();
-    program->use(); 
+    program->use();
 }
 
-const GLubyte uiBoxUVs[8] = { 0, 0, 0, 255, 255, 255, 255, 0 };
+template <class C>
+void AwesomiumInterface<C>::setDrawRect(const i32v4& rect) {
 
-void AwesomiumInterface::setDrawRect(int x, int y, int width, int height) {
+    const GLubyte uiBoxUVs[8] = { 0, 0, 0, 255, 255, 255, 255, 0 };
 
-    _drawX = x;
-    _drawY = y;
-    _drawWidth = width;
-    _drawHeight = height;
+    _drawRect = rect;
 
-    if (_vboID == 0) {
-        glGenBuffers(1, &_vboID);
-        glGenBuffers(1, &_elementBufferID);
+    if (_vbo == 0) {
+        glGenBuffers(1, &_vbo);
+        glGenBuffers(1, &_ibo);
 
         GLushort elements[6] = { 0, 1, 2, 2, 3, 0 };
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     Vertex2D vertices[4];
 
-    vertices[0].pos.x = x;
-    vertices[0].pos.y = y + height;
+    vertices[0].pos.x = _drawRect.x;
+    vertices[0].pos.y = _drawRect.y + _drawRect.w;
 
-    vertices[1].pos.x = x;
-    vertices[1].pos.y = y;
+    vertices[1].pos.x = _drawRect.x;
+    vertices[1].pos.y = _drawRect.y;
 
-    vertices[2].pos.x = x + width;
-    vertices[2].pos.y = y;
+    vertices[2].pos.x = _drawRect.x + _drawRect.z;
+    vertices[2].pos.y = _drawRect.y;
 
-    vertices[3].pos.x = x + width;
-    vertices[3].pos.y = y + height;
+    vertices[3].pos.x = _drawRect.x + _drawRect.z;
+    vertices[3].pos.y = _drawRect.y + _drawRect.w;
 
     for (int i = 0; i < 4; i++) {
         vertices[i].uv[0] = uiBoxUVs[i * 2];
@@ -278,25 +290,28 @@ void AwesomiumInterface::setDrawRect(int x, int y, int width, int height) {
         vertices[i].color = _color;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void AwesomiumInterface::setColor(const ColorRGBA8& color) {
+template <class C>
+void AwesomiumInterface<C>::setColor(const ColorRGBA8& color) {
     _color = color;
     // Update the vbo
-    setDrawRect(_drawX, _drawY, _drawWidth, _drawHeight);
+    setDrawRect(_drawRect);
 }
 
-void CustomJSMethodHandler::OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
+template <class C>
+void CustomJSMethodHandler<C>::OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
     AwesomiumAPI::setptr funcptr = _api->getVoidFunction(Awesomium::ToString(method_name));
     if (funcptr) {
         ((*_api).*funcptr)(args);
     }
 }
 
-Awesomium::JSValue CustomJSMethodHandler::OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
+template <class C>
+Awesomium::JSValue CustomJSMethodHandler<C>::OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
     AwesomiumAPI::getptr funcptr = _api->getFunctionWithReturnValue(Awesomium::ToString(method_name));
     if (funcptr) {
         return ((*_api).*funcptr)(args);
@@ -308,7 +323,8 @@ Awesomium::JSValue CustomJSMethodHandler::OnMethodCallWithReturnValue(Awesomium:
 #define mapKey(a, b) case SDLK_##a: return Awesomium::KeyCodes::AK_##b;
 
 /// Get an Awesomium KeyCode from an SDLKey Code
-int AwesomiumInterface::getWebKeyFromSDLKey(SDL_Scancode key) {
+template <class C>
+int AwesomiumInterface<C>::getWebKeyFromSDLKey(SDL_Scancode key) {
     switch (key) {
         mapKey(BACKSPACE, BACK)
             mapKey(TAB, TAB)
@@ -443,4 +459,7 @@ int AwesomiumInterface::getWebKeyFromSDLKey(SDL_Scancode key) {
         default:
             return Awesomium::KeyCodes::AK_UNKNOWN;
     }
+}
+
+}
 }

@@ -2,6 +2,7 @@
 #include "IGameScreen.h"
 
 #include "AwesomiumInterface.h"
+#include "MainMenuAPI.h"
 #include "Random.h"
 #include "LoadMonitor.h"
 
@@ -31,7 +32,9 @@ private:
     void updateThreadFunc();
     void UpdateTerrainMesh(TerrainMeshMessage *tmm);
 
-    AwesomiumInterface awesomiumInterface;
+    vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface;
+    
+    MainMenuAPI _api;
 
     std::thread* _updateThread;
     bool _threadRunning;

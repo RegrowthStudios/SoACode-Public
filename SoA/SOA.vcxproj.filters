@@ -512,10 +512,13 @@
     <ClInclude Include="GLProgramManager.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="AwesomiumAPI.h">
+    <ClInclude Include="OpenglSurfaceFactory.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
-    <ClInclude Include="OpenglSurfaceFactory.h">
+    <ClInclude Include="MainMenuAPI.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -815,10 +818,13 @@
     <ClCompile Include="GLProgramManager.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
-    <ClCompile Include="AwesomiumAPI.cpp">
+    <ClCompile Include="OpenglSurfaceFactory.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
-    <ClCompile Include="OpenglSurfaceFactory.cpp">
+    <ClCompile Include="MainMenuAPI.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="IAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
   </ItemGroup>

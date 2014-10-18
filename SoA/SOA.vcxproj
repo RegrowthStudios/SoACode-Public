@@ -110,7 +110,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AwesomiumAPI.h" />
+    <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GLProgramManager.h" />
@@ -120,6 +120,7 @@
     <ClInclude Include="LoadTaskOptions.h" />
     <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="LoadTaskSound.h" />
+    <ClInclude Include="MainMenuAPI.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MessageManager.h" />
@@ -247,10 +248,11 @@
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AwesomiumAPI.cpp" />
+    <ClCompile Include="IAwesomiumAPI.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GLProgramManager.cpp" />
+    <ClCompile Include="MainMenuAPI.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="colors.cpp" />

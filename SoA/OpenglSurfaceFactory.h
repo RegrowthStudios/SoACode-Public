@@ -1,4 +1,19 @@
+// 
+//  OpenglSurfaceFactory.h
+//  Vorb Engine
+//
+//  Created by Ben Arnold on 17 Oct 2014
+//  Copyright 2014 Regrowth Studios
+//  All Rights Reserved
+//  
+//  This file provides an Awesomium::Surface implementation for
+//  optimized awesomium rendering via openGL
+//
+
 #pragma once
+
+#ifndef OPENGLSURFACEFACTORY_H_
+#define OPENGLSURFACEFACTORY_H_
 
 #include <Awesomium/BitmapSurface.h>
 #include <Awesomium/DataPak.h>
@@ -36,3 +51,5 @@ namespace Awesomium {
         void DestroySurface(Awesomium::Surface *surface);
     };
 }
+
+#endif // OPENGLSURFACEFACTORY_H_
