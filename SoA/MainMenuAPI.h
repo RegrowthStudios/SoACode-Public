@@ -67,8 +67,8 @@ private:
     /// float[3]: target right vector
     void setCameraTarget(const Awesomium::JSArray& args);
 
-    /// Prints a message to the console
-    /// @param args: Argument should be a string
+    /// Prints a message to the console folowed by a newline
+    /// @param args: Argument can be a string, int, float, or bool
     void print(const Awesomium::JSArray& args);
 
     MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen

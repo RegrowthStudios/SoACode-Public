@@ -46,20 +46,34 @@ Awesomium::JSValue MainMenuAPI::getPlanetRadius(const Awesomium::JSArray& args) 
 }
 
 Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
-    std::cout << "Getting Save Files\n" << std::endl;
+
     // Read the contents of the Saves directory
     std::vector<boost::filesystem::path> paths;
     _ownerScreen->getIOManager().getDirectoryEntries("Saves", paths);
+
+    // For getting localtime
+    tm timeinfo;
+
+    char timeString[128];
 
     Awesomium::JSArray entries;
     for (int i = 0; i < paths.size(); i++) {
         if (boost::filesystem::is_directory(paths[i])) {
             // Add the filename
-            const char* fileName = paths[i].filename().string().c_str();
-            entries.Push(Awesomium::WSLit(fileName));
+            nString fileName = paths[i].filename().string();
+            entries.Push(Awesomium::WSLit(fileName.c_str()));
             // Add the access time
-            const char* writeTime = boost::lexical_cast<nString>(boost::filesystem::last_write_time(paths[i])).c_str();
-            entries.Push(Awesomium::WSLit(writeTime));
+            time_t writeTime = boost::filesystem::last_write_time(paths[i]);
+            // Get the time info
+            localtime_s(&timeinfo, &writeTime);
+            // Create the string
+            sprintf(timeString, "%02d.%02d.%04d : %02d.%02d", 
+                    timeinfo.tm_mday,
+                    timeinfo.tm_mon,
+                    timeinfo.tm_year + 1900,
+                    timeinfo.tm_hour,
+                    timeinfo.tm_min);
+            entries.Push(Awesomium::WSLit(timeString));
         }
     }
     return Awesomium::JSValue(entries);
@@ -84,6 +98,14 @@ void MainMenuAPI::setCameraTarget(const Awesomium::JSArray& args) {
 
 void MainMenuAPI::print(const Awesomium::JSArray& args) {
     if (args.size()) {
-        std::cout << args[0].ToString() << std::endl;
+        if (args[0].IsDouble()) {
+            std::cout << args[0].ToDouble() << std::endl;
+        } else if (args[0].IsString()) {
+            std::cout << args[0].ToString() << std::endl;
+        } else if (args[0].IsInteger()) {
+            std::cout << args[0].ToInteger() << std::endl;
+        } else if (args[0].IsBoolean()) {
+            std::cout << (int)args[0].ToBoolean() << std::endl;
+        }
     }
 }
