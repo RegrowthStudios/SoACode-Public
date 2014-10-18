@@ -4,6 +4,7 @@
 #include <glm\glm.hpp>
 
 #include "MainMenuScreen.h"
+#include "IAwesomiumAPI.h"
 #include "ChunkManager.h"
 #include "Errors.h"
 #include "Player.h"

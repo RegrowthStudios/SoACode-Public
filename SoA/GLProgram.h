@@ -44,7 +44,7 @@ public:
         return _id != 0;
     }
     /// Returns the program ID
-    const int& getID() const  {
+    int getID() const  {
         return _id;
     }
 
@@ -75,7 +75,7 @@ public:
     /// after shaders are added
     bool link();
     /// Returns true if the program is linked
-    const bool& getIsLinked() const {
+    bool getIsLinked() const {
         return _isLinked;
     }
 

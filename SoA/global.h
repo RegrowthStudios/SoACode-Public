@@ -66,7 +66,7 @@ extern GLuint GuiTextureID;
 
 //temporary
 extern int lodLength;
-const int TerrainPatchWidth = 262144*8/planetScale;
+const int TerrainPatchWidth = (int)(262144*8/planetScale);
 
 extern GLushort boxDrawIndices[6];
 extern GLfloat boxUVs[8];
