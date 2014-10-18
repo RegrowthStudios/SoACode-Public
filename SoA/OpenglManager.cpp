@@ -49,8 +49,6 @@ moodycamel::ReaderWriterQueue <OMessage> glToGame;
 
 OpenglManager openglManager;
 
-CinematicCamera mainMenuCamera;
-
 bool glExit = 0;
 bool getFrustum = 1;
 
@@ -76,150 +74,6 @@ OpenglManager::~OpenglManager()
 {
     GameManager::gameState = GameStates::EXIT;
     EndThread();
-}
-
-void OpenglManager::glThreadLoop() {
-    Uint32 frametimes[10];
-    Uint32 frametimelast;
-    Uint32 frameCount = 0;
-
-    Initialize_SDL_OpenGL();
-
-    initResolutions();
-
-    InitializeShaders();
-    debugRenderer = new DebugRenderer(); 
-
-    hudTexts.resize(100);
-
-    initInputs();
-
-    DrawLoadingScreen("Loading Block Data...");
-    //    GLuint stt = SDL_GetTicks();
-
-    initConnectedTextures();
-
-    if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
-    //    cout << SDL_GetTicks() - stt << endl;
-    fileManager.saveBlocks("Data/test.ini");//
-    //LoadBlockData(); //order is important.
-
-    DrawLoadingScreen("Initializing Textures..."); //
-    LoadTextures();
-
-    SetBlockAvgTexColors();
-
-    DrawLoadingScreen("Initializing Menus and Objects...");
-
-    InitializeObjects();
-
-    //for use in pressure explosions
-    Blocks[VISITED_NODE] = Blocks[NONE];
-    Blocks[VISITED_NODE].ID = VISITED_NODE;
-    Blocks[VISITED_NODE].name = "Visited Node";
-
-    DrawLoadingScreen("Initializing planet...");
-
-    GameManager::loadPlanet("Worlds/Aldrin/");
-
-    mainMenuCamera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
-    mainMenuCamera.setDirection(glm::vec3(0.0, 0.0, -1.0));
-    mainMenuCamera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
-    mainMenuCamera.setUp(glm::cross(mainMenuCamera.right(), mainMenuCamera.direction()));
-    mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
-
-    GameManager::initializePlanet(mainMenuCamera.position());
-
-    mainMenuCamera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
-
-    //hudTexts.resize(30);
-    GLuint startTicks;
-    glToGame.enqueue(OMessage(GL_M_DONE, NULL));
-    while (GameManager::gameState != GameStates::EXIT && !glExit){
-        startTicks = SDL_GetTicks();
-        GLenum err = glGetError();
-        if (CheckGLError()){
-            break;
-        }
-        if (graphicsOptions.needsFullscreenToggle){
-            if (graphicsOptions.isFullscreen){
-                SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-            }
-            else{
-                SDL_SetWindowFullscreen(mainWindow, 0);
-            }
-            graphicsOptions.needsFullscreenToggle = 0;
-            int w, h;
-            SDL_GetWindowSize(mainWindow, &w, &h);
-            graphicsOptions.screenWidth = w;
-            graphicsOptions.screenHeight = h;
-        }
-        if (graphicsOptions.needsWindowReload){
-            RebuildWindow();
-        }
-        else if (graphicsOptions.needsFboReload){
-            rebuildFrameBuffer();
-        }
-        openglManager.ProcessMessages();
-        if (GameManager::gameState == GameStates::PLAY){
-            static int st = 0;
-            //update mesh distances and sort them
-            if (st == 6){
-            //    UpdateMeshDistances();
-                RecursiveSortMeshList(chunkMeshes, 0, chunkMeshes.size());
-                st = 0;
-            }
-            else{
-                st++;
-            }
-
-
-            UpdatePlayer();
-        }
-        else if (GameManager::gameState == GameStates::MAINMENU){
-            mainMenuCamera.update();
-        }
-        else if (GameManager::gameState == GameStates::ZOOMINGIN || GameManager::gameState == GameStates::ZOOMINGOUT){
-            mainMenuCamera.update();
-        }
-        else if (GameManager::gameState == GameStates::WORLDEDITOR){
-            EditorState = E_MAIN;
-        }
-        GameManager::inputManager->update();
-        
-
-        bdt += glSpeedFactor * 0.01;
-
-        DrawGame();
-
-		SDL_GL_SwapWindow(mainWindow);
-		
-		if (graphicsOptions.maxFPS != 165 && 1000.0f / (float)graphicsOptions.maxFPS > (SDL_GetTicks() - startTicks)){  //bound fps to cap
-			Sleep((Uint32)(1000.0f / (float)graphicsOptions.maxFPS - (SDL_GetTicks() - startTicks)));
-		}
-
-        CalculateGlFps(frametimes, frametimelast, frameCount, glFps);
-
-    }
-
-    GameManager::inputManager->saveAxes();
-
-    for (size_t i = 0; i < Blocks.size(); i++){
-        if (Blocks[i].active && !(i >= LOWWATER && i < FULLWATER || i > FULLWATER)){
-            delete ObjectList[i];
-        }
-    }
-
-    delete debugRenderer;
-
-    //SDL_FreeSurface(screen);
-    SDL_GL_DeleteContext(mainOpenGLContext);
-    cout << "QUITTING";
-    glToGame.enqueue(OMessage(GL_M_QUIT, NULL));
-
-#ifdef _DEBUG 
-    //    _CrtDumpMemoryLeaks();
-#endif
 }
 
 void OpenglManager::BeginThread(void (*func)(void))
@@ -348,14 +202,10 @@ void OpenglManager::ProcessMessages(int waitForMessage)
                 graphicsOptions.lodDetail = 3;
                 delete GameManager::planet;
                 GameManager::planet = NULL;
-                mainMenuCamera.setPosition(glm::dvec3(0, 1900000, 0));
                 
                 GameManager::loadPlanet("Worlds/" + menuOptions.selectPlanetName + "/");
-                GameManager::initializePlanet(mainMenuCamera.position());
 
                 graphicsOptions.lodDetail = oldDetail;
-                mainMenuCamera.setPosition(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, -50000000.0));
-                mainMenuCamera.zoomTo(glm::dvec3(GameManager::planet->radius * 2.0, 0.0, GameManager::planet->radius*0.75), 0.5, glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(0.0, 0.0, 0.0), GameManager::planet->radius, 0.0);
                 glToGame.enqueue(OMessage(GL_M_DONE, NULL));
                 break;
             case GL_M_INITIALIZEVOXELS:
@@ -462,107 +312,6 @@ void OpenglManager::DrawFrameBuffer()
 void DrawGame()
 {
 
-    glClearDepth(1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //we need to have a camerad
-
-    //if (getFrustum){
-    //    if (GameState != MAINMENU){
-    //        ExtractFrustum(player->FrustumProjectionMatrix, player->FrustumViewMatrix);
-    //    }
-    //    isChanged = 0;
-    //}
-
-    if (GameManager::gameState == GameStates::MAINMENU || GameManager::gameState == GameStates::ZOOMINGIN || GameManager::gameState == GameStates::ZOOMINGOUT){
-        if (openglManager.cameraInfo == NULL){
-            openglManager.cameraInfo = new CameraInfo(mainMenuCamera.position(), mainMenuCamera.up(), mainMenuCamera.direction(), mainMenuCamera.viewMatrix(), mainMenuCamera.projectionMatrix());
-        }
-        else{
-            openglManager.cameraInfo->position = mainMenuCamera.position();
-            openglManager.cameraInfo->worldUp = mainMenuCamera.up();
-            openglManager.cameraInfo->worldDir = mainMenuCamera.direction();
-            openglManager.cameraInfo->viewMatrix = mainMenuCamera.viewMatrix();
-            openglManager.cameraInfo->projectionMatrix = mainMenuCamera.projectionMatrix();    
-        }
-
-        openglManager.BindFrameBuffer();
-
-        mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
-        mainMenuCamera.updateProjection();
-        glm::mat4 VP = mainMenuCamera.projectionMatrix() * mainMenuCamera.viewMatrix();
-        if (GameManager::gameState == GameStates::WORLDEDITOR){
-            GameManager::drawSpace(VP, 1);
-        }
-        else{
-            GameManager::drawSpace(VP, 0);
-        }
-        //mainMenuCamera.SetNewProjectionMatrix(max(glm::length(mainMenuCamera.worldPosition) - GameManager::planet->radius, 1.0)*0.8, glm::length(mainMenuCamera.worldPosition)+30000000.0f);
-        //cout << (int)closestLodDistance << " ";
-        double clip = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
-        if (clip < 100) clip = 100;
-
-        //cout << clip/planetScale << endl;
-
-        mainMenuCamera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-        mainMenuCamera.updateProjection();
-
-        VP = mainMenuCamera.projectionMatrix() * mainMenuCamera.viewMatrix();
-
-        glm::dmat4 fvm;
-        
-        if (GameManager::gameState == GameStates::WORLDEDITOR){
-            fvm = glm::lookAt(
-                glm::dvec3(0.0),           // Camera is here
-                glm::dvec3(glm::dvec4(mainMenuCamera.direction(), 1.0)), // and looks here : at the same position, plus "direction"
-                glm::dvec3(mainMenuCamera.up())                  // Head is up (set to 0,-1,0 to look upside-down)
-                );
-
-            ExtractFrustum(glm::dmat4(mainMenuCamera.projectionMatrix()), fvm, worldFrustum);
-            GameManager::drawPlanet(mainMenuCamera.position(), VP, mainMenuCamera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 1);
-        }
-        else{
-            fvm = glm::lookAt(
-                glm::dvec3(0.0),           // Camera is here
-                glm::dvec3(glm::dmat4(GameManager::planet->invRotationMatrix) * glm::dvec4(mainMenuCamera.direction(), 1.0)), // and looks here : at the same position, plus "direction"
-                glm::dvec3(mainMenuCamera.up())                  // Head is up (set to 0,-1,0 to look upside-down)
-                );
-
-            ExtractFrustum(glm::dmat4(mainMenuCamera.projectionMatrix()), fvm, worldFrustum);
-            GameManager::drawPlanet(mainMenuCamera.position(), VP, mainMenuCamera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
-        }
-        glDisable(GL_DEPTH_TEST);
-        openglManager.DrawFrameBuffer();
-
-        glEnable(GL_DEPTH_TEST);
-    }else{
-        if (openglManager.cameraInfo == NULL){
-            openglManager.cameraInfo = new CameraInfo(player->worldPosition, player->worldUp(), player->worldDirection(), player->worldViewMatrix(), player->worldProjectionMatrix());
-        }
-        else{
-            openglManager.cameraInfo->position = player->worldPosition;
-            openglManager.cameraInfo->worldUp = player->worldUp();
-            openglManager.cameraInfo->worldDir = player->worldDirection();
-            openglManager.cameraInfo->viewMatrix = player->worldViewMatrix();
-            openglManager.cameraInfo->projectionMatrix = player->worldProjectionMatrix();
-        }
-
-        if (getFrustum){
-            ExtractFrustum(glm::dmat4(player->worldProjectionMatrix()), glm::dmat4(player->worldViewMatrix()), worldFrustum);
-            ExtractFrustum(glm::dmat4(player->chunkProjectionMatrix()), glm::dmat4(player->chunkViewMatrix()), gridFrustum);
-        }
-        openglManager.BindFrameBuffer();
-        openglManager.Draw(player->getChunkCamera(), player->getWorldCamera());
-        openglManager.DrawFrameBuffer();
-    }
-
-    //float sunSinTheta = sin(GameManager::planet->rotationTheta);
-    //if (sunSinTheta < 0.1) sunSinTheta = 0.1;
-
-    //if (player->underWater){
-    //    DrawFullScreenQuad(glm::vec4(sunSinTheta, sunSinTheta, sunSinTheta, 0.5) * glm::vec4(0.0, 0.5, 1.0, 1.0));
-    //}
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void InitializeShaders()

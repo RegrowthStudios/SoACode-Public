@@ -1,9 +1,14 @@
+
+
 #include "stdafx.h"
 
 #include "AwesomiumInterface.h"
 
 #include "Errors.h"
 #include "Options.h"
+
+#ifndef AWESOMIUMINTERFACE_CPP_
+#define AWESOMIUMINTERFACE_CPP_
 
 namespace vorb {
 namespace ui {
@@ -38,7 +43,8 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
     _awesomiumAPI = api;
 
     // Set default draw rectangle
-    setDrawRect(0, 0, _width, _height);
+    i32v4 destRect(0, 0, _width, _height);
+    setDrawRect(destRect);
 
     // Sets up the webCore, which is the main process
     _webCore = Awesomium::WebCore::instance();
@@ -75,6 +81,17 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
         return false;
     }
 
+    // Set up the Game interface
+    _gameInterface = _webView->CreateGlobalJavascriptObject(Awesomium::WSLit("App"));
+    if (_gameInterface.IsObject()){
+        _methodHandler.gameInterface = &_gameInterface.ToObject();
+
+        //Initialize the callback API
+        _awesomiumAPI->init(_methodHandler.gameInterface, ownerScreen);
+    } else {
+        pError("Awesomium Error: Failed to create app object.");
+    }
+
     _webView->LoadURL(url);
 
     // Wait for our WebView to finish loading
@@ -92,7 +109,7 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
 
     Awesomium::Error error = _webView->last_error();
     if (error) {
-        pError("Awesomium error " + std::to_string(error));
+        pError("Awesomium Error: " + std::to_string(error));
     }
 
     //Set up the JS interface
@@ -100,31 +117,11 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
     if (_jsInterface.IsObject()){
         _methodHandler.jsInterface = &_jsInterface.ToObject();
     }
-    //Set up the Game interface
-    _gameInterface = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("Game"), Awesomium::WSLit(""));
-    if (_gameInterface.IsObject()){
-        _methodHandler.gameInterface = &_gameInterface.ToObject();
-
-        //Initialize the callback API
-        _awesomiumAPI->init(_methodHandler.gameInterface, ownerScreen);
-    }
 
     _isInitialized = true;
     return true;
 }
 
-//Converts SDL button to awesomium button
-Awesomium::MouseButton getAwesomiumButtonFromSDL(Uint8 SDLButton) {
-    switch (SDLButton) {
-        case SDL_BUTTON_LEFT:
-            return Awesomium::MouseButton::kMouseButton_Left;
-        case SDL_BUTTON_RIGHT:
-            return Awesomium::MouseButton::kMouseButton_Right;
-        case SDL_BUTTON_MIDDLE:
-            return Awesomium::MouseButton::kMouseButton_Middle;
-    }
-    return Awesomium::MouseButton::kMouseButton_Left;
-}
 
 template <class C>
 void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
@@ -133,8 +130,8 @@ void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
 
     switch (evnt.type) {
         case SDL_MOUSEMOTION:
-            relX = (evnt.motion.x - _drawX) / (float)_drawWidth;
-            relY = (evnt.motion.y - _drawY) / (float)_drawHeight;
+            relX = (evnt.motion.x - _drawRect.x) / (float)_drawRect.z;
+            relY = (evnt.motion.y - _drawRect.y) / (float)_drawRect.w;
 
             _webView->Focus();
             _webView->InjectMouseMove(relX * _width, relY * _height);
@@ -304,7 +301,9 @@ void AwesomiumInterface<C>::setColor(const ColorRGBA8& color) {
 
 template <class C>
 void CustomJSMethodHandler<C>::OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
-    AwesomiumAPI::setptr funcptr = _api->getVoidFunction(Awesomium::ToString(method_name));
+   
+    std::cout << "Method call: " << method_name << std::endl;
+    IAwesomiumAPI<C>::setptr funcptr = _api->getVoidFunction(Awesomium::ToString(method_name));
     if (funcptr) {
         ((*_api).*funcptr)(args);
     }
@@ -312,7 +311,9 @@ void CustomJSMethodHandler<C>::OnMethodCall(Awesomium::WebView *caller, unsigned
 
 template <class C>
 Awesomium::JSValue CustomJSMethodHandler<C>::OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
-    AwesomiumAPI::getptr funcptr = _api->getFunctionWithReturnValue(Awesomium::ToString(method_name));
+   
+    std::cout << "Method call with return value: " << method_name << std::endl;
+    IAwesomiumAPI<C>::getptr funcptr = _api->getFunctionWithReturnValue(Awesomium::ToString(method_name));
     if (funcptr) {
         return ((*_api).*funcptr)(args);
     }
@@ -321,6 +322,21 @@ Awesomium::JSValue CustomJSMethodHandler<C>::OnMethodCallWithReturnValue(Awesomi
 
 /// Helper Macro
 #define mapKey(a, b) case SDLK_##a: return Awesomium::KeyCodes::AK_##b;
+
+
+/// Converts SDL button to awesomium button
+template <class C>
+Awesomium::MouseButton AwesomiumInterface<C>::getAwesomiumButtonFromSDL(Uint8 SDLButton) {
+    switch (SDLButton) {
+        case SDL_BUTTON_LEFT:
+            return Awesomium::MouseButton::kMouseButton_Left;
+        case SDL_BUTTON_RIGHT:
+            return Awesomium::MouseButton::kMouseButton_Right;
+        case SDL_BUTTON_MIDDLE:
+            return Awesomium::MouseButton::kMouseButton_Middle;
+    }
+    return Awesomium::MouseButton::kMouseButton_Left;
+}
 
 /// Get an Awesomium KeyCode from an SDLKey Code
 template <class C>
@@ -463,3 +479,5 @@ int AwesomiumInterface<C>::getWebKeyFromSDLKey(SDL_Scancode key) {
 
 }
 }
+
+#endif // AWESOMIUMINTERFACE_CPP_

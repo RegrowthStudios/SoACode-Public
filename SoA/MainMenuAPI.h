@@ -20,14 +20,19 @@
 class IGameScreen;
 class MainMenuScreen;
 
+/// Awesomium API for MainMenuScreen
 class MainMenuAPI : public vui::IAwesomiumAPI<MainMenuAPI>
 {
 public:
+    /// Initializes the API and hooks up all functions
+    /// @oaram interfaceObject: The object that the API will talk to
+    /// @param ownerScreen: The MainMenuScreen that owns this interface
     void init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen);
 
+    // Sets the owner screen. Should be a MainMenuScreen type
+    /// @param ownerScreen: The screen
     void setOwnerScreen(IGameScreen* ownerScreen);
 
-    
 private:
     Awesomium::JSValue getCameraPosition(const Awesomium::JSArray& args);
     Awesomium::JSValue getPlanetRadius(const Awesomium::JSArray& args);

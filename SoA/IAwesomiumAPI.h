@@ -39,6 +39,7 @@ public:
 
     /// Initializes the API and hooks up all functions
     /// @oaram interfaceObject: The object that the API will talk to
+    /// @param ownerScreen: The screen that owns this interface
     virtual void init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) = 0;
 
     /// Sets the screen that owns this API
@@ -74,6 +75,9 @@ protected:
 
 }
 }
+
+// Need to include the cpp file in the header for templates
+#include "IAwesomiumAPI.cpp"
 
 namespace vui = vorb::ui;
 

@@ -90,6 +90,10 @@ public:
     void setColor(const ColorRGBA8& color);
 
 private:
+    /// Gets the awesomium mouse button from an SDL button
+    /// @param SDLButton: the SDL button
+    /// @return the awesomium mouse button
+    Awesomium::MouseButton getAwesomiumButtonFromSDL(Uint8 SDLButton);
     /// Gets a web key from an SDL_Scancode
     /// @param key: the scancode
     /// @return the web key code
@@ -135,6 +139,9 @@ private:
 
 }
 }
+
+// Need to include the cpp file in the header for templates
+#include "AwesomiumInterface.cpp"
 
 namespace vui = vorb::ui;
 

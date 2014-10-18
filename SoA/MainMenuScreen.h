@@ -27,6 +27,9 @@ public:
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
 
+    // Getters
+    CinematicCamera& getCamera() { return _camera; }
+
 private:
 
     void updateThreadFunc();
@@ -35,6 +38,8 @@ private:
     vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface;
     
     MainMenuAPI _api;
+
+    CinematicCamera _camera;
 
     std::thread* _updateThread;
     bool _threadRunning;

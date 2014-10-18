@@ -45,6 +45,14 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
+    // Initialize the camera
+    _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
+    _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
+    _camera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
+    _camera.setUp(glm::cross(_camera.right(), _camera.direction()));
+    _camera.setClippingPlane(1000000.0f, 30000000.0f);
+    _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
+
     // Initialize the user interface
     _awesomiumInterface.init("UI/MainMenu/", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
 
@@ -65,7 +73,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
     _awesomiumInterface.update();
 
-    mainMenuCamera.update();
+    _camera.update();
     GameManager::inputManager->update();
 
     TerrainMeshMessage* tmm;
@@ -91,29 +99,29 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 
     openglManager.BindFrameBuffer();
   
-    mainMenuCamera.setClippingPlane(1000000.0f, 30000000.0f);
-    mainMenuCamera.updateProjection();
-    glm::mat4 VP = mainMenuCamera.projectionMatrix() * mainMenuCamera.viewMatrix();
+    _camera.setClippingPlane(1000000.0f, 30000000.0f);
+    _camera.updateProjection();
+    glm::mat4 VP = _camera.projectionMatrix() * _camera.viewMatrix();
 
     GameManager::drawSpace(VP, 0);
     
     double clip = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
     if (clip < 100) clip = 100;
 
-    mainMenuCamera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    mainMenuCamera.updateProjection();
+    _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    _camera.updateProjection();
 
-    VP = mainMenuCamera.projectionMatrix() * mainMenuCamera.viewMatrix();
+    VP = _camera.projectionMatrix() * _camera.viewMatrix();
 
     glm::dmat4 fvm;
     fvm = glm::lookAt(
         glm::dvec3(0.0),           // Camera is here
-        glm::dvec3(glm::dmat4(GameManager::planet->invRotationMatrix) * glm::dvec4(mainMenuCamera.direction(), 1.0)), // and looks here : at the same position, plus "direction"
-        glm::dvec3(mainMenuCamera.up())                  // Head is up (set to 0,-1,0 to look upside-down)
+        glm::dvec3(glm::dmat4(GameManager::planet->invRotationMatrix) * glm::dvec4(_camera.direction(), 1.0)), // and looks here : at the same position, plus "direction"
+        glm::dvec3(_camera.up())                  // Head is up (set to 0,-1,0 to look upside-down)
         );
 
-    ExtractFrustum(glm::dmat4(mainMenuCamera.projectionMatrix()), fvm, worldFrustum);
-    GameManager::drawPlanet(mainMenuCamera.position(), VP, mainMenuCamera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
+    ExtractFrustum(glm::dmat4(_camera.projectionMatrix()), fvm, worldFrustum);
+    GameManager::drawPlanet(_camera.position(), VP, _camera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
 
     glDisable(GL_DEPTH_TEST);
     
@@ -165,7 +173,7 @@ void MainMenuScreen::updateThreadFunc() {
 
         glm::dvec3 camPos;
 
-        camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(mainMenuCamera.position(), 1.0));
+        camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.position(), 1.0));
 
         GameManager::planet->rotationUpdate();
         GameManager::updatePlanet(camPos, 10);

@@ -7,6 +7,9 @@
 #include "GameManager.h"
 #include "Planet.h"
 
+#ifndef IAWESOMIUMAPI_CPP_
+#define IAWESOMIUMAPI_CPP_
+
 namespace vorb {
 namespace ui {
 
@@ -52,3 +55,5 @@ typename IAwesomiumAPI<C>::setptr IAwesomiumAPI<C>::getVoidFunction(const nStrin
 
 }
 }
+
+#endif IAWESOMIUMAPI_CPP_
