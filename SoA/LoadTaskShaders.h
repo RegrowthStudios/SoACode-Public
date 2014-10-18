@@ -18,6 +18,32 @@ private:
     virtual void load() {
         vcore::GLProgramManager* glProgramManager = GameManager::glProgramManager;
 
+        //***** Attribute Vectors ******
+        // So that the same VAO can be used for multiple shaders,
+        // it is advantageous to manually set the attributes so that
+        // they are the same between several shaders. Otherwise they will
+        // be set automatically.
+
+        // Attributes for terrain shaders
+        std::vector<nString> terrainAttribs;
+        terrainAttribs.push_back("vertexPosition_modelspace");
+        terrainAttribs.push_back("vertexUV");
+        terrainAttribs.push_back("vertexNormal_modelspace");
+        terrainAttribs.push_back("vertexColor");
+        terrainAttribs.push_back("vertexSlopeColor");
+        terrainAttribs.push_back("texTempRainSpec");
+
+        // Attributes for block shaders
+        std::vector<nString> blockAttribs;
+        blockAttribs.push_back("position_TextureType");
+        blockAttribs.push_back("uvs_animation_blendMode");
+        blockAttribs.push_back("textureAtlas_textureIndex");
+        blockAttribs.push_back("textureDimensions");
+        blockAttribs.push_back("color_waveEffect");
+        blockAttribs.push_back("overlayColor");
+        blockAttribs.push_back("light_sunlight");
+        blockAttribs.push_back("normal");
+
         /***** Texture2D *****/
         glProgramManager->addProgram("Texture2D",
                                      "Shaders/TextureShading/Texture2dShader.vert",
@@ -25,7 +51,8 @@ private:
         /***** GroundFromAtmosphere *****/
         glProgramManager->addProgram("GroundFromAtmosphere",
                                     "Shaders/TerrainShading/GroundFromAtmosphere.vert",
-                                    "Shaders/TerrainShading/GroundFromAtmosphere.frag");
+                                    "Shaders/TerrainShading/GroundFromAtmosphere.frag",
+                                    &terrainAttribs);
         /***** SkyFromAtmosphere *****/
         glProgramManager->addProgram("SkyFromAtmosphere",
                                      "Shaders/AtmosphereShading/SkyFromAtmosphere.vert",
@@ -33,7 +60,8 @@ private:
         /***** GroundFromSpace *****/
         glProgramManager->addProgram("GroundFromSpace",
                                      "Shaders/TerrainShading/GroundFromSpace.vert",
-                                     "Shaders/TerrainShading/GroundFromSpace.frag");
+                                     "Shaders/TerrainShading/GroundFromSpace.frag",
+                                     &terrainAttribs);
         /***** SkyFromSpace *****/
         glProgramManager->addProgram("SkyFromSpace",
                                      "Shaders/AtmosphereShading/SkyFromSpace.vert",
@@ -57,15 +85,18 @@ private:
         /***** Block *****/
         glProgramManager->addProgram("Block",
                                      "Shaders/BlockShading/standardShading.vert",
-                                     "Shaders/BlockShading/standardShading.frag");
+                                     "Shaders/BlockShading/standardShading.frag",
+                                     &blockAttribs);
         /***** Cutout *****/
         glProgramManager->addProgram("Cutout",
                                      "Shaders/BlockShading/standardShading.vert",
-                                     "Shaders/BlockShading/cutoutShading.frag");
+                                     "Shaders/BlockShading/cutoutShading.frag",
+                                     &blockAttribs);
         /***** Transparency *****/
         glProgramManager->addProgram("Transparency",
                                      "Shaders/BlockShading/standardShading.vert",
-                                     "Shaders/BlockShading/transparentShading.frag");
+                                     "Shaders/BlockShading/transparentShading.frag",
+                                     &blockAttribs);
         /***** Water *****/
         glProgramManager->addProgram("Water",
                                      "Shaders/WaterShading/WaterShading.vert",
@@ -81,7 +112,8 @@ private:
         /***** Sonar *****/
         glProgramManager->addProgram("Sonar",
                                      "Shaders/BlockShading/standardShading.vert",
-                                     "Shaders/BlockShading/sonarShading.frag");
+                                     "Shaders/BlockShading/sonarShading.frag",
+                                     &blockAttribs);
         /***** PhysicsBlock *****/
         glProgramManager->addProgram("PhysicsBlock",
                                      "Shaders/PhysicsBlockShading/PhysicsBlockShading.vert",
