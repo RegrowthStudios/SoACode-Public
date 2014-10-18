@@ -1,23 +1,15 @@
 #include "stdafx.h"
 
-#include <Awesomium/BitmapSurface.h>
-#include <Awesomium/DataPak.h>
-#include <Awesomium/DataSource.h>
-#include <Awesomium/STLHelpers.h>
-#include <Awesomium/WebCore.h>
-
 #include "AwesomiumInterface.h"
 
-#include "GameManager.h"
-#include "GLProgramManager.h"
-
-#include "SDL\SDL.h"
 #include "Errors.h"
 #include "Options.h"
 
-AwesomiumInterface::AwesomiumInterface() : _isInitialized(0), _width(0), _height(0), _vboID(0), _elementBufferID(0){}
+AwesomiumInterface::AwesomiumInterface() : _isInitialized(0), _openglSurfaceFactory(nullptr), _renderedTexture(0), _width(0), _height(0), _vboID(0), _elementBufferID(0){}
 
-AwesomiumInterface::~AwesomiumInterface(void) {}
+AwesomiumInterface::~AwesomiumInterface(void) {
+    if (_openglSurfaceFactory) delete _openglSurfaceFactory;
+}
 
 //Initializes the interface. Returns false on failure
 bool AwesomiumInterface::init(const char *inputDir, int width, int height)
@@ -25,11 +17,17 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
     _width = width;
     _height = height;
 
+    //Sets up the webCore, which is the main process
     _webCore = Awesomium::WebCore::instance();
     if (_webCore == nullptr){
         _webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
     }
 
+    //Set up our custom surface factory for direct opengl rendering
+    _openglSurfaceFactory = new Awesomium::OpenglSurfaceFactory;
+    _webCore->set_surface_factory(_openglSurfaceFactory);
+
+    //Sets up the session
     _webSession = _webCore->CreateWebSession(Awesomium::WSLit("WebSession"), Awesomium::WebPreferences());
     _webView = _webCore->CreateWebView(_width, _height, _webSession, Awesomium::kWebViewType_Offscreen);
 
@@ -38,16 +36,15 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
         return false;
     }
 
+    //The data pak helps performance by writing resources to disk
     if (!Awesomium::WriteDataPak(Awesomium::WSLit("UI_Resources.pak"), Awesomium::WSLit(inputDir), Awesomium::WSLit(""), _numFiles)){
         pError("UI Initialization Error: Failed to write UI_Resources.pak\n");
         return false;
     }
-
     _data_source = new Awesomium::DataPakSource(Awesomium::WSLit("UI_Resources.pak"));
-
     _webSession->AddDataSource(Awesomium::WSLit("UI"), _data_source);
 
-    // Load a certain URL into our WebView instance
+    // Load a certain URL into our WebView instance. In this case, it must always start with Index.html
     Awesomium::WebURL url(Awesomium::WSLit("asset://UI/Index.html"));
 
     if (!url.IsValid()){
@@ -64,116 +61,191 @@ bool AwesomiumInterface::init(const char *inputDir, int width, int height)
     // on the page a chance to finish loading.
     Sleep(30);
     _webCore->Update();
-    _webView->SetTransparent(1);
+    _webView->SetTransparent(true);
     _webView->set_js_method_handler(&_methodHandler);
-
-
-    glGenTextures(1, &_renderedTexture);
-
-    glBindTexture(GL_TEXTURE_2D, _renderedTexture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
+    //Set the callback API
+    _methodHandler.setAPI(&_awesomiumAPI);
 
     Awesomium::Error error = _webView->last_error();
     if (error) {
         pError("Awesomium error " + std::to_string(error));
     }
 
-    Awesomium::BitmapSurface* surface = (Awesomium::BitmapSurface*)_webView->surface();
-    if (!surface){
-        showMessage("webView->surface() returned null!");
-        exit(131521);
+    //Set up the JS interface
+    _jsInterface = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("JSInterface"), Awesomium::WSLit(""));
+    if (_jsInterface.IsObject()){
+        _methodHandler.jsInterface = &_jsInterface.ToObject();
     }
-    //surface->SaveToJPEG(WSLit("./UI/storedui.jpg")); //debug
+    //Set up the Game interface
+    _gameInterface = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("Game"), Awesomium::WSLit(""));
+    if (_gameInterface.IsObject()){
+        _methodHandler.gameInterface = &_gameInterface.ToObject();
 
-    _jsValue = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("AppInterface"), Awesomium::WSLit(""));
-    if (_jsValue.IsObject()){
-
+        //Initialize the callback API
+        _awesomiumAPI.init(_methodHandler.gameInterface);
     }
+
     _isInitialized = true;
     return true;
+}
+
+//Converts SDL button to awesomium button
+Awesomium::MouseButton getAwesomiumButtonFromSDL(Uint8 SDLButton) {
+    switch (SDLButton) {
+        case SDL_BUTTON_LEFT:
+            return Awesomium::MouseButton::kMouseButton_Left;
+        case SDL_BUTTON_RIGHT:
+            return Awesomium::MouseButton::kMouseButton_Right;
+        case SDL_BUTTON_MIDDLE:
+            return Awesomium::MouseButton::kMouseButton_Middle;
+    }
+    return Awesomium::MouseButton::kMouseButton_Left;
+}
+
+void AwesomiumInterface::handleEvent(const SDL_Event& evnt) {
+    float relX, relY;
+    Awesomium::WebKeyboardEvent keyEvent;
+
+    switch (evnt.type) {
+        case SDL_MOUSEMOTION:
+            relX = (evnt.motion.x - _drawX) / (float)_drawWidth;
+            relY = (evnt.motion.y - _drawY) / (float)_drawHeight;
+
+            _webView->Focus();
+            _webView->InjectMouseMove(relX * _width, relY * _height);
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            _webView->Focus();
+            _webView->InjectMouseDown(getAwesomiumButtonFromSDL(evnt.button.button));
+            break;
+        case SDL_MOUSEBUTTONUP:
+            _webView->Focus();
+            _webView->InjectMouseUp(getAwesomiumButtonFromSDL(evnt.button.button));
+            break;
+        case SDL_MOUSEWHEEL:
+            _webView->Focus();
+            _webView->InjectMouseWheel(evnt.motion.y, evnt.motion.x);
+            break;
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            //Have to construct a webKeyboardEvent from the SDL Event
+            char* buf = new char[20];
+            keyEvent.virtual_key_code = getWebKeyFromSDLKey(evnt.key.keysym.scancode);
+            Awesomium::GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code,
+                                                          &buf);
+            strcpy(keyEvent.key_identifier, buf);
+
+            delete[] buf;
+
+            keyEvent.modifiers = 0;
+
+            if (evnt.key.keysym.mod & KMOD_LALT || evnt.key.keysym.mod & KMOD_RALT)
+                keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModAltKey;
+            if (evnt.key.keysym.mod & KMOD_LCTRL || evnt.key.keysym.mod & KMOD_RCTRL)
+                keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModControlKey;
+            if (evnt.key.keysym.mod & KMOD_LSHIFT || evnt.key.keysym.mod & KMOD_RSHIFT)
+                keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModShiftKey;
+            if (evnt.key.keysym.mod & KMOD_NUM)
+                keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModIsKeypad;
+
+            keyEvent.native_key_code = evnt.key.keysym.scancode;
+
+            if (evnt.type == SDL_KEYUP) {
+                keyEvent.type = Awesomium::WebKeyboardEvent::kTypeKeyUp;
+                _webView->InjectKeyboardEvent(keyEvent);
+            } else if (evnt.type == SDL_TEXTINPUT) {
+                unsigned int chr;
+
+                chr = (int)evnt.text.text;
+                keyEvent.text[0] = chr;
+                keyEvent.unmodified_text[0] = chr;
+
+                keyEvent.type = Awesomium::WebKeyboardEvent::kTypeKeyDown;
+                _webView->InjectKeyboardEvent(keyEvent);
+
+                if (chr) {
+                    keyEvent.type = Awesomium::WebKeyboardEvent::kTypeChar;
+                    keyEvent.virtual_key_code = chr;
+                    keyEvent.native_key_code = chr;
+                    _webView->InjectKeyboardEvent(keyEvent);
+                }
+            }
+            break;
+    }
 }
 
 void AwesomiumInterface::update()
 {
     _webCore->Update();
 
-    Awesomium::BitmapSurface* surface = (Awesomium::BitmapSurface*)_webView->surface();
+    Awesomium::OpenglSurface* surface = (Awesomium::OpenglSurface*)_webView->surface();
 
-    if (surface && surface->is_dirty())
-    {
-        // renders the surface buffer to the opengl texture!
-        glBindTexture(GL_TEXTURE_2D, _renderedTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->width(), surface->height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, surface->buffer());
-        surface->set_is_dirty(0);
-    }
+    _renderedTexture = surface->getTextureID();
+
     if (!surface){
         pError("User Interface Error: webView->surface() returned null! Most likely due to erroneous code in the javascript or HTML5.\n");
     }
 }
 
-// TODO(Ben): Update this to use spritebatch or something other than Texture2D
-void AwesomiumInterface::draw()
+void AwesomiumInterface::draw(vcore::GLProgram* program)
 {
     //Check if draw coords were set
-    if (_vboID == 0) return;
+    if (_vboID == 0 || _renderedTexture == 0) return;
 
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferID);
 
     // Bind shader
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture2D");
     program->use();
     program->enableVertexAttribArrays();
 
-    glUniform1f(program->getUniform("xdim"), (GLfloat)graphicsOptions.screenWidth);
-    glUniform1f(program->getUniform("ydim"), (GLfloat)graphicsOptions.screenHeight);
+    glUniform1f(program->getUniform("xdim"), graphicsOptions.screenWidth);
+    glUniform1f(program->getUniform("ydim"), graphicsOptions.screenHeight);
 
     glUniform1i(program->getUniform("roundMaskTexture"), 1);
     glUniform1f(program->getUniform("isRound"), 0.0f);
 
-    glUniform1f(program->getUniform("xmod"), 0.0f);
-    glUniform1f(program->getUniform("ymod"), 0.0f);
+    glUniform1f(program->getUniform("xmod"), (GLfloat)0.0f);
+    glUniform1f(program->getUniform("ymod"), (GLfloat)0.0f);
 
     // Bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _renderedTexture);
 
     glUniform1i(program->getUniform("myTextureSampler"), 0);
-   
-    glVertexAttribPointer(program->getAttribute("vertexPosition_screenspace"), 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)12);
-    glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)16);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
+    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)8);
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)12);
 
     // Draw call
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
     program->disableVertexAttribArrays();
-    program->unuse();
-    
+    program->use(); 
 }
 
 const GLubyte uiBoxUVs[8] = { 0, 0, 0, 255, 255, 255, 255, 0 };
 
 void AwesomiumInterface::setDrawCoords(int x, int y, int width, int height) {
+
+    _drawX = x;
+    _drawY = y;
+    _drawWidth = width;
+    _drawHeight = height;
+
     if (_vboID == 0) {
         glGenBuffers(1, &_vboID);
         glGenBuffers(1, &_elementBufferID);
 
-        GLubyte elements[6] = { 0, 1, 2, 2, 3, 0 };
+        GLushort elements[6] = { 0, 1, 2, 2, 3, 0 };
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     Vertex2D vertices[4];
-    
+
 
     vertices[0].pos.x = x;
     vertices[0].pos.y = y + height;
@@ -209,143 +281,158 @@ void AwesomiumInterface::setColor(i32v4 color) {
     _color[3] = color[3];
 }
 
+void CustomJSMethodHandler::OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
+    AwesomiumAPI::setptr funcptr = _api->getVoidFunction(Awesomium::ToString(method_name));
+    if (funcptr) {
+        ((*_api).*funcptr)(args);
+    }
+}
+
+Awesomium::JSValue CustomJSMethodHandler::OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
+    AwesomiumAPI::getptr funcptr = _api->getFunctionWithReturnValue(Awesomium::ToString(method_name));
+    if (funcptr) {
+        return ((*_api).*funcptr)(args);
+    }
+    return Awesomium::JSValue(0);
+}
+
 /// Helper Macro
 #define mapKey(a, b) case SDLK_##a: return Awesomium::KeyCodes::AK_##b;
 
 /// Get an Awesomium KeyCode from an SDLKey Code
-int getWebKeyFromSDLKey(SDL_Scancode key) {
+int AwesomiumInterface::getWebKeyFromSDLKey(SDL_Scancode key) {
     switch (key) {
         mapKey(BACKSPACE, BACK)
-        mapKey(TAB, TAB)
-        mapKey(CLEAR, CLEAR)
-        mapKey(RETURN, RETURN)
-        mapKey(PAUSE, PAUSE)
-        mapKey(ESCAPE, ESCAPE)
-        mapKey(SPACE, SPACE)
-        mapKey(EXCLAIM, 1)
-        mapKey(QUOTEDBL, 2)
-        mapKey(HASH, 3)
-        mapKey(DOLLAR, 4)
-        mapKey(AMPERSAND, 7)
-        mapKey(QUOTE, OEM_7)
-        mapKey(LEFTPAREN, 9)
-        mapKey(RIGHTPAREN, 0)
-        mapKey(ASTERISK, 8)
-        mapKey(PLUS, OEM_PLUS)
-        mapKey(COMMA, OEM_COMMA)
-        mapKey(MINUS, OEM_MINUS)
-        mapKey(PERIOD, OEM_PERIOD)
-        mapKey(SLASH, OEM_2)
-        mapKey(0, 0)
-        mapKey(1, 1)
-        mapKey(2, 2)
-        mapKey(3, 3)
-        mapKey(4, 4)
-        mapKey(5, 5)
-        mapKey(6, 6)
-        mapKey(7, 7)
-        mapKey(8, 8)
-        mapKey(9, 9)
-        mapKey(COLON, OEM_1)
-        mapKey(SEMICOLON, OEM_1)
-        mapKey(LESS, OEM_COMMA)
-        mapKey(EQUALS, OEM_PLUS)
-        mapKey(GREATER, OEM_PERIOD)
-        mapKey(QUESTION, OEM_2)
-        mapKey(AT, 2)
-        mapKey(LEFTBRACKET, OEM_4)
-        mapKey(BACKSLASH, OEM_5)
-        mapKey(RIGHTBRACKET, OEM_6)
-        mapKey(CARET, 6)
-        mapKey(UNDERSCORE, OEM_MINUS)
-        mapKey(BACKQUOTE, OEM_3)
-        mapKey(a, A)
-        mapKey(b, B)
-        mapKey(c, C)
-        mapKey(d, D)
-        mapKey(e, E)
-        mapKey(f, F)
-        mapKey(g, G)
-        mapKey(h, H)
-        mapKey(i, I)
-        mapKey(j, J)
-        mapKey(k, K)
-        mapKey(l, L)
-        mapKey(m, M)
-        mapKey(n, N)
-        mapKey(o, O)
-        mapKey(p, P)
-        mapKey(q, Q)
-        mapKey(r, R)
-        mapKey(s, S)
-        mapKey(t, T)
-        mapKey(u, U)
-        mapKey(v, V)
-        mapKey(w, W)
-        mapKey(x, X)
-        mapKey(y, Y)
-        mapKey(z, Z)
-        //    mapKey(DELETE, DELETE)
-        /*    mapKey(KP0, NUMPAD0)
-        mapKey(KP1, NUMPAD1)
-        mapKey(KP2, NUMPAD2)
-        mapKey(KP3, NUMPAD3)
-        mapKey(KP4, NUMPAD4)
-        mapKey(KP5, NUMPAD5)
-        mapKey(KP6, NUMPAD6)
-        mapKey(KP7, NUMPAD7)
-        mapKey(KP8, NUMPAD8)
-        mapKey(KP9, NUMPAD9)*/
-        mapKey(KP_PERIOD, DECIMAL)
-        mapKey(KP_DIVIDE, DIVIDE)
-        mapKey(KP_MULTIPLY, MULTIPLY)
-        mapKey(KP_MINUS, SUBTRACT)
-        mapKey(KP_PLUS, ADD)
-        mapKey(KP_ENTER, SEPARATOR)
-        mapKey(KP_EQUALS, UNKNOWN)
-        mapKey(UP, UP)
-        mapKey(DOWN, DOWN)
-        mapKey(RIGHT, RIGHT)
-        mapKey(LEFT, LEFT)
-        mapKey(INSERT, INSERT)
-        mapKey(HOME, HOME)
-        mapKey(END, END)
-        mapKey(PAGEUP, PRIOR)
-        mapKey(PAGEDOWN, NEXT)
-        mapKey(F1, F1)
-        mapKey(F2, F2)
-        mapKey(F3, F3)
-        mapKey(F4, F4)
-        mapKey(F5, F5)
-        mapKey(F6, F6)
-        mapKey(F7, F7)
-        mapKey(F8, F8)
-        mapKey(F9, F9)
-        mapKey(F10, F10)
-        mapKey(F11, F11)
-        mapKey(F12, F12)
-        mapKey(F13, F13)
-        mapKey(F14, F14)
-        mapKey(F15, F15)
-        //mapKey(NUMLOCK, NUMLOCK)
-        mapKey(CAPSLOCK, CAPITAL)
-        //    mapKey(SCROLLOCK, SCROLL)
-        mapKey(RSHIFT, RSHIFT)
-        mapKey(LSHIFT, LSHIFT)
-        mapKey(RCTRL, RCONTROL)
-        mapKey(LCTRL, LCONTROL)
-        mapKey(RALT, RMENU)
-        mapKey(LALT, LMENU)
-        //    mapKey(RMETA, LWIN)
-        //    mapKey(LMETA, RWIN)
-        //    mapKey(LSUPER, LWIN)
-        //    mapKey(RSUPER, RWIN)
-        mapKey(MODE, MODECHANGE)
-        //    mapKey(COMPOSE, ACCEPT)
-        mapKey(HELP, HELP)
-        //    mapKey(PRINT, SNAPSHOT)
-        mapKey(SYSREQ, EXECUTE)
-    default:
-        return Awesomium::KeyCodes::AK_UNKNOWN;
+            mapKey(TAB, TAB)
+            mapKey(CLEAR, CLEAR)
+            mapKey(RETURN, RETURN)
+            mapKey(PAUSE, PAUSE)
+            mapKey(ESCAPE, ESCAPE)
+            mapKey(SPACE, SPACE)
+            mapKey(EXCLAIM, 1)
+            mapKey(QUOTEDBL, 2)
+            mapKey(HASH, 3)
+            mapKey(DOLLAR, 4)
+            mapKey(AMPERSAND, 7)
+            mapKey(QUOTE, OEM_7)
+            mapKey(LEFTPAREN, 9)
+            mapKey(RIGHTPAREN, 0)
+            mapKey(ASTERISK, 8)
+            mapKey(PLUS, OEM_PLUS)
+            mapKey(COMMA, OEM_COMMA)
+            mapKey(MINUS, OEM_MINUS)
+            mapKey(PERIOD, OEM_PERIOD)
+            mapKey(SLASH, OEM_2)
+            mapKey(0, 0)
+            mapKey(1, 1)
+            mapKey(2, 2)
+            mapKey(3, 3)
+            mapKey(4, 4)
+            mapKey(5, 5)
+            mapKey(6, 6)
+            mapKey(7, 7)
+            mapKey(8, 8)
+            mapKey(9, 9)
+            mapKey(COLON, OEM_1)
+            mapKey(SEMICOLON, OEM_1)
+            mapKey(LESS, OEM_COMMA)
+            mapKey(EQUALS, OEM_PLUS)
+            mapKey(GREATER, OEM_PERIOD)
+            mapKey(QUESTION, OEM_2)
+            mapKey(AT, 2)
+            mapKey(LEFTBRACKET, OEM_4)
+            mapKey(BACKSLASH, OEM_5)
+            mapKey(RIGHTBRACKET, OEM_6)
+            mapKey(CARET, 6)
+            mapKey(UNDERSCORE, OEM_MINUS)
+            mapKey(BACKQUOTE, OEM_3)
+            mapKey(a, A)
+            mapKey(b, B)
+            mapKey(c, C)
+            mapKey(d, D)
+            mapKey(e, E)
+            mapKey(f, F)
+            mapKey(g, G)
+            mapKey(h, H)
+            mapKey(i, I)
+            mapKey(j, J)
+            mapKey(k, K)
+            mapKey(l, L)
+            mapKey(m, M)
+            mapKey(n, N)
+            mapKey(o, O)
+            mapKey(p, P)
+            mapKey(q, Q)
+            mapKey(r, R)
+            mapKey(s, S)
+            mapKey(t, T)
+            mapKey(u, U)
+            mapKey(v, V)
+            mapKey(w, W)
+            mapKey(x, X)
+            mapKey(y, Y)
+            mapKey(z, Z)
+            //	mapKey(DELETE, DELETE)
+            /*	mapKey(KP0, NUMPAD0)
+            mapKey(KP1, NUMPAD1)
+            mapKey(KP2, NUMPAD2)
+            mapKey(KP3, NUMPAD3)
+            mapKey(KP4, NUMPAD4)
+            mapKey(KP5, NUMPAD5)
+            mapKey(KP6, NUMPAD6)
+            mapKey(KP7, NUMPAD7)
+            mapKey(KP8, NUMPAD8)
+            mapKey(KP9, NUMPAD9)*/
+            mapKey(KP_PERIOD, DECIMAL)
+            mapKey(KP_DIVIDE, DIVIDE)
+            mapKey(KP_MULTIPLY, MULTIPLY)
+            mapKey(KP_MINUS, SUBTRACT)
+            mapKey(KP_PLUS, ADD)
+            mapKey(KP_ENTER, SEPARATOR)
+            mapKey(KP_EQUALS, UNKNOWN)
+            mapKey(UP, UP)
+            mapKey(DOWN, DOWN)
+            mapKey(RIGHT, RIGHT)
+            mapKey(LEFT, LEFT)
+            mapKey(INSERT, INSERT)
+            mapKey(HOME, HOME)
+            mapKey(END, END)
+            mapKey(PAGEUP, PRIOR)
+            mapKey(PAGEDOWN, NEXT)
+            mapKey(F1, F1)
+            mapKey(F2, F2)
+            mapKey(F3, F3)
+            mapKey(F4, F4)
+            mapKey(F5, F5)
+            mapKey(F6, F6)
+            mapKey(F7, F7)
+            mapKey(F8, F8)
+            mapKey(F9, F9)
+            mapKey(F10, F10)
+            mapKey(F11, F11)
+            mapKey(F12, F12)
+            mapKey(F13, F13)
+            mapKey(F14, F14)
+            mapKey(F15, F15)
+            //mapKey(NUMLOCK, NUMLOCK)
+            mapKey(CAPSLOCK, CAPITAL)
+            //	mapKey(SCROLLOCK, SCROLL)
+            mapKey(RSHIFT, RSHIFT)
+            mapKey(LSHIFT, LSHIFT)
+            mapKey(RCTRL, RCONTROL)
+            mapKey(LCTRL, LCONTROL)
+            mapKey(RALT, RMENU)
+            mapKey(LALT, LMENU)
+            //	mapKey(RMETA, LWIN)
+            //	mapKey(LMETA, RWIN)
+            //	mapKey(LSUPER, LWIN)
+            //	mapKey(RSUPER, RWIN)
+            mapKey(MODE, MODECHANGE)
+            //	mapKey(COMPOSE, ACCEPT)
+            mapKey(HELP, HELP)
+            //	mapKey(PRINT, SNAPSHOT)
+            mapKey(SYSREQ, EXECUTE)
+        default:
+            return Awesomium::KeyCodes::AK_UNKNOWN;
     }
 }

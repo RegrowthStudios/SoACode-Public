@@ -110,6 +110,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GLProgramManager.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
@@ -234,13 +236,11 @@
     <ClInclude Include="TerrainGenerator.h" />
     <ClInclude Include="Texture2d.h" />
     <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="AwesomiumUI.h" />
     <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
-    <ClInclude Include="WorldEditor.h" />
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
     <ClInclude Include="VoxelWorld.h" />
@@ -253,6 +253,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="AwesomiumAPI.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GLProgramManager.cpp" />
@@ -262,6 +263,7 @@
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
@@ -351,8 +353,6 @@
     <ClCompile Include="TerrainGenerator.cpp" />
     <ClCompile Include="Texture2d.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
-    <ClCompile Include="AwesomiumUI.cpp" />
-    <ClCompile Include="WorldEditor.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
     <ClCompile Include="VoxelWorld.cpp" />
     <ClCompile Include="WSO.cpp" />

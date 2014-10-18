@@ -49,7 +49,6 @@ public:
 
     void initResolutions();
 
-    void glWorldEditorLoop();
     void BeginThread(void (*func)(void));
     void EndThread();
     void endSession();

@@ -38,7 +38,7 @@
 #include "Threadpool.h"
 #include "VoxelEditor.h"
 #include "VRayHelper.h"
-#include "WorldEditor.h"
+#include "VoxelWorld.h"
 
 #include "utils.h"
 
@@ -65,7 +65,6 @@ bool CheckGLError();
 bool Control();
 bool PlayerControl();
 bool MainMenuControl();
-bool EditorControl();
 void RebuildWindow();
 void rebuildFrameBuffer();
 void UpdatePlayer();
@@ -196,7 +195,6 @@ void OpenglManager::glThreadLoop() {
         }
         else if (GameManager::gameState == GameStates::WORLDEDITOR){
             EditorState = E_MAIN;
-            glWorldEditorLoop();
         }
         GameManager::inputManager->update();
         Control();
@@ -234,41 +232,6 @@ void OpenglManager::glThreadLoop() {
 #ifdef _DEBUG 
     //    _CrtDumpMemoryLeaks();
 #endif
-}
-
-void OpenglManager::glWorldEditorLoop()
-{
-    Uint32 frametimes[10];
-    Uint32 frametimelast;
-    Uint32 frameCount = 0;
-    GLuint startTicks;
-    while (GameManager::gameState == GameStates::WORLDEDITOR && EditorState != E_AEXIT && !glExit){
-        startTicks = SDL_GetTicks();
-
-        openglManager.ProcessMessages();
-
-        bdt += glSpeedFactor * 0.01;
-
-        mainMenuCamera.update();
-
-        EditorControl();
-        GameManager::worldEditor->glUpdate();
-
-        DrawGame();
-        currentUserInterface->Draw();
-        
-        SDL_GL_SwapWindow(mainWindow);
-
-        if (graphicsOptions.maxFPS != 165 && 1000.0f / (float)graphicsOptions.maxFPS > (SDL_GetTicks() - startTicks)){  //bound fps to cap
-            SDL_Delay((Uint32)(1000.0f / (float)graphicsOptions.maxFPS - (SDL_GetTicks() - startTicks)));
-        }
-
-        CalculateGlFps(frametimes, frametimelast, frameCount, glFps);
-
-    }
-    glToGame.enqueue(OMessage(GL_M_STATETRANSITION, new int(15)));
-    openglManager.glWaitForMessage(GL_M_STATETRANSITION);
-    GameManager::exitWorldEditor();
 }
 
 void OpenglManager::BeginThread(void (*func)(void))
@@ -522,8 +485,7 @@ void DrawGame()
     //    isChanged = 0;
     //}
 
-    if (GameManager::gameState == GameStates::MAINMENU || GameManager::gameState == GameStates::ZOOMINGIN || GameManager::gameState == GameStates::ZOOMINGOUT || 
-       (GameManager::gameState == GameStates::WORLDEDITOR && GameManager::worldEditor && !GameManager::worldEditor->usingChunks)){
+    if (GameManager::gameState == GameStates::MAINMENU || GameManager::gameState == GameStates::ZOOMINGIN || GameManager::gameState == GameStates::ZOOMINGOUT){
         if (openglManager.cameraInfo == NULL){
             openglManager.cameraInfo = new CameraInfo(mainMenuCamera.position(), mainMenuCamera.up(), mainMenuCamera.direction(), mainMenuCamera.viewMatrix(), mainMenuCamera.projectionMatrix());
         }
@@ -584,23 +546,6 @@ void DrawGame()
         openglManager.DrawFrameBuffer();
 
         glEnable(GL_DEPTH_TEST);
-    }
-    else if ((GameManager::gameState == GameStates::WORLDEDITOR && GameManager::worldEditor && GameManager::worldEditor->usingChunks)){
-        glm::dmat4 fvm = glm::lookAt(
-            glm::dvec3(0.0),           // Camera is here
-            glm::dvec3(glm::dvec4(mainMenuCamera.direction(), 1.0)), // and looks here : at the same position, plus "direction"
-            glm::dvec3(mainMenuCamera.up())                  // Head is up (set to 0,-1,0 to look upside-down)
-            );
-
-        Camera &chunkCamera = GameManager::worldEditor->getChunkCamera();
-
-        ExtractFrustum(glm::dmat4(mainMenuCamera.projectionMatrix()), fvm, worldFrustum); 
-        ExtractFrustum(glm::dmat4(chunkCamera.projectionMatrix()), glm::dmat4(chunkCamera.viewMatrix()), gridFrustum);
-
-        openglManager.BindFrameBuffer();
-        openglManager.Draw(chunkCamera, mainMenuCamera);
-        openglManager.DrawFrameBuffer();
-    
     }else{
         if (openglManager.cameraInfo == NULL){
             openglManager.cameraInfo = new CameraInfo(player->worldPosition, player->worldUp(), player->worldDirection(), player->worldViewMatrix(), player->worldProjectionMatrix());
@@ -1393,143 +1338,6 @@ bool MainMenuControl()
         }
     }
     return 1;
-}
-
-bool EditorControl()
-{
-    SDL_Event evnt;
-    float wheelSpeed;
-    float focalLength;
-
-    while (SDL_PollEvent(&evnt))
-    {
-        switch (evnt.type)
-        {
-        case SDL_QUIT:
-            glExit = 1;
-            return 0;
-        case SDL_MOUSEMOTION:
-            GameManager::worldEditor->injectMouseMove(evnt.motion.x, evnt.motion.y);
-            if (GameManager::worldEditor->usingChunks){
-                if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)){
-                    wheelSpeed = 0.01;
-                    GameManager::worldEditor->getChunkCamera().offsetAngles(evnt.motion.yrel*wheelSpeed*gameOptions.mouseSensitivity, evnt.motion.xrel*wheelSpeed*gameOptions.mouseSensitivity);
-                }
-            } else {
-                if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)){
-                    wheelSpeed = MAX((glm::length(mainMenuCamera.getFocalLength()) - GameManager::planet->radius) / (float)GameManager::planet->radius, 0);
-                    mainMenuCamera.offsetAngles(evnt.motion.yrel*wheelSpeed, evnt.motion.xrel*wheelSpeed);
-                }
-            }
-            break;
-        case SDL_MOUSEWHEEL:
-            GameManager::worldEditor->injectMouseWheel(evnt.wheel.y*3.0);
-            if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)){
-                if (EditorState == E_TREE_EDITOR){
-                    focalLength = GameManager::worldEditor->getChunkCamera().getFocalLength();
-                    wheelSpeed = 50;
-
-                    focalLength -= evnt.wheel.y*wheelSpeed*0.025f;
-                    if (focalLength < 0){
-                        focalLength = 0;
-                    } else if (focalLength > 600){
-                        focalLength = 600;
-                    }
-                    GameManager::worldEditor->getChunkCamera().setFocalLength(focalLength);
-
-                } else{
-                    focalLength = mainMenuCamera.getFocalLength();
-                    wheelSpeed = 50 + MAX((glm::length(focalLength) - GameManager::planet->radius)*0.01*planetScale, 0);
-
-                    focalLength -= evnt.wheel.y*wheelSpeed*4.0f;
-                    if (focalLength < GameManager::planet->radius + 1000){
-                        focalLength = GameManager::planet->radius + 1000;
-                    } else if (focalLength > GameManager::planet->radius * 20){
-                        focalLength = GameManager::planet->radius * 20;
-                    }
-                    mainMenuCamera.setFocalLength(focalLength);
-                }
-            }
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            GameManager::inputManager->pushEvent(evnt);
-            GameManager::worldEditor->injectMouseDown(evnt.button.button-1);
-            break;
-        case SDL_MOUSEBUTTONUP:
-            GameManager::inputManager->pushEvent(evnt);
-            GameManager::worldEditor->injectMouseUp(evnt.button.button-1);
-            break;
-        case SDL_KEYDOWN:
-            GameManager::inputManager->pushEvent(evnt);
-            GameManager::worldEditor->injectKeyboardEvent(evnt);
-
-            //TODO:Replace all this
-            if (evnt.key.keysym.sym == SDLK_n){
-                isWaterUpdating = !isWaterUpdating;
-            }
-            else if (evnt.key.keysym.sym == SDLK_l){
-                player->lightActive++;
-                if (player->lightActive == 3){
-                    player->lightActive = 0;
-                }
-            }
-            else if (evnt.key.keysym.sym == SDLK_g){
-                gridState = !gridState;
-            }
-            else if (evnt.key.keysym.sym == SDLK_p){
-                globalDebug2 = !globalDebug2;
-            }
-            else if (evnt.key.keysym.sym == SDLK_u){
-                getFrustum = !getFrustum;
-            }
-            else if (evnt.key.keysym.sym == SDLK_h){
-                debugVarh = !debugVarh;
-            }
-            else if (evnt.key.keysym.sym == SDLK_r){
-                sonarActive = !sonarActive;
-                sonarDt = 0;
-            }
-            else if (evnt.key.keysym.sym == SDLK_j){
-                planetDrawMode += 1.0f;
-                if (planetDrawMode == 3.0f) planetDrawMode = 0.0f;
-            }
-            else if (evnt.key.keysym.sym == SDLK_F11){
-                InitializeShaders();
-            }
-            else if (evnt.key.keysym.sym == SDLK_m){
-                if (++drawMode == 3) drawMode = 0;
-                if (drawMode == 0){
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //Solid mode
-                }
-                else if (drawMode == 1){
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); //Point mode
-                }
-                else if (drawMode == 2){
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //Wireframe mode
-                }
-            }
-            else if (evnt.key.keysym.sym == SDLK_ESCAPE){
-
-            }
-            else if (evnt.key.keysym.sym == SDLK_F5){
-                ReloadTextures();
-            }
-
-            break;
-        case SDL_KEYUP:
-            GameManager::inputManager->pushEvent(evnt);
-            break;
-        case SDL_WINDOWEVENT:
-            if (evnt.window.type == SDL_WINDOWEVENT_LEAVE || evnt.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                //            GameState = PAUSE;
-                //            SDL_SetRelativeMouseMode(SDL_FALSE);
-                //            isMouseIn = 0;
-            }
-            break;
-        }
-    }
-
-    return 0;
 }
 
 void RebuildWindow()
@@ -2818,10 +2626,8 @@ void RecursiveSortMeshList(vector <ChunkMesh*> &v, int start, int size)
             v[i] = v[j];
             v[j] = tmp;
 
-
             v[i]->vecIndex = i;
             v[j]->vecIndex = j;
-
 
             i++;
             j--;

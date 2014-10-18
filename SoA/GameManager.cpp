@@ -29,7 +29,6 @@
 #include "WSOAtlas.h"
 #include "WSOData.h"
 #include "WSOScanner.h"
-#include "WorldEditor.h"
 
 #include "utils.h"
 #include "VoxelEditor.h"
@@ -57,7 +56,6 @@ vcore::GLProgramManager* GameManager::glProgramManager = new vcore::GLProgramMan
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;
-WorldEditor *GameManager::worldEditor = nullptr;
 Planet *GameManager::planet = nullptr;
 nString GameManager::saveFilePath = "";
 GameStates GameManager::gameState = GameStates::MAINMENU;
@@ -84,17 +82,11 @@ void GameManager::initializeSystems() {
 }
 
 void GameManager::initializeWorldEditor() {
-    worldEditor = new WorldEditor;
-    worldEditor->initialize(planet);
 
 }
 
 void GameManager::exitWorldEditor() {
-    if (worldEditor != nullptr) {
-        delete worldEditor;
-        worldEditor = nullptr;
-    }
-    currentUserInterface = nullptr;
+
 }
 
 void GameManager::initializeSound() {

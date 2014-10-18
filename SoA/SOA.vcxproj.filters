@@ -125,9 +125,6 @@
     <ClInclude Include="AwesomiumInterface.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
-    <ClInclude Include="AwesomiumUI.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
     <ClInclude Include="BlockData.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
@@ -434,9 +431,6 @@
     <ClInclude Include="VRayHelper.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="WorldEditor.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="WorldStructs.h">
       <Filter>SOA Files\Game</Filter>
     </ClInclude>
@@ -524,6 +518,12 @@
     <ClInclude Include="GLProgramManager.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="AwesomiumAPI.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenglSurfaceFactory.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -533,9 +533,6 @@
       <Filter>SOA Files\Screens</Filter>
     </ClCompile>
     <ClCompile Include="AwesomiumInterface.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="AwesomiumUI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
     <ClCompile Include="BlockData.cpp">
@@ -772,9 +769,6 @@
     <ClCompile Include="VRayHelper.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="WorldEditor.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="WorldStructs.cpp">
       <Filter>SOA Files\Game</Filter>
     </ClCompile>
@@ -833,6 +827,12 @@
     </ClCompile>
     <ClCompile Include="GLProgramManager.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="AwesomiumAPI.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenglSurfaceFactory.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -52,7 +52,7 @@ void InitScreen::onEvent(const SDL_Event& e) {
 }
 void InitScreen::update(const GameTime& gameTime) {
     // Immediatly move to next state
-  //  _state = ScreenState::CHANGE_NEXT;
+    _state = ScreenState::CHANGE_NEXT;
 }
 void InitScreen::draw(const GameTime& gameTime) {
     const GameWindow* w = &_game->getWindow();

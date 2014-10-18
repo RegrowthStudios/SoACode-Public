@@ -1,6 +1,7 @@
 #pragma once
 #include "IGameScreen.h"
 
+#include "AwesomiumInterface.h"
 #include "Random.h"
 #include "LoadMonitor.h"
 
@@ -29,6 +30,8 @@ private:
 
     void updateThreadFunc();
     void UpdateTerrainMesh(TerrainMeshMessage *tmm);
+
+    AwesomiumInterface awesomiumInterface;
 
     std::thread* _updateThread;
     bool _threadRunning;

@@ -56,7 +56,6 @@ public:
     static float fogStart, fogEnd;
     static Uint32 maxLodTicks;
     static vector <Marker> markers;
-    static class WorldEditor* worldEditor;
     static class Planet* planet;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;

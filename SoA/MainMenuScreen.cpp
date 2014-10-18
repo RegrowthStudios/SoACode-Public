@@ -47,6 +47,9 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
+
+    awesomiumInterface.init("game/UI/MainMenu/", graphicsOptions.screenWidth, graphicsOptions.screenHeight);
+
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
 }
 
@@ -60,6 +63,9 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {
+
+    awesomiumInterface.update();
+
     mainMenuCamera.update();
     GameManager::inputManager->update();
 
@@ -113,6 +119,8 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 
 
     glDisable(GL_DEPTH_TEST);
+    awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
+
     openglManager.DrawFrameBuffer();
     glEnable(GL_DEPTH_TEST);
 

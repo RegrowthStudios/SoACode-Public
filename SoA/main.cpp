@@ -31,7 +31,6 @@
 #include "Texture2d.h"
 #include "Threadpool.h"
 #include "VoxelEditor.h"
-#include "WorldEditor.h"
 
 #include "utils.h"
 
@@ -55,7 +54,6 @@ bool inGame = 0;
 int counter = 0;
 
 void gameLoop();
-void worldEditorLoop();
 bool Control();
 bool MainMenuControl();
 void CalculateFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, volatile float &framespersecond);
@@ -197,7 +195,6 @@ void gameLoop() {
                 GameManager::updatePlanet(camPos, 10);
                 break;
             case GameStates::WORLDEDITOR:
-                worldEditorLoop(); //only return from this when we are done
                 break;
         }
 
@@ -215,46 +212,6 @@ void gameLoop() {
     }
 
     if (GameManager::planet) delete GameManager::planet;
-}
-
-void worldEditorLoop() {
-    OMessage message;
-    Uint32 frameCount = 0;
-    Uint32 startTicks;
-    Uint32 frametimes[10];
-    Uint32 frametimelast;
-
-    while (GameManager::gameState == GameStates::WORLDEDITOR) {
-        GameManager::inputManager->update();
-        GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-        GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-        GameManager::soundEngine->update(player->headPosition, player->chunkDirection(), player->chunkUp());
-
-        startTicks = SDL_GetTicks();
-
-        while (glToGame.try_dequeue(message)) {
-            if (ProcessMessage(message)) {
-                GameManager::gameState = GameStates::EXIT;
-                break;
-            }
-        }
-
-        inGame = 0;
-        glm::dvec3 camPos = glm::dvec3(glm::dvec4(mainMenuCamera.position(), 1.0));
-
-
-        if (GameManager::worldEditor != NULL) GameManager::worldEditor->update();
-
-        GameManager::planet->rotationUpdate();
-        GameManager::updatePlanet(camPos, 10);
-
-        //cout << physicsFps << endl;
-        CalculateFps(frametimes, frametimelast, frameCount, physicsFps);
-        //cout << (int)framespersecond << endl;
-        if (1000.0f / maxPhysicsFps > (SDL_GetTicks() - startTicks)) {  //bound fps to 60
-            Sleep((Uint32)(1000.0f / maxPhysicsFps - (SDL_GetTicks() - startTicks)));
-        }
-    }
 }
 
 bool HasSettingsChanged() {
