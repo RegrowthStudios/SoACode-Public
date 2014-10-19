@@ -110,6 +110,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
@@ -117,7 +118,6 @@
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskPlanet.h" />
-    <ClInclude Include="LoadTaskOptions.h" />
     <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="MainMenuAPI.h" />
@@ -248,6 +248,7 @@
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />

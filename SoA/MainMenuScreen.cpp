@@ -3,6 +3,8 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\glm.hpp>
 
+#include "App.h"
+#include "GamePlayScreen.h"
 #include "MainMenuScreen.h"
 #include "IAwesomiumAPI.h"
 #include "ChunkManager.h"
@@ -31,7 +33,7 @@ CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
 }
 
 i32 MainMenuScreen::getNextScreen() const {
-    return SCREEN_INDEX_NO_SCREEN;
+    return _app->scrGamePlay->getIndex();
 }
 i32 MainMenuScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
@@ -109,17 +111,26 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
 void MainMenuScreen::draw(const GameTime& gameTime) {
 
-    openglManager.BindFrameBuffer();
+    FrameBuffer* frameBuffer = _app->frameBuffer;
+
+    // Bind the framebuffer and clear it
+    frameBuffer->bind();
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
+    // Set the camera clipping plane for rendering the skybox and update the projection matrix
     _camera.setClippingPlane(1000000.0f, 30000000.0f);
     _camera.updateProjection();
     glm::mat4 VP = _camera.projectionMatrix() * _camera.viewMatrix();
 
+    // Draw space
     GameManager::drawSpace(VP, 0);
     
+    // Calculate the near clipping plane
     double clip = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
     if (clip < 100) clip = 100;
 
+    // Set the clipping plane for the camera for the planet
     _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     _camera.updateProjection();
 
@@ -132,16 +143,23 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
         glm::dvec3(_camera.up())                  // Head is up (set to 0,-1,0 to look upside-down)
         );
 
+    // Extract the frustum for frustum culling
     ExtractFrustum(glm::dmat4(_camera.projectionMatrix()), fvm, worldFrustum);
+
+    // Draw the planet using the _camera
     GameManager::drawPlanet(_camera.position(), VP, _camera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
 
     glDisable(GL_DEPTH_TEST);
     
-    openglManager.DrawFrameBuffer();
+    // Render the framebuffer with HDR post processing
+    // TODO(Ben): fix this
+    f32m4 identity(1.0f);
+    _app->drawFrameBuffer(identity);
 
     ui32v2 viewPort(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
-    openglManager.frameBuffer->unBind(viewPort);
+    frameBuffer->unBind(viewPort);
 
+    // Render the awesomium user interface
     _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
     glEnable(GL_DEPTH_TEST);
 

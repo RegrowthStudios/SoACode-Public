@@ -53,10 +53,7 @@ public:
     OMessage WaitForMessage(int i);
     void glWaitForMessage(int i);
     void ProcessMessages(int waitForMessage = -1);
-    void InitializeFrameBuffer();
-    void BindFrameBuffer();
     void FreeFrameBuffer();
-    void DrawFrameBuffer();
     void UpdateTerrainMesh(struct TerrainMeshMessage *tmm);
     void UpdateChunkMesh(struct ChunkMeshData *cmd);
     void UpdateParticleMesh(struct ParticleMeshMessage *pmm);

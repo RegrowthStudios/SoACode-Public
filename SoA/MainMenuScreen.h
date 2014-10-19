@@ -25,6 +25,7 @@
 #include "LoadMonitor.h"
 
 class App;
+class FrameBuffer;
 struct TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
@@ -51,7 +52,7 @@ public:
     IOManager& getIOManager() { return _ioManager; }
 
 private:
-
+ 
     /// Loads a save file and prepares to play the game
     /// @param fileName: The name of the save file
     void loadGame(const nString& fileName);

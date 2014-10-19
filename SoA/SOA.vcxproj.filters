@@ -111,6 +111,9 @@
     <Filter Include="SOA Files\Screens\Menu">
       <UniqueIdentifier>{0d210193-9560-40f1-a16b-af80064b7293}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Screens\GamePlay">
+      <UniqueIdentifier>{67ff73ec-bf0a-46da-a71d-8821a7acbd76}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -479,9 +482,6 @@
     <ClInclude Include="colors.h">
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskOptions.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
@@ -520,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePlayScreen.h">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -826,6 +829,9 @@
     </ClCompile>
     <ClCompile Include="IAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="GamePlayScreen.cpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

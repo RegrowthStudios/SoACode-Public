@@ -230,83 +230,10 @@ void OpenglManager::ProcessMessages(int waitForMessage)
     } while (waiting);
 }
 
-void OpenglManager::InitializeFrameBuffer()
-{
-    if (graphicsOptions.msaa > 0){
-        glEnable(GL_MULTISAMPLE);
-        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, graphicsOptions.screenWidth, graphicsOptions.screenHeight, graphicsOptions.msaa);
-    }
-    else{
-        glDisable(GL_MULTISAMPLE);
-        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, graphicsOptions.screenWidth, graphicsOptions.screenHeight);
-    }
-}
-
 void OpenglManager::FreeFrameBuffer()
 {
     if (frameBuffer != NULL) delete frameBuffer;
     frameBuffer = NULL;
-}
-
-void OpenglManager::BindFrameBuffer()
-{
-    // Render to our framebuffer
-    frameBuffer->bind();
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void OpenglManager::DrawFrameBuffer()
-{
-
-    static bool start = 1;
-
-    vcore::GLProgram* program;
-
-    if (graphicsOptions.motionBlur > 0){
-        program = GameManager::glProgramManager->getProgram("MotionBlur");
-        program->use();
-        program->enableVertexAttribArrays();
-
-        static f32m4 currMat;
-        static f32m4 oldVP;
-        static f32m4 newInverseVP;
-
-        if (start){
-            oldVP = player->chunkProjectionMatrix() * player->chunkViewMatrix();
-            start = 0;
-        } else{
-            oldVP = currMat;
-        }
-        currMat = player->chunkProjectionMatrix() * player->chunkViewMatrix();
-        newInverseVP = glm::inverse(currMat);
-
-        glUniform1i(program->getUniform("renderedTexture"), 0);
-        glUniform1i(program->getUniform("depthTexture"), 1);
-        glUniform1f(program->getUniform("gamma"), 1.0f / graphicsOptions.gamma);
-        glUniform1f(program->getUniform("fExposure"), graphicsOptions.hdrExposure);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, frameBuffer->depthTextureIDs[FB_DRAW]);
-
-        glUniformMatrix4fv(program->getUniform("prevVP"), 1, GL_FALSE, &oldVP[0][0]);
-        glUniformMatrix4fv(program->getUniform("inverseVP"), 1, GL_FALSE, &newInverseVP[0][0]);
-        glUniform1i(program->getUniform("numSamples"), (int)graphicsOptions.motionBlur);
-    } else{
-        start = 0;
-        program = GameManager::glProgramManager->getProgram("HDR");
-        program->use();
-        program->enableVertexAttribArrays();
-        glUniform1i(program->getUniform("renderedTexture"), 0);
-        glUniform1f(program->getUniform("gamma"), 1.0f / graphicsOptions.gamma);
-        glUniform1f(program->getUniform("fExposure"), graphicsOptions.hdrExposure);
-    }
-
-    const ui32v2 viewport(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
-    frameBuffer->draw(viewport, drawMode);
-
-    program->disableVertexAttribArrays();
-    program->unuse();
 }
 
 void DrawGame()
@@ -426,7 +353,7 @@ void Initialize_SDL_OpenGL()
     InitializeTTF();
     
     DrawLoadingScreen("Initializing Framebuffer...");
-    openglManager.InitializeFrameBuffer();
+  //  openglManager.InitializeFrameBuffer();
 
 
 }
@@ -717,7 +644,7 @@ void RebuildWindow()
 void rebuildFrameBuffer()
 {
     openglManager.FreeFrameBuffer();
-    openglManager.InitializeFrameBuffer();
+    //openglManager.InitializeFrameBuffer();
     graphicsOptions.needsFboReload = 0;
 }
 

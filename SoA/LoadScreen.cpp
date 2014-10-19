@@ -12,7 +12,6 @@
 #include "Inputs.h"
 #include "LoadTaskShaders.h"
 #include "LoadTaskGameManager.h"
-#include "LoadTaskOptions.h"
 #include "LoadTaskBlockData.h"
 #include "LoadTaskPlanet.h"
 #include "LoadTaskSound.h"
@@ -63,11 +62,8 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     addLoadTask("Sound", "Sound", new LoadTaskSound);
     _monitor.setDep("Sound", "GameManager");
 
-    addLoadTask("Game Options", "Game Options", new LoadTaskOptions);
-
     addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     _monitor.setDep("BlockData", "GameManager");
-    _monitor.setDep("BlockData", "Game Options");
 
     // Start the tasks
     _monitor.start();
@@ -153,8 +149,6 @@ void LoadScreen::update(const GameTime& gameTime) {
 
         LoadTaskPlanet loadTaskPlanet;
         loadTaskPlanet.load();
-
-        openglManager.InitializeFrameBuffer();
 
         _state = ScreenState::CHANGE_NEXT;
         loadedTextures = true;
