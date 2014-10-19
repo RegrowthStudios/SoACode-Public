@@ -19,7 +19,6 @@
 #include "Frustum.h"
 #include "GLProgram.h"
 #include "Mesh.h"
-#include "OpenglManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"

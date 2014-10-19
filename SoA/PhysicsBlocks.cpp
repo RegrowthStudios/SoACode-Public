@@ -9,7 +9,6 @@
 #include "ChunkManager.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"

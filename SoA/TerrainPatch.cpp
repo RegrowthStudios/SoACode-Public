@@ -5,11 +5,10 @@
 #include "Chunk.h"
 #include "FloraGenerator.h"
 #include "MessageManager.h"
-#include "GameManager.h"
-#include "OpenglManager.h"
 #include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
+#include "GameManager.h"
 
 #include "utils.h"
 

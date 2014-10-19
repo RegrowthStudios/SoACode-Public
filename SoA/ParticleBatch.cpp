@@ -3,7 +3,6 @@
 
 #include "ChunkManager.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"

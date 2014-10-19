@@ -290,9 +290,6 @@
     <ClInclude Include="ObjectLoader.h">
       <Filter>SOA Files\Data</Filter>
     </ClInclude>
-    <ClInclude Include="OpenglManager.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="OpenGLStructs.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -663,9 +660,6 @@
     </ClCompile>
     <ClCompile Include="ObjectLoader.cpp">
       <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenglManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Options.cpp">
       <Filter>SOA Files\Data</Filter>

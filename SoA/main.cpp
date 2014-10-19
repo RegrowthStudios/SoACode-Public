@@ -22,7 +22,6 @@
 #include "IOManager.h"
 #include "InputManager.h"
 #include "Item.h"
-#include "OpenglManager.h"
 #include "Options.h"
 #include "Planet.h"
 #include "Sound.h"

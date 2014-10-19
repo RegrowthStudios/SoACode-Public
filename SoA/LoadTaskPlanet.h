@@ -3,7 +3,6 @@
 #include "GameManager.h"
 #include "Camera.h"
 #include "Planet.h"
-#include "OpenglManager.h"
 
 class LoadTaskPlanet : public ILoadTask {
     friend class LoadScreen;

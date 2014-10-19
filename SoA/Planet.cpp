@@ -11,7 +11,6 @@
 #include "InputManager.h"
 #include "Inputs.h"
 #include "ObjectLoader.h"
-#include "OpenglManager.h"
 #include "Options.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"

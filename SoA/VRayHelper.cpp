@@ -3,7 +3,6 @@
 
 #include "Chunk.h"
 #include "ChunkManager.h"
-#include "OpenglManager.h"
 #include "Player.h"
 #include "VoxelRay.h"
 

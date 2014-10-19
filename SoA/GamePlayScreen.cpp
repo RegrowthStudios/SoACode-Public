@@ -107,6 +107,9 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         _inFocus = false;
     }
+    if (inputManager->getKeyDown(INPUT_FLY)) {
+        _player->flyToggle();
+    }
     if (inputManager->getKey(INPUT_GRID)) {
         gridState = true;
     } else {

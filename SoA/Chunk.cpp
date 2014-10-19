@@ -7,7 +7,6 @@
 #include "Errors.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "Planet.h"

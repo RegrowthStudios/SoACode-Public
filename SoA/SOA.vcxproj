@@ -223,7 +223,6 @@
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="ObjectLoader.h" />
-    <ClInclude Include="OpenglManager.h" />
     <ClInclude Include="OpenGLStructs.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="Particles.h" />
@@ -294,7 +293,6 @@
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="IOManager.cpp" />
     <ClCompile Include="MainGame.cpp" />
-    <ClCompile Include="OpenglManager.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleBatch.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />

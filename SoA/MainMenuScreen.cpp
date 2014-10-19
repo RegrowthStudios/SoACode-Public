@@ -14,7 +14,6 @@
 #include "InputManager.h"
 #include "Inputs.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "Sound.h"
 #include "Options.h"
 #include "MessageManager.h"
