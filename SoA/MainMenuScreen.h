@@ -73,7 +73,7 @@ private:
     CinematicCamera _camera; ///< The camera that looks at the planet from space
 
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
-    bool _threadRunning; ///< True when the thread should be running
+    volatile bool _threadRunning; ///< True when the thread should be running
 };
 
 #endif // MAINMENUSCREEN_H_

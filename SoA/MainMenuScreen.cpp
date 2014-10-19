@@ -20,12 +20,13 @@
 #include "Frustum.h"
 #include "TerrainPatch.h"
 #include "FrameBuffer.h"
+#include "FileSystem.h"
 
 #define THREAD ThreadName::PHYSICS
 
 CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
-_updateThread(nullptr),
-_threadRunning(false){
+    _updateThread(nullptr),
+    _threadRunning(false){
     // Empty
 }
 
@@ -64,6 +65,8 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 void MainMenuScreen::onExit(const GameTime& gameTime) {
     _threadRunning = false;
     _updateThread->join();
+    delete _updateThread;
+    _awesomiumInterface.destroy();
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
@@ -147,6 +150,25 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 
 void MainMenuScreen::loadGame(const nString& fileName) {
     std::cout << "Loading Game: " << fileName << std::endl;
+
+    // Make the save directories, in case they were deleted
+    fileManager.makeSaveDirectories(fileName);
+    if (fileManager.setSaveFile(fileName) != 0) {
+        cout << "Could not set save file.\n";
+        return;
+    }
+    // Check the planet string
+    string planetName = fileManager.getWorldString(fileName + "/World/");
+    if (planetName == "") {
+        cout << "NO PLANET NAME";
+        return;
+    }
+    // Set the save file path
+    GameManager::saveFilePath = fileName;
+    // Check the chunk version
+    GameManager::chunkIOManager->checkVersion();
+
+    _state = ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::updateThreadFunc() {

@@ -14,7 +14,6 @@
 
 MultiplePreciseTimer globalMultiplePreciseTimer;
 
-string saveFilePath;
 class Item *ObjectList[OBJECT_LIST_SIZE];
 
 Marker::Marker(const glm::dvec3 &Pos, string Name, glm::vec3 Color) : pos(Pos), name(Name), dist(0.0), color(glm::vec4(Color, 1.0f))

@@ -517,17 +517,17 @@ void Texture2D::Draw(int xmod, int ymod, GLfloat xdim, GLfloat ydim)
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vboID);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+    glVertexAttribPointer(program->getAttribute("vertexPosition_screenspace"), 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
     // 2nd attribute buffer : UVs
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     // 3rd attribute buffer : Colors
     glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+    glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     // Draw call
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferID);

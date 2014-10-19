@@ -8,7 +8,6 @@
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer;
 
-extern string saveFilePath;
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
 const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.

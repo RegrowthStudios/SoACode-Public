@@ -35,6 +35,10 @@ AwesomiumInterface<C>::~AwesomiumInterface(void) {
 template <class C>
 bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen)
 {
+    if (_isInitialized) {
+        pError("Awesomium Error: Tried to call AwesomiumInterface::init twice without destroying.");
+        return false;
+    }
     // Set dimensions
     _width = width;
     _height = height;

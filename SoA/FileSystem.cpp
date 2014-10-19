@@ -1834,14 +1834,14 @@ i32 FileManager::setSaveFile(nString filePath) {
         return 1;
     }
 
-    saveFilePath = filePath;
+    GameManager::saveFilePath = filePath;
     return 0;
 }
 
 i32 FileManager::loadMarkers(Player *player) {
 
 
-    std::ifstream f(saveFilePath + "/Data/" + player->getName() + "_markers.ini");  // New enough C++ library will accept just name
+    std::ifstream f(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini");  // New enough C++ library will accept just name
     if (f.is_open() == 0) {
         f.close();
         return 0;
@@ -1850,7 +1850,7 @@ i32 FileManager::loadMarkers(Player *player) {
 
     std::vector <std::vector <IniValue> > iniValues;
     std::vector <nString> iniSections;
-    if (loadIniFile(saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
+    if (loadIniFile(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
 
     int iVal;
     IniValue *iniVal;
@@ -1890,7 +1890,7 @@ i32 FileManager::loadPlayerFile(Player *player) {
     loadMarkers(player);
 
     FILE *file = NULL;
-    file = fopen((saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
+    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
     if (file == NULL) {
         //file doesnt exist so set spawn to random
         srand(time(NULL));
@@ -1937,14 +1937,14 @@ i32 FileManager::saveMarkers(Player *player) {
         iniValues.back().push_back(IniValue("z", to_string(m->pos.z)));
     }
 
-    if (saveIniFile(saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
+    if (saveIniFile(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
 
 }
 i32 FileManager::savePlayerFile(Player *player) {
     saveMarkers(player);
 
     FILE *file = NULL;
-    file = fopen((saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "wb");
+    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "wb");
     if (file == NULL) {
         pError("Failed to open player .dat file for writing!");
         return 0; //uhhh idk 
