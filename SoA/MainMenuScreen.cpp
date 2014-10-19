@@ -94,7 +94,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     while (GameManager::messageManager->tryDeque(ThreadName::RENDERING, message)) {
         switch (message.id) {
             case MessageID::TERRAIN_MESH:
-                UpdateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));
+                updateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));
                 break;
             case MessageID::REMOVE_TREES:
                 tmm = static_cast<TerrainMeshMessage*>(message.data);
@@ -199,7 +199,7 @@ void MainMenuScreen::updateThreadFunc() {
     }
 }
 
-void MainMenuScreen::UpdateTerrainMesh(TerrainMeshMessage *tmm)
+void MainMenuScreen::updateTerrainMesh(TerrainMeshMessage *tmm)
 {
     TerrainBuffers *tb = tmm->terrainBuffers;
 
