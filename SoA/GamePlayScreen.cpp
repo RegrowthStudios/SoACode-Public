@@ -69,6 +69,7 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     _threadRunning = false;
     _updateThread->join();
     delete _updateThread;
+    _app->meshManager->destroy();
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {

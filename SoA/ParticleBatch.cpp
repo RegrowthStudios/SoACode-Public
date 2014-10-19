@@ -8,6 +8,7 @@
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
 #include "ParticleMesh.h"
+#include "MessageManager.h"
 
 
 BillboardVertex vboBVerts[maxParticles];
@@ -226,7 +227,10 @@ int ParticleBatch::update() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(OMessage(GL_M_PARTICLEMESH, (void *)pmm));
+    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                         Message(MessageID::PARTICLE_MESH,
+                                         (void *)pmm));
+
 
     return 0;
 }
@@ -319,7 +323,9 @@ int ParticleBatch::updateAnimated() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(OMessage(GL_M_PARTICLEMESH, (void *)pmm));
+    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                         Message(MessageID::PARTICLE_MESH,
+                                         (void *)pmm));
 
     return 0;
 }

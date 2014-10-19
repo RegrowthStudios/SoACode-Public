@@ -18,6 +18,7 @@
 #include "Sound.h"
 #include "TerrainGenerator.h"
 #include "ThreadPool.h"
+#include "MessageManager.h"
 #include "utils.h"
 #include "VoxelUtils.h"
 
@@ -135,7 +136,10 @@ void Chunk::clearBuffers()
 		cmd->chunkMesh = mesh;
 		mesh = NULL;
 		cmd->debugCode = 1; 
-        gameToGl.enqueue(OMessage(GL_M_CHUNKMESH, cmd));
+        GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                             Message(MessageID::CHUNK_MESH, 
+                                             (void*)cmd));
+
 	}
 }
 

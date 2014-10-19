@@ -65,20 +65,6 @@ string getFullPath(const char *initialDir)
     return rval;
 }
 
-void mError(const string& message)
-{
-    FILE *logFile = NULL;
-    SDL_SetRelativeMouseMode(SDL_FALSE);
-    logFile = fopen("errorlog.txt", "a+");
-    if (logFile != NULL){
-        fprintf(logFile, "*ERROR: %s \n", message.c_str());
-        fclose(logFile);
-    }
-    printf("*ERROR: %s \n", message);
-    gameToGl.enqueue(OMessage(GL_M_ERROR, strdup(message.c_str())));
-    openglManager.WaitForMessage(GL_M_DONE);
-}
-
 void pError(const char *message)
 {
     FILE *logFile = NULL;

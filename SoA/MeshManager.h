@@ -51,6 +51,9 @@ public:
     /// @param cameraPosition: The position of the camera to calculate distance from
     void sortMeshes(const f64v3& cameraPosition);
 
+    /// Destroys all of the meshes and frees allocated memory
+    void destroy();
+
     // Getters
     const std::vector <ChunkMesh*>& getChunkMeshes() const { return _chunkMeshes; }
     const std::vector <ParticleMesh*>& getParticleMeshes() const { return _particleMeshes; }

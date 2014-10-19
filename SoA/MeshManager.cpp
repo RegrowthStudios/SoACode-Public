@@ -328,6 +328,61 @@ void MeshManager::sortMeshes(const f64v3& cameraPosition) {
     recursiveSortMeshList(_chunkMeshes, 0, _chunkMeshes.size());
 }
 
+void MeshManager::destroy() {
+
+    // Free all chunk meshes
+    for (ChunkMesh* cm : _chunkMeshes) {
+        if (cm->vboID != 0){
+            glDeleteBuffers(1, &(cm->vboID));
+        }
+        if (cm->vaoID != 0){
+            glDeleteVertexArrays(1, &(cm->vaoID));
+        }
+        if (cm->transVaoID != 0){
+            glDeleteVertexArrays(1, &(cm->transVaoID));
+        }
+        if (cm->transVboID == 0) {
+            glDeleteBuffers(1, &(cm->transVboID));
+        }
+        if (cm->transIndexID == 0) {
+            glDeleteBuffers(1, &(cm->transIndexID));
+        }
+        if (cm->cutoutVaoID != 0){
+            glDeleteVertexArrays(1, &(cm->cutoutVaoID));
+        }
+        if (cm->cutoutVboID == 0) {
+            glDeleteBuffers(1, &(cm->cutoutVboID));
+        }
+        if (cm->waterVaoID != 0){
+            glDeleteBuffers(1, &(cm->waterVaoID));
+        }
+        if (cm->waterVboID != 0){
+            glDeleteBuffers(1, &(cm->waterVboID));
+        }
+    }
+    std::vector<ChunkMesh*>().swap(_chunkMeshes);
+
+    // Free all particle meshes
+    for (ParticleMesh* pm : _particleMeshes) {
+        if (pm->billboardVertexBufferID != 0) {
+            glDeleteBuffers(1, &pm->billboardVertexBufferID);
+        }
+        if (pm->uvBufferID != 0) {
+            glDeleteBuffers(1, &pm->uvBufferID);
+        }
+    }
+    std::vector<ParticleMesh*>().swap(_particleMeshes);
+
+    // Free all physics block meshes
+    for (PhysicsBlockMesh* pmm : _physicsBlockMeshes) {
+        if (pmm->vboID != 0) {
+            glDeleteBuffers(1, &pmm->vboID);
+        }
+    }
+    std::vector<PhysicsBlockMesh*>().swap(_physicsBlockMeshes);
+
+}
+
 void MeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     ChunkMesh *cm;
     int mx, my, mz;

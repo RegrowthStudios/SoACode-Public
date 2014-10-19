@@ -53,7 +53,7 @@ bool inGame = 0;
 int counter = 0;
 
 void CalculateFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, volatile float &framespersecond);
-int ProcessMessage(OMessage &message);
+
 void checkTypes();
 
 bool mtRender = 0;
@@ -156,75 +156,6 @@ void CalculateFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecou
     } else {
         physSpeedFactor = 1.0f;
     }
-}
-
-int ProcessMessage(OMessage &message) {
-    PlaceBlocksMessage *pbm;
-
-    switch (message.code) {
-    case GL_M_QUIT:
-        return 1;
-    case GL_M_STATETRANSITION:
-        switch (*((int*)message.data)) {
-        case 10:
-            gameToGl.enqueue(OMessage(GL_M_INITIALIZEVOXELS, NULL));
-            GameManager::gameState = GameStates::ZOOMINGIN; //begin the zoom transition
-            openglManager.zoomState = 0;
-            break;
-        case 11:
-            gameToGl.enqueue(OMessage(GL_M_INITIALIZEVOXELS, NULL));
-            openglManager.WaitForMessage(GL_M_DONE);
-            GameManager::gameState = GameStates::ZOOMINGIN; //begin the zoom transition
-            openglManager.zoomState = 0;
-            break;
-        case 12:
-            GameManager::gameState = GameStates::ZOOMINGOUT;
-            openglManager.zoomState = 2;
-            break;
-        case 13:
-            //end session
-            GameManager::gameState = GameStates::ZOOMINGOUT;
-            openglManager.zoomState = 0;
-            GameManager::endSession();
-            gameToGl.enqueue(OMessage(GL_M_ENDSESSION, NULL));
-            break;
-        case 14:
-            GameManager::gameState = GameStates::WORLDEDITOR;
-            break;
-        case 15:
-            GameManager::gameState = GameStates::MAINMENU;
-            break;
-        }
-        delete message.data;
-        gameToGl.enqueue(OMessage(GL_M_STATETRANSITION, NULL));
-        break;
-    case GL_M_PLACEBLOCKS:
-        pbm = (PlaceBlocksMessage *)message.data;
-        GameManager::voxelEditor->editVoxels(pbm->equippedItem);
-
-        //if (player->leftEquippedItem && player->leftEquippedItem->count == 0) {
-        //    if (player->leftEquippedItem == player->rightEquippedItem) player->rightEquippedItem = NULL;
-        //    player->removeItem(player->leftEquippedItem);
-        //    player->leftEquippedItem = NULL;
-        //}
-
-        //if (player->rightEquippedItem && player->rightEquippedItem->count == 0) {
-        //    if (player->leftEquippedItem == player->rightEquippedItem) player->leftEquippedItem = NULL;
-        //    player->removeItem(player->rightEquippedItem);
-        //    player->rightEquippedItem = NULL;
-        //}
-
-        break;
-    case GL_M_NEWPLANET:
-        gameToGl.enqueue(OMessage(GL_M_NEWPLANET, NULL));
-        gameToGl.enqueue(OMessage(GL_M_DONE, NULL));
-        openglManager.WaitForMessage(GL_M_DONE);
-        break;
-    case GL_M_REBUILD_TERRAIN:
-        GameManager::planet->flagTerrainForRebuild();
-        break;
-    }
-    return 0;
 }
 
 void checkTypes() {

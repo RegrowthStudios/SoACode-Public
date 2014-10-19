@@ -38,6 +38,7 @@
 #include "VoxelEditor.h"
 #include "VRayHelper.h"
 #include "VoxelWorld.h"
+#include "MessageManager.h"
 
 #include "utils.h"
 
@@ -122,21 +123,6 @@ void OpenglManager::endSession() {
         }
     }
     std::vector<ChunkMesh*>().swap(chunkMeshes);
-}
-
-OMessage OpenglManager::WaitForMessage(int i)
-{
-    OMessage result;
-    while (1){
-        if (glToGame.try_dequeue(result)){
-            if (result.code == i){
-                return result;
-            } else if (result.code == GL_M_QUIT) {
-                return result;
-            }
-        }
-    }
-
 }
 
 void OpenglManager::FreeFrameBuffer()
@@ -328,191 +314,194 @@ bool CheckGLError(){
 
 bool PlayerControl() {
   
-    isMouseIn = 1;
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    SDL_Event evnt;
-    while (SDL_PollEvent(&evnt))
-    {
-        switch (evnt.type)
-        {
-        case SDL_QUIT:
-            return 0;
-        case SDL_MOUSEMOTION:
-            if (GameManager::gameState == GameStates::PLAY){
-                GameManager::player->mouseMove(evnt.motion.xrel, evnt.motion.yrel);
-            }
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            GameManager::inputManager->pushEvent(evnt);
-            break;
-        case SDL_MOUSEBUTTONUP:
-            GameManager::inputManager->pushEvent(evnt);
-            break;
-        case SDL_KEYDOWN:
-            GameManager::inputManager->pushEvent(evnt);
-            break;
-        case SDL_KEYUP:
-            GameManager::inputManager->pushEvent(evnt);
-            break;
-        case SDL_MOUSEWHEEL:
-            GameManager::inputManager->pushEvent(evnt);
-            break;
-        case SDL_WINDOWEVENT:
-            if (evnt.window.type == SDL_WINDOWEVENT_LEAVE || evnt.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                //            GameState = PAUSE;
-                //            SDL_SetRelativeMouseMode(SDL_FALSE);
-                //            isMouseIn = 0;
-            }
-            break;
-        }
-    }
-    
+    //isMouseIn = 1;
+    //SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL_Event evnt;
+    //while (SDL_PollEvent(&evnt))
+    //{
+    //    switch (evnt.type)
+    //    {
+    //    case SDL_QUIT:
+    //        return 0;
+    //    case SDL_MOUSEMOTION:
+    //        if (GameManager::gameState == GameStates::PLAY){
+    //            GameManager::player->mouseMove(evnt.motion.xrel, evnt.motion.yrel);
+    //        }
+    //        break;
+    //    case SDL_MOUSEBUTTONDOWN:
+    //        GameManager::inputManager->pushEvent(evnt);
+    //        break;
+    //    case SDL_MOUSEBUTTONUP:
+    //        GameManager::inputManager->pushEvent(evnt);
+    //        break;
+    //    case SDL_KEYDOWN:
+    //        GameManager::inputManager->pushEvent(evnt);
+    //        break;
+    //    case SDL_KEYUP:
+    //        GameManager::inputManager->pushEvent(evnt);
+    //        break;
+    //    case SDL_MOUSEWHEEL:
+    //        GameManager::inputManager->pushEvent(evnt);
+    //        break;
+    //    case SDL_WINDOWEVENT:
+    //        if (evnt.window.type == SDL_WINDOWEVENT_LEAVE || evnt.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
+    //            //            GameState = PAUSE;
+    //            //            SDL_SetRelativeMouseMode(SDL_FALSE);
+    //            //            isMouseIn = 0;
+    //        }
+    //        break;
+    //    }
+    //}
+    //
 
-    bool leftPress = GameManager::inputManager->getKeyDown(INPUT_MOUSE_LEFT);
-    bool rightPress = GameManager::inputManager->getKeyDown(INPUT_MOUSE_RIGHT);
-    bool leftRelease = GameManager::inputManager->getKeyUp(INPUT_MOUSE_LEFT);
-    bool rightRelease = GameManager::inputManager->getKeyUp(INPUT_MOUSE_RIGHT);
+    //bool leftPress = GameManager::inputManager->getKeyDown(INPUT_MOUSE_LEFT);
+    //bool rightPress = GameManager::inputManager->getKeyDown(INPUT_MOUSE_RIGHT);
+    //bool leftRelease = GameManager::inputManager->getKeyUp(INPUT_MOUSE_LEFT);
+    //bool rightRelease = GameManager::inputManager->getKeyUp(INPUT_MOUSE_RIGHT);
 
-    clickDragActive = 0;
-    if (GameManager::inputManager->getKey(INPUT_BLOCK_SELECT)){
-        clickDragActive = 1;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_SCAN_WSO)) {
-        GameManager::scanWSO();
-    }
+    //clickDragActive = 0;
+    //if (GameManager::inputManager->getKey(INPUT_BLOCK_SELECT)){
+    //    clickDragActive = 1;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_SCAN_WSO)) {
+    //    GameManager::scanWSO();
+    //}
 
-    static bool rightMousePressed = false;
-    if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)){
-        if (!rightMousePressed || GameManager::voxelEditor->isEditing()) {
-            if (!(GameManager::player->rightEquippedItem)){
-                if (rightPress || clickDragActive) GameManager::clickDragRay(true);
-            } else if (GameManager::player->rightEquippedItem->type == ITEM_BLOCK) {
-                GameManager::player->dragBlock = GameManager::player->rightEquippedItem;
-                if (rightPress || clickDragActive) GameManager::clickDragRay(false);
-            }
+    //static bool rightMousePressed = false;
+    //if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)){
+    //    if (!rightMousePressed || GameManager::voxelEditor->isEditing()) {
+    //        if (!(GameManager::player->rightEquippedItem)){
+    //            if (rightPress || clickDragActive) GameManager::clickDragRay(true);
+    //        } else if (GameManager::player->rightEquippedItem->type == ITEM_BLOCK) {
+    //            GameManager::player->dragBlock = GameManager::player->rightEquippedItem;
+    //            if (rightPress || clickDragActive) GameManager::clickDragRay(false);
+    //        }
 
-            rightMousePressed = true;
-        }
-    } else {
-        rightMousePressed = false;
-    }
+    //        rightMousePressed = true;
+    //    }
+    //} else {
+    //    rightMousePressed = false;
+    //}
 
-    static bool leftMousePressed = false;
-    if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)){
+    //static bool leftMousePressed = false;
+    //if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)){
 
-        if (!leftMousePressed || GameManager::voxelEditor->isEditing()) {
-            if (!(GameManager::player->leftEquippedItem)){
-                if (leftPress || clickDragActive) GameManager::clickDragRay(true);
-            } else if (GameManager::player->leftEquippedItem->type == ITEM_BLOCK){
-                GameManager::player->dragBlock = GameManager::player->leftEquippedItem;
+    //    if (!leftMousePressed || GameManager::voxelEditor->isEditing()) {
+    //        if (!(GameManager::player->leftEquippedItem)){
+    //            if (leftPress || clickDragActive) GameManager::clickDragRay(true);
+    //        } else if (GameManager::player->leftEquippedItem->type == ITEM_BLOCK){
+    //            GameManager::player->dragBlock = GameManager::player->leftEquippedItem;
 
-                if (leftPress || clickDragActive) GameManager::clickDragRay(false);
-            }
+    //            if (leftPress || clickDragActive) GameManager::clickDragRay(false);
+    //        }
 
-            leftMousePressed = true;
-        }
-    } else {
-        leftMousePressed = false;
-    }
+    //        leftMousePressed = true;
+    //    }
+    //} else {
+    //    leftMousePressed = false;
+    //}
 
-    if (rightRelease && GameManager::voxelEditor->isEditing()){
-        if ((GameManager::player->rightEquippedItem && GameManager::player->rightEquippedItem->type == ITEM_BLOCK) || !GameManager::player->rightEquippedItem){
-            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(GameManager::player->rightEquippedItem)));
-        }
-        GameManager::player->dragBlock = NULL;
-    }
+    //if (rightRelease && GameManager::voxelEditor->isEditing()){
+    //    if ((GameManager::player->rightEquippedItem && GameManager::player->rightEquippedItem->type == ITEM_BLOCK) || !GameManager::player->rightEquippedItem){
+    //        GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+    //                                             Message(MessageID::CHUNK_MESH,
+    //                                             (void *)cmd));
+    //        glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(GameManager::player->rightEquippedItem)));
+    //    }
+    //    GameManager::player->dragBlock = NULL;
+    //}
 
-    if (leftRelease && GameManager::voxelEditor->isEditing()){
-        if ((GameManager::player->leftEquippedItem && GameManager::player->leftEquippedItem->type == ITEM_BLOCK) || !GameManager::player->leftEquippedItem){ //if he has a block or nothing for place or break
-            //error checking for unloaded chunks
-            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(GameManager::player->leftEquippedItem)));
-        }
-        GameManager::player->dragBlock = NULL;
-    }
+    //if (leftRelease && GameManager::voxelEditor->isEditing()){
+    //    if ((GameManager::player->leftEquippedItem && GameManager::player->leftEquippedItem->type == ITEM_BLOCK) || !GameManager::player->leftEquippedItem){ //if he has a block or nothing for place or break
+    //        //error checking for unloaded chunks
+    //        glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(GameManager::player->leftEquippedItem)));
+    //    }
+    //    GameManager::player->dragBlock = NULL;
+    //}
 
-    if (GameManager::inputManager->getKeyDown(INPUT_FLY)){
-        GameManager::player->flyToggle();
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_HUD)){
-        graphicsOptions.hudMode++;
-        if (graphicsOptions.hudMode == 3) graphicsOptions.hudMode = 0;
-    }
-    
-    if (GameManager::inputManager->getKeyDown(INPUT_WATER_UPDATE)){
-        isWaterUpdating = !isWaterUpdating;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_FLASH_LIGHT)){
-        GameManager::player->lightActive++;
-        if (GameManager::player->lightActive == 3){
-            GameManager::player->lightActive = 0;
-        }
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_PHYSICS_BLOCK_UPDATES)){
-        globalDebug2 = !globalDebug2;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_UPDATE_FRUSTUM)){
-        getFrustum = !getFrustum;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_DEBUG)){
-        debugVarh = !debugVarh;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_SONAR)){
-        sonarActive = !sonarActive;
-        sonarDt = 0;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_PLANET_DRAW_MODE)){
-        planetDrawMode += 1.0f;
-        if (planetDrawMode == 3.0f) planetDrawMode = 0.0f;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_GRID)){
-        gridState = !gridState;
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)){
-        InitializeShaders();
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_DRAW_MODE)){
-        if (++drawMode == 3) drawMode = 0;
-        if (drawMode == 0){
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //Solid mode
-        }
-        else if (drawMode == 1){
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); //Point mode
-        }
-        else if (drawMode == 2){
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //Wireframe mode
-        }
-    }
+    //if (GameManager::inputManager->getKeyDown(INPUT_FLY)){
+    //    GameManager::player->flyToggle();
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_HUD)){
+    //    graphicsOptions.hudMode++;
+    //    if (graphicsOptions.hudMode == 3) graphicsOptions.hudMode = 0;
+    //}
+    //
+    //if (GameManager::inputManager->getKeyDown(INPUT_WATER_UPDATE)){
+    //    isWaterUpdating = !isWaterUpdating;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_FLASH_LIGHT)){
+    //    GameManager::player->lightActive++;
+    //    if (GameManager::player->lightActive == 3){
+    //        GameManager::player->lightActive = 0;
+    //    }
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_PHYSICS_BLOCK_UPDATES)){
+    //    globalDebug2 = !globalDebug2;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_UPDATE_FRUSTUM)){
+    //    getFrustum = !getFrustum;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_DEBUG)){
+    //    debugVarh = !debugVarh;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_SONAR)){
+    //    sonarActive = !sonarActive;
+    //    sonarDt = 0;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_PLANET_DRAW_MODE)){
+    //    planetDrawMode += 1.0f;
+    //    if (planetDrawMode == 3.0f) planetDrawMode = 0.0f;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_GRID)){
+    //    gridState = !gridState;
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)){
+    //    InitializeShaders();
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_DRAW_MODE)){
+    //    if (++drawMode == 3) drawMode = 0;
+    //    if (drawMode == 0){
+    //        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //Solid mode
+    //    }
+    //    else if (drawMode == 1){
+    //        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); //Point mode
+    //    }
+    //    else if (drawMode == 2){
+    //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //Wireframe mode
+    //    }
+    //}
    
-    if (GameManager::inputManager->getKeyDown(INPUT_INVENTORY)){
-        GameManager::gameState = GameStates::INVENTORY;
-        isMouseIn = 0;
-        GameManager::savePlayerState();
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_ZOOM)){
-        if (GameManager::gameState == GameStates::PLAY) GameManager::player->zoom();
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)){
-        ReloadTextures();
-        GameManager::chunkManager->remeshAllChunks();
-    }
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_BLOCKS)){
-        if (!(fileManager.loadBlocks("Data/BlockData.ini"))){
-            pError("Failed to reload blocks.");
-            return 0;
-        }
-        for (size_t i = 1; i < Blocks.size(); i++){
-            if (ObjectList[i] != NULL){
-                delete ObjectList[i];
-                ObjectList[i] = NULL;
-            }
-        }
-        for (size_t i = 0; i < GameManager::player->inventory.size(); i++){
-            delete GameManager::player->inventory[i];
-        }
-        GameManager::player->inventory.clear();
-        InitializeObjects();
-    }
+    //if (GameManager::inputManager->getKeyDown(INPUT_INVENTORY)){
+    //    GameManager::gameState = GameStates::INVENTORY;
+    //    isMouseIn = 0;
+    //    GameManager::savePlayerState();
+    //    SDL_SetRelativeMouseMode(SDL_FALSE);
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_ZOOM)){
+    //    if (GameManager::gameState == GameStates::PLAY) GameManager::player->zoom();
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)){
+    //    ReloadTextures();
+    //    GameManager::chunkManager->remeshAllChunks();
+    //}
+    //if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_BLOCKS)){
+    //    if (!(fileManager.loadBlocks("Data/BlockData.ini"))){
+    //        pError("Failed to reload blocks.");
+    //        return 0;
+    //    }
+    //    for (size_t i = 1; i < Blocks.size(); i++){
+    //        if (ObjectList[i] != NULL){
+    //            delete ObjectList[i];
+    //            ObjectList[i] = NULL;
+    //        }
+    //    }
+    //    for (size_t i = 0; i < GameManager::player->inventory.size(); i++){
+    //        delete GameManager::player->inventory[i];
+    //    }
+    //    GameManager::player->inventory.clear();
+    //    InitializeObjects();
+    //}
     return false;
 }
 

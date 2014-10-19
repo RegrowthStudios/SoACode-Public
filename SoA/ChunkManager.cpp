@@ -35,6 +35,7 @@
 #include "VoxelRay.h"
 #include "Vorb.h"
 #include "ChunkIOManager.h"
+#include "MessageManager.h"
 
 #include "VoxelPlanetMapper.h"
 
@@ -627,7 +628,9 @@ void ChunkManager::uploadFinishedMeshes() {
             chunk->mesh = NULL;
             if (cmd->chunkMesh != NULL) {
                 cmd->debugCode = 2;
-                gameToGl.enqueue(OMessage(GL_M_CHUNKMESH, cmd));
+                GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                                     Message(MessageID::CHUNK_MESH,
+                                                     (void *)cmd));
             }
             continue;
         }
@@ -658,7 +661,9 @@ void ChunkManager::uploadFinishedMeshes() {
         //if the chunk has a mesh, send it
         if (cmd->chunkMesh) {
             cmd->debugCode = 3;
-            gameToGl.enqueue(OMessage(GL_M_CHUNKMESH, cmd));
+            GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                                 Message(MessageID::CHUNK_MESH,
+                                                 (void *)cmd));
         }
 
         if (chunk->_chunkListPtr == nullptr) chunk->_state = ChunkStates::DRAW;

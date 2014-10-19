@@ -15,6 +15,7 @@
 #include "PhysicsEngine.h"
 #include "TerrainGenerator.h"
 #include "Texture2d.h"
+#include "MessageManager.h"
 
 #include "utils.h"
 
@@ -294,7 +295,10 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
 
     _mesh = new PhysicsBlockMesh;
     pbmm->mesh = _mesh;
-    gameToGl.enqueue(OMessage(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+    
+    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                         Message(MessageID::PHYSICS_BLOCK_MESH,
+                                         (void *)pbmm));
 }
 
 PhysicsBlockBatch::~PhysicsBlockBatch()
@@ -302,7 +306,9 @@ PhysicsBlockBatch::~PhysicsBlockBatch()
     if (_mesh != NULL){
         PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
         pbmm->mesh = _mesh;
-        gameToGl.enqueue(OMessage(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+        GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                             Message(MessageID::PHYSICS_BLOCK_MESH,
+                                             (void *)pbmm));
     }
 }
 
@@ -403,7 +409,9 @@ bool PhysicsBlockBatch::update()
     if (_numBlocks == 0){
         if (_mesh != NULL){
             pbmm->mesh = _mesh;
-            gameToGl.enqueue(OMessage(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+            GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                                 Message(MessageID::PHYSICS_BLOCK_MESH,
+                                                 (void *)pbmm));
             _mesh = NULL;
         }
         return 1;
@@ -418,7 +426,9 @@ bool PhysicsBlockBatch::update()
     }
     pbmm->mesh = _mesh;
 
-    gameToGl.enqueue(OMessage(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                                         Message(MessageID::PHYSICS_BLOCK_MESH,
+                                         (void *)pbmm));
 
     return 0;
 }
