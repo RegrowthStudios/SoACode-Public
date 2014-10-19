@@ -12,8 +12,11 @@
 //  with the user interface.
 //
 
-
 #pragma once
+
+#ifndef MAINMENUSCREEN_H_
+#define MAINMENUSCREEN_H_
+
 #include "IGameScreen.h"
 
 #include "AwesomiumInterface.h"
@@ -73,3 +76,4 @@ private:
     bool _threadRunning; ///< True when the thread should be running
 };
 
+#endif // MAINMENUSCREEN_H_

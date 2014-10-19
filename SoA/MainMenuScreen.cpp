@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "Planet.h"
 #include "InputManager.h"
+#include "Inputs.h"
 #include "GameManager.h"
 #include "OpenglManager.h"
 #include "Sound.h"
@@ -70,15 +71,10 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
     GameManager::inputManager->pushEvent(e);
 
     // Check for reloading the UI
-    switch (e.type) {
-        case SDL_KEYDOWN:
-            switch (e.key.keysym.sym) {
-                case SDLK_F5:
-                    std::cout << "\n\nReloading MainMenu UI...\n\n";
-                    _awesomiumInterface.destroy();
-                    _awesomiumInterface.init("UI/MainMenu/", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
-                    break;
-            }
+    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
+        std::cout << "\n\nReloading MainMenu UI...\n\n";
+        _awesomiumInterface.destroy();
+        _awesomiumInterface.init("UI/MainMenu/", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
     }
 }
 
