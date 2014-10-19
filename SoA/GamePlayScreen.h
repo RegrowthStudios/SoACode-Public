@@ -46,6 +46,12 @@ public:
 
 private:
 
+    /// Draws the voxel world
+    void drawVoxelWorld();
+
+    /// Updates the player
+    void updatePlayer();
+
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
@@ -55,8 +61,10 @@ private:
 
     Player* _player; ///< The current player
 
-  //  Camera _voxelCamera; ///< The camera for rendering the voxels
-    Camera _planetCamera; ///< The camera for rendering the planet
+    bool _inFocus; ///< true when the window is in focus
+
+    //Camera _voxelCamera; ///< The camera for rendering the voxels
+    //Camera _planetCamera; ///< The camera for rendering the planet
 
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running

@@ -31,7 +31,7 @@ bool debugVarc = 0;
 bool debugVarh = 0;
 GLuint debugTicks;
 bool debugTicksDone;
-int gridState = 0;
+bool gridState = false;
 float bdt = 0.0f;
 float planetDrawMode = 0.0f;
 

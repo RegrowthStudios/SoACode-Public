@@ -28,7 +28,7 @@ extern bool debugVarh;
 extern GLuint debugTicks;
 extern bool debugTicksDone;
 extern double closestTerrainPatchDistance;
-extern int gridState;
+extern bool gridState;
 
 extern bool chunkMeshShortcutActive;
 extern int globalTreeSeed;

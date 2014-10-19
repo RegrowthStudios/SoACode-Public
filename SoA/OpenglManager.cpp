@@ -43,10 +43,6 @@
 
 vector <TextInfo> hudTexts;
 
-
-moodycamel::ReaderWriterQueue <OMessage> gameToGl;
-moodycamel::ReaderWriterQueue <OMessage> glToGame;
-
 OpenglManager openglManager;
 
 bool glExit = 0;
@@ -61,9 +57,6 @@ bool PlayerControl();
 bool MainMenuControl();
 void RebuildWindow();
 void rebuildFrameBuffer();
-void UpdatePlayer();
-void CalculateGlFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, float &framespersecond);
-void RecursiveSortMeshList(vector <ChunkMesh*> &v, int start, int size);
 
 OpenglManager::OpenglManager() : gameThread(NULL), frameBuffer(NULL), cameraInfo(NULL), zoomState(0)
 {
@@ -301,7 +294,7 @@ void InitializeObjects()
                 exit(198);
             }
             ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, 0, 0, 0);
-            player->inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, 0, 0, 0));
+            GameManager::player->inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, 0, 0, 0));
         }
     }
 }
@@ -346,7 +339,7 @@ bool PlayerControl() {
             return 0;
         case SDL_MOUSEMOTION:
             if (GameManager::gameState == GameStates::PLAY){
-                player->mouseMove(evnt.motion.xrel, evnt.motion.yrel);
+                GameManager::player->mouseMove(evnt.motion.xrel, evnt.motion.yrel);
             }
             break;
         case SDL_MOUSEBUTTONDOWN:
@@ -391,10 +384,10 @@ bool PlayerControl() {
     static bool rightMousePressed = false;
     if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)){
         if (!rightMousePressed || GameManager::voxelEditor->isEditing()) {
-            if (!(player->rightEquippedItem)){
+            if (!(GameManager::player->rightEquippedItem)){
                 if (rightPress || clickDragActive) GameManager::clickDragRay(true);
-            } else if (player->rightEquippedItem->type == ITEM_BLOCK) {
-                player->dragBlock = player->rightEquippedItem;
+            } else if (GameManager::player->rightEquippedItem->type == ITEM_BLOCK) {
+                GameManager::player->dragBlock = GameManager::player->rightEquippedItem;
                 if (rightPress || clickDragActive) GameManager::clickDragRay(false);
             }
 
@@ -408,10 +401,10 @@ bool PlayerControl() {
     if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)){
 
         if (!leftMousePressed || GameManager::voxelEditor->isEditing()) {
-            if (!(player->leftEquippedItem)){
+            if (!(GameManager::player->leftEquippedItem)){
                 if (leftPress || clickDragActive) GameManager::clickDragRay(true);
-            } else if (player->leftEquippedItem->type == ITEM_BLOCK){
-                player->dragBlock = player->leftEquippedItem;
+            } else if (GameManager::player->leftEquippedItem->type == ITEM_BLOCK){
+                GameManager::player->dragBlock = GameManager::player->leftEquippedItem;
 
                 if (leftPress || clickDragActive) GameManager::clickDragRay(false);
             }
@@ -423,22 +416,22 @@ bool PlayerControl() {
     }
 
     if (rightRelease && GameManager::voxelEditor->isEditing()){
-        if ((player->rightEquippedItem && player->rightEquippedItem->type == ITEM_BLOCK) || !player->rightEquippedItem){
-            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(player->rightEquippedItem)));
+        if ((GameManager::player->rightEquippedItem && GameManager::player->rightEquippedItem->type == ITEM_BLOCK) || !GameManager::player->rightEquippedItem){
+            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(GameManager::player->rightEquippedItem)));
         }
-        player->dragBlock = NULL;    
+        GameManager::player->dragBlock = NULL;
     }
 
     if (leftRelease && GameManager::voxelEditor->isEditing()){
-        if ((player->leftEquippedItem && player->leftEquippedItem->type == ITEM_BLOCK) || !player->leftEquippedItem){ //if he has a block or nothing for place or break
+        if ((GameManager::player->leftEquippedItem && GameManager::player->leftEquippedItem->type == ITEM_BLOCK) || !GameManager::player->leftEquippedItem){ //if he has a block or nothing for place or break
             //error checking for unloaded chunks
-            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(player->leftEquippedItem)));
+            glToGame.enqueue(OMessage(GL_M_PLACEBLOCKS, new PlaceBlocksMessage(GameManager::player->leftEquippedItem)));
         }
-        player->dragBlock = NULL;
+        GameManager::player->dragBlock = NULL;
     }
 
     if (GameManager::inputManager->getKeyDown(INPUT_FLY)){
-        player->flyToggle();
+        GameManager::player->flyToggle();
     }
     if (GameManager::inputManager->getKeyDown(INPUT_HUD)){
         graphicsOptions.hudMode++;
@@ -449,9 +442,9 @@ bool PlayerControl() {
         isWaterUpdating = !isWaterUpdating;
     }
     if (GameManager::inputManager->getKeyDown(INPUT_FLASH_LIGHT)){
-        player->lightActive++;
-        if (player->lightActive == 3){
-            player->lightActive = 0;
+        GameManager::player->lightActive++;
+        if (GameManager::player->lightActive == 3){
+            GameManager::player->lightActive = 0;
         }
     }
     if (GameManager::inputManager->getKeyDown(INPUT_PHYSICS_BLOCK_UPDATES)){
@@ -497,7 +490,7 @@ bool PlayerControl() {
         SDL_SetRelativeMouseMode(SDL_FALSE);
     }
     if (GameManager::inputManager->getKeyDown(INPUT_ZOOM)){
-        if (GameManager::gameState == GameStates::PLAY) player->zoom();
+        if (GameManager::gameState == GameStates::PLAY) GameManager::player->zoom();
     }
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)){
         ReloadTextures();
@@ -514,10 +507,10 @@ bool PlayerControl() {
                 ObjectList[i] = NULL;
             }
         }
-        for (size_t i = 0; i < player->inventory.size(); i++){
-            delete player->inventory[i];
+        for (size_t i = 0; i < GameManager::player->inventory.size(); i++){
+            delete GameManager::player->inventory[i];
         }
-        player->inventory.clear();
+        GameManager::player->inventory.clear();
         InitializeObjects();
     }
     return false;
@@ -564,32 +557,6 @@ void rebuildFrameBuffer()
     graphicsOptions.needsFboReload = 0;
 }
 
-void UpdatePlayer()
-{
-    double dist = player->facePosition.y + GameManager::planet->radius;
-    player->update(isMouseIn, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(player->velocity)));
-
-    Chunk **chunks = new Chunk*[8];
-    player->isGrounded = 0;
-    player->setMoveMod(1.0f);
-    player->canCling = 0;
-    player->collisionData.yDecel = 0.0f;
-    //    cout << "C";
-
-    Chunk::modifyLock.lock();
-    for (int i = 0; i < playerCollisionSteps; i++){
-        player->gridPosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
-        player->facePosition += player->velocity * (1.0f / playerCollisionSteps) * glSpeedFactor;
-        player->collisionData.clear();
-        GameManager::voxelWorld->getClosestChunks(player->gridPosition, chunks); //DANGER HERE!
-        aabbChunkCollision(player, &(player->gridPosition), chunks, 8);
-        player->applyCollisionData();
-    }
-    Chunk::modifyLock.unlock();
-
-    delete[] chunks;
-}
-
 void OpenglManager::UpdateMeshDistances()
 {
     ChunkMesh *cm;
@@ -597,9 +564,9 @@ void OpenglManager::UpdateMeshDistances()
     double dx, dy, dz;
     double cx, cy, cz;
 
-    mx = (int)player->headPosition.x;
-    my = (int)player->headPosition.y;
-    mz = (int)player->headPosition.z;
+    mx = (int)GameManager::player->headPosition.x;
+    my = (int)GameManager::player->headPosition.y;
+    mz = (int)GameManager::player->headPosition.z;
     //GLuint sticks = SDL_GetTicks();
 
     static GLuint saveTicks = SDL_GetTicks();
@@ -617,830 +584,4 @@ void OpenglManager::UpdateMeshDistances()
     }
 
     //for (in ti )
-}
-
-//TODO: Use a single struct for input, and maybe split this into two calls
-void OpenglManager::Draw(Camera &chunkCamera, Camera &worldCamera)
-{
-    float FogColor[3];
-    float fogStart, fogEnd;
-    glm::vec3 lightPos = glm::vec3(1.0, 0.0, 0.0);
-    float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCamera.position(), 1.0))));
-
-    glm::mat4 VP;
-    //********************************* TODO: PRECOMPILED HEADERS for compilation speed?
-    float fogTheta = glm::clamp(theta, 0.0f, 1.0f);
-    fogStart = 0;
-    if (player->isUnderWater){
-        GLfloat underwaterColor[4];
-        underwaterColor[0] = fogTheta * 1.0 / 2;
-        underwaterColor[1] = fogTheta * 1.0 / 2;
-        underwaterColor[2] = fogTheta * 1.0 / 2;
-        underwaterColor[3] = 1.0;
-        fogEnd = 50 + fogTheta * 100;
-        FogColor[0] = underwaterColor[0];
-        FogColor[1] = underwaterColor[1];
-        FogColor[2] = underwaterColor[2];
-    }
-    else{
-        fogEnd = 100000;
-        FogColor[0] = 1.0;
-        FogColor[1] = 1.0;
-        FogColor[2] = 1.0;
-    }
-
-    float st = MAX(0.0f, theta + 0.06);
-    if (st > 1) st = 1;
-
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-   
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)( GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    if (nearClip < 0.1) nearClip = 0.1;
-    double a = 0.0;
-
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
-    if (a < 0) a = 0;
-
-    double clip = MAX(nearClip / planetScale*0.5, a);
-
-    worldCamera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    worldCamera.updateProjection();
-
-    VP = worldCamera.projectionMatrix() * worldCamera.viewMatrix();
-
-    float ambVal = st*(0.76f) + .01f;
-    if (ambVal > 1.0f) ambVal = 1.0f;
-    float diffVal = 1.0f - ambVal;
-    glm::vec3 diffColor;
-
-    if (theta < 0.01f){
-        diffVal += (theta - 0.01) * 8;
-        if (diffVal < 0.0f) diffVal = 0.0f;
-    }
-
-    int sh = (int)(theta*64.0f);
-    if (theta < 0){
-        sh = 0;
-    }
-    diffColor.r = (sunColor[sh][0] / 255.0f) * diffVal;
-    diffColor.g = (sunColor[sh][1] / 255.0f) * diffVal;
-    diffColor.b = (sunColor[sh][2] / 255.0f) * diffVal;
-
-    GameManager::drawSpace(VP, 1);
-    GameManager::drawPlanet(worldCamera.position(), VP, worldCamera.viewMatrix(), ambVal + 0.1, lightPos, nearClip / planetScale, 1);
-
-    if (graphicsOptions.hudMode == 0){
-        for (size_t i = 0; i < GameManager::markers.size(); i++){
-            GameManager::markers[i].Draw(VP, worldCamera.position());
-        }
-    }
-
-    //close znear for chunks
-    VP = chunkCamera.projectionMatrix() * chunkCamera.viewMatrix();
-
-    glClearDepth(1.0);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    //*********************Blocks*******************
-    lightPos = glm::normalize(glm::dvec3(glm::dmat4(glm::inverse(player->worldRotationMatrix)) * glm::dmat4(GameManager::planet->invRotationMatrix) * glm::dvec4(lightPos, 1)));
-    
-    const glm::vec3 chunkDirection = chunkCamera.direction();
-
-    drawBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-    drawCutoutBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-    
-    if (gridState != 0){
-        GameManager::voxelWorld->getChunkManager().drawChunkLines(VP, chunkCamera.position());
-    }
-
-    glDepthMask(GL_FALSE);
-    drawTransparentBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-    glDepthMask(GL_TRUE);
-
-    if (sonarActive){
-        glDisable(GL_DEPTH_TEST);
-        DrawSonar(VP, player->headPosition);
-        glEnable(GL_DEPTH_TEST);
-    }
-
-
-    if (GameManager::voxelEditor->isEditing()){
-        int ID;
-        if (player->dragBlock != NULL){
-            ID = player->dragBlock->ID;
-        }
-        else{
-            ID = 0;
-        }
-  
-        GameManager::voxelEditor->drawGuides(chunkCamera.position(), VP, ID);
-    }
-
-    glLineWidth(1);
-
-    if (physicsBlockMeshes.size()){
-        DrawPhysicsBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-    }
-
-    
-    //********************Water********************
-    DrawWater(VP, chunkCamera.position(), st, fogEnd, fogStart, FogColor, lightPos, diffColor, player->isUnderWater);
-
-    if (particleMeshes.size() > 0){
-        vcore::GLProgram* bProgram = GameManager::glProgramManager->getProgram("Billboard");
-        bProgram->use();
-
-        glUniform1f(bProgram->getUniform("lightType"), (GLfloat)player->lightActive);
-        glUniform3fv(bProgram->getUniform("eyeNormalWorldspace"), 1, &(chunkDirection[0]));
-        glUniform1f(bProgram->getUniform("sunVal"), st);
-        glUniform3f(bProgram->getUniform("AmbientLight"), (GLfloat)1.1f, (GLfloat)1.1f, (GLfloat)1.1f);
-
-        const glm::mat4 &chunkViewMatrix = chunkCamera.viewMatrix();
-
-        glm::vec3 cameraRight(chunkViewMatrix[0][0], chunkViewMatrix[1][0], chunkViewMatrix[2][0]);
-        glm::vec3 cameraUp(chunkViewMatrix[0][1], chunkViewMatrix[1][1], chunkViewMatrix[2][1]);
-
-        glUniform3f(bProgram->getUniform("cameraUp_worldspace"), cameraUp.x, cameraUp.y, cameraUp.z);
-        glUniform3f(bProgram->getUniform("cameraRight_worldspace"), cameraRight.x, cameraRight.y, cameraRight.z);
-
-
-        //glDepthMask(GL_FALSE);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        for (size_t i = 0; i < particleMeshes.size(); i++){
-
-            if (particleMeshes[i]->animated){
-                ParticleBatch::drawAnimated(particleMeshes[i], player->headPosition, VP);
-            }
-            else{
-                ParticleBatch::draw(particleMeshes[i], player->headPosition, VP);
-            }
-        }
-        // TODO(Ben): Maybe make this a part of GLProgram?
-        glVertexAttribDivisor(0, 0);
-        glVertexAttribDivisor(2, 0); //restore divisors
-        glVertexAttribDivisor(3, 0);
-        glVertexAttribDivisor(4, 0);
-        glVertexAttribDivisor(5, 0);
-        
-
-        bProgram->unuse();
-    }
-    debugRenderer->render(VP, glm::vec3(chunkCamera.position()));
-
-}
-
-const float sonarDistance = 200;
-const float sonarWidth = 30;
-void OpenglManager::DrawSonar(glm::mat4 &VP, glm::dvec3 &position)
-{
-    //*********************Blocks*******************
-
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Sonar");
-    program->use();
-
-    bindBlockPacks();
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    glUniform1f(program->getUniform("sonarDistance"), sonarDistance);
-    glUniform1f(program->getUniform("waveWidth"), sonarWidth);
-    glUniform1f(program->getUniform("dt"), sonarDt);
-
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
-    }
-    else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
-    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
-
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-    for (unsigned int i = 0; i < chunkMeshes.size(); i++)
-    {
-        ChunkRenderer::drawBlocks(chunkMeshes[i], program, position, VP);
-    }
-    
-    glDepthMask(GL_TRUE);
-    glEnable(GL_CULL_FACE);
-
-    program->unuse();
-}
-
-void OpenglManager::drawBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
-{
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Block");
-    program->use();
-
-    glUniform1f(program->getUniform("lightType"), lightActive);
-
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
-    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
-
-    bindBlockPacks();
-
-    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
-
-    glUniform1f(program->getUniform("sunVal"), sunVal);
-
-    glUniform1f(program->getUniform("alphaMult"), 1.0f);
-
-    float blockAmbient = 0.000f;
-    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
-
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
-    }
-    else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
-
-    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
-
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    glLineWidth(3);
-
-    glDisable(GL_CULL_FACE);
-
-    glm::dvec3 cpos;
-
-    static GLuint saveTicks = SDL_GetTicks();
-    bool save = 0;
-    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
-        save = 1;
-        saveTicks = SDL_GetTicks();
-    }
-
-    int mx, my, mz;
-    double cx, cy, cz;
-    double dx, dy, dz;
-    mx = (int)position.x;
-    my = (int)position.y;
-    mz = (int)position.z;
-    ChunkMesh *cm;
-    
-    for (int i = chunkMeshes.size()-1; i >= 0; i--)
-    {
-        cm = chunkMeshes[i];
-        const glm::ivec3 &cmPos = cm->position;
-
-        //calculate distance
-
-        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
-        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
-        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
-        dx = cx - mx;
-        dy = cy - my;
-        dz = cz - mz;
-        cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
-
-        if (SphereInFrustum((float)(cmPos.x + CHUNK_WIDTH / 2 - position.x), (float)(cmPos.y + CHUNK_WIDTH / 2 - position.y), (float)(cmPos.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)){
-            if (cm->distance < fadeDist + 12.5){
-                cm->inFrustum = 1;
-                ChunkRenderer::drawBlocks(cm, program, position, VP);
-            }
-            else{
-                cm->inFrustum = 0;
-            }
-        }
-        else{
-            cm->inFrustum = 0;
-        }
-    }
-    glEnable(GL_CULL_FACE);
-
-    program->unuse();
-}
-
-void OpenglManager::drawCutoutBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
-{
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Cutout");
-    program->use();
-
-    glUniform1f(program->getUniform("lightType"), lightActive);
-
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightType"), lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
-    glUniform1f(program->getUniform("alphaMult"), graphicsOptions.specularIntensity*0.3);
-
-    bindBlockPacks();
-
-    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
-
-    glUniform1f(program->getUniform("sunVal"), sunVal);
-
-    glUniform1f(program->getUniform("alphaMult"), 1.0f);
-
-    float blockAmbient = 0.000f;
-    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
-
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
-    } else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
-
-    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
-
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    glLineWidth(3);
-
-    glDisable(GL_CULL_FACE);
-
-    glm::dvec3 cpos;
-
-    static GLuint saveTicks = SDL_GetTicks();
-    bool save = 0;
-    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
-        save = 1;
-        saveTicks = SDL_GetTicks();
-    }
-
-    int mx, my, mz;
-    double cx, cy, cz;
-    double dx, dy, dz;
-    mx = (int)position.x;
-    my = (int)position.y;
-    mz = (int)position.z;
-    ChunkMesh *cm;
-
-    for (int i = chunkMeshes.size() - 1; i >= 0; i--)
-    {
-        cm = chunkMeshes[i];
-
-        if (cm->inFrustum){
-            ChunkRenderer::drawCutoutBlocks(cm, program, position, VP);
-        }
-    }
-    glEnable(GL_CULL_FACE);
-
-    program->unuse();
-
-}
-
-void OpenglManager::drawTransparentBlocks(const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
-{
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Transparency");
-    program->use();
-
-    glUniform1f(program->getUniform("lightType"), lightActive);
-
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
-    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
-
-    bindBlockPacks();
-
-    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
-
-    glUniform1f(program->getUniform("sunVal"), sunVal);
-
-    glUniform1f(program->getUniform("alphaMult"), 1.0f);
-
-    float blockAmbient = 0.000f;
-    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
-
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
-    } else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
-
-    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
-
-
-    glLineWidth(3);
-
-    glDisable(GL_CULL_FACE);
-
-    glm::dvec3 cpos;
-
-    static GLuint saveTicks = SDL_GetTicks();
-    bool save = 0;
-    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
-        save = 1;
-        saveTicks = SDL_GetTicks();
-    }
-
-  
-    ChunkMesh *cm;
-
-    static i32v3 oldPos = i32v3(0);
-    bool sort = false;
-
-    i32v3 intPosition(fastFloor(position.x), fastFloor(position.y), fastFloor(position.z));
-
-    if (oldPos != intPosition) {
-        //sort the geometry
-        sort = true;
-        oldPos = intPosition;
-    }
-
-    for (int i = 0; i < chunkMeshes.size(); i++)
-    {
-        cm = chunkMeshes[i];
-        if (sort) cm->needsSort = true;
-
-        if (cm->inFrustum){  
-
-            if (cm->needsSort) {
-                cm->needsSort = false;
-                if (cm->transQuadIndices.size() != 0) {
-                    GeometrySorter::sortTransparentBlocks(cm, intPosition);
-                    
-                    //update index data buffer
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm->transIndexID);
-                    glBufferData(GL_ELEMENT_ARRAY_BUFFER, cm->transQuadIndices.size() * sizeof(ui32), NULL, GL_STATIC_DRAW);
-                    void* v = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, cm->transQuadIndices.size() * sizeof(ui32), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-  
-                    if (v == NULL) pError("Failed to map sorted transparency buffer.");
-                    memcpy(v, &(cm->transQuadIndices[0]), cm->transQuadIndices.size() * sizeof(ui32));
-                    glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-                }
-            }
-            
-            ChunkRenderer::drawTransparentBlocks(cm, program, position, VP);
-        } 
-    }
-    glEnable(GL_CULL_FACE);
-
-    program->unuse();
-
-}
-
-void OpenglManager::DrawPhysicsBlocks(glm::mat4& VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
-{
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
-    program->use();
-
-    glUniform1f(program->getUniform("lightType"), lightActive);
-
-    glUniform1f(program->getUniform("alphaMult"), 1.0f);
-
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
-    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
-
-    bindBlockPacks();
-
-    glUniform1f(program->getUniform("sunVal"), sunVal);
-
-    float blockAmbient = 0.000f;
-    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
-
-    if (NoChunkFade){
-        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)10000.0f);
-    }
-    else{
-        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
-    }
-
-    for (Uint32 i = 0; i < physicsBlockMeshes.size(); i++){
-        PhysicsBlockBatch::draw(physicsBlockMeshes[i], program, position, VP);
-    }
-    glVertexAttribDivisor(5, 0); //restore divisors
-    glVertexAttribDivisor(6, 0);
-    glVertexAttribDivisor(7, 0);
-    program->unuse();
-}
-
-void OpenglManager::DrawWater(glm::mat4 &VP, const glm::dvec3 &position, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, glm::vec3 &lightPos, glm::vec3 &lightColor, bool underWater)
-{
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
-    program->use();
-
-    glUniform1f(program->getUniform("sunVal"), sunVal);
-
-    glUniform1f(program->getUniform("FogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("FogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("FogColor"), 1, fogColor);
-
-    glUniform3fv(program->getUniform("LightPosition_worldspace"), 1, &(lightPos[0]));
-
-    if (NoChunkFade){
-        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)10000.0f);
-    }
-    else{
-        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
-    }
-
-    float blockAmbient = 0.000f;
-    glUniform3f(program->getUniform("AmbientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("LightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
-
-    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
-
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
-    glUniform1i(program->getUniform("normalMap"), 6);
-
-    if (underWater) glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    ChunkMesh *cm;
-    for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
-    {
-        cm = chunkMeshes[i];
-    
-        ChunkRenderer::drawWater(cm, program, position, VP);
-    }
-
-    glDepthMask(GL_TRUE);
-    if (underWater) glEnable(GL_CULL_FACE);
-
-    program->unuse();
-}
-
-const float crossWidth = 6;
-const float crossThick = 1;
-static GLfloat crossHairVerts1[8] = { 683 - crossWidth, 384 - crossThick, 683 + crossWidth, 384 - crossThick, 683 + crossWidth, 384 + crossThick, 683 - crossWidth, 384 + crossThick };
-static GLfloat crossHairVerts2[8] = { 683 - crossThick, 384 - crossWidth, 683 + crossThick, 384 - crossWidth, 683 + crossThick, 384 + crossWidth, 683 - crossThick, 384 + crossWidth };
-
-void OpenglManager::DrawHud()
-{
-    glDisable(GL_CULL_FACE);
-    if (drawMode == 2){ //still draw text when in wireframe mode
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-
-    char text[256];
-    double multh = 1.5;
-    if (graphicsOptions.hudMode == 0){
-        sprintf(text, "FPS: %3.1f", glFps);
-        hudTexts[0].update(text, 25, 650, 16);
-        hudTexts[0].Draw();
-        sprintf(text, "physics FPS: %3.1f", physicsFps);
-        hudTexts[23].update(text, 25, 630, 16);
-        hudTexts[23].Draw();
-
-        glm::dvec3 normal = glm::normalize(player->worldPosition);
-        glm::dvec3 worldPos = normal * (double)GameManager::voxelWorld->getPlanet()->radius;
-        glm::dvec3 playerPos = normal * ((double)GameManager::voxelWorld->getPlanet()->radius + player->headPosition.y);
-        double length = glm::length(playerPos - worldPos);
-
-    
-        sprintf(text, "Position (Blocks )");
-        hudTexts[1].update(text, 750 * multh, 650, 16);
-        hudTexts[1].Draw();
-        sprintf(text, " X: %.0lf", player->headPosition.x);
-        hudTexts[17].update(text, 750 * multh, 620, 16);
-        hudTexts[17].Draw();
-        sprintf(text, " Y: %.0lf", player->headPosition.y);
-        hudTexts[18].update(text, 750 * multh, 590, 16);
-        hudTexts[18].Draw();
-        sprintf(text, " Z: %.0lf", player->headPosition.z);
-        hudTexts[19].update(text, 750 * multh, 560, 16);
-        hudTexts[19].Draw();
-        sprintf(text, " WX: %.0lf", player->worldPosition.x);
-        hudTexts[20].update(text, 750 * multh, 530, 16);
-        hudTexts[20].Draw();
-        sprintf(text, " WY: %.0lf", player->worldPosition.y);
-        hudTexts[21].update(text, 750 * multh, 500, 16);
-        hudTexts[21].Draw();
-        sprintf(text, " WZ: %.0lf", player->worldPosition.z);
-        hudTexts[22].update(text, 750 * multh, 470, 16);
-        hudTexts[22].Draw();
-        
-        if (player->currBiome){
-            sprintf(text, "Biome: %s", player->currBiome->name.c_str());
-            hudTexts[6].update(text, 25, 470, 16);
-            hudTexts[6].Draw();
-            sprintf(text, "Temperature: %d", player->currTemp);
-            hudTexts[7].update(text, 25, 430, 16);
-            hudTexts[7].Draw();
-            sprintf(text, "Humidity: %d", player->currHumidity);
-            hudTexts[8].update(text, 25, 390, 16);
-            hudTexts[8].Draw();
-        }
-        else{
-            sprintf(text, "Biome: Detecting...");
-            hudTexts[9].update(text, 25, 470, 16);
-            hudTexts[9].Draw();
-            sprintf(text, "Temperature: Detecting...");
-            hudTexts[10].update(text, 25, 430, 16);
-            hudTexts[10].Draw();
-            sprintf(text, "Humidity: Detecting...");
-            hudTexts[11].update(text, 25, 390, 16);
-            hudTexts[11].Draw();
-        }
-
-        sprintf(text, "Velocity (m/s): %.3lf", glm::length(player->velocity) * 60 * 0.5);
-        hudTexts[12].update(text, 25, 310, 16);
-        hudTexts[12].Draw();
-
-        if (player->rightEquippedItem){
-            if (player->rightEquippedItem->count){
-                sprintf(text, "Right Hand: %s  X %d", player->rightEquippedItem->name.c_str(), player->rightEquippedItem->count);
-            }
-            else{
-                sprintf(text, "Right Hand: %s", player->rightEquippedItem->name.c_str());
-            }
-        }
-        else{
-            sprintf(text, "Right Hand: NONE");
-        }
-        hudTexts[15].update(text, 999 * 1.333, 35, 18, 2);
-        hudTexts[15].Draw();
-        
-        if (player->leftEquippedItem){
-            if (player->leftEquippedItem->count){
-                sprintf(text, "Left Hand: %s  X %d", player->leftEquippedItem->name.c_str(), player->leftEquippedItem->count);
-            }
-            else{
-                sprintf(text, "Left Hand: %s", player->leftEquippedItem->name.c_str());
-            }
-        }
-        else{
-            sprintf(text, "Left Hand: NONE");
-        }
-        hudTexts[16].update(text, 25, 35, 18);
-        hudTexts[16].Draw();
-
-        int scannedItem = player->scannedBlock;
-        if (scannedItem == NONE){
-
-        }
-        else{
-            hudTexts[24].update(GETBLOCK(scannedItem).name.c_str(), screenWidth2d / 2 + 5, screenHeight2d / 2 + 5, 15);
-            hudTexts[24].Draw();
-        }
-    }
-
-  //  if (graphicsOptions.hudMode != 2){
-  //      DrawImage2D(crossHairVerts1, sizeof(crossHairVerts1), boxUVs, sizeof(boxUVs), boxDrawIndices, sizeof(boxDrawIndices), BlankTextureID.ID, glm::vec4(0.5, 0.0, 0.0, 0.6));
-  //      DrawImage2D(crossHairVerts2, sizeof(crossHairVerts2), boxUVs, sizeof(boxUVs), boxDrawIndices, sizeof(boxDrawIndices), BlankTextureID.ID, glm::vec4(0.5, 0.0, 0.0, 0.6));
-  //  }
-
-    if (drawMode == 2){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    glEnable(GL_CULL_FACE);
-}
-
-void CalculateGlFps(Uint32 frametimes[10], Uint32 &frametimelast, Uint32 &framecount, float &framespersecond) {
-
-    Uint32 frametimesindex;
-    Uint32 getticks;
-    Uint32 count;
-    Uint32 i;
-
-    frametimesindex = framecount % 10;
-
-    getticks = SDL_GetTicks();
-
-    frametimes[frametimesindex] = getticks - frametimelast;
-
-    frametimelast = getticks;
-
-    framecount++;
-
-    if (framecount < 10) {
-
-        count = framecount;
-
-    }
-    else {
-
-        count = 10;
-
-    }
-
-    framespersecond = 0;
-    for (i = 0; i < count; i++) {
-        framespersecond += frametimes[i];
-    }
-
-    framespersecond /= count;
-    if (framespersecond > 0){
-        framespersecond = 1000.f / framespersecond;
-        glSpeedFactor = MIN(60.0f / framespersecond, 5); //this might be wrong...
-    }
-    else{
-        glSpeedFactor = 1.0f;
-    }
-}
-
-void RecursiveSortMeshList(vector <ChunkMesh*> &v, int start, int size)
-{
-    if (size < 2) return;
-    int i, j;
-    ChunkMesh *pivot, *mid, *last, *tmp;
-
-    pivot = v[start];
-
-    //end recursion when small enough
-    if (size == 2){
-        if ((pivot->distance) < (v[start + 1]->distance)){
-            v[start] = v[start + 1];
-            v[start + 1] = pivot;
-
-            v[start]->vecIndex = start;
-            v[start + 1]->vecIndex = start + 1;
-
-        }
-        return;
-    }
-
-    mid = v[start + size / 2];
-    last = v[start + size - 1];
-
-    //variables to minimize dereferences
-    int md, ld, pd;
-    pd = pivot->distance;
-    md = mid->distance;
-    ld = last->distance;
-
-    //calculate pivot
-    if ((pd > md && md > ld) || (pd < md && md < ld)){
-        v[start] = mid;
-
-        v[start + size / 2] = pivot;
-
-
-        mid->vecIndex = start;
-        pivot->vecIndex = start + size / 2;
-
-
-        pivot = mid;
-        pd = md;
-    } else if ((pd > ld && ld > md) || (pd < ld && ld < md)){
-        v[start] = last;
-
-        v[start + size - 1] = pivot;
-
-
-        last->vecIndex = start;
-        pivot->vecIndex = start + size - 1;
-
-
-        pivot = last;
-        pd = ld;
-    }
-
-    i = start + 1;
-    j = start + size - 1;
-
-    //increment and decrement pointers until they are past each other
-    while (i <= j){
-        while (i < start + size - 1 && (v[i]->distance) > pd) i++;
-        while (j > start + 1 && (v[j]->distance) < pd) j--;
-
-        if (i <= j){
-            tmp = v[i];
-            v[i] = v[j];
-            v[j] = tmp;
-
-            v[i]->vecIndex = i;
-            v[j]->vecIndex = j;
-
-            i++;
-            j--;
-        }
-    }
-
-    //swap pivot with rightmost element in left set
-    v[start] = v[j];
-    v[j] = pivot;
-
-
-    v[start]->vecIndex = start;
-    v[j]->vecIndex = j;
-
-
-    //sort the two subsets excluding the pivot point
-    RecursiveSortMeshList(v, start, j - start);
-    RecursiveSortMeshList(v, j + 1, start + size - j - 1);
 }

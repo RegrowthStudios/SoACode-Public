@@ -21,8 +21,6 @@ using namespace glm;
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-Player *player = NULL;
-
 Player::Player() : scannedBlock(0),
                     _mass(100),
                     headInBlock(NONE),

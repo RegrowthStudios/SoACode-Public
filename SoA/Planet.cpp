@@ -472,13 +472,14 @@ void Planet::rotationUpdate()
 
     glm::vec3 EulerAngles(0, rotationTheta, axialZTilt);
     rotateQuaternion = glm::quat(EulerAngles);
-    gameToGl.enqueue(OMessage(GL_M_UPDATEPLANET, (void *)(new PlanetUpdateMessage(glm::toMat4(rotateQuaternion)))));
-    //rotationMatrix = glm::toMat4(rotateQuaternion);
-    //invRotationMatrix = glm::inverse(rotationMatrix);
+    //gameToGl.enqueue(OMessage(GL_M_UPDATEPLANET, (void *)(new PlanetUpdateMessage(glm::toMat4(rotateQuaternion)))));
+    rotationMatrix = glm::toMat4(rotateQuaternion);
+    invRotationMatrix = glm::inverse(rotationMatrix);
 }
 
 void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec3 lightPos, glm::dvec3 &PlayerPos, GLfloat sunVal, float fadeDistance, bool connectedToPlanet)
 {    
+    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, terrainTexture.ID);
     glActiveTexture(GL_TEXTURE1);
@@ -557,6 +558,16 @@ void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec
     vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
     shader->use();
 
+    const int txv[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    glUniform1iv(glGetUniformLocation(shader->getID(), "textures"), 6, txv);
+    glUniform1i(glGetUniformLocation(shader->getID(), "sunColorTexture"), txv[6]);
+    glUniform1i(glGetUniformLocation(shader->getID(), "colorTexture"), txv[7]);
+    glUniform1i(glGetUniformLocation(shader->getID(), "waterColorTexture"), txv[3]);
+    /*glUniform1iv(shader->getUniform("textures"), 6, txv);
+    glUniform1i(shader->getUniform("sunColorTexture"), txv[6]);
+    glUniform1i(shader->getUniform("colorTexture"), txv[7]);
+    glUniform1i(shader->getUniform("waterColorTexture"), txv[3]);*/
+
     float m_Kr4PI = atmosphere.m_Kr*4.0f*M_PI;
     float m_Km4PI = atmosphere.m_Km*4.0f*M_PI;
     float m_fScale = 1.0 / (atmosphere.radius - scaledRadius);
@@ -626,6 +637,17 @@ void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lig
 {
     vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
     shader->use();
+
+    const int txv[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+    // TODO(Ben or Cristian): Figure out why getUniform doesnt work for the samplers here
+    glUniform1iv(glGetUniformLocation(shader->getID(), "textures"), 6, txv);
+    glUniform1i(glGetUniformLocation(shader->getID(), "sunColorTexture"), txv[6]);
+    glUniform1i(glGetUniformLocation(shader->getID(), "colorTexture"), txv[7]);
+    glUniform1i(glGetUniformLocation(shader->getID(), "waterColorTexture"), txv[3]);
+//    glUniform1i(shader->getUniform("sunColorTexture"), txv[6]);
+//    glUniform1i(shader->getUniform("colorTexture"), txv[7]);
+//    glUniform1i(shader->getUniform("waterColorTexture"), txv[3]);
 
     float m_Kr4PI = atmosphere.m_Kr*4.0f*M_PI;
     float m_Km4PI = atmosphere.m_Km*4.0f*M_PI;

@@ -90,7 +90,7 @@ void initInputs() {
     // Physics
     CREATE_INPUT(Water Update, SDLK_n, INPUT_WATER_UPDATE);
     CREATE_INPUT(Update Physics Blocks, SDLK_p, INPUT_PHYSICS_BLOCK_UPDATES);
-    CREATE_INPUT_D(Planet Rotation, SDLK_MINUS, SDLK_PLUS, INPUT_PLANET_ROTATION);
+    CREATE_INPUT_D(Planet Rotation, SDLK_MINUS, SDLK_EQUALS, INPUT_PLANET_ROTATION);
     
     // Mouse Buttons
     CREATE_INPUT(Mouse Right, SDL_BUTTON_RIGHT, INPUT_MOUSE_RIGHT);

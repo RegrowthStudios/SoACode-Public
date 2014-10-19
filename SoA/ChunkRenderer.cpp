@@ -2,11 +2,402 @@
 
 #include "ChunkRenderer.h"
 
+#include "GameManager.h"
+#include "GLProgramManager.h"
+#include "Options.h"
 #include "GLProgram.h"
+#include "Frustum.h"
 #include "Chunk.h"
 #include "global.h"
+#include "GeometrySorter.h"
 
-void ChunkRenderer::drawBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+const float sonarDistance = 200;
+const float sonarWidth = 30;
+void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, glm::mat4 &VP, glm::dvec3 &position)
+{
+    //*********************Blocks*******************
+
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Sonar");
+    program->use();
+
+    bindBlockPacks();
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    glUniform1f(program->getUniform("sonarDistance"), sonarDistance);
+    glUniform1f(program->getUniform("waveWidth"), sonarWidth);
+    glUniform1f(program->getUniform("dt"), sonarDt);
+
+    float fadeDist;
+    if (NoChunkFade){
+        fadeDist = (GLfloat)10000.0f;
+    } else{
+        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
+    }
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
+
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+    for (unsigned int i = 0; i < chunkMeshes.size(); i++)
+    {
+        ChunkRenderer::drawChunkBlocks(chunkMeshes[i], program, position, VP);
+    }
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_CULL_FACE);
+
+    program->unuse();
+}
+
+void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+{
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Block");
+    program->use();
+
+    glUniform1f(program->getUniform("lightType"), lightActive);
+
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
+
+    bindBlockPacks();
+
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
+
+    glUniform1f(program->getUniform("sunVal"), sunVal);
+
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
+
+    float blockAmbient = 0.000f;
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+
+    float fadeDist;
+    if (NoChunkFade){
+        fadeDist = (GLfloat)10000.0f;
+    } else{
+        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
+    }
+
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
+
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    glLineWidth(3);
+
+    glDisable(GL_CULL_FACE);
+
+    glm::dvec3 cpos;
+
+    static GLuint saveTicks = SDL_GetTicks();
+    bool save = 0;
+    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
+        save = 1;
+        saveTicks = SDL_GetTicks();
+    }
+
+    int mx, my, mz;
+    double cx, cy, cz;
+    double dx, dy, dz;
+    mx = (int)position.x;
+    my = (int)position.y;
+    mz = (int)position.z;
+    ChunkMesh *cm;
+
+    for (int i = chunkMeshes.size() - 1; i >= 0; i--)
+    {
+        cm = chunkMeshes[i];
+        const glm::ivec3 &cmPos = cm->position;
+
+        //calculate distance
+        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
+        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
+        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
+        dx = cx - mx;
+        dy = cy - my;
+        dz = cz - mz;
+        cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
+
+        if (SphereInFrustum((float)(cmPos.x + CHUNK_WIDTH / 2 - position.x), (float)(cmPos.y + CHUNK_WIDTH / 2 - position.y), (float)(cmPos.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)){
+            if (cm->distance < fadeDist + 12.5){
+                cm->inFrustum = 1;
+                ChunkRenderer::drawChunkBlocks(cm, program, position, VP);
+            } else{
+                cm->inFrustum = 0;
+            }
+        } else{
+            cm->inFrustum = 0;
+        }
+    }
+    glEnable(GL_CULL_FACE);
+
+    program->unuse();
+}
+
+void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+{
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Cutout");
+    program->use();
+
+    glUniform1f(program->getUniform("lightType"), lightActive);
+
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+    glUniform3f(program->getUniform("lightType"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("alphaMult"), graphicsOptions.specularIntensity*0.3);
+
+    bindBlockPacks();
+
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
+
+    glUniform1f(program->getUniform("sunVal"), sunVal);
+
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
+
+    float blockAmbient = 0.000f;
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+
+    float fadeDist;
+    if (NoChunkFade){
+        fadeDist = (GLfloat)10000.0f;
+    } else{
+        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
+    }
+
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
+
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    glLineWidth(3);
+
+    glDisable(GL_CULL_FACE);
+
+    glm::dvec3 cpos;
+
+    static GLuint saveTicks = SDL_GetTicks();
+    bool save = 0;
+    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
+        save = 1;
+        saveTicks = SDL_GetTicks();
+    }
+
+    int mx, my, mz;
+    double cx, cy, cz;
+    double dx, dy, dz;
+    mx = (int)position.x;
+    my = (int)position.y;
+    mz = (int)position.z;
+    ChunkMesh *cm;
+
+    for (int i = chunkMeshes.size() - 1; i >= 0; i--)
+    {
+        cm = chunkMeshes[i];
+
+        if (cm->inFrustum){
+            ChunkRenderer::drawChunkCutoutBlocks(cm, program, position, VP);
+        }
+    }
+    glEnable(GL_CULL_FACE);
+
+    program->unuse();
+
+}
+
+void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+{
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Transparency");
+    program->use();
+
+    glUniform1f(program->getUniform("lightType"), lightActive);
+
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
+
+    bindBlockPacks();
+
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
+
+    glUniform1f(program->getUniform("sunVal"), sunVal);
+
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
+
+    float blockAmbient = 0.000f;
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+
+    float fadeDist;
+    if (NoChunkFade){
+        fadeDist = (GLfloat)10000.0f;
+    } else{
+        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
+    }
+
+    glUniform1f(program->getUniform("fadeDistance"), fadeDist);
+
+
+    glLineWidth(3);
+
+    glDisable(GL_CULL_FACE);
+
+    glm::dvec3 cpos;
+
+    static GLuint saveTicks = SDL_GetTicks();
+    bool save = 0;
+    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
+        save = 1;
+        saveTicks = SDL_GetTicks();
+    }
+
+
+    ChunkMesh *cm;
+
+    static i32v3 oldPos = i32v3(0);
+    bool sort = false;
+
+    i32v3 intPosition(fastFloor(position.x), fastFloor(position.y), fastFloor(position.z));
+
+    if (oldPos != intPosition) {
+        //sort the geometry
+        sort = true;
+        oldPos = intPosition;
+    }
+
+    for (int i = 0; i < chunkMeshes.size(); i++)
+    {
+        cm = chunkMeshes[i];
+        if (sort) cm->needsSort = true;
+
+        if (cm->inFrustum){
+
+            if (cm->needsSort) {
+                cm->needsSort = false;
+                if (cm->transQuadIndices.size() != 0) {
+                    GeometrySorter::sortTransparentBlocks(cm, intPosition);
+
+                    //update index data buffer
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm->transIndexID);
+                    glBufferData(GL_ELEMENT_ARRAY_BUFFER, cm->transQuadIndices.size() * sizeof(ui32), NULL, GL_STATIC_DRAW);
+                    void* v = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, cm->transQuadIndices.size() * sizeof(ui32), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+                    if (v == NULL) pError("Failed to map sorted transparency buffer.");
+                    memcpy(v, &(cm->transQuadIndices[0]), cm->transQuadIndices.size() * sizeof(ui32));
+                    glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+                }
+            }
+
+            ChunkRenderer::drawChunkTransparentBlocks(cm, program, position, VP);
+        }
+    }
+    glEnable(GL_CULL_FACE);
+
+    program->unuse();
+
+}
+
+//void ChunkRenderer::drawPhysicsBlocks(glm::mat4& VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+//{
+//    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
+//    program->use();
+//
+//    glUniform1f(program->getUniform("lightType"), lightActive);
+//
+//    glUniform1f(program->getUniform("alphaMult"), 1.0f);
+//
+//    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
+//    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
+//    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
+//    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
+//    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+//    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+//    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
+//
+//    bindBlockPacks();
+//
+//    glUniform1f(program->getUniform("sunVal"), sunVal);
+//
+//    float blockAmbient = 0.000f;
+//    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+//    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+//
+//    if (NoChunkFade){
+//        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)10000.0f);
+//    } else{
+//        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
+//    }
+//
+//    for (Uint32 i = 0; i < physicsBlockMeshes.size(); i++){
+//        PhysicsBlockBatch::draw(physicsBlockMeshes[i], program, position, VP);
+//    }
+//    glVertexAttribDivisor(5, 0); //restore divisors
+//    glVertexAttribDivisor(6, 0);
+//    glVertexAttribDivisor(7, 0);
+//    program->unuse();
+//}
+
+void ChunkRenderer::drawWater(const std::vector <ChunkMesh *>& chunkMeshes, glm::mat4 &VP, const glm::dvec3 &position, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, glm::vec3 &lightPos, glm::vec3 &lightColor, bool underWater)
+{
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
+    program->use();
+
+    glUniform1f(program->getUniform("sunVal"), sunVal);
+
+    glUniform1f(program->getUniform("FogEnd"), (GLfloat)fogEnd);
+    glUniform1f(program->getUniform("FogStart"), (GLfloat)fogStart);
+    glUniform3fv(program->getUniform("FogColor"), 1, fogColor);
+
+    glUniform3fv(program->getUniform("LightPosition_worldspace"), 1, &(lightPos[0]));
+
+    if (NoChunkFade){
+        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)10000.0f);
+    } else{
+        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
+    }
+
+    float blockAmbient = 0.000f;
+    glUniform3f(program->getUniform("AmbientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3f(program->getUniform("LightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+
+    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
+
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
+    glUniform1i(program->getUniform("normalMap"), 6);
+
+    if (underWater) glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    ChunkMesh *cm;
+    for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
+    {
+        cm = chunkMeshes[i];
+
+        ChunkRenderer::drawChunkWater(cm, program, position, VP);
+    }
+
+    glDepthMask(GL_TRUE);
+    if (underWater) glEnable(GL_CULL_FACE);
+
+    program->unuse();
+}
+
+void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
     if (CMI->vboID == 0) return;
 
@@ -57,7 +448,7 @@ void ChunkRenderer::drawBlocks(const ChunkMesh *CMI, const vcore::GLProgram* pro
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::drawTransparentBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP) {
+void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP) {
     if (CMI->transVboID == 0) return;
 
     GlobalModelMatrix[3][0] = ((float)((double)CMI->position.x - playerPos.x));
@@ -79,7 +470,7 @@ void ChunkRenderer::drawTransparentBlocks(const ChunkMesh *CMI, const vcore::GLP
 
 }
 
-void ChunkRenderer::drawCutoutBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP) {
+void ChunkRenderer::drawChunkCutoutBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP) {
     if (CMI->cutoutVaoID == 0) return;
 
     GlobalModelMatrix[3][0] = ((float)((double)CMI->position.x - playerPos.x));
@@ -99,7 +490,7 @@ void ChunkRenderer::drawCutoutBlocks(const ChunkMesh *CMI, const vcore::GLProgra
 
 }
 
-void ChunkRenderer::drawWater(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+void ChunkRenderer::drawChunkWater(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
     //use drawWater bool to avoid checking frustum twice
     if (CMI->inFrustum && CMI->waterVboID){

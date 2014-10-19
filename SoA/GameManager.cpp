@@ -390,7 +390,7 @@ void GameManager::scanWSO() {
         f32v3 wsoSize(wsos[i]->data->size);
         wsoPos += wsoSize * 0.5f;
 
-        openglManager.debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
+        debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
 
         delete wsos[i];
     }

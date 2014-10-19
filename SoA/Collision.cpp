@@ -324,7 +324,7 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
     double boxX = player->boundingBox.x;
     double boxY = player->boundingBox.y/2.0;
     double boxZ = player->boundingBox.z;
-    double stepMod = 1.0f/(float)playerCollisionSteps;
+    double stepMod = 1.0f/(float)PLAYER_COLLISION_STEPS;
     bool pushedDown = 0;
     CollisionData *cData = &(player->collisionData);
 

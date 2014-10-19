@@ -37,7 +37,7 @@ MeshManager::MeshManager() {
 void MeshManager::updateTerrainMesh(TerrainMeshMessage* tmm) {
     TerrainBuffers *tb = tmm->terrainBuffers;
 
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromSpace");
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
 
     if (tmm->indexSize){
         if (tb->vaoID == 0) glGenVertexArrays(1, &(tb->vaoID));
@@ -321,4 +321,125 @@ void MeshManager::updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm) {
         delete pbm;
     }
     delete pbmm;
+}
+
+void MeshManager::sortMeshes(const f64v3& cameraPosition) {
+    updateMeshDistances(cameraPosition);
+    recursiveSortMeshList(_chunkMeshes, 0, _chunkMeshes.size());
+}
+
+void MeshManager::updateMeshDistances(const f64v3& cameraPosition) {
+    ChunkMesh *cm;
+    int mx, my, mz;
+    double dx, dy, dz;
+    double cx, cy, cz;
+
+    mx = (int)cameraPosition.x;
+    my = (int)cameraPosition.y;
+    mz = (int)cameraPosition.z;
+    //GLuint sticks = SDL_GetTicks();
+
+    static GLuint saveTicks = SDL_GetTicks();
+
+    for (int i = 0; i < _chunkMeshes.size(); i++){ //update distances for all chunk meshes
+        cm = _chunkMeshes[i];
+        const glm::ivec3 &cmPos = cm->position;
+        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
+        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
+        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
+        dx = cx - mx;
+        dy = cy - my;
+        dz = cz - mz;
+        cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
+    }
+}
+
+void MeshManager::recursiveSortMeshList(std::vector <ChunkMesh*> &v, int start, int size)
+{
+    if (size < 2) return;
+    int i, j;
+    ChunkMesh *pivot, *mid, *last, *tmp;
+
+    pivot = v[start];
+
+    //end recursion when small enough
+    if (size == 2){
+        if ((pivot->distance) < (v[start + 1]->distance)){
+            v[start] = v[start + 1];
+            v[start + 1] = pivot;
+
+            v[start]->vecIndex = start;
+            v[start + 1]->vecIndex = start + 1;
+
+        }
+        return;
+    }
+
+    mid = v[start + size / 2];
+    last = v[start + size - 1];
+
+    //variables to minimize dereferences
+    int md, ld, pd;
+    pd = pivot->distance;
+    md = mid->distance;
+    ld = last->distance;
+
+    //calculate pivot
+    if ((pd > md && md > ld) || (pd < md && md < ld)){
+        v[start] = mid;
+
+        v[start + size / 2] = pivot;
+
+
+        mid->vecIndex = start;
+        pivot->vecIndex = start + size / 2;
+
+
+        pivot = mid;
+        pd = md;
+    } else if ((pd > ld && ld > md) || (pd < ld && ld < md)){
+        v[start] = last;
+
+        v[start + size - 1] = pivot;
+
+
+        last->vecIndex = start;
+        pivot->vecIndex = start + size - 1;
+
+
+        pivot = last;
+        pd = ld;
+    }
+
+    i = start + 1;
+    j = start + size - 1;
+
+    //increment and decrement pointers until they are past each other
+    while (i <= j){
+        while (i < start + size - 1 && (v[i]->distance) > pd) i++;
+        while (j > start + 1 && (v[j]->distance) < pd) j--;
+
+        if (i <= j){
+            tmp = v[i];
+            v[i] = v[j];
+            v[j] = tmp;
+
+            v[i]->vecIndex = i;
+            v[j]->vecIndex = j;
+
+            i++;
+            j--;
+        }
+    }
+
+    //swap pivot with rightmost element in left set
+    v[start] = v[j];
+    v[j] = pivot;
+
+    v[start]->vecIndex = start;
+    v[j]->vecIndex = j;
+
+    //sort the two subsets excluding the pivot point
+    recursiveSortMeshList(v, start, j - start);
+    recursiveSortMeshList(v, j + 1, start + size - j - 1);
 }
