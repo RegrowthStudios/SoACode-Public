@@ -10,6 +10,7 @@
 
 void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 
+    // Helper macro for adding functions
 #define ADDFUNC(a) addFunction(""#a"", &MainMenuAPI::##a)
 
     // Set up the interface object so we can talk to the JS
@@ -27,6 +28,7 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     ADDFUNC(setCameraPosition);
     ADDFUNC(setCameraTarget);
     ADDFUNC(print);
+    ADDFUNC(loadSaveGame);
 }
 
 void MainMenuAPI::setOwnerScreen(IGameScreen* ownerScreen) {
@@ -68,7 +70,7 @@ Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
             // Get the time info
             localtime_s(&timeinfo, &writeTime);
             // Create the string
-            sprintf(timeString, "%02d.%02d.%04d : %02d.%02d", 
+            sprintf(timeString, "%02d.%02d.%04d  %02d:%02d", 
                     timeinfo.tm_mday,
                     timeinfo.tm_mon,
                     timeinfo.tm_year + 1900,

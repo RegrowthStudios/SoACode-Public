@@ -67,6 +67,19 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
     _awesomiumInterface.handleEvent(e);
+    GameManager::inputManager->pushEvent(e);
+
+    // Check for reloading the UI
+    switch (e.type) {
+        case SDL_KEYDOWN:
+            switch (e.key.keysym.sym) {
+                case SDLK_F5:
+                    std::cout << "\n\nReloading MainMenu UI...\n\n";
+                    _awesomiumInterface.destroy();
+                    _awesomiumInterface.init("UI/MainMenu/", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
+                    break;
+            }
+    }
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {

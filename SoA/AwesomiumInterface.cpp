@@ -15,7 +15,7 @@ namespace ui {
 
 template <class C>
 AwesomiumInterface<C>::AwesomiumInterface() :
-    _isInitialized(0),
+    _isInitialized(false),
     _openglSurfaceFactory(nullptr),
     _renderedTexture(0),
     _width(0),
@@ -28,7 +28,7 @@ AwesomiumInterface<C>::AwesomiumInterface() :
 
 template <class C>
 AwesomiumInterface<C>::~AwesomiumInterface(void) {
-    delete _openglSurfaceFactory;
+    destroy();
 }
 
 //Initializes the interface. Returns false on failure
@@ -65,7 +65,6 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
         return false;
     }
 
-    //The data pak helps performance by writing resources to disk
     if (!Awesomium::WriteDataPak(Awesomium::WSLit("UI_Resources.pak"), Awesomium::WSLit(inputDir), Awesomium::WSLit(""), _numFiles)){
         pError("UI Initialization Error: Failed to write UI_Resources.pak\n");
         return false;
@@ -122,6 +121,14 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
     return true;
 }
 
+template <class C>
+void AwesomiumInterface<C>::destroy() {
+    _webSession->Release();
+    _webView->Destroy();
+    delete _openglSurfaceFactory;
+    delete _data_source;
+    _isInitialized = false;
+}
 
 template <class C>
 void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {

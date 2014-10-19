@@ -70,6 +70,9 @@ public:
     /// @return true on success, false on failure
     bool init(const char *inputDir, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen);
 
+    /// Frees all resources
+    void destroy();
+
     /// Handles an SDL event
     /// @param evnt: the SDL event to handle
     void handleEvent(const SDL_Event& evnt);
