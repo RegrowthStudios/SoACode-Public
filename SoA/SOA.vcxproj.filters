@@ -524,6 +524,9 @@
     <ClInclude Include="GamePlayScreen.h">
       <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClInclude>
+    <ClInclude Include="MeshManager.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -832,6 +835,9 @@
     </ClCompile>
     <ClCompile Include="GamePlayScreen.cpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshManager.cpp">
+      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

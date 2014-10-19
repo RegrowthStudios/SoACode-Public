@@ -234,7 +234,7 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 int ticksArray2[10];
 int ticksArrayIndex2 = 0;
 
-void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[]) {
+void GameManager::update() {
     static int saveStateTicks = SDL_GetTicks();
 
     if (gameInitialized) {
@@ -283,6 +283,8 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
     }
 
     voxelWorld->getPlanet()->rotationUpdate();
+
+    printVec("World Position: ", player->worldPosition);
 
     updatePlanet(player->worldPosition, maxLodTicks);   //SOMETIMES TAKING A LONG TIME!
 

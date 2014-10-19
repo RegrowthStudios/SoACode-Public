@@ -30,7 +30,7 @@ public:
     static void loadPlanet(string filePath);
     static void initializePlanet(const glm::dvec3 cameraPos);
     static void initializeVoxelWorld(Player *plyr = nullptr);
-    static void update(float dt, glm::dvec3 &cameraPosition, float cameraView[]);
+    static void update();
     static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);
     static void drawMarkers();
     static void drawSpace(glm::mat4 &VP, bool connectedToPlanet);

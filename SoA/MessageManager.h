@@ -9,7 +9,10 @@ enum class MessageID {
     QUIT,
     NEW_PLANET,
     TERRAIN_MESH,
-    REMOVE_TREES
+    REMOVE_TREES,
+    CHUNK_MESH,
+    PARTICLE_MESH,
+    PHYSICS_BLOCK_MESH
 };
 
 struct Message

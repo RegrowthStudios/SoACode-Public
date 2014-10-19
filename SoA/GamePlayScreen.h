@@ -1,21 +1,20 @@
-// 
-//  MainMenuScreen.h
+#// 
+//  GamePlayScreen.h
 //  Seed Of Andromeda
 //
 //  Created by Ben Arnold on 17 Oct 2014
 //  Copyright 2014 Regrowth Studios
 //  All Rights Reserved
 //  
-//  This file provides the main menu screen
-//  implementation. This screen encompasses the
-//  gamestate for the main menu, as well as interaction
-//  with the user interface.
+//  This file provides the implementation for the main
+//  gameplay screen. This will encompass all in game
+//  behavior.
 //
 
 #pragma once
 
-#ifndef MAINMENUSCREEN_H_
-#define MAINMENUSCREEN_H_
+#ifndef GAMEPLAYSCREEN_H_
+#define GAMEPLAYSCREEN_H_
 
 #include "IGameScreen.h"
 
@@ -25,14 +24,12 @@
 #include "LoadMonitor.h"
 
 class App;
-class FrameBuffer;
 struct TerrainMeshMessage;
 
-class MainMenuScreen : public IAppScreen<App>
+class GamePlayScreen : public IAppScreen<App>
 {
-    friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
-    CTOR_APP_SCREEN_DECL(MainMenuScreen, App);
+    CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;
@@ -47,30 +44,22 @@ public:
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
 
-    // Getters
-    CinematicCamera& getCamera() { return _camera; }
-    IOManager& getIOManager() { return _ioManager; }
-
 private:
- 
-    /// Loads a save file and prepares to play the game
-    /// @param fileName: The name of the save file
-    void loadGame(const nString& fileName);
 
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
 
-    vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface; ///< The user interface
-    
-    MainMenuAPI _api; ///< The callback API for the user interface
+    /// Processes messages from the update->render thread
+    void processMessages();
 
-    IOManager _ioManager; ///< Helper class for IO operations
+    Player* _player; ///< The current player
 
-    CinematicCamera _camera; ///< The camera that looks at the planet from space
+  //  Camera _voxelCamera; ///< The camera for rendering the voxels
+    Camera _planetCamera; ///< The camera for rendering the planet
 
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running
 };
 
-#endif // MAINMENUSCREEN_H_
+#endif // GAMEPLAYSCREEN_H_

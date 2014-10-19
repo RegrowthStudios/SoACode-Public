@@ -123,6 +123,7 @@
     <ClInclude Include="MainMenuAPI.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="TexturePackLoader.h" />
@@ -259,6 +260,7 @@
     <ClCompile Include="colors.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />

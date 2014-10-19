@@ -316,6 +316,12 @@ bool TerrainPatch::CheckHorizon(const glm::dvec3 &PlayerPos, const glm::dvec3 &C
 const bool colorDebug = 0;
 bool TerrainPatch::CreateMesh()
 {
+    //DEBUGGING
+    if (step <= 0) {
+        pError("AHH OH JESUS!");
+    }
+
+
     GLuint time0, time1, time2, time3;
     bool removeChildren = 0;
 
@@ -561,6 +567,7 @@ bool TerrainPatch::CreateMesh()
         //9530 1,227,270
         for (int z = 1; z < size-1; z++){ //Z
             for (int x = 1; x < size-1; x++){ //X
+
                 h = (int)lodMap[z*size+x].height;
                 //check and see if all adjacent heights are above water. If so, then we dont need this water vertex at all. TODO: maybe sentinalize this?
                 if (h >= 0 && (x == 1 || lodMap[z*size+(x-1)].height >= 0) //left

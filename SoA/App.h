@@ -6,6 +6,7 @@ class LoadScreen;
 class MainMenuScreen;
 class GamePlayScreen;
 class FrameBuffer;
+class MeshManager;
 
 class App : public MainGame {
 public:
@@ -26,4 +27,5 @@ public:
     GamePlayScreen* scrGamePlay;
 
     FrameBuffer* frameBuffer;
+    MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
 };
