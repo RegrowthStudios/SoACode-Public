@@ -284,8 +284,6 @@ void GameManager::update() {
 
     voxelWorld->getPlanet()->rotationUpdate();
 
-    printVec("World Position: ", player->worldPosition);
-
     updatePlanet(player->worldPosition, maxLodTicks);   //SOMETIMES TAKING A LONG TIME!
 
     if (gameInitialized) {

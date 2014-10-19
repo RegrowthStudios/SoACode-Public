@@ -51,13 +51,9 @@ public:
     void EndThread();
     void endSession();
     OMessage WaitForMessage(int i);
-    void glWaitForMessage(int i);
-    void ProcessMessages(int waitForMessage = -1);
+
     void FreeFrameBuffer();
-    void UpdateTerrainMesh(struct TerrainMeshMessage *tmm);
-    void UpdateChunkMesh(struct ChunkMeshData *cmd);
-    void UpdateParticleMesh(struct ParticleMeshMessage *pmm);
-    void UpdatePhysicsBlockMesh(struct PhysicsBlockMeshMessage *pbmm);
+  
     void UpdateMeshDistances();
     void Draw(Camera &chunkCamera, Camera &worldCamera);
     void DrawSonar(glm::mat4 &VP, glm::dvec3 &position);
