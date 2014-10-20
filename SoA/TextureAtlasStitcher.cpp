@@ -96,7 +96,7 @@ i32 TextureAtlasStitcher::mapBox(int width, int height) {
 
     if (width > 16 || height > 16) {
         pError("Repeat texture width or height > 16. Must be <= 16!");
-        return;
+        return 0;
     }
 
     int i;

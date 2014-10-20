@@ -122,6 +122,27 @@ int grassTextureOffsets[32];
 
 map <string, BlockVariable> blockVariableMap;
 
+/// "less than" operator for inserting into sets in TexturePackLoader
+bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
+
+    // Helper macro for checking if !=
+#define LCHECK(a) if (a < b.##a) { return true; } else if (a > b.##a) { return false; }
+
+    LCHECK(path);
+    LCHECK(method);
+    LCHECK(size.x);
+    LCHECK(size.y);
+    LCHECK(symmetry);
+    LCHECK(reducedMethod);
+    LCHECK(useMapColor);
+    LCHECK(weights.length());
+    LCHECK(totalWeight);
+    LCHECK(numTiles);
+    LCHECK(textureIndex);
+    LCHECK(innerSeams);
+    LCHECK(transparency);
+}
+
 void initConnectedTextures()
 {
     memset(connectedTextureOffsets, 0, sizeof(connectedTextureOffsets));

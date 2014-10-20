@@ -33,6 +33,8 @@ struct BlockTextureLoadData {
     ui8* overlayPixels;
 };
 
+
+// TODO(Ben): Make sure to save VRAM diagnostics!
 class TexturePackLoader
 {
 public:

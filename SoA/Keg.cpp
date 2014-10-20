@@ -641,16 +641,24 @@ namespace Keg {
             case BasicType::STRING:
                 e << (*(nString*)data).c_str();
                 break;
+
+                // For when we want to cast TYPE to C_TYPE
+#define EMIT_CAST(TYPE, C_TYPE) \
+            case BasicType::TYPE: e << (C_TYPE)*data; break; \
+            case BasicType::TYPE##_V2: e << C_TYPE##v2(*data); break; \
+            case BasicType::TYPE##_V3: e << C_TYPE##v3(*data); break; \
+            case BasicType::TYPE##_V4: e << C_TYPE##v4(*data); break
+                // For when we want to interpret TYPE as C_TYPE
 #define EMIT_NUM(TYPE, C_TYPE) \
             case BasicType::TYPE: e << *(C_TYPE*)data; break; \
             case BasicType::TYPE##_V2: e << *(C_TYPE##v2*)data; break; \
             case BasicType::TYPE##_V3: e << *(C_TYPE##v3*)data; break; \
             case BasicType::TYPE##_V4: e << *(C_TYPE##v4*)data; break
-                EMIT_NUM(I8, i8);
+                EMIT_CAST(I8, i32); // Prints out bytes as ints
                 EMIT_NUM(I16, i16);
                 EMIT_NUM(I32, i32);
                 EMIT_NUM(I64, i64);
-                EMIT_NUM(UI8, ui8);
+                EMIT_CAST(UI8, ui32); // Prints out bytes as ints
                 EMIT_NUM(UI16, ui16);
                 EMIT_NUM(UI32, ui32);
                 EMIT_NUM(UI64, ui64);

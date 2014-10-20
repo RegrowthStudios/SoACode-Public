@@ -62,6 +62,9 @@ struct BlockTextureLayer {
     bool innerSeams;
     bool transparency;
     nString path;
+
+    /// "less than" operator for inserting into sets in TexturePackLoader
+    bool operator<(const BlockTextureLayer& b) const;
 };
 KEG_TYPE_DECL(BlockTextureLayer);
 

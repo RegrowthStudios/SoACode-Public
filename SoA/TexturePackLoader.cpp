@@ -80,6 +80,7 @@ void TexturePackLoader::mapTexturesToAtlases() {
     }
 }
 
+//TODO(Ben): Cache the width and height too!!!
 ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& height) {
     ui8* data;
 
