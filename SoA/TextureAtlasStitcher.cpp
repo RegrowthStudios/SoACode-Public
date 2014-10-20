@@ -158,12 +158,22 @@ ui32 TextureAtlasStitcher::buildTextureArray() {
 
 void TextureAtlasStitcher::destroy() {
 
+    std::map <BlockTextureLayer, ui32>().swap(_textureLayerCache);
+
     for (int i = 0; i < _pages.size(); i++) {
         delete _pages[i];
     }
     std::vector<BlockAtlasPage*>().swap(_pages);
 
+    _bytesPerPage = 0;
     _oldestFreeSlot = 0;
+    _resolution = 0;
+    
+    if (_pixelData) {
+        delete[] _pixelData;
+        _pixelData = nullptr;
+    }
+
 }
 
 i32 TextureAtlasStitcher::mapSingle() {

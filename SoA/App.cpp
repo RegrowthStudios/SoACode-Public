@@ -8,6 +8,7 @@
 #include "ScreenList.h"
 #include "FrameBuffer.h"
 #include "MeshManager.h"
+#include "TexturePackLoader.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -37,7 +38,9 @@ void App::onInit() {
         frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     }
 
+    // Allocate resources
     meshManager = new MeshManager;
+    texturePackLoader = new TexturePackLoader;
 }
 
 void App::onExit() {
@@ -54,6 +57,9 @@ App::~App() {
         delete scrLoad;
         scrLoad = nullptr;
     }
+
+    delete meshManager;
+    delete texturePackLoader;
 }
 
 void App::drawFrameBuffer(const f32m4& VP) const {

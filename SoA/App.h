@@ -7,6 +7,7 @@ class MainMenuScreen;
 class GamePlayScreen;
 class FrameBuffer;
 class MeshManager;
+class TexturePackLoader;
 
 class App : public MainGame {
 public:
@@ -28,4 +29,5 @@ public:
 
     FrameBuffer* frameBuffer;
     MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
+    TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
 };

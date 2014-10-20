@@ -70,7 +70,6 @@ void TexturePackLoader::createTextureAtlases() {
 
     atlasTex.ID = _textureAtlasStitcher.buildTextureArray();
 
-
     blockPack.initialize(atlasTex);
 }
 
@@ -83,6 +82,35 @@ void TexturePackLoader::destroy() {
     std::vector <BlockLayerLoadData>().swap(_layersToLoad);
     std::map <nString, BlockTextureLoadData>().swap(_blockTextureLoadDatas);
     std::map <nString, Pixels>().swap(_pixelCache);
+}
+
+void TexturePackLoader::writeDebugAtlases() {
+    int width = 32 * BLOCK_TEXTURE_ATLAS_WIDTH;
+    int height = width;
+
+    int pixelsPerPage = width * height * 4;
+    ui8 *pixels = new ui8[width * height * 4 * _textureAtlasStitcher.getNumPages()];
+    ui8 *flip = new ui8[pixelsPerPage];
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    for (int i = 0; i < _textureAtlasStitcher.getNumPages(); i++) {
+
+        int k = height - 1;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width * 4; x++){
+                flip[y * 4 * width + x] = pixels[k * 4 * width + x + i * pixelsPerPage];
+            }
+            k--;
+        }
+
+        SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(flip, width, height, 32, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
+        SDL_SaveBMP(surface, ("atlas" + to_string(i) + ".bmp").c_str());
+
+    }
+    delete[] pixels;
+    delete[] flip;
 }
 
 BlockTextureLayer* TexturePackLoader::postProcessLayer(BlockTextureLayer& layer, ui32 width, ui32 height) {

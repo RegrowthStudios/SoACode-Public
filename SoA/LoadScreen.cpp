@@ -116,6 +116,8 @@ void LoadScreen::update(const GameTime& gameTime) {
         loadedShaders = true;
     }
 
+
+
     // Defer texture loading
     static bool loadedTextures = false;
     if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {

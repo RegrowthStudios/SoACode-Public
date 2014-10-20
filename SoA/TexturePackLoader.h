@@ -47,6 +47,9 @@ public:
     /// Frees all resources
     void destroy();
 
+    /// Dumps all the atlas pages to file
+    void writeDebugAtlases();
+
 private:
 
     /// Does postprocessing to the layer and adds it to _blockTextureLayers
@@ -76,6 +79,7 @@ private:
 
     /// Struct used for cacheing pixels
     struct Pixels {
+        Pixels(){};
         Pixels(ui8* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
             // Empty
         }

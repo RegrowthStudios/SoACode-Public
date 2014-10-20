@@ -54,6 +54,9 @@ public:
     /// Frees all memory and returns to initial state
     void destroy();
 
+    /// Getters
+    ui32 getNumPages() const { return _pages.size(); }
+
 private:
     /// Maps a single block texture to the atlases
     /// @return The index of the texture start into the atlas array.
