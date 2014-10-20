@@ -13,12 +13,14 @@ void TexturePackLoader::loadAllTextures() {
     // Used to get the texture pixel dimensions
     ui32 width, height;
 
+    ui8* pixels;
+
     // Loop through all textures to load
     for (const nString& texturePath : _blockTexturesToLoad) {
 
         // The struct we need to populate
         BlockTextureLoadData blockTextureLoadData = {};
-        BlockTexture& blockTexture = blockTextureLoadData.texture;
+        BlockTexture blockTexture = {};
 
         // Search for the tex file first
         nString texFileName = texturePath;
@@ -32,17 +34,21 @@ void TexturePackLoader::loadAllTextures() {
         if (blockTexture.base.path.empty()) blockTexture.base.path = texturePath;
         
         // Get pixels for the base texture
-        blockTextureLoadData.basePixels = getPixels(blockTexture.base.path, width, height);
-        // Do necesarry postprocessing
-        postProcessLayer(blockTexture.base, width, height);
+        pixels = getPixels(blockTexture.base.path, width, height);
+        // Store handle to the layer
+        blockTextureLoadData.base = postProcessLayer(blockTexture.base, width, height);
+        // Do necesarry postprocessing and add layer to load
+        _layersToLoad.emplace_back(pixels, blockTextureLoadData.base);
 
         // Check if we have an overlay
         if (blockTexture.overlay.path.empty() == false) {
             
             // Get pixels for the overlay texture
-            blockTextureLoadData.overlayPixels = getPixels(blockTexture.overlay.path, width, height);
-            // Do necesarry postprocessing
-            postProcessLayer(blockTexture.overlay, width, height);
+            pixels = getPixels(blockTexture.overlay.path, width, height);
+            // Store handle to the layer
+            blockTextureLoadData.overlay = postProcessLayer(blockTexture.overlay, width, height);
+            // Do necesarry postprocessing and add layer to load
+            _layersToLoad.emplace_back(pixels, blockTextureLoadData.overlay);
         }
 
         // Add it to the list of load datas
@@ -58,9 +64,28 @@ void TexturePackLoader::loadAllTextures() {
 
 void TexturePackLoader::createTextureAtlases() {
 
+    // temporary
+    TextureInfo atlasTex;
+    atlasTex.width = atlasTex.height = 32 * BLOCK_TEXTURE_ATLAS_WIDTH;
+
+    atlasTex.ID = _textureAtlasStitcher.buildTextureArray();
+
+
+    blockPack.initialize(atlasTex);
 }
 
-void TexturePackLoader::postProcessLayer(BlockTextureLayer& layer, ui32 width, ui32 height) {
+void TexturePackLoader::destroy() {
+    /// Free stitcher memory
+    _textureAtlasStitcher.destroy();
+    /// Free all cache memory
+    std::set <nString>().swap(_blockTexturesToLoad);
+    std::set <BlockTextureLayer>().swap(_blockTextureLayers);
+    std::vector <BlockLayerLoadData>().swap(_layersToLoad);
+    std::map <nString, BlockTextureLoadData>().swap(_blockTextureLoadDatas);
+    std::map <nString, Pixels>().swap(_pixelCache);
+}
+
+BlockTextureLayer* TexturePackLoader::postProcessLayer(BlockTextureLayer& layer, ui32 width, ui32 height) {
     // Need to set up numTiles and totalWeight for RANDOM method
     if (layer.method == ConnectedTextureMethods::RANDOM) {
         layer.numTiles = width / height;
@@ -68,34 +93,41 @@ void TexturePackLoader::postProcessLayer(BlockTextureLayer& layer, ui32 width, u
             layer.totalWeight = layer.numTiles;
         }
     }
-    // Insert the texture layer into the atlas mapping set
-    _blockTextureLayers.insert(layer);
+
+    // Insert the texture layer into the atlas mapping set and return pointer
+    return (BlockTextureLayer*)&(*_blockTextureLayers.insert(layer).first);
 }
 
 void TexturePackLoader::mapTexturesToAtlases() {
-    i32 index;
+    BlockTextureLayer* layer;
     // Iterate through all the unique texture layers we need to map
-    for (const BlockTextureLayer& layer : _blockTextureLayers) {
-        index = textureAtlasStitcher.addTexture(layer);
+    for (auto it = _blockTextureLayers.begin(); it != _blockTextureLayers.end(); it++) {
+        // Get a non-const pointer to the data
+        layer = (BlockTextureLayer*)&(*it);
+        // Map the texture layer to an atlas position
+        layer->textureIndex = _textureAtlasStitcher.addTexture(*it);
     }
+
+    // Build the pixel data for the texture array
+    _textureAtlasStitcher.buildPixelData(_layersToLoad, 32);
 }
 
-//TODO(Ben): Cache the width and height too!!!
 ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& height) {
-    ui8* data;
-
+   
     // Check the cache
     auto& it = _pixelCache.find(filePath);
     if (it != _pixelCache.end()) {
         // Load the data
-        data = loadPNG(filePath.c_str(), width, height);
+        ui8* data = loadPNG(filePath.c_str(), width, height);
         if (data) {
             // Add the data to the cache
-            _pixelCache[filePath] = data;
+            _pixelCache[filePath] = Pixels(data, width, height);
         }
         return data;
     } else {
         // Return the Cached data
-        return it->second;
+        width = it->second.width;
+        height = it->second.height;
+        return it->second.data;
     }
 }

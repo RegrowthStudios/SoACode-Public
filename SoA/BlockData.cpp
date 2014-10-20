@@ -138,7 +138,6 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     LCHECK(weights.length());
     LCHECK(totalWeight);
     LCHECK(numTiles);
-    LCHECK(textureIndex);
     LCHECK(innerSeams);
     LCHECK(transparency);
 }

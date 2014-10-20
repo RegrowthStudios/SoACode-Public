@@ -191,22 +191,6 @@ void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer&
     }
 }
 
-//Gets overlay texture offset according to the texturing method
-//Grass method may change color
-//void ChunkMesher::getOverlayTextureIndex(const MeshInfo &mi, const BlockTexture& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 overlayColor[3]) {
-//    switch (blockTexture.overlay.method) {
-//    case CTM_CONNECTED:
-//        return getConnectedTextureIndex(mi, result, blockTexture.overlay.innerSeams, rightDir, upDir, frontDir, directionIndex);
-//        break;
-//    case CTM_RANDOM:
-//        return getRandomTextureIndex(mi, blockTexture, result);
-//        break;
-//    case CTM_GRASS:
-//        return getGrassTextureIndex(mi, result, rightDir, upDir, frontDir, directionIndex, overlayColor);
-//        break;
-//    }
-//}
-
 //Gets a random offset for use by random textures
 void ChunkMesher::getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result) {
     //TODO: MurmurHash3

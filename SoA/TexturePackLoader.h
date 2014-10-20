@@ -21,18 +21,11 @@
 
 #include <set>
 
-struct TextureData {
-    ui32 width;
-    ui32 height;
-    ui8* pixels;
-};
-
 struct BlockTextureLoadData {
-    BlockTexture texture;
-    ui8* basePixels;
-    ui8* overlayPixels;
+    BlockTextureLayer* base;
+    BlockTextureLayer* overlay;
+    BlendType blendMode;
 };
-
 
 // TODO(Ben): Make sure to save VRAM diagnostics!
 class TexturePackLoader
@@ -51,13 +44,17 @@ public:
     /// Creates the texture atlases. Must be called after loadAllTextures.
     void createTextureAtlases();
 
+    /// Frees all resources
+    void destroy();
+
 private:
 
     /// Does postprocessing to the layer and adds it to _blockTextureLayers
     /// @param layer: The block texture layer to process
     /// @param width: The width of the texture in pixels
     /// @param height: The height of the texture in pixels
-    void postProcessLayer(BlockTextureLayer& layer, ui32 width, ui32 height);
+    /// @return Pointer to the BlockTextureLayer that gets stored
+    BlockTextureLayer* postProcessLayer(BlockTextureLayer& layer, ui32 width, ui32 height);
 
     /// Maps all the layers in _blockTextureLayers to an atlas array
     void mapTexturesToAtlases();
@@ -73,13 +70,23 @@ private:
 
     std::set <BlockTextureLayer> _blockTextureLayers; ///< Set of all unique block texture layers to load
 
+    std::vector <BlockLayerLoadData> _layersToLoad;
+
     std::map <nString, BlockTextureLoadData> _blockTextureLoadDatas; ///< Map of all texture datas we need to load
 
-    std::map <BlockTextureLayer, ui32> _textureLayerCache; ///< Cache of texture layer mappings
+    /// Struct used for cacheing pixels
+    struct Pixels {
+        Pixels(ui8* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
+            // Empty
+        }
+        ui8* data;
+        ui32 width;
+        ui32 height;
+    };
 
-    std::map <nString, ui8*> _pixelCache; ///< Cache of texture pixel data
+    std::map <nString, Pixels> _pixelCache; ///< Cache of texture pixel data
 
-    TextureAtlasStitcher textureAtlasStitcher; ///< Class responsible for doing the mapping to the atlas array
+    TextureAtlasStitcher _textureAtlasStitcher; ///< Class responsible for doing the mapping to the atlas array
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
 };

@@ -40,9 +40,6 @@ private:
         FrameBuffer *frameBuffer;
     };
 
-
-
-
     const BlockTexture* addTextureToAtlas(string tileFileName, ZipFile* zipFile = nullptr);
     ui32 makeBlockPackTexture(const std::vector <Atlas*> &atlasList, int imageWidth);
 
