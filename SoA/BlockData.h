@@ -25,20 +25,20 @@
 #define SETFLAGS(a, b) ((a) = ((a) | ((b) << 12)))
 
 enum class ConnectedTextureMethods {
-    CTM_NONE,
-    CTM_CONNECTED,
-    CTM_HORIZONTAL,
-    CTM_VERTICAL,
-    CTM_GRASS,
-    CTM_REPEAT,
-    CTM_RANDOM
+    NONE,
+    CONNECTED,
+    HORIZONTAL,
+    VERTICAL,
+    GRASS,
+    REPEAT,
+    RANDOM
 };
 KEG_ENUM_DECL(ConnectedTextureMethods);
 
 enum class ConnectedTextureSymmetry {
-    SYMMETRY_NONE,
-    SYMMETRY_OPPOSITE,
-    SYMMETRY_ALL
+    NONE,
+    OPPOSITE,
+    ALL
 };
 KEG_ENUM_DECL(ConnectedTextureSymmetry);
 

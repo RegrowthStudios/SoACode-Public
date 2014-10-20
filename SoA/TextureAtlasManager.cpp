@@ -156,24 +156,23 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
                     if (_readTexture.ID != 0) {
    
                         switch (blockTexture.overlay.method) {
-                        case ConnectedTextureMethods::CTM_CONNECTED:
+                        case ConnectedTextureMethods::CONNECTED:
                             writeToAtlasContiguous(blockTexture.overlay.textureIndex, 12, 4, 47);
                             break;
-                        case ConnectedTextureMethods::CTM_RANDOM:
+                        case ConnectedTextureMethods::RANDOM:
                             addRandomTexture(blockTexture.overlay.weights, blockTexture.overlay.textureIndex,
                                              blockTexture.overlay.numTiles, blockTexture.overlay.totalWeight);
-                            checkGlError("NNNN");
                             break;
-                        case ConnectedTextureMethods::CTM_GRASS:
+                        case ConnectedTextureMethods::GRASS:
                             writeToAtlasContiguous(blockTexture.overlay.textureIndex, 3, 3, 9);
                             break;
-                        case ConnectedTextureMethods::CTM_REPEAT:
+                        case ConnectedTextureMethods::REPEAT:
                             writeToAtlasRepeat(blockTexture.overlay.textureIndex, blockTexture.overlay.size.x, blockTexture.overlay.size.y);
                             break;
-                        case ConnectedTextureMethods::CTM_HORIZONTAL:
+                        case ConnectedTextureMethods::HORIZONTAL:
                             writeToAtlasContiguous(blockTexture.overlay.textureIndex, 4, 1, 4);
                             break;
-                        case ConnectedTextureMethods::CTM_VERTICAL:
+                        case ConnectedTextureMethods::VERTICAL:
                             writeToAtlasContiguous(blockTexture.overlay.textureIndex, 1, 4, 4);
                             break;
                         default:
@@ -259,22 +258,22 @@ const BlockTexture* TextureAtlasManager::addTextureToAtlas(string tileFileName, 
     if (_readTexture.ID != 0) {
 
         switch (blockTexture.base.method) {
-        case ConnectedTextureMethods::CTM_CONNECTED:
+        case ConnectedTextureMethods::CONNECTED:
             writeToAtlasContiguous(blockTexture.base.textureIndex, 12, 4, 47);
             break;
-        case ConnectedTextureMethods::CTM_RANDOM:
+        case ConnectedTextureMethods::RANDOM:
             addRandomTexture(blockTexture.base.weights, blockTexture.base.textureIndex, blockTexture.base.numTiles, blockTexture.base.totalWeight);
             break;
-        case ConnectedTextureMethods::CTM_REPEAT:
+        case ConnectedTextureMethods::REPEAT:
             writeToAtlasRepeat(blockTexture.base.textureIndex, blockTexture.base.size.x, blockTexture.base.size.y);
             break;
-        case ConnectedTextureMethods::CTM_GRASS:
+        case ConnectedTextureMethods::GRASS:
             writeToAtlasContiguous(blockTexture.base.textureIndex, 3, 3, 9);
             break;
-        case ConnectedTextureMethods::CTM_HORIZONTAL:
+        case ConnectedTextureMethods::HORIZONTAL:
             writeToAtlasContiguous(blockTexture.base.textureIndex, 4, 1, 4);
             break;
-        case ConnectedTextureMethods::CTM_VERTICAL:
+        case ConnectedTextureMethods::VERTICAL:
             writeToAtlasContiguous(blockTexture.base.textureIndex, 1, 4, 4);
             break;
         default:
@@ -557,13 +556,12 @@ ui32 TextureAtlasManager::makeBlockPackTexture(const vector <Atlas*> &atlasList,
     delete[] data;
 
 
-    //TODO: Should this be above glGenerateMipmap?
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, level);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LOD, level);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
     checkGlError("makeBlockPackTexture()");
 

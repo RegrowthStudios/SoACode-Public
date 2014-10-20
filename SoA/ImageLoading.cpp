@@ -133,6 +133,51 @@ ui32v2 readImageSize(IOManager* iom, const cString imagePath) {
     return imageSize;
 }
 
+ui8* loadPNG(const cString imagepath, ui32& rWidth, ui32& rHeight) {
+   
+    FILE * file = fopen(imagepath, "rb");
+    vector <ui8> fileData;
+    ui8* fileData2;
+    size_t fileSize;
+
+    if (!file) {
+        perror(imagepath); return NULL;
+    }
+
+    struct stat filestatus;
+    stat(imagepath, &filestatus);
+
+    fileSize = filestatus.st_size;
+    vector <ui8> imgData(fileSize);
+
+    fread(&(imgData[0]), 1, fileSize, file);
+    fclose(file);
+
+    unsigned error = lodepng::decode(fileData, rWidth, rHeight, imgData);
+
+    //if there's an error, display it
+    if (error) {
+        std::cout << "png decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+        return NULL;
+    }
+    
+    // flip it
+    fileData2 = new unsigned char[fileData.size()];
+    int sz = fileData.size();
+    int rowOffset;
+    for (size_t r = 0; r < rHeight; r++) {
+        rowOffset = r*rWidth * 4;
+        for (size_t i = 0; i < rWidth * 4; i += 4) {
+            fileData2[sz + i - rowOffset - rWidth * 4] = fileData[i + rowOffset];
+            fileData2[sz + i + 1 - rowOffset - rWidth * 4] = fileData[i + 1 + rowOffset];
+            fileData2[sz + i + 2 - rowOffset - rWidth * 4] = fileData[i + 2 + rowOffset];
+            fileData2[sz + i + 3 - rowOffset - rWidth * 4] = fileData[i + 3 + rowOffset];
+        }
+    }
+
+    return fileData2;
+}
+
 //if madeTexture == 1, it constructs an opengl texture and returns NULL. otherwise it returns the pixel data
 ui8* loadPNG(TextureInfo& texInfo, const cString imagepath, PNGLoadInfo texParams, bool makeTexture) {
     texInfo.freeTexture();

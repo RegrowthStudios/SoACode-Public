@@ -10,10 +10,10 @@ public:
 };
 
 enum class BlendType {
-    BLEND_TYPE_REPLACE,
-    BLEND_TYPE_ADD,
-    BLEND_TYPE_SUBTRACT,
-    BLEND_TYPE_MULTIPLY
+    REPLACE,
+    ADD,
+    SUBTRACT,
+    MULTIPLY
 };
 KEG_ENUM_DECL(BlendType);
 

@@ -185,16 +185,16 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     //They are used in the shader to determine how to blend.
     ubyte blendMode = 0x25; //0x25 = 00 10 01 01
     switch (texInfo.blendMode) {
-        case BlendType::BLEND_TYPE_REPLACE:
+        case BlendType::REPLACE:
             blendMode++; //Sets blendType to 00 01 01 10
             break;
-        case BlendType::BLEND_TYPE_ADD:
+        case BlendType::ADD:
             blendMode += 4; //Sets blendType to 00 01 10 01
             break;
-        case BlendType::BLEND_TYPE_SUBTRACT:
+        case BlendType::SUBTRACT:
             blendMode -= 4; //Sets blendType to 00 01 00 01
             break;
-        case BlendType::BLEND_TYPE_MULTIPLY:
+        case BlendType::MULTIPLY:
             blendMode -= 16; //Sets blendType to 00 01 01 01
             break;
     }
@@ -375,16 +375,16 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     //They are used in the shader to determine how to blend.
     ubyte blendMode = 0x25; //0x25 = 00 10 01 01
     switch (texInfo.blendMode) {
-        case BlendType::BLEND_TYPE_REPLACE:
+        case BlendType::REPLACE:
             blendMode++; //Sets blendType to 00 01 01 10
             break;
-        case BlendType::BLEND_TYPE_ADD:
+        case BlendType::ADD:
             blendMode += 4; //Sets blendType to 00 01 10 01
             break;
-        case BlendType::BLEND_TYPE_SUBTRACT:
+        case BlendType::SUBTRACT:
             blendMode -= 4; //Sets blendType to 00 01 00 01
             break;
-        case BlendType::BLEND_TYPE_MULTIPLY:
+        case BlendType::MULTIPLY:
             blendMode -= 16; //Sets blendType to 00 01 01 01
             break;
     }
@@ -606,16 +606,16 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const
 
     ui8 blendMode = 0x25; //0x25 = 00 10 01 01
     switch (blockTexture.blendMode) {
-        case BlendType::BLEND_TYPE_REPLACE:
+        case BlendType::REPLACE:
             blendMode++; //Sets blendType to 00 01 01 10
             break;
-        case BlendType::BLEND_TYPE_ADD:
+        case BlendType::ADD:
             blendMode += 4; //Sets blendType to 00 01 10 01
             break;
-        case BlendType::BLEND_TYPE_SUBTRACT:
+        case BlendType::SUBTRACT:
             blendMode -= 4; //Sets blendType to 00 01 00 01
             break;
-        case BlendType::BLEND_TYPE_MULTIPLY:
+        case BlendType::MULTIPLY:
             blendMode -= 16; //Sets blendType to 00 01 01 01
             break;
     }

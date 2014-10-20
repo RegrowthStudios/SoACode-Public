@@ -119,10 +119,15 @@ void LoadScreen::update(const GameTime& gameTime) {
     // Defer texture loading
     static bool loadedTextures = false;
     if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
+        PreciseTimer timer;
+        timer.start();
         LoadTextures();
         //load the texture pack
         fileManager.loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
+
         SetBlockAvgTexColors();
+
+        std::printf("\n\nTexture Load Time: %f ms\n\n", timer.stop()); //3742, 3862, 4263, 3991
 
         //load the emitters
         for (int i = 0; i < 4096; i++) {
@@ -152,6 +157,8 @@ void LoadScreen::update(const GameTime& gameTime) {
 
         _state = ScreenState::CHANGE_NEXT;
         loadedTextures = true;
+        
+        
     }
 }
 void LoadScreen::draw(const GameTime& gameTime) {

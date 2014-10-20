@@ -327,7 +327,7 @@ GLuint MakeBlockVbo(Block *block){
             Blocks[btype].GetBlockColor(botColor, botOverlayColor, 0, 128, 128, block->nyTexInfo);
 
             switch (block->pxTexInfo.overlay.method) {
-                case ConnectedTextureMethods::CTM_GRASS:
+                case ConnectedTextureMethods::GRASS:
                     sideOvTexOffset = 1;
                     break;
                 default:

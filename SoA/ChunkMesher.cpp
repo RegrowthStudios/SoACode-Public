@@ -178,15 +178,15 @@ void ChunkMesher::calculateLampColor(ui8 dst[3], ui8 src0[3], ui8 src1[3], ui8 s
 //Grass method may change color
 void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]) {
     switch (blockTexture.method) {
-    case ConnectedTextureMethods::CTM_CONNECTED:
+    case ConnectedTextureMethods::CONNECTED:
         return getConnectedTextureIndex(mi, result, blockTexture.innerSeams, rightDir, upDir, frontDir, directionIndex);
-    case ConnectedTextureMethods::CTM_RANDOM:
+    case ConnectedTextureMethods::RANDOM:
         return getRandomTextureIndex(mi, blockTexture, result);
-    case ConnectedTextureMethods::CTM_GRASS:
+    case ConnectedTextureMethods::GRASS:
         return getGrassTextureIndex(mi, result, rightDir, upDir, frontDir, directionIndex, color);
-    case ConnectedTextureMethods::CTM_HORIZONTAL:
+    case ConnectedTextureMethods::HORIZONTAL:
         return getHorizontalTextureIndex(mi, result, blockTexture.innerSeams, rightDir, frontDir, directionIndex);
-    case ConnectedTextureMethods::CTM_VERTICAL:
+    case ConnectedTextureMethods::VERTICAL:
         return getVerticalTextureIndex(mi, result, blockTexture.reducedMethod, upDir, directionIndex);
     }
 }

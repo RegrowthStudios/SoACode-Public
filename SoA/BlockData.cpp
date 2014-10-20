@@ -23,19 +23,19 @@ e->addValue("flat", MeshType::FLAT);
 KEG_ENUM_INIT_END
 
 KEG_ENUM_INIT_BEGIN(ConnectedTextureMethods, ConnectedTextureMethods, e)
-e->addValue("none", ConnectedTextureMethods::CTM_NONE);
-e->addValue("connect", ConnectedTextureMethods::CTM_CONNECTED);
-e->addValue("random", ConnectedTextureMethods::CTM_RANDOM);
-e->addValue("repeat", ConnectedTextureMethods::CTM_REPEAT);
-e->addValue("grass", ConnectedTextureMethods::CTM_GRASS);
-e->addValue("horizontal", ConnectedTextureMethods::CTM_HORIZONTAL);
-e->addValue("vertical", ConnectedTextureMethods::CTM_VERTICAL);
+e->addValue("none", ConnectedTextureMethods::NONE);
+e->addValue("connect", ConnectedTextureMethods::CONNECTED);
+e->addValue("random", ConnectedTextureMethods::RANDOM);
+e->addValue("repeat", ConnectedTextureMethods::REPEAT);
+e->addValue("grass", ConnectedTextureMethods::GRASS);
+e->addValue("horizontal", ConnectedTextureMethods::HORIZONTAL);
+e->addValue("vertical", ConnectedTextureMethods::VERTICAL);
 KEG_ENUM_INIT_END
 
 KEG_ENUM_INIT_BEGIN(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e)
-e->addValue("none", ConnectedTextureSymmetry::SYMMETRY_NONE);
-e->addValue("opposite", ConnectedTextureSymmetry::SYMMETRY_OPPOSITE);
-e->addValue("all", ConnectedTextureSymmetry::SYMMETRY_ALL);
+e->addValue("none", ConnectedTextureSymmetry::NONE);
+e->addValue("opposite", ConnectedTextureSymmetry::OPPOSITE);
+e->addValue("all", ConnectedTextureSymmetry::ALL);
 KEG_ENUM_INIT_END
 
 KEG_ENUM_INIT_BEGIN(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e);
@@ -45,10 +45,10 @@ e->addValue("bottom", ConnectedTextureReducedMethod::BOTTOM);
 KEG_ENUM_INIT_END
 
 KEG_ENUM_INIT_BEGIN(BlendType, BlendType, e)
-e->addValue("add", BlendType::BLEND_TYPE_ADD);
-e->addValue("multiply", BlendType::BLEND_TYPE_MULTIPLY);
-e->addValue("replace", BlendType::BLEND_TYPE_REPLACE);
-e->addValue("subtract", BlendType::BLEND_TYPE_SUBTRACT);
+e->addValue("add", BlendType::ADD);
+e->addValue("multiply", BlendType::MULTIPLY);
+e->addValue("replace", BlendType::REPLACE);
+e->addValue("subtract", BlendType::SUBTRACT);
 KEG_ENUM_INIT_END
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(BlockTextureLayer)
