@@ -115,6 +115,8 @@
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GLProgramManager.h" />
+    <ClInclude Include="ImageLoader.h" />
+    <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskPlanet.h" />
@@ -126,6 +128,7 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
@@ -252,6 +255,8 @@
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GLProgramManager.cpp" />
+    <ClCompile Include="ImageLoader.cpp" />
+    <ClCompile Include="ImageSaver.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -261,6 +266,7 @@
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
+    <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />

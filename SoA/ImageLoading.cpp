@@ -115,13 +115,6 @@ GLuint loadDDS(const char * imagepath, int smoothType) {
     return textureID;
 }
 
-void savePNG(nString fileName, ui32 width, ui32 height, std::vector<ui8> imgData) {
-    unsigned error = lodepng::encode(fileName, imgData, width, height);
-
-    //if there's an error, display it
-    if (error) std::cout << "png encoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-}
-
 ui32v2 readImageSize(IOManager* iom, const cString imagePath) {
     FILE* file = iom->openFile(imagePath, "rb");
     ui32v2 imageSize;
@@ -131,35 +124,6 @@ ui32v2 readImageSize(IOManager* iom, const cString imagePath) {
     imageSize.x = changeEndian(imageSize.x);
     imageSize.y = changeEndian(imageSize.y);
     return imageSize;
-}
-
-void loadPNG(const cString imagepath, std::vector<ui8>& pixelStore, ui32& rWidth, ui32& rHeight) {
-   
-    FILE * file = fopen(imagepath, "rb");
-    ui8* fileData2;
-    size_t fileSize;
-
-    if (!file) {
-        perror(imagepath);
-        return;
-    }
-
-    struct stat filestatus;
-    stat(imagepath, &filestatus);
-
-    fileSize = filestatus.st_size;
-    std::vector <ui8> imgData(fileSize);
-
-    fread(&(imgData[0]), 1, fileSize, file);
-    fclose(file);
-
-    unsigned error = lodepng::decode(pixelStore, rWidth, rHeight, imgData);
-
-    //if there's an error, display it
-    if (error) {
-        std::cout << "png decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-    }
-    
 }
 
 //if madeTexture == 1, it constructs an opengl texture and returns NULL. otherwise it returns the pixel data

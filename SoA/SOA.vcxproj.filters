@@ -521,6 +521,15 @@
     <ClInclude Include="MeshManager.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="TextureCache.h">
+      <Filter>SOA Files\Rendering\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLoader.h">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSaver.h">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -826,6 +835,15 @@
     </ClCompile>
     <ClCompile Include="MeshManager.cpp">
       <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureCache.cpp">
+      <Filter>SOA Files\Rendering\Images</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLoader.cpp">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSaver.cpp">
+      <Filter>SOA Files\Data\IO Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
