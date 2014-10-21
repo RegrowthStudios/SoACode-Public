@@ -273,6 +273,8 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     loadProperties(filePath + "properties.ini");
     saveProperties(filePath + "properties.ini"); //save em to update them
 
+
+
     currTerrainGenerator = generator;
     GameManager::planet = this;
     if (!ignoreBiomes){
