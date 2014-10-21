@@ -380,7 +380,7 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
     for(size_t i = 0; i < pm->usedParticles.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         if(particleTypes[pm->usedParticles[i]].animation) {
-            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->textureInfo.ID);
+            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->texture.ID);
         }
     }
 

@@ -18,7 +18,7 @@ class Item *ObjectList[OBJECT_LIST_SIZE];
 
 Marker::Marker(const glm::dvec3 &Pos, string Name, glm::vec3 Color) : pos(Pos), name(Name), dist(0.0), color(glm::vec4(Color, 1.0f))
 {
-    SetText(nameTex, name.c_str(), 0, 0, 35, 1);
+    //SetText(nameTex, name.c_str(), 0, 0, 35, 1);
 }
 
 void Marker::Draw(glm::mat4 &VP, const glm::dvec3 &playerPos)
@@ -89,17 +89,17 @@ void Marker::Draw(glm::mat4 &VP, const glm::dvec3 &playerPos)
     char diststr[64];
     sprintf(diststr, "%.2lf km", dist*0.001);
     if (oldDist != dist){
-        SetText(distText, diststr, 0, 0, 30, 1);
+    //    SetText(distText, diststr, 0, 0, 30, 1);
     }
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
-    distText.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(0.1, 0.0), glm::vec4(color.color.r, color.color.g, color.color.b, 0.5f));
-    nameTex.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(-0.5, 1.0), glm::vec4(color.color.r, color.color.g, color.color.b, 0.5f));
+ //   distText.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(0.1, 0.0), glm::vec4(color.color.r, color.color.g, color.color.b, 0.5f));
+ //   nameTex.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(-0.5, 1.0), glm::vec4(color.color.r, color.color.g, color.color.b, 0.5f));
     glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
-    distText.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(0.1, 0.0), glm::vec4(color.color.r, color.color.g, color.color.b, 1.0f));
-    nameTex.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(-0.5, 1.0), glm::vec4(color.color.r, color.color.g, color.color.b, 1.0f));
+  //  distText.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(0.1, 0.0), glm::vec4(color.color.r, color.color.g, color.color.b, 1.0f));
+ //   nameTex.DrawFixedSize3D(VP, playerPos, pos, glm::vec2(-0.5, 1.0), glm::vec4(color.color.r, color.color.g, color.color.b, 1.0f));
 
     oldDist = dist;
     glDeleteBuffers(1, &bufferID);

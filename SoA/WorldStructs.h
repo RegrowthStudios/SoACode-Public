@@ -17,6 +17,7 @@ struct FixedSizeBillboardVertex{
     GLubyte uv[2];
 };
 
+//TODO(Ben): Make this work again
 class Marker{
 public:
     glm::dvec3 pos;
@@ -25,8 +26,8 @@ public:
     double dist;
     string name;
 
-    class Texture2D distText;
-    Texture2D nameTex;
+    vg::Texture distText;
+    vg::Texture nameTex;
 
     Marker(const glm::dvec3 &Pos, string Name, const glm::vec3 Color);
     void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);

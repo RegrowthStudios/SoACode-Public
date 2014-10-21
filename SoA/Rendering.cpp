@@ -86,13 +86,6 @@ void WorldRenderer::DrawLine(glm::vec3 a, glm::vec3 b)
     glDrawArrays(GL_LINES, 0, 2);
 }
 
-void DrawFullScreenQuad(glm::vec4 color)
-{
-    Texture2D wholeTexture;
-    wholeTexture.Initialize(BlankTextureID.ID, 0, 0, screenWidth2d, screenHeight2d, color);
-    wholeTexture.Draw();
-}
-
 GLfloat sunUVs[8];
 GLfloat sunVerts[12];
 GLushort sunIndices[6];
@@ -273,29 +266,6 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
     GlobalModelMatrix[0][0] = 1.0;
     GlobalModelMatrix[1][1] = 1.0;
     GlobalModelMatrix[2][2] = 1.0;*/
-}
-
-void DrawLoadingScreen(string text, bool clearColor, glm::vec4 backColor, int fontSize)
-{
-    cout << text << endl;
-    fflush(stdout);
-
-    glClearDepth(1.0);
-    if (clearColor){
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-    else{
-        glClear(GL_DEPTH_BUFFER_BIT);
-    }
-    
-
-    DrawFullScreenQuad(backColor);
-
-    PrintText(text.c_str(), screenWidth2d / 2, screenHeight2d / 2, fontSize, 0, 1);
-
-    SDL_GL_SwapWindow(mainWindow);
-
-    glClear(GL_COLOR_BUFFER_BIT); //always clear color after in case next loading screen doesnt clear
 }
 
 GLuint MakeBlockVbo(Block *block){

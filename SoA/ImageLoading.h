@@ -7,6 +7,7 @@
 
 #include "Constants.h"
 #include "lodepng.h"
+#include "Texture.h"
 #include "SamplerState.h"
 
 class IOManager;
@@ -22,7 +23,7 @@ struct Animation {
     int xFrames;
     int yFrames;
     int frames;
-    Texture textureInfo;
+    vg::Texture texture;
 };
 
 extern SamplerState textureSamplers[6];
