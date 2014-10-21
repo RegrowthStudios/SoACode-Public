@@ -3,6 +3,7 @@
 
 #include "WorldStructs.h"
 #include "GLProgramManager.h"
+#include "TextureCache.h"
 #include "Vorb.h"
 
 class ChunkSlot;
@@ -61,6 +62,7 @@ public:
     static class DebugRenderer* debugRenderer;
     static vcore::GLProgramManager* glProgramManager;
     static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
+    static class vg::TextureCache* textureCache;
 
     static GameStates gameState;
     static nString saveFilePath;

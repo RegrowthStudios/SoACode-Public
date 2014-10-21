@@ -16,6 +16,7 @@
 #define TEXTURECACHE_H_
 
 #include <unordered_map>
+#include <vector>
 
 #include "ImageLoader.h"
 
@@ -29,14 +30,40 @@ public:
     TextureCache();
     ~TextureCache();
 
-    /// Loads a png texture and adds it to the cache
+    /// Loads and uploads a png texture and adds it to the cache
     /// @param filePath: The file path of the texture
-    /// @param width: Width of the texture in pixels
-    /// @param height: Height of the texture in pixels
     /// @param samplingParameters: The texture sampler parameters
     /// @param mipmapLevels: The max number of mipmap levels
-    /// @return The texture ID
-    ui32 addTexture(nString filePath,
+    /// @return The texture ID or 0 if loading fails
+    ui32 addTexture(const nString& filePath,
+                    SamplerState* samplingParameters,
+                    i32 mipmapLevels = INT_MAX);
+
+    /// Uploads a png texture and adds it to the cache
+    /// @param filePath: The path of the texture
+    /// @param pixels: The pixel data
+    /// @param width: The texture width in pixels
+    /// @param height: The texture height in pixels
+    /// @param samplingParameters: The texture sampler parameters
+    /// @param mipmapLevels: The max number of mipmap levels
+    /// @return The texture ID or 0 if loading fails
+    ui32 addTexture(const nString& filePath,
+                    const std::vector<ui8>& pixels,
+                    ui32 width,
+                    ui32 height,
+                    SamplerState* samplingParameters,
+                    i32 mipmapLevels = INT_MAX);
+
+    /// Uploads a png texture and adds it to the cache
+    /// @param filePath: The path of the texture
+    /// @param pixels: The pixel data
+    /// @param width: The texture width in pixels
+    /// @param height: The texture height in pixels
+    /// @param samplingParameters: The texture sampler parameters
+    /// @param mipmapLevels: The max number of mipmap levels
+    /// @return The texture ID or 0 if loading fails
+    ui32 addTexture(const nString& filePath,
+                    const ui8* pixels,
                     ui32 width,
                     ui32 height,
                     SamplerState* samplingParameters,
@@ -45,11 +72,11 @@ public:
     /// Adds a texture to the cache
     /// @param filePath: The path of the texture
     /// @param textureID: The opengGL texture ID
-    void addTexture(nString filePath, ui32 textureID);
+    void addTexture(const nString& filePath, ui32 textureID);
 
     /// Frees a texture from the cache
     /// @param filePath: The path of the texture to free
-    void freeTexture(nString filePath);
+    void freeTexture(const nString& filePath);
 
     /// Frees all textures
     void destroy();

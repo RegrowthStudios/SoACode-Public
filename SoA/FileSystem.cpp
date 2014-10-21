@@ -1556,23 +1556,23 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_TEXTURE:
                 b->topTexName = iniVal->getStr();
                 b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = b->bottomTexName = b->topTexName;
-                GameManager::texturePackLoader->addBlockTexture(b->topTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->topTexName);
                 break;
             case BLOCK_INI_TEXTURETOP:
                 b->topTexName = iniVal->getStr();
-                GameManager::texturePackLoader->addBlockTexture(b->topTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->topTexName);
                 break;
             case BLOCK_INI_TEXTURESIDE:
                 b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = iniVal->getStr();
-                GameManager::texturePackLoader->addBlockTexture(b->leftTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->leftTexName);
                 break;
             case BLOCK_INI_TEXTUREBOTTOM:
                 b->bottomTexName = iniVal->getStr();
-                GameManager::texturePackLoader->addBlockTexture(b->bottomTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->bottomTexName);
                 break;
             case BLOCK_INI_TEXTURE_PARTICLE:
                 b->particleTexName = iniVal->getStr();
-                GameManager::texturePackLoader->addBlockTexture(b->particleTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->particleTexName);
                 break;
             case BLOCK_INI_USEABLE:
                 b->useable = iniVal->getInt();

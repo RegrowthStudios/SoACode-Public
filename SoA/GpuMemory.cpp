@@ -16,11 +16,11 @@ ui32 GpuMemory::_totalVramUsage = 0;
 
 std::map<ui32, ui32> GpuMemory::_textures;
 
-ui32 GpuMemory::uploadTexture(const std::vector<ui8>& pixels,
-                                ui32 width,
-                                ui32 height,
-                                SamplerState* samplingParameters,
-                                i32 mipmapLevels /* = INT_MAX */) {
+ui32 GpuMemory::uploadTexture(const ui8* pixels,
+                              ui32 width,
+                              ui32 height,
+                              SamplerState* samplingParameters,
+                              i32 mipmapLevels /* = INT_MAX */) {
     // Create one OpenGL texture
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -35,7 +35,7 @@ ui32 GpuMemory::uploadTexture(const std::vector<ui8>& pixels,
 
     // "Bind" the newly created texture : all future texture functions will modify this texture
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // Setup Texture Sampling Parameters
     samplingParameters->set(GL_TEXTURE_2D);

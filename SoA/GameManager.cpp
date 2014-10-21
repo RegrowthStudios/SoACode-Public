@@ -53,6 +53,7 @@ WSOScanner* GameManager::wsoScanner = nullptr;
 DebugRenderer* GameManager::debugRenderer = nullptr;
 vcore::GLProgramManager* GameManager::glProgramManager = new vcore::GLProgramManager();
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
+vg::TextureCache* GameManager::textureCache = nullptr;
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;
@@ -73,7 +74,8 @@ void GameManager::initializeSystems() {
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
-        texturePackLoader = new TexturePackLoader();
+        textureCache = new vg::TextureCache();
+        texturePackLoader = new TexturePackLoader(textureCache);
         
         debugRenderer = new DebugRenderer();
  

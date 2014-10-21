@@ -130,7 +130,7 @@ void LoadScreen::update(const GameTime& gameTime) {
         fileManager.loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
 
         GameManager::texturePackLoader->loadAllTextures();
-        GameManager::texturePackLoader->createTextureAtlases();
+        GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
         GameManager::texturePackLoader->destroy();
 

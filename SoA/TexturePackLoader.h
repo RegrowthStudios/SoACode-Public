@@ -18,6 +18,7 @@
 
 #include "TextureAtlasStitcher.h"
 #include "BlockData.h"
+#include "TextureCache.h"
 
 #include <set>
 
@@ -27,15 +28,26 @@ struct BlockTextureData {
     BlendType blendMode;
 };
 
-// TODO(Ben): Make sure to save VRAM diagnostics!
+/// This class is designed so that textures are loaded in two passes.
+/// First all textures that should be loaded must be registered.
+/// In the first pass, textures are loaded into buffers with loadAllTextures().
+/// In the second pass, textures are uploaded to the GPU with uploadTextures()
 class TexturePackLoader
 {
 public:
-    TexturePackLoader();
+    /// Constructor
+    /// @param textureCache: The texture cache where textures will be stored
+    TexturePackLoader(vg::TextureCache* textureCache);
+    ~TexturePackLoader();
 
-    /// Adds a block texture to be loaded
+    /// Register a texture to be loaded
+    /// @param filePath: The path of the texture
+    /// @param ss: The sampler state for loading the texture
+    void registerTexture(const nString& filePath, SamplerState* ss) { _texturesToLoad[filePath] = ss; }
+
+    /// Register a block texture to be loaded
     /// @param filePath: The path of the block texture
-    void addBlockTexture(const std::string& filePath) { _blockTexturesToLoad.insert(filePath); }
+    void registerBlockTexture(const nString& filePath) { _blockTexturesToLoad.insert(filePath); }
 
     /// Loads all textures added to the texture pack and stores them
     /// but does not construct the texture atlases
@@ -46,8 +58,9 @@ public:
     /// @return Pointer to the texture data, or nullptr if it isn't present
     BlockTextureData* getBlockTexture(nString& texturePath);
 
-    /// Creates the texture atlases. Must be called after loadAllTextures.
-    void createTextureAtlases();
+    /// Creates the texture atlases and uploads textures to the GPU.
+    /// Must be called after loadAllTextures.
+    void uploadTextures();
 
     /// Frees all resources
     void destroy();
@@ -56,6 +69,9 @@ public:
     void writeDebugAtlases();
 
 private:
+
+    /// Loads all the block textures
+    void loadAllBlockTextures();
 
     /// Does postprocessing to the layer and adds it to _blockTextureLayers
     /// @param layer: The block texture layer to process
@@ -74,17 +90,9 @@ private:
     /// @return Pointer to the pixel data
     ui8* getPixels(const nString& filePath, ui32& width, ui32& height);
 
-    std::set <nString> _blockTexturesToLoad; ///< Set of all unique block texture paths to load
-
-    std::set <BlockTextureLayer> _blockTextureLayers; ///< Set of all unique block texture layers to load
-
-    std::vector <BlockLayerLoadData> _layersToLoad; ///< Vector of all layers we need to load
-
-    std::map <nString, BlockTextureData> _blockTextureLoadDatas; ///< Map of all texture datas we need to load
-
     /// Struct used for cacheing pixels
     struct Pixels {
-        Pixels() : data(nullptr), width(0), height(0){};
+        Pixels() : data(nullptr), width(0), height(0) {};
         Pixels(std::vector<ui8>* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
             // Empty
         }
@@ -93,11 +101,35 @@ private:
         ui32 height;
     };
 
+    /// Struct used for storing texture upload state
+    struct TextureToUpload {
+        TextureToUpload() : pixels(nullptr), samplerState(nullptr) {};
+        TextureToUpload(Pixels* p, SamplerState* ss) :
+            pixels(p), samplerState(ss) {
+            // Empty
+        }
+        Pixels* pixels;
+        SamplerState* samplerState;
+    };
+
+    std::map <nString, SamplerState*> _texturesToLoad; ///< Map of all unique non-block texture paths to load
+    std::map <nString, TextureToUpload> _texturesToUpload; ///< Map of textures to upload
+
+    std::set <nString> _blockTexturesToLoad; ///< Set of all unique block texture paths to load
+
+    std::set <BlockTextureLayer> _blockTextureLayers; ///< Set of all unique block texture layers to load
+
+    std::vector <BlockLayerLoadData> _layersToLoad; ///< Vector of all layers we need to load
+
+    std::map <nString, BlockTextureData> _blockTextureLoadDatas; ///< Map of all texture datas we need to load
+
     std::map <nString, Pixels> _pixelCache; ///< Cache of texture pixel data
 
     TextureAtlasStitcher _textureAtlasStitcher; ///< Class responsible for doing the mapping to the atlas array
 
     nString _texturePackPath; ///< Path for the texture pack
+
+    vg::TextureCache* _textureCache; ///< Cache for storing non-block textures
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
 };

@@ -34,9 +34,24 @@ public:
     /// @param samplingParameters: The texture sampler parameters
     /// @param mipmapLevels: The max number of mipmap levels
     /// @return The texture ID
-    static ui32 uploadTexture(const std::vector<ui8>& pixels, 
-                              ui32 width, 
-                              ui32 height, 
+    static ui32 uploadTexture(const std::vector<ui8>& pixels,
+                              ui32 width,
+                              ui32 height,
+                              SamplerState* samplingParameters,
+                              i32 mipmapLevels = INT_MAX) {
+        return uploadTexture(pixels.data(), width, height, samplingParameters, mipmapLevels);
+    }
+
+    /// Uploads a texture to the GPU.
+    /// @param pixels: The image pixels
+    /// @param width: Width of the texture in pixels
+    /// @param height: Height of the texture in pixels
+    /// @param samplingParameters: The texture sampler parameters
+    /// @param mipmapLevels: The max number of mipmap levels
+    /// @return The texture ID
+    static ui32 uploadTexture(const ui8* pixels,
+                              ui32 width,
+                              ui32 height,
                               SamplerState* samplingParameters,
                               i32 mipmapLevels = INT_MAX);
 
