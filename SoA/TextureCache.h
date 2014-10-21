@@ -38,7 +38,7 @@ public:
 
     /// Returns the file path associated with the texture
     /// @param textureID: The ID of the texture
-    /// @return the filepath or empty string if it doesn't exist
+    /// @return The filepath or empty string if it doesn't exist
     nString getTexturePath(ui32 textureID);
 
     /// Loads and uploads a png texture and adds it to the cache or returns
@@ -48,7 +48,7 @@ public:
     /// @param mipmapLevels: The max number of mipmap levels
     /// @return The texture ID or 0 if loading fails
     ui32 addTexture(const nString& filePath,
-                    SamplerState* samplingParameters,
+                    SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
                     i32 mipmapLevels = INT_MAX);
 
     /// Uploads a png texture and adds it to the cache or returns
@@ -64,7 +64,7 @@ public:
                     const std::vector<ui8>& pixels,
                     ui32 width,
                     ui32 height,
-                    SamplerState* samplingParameters,
+                    SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
                     i32 mipmapLevels = INT_MAX);
 
     /// Uploads a png texture and adds it to the cache
@@ -80,7 +80,7 @@ public:
                     const ui8* pixels,
                     ui32 width,
                     ui32 height,
-                    SamplerState* samplingParameters,
+                    SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
                     i32 mipmapLevels = INT_MAX);
 
     /// Adds a texture to the cache

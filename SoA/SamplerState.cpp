@@ -11,8 +11,8 @@ SamplerState::SamplerState(TextureMinFilter texMinFilter, TextureMagFilter texMa
 
 void SamplerState::initObject() {
     glGenSamplers(1, &_id);
-    glSamplerParameteri(_id, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(_magFilter));
     glSamplerParameteri(_id, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(_minFilter));
+    glSamplerParameteri(_id, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(_magFilter));
     glSamplerParameteri(_id, GL_TEXTURE_WRAP_S, static_cast<GLenum>(_wrapS));
     glSamplerParameteri(_id, GL_TEXTURE_WRAP_T, static_cast<GLenum>(_wrapT));
     glSamplerParameteri(_id, GL_TEXTURE_WRAP_R, static_cast<GLenum>(_wrapR));

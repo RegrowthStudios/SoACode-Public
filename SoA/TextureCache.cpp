@@ -35,7 +35,7 @@ nString TextureCache::getTexturePath(ui32 textureID) {
 }
 
 ui32 TextureCache::addTexture(const nString& filePath,
-                                SamplerState* samplingParameters,
+                                SamplerState* samplingParameters /* = &SamplerState::LINEAR_WRAP_MIPMAP */,
                                 i32 mipmapLevels /* = INT_MAX */) {
 
     // Check if its already cached
@@ -64,7 +64,7 @@ ui32 TextureCache::addTexture(const nString& filePath,
                               const std::vector<ui8>& pixels,
                               ui32 width,
                               ui32 height,
-                              SamplerState* samplingParameters,
+                              SamplerState* samplingParameters /* = &SamplerState::LINEAR_WRAP_MIPMAP */,
                               i32 mipmapLevels /* = INT_MAX */) {
     // Check if its already cached
     ui32 textureID = findTexture(filePath);
@@ -82,7 +82,7 @@ ui32 TextureCache::addTexture(const nString& filePath,
                               const ui8* pixels,
                               ui32 width,
                               ui32 height,
-                              SamplerState* samplingParameters,
+                              SamplerState* samplingParameters /* = &SamplerState::LINEAR_WRAP_MIPMAP */,
                               i32 mipmapLevels /* = INT_MAX */) {
     // Check if its already cached
     ui32 textureID = findTexture(filePath);
