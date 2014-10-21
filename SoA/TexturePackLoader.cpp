@@ -57,7 +57,7 @@ void TexturePackLoader::uploadTextures() {
     // Upload all the non block textures
     for (auto it = _texturesToUpload.begin(); it != _texturesToUpload.end(); ++it) {
         TextureToUpload& texture = it->second;
-        _textureCache->addTexture(it->first, *(texture.pixels->data), texture.pixels->width, texture.pixels->height, texture.samplerState);
+        _textureCache->addTexture(it->first, texture.pixels->data->data(), texture.pixels->width, texture.pixels->height, texture.samplerState);
     }
 
     // TODO(Ben): This could be done better

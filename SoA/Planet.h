@@ -109,10 +109,10 @@ public:
     void addMainBiome(Biome* mainBiome);
     void addChildBiome(Biome* childBiome);
 
-    TextureInfo biomeMapTexture;
-    TextureInfo colorMapTexture;
-    TextureInfo sunColorMapTexture;
-    TextureInfo waterColorMapTexture;
+    ui32 biomeMapTexture;
+    ui32 colorMapTexture;
+    ui32 sunColorMapTexture;
+    ui32 waterColorMapTexture;
 
     i32 bindex;
     std::map<i32, Biome*> baseBiomesLookupMap;

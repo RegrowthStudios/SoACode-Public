@@ -24,9 +24,13 @@ GLfloat textColorVertices[16384];
 
 std::map <std::string, TextureInfo> textureMap;
 
+//TODO(Ben): This is bad
 TextureInfo getTextureInfo(string source, Animation **anim)
 {
+    vg::TextureCache* textureCache = GameManager::textureCache;
+
     auto it = textureMap.find(source);
+    
     if (it != textureMap.end()){
         return it->second;
     }else{
@@ -44,7 +48,8 @@ TextureInfo getTextureInfo(string source, Animation **anim)
                 ZipFile zipFile(fileName); //maybe keep this open
                 size_t filesize;
                 unsigned char *zipData = zipFile.readFile(s, filesize);
-                loadPNG(newTexInfo, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
+                
+                //loadPNG(newTexInfo, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
 
                 if (anim){
                     
@@ -58,7 +63,7 @@ TextureInfo getTextureInfo(string source, Animation **anim)
 
             }
             else{
-                loadPNG(newTexInfo, (fileName + s).c_str(), PNGLoadInfo(textureSamplers + 1, 12));
+                newTexInfo.ID = textureCache->addTexture(fileName + s);
 
                 if (anim){
                 
@@ -72,7 +77,7 @@ TextureInfo getTextureInfo(string source, Animation **anim)
             }
         }
         else{
-            loadPNG(newTexInfo, source.c_str(), PNGLoadInfo(textureSamplers + 1, 12));
+            newTexInfo.ID = textureCache->addTexture(source);
         }
         textureMap.insert(make_pair(source, newTexInfo));
         return newTexInfo;

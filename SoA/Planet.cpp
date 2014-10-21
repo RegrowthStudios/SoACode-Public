@@ -277,6 +277,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
 
     currTerrainGenerator = generator;
     GameManager::planet = this;
+    vg::TextureCache* textureCache = GameManager::textureCache;
     if (!ignoreBiomes){
         if (fileManager.loadNoiseFunctions((filePath + "Noise/TerrainNoise.SOANOISE").c_str(), 0, this)) {
             pError("Failed to load terrain noise functions!");
@@ -310,12 +311,12 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
 
     fileManager.saveBiomeData(this, filePath);
     
-    loadPNG(sunColorMapTexture, (filePath + "/Sky/sunColor.png").c_str(), PNGLoadInfo(textureSamplers, 2)); 
+    sunColorMapTexture = textureCache->addTexture(filePath + "/Sky/sunColor.png", &SamplerState::LINEAR_CLAMP_MIPMAP);
 
     GLubyte buffer[256][256][3];
     if (!ignoreBiomes){
         glActiveTexture(GL_TEXTURE8);
-        glBindTexture(GL_TEXTURE_2D, GameManager::planet->biomeMapTexture.ID);
+        glBindTexture(GL_TEXTURE_2D, GameManager::planet->biomeMapTexture);
         
         glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
 
@@ -331,7 +332,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         }
     }
     //color map!
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
     for (int i = 0; i < 256; i++){
         for (int j = 0; j < 256; j++){
@@ -341,7 +342,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         }
     }
 
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
     for (int i = 0; i < 256; i++){
         for (int j = 0; j < 256; j++){
@@ -481,17 +482,17 @@ void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, biomeMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, biomeMapTexture);
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, waterColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, waterColorMapTexture);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, waterNoiseTexture.ID);
 
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, sunColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, sunColorMapTexture);
 
     glActiveTexture(GL_TEXTURE7);
-    glBindTexture(GL_TEXTURE_2D, colorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, colorMapTexture);
 
     closestTerrainPatchDistance = 999999999999.0;
 
@@ -834,10 +835,11 @@ void Planet::destroy()
     }
     floraTypeVec.clear();
 
-    biomeMapTexture.freeTexture();
-    colorMapTexture.freeTexture();
-    sunColorMapTexture.freeTexture();
-    waterColorMapTexture.freeTexture();
+    vg::TextureCache* textureCache = GameManager::textureCache;
+    textureCache->freeTexture(biomeMapTexture);
+    textureCache->freeTexture(sunColorMapTexture);
+    textureCache->freeTexture(sunColorMapTexture);
+    textureCache->freeTexture(waterColorMapTexture);
 }
 
 void Planet::clearBiomes() //MEMORY LEAKS ARE ON PURPOSE. NOT MEANT FOR FINAL GAME

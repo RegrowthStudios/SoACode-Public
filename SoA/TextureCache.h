@@ -51,22 +51,6 @@ public:
                     SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
                     i32 mipmapLevels = INT_MAX);
 
-    /// Uploads a png texture and adds it to the cache or returns
-    /// an existing texture ID if it already exists in the cache
-    /// @param filePath: The path of the texture
-    /// @param pixels: The pixel data
-    /// @param width: The texture width in pixels
-    /// @param height: The texture height in pixels
-    /// @param samplingParameters: The texture sampler parameters
-    /// @param mipmapLevels: The max number of mipmap levels
-    /// @return The texture ID or 0 if loading fails
-    ui32 addTexture(const nString& filePath,
-                    const std::vector<ui8>& pixels,
-                    ui32 width,
-                    ui32 height,
-                    SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
-                    i32 mipmapLevels = INT_MAX);
-
     /// Uploads a png texture and adds it to the cache
     /// an existing texture ID if it already exists in the cache
     /// @param filePath: The path of the texture

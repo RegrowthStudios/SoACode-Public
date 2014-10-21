@@ -22,6 +22,7 @@
 #include "Planet.h"
 #include "Player.h"
 #include "TerrainGenerator.h"
+#include "TextureCache.h"
 #include "TexturePackLoader.h"
 #include "WorldStructs.h"
 #include "ZipFile.h"
@@ -461,6 +462,9 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
     nString bfname;
     Biome *biome;
 
+    vg::TextureCache* textureCache = GameManager::textureCache;
+
+
     nString ts, s;
     file.open(worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt");
     if (file.fail()) {
@@ -483,7 +487,7 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 return 1;
             }
             planet->biomeMapFileName = s;
-            loadPNG(planet->biomeMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->biomeMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Biome_Color_Filename:") {
             if (!(file >> s)) {
                 std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Color_Filename!\nEnter any key to continue: ";
@@ -492,7 +496,7 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 return 1;
             }
             planet->colorMapFileName = s;
-            loadPNG(planet->colorMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->colorMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Water_Color_Filename:") {
             if (!(file >> s)) {
                 std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Water_Color_Filename!\nEnter any key to continue: ";
@@ -501,7 +505,7 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 return 1;
             }
             planet->waterColorMapFileName = s;
-            loadPNG(planet->waterColorMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->waterColorMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Base_Biomes:") {
             activeList = 1;
         } else if (ts == "Main_Biomes:") {

@@ -61,24 +61,6 @@ ui32 TextureCache::addTexture(const nString& filePath,
 }
 
 ui32 TextureCache::addTexture(const nString& filePath,
-                              const std::vector<ui8>& pixels,
-                              ui32 width,
-                              ui32 height,
-                              SamplerState* samplingParameters /* = &SamplerState::LINEAR_WRAP_MIPMAP */,
-                              i32 mipmapLevels /* = INT_MAX */) {
-    // Check if its already cached
-    ui32 textureID = findTexture(filePath);
-    if (textureID) return textureID;
-
-    // Upload the texture through GpuMemory
-    textureID = GpuMemory::uploadTexture(pixels.data(), width, height, samplingParameters, mipmapLevels);
-
-    // Store the texture in the cache
-    insertTexture(filePath, textureID);
-    return textureID;
-}
-
-ui32 TextureCache::addTexture(const nString& filePath,
                               const ui8* pixels,
                               ui32 width,
                               ui32 height,

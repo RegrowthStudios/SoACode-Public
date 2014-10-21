@@ -82,7 +82,7 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     // Sun Color Map
     GLubyte sbuffer[64][3];
 
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->sunColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->sunColorMapTexture);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, sbuffer);
     for (i32 i = 0; i < 64; i++) {
         sunColor[i][0] = (i32)sbuffer[i][2]; //converts bgr to rgb
