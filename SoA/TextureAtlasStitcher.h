@@ -73,11 +73,9 @@ private:
     /// @return The index of the texture start into the atlas array.
     i32 mapContiguous(int numTiles);
 
-    void writeToAtlas(int texIndex, ui8* pixels, int pixelWidth, int pixelHeight);
+    void writeToAtlas(int texIndex, ui8* pixels, int pixelWidth, int pixelHeight, int bytesPerPixelRow);
 
     void writeToAtlasContiguous(int texIndex, ui8* pixels, int width, int height, int numTiles);
-
-    std::map <BlockTextureLayer, ui32> _textureLayerCache; ///< Cache of texture layer mappings
 
     std::vector<BlockAtlasPage*> _pages; ///< list of pages
 

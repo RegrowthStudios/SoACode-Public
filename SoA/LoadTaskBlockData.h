@@ -37,6 +37,5 @@ class LoadTaskBlockData : public ILoadTask {
         Blocks[VISITED_NODE].ID = VISITED_NODE;
         Blocks[VISITED_NODE].name = "Visited Node";
 
-     //   std::cout << "\n\n\nDONE LOADING\n\n\n";
     }
 };

@@ -23,6 +23,7 @@
 #include "Sound.h"
 #include "TerrainGenerator.h"
 #include "TextureAtlasManager.h"
+#include "TexturePackLoader.h"
 #include "Threadpool.h"
 #include "VRayHelper.h"
 #include "WSO.h"
@@ -53,6 +54,7 @@ WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 DebugRenderer* GameManager::debugRenderer = nullptr;
 vcore::GLProgramManager* GameManager::glProgramManager = new vcore::GLProgramManager();
+TexturePackLoader* GameManager::texturePackLoader = nullptr;
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;
@@ -74,6 +76,7 @@ void GameManager::initializeSystems() {
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
+        texturePackLoader = new TexturePackLoader();
         
         debugRenderer = new DebugRenderer();
  

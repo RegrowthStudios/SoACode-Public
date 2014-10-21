@@ -69,6 +69,11 @@ struct BlockTextureLayer {
 KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
+    BlockTexture() {};
+    BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
+        base(b), overlay(o), blendMode(bt){
+        // Empty
+    }
     BlockTextureLayer base;
     BlockTextureLayer overlay;
 

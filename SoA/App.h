@@ -29,5 +29,4 @@ public:
 
     FrameBuffer* frameBuffer;
     MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
-    TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
 };

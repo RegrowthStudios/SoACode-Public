@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "TerrainGenerator.h"
 #include "TextureAtlasManager.h"
+#include "TexturePackLoader.h"
 #include "WorldStructs.h"
 #include "ZipFile.h"
 
@@ -1364,12 +1365,6 @@ void FileManager::loadTexturePack(nString fileName) {
         return;
     }
 
-
-    GameManager::textureAtlasManager->loadBlockAtlas(fileName);
-
-    for (size_t i = 0; i < Blocks.size(); i++) {
-        Blocks[i].InitializeTexture();
-    }
 }
 
 nString FileManager::loadTexturePackDescription(nString fileName) {
@@ -1562,23 +1557,23 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_TEXTURE:
                 b->topTexName = iniVal->getStr();
                 b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = b->bottomTexName = b->topTexName;
-                GameManager::textureAtlasManager->addBlockTexture(b->topTexName);
+                GameManager::texturePackLoader->addBlockTexture(b->topTexName);
                 break;
             case BLOCK_INI_TEXTURETOP:
                 b->topTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->topTexName);
+                GameManager::texturePackLoader->addBlockTexture(b->topTexName);
                 break;
             case BLOCK_INI_TEXTURESIDE:
                 b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->leftTexName);
+                GameManager::texturePackLoader->addBlockTexture(b->leftTexName);
                 break;
             case BLOCK_INI_TEXTUREBOTTOM:
                 b->bottomTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->bottomTexName);
+                GameManager::texturePackLoader->addBlockTexture(b->bottomTexName);
                 break;
             case BLOCK_INI_TEXTURE_PARTICLE:
                 b->particleTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->particleTexName);
+                GameManager::texturePackLoader->addBlockTexture(b->particleTexName);
                 break;
             case BLOCK_INI_USEABLE:
                 b->useable = iniVal->getInt();

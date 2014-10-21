@@ -21,7 +21,7 @@
 
 #include <set>
 
-struct BlockTextureLoadData {
+struct BlockTextureData {
     BlockTextureLayer* base;
     BlockTextureLayer* overlay;
     BlendType blendMode;
@@ -40,6 +40,11 @@ public:
     /// Loads all textures added to the texture pack and stores them
     /// but does not construct the texture atlases
     void loadAllTextures();
+
+    /// Gets a BlockTextureData, which contains the information about a block texture
+    /// @param texturePath: The path to the texture to look up
+    /// @return Pointer to the texture data, or nullptr if it isn't present
+    BlockTextureData* getBlockTexture(nString& texturePath);
 
     /// Creates the texture atlases. Must be called after loadAllTextures.
     void createTextureAtlases();
@@ -73,17 +78,17 @@ private:
 
     std::set <BlockTextureLayer> _blockTextureLayers; ///< Set of all unique block texture layers to load
 
-    std::vector <BlockLayerLoadData> _layersToLoad;
+    std::vector <BlockLayerLoadData> _layersToLoad; ///< Vector of all layers we need to load
 
-    std::map <nString, BlockTextureLoadData> _blockTextureLoadDatas; ///< Map of all texture datas we need to load
+    std::map <nString, BlockTextureData> _blockTextureLoadDatas; ///< Map of all texture datas we need to load
 
     /// Struct used for cacheing pixels
     struct Pixels {
-        Pixels(){};
-        Pixels(ui8* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
+        Pixels() : data(nullptr), width(0), height(0){};
+        Pixels(std::vector<ui8>* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
             // Empty
         }
-        ui8* data;
+        std::vector<ui8>* data;
         ui32 width;
         ui32 height;
     };
@@ -91,6 +96,8 @@ private:
     std::map <nString, Pixels> _pixelCache; ///< Cache of texture pixel data
 
     TextureAtlasStitcher _textureAtlasStitcher; ///< Class responsible for doing the mapping to the atlas array
+
+    nString _texturePackPath; ///< Path for the texture pack
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
 };

@@ -19,6 +19,8 @@
 #include "ParticleEmitter.h"
 #include "Player.h"
 #include "SamplerState.h"
+#include "TexturePackLoader.h"
+#include "TextureAtlasManager.h"
 
 #include "SpriteFont.h"
 #include "SpriteBatch.h";
@@ -118,18 +120,26 @@ void LoadScreen::update(const GameTime& gameTime) {
 
 
 
+
     // Defer texture loading
     static bool loadedTextures = false;
     if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
-        PreciseTimer timer;
-        timer.start();
+       
         LoadTextures();
         //load the texture pack
+
         fileManager.loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
 
-        SetBlockAvgTexColors();
+        GameManager::texturePackLoader->loadAllTextures();
+        GameManager::texturePackLoader->createTextureAtlases();
+        GameManager::texturePackLoader->writeDebugAtlases();
+        GameManager::texturePackLoader->destroy();
 
-        std::printf("\n\nTexture Load Time: %f ms\n\n", timer.stop()); //3742, 3862, 4263, 3991
+        for (size_t i = 0; i < Blocks.size(); i++) {
+            Blocks[i].InitializeTexture();
+        }
+
+        SetBlockAvgTexColors();
 
         //load the emitters
         for (int i = 0; i < 4096; i++) {

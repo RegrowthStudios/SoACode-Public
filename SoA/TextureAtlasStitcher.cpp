@@ -60,8 +60,6 @@ i32 TextureAtlasStitcher::addTexture(const BlockTextureLayer& layer) {
             break;
     }
 
-    // Store the layer and the index
-    _textureLayerCache[layer] = index;
     return index;
 }
 
@@ -79,10 +77,12 @@ void TextureAtlasStitcher::buildPixelData(const std::vector <BlockLayerLoadData>
     // Allocate pixel data for entire texture array
     _pixelData = new ui8[_bytesPerPage * _pages.size()];
 
+
     // Loop through all layers to load
     for (auto& loadData : layers) {
         // Get the layer handle
         BlockTextureLayer* layer = loadData.layer;
+
         ui8* pixels = loadData.pixels;
         // Write pixels to the _pixelData array based on method
         switch (layer->method) {
@@ -93,7 +93,7 @@ void TextureAtlasStitcher::buildPixelData(const std::vector <BlockLayerLoadData>
                 writeToAtlasContiguous(layer->textureIndex, pixels, layer->numTiles, 1, layer->numTiles);
                 break;
             case ConnectedTextureMethods::REPEAT:
-                writeToAtlas(layer->textureIndex, pixels, _resolution * layer->size.x, _resolution * layer->size.y);
+                writeToAtlas(layer->textureIndex, pixels, _resolution * layer->size.x, _resolution * layer->size.y, layer->size.x * _resolution * BYTES_PER_PIXEL);
                 break;
             case ConnectedTextureMethods::GRASS:
                 writeToAtlasContiguous(layer->textureIndex, pixels, 3, 3, 9);
@@ -105,7 +105,7 @@ void TextureAtlasStitcher::buildPixelData(const std::vector <BlockLayerLoadData>
                 writeToAtlasContiguous(layer->textureIndex, pixels, 1, 4, 4);
                 break;
             default:
-                writeToAtlas(layer->textureIndex, pixels, _resolution, _resolution);
+                writeToAtlas(layer->textureIndex, pixels, _resolution, _resolution, _resolution * BYTES_PER_PIXEL);
                 break;
         }
     }
@@ -152,13 +152,15 @@ ui32 TextureAtlasStitcher::buildTextureArray() {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
     
+    // Unbind
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
     // Check if we had any errors
     checkGlError("TextureAtlasStitcher::buildAtlasArray()");
+    return textureID;
 }
 
 void TextureAtlasStitcher::destroy() {
-
-    std::map <BlockTextureLayer, ui32>().swap(_textureLayerCache);
 
     for (int i = 0; i < _pages.size(); i++) {
         delete _pages[i];
@@ -193,10 +195,10 @@ i32 TextureAtlasStitcher::mapSingle() {
 
         // Since we are mapping single textures, we know this is the oldest free
         _oldestFreeSlot++;
-    } while (_pages[pageIndex]->slots[i] == false);
+    } while (_pages[pageIndex]->slots[i] == true);
 
     //mark this slot as not free
-    _pages[pageIndex]->slots[i] = false;
+    _pages[pageIndex]->slots[i] = true;
 
     return pageIndex * BLOCK_TEXTURE_ATLAS_SIZE + i;
 }
@@ -244,9 +246,9 @@ i32 TextureAtlasStitcher::mapBox(int width, int height) {
         //Search to see if all needed slots are free
         for (int j = y; j < y + height; j++) {
             for (int k = x; k < x + width; k++) {
-                if (_pages[pageIndex]->slots[j * BLOCK_TEXTURE_ATLAS_WIDTH + k] == false) {
+                if (_pages[pageIndex]->slots[j * BLOCK_TEXTURE_ATLAS_WIDTH + k] == true) {
                     fits = false;
-                    j = 100; //force to fall out of loop
+                    j = y + height; //force to fall out of loop
                     break;
                 }
             }
@@ -258,10 +260,10 @@ i32 TextureAtlasStitcher::mapBox(int width, int height) {
         }
     }
 
-    //Set all free slots to false
+    //Set all slots to true
     for (int j = y; j < y + height; j++) {
         for (int k = x; k < x + width; k++) {
-            _pages[pageIndex]->slots[j * BLOCK_TEXTURE_ATLAS_WIDTH + k] = false;
+            _pages[pageIndex]->slots[j * BLOCK_TEXTURE_ATLAS_WIDTH + k] = true;
         }
     }
 
@@ -273,22 +275,23 @@ i32 TextureAtlasStitcher::mapContiguous(int numTiles) {
     int i;
     int pageIndex;
     int numContiguous = 0;
-    //Start the search at the oldest known free spot.
+    // Start the search at the oldest known free spot.
     int searchIndex = _oldestFreeSlot;
     bool passedFreeSlot = false;
 
-    //Find the next free slot that is large enough
+    // Find the next free slot that is large enough
     while (true) {
         i = searchIndex % BLOCK_TEXTURE_ATLAS_SIZE;
         pageIndex = searchIndex / BLOCK_TEXTURE_ATLAS_SIZE;
 
-        //If we need to alocate a new atlas
+        // If we need to alocate a new atlas
         if (pageIndex >= _pages.size()) {
             _pages.push_back(new BlockAtlasPage({}));
         }
 
         searchIndex++;
-        if (_pages[pageIndex]->slots[i] == false) {
+        if (_pages[pageIndex]->slots[i] == true) {
+            // If we have any contiguous, then we left a free spot behind somewhere
             if (numContiguous) {
                 passedFreeSlot = true;
             }
@@ -297,7 +300,7 @@ i32 TextureAtlasStitcher::mapContiguous(int numTiles) {
             numContiguous++;
         }
 
-        //Stop searching if we have found a contiguous block that is large enough
+        // Stop searching if we have found a contiguous block that is large enough
         if (numContiguous == numTiles) {
             i = searchIndex % BLOCK_TEXTURE_ATLAS_SIZE;
             pageIndex = searchIndex / BLOCK_TEXTURE_ATLAS_SIZE;
@@ -305,46 +308,81 @@ i32 TextureAtlasStitcher::mapContiguous(int numTiles) {
         }
     }
 
-    //Move the oldest known free slot forward if we havent passed a free spot
+    // Move the oldest known free slot forward if we havent passed a free spot
     if (passedFreeSlot == false) {
         _oldestFreeSlot = i + pageIndex * BLOCK_TEXTURE_ATLAS_SIZE;
     }
 
-    return i + pageIndex * BLOCK_TEXTURE_ATLAS_SIZE - numTiles;
+    i32 index = i + pageIndex * BLOCK_TEXTURE_ATLAS_SIZE - numTiles;
+
+    // Mark slots as full
+    for (searchIndex = index; searchIndex < index + numTiles; searchIndex++) {
+        i = searchIndex % BLOCK_TEXTURE_ATLAS_SIZE;
+        pageIndex = searchIndex / BLOCK_TEXTURE_ATLAS_SIZE;
+        _pages[pageIndex]->slots[i] = true;
+    }
+
+    return index;
 }
 
 
 
-void TextureAtlasStitcher::writeToAtlas(int texIndex, ui8* pixels, int pixelWidth, int pixelHeight) {
+void TextureAtlasStitcher::writeToAtlas(int texIndex, ui8* pixels, int pixelWidth, int pixelHeight, int bytesPerPixelRow) {
     
     // Get the location in the array
     int i = texIndex % BLOCK_TEXTURE_ATLAS_SIZE;
     int dx = i % BLOCK_TEXTURE_ATLAS_WIDTH;
-    int dy = i % BLOCK_TEXTURE_ATLAS_WIDTH;
+    int dy = i / BLOCK_TEXTURE_ATLAS_WIDTH;
     int pageIndex = texIndex / BLOCK_TEXTURE_ATLAS_SIZE;
 
-    // Start of destination
-    ui8* dest = _pixelData + pageIndex * _bytesPerPage + dx * BYTES_PER_PIXEL + dy * _bytesPerTileRow;
+    // Temp variables to reduce multiplications
+    int destOffset;
+    int pixelsOffset;
+    int yDestOffset;
+    int yPixelsOffset;
 
-    int offset;
+    // Start of destination
+    ui8* dest = _pixelData + pageIndex * _bytesPerPage + dx * BYTES_PER_PIXEL * _resolution + dy * _bytesPerTileRow;
+    float alpha;
+
     // Copy the block of pixels
     for (int y = 0; y < pixelHeight; y++) {
-        offset = y * _bytesPerPixelRow;
-        memcpy(dest + offset, pixels + offset, pixelWidth);
+        // Calculate Y offsets
+        yDestOffset = y * _bytesPerPixelRow;
+        yPixelsOffset = y * bytesPerPixelRow;
+        // Need to do alpha blending for every pixel against a black background
+        for (int x = 0; x < pixelWidth * BYTES_PER_PIXEL; x += BYTES_PER_PIXEL) {
+            // Calculate offsets
+            destOffset = yDestOffset + x;
+            pixelsOffset = yPixelsOffset + x;
+            // Convert 0-255 to 0-1 for alpha mult
+            alpha = (float)pixels[pixelsOffset + 3] / 255.0f;
+
+            // Set the colors. Add  + 0.01f to make sure there isn't any rounding error when we truncate
+            dest[destOffset] = (ui8)((float)pixels[pixelsOffset] * alpha + 0.01f); // R
+            dest[destOffset + 1] = (ui8)((float)pixels[pixelsOffset + 1] * alpha + 0.01f); // R
+            dest[destOffset + 2] = (ui8)((float)pixels[pixelsOffset + 2] * alpha + 0.01f); // R
+            dest[destOffset + 3] = pixels[pixelsOffset + 3]; // A
+        }
+        
+
+        //memcpy(dest + y * _bytesPerPixelRow, pixels + y * bytesPerPixelRow, pixelWidth * BYTES_PER_PIXEL);
     }
 }
 
 void TextureAtlasStitcher::writeToAtlasContiguous(int texIndex, ui8* pixels, int width, int height, int numTiles) {
 
-    int bytesPerTileWidth = width * _resolution * BYTES_PER_PIXEL;
-
+    int bytesPerTileWidth = _resolution * BYTES_PER_PIXEL;
+    int bytesPerPixelRow = width * bytesPerTileWidth;
+    int bytesPerTileRow = _resolution * bytesPerPixelRow;
+    
     int n = 0;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width && n < numTiles; x++, n++) {
             // Get pointer to source data
-            ui8* src = pixels + y * _bytesPerTileRow + x * bytesPerTileWidth;
+            ui8* src = pixels + y * bytesPerTileRow + x * bytesPerTileWidth;
 
-            writeToAtlas(texIndex++, src, _resolution, _resolution);
+            writeToAtlas(texIndex++, src, _resolution, _resolution, bytesPerPixelRow);
         }
     }
 

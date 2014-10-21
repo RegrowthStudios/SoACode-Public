@@ -383,9 +383,6 @@
     <ClInclude Include="Texture2d.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="TextureAtlasManager.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="TextureAtlasStitcher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -732,9 +729,6 @@
     </ClCompile>
     <ClCompile Include="Texture2d.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureAtlasManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="TextureAtlasStitcher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>

@@ -9,6 +9,7 @@
 #include "Options.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
+#include "TexturePackLoader.h"
 #include "Texture2d.h"
 #include "ZipFile.h"
 
@@ -304,47 +305,47 @@ void Block::InitializeTexture()
         pxTex = pyTex = pzTex = nxTex = nyTex = nzTex = 0;
         pxNMap = pyNMap = pzNMap = nxNMap = nyNMap = nzNMap = -1;
 
-        BlockTexture* blockTexture;
+        BlockTextureData* blockTexture;
 
-        blockTexture = GameManager::textureAtlasManager->getBlockTexture(topTexName);
+        blockTexture = GameManager::texturePackLoader->getBlockTexture(topTexName);
         if (blockTexture){
-            pyTexInfo = *blockTexture;
-            pyTex = blockTexture->base.textureIndex;
-            pyOvTex = blockTexture->overlay.textureIndex;
+            pyTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
+            pyTex = pyTexInfo.base.textureIndex;
+            pyOvTex = pyTexInfo.overlay.textureIndex;
         }
-        blockTexture = GameManager::textureAtlasManager->getBlockTexture(leftTexName);
+        blockTexture = GameManager::texturePackLoader->getBlockTexture(leftTexName);
         if (blockTexture){
-            nxTexInfo = *blockTexture;
-            nxTex = blockTexture->base.textureIndex;
-            nxOvTex = blockTexture->overlay.textureIndex;
+            nxTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
+            nxTex = nxTexInfo.base.textureIndex;
+            nxOvTex = nxTexInfo.overlay.textureIndex;
         }
-        blockTexture = GameManager::textureAtlasManager->getBlockTexture(rightTexName);
+        blockTexture = GameManager::texturePackLoader->getBlockTexture(rightTexName);
         if (blockTexture){
-            pxTexInfo = *blockTexture;
-            pxTex = blockTexture->base.textureIndex;
-            pxOvTex = blockTexture->overlay.textureIndex;
+            pxTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
+            pxTex = pxTexInfo.base.textureIndex;
+            pxOvTex = pxTexInfo.overlay.textureIndex;
         }
-        blockTexture = GameManager::textureAtlasManager->getBlockTexture(frontTexName);
+        blockTexture = GameManager::texturePackLoader->getBlockTexture(frontTexName);
         if (blockTexture){
-            pzTexInfo = *blockTexture;
-            pzTex = blockTexture->base.textureIndex;
-            pzOvTex = blockTexture->overlay.textureIndex;
+            pzTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
+            pzTex = pzTexInfo.base.textureIndex;
+            pzOvTex = pzTexInfo.overlay.textureIndex;
         }
-        blockTexture = GameManager::textureAtlasManager->getBlockTexture(backTexName);
+        blockTexture = GameManager::texturePackLoader->getBlockTexture(backTexName);
         if (blockTexture){
-            nzTexInfo = *blockTexture;
-            nzTex = blockTexture->base.textureIndex;
-            nzOvTex = blockTexture->overlay.textureIndex;
+            nzTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
+            nzTex = nzTexInfo.base.textureIndex;
+            nzOvTex = nzTexInfo.overlay.textureIndex;
         }
-        blockTexture = GameManager::textureAtlasManager->getBlockTexture(bottomTexName);
+        blockTexture = GameManager::texturePackLoader->getBlockTexture(bottomTexName);
         if (blockTexture){
-            nyTexInfo = *blockTexture;
-            nyTex = blockTexture->base.textureIndex;
-            nyOvTex = blockTexture->overlay.textureIndex;
+            nyTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
+            nyTex = nyTexInfo.base.textureIndex;
+            nyOvTex = nyTexInfo.overlay.textureIndex;
         }
-        blockTexture = GameManager::textureAtlasManager->getBlockTexture(particleTexName);
+        blockTexture = GameManager::texturePackLoader->getBlockTexture(particleTexName);
         if (blockTexture){
-            particleTex = blockTexture->base.textureIndex;
+            particleTex = blockTexture->base->textureIndex;
         }
     }
 }

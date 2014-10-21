@@ -184,7 +184,6 @@
     <ClInclude Include="SpriteFont.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="App.h" />
-    <ClInclude Include="TextureAtlasManager.h" />
     <ClInclude Include="TextureAtlasStitcher.h" />
     <ClInclude Include="Timing.h" />
     <ClInclude Include="VoxelEditor.h" />
@@ -314,7 +313,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="TextureAtlasManager.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="Timing.cpp" />
     <ClCompile Include="SmartVoxelContainer.cpp" />

@@ -61,6 +61,7 @@ public:
     static class WSOScanner* wsoScanner;
     static class DebugRenderer* debugRenderer;
     static vcore::GLProgramManager* glProgramManager;
+    static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
 
     static GameStates gameState;
     static nString saveFilePath;
