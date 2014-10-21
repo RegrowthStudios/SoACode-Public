@@ -19,11 +19,13 @@
 #include <map>
 #include <vector>
 
+#include "Texture.h"
 #include "ImageLoader.h"
 
 namespace vorb {
 namespace core {
 namespace graphics {
+
 
 class TextureCache
 {
@@ -34,7 +36,7 @@ public:
     /// Finds a texture if it exists in the cache
     /// @param filePath: The path of the texture
     /// @return the texture ID or 0 if it doesn't exist
-    ui32 findTexture(const nString& filePath);
+    Texture findTexture(const nString& filePath);
 
     /// Returns the file path associated with the texture
     /// @param textureID: The ID of the texture
@@ -47,7 +49,7 @@ public:
     /// @param samplingParameters: The texture sampler parameters
     /// @param mipmapLevels: The max number of mipmap levels
     /// @return The texture ID or 0 if loading fails
-    ui32 addTexture(const nString& filePath,
+    Texture addTexture(const nString& filePath,
                     SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
                     i32 mipmapLevels = INT_MAX);
 
@@ -59,8 +61,8 @@ public:
     /// @param height: The texture height in pixels
     /// @param samplingParameters: The texture sampler parameters
     /// @param mipmapLevels: The max number of mipmap levels
-    /// @return The texture ID or 0 if loading fails
-    ui32 addTexture(const nString& filePath,
+    /// @return The texture. ID will be 0 if loading fails
+    Texture addTexture(const nString& filePath,
                     const ui8* pixels,
                     ui32 width,
                     ui32 height,
@@ -70,15 +72,19 @@ public:
     /// Adds a texture to the cache
     /// @param filePath: The path of the texture
     /// @param textureID: The opengGL texture ID
-    void addTexture(const nString& filePath, ui32 textureID);
+    void addTexture(const nString& filePath, const Texture& texture);
 
     /// Frees a texture from the cache
     /// @param filePath: The path of the texture to free
     void freeTexture(const nString& filePath);
 
     /// Frees a texture from the cache
-    /// @param textureID: The ID of the texture to free
-    void freeTexture(ui32 textureID);
+    /// @param textureID: The ID of the texture to free. It will be set to 0
+    void freeTexture(ui32& textureID);
+
+    /// Frees a texture from the cache
+    /// @param textureID: The texture to free. texture.ID will be set to 0
+    void freeTexture(Texture& textureID);
 
     /// Frees all textures
     void destroy();
@@ -86,11 +92,11 @@ public:
 private:
 
     /// Inserts a texture into the cache
-    void insertTexture(const nString& filePath, ui32 textureID);
+    void insertTexture(const nString& filePath, const Texture& texture);
 
     /// We store two maps here so that users can free textures using either the ID or filePath
-    std::unordered_map <nString, ui32> _textureStringMap; ///< Textures store here keyed on filename
-    std::map <ui32, std::unordered_map <nString, ui32>::iterator> _textureIdMap; ///< Textures are stored here keyed on ID
+    std::unordered_map <nString, Texture> _textureStringMap; ///< Textures store here keyed on filename
+    std::map <ui32, std::unordered_map <nString, Texture>::iterator> _textureIdMap; ///< Textures are stored here keyed on ID
 };
 
 }

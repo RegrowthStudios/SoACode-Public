@@ -2234,7 +2234,7 @@ Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
                     a->fadeOutBegin = iniVal->getInt();
                     break;
                 case INI_TEXTURE:
-                    a->textureInfo = getTextureInfo(iniVal->getStr());
+                    a->textureInfo = getTexture(iniVal->getStr());
                     break;
                 case INI_XFRAMES:
                     a->xFrames = iniVal->getInt();
@@ -2445,7 +2445,7 @@ i32 FileManager::getParticleType(nString fileName) {
         return it->second;
     } else {
         Animation *anim = NULL;
-        TextureInfo ti = getTextureInfo(fileName, &anim);
+        Texture ti = getTexture(fileName, &anim);
         particleTypes.push_back(ParticleType());
         particleTypes.back().texture = ti;
         if (anim == NULL) {

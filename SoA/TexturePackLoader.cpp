@@ -62,7 +62,7 @@ void TexturePackLoader::uploadTextures() {
 
     // TODO(Ben): This could be done better
     // Upload all the block textures
-    TextureInfo atlasTex;
+    Texture atlasTex;
     atlasTex.width = atlasTex.height = 32 * BLOCK_TEXTURE_ATLAS_WIDTH;
 
     atlasTex.ID = _textureAtlasStitcher.buildTextureArray();

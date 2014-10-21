@@ -15,6 +15,7 @@
 #include "Options.h"
 #include "FileSystem.h"
 #include "GameManager.h"
+#include "TextureCache.h"
 #include "ZipFile.h"
 
 std::vector<glm::vec2> vertices;
@@ -22,10 +23,10 @@ std::vector<glm::vec2> UVs;
 
 GLfloat textColorVertices[16384];
 
-std::map <std::string, TextureInfo> textureMap;
+std::map <std::string, vg::Texture> textureMap;
 
 //TODO(Ben): This is bad
-TextureInfo getTextureInfo(string source, Animation **anim)
+vg::Texture getTexture(string source, Animation **anim)
 {
     vg::TextureCache* textureCache = GameManager::textureCache;
 
@@ -34,7 +35,7 @@ TextureInfo getTextureInfo(string source, Animation **anim)
     if (it != textureMap.end()){
         return it->second;
     }else{
-        TextureInfo newTexInfo;
+        Texture newTexInfo;
         int pos = source.find("%TexturePack");
         //its in the texture pack
         if (pos != string::npos){
@@ -86,20 +87,20 @@ TextureInfo getTextureInfo(string source, Animation **anim)
 
 BlockPack blockPack;
 
-TextureInfo markerTexture;
-TextureInfo terrainTexture;
-TextureInfo sunTexture;
-TextureInfo logoTexture;
-TextureInfo cloudTexture1;
-TextureInfo normalLeavesTexture, pineLeavesTexture, mushroomCapTexture, treeTrunkTexture1;
-TextureInfo waterNormalTexture;
-TextureInfo WaterTexture;
-TextureInfo starboxTextures[6];
-TextureInfo ballMaskTexture;
-TextureInfo BlankTextureID;
-TextureInfo explosionTexture;
-TextureInfo fireTexture;
-TextureInfo waterNoiseTexture;
+vg::Texture markerTexture;
+vg::Texture terrainTexture;
+vg::Texture sunTexture;
+vg::Texture logoTexture;
+vg::Texture cloudTexture1;
+vg::Texture normalLeavesTexture, pineLeavesTexture, mushroomCapTexture, treeTrunkTexture1;
+vg::Texture waterNormalTexture;
+vg::Texture WaterTexture;
+vg::Texture starboxTextures[6];
+vg::Texture ballMaskTexture;
+vg::Texture BlankTextureID;
+vg::Texture explosionTexture;
+vg::Texture fireTexture;
+vg::Texture waterNoiseTexture;
 
 //const GLushort boxDrawIndices[6] = {0,1,2,2,3,0};
 //const GLfloat boxUVs[8] = {0, 1, 0, 0, 1, 0, 1, 1};
@@ -283,7 +284,7 @@ void ClearText(){
     UVs.clear();
 }
 
-void BlockPack::initialize(TextureInfo texInfo)
+void BlockPack::initialize(Texture texInfo)
 {
     //GLubyte buffer[16][16][4];
     //int width = 0;
@@ -342,20 +343,17 @@ void ReloadTextures()
 
 void LoadTextures()
 {
-    //TextureInfo blockPackInfo;
-    //loadPNG(blockPackInfo, ("Textures/" + TexturePackString + "BlockPack1.png").c_str(), 4);
-    //blockPacks.push_back(BlockPack(blockPackInfo));
-    //loadPNG(blockPackInfo, ("Textures/" + TexturePackString + "BlockPack2.png").c_str(), 4);
-    //blockPacks.push_back(BlockPack(blockPackInfo));
-    logoTexture.freeTexture();
+    vg::TextureCache* textureCache = GameManager::textureCache;
+
+    logoTexture = textureCache->addTexture("Textures/logo.png");
     loadPNG(logoTexture, "Textures/logo.png", PNGLoadInfo(textureSamplers + 1, 12));
-    sunTexture.freeTexture();
+
     loadPNG(sunTexture, "Textures/sun_texture.png", PNGLoadInfo(textureSamplers + 1, 12));
-    BlankTextureID.freeTexture();
+
     loadPNG(BlankTextureID, "Textures/blank.png", PNGLoadInfo(textureSamplers, 2));
-    explosionTexture.freeTexture();
+
     loadPNG(explosionTexture, "Textures/explosion.png", PNGLoadInfo(textureSamplers + 1, 12));
-    fireTexture.freeTexture();
+
     loadPNG(fireTexture, "Textures/fire.png", PNGLoadInfo(textureSamplers + 1, 12));
 }
 
@@ -363,23 +361,24 @@ void FreeTextures()
 {
     //for (int i = 0; i < blockPacks.size(); i++) blockPacks[i].textureInfo.freeTexture();
     //blockPacks.clear();
+    vg::TextureCache* textureCache = GameManager::textureCache;
 
-    markerTexture.freeTexture();
-    terrainTexture.freeTexture();
-    sunTexture.freeTexture();
-    normalLeavesTexture.freeTexture();
-    pineLeavesTexture.freeTexture();
-    mushroomCapTexture.freeTexture();
-    treeTrunkTexture1.freeTexture();
-    waterNormalTexture.freeTexture();
-    starboxTextures[0].freeTexture();
-    starboxTextures[1].freeTexture();
-    starboxTextures[2].freeTexture();
-    starboxTextures[3].freeTexture();
-    starboxTextures[4].freeTexture();
-    starboxTextures[5].freeTexture();
-    BlankTextureID.freeTexture();
-    ballMaskTexture.freeTexture();
+    textureCache->freeTexture(markerTexture);
+    textureCache->freeTexture(terrainTexture);
+    textureCache->freeTexture(sunTexture);
+    textureCache->freeTexture(normalLeavesTexture);
+    textureCache->freeTexture(pineLeavesTexture);
+    textureCache->freeTexture(mushroomCapTexture);
+    textureCache->freeTexture(treeTrunkTexture1);
+    textureCache->freeTexture(waterNormalTexture);
+    textureCache->freeTexture(starboxTextures[0]);
+    textureCache->freeTexture(starboxTextures[1]);
+    textureCache->freeTexture(starboxTextures[2]);
+    textureCache->freeTexture(starboxTextures[3]);
+    textureCache->freeTexture(starboxTextures[4]);
+    textureCache->freeTexture(starboxTextures[5]);
+    textureCache->freeTexture(BlankTextureID);
+    textureCache->freeTexture(ballMaskTexture);
 }
 
 void Texture2D::Initialize(GLuint texID, GLfloat sx, GLfloat sy, GLfloat w, GLfloat h, Color color, GLfloat ustrt, GLfloat vstrt, GLfloat uwidth, GLfloat vwidth)

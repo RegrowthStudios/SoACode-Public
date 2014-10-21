@@ -4,39 +4,40 @@
 
 #include "Constants.h"
 #include "ImageLoading.h"
+#include "TextureCache.h"
 
 // TODO: Remove This
 using namespace std;
 
 extern int screenWidth2d, screenHeight2d;
 
-extern std::map <std::string, TextureInfo> textureMap;
+extern std::map <std::string, vg::Texture> textureMap;
 
-struct TextureInfo getTextureInfo(string source, struct Animation **anim = NULL);
+struct Texture getTexture(string source, struct Animation **anim = NULL);
 
 struct BlockPack
 {
-    void initialize(TextureInfo texInfo);
-    TextureInfo textureInfo;
+    void initialize(Texture texInfo);
+    vg::Texture textureInfo;
     vector <GLubyte[256][3]> avgColors;
 };
 
 extern BlockPack blockPack; //TODO: Not global
 
-extern TextureInfo markerTexture;
-extern TextureInfo terrainTexture;
-extern TextureInfo logoTexture;
-extern TextureInfo sunTexture;
-extern TextureInfo waterNormalTexture;
-extern TextureInfo cloudTexture1;
-extern TextureInfo WaterTexture;
-extern TextureInfo normalLeavesTexture, pineLeavesTexture, mushroomCapTexture, treeTrunkTexture1;
-extern TextureInfo ballMaskTexture;
-extern TextureInfo starboxTextures[6];
-extern TextureInfo BlankTextureID;
-extern TextureInfo explosionTexture;
-extern TextureInfo fireTexture;
-extern TextureInfo waterNoiseTexture;
+extern vg::Texture markerTexture;
+extern vg::Texture terrainTexture;
+extern vg::Texture logoTexture;
+extern vg::Texture sunTexture;
+extern vg::Texture waterNormalTexture;
+extern vg::Texture cloudTexture1;
+extern vg::Texture WaterTexture;
+extern vg::Texture normalLeavesTexture, pineLeavesTexture, mushroomCapTexture, treeTrunkTexture1;
+extern vg::Texture ballMaskTexture;
+extern vg::Texture starboxTextures[6];
+extern vg::Texture BlankTextureID;
+extern vg::Texture explosionTexture;
+extern vg::Texture fireTexture;
+extern vg::Texture waterNoiseTexture;
 
 class Color{
 public:
@@ -93,7 +94,7 @@ public:
     void DrawFixedSize3D(const glm::mat4 &VP, const glm::dvec3 &playerPos, const glm::dvec3 &pos, glm::vec2 uvMod, glm::vec4 color);
 
     int xpos, ypos;
-    TextureInfo texInfo;
+    Texture texInfo;
     string texSource;
     GLfloat width, height;
     GLfloat uvs[8];

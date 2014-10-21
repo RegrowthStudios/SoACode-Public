@@ -129,6 +129,7 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="Vorb.h" />

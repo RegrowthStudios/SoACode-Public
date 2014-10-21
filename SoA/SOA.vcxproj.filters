@@ -533,6 +533,9 @@
     <ClInclude Include="GpuMemory.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
