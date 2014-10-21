@@ -21,16 +21,6 @@ namespace vorb {
 namespace core {
 namespace graphics {
 
-struct TextureLoadParams {
-public:
-    TextureLoadParams(SamplerState* ss, i32 mipmaps) :
-        samplingParameters(ss),
-        mipmapLevels(mipmaps) {}
-
-    SamplerState* samplingParameters;
-    i32 mipmapLevels;
-};
-
 class ImageLoader
 {
 public:

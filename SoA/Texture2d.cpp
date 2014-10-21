@@ -15,7 +15,6 @@
 #include "Options.h"
 #include "FileSystem.h"
 #include "GameManager.h"
-#include "TextureAtlasManager.h"
 #include "ZipFile.h"
 
 std::vector<glm::vec2> vertices;

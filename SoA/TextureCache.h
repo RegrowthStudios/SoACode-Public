@@ -31,15 +31,28 @@ public:
 
     /// Loads a png texture and adds it to the cache
     /// @param filePath: The file path of the texture
-    /// @param texParams: The parameters for loading the texture
-    /// @return true on success, false if the texture failed to load
-    bool addTexture(nString filePath, TextureLoadParams texParams);
+    /// @param width: Width of the texture in pixels
+    /// @param height: Height of the texture in pixels
+    /// @param samplingParameters: The texture sampler parameters
+    /// @param mipmapLevels: The max number of mipmap levels
+    /// @return The texture ID
+    ui32 addTexture(nString filePath,
+                    ui32 width,
+                    ui32 height,
+                    SamplerState* samplingParameters,
+                    i32 mipmapLevels = INT_MAX);
 
     /// Adds a texture to the cache
     /// @param filePath: The path of the texture
     /// @param textureID: The opengGL texture ID
     void addTexture(nString filePath, ui32 textureID);
 
+    /// Frees a texture from the cache
+    /// @param filePath: The path of the texture to free
+    void freeTexture(nString filePath);
+
+    /// Frees all textures
+    void destroy();
 
 private:
     std::unordered_map <nString, ui32> _textures; ///< Textures are cached here

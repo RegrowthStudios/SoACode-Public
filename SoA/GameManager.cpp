@@ -22,7 +22,6 @@
 #include "Rendering.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
-#include "TextureAtlasManager.h"
 #include "TexturePackLoader.h"
 #include "Threadpool.h"
 #include "VRayHelper.h"

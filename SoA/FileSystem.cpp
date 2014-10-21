@@ -22,7 +22,6 @@
 #include "Planet.h"
 #include "Player.h"
 #include "TerrainGenerator.h"
-#include "TextureAtlasManager.h"
 #include "TexturePackLoader.h"
 #include "WorldStructs.h"
 #include "ZipFile.h"

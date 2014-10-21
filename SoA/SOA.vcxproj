@@ -111,6 +111,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="GamePlayScreen.h" />
+    <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
@@ -251,6 +252,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GamePlayScreen.cpp" />
+    <ClCompile Include="GpuMemory.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />

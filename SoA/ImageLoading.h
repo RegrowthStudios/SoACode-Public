@@ -44,6 +44,3 @@ extern SamplerState textureSamplers[6];
 GLuint loadDDS(const cString imagepath, i32 smoothType);
 
 ui32v2 readImageSize(IOManager* iom, const cString imagePath);
-
-ui8* loadPNG(TextureInfo& texInfo, const cString imagepath, PNGLoadInfo texParams, bool makeTexture = true);
-ui8* loadPNG(TextureInfo& texInfo, ui8* pngdata, size_t fileSize, PNGLoadInfo texParams, bool makeTexture);

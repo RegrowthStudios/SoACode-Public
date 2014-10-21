@@ -20,7 +20,6 @@
 #include "Player.h"
 #include "SamplerState.h"
 #include "TexturePackLoader.h"
-#include "TextureAtlasManager.h"
 
 #include "SpriteFont.h"
 #include "SpriteBatch.h";

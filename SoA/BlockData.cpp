@@ -5,7 +5,6 @@
 #include "FileSystem.h"
 #include "FrameBuffer.h"
 #include "GameManager.h"
-#include "TextureAtlasManager.h"
 #include "Options.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
