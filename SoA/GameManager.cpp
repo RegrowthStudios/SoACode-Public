@@ -46,7 +46,6 @@ CAEngine *GameManager::caEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
 ChunkManager *GameManager::chunkManager = nullptr;
 InputManager *GameManager::inputManager = nullptr;
-TextureAtlasManager *GameManager::textureAtlasManager = nullptr;
 ChunkIOManager* GameManager::chunkIOManager = nullptr;
 MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
@@ -69,7 +68,6 @@ void GameManager::initializeSystems() {
         caEngine = new CAEngine();
         soundEngine = new SoundEngine();
         chunkManager = &voxelWorld->getChunkManager();
-        textureAtlasManager = new TextureAtlasManager();
         chunkIOManager = new ChunkIOManager();
         messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();

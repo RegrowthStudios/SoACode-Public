@@ -8,16 +8,19 @@
 
 #define RGBA_BYTES 4
 
-namespace vg {
-   
+namespace vorb {
+namespace core {
+namespace graphics {
+
 ui32 GpuMemory::_totalVramUsage = 0;
 
+std::map<ui32, ui32> GpuMemory::_textures;
 
 ui32 GpuMemory::uploadTexture(const std::vector<ui8>& pixels,
-                              ui32 width, 
-                              ui32 height, 
-                              SamplerState* samplingParameters, 
-                              i32 mipmapLevels /* = INT_MAX */) {
+                                ui32 width,
+                                ui32 height,
+                                SamplerState* samplingParameters,
+                                i32 mipmapLevels /* = INT_MAX */) {
     // Create one OpenGL texture
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -71,5 +74,6 @@ void GpuMemory::freeTexture(ui32& textureID) {
     }
 }
 
-
+}
+}
 }

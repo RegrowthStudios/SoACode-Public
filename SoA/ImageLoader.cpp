@@ -5,7 +5,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-namespace vg {
+namespace vorb {
+namespace core {
+namespace graphics {
 
 bool ImageLoader::loadPng(const cString imagepath, std::vector<ui8>& pixelStore, ui32& rWidth, ui32& rHeight, bool printError /* = true */) {
     FILE * file = fopen(imagepath, "rb");
@@ -38,4 +40,6 @@ bool ImageLoader::loadPng(const cString imagepath, std::vector<ui8>& pixelStore,
     return true;
 }
 
+}
+}
 }

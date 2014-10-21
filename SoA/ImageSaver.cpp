@@ -3,7 +3,9 @@
 
 #include "lodepng.h"
 
-namespace vg {
+namespace vorb {
+namespace core {
+namespace graphics {
 
 bool ImageSaver::savePng(nString fileName, ui32 width, ui32 height, std::vector<ui8> imgData) {
     unsigned error = lodepng::encode(fileName, imgData, width, height);
@@ -16,4 +18,6 @@ bool ImageSaver::savePng(nString fileName, ui32 width, ui32 height, std::vector<
     return true;
 }
 
+}
+}
 }

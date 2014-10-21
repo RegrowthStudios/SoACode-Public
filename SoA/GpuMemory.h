@@ -17,6 +17,8 @@
 
 #include <map>
 
+class SamplerState;
+
 namespace vorb {
 namespace core {
 namespace graphics {

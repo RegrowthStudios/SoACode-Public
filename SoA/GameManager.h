@@ -48,7 +48,6 @@ public:
     static class SoundEngine* soundEngine;
     static class ChunkManager* chunkManager;
     static class InputManager* inputManager;
-    static class TextureAtlasManager* textureAtlasManager;
     static class ChunkIOManager* chunkIOManager;
     static class MessageManager* messageManager;
 

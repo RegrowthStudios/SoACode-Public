@@ -5,7 +5,9 @@
 
 #include <vector>
 
-namespace vg {
+namespace vorb {
+namespace core {
+namespace graphics {
 
 TextureCache::TextureCache() {
     // Empty
@@ -18,14 +20,12 @@ TextureCache::~TextureCache() {
 
 
 ui32 TextureCache::addTexture(nString filePath,
-                ui32 width,
-                ui32 height,
-                SamplerState* samplingParameters,
-                i32 mipmapLevels /* = INT_MAX */) {
+                                ui32 width,
+                                ui32 height,
+                                SamplerState* samplingParameters,
+                                i32 mipmapLevels /* = INT_MAX */) {
 
     std::vector <ui8> pixelStore;
-    ui32 width;
-    ui32 height;
 
     // Load the pixel data
     ImageLoader::loadPng(filePath.c_str(), pixelStore, width, height, true);
@@ -60,4 +60,6 @@ void TextureCache::destroy() {
     std::unordered_map <nString, ui32>().swap(_textures);
 }
 
+}
+}
 }
