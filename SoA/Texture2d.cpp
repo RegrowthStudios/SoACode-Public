@@ -136,14 +136,6 @@ void bindBlockPacks()
     glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
 }
 
-void ReloadTextures()
-{
-    printf("Reloading Textures...\n");
-    LoadTextures();
-    graphicsOptions.currTexturePack = "";
-    fileManager.loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
-}
-
 void LoadTextures()
 {
     vg::TextureCache* textureCache = GameManager::textureCache;

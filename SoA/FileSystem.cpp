@@ -1138,238 +1138,6 @@ i32 SetWaterBlocks(int startID) {
     }
 }
 
-void FileManager::loadTexturePack(nString fileName) {
-
-    //DIR *defDir = NULL;
-    bool loadAll = 0;
-    bool isDefault;
-    bool isDefaultZip;
-    nString defaultFileName = "Textures/TexturePacks/" + graphicsOptions.defaultTexturePack;
-    isDefaultZip = (defaultFileName.substr(defaultFileName.size() - 4) == ".zip");
-
-    //verify the default pack
-    if (isDefaultZip == 0) {
-        //defDir = opendir(defaultFileName.c_str());
-        if (!boost::filesystem::exists(defaultFileName)) {
-            defaultFileName = defaultFileName + ".zip";
-            graphicsOptions.defaultTexturePack = "Default.zip";
-            isDefaultZip = 1;
-            //} else {
-            //closedir(defDir);
-        }
-    } else {
-        struct stat statbuf;
-        if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-            isDefaultZip = 0;
-            defaultFileName = defaultFileName.substr(0, defaultFileName.size() - 4); //chop off .zip
-            graphicsOptions.defaultTexturePack = "Default";
-        }
-    }
-
-    struct stat statbuf; //check that default pack exists
-    if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-        pError("Default Texture Pack Default is missing! Please re-install the game.");
-        exit(44);
-    }
-
-    if (!isDefaultZip) defaultFileName += "/";
-
-    if (fileName == graphicsOptions.currTexturePack) {
-        //DrawLoadingScreen("Resizing Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    } else {
-        loadAll = 1;
-        graphicsOptions.currTexturePack = fileName;
-        //DrawLoadingScreen("Loading Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    }
-
-    if (stat(fileName.c_str(), &statbuf) != 0) {
-        pError("Texture Pack \"" + fileName + "\" is missing! The game will use the " + graphicsOptions.defaultTexturePack + " Texture Pack instead.");
-        fileName = defaultFileName;
-        graphicsOptions.currTexturePack = graphicsOptions.defaultTexturePack;
-        graphicsOptions.texturePackString = graphicsOptions.defaultTexturePack;
-        //DrawLoadingScreen("Loading Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    }
-
-    bool isZip = fileName.substr(fileName.size() - 4) == ".zip";
-    if (!isZip) fileName += "/";
-
-    isDefault = (fileName == defaultFileName);
-
-    //load texture pack
-    if (loadAll) {
-
-
-        if (isZip) {
-            ZipFile zipFile(fileName);
-            if (zipFile.isFailure()) exit(1000);
-            size_t filesize;
-            unsigned char *zipData, *resData;
-
-            //resolution
-            resData = zipFile.readFile("resolution.txt", filesize);
-            if (sscanf((char *)resData, "%d", &(graphicsOptions.currTextureRes)) != 1) {
-                pError("failed to read resolution.txt in texture pack " + fileName);
-                return;
-            }
-            graphicsOptions.defaultTextureRes = graphicsOptions.currTextureRes;
-            delete[] resData;
-
-            zipData = zipFile.readFile("FarTerrain/location_marker.png", filesize);
-            loadPNG(markerTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/terrain_texture.png", filesize);
-            loadPNG(terrainTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/normal_leaves_billboard.png", filesize);
-            loadPNG(normalLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/pine_leaves_billboard.png", filesize);
-            loadPNG(pineLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/mushroom_cap_billboard.png", filesize);
-            loadPNG(mushroomCapTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/tree_trunk_1.png", filesize);
-            loadPNG(treeTrunkTexture1, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Blocks/Liquids/water_normal_map.png", filesize);
-            loadPNG(waterNormalTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/front.png", filesize);
-            loadPNG(starboxTextures[0], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/right.png", filesize);
-            loadPNG(starboxTextures[1], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/top.png", filesize);
-            loadPNG(starboxTextures[2], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/left.png", filesize);
-            loadPNG(starboxTextures[3], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/bottom.png", filesize);
-            loadPNG(starboxTextures[4], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/back.png", filesize);
-            loadPNG(starboxTextures[5], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("FarTerrain/water_noise.png", filesize);
-            loadPNG(waterNoiseTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Particle/ball_mask.png", filesize);
-            loadPNG(ballMaskTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-        } else {
-
-            //resolution
-            ifstream resFile(fileName + "resolution.txt");
-            if (resFile.fail() || !(resFile >> graphicsOptions.currTextureRes)) {
-                pError("failed to read resolution.txt in texture pack " + fileName);
-                return;
-            }
-            graphicsOptions.defaultTextureRes = graphicsOptions.currTextureRes;
-            resFile.close();
-
-
-            loadPNG(markerTexture, (fileName + "FarTerrain/location_marker.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(terrainTexture, (fileName + "FarTerrain/terrain_texture.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(normalLeavesTexture, (fileName + "FarTerrain/normal_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(pineLeavesTexture, (fileName + "FarTerrain/pine_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(mushroomCapTexture, (fileName + "FarTerrain/mushroom_cap_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(treeTrunkTexture1, (fileName + "FarTerrain/tree_trunk_1.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(waterNormalTexture, (fileName + "Blocks/Liquids/water_normal_map.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(starboxTextures[0], (fileName + "Sky/StarSkybox/front.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[1], (fileName + "Sky/StarSkybox/right.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[2], (fileName + "Sky/StarSkybox/top.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[3], (fileName + "Sky/StarSkybox/left.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[4], (fileName + "Sky/StarSkybox/bottom.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[5], (fileName + "Sky/StarSkybox/back.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(waterNoiseTexture, (fileName + "FarTerrain/water_noise.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(ballMaskTexture, (fileName + "Particle/ball_mask.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-
-        }
-    }
-
-    //load defaults if they are missing
-    if (isDefault == 0) {
-
-        if (isDefaultZip) {
-            ZipFile zipFile(defaultFileName);
-            if (zipFile.isFailure()) exit(1000);
-            size_t filesize;
-            unsigned char *zipData;
-            if (markerTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/location_marker.png", filesize);
-                loadPNG(markerTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (terrainTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/terrain_texture.png", filesize);
-                loadPNG(terrainTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (normalLeavesTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/normal_leaves_billboard.png", filesize);
-                loadPNG(normalLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (pineLeavesTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/pine_leaves_billboard.png", filesize);
-                loadPNG(pineLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (mushroomCapTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/mushroom_cap_billboard.png", filesize);
-                loadPNG(mushroomCapTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (treeTrunkTexture1.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/tree_trunk_1.png", filesize);
-                loadPNG(treeTrunkTexture1, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (waterNormalTexture.ID == 0) {
-                zipData = zipFile.readFile("Blocks/Liquids/water_normal_map.png", filesize);
-                loadPNG(waterNormalTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (starboxTextures[0].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/front.png", filesize);
-                loadPNG(starboxTextures[0], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[1].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/right.png", filesize);
-                loadPNG(starboxTextures[1], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[2].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/top.png", filesize);
-                loadPNG(starboxTextures[2], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[3].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/left.png", filesize);
-                loadPNG(starboxTextures[3], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[4].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/bottom.png", filesize);
-                loadPNG(starboxTextures[4], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[5].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/back.png", filesize);
-                loadPNG(starboxTextures[5], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (waterNoiseTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/water_noise.png", filesize);
-                loadPNG(waterNoiseTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (ballMaskTexture.ID == 0) {
-                zipData = zipFile.readFile("Particle/ball_mask.png", filesize);
-                loadPNG(ballMaskTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-        } else {
-            if (markerTexture.ID == 0) loadPNG(markerTexture, (defaultFileName + "FarTerrain/location_marker.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (terrainTexture.ID == 0) loadPNG(terrainTexture, (defaultFileName + "FarTerrain/terrain_texture.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (normalLeavesTexture.ID == 0) loadPNG(normalLeavesTexture, (defaultFileName + "FarTerrain/normal_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (pineLeavesTexture.ID == 0) loadPNG(pineLeavesTexture, (defaultFileName + "FarTerrain/pine_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (mushroomCapTexture.ID == 0) loadPNG(mushroomCapTexture, (defaultFileName + "FarTerrain/mushroom_cap_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (treeTrunkTexture1.ID == 0) loadPNG(treeTrunkTexture1, (defaultFileName + "FarTerrain/tree_trunk_1.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (waterNormalTexture.ID == 0) loadPNG(waterNormalTexture, (defaultFileName + "Blocks/Liquids/water_normal_map.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (starboxTextures[0].ID == 0) loadPNG(starboxTextures[0], (defaultFileName + "Sky/StarSkybox/front.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[1].ID == 0) loadPNG(starboxTextures[1], (defaultFileName + "Sky/StarSkybox/right.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[2].ID == 0) loadPNG(starboxTextures[2], (defaultFileName + "Sky/StarSkybox/top.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[3].ID == 0) loadPNG(starboxTextures[3], (defaultFileName + "Sky/StarSkybox/left.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[4].ID == 0) loadPNG(starboxTextures[4], (defaultFileName + "Sky/StarSkybox/bottom.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[5].ID == 0) loadPNG(starboxTextures[5], (defaultFileName + "Sky/StarSkybox/back.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (waterNoiseTexture.ID == 0) loadPNG(waterNoiseTexture, (defaultFileName + "FarTerrain/water_noise.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (ballMaskTexture.ID == 0) loadPNG(ballMaskTexture, (defaultFileName + "Particle/ball_mask.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-        }
-    }
-
-    //check resolution
-    if (!(graphicsOptions.currTextureRes > 0) && !(graphicsOptions.currTextureRes & (graphicsOptions.currTextureRes - 1))) { //check that it is a power of two
-        pError("resolution.txt in texture pack " + fileName + " resolution is " + to_string(graphicsOptions.currTextureRes) + ". It must be a power of two!");
-        return;
-    }
-
-}
-
 nString FileManager::loadTexturePackDescription(nString fileName) {
     bool isZip = fileName.substr(fileName.size() - 4) == ".zip";
     if (!isZip) fileName += "/";
@@ -1413,7 +1181,6 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
 
 i32 FileManager::loadBlocks(nString filePath) {
     textureMap.clear();
-    GameManager::textureAtlasManager->clearAll();
 
     for (auto i = _animationMap.begin(); i != _animationMap.end(); i++) {
         delete i->second;
@@ -2234,7 +2001,7 @@ Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
                     a->fadeOutBegin = iniVal->getInt();
                     break;
                 case INI_TEXTURE:
-                    a->textureInfo = getTexture(iniVal->getStr());
+                    a->texture = getTexture(iniVal->getStr());
                     break;
                 case INI_XFRAMES:
                     a->xFrames = iniVal->getInt();
@@ -2445,12 +2212,12 @@ i32 FileManager::getParticleType(nString fileName) {
         return it->second;
     } else {
         Animation *anim = NULL;
-        Texture ti = getTexture(fileName, &anim);
+        vg::Texture ti = getTexture(fileName, &anim);
         particleTypes.push_back(ParticleType());
         particleTypes.back().texture = ti;
         if (anim == NULL) {
             particleTypes.back().animation = new Animation();
-            particleTypes.back().animation->textureInfo = ti;
+            particleTypes.back().animation->texture = ti;
             particleTypes.back().animation->duration = 100;
             particleTypes.back().animation->xFrames = 1;
             particleTypes.back().animation->yFrames = 1;
@@ -2458,7 +2225,7 @@ i32 FileManager::getParticleType(nString fileName) {
             particleTypes.back().animation->fadeOutBegin = INT_MAX;
         } else {
             particleTypes.back().animation = anim;
-            particleTypes.back().animation->textureInfo = ti;
+            particleTypes.back().animation->texture = ti;
         }
         _particleTypeMap.insert(make_pair(fileName, particleTypes.size() - 1));
         return particleTypes.size() - 1;

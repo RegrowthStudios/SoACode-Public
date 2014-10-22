@@ -77,7 +77,6 @@ void TextureAtlasStitcher::buildPixelData(const std::vector <BlockLayerLoadData>
     // Allocate pixel data for entire texture array
     _pixelData = new ui8[_bytesPerPage * _pages.size()];
 
-
     // Loop through all layers to load
     for (auto& loadData : layers) {
         // Get the layer handle

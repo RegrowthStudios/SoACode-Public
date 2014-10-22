@@ -35,7 +35,7 @@ nString TextureCache::getTexturePath(ui32 textureID) {
 }
 
 Texture TextureCache::addTexture(const nString& filePath,
-                                SamplerState* samplingParameters /* = &SamplerState::LINEAR_WRAP_MIPMAP */,
+                                SamplerState* samplingParameters /* = &SamplerState::LINEAR_CLAMP_MIPMAP */,
                                 i32 mipmapLevels /* = INT_MAX */) {
 
     // Check if its already cached
@@ -62,7 +62,7 @@ Texture TextureCache::addTexture(const nString& filePath,
                               const ui8* pixels,
                               ui32 width,
                               ui32 height,
-                              SamplerState* samplingParameters /* = &SamplerState::LINEAR_WRAP_MIPMAP */,
+                              SamplerState* samplingParameters /* = &SamplerState::LINEAR_CLAMP_MIPMAP */,
                               i32 mipmapLevels /* = INT_MAX */) {
     // Check if its already cached
     Texture texture = findTexture(filePath);

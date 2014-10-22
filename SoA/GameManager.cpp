@@ -83,12 +83,46 @@ void GameManager::initializeSystems() {
     }
 }
 
-void GameManager::initializeWorldEditor() {
+void GameManager::registerTexturesForLoad() {
 
+    texturePackLoader->registerTexture("FarTerrain/location_marker.png");
+    texturePackLoader->registerTexture("FarTerrain/terrain_texture.png");
+    texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
+    texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+
+    texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/top.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/left.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
+
+    texturePackLoader->registerTexture("FarTerrain/water_noise.png");
+    texturePackLoader->registerTexture("Particle/ball_mask.png");
 }
 
-void GameManager::exitWorldEditor() {
+void GameManager::getTextureHandles() {
 
+    markerTexture = textureCache->findTexture("FarTerrain/location_marker.png");
+    terrainTexture = textureCache->findTexture("FarTerrain/terrain_texture.png");
+    normalLeavesTexture = textureCache->findTexture("FarTerrain/normal_leaves_billboard.png");
+    pineLeavesTexture = textureCache->findTexture("FarTerrain/pine_leaves_billboard.png");
+    mushroomCapTexture = textureCache->findTexture("FarTerrain/mushroom_cap_billboard.png");
+    treeTrunkTexture1 = textureCache->findTexture("FarTerrain/tree_trunk_1.png");
+    waterNormalTexture = textureCache->findTexture("Blocks/Liquids/water_normal_map.png");
+
+    starboxTextures[0] = textureCache->findTexture("Sky/StarSkybox/front.png");
+    starboxTextures[1] = textureCache->findTexture("Sky/StarSkybox/right.png");
+    starboxTextures[2] = textureCache->findTexture("Sky/StarSkybox/top.png");
+    starboxTextures[3] = textureCache->findTexture("Sky/StarSkybox/left.png");
+    starboxTextures[4] = textureCache->findTexture("Sky/StarSkybox/bottom.png");
+    starboxTextures[5] = textureCache->findTexture("Sky/StarSkybox/back.png");
+
+    waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
+    ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
 }
 
 void GameManager::initializeSound() {

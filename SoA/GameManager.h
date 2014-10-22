@@ -21,8 +21,9 @@ public:
     static Player *player;
 
     static void initializeSystems();
-    static void initializeWorldEditor();
-    static void exitWorldEditor();
+    static void registerTexturesForLoad();
+    static void getTextureHandles();
+
     static void initializeSound();
     static void saveState();
     static void savePlayerState();

@@ -57,7 +57,7 @@ public:
 };
 
 void bindBlockPacks();
-void ReloadTextures();
+
 void LoadTextures();
 void FreeTextures();
 

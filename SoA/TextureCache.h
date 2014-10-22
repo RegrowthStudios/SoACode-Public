@@ -50,8 +50,8 @@ public:
     /// @param mipmapLevels: The max number of mipmap levels
     /// @return The texture ID or 0 if loading fails
     Texture addTexture(const nString& filePath,
-                    SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
-                    i32 mipmapLevels = INT_MAX);
+                       SamplerState* samplingParameters = &SamplerState::LINEAR_CLAMP_MIPMAP,
+                       i32 mipmapLevels = INT_MAX);
 
     /// Uploads a png texture and adds it to the cache
     /// an existing texture ID if it already exists in the cache
@@ -66,7 +66,7 @@ public:
                     const ui8* pixels,
                     ui32 width,
                     ui32 height,
-                    SamplerState* samplingParameters = &SamplerState::LINEAR_WRAP_MIPMAP,
+                    SamplerState* samplingParameters = &SamplerState::LINEAR_CLAMP_MIPMAP,
                     i32 mipmapLevels = INT_MAX);
 
     /// Adds a texture to the cache

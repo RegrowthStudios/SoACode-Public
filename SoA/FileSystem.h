@@ -79,7 +79,7 @@ public:
     i32 loadTreeType(nString filePath, TreeType* tree);
     i32 loadBiomeData(Planet* planet, nString worldFilePath);
     i32 readBiome(Biome* biome, nString fileName, Planet* planet, nString worldFilePath);
-    void loadTexturePack(nString fileName);
+
     nString loadTexturePackDescription(nString fileName);
 
     bool loadTexFile(nString fileName, ZipFile* zipFile, struct BlockTexture* rv);

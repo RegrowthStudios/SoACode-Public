@@ -127,16 +127,21 @@ void LoadScreen::update(const GameTime& gameTime) {
         LoadTextures();
         //load the texture pack
 
-        fileManager.loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
+        graphicsOptions.currTexturePack = graphicsOptions.texturePackString;
 
+        GameManager::registerTexturesForLoad();
+       
         GameManager::texturePackLoader->loadAllTextures();
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
-        GameManager::texturePackLoader->destroy();
+
+        GameManager::getTextureHandles();
 
         for (size_t i = 0; i < Blocks.size(); i++) {
             Blocks[i].InitializeTexture();
         }
+
+        GameManager::texturePackLoader->destroy();
 
         SetBlockAvgTexColors();
 

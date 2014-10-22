@@ -6,9 +6,18 @@
 
 #include "FileSystem.h"
 
+// Used for error checking
+#define CONNECTED_WIDTH 12
+#define CONNECTED_HEIGHT 4
+#define GRASS_WIDTH 3
+#define GRASS_HEIGHT 3
+#define HORIZONTAL_WIDTH 4
+#define HORIZONTAL_HEIGHT 1
+
 TexturePackLoader::TexturePackLoader(vg::TextureCache* textureCache) :
     _textureCache(textureCache),
-    _hasLoaded(false) {
+    _hasLoaded(false),
+    _resolution(32) {
     // Empty
 }
 
@@ -21,19 +30,20 @@ void TexturePackLoader::loadAllTextures() {
     // TODO(Ben): Zip file support
     _texturePackPath = "Textures/TexturePacks/" + graphicsOptions.texturePackString + "/";
 
-    ui32 width, height;
-    for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
-        // Load the data
-        std::vector<ui8>* pixelStore = new std::vector<ui8>();
-        vg::ImageLoader::loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height);
-        if (pixelStore->size()) {
-            // Add the data to the cache and get non-const reference to pixels
-            Pixels* pixels = (Pixels*)(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).second);
-            // Store the reference to the pixels and samplerstate so we can upload it in uploadTextures
-            _texturesToUpload[it->first] = TextureToUpload(pixels, it->second);
-        }
-        delete pixelStore;
-    }
+    //ui32 width, height;
+    //for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
+    //    // Load the data
+    //    std::vector<ui8>* pixelStore = new std::vector<ui8>();
+    //    vg::ImageLoader::loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height);
+    //    if (pixelStore->size()) {
+    //        // Add the data to the cache and get non-const reference to pixels
+    //        Pixels* pixels = &(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).first->second);
+    //        // Store the reference to the pixels and samplerstate so we can upload it in uploadTextures
+    //        _texturesToUpload[it->first] = TextureToUpload(pixels, it->second);
+    //    } else {
+    //        delete pixelStore;
+    //    }
+    //}
 
     // Load all the block textures and map to an atlas array
     loadAllBlockTextures();
@@ -42,13 +52,19 @@ void TexturePackLoader::loadAllTextures() {
     _hasLoaded = true;
 }
 
-BlockTextureData* TexturePackLoader::getBlockTexture(nString& key) {
+void TexturePackLoader::getBlockTexture(nString& key, BlockTexture& texture) {
 
     auto it = _blockTextureLoadDatas.find(key);
     if (it == _blockTextureLoadDatas.end()) {
-        return nullptr;
+        texture = BlockTexture();
     } else {
-        return &(it->second);
+        if (it->second.base) {
+            texture.base = *it->second.base;
+        }
+        if (it->second.overlay) {
+            texture.overlay = *it->second.overlay;
+        }
+        texture.blendMode = it->second.blendMode;
     }
 }
 
@@ -63,7 +79,7 @@ void TexturePackLoader::uploadTextures() {
     // TODO(Ben): This could be done better
     // Upload all the block textures
     vg::Texture atlasTex;
-    atlasTex.width = atlasTex.height = 32 * BLOCK_TEXTURE_ATLAS_WIDTH;
+    atlasTex.width = atlasTex.height = _resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
 
     atlasTex.ID = _textureAtlasStitcher.buildTextureArray();
 
@@ -89,7 +105,7 @@ void TexturePackLoader::destroy() {
 }
 
 void TexturePackLoader::writeDebugAtlases() {
-    int width = 32 * BLOCK_TEXTURE_ATLAS_WIDTH;
+    int width = _resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
     int height = width;
 
     int pixelsPerPage = width * height * 4;
@@ -100,7 +116,7 @@ void TexturePackLoader::writeDebugAtlases() {
 
     for (int i = 0; i < _textureAtlasStitcher.getNumPages(); i++) {
 
-        SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, 32, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
+        SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, _resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
         SDL_SaveBMP(surface, ("atlas" + to_string(i) + "b.bmp").c_str());
 
     }
@@ -121,7 +137,7 @@ void TexturePackLoader::loadAllBlockTextures() {
 
         // The struct we need to populate
         BlockTextureData blockTextureLoadData = {};
-        BlockTexture blockTexture = {};
+        BlockTexture blockTexture;
 
         // Search for the tex file first
         nString texFileName = _texturePackPath + texturePath;
@@ -136,23 +152,16 @@ void TexturePackLoader::loadAllBlockTextures() {
 
         // Get pixels for the base texture
         pixels = getPixels(blockTexture.base.path, width, height);
-        if (pixels) {
-            // Store handle to the layer
-            blockTextureLoadData.base = postProcessLayer(blockTexture.base, width, height);
-            // Do necesarry postprocessing and add layer to load
-            _layersToLoad.emplace_back(pixels, blockTextureLoadData.base);
-        }
+        // Store handle to the layer, do postprocessing, add layer to load
+        blockTextureLoadData.base = postProcessLayer(pixels, blockTexture.base, width, height);
 
         // Check if we have an overlay
         if (blockTexture.overlay.path.empty() == false) {
             // Get pixels for the overlay texture
             pixels = getPixels(blockTexture.overlay.path, width, height);
-            if (pixels) {
-                // Store handle to the layer
-                blockTextureLoadData.overlay = postProcessLayer(blockTexture.overlay, width, height);
-                // Do necesarry postprocessing and add layer to load
-                _layersToLoad.emplace_back(pixels, blockTextureLoadData.overlay);
-            }
+            // Store handle to the layer, do postprocessing, add layer to load
+            blockTextureLoadData.overlay = postProcessLayer(pixels, blockTexture.overlay, width, height);
+
         }
 
         // Add it to the list of load datas
@@ -163,17 +172,70 @@ void TexturePackLoader::loadAllBlockTextures() {
     mapTexturesToAtlases();
 }
 
-BlockTextureLayer* TexturePackLoader::postProcessLayer(BlockTextureLayer& layer, ui32 width, ui32 height) {
-    // Need to set up numTiles and totalWeight for RANDOM method
-    if (layer.method == ConnectedTextureMethods::RANDOM) {
-        layer.numTiles = width / height;
-        if (layer.weights.length() == 0) {
-            layer.totalWeight = layer.numTiles;
-        }
+BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height) {
+   
+    // Helper for checking dimensions
+#define DIM_CHECK(w, cw, h, ch, method) \
+    if (width != _resolution * cw) { \
+        pError("Texture " + layer.path + " is " #method " but width is not " + to_string(cw)); \
+        return nullptr; \
+    } \
+    if (height != _resolution * ch) {  \
+        pError("Texture " + layer.path + " is " #method " but height is not " + to_string(ch)); \
+        return nullptr; \
     }
 
-    // Insert the texture layer into the atlas mapping set and return pointer
-    return (BlockTextureLayer*)&(*_blockTextureLayers.insert(layer).first);
+    // Pixels must be != nullptr
+    if (!pixels) return nullptr;
+
+    // Check that the texture is sized in units of _resolution
+    if (width % _resolution) {
+        pError("Texture " + layer.path + " width must be a multiple of " + to_string(_resolution));
+        return nullptr;
+    }
+    if (height % _resolution) {
+        pError("Texture " + layer.path + " height must be a multiple of " + to_string(_resolution));
+        return nullptr;
+    }
+
+    // Check for errors and postprocessing based on method
+    switch (layer.method) {
+        // Need to set up numTiles and totalWeight for RANDOM method
+        case ConnectedTextureMethods::CONNECTED:
+            DIM_CHECK(width, CONNECTED_WIDTH, height, CONNECTED_HEIGHT, CONNECTED);
+            break;
+        case ConnectedTextureMethods::RANDOM:
+            layer.numTiles = width / height;
+            if (layer.weights.length() == 0) {
+                layer.totalWeight = layer.numTiles;
+            }
+            break;
+        case ConnectedTextureMethods::GRASS:
+            DIM_CHECK(width, GRASS_WIDTH, height, GRASS_HEIGHT, GRASS);
+            break;
+        case ConnectedTextureMethods::HORIZONTAL:
+            DIM_CHECK(width, HORIZONTAL_WIDTH, height, HORIZONTAL_HEIGHT, HORIZONTAL);
+            break;
+        case ConnectedTextureMethods::VERTICAL:
+            DIM_CHECK(width, HORIZONTAL_HEIGHT, height, HORIZONTAL_WIDTH, VERTICAL);
+            break;
+        case ConnectedTextureMethods::REPEAT:
+            DIM_CHECK(width, layer.size.x, height, layer.size.y, REPEAT);
+            break;
+        case ConnectedTextureMethods::FLORA:
+            break;
+        case ConnectedTextureMethods::NONE:
+            DIM_CHECK(width, 1, height, 1, NONE);
+            break;
+    }
+
+    // Grab non-const reference to the block texture layer
+    BlockTextureLayer* layerToLoad = (BlockTextureLayer*)&(*_blockTextureLayers.insert(layer).first);
+    // Mark this layer for load
+    _layersToLoad.emplace_back(pixels, layerToLoad);
+
+    // Return pointer
+    return layerToLoad;
 }
 
 void TexturePackLoader::mapTexturesToAtlases() {
@@ -182,7 +244,7 @@ void TexturePackLoader::mapTexturesToAtlases() {
     timerb.start();
     BlockTextureLayer* layer;
     // Iterate through all the unique texture layers we need to map
-    for (auto it = _blockTextureLayers.begin(); it != _blockTextureLayers.end(); ++it) {
+    for (auto& it = _blockTextureLayers.begin(); it != _blockTextureLayers.end(); ++it) {
         // Get a non-const pointer to the data
         layer = (BlockTextureLayer*)&(*it);
         // Map the texture layer to an atlas position
@@ -190,7 +252,7 @@ void TexturePackLoader::mapTexturesToAtlases() {
     }
 
     // Build the pixel data for the texture array
-    _textureAtlasStitcher.buildPixelData(_layersToLoad, 32);
+    _textureAtlasStitcher.buildPixelData(_layersToLoad, _resolution);
 }
 
 ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& height) {

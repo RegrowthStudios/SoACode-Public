@@ -316,7 +316,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     GLubyte buffer[256][256][3];
     if (!ignoreBiomes){
         glActiveTexture(GL_TEXTURE8);
-        glBindTexture(GL_TEXTURE_2D, GameManager::planet->biomeMapTexture);
+        glBindTexture(GL_TEXTURE_2D, GameManager::planet->biomeMapTexture.ID);
         
         glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
 
@@ -332,7 +332,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         }
     }
     //color map!
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture.ID);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
     for (int i = 0; i < 256; i++){
         for (int j = 0; j < 256; j++){
@@ -342,7 +342,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         }
     }
 
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture.ID);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
     for (int i = 0; i < 256; i++){
         for (int j = 0; j < 256; j++){
@@ -482,17 +482,17 @@ void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, biomeMapTexture);
+    glBindTexture(GL_TEXTURE_2D, biomeMapTexture.ID);
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, waterColorMapTexture);
+    glBindTexture(GL_TEXTURE_2D, waterColorMapTexture.ID);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, waterNoiseTexture.ID);
 
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, sunColorMapTexture);
+    glBindTexture(GL_TEXTURE_2D, sunColorMapTexture.ID);
 
     glActiveTexture(GL_TEXTURE7);
-    glBindTexture(GL_TEXTURE_2D, colorMapTexture);
+    glBindTexture(GL_TEXTURE_2D, colorMapTexture.ID);
 
     closestTerrainPatchDistance = 999999999999.0;
 

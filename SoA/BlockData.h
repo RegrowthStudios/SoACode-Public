@@ -31,7 +31,8 @@ enum class ConnectedTextureMethods {
     VERTICAL,
     GRASS,
     REPEAT,
-    RANDOM
+    RANDOM,
+    FLORA
 };
 KEG_ENUM_DECL(ConnectedTextureMethods);
 
@@ -50,6 +51,21 @@ enum class ConnectedTextureReducedMethod {
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
 struct BlockTextureLayer {
+    // Set defaults in constructor for no .tex file
+    BlockTextureLayer() : 
+        method(ConnectedTextureMethods::NONE),
+        size(1),
+        symmetry(ConnectedTextureSymmetry::NONE),
+        reducedMethod(ConnectedTextureReducedMethod::NONE),
+        useMapColor(""),
+        totalWeight(0),
+        numTiles(1),
+        textureIndex(0),
+        innerSeams(false),
+        transparency(false),
+        path("") {
+        // Empty
+    }
     ConnectedTextureMethods method;
     i32v2 size;
     ConnectedTextureSymmetry symmetry;
@@ -69,7 +85,7 @@ struct BlockTextureLayer {
 KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
-    BlockTexture() {};
+    BlockTexture() : blendMode(BlendType::REPLACE){};
     BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
         base(b), overlay(o), blendMode(bt){
         // Empty

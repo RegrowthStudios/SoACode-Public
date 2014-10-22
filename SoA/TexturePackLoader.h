@@ -43,7 +43,10 @@ public:
     /// Register a texture to be loaded
     /// @param filePath: The path of the texture
     /// @param ss: The sampler state for loading the texture
-    void registerTexture(const nString& filePath, SamplerState* ss) { _texturesToLoad[filePath] = ss; }
+    void registerTexture(const nString& filePath,
+                         SamplerState* ss = &SamplerState::LINEAR_CLAMP_MIPMAP) {
+        _texturesToLoad[filePath] = ss;
+    }
 
     /// Register a block texture to be loaded
     /// @param filePath: The path of the block texture
@@ -53,10 +56,10 @@ public:
     /// but does not construct the texture atlases
     void loadAllTextures();
 
-    /// Gets a BlockTextureData, which contains the information about a block texture
+    /// Gets a BlockTexture, which contains the information about a block texture
     /// @param texturePath: The path to the texture to look up
-    /// @return Pointer to the texture data, or nullptr if it isn't present
-    BlockTextureData* getBlockTexture(nString& texturePath);
+    /// @param texture: The block texture that will be filled with data
+    void getBlockTexture(nString& texturePath, BlockTexture& texture);
 
     /// Creates the texture atlases and uploads textures to the GPU.
     /// Must be called after loadAllTextures.
@@ -73,12 +76,13 @@ private:
     /// Loads all the block textures
     void loadAllBlockTextures();
 
-    /// Does postprocessing to the layer and adds it to _blockTextureLayers
+    /// Does error checking and postprocessing to the layer and adds it to 
+    /// _blockTextureLayers and _layersToLoad.
     /// @param layer: The block texture layer to process
     /// @param width: The width of the texture in pixels
     /// @param height: The height of the texture in pixels
     /// @return Pointer to the BlockTextureLayer that gets stored
-    BlockTextureLayer* postProcessLayer(BlockTextureLayer& layer, ui32 width, ui32 height);
+    BlockTextureLayer* postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height);
 
     /// Maps all the layers in _blockTextureLayers to an atlas array
     void mapTexturesToAtlases();
@@ -130,6 +134,8 @@ private:
     nString _texturePackPath; ///< Path for the texture pack
 
     vg::TextureCache* _textureCache; ///< Cache for storing non-block textures
+    
+    ui32 _resolution; ///< Resolution of the texture pack
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
 };

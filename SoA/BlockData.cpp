@@ -30,6 +30,7 @@ e->addValue("repeat", ConnectedTextureMethods::REPEAT);
 e->addValue("grass", ConnectedTextureMethods::GRASS);
 e->addValue("horizontal", ConnectedTextureMethods::HORIZONTAL);
 e->addValue("vertical", ConnectedTextureMethods::VERTICAL);
+e->addValue("flora", ConnectedTextureMethods::FLORA);
 KEG_ENUM_INIT_END
 
 KEG_ENUM_INIT_BEGIN(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e)
@@ -140,6 +141,7 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     LCHECK(numTiles);
     LCHECK(innerSeams);
     LCHECK(transparency);
+    return false;
 }
 
 void initConnectedTextures()
@@ -304,48 +306,34 @@ void Block::InitializeTexture()
         pxTex = pyTex = pzTex = nxTex = nyTex = nzTex = 0;
         pxNMap = pyNMap = pzNMap = nxNMap = nyNMap = nzNMap = -1;
 
-        BlockTextureData* blockTexture;
-
-        blockTexture = GameManager::texturePackLoader->getBlockTexture(topTexName);
-        if (blockTexture){
-            pyTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
-            pyTex = pyTexInfo.base.textureIndex;
-            pyOvTex = pyTexInfo.overlay.textureIndex;
-        }
-        blockTexture = GameManager::texturePackLoader->getBlockTexture(leftTexName);
-        if (blockTexture){
-            nxTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
-            nxTex = nxTexInfo.base.textureIndex;
-            nxOvTex = nxTexInfo.overlay.textureIndex;
-        }
-        blockTexture = GameManager::texturePackLoader->getBlockTexture(rightTexName);
-        if (blockTexture){
-            pxTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
-            pxTex = pxTexInfo.base.textureIndex;
-            pxOvTex = pxTexInfo.overlay.textureIndex;
-        }
-        blockTexture = GameManager::texturePackLoader->getBlockTexture(frontTexName);
-        if (blockTexture){
-            pzTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
-            pzTex = pzTexInfo.base.textureIndex;
-            pzOvTex = pzTexInfo.overlay.textureIndex;
-        }
-        blockTexture = GameManager::texturePackLoader->getBlockTexture(backTexName);
-        if (blockTexture){
-            nzTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
-            nzTex = nzTexInfo.base.textureIndex;
-            nzOvTex = nzTexInfo.overlay.textureIndex;
-        }
-        blockTexture = GameManager::texturePackLoader->getBlockTexture(bottomTexName);
-        if (blockTexture){
-            nyTexInfo = BlockTexture(*blockTexture->base, *blockTexture->overlay, blockTexture->blendMode);
-            nyTex = nyTexInfo.base.textureIndex;
-            nyOvTex = nyTexInfo.overlay.textureIndex;
-        }
-        blockTexture = GameManager::texturePackLoader->getBlockTexture(particleTexName);
-        if (blockTexture){
-            particleTex = blockTexture->base->textureIndex;
-        }
+        GameManager::texturePackLoader->getBlockTexture(topTexName, pyTexInfo);
+        pyTex = pyTexInfo.base.textureIndex;
+        pyOvTex = pyTexInfo.overlay.textureIndex;
+        
+        GameManager::texturePackLoader->getBlockTexture(leftTexName, nxTexInfo);
+        nxTex = nxTexInfo.base.textureIndex;
+        nxOvTex = nxTexInfo.overlay.textureIndex;
+        
+        GameManager::texturePackLoader->getBlockTexture(rightTexName, pxTexInfo);
+        pxTex = pxTexInfo.base.textureIndex;
+        pxOvTex = pxTexInfo.overlay.textureIndex;
+        
+        GameManager::texturePackLoader->getBlockTexture(frontTexName, pzTexInfo);
+        pzTex = pzTexInfo.base.textureIndex;
+        pzOvTex = pzTexInfo.overlay.textureIndex;
+        
+        GameManager::texturePackLoader->getBlockTexture(backTexName, nzTexInfo);
+        nzTex = nzTexInfo.base.textureIndex;
+        nzOvTex = nzTexInfo.overlay.textureIndex;
+        
+        GameManager::texturePackLoader->getBlockTexture(bottomTexName, nyTexInfo);
+        nyTex = nyTexInfo.base.textureIndex;
+        nyOvTex = nyTexInfo.overlay.textureIndex;
+        
+        BlockTexture particleTexture;
+        GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
+        particleTex = particleTexture.base.textureIndex;
+        
     }
 }
 
