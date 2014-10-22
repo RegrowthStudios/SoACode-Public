@@ -46,6 +46,9 @@ public:
 
 private:
 
+    /// Handles updating state based on input
+    void handleInput();
+
     /// Draws the voxel world
     void drawVoxelWorld();
 

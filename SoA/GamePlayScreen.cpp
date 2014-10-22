@@ -74,8 +74,8 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
 
-    InputManager* inputManager = GameManager::inputManager;
-    inputManager->pushEvent(e);
+    // Push the event to the input manager
+    GameManager::inputManager->pushEvent(e);
 
     // Handle custom input
     switch (e.type) {
@@ -101,27 +101,12 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
         default:
             break;
     }
-
-    // Handle key inputs
-    if (inputManager->getKeyDown(INPUT_PAUSE)) {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        _inFocus = false;
-    }
-    if (inputManager->getKeyDown(INPUT_FLY)) {
-        _player->flyToggle();
-    }
-    if (inputManager->getKey(INPUT_GRID)) {
-        gridState = true;
-    } else {
-        gridState = false;
-    }
-
 }
 
 void GamePlayScreen::update(const GameTime& gameTime) {
     MessageManager* messageManager = GameManager::messageManager;
 
-    GameManager::inputManager->update();
+    handleInput();
 
     updatePlayer();
 
@@ -151,6 +136,24 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     frameBuffer->unBind(viewPort);
 }
 
+void GamePlayScreen::handleInput() {
+    // Get input manager handle
+    InputManager* inputManager = GameManager::inputManager;
+    // Handle key inputs
+    if (inputManager->getKeyDown(INPUT_PAUSE)) {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        _inFocus = false;
+    }
+    if (inputManager->getKeyDown(INPUT_FLY)) {
+        _player->flyToggle();
+    }
+    if (inputManager->getKeyDown(INPUT_GRID)) {
+        gridState = !gridState;
+    }
+
+    // Update inputManager internal state
+    inputManager->update();
+}
 
 void GamePlayScreen::drawVoxelWorld() {
 
