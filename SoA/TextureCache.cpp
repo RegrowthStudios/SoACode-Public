@@ -2,6 +2,7 @@
 #include "TextureCache.h"
 
 #include "GpuMemory.h"
+#include "Errors.h"
 
 #include <vector>
 
@@ -23,6 +24,7 @@ Texture TextureCache::findTexture(const nString& filePath) {
     if (it != _textureStringMap.end()) {
         return it->second;
     }
+
     return Texture();
 }
 

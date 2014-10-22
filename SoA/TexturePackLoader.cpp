@@ -30,20 +30,20 @@ void TexturePackLoader::loadAllTextures() {
     // TODO(Ben): Zip file support
     _texturePackPath = "Textures/TexturePacks/" + graphicsOptions.texturePackString + "/";
 
-    //ui32 width, height;
-    //for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
-    //    // Load the data
-    //    std::vector<ui8>* pixelStore = new std::vector<ui8>();
-    //    vg::ImageLoader::loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height);
-    //    if (pixelStore->size()) {
-    //        // Add the data to the cache and get non-const reference to pixels
-    //        Pixels* pixels = &(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).first->second);
-    //        // Store the reference to the pixels and samplerstate so we can upload it in uploadTextures
-    //        _texturesToUpload[it->first] = TextureToUpload(pixels, it->second);
-    //    } else {
-    //        delete pixelStore;
-    //    }
-    //}
+    ui32 width, height;
+    for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
+        // Load the data
+        std::vector<ui8>* pixelStore = new std::vector<ui8>();
+        vg::ImageLoader::loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height);
+        if (pixelStore->size()) {
+            // Add the data to the cache and get non-const reference to pixels
+            Pixels* pixels = &(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).first->second);
+            // Store the reference to the pixels and samplerstate so we can upload it in uploadTextures
+            _texturesToUpload[it->first] = TextureToUpload(pixels, it->second);
+        } else {
+            delete pixelStore;
+        }
+    }
 
     // Load all the block textures and map to an atlas array
     loadAllBlockTextures();
