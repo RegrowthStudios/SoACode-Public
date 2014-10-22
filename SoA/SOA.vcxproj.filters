@@ -536,6 +536,9 @@
     <ClInclude Include="Texture.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="LoadTaskTextures.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

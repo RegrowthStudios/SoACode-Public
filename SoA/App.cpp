@@ -27,6 +27,9 @@ void App::onInit() {
     
     // Load the graphical options
     initializeOptions();
+    // This is temporary
+    graphicsOptions.currTexturePack = graphicsOptions.texturePackString;
+
     loadOptions();
 
     if (graphicsOptions.msaa > 0){

@@ -15,6 +15,7 @@
 #include "LoadTaskBlockData.h"
 #include "LoadTaskPlanet.h"
 #include "LoadTaskSound.h"
+#include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
 #include "ParticleEmitter.h"
 #include "Player.h"
@@ -65,6 +66,9 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
 
     addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     _monitor.setDep("BlockData", "GameManager");
+
+    addLoadTask("Textures", "Textures", new LoadTaskTextures);
+    _monitor.setDep("Textures", "BlockData");
 
     // Start the tasks
     _monitor.start();
@@ -117,21 +121,11 @@ void LoadScreen::update(const GameTime& gameTime) {
         loadedShaders = true;
     }
 
-
-
-
     // Defer texture loading
     static bool loadedTextures = false;
-    if (!loadedTextures && _monitor.isTaskFinished("BlockData")) {
-       
+    if (!loadedTextures && _monitor.isTaskFinished("Textures")) {
+      
         LoadTextures();
-        //load the texture pack
-
-        graphicsOptions.currTexturePack = graphicsOptions.texturePackString;
-
-        GameManager::registerTexturesForLoad();
-       
-        GameManager::texturePackLoader->loadAllTextures();
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
 

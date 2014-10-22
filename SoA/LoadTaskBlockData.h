@@ -14,7 +14,7 @@ class LoadTaskBlockData : public ILoadTask {
 
         if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
 
-        BlockLoader::saveBlocks("Data/BlockData.yaml");
+       // BlockLoader::saveBlocks("Data/BlockData.yml");
 
         Player* player = GameManager::player;
 

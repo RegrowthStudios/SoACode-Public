@@ -123,6 +123,7 @@
     <ClInclude Include="LoadTaskPlanet.h" />
     <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="LoadTaskSound.h" />
+    <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />

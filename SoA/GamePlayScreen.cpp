@@ -104,12 +104,14 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
 }
 
 void GamePlayScreen::update(const GameTime& gameTime) {
-    MessageManager* messageManager = GameManager::messageManager;
 
+    // Update the input
     handleInput();
 
+    // Update the player
     updatePlayer();
 
+    // Sort all meshes // TODO(Ben): There is redundance here
     _app->meshManager->sortMeshes(_player->headPosition);
 
     // Process any updates from the render thread
