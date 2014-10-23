@@ -159,6 +159,17 @@ bool GLProgram::link() {
 
     // Link The Program
     glLinkProgram(_id);
+
+    // Don't need the shaders anymore
+    if (_idVS) {
+        glDeleteShader(_idVS);
+        _idVS = 0;
+    }
+    if (_idFS) {
+        glDeleteShader(_idFS);
+        _idFS = 0;
+    }
+
     glValidateProgram(_id);
 
     // Get The Link Status
