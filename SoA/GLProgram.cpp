@@ -51,11 +51,11 @@ void GLProgram::destroy() {
     }
 }
 
-void GLProgram::addShader(ShaderType type, const cString src) {
+bool GLProgram::addShader(ShaderType type, const cString src) {
     // Get the GLenum shader type from the wrapper
     i32 glType = static_cast<GLenum>(type);
     // Check Current State
-    if (getIsLinked() || !getIsCreated()) return;
+    if (getIsLinked() || !getIsCreated()) return false;
     switch (glType) {
         case GL_VERTEX_SHADER:
             if (_idVS != 0) {
@@ -90,7 +90,7 @@ void GLProgram::addShader(ShaderType type, const cString src) {
         glGetShaderInfoLog(idS, infoLogLength, NULL, FragmentShaderErrorMessage.data());
         fprintf(stdout, "%s\n", &FragmentShaderErrorMessage[0]);
         glDeleteShader(idS);
-        throw 2;
+        return false;
     }
 
     // Bind Shader To Program
@@ -99,13 +99,15 @@ void GLProgram::addShader(ShaderType type, const cString src) {
         case GL_VERTEX_SHADER: _idVS = idS; break;
         case GL_FRAGMENT_SHADER: _idFS = idS; break;
     }
+    return true;
 }
-void GLProgram::addShaderFile(ShaderType type, const cString file) {
+
+bool GLProgram::addShaderFile(ShaderType type, const cString file) {
     IOManager iom;
     nString src;
 
     iom.readFileToString(file, src);
-    addShader(type, src.c_str());
+    return addShader(type, src.c_str());
 }
 
 void GLProgram::setAttribute(nString name, ui32 index) {

@@ -9,7 +9,9 @@
 
 // TODO(Ben): Somehow make this asynchronous
 class LoadTaskShaders : public ILoadTask {
+    // So that these classes can call load()
     friend class LoadScreen;
+    friend class GamePlayScreen;
 public:
     LoadTaskShaders() {
         // Empty

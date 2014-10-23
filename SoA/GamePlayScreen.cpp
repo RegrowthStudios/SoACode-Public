@@ -24,6 +24,7 @@
 #include "Collision.h"
 #include "Inputs.h"
 #include "TexturePackLoader.h"
+#include "LoadTaskShaders.h"
 #include "GpuMemory.h"
 
 #define THREAD ThreadName::PHYSICS
@@ -183,6 +184,9 @@ void GamePlayScreen::handleInput() {
     }
     if (inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
         GameManager::glProgramManager->destroy();
+        LoadTaskShaders shaderTask;
+        shaderTask.load();
+
     }
     // Update inputManager internal state
     inputManager->update();

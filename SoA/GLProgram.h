@@ -51,11 +51,13 @@ public:
     /// Attatches shader to the build information
     /// @param type: the type of shader
     /// @param src: the shader source
-    void addShader(ShaderType type, const cString src);
+    /// @return true on success, false on failure
+    bool addShader(ShaderType type, const cString src);
     /// Attatches shader to the build information
     /// @param type: the type of shader
     /// @param src: the shader file name
-    void addShaderFile(ShaderType type, const cString file);
+    /// @return true on success, false on failure
+    bool addShaderFile(ShaderType type, const cString file);
 
     /// Sets an attribute
     /// @param name: the attribute name
