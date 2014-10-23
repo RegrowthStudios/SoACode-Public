@@ -42,7 +42,7 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
     _texturePackPath = texturePackPath;
 
     // Load the pack file to get the texture pack description
-    loadPackFile(texturePackPath + "pack.yml");
+    _packInfo = loadPackFile(texturePackPath + "pack.yml");
 
     ui32 width, height;
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
@@ -131,7 +131,15 @@ void TexturePackLoader::setBlockTextures(std::vector<Block>& blocks) {
 /// @return The texture pack info
 TexturePackInfo TexturePackLoader::loadPackFile(const nString& filePath) {
     TexturePackInfo rv = {};
-
+    nString data;
+    _ioManager.readFileToString(filePath.c_str(), data);
+    if (data.length()) {
+        if (Keg::parse(&rv, data.c_str(), "TexturePackInfo") == Keg::Error::NONE) {
+            return rv;
+        }
+    }
+    pError("Failed to load texture pack file " + filePath);
+    return rv;
 }
 
 void TexturePackLoader::clearToloadCaches() {
