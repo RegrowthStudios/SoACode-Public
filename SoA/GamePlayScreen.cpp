@@ -166,7 +166,7 @@ void GamePlayScreen::handleInput() {
         // Free all textures
         GameManager::textureCache->destroy();
         // Reload textures
-        GameManager::texturePackLoader->loadAllTextures();
+        GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + graphicsOptions.texturePackString + "/");
         LoadTextures();
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();

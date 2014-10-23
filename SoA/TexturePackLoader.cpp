@@ -39,10 +39,10 @@ TexturePackLoader::~TexturePackLoader() {
 void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
 
     // TODO(Ben): Zip file support
-    _texturePackPath = texturePackPath; // "Textures/TexturePacks/" + graphicsOptions.texturePackString + "/";
+    _texturePackPath = texturePackPath;
 
     // Load the pack file to get the texture pack description
-    loadPackFile();
+    loadPackFile(texturePackPath + "pack.yml");
 
     ui32 width, height;
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {

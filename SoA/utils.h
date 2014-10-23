@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef UTILS_H_
+#define UTILS_H_
+
 #include "stdafx.h"
 #include "FastConversion.h"
 
@@ -204,7 +208,7 @@ RANGE_STRUCT(F64, f64);
 // /////////////////////////////////////////////////////////////////////
 //    String Utilities
 // /////////////////////////////////////////////////////////////////////
-void convertWToMBString(const cwString ws, nString& resultString) {
+inline void convertWToMBString(const cwString ws, nString& resultString) {
     i32 l = wcslen(ws);
     resultString.resize(l + 1);
     size_t numConverted = 0;
@@ -391,3 +395,5 @@ namespace BufferUtils {
     }
 
 }
+
+#endif // UTILS_H_
