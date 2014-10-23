@@ -62,8 +62,19 @@ public:
     void getBlockTexture(nString& texturePath, BlockTexture& texture);
 
     /// Creates the texture atlases and uploads textures to the GPU.
-    /// Must be called after loadAllTextures.
+    /// Must be called after loadAllTextures. Will free pixel memory and
+    /// clear arrays other than _texturesToLoad and _blockTexturesToLoad
     void uploadTextures();
+
+    /// Sets the textures for blocks.
+    /// Should be called after uploadTextures()
+    void setBlockTextures(std::vector<Block>& blocks);
+
+    /// Clears caches of textures to load. Use this before you want to
+    /// reload a different set of block textures. If you don't call this
+    /// after loading a pack, subsequent calls to loadAllTextures will load
+    /// the same textures.
+    void clearToloadCaches();
 
     /// Frees all resources
     void destroy();
@@ -138,6 +149,8 @@ private:
     ui32 _resolution; ///< Resolution of the texture pack
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
+
+    int _numAtlasPages;
 };
 
 #endif // TEXTUREPACKLOADER_H_

@@ -4,7 +4,7 @@
 #include "GameManager.h"
 #include "TexturePackLoader.h"
 
-// This is hacky and temporary, it does way to much
+// TODO(Ben): Multiple loader threads
 class LoadTaskTextures : public ILoadTask {
     virtual void load() {
         //load the texture pack

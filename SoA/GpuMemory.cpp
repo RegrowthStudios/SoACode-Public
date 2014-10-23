@@ -61,10 +61,7 @@ ui32 GpuMemory::uploadTexture(const ui8* pixels,
 }
 
 void GpuMemory::freeTexture(ui32& textureID) {
-    // Delete the texture
-    glDeleteTextures(1, &textureID);
-    textureID = 0;
-
+    
     // See if the texture was uploaded through GpuMemory
     auto it = _textures.find(textureID);
     if (it != _textures.end()) {
@@ -72,6 +69,10 @@ void GpuMemory::freeTexture(ui32& textureID) {
         _totalVramUsage -= it->second;
         _textures.erase(it);
     }
+
+    // Delete the texture
+    glDeleteTextures(1, &textureID);
+    textureID = 0;
 }
 
 }

@@ -17,7 +17,8 @@
 TexturePackLoader::TexturePackLoader(vg::TextureCache* textureCache) :
     _textureCache(textureCache),
     _hasLoaded(false),
-    _resolution(32) {
+    _resolution(32),
+    _numAtlasPages(0) {
     // Empty
 }
 
@@ -84,18 +85,15 @@ void TexturePackLoader::uploadTextures() {
     atlasTex.ID = _textureAtlasStitcher.buildTextureArray();
 
     blockPack.initialize(atlasTex);
-}
 
-void TexturePackLoader::destroy() {
+    // Get the number of atlas pages before freeing atlas
+    _numAtlasPages = _textureAtlasStitcher.getNumPages();
+
     /// Free stitcher memory
     _textureAtlasStitcher.destroy();
-    /// Free all cache memory
-    std::map <nString, SamplerState*>().swap(_texturesToLoad);
+    /// Free cache memory used in loading
     std::map <nString, TextureToUpload>().swap(_texturesToUpload);
-    std::set <nString>().swap(_blockTexturesToLoad);
-    std::set <BlockTextureLayer>().swap(_blockTextureLayers);
     std::vector <BlockLayerLoadData>().swap(_layersToLoad);
-    std::map <nString, BlockTextureData>().swap(_blockTextureLoadDatas);
 
     // Make sure to free all pixel data
     for (auto& pixels : _pixelCache) {
@@ -104,17 +102,55 @@ void TexturePackLoader::destroy() {
     std::map <nString, Pixels>().swap(_pixelCache);
 }
 
+void TexturePackLoader::setBlockTextures(std::vector<Block>& blocks) {
+    // Initialize all the textures for blocks.
+    for (size_t i = 0; i < blocks.size(); i++) {
+        blocks[i].InitializeTexture();
+    }
+    // Since we have set the blocks, we can now free the lookup maps and 
+    // blockTextureLayers cache
+    std::map <nString, BlockTextureData>().swap(_blockTextureLoadDatas);
+    std::set <BlockTextureLayer>().swap(_blockTextureLayers);
+}
+
+void TexturePackLoader::clearToloadCaches() {
+    std::map <nString, SamplerState*>().swap(_texturesToLoad);
+    std::set <nString>().swap(_blockTexturesToLoad);
+}
+
+void TexturePackLoader::destroy() {
+    /// Free stitcher memory
+    _textureAtlasStitcher.destroy();
+    /// Free all cache memory
+    std::map <nString, TextureToUpload>().swap(_texturesToUpload);
+    std::vector <BlockLayerLoadData>().swap(_layersToLoad);
+    
+    std::map <nString, SamplerState*>().swap(_texturesToLoad);
+    std::set <nString>().swap(_blockTexturesToLoad);
+    
+    std::map <nString, BlockTextureData>().swap(_blockTextureLoadDatas);
+    std::set <BlockTextureLayer>().swap(_blockTextureLayers);
+
+    // Make sure to free all pixel data
+    for (auto& pixels : _pixelCache) {
+        delete pixels.second.data;
+    }
+    std::map <nString, Pixels>().swap(_pixelCache);
+    _numAtlasPages = 0;
+}
+
+
 void TexturePackLoader::writeDebugAtlases() {
     int width = _resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
     int height = width;
 
     int pixelsPerPage = width * height * 4;
-    ui8 *pixels = new ui8[width * height * 4 * _textureAtlasStitcher.getNumPages()];
+    ui8 *pixels = new ui8[width * height * 4 * _numAtlasPages];
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
     glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-    for (int i = 0; i < _textureAtlasStitcher.getNumPages(); i++) {
+    for (int i = 0; i < _numAtlasPages; i++) {
 
         SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, _resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
         SDL_SaveBMP(surface, ("atlas" + to_string(i) + "b.bmp").c_str());
@@ -131,6 +167,9 @@ void TexturePackLoader::loadAllBlockTextures() {
     ui32 width, height;
 
     ui8* pixels;
+
+    // Free _blockTextureLayers in case a pack has been loaded before
+    std::set <BlockTextureLayer>().swap(_blockTextureLayers);
 
     // Loop through all textures to load
     for (const nString& texturePath : _blockTexturesToLoad) {

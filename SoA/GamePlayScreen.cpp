@@ -23,6 +23,8 @@
 #include "DebugRenderer.h"
 #include "Collision.h"
 #include "Inputs.h"
+#include "TexturePackLoader.h"
+#include "GpuMemory.h"
 
 #define THREAD ThreadName::PHYSICS
 
@@ -152,7 +154,27 @@ void GamePlayScreen::handleInput() {
     if (inputManager->getKeyDown(INPUT_GRID)) {
         gridState = !gridState;
     }
+    if (inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)) {
+        // Free atlas
+        vg::GpuMemory::freeTexture(blockPack.textureInfo.ID);
+        // Free all textures
+        GameManager::textureCache->destroy();
+        // Reload textures
+        GameManager::texturePackLoader->loadAllTextures();
+        LoadTextures();
+        GameManager::texturePackLoader->uploadTextures();
+        GameManager::texturePackLoader->writeDebugAtlases();
+        GameManager::texturePackLoader->setBlockTextures(Blocks);
 
+        GameManager::getTextureHandles();
+
+        // Initialize all the textures for blocks.
+        for (size_t i = 0; i < Blocks.size(); i++) {
+            Blocks[i].InitializeTexture();
+        }
+
+        GameManager::texturePackLoader->destroy();
+    }
     // Update inputManager internal state
     inputManager->update();
 }

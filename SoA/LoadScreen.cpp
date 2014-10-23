@@ -128,14 +128,9 @@ void LoadScreen::update(const GameTime& gameTime) {
         LoadTextures();
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
+        GameManager::texturePackLoader->setBlockTextures(Blocks);
 
         GameManager::getTextureHandles();
-
-        for (size_t i = 0; i < Blocks.size(); i++) {
-            Blocks[i].InitializeTexture();
-        }
-
-        GameManager::texturePackLoader->destroy();
 
         SetBlockAvgTexColors();
 
