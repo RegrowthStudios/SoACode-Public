@@ -8,7 +8,11 @@ namespace Awesomium {
         glGenTextures(1, &_textureID);
         glBindTexture(GL_TEXTURE_2D, _textureID);
 
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, _width, _height);
+        if (glewIsSupported("glTexStorage2D")) {
+            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, _width, _height);
+        } else {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        }
 
         _rowSpan = _width * 4;
 
