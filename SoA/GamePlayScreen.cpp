@@ -182,7 +182,7 @@ void GamePlayScreen::handleInput() {
         GameManager::texturePackLoader->destroy();
     }
     if (inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-        //TODO(NoW)
+        GameManager::glProgramManager->destroy();
     }
     // Update inputManager internal state
     inputManager->update();

@@ -73,5 +73,14 @@ GLProgram* GLProgramManager::getProgram(nString shaderName) {
     return nullptr;
 }
 
+void GLProgramManager::destroy() {
+
+    for (auto prog : _programs) {
+        prog.second->destroy();
+    }
+
+    std::unordered_map<nString, GLProgram*>().swap(_programs);
+}
+
 }
 }

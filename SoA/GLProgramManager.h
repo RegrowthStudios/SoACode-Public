@@ -47,6 +47,9 @@ public:
     /// returns nullptr if the shader doesn't exist
     GLProgram* getProgram(nString shaderName);
 
+    /// Frees all resources
+    void destroy();
+
 private:
 
     // Cache of GLProgram objects
