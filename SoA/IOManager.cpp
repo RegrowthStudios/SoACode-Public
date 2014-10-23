@@ -4,7 +4,7 @@
 #include "utils.h"
 
 IOManager::IOManager() :
-_searchDir(nullptr) {
+    _searchDir(nullptr) {
     boost::filesystem::path path;
     boost::filesystem::path absPath;
 
@@ -12,14 +12,18 @@ _searchDir(nullptr) {
         // Find The Executing Path
         path = boost::filesystem::initial_path();
         absPath = boost::filesystem::system_complete(path);
-        setExecutableDirectory(convertWToMBString((cwString)absPath.c_str()));
+        nString exeDir;
+        convertWToMBString((cwString)absPath.c_str(), exeDir);
+        setExecutableDirectory(exeDir);
     }
 
     if (!_cwDir) {
         // Find The CWD
         path = boost::filesystem::current_path();
         absPath = boost::filesystem::system_complete(path);
-        setCurrentWorkingDirectory(convertWToMBString((cwString)absPath.c_str()));
+        nString cwDir;
+        convertWToMBString((cwString)absPath.c_str(), cwDir);
+        setCurrentWorkingDirectory(cwDir);
     }
 
     // Search Directory Defaults To CWD
@@ -56,40 +60,40 @@ void IOManager::setSearchDirectory(const cString s) {
         _searchDir[l] = 0;
     }
 }
-void IOManager::setCurrentWorkingDirectory(const cString s) {
+void IOManager::setCurrentWorkingDirectory(const nString& s) {
     // Delete The Old CWD
     if (_cwDir) free(_cwDir);
 
-    if (!s) {
+    if (s.empty()) {
         // No Search Directory Now
         _cwDir = nullptr;
         return;
     } else {
         // Copy The String
-        i32 l = strlen(s);
+        i32 l = s.length();
         _cwDir = (cString)malloc(l + 1);
-        strcpy_s(_cwDir, l + 1, s);
+        strcpy_s(_cwDir, l + 1, s.data());
         _cwDir[l] = 0;
     }
 }
-void IOManager::setExecutableDirectory(const cString s) {
+void IOManager::setExecutableDirectory(const nString& s) {
     // Delete The Old Executing Directory
     if (_execDir) free(_execDir);
 
-    if (!s) {
+    if (s.empty()) {
         // No Search Directory Now
         _execDir = nullptr;
         return;
     } else {
         // Copy The String
-        i32 l = strlen(s);
+        i32 l = s.length();
         _execDir = (cString)malloc(l + 1);
-        strcpy_s(_execDir, l + 1, s);
+        strcpy_s(_execDir, l + 1, s.data());
         _execDir[l] = 0;
     }
 }
 
-const cString IOManager::getDirectory(const cString path) {
+void IOManager::getDirectory(const cString path, nString& resultPath) {
     boost::filesystem::path p(path);
     if (!boost::filesystem::is_directory(p)) {
         p = p.remove_filename();
@@ -97,7 +101,7 @@ const cString IOManager::getDirectory(const cString path) {
     if (!p.is_absolute()) {
         p = boost::filesystem::system_complete(p);
     }
-    return convertWToMBString((cwString)p.c_str());
+    convertWToMBString((cwString)p.c_str(), resultPath);
 }
 
 void IOManager::getDirectoryEntries(nString dirPath, std::vector<boost::filesystem::path>& entries) {
@@ -111,12 +115,11 @@ void IOManager::getDirectoryEntries(nString dirPath, std::vector<boost::filesyst
 }
 
 FILE* IOManager::openFile(const cString path, const cString flags) {
-    const cString filePath = resolveFile(path);
+   nString filePath;
 
-    if (filePath) {
+    if (resolveFile(path, filePath)) {
         FILE* f;
-        errno_t err = fopen_s(&f, filePath, flags);
-        delete[] filePath;
+        errno_t err = fopen_s(&f, filePath.data(), flags);
         return err == 0 ? f : nullptr;
     }
 
@@ -124,52 +127,51 @@ FILE* IOManager::openFile(const cString path, const cString flags) {
     return nullptr;
 }
 
-const cString IOManager::readFileToString(const cString path) {
-    const cString filePath = resolveFile(path);
+bool IOManager::readFileToString(const cString path, nString& data) {
+    nString filePath;
 
-    if (filePath) {
+    if (resolveFile(path, filePath)) {
         std::ifstream t(filePath, std::ios::in | std::ios::binary);
-        delete[] filePath;
 
         t.seekg(0, std::ios::end);
         i32 length = t.tellg();
         t.seekg(0, std::ios::beg);
         length -= t.tellg();
 
-        cString buffer = new char[length + 1];
-        t.read(buffer, length);
+        data.resize(length + 1);
+        t.read(&(data[0]), length);
         t.close();
 
-        buffer[length] = '\0';
-        return buffer;
+        data[length] = '\0';
+        return true;
     }
+    return false;
 }
-const cString IOManager::readFileToData(const cString path, i32* len) {
-    const cString filePath = resolveFile(path);
+bool IOManager::readFileToData(const cString path, std::vector<ui8>& data) {
+    nString filePath;
 
-    if (filePath) {
+    if (resolveFile(path, filePath)) {
         std::ifstream t(filePath, std::ios::in | std::ios::binary);
-        delete[] filePath;
 
         t.seekg(0, std::ios::end);
         i32 length = t.tellg();
         t.seekg(0, std::ios::beg);
-        length -= t.tellg();
-        if (len) *len = length;
 
-        cString buffer = new char[length];
-        t.read(buffer, length);
+        data.resize(length);
+        t.read((char*)&(data[0]), length);
         t.close();
 
-        return buffer;
+        return true;
     }
+    return false;
 }
 
-const cString IOManager::resolveFile(const cString path) {
+bool IOManager::resolveFile(const cString path, nString& resultAbsolutePath) {
     boost::filesystem::path p(path);
     if (p.is_absolute()) {
         if (boost::filesystem::exists(p)) {
-            return convertWToMBString((cwString)p.c_str());
+            convertWToMBString((cwString)p.c_str(), resultAbsolutePath);
+            return true;
         }
     }
 
@@ -178,25 +180,30 @@ const cString IOManager::resolveFile(const cString path) {
         concatPath = boost::filesystem::path(_searchDir);
         concatPath /= p;
         if (boost::filesystem::exists(concatPath)) {
-            return convertWToMBString((cwString)concatPath.c_str());
+            convertWToMBString((cwString)concatPath.c_str(), resultAbsolutePath);
+            return true;
         }
     }
+
     if (_cwDir) {
         concatPath = boost::filesystem::path(_cwDir);
         concatPath /= p;
         if (boost::filesystem::exists(concatPath)) {
-            return convertWToMBString((cwString)concatPath.c_str());
+            convertWToMBString((cwString)concatPath.c_str(), resultAbsolutePath);
+            return true;
         }
     }
+
     if (_execDir) {
         concatPath = boost::filesystem::path(_execDir);
         concatPath /= p;
         if (boost::filesystem::exists(concatPath)) {
-            return convertWToMBString((cwString)concatPath.c_str());
+            convertWToMBString((cwString)concatPath.c_str(), resultAbsolutePath);
+            return true;
         }
     }
 
-    return nullptr;
+    return false;
 }
 
 cString IOManager::_execDir = nullptr;

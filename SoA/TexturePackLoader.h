@@ -36,6 +36,8 @@ struct BlockTextureData {
     BlendType blendMode;
 };
 
+class ZipFile;
+
 /// This class is designed so that textures are loaded in two passes.
 /// First all textures that should be loaded must be registered.
 /// In the first pass, textures are loaded into buffers with loadAllTextures().

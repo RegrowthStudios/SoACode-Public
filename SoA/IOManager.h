@@ -11,8 +11,8 @@ public:
 
     // Set Up IO Environment
     void setSearchDirectory(const cString s);
-    static void setCurrentWorkingDirectory(const cString s);
-    static void setExecutableDirectory(const cString s);
+    static void setCurrentWorkingDirectory(const nString& s);
+    static void setExecutableDirectory(const nString& s);
 
     // Get The Current Environment State
     const cString getSearchDirectory() const {
@@ -25,8 +25,8 @@ public:
         return _execDir;
     }
 
-    // Return A String (Must Be Deleted) Which Is The Root Absolute Directory Of The Path
-    static const cString getDirectory(const cString path);
+    // Return A String Which Is The Root Absolute Directory Of The Path
+    static void getDirectory(const cString path, nString& resultPath);
 
     /// Gets all the entries in a directory
     /// @param dirPath: The directory to search
@@ -34,16 +34,17 @@ public:
     void getDirectoryEntries(nString dirPath, std::vector<boost::filesystem::path>& entries);
 
     // Attempt To Find An Absolute File Path (Must Be Deleted) With This Environment
-    const cString resolveFile(const cString path);
+    // Returns false on failure
+    bool resolveFile(const cString path, nString& resultAbsolutePath);
 
     // Open A File Using STD Flags ("r", "w", "b", etc.) 
     // Returns NULL If It Can't Be Found
     FILE* openFile(const cString path, const cString flags);
 
     // Read An Entire File To A String
-    // Returns NULL If File Can't Be Found
-    const cString readFileToString(const cString path);
-    const cString readFileToData(const cString path, i32* len);
+    // Returns false If File Can't Be Found
+    bool readFileToString(const cString path, nString& data);
+    bool readFileToData(const cString path, std::vector<ui8>& data);
 private:
     // Search Order (Top-Down)
     cString _searchDir;

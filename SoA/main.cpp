@@ -92,16 +92,15 @@ void initIOEnvironment(char** argv) {
     boost::filesystem::path cwP =  boost::filesystem::initial_path();
 
     // Set The Executable Directory
-    const cString execDir = IOManager::getDirectory(argv[0]);
+    nString execDir;
+    IOManager::getDirectory(argv[0], execDir);
     IOManager::setExecutableDirectory(execDir);
-    delete [] execDir;
 
     // Set The Current Working Directory
-    const cString cwPath = convertWToMBString((cwString)boost::filesystem::system_complete(cwP).c_str());
-    const cString cwDir = IOManager::getDirectory(cwPath);
+    nString cwPath, cwDir;
+    convertWToMBString((cwString)boost::filesystem::system_complete(cwP).c_str(), cwPath);
+    IOManager::getDirectory(cwPath.c_str(), cwDir);
     IOManager::setCurrentWorkingDirectory(cwDir);
-    delete [] cwPath;
-    delete [] cwDir;
 
 #ifdef DEBUG
     printf("Executable Directory:\n    %s\n", IOManager::getExecutableDirectory());

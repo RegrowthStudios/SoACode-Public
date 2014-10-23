@@ -102,9 +102,10 @@ void GLProgram::addShader(ShaderType type, const cString src) {
 }
 void GLProgram::addShaderFile(ShaderType type, const cString file) {
     IOManager iom;
-    const cString src = iom.readFileToString(file);
-    addShader(type, src);
-    delete[] src;
+    nString src;
+
+    iom.readFileToString(file, src);
+    addShader(type, src.c_str());
 }
 
 void GLProgram::setAttribute(nString name, ui32 index) {

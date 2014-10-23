@@ -238,9 +238,10 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
     rv->base.size = i32v2(1, 1);
     rv->overlay.size = i32v2(1, 1);
 
-    const cString data = _ioManager.readFileToString(fileName.c_str());
-    if (data) {
-        if (Keg::parse(rv, data, "BlockTexture") == Keg::Error::NONE) {
+    nString data;
+    _ioManager.readFileToString(fileName.c_str(), data);
+    if (data.length()) {
+        if (Keg::parse(rv, data.c_str(), "BlockTexture") == Keg::Error::NONE) {
             if (rv->base.weights.length() > 0) {
                 rv->base.totalWeight = 0;
                 for (i32 i = 0; i < rv->base.weights.length(); i++) {

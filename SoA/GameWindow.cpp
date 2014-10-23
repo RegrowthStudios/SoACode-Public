@@ -102,8 +102,9 @@ void GameWindow::setDefaultSettings(GameDisplayMode* mode) {
 }
 void GameWindow::readSettings() {
     IOManager iom;
-    const cString data = iom.readFileToString(DEFAULT_APP_CONFIG_FILE);
-    if (data) Keg::parse(&_displayMode, data, "GameDisplayMode");
+    nString data;
+    iom.readFileToString(DEFAULT_APP_CONFIG_FILE, data);
+    if (data.length()) Keg::parse(&_displayMode, data.c_str(), "GameDisplayMode");
 }
 void GameWindow::saveSettings() const {
     GameDisplayMode modeBasis = {};
