@@ -82,8 +82,6 @@ public:
 
     nString loadTexturePackDescription(nString fileName);
 
-    bool loadTexFile(nString fileName, ZipFile* zipFile, struct BlockTexture* rv);
-
     i32 loadBlocks(nString filePath);
     i32 saveBlocks(nString filePath);
 

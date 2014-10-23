@@ -127,6 +127,8 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // We need to store two frustums, one for the world camera and one for the chunk camera
+    // TODO(Ben): The camera class should handle the frustum
     ExtractFrustum(glm::dmat4(_player->worldProjectionMatrix()), glm::dmat4(_player->worldViewMatrix()), worldFrustum);
     ExtractFrustum(glm::dmat4(_player->chunkProjectionMatrix()), glm::dmat4(_player->chunkViewMatrix()), gridFrustum);
     
@@ -139,6 +141,8 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     const ui32v2 viewPort(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     frameBuffer->unBind(viewPort);
 
+    // If you get an error here you will need to place more
+    // checkGlError calls around, or use gdebugger, to find the source.
     checkGlError("GamePlayScreen::draw()");
 }
 
@@ -177,10 +181,14 @@ void GamePlayScreen::handleInput() {
 
         GameManager::texturePackLoader->destroy();
     }
+    if (inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+        //TODO(NoW)
+    }
     // Update inputManager internal state
     inputManager->update();
 }
 
+// TODO(Ben): Break this up
 void GamePlayScreen::drawVoxelWorld() {
 
     Camera& worldCamera = _player->getWorldCamera();

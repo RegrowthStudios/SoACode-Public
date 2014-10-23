@@ -19,8 +19,16 @@
 #include "TextureAtlasStitcher.h"
 #include "BlockData.h"
 #include "TextureCache.h"
+#include "IOManager.h"
 
 #include <set>
+
+/// Information stored in pack.yml
+struct TexturePackInfo {
+    nString name;
+    ui32 resolution;
+    nString description;
+};
 
 struct BlockTextureData {
     BlockTextureLayer* base;
@@ -54,7 +62,8 @@ public:
 
     /// Loads all textures added to the texture pack and stores them
     /// but does not construct the texture atlases
-    void loadAllTextures();
+    /// @param texturePackPath: Path to the texture pack
+    void loadAllTextures(const nString& texturePackPath);
 
     /// Gets a BlockTexture, which contains the information about a block texture
     /// @param texturePath: The path to the texture to look up
@@ -70,6 +79,11 @@ public:
     /// Should be called after uploadTextures()
     void setBlockTextures(std::vector<Block>& blocks);
 
+    /// Loads the pack file for this texture pack
+    /// @param filePath: The path of the pack file
+    /// @return The texture pack info
+    TexturePackInfo loadPackFile(const nString& filePath);
+
     /// Clears caches of textures to load. Use this before you want to
     /// reload a different set of block textures. If you don't call this
     /// after loading a pack, subsequent calls to loadAllTextures will load
@@ -82,10 +96,20 @@ public:
     /// Dumps all the atlas pages to file
     void writeDebugAtlases();
 
+    /// Getters
+    TexturePackInfo getTexturePackInfo()  const { return _packInfo; }
+
 private:
 
     /// Loads all the block textures
     void loadAllBlockTextures();
+
+    /// Loads a .tex file
+    /// @param fileName: Path of the tex file
+    /// @param zipFile: A zip file. nullptr if it is not a zip
+    /// @param rv: the return value block texture
+    /// @return Returns true if the file opens, false otherwise
+    bool loadTexFile(nString fileName, ZipFile *zipFile, BlockTexture* rv);
 
     /// Does error checking and postprocessing to the layer and adds it to 
     /// _blockTextureLayers and _layersToLoad.
@@ -146,9 +170,11 @@ private:
 
     vg::TextureCache* _textureCache; ///< Cache for storing non-block textures
     
-    ui32 _resolution; ///< Resolution of the texture pack
+    TexturePackInfo _packInfo; ///< Information of the texture pack, such as resolution and name
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
+
+    IOManager _ioManager; ///< Provides IO utilities
 
     int _numAtlasPages;
 };

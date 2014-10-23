@@ -6,6 +6,16 @@
 
 #include "FileSystem.h"
 
+#include "Keg.h"
+
+/// yml definition for TexturePackInfo
+KEG_TYPE_INIT_BEGIN_DEF_VAR(TexturePackInfo)
+KEG_TYPE_INIT_ADD_MEMBER(TexturePackInfo, STRING, name);
+KEG_TYPE_INIT_ADD_MEMBER(TexturePackInfo, UI32, resolution);
+KEG_TYPE_INIT_ADD_MEMBER(TexturePackInfo, STRING, description);
+KEG_TYPE_INIT_END
+
+
 // Used for error checking
 #define CONNECTED_WIDTH 12
 #define CONNECTED_HEIGHT 4
@@ -17,7 +27,7 @@
 TexturePackLoader::TexturePackLoader(vg::TextureCache* textureCache) :
     _textureCache(textureCache),
     _hasLoaded(false),
-    _resolution(32),
+    _packInfo({}),
     _numAtlasPages(0) {
     // Empty
 }
@@ -26,10 +36,13 @@ TexturePackLoader::~TexturePackLoader() {
     destroy();
 }
 
-void TexturePackLoader::loadAllTextures() {
+void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
 
     // TODO(Ben): Zip file support
-    _texturePackPath = "Textures/TexturePacks/" + graphicsOptions.texturePackString + "/";
+    _texturePackPath = texturePackPath; // "Textures/TexturePacks/" + graphicsOptions.texturePackString + "/";
+
+    // Load the pack file to get the texture pack description
+    loadPackFile();
 
     ui32 width, height;
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
@@ -80,7 +93,7 @@ void TexturePackLoader::uploadTextures() {
     // TODO(Ben): This could be done better
     // Upload all the block textures
     vg::Texture atlasTex;
-    atlasTex.width = atlasTex.height = _resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
+    atlasTex.width = atlasTex.height = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
 
     atlasTex.ID = _textureAtlasStitcher.buildTextureArray();
 
@@ -113,6 +126,14 @@ void TexturePackLoader::setBlockTextures(std::vector<Block>& blocks) {
     std::set <BlockTextureLayer>().swap(_blockTextureLayers);
 }
 
+/// Loads the pack file for this texture pack
+/// @param filePath: The path of the pack file
+/// @return The texture pack info
+TexturePackInfo TexturePackLoader::loadPackFile(const nString& filePath) {
+    TexturePackInfo rv = {};
+
+}
+
 void TexturePackLoader::clearToloadCaches() {
     std::map <nString, SamplerState*>().swap(_texturesToLoad);
     std::set <nString>().swap(_blockTexturesToLoad);
@@ -141,7 +162,7 @@ void TexturePackLoader::destroy() {
 
 
 void TexturePackLoader::writeDebugAtlases() {
-    int width = _resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
+    int width = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
     int height = width;
 
     int pixelsPerPage = width * height * 4;
@@ -152,7 +173,7 @@ void TexturePackLoader::writeDebugAtlases() {
 
     for (int i = 0; i < _numAtlasPages; i++) {
 
-        SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, _resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
+        SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, _packInfo.resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
         SDL_SaveBMP(surface, ("atlas" + to_string(i) + "b.bmp").c_str());
 
     }
@@ -161,7 +182,6 @@ void TexturePackLoader::writeDebugAtlases() {
     delete[] pixels;
 }
 
-/// Loads all the block textures
 void TexturePackLoader::loadAllBlockTextures() {
     // Used to get the texture pixel dimensions
     ui32 width, height;
@@ -184,7 +204,7 @@ void TexturePackLoader::loadAllBlockTextures() {
         texFileName.replace(texFileName.end() - 4, texFileName.end(), ".tex");
 
         // Load the tex file (if it exists)
-        fileManager.loadTexFile(texFileName, nullptr, &blockTexture);
+        loadTexFile(texFileName, nullptr, &blockTexture);
 
         // If there wasn't an explicit override base path, we use the texturePath
         if (blockTexture.base.path.empty()) blockTexture.base.path = texturePath;
@@ -211,15 +231,43 @@ void TexturePackLoader::loadAllBlockTextures() {
     mapTexturesToAtlases();
 }
 
+bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTexture* rv) {
+    
+    // Set Some Default Values
+    rv->overlay.textureIndex = 1;
+    rv->base.size = i32v2(1, 1);
+    rv->overlay.size = i32v2(1, 1);
+
+    const cString data = _ioManager.readFileToString(fileName.c_str());
+    if (data) {
+        if (Keg::parse(rv, data, "BlockTexture") == Keg::Error::NONE) {
+            if (rv->base.weights.length() > 0) {
+                rv->base.totalWeight = 0;
+                for (i32 i = 0; i < rv->base.weights.length(); i++) {
+                    rv->base.totalWeight += rv->base.weights[i];
+                }
+            }
+            if (rv->overlay.weights.length() > 0) {
+                rv->overlay.totalWeight = 0;
+                for (i32 i = 0; i < rv->overlay.weights.length(); i++) {
+                    rv->overlay.totalWeight += rv->overlay.weights[i];
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height) {
    
     // Helper for checking dimensions
 #define DIM_CHECK(w, cw, h, ch, method) \
-    if (width != _resolution * cw) { \
+    if (width != _packInfo.resolution * cw) { \
         pError("Texture " + layer.path + " is " #method " but width is not " + to_string(cw)); \
         return nullptr; \
     } \
-    if (height != _resolution * ch) {  \
+    if (height != _packInfo.resolution * ch) {  \
         pError("Texture " + layer.path + " is " #method " but height is not " + to_string(ch)); \
         return nullptr; \
     }
@@ -227,13 +275,13 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
     // Pixels must be != nullptr
     if (!pixels) return nullptr;
 
-    // Check that the texture is sized in units of _resolution
-    if (width % _resolution) {
-        pError("Texture " + layer.path + " width must be a multiple of " + to_string(_resolution));
+    // Check that the texture is sized in units of _packInfo.resolution
+    if (width % _packInfo.resolution) {
+        pError("Texture " + layer.path + " width must be a multiple of " + to_string(_packInfo.resolution));
         return nullptr;
     }
-    if (height % _resolution) {
-        pError("Texture " + layer.path + " height must be a multiple of " + to_string(_resolution));
+    if (height % _packInfo.resolution) {
+        pError("Texture " + layer.path + " height must be a multiple of " + to_string(_packInfo.resolution));
         return nullptr;
     }
 
@@ -291,7 +339,7 @@ void TexturePackLoader::mapTexturesToAtlases() {
     }
 
     // Build the pixel data for the texture array
-    _textureAtlasStitcher.buildPixelData(_layersToLoad, _resolution);
+    _textureAtlasStitcher.buildPixelData(_layersToLoad, _packInfo.resolution);
 }
 
 ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& height) {
