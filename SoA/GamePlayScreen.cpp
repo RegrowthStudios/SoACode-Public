@@ -138,6 +138,8 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
 
     const ui32v2 viewPort(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     frameBuffer->unBind(viewPort);
+
+    checkGlError("GamePlayScreen::draw()");
 }
 
 void GamePlayScreen::handleInput() {

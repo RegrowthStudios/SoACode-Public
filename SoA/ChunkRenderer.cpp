@@ -150,7 +150,7 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
     glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
     glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
     glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightType"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
     glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(program->getUniform("alphaMult"), graphicsOptions.specularIntensity*0.3);
 
