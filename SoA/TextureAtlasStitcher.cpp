@@ -17,10 +17,13 @@ struct BlockAtlasPage {
 
 TextureAtlasStitcher::TextureAtlasStitcher() :
     _bytesPerPage(0),
-    _oldestFreeSlot(0),
+    _oldestFreeSlot(1),
     _resolution(0),
     _pixelData(nullptr) {
-
+    // There is always at least 1 page
+    _pages.push_back(new BlockAtlasPage({}));
+    // For blank texture
+    _pages[0]->slots[0] = true;
 }
 
 TextureAtlasStitcher::~TextureAtlasStitcher() {
@@ -70,12 +73,18 @@ void TextureAtlasStitcher::buildPixelData(const std::vector <BlockLayerLoadData>
     _resolution = resolution;
 
     // Store some helpful values for when we do writing
-    _bytesPerPixelRow = resolution * BLOCK_TEXTURE_ATLAS_WIDTH * BYTES_PER_PIXEL; 
-    _bytesPerTileRow = resolution * _bytesPerPixelRow;
+    _bytesPerPixelRow = _resolution * BLOCK_TEXTURE_ATLAS_WIDTH * BYTES_PER_PIXEL;
+    _bytesPerTileRow = _resolution * _bytesPerPixelRow;
     _bytesPerPage = _bytesPerTileRow * BLOCK_TEXTURE_ATLAS_WIDTH;
 
     // Allocate pixel data for entire texture array
     _pixelData = new ui8[_bytesPerPage * _pages.size()];
+
+    // Write the blank texture
+    ui8 *blankPixels = new ui8[_resolution * _resolution * BYTES_PER_PIXEL];
+    memset(blankPixels, 0, _resolution * _resolution * BYTES_PER_PIXEL);
+    writeToAtlas(0, blankPixels, _resolution, _resolution, _resolution * BYTES_PER_PIXEL);
+    delete[] blankPixels;
 
     // Loop through all layers to load
     for (auto& loadData : layers) {
@@ -148,7 +157,7 @@ ui32 TextureAtlasStitcher::buildTextureArray() {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
     
     // Unbind
@@ -167,13 +176,18 @@ void TextureAtlasStitcher::destroy() {
     std::vector<BlockAtlasPage*>().swap(_pages);
 
     _bytesPerPage = 0;
-    _oldestFreeSlot = 0;
+    _oldestFreeSlot = 1;
     _resolution = 0;
     
     if (_pixelData) {
         delete[] _pixelData;
         _pixelData = nullptr;
     }
+
+    // There is always at least 1 page
+    _pages.push_back(new BlockAtlasPage({}));
+    // For blank texture
+    _pages[0]->slots[0] = true;
 
 }
 
@@ -356,16 +370,13 @@ void TextureAtlasStitcher::writeToAtlas(int texIndex, ui8* pixels, int pixelWidt
             pixelsOffset = yPixelsOffset + x;
             // Convert 0-255 to 0-1 for alpha mult
             alpha = (float)pixels[pixelsOffset + 3] / 255.0f;
-
+          
             // Set the colors. Add  + 0.01f to make sure there isn't any rounding error when we truncate
             dest[destOffset] = (ui8)((float)pixels[pixelsOffset] * alpha + 0.01f); // R
-            dest[destOffset + 1] = (ui8)((float)pixels[pixelsOffset + 1] * alpha + 0.01f); // R
-            dest[destOffset + 2] = (ui8)((float)pixels[pixelsOffset + 2] * alpha + 0.01f); // R
-            dest[destOffset + 3] = pixels[pixelsOffset + 3]; // A
+            dest[destOffset + 1] = (ui8)((float)pixels[pixelsOffset + 1] * alpha + 0.01f); // G
+            dest[destOffset + 2] = (ui8)((float)pixels[pixelsOffset + 2] * alpha + 0.01f); // B
+            dest[destOffset + 3] = pixels[pixelsOffset + 3]; // A 
         }
-        
-
-        //memcpy(dest + y * _bytesPerPixelRow, pixels + y * bytesPerPixelRow, pixelWidth * BYTES_PER_PIXEL);
     }
 }
 

@@ -68,17 +68,20 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
 
 void TexturePackLoader::getBlockTexture(nString& key, BlockTexture& texture) {
 
+    // Initialize default values
+    texture = BlockTexture();
+
     auto it = _blockTextureLoadDatas.find(key);
-    if (it == _blockTextureLoadDatas.end()) {
+    if (it != _blockTextureLoadDatas.end()) {
+        // Initialize default values
         texture = BlockTexture();
-    } else {
+
         if (it->second.base) {
             texture.base = *it->second.base;
         }
         if (it->second.overlay) {
             texture.overlay = *it->second.overlay;
         }
-        texture.blendMode = it->second.blendMode;
     }
 }
 
@@ -228,7 +231,6 @@ void TexturePackLoader::loadAllBlockTextures() {
             pixels = getPixels(blockTexture.overlay.path, width, height);
             // Store handle to the layer, do postprocessing, add layer to load
             blockTextureLoadData.overlay = postProcessLayer(pixels, blockTexture.overlay, width, height);
-
         }
 
         // Add it to the list of load datas
