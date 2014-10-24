@@ -3,32 +3,6 @@
 
 #include <SDL/SDL.h>
 
-unsigned int loadTexture(const char *filename) {
-    unsigned int num;
-    glGenTextures(1, &num);
-    SDL_Surface *img = SDL_LoadBMP(filename);
-    if (!img) {
-        printf("%s count not be loaded!\n", filename);
-        return -1;
-    }
-    glBindTexture(GL_TEXTURE_2D, num);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->w, img->h, 0, GL_RGB,
-        GL_UNSIGNED_SHORT_5_6_5, img->pixels);
-
-    SDL_FreeSurface(img);
-    return num;
-
-}
-
-
-
 
 //***************************** ObjectLoader ***********************************
 
