@@ -3,7 +3,6 @@
 
 #include <boost\filesystem.hpp>
 
-#include "ImageLoading.h"
 #include "ImageSaver.h"
 #include "SpriteBatch.h"
 

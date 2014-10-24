@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ParticleBatch.h"
 
+#include "Animation.h"
 #include "ChunkManager.h"
 #include "GameManager.h"
 #include "Particle.h"

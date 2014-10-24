@@ -242,9 +242,6 @@
     <ClInclude Include="IGameScreen.h">
       <Filter>SOA Files\Screens\Base</Filter>
     </ClInclude>
-    <ClInclude Include="ImageLoading.h">
-      <Filter>SOA Files\Rendering\Images</Filter>
-    </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClInclude>
@@ -539,6 +536,9 @@
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -642,9 +642,6 @@
     </ClCompile>
     <ClCompile Include="GraphicsDevice.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageLoading.cpp">
-      <Filter>SOA Files\Rendering\Images</Filter>
     </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>SOA Files\Ext\Input</Filter>

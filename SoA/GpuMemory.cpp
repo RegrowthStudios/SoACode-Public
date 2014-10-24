@@ -48,6 +48,7 @@ ui32 GpuMemory::uploadTexture(const ui8* pixels,
         glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, mipmapLevels);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapLevels);
+        glEnable(GL_TEXTURE_2D);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 

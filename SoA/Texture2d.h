@@ -3,7 +3,6 @@
 #include <SDL/SDL.h>
 
 #include "Constants.h"
-#include "ImageLoading.h"
 #include "TextureCache.h"
 
 // TODO: Remove This

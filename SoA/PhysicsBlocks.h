@@ -3,7 +3,6 @@
 #include <queue>
 
 #include "GLProgram.h"
-#include "ImageLoading.h"
 #include "WorldStructs.h"
 #include "OpenGLStructs.h"
 

@@ -66,6 +66,8 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
 
     bindBlockPacks();
 
+    SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D_ARRAY);
+
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
     glUniform1f(program->getUniform("sunVal"), sunVal);

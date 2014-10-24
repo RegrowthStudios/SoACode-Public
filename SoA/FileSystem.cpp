@@ -7,6 +7,9 @@
 #include <ZLIB/ioapi.c>
 #include <ZLIB/unzip.c>
 
+#include <sys/stat.h>
+
+#include "Animation.h"
 #include "BlockData.h"
 #include "Chunk.h"
 #include "Errors.h"
@@ -1592,6 +1595,7 @@ nString FileManager::getWorldString(nString filePath) {
     file.close();
     return rv;
 }
+
 i32 FileManager::setSaveFile(nString filePath) {
     struct stat statbuf;
 

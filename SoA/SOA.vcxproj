@@ -110,6 +110,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
@@ -217,7 +218,6 @@
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="global.h" />
-    <ClInclude Include="ImageLoading.h" />
     <ClInclude Include="LoadTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
@@ -342,7 +342,6 @@
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="global.cpp" />
-    <ClCompile Include="ImageLoading.cpp" />
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
