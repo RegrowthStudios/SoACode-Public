@@ -53,5 +53,5 @@ SamplerState SamplerState::POINT_CLAMP_MIPMAP(TextureMinFilter::NEAREST_MIPMAP_N
     TextureWrapMode::CLAMP_EDGE, TextureWrapMode::CLAMP_EDGE, TextureWrapMode::CLAMP_EDGE);
 SamplerState SamplerState::LINEAR_WRAP_MIPMAP(TextureMinFilter::LINEAR_MIPMAP_LINEAR, TextureMagFilter::LINEAR,
     TextureWrapMode::REPEAT, TextureWrapMode::REPEAT, TextureWrapMode::REPEAT);
-SamplerState SamplerState::LINEAR_CLAMP_MIPMAP(TextureMinFilter::LINEAR_MIPMAP_LINEAR, TextureMagFilter::LINEAR,
-    TextureWrapMode::CLAMP_EDGE, TextureWrapMode::CLAMP_EDGE, TextureWrapMode::CLAMP_EDGE);
+SamplerState SamplerState::LINEAR_CLAMP_MIPMAP(TextureMinFilter::NEAREST, TextureMagFilter::NEAREST,
+    TextureWrapMode::REPEAT, TextureWrapMode::REPEAT, TextureWrapMode::REPEAT);

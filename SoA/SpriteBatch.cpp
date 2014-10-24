@@ -369,6 +369,7 @@ void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* b
     }
 
     glBindVertexArray(0);
+    glBindSampler(0, 0);
 
     shader->unuse();
 }
