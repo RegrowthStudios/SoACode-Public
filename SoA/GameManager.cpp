@@ -108,6 +108,9 @@ void GameManager::getTextureHandles() {
 
     markerTexture = textureCache->findTexture("FarTerrain/location_marker.png");
     terrainTexture = textureCache->findTexture("FarTerrain/terrain_texture.png");
+
+    std::cout << terrainTexture.ID << " " << terrainTexture.width << " " << terrainTexture.width << std::endl;
+
     normalLeavesTexture = textureCache->findTexture("FarTerrain/normal_leaves_billboard.png");
     pineLeavesTexture = textureCache->findTexture("FarTerrain/pine_leaves_billboard.png");
     mushroomCapTexture = textureCache->findTexture("FarTerrain/mushroom_cap_billboard.png");

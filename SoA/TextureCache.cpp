@@ -71,7 +71,9 @@ Texture TextureCache::addTexture(const nString& filePath,
     if (texture.ID) return texture;
 
     // Upload the texture through GpuMemory
-    texture.ID = GpuMemory::uploadTexture(pixels, texture.width, texture.height, samplingParameters, mipmapLevels);
+    texture.ID = GpuMemory::uploadTexture(pixels, width, height, samplingParameters, mipmapLevels);
+    texture.width = width;
+    texture.height = height;
 
     // Store the texture in the cache
     insertTexture(filePath, texture);
