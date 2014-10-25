@@ -58,6 +58,7 @@ struct BlockTextureLayer {
         symmetry(ConnectedTextureSymmetry::NONE),
         reducedMethod(ConnectedTextureReducedMethod::NONE),
         useMapColor(""),
+        colorMapIndex(0),
         totalWeight(0),
         numTiles(1),
         textureIndex(0),
@@ -71,6 +72,7 @@ struct BlockTextureLayer {
     ConnectedTextureSymmetry symmetry;
     ConnectedTextureReducedMethod reducedMethod;
     nString useMapColor;
+    ui32 colorMapIndex;
     Array<i32> weights;
     i32 totalWeight;
     i32 numTiles;

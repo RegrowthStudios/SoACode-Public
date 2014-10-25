@@ -14,6 +14,7 @@
 #include "Options.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
+#include "TexturePackLoader.h"
 #include "TerrainPatch.h"
 
 
@@ -84,8 +85,8 @@ void Planet::initialize(string filePath)
         }
         scaledRadius = (width*TerrainPatchWidth) / 2;
         radius = (int)(scaledRadius*planetScale);
-        ColorRGB8* colorMap = GameManager::terrainGenerator->getColorMap("biome");
-        ColorRGB8* waterColorMap = GameManager::terrainGenerator->getColorMap("water");
+        ColorRGB8* colorMap = GameManager::texturePackLoader->getColorMap("biome");
+        ColorRGB8* waterColorMap = GameManager::texturePackLoader->getColorMap("water");
 
         for (int i = 0; i < MAP_WIDTH * MAP_WIDTH; i++){
             colorMap[i] = ColorRGB8(0, 255, 0);
@@ -328,8 +329,8 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         }
     }
 
-    ColorRGB8* biomeMap = GameManager::terrainGenerator->getColorMap("biome");
-    ColorRGB8* waterMap = GameManager::terrainGenerator->getColorMap("water");
+    ColorRGB8* biomeMap = GameManager::texturePackLoader->getColorMap("biome");
+    ColorRGB8* waterMap = GameManager::texturePackLoader->getColorMap("water");
 
     //color map!
     glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture.ID);

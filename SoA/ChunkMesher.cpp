@@ -11,6 +11,7 @@
 #include "Planet.h"
 #include "RenderTask.h"
 #include "TerrainGenerator.h"
+#include "TexturePackLoader.h"
 #include "ThreadPool.h"
 #include "utils.h"
 #include "VoxelUtils.h"
@@ -985,7 +986,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     ui8 temperature = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
     ui8 depth = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
 
-    ColorRGB8 color = GameManager::terrainGenerator->blockColorMaps[TerrainGenerator::DefaultColorMaps::WATER][depth * 256 + temperature];
+    ColorRGB8 color = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
 
     ui8 sunlight = mi.task->chSunlightData[wc];
     ColorRGB8 lampLight((mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,

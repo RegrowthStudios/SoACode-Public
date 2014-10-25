@@ -249,7 +249,7 @@ void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint 
 {
     //base color
     if (!blockTexture.base.useMapColor.empty()){
-        GameManager::terrainGenerator->getColorMapColor(baseColor, temperature, rainfall);
+        GameManager::texturePackLoader->getColorMapColor(blockTexture.base.colorMapIndex, baseColor, temperature, rainfall);
      
         //Average the map color with the base color
         baseColor.r = (GLubyte)(((float)baseColor.r * (float)color.r) / 255.0f);
@@ -263,7 +263,7 @@ void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint 
 
     //overlay color
     if (!blockTexture.overlay.useMapColor.empty()){
-        GameManager::terrainGenerator->getColorMapColor(overlayColor, temperature, rainfall);
+        GameManager::texturePackLoader->getColorMapColor(blockTexture.overlay.colorMapIndex, overlayColor, temperature, rainfall);
 
         //Average the map color with the base color
         overlayColor.r = (GLubyte)(((float)overlayColor.r * (float)Block::overlayColor.r) / 255.0f);
@@ -281,7 +281,7 @@ void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, i
     //base color
     if (!blockTexture.base.useMapColor.empty()){
 
-        GameManager::terrainGenerator->getColorMapColor(baseColor, temperature, rainfall);
+        GameManager::texturePackLoader->getColorMapColor(blockTexture.base.colorMapIndex, baseColor, temperature, rainfall);
 
         //Average the map color with the base color
         baseColor.r = (GLubyte)(((float)baseColor.r * (float)color.r) / 255.0f);

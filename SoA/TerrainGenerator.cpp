@@ -5,6 +5,9 @@
 #include "Planet.h"
 #include "SimplexNoise.h"
 #include "BlockData.h"
+#include "Errors.h"
+#include "ImageLoader.h"
+#include "TexturePackLoader.h"
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -33,14 +36,8 @@ TerrainGenerator::TerrainGenerator()
     heightModifier = 0.0;
 
     // This is important. Sets up biome as map 1 and water as map 2
-    getColorMap("biome");
-    getColorMap("water");
-}
-
-//1 = normal, 2 = sand, 3 = snow, 4 = savannah
-void TerrainGenerator::getColorMapColor(ColorRGB8& color, int temperature, int rainfall)
-{
-    color = blockColorMaps[DefaultColorMaps::BIOME][rainfall * 256 + temperature];
+    GameManager::texturePackLoader->getColorMap("biome");
+    GameManager::texturePackLoader->getColorMap("water");
 }
 
 void TerrainGenerator::CalculateSurfaceDensity(double X, double Y, double Z, double *SurfaceDensity, int size, int offset, int oct, double pers, double freq)
@@ -817,16 +814,5 @@ void TerrainGenerator::postProcessHeightmap(HeightData heightData[CHUNK_LAYER]) 
 
             //**************END SURFACE BLOCK CALCULATION******************
         }
-    }
-}
-
-ColorRGB8* TerrainGenerator::getColorMap(const nString& name) {
-    auto it = blockColorMapLookupTable.find(name);
-    if (it != blockColorMapLookupTable.end()) {
-        return blockColorMaps[it->second];
-    } else {
-        blockColorMapLookupTable[name] = blockColorMaps.size();
-        blockColorMaps.push_back(new ColorRGB8[256 * 256]);
-        return blockColorMaps.back();
     }
 }
