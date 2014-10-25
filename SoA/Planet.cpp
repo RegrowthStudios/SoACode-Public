@@ -334,18 +334,22 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     //color map!
     glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture.ID);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
-    for (int i = 0; i < MAP_WIDTH * MAP_WIDTH; i++){
-            biomeMap[i] = ColorRGB8(buffer[i][2], //convert bgr to rgb
-                                    buffer[i][1],
-                                    buffer[i][0]);
+    for (int y = 0; y < MAP_WIDTH; y++){
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            biomeMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[y * MAP_WIDTH + x][2], //convert bgr to rgb
+                                                                      buffer[y * MAP_WIDTH + x][1],
+                                                                      buffer[y * MAP_WIDTH + x][0]);
+        }
     }
 
     glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture.ID);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
-    for (int i = 0; i < MAP_WIDTH * MAP_WIDTH; i++){
-        waterMap[i] = ColorRGB8(buffer[i][2], //convert bgr to rgb
-                                buffer[i][1],
-                                buffer[i][0]);
+    for (int y = 0; y < MAP_WIDTH; y++){
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            waterMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[y * MAP_WIDTH + x][2], //convert bgr to rgb
+                                                                      buffer[y * MAP_WIDTH + x][1],
+                                                                      buffer[y * MAP_WIDTH + x][0]);
+        }
     }
     
 }
