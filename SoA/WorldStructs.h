@@ -21,7 +21,7 @@ struct FixedSizeBillboardVertex{
 class Marker{
 public:
     glm::dvec3 pos;
-    Color color;
+    ColorRGBA8 color;
     int num;
     double dist;
     string name;

@@ -97,44 +97,6 @@ struct BlockTexture {
 };
 KEG_TYPE_DECL(BlockTexture);
 
-//struct BlockTexture {
-//    i32 method;
-//    i32 overlayMethod;
-//
-//    i32 width;
-//    i32 overlayWidth;
-//
-//    i32 height;
-//    i32 overlayHeight;
-//
-//    i32 symmetry;
-//    i32 overlaySymmetry;
-//
-//    bool innerSeams;
-//    bool overlayInnerSeams;
-//
-//    i32 useMapColor;
-//    i32 overlayUseMapColor;
-//
-//    std::vector<i32> weights;
-//    std::vector<i32> overlayWeights;
-//
-//    i32 totalWeight;
-//    i32 overlayTotalWeight;
-//
-//    i32 numTiles;
-//    i32 overlayNumTiles;
-//
-//    i32 textureIndex;
-//    i32 overlayTextureIndex;
-//
-//    i32 blendMode;
-//
-//    nString basePath;
-//    nString overlayPath;
-//};
-//KEG_TYPE_DECL(BlockTexture);
-
 using namespace std;
 
 
@@ -181,46 +143,6 @@ enum BuildingBlocks { GLASS = 160, CONCRETE, BRICKS, PLANKS, COBBLE };
 enum TransparentBuildingBlocksTextures{ T_GLASS = 304,};
 enum BuildingBlocksTextures { T_CONCRETE = 161, T_BRICKS, T_PLANKS, T_COBBLE };
 
-//struct BlockTexture {
-//    BlockTexture() : method(0), width(1), height(1), innerSeams(false), symmetry(0), totalWeight(0), numTiles(0), basePath(""), useMapColor(0), overlayUseMapColor(0),
-//        overlayMethod(0), overlayWidth(1), overlayHeight(1), overlayInnerSeams(false), overlaySymmetry(0), overlayTotalWeight(0), overlayNumTiles(0),
-//        blendMode(0), textureIndex(0), overlayTextureIndex(1), overlayPath(""){}
-//
-//    int method;
-//    int overlayMethod;
-//
-//    int width;
-//    int overlayWidth;
-//
-//    int height;
-//    int overlayHeight;
-//
-//    int symmetry;
-//    int overlaySymmetry;
-//
-//    bool innerSeams;
-//    bool overlayInnerSeams;
-//
-//    int useMapColor;
-//    int overlayUseMapColor;
-//
-//    vector <int> weights;
-//    vector <int> overlayWeights;
-//
-//    int totalWeight;
-//    int overlayTotalWeight;
-//
-//    int numTiles;
-//    int overlayNumTiles;
-//
-//    int textureIndex;
-//    int overlayTextureIndex;
-//
-//    int blendMode;
-//
-//    string basePath;
-//    string overlayPath;
-//};
 
 extern int connectedTextureOffsets[256];
 extern int grassTextureOffsets[32];

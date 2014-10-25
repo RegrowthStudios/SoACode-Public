@@ -1184,7 +1184,6 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
 }
 
 i32 FileManager::loadBlocks(nString filePath) {
-    textureMap.clear();
 
     for (auto i = _animationMap.begin(); i != _animationMap.end(); i++) {
         delete i->second;
@@ -1699,9 +1698,9 @@ i32 FileManager::saveMarkers(Player *player) {
         m = &(GameManager::markers[i]);
         iniSections.push_back(m->name);
         iniValues.push_back(std::vector<IniValue>());
-        iniValues.back().push_back(IniValue("r", to_string(m->color.color.r)));
-        iniValues.back().push_back(IniValue("g", to_string(m->color.color.g)));
-        iniValues.back().push_back(IniValue("b", to_string(m->color.color.b)));
+        iniValues.back().push_back(IniValue("r", to_string(m->color.r)));
+        iniValues.back().push_back(IniValue("g", to_string(m->color.g)));
+        iniValues.back().push_back(IniValue("b", to_string(m->color.b)));
         iniValues.back().push_back(IniValue("x", to_string(m->pos.x)));
         iniValues.back().push_back(IniValue("y", to_string(m->pos.y)));
         iniValues.back().push_back(IniValue("z", to_string(m->pos.z)));

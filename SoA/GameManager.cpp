@@ -124,6 +124,13 @@ void GameManager::getTextureHandles() {
 
     waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
     ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
+
+    // TODO(Ben): Parallelize this
+    logoTexture = textureCache->addTexture("Textures/logo.png");
+    sunTexture = textureCache->addTexture("Textures/sun_texture.png");
+    BlankTextureID = textureCache->addTexture("Textures/blank.png", &SamplerState::POINT_CLAMP);
+    explosionTexture = textureCache->addTexture("Textures/explosion.png");
+    fireTexture = textureCache->addTexture("Textures/fire.png");
 }
 
 void GameManager::initializeSound() {

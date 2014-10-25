@@ -412,7 +412,9 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &M[0][0]);
 
-    bindBlockPacks();
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
 
     GLuint vboID = MakeBlockVbo(block);
 
