@@ -118,9 +118,9 @@ bool PhysicsBlock::update()
     if (Blocks[val].collide || (Blocks[val].physicsProperty == P_LIQUID && GETBLOCK(blockType).physicsProperty >= P_POWDER)){
         if (Blocks[btype = (blockID)].isCrushable){
             glm::vec4 color;
-            color.r = Blocks[btype].color[0];
-            color.g = Blocks[btype].color[1];
-            color.b = Blocks[btype].color[2];
+            color.r = Blocks[btype].color.r;
+            color.g = Blocks[btype].color.g;
+            color.b = Blocks[btype].color.b;
             color.a = 255;
 
             if (Blocks[btype].altColors.size()){
@@ -375,7 +375,7 @@ bool PhysicsBlockBatch::update()
     vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
     verts.resize(physicsBlocks.size());
     
-    ui8 color[3], overlayColor[3];
+    ColorRGB8 color, overlayColor;
 
     //need to fix this so that color is correct
     Blocks[physicsBlocks[0].blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[physicsBlocks[0].blockType].pzTexInfo);
@@ -389,12 +389,8 @@ bool PhysicsBlockBatch::update()
             verts[i].pos[1] = physicsBlocks[i].position.y - _bY;
             verts[i].pos[2] = physicsBlocks[i].position.z - _bZ;
 
-            verts[i].color[0] = color[0];
-            verts[i].color[1] = color[1];
-            verts[i].color[2] = color[2];
-            verts[i].overlayColor[0] = overlayColor[0];
-            verts[i].overlayColor[1] = overlayColor[1];
-            verts[i].overlayColor[2] = overlayColor[2];
+            verts[i].color = color;
+            verts[i].overlayColor = overlayColor;
 
             verts[i].light[0] = physicsBlocks[i].light[0];
             verts[i].light[1] = physicsBlocks[i].light[1];

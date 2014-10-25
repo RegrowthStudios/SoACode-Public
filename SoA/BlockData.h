@@ -181,8 +181,8 @@ public:
     Block();
 
     void InitializeTexture();
-    void GetBlockColor(GLubyte baseColor[3], GLubyte overlayColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
-    void GetBlockColor(GLubyte baseColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
 
     void SetAvgTexColors();
 
@@ -207,9 +207,9 @@ public:
     GLfloat powerLoss;
     f32v3 colorFilter;
 
-    ui8 color[3];
-    ui8 overlayColor[3];
-    ui8 averageColor[3];
+    ColorRGB8 color;
+    ColorRGB8 overlayColor;
+    ColorRGB8 averageColor;
     ui8 particleTex;
     ui8 powderMove;
     ui8 collide;
@@ -235,7 +235,7 @@ public:
     string name, emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
-    std::vector <glm::ivec3> altColors;
+    std::vector <ColorRGB8> altColors;
     std::vector <ItemDrop> itemDrops;
 };
 

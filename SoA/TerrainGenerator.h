@@ -7,17 +7,18 @@
 // TODO: Remove This
 using namespace std;
 
-extern int ColorMap[256][256][3];
-extern int waterColorMap[256][256][3];
-
-void getTerrainHeightColor(GLubyte color[3], int temperature, int rainfall);
-
 const int FREEZETEMP = 50;
 
+// TODO(Ben): This is absolutely awful
 class TerrainGenerator
 {
 public:
+    enum DefaultColorMaps { BIOME = 0, WATER = 1 };
+
     TerrainGenerator();
+
+    void getColorMapColor(ColorRGB8& color, int temperature, int rainfall);
+
     double findnoise2(double x,double z);
     double interpolate1(double a,double b,double x);
     double noise(double x,double z);
@@ -53,6 +54,11 @@ public:
 
     void SetHeightModifier(double hm){ heightModifier = hm; }
     void SetDefaultTempRain(double tmp, double rn){ defaultTemp = tmp; defaultRain = rn; }
+
+    // For the useMapColor blockdata property
+    ColorRGB8* getColorMap(const nString& name);
+    std::map <nString, ui32> blockColorMapLookupTable;
+    std::vector <ColorRGB8*> blockColorMaps;
 
 //private:
     double TileFunc(double x, double y, double w, double h, double dt);

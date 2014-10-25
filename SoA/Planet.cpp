@@ -74,6 +74,7 @@ void Planet::clearMeshes()
 
 void Planet::initialize(string filePath)
 {
+#define MAP_WIDTH 256
     if (filePath == "Worlds/(Empty Planet)/"){
         radius = 1000000;
         scaledRadius = (radius - radius%CHUNK_WIDTH) / planetScale;
@@ -83,21 +84,15 @@ void Planet::initialize(string filePath)
         }
         scaledRadius = (width*TerrainPatchWidth) / 2;
         radius = (int)(scaledRadius*planetScale);
+        ColorRGB8* colorMap = GameManager::terrainGenerator->getColorMap("biome");
+        ColorRGB8* waterColorMap = GameManager::terrainGenerator->getColorMap("water");
 
-        for (int i = 0; i < 256; i++){
-            for (int j = 0; j < 256; j++){
-                ColorMap[i][j][0] = (int)0; //converts bgr to rgb
-                ColorMap[i][j][1] = (int)255;
-                ColorMap[i][j][2] = (int)0;
-            }
+        for (int i = 0; i < MAP_WIDTH * MAP_WIDTH; i++){
+            colorMap[i] = ColorRGB8(0, 255, 0);
         }
 
-        for (int i = 0; i < 256; i++){
-            for (int j = 0; j < 256; j++){
-                waterColorMap[i][j][0] = (int)0; //converts bgr to rgb
-                waterColorMap[i][j][1] = (int)0;
-                waterColorMap[i][j][2] = (int)255;
-            }
+        for (int i = 0; i < MAP_WIDTH * MAP_WIDTH; i++){
+            colorMap[i] = ColorRGB8(0, 0, 255);
         }
 
         for (int i = 0; i < 256; i++){
@@ -312,7 +307,9 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     
     sunColorMapTexture = textureCache->addTexture(filePath + "/Sky/sunColor.png", &SamplerState::LINEAR_CLAMP_MIPMAP);
 
-    GLubyte buffer[256][256][3];
+#define MAP_WIDTH 256
+
+    GLubyte buffer[MAP_WIDTH * MAP_WIDTH][3];
     if (!ignoreBiomes){
         glActiveTexture(GL_TEXTURE8);
         glBindTexture(GL_TEXTURE_2D, GameManager::planet->biomeMapTexture.ID);
@@ -320,35 +317,35 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
 
         //convert rgb values into a hex int
-        for (int i = 0; i < 256; i++){
-            for (int j = 0; j < 256; j++){
+        for (int i = 0; i < MAP_WIDTH; i++){
+            for (int j = 0; j < MAP_WIDTH; j++){
                 int hexcode = 0;
-                hexcode |= (((int)buffer[i][j][2]) << 16); //converts bgr to rgb
-                hexcode |= (((int)buffer[i][j][1]) << 8);
-                hexcode |= ((int)buffer[i][j][0]);
+                hexcode |= (((int)buffer[i * MAP_WIDTH + j][2]) << 16); //converts bgr to rgb
+                hexcode |= (((int)buffer[i * MAP_WIDTH + j][1]) << 8);
+                hexcode |= ((int)buffer[i * MAP_WIDTH + j][0]);
                 generator->BiomeMap[i][j] = hexcode;
             }
         }
     }
+
+    ColorRGB8* biomeMap = GameManager::terrainGenerator->getColorMap("biome");
+    ColorRGB8* waterMap = GameManager::terrainGenerator->getColorMap("water");
+
     //color map!
     glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture.ID);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
-    for (int i = 0; i < 256; i++){
-        for (int j = 0; j < 256; j++){
-            ColorMap[i][j][0] = (int)buffer[i][j][2]; //converts bgr to rgb
-            ColorMap[i][j][1] = (int)buffer[i][j][1];
-            ColorMap[i][j][2] = (int)buffer[i][j][0];
-        }
+    for (int i = 0; i < MAP_WIDTH * MAP_WIDTH; i++){
+            biomeMap[i] = ColorRGB8(buffer[i][2], //convert bgr to rgb
+                                    buffer[i][1],
+                                    buffer[i][0]);
     }
 
     glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture.ID);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
-    for (int i = 0; i < 256; i++){
-        for (int j = 0; j < 256; j++){
-            waterColorMap[i][j][0] = (int)buffer[i][j][2]; //converts bgr to rgb
-            waterColorMap[i][j][1] = (int)buffer[i][j][1];
-            waterColorMap[i][j][2] = (int)buffer[i][j][0];
-        }
+    for (int i = 0; i < MAP_WIDTH * MAP_WIDTH; i++){
+        waterMap[i] = ColorRGB8(buffer[i][2], //convert bgr to rgb
+                                buffer[i][1],
+                                buffer[i][0]);
     }
     
 }

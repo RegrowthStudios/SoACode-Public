@@ -434,12 +434,10 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
 
         if (first) {
             Blocks[lblock].altColors.clear();
-            Blocks[lblock].color[0] = r;
-            Blocks[lblock].color[1] = g;
-            Blocks[lblock].color[2] = b;
+            Blocks[lblock].color = ColorRGB8(r, g, b);
             first = 0;
         }
-        Blocks[lblock].altColors.push_back(glm::ivec3(r, g, b));
+        Blocks[lblock].altColors.emplace_back(r, g, b);
         i++;
         if (i == 15) {
             i = 0;
@@ -1225,7 +1223,7 @@ i32 FileManager::loadBlocks(nString filePath) {
     int iVal;
     int currID = 0;
     IniValue *iniVal;
-    Block *b = NULL;
+    Block *b = nullptr;
     for (size_t i = 1; i < iniSections.size(); i++) {
         for (size_t j = 0; j < iniValues[i].size(); j++) {
             iniVal = &(iniValues[i][j]);
@@ -1257,22 +1255,22 @@ i32 FileManager::loadBlocks(nString filePath) {
                 break;
             case BLOCK_INI_COLOR:
                 if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->color[0] = ((hexColor >> 16) & 0xFF);
-                    b->color[1] = ((hexColor >> 8) & 0xFF);
-                    b->color[2] = (hexColor & 0xFF);
+                    b->color.r = ((hexColor >> 16) & 0xFF);
+                    b->color.g = ((hexColor >> 8) & 0xFF);
+                    b->color.b = (hexColor & 0xFF);
                 }
                 break;
             case BLOCK_INI_COLORFILTER:
                 if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->colorFilter[0] = ((hexColor >> 16) & 0xFF) / 255.0f;
-                    b->colorFilter[1] = ((hexColor >> 8) & 0xFF) / 255.0f;
-                    b->colorFilter[2] = (hexColor & 0xFF) / 255.0f;
+                    b->colorFilter.r = ((hexColor >> 16) & 0xFF) / 255.0f;
+                    b->colorFilter.g = ((hexColor >> 8) & 0xFF) / 255.0f;
+                    b->colorFilter.b = (hexColor & 0xFF) / 255.0f;
                 }
             case BLOCK_INI_OVERLAYCOLOR:
                 if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->overlayColor[0] = ((hexColor >> 16) & 0xFF);
-                    b->overlayColor[1] = ((hexColor >> 8) & 0xFF);
-                    b->overlayColor[2] = (hexColor & 0xFF);
+                    b->overlayColor.r = ((hexColor >> 16) & 0xFF);
+                    b->overlayColor.g = ((hexColor >> 8) & 0xFF);
+                    b->overlayColor.b = (hexColor & 0xFF);
                 }
                 break;
             case BLOCK_INI_CRUSHABLE:
@@ -1372,7 +1370,7 @@ i32 FileManager::loadBlocks(nString filePath) {
                 if (iniVal->key.substr(0, 8) == "altColor") {
                     int cr, cg, cb;
                     if (sscanf(iniVal->val.c_str(), "%d,%d,%d", &cr, &cg, &cb) == 3) {
-                        b->altColors.push_back(glm::ivec3(cr, cg, cb));
+                        b->altColors.emplace_back(cr, cg, cb);
                     }
                 }
                 break;
@@ -1419,8 +1417,8 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.waterBreak != b->waterBreak) iniValues.back().push_back(IniValue("breaksByWater", to_string(b->waterBreak)));
             if (db.burnTransformID != b->burnTransformID) iniValues.back().push_back(IniValue("burnTransformid", to_string(b->burnTransformID)));
             if (db.collide != b->collide) iniValues.back().push_back(IniValue("collision", to_string(b->collide)));
-            if ((db.color[0] != b->color[0]) || (db.color[1] != b->color[1]) || (db.color[2] != b->color[2])) {
-                sprintf(colorString, "%02x%02x%02x", b->color[0], b->color[1], b->color[2]);
+            if ((db.color.r != b->color.r) || (db.color.g != b->color.g) || (db.color.b != b->color.b)) {
+                sprintf(colorString, "%02x%02x%02x", b->color.r, b->color.g, b->color.b);
                 iniValues.back().push_back(IniValue("color", nString(colorString)));
             }
             if (db.colorFilter != b->colorFilter) {
@@ -1449,8 +1447,8 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.meshType != b->meshType) iniValues.back().push_back(IniValue("meshType", to_string((int)b->meshType)));
             if (db.moveMod != b->moveMod) iniValues.back().push_back(IniValue("movementMod", b->moveMod));
             if (db.powderMove != b->powderMove) iniValues.back().push_back(IniValue("movesPowder", to_string(b->powderMove)));
-            if ((db.overlayColor[0] != b->overlayColor[0]) || (db.overlayColor[1] != b->overlayColor[1]) || (db.overlayColor[2] != b->overlayColor[2])) {
-                sprintf(colorString, "%02x%02x%02x", b->overlayColor[0], b->overlayColor[1], b->overlayColor[2]);
+            if ((db.overlayColor.r != b->overlayColor.r) || (db.overlayColor.g != b->overlayColor.g) || (db.overlayColor.b != b->overlayColor.b)) {
+                sprintf(colorString, "%02x%02x%02x", b->overlayColor.r, b->overlayColor.g, b->overlayColor.b);
                 iniValues.back().push_back(IniValue("overlayColor", nString(colorString)));
             }
             if (db.physicsProperty != b->physicsProperty) iniValues.back().push_back(IniValue("physicsProperty", to_string(b->physicsProperty)));

@@ -179,9 +179,9 @@ struct BillboardVertex
 struct PhysicsBlockPosLight
 {
     GLfloat pos[3]; //12
-    GLubyte color[3]; //15
+    ColorRGB8 color; //15
     GLubyte pad1; //16
-    GLubyte overlayColor[3]; //19
+    ColorRGB8 overlayColor; //19
     GLubyte pad2; //20
     GLubyte light[2]; //22
     GLubyte pad3[2]; //24

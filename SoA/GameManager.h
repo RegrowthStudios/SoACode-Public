@@ -14,6 +14,7 @@ class Chunk;
 enum class GameStates { PLAY, PAUSE, INVENTORY, MAINMENU, ZOOMINGIN, ZOOMINGOUT, WORLDEDITOR, EXIT };
 
 //This is where the main game components are contained
+// TODO(Ben): Dependency injection.
 class GameManager
 {
 public:

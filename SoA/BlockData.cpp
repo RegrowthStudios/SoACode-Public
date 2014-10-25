@@ -207,13 +207,18 @@ void initConnectedTextures()
     grassTextureOffsets[0x1 | 0x2] = 8;
 }
 
-Block::Block() : emitterName(""), emitterOnBreakName(""), emitter(NULL), emitterOnBreak(NULL), emitterRandom(NULL), emitterRandomName(""){
-    memset(this, 0, sizeof(Block)-sizeof(itemDrops)-sizeof(altColors)); //zero the memory, just in case NOT SURE HOW VECTORS REACT TO THIS
+Block::Block() : emitterName(""), 
+emitterOnBreakName(""), 
+emitter(NULL),
+emitterOnBreak(NULL), 
+emitterRandom(NULL),
+emitterRandomName(""),
+color(255, 255, 255),
+overlayColor(255, 255, 255) {
     allowLight = 0;
     ID = 0;
     name = leftTexName = rightTexName = backTexName = frontTexName = topTexName = bottomTexName = particleTexName = "";
     particleTex = 0;
-    color[0] = color[1] = color[2] = overlayColor[0] = overlayColor[1] = overlayColor[2] = 255;
     collide = 1;
     occlude = 1;
     meshType = MeshType::BLOCK;
@@ -240,64 +245,52 @@ Block::Block() : emitterName(""), emitterOnBreakName(""), emitter(NULL), emitter
     colorFilter = f32v3(1.0f);
 }
 
-void Block::GetBlockColor(GLubyte baseColor[3], GLubyte overlayColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
+void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
 {
     //base color
     if (!blockTexture.base.useMapColor.empty()){
-        getTerrainHeightColor(baseColor, temperature, rainfall);
+        GameManager::terrainGenerator->getColorMapColor(baseColor, temperature, rainfall);
      
         //Average the map color with the base color
-        baseColor[0] = (GLubyte)(((float)baseColor[0] * (float)color[0]) / 255.0f);
-        baseColor[1] = (GLubyte)(((float)baseColor[1] * (float)color[1]) / 255.0f);
-        baseColor[2] = (GLubyte)(((float)baseColor[2] * (float)color[2]) / 255.0f);
+        baseColor.r = (GLubyte)(((float)baseColor.r * (float)color.r) / 255.0f);
+        baseColor.g = (GLubyte)(((float)baseColor.g * (float)color.g) / 255.0f);
+        baseColor.b = (GLubyte)(((float)baseColor.b * (float)color.b) / 255.0f);
     } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
-        baseColor[0] = altColors[flags - 1].r;
-        baseColor[1] = altColors[flags - 1].g;
-        baseColor[2] = altColors[flags - 1].b;
+        baseColor = altColors[flags - 1];
     } else{
-        baseColor[0] = color[0];
-        baseColor[1] = color[1];
-        baseColor[2] = color[2];
+        baseColor = color;
     }
 
     //overlay color
     if (!blockTexture.overlay.useMapColor.empty()){
-        getTerrainHeightColor(overlayColor, temperature, rainfall);
+        GameManager::terrainGenerator->getColorMapColor(overlayColor, temperature, rainfall);
 
         //Average the map color with the base color
-        overlayColor[0] = (GLubyte)(((float)overlayColor[0] * (float)Block::overlayColor[0]) / 255.0f);
-        overlayColor[1] = (GLubyte)(((float)overlayColor[1] * (float)Block::overlayColor[1]) / 255.0f);
-        overlayColor[2] = (GLubyte)(((float)overlayColor[2] * (float)Block::overlayColor[2]) / 255.0f);
+        overlayColor.r = (GLubyte)(((float)overlayColor.r * (float)Block::overlayColor.r) / 255.0f);
+        overlayColor.g = (GLubyte)(((float)overlayColor.g * (float)Block::overlayColor.g) / 255.0f);
+        overlayColor.b = (GLubyte)(((float)overlayColor.b * (float)Block::overlayColor.b) / 255.0f);
     } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
-        overlayColor[0] = altColors[flags - 1].r;
-        overlayColor[1] = altColors[flags - 1].g;
-        overlayColor[2] = altColors[flags - 1].b;
+        overlayColor= altColors[flags - 1];
     } else{
-        overlayColor[0] = Block::overlayColor[0];
-        overlayColor[1] = Block::overlayColor[1];
-        overlayColor[2] = Block::overlayColor[2];
+        overlayColor = Block::overlayColor;
     }
 }
 
-void Block::GetBlockColor(GLubyte baseColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
+void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
 {
     //base color
     if (!blockTexture.base.useMapColor.empty()){
 
-        getTerrainHeightColor(baseColor, temperature, rainfall);
+        GameManager::terrainGenerator->getColorMapColor(baseColor, temperature, rainfall);
 
         //Average the map color with the base color
-        baseColor[0] = (GLubyte)(((float)baseColor[0] * (float)color[0]) / 255.0f);
-        baseColor[1] = (GLubyte)(((float)baseColor[1] * (float)color[1]) / 255.0f);
-        baseColor[2] = (GLubyte)(((float)baseColor[2] * (float)color[2]) / 255.0f);
+        baseColor.r = (GLubyte)(((float)baseColor.r * (float)color.r) / 255.0f);
+        baseColor.g = (GLubyte)(((float)baseColor.g * (float)color.g) / 255.0f);
+        baseColor.b = (GLubyte)(((float)baseColor.b * (float)color.b) / 255.0f);
     } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
-        baseColor[0] = altColors[flags - 1].r;
-        baseColor[1] = altColors[flags - 1].g;
-        baseColor[2] = altColors[flags - 1].b;
+        baseColor = altColors[flags - 1];
     } else{
-        baseColor[0] = color[0];
-        baseColor[1] = color[1];
-        baseColor[2] = color[2];
+        baseColor = color;
     }
 }
 

@@ -271,15 +271,15 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 GLuint MakeBlockVbo(Block *block){
 
     static GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    ui8 lampColor[3] = { 100, 100, 100 };
+    ColorRGB8 lampColor(100, 100, 100);
     ui8 sunlight = 80;
     vector <BlockVertex> vertices;
     vertices.resize(24);
     int btype = block->ID;
 
-    GLubyte sideColor[3], sideOverlayColor[3];
-    GLubyte topColor[3], topOverlayColor[3];
-    GLubyte botColor[3], botOverlayColor[3];
+    ColorRGB8 sideColor, sideOverlayColor;
+    ColorRGB8 topColor, topOverlayColor;
+    ColorRGB8 botColor, botOverlayColor;
 
     Blocks[btype].GetBlockColor(sideColor, sideOverlayColor, 0, 128, 128, block->pxTexInfo);
 

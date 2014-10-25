@@ -549,9 +549,9 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
         color.b = Blocks[btype].altColors[flags - 1].b;
         //    cout << btype << " " << flags-1 << " ";
     } else{
-        color.r = Blocks[btype].color[0];
-        color.g = Blocks[btype].color[1];
-        color.b = Blocks[btype].color[2];
+        color.r = Blocks[btype].color.r;
+        color.g = Blocks[btype].color.g;
+        color.b = Blocks[btype].color.b;
     }
 
     if (Blocks[btype].meshType != MeshType::NONE && Blocks[btype].explosivePower == 0){

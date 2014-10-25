@@ -733,9 +733,9 @@ bool TerrainPatch::CreateMesh()
                                             colg = Blocks[treeData.treeType->idLeaves].altColors[treeData.leafColor-1].g;
                                             colb = Blocks[treeData.treeType->idLeaves].altColors[treeData.leafColor-1].b;
                                         } else {
-                                            colr = Blocks[treeData.treeType->idLeaves].color[0];
-                                            colg = Blocks[treeData.treeType->idLeaves].color[1];
-                                            colb = Blocks[treeData.treeType->idLeaves].color[2];
+                                            colr = Blocks[treeData.treeType->idLeaves].color.r;
+                                            colg = Blocks[treeData.treeType->idLeaves].color.g;
+                                            colb = Blocks[treeData.treeType->idLeaves].color.b;
                                         }
 
                                         switch (treeData.treeType->leafCapShape){
@@ -870,16 +870,11 @@ bool TerrainPatch::CreateMesh()
 
             //slope color
             bp = &(Blocks[biome->surfaceLayers[biome->looseSoilDepth + 1]]);
-            
-            tvboVerts[index].slopeColor[0] = bp->averageColor[0]; 
-            tvboVerts[index].slopeColor[1] = bp->averageColor[1];
-            tvboVerts[index].slopeColor[2] = bp->averageColor[2];
+            tvboVerts[index].slopeColor = bp->averageColor;
 
             //beach color
             bp = &(Blocks[biome->beachBlock]);
-            tvboVerts[index].beachColor[0] = bp->averageColor[0];
-            tvboVerts[index].beachColor[1] = bp->averageColor[1];
-            tvboVerts[index].beachColor[2] = bp->averageColor[2];
+            tvboVerts[index].beachColor = bp->averageColor;
 
             float yn = tvboVerts[index].normal.y;
 
