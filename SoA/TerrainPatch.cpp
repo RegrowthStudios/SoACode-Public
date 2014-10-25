@@ -320,6 +320,7 @@ bool TerrainPatch::CreateMesh()
         pError("AHH OH JESUS!");
     }
 
+    TerrainGenerator* generator = GameManager::terrainGenerator;
 
     GLuint time0, time1, time2, time3;
     bool removeChildren = 0;
@@ -416,7 +417,7 @@ bool TerrainPatch::CreateMesh()
         irel = Z - step;
         jrel = X - step;
         rval = radius;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
         if (parent != NULL && parent->lodMap != NULL){
             //dont have to generate everything since the parent has some of it already loaded
             if (parent->lodMapStep == step){ //same step as parent but half size
@@ -465,21 +466,21 @@ bool TerrainPatch::CreateMesh()
                 }
                 //cout << size << " " << (parent->lodMapSize-3)/2+1 << " " << endl;
 
-                currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+                generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
                 for (int i = 0; i < size-2; i+=2){
                     for (int j = 0; j < size-2; j+=2){
                         lodMap[(i+1)*size+(j+1)] = parent->lodMap[(i/2+ioff+1)*(parent->lodMapSize)+(j/2+joff+1)];
                     }
                 }
             }else{
-                currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater); 
+                generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
             }
             //else if (parent->lodMapStep == step*2){
-        //        currTerrainGenerator->GenerateLODMap(lodMap, X-step, radius, Z-step, size, step, 2); 
+        //        generator->GenerateLODMap(lodMap, X-step, radius, Z-step, size, step, 2); 
         //    }
         }else{
             //regenerate everything
-            currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater); 
+            generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         }
         rval = scaledRadius;
     //    Y = lodMap[(size*size)/2+1].height;
@@ -491,8 +492,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 0;
         irel = Y - step;
         jrel = Z - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = -scaledRadius;
         break;
     case P_RIGHT: //right
@@ -502,8 +503,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 0;
         irel = Y - step;
         jrel = Z - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = scaledRadius;
         break;
     case P_FRONT: //front
@@ -513,8 +514,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 2;
         irel = Y - step;
         jrel = X - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = scaledRadius;
     //    Y = lodMap[(size*size)/2+1].height;
         break;
@@ -525,8 +526,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 2;
         irel = Y - step;
         jrel = X - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = -scaledRadius;
         break;
     case P_BOTTOM: //bottom
@@ -536,8 +537,8 @@ bool TerrainPatch::CreateMesh()
         irel = Z - step;
         jrel = X - step;
         rval = -radius;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = -scaledRadius;
         break;
     }

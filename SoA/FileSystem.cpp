@@ -224,6 +224,8 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
     bool hasTemp = 0, hasRainfall = 0;
     bool isModifier;
 
+    TerrainGenerator* generator = GameManager::terrainGenerator;
+
     ifstream file;
 
     char buffer[512];
@@ -256,21 +258,21 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
             }
 
             if (type == 10000) {
-                currTerrainGenerator->SetRiverNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetRiverNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10001) {
-                currTerrainGenerator->SetTributaryNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetTributaryNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10002) {
-                currTerrainGenerator->SetBiomeOffsetNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetBiomeOffsetNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10003) {
-                currTerrainGenerator->SetPreturbNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetPreturbNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10004) {
                 hasTemp = 1;
-                currTerrainGenerator->SetTemperatureNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetTemperatureNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10005) {
                 hasRainfall = 1;
-                currTerrainGenerator->SetRainfallNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetRainfallNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else {
-                currTerrainGenerator->AddNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type, isModifier);
+                generator->AddNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type, isModifier);
             }
         }
     }

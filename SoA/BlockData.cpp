@@ -283,6 +283,7 @@ void Block::GetBlockColor(GLubyte baseColor[3], GLuint flags, int temperature, i
 {
     //base color
     if (!blockTexture.base.useMapColor.empty()){
+
         getTerrainHeightColor(baseColor, temperature, rainfall);
 
         //Average the map color with the base color

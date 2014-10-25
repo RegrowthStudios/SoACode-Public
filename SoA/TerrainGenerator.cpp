@@ -14,8 +14,6 @@ float mountainBase = 600.0f;
 int ColorMap[256][256][3];
 int waterColorMap[256][256][3];
 
-TerrainGenerator *currTerrainGenerator;
-
 string TerrainFunctionHelps[NumTerrainFunctions];
 
 #ifndef ABS

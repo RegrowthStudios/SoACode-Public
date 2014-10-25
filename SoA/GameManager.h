@@ -52,6 +52,7 @@ public:
     static class InputManager* inputManager;
     static class ChunkIOManager* chunkIOManager;
     static class MessageManager* messageManager;
+    static class TerrainGenerator* terrainGenerator;
 
     static bool gameInitialized;
     static float fogStart, fogEnd;

@@ -54,6 +54,7 @@ DebugRenderer* GameManager::debugRenderer = nullptr;
 vcore::GLProgramManager* GameManager::glProgramManager = new vcore::GLProgramManager();
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
+TerrainGenerator* GameManager::terrainGenerator = nullptr;
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;
@@ -76,6 +77,7 @@ void GameManager::initializeSystems() {
         wsoScanner = new WSOScanner(wsoAtlas);
         textureCache = new vg::TextureCache();
         texturePackLoader = new TexturePackLoader(textureCache);
+        terrainGenerator = new TerrainGenerator();
         
         debugRenderer = new DebugRenderer();
  
@@ -238,8 +240,6 @@ void GameManager::loadPlanet(string filePath) {
     debugTicks = SDL_GetTicks();
 
     BindVBOIndicesID();
-
-    currTerrainGenerator = planet->generator;
 
 }
 

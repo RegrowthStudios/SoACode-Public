@@ -70,8 +70,6 @@ public:
     float scale;
 };
 
-extern TerrainGenerator *currTerrainGenerator;
-
 const int NumTerrainFunctions = 11;
 const string TerrainFunctionNames[NumTerrainFunctions] = { "Default", "Small Mts.", "Large Mts.+Lakes", "Hills+Plateaus", "Seaside Cliffs",
     "Ridged", "Billowy Hills", "Jagged Cliffs", "Huge Mts.", "Volcano", "Canyons" };

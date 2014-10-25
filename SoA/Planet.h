@@ -143,5 +143,4 @@ public:
 
     f32q axisQuaternion;
     f32q rotateQuaternion;
-    class TerrainGenerator* generator;
 };

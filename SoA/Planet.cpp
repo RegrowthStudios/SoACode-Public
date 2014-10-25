@@ -19,7 +19,7 @@
 
 ObjectLoader objectLoader;
 
-Planet::Planet() : generator(NULL)
+Planet::Planet()
 {
     bindex = 0;
     stormNoiseFunction = NULL;
@@ -74,7 +74,6 @@ void Planet::clearMeshes()
 
 void Planet::initialize(string filePath)
 {
-    if (!generator) generator = new TerrainGenerator;
     if (filePath == "Worlds/(Empty Planet)/"){
         radius = 1000000;
         scaledRadius = (radius - radius%CHUNK_WIDTH) / planetScale;
@@ -104,7 +103,7 @@ void Planet::initialize(string filePath)
         for (int i = 0; i < 256; i++){
             for (int j = 0; j < 256; j++){
                 int hexcode = 0;
-                generator->BiomeMap[i][j] = hexcode;
+                GameManager::terrainGenerator->BiomeMap[i][j] = hexcode;
             }
         }
 
@@ -274,8 +273,8 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     saveProperties(filePath + "properties.ini"); //save em to update them
 
 
+    TerrainGenerator* generator = GameManager::terrainGenerator;
 
-    currTerrainGenerator = generator;
     GameManager::planet = this;
     vg::TextureCache* textureCache = GameManager::textureCache;
     if (!ignoreBiomes){
@@ -818,9 +817,6 @@ void Planet::destroy()
         delete allBiomesLookupVector[i];
     }
     allBiomesLookupVector.clear();
-    if (generator) delete generator;
-    generator = NULL;
-    currTerrainGenerator = NULL;
 
     for (size_t i = 0; i < floraNoiseFunctions.size(); i++){
         delete floraNoiseFunctions[i];
