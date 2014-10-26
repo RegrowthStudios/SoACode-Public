@@ -39,6 +39,7 @@ void App::onInit() {
         glDisable(GL_MULTISAMPLE);
         frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     }
+    SamplerState::initPredefined();
 
     // Allocate resources
     meshManager = new MeshManager;
