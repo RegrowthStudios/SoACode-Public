@@ -99,20 +99,6 @@ void MainMenuAPI::setCameraTarget(const Awesomium::JSArray& args) {
     _ownerScreen->getCamera().zoomTo(targetPos, time, glm::normalize(targetDir), glm::normalize(targetRight), glm::dvec3(0.0), GameManager::planet->radius, focalLength);
 }
 
-void MainMenuAPI::print(const Awesomium::JSArray& args) {
-    if (!args.size()) return;
-
-    if (args[0].IsDouble()) {
-        std::cout << args[0].ToDouble() << std::endl;
-    } else if (args[0].IsString()) {
-        std::cout << args[0].ToString() << std::endl;
-    } else if (args[0].IsInteger()) {
-        std::cout << args[0].ToInteger() << std::endl;
-    } else if (args[0].IsBoolean()) {
-        std::cout << (int)args[0].ToBoolean() << std::endl;
-    } 
-}
-
 void MainMenuAPI::loadSaveGame(const Awesomium::JSArray& args) {
     if (!args.size()) return;
 

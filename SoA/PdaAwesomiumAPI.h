@@ -34,6 +34,13 @@ public:
     void setOwnerScreen(IGameScreen* ownerScreen);
 
 private:
+
+    /// Gets a list of all items
+    /// @param args: Empty arguments.
+    /// @return array of pairs specified as:
+    /// pair<string blockName, integer num>
+    Awesomium::JSValue getInventory(const Awesomium::JSArray& args);
+
     GamePlayScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 

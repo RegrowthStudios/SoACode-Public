@@ -35,6 +35,12 @@ public:
     /// Initializes the PDA
     void init(GamePlayScreen* ownerScreen);
 
+    /// Opens the PDA
+    void open();
+
+    /// Closes the PDA
+    void close();
+
     /// Updates the PDA
     void update();
 
@@ -44,12 +50,19 @@ public:
     /// Handles an event
     /// @param e: The event to handle
     void onEvent(const SDL_Event& e);
+
+    /// Frees all resources
+    void destroy();
+
+    /// Returns true if it is open
+    bool isOpen() const { return _isOpen; }
 private:
 
     vui::AwesomiumInterface<PdaAwesomiumAPI> _awesomiumInterface; ///< The user interface
 
     PdaAwesomiumAPI _api; ///< The callback API for the user interface
-
+    
+    bool _isOpen;
 };
 
 #endif // PDA_H_

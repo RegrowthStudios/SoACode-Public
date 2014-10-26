@@ -14,7 +14,7 @@ namespace vorb {
 namespace ui {
 
 template <class C>
-IAwesomiumAPI<C>::IAwesomiumAPI() :
+IAwesomiumAPI<C>::IAwesomiumAPI()  :
     _interfaceObject(nullptr) {
     // Empty
 }
@@ -51,6 +51,21 @@ typename IAwesomiumAPI<C>::setptr IAwesomiumAPI<C>::getVoidFunction(const nStrin
     }
 
     return nullptr;
+}
+
+template <class C>
+void IAwesomiumAPI<C>::print(const Awesomium::JSArray& args) {
+    if (!args.size()) return;
+
+    if (args[0].IsDouble()) {
+        std::cout << args[0].ToDouble() << std::endl;
+    } else if (args[0].IsString()) {
+        std::cout << args[0].ToString() << std::endl;
+    } else if (args[0].IsInteger()) {
+        std::cout << args[0].ToInteger() << std::endl;
+    } else if (args[0].IsBoolean()) {
+        std::cout << (int)args[0].ToBoolean() << std::endl;
+    }
 }
 
 }

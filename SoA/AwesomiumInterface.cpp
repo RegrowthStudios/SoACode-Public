@@ -117,10 +117,10 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
         pError("Awesomium Error: " + std::to_string(error));
     }
 
-    //Set up the JS interface
-    _jsInterface = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("JSInterface"), Awesomium::WSLit(""));
-    if (_jsInterface.IsObject()){
-        _methodHandler.jsInterface = &_jsInterface.ToObject();
+    // Retrieve the global 'window' object from the page
+    _window = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("window"), Awesomium::WSLit(""));
+    if (!_window.IsObject()) {
+        pError("Awesomium Error: No window object.");
     }
 
     _isInitialized = true;
@@ -134,6 +134,11 @@ void AwesomiumInterface<C>::destroy() {
     delete _openglSurfaceFactory;
     delete _data_source;
     _isInitialized = false;
+}
+
+template <class C>
+void AwesomiumInterface<C>::invokeFunction(const cString functionName, const Awesomium::JSArray& args) {
+    _window.ToObject().Invoke(Awesomium::WSLit(functionName), args);
 }
 
 template <class C>

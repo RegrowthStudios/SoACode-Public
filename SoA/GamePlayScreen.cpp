@@ -58,6 +58,9 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _player->initialize("Ben"); //What an awesome name that is
     GameManager::initializeVoxelWorld(_player);
 
+    // Initialize the PDA
+    _pda.init(this);
+
     // Initialize and run the update thread
     _updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
 
@@ -73,12 +76,18 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     _updateThread->join();
     delete _updateThread;
     _app->meshManager->destroy();
+    _pda.destroy();
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
 
     // Push the event to the input manager
     GameManager::inputManager->pushEvent(e);
+
+    // Push event to PDA if its open
+    if (_pda.isOpen()) {
+        _pda.onEvent(e);
+    }
 
     // Handle custom input
     switch (e.type) {
@@ -114,6 +123,9 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     // Update the player
     updatePlayer();
 
+    // Update the PDA
+    _pda.update();
+
     // Sort all meshes // TODO(Ben): There is redundance here
     _app->meshManager->sortMeshes(_player->headPosition);
 
@@ -136,6 +148,10 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     drawVoxelWorld();
 
     glDisable(GL_DEPTH_TEST);
+    // Draw PDA if its open
+    if (_pda.isOpen()) {
+        _pda.draw();
+    }
     _app->drawFrameBuffer(_player->chunkProjectionMatrix() * _player->chunkViewMatrix());
     glEnable(GL_DEPTH_TEST);
 
@@ -185,7 +201,20 @@ void GamePlayScreen::handleInput() {
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask;
         shaderTask.load();
-
+    }
+    if (inputManager->getKeyDown(INPUT_INVENTORY)) {
+        if (_pda.isOpen()) {
+            _pda.close();
+        } else {
+            _pda.open();
+        }
+    }
+    if (inputManager->getKeyDown(INPUT_RELOAD_UI)) {
+        if (_pda.isOpen()) {
+            _pda.close();
+        }
+        _pda.destroy();
+        _pda.init(this);
     }
     // Update inputManager internal state
     inputManager->update();

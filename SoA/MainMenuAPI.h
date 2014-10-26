@@ -67,10 +67,6 @@ private:
     /// float[3]: target right vector
     void setCameraTarget(const Awesomium::JSArray& args);
 
-    /// Prints a message to the console folowed by a newline
-    /// @param args: Argument can be a string, int, float, or bool
-    void print(const Awesomium::JSArray& args);
-
     /// Loads a save game and begins playing
     /// @param args: Argument should be the string name
     /// provided by getSaveFiles

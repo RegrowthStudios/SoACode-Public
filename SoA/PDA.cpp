@@ -4,7 +4,8 @@
 #include "GamePlayScreen.h"
 
 
-PDA::PDA() {
+PDA::PDA() : 
+    _isOpen(false) {
     // Empty
 }
 
@@ -18,14 +19,28 @@ void PDA::init(GamePlayScreen* ownerScreen) {
     _awesomiumInterface.init("UI/PDA/", "PDA_UI", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, ownerScreen);
 }
 
-void PDA::update() {
-
+void PDA::open() {
+    _awesomiumInterface.invokeFunction("openInventory");
+    _isOpen = true;
 }
 
-void PDA::onEvent(const SDL_Event& e) {
+void PDA::close() {
+    _awesomiumInterface.invokeFunction("close");
+    _isOpen = false;
+}
 
+void PDA::update() {
+    _awesomiumInterface.update();
 }
 
 void PDA::draw() {
+    _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
+}
 
+void PDA::onEvent(const SDL_Event& e) {
+    _awesomiumInterface.handleEvent(e);
+}
+
+void PDA::destroy() {
+    _awesomiumInterface.destroy();
 }

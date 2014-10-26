@@ -22,12 +22,14 @@
 #include "MainMenuAPI.h"
 #include "Random.h"
 #include "LoadMonitor.h"
+#include "PDA.h"
 
 class App;
 struct TerrainMeshMessage;
 
 class GamePlayScreen : public IAppScreen<App>
 {
+    friend class PdaAwesomiumAPI;
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
@@ -63,6 +65,8 @@ private:
     void processMessages();
 
     Player* _player; ///< The current player
+
+    PDA _pda; ///< The PDA
 
     bool _inFocus; ///< true when the window is in focus
 

@@ -73,6 +73,11 @@ public:
 
     /// Frees all resources
     void destroy();
+    
+    /// Invokes a JS function
+    /// @param functionName: Name of the function
+    /// @param args: the argument list
+    void invokeFunction(const cString functionName, const Awesomium::JSArray& args = Awesomium::JSArray());
 
     /// Handles an SDL event
     /// @param evnt: the SDL event to handle
@@ -126,7 +131,7 @@ private:
     Awesomium::WebCore* _webCore;
     Awesomium::WebView* _webView;
     Awesomium::JSValue _gameInterface;
-    Awesomium::JSValue _jsInterface;
+    Awesomium::JSValue _window;
 
     C* _awesomiumAPI; ///< the API to use for custom function calls
 
