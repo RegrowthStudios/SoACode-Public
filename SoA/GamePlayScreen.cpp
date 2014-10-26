@@ -98,10 +98,8 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
             }
             break;
         case SDL_MOUSEBUTTONDOWN:
-            if (e.button.button == SDL_BUTTON_LEFT) {
-                SDL_SetRelativeMouseMode(SDL_TRUE);
-                _inFocus = true;
-            }
+            onMouseDown(e);
+            break;
         case SDL_WINDOWEVENT:
             if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
                  SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -205,8 +203,12 @@ void GamePlayScreen::handleInput() {
     if (inputManager->getKeyDown(INPUT_INVENTORY)) {
         if (_pda.isOpen()) {
             _pda.close();
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+            _inFocus = true;
         } else {
             _pda.open();
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+            _inFocus = false;
         }
     }
     if (inputManager->getKeyDown(INPUT_RELOAD_UI)) {
@@ -218,6 +220,30 @@ void GamePlayScreen::handleInput() {
     }
     // Update inputManager internal state
     inputManager->update();
+}
+
+void GamePlayScreen::onMouseDown(const SDL_Event& e) {
+
+    InputManager* inputManager = GameManager::inputManager;
+
+    if (e.button.button == SDL_BUTTON_LEFT) {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        _inFocus = true;
+
+        if (!_pda.isOpen()) {
+
+            if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || GameManager::voxelEditor->isEditing()) {
+                GameManager::clickDragRay(true);
+              /*  if (!(_player->leftEquippedItem)){
+                    if (leftPress || clickDragActive) GameManager::clickDragRay(true);
+                } else if (_player->leftEquippedItem->type == ITEM_BLOCK){
+                    player->dragBlock = player->leftEquippedItem;
+                    if (leftPress || clickDragActive) GameManager::clickDragRay(false);
+                }
+                leftMousePressed = true;*/
+            }
+        }
+    }
 }
 
 // TODO(Ben): Break this up
