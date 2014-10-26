@@ -167,7 +167,7 @@ f32v3 color::convertRGBToHSL(const f32v3& val) {
         ret.r = HSV_ANGULAR_SCALING * (((val.b - val.r) / minVal) + 2.0f);
         ret.b = (val.g + minVal) * 0.5f;
     } else {
-        if (val.r == val.b == val.g) {
+        if (val.r == val.b && val.b == val.g) {
             // Undefined values
             ret.r = 0.0f;
             ret.g = 0.0f;
@@ -226,8 +226,8 @@ f32v3 color::convertHSLToRGB(const f32v3& val) {
 }
 
 f32v3 color::convertRGBToHSV(const f32v3& val) {
-
+    return f32v3();
 }
 f32v3 color::convertHSVToRGB(const f32v3& val) {
-
+    return f32v3();
 }
