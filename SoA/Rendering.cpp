@@ -232,7 +232,7 @@ void DrawStars(float theta, glm::mat4 &MVP)
 
 void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color)
 {
-   /* GlobalModelMatrix[0][0] = xw;
+    GlobalModelMatrix[0][0] = xw;
     GlobalModelMatrix[1][1] = yh;
     GlobalModelMatrix[2][2] = zw;
     GlobalModelMatrix[3][0] = (float)((double)x - playerPos.x);
@@ -248,9 +248,41 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniform4f(program->getUniform("Color"), (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
+    // Lazily construct vbo
+    static ui32 vbo = 0;
+    static ui32 ibo = 0;
+    if (vbo == 0) {
+        f32v3 lineVertices[8];
+        GLushort elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
+        float gmin = 0.00001;
+        float gmax = 0.9999;
+        lineVertices[0] = f32v3(gmin, gmin, gmin);
+        //back right
+        lineVertices[1] = f32v3(gmax, gmin, gmin); 
+        //front left
+        lineVertices[2] = f32v3(gmin, gmin, gmax);
+        //front right
+        lineVertices[3] = f32v3(gmax, gmin, gmax);
+        // top 4
+        //back left
+        lineVertices[4] = f32v3(gmin, gmax, gmin);
+        //back right
+        lineVertices[5] = f32v3(gmax, gmax, gmin);
+        //front left
+        lineVertices[6] = f32v3(gmin, gmax, gmax);
+        //front right
+        lineVertices[7] = f32v3(gmax, gmax, gmax);
 
-    glBindBuffer(GL_ARRAY_BUFFER, gridvboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gridelID);
+        glGenBuffers(1, &vbo);
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), lineVertices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elementBuffer), elementBuffer, GL_STATIC_DRAW);
+    } else {
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    }
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
@@ -265,7 +297,7 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     GlobalModelMatrix[0][0] = 1.0;
     GlobalModelMatrix[1][1] = 1.0;
-    GlobalModelMatrix[2][2] = 1.0;*/
+    GlobalModelMatrix[2][2] = 1.0;
 }
 
 GLuint MakeBlockVbo(Block *block){

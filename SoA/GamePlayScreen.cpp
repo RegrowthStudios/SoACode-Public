@@ -100,6 +100,9 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
         case SDL_MOUSEBUTTONDOWN:
             onMouseDown(e);
             break;
+        case SDL_MOUSEBUTTONUP:
+            onMouseUp(e);
+            break;
         case SDL_WINDOWEVENT:
             if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
                  SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -218,30 +221,43 @@ void GamePlayScreen::handleInput() {
         _pda.destroy();
         _pda.init(this);
     }
+
+    // Block placement
+    if (!_pda.isOpen()) {
+        if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
+            if (!(_player->leftEquippedItem)){
+                GameManager::clickDragRay(true);
+            } else if (_player->leftEquippedItem->type == ITEM_BLOCK){
+                _player->dragBlock = _player->leftEquippedItem;
+                GameManager::clickDragRay(false);
+            }
+        } else if (inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
+            if (!(_player->rightEquippedItem)){
+                GameManager::clickDragRay(true);
+            } else if (_player->rightEquippedItem->type == ITEM_BLOCK){
+                _player->dragBlock = _player->rightEquippedItem;
+                GameManager::clickDragRay(false);
+            }
+        }
+    }
+
     // Update inputManager internal state
     inputManager->update();
 }
 
 void GamePlayScreen::onMouseDown(const SDL_Event& e) {
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    _inFocus = true;
+}
 
-    InputManager* inputManager = GameManager::inputManager;
-
+void GamePlayScreen::onMouseUp(const SDL_Event& e) {
     if (e.button.button == SDL_BUTTON_LEFT) {
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-        _inFocus = true;
-
-        if (!_pda.isOpen()) {
-
-            if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || GameManager::voxelEditor->isEditing()) {
-                GameManager::clickDragRay(true);
-              /*  if (!(_player->leftEquippedItem)){
-                    if (leftPress || clickDragActive) GameManager::clickDragRay(true);
-                } else if (_player->leftEquippedItem->type == ITEM_BLOCK){
-                    player->dragBlock = player->leftEquippedItem;
-                    if (leftPress || clickDragActive) GameManager::clickDragRay(false);
-                }
-                leftMousePressed = true;*/
-            }
+        if (GameManager::voxelEditor->isEditing()) {
+            GameManager::voxelEditor->editVoxels(_player->leftEquippedItem);
+        }
+    } else if (e.button.button == SDL_BUTTON_RIGHT) {
+        if (GameManager::voxelEditor->isEditing()) {
+            GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
         }
     }
 }
@@ -364,7 +380,6 @@ void GamePlayScreen::drawVoxelWorld() {
         } else{
             ID = 0;
         }
-
         GameManager::voxelEditor->drawGuides(chunkCamera.position(), VP, ID);
     }
 

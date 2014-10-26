@@ -51,8 +51,11 @@ private:
     /// Handles updating state based on input
     void handleInput();
 
-    /// Handles click input for player
+    /// Handles mouse down input for player
     void onMouseDown(const SDL_Event& e);
+
+    /// Handles mouse up input for player
+    void onMouseUp(const SDL_Event& e);
 
     /// Draws the voxel world
     void drawVoxelWorld();
