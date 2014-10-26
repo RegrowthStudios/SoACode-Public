@@ -63,20 +63,19 @@ SpriteGlyph(0, 0) {}
 SpriteGlyph::SpriteGlyph(ui32 texID, f32 d) :
 textureID(texID), depth(d) {}
 
-SpriteBatch::SpriteBatch(vcore::GLProgramManager* glProgramManager, bool isDynamic /*= true*/, bool doInit /*= false*/) :
+SpriteBatch::SpriteBatch(bool isDynamic /*= true*/, bool doInit /*= false*/) :
     _bufUsage(isDynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW),
     _glyphCapacity(0),
-    _vao(0), _vbo(0),
-    _program(nullptr) {
-    if (doInit) init(glProgramManager);
+    _vao(0), _vbo(0) {
+    if (doInit) init();
 }
 SpriteBatch::~SpriteBatch() {
     _batchRecycler.freeAll();
     _glyphRecycler.freeAll();
 }
 
-void SpriteBatch::init(vcore::GLProgramManager* glProgramManager) {
-    createProgram(glProgramManager);
+void SpriteBatch::init() {
+    createProgram();
     createVertexArray();
     createPixelTexture();
 }
@@ -455,11 +454,7 @@ void SpriteBatch::generateBatches() {
     delete[] verts;
 }
 
-void SpriteBatch::createProgram(vcore::GLProgramManager* glProgramManager) {
-
-    // Check if the program is cached
-    _program = glProgramManager->getProgram("SpriteBatch");
-
+void SpriteBatch::createProgram() {
     // Only need to create it if it isn't cached
     if (!_program) {
 
@@ -488,8 +483,6 @@ void SpriteBatch::createProgram(vcore::GLProgramManager* glProgramManager) {
 
         // Init the attributes
         _program->initAttributes();
-
-        glProgramManager->addProgram("SpriteBatch", _program);
     }
 }
 
@@ -519,6 +512,15 @@ void SpriteBatch::createPixelTexture() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pix);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void SpriteBatch::disposeProgram() {
+    if (_program) {
+        _program->destroy();
+        _program = nullptr;
+    }
+}
+
+vcore::GLProgram* SpriteBatch::_program = nullptr;
 
 void SpriteBatch::SpriteBatchCall::set(i32 iOff, ui32 texID, std::vector<SpriteBatchCall*>& calls) {
     textureID = texID;

@@ -143,4 +143,10 @@ namespace color {
     extern const ColorRGBA8 WhiteSmoke;
     extern const ColorRGBA8 Yellow;
     extern const ColorRGBA8 YellowGreen;
+
+    f32v3 convertRGBToHSL(const f32v3& val);
+    f32v3 convertHSLToRGB(const f32v3& val);
+
+    f32v3 convertRGBToHSV(const f32v3& val);
+    f32v3 convertHSVToRGB(const f32v3& val);
 }

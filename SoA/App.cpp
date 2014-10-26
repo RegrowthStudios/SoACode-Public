@@ -6,6 +6,7 @@
 #include "MainMenuScreen.h"
 #include "GamePlayScreen.h"
 #include "ScreenList.h"
+#include "SpriteBatch.h"
 #include "FrameBuffer.h"
 #include "MeshManager.h"
 
@@ -39,13 +40,15 @@ void App::onInit() {
         glDisable(GL_MULTISAMPLE);
         frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, graphicsOptions.screenWidth, graphicsOptions.screenHeight);
     }
+    SamplerState::initPredefined();
 
     // Allocate resources
     meshManager = new MeshManager;
 }
 
 void App::onExit() {
-    // Empty
+    // Delete cache if it exists
+    SpriteBatch::disposeProgram();
 }
 
 App::~App() {

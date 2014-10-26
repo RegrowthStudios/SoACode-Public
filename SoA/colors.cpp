@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "colors.h"
 
+#include <cmath>
+
 // All Color Names And Values Are From The C# XNA Framework
 const ColorRGBA8 color::Transparent = ColorRGBA8(0, 0, 0, 0);
 const ColorRGBA8 color::AliceBlue = ColorRGBA8(240, 248, 255, 255);
@@ -143,3 +145,89 @@ const ColorRGBA8 color::White = ColorRGBA8(255, 255, 255, 255);
 const ColorRGBA8 color::WhiteSmoke = ColorRGBA8(245, 245, 245, 255);
 const ColorRGBA8 color::Yellow = ColorRGBA8(255, 255, 0, 255);
 const ColorRGBA8 color::YellowGreen = ColorRGBA8(154, 205, 50, 255);
+
+#define PI 3.14159f
+#define HSV_ANGULAR_SCALING (PI / 3.0f)
+
+
+f32v3 color::convertRGBToHSL(const f32v3& val) {
+    f32 minVal, delta;
+    f32v3 ret;
+
+    if (val.r > val.g && val.r > val.b) {
+        // R max
+        minVal = std::min(val.g, val.b);
+        delta = val.r - minVal;
+        ret.r = HSV_ANGULAR_SCALING * std::fmod(((val.g - val.b) / minVal), 6.0f);
+        ret.b = (val.r + minVal) * 0.5f;
+    } else if (val.g > val.b) {
+        // G max
+        minVal = std::min(val.r, val.b);
+        delta = val.r - minVal;
+        ret.r = HSV_ANGULAR_SCALING * (((val.b - val.r) / minVal) + 2.0f);
+        ret.b = (val.g + minVal) * 0.5f;
+    } else {
+        if (val.r == val.b && val.b == val.g) {
+            // Undefined values
+            ret.r = 0.0f;
+            ret.g = 0.0f;
+            ret.b = val.r;
+            return ret;
+        } else {
+            // B max
+            minVal = std::min(val.r, val.g);
+            delta = val.r - minVal;
+            ret.r = HSV_ANGULAR_SCALING * (((val.r - val.g) / minVal) + 4.0f);
+            ret.b = (val.b + minVal) * 0.5f;
+        }
+    }
+    ret.g = minVal / (1 - std::abs(2 * ret.b - 1));
+    return ret;
+}
+f32v3 color::convertHSLToRGB(const f32v3& val) {
+    f32v3 ret;
+    f32 c = (1 - std::abs(2 * val.b - 1)) * val.g;
+    f32 x = c * (1 - std::abs(std::fmod((val.r / HSV_ANGULAR_SCALING), 2.0f) - 1.0f));
+    f32 m = val.b - c * 0.5f;
+    i32 p = (i32)(val.r / HSV_ANGULAR_SCALING);
+    switch (p) {
+    case 0:
+        ret.r = c;
+        ret.g = x;
+        break;
+    case 1:
+        ret.g = c;
+        ret.r = x;
+        break;
+    case 2:
+        ret.g = c;
+        ret.b = x;
+        break;
+    case 3:
+        ret.b = c;
+        ret.g = x;
+        break;
+    case 4:
+        ret.b = c;
+        ret.r = x;
+        break;
+    case 5:
+        ret.r = c;
+        ret.b = x;
+        break;
+    default:
+        break;
+    }
+
+    ret.r += m;
+    ret.g += m;
+    ret.b += m;
+    return ret;
+}
+
+f32v3 color::convertRGBToHSV(const f32v3& val) {
+    return f32v3();
+}
+f32v3 color::convertHSVToRGB(const f32v3& val) {
+    return f32v3();
+}
