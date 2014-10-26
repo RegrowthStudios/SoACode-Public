@@ -32,7 +32,7 @@ void DevConsoleView::init(DevConsole* console, i32 linesToRender, vcore::GLProgr
     _console->addListener(_fHook, this);
     _isViewModified = true;
 
-    _batch = new SpriteBatch(glProgramManager, true, true);
+    _batch = new SpriteBatch(true, true);
 
     _font = new SpriteFont("Fonts\\chintzy.ttf", 32);
 }

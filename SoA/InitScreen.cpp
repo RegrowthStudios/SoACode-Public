@@ -63,7 +63,7 @@ void InitScreen::draw(const GameTime& gameTime) {
 }
 
 void InitScreen::buildSpriteResources() {
-    _sb = new SpriteBatch(GameManager::glProgramManager, true, true);
+    _sb = new SpriteBatch(true, true);
     _font = new SpriteFont(INIT_SCREEN_FONT, INIT_SCREEN_FONT_SIZE);
 }
 void InitScreen::destroySpriteResources() {

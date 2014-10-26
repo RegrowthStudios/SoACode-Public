@@ -41,10 +41,10 @@ public:
 
 class SpriteBatch {
 public:
-    SpriteBatch(vcore::GLProgramManager* glProgramManager, bool isDynamic = true, bool init = false);
+    SpriteBatch(bool isDynamic = true, bool init = false);
     ~SpriteBatch();
 
-    void init(vcore::GLProgramManager* glProgramManager);
+    void init();
     void dispose();
 
     void begin();
@@ -64,6 +64,8 @@ public:
 
     void sortGlyphs(SpriteSortMode ssm);
     void generateBatches();
+
+    static void disposeProgram();
 private:
     static bool SSMTexture(SpriteGlyph* g1, SpriteGlyph* g2) {
         return g1->textureID < g2->textureID;
@@ -75,7 +77,7 @@ private:
         return g1->depth > g2->depth;
     }
 
-    void createProgram(vcore::GLProgramManager* glProgramManager);
+    void createProgram();
     void createVertexArray();
     void createPixelTexture();
 
@@ -101,7 +103,7 @@ private:
     PtrRecycler<SpriteBatchCall> _batchRecycler;
 
     // Custom Shader
-    vcore::GLProgram* _program;
+    static vcore::GLProgram* _program;
 
     // Default White Pixel Texture
     ui32 _texPixel;
