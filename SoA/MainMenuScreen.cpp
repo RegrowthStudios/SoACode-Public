@@ -58,7 +58,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
 
     // Initialize the user interface
-    _awesomiumInterface.init("UI/MainMenu/", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
+    _awesomiumInterface.init("UI/MainMenu/", "MainMenu_UI", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
 
     // Run the update thread for updating the planet
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
@@ -79,7 +79,7 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
         std::cout << "\n\nReloading MainMenu UI...\n\n";
         _awesomiumInterface.destroy();
-        _awesomiumInterface.init("UI/MainMenu/", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
+        _awesomiumInterface.init("UI/MainMenu/", "MainMenu_UI", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
     }
 }
 

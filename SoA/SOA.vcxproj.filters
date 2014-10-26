@@ -114,6 +114,9 @@
     <Filter Include="SOA Files\Screens\GamePlay">
       <UniqueIdentifier>{67ff73ec-bf0a-46da-a71d-8821a7acbd76}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Game\Tools">
+      <UniqueIdentifier>{da75023d-4b8b-4790-af72-c6535569b583}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -539,6 +542,15 @@
     <ClInclude Include="Animation.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="PDA.h">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Computer.h">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="PdaAwesomiumAPI.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -853,6 +865,15 @@
     </ClCompile>
     <ClCompile Include="GpuMemory.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="PDA.cpp">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Computer.cpp">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="PdaAwesomiumAPI.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
