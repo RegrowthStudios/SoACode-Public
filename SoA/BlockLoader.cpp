@@ -1,33 +1,48 @@
 #include "stdafx.h"
 #include "BlockLoader.h"
+#include "IOManager.h"
+
+#include <yaml-cpp/yaml.h>
 
 #include <boost/algorithm/string/replace.hpp>
 #include "BlockData.h"
 
-void BlockLoader::loadBlocks(nString filePath) {
-   
+bool BlockLoader::loadBlocks(const nString& filePath) {
+    IOManager ioManager;
+    nString data;
+    ioManager.readFileToString(filePath.c_str(), data);
+
+    // TODO(Cristian): Implement this
+
+    return false;
 }
 
-void BlockLoader::saveBlocks(nString filePath) {
+bool BlockLoader::saveBlocks(const nString& filePath) {
+
+    // Exit since its not implemented
+    return true;
+
     std::ofstream file(filePath);
+    if (file.fail()) {
+        return false;
+    }
+
+    // TODO(Cristian): Implement this
+
     for (size_t i = 0; i < Blocks.size(); i++) {
         if (Blocks[i].active) {
+            // Water is a special case. We have 100 water block IDs, but we only want to write water once.
             if (i >= LOWWATER) {
                 if (i == LOWWATER) {
-                    file << "Water:\n";
-                } else {
-                    continue;
+                   // Write a single water block here with Water as the name
                 }
-            } else {
-                file << Blocks[i].name << ":\n";
+                continue;
             }
 
-            nString data = "  " + Keg::write(&Blocks[i], "Block", nullptr);
-            // This is hacky until cristian changes write
-            boost::replace_all(data, "\n", "\n  ");
-
-            file << data << std::endl;
+            // Write non-water blocks here
+         
         }
     }
     file.close();
+    return true;
 }

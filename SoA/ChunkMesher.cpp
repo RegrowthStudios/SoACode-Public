@@ -11,6 +11,7 @@
 #include "Planet.h"
 #include "RenderTask.h"
 #include "TerrainGenerator.h"
+#include "TexturePackLoader.h"
 #include "ThreadPool.h"
 #include "utils.h"
 #include "VoxelUtils.h"
@@ -53,11 +54,11 @@ void ChunkMesher::bindVBOIndicesID()
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-#define CompareVertices(v1, v2) (0 && !memcmp(v1.color, v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3)  \
-    && !memcmp(v1.overlayColor, v2.overlayColor, 3) \
+#define CompareVertices(v1, v2) (0 && !memcmp(&v1.color, &v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(&v1.lampColor, &v2.lampColor, 3)  \
+    && !memcmp(&v1.overlayColor, &v2.overlayColor, 3) \
     && v1.textureAtlas == v2.textureAtlas && v1.textureIndex == v2.textureIndex && v1.overlayTextureAtlas == v2.overlayTextureAtlas && v1.overlayTextureIndex == v2.overlayTextureIndex)
 
-#define CompareVerticesLight(v1, v2) (0 && v1.sunlight == v2.sunlight && !memcmp(v1.lampColor, v2.lampColor, 3) && !memcmp(v1.color, v2.color, 3))
+#define CompareVerticesLight(v1, v2) (0 && v1.sunlight == v2.sunlight && !memcmp(&v1.lampColor, &v2.lampColor, 3) && !memcmp(&v1.color, &v2.color, 3))
 
 //Fills chLightData with the lighting information of the surrounding blocks. This will be used to calculate lighting and ambient occlusion
 //It only has to get the light voxels that were not grabbed in checkBlockFaces()
@@ -168,15 +169,15 @@ GLubyte ChunkMesher::calculateSmoothLighting(int accumulatedLight, int numAdjace
     return (GLubyte)(255.0f * (LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ((float)(accumulatedLight) / (4 - numAdjacentBlocks)))));
 }
 
-void ChunkMesher::calculateLampColor(ui8 dst[3], ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj) {
-    dst[0] = calculateSmoothLighting(src0[0] + src1[0] + src2[0] + src3[0] + numAdj, numAdj);
-    dst[1] = calculateSmoothLighting(src0[1] + src1[1] + src2[1] + src3[1] + numAdj, numAdj);
-    dst[2] = calculateSmoothLighting(src0[2] + src1[2] + src2[2] + src3[2] + numAdj, numAdj);
+void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj) {
+    dst.r = calculateSmoothLighting(src0[0] + src1[0] + src2[0] + src3[0] + numAdj, numAdj);
+    dst.g = calculateSmoothLighting(src0[1] + src1[1] + src2[1] + src3[1] + numAdj, numAdj);
+    dst.b = calculateSmoothLighting(src0[2] + src1[2] + src2[2] + src3[2] + numAdj, numAdj);
 }
 
 //Gets texture offset according to the texturing method
 //Grass method may change color
-void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]) {
+void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ColorRGB8& color) {
     switch (blockTexture.method) {
     case ConnectedTextureMethods::CONNECTED:
         return getConnectedTextureIndex(mi, result, blockTexture.innerSeams, rightDir, upDir, frontDir, directionIndex);
@@ -327,7 +328,7 @@ void ChunkMesher::getConnectedTextureIndex(const MesherInfo &mi, int& result, bo
 }
 
 //Gets a grass side texture offset by looking at the surrounding blocks
-void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]) {
+void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ColorRGB8& color) {
 
     int connectedOffset = 0;
     int wc = mi.wc;
@@ -470,7 +471,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     const bool occlude = (block.occlude != 0);
     ui8 lampLights[26][3];
     GLbyte sunlights[26];
-    GLubyte color[3], overlayColor[3];
+    ColorRGB8 color, overlayColor;
     const int wc = mi.wc;
     const int btype = mi.btype;
     int nearBlocks[4];
@@ -480,14 +481,14 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     ui8 sunLight = sunlightData[wc];
-    ui8 lampLight[3] = { (lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+    ColorRGB8 lampLight((lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
         (lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-        lampLightData[wc] & LAMP_BLUE_MASK };
+        lampLightData[wc] & LAMP_BLUE_MASK);
 
     sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
-    lampLight[0] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[0])));
-    lampLight[1] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[1])));
-    lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
+    lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
+    lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
+    lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
 
     //Lookup the current biome, temperature, and rainfall
     Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
@@ -854,7 +855,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 
     const Block &block = Blocks[mi.btype];
 
-    GLubyte color[3], overlayColor[3];
+    ColorRGB8 color, overlayColor;
     const int wc = mi.wc;
     const int btype = mi.btype;
 
@@ -865,14 +866,14 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     GLuint flags = GETFLAGS(blockIDData[mi.wc]);
 
     ui8 sunLight = mi.task->chSunlightData[wc];
-    ui8 lampLight[3] = { (mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+    ColorRGB8 lampLight((mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
         (mi.task->chLampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-        mi.task->chLampData[wc] & LAMP_BLUE_MASK };
+        mi.task->chLampData[wc] & LAMP_BLUE_MASK);
 
     sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
-    lampLight[0] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[0])));
-    lampLight[1] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[1])));
-    lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
+    lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
+    lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
+    lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
 
     Blocks[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.pxTexInfo);
 
@@ -985,20 +986,17 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     ui8 temperature = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
     ui8 depth = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
 
-    ui8 color[3];
-    color[0] = waterColorMap[depth][temperature][0];
-    color[1] = waterColorMap[depth][temperature][1];
-    color[2] = waterColorMap[depth][temperature][2];
+    ColorRGB8 color = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
 
     ui8 sunlight = mi.task->chSunlightData[wc];
-    ui8 lampLight[3] = { (mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+    ColorRGB8 lampLight((mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
         (mi.task->chLampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-        mi.task->chLampData[wc] & LAMP_BLUE_MASK };
+        mi.task->chLampData[wc] & LAMP_BLUE_MASK);
 
     sunlight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunlight)));
-    lampLight[0] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[0])));
-    lampLight[1] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[1])));
-    lampLight[2] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight[2])));
+    lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
+    lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
+    lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
 
     nextBlockID = blockIDData[wc + PADDED_OFFSETS::BOTTOM];
     nextBlock = &GETBLOCK(nextBlockID);
@@ -1083,10 +1081,10 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
         _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[59];
 
         //set alpha
-        _waterVboVerts[mi.liquidIndex].color[3] = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color[3] = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color[3] = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color[3] = backLeftAlpha;
+        _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 1].color.a = backRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 3].color.a = backLeftAlpha;
 
         mi.liquidIndex += 4;
     }
@@ -1108,10 +1106,10 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontRightHeight;
         _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[11];
 
-        _waterVboVerts[mi.liquidIndex].color[3] = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color[3] = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color[3] = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color[3] = frontRightAlpha;
+        _waterVboVerts[mi.liquidIndex].color.a = frontLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 1].color.a = frontLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 3].color.a = frontRightAlpha;
 
         mi.liquidIndex += 4;
     }
@@ -1134,10 +1132,10 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backRightHeight;
         _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[35];
 
-        _waterVboVerts[mi.liquidIndex].color[3] = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color[3] = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color[3] = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color[3] = backRightAlpha;
+        _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 1].color.a = frontLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 3].color.a = backRightAlpha;
 
         mi.liquidIndex += 4;
     }
@@ -1159,10 +1157,10 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backLeftHeight;
         _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[71];
 
-        _waterVboVerts[mi.liquidIndex].color[3] = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color[3] = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color[3] = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color[3] = backLeftAlpha;
+        _waterVboVerts[mi.liquidIndex].color.a = backRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 1].color.a = backRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 2].color.a = backLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 3].color.a = backLeftAlpha;
 
         mi.liquidIndex += 4;
     }
@@ -1183,10 +1181,10 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
         _waterVboVerts[mi.liquidIndex + 3].position.y = y + backRightHeight;
         _waterVboVerts[mi.liquidIndex + 3].position.z = z + VoxelMesher::liquidVertices[23];
 
-        _waterVboVerts[mi.liquidIndex].color[3] = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color[3] = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color[3] = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color[3] = backRightAlpha;
+        _waterVboVerts[mi.liquidIndex].color.a = frontRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 1].color.a = frontRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 2].color.a = backRightAlpha;
+        _waterVboVerts[mi.liquidIndex + 3].color.a = backRightAlpha;
 
         mi.liquidIndex += 4;
     }
@@ -1207,10 +1205,10 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
         _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontLeftHeight;
         _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[47];
 
-        _waterVboVerts[mi.liquidIndex].color[3] = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color[3] = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color[3] = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color[3] = frontLeftAlpha;
+        _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 1].color.a = backLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 2].color.a = frontLeftAlpha;
+        _waterVboVerts[mi.liquidIndex + 3].color.a = frontLeftAlpha;
 
         mi.liquidIndex += 4;
     }

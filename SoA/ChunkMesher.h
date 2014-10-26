@@ -32,10 +32,10 @@ private:
     void mergeBottomVerts(MesherInfo& mi);
 
     
-    void getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]);
+    void getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ColorRGB8& color);
     void getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
     void getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
-    void getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]);
+    void getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ColorRGB8& color);
     void getVerticalTextureIndex(const MesherInfo &mi, int& result, ConnectedTextureReducedMethod rm, int upDir, unsigned int offset);
     void getHorizontalTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int frontDir, unsigned int offset);
 
@@ -49,7 +49,7 @@ private:
     void GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLights[26][3], GLbyte sunlights[26], GLushort* chData, ui8* chSunData, ui16 *chLampData, bool faces[6]);
     bool checkBlockFaces(bool faces[6], ui8 lampLights[26][3], sbyte sunlights[26], const RenderTask* task, const bool occlude, const i32 btype, const i32 wc);
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
-    void calculateLampColor(ui8 dst[3], ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj);
+    void calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj);
 
     //inlines
     void GetLeftLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData);

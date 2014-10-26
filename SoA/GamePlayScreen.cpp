@@ -168,7 +168,6 @@ void GamePlayScreen::handleInput() {
         GameManager::textureCache->destroy();
         // Reload textures
         GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + graphicsOptions.texturePackString + "/");
-        LoadTextures();
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
         GameManager::texturePackLoader->setBlockTextures(Blocks);

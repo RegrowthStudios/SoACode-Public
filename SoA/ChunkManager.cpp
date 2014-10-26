@@ -744,6 +744,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
     Chunk* chunk;
     vector<Chunk* > chunksToLoad;
     ChunkGridData* chunkGridData;
+    TerrainGenerator* generator = GameManager::terrainGenerator;
 
     ui32 sticks = SDL_GetTicks();
     while (!_loadList.empty()) {
@@ -759,10 +760,10 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         //If the heightmap has not been generated, generate it.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
 
-            currTerrainGenerator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
+            generator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
 
-            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            currTerrainGenerator->postProcessHeightmap(chunkGridData->heightData);
+            generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            generator->postProcessHeightmap(chunkGridData->heightData);
         }
 
         chunksToLoad.push_back(chunk);
@@ -884,7 +885,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
         chunk->isAccessible = 0;
 
-        threadPool.addLoadJob(chunk, new LoadData(chunk->chunkGridData->heightData, currTerrainGenerator));
+        threadPool.addLoadJob(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }

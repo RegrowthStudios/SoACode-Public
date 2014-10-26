@@ -68,17 +68,20 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
 
 void TexturePackLoader::getBlockTexture(nString& key, BlockTexture& texture) {
 
+    // Initialize default values
+    texture = BlockTexture();
+
     auto it = _blockTextureLoadDatas.find(key);
-    if (it == _blockTextureLoadDatas.end()) {
+    if (it != _blockTextureLoadDatas.end()) {
+        // Initialize default values
         texture = BlockTexture();
-    } else {
+
         if (it->second.base) {
             texture.base = *it->second.base;
         }
         if (it->second.overlay) {
             texture.overlay = *it->second.overlay;
         }
-        texture.blendMode = it->second.blendMode;
     }
 }
 
@@ -142,6 +145,58 @@ TexturePackInfo TexturePackLoader::loadPackFile(const nString& filePath) {
     return rv;
 }
 
+
+ColorRGB8* TexturePackLoader::getColorMap(const nString& name) {
+    auto it = _blockColorMapLookupTable.find(name);
+    if (it != _blockColorMapLookupTable.end()) {
+        return _blockColorMaps[it->second];
+    } else {
+        _blockColorMapLookupTable[name] = _blockColorMaps.size();
+        _blockColorMaps.push_back(new ColorRGB8[256 * 256]);
+        return _blockColorMaps.back();
+    }
+}
+
+ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
+
+#define MAP_WIDTH 256
+
+    auto it = _blockColorMapLookupTable.find(name);
+    if (it != _blockColorMapLookupTable.end()) {
+        return it->second;
+    } else {
+        _blockColorMapLookupTable[name] = _blockColorMaps.size();
+        _blockColorMaps.push_back(new ColorRGB8[256 * 256]);
+        ColorRGB8* colorMap = _blockColorMaps.back();
+
+        // Load the color map into a buffer
+        std::vector<ui8> buffer;
+        ui32 width, height;
+        vg::ImageLoader::loadPng(name.c_str(), buffer, width, height, true);
+
+        // Error checking
+        if (width != MAP_WIDTH) {
+            pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));
+            return _blockColorMaps.size() - 1;
+        }
+        if (height != MAP_WIDTH) {
+            pError("Error color map " + name + " must have a height of " + to_string(MAP_WIDTH));
+            return _blockColorMaps.size() - 1;
+        }
+
+        // Set the data
+        for (int y = 0; y < MAP_WIDTH; y++){
+            for (int x = 0; x < MAP_WIDTH; x++) {
+                colorMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[(y * MAP_WIDTH + x) * 3],
+                                                                          buffer[(y * MAP_WIDTH + x) * 3 + 1],
+                                                                          buffer[(y * MAP_WIDTH + x) * 3 + 2]);
+            }
+        }
+
+        return _blockColorMaps.size() - 1;
+    }
+}
+
 void TexturePackLoader::clearToloadCaches() {
     std::map <nString, SamplerState*>().swap(_texturesToLoad);
     std::set <nString>().swap(_blockTexturesToLoad);
@@ -159,6 +214,13 @@ void TexturePackLoader::destroy() {
     
     std::map <nString, BlockTextureData>().swap(_blockTextureLoadDatas);
     std::set <BlockTextureLayer>().swap(_blockTextureLayers);
+
+    for (auto& color : _blockColorMaps) {
+        delete[] color;
+    }
+
+    std::map <nString, ui32>().swap(_blockColorMapLookupTable); 
+    std::vector <ColorRGB8*>().swap(_blockColorMaps);
 
     // Make sure to free all pixel data
     for (auto& pixels : _pixelCache) {
@@ -228,7 +290,6 @@ void TexturePackLoader::loadAllBlockTextures() {
             pixels = getPixels(blockTexture.overlay.path, width, height);
             // Store handle to the layer, do postprocessing, add layer to load
             blockTextureLoadData.overlay = postProcessLayer(pixels, blockTexture.overlay, width, height);
-
         }
 
         // Add it to the list of load datas
@@ -261,6 +322,14 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
                 for (i32 i = 0; i < rv->overlay.weights.length(); i++) {
                     rv->overlay.totalWeight += rv->overlay.weights[i];
                 }
+            }
+
+            // Get ColorMap indices
+            if (rv->base.useMapColor.length()) {
+                rv->base.colorMapIndex = getColorMapIndex(rv->base.useMapColor);
+            }
+            if (rv->overlay.useMapColor.length()) {
+                rv->overlay.colorMapIndex = getColorMapIndex(rv->overlay.useMapColor);
             }
             return true;
         }

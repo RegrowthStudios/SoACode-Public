@@ -125,7 +125,6 @@ void LoadScreen::update(const GameTime& gameTime) {
     static bool loadedTextures = false;
     if (!loadedTextures && _monitor.isTaskFinished("Textures")) {
       
-        LoadTextures();
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
         GameManager::texturePackLoader->setBlockTextures(Blocks);

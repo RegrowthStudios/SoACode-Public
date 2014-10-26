@@ -20,7 +20,9 @@ void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, glm:
     vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Sonar");
     program->use();
 
-    bindBlockPacks();
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
@@ -64,7 +66,9 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
     glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
 
-    bindBlockPacks();
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
@@ -154,7 +158,9 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
     glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(program->getUniform("alphaMult"), graphicsOptions.specularIntensity*0.3);
 
-    bindBlockPacks();
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
@@ -228,7 +234,9 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
     glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
 
-    bindBlockPacks();
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 

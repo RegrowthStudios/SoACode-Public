@@ -58,6 +58,7 @@ struct BlockTextureLayer {
         symmetry(ConnectedTextureSymmetry::NONE),
         reducedMethod(ConnectedTextureReducedMethod::NONE),
         useMapColor(""),
+        colorMapIndex(0),
         totalWeight(0),
         numTiles(1),
         textureIndex(0),
@@ -71,6 +72,7 @@ struct BlockTextureLayer {
     ConnectedTextureSymmetry symmetry;
     ConnectedTextureReducedMethod reducedMethod;
     nString useMapColor;
+    ui32 colorMapIndex;
     Array<i32> weights;
     i32 totalWeight;
     i32 numTiles;
@@ -96,44 +98,6 @@ struct BlockTexture {
     BlendType blendMode;
 };
 KEG_TYPE_DECL(BlockTexture);
-
-//struct BlockTexture {
-//    i32 method;
-//    i32 overlayMethod;
-//
-//    i32 width;
-//    i32 overlayWidth;
-//
-//    i32 height;
-//    i32 overlayHeight;
-//
-//    i32 symmetry;
-//    i32 overlaySymmetry;
-//
-//    bool innerSeams;
-//    bool overlayInnerSeams;
-//
-//    i32 useMapColor;
-//    i32 overlayUseMapColor;
-//
-//    std::vector<i32> weights;
-//    std::vector<i32> overlayWeights;
-//
-//    i32 totalWeight;
-//    i32 overlayTotalWeight;
-//
-//    i32 numTiles;
-//    i32 overlayNumTiles;
-//
-//    i32 textureIndex;
-//    i32 overlayTextureIndex;
-//
-//    i32 blendMode;
-//
-//    nString basePath;
-//    nString overlayPath;
-//};
-//KEG_TYPE_DECL(BlockTexture);
 
 using namespace std;
 
@@ -181,46 +145,6 @@ enum BuildingBlocks { GLASS = 160, CONCRETE, BRICKS, PLANKS, COBBLE };
 enum TransparentBuildingBlocksTextures{ T_GLASS = 304,};
 enum BuildingBlocksTextures { T_CONCRETE = 161, T_BRICKS, T_PLANKS, T_COBBLE };
 
-//struct BlockTexture {
-//    BlockTexture() : method(0), width(1), height(1), innerSeams(false), symmetry(0), totalWeight(0), numTiles(0), basePath(""), useMapColor(0), overlayUseMapColor(0),
-//        overlayMethod(0), overlayWidth(1), overlayHeight(1), overlayInnerSeams(false), overlaySymmetry(0), overlayTotalWeight(0), overlayNumTiles(0),
-//        blendMode(0), textureIndex(0), overlayTextureIndex(1), overlayPath(""){}
-//
-//    int method;
-//    int overlayMethod;
-//
-//    int width;
-//    int overlayWidth;
-//
-//    int height;
-//    int overlayHeight;
-//
-//    int symmetry;
-//    int overlaySymmetry;
-//
-//    bool innerSeams;
-//    bool overlayInnerSeams;
-//
-//    int useMapColor;
-//    int overlayUseMapColor;
-//
-//    vector <int> weights;
-//    vector <int> overlayWeights;
-//
-//    int totalWeight;
-//    int overlayTotalWeight;
-//
-//    int numTiles;
-//    int overlayNumTiles;
-//
-//    int textureIndex;
-//    int overlayTextureIndex;
-//
-//    int blendMode;
-//
-//    string basePath;
-//    string overlayPath;
-//};
 
 extern int connectedTextureOffsets[256];
 extern int grassTextureOffsets[32];
@@ -259,8 +183,8 @@ public:
     Block();
 
     void InitializeTexture();
-    void GetBlockColor(GLubyte baseColor[3], GLubyte overlayColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
-    void GetBlockColor(GLubyte baseColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
 
     void SetAvgTexColors();
 
@@ -285,9 +209,9 @@ public:
     GLfloat powerLoss;
     f32v3 colorFilter;
 
-    ui8 color[3];
-    ui8 overlayColor[3];
-    ui8 averageColor[3];
+    ColorRGB8 color;
+    ColorRGB8 overlayColor;
+    ColorRGB8 averageColor;
     ui8 particleTex;
     ui8 powderMove;
     ui8 collide;
@@ -313,7 +237,7 @@ public:
     string name, emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
-    std::vector <glm::ivec3> altColors;
+    std::vector <ColorRGB8> altColors;
     std::vector <ItemDrop> itemDrops;
 };
 

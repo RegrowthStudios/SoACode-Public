@@ -7,17 +7,16 @@
 // TODO: Remove This
 using namespace std;
 
-extern int ColorMap[256][256][3];
-extern int waterColorMap[256][256][3];
-
-void getTerrainHeightColor(GLubyte color[3], int temperature, int rainfall);
-
 const int FREEZETEMP = 50;
 
+// TODO(Ben): This is absolutely awful
 class TerrainGenerator
 {
 public:
+    enum DefaultColorMaps { BIOME = 0, WATER = 1 };
+
     TerrainGenerator();
+
     double findnoise2(double x,double z);
     double interpolate1(double a,double b,double x);
     double noise(double x,double z);
@@ -69,8 +68,6 @@ public:
     int iDir, jDir;
     float scale;
 };
-
-extern TerrainGenerator *currTerrainGenerator;
 
 const int NumTerrainFunctions = 11;
 const string TerrainFunctionNames[NumTerrainFunctions] = { "Default", "Small Mts.", "Large Mts.+Lakes", "Hills+Plateaus", "Seaside Cliffs",

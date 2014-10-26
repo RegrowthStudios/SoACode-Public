@@ -8,10 +8,6 @@
 // TODO: Remove This
 using namespace std;
 
-extern int screenWidth2d, screenHeight2d;
-
-extern std::map <std::string, vg::Texture> textureMap;
-
 vg::Texture getTexture(string source, struct Animation **anim = NULL);
 
 struct BlockPack
@@ -37,27 +33,3 @@ extern vg::Texture BlankTextureID;
 extern vg::Texture explosionTexture;
 extern vg::Texture fireTexture;
 extern vg::Texture waterNoiseTexture;
-
-class Color{
-public:
-    Color() : color(1.0f), mod(1.0f){ dynCol[0] = dynCol[1] = dynCol[2] = NULL; }
-    Color(glm::vec4 col) : color(col), mod(1.0f){ dynCol[0] = dynCol[1] = dynCol[2] = NULL; }
-
-    void update(float Mod = 1.0f){
-        if (dynCol[0]) color.r = (*(dynCol[0])) / 255.0f;
-        if (dynCol[1]) color.g = (*(dynCol[1])) / 255.0f;
-        if (dynCol[2]) color.b = (*(dynCol[2])) / 255.0f;
-        mod = Mod;
-    }
-
-    glm::vec4 color;
-    int *dynCol[3];
-    float mod;
-};
-
-void bindBlockPacks();
-
-void LoadTextures();
-void FreeTextures();
-
-void InitializeTTF();
