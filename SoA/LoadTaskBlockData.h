@@ -12,9 +12,14 @@ class LoadTaskBlockData : public ILoadTask {
 
         initConnectedTextures();
 
+        // Load in ini. Comment out to load in yml
         if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
+        
+        // Load in .yml
+       // BlockLoader::loadBlocks("Data/BlockData.yml");
 
-       // BlockLoader::saveBlocks("Data/BlockData.yml");
+        // Save in .yml
+        BlockLoader::saveBlocks("Data/BlockData.yml");
 
         Player* player = GameManager::player;
 

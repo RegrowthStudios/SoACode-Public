@@ -305,7 +305,10 @@ void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
     int x, y, z;
     for (int i = 0; i < size; i++){
         
-        chunk->setBlockData(c, btype);
+        // hack to stop generating minerals in the air
+        if (chunk->getBlockID(c)) {
+            chunk->setBlockData(c, btype);
+        }
 
         x = c % CHUNK_WIDTH;
         y = c / CHUNK_LAYER;
