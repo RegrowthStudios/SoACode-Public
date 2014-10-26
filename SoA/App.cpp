@@ -6,6 +6,7 @@
 #include "MainMenuScreen.h"
 #include "GamePlayScreen.h"
 #include "ScreenList.h"
+#include "SpriteBatch.h"
 #include "FrameBuffer.h"
 #include "MeshManager.h"
 
@@ -46,7 +47,8 @@ void App::onInit() {
 }
 
 void App::onExit() {
-    // Empty
+    // Delete cache if it exists
+    SpriteBatch::disposeProgram();
 }
 
 App::~App() {
