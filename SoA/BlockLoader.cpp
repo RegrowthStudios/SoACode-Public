@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "BlockLoader.h"
-#include "IOManager.h"
-
-#include <yaml-cpp/yaml.h>
 
 #include <boost/algorithm/string/replace.hpp>
+
 #include "BlockData.h"
+#include "IOManager.h"
+#include "Keg.h"
 
 bool BlockLoader::loadBlocks(const nString& filePath) {
     IOManager ioManager;
@@ -18,31 +18,38 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
 }
 
 bool BlockLoader::saveBlocks(const nString& filePath) {
-
-    // Exit since its not implemented
-    return true;
-
+    // Open the portal to Hell
     std::ofstream file(filePath);
-    if (file.fail()) {
-        return false;
-    }
+    if (file.fail()) return false;
 
     // TODO(Cristian): Implement this
 
-    for (size_t i = 0; i < Blocks.size(); i++) {
-        if (Blocks[i].active) {
-            // Water is a special case. We have 100 water block IDs, but we only want to write water once.
-            if (i >= LOWWATER) {
-                if (i == LOWWATER) {
-                   // Write a single water block here with Water as the name
-                }
-                continue;
-            }
+    // Emit data
+    //YAML::Emitter e;
+    //e << YAML::BeginSeq;
+    //for (size_t i = 0; i < Blocks.size(); i++) {
+    //    if (Blocks[i].active) {
+    //        // Water is a special case. We have 100 water block IDs, but we only want to write water once.
+    //        if (i >= LOWWATER && i != LOWWATER) continue;
 
-            // Write non-water blocks here
-         
-        }
-    }
-    file.close();
+    //        // Encapsulation hack
+    //        e << YAML::BeginMap;
+
+    //        // Write the block name first
+    //        e << YAML::BeginMap;
+    //        e << YAML::Key << "name" << YAML::Value << Blocks[i].name;
+    //        e << YAML::EndMap;
+
+    //        // Write the block data now
+    //        Keg::write((ui8*)&Blocks[i], e, nullptr, &KEG_GLOBAL_TYPE(Block));
+    //        e << YAML::EndMap;
+    //    }
+    //}
+    //e << YAML::EndSeq;
+
+
+    //file << e.c_str();
+    //file.flush();
+    //file.close();
     return true;
 }

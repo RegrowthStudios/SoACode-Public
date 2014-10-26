@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Keg.h"
 
-#include <yaml-cpp/yaml.h>
 
 #pragma region YAML Conversion Functions For GLM Types And cStrings
 namespace YAML {

@@ -240,6 +240,7 @@ public:
     std::vector <ColorRGB8> altColors;
     std::vector <ItemDrop> itemDrops;
 };
+KEG_TYPE_DECL(Block);
 
 void SetBlockAvgTexColors();
 
