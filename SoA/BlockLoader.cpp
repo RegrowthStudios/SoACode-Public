@@ -8,13 +8,30 @@
 #include "Keg.h"
 
 bool BlockLoader::loadBlocks(const nString& filePath) {
-    IOManager ioManager;
-    nString data;
-    ioManager.readFileToString(filePath.c_str(), data);
+    IOManager ioManager; // TODO: Pass in a real boy
+    const cString data = ioManager.readFileToString(filePath.c_str());
 
     // TODO(Cristian): Implement this
 
-    return false;
+    YAML::Node node = YAML::Load(data);
+    if (node.IsNull() || !node.IsMap()) {
+        delete[] data;
+        return false;
+    }
+
+    Block b;
+    Blocks.resize(numBlocks);
+    Keg::Value v = Keg::Value::custom("Block", 0);
+    for (auto& kvp : node) {
+        nString name = kvp.first.as<nString>();
+        Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+
+        // TODO: Ben's magic gumbo recipe
+        Blocks[b.ID] = b;
+    }
+    delete[] data;
+
+    return true;
 }
 
 bool BlockLoader::saveBlocks(const nString& filePath) {
@@ -22,34 +39,28 @@ bool BlockLoader::saveBlocks(const nString& filePath) {
     std::ofstream file(filePath);
     if (file.fail()) return false;
 
-    // TODO(Cristian): Implement this
-
     // Emit data
-    //YAML::Emitter e;
-    //e << YAML::BeginSeq;
-    //for (size_t i = 0; i < Blocks.size(); i++) {
-    //    if (Blocks[i].active) {
-    //        // Water is a special case. We have 100 water block IDs, but we only want to write water once.
-    //        if (i >= LOWWATER && i != LOWWATER) continue;
+    YAML::Emitter e;
+    e << YAML::BeginMap;
+    for (size_t i = 0; i < Blocks.size(); i++) {
+        if (Blocks[i].active) {
+            // TODO: Water is a special case. We have 100 water block IDs, but we only want to write water once.
+            if (i >= LOWWATER && i != LOWWATER) continue;
 
-    //        // Encapsulation hack
-    //        e << YAML::BeginMap;
-
-    //        // Write the block name first
-    //        e << YAML::BeginMap;
-    //        e << YAML::Key << "name" << YAML::Value << Blocks[i].name;
-    //        e << YAML::EndMap;
-
-    //        // Write the block data now
-    //        Keg::write((ui8*)&Blocks[i], e, nullptr, &KEG_GLOBAL_TYPE(Block));
-    //        e << YAML::EndMap;
-    //    }
-    //}
-    //e << YAML::EndSeq;
+            // Write the block name first
+            e << YAML::Key << Blocks[i].name;
+            // Write the block data now
+            e << YAML::Value;
+            e << YAML::BeginMap;
+            Keg::write((ui8*)&(Blocks[i]), e, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+            e << YAML::EndMap;
+        }
+    }
+    e << YAML::EndMap;
 
 
-    //file << e.c_str();
-    //file.flush();
-    //file.close();
+    file << e.c_str();
+    file.flush();
+    file.close();
     return true;
 }
