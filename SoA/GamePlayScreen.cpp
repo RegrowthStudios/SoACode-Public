@@ -273,8 +273,10 @@ void GamePlayScreen::handleInput() {
 }
 
 void GamePlayScreen::onMouseDown(const SDL_Event& e) {
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    _inFocus = true;
+    if (!_pda.isOpen()) {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        _inFocus = true;
+    }
 }
 
 void GamePlayScreen::onMouseUp(const SDL_Event& e) {
