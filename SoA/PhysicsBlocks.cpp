@@ -132,7 +132,7 @@ bool PhysicsBlock::update()
                 }
             }
 
-            particleEngine.addParticles(BPARTICLES, glm::dvec3((int)position.x - 1.0, (int)position.y + 1.0, (int)position.z - 1.0), 0, 0.1, 300, 1, color, Blocks[GETBLOCKTYPE(blockType)].pxTex, 2.0f, 4);
+            particleEngine.addParticles(BPARTICLES, glm::dvec3((int)position.x - 1.0, (int)position.y + 1.0, (int)position.z - 1.0), 0, 0.1, 300, 1, color, Blocks[GETBLOCKTYPE(blockType)].base.px, 2.0f, 4);
             return 1;
         }
         double fx, fy, fz;

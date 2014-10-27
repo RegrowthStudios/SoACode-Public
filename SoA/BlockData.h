@@ -177,6 +177,25 @@ struct ItemDrop
     int num;
 };
 
+struct BlockTextureFaces {
+public:
+    union {
+        ui32 array[6];       ///  Access 6-sided block textures as an array
+        struct {
+            ui32 px;  /// Positive x-axis texture
+            ui32 py;  /// Positive y-axis texture
+            ui32 pz;  /// Positive z-axis texture
+            ui32 nx;  /// Negative x-axis texture
+            ui32 ny;  /// Negative y-axis texture
+            ui32 nz;  /// Negative z-axis texture
+        }; /// Textures named in cardinal convention
+    };
+    
+    ui32& operator[] (const i32& i) {
+        return array[i];
+    }
+};
+
 class Block
 {
 public:
@@ -226,20 +245,19 @@ public:
 
     BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
-    int pxTex, pyTex, pzTex, nxTex, nyTex, nzTex;
-    int pxOvTex, pyOvTex, pzOvTex, nxOvTex, nyOvTex, nzOvTex;
+    BlockTextureFaces base;
+    BlockTextureFaces overlay;
+    BlockTextureFaces normal;
     // END
 
-    // normal maps
-    int pxNMap, pyNMap, pzNMap, nxNMap, nyNMap, nzNMap;
-
-    string leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
-    string name, emitterName, emitterOnBreakName, emitterRandomName;
+    nString leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
+    nString name, emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
     std::vector <ColorRGB8> altColors;
     std::vector <ItemDrop> itemDrops;
 };
+KEG_TYPE_DECL(Block);
 
 void SetBlockAvgTexColors();
 

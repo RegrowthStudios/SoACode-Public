@@ -1,4 +1,6 @@
 #pragma once
+#include <yaml-cpp/yaml.h>
+
 namespace Keg {
     // These Are All The Types That Can Be Parsed Directly From YAML
     enum class BasicType {
@@ -222,10 +224,14 @@ namespace Keg {
     Error parse(void* dest, const cString data, const nString& typeName, Environment* env = nullptr);
     // Parse String Of Data Into A Destination Given A Type ID And Optionally A Separate Environment
     Error parse(void* dest, const cString data, const ui32& typeID, Environment* env = nullptr);
+    Error parse(ui8* dest, YAML::Node& data, Environment* env, Type* type);
+    void evalData(ui8* dest, const Value* decl, YAML::Node& node, Environment* env);
 
     nString write(const void* src, Type* type, Environment* env = nullptr);
     nString write(const void* src, const nString& typeName, Environment* env = nullptr);
     nString write(const void* src, const ui32& typeID, Environment* env = nullptr);
+    bool write(const ui8* src, YAML::Emitter& e, Environment* env, Type* type);
+
 
     // Get The Global Environment Of Custom Types
     Environment* getGlobalEnvironment();
