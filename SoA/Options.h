@@ -7,8 +7,9 @@
 extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
 struct GraphicsOptions {
+    i32 screenWidth, screenHeight;
     i32 cloudDetail, lodDistance, lodDetail, isFancyTrees, enableParticles, chunkLoadTime;
-    i32 voxelRenderDistance, screenWidth, screenHeight, nativeWidth, nativeHeight, hudMode;
+    i32 voxelRenderDistance, hudMode;
     i32 currTextureRes, defaultTextureRes;
     i32 motionBlur;
     i32 msaa, maxMsaa;

@@ -387,6 +387,8 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
         case ConnectedTextureMethods::NONE:
             DIM_CHECK(width, 1, height, 1, NONE);
             break;
+        default:
+            break;
     }
 
     // Grab non-const reference to the block texture layer

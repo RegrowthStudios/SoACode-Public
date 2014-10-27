@@ -1,8 +1,10 @@
 #include "stdafx.h"
-#include <SDL\SDL.h>
+#include <SDL/SDL.h>
 #include "Timing.h"
 
 typedef std::chrono::milliseconds ms;
+
+const float MS_PER_SECOND = 1000.0f;
 
 void PreciseTimer::start() {
     _timerRunning = true;
@@ -13,7 +15,7 @@ void PreciseTimer::start() {
 float PreciseTimer::stop() {
     _timerRunning = false;
     std::chrono::duration<float> duration = std::chrono::high_resolution_clock::now() - _start;
-    return duration.count() * 1000.0f; //return ms
+    return duration.count() * MS_PER_SECOND; //return ms
 }
 
 void MultiplePreciseTimer::start(std::string tag) {
@@ -100,7 +102,7 @@ void FpsCounter::calculateFPS() {
 
     //Calculate FPS
     if (frameTimeAverage > 0) {
-        _fps = 1000.0f / frameTimeAverage;
+        _fps = MS_PER_SECOND / frameTimeAverage;
     } else {
         _fps = 60.0f;
     }
@@ -122,8 +124,8 @@ float FpsLimiter::endFrame() {
 
     float frameTicks = SDL_GetTicks() - _startTicks;
     //Limit the FPS to the max FPS
-    if (1000.0f / _maxFPS > frameTicks) {
-        SDL_Delay((Uint32)(1000.0f / _maxFPS - frameTicks));
+    if (MS_PER_SECOND / _maxFPS > frameTicks) {
+        SDL_Delay((Uint32)(MS_PER_SECOND / _maxFPS - frameTicks));
     }
 
     return _fps;

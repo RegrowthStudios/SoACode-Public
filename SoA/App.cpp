@@ -28,18 +28,17 @@ void App::onInit() {
     
     // Load the graphical options
     initializeOptions();
-    // This is temporary
-    graphicsOptions.currTexturePack = graphicsOptions.texturePackString;
-
     loadOptions();
 
+    // Construct framebuffer
     if (graphicsOptions.msaa > 0){
         glEnable(GL_MULTISAMPLE);
-        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, graphicsOptions.screenWidth, graphicsOptions.screenHeight, graphicsOptions.msaa);
+        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _window.getWidth(), _window.getHeight(), graphicsOptions.msaa);
     } else{
         glDisable(GL_MULTISAMPLE);
-        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, graphicsOptions.screenWidth, graphicsOptions.screenHeight);
+        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _window.getWidth(), _window.getHeight());
     }
+
     SamplerState::initPredefined();
 
     // Allocate resources
@@ -48,6 +47,7 @@ void App::onInit() {
 
 void App::onExit() {
     // Delete cache if it exists
+
     SpriteBatch::disposeProgram();
 }
 
