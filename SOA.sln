@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoA", "SoA\SOA.vcxproj", "{588491F3-69BA-40E7-8CE8-2382A64D86E3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vorb", "Vorb\Vorb.vcxproj", "{EA0CB02C-CF05-47D7-A148-6472338D8552}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -17,10 +15,6 @@ Global
 		{588491F3-69BA-40E7-8CE8-2382A64D86E3}.Debug|Win32.Build.0 = Debug|Win32
 		{588491F3-69BA-40E7-8CE8-2382A64D86E3}.Release|Win32.ActiveCfg = Release|Win32
 		{588491F3-69BA-40E7-8CE8-2382A64D86E3}.Release|Win32.Build.0 = Release|Win32
-		{EA0CB02C-CF05-47D7-A148-6472338D8552}.Debug|Win32.ActiveCfg = Debug|Win32
-		{EA0CB02C-CF05-47D7-A148-6472338D8552}.Debug|Win32.Build.0 = Debug|Win32
-		{EA0CB02C-CF05-47D7-A148-6472338D8552}.Release|Win32.ActiveCfg = Release|Win32
-		{EA0CB02C-CF05-47D7-A148-6472338D8552}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
