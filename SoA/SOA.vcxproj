@@ -64,7 +64,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmdd.lib;awesomium.lib;fmodexL_vc.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmdd.lib;awesomium.lib;fmodexL_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -110,14 +110,38 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Computer.h" />
+    <ClInclude Include="GamePlayScreen.h" />
+    <ClInclude Include="GpuMemory.h" />
+    <ClInclude Include="IAwesomiumAPI.h" />
+    <ClInclude Include="BlockLoader.h" />
+    <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="GLProgramManager.h" />
+    <ClInclude Include="ImageLoader.h" />
+    <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="IVoxelMapper.h" />
+    <ClInclude Include="LoadTaskBlockData.h" />
+    <ClInclude Include="LoadTaskPlanet.h" />
+    <ClInclude Include="LoadTaskShaders.h" />
+    <ClInclude Include="LoadTaskSound.h" />
+    <ClInclude Include="LoadTaskTextures.h" />
+    <ClInclude Include="MainMenuAPI.h" />
+    <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="PDA.h" />
+    <ClInclude Include="PdaAwesomiumAPI.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureCache.h" />
+    <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="LoadTaskGameManager.h" />
-    <ClInclude Include="LoadTaskInput.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -170,7 +194,6 @@
     <ClInclude Include="SpriteFont.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="App.h" />
-    <ClInclude Include="TextureAtlasManager.h" />
     <ClInclude Include="TextureAtlasStitcher.h" />
     <ClInclude Include="Timing.h" />
     <ClInclude Include="VoxelEditor.h" />
@@ -196,11 +219,8 @@
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Frustum.h" />
-    <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameManager.h" />
-    <ClInclude Include="GameMenu.h" />
     <ClInclude Include="global.h" />
-    <ClInclude Include="ImageLoading.h" />
     <ClInclude Include="LoadTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
@@ -211,7 +231,6 @@
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="ObjectLoader.h" />
-    <ClInclude Include="OpenglManager.h" />
     <ClInclude Include="OpenGLStructs.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="Particles.h" />
@@ -219,19 +238,16 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
-    <ClInclude Include="shader.h" />
     <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="TerrainGenerator.h" />
     <ClInclude Include="Texture2d.h" />
     <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="AwesomiumUI.h" />
     <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
-    <ClInclude Include="WorldEditor.h" />
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
     <ClInclude Include="VoxelWorld.h" />
@@ -240,15 +256,28 @@
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\deps\include\JSON\json_spirit_reader.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="GamePlayScreen.cpp" />
+    <ClCompile Include="GpuMemory.cpp" />
+    <ClCompile Include="IAwesomiumAPI.cpp" />
+    <ClCompile Include="BlockLoader.cpp" />
+    <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="GLProgramManager.cpp" />
+    <ClCompile Include="ImageLoader.cpp" />
+    <ClCompile Include="ImageSaver.cpp" />
+    <ClCompile Include="MainMenuAPI.cpp" />
+    <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="colors.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
-    <ClCompile Include="LoadTaskInput.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="OpenglSurfaceFactory.cpp" />
+    <ClCompile Include="PDA.cpp" />
+    <ClCompile Include="PdaAwesomiumAPI.cpp" />
+    <ClCompile Include="TextureCache.cpp" />
+    <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
@@ -279,7 +308,6 @@
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="IOManager.cpp" />
     <ClCompile Include="MainGame.cpp" />
-    <ClCompile Include="OpenglManager.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleBatch.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
@@ -301,7 +329,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="TextureAtlasManager.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="Timing.cpp" />
     <ClCompile Include="SmartVoxelContainer.cpp" />
@@ -319,11 +346,8 @@
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Frustum.cpp" />
-    <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="GameMenu.cpp" />
     <ClCompile Include="global.cpp" />
-    <ClCompile Include="ImageLoading.cpp" />
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
@@ -332,14 +356,11 @@
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rendering.cpp" />
-    <ClCompile Include="shader.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="TerrainGenerator.cpp" />
     <ClCompile Include="Texture2d.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
-    <ClCompile Include="AwesomiumUI.cpp" />
-    <ClCompile Include="WorldEditor.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
     <ClCompile Include="VoxelWorld.cpp" />
     <ClCompile Include="WSO.cpp" />

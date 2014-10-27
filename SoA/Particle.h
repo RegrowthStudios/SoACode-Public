@@ -11,7 +11,7 @@ public:
     }
 
     struct Animation* animation;
-    TextureInfo texture;
+    vg::Texture texture;
     i32 tmpTexUnit;
     ui8 color[4];
 };

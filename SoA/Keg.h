@@ -1,4 +1,6 @@
 #pragma once
+#include <yaml-cpp/yaml.h>
+
 namespace Keg {
     // These Are All The Types That Can Be Parsed Directly From YAML
     enum class BasicType {
@@ -127,7 +129,7 @@ namespace Keg {
         void setValue(void* data, const nString& s) {
             _fSetter(data, s, this);
         }
-        nString getValue(void* data) {
+        nString getValue(const void* data) {
             return _fGetter(data, this);
         }
 
@@ -148,13 +150,13 @@ namespace Keg {
         static void setValue32(void* data, const nString& s, Enum* e);
         static void setValue16(void* data, const nString& s, Enum* e);
         static void setValue8(void* data, const nString& s, Enum* e);
-        static nString getValue64(void* data, Enum* e);
-        static nString getValue32(void* data, Enum* e);
-        static nString getValue16(void* data, Enum* e);
-        static nString getValue8(void* data, Enum* e);
+        static nString getValue64(const void* data, Enum* e);
+        static nString getValue32(const void* data, Enum* e);
+        static nString getValue16(const void* data, Enum* e);
+        static nString getValue8(const void* data, Enum* e);
 
         void(*_fSetter)(void*, const nString&, Enum*);
-        nString(*_fGetter)(void*, Enum*);
+        nString(*_fGetter)(const void*, Enum*);
 
         size_t _sizeInBytes;
         std::map<nString, EnumType> _values;
@@ -222,10 +224,14 @@ namespace Keg {
     Error parse(void* dest, const cString data, const nString& typeName, Environment* env = nullptr);
     // Parse String Of Data Into A Destination Given A Type ID And Optionally A Separate Environment
     Error parse(void* dest, const cString data, const ui32& typeID, Environment* env = nullptr);
+    Error parse(ui8* dest, YAML::Node& data, Environment* env, Type* type);
+    void evalData(ui8* dest, const Value* decl, YAML::Node& node, Environment* env);
 
-    nString write(void* src, Type* type, Environment* env = nullptr);
-    nString write(void* src, const nString& typeName, Environment* env = nullptr);
-    nString write(void* src, const ui32& typeID, Environment* env = nullptr);
+    nString write(const void* src, Type* type, Environment* env = nullptr);
+    nString write(const void* src, const nString& typeName, Environment* env = nullptr);
+    nString write(const void* src, const ui32& typeID, Environment* env = nullptr);
+    bool write(const ui8* src, YAML::Emitter& e, Environment* env, Type* type);
+
 
     // Get The Global Environment Of Custom Types
     Environment* getGlobalEnvironment();

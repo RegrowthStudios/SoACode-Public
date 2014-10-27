@@ -6,7 +6,7 @@
 
 // Input Commands Sorted Alphabetically
 i32 INPUT_BLOCK_SCANNER = -1;
-i32 INPUT_BLOCK_SELECT = -1;
+i32 INPUT_BLOCK_DRAG = -1;
 i32 INPUT_CROUCH = -1;
 i32 INPUT_DEBUG = -1;
 i32 INPUT_DRAW_MODE = -1;
@@ -28,6 +28,7 @@ i32 INPUT_PLANET_ROTATION = -1;
 i32 INPUT_RELOAD_BLOCKS = -1;
 i32 INPUT_RELOAD_SHADERS = -1;
 i32 INPUT_RELOAD_TEXTURES = -1;
+i32 INPUT_RELOAD_UI = -1;
 i32 INPUT_SONAR = -1;
 i32 INPUT_SCAN_WSO = -1;
 i32 INPUT_SPRINT = -1;
@@ -62,9 +63,10 @@ void initInputs() {
     CREATE_INPUT(Flash Light, SDLK_l, INPUT_FLASH_LIGHT);
 
     // Refreshing Functions
-    CREATE_INPUT(Reload Textures, SDLK_F5, INPUT_RELOAD_TEXTURES);
+    CREATE_INPUT(Reload Textures, SDLK_F4, INPUT_RELOAD_TEXTURES);
     CREATE_INPUT(Reload Blocks, SDLK_F6, INPUT_RELOAD_BLOCKS);
     CREATE_INPUT(Reload Shaders, SDLK_F11, INPUT_RELOAD_SHADERS);
+    CREATE_INPUT(Reload UI, SDLK_F5, INPUT_RELOAD_UI);
 
     // Visual Debugging
     CREATE_INPUT(Grid Toggle, SDLK_g, INPUT_GRID);
@@ -88,7 +90,7 @@ void initInputs() {
     // Physics
     CREATE_INPUT(Water Update, SDLK_n, INPUT_WATER_UPDATE);
     CREATE_INPUT(Update Physics Blocks, SDLK_p, INPUT_PHYSICS_BLOCK_UPDATES);
-    CREATE_INPUT_D(Planet Rotation, SDLK_MINUS, SDLK_PLUS, INPUT_PLANET_ROTATION);
+    CREATE_INPUT_D(Planet Rotation, SDLK_MINUS, SDLK_EQUALS, INPUT_PLANET_ROTATION);
     
     // Mouse Buttons
     CREATE_INPUT(Mouse Right, SDL_BUTTON_RIGHT, INPUT_MOUSE_RIGHT);
@@ -96,6 +98,6 @@ void initInputs() {
     
     // Block Utilities
     CREATE_INPUT(Block Scanner, SDLK_q, INPUT_BLOCK_SCANNER);
-    CREATE_INPUT(Block Select, SDLK_b, INPUT_BLOCK_SELECT);
+    CREATE_INPUT(Block Select, SDLK_b, INPUT_BLOCK_DRAG);
 
 }

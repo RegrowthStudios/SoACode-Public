@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef UTILS_H_
+#define UTILS_H_
+
 #include "stdafx.h"
 #include "FastConversion.h"
 
@@ -204,20 +208,18 @@ RANGE_STRUCT(F64, f64);
 // /////////////////////////////////////////////////////////////////////
 //    String Utilities
 // /////////////////////////////////////////////////////////////////////
-inline cString convertWToMBString(cwString ws) {
+inline void convertWToMBString(const cwString ws, nString& resultString) {
     i32 l = wcslen(ws);
-    cString mbs = new char[l + 1];
+    resultString.resize(l + 1);
     size_t numConverted = 0;
     #if defined(__APPLE__) || defined(__linux__)
-    wcstombs(mbs, ws, numConverted);
+    wcstombs(&(resultString[0]), ws, numConverted);
     #elif defined(WIN32) || defined(WIN64)
-    wcstombs_s(&numConverted, mbs, l + 1, ws, l);
+    wcstombs_s(&numConverted, &(resultString[0]), l + 1, ws, l);
     #endif   // win32
 
-    mbs[l] = 0;
-    return mbs;
+    resultString[l] = '\0';
 }
-
 
 // /////////////////////////////////////////////////////////////////////
 //    Interpolation Utilities
@@ -392,3 +394,5 @@ namespace BufferUtils {
     }
 
 }
+
+#endif // UTILS_H_

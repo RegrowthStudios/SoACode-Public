@@ -12,7 +12,11 @@ public:
     Component& operator[](size_t index) const {
         return getComponent(index);
     }
+protected:
+    // What Is This Component
+    nString _name;
 private:
+
     ubyte* _components;
     size_t _componentsCount;
     size_t _componentsCapacity;

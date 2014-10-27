@@ -59,7 +59,6 @@ extern GLfloat cubeSpriteUVs[24];
 extern GLfloat cubeSpriteColorVertices[48];
 
 extern GLfloat flatSpriteVertices[8];
-extern GLushort cubeSpriteDrawIndices[18];
 
 //constants analogous to CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_SIZE for padded chunks.
 const int PADDED_WIDTH = CHUNK_WIDTH+2;
@@ -111,7 +110,6 @@ class WorldRenderer
 public:
     WorldRenderer();
     ~WorldRenderer();
-    void Initialize();
     void DrawLine(glm::vec3 a, glm::vec3 b);
     void DrawUnderwater();
     void ChangeWaterTexture();
@@ -124,22 +122,10 @@ private:
 
 extern WorldRenderer worldRenderer;
 
-void DrawCubeSpriteImage2D(GLfloat *vertices, int sizeOfvertices, GLfloat *uvs, int sizeOfuvs, GLushort *indices,int sizeOfindices, GLuint textureID, glm::vec4 color);
-
-void DrawImage2D(float x, float y, float width, float height, GLuint textureID, float xdim = 800.0f, float ydim = 600.0f, glm::vec4 color = glm::vec4(1.0), int oreintation = 1);
-
-void DrawFullScreenQuad(glm::vec4 color);
-
-void DrawCubeSprite(GLfloat x, GLfloat y, int blockType, float scale);
-
-void DrawRoundSprite(GLfloat x, GLfloat y, int blockType, float scale);
-
 void DrawSun(float theta, glm::mat4 &MVP);
 
 void DrawStars(float theta, glm::mat4 &MVP);
 
 void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color);
-
-void DrawLoadingScreen(string text, bool clearColor = 1, glm::vec4 backColor = glm::vec4(0.0, 0.0, 0.0, 1.0), int fontSize = 42);
 
 void Draw3DCube(class Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation);

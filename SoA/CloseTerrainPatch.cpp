@@ -8,7 +8,7 @@
 #include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
-#include "shader.h"
+
 #include "utils.h"
 
 inline double BilinearInterpolation(int &a, int &b, int &c, int &d, int &step, float &x, float &z)

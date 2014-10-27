@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "LoadScreen.h"
 
+#include "App.h"
 #include "BlockData.h"
 #include "colors.h"
 #include "DebugRenderer.h"
@@ -9,12 +10,18 @@
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "LoadBar.h"
+#include "LoadTaskShaders.h"
 #include "LoadTaskGameManager.h"
-#include "LoadTaskInput.h"
+#include "LoadTaskBlockData.h"
+#include "LoadTaskPlanet.h"
+#include "LoadTaskSound.h"
+#include "LoadTaskTextures.h"
+#include "MainMenuScreen.h"
+#include "ParticleEmitter.h"
 #include "Player.h"
 #include "SamplerState.h"
-#include "shader.h"
+#include "TexturePackLoader.h"
+
 #include "SpriteFont.h"
 #include "SpriteBatch.h";
 #include "RasterizerState.h"
@@ -32,7 +39,7 @@ _monitor() {
 }
 
 i32 LoadScreen::getNextScreen() const {
-    return SCREEN_INDEX_NO_SCREEN;
+    return _app->scrMainMenu->getIndex();
 }
 i32 LoadScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
@@ -46,37 +53,25 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 }
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
+
     // Make LoadBar Resources
     _sb = new SpriteBatch(true, true);
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
 
     // Add Tasks Here
-    _loadTasks.push_back(new LoadTaskGameManager);
-    _monitor.addTask("GameManager", _loadTasks.back());
+    addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
+  
+    addLoadTask("Sound", "Sound", new LoadTaskSound);
+    _monitor.setDep("Sound", "GameManager");
 
-    _loadTasks.push_back(new LoadTaskInput);
-    _monitor.addTask("InputManager", _loadTasks.back());
-    _monitor.setDep("InputManager", "GameManager");
+    addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
+    _monitor.setDep("BlockData", "GameManager");
 
+    addLoadTask("Textures", "Textures", new LoadTaskTextures);
+    _monitor.setDep("Textures", "BlockData");
+
+    // Start the tasks
     _monitor.start();
-
-    // Make LoadBars
-    LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
-    _loadBars = new LoadBar[_loadTasks.size()];
-    for (ui32 i = 0; i < _loadTasks.size(); i++) {
-        _loadBars[i].setCommonProperties(lbcp);
-        _loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
-        _loadBars[i].expand();
-        _loadBars[i].setColor(color::Black, color::Maroon);
-    }
-
-    // Put Text For The Load Bars
-    {
-        ui32 i = 0;
-        _loadBars[i++].setText("Game Manager");
-        _loadBars[i++].setText("Input Manager");
-    }
-
 
     // Clear State For The Screen
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -91,10 +86,15 @@ void LoadScreen::onExit(const GameTime& gameTime) {
     delete _sb;
     _sb = nullptr;
 
-    delete[] _loadBars;
-    _loadBars = nullptr;
+    // Free the vector memory
+    std::vector<LoadBar>().swap(_loadBars);
 
-    _loadTasks.clear();
+    for (ui32 i = 0; i < _loadTasks.size(); i++) {
+        // Free memory
+        delete _loadTasks[i];
+        _loadTasks[i] = nullptr;
+    }
+    std::vector<ILoadTask*>().swap(_loadTasks);
 }
 
 void LoadScreen::onEvent(const SDL_Event& e) {
@@ -106,29 +106,93 @@ void LoadScreen::update(const GameTime& gameTime) {
             // Make The Task Visuals Disappear
             _loadBars[i].setColor(color::Black, color::Teal);
             _loadBars[i].retract();
-
-            // Delete Our Task Instance
-            delete _loadTasks[i];
-            _loadTasks[i] = nullptr;
         }
 
         // Update Visual Position
         _loadBars[i].update((f32)gameTime.elapsed);
     }
+
+    // Defer shader loading
+    static bool loadedShaders = false;
+    if (!loadedShaders && _monitor.isTaskFinished("GameManager")) {
+        // Do this synchronously for now
+        LoadTaskShaders loadTaskShader;
+        loadTaskShader.load();
+        loadedShaders = true;
+    }
+
+    // Defer texture loading
+    static bool loadedTextures = false;
+    if (!loadedTextures && _monitor.isTaskFinished("Textures")) {
+      
+        GameManager::texturePackLoader->uploadTextures();
+        GameManager::texturePackLoader->writeDebugAtlases();
+        GameManager::texturePackLoader->setBlockTextures(Blocks);
+
+        GameManager::getTextureHandles();
+
+        SetBlockAvgTexColors();
+
+        //load the emitters
+        for (int i = 0; i < 4096; i++) {
+            if (Blocks[i].active) {
+                if (Blocks[i].emitterName.size()) {
+                    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
+                }
+                if (Blocks[i].emitterOnBreakName.size()) {
+                    Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
+                }
+                if (Blocks[i].emitterRandomName.size()) {
+                    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
+                }
+            }
+        }
+
+        // It has no texture
+        for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
+
+        LoadTaskPlanet loadTaskPlanet;
+        loadTaskPlanet.load();
+
+        _state = ScreenState::CHANGE_NEXT;
+        loadedTextures = true;
+        
+        
+    }
 }
 void LoadScreen::draw(const GameTime& gameTime) {
-    GameDisplayMode gdm;
-    _game->getDisplayMode(&gdm);
+    const GameWindow* w = &_game->getWindow();
 
-    glViewport(0, 0, gdm.screenWidth, gdm.screenHeight);
+    glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Draw Loading Information
     _sb->begin();
     for (ui32 i = 0; i < _loadTasks.size(); i++) {
         _loadBars[i].draw(_sb, _sf, 0, 0.8f);
     }
+
     _sb->end(SpriteSortMode::BACK_TO_FRONT);
 
-    _sb->renderBatch(f32v2(gdm.screenWidth, gdm.screenHeight), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+    checkGlError("Draw()");
+    
+}
+
+void LoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadTask* task) {
+    // Add the load task to the monitor
+    _loadTasks.push_back(task);
+    _monitor.addTask(name, _loadTasks.back());
+
+    // Load bar properties
+    LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
+    // Add the new loadbar and get its index
+    int i = _loadBars.size();
+    _loadBars.emplace_back();
+
+    // Set the properties
+    _loadBars[i].setCommonProperties(lbcp);
+    _loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
+    _loadBars[i].expand();
+    _loadBars[i].setColor(color::Black, color::Maroon);
+    _loadBars[i].setText(loadText);
 }

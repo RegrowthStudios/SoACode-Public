@@ -1,5 +1,12 @@
 #pragma once
 
+#ifndef GL_UNSIGNED_SHORT_5_6_5
+#define GL_UNSIGNED_SHORT_5_6_5 0x8363
+#endif
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+
 enum class TextureMinFilter : GLenum {
     LINEAR = GL_LINEAR,
     LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,

@@ -185,4 +185,3 @@ private:
 
     bool _wasSpacePressedLastFrame;
 };
-extern Player* player;

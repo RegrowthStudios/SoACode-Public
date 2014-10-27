@@ -5,16 +5,14 @@
 #include "Planet.h"
 #include "SimplexNoise.h"
 #include "BlockData.h"
+#include "Errors.h"
+#include "ImageLoader.h"
+#include "TexturePackLoader.h"
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #define MIN(a,b) ((a)<(b)?(a):(b))
 
 float mountainBase = 600.0f;
-
-int ColorMap[256][256][3];
-int waterColorMap[256][256][3];
-
-TerrainGenerator *currTerrainGenerator;
 
 string TerrainFunctionHelps[NumTerrainFunctions];
 
@@ -36,29 +34,10 @@ TerrainGenerator::TerrainGenerator()
     preturbNoiseFunction = NULL;
     defaultTemp = defaultRain = 128.0;
     heightModifier = 0.0;
-}
 
-//1 = normal, 2 = sand, 3 = snow, 4 = savannah
-void getTerrainHeightColor(GLubyte color[3], int temperature, int rainfall)
-{
-    int r, g, b;
-
-    r = ColorMap[rainfall][temperature][0];
-    g = ColorMap[rainfall][temperature][1];
-    b = ColorMap[rainfall][temperature][2];
-
-    if (r > 255.0f){
-        r = 255.0f;
-    }
-    if (g > 255.0f){
-        g = 255.0f;
-    }
-    if (b > 255.0f){
-        b = 255.0f;
-    }
-    color[0] = (GLubyte)r;
-    color[1] = (GLubyte)g;
-    color[2] = (GLubyte)b;
+    // This is important. Sets up biome as map 1 and water as map 2
+    GameManager::texturePackLoader->getColorMap("biome");
+    GameManager::texturePackLoader->getColorMap("water");
 }
 
 void TerrainGenerator::CalculateSurfaceDensity(double X, double Y, double Z, double *SurfaceDensity, int size, int offset, int oct, double pers, double freq)

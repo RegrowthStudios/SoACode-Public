@@ -627,7 +627,7 @@ void CAEngine::powderPhysics(int c)
 //I will refactor this -Ben
 void CAEngine::snowPhysics(int c)
 {
-    int tex = Blocks[SNOW].pxTex;
+    int tex = Blocks[SNOW].base.px;
     int x = c % CHUNK_WIDTH;
     int y = c / CHUNK_LAYER;
     int z = (c % CHUNK_LAYER) / CHUNK_WIDTH;

@@ -25,20 +25,21 @@
 #define SETFLAGS(a, b) ((a) = ((a) | ((b) << 12)))
 
 enum class ConnectedTextureMethods {
-    CTM_NONE,
-    CTM_CONNECTED,
-    CTM_HORIZONTAL,
-    CTM_VERTICAL,
-    CTM_GRASS,
-    CTM_REPEAT,
-    CTM_RANDOM
+    NONE,
+    CONNECTED,
+    HORIZONTAL,
+    VERTICAL,
+    GRASS,
+    REPEAT,
+    RANDOM,
+    FLORA
 };
 KEG_ENUM_DECL(ConnectedTextureMethods);
 
 enum class ConnectedTextureSymmetry {
-    SYMMETRY_NONE,
-    SYMMETRY_OPPOSITE,
-    SYMMETRY_ALL
+    NONE,
+    OPPOSITE,
+    ALL
 };
 KEG_ENUM_DECL(ConnectedTextureSymmetry);
 
@@ -50,11 +51,28 @@ enum class ConnectedTextureReducedMethod {
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
 struct BlockTextureLayer {
+    // Set defaults in constructor for no .tex file
+    BlockTextureLayer() : 
+        method(ConnectedTextureMethods::NONE),
+        size(1),
+        symmetry(ConnectedTextureSymmetry::NONE),
+        reducedMethod(ConnectedTextureReducedMethod::NONE),
+        useMapColor(""),
+        colorMapIndex(0),
+        totalWeight(0),
+        numTiles(1),
+        textureIndex(0),
+        innerSeams(false),
+        transparency(false),
+        path("") {
+        // Empty
+    }
     ConnectedTextureMethods method;
     i32v2 size;
     ConnectedTextureSymmetry symmetry;
     ConnectedTextureReducedMethod reducedMethod;
     nString useMapColor;
+    ui32 colorMapIndex;
     Array<i32> weights;
     i32 totalWeight;
     i32 numTiles;
@@ -62,54 +80,24 @@ struct BlockTextureLayer {
     bool innerSeams;
     bool transparency;
     nString path;
+
+    /// "less than" operator for inserting into sets in TexturePackLoader
+    bool operator<(const BlockTextureLayer& b) const;
 };
 KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
+    BlockTexture() : blendMode(BlendType::REPLACE){};
+    BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
+        base(b), overlay(o), blendMode(bt){
+        // Empty
+    }
     BlockTextureLayer base;
     BlockTextureLayer overlay;
 
     BlendType blendMode;
 };
 KEG_TYPE_DECL(BlockTexture);
-
-//struct BlockTexture {
-//    i32 method;
-//    i32 overlayMethod;
-//
-//    i32 width;
-//    i32 overlayWidth;
-//
-//    i32 height;
-//    i32 overlayHeight;
-//
-//    i32 symmetry;
-//    i32 overlaySymmetry;
-//
-//    bool innerSeams;
-//    bool overlayInnerSeams;
-//
-//    i32 useMapColor;
-//    i32 overlayUseMapColor;
-//
-//    std::vector<i32> weights;
-//    std::vector<i32> overlayWeights;
-//
-//    i32 totalWeight;
-//    i32 overlayTotalWeight;
-//
-//    i32 numTiles;
-//    i32 overlayNumTiles;
-//
-//    i32 textureIndex;
-//    i32 overlayTextureIndex;
-//
-//    i32 blendMode;
-//
-//    nString basePath;
-//    nString overlayPath;
-//};
-//KEG_TYPE_DECL(BlockTexture);
 
 using namespace std;
 
@@ -157,46 +145,6 @@ enum BuildingBlocks { GLASS = 160, CONCRETE, BRICKS, PLANKS, COBBLE };
 enum TransparentBuildingBlocksTextures{ T_GLASS = 304,};
 enum BuildingBlocksTextures { T_CONCRETE = 161, T_BRICKS, T_PLANKS, T_COBBLE };
 
-//struct BlockTexture {
-//    BlockTexture() : method(0), width(1), height(1), innerSeams(false), symmetry(0), totalWeight(0), numTiles(0), basePath(""), useMapColor(0), overlayUseMapColor(0),
-//        overlayMethod(0), overlayWidth(1), overlayHeight(1), overlayInnerSeams(false), overlaySymmetry(0), overlayTotalWeight(0), overlayNumTiles(0),
-//        blendMode(0), textureIndex(0), overlayTextureIndex(1), overlayPath(""){}
-//
-//    int method;
-//    int overlayMethod;
-//
-//    int width;
-//    int overlayWidth;
-//
-//    int height;
-//    int overlayHeight;
-//
-//    int symmetry;
-//    int overlaySymmetry;
-//
-//    bool innerSeams;
-//    bool overlayInnerSeams;
-//
-//    int useMapColor;
-//    int overlayUseMapColor;
-//
-//    vector <int> weights;
-//    vector <int> overlayWeights;
-//
-//    int totalWeight;
-//    int overlayTotalWeight;
-//
-//    int numTiles;
-//    int overlayNumTiles;
-//
-//    int textureIndex;
-//    int overlayTextureIndex;
-//
-//    int blendMode;
-//
-//    string basePath;
-//    string overlayPath;
-//};
 
 extern int connectedTextureOffsets[256];
 extern int grassTextureOffsets[32];
@@ -229,24 +177,41 @@ struct ItemDrop
     int num;
 };
 
+struct BlockTextureFaces {
+public:
+    union {
+        ui32 array[6];       ///  Access 6-sided block textures as an array
+        struct {
+            ui32 px;  /// Positive x-axis texture
+            ui32 py;  /// Positive y-axis texture
+            ui32 pz;  /// Positive z-axis texture
+            ui32 nx;  /// Negative x-axis texture
+            ui32 ny;  /// Negative y-axis texture
+            ui32 nz;  /// Negative z-axis texture
+        }; /// Textures named in cardinal convention
+    };
+    
+    ui32& operator[] (const i32& i) {
+        return array[i];
+    }
+};
+
 class Block
 {
 public:
     Block();
 
     void InitializeTexture();
-    void GetBlockColor(GLubyte baseColor[3], GLubyte overlayColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
-    void GetBlockColor(GLubyte baseColor[3], GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
 
     void SetAvgTexColors();
 
     ui16 ID;
     ui16 burnTransformID;
     i16 waveEffect;
-    i16 health;
     ui16 lightColor;
     i16 physicsProperty;
-    i16 material;
     i16 waterMeshLevel;
     i16 floatingAction;
     i16 occlude;
@@ -257,17 +222,15 @@ public:
     MeshType meshType;
 
     GLfloat moveMod;
-    GLfloat value;
-    GLfloat weight;
     GLfloat explosionResistance;
     GLfloat explosivePower;
     GLfloat flammability;
     GLfloat powerLoss;
     f32v3 colorFilter;
 
-    ui8 color[3];
-    ui8 overlayColor[3];
-    ui8 averageColor[3];
+    ColorRGB8 color;
+    ColorRGB8 overlayColor;
+    ColorRGB8 averageColor;
     ui8 particleTex;
     ui8 powderMove;
     ui8 collide;
@@ -282,20 +245,19 @@ public:
 
     BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
-    int pxTex, pyTex, pzTex, nxTex, nyTex, nzTex;
-    int pxOvTex, pyOvTex, pzOvTex, nxOvTex, nyOvTex, nzOvTex;
+    BlockTextureFaces base;
+    BlockTextureFaces overlay;
+    BlockTextureFaces normal;
     // END
 
-    // normal maps
-    int pxNMap, pyNMap, pzNMap, nxNMap, nyNMap, nzNMap;
-
-    string leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
-    string name, emitterName, emitterOnBreakName, emitterRandomName;
+    nString leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
+    nString name, emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
-    std::vector <glm::ivec3> altColors;
+    std::vector <ColorRGB8> altColors;
     std::vector <ItemDrop> itemDrops;
 };
+KEG_TYPE_DECL(Block);
 
 void SetBlockAvgTexColors();
 

@@ -166,9 +166,8 @@ const GLfloat VoxelMesher::physicsBlockVertices[72] = { -PHYS_V, PHYS_V, PHYS_V,
     PHYS_V, PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V };     // v5-v4-v7-v6 (back)
 
 
-void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], const ui8 sunlight, const ui8 lampColor[3], const BlockTexture& texInfo)
+void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture& texInfo)
 {
-
 
     //get the face index so we can determine the axis alignment
     int faceIndex = vertexOffset / CUBE_FACE_1_VERTEX_OFFSET;
@@ -185,16 +184,16 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     //They are used in the shader to determine how to blend.
     ubyte blendMode = 0x25; //0x25 = 00 10 01 01
     switch (texInfo.blendMode) {
-        case BlendType::BLEND_TYPE_REPLACE:
+        case BlendType::REPLACE:
             blendMode++; //Sets blendType to 00 01 01 10
             break;
-        case BlendType::BLEND_TYPE_ADD:
+        case BlendType::ADD:
             blendMode += 4; //Sets blendType to 00 01 10 01
             break;
-        case BlendType::BLEND_TYPE_SUBTRACT:
+        case BlendType::SUBTRACT:
             blendMode -= 4; //Sets blendType to 00 01 00 01
             break;
-        case BlendType::BLEND_TYPE_MULTIPLY:
+        case BlendType::MULTIPLY:
             blendMode -= 16; //Sets blendType to 00 01 01 01
             break;
     }
@@ -240,31 +239,15 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     Verts[vertexIndex + 3].position.y = pos.y + positions[vertexOffset + 10];
     Verts[vertexIndex + 3].position.z = pos.z + positions[vertexOffset + 11];
 
-    Verts[vertexIndex].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex].color[2] = (GLubyte)(color[2]);
-    Verts[vertexIndex + 1].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex + 1].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex + 1].color[2] = (GLubyte)(color[2]);
-    Verts[vertexIndex + 2].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex + 2].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex + 2].color[2] = (GLubyte)(color[2]);
-    Verts[vertexIndex + 3].color[0] = (GLubyte)(color[0]);
-    Verts[vertexIndex + 3].color[1] = (GLubyte)(color[1]);
-    Verts[vertexIndex + 3].color[2] = (GLubyte)(color[2]);
+    Verts[vertexIndex].color = color;
+    Verts[vertexIndex + 1].color = color;
+    Verts[vertexIndex + 2].color = color;
+    Verts[vertexIndex + 3].color = color;
 
-    Verts[vertexIndex].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex].overlayColor[2] = (GLubyte)(overlayColor[2]);
-    Verts[vertexIndex + 1].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex + 1].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex + 1].overlayColor[2] = (GLubyte)(overlayColor[2]);
-    Verts[vertexIndex + 2].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex + 2].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex + 2].overlayColor[2] = (GLubyte)(overlayColor[2]);
-    Verts[vertexIndex + 3].overlayColor[0] = (GLubyte)(overlayColor[0]);
-    Verts[vertexIndex + 3].overlayColor[1] = (GLubyte)(overlayColor[1]);
-    Verts[vertexIndex + 3].overlayColor[2] = (GLubyte)(overlayColor[2]);
+    Verts[vertexIndex].overlayColor = overlayColor;
+    Verts[vertexIndex + 1].overlayColor = overlayColor;
+    Verts[vertexIndex + 2].overlayColor = overlayColor;
+    Verts[vertexIndex + 3].overlayColor = overlayColor;
 
     Verts[vertexIndex].normal[0] = normals[vertexOffset];
     Verts[vertexIndex].normal[1] = normals[vertexOffset + 1];
@@ -279,18 +262,11 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     Verts[vertexIndex + 3].normal[1] = normals[vertexOffset + 10];
     Verts[vertexIndex + 3].normal[2] = normals[vertexOffset + 11];
 
-    Verts[vertexIndex].lampColor[0] = lampColor[0];
-    Verts[vertexIndex].lampColor[1] = lampColor[1];
-    Verts[vertexIndex].lampColor[2] = lampColor[2];
-    Verts[vertexIndex + 1].lampColor[0] = lampColor[0];
-    Verts[vertexIndex + 1].lampColor[1] = lampColor[1];
-    Verts[vertexIndex + 1].lampColor[2] = lampColor[2];
-    Verts[vertexIndex + 2].lampColor[0] = lampColor[0];
-    Verts[vertexIndex + 2].lampColor[1] = lampColor[1];
-    Verts[vertexIndex + 2].lampColor[2] = lampColor[2];
-    Verts[vertexIndex + 3].lampColor[0] = lampColor[0];
-    Verts[vertexIndex + 3].lampColor[1] = lampColor[1];
-    Verts[vertexIndex + 3].lampColor[2] = lampColor[2];
+    Verts[vertexIndex].lampColor = lampColor;
+    Verts[vertexIndex + 1].lampColor = lampColor;
+    Verts[vertexIndex + 2].lampColor = lampColor;
+    Verts[vertexIndex + 3].lampColor = lampColor;
+
 
     Verts[vertexIndex].sunlight = sunlight;
     Verts[vertexIndex + 1].sunlight = sunlight;
@@ -303,20 +279,20 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     Verts[vertexIndex + 3].merge = 0;
 
     if (waveEffect == 2){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 255;
-        Verts[vertexIndex + 2].color[3] = 255;
-        Verts[vertexIndex + 3].color[3] = 255;
+        Verts[vertexIndex].waveEffect = 255;
+        Verts[vertexIndex + 1].waveEffect = 255;
+        Verts[vertexIndex + 2].waveEffect = 255;
+        Verts[vertexIndex + 3].waveEffect = 255;
     } else if (waveEffect == 1){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 255;
+        Verts[vertexIndex].waveEffect = 255;
+        Verts[vertexIndex + 1].waveEffect = 0;
+        Verts[vertexIndex + 2].waveEffect = 0;
+        Verts[vertexIndex + 3].waveEffect = 255;
     } else{
-        Verts[vertexIndex].color[3] = 0;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 0;
+        Verts[vertexIndex].waveEffect = 0;
+        Verts[vertexIndex + 1].waveEffect = 0;
+        Verts[vertexIndex + 2].waveEffect = 0;
+        Verts[vertexIndex + 3].waveEffect = 0;
     }
 
 #define UV_0 128
@@ -354,7 +330,7 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     Verts[vertexIndex + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
 }
 
-void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const GLubyte color[], const GLubyte overlayColor[], GLfloat ambientOcclusion[], const BlockTexture& texInfo)
+void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture& texInfo)
 {
 
     //get the face index so we can determine the axis alignment
@@ -375,16 +351,16 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     //They are used in the shader to determine how to blend.
     ubyte blendMode = 0x25; //0x25 = 00 10 01 01
     switch (texInfo.blendMode) {
-        case BlendType::BLEND_TYPE_REPLACE:
+        case BlendType::REPLACE:
             blendMode++; //Sets blendType to 00 01 01 10
             break;
-        case BlendType::BLEND_TYPE_ADD:
+        case BlendType::ADD:
             blendMode += 4; //Sets blendType to 00 01 10 01
             break;
-        case BlendType::BLEND_TYPE_SUBTRACT:
+        case BlendType::SUBTRACT:
             blendMode -= 4; //Sets blendType to 00 01 00 01
             break;
-        case BlendType::BLEND_TYPE_MULTIPLY:
+        case BlendType::MULTIPLY:
             blendMode -= 16; //Sets blendType to 00 01 01 01
             break;
     }
@@ -430,31 +406,31 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     Verts[vertexIndex + 3].position.y = pos.y + cverts[vertexOffset + 10];
     Verts[vertexIndex + 3].position.z = pos.z + cverts[vertexOffset + 11];
 
-    Verts[vertexIndex].color[0] = (GLubyte)(color[0] * ambientOcclusion[0]);
-    Verts[vertexIndex].color[1] = (GLubyte)(color[1] * ambientOcclusion[0]);
-    Verts[vertexIndex].color[2] = (GLubyte)(color[2] * ambientOcclusion[0]);
-    Verts[vertexIndex + 1].color[0] = (GLubyte)(color[0] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].color[1] = (GLubyte)(color[1] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].color[2] = (GLubyte)(color[2] * ambientOcclusion[1]);
-    Verts[vertexIndex + 2].color[0] = (GLubyte)(color[0] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].color[1] = (GLubyte)(color[1] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].color[2] = (GLubyte)(color[2] * ambientOcclusion[2]);
-    Verts[vertexIndex + 3].color[0] = (GLubyte)(color[0] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].color[1] = (GLubyte)(color[1] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].color[2] = (GLubyte)(color[2] * ambientOcclusion[3]);
+    Verts[vertexIndex].color.r = (GLubyte)(color.r * ambientOcclusion[0]);
+    Verts[vertexIndex].color.g = (GLubyte)(color.g * ambientOcclusion[0]);
+    Verts[vertexIndex].color.b = (GLubyte)(color.b * ambientOcclusion[0]);
+    Verts[vertexIndex + 1].color.r = (GLubyte)(color.r * ambientOcclusion[1]);
+    Verts[vertexIndex + 1].color.g = (GLubyte)(color.g * ambientOcclusion[1]);
+    Verts[vertexIndex + 1].color.b = (GLubyte)(color.b * ambientOcclusion[1]);
+    Verts[vertexIndex + 2].color.r = (GLubyte)(color.r * ambientOcclusion[2]);
+    Verts[vertexIndex + 2].color.g = (GLubyte)(color.g * ambientOcclusion[2]);
+    Verts[vertexIndex + 2].color.b = (GLubyte)(color.b * ambientOcclusion[2]);
+    Verts[vertexIndex + 3].color.r = (GLubyte)(color.r * ambientOcclusion[3]);
+    Verts[vertexIndex + 3].color.g = (GLubyte)(color.g * ambientOcclusion[3]);
+    Verts[vertexIndex + 3].color.b = (GLubyte)(color.b * ambientOcclusion[3]);
 
-    Verts[vertexIndex].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[0]);
-    Verts[vertexIndex].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[0]);
-    Verts[vertexIndex].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[0]);
-    Verts[vertexIndex + 1].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[1]);
-    Verts[vertexIndex + 1].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[1]);
-    Verts[vertexIndex + 2].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[2]);
-    Verts[vertexIndex + 2].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[2]);
-    Verts[vertexIndex + 3].overlayColor[0] = (GLubyte)(overlayColor[0] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].overlayColor[1] = (GLubyte)(overlayColor[1] * ambientOcclusion[3]);
-    Verts[vertexIndex + 3].overlayColor[2] = (GLubyte)(overlayColor[2] * ambientOcclusion[3]);
+    Verts[vertexIndex].overlayColor.r = (GLubyte)(overlayColor.r * ambientOcclusion[0]);
+    Verts[vertexIndex].overlayColor.g = (GLubyte)(overlayColor.g * ambientOcclusion[0]);
+    Verts[vertexIndex].overlayColor.b = (GLubyte)(overlayColor.b * ambientOcclusion[0]);
+    Verts[vertexIndex + 1].overlayColor.r = (GLubyte)(overlayColor.r * ambientOcclusion[1]);
+    Verts[vertexIndex + 1].overlayColor.g = (GLubyte)(overlayColor.g * ambientOcclusion[1]);
+    Verts[vertexIndex + 1].overlayColor.b = (GLubyte)(overlayColor.b * ambientOcclusion[1]);
+    Verts[vertexIndex + 2].overlayColor.r = (GLubyte)(overlayColor.r * ambientOcclusion[2]);
+    Verts[vertexIndex + 2].overlayColor.g = (GLubyte)(overlayColor.g * ambientOcclusion[2]);
+    Verts[vertexIndex + 2].overlayColor.b = (GLubyte)(overlayColor.b * ambientOcclusion[2]);
+    Verts[vertexIndex + 3].overlayColor.r = (GLubyte)(overlayColor.r * ambientOcclusion[3]);
+    Verts[vertexIndex + 3].overlayColor.g = (GLubyte)(overlayColor.g * ambientOcclusion[3]);
+    Verts[vertexIndex + 3].overlayColor.b = (GLubyte)(overlayColor.b * ambientOcclusion[3]);
 
     Verts[vertexIndex].normal[0] = cubeNormals[vertexOffset];
     Verts[vertexIndex].normal[1] = cubeNormals[vertexOffset + 1];
@@ -475,20 +451,20 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     Verts[vertexIndex + 3].merge = 1;
 
     if (waveEffect == 2){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 255;
-        Verts[vertexIndex + 2].color[3] = 255;
-        Verts[vertexIndex + 3].color[3] = 255;
+        Verts[vertexIndex].waveEffect = 255;
+        Verts[vertexIndex + 1].waveEffect = 255;
+        Verts[vertexIndex + 2].waveEffect = 255;
+        Verts[vertexIndex + 3].waveEffect = 255;
     } else if (waveEffect == 1){
-        Verts[vertexIndex].color[3] = 255;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 255;
+        Verts[vertexIndex].waveEffect = 255;
+        Verts[vertexIndex + 1].waveEffect = 0;
+        Verts[vertexIndex + 2].waveEffect = 0;
+        Verts[vertexIndex + 3].waveEffect = 255;
     } else{
-        Verts[vertexIndex].color[3] = 0;
-        Verts[vertexIndex + 1].color[3] = 0;
-        Verts[vertexIndex + 2].color[3] = 0;
-        Verts[vertexIndex + 3].color[3] = 0;
+        Verts[vertexIndex].waveEffect = 0;
+        Verts[vertexIndex + 1].waveEffect = 0;
+        Verts[vertexIndex + 2].waveEffect = 0;
+        Verts[vertexIndex + 3].waveEffect = 0;
     }
 
 #define UV_0 128
@@ -525,19 +501,11 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     Verts[vertexIndex + 3].overlayTextureAtlas = (GLubyte)overlayTexAtlas;
 }
 
-void VoxelMesher::setFaceLight(BlockVertex* Verts, int index, ui8 lampColor[3], ui8 sunlight) {
-    Verts[index].lampColor[0] = lampColor[0];
-    Verts[index].lampColor[1] = lampColor[1];
-    Verts[index].lampColor[2] = lampColor[2];
-    Verts[index + 1].lampColor[0] = lampColor[0];
-    Verts[index + 1].lampColor[1] = lampColor[1];
-    Verts[index + 1].lampColor[2] = lampColor[2];
-    Verts[index + 2].lampColor[0] = lampColor[0];
-    Verts[index + 2].lampColor[1] = lampColor[1];
-    Verts[index + 2].lampColor[2] = lampColor[2];
-    Verts[index + 3].lampColor[0] = lampColor[0];
-    Verts[index + 3].lampColor[1] = lampColor[1];
-    Verts[index + 3].lampColor[2] = lampColor[2];
+void VoxelMesher::setFaceLight(BlockVertex* Verts, int index, const ColorRGB8& lampColor, ui8 sunlight) {
+    Verts[index].lampColor = lampColor;
+    Verts[index + 1].lampColor = lampColor;
+    Verts[index + 2].lampColor = lampColor;
+    Verts[index + 3].lampColor = lampColor;
 
     Verts[index].sunlight = sunlight;
     Verts[index + 1].sunlight = sunlight;
@@ -547,7 +515,7 @@ void VoxelMesher::setFaceLight(BlockVertex* Verts, int index, ui8 lampColor[3], 
 
 const GLubyte waterUVs[8] = { 0, 7, 0, 0, 7, 0, 7, 7 };
 
-void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, ui8 lampColor[3], ui8 sunlight, ui8 color[3], ui8 textureUnit) {
+void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, const ColorRGB8& lampColor, ui8 sunlight, const ColorRGB8& color, ui8 textureUnit) {
 
     verts.resize(verts.size() + 4);
     verts[index].tex[0] = waterUVs[0] + uOff;
@@ -559,36 +527,28 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
     verts[index + 3].tex[0] = waterUVs[6] + uOff;
     verts[index + 3].tex[1] = waterUVs[7] + vOff;
 
-    verts[index].lampColor[0] = lampColor[0];
-    verts[index].lampColor[1] = lampColor[1];
-    verts[index].lampColor[2] = lampColor[2];
-    verts[index + 1].lampColor[0] = lampColor[0];
-    verts[index + 1].lampColor[1] = lampColor[1];
-    verts[index + 1].lampColor[2] = lampColor[2];
-    verts[index + 2].lampColor[0] = lampColor[0];
-    verts[index + 2].lampColor[1] = lampColor[1];
-    verts[index + 2].lampColor[2] = lampColor[2];
-    verts[index + 3].lampColor[0] = lampColor[0];
-    verts[index + 3].lampColor[1] = lampColor[1];
-    verts[index + 3].lampColor[2] = lampColor[2];
+    verts[index].lampColor = lampColor;
+    verts[index + 1].lampColor = lampColor;
+    verts[index + 2].lampColor = lampColor;
+    verts[index + 3].lampColor = lampColor;
 
     verts[index].sunlight = sunlight;
     verts[index + 1].sunlight = sunlight;
     verts[index + 2].sunlight = sunlight;
     verts[index + 3].sunlight = sunlight;
 
-    verts[index].color[0] = color[0];
-    verts[index].color[1] = color[1];
-    verts[index].color[2] = color[2];
-    verts[index + 1].color[0] = color[0];
-    verts[index + 1].color[1] = color[1];
-    verts[index + 1].color[2] = color[2];
-    verts[index + 2].color[0] = color[0];
-    verts[index + 2].color[1] = color[1];
-    verts[index + 2].color[2] = color[2];
-    verts[index + 3].color[0] = color[0];
-    verts[index + 3].color[1] = color[1];
-    verts[index + 3].color[2] = color[2];
+    verts[index].color.r = color.r;
+    verts[index].color.g = color.g;
+    verts[index].color.b = color.b;
+    verts[index + 1].color.r = color.r;
+    verts[index + 1].color.g = color.g;
+    verts[index + 1].color.b = color.b;
+    verts[index + 2].color.r = color.r;
+    verts[index + 2].color.g = color.g;
+    verts[index + 2].color.b = color.b;
+    verts[index + 3].color.r = color.r;
+    verts[index + 3].color.g = color.g;
+    verts[index + 3].color.b = color.b;
 
     verts[index].textureUnit = (GLubyte)textureUnit;
     verts[index + 1].textureUnit = (GLubyte)textureUnit;
@@ -606,16 +566,16 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const
 
     ui8 blendMode = 0x25; //0x25 = 00 10 01 01
     switch (blockTexture.blendMode) {
-        case BlendType::BLEND_TYPE_REPLACE:
+        case BlendType::REPLACE:
             blendMode++; //Sets blendType to 00 01 01 10
             break;
-        case BlendType::BLEND_TYPE_ADD:
+        case BlendType::ADD:
             blendMode += 4; //Sets blendType to 00 01 10 01
             break;
-        case BlendType::BLEND_TYPE_SUBTRACT:
+        case BlendType::SUBTRACT:
             blendMode -= 4; //Sets blendType to 00 01 00 01
             break;
-        case BlendType::BLEND_TYPE_MULTIPLY:
+        case BlendType::MULTIPLY:
             blendMode -= 16; //Sets blendType to 00 01 01 01
             break;
     }

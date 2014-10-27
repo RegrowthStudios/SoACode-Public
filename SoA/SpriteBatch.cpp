@@ -64,11 +64,9 @@ SpriteGlyph::SpriteGlyph(ui32 texID, f32 d) :
 textureID(texID), depth(d) {}
 
 SpriteBatch::SpriteBatch(bool isDynamic /*= true*/, bool doInit /*= false*/) :
-_bufUsage(isDynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW),
-_glyphCapacity(0),
-_vao(0), _vbo(0),
-_idProg(0), _idVS(0), _idFS(0),
-_unWorld(0), _unVP(0), _unTexture(0) {
+    _bufUsage(isDynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW),
+    _glyphCapacity(0),
+    _vao(0), _vbo(0) {
     if (doInit) init();
 }
 SpriteBatch::~SpriteBatch() {
@@ -78,7 +76,6 @@ SpriteBatch::~SpriteBatch() {
 
 void SpriteBatch::init() {
     createProgram();
-    searchUniforms();
     createVertexArray();
     createPixelTexture();
 }
@@ -90,21 +87,6 @@ void SpriteBatch::dispose() {
     if (_vao != 0) {
         glDeleteVertexArrays(1, &_vao);
         _vao = 0;
-    }
-
-    if (_idProg != 0) {
-        if (_idVS != 0) {
-            glDetachShader(_idProg, _idVS);
-            glDeleteShader(_idVS);
-            _idVS = 0;
-        }
-        if (_idFS != 0) {
-            glDetachShader(_idProg, _idFS);
-            glDeleteShader(_idFS);
-            _idFS = 0;
-        }
-        glDeleteProgram(_idProg);
-        _idProg = 0;
     }
 
     if (_texPixel != 0) {
@@ -353,21 +335,22 @@ void SpriteBatch::end(SpriteSortMode ssm /*= SpriteSortMode::Texture*/) {
     generateBatches();
 }
 
-void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
     //if (bs == nullptr) bs = BlendState::PremultipliedAlphaBlend;
     if (ds == nullptr) ds = &DepthState::NONE;
     if (rs == nullptr) rs = &RasterizerState::CULL_NONE;
     if (ss == nullptr) ss = &SamplerState::LINEAR_WRAP;
+    if (shader == nullptr) shader = _program;
 
     // Setup The Shader
     //bs->set();
     ds->set();
     rs->set();
 
-    glUseProgram(_idProg);
+    shader->use();
 
-    glUniformMatrix4fv(_unWorld, 1, false, (f32*)&mWorld);
-    glUniformMatrix4fv(_unVP, 1, false, (f32*)&mCamera);
+    glUniformMatrix4fv(shader->getUniform("World"), 1, false, (f32*)&mWorld);
+    glUniformMatrix4fv(shader->getUniform("VP"), 1, false, (f32*)&mCamera);
 
     glBindVertexArray(_vao);
 
@@ -377,33 +360,35 @@ void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* b
         SpriteBatchCall* batch = _batches[i];
 
         glActiveTexture(GL_TEXTURE0);
-        glUniform1i(_unTexture, 0);
+        glUniform1i(shader->getUniform("SBTex"), 0);
         glBindTexture(GL_TEXTURE_2D, batch->textureID);
         ss->setObject(0);
 
         glDrawArrays(GL_TRIANGLES, batch->indexOffset, batch->indices);
     }
 
-    glUseProgram(0);
     glBindVertexArray(0);
+    glBindSampler(0, 0);
+
+    shader->unuse();
 }
-void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
     f32m4 mCamera(
         2.0f / screenSize.x, 0, 0, 0,
         0, -2.0f / screenSize.y, 0, 0,
         0, 0, 1, 0,
         -1, 1, 0, 1
         );
-    renderBatch(mWorld, mCamera, /*bs, */ ss, ds, rs);
+    renderBatch(mWorld, mCamera, /*bs, */ ss, ds, rs, shader);
 }
-void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/) {
+void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
     f32m4 mIdentity(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
         0, 0, 0, 1
         );
-    renderBatch(mIdentity, screenSize, /*bs, */ ss, ds, rs);
+    renderBatch(mIdentity, screenSize, /*bs, */ ss, ds, rs, shader);
 }
 
 void SpriteBatch::sortGlyphs(SpriteSortMode ssm) {
@@ -470,42 +455,37 @@ void SpriteBatch::generateBatches() {
 }
 
 void SpriteBatch::createProgram() {
-    // Create The Program
-    _idProg = glCreateProgram();
-    int status;
+    // Only need to create it if it isn't cached
+    if (!_program) {
 
-    // Make Vertex Shader
-    _idVS = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(_idVS, 1, &VS_SRC, nullptr);
-    glCompileShader(_idVS);
-    glGetShaderiv(_idVS, GL_COMPILE_STATUS, &status);
-    if (status != 1) throw std::runtime_error("Vertex Shader Had Compilation Errors");
-    glAttachShader(_idProg, _idVS);
+        // Allocate the program
+        _program = new vcore::GLProgram(true);
 
-    // Make Fragment Shader
-    _idFS = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(_idFS, 1, &FS_SRC, nullptr);
-    glCompileShader(_idFS);
-    glGetShaderiv(_idFS, GL_COMPILE_STATUS, &status);
-    if (status != 1) throw std::runtime_error("Fragment Shader Had Compilation Errors");
-    glAttachShader(_idProg, _idFS);
+        // Create the vertex shader
+        _program->addShader(vcore::ShaderType::VERTEX, VS_SRC);
 
-    // Setup Vertex Attribute Locations
-    glBindAttribLocation(_idProg, 0, "vPosition");
-    glBindAttribLocation(_idProg, 1, "vTint");
-    glBindAttribLocation(_idProg, 2, "vUV");
-    glBindAttribLocation(_idProg, 3, "vUVRect");
+        // Create the fragment shader
+        _program->addShader(vcore::ShaderType::FRAGMENT, FS_SRC);
 
-    glLinkProgram(_idProg);
-    glValidateProgram(_idProg);
-    glGetProgramiv(_idProg, GL_LINK_STATUS, &status);
-    if (status != 1) throw std::runtime_error("Program Had Compilation Errors");
+        // Set the attributes
+        std::vector <nString> attributes;
+        attributes.push_back("vPosition");
+        attributes.push_back("vTint");
+        attributes.push_back("vUV");
+        attributes.push_back("vUVRect");
+        _program->setAttributes(attributes);
+        
+        // Link the program
+        _program->link();
+
+        // Init the uniforms
+        _program->initUniforms();
+
+        // Init the attributes
+        _program->initAttributes();
+    }
 }
-void SpriteBatch::searchUniforms() {
-    _unWorld = glGetUniformLocation(_idProg, "World");
-    _unVP = glGetUniformLocation(_idProg, "VP");
-    _unTexture = glGetUniformLocation(_idProg, "SBTex");
-}
+
 void SpriteBatch::createVertexArray() {
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);
@@ -515,15 +495,12 @@ void SpriteBatch::createVertexArray() {
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, _glyphCapacity * 6 * sizeof(VertexSpriteBatch), nullptr, _bufUsage);
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
+    _program->enableVertexAttribArrays();
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, position));
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, color));
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, uv));
-    glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, uvRect));
+    glVertexAttribPointer(_program->getAttribute("vPosition"), 3, GL_FLOAT, false, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, position));
+    glVertexAttribPointer(_program->getAttribute("vTint"), 4, GL_UNSIGNED_BYTE, true, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, color));
+    glVertexAttribPointer(_program->getAttribute("vUV"), 2, GL_FLOAT, false, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, uv));
+    glVertexAttribPointer(_program->getAttribute("vUVRect"), 4, GL_FLOAT, false, sizeof(VertexSpriteBatch), (void*)offsetof(VertexSpriteBatch, uvRect));
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -535,6 +512,15 @@ void SpriteBatch::createPixelTexture() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pix);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void SpriteBatch::disposeProgram() {
+    if (_program) {
+        _program->destroy();
+        _program = nullptr;
+    }
+}
+
+vcore::GLProgram* SpriteBatch::_program = nullptr;
 
 void SpriteBatch::SpriteBatchCall::set(i32 iOff, ui32 texID, std::vector<SpriteBatchCall*>& calls) {
     textureID = texID;

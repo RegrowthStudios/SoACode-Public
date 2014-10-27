@@ -10,6 +10,10 @@ void printVec(string desc, glm::vec3 vec)
 {
     cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
 }
+void printVec(string desc, glm::vec4 vec)
+{
+    cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << " " << vec.w << endl;
+}
 void printVec(string desc, glm::dvec3 vec)
 {
     cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
@@ -31,7 +35,7 @@ bool debugVarc = 0;
 bool debugVarh = 0;
 GLuint debugTicks;
 bool debugTicksDone;
-int gridState = 0;
+bool gridState = false;
 float bdt = 0.0f;
 float planetDrawMode = 0.0f;
 

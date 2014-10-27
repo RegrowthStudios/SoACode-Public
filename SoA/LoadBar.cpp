@@ -14,7 +14,6 @@ textSize(textSize) {
 }
 
 LoadBar::LoadBar(const LoadBarCommonProperties& commonProps) :
-_text(nullptr),
 _startPosition(0),
 _commonProps(commonProps),
 _moveDirection(0),
@@ -23,10 +22,6 @@ _colorText(0xff, 0xff, 0xff, 0xff),
 _colorBackground(0x00, 0x00, 0x00, 0xff) {
 }
 LoadBar::~LoadBar() {
-    if (_text) {
-        delete[] _text;
-        _text = nullptr;
-    }
 }
 
 void LoadBar::expand() {
@@ -42,22 +37,8 @@ void LoadBar::setCommonProperties(const LoadBarCommonProperties& commonProps) {
 void LoadBar::setStartPosition(const f32v2& position) {
     _startPosition = position;
 }
-void LoadBar::setText(const cString text) {
-    // Delete Previous Text
-    if (_text) {
-        delete[] _text;
-        _text = nullptr;
-    }
-
-    // Copy New Text
-    if (text) {
-        i32 len = strlen(text);
-        if (len > 0) {
-            _text = new char[len + 1];
-            strcpy(_text, text);
-            _text[len] = 0;
-        }
-    }
+void LoadBar::setText(const nString& text) {
+    _text = text;
 }
 void LoadBar::setColor(const ColorRGBA8& colorText, const ColorRGBA8& colorBackground) {
     _colorText = colorText;
@@ -88,5 +69,5 @@ void LoadBar::draw(SpriteBatch* sb, SpriteFont* sf, ui32 backTexture, f32 depth)
     f32v2 endPos = _startPosition + (_commonProps.offsetDirection * _lerpAmount);
     sb->draw(backTexture, endPos, _commonProps.size, _colorBackground, depth);
     endPos += _commonProps.textOffset;
-    sb->drawString(sf, _text, endPos, _commonProps.textSize, 1.0f, _colorText, depth - 0.001f);
+    sb->drawString(sf, _text.c_str(), endPos, _commonProps.textSize, 1.0f, _colorText, depth - 0.001f);
 }

@@ -4,12 +4,12 @@
 #include "BlockData.h"
 #include "Chunk.h"
 #include "FloraGenerator.h"
-#include "GameManager.h"
-#include "OpenglManager.h"
+#include "MessageManager.h"
 #include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
-#include "shader.h"
+#include "GameManager.h"
+
 #include "utils.h"
 
 int lodDetailLevels[DetailLevels+3] = {8/scale, 16/scale, 32/scale, 64/scale, 128/scale, 256/scale, 512/scale, 1024/scale, 2048/scale, 4096/scale, 8192/scale, 16384/scale, 32768/scale, 65536/scale, 131072/scale, 262144/scale, 524228/scale};
@@ -80,7 +80,8 @@ void TerrainPatch::ClearBuffers()
         tmm->terrainBuffers = terrainBuffers;
         hasBuffers = 0;
         terrainBuffers = NULL;
-        gameToGl.enqueue(Message(GL_M_TERRAINMESH, (void *)tmm));
+        Message message(MessageID::TERRAIN_MESH, (void *)tmm);
+        GameManager::messageManager->enqueue(ThreadId::UPDATE, message);
     }
 }
 
@@ -90,7 +91,8 @@ void TerrainPatch::ClearTreeBuffers()
         TerrainMeshMessage *tmm = new TerrainMeshMessage;
         tmm->face = face;
         tmm->terrainBuffers = terrainBuffers;
-        gameToGl.enqueue(Message(GL_M_REMOVETREES, (void *)tmm));
+        Message message(MessageID::REMOVE_TREES, (void *)tmm);
+        GameManager::messageManager->enqueue(ThreadId::UPDATE, message);
     }
 }
 
@@ -272,7 +274,7 @@ void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayer
     }
 }
 
-void TerrainPatch::DrawTrees(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+void TerrainPatch::DrawTrees(TerrainBuffers *tb, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
 
     if (tb->inFrustum){
@@ -282,8 +284,8 @@ void TerrainPatch::DrawTrees(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, co
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(treeShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
-        glUniformMatrix4fv(treeShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, tb->treeVboID);
 
@@ -313,6 +315,13 @@ bool TerrainPatch::CheckHorizon(const glm::dvec3 &PlayerPos, const glm::dvec3 &C
 const bool colorDebug = 0;
 bool TerrainPatch::CreateMesh()
 {
+    //DEBUGGING
+    if (step <= 0) {
+        pError("AHH OH JESUS!");
+    }
+
+    TerrainGenerator* generator = GameManager::terrainGenerator;
+
     GLuint time0, time1, time2, time3;
     bool removeChildren = 0;
 
@@ -408,7 +417,7 @@ bool TerrainPatch::CreateMesh()
         irel = Z - step;
         jrel = X - step;
         rval = radius;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
         if (parent != NULL && parent->lodMap != NULL){
             //dont have to generate everything since the parent has some of it already loaded
             if (parent->lodMapStep == step){ //same step as parent but half size
@@ -457,21 +466,21 @@ bool TerrainPatch::CreateMesh()
                 }
                 //cout << size << " " << (parent->lodMapSize-3)/2+1 << " " << endl;
 
-                currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+                generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
                 for (int i = 0; i < size-2; i+=2){
                     for (int j = 0; j < size-2; j+=2){
                         lodMap[(i+1)*size+(j+1)] = parent->lodMap[(i/2+ioff+1)*(parent->lodMapSize)+(j/2+joff+1)];
                     }
                 }
             }else{
-                currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater); 
+                generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
             }
             //else if (parent->lodMapStep == step*2){
-        //        currTerrainGenerator->GenerateLODMap(lodMap, X-step, radius, Z-step, size, step, 2); 
+        //        generator->GenerateLODMap(lodMap, X-step, radius, Z-step, size, step, 2); 
         //    }
         }else{
             //regenerate everything
-            currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater); 
+            generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         }
         rval = scaledRadius;
     //    Y = lodMap[(size*size)/2+1].height;
@@ -483,8 +492,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 0;
         irel = Y - step;
         jrel = Z - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = -scaledRadius;
         break;
     case P_RIGHT: //right
@@ -494,8 +503,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 0;
         irel = Y - step;
         jrel = Z - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = scaledRadius;
         break;
     case P_FRONT: //front
@@ -505,8 +514,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 2;
         irel = Y - step;
         jrel = X - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = scaledRadius;
     //    Y = lodMap[(size*size)/2+1].height;
         break;
@@ -517,8 +526,8 @@ bool TerrainPatch::CreateMesh()
         rpos = 2;
         irel = Y - step;
         jrel = X - step;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = -scaledRadius;
         break;
     case P_BOTTOM: //bottom
@@ -528,8 +537,8 @@ bool TerrainPatch::CreateMesh()
         irel = Z - step;
         jrel = X - step;
         rval = -radius;
-        currTerrainGenerator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
-        currTerrainGenerator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
+        generator->SetLODFace(ipos, jpos, rpos, rval, planetScale);
+        generator->GenerateHeightMap(lodMap, irel, jrel, size, size, size, step, 0, &hasWater);
         rval = -scaledRadius;
         break;
     }
@@ -558,6 +567,7 @@ bool TerrainPatch::CreateMesh()
         //9530 1,227,270
         for (int z = 1; z < size-1; z++){ //Z
             for (int x = 1; x < size-1; x++){ //X
+
                 h = (int)lodMap[z*size+x].height;
                 //check and see if all adjacent heights are above water. If so, then we dont need this water vertex at all. TODO: maybe sentinalize this?
                 if (h >= 0 && (x == 1 || lodMap[z*size+(x-1)].height >= 0) //left
@@ -723,9 +733,9 @@ bool TerrainPatch::CreateMesh()
                                             colg = Blocks[treeData.treeType->idLeaves].altColors[treeData.leafColor-1].g;
                                             colb = Blocks[treeData.treeType->idLeaves].altColors[treeData.leafColor-1].b;
                                         } else {
-                                            colr = Blocks[treeData.treeType->idLeaves].color[0];
-                                            colg = Blocks[treeData.treeType->idLeaves].color[1];
-                                            colb = Blocks[treeData.treeType->idLeaves].color[2];
+                                            colr = Blocks[treeData.treeType->idLeaves].color.r;
+                                            colg = Blocks[treeData.treeType->idLeaves].color.g;
+                                            colb = Blocks[treeData.treeType->idLeaves].color.b;
                                         }
 
                                         switch (treeData.treeType->leafCapShape){
@@ -860,16 +870,11 @@ bool TerrainPatch::CreateMesh()
 
             //slope color
             bp = &(Blocks[biome->surfaceLayers[biome->looseSoilDepth + 1]]);
-            
-            tvboVerts[index].slopeColor[0] = bp->averageColor[0]; 
-            tvboVerts[index].slopeColor[1] = bp->averageColor[1];
-            tvboVerts[index].slopeColor[2] = bp->averageColor[2];
+            tvboVerts[index].slopeColor = bp->averageColor;
 
             //beach color
             bp = &(Blocks[biome->beachBlock]);
-            tvboVerts[index].beachColor[0] = bp->averageColor[0];
-            tvboVerts[index].beachColor[1] = bp->averageColor[1];
-            tvboVerts[index].beachColor[2] = bp->averageColor[2];
+            tvboVerts[index].beachColor = bp->averageColor;
 
             float yn = tvboVerts[index].normal.y;
 
@@ -1088,7 +1093,10 @@ bool TerrainPatch::CreateMesh()
     tmm->indexSize = indice;
     tmm->treeIndexSize = treeIndex * 6 / 4;
     tmm->index = index;
-    gameToGl.enqueue(Message(GL_M_TERRAINMESH, (void *)tmm));
+
+    Message message(MessageID::TERRAIN_MESH, (void *)tmm);
+    GameManager::messageManager->enqueue(ThreadId::UPDATE, message);
+
     hasBuffers = 1;
 
     if (removeChildren){

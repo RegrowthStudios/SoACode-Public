@@ -6,6 +6,7 @@
 #include "colors.h"
 #include "DepthState.h"
 #include "LoadScreen.h"
+#include "GameManager.h"
 #include "RasterizerState.h"
 #include "SamplerState.h"
 #include "SpriteBatch.h"
@@ -50,15 +51,15 @@ void InitScreen::onEvent(const SDL_Event& e) {
     }
 }
 void InitScreen::update(const GameTime& gameTime) {
-    // Empty
+    // Immediatly move to next state
+    _state = ScreenState::CHANGE_NEXT;
 }
 void InitScreen::draw(const GameTime& gameTime) {
-    GameDisplayMode gdm;
-    _game->getDisplayMode(&gdm);
+    const GameWindow* w = &_game->getWindow();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    _sb->renderBatch(f32v2(gdm.screenWidth, gdm.screenHeight), &SamplerState::LINEAR_WRAP, &DepthState::FULL, &RasterizerState::CULL_NONE);
+    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::FULL, &RasterizerState::CULL_NONE);
 }
 
 void InitScreen::buildSpriteResources() {
@@ -81,10 +82,10 @@ void InitScreen::checkRequirements() {
 
     _canContinue = true;
 
-    GameDisplayMode gdm;
-    _game->getDisplayMode(&gdm);
+    const GameWindow* w = &_game->getWindow();
+
     f32v2 pos(0, 0);
-    f32v2 rectSize(gdm.screenWidth, textSize + textOffset * 2.0f);
+    f32v2 rectSize(w->getWidth(), textSize + textOffset * 2.0f);
     f32v2 textOff(textOffset, textOffset);
 
     // Check If Application Can Proceed
@@ -113,7 +114,7 @@ void InitScreen::checkRequirements() {
         _sb->draw(0, pos, rectSize, color::COLOR_FAILURE, 0.5f);
         _sb->drawString(_font, "Application Will Now Exit", pos + textOff, textSize, 1.0f, color::White, 0.0f);
     }
-    _sb->drawString(_font, "Press Any Key To Continue", f32v2(10.0f, gdm.screenHeight - 30.0f), 24.0f, 1.0f, color::LightGray, 0.0f);
+    _sb->drawString(_font, "Press Any Key To Continue", f32v2(10.0f, w->getHeight() - 30.0f), 24.0f, 1.0f, color::LightGray, 0.0f);
     _sb->end(SpriteSortMode::TEXTURE);
 
 #ifdef DEBUG

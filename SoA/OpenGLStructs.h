@@ -10,10 +10,10 @@ public:
 };
 
 enum class BlendType {
-    BLEND_TYPE_REPLACE,
-    BLEND_TYPE_ADD,
-    BLEND_TYPE_SUBTRACT,
-    BLEND_TYPE_MULTIPLY
+    REPLACE,
+    ADD,
+    SUBTRACT,
+    MULTIPLY
 };
 KEG_ENUM_DECL(BlendType);
 
@@ -25,47 +25,48 @@ public:
         ubyte y;
         ubyte z;
     } position;
-    ubyte textureType; //4   
+    ui8 textureType; //4   
 
     //   10 = overlay 
     //  100 = animated overlay 
     // 1000 = normal map
     //10000 = specular map
-    ubyte tex[2]; //6 
-    ubyte animationLength; //7
-    ubyte blendMode; //8
+    ui8 tex[2]; //6 
+    ui8 animationLength; //7
+    ui8 blendMode; //8
 
-    ubyte textureAtlas; //9
-    ubyte overlayTextureAtlas; //10
-    ubyte textureIndex; //11
-    ubyte overlayTextureIndex; //12
+    ui8 textureAtlas; //9
+    ui8 overlayTextureAtlas; //10
+    ui8 textureIndex; //11
+    ui8 overlayTextureIndex; //12
 
-    ubyte textureWidth; //13
-    ubyte textureHeight; //14
-    ubyte overlayTextureWidth; //15;
-    ubyte overlayTextureHeight; //16
+    ui8 textureWidth; //13
+    ui8 textureHeight; //14
+    ui8 overlayTextureWidth; //15;
+    ui8 overlayTextureHeight; //16
 
-    ubyte color[4]; //20
-    ubyte overlayColor[3]; //23
-    ubyte pad2; //24
+    ColorRGB8 color; //19
+    ui8 waveEffect; //20
+    ColorRGB8 overlayColor; //23
+    ui8 pad2; //24
 
-    ubyte lampColor[3]; //27
-    ubyte sunlight; //28
+    ColorRGB8 lampColor; //27
+    ui8 sunlight; //28
 
-    sbyte normal[3]; //31
-    sbyte merge; //32
+    ui8 normal[3]; //31
+    ui8 merge; //32
 };
 
 struct LiquidVertex {
 public:
     // TODO: x and z can be bytes?
     f32v3 position; //12
-    GLubyte tex[2]; //14
-    GLubyte textureUnit; //15 
-    GLubyte textureIndex; //16
-    GLubyte color[4]; //20
-    GLubyte lampColor[3]; //23
-    GLubyte sunlight; //24
+    ui8 tex[2]; //14
+    ui8 textureUnit; //15 
+    ui8 textureIndex; //16
+    ColorRGBA8 color; //20
+    ColorRGB8 lampColor; //23
+    ui8 sunlight; //24
 };
 
 struct TerrainVertex {
@@ -73,13 +74,15 @@ public:
     f32v3 location; //12
     f32v2 tex; //20
     f32v3 normal; //32
-    GLubyte color[4]; //36
-    GLubyte slopeColor[4]; //40
-    GLubyte beachColor[4]; //44
-    GLubyte textureUnit;
-    GLubyte temperature;
-    GLubyte rainfall;
-    GLubyte specular; //48
+    ui8 color[4]; //36
+    ColorRGB8 slopeColor; //39
+    ui8 pad1; //40
+    ColorRGB8 beachColor; //43
+    ui8 pad2; //44
+    ui8 textureUnit;
+    ui8 temperature;
+    ui8 rainfall;
+    ui8 specular; //48
 };
 
 struct PhysicsBlockVertex {

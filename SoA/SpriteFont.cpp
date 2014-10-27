@@ -3,7 +3,7 @@
 
 #include <boost\filesystem.hpp>
 
-#include "ImageLoading.h"
+#include "ImageSaver.h"
 #include "SpriteBatch.h"
 
 i32 closestPow2(i32 i) {
@@ -142,7 +142,7 @@ SpriteFont::SpriteFont(const cString font, int size, char cs, char ce) {
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
     char buffer[512];
     sprintf(buffer, "SFont_%s_%s_%d.png", TTF_FontFaceFamilyName(f), TTF_FontFaceStyleName(f), size);
-    savePNG(buffer, bestWidth, bestHeight, pixels);
+    vg::ImageSaver::savePng(buffer, bestWidth, bestHeight, pixels);
 #endif // DEBUG
 
     glBindTexture(GL_TEXTURE_2D, 0);

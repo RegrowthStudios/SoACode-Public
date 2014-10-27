@@ -109,10 +109,10 @@ public:
     void addMainBiome(Biome* mainBiome);
     void addChildBiome(Biome* childBiome);
 
-    TextureInfo biomeMapTexture;
-    TextureInfo colorMapTexture;
-    TextureInfo sunColorMapTexture;
-    TextureInfo waterColorMapTexture;
+    vg::Texture biomeMapTexture;
+    vg::Texture colorMapTexture;
+    vg::Texture sunColorMapTexture;
+    vg::Texture waterColorMapTexture;
 
     i32 bindex;
     std::map<i32, Biome*> baseBiomesLookupMap;
@@ -143,5 +143,4 @@ public:
 
     f32q axisQuaternion;
     f32q rotateQuaternion;
-    class TerrainGenerator* generator;
 };

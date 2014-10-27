@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "ParticleBatch.h"
 
+#include "Animation.h"
 #include "ChunkManager.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
 #include "ParticleMesh.h"
-#include "shader.h"
+#include "MessageManager.h"
+
 
 BillboardVertex vboBVerts[maxParticles];
 
@@ -226,7 +227,10 @@ int ParticleBatch::update() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, (void *)pmm));
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                         Message(MessageID::PARTICLE_MESH,
+                                         (void *)pmm));
+
 
     return 0;
 }
@@ -319,7 +323,9 @@ int ParticleBatch::updateAnimated() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, (void *)pmm));
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                         Message(MessageID::PARTICLE_MESH,
+                                         (void *)pmm));
 
     return 0;
 }
@@ -329,7 +335,9 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, ballMaskTexture.ID);
 
-    glUniform1f(billboardShader.alphaThresholdID, 0.01f);
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+
+    glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -339,8 +347,8 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(billboardShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(billboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
@@ -373,12 +381,13 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
     for(size_t i = 0; i < pm->usedParticles.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         if(particleTypes[pm->usedParticles[i]].animation) {
-            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->textureInfo.ID);
+            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->texture.ID);
         }
     }
 
-   
-    glUniform1f(billboardShader.alphaThresholdID, 0.01f);
+    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+
+    glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -388,8 +397,8 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(billboardShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(billboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);

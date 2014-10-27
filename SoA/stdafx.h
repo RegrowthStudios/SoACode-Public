@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef STDAFX_H_
+#define STDAFX_H_
+
 #include "compat.h"
 
 // Make Sure We Use Correct Debug Variables
@@ -27,5 +31,7 @@
 #include <GL/glew.h>
 
 #include "types.h"
+
+#endif // STDAFX_H_
 
 

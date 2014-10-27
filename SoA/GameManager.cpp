@@ -9,10 +9,11 @@
 #include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "ChunkManager.h"
+#include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "OpenglManager.h"
+#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
@@ -21,15 +22,14 @@
 #include "Rendering.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
-#include "TextureAtlasManager.h"
+#include "TexturePackLoader.h"
 #include "Threadpool.h"
 #include "VRayHelper.h"
 #include "WSO.h"
 #include "WSOAtlas.h"
 #include "WSOData.h"
 #include "WSOScanner.h"
-#include "WorldEditor.h"
-#include "shader.h"
+
 #include "utils.h"
 #include "VoxelEditor.h"
 #include "voxelWorld.h"
@@ -46,14 +46,18 @@ CAEngine *GameManager::caEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
 ChunkManager *GameManager::chunkManager = nullptr;
 InputManager *GameManager::inputManager = nullptr;
-TextureAtlasManager *GameManager::textureAtlasManager = nullptr;
 ChunkIOManager* GameManager::chunkIOManager = nullptr;
+MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
+DebugRenderer* GameManager::debugRenderer = nullptr;
+vcore::GLProgramManager* GameManager::glProgramManager = new vcore::GLProgramManager();
+TexturePackLoader* GameManager::texturePackLoader = nullptr;
+vg::TextureCache* GameManager::textureCache = nullptr;
+TerrainGenerator* GameManager::terrainGenerator = nullptr;
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;
-WorldEditor *GameManager::worldEditor = nullptr;
 Planet *GameManager::planet = nullptr;
 nString GameManager::saveFilePath = "";
 GameStates GameManager::gameState = GameStates::MAINMENU;
@@ -66,34 +70,76 @@ void GameManager::initializeSystems() {
         caEngine = new CAEngine();
         soundEngine = new SoundEngine();
         chunkManager = &voxelWorld->getChunkManager();
-        textureAtlasManager = new TextureAtlasManager();
         chunkIOManager = new ChunkIOManager();
-        
+        messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
+        textureCache = new vg::TextureCache();
+        texturePackLoader = new TexturePackLoader(textureCache);
+        terrainGenerator = new TerrainGenerator();
         
+        debugRenderer = new DebugRenderer();
+ 
         _systemsInitialized = true;
     }
 }
 
-void GameManager::initializeWorldEditor() {
-    worldEditor = new WorldEditor;
-    worldEditor->initialize(planet);
+void GameManager::registerTexturesForLoad() {
 
+    texturePackLoader->registerTexture("FarTerrain/location_marker.png");
+    texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+    texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
+    texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+
+    texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/top.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/left.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
+
+    texturePackLoader->registerTexture("FarTerrain/water_noise.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+    texturePackLoader->registerTexture("Particle/ball_mask.png");
+
+    texturePackLoader->registerTexture("GUI/crosshair.png");
 }
 
-void GameManager::exitWorldEditor() {
-    if (worldEditor != nullptr) {
-        delete worldEditor;
-        worldEditor = nullptr;
-    }
-    currentUserInterface = nullptr;
+void GameManager::getTextureHandles() {
+
+    markerTexture = textureCache->findTexture("FarTerrain/location_marker.png");
+    terrainTexture = textureCache->findTexture("FarTerrain/terrain_texture.png");
+
+    normalLeavesTexture = textureCache->findTexture("FarTerrain/normal_leaves_billboard.png");
+    pineLeavesTexture = textureCache->findTexture("FarTerrain/pine_leaves_billboard.png");
+    mushroomCapTexture = textureCache->findTexture("FarTerrain/mushroom_cap_billboard.png");
+    treeTrunkTexture1 = textureCache->findTexture("FarTerrain/tree_trunk_1.png");
+    waterNormalTexture = textureCache->findTexture("Blocks/Liquids/water_normal_map.png");
+
+    starboxTextures[0] = textureCache->findTexture("Sky/StarSkybox/front.png");
+    starboxTextures[1] = textureCache->findTexture("Sky/StarSkybox/right.png");
+    starboxTextures[2] = textureCache->findTexture("Sky/StarSkybox/top.png");
+    starboxTextures[3] = textureCache->findTexture("Sky/StarSkybox/left.png");
+    starboxTextures[4] = textureCache->findTexture("Sky/StarSkybox/bottom.png");
+    starboxTextures[5] = textureCache->findTexture("Sky/StarSkybox/back.png");
+
+    waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
+    ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
+    crosshairTexture = textureCache->findTexture("GUI/crosshair.png");
+
+    // TODO(Ben): Parallelize this
+    logoTexture = textureCache->addTexture("Textures/logo.png");
+    sunTexture = textureCache->addTexture("Textures/sun_texture.png");
+    BlankTextureID = textureCache->addTexture("Textures/blank.png", &SamplerState::POINT_CLAMP);
+    explosionTexture = textureCache->addTexture("Textures/explosion.png");
+    fireTexture = textureCache->addTexture("Textures/fire.png");
 }
 
 void GameManager::initializeSound() {
     soundEngine->Initialize();
-
     soundEngine->LoadAllSounds();
 }
 
@@ -198,8 +244,6 @@ void GameManager::loadPlanet(string filePath) {
 
     BindVBOIndicesID();
 
-    currTerrainGenerator = planet->generator;
-
 }
 
 void GameManager::initializePlanet(const glm::dvec3 cameraPos) {
@@ -237,7 +281,7 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 int ticksArray2[10];
 int ticksArrayIndex2 = 0;
 
-void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[]) {
+void GameManager::update() {
     static int saveStateTicks = SDL_GetTicks();
 
     if (gameInitialized) {
@@ -393,7 +437,7 @@ void GameManager::scanWSO() {
         f32v3 wsoSize(wsos[i]->data->size);
         wsoPos += wsoSize * 0.5f;
 
-        openglManager.debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
+        debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
 
         delete wsos[i];
     }

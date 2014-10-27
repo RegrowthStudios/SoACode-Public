@@ -3,9 +3,9 @@
 
 #include "Random.h"
 #include "LoadMonitor.h"
+#include "LoadBar.h"
 
 class App;
-class LoadBar;
 class SpriteBatch;
 class SpriteFont;
 
@@ -26,8 +26,11 @@ public:
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
 private:
+
+    void addLoadTask(const nString& name, const cString loadText, ILoadTask* task);
+
     // Visualization Of Loading Tasks
-    LoadBar* _loadBars;
+    std::vector<LoadBar> _loadBars;
     SpriteBatch* _sb;
     SpriteFont* _sf;
 

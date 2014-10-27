@@ -3,6 +3,9 @@
 
 #include "IOManager.h"
 
+namespace vorb {
+namespace core {
+
 // We Don't Want To Get OpenGL's Default Attributes
 #define PROGRAM_VARIABLE_IGNORED_PREFIX "gl_"
 #define PROGRAM_VARIABLE_IGNORED_PREFIX_LEN 3
@@ -12,11 +15,15 @@
 GLProgram* GLProgram::_programInUse = nullptr;
 
 GLProgram::GLProgram(bool init /*= false*/) :
-_id(0),
-_idVS(0),
-_idFS(0),
-_isLinked(false) {
+    _id(0),
+    _idVS(0),
+    _idFS(0),
+    _isLinked(false) {
     if (init) this->init();
+}
+
+GLProgram::~GLProgram() {
+    destroy();
 }
 
 void GLProgram::init() {
@@ -44,27 +51,27 @@ void GLProgram::destroy() {
     }
 }
 
-void GLProgram::addShader(ShaderType type, const cString src) {
+bool GLProgram::addShader(ShaderType type, const cString src) {
     // Get the GLenum shader type from the wrapper
     i32 glType = static_cast<GLenum>(type);
     // Check Current State
-    if (getIsLinked() || !getIsCreated()) return;
+    if (getIsLinked() || !getIsCreated()) return false;
     switch (glType) {
-    case GL_VERTEX_SHADER:
-        if (_idVS != 0) {
-            printf("Attempting To Add Another Vertex Shader To Program\n");
+        case GL_VERTEX_SHADER:
+            if (_idVS != 0) {
+                printf("Attempting To Add Another Vertex Shader To Program\n");
+                throw 2;
+            }
+            break;
+        case GL_FRAGMENT_SHADER:
+            if (_idFS != 0) {
+                printf("Attempting To Add Another Fragment Shader To Program\n");
+                throw 2;
+            }
+            break;
+        default:
+            printf("Shader Type Is Not Supported\n");
             throw 2;
-        }
-        break;
-    case GL_FRAGMENT_SHADER:
-        if (_idFS != 0) {
-            printf("Attempting To Add Another Fragment Shader To Program\n");
-            throw 2;
-        }
-        break;
-    default:
-        printf("Shader Type Is Not Supported\n");
-        throw 2;
     }
 
     // Compile The Shader
@@ -83,21 +90,24 @@ void GLProgram::addShader(ShaderType type, const cString src) {
         glGetShaderInfoLog(idS, infoLogLength, NULL, FragmentShaderErrorMessage.data());
         fprintf(stdout, "%s\n", &FragmentShaderErrorMessage[0]);
         glDeleteShader(idS);
-        throw 2;
+        return false;
     }
 
     // Bind Shader To Program
     glAttachShader(_id, idS);
     switch (glType) {
-    case GL_VERTEX_SHADER: _idVS = idS; break;
-    case GL_FRAGMENT_SHADER: _idFS = idS; break;
+        case GL_VERTEX_SHADER: _idVS = idS; break;
+        case GL_FRAGMENT_SHADER: _idFS = idS; break;
     }
+    return true;
 }
-void GLProgram::addShaderFile(ShaderType type, const cString file) {
+
+bool GLProgram::addShaderFile(ShaderType type, const cString file) {
     IOManager iom;
-    const cString src = iom.readFileToString(file);
-    addShader(type, src);
-    delete [] src;
+    nString src;
+
+    iom.readFileToString(file, src);
+    return addShader(type, src.c_str());
 }
 
 void GLProgram::setAttribute(nString name, ui32 index) {
@@ -134,12 +144,34 @@ void GLProgram::setAttributes(const std::vector<std::pair<nString, ui32> >& attr
     }
 }
 
+void GLProgram::setAttributes(const std::vector<nString>& attr) {
+    // Don't Add Attributes If The Program Is Already Linked
+    if (_isLinked) return;
+
+    // Set The Custom Attributes
+    for (ui32 i = 0; i < attr.size(); i++) {
+        glBindAttribLocation(_id, i, attr[i].c_str());
+        _attributes[attr[i]] = i;
+    }
+}
+
 bool GLProgram::link() {
     // Don't Relink Or Attempt A Non-initialized Link
     if (getIsLinked() || !getIsCreated()) return false;
 
     // Link The Program
     glLinkProgram(_id);
+
+    // Don't need the shaders anymore
+    if (_idVS) {
+        glDeleteShader(_idVS);
+        _idVS = 0;
+    }
+    if (_idFS) {
+        glDeleteShader(_idFS);
+        _idFS = 0;
+    }
+
     glValidateProgram(_id);
 
     // Get The Link Status
@@ -202,6 +234,18 @@ void GLProgram::initUniforms() {
     }
 }
 
+void GLProgram::enableVertexAttribArrays() const {
+    for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
+        glEnableVertexAttribArray(it->second);
+    }
+}
+
+void GLProgram::disableVertexAttribArrays() const {
+    for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
+        glDisableVertexAttribArray(it->second);
+    }
+}
+
 void GLProgram::use() {
     if (_programInUse != this) {
         _programInUse = this;
@@ -213,4 +257,7 @@ void GLProgram::unuse() {
         _programInUse = nullptr;
         glUseProgram(0);
     }
+}
+
+}
 }

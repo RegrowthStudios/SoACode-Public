@@ -549,14 +549,14 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
         color.b = Blocks[btype].altColors[flags - 1].b;
         //    cout << btype << " " << flags-1 << " ";
     } else{
-        color.r = Blocks[btype].color[0];
-        color.g = Blocks[btype].color[1];
-        color.b = Blocks[btype].color[2];
+        color.r = Blocks[btype].color.r;
+        color.g = Blocks[btype].color.g;
+        color.b = Blocks[btype].color.b;
     }
 
     if (Blocks[btype].meshType != MeshType::NONE && Blocks[btype].explosivePower == 0){
         if (!chunk->mesh || chunk->mesh->inFrustum){
-            particleEngine.addParticles(BPARTICLES, glm::dvec3(chunk->gridPosition.x + x, chunk->gridPosition.y + y, chunk->gridPosition.z + z), 0, 0.1, 0, 1, color, Blocks[btype].pxTex, 2.0f, 4, extraForce);
+            particleEngine.addParticles(BPARTICLES, glm::dvec3(chunk->gridPosition.x + x, chunk->gridPosition.y + y, chunk->gridPosition.z + z), 0, 0.1, 0, 1, color, Blocks[btype].base.px, 2.0f, 4, extraForce);
         }
     }
 }

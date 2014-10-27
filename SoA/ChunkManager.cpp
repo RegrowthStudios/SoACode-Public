@@ -17,8 +17,8 @@
 #include "FloraGenerator.h"
 #include "FrameBuffer.h"
 #include "Frustum.h"
+#include "GLProgram.h"
 #include "Mesh.h"
-#include "OpenglManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
@@ -34,7 +34,7 @@
 #include "VoxelRay.h"
 #include "Vorb.h"
 #include "ChunkIOManager.h"
-#include "shader.h"
+#include "MessageManager.h"
 
 #include "VoxelPlanetMapper.h"
 
@@ -150,6 +150,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     if (sonarDt > 1.0f) sonarDt = 0.0f;
 
     globalMultiplePreciseTimer.start("Update Chunks");
+
     Chunk::modifyLock.lock();
 
     updateChunks(position);
@@ -198,7 +199,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     Chunk* ch;
     for (size_t i = 0; i < _threadWaitingChunks.size();) {
         ch = _threadWaitingChunks[i];
-        if (ch->inSaveThread == 0 && ch->inLoadThread == 0 && ch->inRenderThread == 0 && ch->inGenerateThread == 0) {
+        if (ch->inSaveThread == false && ch->inLoadThread == false && ch->inRenderThread == false && ch->inGenerateThread == false) {
             freeChunk(_threadWaitingChunks[i]);
             _threadWaitingChunks[i] = _threadWaitingChunks.back();
             _threadWaitingChunks.pop_back();
@@ -206,6 +207,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
             i++;
         }
     }
+
     globalMultiplePreciseTimer.start("Finished Meshes");
     uploadFinishedMeshes();
     //change the parameter to true to print out the timingsm
@@ -258,7 +260,7 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
     // Shader that is lazily initialized
-    static GLProgram* chunkLineProgram = nullptr;
+    static vcore::GLProgram* chunkLineProgram = nullptr;
     // The mesh that is built from the chunks
     vcore::Mesh mesh;
     mesh.init(vcore::PrimitiveType::LINES, true);
@@ -339,9 +341,9 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
         mesh.uploadAndClearLocal();
         // Lazily initialize shader
         if (chunkLineProgram == nullptr) {
-            chunkLineProgram = new GLProgram(true);
-            chunkLineProgram->addShader(ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
-            chunkLineProgram->addShader(ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
+            chunkLineProgram = new vcore::GLProgram(true);
+            chunkLineProgram->addShader(vcore::ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
+            chunkLineProgram->addShader(vcore::ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
             chunkLineProgram->setAttributes(vcore::Mesh::defaultShaderAttributes);
             chunkLineProgram->link();
             chunkLineProgram->initUniforms();
@@ -627,7 +629,9 @@ void ChunkManager::uploadFinishedMeshes() {
             chunk->mesh = NULL;
             if (cmd->chunkMesh != NULL) {
                 cmd->debugCode = 2;
-                gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
+                GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                                     Message(MessageID::CHUNK_MESH,
+                                                     (void *)cmd));
             }
             continue;
         }
@@ -658,7 +662,9 @@ void ChunkManager::uploadFinishedMeshes() {
         //if the chunk has a mesh, send it
         if (cmd->chunkMesh) {
             cmd->debugCode = 3;
-            gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
+            GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                                 Message(MessageID::CHUNK_MESH,
+                                                 (void *)cmd));
         }
 
         if (chunk->_chunkListPtr == nullptr) chunk->_state = ChunkStates::DRAW;
@@ -700,7 +706,6 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMa
     _chunkSlots[0].back().detectNeighbors(_chunkSlotMap);
 }
 
-
 //This is hard coded and bad, we need a better method
 void ChunkManager::initializeMinerals() {
     //                                           type            sheit  schanc cheit  cchanc   eheit   echanc   mins maxs
@@ -740,6 +745,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
     Chunk* chunk;
     vector<Chunk* > chunksToLoad;
     ChunkGridData* chunkGridData;
+    TerrainGenerator* generator = GameManager::terrainGenerator;
 
     ui32 sticks = SDL_GetTicks();
     while (!_loadList.empty()) {
@@ -755,10 +761,10 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         //If the heightmap has not been generated, generate it.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
 
-            currTerrainGenerator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
+            generator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
 
-            currTerrainGenerator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            currTerrainGenerator->postProcessHeightmap(chunkGridData->heightData);
+            generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            generator->postProcessHeightmap(chunkGridData->heightData);
         }
 
         chunksToLoad.push_back(chunk);
@@ -880,7 +886,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
         chunk->isAccessible = 0;
 
-        threadPool.addLoadJob(chunk, new LoadData(chunk->chunkGridData->heightData, currTerrainGenerator));
+        threadPool.addLoadJob(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }

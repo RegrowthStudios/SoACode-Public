@@ -108,6 +108,15 @@
     <Filter Include="SOA Files\Screens\Load\Tasks">
       <UniqueIdentifier>{d4b19aff-5e0f-4ac5-a831-548286691b82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Screens\Menu">
+      <UniqueIdentifier>{0d210193-9560-40f1-a16b-af80064b7293}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\GamePlay">
+      <UniqueIdentifier>{67ff73ec-bf0a-46da-a71d-8821a7acbd76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Game\Tools">
+      <UniqueIdentifier>{da75023d-4b8b-4790-af72-c6535569b583}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -120,9 +129,6 @@
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>
     <ClInclude Include="AwesomiumInterface.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="AwesomiumUI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
     <ClInclude Include="BlockData.h">
@@ -212,14 +218,8 @@
     <ClInclude Include="Frustum.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameControls.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="GameManager.h">
       <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="GameMenu.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="GeometrySorter.h">
       <Filter>SOA Files\Rendering</Filter>
@@ -244,9 +244,6 @@
     </ClInclude>
     <ClInclude Include="IGameScreen.h">
       <Filter>SOA Files\Screens\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageLoading.h">
-      <Filter>SOA Files\Rendering\Images</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>SOA Files\Ext\Input</Filter>
@@ -292,9 +289,6 @@
     </ClInclude>
     <ClInclude Include="ObjectLoader.h">
       <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenglManager.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLStructs.h">
       <Filter>SOA Files\Rendering</Filter>
@@ -362,9 +356,6 @@
     <ClInclude Include="ScreenList.h">
       <Filter>SOA Files\Screens\Base</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="SimplexNoise.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
@@ -391,9 +382,6 @@
     </ClInclude>
     <ClInclude Include="Texture2d.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureAtlasManager.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="TextureAtlasStitcher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -433,9 +421,6 @@
     </ClInclude>
     <ClInclude Include="VRayHelper.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldEditor.h">
-      <Filter>SOA Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="WorldStructs.h">
       <Filter>SOA Files\Game</Filter>
@@ -485,14 +470,86 @@
     <ClInclude Include="InitScreen.h">
       <Filter>SOA Files\Screens\Init</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskInput.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskGameManager.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="colors.h">
       <Filter>SOA Files\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuScreen.h">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageManager.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskShaders.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameWindow.h">
+      <Filter>SOA Files\Screens\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskBlockData.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskPlanet.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskSound.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="TexturePackLoader.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockLoader.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="GLProgramManager.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenglSurfaceFactory.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuAPI.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumAPI.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePlayScreen.h">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshManager.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureCache.h">
+      <Filter>SOA Files\Rendering\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLoader.h">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSaver.h">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuMemory.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskTextures.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="PDA.h">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Computer.h">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="PdaAwesomiumAPI.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -503,9 +560,6 @@
       <Filter>SOA Files\Screens</Filter>
     </ClCompile>
     <ClCompile Include="AwesomiumInterface.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="AwesomiumUI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
     <ClCompile Include="BlockData.cpp">
@@ -583,14 +637,8 @@
     <ClCompile Include="Frustum.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="GameControls.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="GameManager.cpp">
       <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="GameMenu.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="GeometrySorter.cpp">
       <Filter>SOA Files\Rendering</Filter>
@@ -606,9 +654,6 @@
     </ClCompile>
     <ClCompile Include="GraphicsDevice.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageLoading.cpp">
-      <Filter>SOA Files\Rendering\Images</Filter>
     </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
@@ -639,9 +684,6 @@
     </ClCompile>
     <ClCompile Include="ObjectLoader.cpp">
       <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenglManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Options.cpp">
       <Filter>SOA Files\Data</Filter>
@@ -691,9 +733,6 @@
     <ClCompile Include="ScreenList.cpp">
       <Filter>SOA Files\Screens\Base</Filter>
     </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="SimplexNoise.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
@@ -717,9 +756,6 @@
     </ClCompile>
     <ClCompile Include="Texture2d.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureAtlasManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="TextureAtlasStitcher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -745,9 +781,6 @@
     <ClCompile Include="VRayHelper.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="WorldEditor.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="WorldStructs.cpp">
       <Filter>SOA Files\Game</Filter>
     </ClCompile>
@@ -763,7 +796,6 @@
     <ClCompile Include="ZipFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\deps\include\JSON\json_spirit_reader.cpp" />
     <ClCompile Include="RenderTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
@@ -791,8 +823,57 @@
     <ClCompile Include="colors.cpp">
       <Filter>SOA Files\Ext</Filter>
     </ClCompile>
-    <ClCompile Include="LoadTaskInput.cpp">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    <ClCompile Include="MainMenuScreen.cpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="GameWindow.cpp">
+      <Filter>SOA Files\Screens\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="TexturePackLoader.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockLoader.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgramManager.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenglSurfaceFactory.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuAPI.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="IAwesomiumAPI.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="GamePlayScreen.cpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshManager.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureCache.cpp">
+      <Filter>SOA Files\Rendering\Images</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLoader.cpp">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSaver.cpp">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuMemory.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="PDA.cpp">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Computer.cpp">
+      <Filter>SOA Files\Game\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="PdaAwesomiumAPI.cpp">
+      <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

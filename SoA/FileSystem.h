@@ -79,10 +79,8 @@ public:
     i32 loadTreeType(nString filePath, TreeType* tree);
     i32 loadBiomeData(Planet* planet, nString worldFilePath);
     i32 readBiome(Biome* biome, nString fileName, Planet* planet, nString worldFilePath);
-    void loadTexturePack(nString fileName);
-    nString loadTexturePackDescription(nString fileName);
 
-    bool loadTexFile(nString fileName, ZipFile* zipFile, struct BlockTexture* rv);
+    nString loadTexturePackDescription(nString fileName);
 
     i32 loadBlocks(nString filePath);
     i32 saveBlocks(nString filePath);
@@ -98,7 +96,6 @@ public:
     nString getSaveFileNameDialog(const nString& prompt, const cString initialDir);
 
     void loadNoiseDescriptions(const cString filename);
-    int getDirectoryEntries(std::vector<nString>& fileNames, std::vector<nString>& descriptions, nString dirPath);
 
     INI_KEYS getIniVal(nString& s);
     INI_KEYS getBlockIniVal(nString& s);

@@ -9,13 +9,13 @@
 #include "ChunkManager.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "TerrainGenerator.h"
 #include "Texture2d.h"
-#include "shader.h"
+#include "MessageManager.h"
+
 #include "utils.h"
 
 PhysicsBlock::PhysicsBlock(const glm::dvec3 &pos, int BlockType, int ydiff, glm::vec2 &dir, glm::vec3 extraForce)
@@ -118,9 +118,9 @@ bool PhysicsBlock::update()
     if (Blocks[val].collide || (Blocks[val].physicsProperty == P_LIQUID && GETBLOCK(blockType).physicsProperty >= P_POWDER)){
         if (Blocks[btype = (blockID)].isCrushable){
             glm::vec4 color;
-            color.r = Blocks[btype].color[0];
-            color.g = Blocks[btype].color[1];
-            color.b = Blocks[btype].color[2];
+            color.r = Blocks[btype].color.r;
+            color.g = Blocks[btype].color.g;
+            color.b = Blocks[btype].color.b;
             color.a = 255;
 
             if (Blocks[btype].altColors.size()){
@@ -132,7 +132,7 @@ bool PhysicsBlock::update()
                 }
             }
 
-            particleEngine.addParticles(BPARTICLES, glm::dvec3((int)position.x - 1.0, (int)position.y + 1.0, (int)position.z - 1.0), 0, 0.1, 300, 1, color, Blocks[GETBLOCKTYPE(blockType)].pxTex, 2.0f, 4);
+            particleEngine.addParticles(BPARTICLES, glm::dvec3((int)position.x - 1.0, (int)position.y + 1.0, (int)position.z - 1.0), 0, 0.1, 300, 1, color, Blocks[GETBLOCKTYPE(blockType)].base.px, 2.0f, 4);
             return 1;
         }
         double fx, fy, fz;
@@ -294,7 +294,10 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
 
     _mesh = new PhysicsBlockMesh;
     pbmm->mesh = _mesh;
-    gameToGl.enqueue(Message(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+    
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                         Message(MessageID::PHYSICS_BLOCK_MESH,
+                                         (void *)pbmm));
 }
 
 PhysicsBlockBatch::~PhysicsBlockBatch()
@@ -302,11 +305,13 @@ PhysicsBlockBatch::~PhysicsBlockBatch()
     if (_mesh != NULL){
         PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
         pbmm->mesh = _mesh;
-        gameToGl.enqueue(Message(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+        GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                             Message(MessageID::PHYSICS_BLOCK_MESH,
+                                             (void *)pbmm));
     }
 }
 
-void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const f64v3 &PlayerPos, f32m4 &VP)
+void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vcore::GLProgram* program, const f64v3 &PlayerPos, f32m4 &VP)
 {
     if (pbm == NULL) return;
     if (pbm->numBlocks == 0) return;
@@ -316,8 +321,8 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const f64v3 &PlayerPos, f32m
 
     glm::mat4 MVP = VP * GlobalModelMatrix;
 
-    glUniformMatrix4fv(physicsBlockShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(physicsBlockShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
     // 1rst attribute buffer : vertices
     glBindBuffer(GL_ARRAY_BUFFER, pbm->vboID);
@@ -370,7 +375,7 @@ bool PhysicsBlockBatch::update()
     vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
     verts.resize(physicsBlocks.size());
     
-    ui8 color[3], overlayColor[3];
+    ColorRGB8 color, overlayColor;
 
     //need to fix this so that color is correct
     Blocks[physicsBlocks[0].blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[physicsBlocks[0].blockType].pzTexInfo);
@@ -384,12 +389,8 @@ bool PhysicsBlockBatch::update()
             verts[i].pos[1] = physicsBlocks[i].position.y - _bY;
             verts[i].pos[2] = physicsBlocks[i].position.z - _bZ;
 
-            verts[i].color[0] = color[0];
-            verts[i].color[1] = color[1];
-            verts[i].color[2] = color[2];
-            verts[i].overlayColor[0] = overlayColor[0];
-            verts[i].overlayColor[1] = overlayColor[1];
-            verts[i].overlayColor[2] = overlayColor[2];
+            verts[i].color = color;
+            verts[i].overlayColor = overlayColor;
 
             verts[i].light[0] = physicsBlocks[i].light[0];
             verts[i].light[1] = physicsBlocks[i].light[1];
@@ -403,7 +404,9 @@ bool PhysicsBlockBatch::update()
     if (_numBlocks == 0){
         if (_mesh != NULL){
             pbmm->mesh = _mesh;
-            gameToGl.enqueue(Message(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+            GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                                 Message(MessageID::PHYSICS_BLOCK_MESH,
+                                                 (void *)pbmm));
             _mesh = NULL;
         }
         return 1;
@@ -418,7 +421,9 @@ bool PhysicsBlockBatch::update()
     }
     pbmm->mesh = _mesh;
 
-    gameToGl.enqueue(Message(GL_M_PHYSICSBLOCKMESH, (void *)pbmm));
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                         Message(MessageID::PHYSICS_BLOCK_MESH,
+                                         (void *)pbmm));
 
     return 0;
 }

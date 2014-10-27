@@ -6,7 +6,6 @@ extern i32 showYesNoCancelBox(const nString& message);
 extern void showMessage(const nString& message);
 
 extern nString getFullPath(const cString initialDir);
-extern void mError(const nString& message);
 extern void pError(const cString message);
 extern void pError(const nString& message);
 

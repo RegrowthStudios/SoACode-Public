@@ -7,6 +7,7 @@
 #include "WorldStructs.h"
 
 void printVec(string desc, glm::vec3 vec);
+void printVec(string desc, glm::vec4 vec);
 void printVec(string desc, glm::dvec3 vec);
 
 extern glm::mat4 GlobalModelMatrix;
@@ -28,7 +29,7 @@ extern bool debugVarh;
 extern GLuint debugTicks;
 extern bool debugTicksDone;
 extern double closestTerrainPatchDistance;
-extern int gridState;
+extern bool gridState;
 
 extern bool chunkMeshShortcutActive;
 extern int globalTreeSeed;
@@ -66,7 +67,7 @@ extern GLuint GuiTextureID;
 
 //temporary
 extern int lodLength;
-const int TerrainPatchWidth = 262144*8/planetScale;
+const int TerrainPatchWidth = (int)(262144*8/planetScale);
 
 extern GLushort boxDrawIndices[6];
 extern GLfloat boxUVs[8];

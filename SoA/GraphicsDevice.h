@@ -1,4 +1,5 @@
 #pragma once
+struct SDL_Window;
 
 struct GraphicsDeviceProperties {
 public:
@@ -15,6 +16,7 @@ public:
     i32 nativeScreenWidth;
     i32 nativeScreenHeight;
     i32 nativeRefreshRate;
+    std::vector<ui32v2> resolutionOptions;
 
     const cString glVendor;
     const cString glVersion;
@@ -25,7 +27,7 @@ public:
 
 class GraphicsDevice {
 public:
-    GraphicsDevice();
+    GraphicsDevice(SDL_Window* w);
 
     static GraphicsDevice* getCurrent() {
         return _current;
@@ -37,6 +39,8 @@ public:
         return _props;
     }
 private:
+    void initResolutions(SDL_Window* w);
+
     GraphicsDeviceProperties _props;
 
     static GraphicsDevice* _current;

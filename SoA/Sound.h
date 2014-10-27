@@ -46,7 +46,7 @@ public:
     }
     void Initialize();
     void LoadAllSounds();
-    void update(const glm::dvec3 &listenerPos, const glm::vec3 &listenerDir, const glm::vec3 &listenerUp);
+    void update(const f64v3 &listenerPos = f64v3(0.0), const f32v3 &listenerDir = f32v3(0.0f, 0.0f, 1.0f), const f32v3 &listenerUp = f32v3(0.0f, 1.0f, 0.0f));
     bool AddSound(const char *name, const char *filename, SOUND_TYPE soundType = S_DEFAULT, bool stream = 0, bool is3D = 1, float minDistance = 1.0f);
     bool RemoveSound(const char *name);
     void PlayExistingSound(const char *name, bool loop, float volume, bool song, glm::dvec3 position = glm::dvec3(0.0), int callBackType = 0);

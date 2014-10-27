@@ -2,7 +2,7 @@
 
 // These can not be an enum. They are very likely to change values at runtime!
 extern i32 INPUT_BLOCK_SCANNER;
-extern i32 INPUT_BLOCK_SELECT;
+extern i32 INPUT_BLOCK_DRAG;
 extern i32 INPUT_CROUCH;
 extern i32 INPUT_DEBUG;
 extern i32 INPUT_DRAW_MODE;
@@ -24,6 +24,7 @@ extern i32 INPUT_PLANET_ROTATION;
 extern i32 INPUT_RELOAD_BLOCKS;
 extern i32 INPUT_RELOAD_SHADERS;
 extern i32 INPUT_RELOAD_TEXTURES;
+extern i32 INPUT_RELOAD_UI;
 extern i32 INPUT_SONAR;
 extern i32 INPUT_SCAN_WSO;
 extern i32 INPUT_SPRINT;

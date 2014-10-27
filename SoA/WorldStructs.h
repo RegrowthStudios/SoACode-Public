@@ -8,7 +8,6 @@
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer;
 
-extern string saveFilePath;
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
 const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.
@@ -18,16 +17,17 @@ struct FixedSizeBillboardVertex{
     GLubyte uv[2];
 };
 
+//TODO(Ben): Make this work again
 class Marker{
 public:
     glm::dvec3 pos;
-    Color color;
+    ColorRGBA8 color;
     int num;
     double dist;
     string name;
 
-    class Texture2D distText;
-    Texture2D nameTex;
+    vg::Texture distText;
+    vg::Texture nameTex;
 
     Marker(const glm::dvec3 &Pos, string Name, const glm::vec3 Color);
     void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);
@@ -179,9 +179,9 @@ struct BillboardVertex
 struct PhysicsBlockPosLight
 {
     GLfloat pos[3]; //12
-    GLubyte color[3]; //15
+    ColorRGB8 color; //15
     GLubyte pad1; //16
-    GLubyte overlayColor[3]; //19
+    ColorRGB8 overlayColor; //19
     GLubyte pad2; //20
     GLubyte light[2]; //22
     GLubyte pad3[2]; //24

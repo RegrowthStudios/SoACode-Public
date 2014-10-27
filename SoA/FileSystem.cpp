@@ -3,9 +3,13 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <ZLIB/ioapi.c>
 #include <ZLIB/unzip.c>
 
+#include <sys/stat.h>
+
+#include "Animation.h"
 #include "BlockData.h"
 #include "Chunk.h"
 #include "Errors.h"
@@ -21,7 +25,8 @@
 #include "Planet.h"
 #include "Player.h"
 #include "TerrainGenerator.h"
-#include "TextureAtlasManager.h"
+#include "TextureCache.h"
+#include "TexturePackLoader.h"
 #include "WorldStructs.h"
 #include "ZipFile.h"
 
@@ -219,6 +224,8 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
     bool hasTemp = 0, hasRainfall = 0;
     bool isModifier;
 
+    TerrainGenerator* generator = GameManager::terrainGenerator;
+
     ifstream file;
 
     char buffer[512];
@@ -251,21 +258,21 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
             }
 
             if (type == 10000) {
-                currTerrainGenerator->SetRiverNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetRiverNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10001) {
-                currTerrainGenerator->SetTributaryNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetTributaryNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10002) {
-                currTerrainGenerator->SetBiomeOffsetNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetBiomeOffsetNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10003) {
-                currTerrainGenerator->SetPreturbNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetPreturbNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10004) {
                 hasTemp = 1;
-                currTerrainGenerator->SetTemperatureNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetTemperatureNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10005) {
                 hasRainfall = 1;
-                currTerrainGenerator->SetRainfallNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetRainfallNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else {
-                currTerrainGenerator->AddNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type, isModifier);
+                generator->AddNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type, isModifier);
             }
         }
     }
@@ -427,12 +434,10 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
 
         if (first) {
             Blocks[lblock].altColors.clear();
-            Blocks[lblock].color[0] = r;
-            Blocks[lblock].color[1] = g;
-            Blocks[lblock].color[2] = b;
+            Blocks[lblock].color = ColorRGB8(r, g, b);
             first = 0;
         }
-        Blocks[lblock].altColors.push_back(glm::ivec3(r, g, b));
+        Blocks[lblock].altColors.emplace_back(r, g, b);
         i++;
         if (i == 15) {
             i = 0;
@@ -447,10 +452,11 @@ i32 FileManager::loadTreeType(nString filePath, TreeType *tree) {
     // TODO: This Should Be An Argument
     IOManager iom;
 
-    const cString data = iom.readFileToString(filePath.c_str());
-    if (!data) return 1;
+    nString data;
+    iom.readFileToString(filePath.c_str(), data);
+    if (data.empty()) return 1;
 
-    return Keg::parse(tree, data, "TreeType") == Keg::Error::NONE ? 0 : 1;
+    return Keg::parse(tree, data.c_str(), "TreeType") == Keg::Error::NONE ? 0 : 1;
 }
 
 i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
@@ -459,6 +465,9 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
     char buffer[512];
     nString bfname;
     Biome *biome;
+
+    vg::TextureCache* textureCache = GameManager::textureCache;
+
 
     nString ts, s;
     file.open(worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt");
@@ -482,7 +491,7 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 return 1;
             }
             planet->biomeMapFileName = s;
-            loadPNG(planet->biomeMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->biomeMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Biome_Color_Filename:") {
             if (!(file >> s)) {
                 std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Color_Filename!\nEnter any key to continue: ";
@@ -491,7 +500,7 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 return 1;
             }
             planet->colorMapFileName = s;
-            loadPNG(planet->colorMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->colorMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Water_Color_Filename:") {
             if (!(file >> s)) {
                 std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Water_Color_Filename!\nEnter any key to continue: ";
@@ -500,7 +509,7 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 return 1;
             }
             planet->waterColorMapFileName = s;
-            loadPNG(planet->waterColorMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->waterColorMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Base_Biomes:") {
             activeList = 1;
         } else if (ts == "Main_Biomes:") {
@@ -1107,7 +1116,7 @@ nString FileManager::getSaveFileNameDialog(const nString &prompt, const char *in
 }
 
 i32 SetWaterBlocks(int startID) {
-    float weight = Blocks[startID].weight;
+    float weight = 0;
     Blocks[startID].name = "Water (1)"; //now build rest of water blocks
     for (int i = startID + 1; i <= startID + 99; i++) {
         if (Blocks[i].active) {
@@ -1119,7 +1128,6 @@ i32 SetWaterBlocks(int startID) {
         Blocks[i] = Blocks[startID];
         Blocks[i].name = "Water (" + to_string(i - startID + 1) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
-        Blocks[i].weight = (i - startID + 1) / 100.0f * weight;
     }
     for (int i = startID + 100; i < startID + 150; i++) {
         if (Blocks[i].active) {
@@ -1131,245 +1139,6 @@ i32 SetWaterBlocks(int startID) {
         Blocks[i] = Blocks[startID];
         Blocks[i].name = "Water Pressurized (" + to_string(i - (startID + 99)) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
-        Blocks[i].weight = 100.0f * weight;
-    }
-}
-
-void FileManager::loadTexturePack(nString fileName) {
-
-    //DIR *defDir = NULL;
-    bool loadAll = 0;
-    bool isDefault;
-    bool isDefaultZip;
-    nString defaultFileName = "Textures/TexturePacks/" + graphicsOptions.defaultTexturePack;
-    isDefaultZip = (defaultFileName.substr(defaultFileName.size() - 4) == ".zip");
-
-    //verify the default pack
-    if (isDefaultZip == 0) {
-        //defDir = opendir(defaultFileName.c_str());
-        if (!boost::filesystem::exists(defaultFileName)) {
-            defaultFileName = defaultFileName + ".zip";
-            graphicsOptions.defaultTexturePack = "Default.zip";
-            isDefaultZip = 1;
-            //} else {
-            //closedir(defDir);
-        }
-    } else {
-        struct stat statbuf;
-        if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-            isDefaultZip = 0;
-            defaultFileName = defaultFileName.substr(0, defaultFileName.size() - 4); //chop off .zip
-            graphicsOptions.defaultTexturePack = "Default";
-        }
-    }
-
-    struct stat statbuf; //check that default pack exists
-    if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-        pError("Default Texture Pack Default is missing! Please re-install the game.");
-        exit(44);
-    }
-
-    if (!isDefaultZip) defaultFileName += "/";
-
-    if (fileName == graphicsOptions.currTexturePack) {
-        //DrawLoadingScreen("Resizing Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    } else {
-        loadAll = 1;
-        graphicsOptions.currTexturePack = fileName;
-        //DrawLoadingScreen("Loading Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    }
-
-    if (stat(fileName.c_str(), &statbuf) != 0) {
-        pError("Texture Pack \"" + fileName + "\" is missing! The game will use the " + graphicsOptions.defaultTexturePack + " Texture Pack instead.");
-        fileName = defaultFileName;
-        graphicsOptions.currTexturePack = graphicsOptions.defaultTexturePack;
-        graphicsOptions.texturePackString = graphicsOptions.defaultTexturePack;
-        //DrawLoadingScreen("Loading Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    }
-
-    bool isZip = fileName.substr(fileName.size() - 4) == ".zip";
-    if (!isZip) fileName += "/";
-
-    isDefault = (fileName == defaultFileName);
-
-    //load texture pack
-    if (loadAll) {
-
-
-        if (isZip) {
-            ZipFile zipFile(fileName);
-            if (zipFile.isFailure()) exit(1000);
-            size_t filesize;
-            unsigned char *zipData, *resData;
-
-            //resolution
-            resData = zipFile.readFile("resolution.txt", filesize);
-            if (sscanf((char *)resData, "%d", &(graphicsOptions.currTextureRes)) != 1) {
-                pError("failed to read resolution.txt in texture pack " + fileName);
-                return;
-            }
-            graphicsOptions.defaultTextureRes = graphicsOptions.currTextureRes;
-            delete[] resData;
-
-            zipData = zipFile.readFile("FarTerrain/location_marker.png", filesize);
-            loadPNG(markerTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/terrain_texture.png", filesize);
-            loadPNG(terrainTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/normal_leaves_billboard.png", filesize);
-            loadPNG(normalLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/pine_leaves_billboard.png", filesize);
-            loadPNG(pineLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/mushroom_cap_billboard.png", filesize);
-            loadPNG(mushroomCapTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/tree_trunk_1.png", filesize);
-            loadPNG(treeTrunkTexture1, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Blocks/Liquids/water_normal_map.png", filesize);
-            loadPNG(waterNormalTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/front.png", filesize);
-            loadPNG(starboxTextures[0], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/right.png", filesize);
-            loadPNG(starboxTextures[1], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/top.png", filesize);
-            loadPNG(starboxTextures[2], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/left.png", filesize);
-            loadPNG(starboxTextures[3], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/bottom.png", filesize);
-            loadPNG(starboxTextures[4], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/back.png", filesize);
-            loadPNG(starboxTextures[5], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("FarTerrain/water_noise.png", filesize);
-            loadPNG(waterNoiseTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Particle/ball_mask.png", filesize);
-            loadPNG(ballMaskTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-        } else {
-
-            //resolution
-            ifstream resFile(fileName + "resolution.txt");
-            if (resFile.fail() || !(resFile >> graphicsOptions.currTextureRes)) {
-                pError("failed to read resolution.txt in texture pack " + fileName);
-                return;
-            }
-            graphicsOptions.defaultTextureRes = graphicsOptions.currTextureRes;
-            resFile.close();
-
-
-            loadPNG(markerTexture, (fileName + "FarTerrain/location_marker.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(terrainTexture, (fileName + "FarTerrain/terrain_texture.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(normalLeavesTexture, (fileName + "FarTerrain/normal_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(pineLeavesTexture, (fileName + "FarTerrain/pine_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(mushroomCapTexture, (fileName + "FarTerrain/mushroom_cap_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(treeTrunkTexture1, (fileName + "FarTerrain/tree_trunk_1.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(waterNormalTexture, (fileName + "Blocks/Liquids/water_normal_map.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(starboxTextures[0], (fileName + "Sky/StarSkybox/front.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[1], (fileName + "Sky/StarSkybox/right.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[2], (fileName + "Sky/StarSkybox/top.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[3], (fileName + "Sky/StarSkybox/left.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[4], (fileName + "Sky/StarSkybox/bottom.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[5], (fileName + "Sky/StarSkybox/back.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(waterNoiseTexture, (fileName + "FarTerrain/water_noise.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(ballMaskTexture, (fileName + "Particle/ball_mask.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-
-        }
-    }
-
-    //load defaults if they are missing
-    if (isDefault == 0) {
-
-        if (isDefaultZip) {
-            ZipFile zipFile(defaultFileName);
-            if (zipFile.isFailure()) exit(1000);
-            size_t filesize;
-            unsigned char *zipData;
-            if (markerTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/location_marker.png", filesize);
-                loadPNG(markerTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (terrainTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/terrain_texture.png", filesize);
-                loadPNG(terrainTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (normalLeavesTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/normal_leaves_billboard.png", filesize);
-                loadPNG(normalLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (pineLeavesTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/pine_leaves_billboard.png", filesize);
-                loadPNG(pineLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (mushroomCapTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/mushroom_cap_billboard.png", filesize);
-                loadPNG(mushroomCapTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (treeTrunkTexture1.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/tree_trunk_1.png", filesize);
-                loadPNG(treeTrunkTexture1, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (waterNormalTexture.ID == 0) {
-                zipData = zipFile.readFile("Blocks/Liquids/water_normal_map.png", filesize);
-                loadPNG(waterNormalTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (starboxTextures[0].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/front.png", filesize);
-                loadPNG(starboxTextures[0], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[1].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/right.png", filesize);
-                loadPNG(starboxTextures[1], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[2].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/top.png", filesize);
-                loadPNG(starboxTextures[2], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[3].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/left.png", filesize);
-                loadPNG(starboxTextures[3], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[4].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/bottom.png", filesize);
-                loadPNG(starboxTextures[4], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[5].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/back.png", filesize);
-                loadPNG(starboxTextures[5], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (waterNoiseTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/water_noise.png", filesize);
-                loadPNG(waterNoiseTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (ballMaskTexture.ID == 0) {
-                zipData = zipFile.readFile("Particle/ball_mask.png", filesize);
-                loadPNG(ballMaskTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-        } else {
-            if (markerTexture.ID == 0) loadPNG(markerTexture, (defaultFileName + "FarTerrain/location_marker.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (terrainTexture.ID == 0) loadPNG(terrainTexture, (defaultFileName + "FarTerrain/terrain_texture.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (normalLeavesTexture.ID == 0) loadPNG(normalLeavesTexture, (defaultFileName + "FarTerrain/normal_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (pineLeavesTexture.ID == 0) loadPNG(pineLeavesTexture, (defaultFileName + "FarTerrain/pine_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (mushroomCapTexture.ID == 0) loadPNG(mushroomCapTexture, (defaultFileName + "FarTerrain/mushroom_cap_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (treeTrunkTexture1.ID == 0) loadPNG(treeTrunkTexture1, (defaultFileName + "FarTerrain/tree_trunk_1.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (waterNormalTexture.ID == 0) loadPNG(waterNormalTexture, (defaultFileName + "Blocks/Liquids/water_normal_map.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (starboxTextures[0].ID == 0) loadPNG(starboxTextures[0], (defaultFileName + "Sky/StarSkybox/front.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[1].ID == 0) loadPNG(starboxTextures[1], (defaultFileName + "Sky/StarSkybox/right.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[2].ID == 0) loadPNG(starboxTextures[2], (defaultFileName + "Sky/StarSkybox/top.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[3].ID == 0) loadPNG(starboxTextures[3], (defaultFileName + "Sky/StarSkybox/left.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[4].ID == 0) loadPNG(starboxTextures[4], (defaultFileName + "Sky/StarSkybox/bottom.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[5].ID == 0) loadPNG(starboxTextures[5], (defaultFileName + "Sky/StarSkybox/back.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (waterNoiseTexture.ID == 0) loadPNG(waterNoiseTexture, (defaultFileName + "FarTerrain/water_noise.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (ballMaskTexture.ID == 0) loadPNG(ballMaskTexture, (defaultFileName + "Particle/ball_mask.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-        }
-    }
-
-    //check resolution
-    if (!(graphicsOptions.currTextureRes > 0) && !(graphicsOptions.currTextureRes & (graphicsOptions.currTextureRes - 1))) { //check that it is a power of two
-        pError("resolution.txt in texture pack " + fileName + " resolution is " + to_string(graphicsOptions.currTextureRes) + ". It must be a power of two!");
-        return;
-    }
-
-
-    GameManager::textureAtlasManager->loadBlockAtlas(fileName);
-
-    for (size_t i = 0; i < Blocks.size(); i++) {
-        Blocks[i].InitializeTexture();
     }
 }
 
@@ -1415,8 +1184,6 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
 }
 
 i32 FileManager::loadBlocks(nString filePath) {
-    textureMap.clear();
-    GameManager::textureAtlasManager->clearAll();
 
     for (auto i = _animationMap.begin(); i != _animationMap.end(); i++) {
         delete i->second;
@@ -1456,7 +1223,7 @@ i32 FileManager::loadBlocks(nString filePath) {
     int iVal;
     int currID = 0;
     IniValue *iniVal;
-    Block *b = NULL;
+    Block *b = nullptr;
     for (size_t i = 1; i < iniSections.size(); i++) {
         for (size_t j = 0; j < iniValues[i].size(); j++) {
             iniVal = &(iniValues[i][j]);
@@ -1488,22 +1255,22 @@ i32 FileManager::loadBlocks(nString filePath) {
                 break;
             case BLOCK_INI_COLOR:
                 if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->color[0] = ((hexColor >> 16) & 0xFF);
-                    b->color[1] = ((hexColor >> 8) & 0xFF);
-                    b->color[2] = (hexColor & 0xFF);
+                    b->color.r = ((hexColor >> 16) & 0xFF);
+                    b->color.g = ((hexColor >> 8) & 0xFF);
+                    b->color.b = (hexColor & 0xFF);
                 }
                 break;
             case BLOCK_INI_COLORFILTER:
                 if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->colorFilter[0] = ((hexColor >> 16) & 0xFF) / 255.0f;
-                    b->colorFilter[1] = ((hexColor >> 8) & 0xFF) / 255.0f;
-                    b->colorFilter[2] = (hexColor & 0xFF) / 255.0f;
+                    b->colorFilter.r = ((hexColor >> 16) & 0xFF) / 255.0f;
+                    b->colorFilter.g = ((hexColor >> 8) & 0xFF) / 255.0f;
+                    b->colorFilter.b = (hexColor & 0xFF) / 255.0f;
                 }
             case BLOCK_INI_OVERLAYCOLOR:
                 if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->overlayColor[0] = ((hexColor >> 16) & 0xFF);
-                    b->overlayColor[1] = ((hexColor >> 8) & 0xFF);
-                    b->overlayColor[2] = (hexColor & 0xFF);
+                    b->overlayColor.r = ((hexColor >> 16) & 0xFF);
+                    b->overlayColor.g = ((hexColor >> 8) & 0xFF);
+                    b->overlayColor.b = (hexColor & 0xFF);
                 }
                 break;
             case BLOCK_INI_CRUSHABLE:
@@ -1536,9 +1303,6 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_FLOATINGACTION:
                 b->floatingAction = iniVal->getInt();
                 break;
-            case BLOCK_INI_HEALTH:
-                b->health = iniVal->getInt();
-                break;
             case BLOCK_INI_LIGHTACTIVE:
                 b->isLight = iniVal->getInt();
                 break;
@@ -1547,9 +1311,6 @@ i32 FileManager::loadBlocks(nString filePath) {
                     //Convert RRRRRRRR GGGGGGGG BBBBBBBB to RRRRR GGGGG BBBBB
                     b->lightColor = ((MIN((hexColor & 0xFF0000) >> 16, 31)) << 10) | (MIN((hexColor & 0x1F00) >> 8, 31) << 5) | MIN(hexColor & 0x1f, 31);
                 }
-                break;
-            case BLOCK_INI_MATERIAL:
-                b->material = iniVal->getInt();
                 break;
             case BLOCK_INI_MESHTYPE:
                 b->meshType = static_cast<MeshType>(iniVal->getInt() + 1);
@@ -1569,38 +1330,32 @@ i32 FileManager::loadBlocks(nString filePath) {
             case BLOCK_INI_TEXTURE:
                 b->topTexName = iniVal->getStr();
                 b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = b->bottomTexName = b->topTexName;
-                GameManager::textureAtlasManager->addBlockTexture(b->topTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->topTexName);
                 break;
             case BLOCK_INI_TEXTURETOP:
                 b->topTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->topTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->topTexName);
                 break;
             case BLOCK_INI_TEXTURESIDE:
                 b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->leftTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->leftTexName);
                 break;
             case BLOCK_INI_TEXTUREBOTTOM:
                 b->bottomTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->bottomTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->bottomTexName);
                 break;
             case BLOCK_INI_TEXTURE_PARTICLE:
                 b->particleTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->particleTexName);
+                GameManager::texturePackLoader->registerBlockTexture(b->particleTexName);
                 break;
             case BLOCK_INI_USEABLE:
                 b->useable = iniVal->getInt();
-                break;
-            case BLOCK_INI_VALUE:
-                b->value = iniVal->getFloat();
                 break;
             case BLOCK_INI_WATERMESHLEVEL:
                 b->waterMeshLevel = iniVal->getInt();
                 break;
             case BLOCK_INI_WAVEEFFECT:
                 b->waveEffect = iniVal->getInt();
-                break;
-            case BLOCK_INI_WEIGHT:
-                b->weight = iniVal->getFloat();
                 break;
             case BLOCK_INI_OCCLUDE:
                 b->occlude = iniVal->getInt();
@@ -1615,7 +1370,7 @@ i32 FileManager::loadBlocks(nString filePath) {
                 if (iniVal->key.substr(0, 8) == "altColor") {
                     int cr, cg, cb;
                     if (sscanf(iniVal->val.c_str(), "%d,%d,%d", &cr, &cg, &cb) == 3) {
-                        b->altColors.push_back(glm::ivec3(cr, cg, cb));
+                        b->altColors.emplace_back(cr, cg, cb);
                     }
                 }
                 break;
@@ -1624,32 +1379,6 @@ i32 FileManager::loadBlocks(nString filePath) {
     }
 
     if (!(SetWaterBlocks(LOWWATER))) return 0;
-
-    //load the texture pack
-    loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
-
-    //load the emitters
-    for (int i = 0; i < 4096; i++) {
-        if (Blocks[i].active) {
-            if (Blocks[i].emitterName.size()) {
-                Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
-            }
-            if (Blocks[i].emitterOnBreakName.size()) {
-                Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
-            }
-            if (Blocks[i].emitterRandomName.size()) {
-                Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
-            }
-        }
-    }
-
-    //It has no texture
-    Blocks[0].pxTex = -1;
-    Blocks[0].pyTex = -1;
-    Blocks[0].pzTex = -1;
-    Blocks[0].nxTex = -1;
-    Blocks[0].nyTex = -1;
-    Blocks[0].nzTex = -1;
 
     return 1;
 
@@ -1663,6 +1392,8 @@ i32 FileManager::saveBlocks(nString filePath) {
 
     iniSections.push_back("");
     iniValues.push_back(std::vector<IniValue>());
+
+
 
     Block db; //default block
     Block *b;
@@ -1686,8 +1417,8 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.waterBreak != b->waterBreak) iniValues.back().push_back(IniValue("breaksByWater", to_string(b->waterBreak)));
             if (db.burnTransformID != b->burnTransformID) iniValues.back().push_back(IniValue("burnTransformid", to_string(b->burnTransformID)));
             if (db.collide != b->collide) iniValues.back().push_back(IniValue("collision", to_string(b->collide)));
-            if ((db.color[0] != b->color[0]) || (db.color[1] != b->color[1]) || (db.color[2] != b->color[2])) {
-                sprintf(colorString, "%02x%02x%02x", b->color[0], b->color[1], b->color[2]);
+            if ((db.color.r != b->color.r) || (db.color.g != b->color.g) || (db.color.b != b->color.b)) {
+                sprintf(colorString, "%02x%02x%02x", b->color.r, b->color.g, b->color.b);
                 iniValues.back().push_back(IniValue("color", nString(colorString)));
             }
             if (db.colorFilter != b->colorFilter) {
@@ -1716,8 +1447,8 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.meshType != b->meshType) iniValues.back().push_back(IniValue("meshType", to_string((int)b->meshType)));
             if (db.moveMod != b->moveMod) iniValues.back().push_back(IniValue("movementMod", b->moveMod));
             if (db.powderMove != b->powderMove) iniValues.back().push_back(IniValue("movesPowder", to_string(b->powderMove)));
-            if ((db.overlayColor[0] != b->overlayColor[0]) || (db.overlayColor[1] != b->overlayColor[1]) || (db.overlayColor[2] != b->overlayColor[2])) {
-                sprintf(colorString, "%02x%02x%02x", b->overlayColor[0], b->overlayColor[1], b->overlayColor[2]);
+            if ((db.overlayColor.r != b->overlayColor.r) || (db.overlayColor.g != b->overlayColor.g) || (db.overlayColor.b != b->overlayColor.b)) {
+                sprintf(colorString, "%02x%02x%02x", b->overlayColor.r, b->overlayColor.g, b->overlayColor.b);
                 iniValues.back().push_back(IniValue("overlayColor", nString(colorString)));
             }
             if (db.physicsProperty != b->physicsProperty) iniValues.back().push_back(IniValue("physicsProperty", to_string(b->physicsProperty)));
@@ -1754,7 +1485,6 @@ i32 FileManager::saveBlocks(nString filePath) {
 
         }
     }
-    if (saveIniFile(filePath, iniValues, iniSections)) return 0;
 
     return 1;
 }
@@ -1864,6 +1594,7 @@ nString FileManager::getWorldString(nString filePath) {
     file.close();
     return rv;
 }
+
 i32 FileManager::setSaveFile(nString filePath) {
     struct stat statbuf;
 
@@ -1872,14 +1603,14 @@ i32 FileManager::setSaveFile(nString filePath) {
         return 1;
     }
 
-    saveFilePath = filePath;
+    GameManager::saveFilePath = filePath;
     return 0;
 }
 
 i32 FileManager::loadMarkers(Player *player) {
 
 
-    std::ifstream f(saveFilePath + "/Data/" + player->getName() + "_markers.ini");  // New enough C++ library will accept just name
+    std::ifstream f(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini");  // New enough C++ library will accept just name
     if (f.is_open() == 0) {
         f.close();
         return 0;
@@ -1888,7 +1619,7 @@ i32 FileManager::loadMarkers(Player *player) {
 
     std::vector <std::vector <IniValue> > iniValues;
     std::vector <nString> iniSections;
-    if (loadIniFile(saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
+    if (loadIniFile(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
 
     int iVal;
     IniValue *iniVal;
@@ -1928,7 +1659,7 @@ i32 FileManager::loadPlayerFile(Player *player) {
     loadMarkers(player);
 
     FILE *file = NULL;
-    file = fopen((saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
+    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
     if (file == NULL) {
         //file doesnt exist so set spawn to random
         srand(time(NULL));
@@ -1967,22 +1698,22 @@ i32 FileManager::saveMarkers(Player *player) {
         m = &(GameManager::markers[i]);
         iniSections.push_back(m->name);
         iniValues.push_back(std::vector<IniValue>());
-        iniValues.back().push_back(IniValue("r", to_string(m->color.color.r)));
-        iniValues.back().push_back(IniValue("g", to_string(m->color.color.g)));
-        iniValues.back().push_back(IniValue("b", to_string(m->color.color.b)));
+        iniValues.back().push_back(IniValue("r", to_string(m->color.r)));
+        iniValues.back().push_back(IniValue("g", to_string(m->color.g)));
+        iniValues.back().push_back(IniValue("b", to_string(m->color.b)));
         iniValues.back().push_back(IniValue("x", to_string(m->pos.x)));
         iniValues.back().push_back(IniValue("y", to_string(m->pos.y)));
         iniValues.back().push_back(IniValue("z", to_string(m->pos.z)));
     }
 
-    if (saveIniFile(saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
+    if (saveIniFile(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
 
 }
 i32 FileManager::savePlayerFile(Player *player) {
     saveMarkers(player);
 
     FILE *file = NULL;
-    file = fopen((saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "wb");
+    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "wb");
     if (file == NULL) {
         pError("Failed to open player .dat file for writing!");
         return 0; //uhhh idk 
@@ -2024,52 +1755,6 @@ i32 FileManager::savePlayerFile(Player *player) {
 
     fclose(file);
     return 1;
-}
-
-i32 FileManager::getDirectoryEntries(std::vector<nString>& fileNames, std::vector <nString> &descriptions, nString dirPath) {
-    boost::filesystem::directory_iterator end_iter;
-    boost::filesystem::path targetDir(dirPath), file;
-    for (boost::filesystem::directory_iterator dir_iter(targetDir); dir_iter != end_iter; ++dir_iter) {
-        file = *dir_iter;
-        if (boost::filesystem::is_regular_file(dir_iter->status())) {
-            fileNames.push_back(file.filename().string());
-            descriptions.push_back(boost::lexical_cast<nString>(boost::filesystem::last_write_time(file)));
-        }
-        else {
-            fileNames.push_back(file.filename().string());
-            descriptions.push_back(boost::lexical_cast<nString>(boost::filesystem::last_write_time(file)));
-        }
-    }
-    //DIR *dir = NULL;
-    //struct dirent *entry;
-    //int i = 0;
-    //struct stat statBuf;
-    //struct tm *lt;
-    //time_t t;
-    //char descBuf[1024];
-
-    //dir = opendir(dirPath.c_str());
-
-    //if (dir == NULL) {
-    //    perror(dirPath.c_str());
-    //    pError(("Could not open directory " + dirPath).c_str());
-    //    return 0;
-    //}
-
-    ////iterate the directory
-    //while ((entry = readdir(dir))) {
-    //    if (entry->d_name[0] != '.') {
-    //        if (stat((dirPath + entry->d_name).c_str(), &statBuf) != 0)pError("GetDirectoryEntries() Stat error!");
-    //        t = statBuf.st_mtime;
-    //        lt = localtime(&t);
-
-    //        sprintf(descBuf, ("%04d.%02d.%02d  %02d:%02d"), lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
-    //        fileNames.push_back(entry->d_name);
-    //        descriptions.push_back(descBuf);
-    //        i++;
-    //    }
-    //}
-    return 0;
 }
 
 inline void readLine(ui8* buffer, cString dest, i32& size) {
@@ -2320,7 +2005,7 @@ Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
                     a->fadeOutBegin = iniVal->getInt();
                     break;
                 case INI_TEXTURE:
-                    a->textureInfo = getTextureInfo(iniVal->getStr());
+                    a->texture = getTexture(iniVal->getStr());
                     break;
                 case INI_XFRAMES:
                     a->xFrames = iniVal->getInt();
@@ -2337,193 +2022,6 @@ Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
     }
     return NULL;
 }
-bool FileManager::loadTexFile(nString fileName, ZipFile *zipFile, BlockTexture* rv) {
-    // This Should Be An Argument
-    IOManager iom;
-
-    // Set Some Default Values
-    rv->overlay.textureIndex = 1;
-    rv->base.size = i32v2(1, 1);
-    rv->overlay.size = i32v2(1, 1);
-
-    const cString data = iom.readFileToString(fileName.c_str());
-    if (data) {
-        if (Keg::parse(rv, data, "BlockTexture") == Keg::Error::NONE) {
-            if (rv->base.weights.length() > 0) {
-                rv->base.totalWeight = 0;
-                for (i32 i = 0; i < rv->base.weights.length(); i++) {
-                    rv->base.totalWeight += rv->base.weights[i];
-                }
-            }
-            if (rv->overlay.weights.length() > 0) {
-                rv->overlay.totalWeight = 0;
-                for (i32 i = 0; i < rv->overlay.weights.length(); i++) {
-                    rv->overlay.totalWeight += rv->overlay.weights[i];
-                }
-            }
-            return true;
-        }
-    }
-    return false;
-    //std::vector <std::vector <IniValue> > iniValues;
-    //std::vector <nString> iniSections;
-    //if (loadIniFile(fileName, iniValues, iniSections, zipFile)) return rv;
-
-    //istringstream iss;
-    //nString s;
-    //int weight;
-    //int iVal;
-    //IniValue *iniVal;
-
-    //const int BASE = 0;
-    //const int OVERLAY = 1;
-
-    //int headerType = BASE;
-    //for (size_t i = 0; i < iniSections.size(); i++) {
-    //    if (iniSections[i] == "BaseTexture") {
-    //        headerType = BASE;
-    //    } else if (iniSections[i] == "OverlayTexture") {
-    //        headerType = OVERLAY;
-    //    }
-    //    for (size_t j = 0; j < iniValues[i].size(); j++) {
-    //        iniVal = &(iniValues[i][j]);
-    //        iVal = getIniVal(iniVal->key);
-    //        if (headerType == BASE) {
-    //            switch (iVal) {
-    //            case INI_PATH_BASE_TEXTURE:
-    //                rv.base.path = iniVal->getStr();
-    //                break;
-    //            case INI_METHOD:
-    //                s = iniVal->getStr();
-    //                if (s == "connect") {
-    //                    rv.base.method = CTM_CONNECTED;
-    //                } else if (s == "random") {
-    //                    rv.base.method = CTM_RANDOM;
-    //                } else if (s == "repeat") {
-    //                    rv.base.method = CTM_REPEAT;
-    //                } else if (s == "grass") {
-    //                    rv.base.method = CTM_GRASS;
-    //                } else if (s == "horizontal") {
-    //                    rv.base.method = CTM_HORIZONTAL;
-    //                } else if (s == "vertical") {
-    //                    rv.base.method = CTM_VERTICAL;
-    //                }
-    //                break;
-    //            case INI_INNERSEAMS:
-    //                s = iniVal->getStr();
-    //                if (s == "true") {
-    //                    rv.base.innerSeams = true;
-    //                } else {
-    //                    rv.base.innerSeams = false;
-    //                }
-    //                break;
-    //            case INI_WEIGHTS:
-    //                s = iniVal->getStr();
-    //                iss.clear();
-    //                iss.str(s);
-    //                rv.base.totalWeight = 0;
-    //                while (iss >> weight) {
-    //                    rv.base.weights.push_back(weight);
-    //                    rv.base.totalWeight += weight;
-    //                }
-    //                break;
-    //            case INI_SYMMETRY:
-    //                s = iniVal->getStr();
-    //                if (s == "opposite") {
-    //                    rv.base.symmetry = SYMMETRY_OPPOSITE;
-    //                } else if (s == "all") {
-    //                    rv.base.symmetry = SYMMETRY_ALL;
-    //                } else {
-    //                    rv.base.symmetry = SYMMETRY_NONE;
-    //                }
-    //                break;
-    //            case INI_WIDTH:
-    //                rv.base.width = iniVal->getInt();
-    //                break;
-    //            case INI_HEIGHT:
-    //                rv.base.height = iniVal->getInt();
-    //                break;
-    //            case INI_USEMAPCOLOR:
-    //                rv.base.useMapColor = 1;
-    //                break;
-    //            }
-    //        } else if (headerType == OVERLAY) {
-    //            switch (iVal) {
-    //            case INI_METHOD:
-    //                s = iniVal->getStr();
-    //                if (s == "connect") {
-    //                    rv.overlay.method = CTM_CONNECTED;
-    //                } else if (s == "random") {
-    //                    rv.overlay.method = CTM_RANDOM;
-    //                } else if (s == "repeat") {
-    //                    rv.overlay.method = CTM_REPEAT;
-    //                } else if (s == "grass") {
-    //                    rv.overlay.method = CTM_GRASS;
-    //                } else if (s == "horizontal") {
-    //                    rv.overlay.method = CTM_HORIZONTAL;
-    //                } else if (s == "vertical") {
-    //                    rv.overlay.method = CTM_VERTICAL;
-    //                }
-    //                break;
-    //            case INI_INNERSEAMS:
-    //                s = iniVal->getStr();
-    //                if (s == "true") {
-    //                    rv.overlay.innerSeams = true;
-    //                } else {
-    //                    rv.overlay.innerSeams = false;
-    //                }
-    //                break;
-    //            case INI_WEIGHTS:
-    //                s = iniVal->getStr();
-    //                iss.clear();
-    //                iss.str(s);
-    //                rv.overlay.totalWeight = 0;
-    //                while (iss >> weight) {
-    //                    rv.overlay.weights.push_back(weight);
-    //                    rv.overlayTotalWeight += weight;
-    //                }
-    //                break;
-    //            case INI_SYMMETRY:
-    //                s = iniVal->getStr();
-    //                if (s == "opposite") {
-    //                    rv.overlaySymmetry = SYMMETRY_OPPOSITE;
-    //                } else if (s == "all") {
-    //                    rv.overlaySymmetry = SYMMETRY_ALL;
-    //                } else {
-    //                    rv.overlaySymmetry = SYMMETRY_NONE;
-    //                }
-    //                break;
-    //            case INI_WIDTH:
-    //                rv.overlayWidth = iniVal->getInt();
-    //                break;
-    //            case INI_HEIGHT:
-    //                rv.overlayHeight = iniVal->getInt();
-    //                break;
-    //            case INI_PATH_OVERLAY:
-    //                rv.overlayPath = iniVal->getStr();
-    //                break;
-    //            case INI_BLEND_MODE:
-    //                s = iniVal->getStr();
-    //                if (s == "multiply") {
-    //                    rv.blendMode = BLEND_TYPE_MULTIPLY;
-    //                } else if (s == "subtract") {
-    //                    rv.blendMode = BLEND_TYPE_SUBTRACT;
-    //                } else if (s == "add") {
-    //                    rv.blendMode = BLEND_TYPE_ADD;
-    //                } else { //replace
-    //                    rv.blendMode = BLEND_TYPE_REPLACE;
-    //                }
-    //                break;
-    //            case INI_USEMAPCOLOR:
-    //                rv.overlayUseMapColor = 1;
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-
-    //return rv;
-}
 
 i32 FileManager::getParticleType(nString fileName) {
     auto it = _particleTypeMap.find(fileName);
@@ -2531,12 +2029,12 @@ i32 FileManager::getParticleType(nString fileName) {
         return it->second;
     } else {
         Animation *anim = NULL;
-        TextureInfo ti = getTextureInfo(fileName, &anim);
+        vg::Texture ti = getTexture(fileName, &anim);
         particleTypes.push_back(ParticleType());
         particleTypes.back().texture = ti;
         if (anim == NULL) {
             particleTypes.back().animation = new Animation();
-            particleTypes.back().animation->textureInfo = ti;
+            particleTypes.back().animation->texture = ti;
             particleTypes.back().animation->duration = 100;
             particleTypes.back().animation->xFrames = 1;
             particleTypes.back().animation->yFrames = 1;
@@ -2544,7 +2042,7 @@ i32 FileManager::getParticleType(nString fileName) {
             particleTypes.back().animation->fadeOutBegin = INT_MAX;
         } else {
             particleTypes.back().animation = anim;
-            particleTypes.back().animation->textureInfo = ti;
+            particleTypes.back().animation->texture = ti;
         }
         _particleTypeMap.insert(make_pair(fileName, particleTypes.size() - 1));
         return particleTypes.size() - 1;

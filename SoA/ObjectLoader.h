@@ -8,7 +8,6 @@
 #define GL_CLAMP_TO_EDGE 0x812F
 #endif
 
-ui32 loadTexture(const cString filename);
 typedef f64 coordinate3lf[3];
 
 ui32 loadDDS(const cString imagepath);

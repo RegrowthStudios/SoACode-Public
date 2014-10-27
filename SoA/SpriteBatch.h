@@ -1,5 +1,6 @@
 #pragma once
 #include "PtrRecycler.h"
+#include "GLProgramManager.h"
 
 class DepthState;
 class RasterizerState;
@@ -57,12 +58,14 @@ public:
     void drawString(SpriteFont* font, const cString s, f32v2 position, f32 desiredHeight, f32 scaleX, const ColorRGBA8& tint, f32 depth = 0.0f);
     void end(SpriteSortMode ssm = SpriteSortMode::TEXTURE);
 
-    void renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr);
-    void renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr);
-    void renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr);
+    void renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
+    void renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
+    void renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
 
     void sortGlyphs(SpriteSortMode ssm);
     void generateBatches();
+
+    static void disposeProgram();
 private:
     static bool SSMTexture(SpriteGlyph* g1, SpriteGlyph* g2) {
         return g1->textureID < g2->textureID;
@@ -75,7 +78,6 @@ private:
     }
 
     void createProgram();
-    void searchUniforms();
     void createVertexArray();
     void createPixelTexture();
 
@@ -101,8 +103,7 @@ private:
     PtrRecycler<SpriteBatchCall> _batchRecycler;
 
     // Custom Shader
-    ui32 _idProg, _idVS, _idFS;
-    ui32 _unWorld, _unVP, _unTexture;
+    static vcore::GLProgram* _program;
 
     // Default White Pixel Texture
     ui32 _texPixel;

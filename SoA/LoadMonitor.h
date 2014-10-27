@@ -25,7 +25,7 @@ public:
     std::unordered_set<nString> dependencies;
 private:
     // Loading State
-    bool _isFinished;
+    volatile bool _isFinished;
 };
 
 // Loading Task Closure Wrapper
@@ -75,6 +75,9 @@ public:
     void start();
     // Blocks On Current Thread Until All Child Threads Have Completed
     void wait();
+
+    // Checks If A Task Is Finished
+    bool isTaskFinished(nString task);
 private:
     // Is A Task Finished (False If Task Does Not Exist
     bool isFinished(nString task);
@@ -92,5 +95,5 @@ private:
 
     // Monitor Lock
     std::mutex _lock;
-    std::condition_variable_any _completionCondition;
+    std::condition_variable _completionCondition;
 };

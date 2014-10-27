@@ -7,7 +7,6 @@
 #include "Errors.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "Planet.h"
@@ -18,7 +17,7 @@
 #include "Sound.h"
 #include "TerrainGenerator.h"
 #include "ThreadPool.h"
-#include "shader.h"
+#include "MessageManager.h"
 #include "utils.h"
 #include "VoxelUtils.h"
 
@@ -136,7 +135,10 @@ void Chunk::clearBuffers()
 		cmd->chunkMesh = mesh;
 		mesh = NULL;
 		cmd->debugCode = 1; 
-		gameToGl.enqueue(Message(GL_M_CHUNKMESH, cmd));
+        GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                             Message(MessageID::CHUNK_MESH, 
+                                             (void*)cmd));
+
 	}
 }
 
