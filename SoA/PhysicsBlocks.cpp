@@ -295,7 +295,7 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     _mesh = new PhysicsBlockMesh;
     pbmm->mesh = _mesh;
     
-    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                          Message(MessageID::PHYSICS_BLOCK_MESH,
                                          (void *)pbmm));
 }
@@ -305,7 +305,7 @@ PhysicsBlockBatch::~PhysicsBlockBatch()
     if (_mesh != NULL){
         PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
         pbmm->mesh = _mesh;
-        GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+        GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                              Message(MessageID::PHYSICS_BLOCK_MESH,
                                              (void *)pbmm));
     }
@@ -404,7 +404,7 @@ bool PhysicsBlockBatch::update()
     if (_numBlocks == 0){
         if (_mesh != NULL){
             pbmm->mesh = _mesh;
-            GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+            GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                                  Message(MessageID::PHYSICS_BLOCK_MESH,
                                                  (void *)pbmm));
             _mesh = NULL;
@@ -421,7 +421,7 @@ bool PhysicsBlockBatch::update()
     }
     pbmm->mesh = _mesh;
 
-    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                          Message(MessageID::PHYSICS_BLOCK_MESH,
                                          (void *)pbmm));
 

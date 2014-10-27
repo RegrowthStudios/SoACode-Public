@@ -44,8 +44,6 @@ static GLfloat physicsBlockVertices[72] = { -0.499f, 0.499f, 0.499f, -0.499f, -0
 
 GLfloat flatSpriteVertices[8] = {0, 60, 0, 0, 60, 0, 60, 60};
 
-GLushort cubeSpriteDrawIndices[18] = {0,1,2,2,3,0,4,5,6,6,7,4,8,9,10,10,11,8};
-
 BillboardVertex billVerts[BILLBOARD_VERTS_SIZE];
 TreeVertex treeVerts[TREE_VERTS_SIZE];
 
@@ -53,10 +51,6 @@ WorldRenderer worldRenderer;
 
 //Pre smooth mesh benchmark: 3567 ms
 
-GLfloat image2dVertices[8];
-//left, up, right, down
-GLfloat image2dUVs[4][8] = { {1,1,0,1,0,0,1,0}, {0,1,0,0,1,0,1,1}, {0,0,1,0,1,1,0,1}, {1,0,1,1,0,1,0,0} };
-GLushort image2dDrawIndices[6] = {0,1,2,2,3,0};
 
 WorldRenderer::WorldRenderer()
 {
@@ -232,6 +226,16 @@ void DrawStars(float theta, glm::mat4 &MVP)
 
 void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color)
 {
+    // Vertex names
+    #define BOT_BACK_LEFT 0
+    #define BOT_BACK_RIGHT 1
+    #define BOT_FRONT_LEFT 2
+    #define BOT_FRONT_RIGHT 3
+    #define TOP_BACK_LEFT 4
+    #define TOP_BACK_RIGHT 5
+    #define TOP_FRONT_LEFT 6
+    #define TOP_FRONT_RIGHT 7
+
     GlobalModelMatrix[0][0] = xw;
     GlobalModelMatrix[1][1] = yh;
     GlobalModelMatrix[2][2] = zw;
@@ -253,25 +257,33 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
     static ui32 ibo = 0;
     if (vbo == 0) {
         f32v3 lineVertices[8];
-        GLushort elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
-        float gmin = 0.00001;
-        float gmax = 0.9999;
-        lineVertices[0] = f32v3(gmin, gmin, gmin);
-        //back right
-        lineVertices[1] = f32v3(gmax, gmin, gmin); 
-        //front left
-        lineVertices[2] = f32v3(gmin, gmin, gmax);
-        //front right
-        lineVertices[3] = f32v3(gmax, gmin, gmax);
-        // top 4
-        //back left
-        lineVertices[4] = f32v3(gmin, gmax, gmin);
-        //back right
-        lineVertices[5] = f32v3(gmax, gmax, gmin);
-        //front left
-        lineVertices[6] = f32v3(gmin, gmax, gmax);
-        //front right
-        lineVertices[7] = f32v3(gmax, gmax, gmax);
+        // Set up element buffer for all the lines
+        GLushort elementBuffer[24] = { 
+            BOT_BACK_LEFT, BOT_BACK_RIGHT,
+            BOT_BACK_LEFT, BOT_FRONT_LEFT,
+            BOT_BACK_RIGHT, BOT_FRONT_RIGHT,
+            BOT_FRONT_LEFT, BOT_FRONT_RIGHT,
+            TOP_BACK_LEFT, TOP_BACK_RIGHT,
+            TOP_BACK_LEFT, TOP_FRONT_LEFT,
+            TOP_BACK_RIGHT, TOP_FRONT_RIGHT,
+            TOP_FRONT_LEFT, TOP_FRONT_RIGHT,
+            BOT_BACK_LEFT, TOP_BACK_LEFT,
+            BOT_BACK_RIGHT, TOP_BACK_RIGHT,
+            BOT_FRONT_LEFT, TOP_FRONT_LEFT,
+            BOT_FRONT_RIGHT, TOP_FRONT_RIGHT };
+
+        const float gmin = 0.00001;
+        const float gmax = 0.9999;
+
+        // Set up vertex positions
+        lineVertices[BOT_BACK_LEFT] = f32v3(gmin, gmin, gmin);
+        lineVertices[BOT_BACK_RIGHT] = f32v3(gmax, gmin, gmin); 
+        lineVertices[BOT_FRONT_LEFT] = f32v3(gmin, gmin, gmax);
+        lineVertices[BOT_FRONT_RIGHT] = f32v3(gmax, gmin, gmax);
+        lineVertices[TOP_BACK_LEFT] = f32v3(gmin, gmax, gmin);
+        lineVertices[TOP_BACK_RIGHT] = f32v3(gmax, gmax, gmin);
+        lineVertices[TOP_FRONT_LEFT] = f32v3(gmin, gmax, gmax);
+        lineVertices[TOP_FRONT_RIGHT] = f32v3(gmax, gmax, gmax);
 
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &ibo);

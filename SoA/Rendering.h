@@ -59,7 +59,6 @@ extern GLfloat cubeSpriteUVs[24];
 extern GLfloat cubeSpriteColorVertices[48];
 
 extern GLfloat flatSpriteVertices[8];
-extern GLushort cubeSpriteDrawIndices[18];
 
 //constants analogous to CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_SIZE for padded chunks.
 const int PADDED_WIDTH = CHUNK_WIDTH+2;

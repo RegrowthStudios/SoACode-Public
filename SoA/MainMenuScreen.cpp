@@ -24,7 +24,7 @@
 #include "FileSystem.h"
 #include "MeshManager.h"
 
-#define THREAD ThreadName::PHYSICS
+#define THREAD ThreadId::UPDATE
 
 CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
     _updateThread(nullptr),
@@ -94,7 +94,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
     TerrainMeshMessage* tmm;
     Message message;
-    while (GameManager::messageManager->tryDeque(ThreadName::RENDERING, message)) {
+    while (GameManager::messageManager->tryDeque(ThreadId::RENDERING, message)) {
         switch (message.id) {
             case MessageID::TERRAIN_MESH:
                 meshManager->updateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));

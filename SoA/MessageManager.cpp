@@ -12,24 +12,24 @@ MessageManager::~MessageManager()
 }
 
 
-void MessageManager::enqueue(ThreadName thread, Message message) {
-    if (thread == ThreadName::PHYSICS) {
+void MessageManager::enqueue(ThreadId thread, Message message) {
+    if (thread == ThreadId::UPDATE) {
         physicsToRender.enqueue(message);
     } else { // ThreadName::RENDERING
         renderToPhysics.enqueue(message);
     }
 }
 
-bool MessageManager::tryDeque(ThreadName thread, Message& result) {
-    if (thread == ThreadName::PHYSICS) {
+bool MessageManager::tryDeque(ThreadId thread, Message& result) {
+    if (thread == ThreadId::UPDATE) {
         return renderToPhysics.try_dequeue(result);
     } else { // ThreadName::RENDERING
         return physicsToRender.try_dequeue(result);
     }
 }
 
-void MessageManager::waitForMessage(ThreadName thread, MessageID idToWait, Message& result) {
-    if (thread == ThreadName::PHYSICS) {
+void MessageManager::waitForMessage(ThreadId thread, MessageID idToWait, Message& result) {
+    if (thread == ThreadId::UPDATE) {
         while (true){
             if (renderToPhysics.try_dequeue(result)){
                 if (result.id == idToWait || result.id == MessageID::QUIT){

@@ -75,9 +75,10 @@ void Planet::clearMeshes()
 
 void Planet::initialize(string filePath)
 {
-#define MAP_WIDTH 256
+    #define MAP_WIDTH 256
+    #define DEFAULT_RADIUS 1000000
     if (filePath == "Worlds/(Empty Planet)/"){
-        radius = 1000000;
+        radius = DEFAULT_RADIUS;
         scaledRadius = (radius - radius%CHUNK_WIDTH) / planetScale;
         int width = scaledRadius / TerrainPatchWidth * 2;
         if (width % 2 == 0){ // must be odd
@@ -606,24 +607,24 @@ void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec
 
     shader->enableVertexAttribArrays();
 
-    for (size_t i = 0; i < drawList[0].size(); i++){
-        TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+    for (size_t i = 0; i < drawList[P_TOP].size(); i++){
+        TerrainPatch::Draw(drawList[P_TOP][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
-    for (size_t i = 0; i < drawList[2].size(); i++){
-        TerrainPatch::Draw(drawList[2][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+    for (size_t i = 0; i < drawList[P_RIGHT].size(); i++){
+        TerrainPatch::Draw(drawList[P_RIGHT][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
-    for (size_t i = 0; i < drawList[4].size(); i++){
-        TerrainPatch::Draw(drawList[4][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+    for (size_t i = 0; i < drawList[P_BACK].size(); i++){
+        TerrainPatch::Draw(drawList[P_BACK][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CW);
-    for (size_t i = 0; i < drawList[5].size(); i++){
-        TerrainPatch::Draw(drawList[5][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+    for (size_t i = 0; i < drawList[P_BOTTOM].size(); i++){
+        TerrainPatch::Draw(drawList[P_BOTTOM][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
-    for (size_t i = 0; i < drawList[1].size(); i++){
-        TerrainPatch::Draw(drawList[1][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+    for (size_t i = 0; i < drawList[P_LEFT].size(); i++){
+        TerrainPatch::Draw(drawList[P_LEFT][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
-    for (size_t i = 0; i < drawList[3].size(); i++){
-        TerrainPatch::Draw(drawList[3][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+    for (size_t i = 0; i < drawList[P_FRONT].size(); i++){
+        TerrainPatch::Draw(drawList[P_FRONT][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CCW);
 
@@ -636,13 +637,13 @@ void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lig
     vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
     shader->use();
 
-    const int txv[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    const int textureUnits[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
     // TODO(Ben or Cristian): Figure out why getUniform doesnt work for the samplers here
-    glUniform1iv(glGetUniformLocation(shader->getID(), "textures"), 6, txv);
-    glUniform1i(glGetUniformLocation(shader->getID(), "sunColorTexture"), txv[6]);
-    glUniform1i(glGetUniformLocation(shader->getID(), "colorTexture"), txv[7]);
-    glUniform1i(glGetUniformLocation(shader->getID(), "waterColorTexture"), txv[3]);
+    glUniform1iv(glGetUniformLocation(shader->getID(), "textures"), 6, textureUnits);
+    glUniform1i(glGetUniformLocation(shader->getID(), "sunColorTexture"), textureUnits[6]);
+    glUniform1i(glGetUniformLocation(shader->getID(), "colorTexture"), textureUnits[7]);
+    glUniform1i(glGetUniformLocation(shader->getID(), "waterColorTexture"), textureUnits[3]);
 //    glUniform1i(shader->getUniform("sunColorTexture"), txv[6]);
 //    glUniform1i(shader->getUniform("colorTexture"), txv[7]);
 //    glUniform1i(shader->getUniform("waterColorTexture"), txv[3]);

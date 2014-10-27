@@ -629,7 +629,7 @@ void ChunkManager::uploadFinishedMeshes() {
             chunk->mesh = NULL;
             if (cmd->chunkMesh != NULL) {
                 cmd->debugCode = 2;
-                GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+                GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                                      Message(MessageID::CHUNK_MESH,
                                                      (void *)cmd));
             }
@@ -662,7 +662,7 @@ void ChunkManager::uploadFinishedMeshes() {
         //if the chunk has a mesh, send it
         if (cmd->chunkMesh) {
             cmd->debugCode = 3;
-            GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+            GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                                  Message(MessageID::CHUNK_MESH,
                                                  (void *)cmd));
         }

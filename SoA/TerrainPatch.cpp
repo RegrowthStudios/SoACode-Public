@@ -81,7 +81,7 @@ void TerrainPatch::ClearBuffers()
         hasBuffers = 0;
         terrainBuffers = NULL;
         Message message(MessageID::TERRAIN_MESH, (void *)tmm);
-        GameManager::messageManager->enqueue(ThreadName::PHYSICS, message);
+        GameManager::messageManager->enqueue(ThreadId::UPDATE, message);
     }
 }
 
@@ -92,7 +92,7 @@ void TerrainPatch::ClearTreeBuffers()
         tmm->face = face;
         tmm->terrainBuffers = terrainBuffers;
         Message message(MessageID::REMOVE_TREES, (void *)tmm);
-        GameManager::messageManager->enqueue(ThreadName::PHYSICS, message);
+        GameManager::messageManager->enqueue(ThreadId::UPDATE, message);
     }
 }
 
@@ -1095,7 +1095,7 @@ bool TerrainPatch::CreateMesh()
     tmm->index = index;
 
     Message message(MessageID::TERRAIN_MESH, (void *)tmm);
-    GameManager::messageManager->enqueue(ThreadName::PHYSICS, message);
+    GameManager::messageManager->enqueue(ThreadId::UPDATE, message);
 
     hasBuffers = 1;
 

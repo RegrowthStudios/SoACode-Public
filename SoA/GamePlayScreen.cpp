@@ -30,7 +30,7 @@
 #include "SpriteBatch.h"
 #include "colors.h"
 
-#define THREAD ThreadName::PHYSICS
+#define THREAD ThreadId::UPDATE
 
 // Each mode includes the previous mode
 enum DevUiModes { 
@@ -673,7 +673,7 @@ void GamePlayScreen::processMessages() {
 
     MeshManager* meshManager = _app->meshManager;
 
-    while (GameManager::messageManager->tryDeque(ThreadName::RENDERING, message)) {
+    while (GameManager::messageManager->tryDeque(ThreadId::RENDERING, message)) {
         switch (message.id) {
             case MessageID::TERRAIN_MESH:
                 meshManager->updateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));

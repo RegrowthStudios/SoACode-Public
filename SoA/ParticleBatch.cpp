@@ -227,7 +227,7 @@ int ParticleBatch::update() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                          Message(MessageID::PARTICLE_MESH,
                                          (void *)pmm));
 
@@ -323,7 +323,7 @@ int ParticleBatch::updateAnimated() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    GameManager::messageManager->enqueue(ThreadName::PHYSICS,
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                          Message(MessageID::PARTICLE_MESH,
                                          (void *)pmm));
 

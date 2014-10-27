@@ -302,11 +302,6 @@ void TexturePackLoader::loadAllBlockTextures() {
 
 bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTexture* rv) {
     
-    // Set Some Default Values
-    rv->overlay.textureIndex = 1;
-    rv->base.size = i32v2(1, 1);
-    rv->overlay.size = i32v2(1, 1);
-
     nString data;
     _ioManager.readFileToString(fileName.c_str(), data);
     if (data.length()) {
