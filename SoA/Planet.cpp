@@ -661,7 +661,8 @@ void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lig
     glUniform1f(shader->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(shader->getUniform("specularIntensity"), graphicsOptions.specularIntensity);
     
-    glUniform1f(shader->getUniform("freezeTemp"), FREEZETEMP / 255.0f);
+    #define MAX_FREEZE_TEMP 255.0f
+    glUniform1f(shader->getUniform("freezeTemp"), FREEZETEMP / MAX_FREEZE_TEMP);
 
     glUniform1f(shader->getUniform("cameraHeight2"), glm::length(PlayerPos)*glm::length(PlayerPos));
     glUniform1f(shader->getUniform("outerRadius"), atmosphere.radius);
