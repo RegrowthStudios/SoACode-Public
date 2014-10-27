@@ -15,7 +15,7 @@
 #ifndef AWESOMIUMINTERFACE_H_
 #define AWESOMIUMINTERFACE_H_
 
-#include "SDL\SDL.h"
+#include "SDL/SDL.h"
 #include "IAwesomiumAPI.h"
 #include <Awesomium/BitmapSurface.h>
 #include <Awesomium/DataPak.h>

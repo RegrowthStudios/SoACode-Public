@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GraphicsDevice.h"
 
-#include <SDL\SDL.h>
+#include <SDL/SDL.h>
 
 GraphicsDevice::GraphicsDevice(SDL_Window* w) :
 _props({}) {

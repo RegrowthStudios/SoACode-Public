@@ -15,8 +15,6 @@ GameOptions gameOptions;
 MenuOptions menuOptions;
 
 void initializeOptions() {
-    graphicsOptions.nativeWidth = graphicsOptions.screenWidth = 1280;
-    graphicsOptions.nativeHeight = graphicsOptions.screenHeight = 720;
     graphicsOptions.cloudDetail = 1;
     graphicsOptions.lookSensitivity = 0.0026;
     graphicsOptions.voxelRenderDistance = 144;
@@ -27,15 +25,13 @@ void initializeOptions() {
     graphicsOptions.hdrExposure = 3.0f;
     graphicsOptions.gamma = 1.0f;
     graphicsOptions.secColorMult = 0.1f;
-    graphicsOptions.isFullscreen = 0;
-    graphicsOptions.isBorderless = 0;
     graphicsOptions.isVsync = 0;
     graphicsOptions.needsWindowReload = 0;
     graphicsOptions.fov = 70;
     graphicsOptions.hudMode = 0;
     graphicsOptions.texturePackString = "Default";
     graphicsOptions.defaultTexturePack = "Default.zip";
-    graphicsOptions.currTexturePack = "";
+    graphicsOptions.currTexturePack = graphicsOptions.texturePackString;
     graphicsOptions.needsFboReload = 0;
     graphicsOptions.needsFullscreenToggle = 0;
     graphicsOptions.maxFPS = 60.0f;
@@ -89,18 +85,10 @@ int loadOptions() {
                 soundOptions.musicVolume = iniVal->getInt(); break;
             case INI_RENDER_DISTANCE:
                 graphicsOptions.voxelRenderDistance = iniVal->getInt(); break;
-            case INI_SCREEN_WIDTH:
-                graphicsOptions.screenWidth = iniVal->getInt(); break;
-            case INI_SCREEN_HEIGHT:
-                graphicsOptions.screenHeight = iniVal->getInt(); break;
             case INI_TERRAIN_QUALITY:
                 graphicsOptions.lodDetail = iniVal->getInt(); break;
             case INI_TEXTUREPACK:
                 graphicsOptions.texturePackString = iniVal->getStr(); break;
-            case INI_FULLSCREEN:
-                graphicsOptions.isFullscreen = iniVal->getBool(); break;
-            case INI_ISBORDERLESS:
-                graphicsOptions.isBorderless = iniVal->getBool(); break;
             case INI_INVERTMOUSE:
                 gameOptions.invertMouse = iniVal->getBool(); break;
             case INI_MAXFPS:
@@ -111,6 +99,8 @@ int loadOptions() {
                 graphicsOptions.motionBlur = iniVal->getInt(); break;
             case INI_MSAA:
                 graphicsOptions.msaa = iniVal->getInt(); break;
+            default:
+                break;
             }
         }
     }
@@ -130,12 +120,8 @@ int saveOptions() {
     iniValues.back().push_back(IniValue("atmosphereSecColorExposure", graphicsOptions.secColorMult));
     iniValues.back().push_back(IniValue("enableParticles", to_string(graphicsOptions.enableParticles)));
     iniValues.back().push_back(IniValue("fov", graphicsOptions.fov));
-    iniValues.back().push_back(IniValue("fullScreen", to_string(graphicsOptions.isFullscreen)));
-    iniValues.back().push_back(IniValue("isBorderless", to_string(graphicsOptions.isBorderless)));
     iniValues.back().push_back(IniValue("gamma", graphicsOptions.gamma));
     iniValues.back().push_back(IniValue("renderDistance", graphicsOptions.voxelRenderDistance));
-    iniValues.back().push_back(IniValue("screenWidth", graphicsOptions.screenWidth));
-    iniValues.back().push_back(IniValue("screenHeight", graphicsOptions.screenHeight));
     iniValues.back().push_back(IniValue("terrainQuality", graphicsOptions.lodDetail));
     iniValues.back().push_back(IniValue("texturePack", graphicsOptions.texturePackString));
     iniValues.back().push_back(IniValue("maxFps", graphicsOptions.maxFPS));

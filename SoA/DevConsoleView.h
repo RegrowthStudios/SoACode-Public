@@ -1,6 +1,6 @@
 #pragma once
 #include <boost\circular_buffer.hpp>
-#include <SDL\SDL.h>
+#include <SDL/SDL.h>
 
 #include "GLProgramManager.h"
 
