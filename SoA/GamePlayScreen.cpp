@@ -309,29 +309,25 @@ void GamePlayScreen::drawVoxelWorld() {
     glm::vec3 lightPos = glm::vec3(1.0, 0.0, 0.0);
     float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCamera.position(), 1.0))));
 
+#define FOG_THETA_MULT 100.0f
+#define FOG_THETA_OFFSET 50.0f
+
     glm::mat4 VP;
     //********************************* TODO: PRECOMPILED HEADERS for compilation speed?
     float fogTheta = glm::clamp(theta, 0.0f, 1.0f);
     fogStart = 0;
     if (_player->isUnderWater){
-        GLfloat underwaterColor[4];
-        underwaterColor[0] = fogTheta * 1.0 / 2;
-        underwaterColor[1] = fogTheta * 1.0 / 2;
-        underwaterColor[2] = fogTheta * 1.0 / 2;
-        underwaterColor[3] = 1.0;
-        fogEnd = 50 + fogTheta * 100;
-        FogColor[0] = underwaterColor[0];
-        FogColor[1] = underwaterColor[1];
-        FogColor[2] = underwaterColor[2];
+        float underwaterColor = fogTheta / 2.0f;
+        fogEnd = FOG_THETA_OFFSET + fogTheta * FOG_THETA_MULT;
+        FogColor[0] = underwaterColor;
+        FogColor[1] = underwaterColor;
+        FogColor[2] = underwaterColor;
     } else{
         fogEnd = 100000;
         FogColor[0] = 1.0;
         FogColor[1] = 1.0;
         FogColor[2] = 1.0;
     }
-
-    float st = MAX(0.0f, theta + 0.06);
-    if (st > 1) st = 1;
 
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
@@ -343,30 +339,40 @@ void GamePlayScreen::drawVoxelWorld() {
     a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
     if (a < 0) a = 0;
 
-    double clip = MAX(nearClip / planetScale*0.5, a);
+    double clip = MAX(nearClip / planetScale * 0.5, a);
 
     worldCamera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     worldCamera.updateProjection();
 
     VP = worldCamera.projectionMatrix() * worldCamera.viewMatrix();
 
-    float ambVal = st*(0.76f) + .01f;
+#define AMB_MULT 0.76f
+#define AMB_OFFSET 0.1f
+#define MIN_THETA 0.01f
+#define THETA_MULT 8.0f
+#define SUN_COLOR_MAP_HEIGHT 64.0f
+#define SUN_THETA_OFF 0.06f
+
+    float sunTheta = MAX(0.0f, theta + SUN_THETA_OFF);
+    if (sunTheta > 1) sunTheta = 1;
+
+    float ambVal = sunTheta * AMB_MULT + AMB_OFFSET;
     if (ambVal > 1.0f) ambVal = 1.0f;
     float diffVal = 1.0f - ambVal;
     glm::vec3 diffColor;
 
-    if (theta < 0.01f){
-        diffVal += (theta - 0.01) * 8;
+    if (theta < MIN_THETA){
+        diffVal += (theta - MIN_THETA) * THETA_MULT;
         if (diffVal < 0.0f) diffVal = 0.0f;
     }
 
-    int sh = (int)(theta*64.0f);
+    int sunHeight = (int)(theta * SUN_COLOR_MAP_HEIGHT);
     if (theta < 0){
-        sh = 0;
+        sunHeight = 0;
     }
-    diffColor.r = (sunColor[sh][0] / 255.0f) * diffVal;
-    diffColor.g = (sunColor[sh][1] / 255.0f) * diffVal;
-    diffColor.b = (sunColor[sh][2] / 255.0f) * diffVal;
+    diffColor.r = ((float)sunColor[sunHeight][0] / 255.0f) * diffVal;
+    diffColor.g = ((float)sunColor[sunHeight][1] / 255.0f) * diffVal;
+    diffColor.b = ((float)sunColor[sunHeight][2] / 255.0f) * diffVal;
 
     GameManager::drawSpace(VP, 1);
     GameManager::drawPlanet(worldCamera.position(), VP, worldCamera.viewMatrix(), ambVal + 0.1, lightPos, nearClip / planetScale, 1);
@@ -426,7 +432,7 @@ void GamePlayScreen::drawVoxelWorld() {
 
 
     //********************Water********************
-    ChunkRenderer::drawWater(meshManager->getChunkMeshes(), VP, chunkCamera.position(), st, fogEnd, fogStart, FogColor, lightPos, diffColor, _player->isUnderWater);
+    ChunkRenderer::drawWater(meshManager->getChunkMeshes(), VP, chunkCamera.position(), sunTheta, fogEnd, fogStart, FogColor, lightPos, diffColor, _player->isUnderWater);
 
     // TODO(Ben): Render the particles
     //if (particleMeshes.size() > 0){
@@ -625,7 +631,6 @@ void GamePlayScreen::updatePlayer() {
 
     delete[] chunks;
 }
-
 
 void GamePlayScreen::updateThreadFunc() {
     _threadRunning = true;

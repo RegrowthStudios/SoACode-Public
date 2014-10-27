@@ -141,7 +141,7 @@ int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
     chunk->SetupMeshData(newRenderTask);
     assert(newRenderTask->chunk != nullptr);
 
-    chunk->inRenderThread = 1;
+    chunk->inRenderThread = true;
     taskQueueManager.lock.lock();
     assert(newRenderTask->chunk != nullptr);
     taskQueueManager.renderTaskQueue.push(newRenderTask);

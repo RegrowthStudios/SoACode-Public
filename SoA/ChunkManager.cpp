@@ -150,6 +150,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     if (sonarDt > 1.0f) sonarDt = 0.0f;
 
     globalMultiplePreciseTimer.start("Update Chunks");
+
     Chunk::modifyLock.lock();
 
     updateChunks(position);
@@ -198,7 +199,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     Chunk* ch;
     for (size_t i = 0; i < _threadWaitingChunks.size();) {
         ch = _threadWaitingChunks[i];
-        if (ch->inSaveThread == 0 && ch->inLoadThread == 0 && ch->inRenderThread == 0 && ch->inGenerateThread == 0) {
+        if (ch->inSaveThread == false && ch->inLoadThread == false && ch->inRenderThread == false && ch->inGenerateThread == false) {
             freeChunk(_threadWaitingChunks[i]);
             _threadWaitingChunks[i] = _threadWaitingChunks.back();
             _threadWaitingChunks.pop_back();
@@ -206,6 +207,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
             i++;
         }
     }
+
     globalMultiplePreciseTimer.start("Finished Meshes");
     uploadFinishedMeshes();
     //change the parameter to true to print out the timingsm
@@ -703,7 +705,6 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMa
     // Connect to any neighbors
     _chunkSlots[0].back().detectNeighbors(_chunkSlotMap);
 }
-
 
 //This is hard coded and bad, we need a better method
 void ChunkManager::initializeMinerals() {

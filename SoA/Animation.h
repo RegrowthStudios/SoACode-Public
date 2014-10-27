@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef Animation_h_
+#define Animation_h_
+
 #include "Texture.h"
 
 struct Animation {
@@ -12,3 +15,5 @@ struct Animation {
     int frames;
     vg::Texture texture;
 };
+
+#endif // Animation_h_

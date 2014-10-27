@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef App_h_
+#define App_h_
+
 #include "MainGame.h"
 
 class InitScreen;
@@ -30,3 +34,5 @@ public:
     FrameBuffer* frameBuffer;
     MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
 };
+
+#endif // App_h_

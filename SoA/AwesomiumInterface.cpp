@@ -13,6 +13,8 @@
 namespace vorb {
 namespace ui {
 
+#define DEFAULT_WEB_URL "asset://UI/"
+
 template <class C>
 AwesomiumInterface<C>::AwesomiumInterface() :
     _isInitialized(false),
@@ -78,8 +80,8 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     _data_source = new Awesomium::DataPakSource(Awesomium::WSLit(pakName.c_str()));
     _webSession->AddDataSource(Awesomium::WSLit("UI"), _data_source);
 
-    // Load a certain URL into our WebView instance. In this case, it must always start with Index.html
-    Awesomium::WebURL url(Awesomium::WSLit(("asset://UI/" + nString(indexName)).c_str()));
+    // Load a certain URL into our WebView instance.
+    Awesomium::WebURL url(Awesomium::WSLit((DEFAULT_WEB_URL + nString(indexName)).c_str()));
 
     if (!url.IsValid()){
         pError("UI Initialization Error: URL was unable to be parsed.");
@@ -144,6 +146,7 @@ void AwesomiumInterface<C>::invokeFunction(const cString functionName, const Awe
 template <class C>
 void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
     float relX, relY;
+    char* keyIdentifier;
     Awesomium::WebKeyboardEvent keyEvent;
 
     switch (evnt.type) {
@@ -171,7 +174,7 @@ void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
         case SDL_KEYUP:
             
             //Have to construct a webKeyboardEvent from the SDL Event     
-            char* keyIdentifier = keyEvent.key_identifier;
+            keyIdentifier = keyEvent.key_identifier;
             keyEvent.virtual_key_code = getWebKeyFromSDLKey(evnt.key.keysym.scancode);
             Awesomium::GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code,
                                                           &keyIdentifier);
@@ -204,6 +207,8 @@ void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
                 keyEvent.type = Awesomium::WebKeyboardEvent::kTypeChar;
                 _webView->InjectKeyboardEvent(keyEvent);
             }
+            break;
+        default:
             break;
     }
 }
