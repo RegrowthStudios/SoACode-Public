@@ -41,6 +41,11 @@ private:
     /// pair<string blockName, integer num>
     Awesomium::JSValue getInventory(const Awesomium::JSArray& args);
 
+    /// Indicates that the user has selected an inventory item
+    /// @param args: Argumants. args[0] should be an integer. 0 = LMB, 1 = MMB, 2 = RMB 
+    /// args[1] should be the name of the item.
+    void selectItem(const Awesomium::JSArray& args);
+
     GamePlayScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 

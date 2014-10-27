@@ -341,6 +341,8 @@ void GamePlayScreen::drawVoxelWorld() {
 
     double clip = MAX(nearClip / planetScale * 0.5, a);
 
+
+
     worldCamera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     worldCamera.updateProjection();
 

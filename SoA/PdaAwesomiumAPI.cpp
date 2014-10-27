@@ -19,6 +19,7 @@ void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ow
     // Register functions here
     ADDFUNC(getInventory);
     ADDFUNC(print);
+    ADDFUNC(selectItem);
   
 }
 
@@ -37,4 +38,43 @@ Awesomium::JSValue PdaAwesomiumAPI::getInventory(const Awesomium::JSArray& args)
         entries.Push(Awesomium::JSValue(inventory[i]->count));
     }
     return Awesomium::JSValue(entries);
+}
+
+#define HAND_LEFT 0
+#define HAND_RIGHT 2
+
+void PdaAwesomiumAPI::selectItem(const Awesomium::JSArray& args) {
+    
+    // Grab the arguments
+    int hand = args[0].ToInteger();
+    nString name = Awesomium::ToString(args[1].ToString());
+
+    std::cout << "SELECT ITEM: " << hand << " " << name;
+
+    // Search player inventory
+    Player* player = _ownerScreen->_player;
+    // TODO(Ben): Not linear search
+    for (int i = 0; i < player->inventory.size(); i++) {
+        if (player->inventory[i]->name == name) {
+            // Check which hand was clicked
+            if (hand == HAND_LEFT) {
+                if (player->leftEquippedItem == player->inventory[i]) {
+                    // If the item is already equipped, unequip it.
+                    player->leftEquippedItem = nullptr;
+                } else {
+                    // Equip the item
+                    player->leftEquippedItem = player->inventory[i];
+                }
+            } else if (hand == HAND_RIGHT) {
+                if (player->rightEquippedItem == player->inventory[i]) {
+                    // If the item is already equipped, unequip it.
+                    player->rightEquippedItem = nullptr;
+                } else {
+                    // Equip the item
+                    player->rightEquippedItem = player->inventory[i];
+                }
+            }
+            break;
+        }
+    }
 }

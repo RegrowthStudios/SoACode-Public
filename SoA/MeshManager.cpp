@@ -11,6 +11,8 @@
 #include "GameManager.h"
 #include "Planet.h"
 
+#define UNINITIALIZED_INDEX -1
+
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
     // Block Vertices
     if (vboID == 0){
@@ -93,12 +95,12 @@ void MeshManager::updateTerrainMesh(TerrainMeshMessage* tmm) {
         tb->treeIndexSize = tmm->treeIndexSize;
         delete[] tmm->verts;
         delete[] tmm->indices;
-        if (tb->vecIndex == -1){
+        if (tb->vecIndex == UNINITIALIZED_INDEX){
             tb->vecIndex = GameManager::planet->drawList[tmm->face].size();
             GameManager::planet->drawList[tmm->face].push_back(tb);
         }
     } else{
-        if (tb->vecIndex != -1){
+        if (tb->vecIndex != UNINITIALIZED_INDEX){
             GameManager::planet->drawList[tmm->face][tb->vecIndex] = GameManager::planet->drawList[tmm->face].back();
             GameManager::planet->drawList[tmm->face][tb->vecIndex]->vecIndex = tb->vecIndex;
             GameManager::planet->drawList[tmm->face].pop_back();
@@ -127,7 +129,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
     switch (cmd->type) {
         case MeshJobType::DEFAULT:
             if (cmd->vertices.size()) {
-                if (cm->vecIndex == -1){
+                if (cm->vecIndex == UNINITIALIZED_INDEX){
                     cm->vecIndex = _chunkMeshes.size();
                     _chunkMeshes.push_back(cm);
                 }
@@ -147,7 +149,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
             }
 
             if (cmd->transVertices.size()) {
-                if (cm->vecIndex == -1){
+                if (cm->vecIndex == UNINITIALIZED_INDEX){
                     cm->vecIndex = _chunkMeshes.size();
                     _chunkMeshes.push_back(cm);
                 }
@@ -177,7 +179,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
             }
 
             if (cmd->cutoutVertices.size()) {
-                if (cm->vecIndex == -1){
+                if (cm->vecIndex == UNINITIALIZED_INDEX){
                     cm->vecIndex = _chunkMeshes.size();
                     _chunkMeshes.push_back(cm);
                 }
@@ -201,7 +203,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
 
             cm->meshInfo.waterIndexSize = cmd->meshInfo.waterIndexSize;
             if (cmd->waterVertices.size()) {
-                if (cm->vecIndex == -1){
+                if (cm->vecIndex == UNINITIALIZED_INDEX){
                     cm->vecIndex = _chunkMeshes.size();
                     _chunkMeshes.push_back(cm);
                 }
@@ -224,7 +226,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
 
     //If this mesh isnt in use anymore, delete it
     if (cm->vboID == 0 && cm->waterVboID == 0 && cm->transVboID == 0 && cm->cutoutVboID == 0){
-        if (cm->vecIndex != -1){
+        if (cm->vecIndex != UNINITIALIZED_INDEX){
             _chunkMeshes[cm->vecIndex] = _chunkMeshes.back();
             _chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
             _chunkMeshes.pop_back();
@@ -260,7 +262,7 @@ void MeshManager::updateParticleMesh(ParticleMeshMessage* pmm) {
         memcpy(v, &(pmm->verts[0]), n * sizeof(BillboardVertex));
         glUnmapBuffer(GL_ARRAY_BUFFER);
 
-        if (pm->vecIndex == -1){
+        if (pm->vecIndex == UNINITIALIZED_INDEX){
             pm->vecIndex = _particleMeshes.size();
             _particleMeshes.push_back(pm);
         }
@@ -283,7 +285,7 @@ void MeshManager::updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm) {
         glBufferData(GL_ARRAY_BUFFER, pbmm->verts.size() * sizeof(PhysicsBlockVertex), NULL, GL_STATIC_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, pbmm->verts.size() * sizeof(PhysicsBlockVertex), &(pbmm->verts[0]));
 
-        if (pbm->vecIndex == -1){
+        if (pbm->vecIndex == UNINITIALIZED_INDEX){
             pbm->vecIndex = _physicsBlockMeshes.size();
             _physicsBlockMeshes.push_back(pbm);
         }
@@ -301,12 +303,12 @@ void MeshManager::updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm) {
         glBufferData(GL_ARRAY_BUFFER, pbmm->posLight.size() * sizeof(PhysicsBlockPosLight), NULL, GL_STREAM_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, pbmm->posLight.size() * sizeof(PhysicsBlockPosLight), &(pbmm->posLight[0]));
 
-        if (pbm->vecIndex == -1){
+        if (pbm->vecIndex == UNINITIALIZED_INDEX){
             pbm->vecIndex = _physicsBlockMeshes.size();
             _physicsBlockMeshes.push_back(pbm);
         }
     } else{ //delete
-        if (pbm->vecIndex != -1){
+        if (pbm->vecIndex != UNINITIALIZED_INDEX){
             _physicsBlockMeshes[pbm->vecIndex] = _physicsBlockMeshes.back();
             _physicsBlockMeshes[pbm->vecIndex]->vecIndex = pbm->vecIndex;
             _physicsBlockMeshes.pop_back();

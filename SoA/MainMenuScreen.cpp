@@ -156,8 +156,9 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     // Extract the frustum for frustum culling
     ExtractFrustum(glm::dmat4(_camera.projectionMatrix()), fvm, worldFrustum);
 
+    #define FADE_DISTANCE 1000.0f
     // Draw the planet using the _camera
-    GameManager::drawPlanet(_camera.position(), VP, _camera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), 1000, 0);
+    GameManager::drawPlanet(_camera.position(), VP, _camera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), FADE_DISTANCE, 0);
 
     glDisable(GL_DEPTH_TEST);
     
