@@ -147,6 +147,26 @@ bool IOManager::readFileToString(const cString path, nString& data) {
     }
     return false;
 }
+const cString IOManager::readFileToString(const cString path) {
+    nString filePath;
+
+    if (resolveFile(path, filePath)) {
+        std::ifstream t(filePath, std::ios::in | std::ios::binary);
+
+        t.seekg(0, std::ios::end);
+        i32 length = t.tellg();
+        t.seekg(0, std::ios::beg);
+        length -= t.tellg();
+
+        cString data = new char[length + 1];
+        t.read(data, length);
+        t.close();
+
+        data[length] = '\0';
+        return data;
+    }
+    return nullptr;
+}
 bool IOManager::readFileToData(const cString path, std::vector<ui8>& data) {
     nString filePath;
 
