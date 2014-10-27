@@ -227,49 +227,49 @@ void ChunkMesher::getConnectedTextureIndex(const MesherInfo &mi, int& result, bo
    
     // Top Left
     Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0x80;
     }
 
     // Top
     block = &GETBLOCK(blockIDData[wc + upDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0xE0;
     }
 
     // Top Right
     block = &GETBLOCK(blockIDData[wc + upDir + rightDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0x20;
     }
 
     // Right
     block = &GETBLOCK(blockIDData[wc + rightDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0x38;
     }
 
     // Bottom Right
     block = &GETBLOCK(blockIDData[wc - upDir + rightDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0x8;
     }
 
     // Bottom
     block = &GETBLOCK(blockIDData[wc - upDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0xE;
     }
 
     // Bottom Left
     block = &GETBLOCK(blockIDData[wc - upDir - rightDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0x2;
     }
 
     // Left
     block = &GETBLOCK(blockIDData[wc - rightDir]);
-    if (*((int *)(&block->pxTex) + offset) != tex) {
+    if (block->base[offset] != tex) {
         connectedOffset |= 0x83;
     }
 
@@ -337,7 +337,7 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
 
     // Bottom Front
     Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
-    if (mi.levelOfDetail > 1 || *((int *)(&block->pxTex) + offset) == tex) {
+    if (mi.levelOfDetail > 1 || block->base[offset] == tex) {
         block = &GETBLOCK(blockIDData[wc]);
         result = block->pyTexInfo.base.textureIndex;
         getTextureIndex(mi, block->pyTexInfo.base, result, rightDir, upDir, frontDir, 1, color);
@@ -347,44 +347,44 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
 
     // Left
     block = &GETBLOCK(blockIDData[wc - rightDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex || block->occlude == 0) {
+    if (block->base[offset] == tex || block->occlude == 0) {
         connectedOffset |= 0x8;
 
-        if (*((int *)(&block->pxTex) + offset) == tex) {
+        if (block->base[offset] == tex) {
             // bottom front Left
             block = &GETBLOCK(blockIDData[wc - upDir - rightDir + frontDir]);
-            if (*((int *)(&block->pxTex) + offset) == tex) {
+            if (block->base[offset] == tex) {
                 connectedOffset |= 0xC;
             }
         }
     }
     // Front left
     block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 0x8;
     }
  
     // Bottom left
     block = &GETBLOCK(blockIDData[wc - upDir - rightDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 0xC;
     }
 
     // bottom right
     block = &GETBLOCK(blockIDData[wc - upDir + rightDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 0x3;
     }
 
     // Right
     block = &GETBLOCK(blockIDData[wc + rightDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex || block->occlude == 0) {
+    if (block->base[offset] == tex || block->occlude == 0) {
         connectedOffset |= 0x1;
 
-        if (*((int *)(&block->pxTex) + offset) == tex) {
+        if (block->base[offset] == tex) {
             // bottom front Right
             block = &GETBLOCK(blockIDData[wc - upDir + rightDir + frontDir]);
-            if (*((int *)(&block->pxTex) + offset) == tex) {
+            if (block->base[offset] == tex) {
                 connectedOffset |= 0x3;
             }
         }
@@ -392,7 +392,7 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
 
     // Front right
     block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 0x1;
     }
 
@@ -418,12 +418,12 @@ void ChunkMesher::getVerticalTextureIndex(const MesherInfo &mi, int& result, Con
 
     //top bit
     Block *block = &GETBLOCK(blockIDData[wc + upDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 2;
     }
     //bottom bit
     block = &GETBLOCK(blockIDData[wc - upDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 1;
     }
 
@@ -440,24 +440,24 @@ void ChunkMesher::getHorizontalTextureIndex(const MesherInfo &mi, int& result, b
 
     //right bit
     Block *block = &GETBLOCK(blockIDData[wc + rightDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 1;
     }
     //left bit
     block = &GETBLOCK(blockIDData[wc - rightDir]);
-    if (*((int *)(&block->pxTex) + offset) == tex) {
+    if (block->base[offset] == tex) {
         connectedOffset |= 2;
     }
 
     if (innerSeams) {
         //front right bit
         Block *block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
-        if (*((int *)(&block->pxTex) + offset) == tex) {
+        if (block->base[offset] == tex) {
             connectedOffset &= 2;
         }
         //front left bit
         block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
-        if (*((int *)(&block->pxTex) + offset) == tex) {
+        if (block->base[offset] == tex) {
             connectedOffset &= 1;
         }
     }

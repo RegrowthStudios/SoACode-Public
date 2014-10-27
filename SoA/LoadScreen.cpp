@@ -148,13 +148,8 @@ void LoadScreen::update(const GameTime& gameTime) {
             }
         }
 
-        //It has no texture
-        Blocks[0].pxTex = -1;
-        Blocks[0].pyTex = -1;
-        Blocks[0].pzTex = -1;
-        Blocks[0].nxTex = -1;
-        Blocks[0].nyTex = -1;
-        Blocks[0].nzTex = -1;
+        // It has no texture
+        for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
         LoadTaskPlanet loadTaskPlanet;
         loadTaskPlanet.load();
