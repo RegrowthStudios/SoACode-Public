@@ -49,33 +49,19 @@ void MultiplePreciseTimer::end(bool print) {
     }
 }
 
-FpsLimiter::FpsLimiter() {
+FpsCounter::FpsCounter() : _fps(0) {
+    // Empty
 }
-void FpsLimiter::init(float maxFPS) {
-    setMaxFPS(maxFPS);
-}
-
-void FpsLimiter::setMaxFPS(float maxFPS) {
-    _maxFPS = maxFPS;
-}
-
-void FpsLimiter::begin() {
+void FpsCounter::beginFrame() {
     _startTicks = SDL_GetTicks();
 }
 
-float FpsLimiter::end() {
+float FpsCounter::endFrame() {
     calculateFPS();
-
-    float frameTicks = SDL_GetTicks() - _startTicks;
-    //Limit the FPS to the max FPS
-    if (1000.0f / _maxFPS > frameTicks) {
-        SDL_Delay((Uint32)(1000.0f / _maxFPS - frameTicks));
-    }
-
     return _fps;
 }
 
-void FpsLimiter::calculateFPS() {
+void FpsCounter::calculateFPS() {
     //The number of frames to average
     static const int NUM_SAMPLES = 10;
     //Stores all the frametimes for each frame that we will average
@@ -118,4 +104,27 @@ void FpsLimiter::calculateFPS() {
     } else {
         _fps = 60.0f;
     }
+}
+
+FpsLimiter::FpsLimiter() {
+    // Empty
+}
+void FpsLimiter::init(float maxFPS) {
+    setMaxFPS(maxFPS);
+}
+
+void FpsLimiter::setMaxFPS(float maxFPS) {
+    _maxFPS = maxFPS;
+}
+
+float FpsLimiter::endFrame() {
+    calculateFPS();
+
+    float frameTicks = SDL_GetTicks() - _startTicks;
+    //Limit the FPS to the max FPS
+    if (1000.0f / _maxFPS > frameTicks) {
+        SDL_Delay((Uint32)(1000.0f / _maxFPS - frameTicks));
+    }
+
+    return _fps;
 }

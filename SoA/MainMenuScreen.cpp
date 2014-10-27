@@ -212,7 +212,7 @@ void MainMenuScreen::updateThreadFunc() {
 
     while (_threadRunning) {
 
-        fpsLimiter.begin();
+        fpsLimiter.beginFrame();
 
         GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
@@ -234,6 +234,6 @@ void MainMenuScreen::updateThreadFunc() {
         GameManager::planet->rotationUpdate();
         GameManager::updatePlanet(camPos, 10);
         
-        physicsFps = fpsLimiter.end();
+        physicsFps = fpsLimiter.endFrame();
     }
 }

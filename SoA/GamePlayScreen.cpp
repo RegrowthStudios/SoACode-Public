@@ -32,13 +32,21 @@
 
 #define THREAD ThreadName::PHYSICS
 
+// Each mode includes the previous mode
+enum DevUiModes { 
+    DEVUIMODE_NONE, 
+    DEVUIMODE_CROSSHAIR,
+    DEVUIMODE_HANDS, 
+    DEVUIMODE_FPS, 
+    DEVUIMODE_ALL };
+
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
     _threadRunning(false), 
     _inFocus(true),
     _devHudSpriteBatch(nullptr),
     _devHudSpriteFont(nullptr),
-    _devHudMode(1) {
+    _devHudMode(DEVUIMODE_CROSSHAIR) {
     // Empty
 }
 
@@ -155,7 +163,7 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     drawVoxelWorld();
 
     // Drawing crosshair
-    if (_devHudMode > 0) {
+    if (_devHudMode != DEVUIMODE_NONE) {
         drawDevHUD();
     }
 
@@ -255,8 +263,8 @@ void GamePlayScreen::handleInput() {
     // Dev hud
     if (inputManager->getKeyDown(INPUT_HUD)) {
         _devHudMode++;
-        if (_devHudMode == 3) {
-            _devHudMode = 0;
+        if (_devHudMode > DEVUIMODE_ALL) {
+            _devHudMode = DEVUIMODE_NONE;
         }
     }
 
@@ -458,6 +466,7 @@ void GamePlayScreen::drawVoxelWorld() {
 
 void GamePlayScreen::drawDevHUD() {
     f32v2 windowDims(_app->getWindow().getWidth(), _app->getWindow().getHeight());
+    char buffer[256];
     // Lazily load spritebatch
     if (!_devHudSpriteBatch) {
         _devHudSpriteBatch = new SpriteBatch(true, true);
@@ -473,13 +482,114 @@ void GamePlayScreen::drawDevHUD() {
                              cSize,
                              ColorRGBA8(255, 255, 255, 128));
     
-    // Draw text
-    if (_devHudMode == 2) {
+    int offset = 0;
+    int fontHeight = _devHudSpriteFont->getFontHeight();
 
+    // Fps Counters
+    if (_devHudMode >= DEVUIMODE_FPS) {
+        
+        std::sprintf(buffer, "Render FPS: %.0f", _app->getFps());
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+
+        std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+    }
+
+    // Items in hands
+    if (_devHudMode >= DEVUIMODE_HANDS) {
+        const f32v2 SCALE(0.75f);
+        // Left Hand
+        if (_player->leftEquippedItem) {
+            std::sprintf(buffer, "Left Hand: %s (%d)",
+                        _player->leftEquippedItem->name.c_str(),
+                        _player->leftEquippedItem->count);
+
+            _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                           buffer,
+                                           f32v2(0.0f, windowDims.y - fontHeight),
+                                           SCALE,
+                                           color::White);
+        }
+        // Right Hand
+        if (_player->rightEquippedItem) {
+            std::sprintf(buffer, "Right Hand: %s (%d)",
+                         _player->rightEquippedItem->name.c_str(),
+                         _player->rightEquippedItem->count);
+
+            _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                           buffer,
+                                           f32v2(windowDims.x - _devHudSpriteFont->measure(buffer).x, windowDims.y - fontHeight),
+                                           SCALE,
+                                           color::White);
+        }
+    }
+    
+    // Other debug text
+    if (_devHudMode >= DEVUIMODE_ALL) {
+        const f32v2 NUMBER_SCALE(0.75f);
+        // Grid position
+        offset++;
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       "Grid Position",
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+        std::sprintf(buffer, "X %.2f", _player->headPosition.x);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Y %.2f", _player->headPosition.y);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Z %.2f", _player->headPosition.z);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        
+        // World position
+        offset++;
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       "World Position",
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+        std::sprintf(buffer, "X %-9.2f", _player->worldPosition.x);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Y %-9.2f", _player->worldPosition.y);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Z %-9.2f", _player->worldPosition.z);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
     }
 
     _devHudSpriteBatch->end();
-    
+    // Render to the screen
     _devHudSpriteBatch->renderBatch(windowDims);
 }
 
@@ -521,7 +631,7 @@ void GamePlayScreen::updateThreadFunc() {
     Message message;
 
     while (_threadRunning) {
-        fpsLimiter.begin();
+        fpsLimiter.beginFrame();
 
         GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
@@ -538,7 +648,7 @@ void GamePlayScreen::updateThreadFunc() {
 
         GameManager::update();
 
-        physicsFps = fpsLimiter.end();
+        physicsFps = fpsLimiter.endFrame();
     }
 }
 

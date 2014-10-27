@@ -42,8 +42,32 @@ private:
     std::vector<Interval> intervals;
 };
 
+/// Calculates FPS 
+class FpsCounter {
+public:
+    FpsCounter();
+    
+    /// Begins a frame timing for fps calculation
+    void beginFrame();
+
+    /// ends the frame
+    /// @return The current FPS as a float
+    float endFrame();
+
+    /// Returns the current fps as last recorded by an endFrame
+    float getCurrentFps() const { return _fps; }
+protected:
+    // Calculates the current FPS
+    void calculateFPS();
+
+    // Variables
+    float _fps;
+    float _frameTime;
+    unsigned int _startTicks;
+};
+
 ///Calculates FPS and also limits FPS
-class FpsLimiter {
+class FpsLimiter : public FpsCounter {
 public:
     FpsLimiter();
 
@@ -54,17 +78,8 @@ public:
     // Sets the desired max FPS
     void setMaxFPS(float maxFPS);
 
-    void begin();
-
-    // end() will return the current FPS as a float
-    float end();
+    // end() will return the current FPS as a float and limit fps
+    float endFrame();
 private:
-    // Calculates the current FPS
-    void calculateFPS();
-
-    // Variables
-    float _fps;
     float _maxFPS;
-    float _frameTime;
-    unsigned int _startTicks;
 };
