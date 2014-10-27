@@ -104,6 +104,8 @@ void GameManager::registerTexturesForLoad() {
 
     texturePackLoader->registerTexture("FarTerrain/water_noise.png", &SamplerState::LINEAR_WRAP_MIPMAP);
     texturePackLoader->registerTexture("Particle/ball_mask.png");
+
+    texturePackLoader->registerTexture("GUI/crosshair.png");
 }
 
 void GameManager::getTextureHandles() {
@@ -126,6 +128,7 @@ void GameManager::getTextureHandles() {
 
     waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
     ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
+    crosshairTexture = textureCache->findTexture("GUI/crosshair.png");
 
     // TODO(Ben): Parallelize this
     logoTexture = textureCache->addTexture("Textures/logo.png");

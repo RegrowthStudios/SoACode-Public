@@ -25,6 +25,8 @@
 #include "PDA.h"
 
 class App;
+class SpriteBatch;
+class SpriteFont;
 struct TerrainMeshMessage;
 
 class GamePlayScreen : public IAppScreen<App>
@@ -60,6 +62,9 @@ private:
     /// Draws the voxel world
     void drawVoxelWorld();
 
+    /// Draws the developer hud
+    void drawDevHUD();
+
     /// Updates the player
     void updatePlayer();
 
@@ -73,6 +78,10 @@ private:
     Player* _player; ///< The current player
 
     PDA _pda; ///< The PDA
+
+    int _devHudMode;
+    SpriteBatch* _devHudSpriteBatch; ///< Used for rendering any dev hud UI
+    SpriteFont* _devHudSpriteFont; ///< Used for rendering any dev hud font
 
     bool _inFocus; ///< true when the window is in focus
 

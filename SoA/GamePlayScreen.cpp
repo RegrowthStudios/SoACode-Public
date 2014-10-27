@@ -26,13 +26,19 @@
 #include "TexturePackLoader.h"
 #include "LoadTaskShaders.h"
 #include "GpuMemory.h"
+#include "SpriteFont.h"
+#include "SpriteBatch.h"
+#include "colors.h"
 
 #define THREAD ThreadName::PHYSICS
 
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
     _threadRunning(false), 
-    _inFocus(true){
+    _inFocus(true),
+    _devHudSpriteBatch(nullptr),
+    _devHudSpriteFont(nullptr),
+    _devHudMode(1) {
     // Empty
 }
 
@@ -148,6 +154,11 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     
     drawVoxelWorld();
 
+    // Drawing crosshair
+    if (_devHudMode > 0) {
+        drawDevHUD();
+    }
+
     glDisable(GL_DEPTH_TEST);
     // Draw PDA if its open
     if (_pda.isOpen()) {
@@ -238,6 +249,14 @@ void GamePlayScreen::handleInput() {
                 _player->dragBlock = _player->rightEquippedItem;
                 GameManager::clickDragRay(false);
             }
+        }
+    }
+
+    // Dev hud
+    if (inputManager->getKeyDown(INPUT_HUD)) {
+        _devHudMode++;
+        if (_devHudMode == 3) {
+            _devHudMode = 0;
         }
     }
 
@@ -435,6 +454,33 @@ void GamePlayScreen::drawVoxelWorld() {
     //    bProgram->unuse();
     //}
     GameManager::debugRenderer->render(VP, glm::vec3(chunkCamera.position()));
+}
+
+void GamePlayScreen::drawDevHUD() {
+    f32v2 windowDims(_app->getWindow().getWidth(), _app->getWindow().getHeight());
+    // Lazily load spritebatch
+    if (!_devHudSpriteBatch) {
+        _devHudSpriteBatch = new SpriteBatch(true, true);
+        _devHudSpriteFont = new SpriteFont("Fonts\\chintzy.ttf", 32);
+    }
+
+    _devHudSpriteBatch->begin();
+
+    // Draw crosshair
+    const f32v2 cSize(26.0f);
+    _devHudSpriteBatch->draw(crosshairTexture.ID, 
+                             (windowDims - cSize) / 2.0f,
+                             cSize,
+                             ColorRGBA8(255, 255, 255, 128));
+    
+    // Draw text
+    if (_devHudMode == 2) {
+
+    }
+
+    _devHudSpriteBatch->end();
+    
+    _devHudSpriteBatch->renderBatch(windowDims);
 }
 
 void GamePlayScreen::updatePlayer() {

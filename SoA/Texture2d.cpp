@@ -93,6 +93,7 @@ vg::Texture BlankTextureID;
 vg::Texture explosionTexture;
 vg::Texture fireTexture;
 vg::Texture waterNoiseTexture;
+vg::Texture crosshairTexture;
 
 void BlockPack::initialize(vg::Texture texInfo)
 {
