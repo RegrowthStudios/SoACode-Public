@@ -121,9 +121,11 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
             if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
                  SDL_SetRelativeMouseMode(SDL_FALSE);
                  _inFocus = false;
+                 SDL_StopTextInput();
             } else if (e.window.type == SDL_WINDOWEVENT_ENTER) {
                 SDL_SetRelativeMouseMode(SDL_TRUE);
                 _inFocus = true;
+                SDL_StartTextInput();
             }
         default:
             break;
@@ -227,10 +229,12 @@ void GamePlayScreen::handleInput() {
             _pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
             _inFocus = true;
+            SDL_StartTextInput();
         } else {
             _pda.open();
             SDL_SetRelativeMouseMode(SDL_FALSE);
             _inFocus = false;
+            SDL_StopTextInput();
         }
     }
     if (inputManager->getKeyDown(INPUT_RELOAD_UI)) {
@@ -273,6 +277,7 @@ void GamePlayScreen::handleInput() {
 }
 
 void GamePlayScreen::onMouseDown(const SDL_Event& e) {
+    SDL_StartTextInput();
     if (!_pda.isOpen()) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         _inFocus = true;

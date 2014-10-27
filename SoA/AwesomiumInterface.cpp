@@ -166,19 +166,18 @@ void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
             _webView->Focus();
             _webView->InjectMouseWheel(evnt.motion.y, evnt.motion.x);
             break;
+        case SDL_TEXTINPUT:
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-            //Have to construct a webKeyboardEvent from the SDL Event
-            char* buf = new char[20];
+            
+            //Have to construct a webKeyboardEvent from the SDL Event     
+            char* keyIdentifier = keyEvent.key_identifier;
             keyEvent.virtual_key_code = getWebKeyFromSDLKey(evnt.key.keysym.scancode);
             Awesomium::GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code,
-                                                            &buf);
-            strcpy(keyEvent.key_identifier, buf);
+                                                          &keyIdentifier);
 
-            delete[] buf;
-
+            // Apply modifiers
             keyEvent.modifiers = 0;
-
             if (evnt.key.keysym.mod & KMOD_LALT || evnt.key.keysym.mod & KMOD_RALT)
                 keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModAltKey;
             if (evnt.key.keysym.mod & KMOD_LCTRL || evnt.key.keysym.mod & KMOD_RCTRL)
@@ -190,25 +189,20 @@ void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
 
             keyEvent.native_key_code = evnt.key.keysym.scancode;
 
-            if (evnt.type == SDL_KEYUP) {
+            // Inject the event
+            if (evnt.type == SDL_KEYDOWN) {
+                keyEvent.type = Awesomium::WebKeyboardEvent::kTypeKeyDown;
+                _webView->InjectKeyboardEvent(keyEvent);
+            } else if (evnt.type == SDL_KEYUP) {
                 keyEvent.type = Awesomium::WebKeyboardEvent::kTypeKeyUp;
                 _webView->InjectKeyboardEvent(keyEvent);
             } else if (evnt.type == SDL_TEXTINPUT) {
-                unsigned int chr;
 
-                chr = (int)evnt.text.text;
-                keyEvent.text[0] = chr;
-                keyEvent.unmodified_text[0] = chr;
+                strcpy((char*)keyEvent.text, evnt.text.text);
+                strcpy((char*)keyEvent.unmodified_text, evnt.text.text);
 
-                keyEvent.type = Awesomium::WebKeyboardEvent::kTypeKeyDown;
+                keyEvent.type = Awesomium::WebKeyboardEvent::kTypeChar;
                 _webView->InjectKeyboardEvent(keyEvent);
-
-                if (chr) {
-                    keyEvent.type = Awesomium::WebKeyboardEvent::kTypeChar;
-                    keyEvent.virtual_key_code = chr;
-                    keyEvent.native_key_code = chr;
-                    _webView->InjectKeyboardEvent(keyEvent);
-                }
             }
             break;
     }
@@ -338,9 +332,6 @@ Awesomium::JSValue CustomJSMethodHandler<C>::OnMethodCallWithReturnValue(Awesomi
     return Awesomium::JSValue(0);
 }
 
-/// Helper Macro
-#define mapKey(a, b) case SDLK_##a: return Awesomium::KeyCodes::AK_##b;
-
 
 /// Converts SDL button to awesomium button
 template <class C>
@@ -356,140 +347,144 @@ Awesomium::MouseButton AwesomiumInterface<C>::getAwesomiumButtonFromSDL(Uint8 SD
     return Awesomium::MouseButton::kMouseButton_Left;
 }
 
+/// Helper Macros
+#define mapScanKey(a, b) case SDL_SCANCODE_##a: return Awesomium::KeyCodes::AK_##b;
+#define mapKey(a, b) case SDLK_##a: return Awesomium::KeyCodes::AK_##b;
+
 /// Get an Awesomium KeyCode from an SDLKey Code
-template <class C>
-int AwesomiumInterface<C>::getWebKeyFromSDLKey(SDL_Scancode key) {
+template <class CC>
+int AwesomiumInterface<CC>::getWebKeyFromSDLKey(SDL_Scancode key) {
     switch (key) {
-        mapKey(BACKSPACE, BACK)
-            mapKey(TAB, TAB)
-            mapKey(CLEAR, CLEAR)
-            mapKey(RETURN, RETURN)
-            mapKey(PAUSE, PAUSE)
-            mapKey(ESCAPE, ESCAPE)
-            mapKey(SPACE, SPACE)
-            mapKey(EXCLAIM, 1)
-            mapKey(QUOTEDBL, 2)
-            mapKey(HASH, 3)
-            mapKey(DOLLAR, 4)
-            mapKey(AMPERSAND, 7)
-            mapKey(QUOTE, OEM_7)
-            mapKey(LEFTPAREN, 9)
-            mapKey(RIGHTPAREN, 0)
-            mapKey(ASTERISK, 8)
-            mapKey(PLUS, OEM_PLUS)
-            mapKey(COMMA, OEM_COMMA)
-            mapKey(MINUS, OEM_MINUS)
-            mapKey(PERIOD, OEM_PERIOD)
-            mapKey(SLASH, OEM_2)
-            mapKey(0, 0)
-            mapKey(1, 1)
-            mapKey(2, 2)
-            mapKey(3, 3)
-            mapKey(4, 4)
-            mapKey(5, 5)
-            mapKey(6, 6)
-            mapKey(7, 7)
-            mapKey(8, 8)
-            mapKey(9, 9)
-            mapKey(COLON, OEM_1)
-            mapKey(SEMICOLON, OEM_1)
-            mapKey(LESS, OEM_COMMA)
-            mapKey(EQUALS, OEM_PLUS)
-            mapKey(GREATER, OEM_PERIOD)
-            mapKey(QUESTION, OEM_2)
-            mapKey(AT, 2)
-            mapKey(LEFTBRACKET, OEM_4)
-            mapKey(BACKSLASH, OEM_5)
-            mapKey(RIGHTBRACKET, OEM_6)
-            mapKey(CARET, 6)
-            mapKey(UNDERSCORE, OEM_MINUS)
-            mapKey(BACKQUOTE, OEM_3)
-            mapKey(a, A)
-            mapKey(b, B)
-            mapKey(c, C)
-            mapKey(d, D)
-            mapKey(e, E)
-            mapKey(f, F)
-            mapKey(g, G)
-            mapKey(h, H)
-            mapKey(i, I)
-            mapKey(j, J)
-            mapKey(k, K)
-            mapKey(l, L)
-            mapKey(m, M)
-            mapKey(n, N)
-            mapKey(o, O)
-            mapKey(p, P)
-            mapKey(q, Q)
-            mapKey(r, R)
-            mapKey(s, S)
-            mapKey(t, T)
-            mapKey(u, U)
-            mapKey(v, V)
-            mapKey(w, W)
-            mapKey(x, X)
-            mapKey(y, Y)
-            mapKey(z, Z)
-            //	mapKey(DELETE, DELETE)
-            /*	mapKey(KP0, NUMPAD0)
-            mapKey(KP1, NUMPAD1)
-            mapKey(KP2, NUMPAD2)
-            mapKey(KP3, NUMPAD3)
-            mapKey(KP4, NUMPAD4)
-            mapKey(KP5, NUMPAD5)
-            mapKey(KP6, NUMPAD6)
-            mapKey(KP7, NUMPAD7)
-            mapKey(KP8, NUMPAD8)
-            mapKey(KP9, NUMPAD9)*/
-            mapKey(KP_PERIOD, DECIMAL)
-            mapKey(KP_DIVIDE, DIVIDE)
-            mapKey(KP_MULTIPLY, MULTIPLY)
-            mapKey(KP_MINUS, SUBTRACT)
-            mapKey(KP_PLUS, ADD)
-            mapKey(KP_ENTER, SEPARATOR)
-            mapKey(KP_EQUALS, UNKNOWN)
-            mapKey(UP, UP)
-            mapKey(DOWN, DOWN)
-            mapKey(RIGHT, RIGHT)
-            mapKey(LEFT, LEFT)
-            mapKey(INSERT, INSERT)
-            mapKey(HOME, HOME)
-            mapKey(END, END)
-            mapKey(PAGEUP, PRIOR)
-            mapKey(PAGEDOWN, NEXT)
-            mapKey(F1, F1)
-            mapKey(F2, F2)
-            mapKey(F3, F3)
-            mapKey(F4, F4)
-            mapKey(F5, F5)
-            mapKey(F6, F6)
-            mapKey(F7, F7)
-            mapKey(F8, F8)
-            mapKey(F9, F9)
-            mapKey(F10, F10)
-            mapKey(F11, F11)
-            mapKey(F12, F12)
-            mapKey(F13, F13)
-            mapKey(F14, F14)
-            mapKey(F15, F15)
-            //mapKey(NUMLOCK, NUMLOCK)
-            mapKey(CAPSLOCK, CAPITAL)
-            //	mapKey(SCROLLOCK, SCROLL)
-            mapKey(RSHIFT, RSHIFT)
-            mapKey(LSHIFT, LSHIFT)
-            mapKey(RCTRL, RCONTROL)
-            mapKey(LCTRL, LCONTROL)
-            mapKey(RALT, RMENU)
-            mapKey(LALT, LMENU)
-            //	mapKey(RMETA, LWIN)
-            //	mapKey(LMETA, RWIN)
-            //	mapKey(LSUPER, LWIN)
-            //	mapKey(RSUPER, RWIN)
-            mapKey(MODE, MODECHANGE)
-            //	mapKey(COMPOSE, ACCEPT)
-            mapKey(HELP, HELP)
-            //	mapKey(PRINT, SNAPSHOT)
-            mapKey(SYSREQ, EXECUTE)
+        mapScanKey(BACKSPACE, BACK)
+            mapScanKey(TAB, TAB)
+            mapScanKey(CLEAR, CLEAR)
+            mapScanKey(RETURN, RETURN)
+            mapScanKey(PAUSE, PAUSE)
+            mapScanKey(ESCAPE, ESCAPE)
+            mapScanKey(SPACE, SPACE)
+         //   mapKey(EXCLAIM, 1) // These are virtual keys so they don't belong here?
+         //   mapKey(QUOTEDBL, 2)
+         //   mapKey(HASH, 3)
+        //    mapKey(DOLLAR, 4)
+         //   mapKey(AMPERSAND, 7)
+        //    mapKey(QUOTE, OEM_7)
+        //    mapKey(LEFTPAREN, 9)
+        //    mapKey(RIGHTPAREN, 0)
+        //    mapKey(ASTERISK, 8)
+        //    mapKey(PLUS, OEM_PLUS)
+            mapScanKey(COMMA, OEM_COMMA)
+            mapScanKey(MINUS, OEM_MINUS)
+            mapScanKey(PERIOD, OEM_PERIOD)
+            mapScanKey(SLASH, OEM_2)
+            mapScanKey(0, 0)
+            mapScanKey(1, 1)
+            mapScanKey(2, 2)
+            mapScanKey(3, 3)
+            mapScanKey(4, 4)
+            mapScanKey(5, 5)
+            mapScanKey(6, 6)
+            mapScanKey(7, 7)
+            mapScanKey(8, 8)
+            mapScanKey(9, 9)
+       //     mapKey(COLON, OEM_1)
+            mapScanKey(SEMICOLON, OEM_1)
+        //    mapKey(LESS, OEM_COMMA)
+            mapScanKey(EQUALS, OEM_PLUS)
+       //     mapKey(GREATER, OEM_PERIOD)
+        //    mapScanKey(QUESTION, OEM_2)
+       //     mapScanKey(AT, 2)
+            mapScanKey(LEFTBRACKET, OEM_4)
+            mapScanKey(BACKSLASH, OEM_5)
+            mapScanKey(RIGHTBRACKET, OEM_6)
+      //      mapKey(CARET, 6)
+      //      mapKey(UNDERSCORE, OEM_MINUS)
+      //      mapKey(BACKQUOTE, OEM_3)
+            mapScanKey(A, A)
+            mapScanKey(B, B)
+            mapScanKey(C, C)
+            mapScanKey(D, D)
+            mapScanKey(E, E)
+            mapScanKey(F, F)
+            mapScanKey(G, G)
+            mapScanKey(H, H)
+            mapScanKey(I, I)
+            mapScanKey(J, J)
+            mapScanKey(K, K)
+            mapScanKey(L, L)
+            mapScanKey(M, M)
+            mapScanKey(N, N)
+            mapScanKey(O, O)
+            mapScanKey(P, P)
+            mapScanKey(Q, Q)
+            mapScanKey(R, R)
+            mapScanKey(S, S)
+            mapScanKey(T, T)
+            mapScanKey(U, U)
+            mapScanKey(V, V)
+            mapScanKey(W, W)
+            mapScanKey(X, X)
+            mapScanKey(Y, Y)
+            mapScanKey(Z, Z)
+            //	mapScanKey(DELETE, DELETE)
+            /*	mapScanKey(KP0, NUMPAD0)
+            mapScanKey(KP1, NUMPAD1)
+            mapScanKey(KP2, NUMPAD2)
+            mapScanKey(KP3, NUMPAD3)
+            mapScanKey(KP4, NUMPAD4)
+            mapScanKey(KP5, NUMPAD5)
+            mapScanKey(KP6, NUMPAD6)
+            mapScanKey(KP7, NUMPAD7)
+            mapScanKey(KP8, NUMPAD8)
+            mapScanKey(KP9, NUMPAD9)*/
+            mapScanKey(KP_PERIOD, DECIMAL)
+            mapScanKey(KP_DIVIDE, DIVIDE)
+            mapScanKey(KP_MULTIPLY, MULTIPLY)
+            mapScanKey(KP_MINUS, SUBTRACT)
+            mapScanKey(KP_PLUS, ADD)
+            mapScanKey(KP_ENTER, SEPARATOR)
+            mapScanKey(KP_EQUALS, UNKNOWN)
+            mapScanKey(UP, UP)
+            mapScanKey(DOWN, DOWN)
+            mapScanKey(RIGHT, RIGHT)
+            mapScanKey(LEFT, LEFT)
+            mapScanKey(INSERT, INSERT)
+            mapScanKey(HOME, HOME)
+            mapScanKey(END, END)
+            mapScanKey(PAGEUP, PRIOR)
+            mapScanKey(PAGEDOWN, NEXT)
+            mapScanKey(F1, F1)
+            mapScanKey(F2, F2)
+            mapScanKey(F3, F3)
+            mapScanKey(F4, F4)
+            mapScanKey(F5, F5)
+            mapScanKey(F6, F6)
+            mapScanKey(F7, F7)
+            mapScanKey(F8, F8)
+            mapScanKey(F9, F9)
+            mapScanKey(F10, F10)
+            mapScanKey(F11, F11)
+            mapScanKey(F12, F12)
+            mapScanKey(F13, F13)
+            mapScanKey(F14, F14)
+            mapScanKey(F15, F15)
+            //mapScanKey(NUMLOCK, NUMLOCK)
+            mapScanKey(CAPSLOCK, CAPITAL)
+            //	mapScanKey(SCROLLOCK, SCROLL)
+            mapScanKey(RSHIFT, RSHIFT)
+            mapScanKey(LSHIFT, LSHIFT)
+            mapScanKey(RCTRL, RCONTROL)
+            mapScanKey(LCTRL, LCONTROL)
+            mapScanKey(RALT, RMENU)
+            mapScanKey(LALT, LMENU)
+            //	mapScanKey(RMETA, LWIN)
+            //	mapScanKey(LMETA, RWIN)
+            //	mapScanKey(LSUPER, LWIN)
+            //	mapScanKey(RSUPER, RWIN)
+            mapScanKey(MODE, MODECHANGE)
+            //	mapScanKey(COMPOSE, ACCEPT)
+            mapScanKey(HELP, HELP)
+            //	mapScanKey(PRINT, SNAPSHOT)
+            mapScanKey(SYSREQ, EXECUTE)
         default:
             return Awesomium::KeyCodes::AK_UNKNOWN;
     }
