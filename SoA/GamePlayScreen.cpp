@@ -309,8 +309,8 @@ void GamePlayScreen::drawVoxelWorld() {
     glm::vec3 lightPos = glm::vec3(1.0, 0.0, 0.0);
     float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCamera.position(), 1.0))));
 
-#define FOG_THETA_MULT 100.0f
-#define FOG_THETA_OFFSET 50.0f
+    #define FOG_THETA_MULT 100.0f
+    #define FOG_THETA_OFFSET 50.0f
 
     glm::mat4 VP;
     //********************************* TODO: PRECOMPILED HEADERS for compilation speed?
@@ -346,12 +346,12 @@ void GamePlayScreen::drawVoxelWorld() {
 
     VP = worldCamera.projectionMatrix() * worldCamera.viewMatrix();
 
-#define AMB_MULT 0.76f
-#define AMB_OFFSET 0.1f
-#define MIN_THETA 0.01f
-#define THETA_MULT 8.0f
-#define SUN_COLOR_MAP_HEIGHT 64.0f
-#define SUN_THETA_OFF 0.06f
+    #define AMB_MULT 0.76f
+    #define AMB_OFFSET 0.1f
+    #define MIN_THETA 0.01f
+    #define THETA_MULT 8.0f
+    #define SUN_COLOR_MAP_HEIGHT 64.0f
+    #define SUN_THETA_OFF 0.06f
 
     float sunTheta = MAX(0.0f, theta + SUN_THETA_OFF);
     if (sunTheta > 1) sunTheta = 1;
@@ -620,8 +620,8 @@ void GamePlayScreen::updatePlayer() {
     // Number of steps to integrate the collision over
     Chunk::modifyLock.lock();
     for (int i = 0; i < PLAYER_COLLISION_STEPS; i++){
-        _player->gridPosition += _player->velocity * (1.0f / PLAYER_COLLISION_STEPS) * glSpeedFactor;
-        _player->facePosition += _player->velocity * (1.0f / PLAYER_COLLISION_STEPS) * glSpeedFactor;
+        _player->gridPosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
+        _player->facePosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
         _player->collisionData.clear();
         GameManager::voxelWorld->getClosestChunks(_player->gridPosition, chunks); //DANGER HERE!
         aabbChunkCollision(_player, &(_player->gridPosition), chunks, 8);

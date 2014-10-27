@@ -11,7 +11,7 @@
 void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions
-#define ADDFUNC(a) addFunction(""#a"", &MainMenuAPI::##a)
+    #define ADDFUNC(a) addFunction(""#a"", &MainMenuAPI::##a)
 
     // Set up the interface object so we can talk to the JS
     _interfaceObject = interfaceObject;

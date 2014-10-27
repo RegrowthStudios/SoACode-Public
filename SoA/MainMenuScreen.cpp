@@ -121,9 +121,12 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     frameBuffer->bind();
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    #define SKYBOX_ZNEAR 1000000.0f
+    #define SKYBOX_ZFAR 30000000.0f
   
     // Set the camera clipping plane for rendering the skybox and update the projection matrix
-    _camera.setClippingPlane(1000000.0f, 30000000.0f);
+    _camera.setClippingPlane(SKYBOX_ZNEAR, SKYBOX_ZFAR);
     _camera.updateProjection();
     glm::mat4 VP = _camera.projectionMatrix() * _camera.viewMatrix();
 
@@ -134,8 +137,11 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     double clip = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
     if (clip < 100) clip = 100;
 
+    #define PLANET_ZFAR 300000000.0f
+    #define PLANET_PATCH_OFFSET 10000000.0
+
     // Set the clipping plane for the camera for the planet
-    _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    _camera.setClippingPlane(clip, MAX(PLANET_ZFAR / planetScale, closestTerrainPatchDistance + PLANET_PATCH_OFFSET));
     _camera.updateProjection();
 
     VP = _camera.projectionMatrix() * _camera.viewMatrix();
