@@ -12,9 +12,10 @@
 #include "SamplerState.h"
 #include "ScreenList.h"
 #include "utils.h"
+#include "Timing.h"
 
 
-MainGame::MainGame() {
+MainGame::MainGame() : _fps(0) {
     // Empty
 }
 MainGame::~MainGame() {
@@ -54,10 +55,15 @@ bool MainGame::initSystems() {
 void MainGame::run() {
     SDL_Init(SDL_INIT_EVERYTHING);
 
+    // for counting the fps
+    FpsCounter fpsCounter;
+
     // Game Loop
     if (init()) {
         _isRunning = true;
         while (_isRunning) {
+            // Start the FPS counter
+            fpsCounter.beginFrame();
             // Refresh Time Information
             refreshElapsedTime();
 
@@ -68,6 +74,8 @@ void MainGame::run() {
             onRenderFrame();
 
             _window.sync(SDL_GetTicks() - _lastMS);
+            // Get the FPS
+            _fps = fpsCounter.endFrame();
         }
     }
 

@@ -22,12 +22,16 @@
 #include "MainMenuAPI.h"
 #include "Random.h"
 #include "LoadMonitor.h"
+#include "PDA.h"
 
 class App;
+class SpriteBatch;
+class SpriteFont;
 struct TerrainMeshMessage;
 
 class GamePlayScreen : public IAppScreen<App>
 {
+    friend class PdaAwesomiumAPI;
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
@@ -49,8 +53,17 @@ private:
     /// Handles updating state based on input
     void handleInput();
 
+    /// Handles mouse down input for player
+    void onMouseDown(const SDL_Event& e);
+
+    /// Handles mouse up input for player
+    void onMouseUp(const SDL_Event& e);
+
     /// Draws the voxel world
     void drawVoxelWorld();
+
+    /// Draws the developer hud
+    void drawDevHUD();
 
     /// Updates the player
     void updatePlayer();
@@ -63,6 +76,12 @@ private:
     void processMessages();
 
     Player* _player; ///< The current player
+
+    PDA _pda; ///< The PDA
+
+    int _devHudMode;
+    SpriteBatch* _devHudSpriteBatch; ///< Used for rendering any dev hud UI
+    SpriteFont* _devHudSpriteFont; ///< Used for rendering any dev hud font
 
     bool _inFocus; ///< true when the window is in focus
 

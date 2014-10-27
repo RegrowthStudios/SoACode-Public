@@ -26,13 +26,27 @@
 #include "TexturePackLoader.h"
 #include "LoadTaskShaders.h"
 #include "GpuMemory.h"
+#include "SpriteFont.h"
+#include "SpriteBatch.h"
+#include "colors.h"
 
 #define THREAD ThreadName::PHYSICS
+
+// Each mode includes the previous mode
+enum DevUiModes { 
+    DEVUIMODE_NONE, 
+    DEVUIMODE_CROSSHAIR,
+    DEVUIMODE_HANDS, 
+    DEVUIMODE_FPS, 
+    DEVUIMODE_ALL };
 
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
     _threadRunning(false), 
-    _inFocus(true){
+    _inFocus(true),
+    _devHudSpriteBatch(nullptr),
+    _devHudSpriteFont(nullptr),
+    _devHudMode(DEVUIMODE_CROSSHAIR) {
     // Empty
 }
 
@@ -58,6 +72,9 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _player->initialize("Ben"); //What an awesome name that is
     GameManager::initializeVoxelWorld(_player);
 
+    // Initialize the PDA
+    _pda.init(this);
+
     // Initialize and run the update thread
     _updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
 
@@ -73,12 +90,18 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     _updateThread->join();
     delete _updateThread;
     _app->meshManager->destroy();
+    _pda.destroy();
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
 
     // Push the event to the input manager
     GameManager::inputManager->pushEvent(e);
+
+    // Push event to PDA if its open
+    if (_pda.isOpen()) {
+        _pda.onEvent(e);
+    }
 
     // Handle custom input
     switch (e.type) {
@@ -89,10 +112,11 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
             }
             break;
         case SDL_MOUSEBUTTONDOWN:
-            if (e.button.button == SDL_BUTTON_LEFT) {
-                SDL_SetRelativeMouseMode(SDL_TRUE);
-                _inFocus = true;
-            }
+            onMouseDown(e);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            onMouseUp(e);
+            break;
         case SDL_WINDOWEVENT:
             if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
                  SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -113,6 +137,9 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 
     // Update the player
     updatePlayer();
+
+    // Update the PDA
+    _pda.update();
 
     // Sort all meshes // TODO(Ben): There is redundance here
     _app->meshManager->sortMeshes(_player->headPosition);
@@ -135,7 +162,16 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     
     drawVoxelWorld();
 
+    // Drawing crosshair
+    if (_devHudMode != DEVUIMODE_NONE) {
+        drawDevHUD();
+    }
+
     glDisable(GL_DEPTH_TEST);
+    // Draw PDA if its open
+    if (_pda.isOpen()) {
+        _pda.draw();
+    }
     _app->drawFrameBuffer(_player->chunkProjectionMatrix() * _player->chunkViewMatrix());
     glEnable(GL_DEPTH_TEST);
 
@@ -185,10 +221,72 @@ void GamePlayScreen::handleInput() {
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask;
         shaderTask.load();
-
     }
+    if (inputManager->getKeyDown(INPUT_INVENTORY)) {
+        if (_pda.isOpen()) {
+            _pda.close();
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+            _inFocus = true;
+        } else {
+            _pda.open();
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+            _inFocus = false;
+        }
+    }
+    if (inputManager->getKeyDown(INPUT_RELOAD_UI)) {
+        if (_pda.isOpen()) {
+            _pda.close();
+        }
+        _pda.destroy();
+        _pda.init(this);
+    }
+
+    // Block placement
+    if (!_pda.isOpen()) {
+        if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
+            if (!(_player->leftEquippedItem)){
+                GameManager::clickDragRay(true);
+            } else if (_player->leftEquippedItem->type == ITEM_BLOCK){
+                _player->dragBlock = _player->leftEquippedItem;
+                GameManager::clickDragRay(false);
+            }
+        } else if (inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
+            if (!(_player->rightEquippedItem)){
+                GameManager::clickDragRay(true);
+            } else if (_player->rightEquippedItem->type == ITEM_BLOCK){
+                _player->dragBlock = _player->rightEquippedItem;
+                GameManager::clickDragRay(false);
+            }
+        }
+    }
+
+    // Dev hud
+    if (inputManager->getKeyDown(INPUT_HUD)) {
+        _devHudMode++;
+        if (_devHudMode > DEVUIMODE_ALL) {
+            _devHudMode = DEVUIMODE_NONE;
+        }
+    }
+
     // Update inputManager internal state
     inputManager->update();
+}
+
+void GamePlayScreen::onMouseDown(const SDL_Event& e) {
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    _inFocus = true;
+}
+
+void GamePlayScreen::onMouseUp(const SDL_Event& e) {
+    if (e.button.button == SDL_BUTTON_LEFT) {
+        if (GameManager::voxelEditor->isEditing()) {
+            GameManager::voxelEditor->editVoxels(_player->leftEquippedItem);
+        }
+    } else if (e.button.button == SDL_BUTTON_RIGHT) {
+        if (GameManager::voxelEditor->isEditing()) {
+            GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
+        }
+    }
 }
 
 // TODO(Ben): Break this up
@@ -309,7 +407,6 @@ void GamePlayScreen::drawVoxelWorld() {
         } else{
             ID = 0;
         }
-
         GameManager::voxelEditor->drawGuides(chunkCamera.position(), VP, ID);
     }
 
@@ -367,6 +464,135 @@ void GamePlayScreen::drawVoxelWorld() {
     GameManager::debugRenderer->render(VP, glm::vec3(chunkCamera.position()));
 }
 
+void GamePlayScreen::drawDevHUD() {
+    f32v2 windowDims(_app->getWindow().getWidth(), _app->getWindow().getHeight());
+    char buffer[256];
+    // Lazily load spritebatch
+    if (!_devHudSpriteBatch) {
+        _devHudSpriteBatch = new SpriteBatch(true, true);
+        _devHudSpriteFont = new SpriteFont("Fonts\\chintzy.ttf", 32);
+    }
+
+    _devHudSpriteBatch->begin();
+
+    // Draw crosshair
+    const f32v2 cSize(26.0f);
+    _devHudSpriteBatch->draw(crosshairTexture.ID, 
+                             (windowDims - cSize) / 2.0f,
+                             cSize,
+                             ColorRGBA8(255, 255, 255, 128));
+    
+    int offset = 0;
+    int fontHeight = _devHudSpriteFont->getFontHeight();
+
+    // Fps Counters
+    if (_devHudMode >= DEVUIMODE_FPS) {
+        
+        std::sprintf(buffer, "Render FPS: %.0f", _app->getFps());
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+
+        std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+    }
+
+    // Items in hands
+    if (_devHudMode >= DEVUIMODE_HANDS) {
+        const f32v2 SCALE(0.75f);
+        // Left Hand
+        if (_player->leftEquippedItem) {
+            std::sprintf(buffer, "Left Hand: %s (%d)",
+                        _player->leftEquippedItem->name.c_str(),
+                        _player->leftEquippedItem->count);
+
+            _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                           buffer,
+                                           f32v2(0.0f, windowDims.y - fontHeight),
+                                           SCALE,
+                                           color::White);
+        }
+        // Right Hand
+        if (_player->rightEquippedItem) {
+            std::sprintf(buffer, "Right Hand: %s (%d)",
+                         _player->rightEquippedItem->name.c_str(),
+                         _player->rightEquippedItem->count);
+
+            _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                           buffer,
+                                           f32v2(windowDims.x - _devHudSpriteFont->measure(buffer).x, windowDims.y - fontHeight),
+                                           SCALE,
+                                           color::White);
+        }
+    }
+    
+    // Other debug text
+    if (_devHudMode >= DEVUIMODE_ALL) {
+        const f32v2 NUMBER_SCALE(0.75f);
+        // Grid position
+        offset++;
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       "Grid Position",
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+        std::sprintf(buffer, "X %.2f", _player->headPosition.x);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Y %.2f", _player->headPosition.y);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Z %.2f", _player->headPosition.z);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        
+        // World position
+        offset++;
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       "World Position",
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       f32v2(1.0f),
+                                       color::White);
+        std::sprintf(buffer, "X %-9.2f", _player->worldPosition.x);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Y %-9.2f", _player->worldPosition.y);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+        std::sprintf(buffer, "Z %-9.2f", _player->worldPosition.z);
+        _devHudSpriteBatch->drawString(_devHudSpriteFont,
+                                       buffer,
+                                       f32v2(0.0f, fontHeight * offset++),
+                                       NUMBER_SCALE,
+                                       color::White);
+    }
+
+    _devHudSpriteBatch->end();
+    // Render to the screen
+    _devHudSpriteBatch->renderBatch(windowDims);
+}
+
 void GamePlayScreen::updatePlayer() {
     double dist = _player->facePosition.y + GameManager::planet->radius;
     _player->update(_inFocus, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(_player->velocity)));
@@ -405,7 +631,7 @@ void GamePlayScreen::updateThreadFunc() {
     Message message;
 
     while (_threadRunning) {
-        fpsLimiter.begin();
+        fpsLimiter.beginFrame();
 
         GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
@@ -422,7 +648,7 @@ void GamePlayScreen::updateThreadFunc() {
 
         GameManager::update();
 
-        physicsFps = fpsLimiter.end();
+        physicsFps = fpsLimiter.endFrame();
     }
 }
 

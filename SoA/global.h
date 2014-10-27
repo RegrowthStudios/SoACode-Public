@@ -7,6 +7,7 @@
 #include "WorldStructs.h"
 
 void printVec(string desc, glm::vec3 vec);
+void printVec(string desc, glm::vec4 vec);
 void printVec(string desc, glm::dvec3 vec);
 
 extern glm::mat4 GlobalModelMatrix;

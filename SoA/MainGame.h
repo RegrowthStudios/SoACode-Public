@@ -36,6 +36,9 @@ public:
     virtual void addScreens() = 0;
     // Called When The Application Is Going To Close
     virtual void onExit() = 0;
+
+    // Returns the FPS of the run() loop
+    float getFps() const { return _fps; }
 protected:
     // Initializes Necessary Children Systems (OpenGL, TTF, etc.)
     bool init();
@@ -50,6 +53,7 @@ protected:
     GraphicsDevice* _gDevice;
     GameWindow _window;
 
+    float _fps;
     ui32 _lastMS;
     GameTime _curTime, _lastTime;
 

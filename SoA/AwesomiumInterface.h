@@ -63,15 +63,21 @@ public:
 
     /// Initializes the UI
     /// @param inputDir: the directory where the HTML files are located.
+    /// @param sessionName: The name of the session. Should be unique
     /// @param indexName: The name of the first file to open, ususally index.html
     /// @param width: The width of the UI window
     /// @param height: The height of the UI window
     /// @param api: The function call API to use
     /// @return true on success, false on failure
-    bool init(const char *inputDir, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen);
+    bool init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen);
 
     /// Frees all resources
     void destroy();
+    
+    /// Invokes a JS function
+    /// @param functionName: Name of the function
+    /// @param args: the argument list
+    void invokeFunction(const cString functionName, const Awesomium::JSArray& args = Awesomium::JSArray());
 
     /// Handles an SDL event
     /// @param evnt: the SDL event to handle
@@ -125,7 +131,7 @@ private:
     Awesomium::WebCore* _webCore;
     Awesomium::WebView* _webView;
     Awesomium::JSValue _gameInterface;
-    Awesomium::JSValue _jsInterface;
+    Awesomium::JSValue _window;
 
     C* _awesomiumAPI; ///< the API to use for custom function calls
 

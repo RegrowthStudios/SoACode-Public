@@ -33,3 +33,4 @@ extern vg::Texture BlankTextureID;
 extern vg::Texture explosionTexture;
 extern vg::Texture fireTexture;
 extern vg::Texture waterNoiseTexture;
+extern vg::Texture crosshairTexture;

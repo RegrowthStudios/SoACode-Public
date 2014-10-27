@@ -67,6 +67,10 @@ protected:
     /// @param func: The void function pointer
     virtual void addFunction(const nString& name, setptr func);
 
+    /// Prints a message to the console folowed by a newline
+    /// @param args: Argument can be a string, int, float, or bool
+    virtual void print(const Awesomium::JSArray& args);
+
     std::map<nString, setptr> _voidFunctions; ///< map of void functions
     std::map<nString, getptr> _returnFunctions; ///< map of get functions
 

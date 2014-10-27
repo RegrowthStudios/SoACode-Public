@@ -10,6 +10,10 @@ void printVec(string desc, glm::vec3 vec)
 {
     cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
 }
+void printVec(string desc, glm::vec4 vec)
+{
+    cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << " " << vec.w << endl;
+}
 void printVec(string desc, glm::dvec3 vec)
 {
     cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;

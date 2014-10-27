@@ -33,7 +33,7 @@ AwesomiumInterface<C>::~AwesomiumInterface(void) {
 
 //Initializes the interface. Returns false on failure
 template <class C>
-bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen)
+bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen)
 {
     if (_isInitialized) {
         pError("Awesomium Error: Tried to call AwesomiumInterface::init twice without destroying.");
@@ -61,7 +61,7 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
     _webCore->set_surface_factory(_openglSurfaceFactory);
 
     //Sets up the session
-    _webSession = _webCore->CreateWebSession(Awesomium::WSLit("WebSession"), Awesomium::WebPreferences());
+    _webSession = _webCore->CreateWebSession(Awesomium::WSLit(sessionName), Awesomium::WebPreferences());
     _webView = _webCore->CreateWebView((i32)_width, (i32)_height, _webSession, Awesomium::kWebViewType_Offscreen);
 
     if (!_webView){
@@ -69,15 +69,17 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
         return false;
     }
 
-    if (!Awesomium::WriteDataPak(Awesomium::WSLit("UI_Resources.pak"), Awesomium::WSLit(inputDir), Awesomium::WSLit(""), _numFiles)){
-        pError("UI Initialization Error: Failed to write UI_Resources.pak\n");
+    nString pakName = nString(sessionName) + ".pak";
+
+    if (!Awesomium::WriteDataPak(Awesomium::WSLit(pakName.c_str()), Awesomium::WSLit(inputDir), Awesomium::WSLit(""), _numFiles)){
+        pError("UI Initialization Error: Failed to write " + pakName);
         return false;
     }
-    _data_source = new Awesomium::DataPakSource(Awesomium::WSLit("UI_Resources.pak"));
+    _data_source = new Awesomium::DataPakSource(Awesomium::WSLit(pakName.c_str()));
     _webSession->AddDataSource(Awesomium::WSLit("UI"), _data_source);
 
     // Load a certain URL into our WebView instance. In this case, it must always start with Index.html
-    Awesomium::WebURL url(Awesomium::WSLit("asset://UI/index.html"));
+    Awesomium::WebURL url(Awesomium::WSLit(("asset://UI/" + nString(indexName)).c_str()));
 
     if (!url.IsValid()){
         pError("UI Initialization Error: URL was unable to be parsed.");
@@ -115,10 +117,10 @@ bool AwesomiumInterface<C>::init(const char *inputDir, const char* indexName, ui
         pError("Awesomium Error: " + std::to_string(error));
     }
 
-    //Set up the JS interface
-    _jsInterface = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("JSInterface"), Awesomium::WSLit(""));
-    if (_jsInterface.IsObject()){
-        _methodHandler.jsInterface = &_jsInterface.ToObject();
+    // Retrieve the global 'window' object from the page
+    _window = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("window"), Awesomium::WSLit(""));
+    if (!_window.IsObject()) {
+        pError("Awesomium Error: No window object.");
     }
 
     _isInitialized = true;
@@ -132,6 +134,11 @@ void AwesomiumInterface<C>::destroy() {
     delete _openglSurfaceFactory;
     delete _data_source;
     _isInitialized = false;
+}
+
+template <class C>
+void AwesomiumInterface<C>::invokeFunction(const cString functionName, const Awesomium::JSArray& args) {
+    _window.ToObject().Invoke(Awesomium::WSLit(functionName), args);
 }
 
 template <class C>

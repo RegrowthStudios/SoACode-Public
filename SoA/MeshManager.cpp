@@ -19,7 +19,6 @@ inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usag
     glBindBuffer(GL_ARRAY_BUFFER, vboID);
     glBufferData(GL_ARRAY_BUFFER, size, NULL, usage);
 
-
     void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, size, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
     if (v == NULL) return false;
