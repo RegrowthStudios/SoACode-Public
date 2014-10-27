@@ -558,6 +558,7 @@ void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec
     shader->use();
 
     const int txv[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    // TODO(Cristian): Investigate why getUniform doesnt work
     glUniform1iv(glGetUniformLocation(shader->getID(), "textures"), 6, txv);
     glUniform1i(glGetUniformLocation(shader->getID(), "sunColorTexture"), txv[6]);
     glUniform1i(glGetUniformLocation(shader->getID(), "colorTexture"), txv[7]);
