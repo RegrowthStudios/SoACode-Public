@@ -112,7 +112,7 @@ public:
     static void unuse();
 
     /// Returns true if the program is in use
-    const bool& getIsInUse() const {
+    bool getIsInUse() const {
         return _programInUse == this;
     }
 
