@@ -117,6 +117,12 @@
     <Filter Include="SOA Files\Game\Tools">
       <UniqueIdentifier>{da75023d-4b8b-4790-af72-c6535569b583}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Rendering\RenderPipelines">
+      <UniqueIdentifier>{09cebf8a-9329-4dea-aac4-4d56d9dd2f37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Rendering\RenderPipelines\RenderStages">
+      <UniqueIdentifier>{ed09a071-ec97-4fd2-922b-f2c36eba05dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -551,6 +557,18 @@
     <ClInclude Include="PdaAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
+    <ClInclude Include="IRenderPipeline.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="FullRenderPipeline.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="GameRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -874,6 +892,18 @@
     </ClCompile>
     <ClCompile Include="PdaAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="FullRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="GameRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

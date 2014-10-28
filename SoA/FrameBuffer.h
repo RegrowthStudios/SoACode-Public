@@ -1,4 +1,13 @@
+
+
 #pragma once
+
+#ifndef FrameBuffer_h__
+#define FrameBuffer_h__
+
+namespace vorb {
+namespace graphics {
+
 class FrameBuffer
 {
 public:
@@ -29,3 +38,10 @@ private:
     ui32 _width, _height;
     ui32 _msaa;
 };
+
+}
+}
+
+namespace vg = vorb::graphics;
+
+#endif // FrameBuffer_h__

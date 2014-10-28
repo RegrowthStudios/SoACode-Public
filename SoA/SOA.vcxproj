@@ -113,7 +113,9 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="FullRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
+    <ClInclude Include="GameRenderStage.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
@@ -121,6 +123,8 @@
     <ClInclude Include="GLProgramManager.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="ImageSaver.h" />
+    <ClInclude Include="IRenderPipeline.h" />
+    <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskPlanet.h" />
@@ -258,7 +262,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="FullRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
+    <ClCompile Include="GameRenderStage.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
@@ -266,6 +272,8 @@
     <ClCompile Include="GLProgramManager.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImageSaver.cpp" />
+    <ClCompile Include="IRenderPipeline.cpp" />
+    <ClCompile Include="IRenderStage.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />

@@ -9,6 +9,7 @@
 #include "SpriteBatch.h"
 #include "FrameBuffer.h"
 #include "MeshManager.h"
+#include "Options.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);

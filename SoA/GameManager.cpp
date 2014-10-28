@@ -348,20 +348,6 @@ void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
     planet->updateLODs(worldPosition, maxTicks);
 }
 
-void GameManager::drawSpace(glm::mat4 &VP, bool connectedToPlanet) {
-    glm::mat4 IMVP;
-    if (connectedToPlanet) {
-        IMVP = VP * GameManager::planet->invRotationMatrix;
-    } else {
-        IMVP = VP;
-    }
-
-    glDepthMask(GL_FALSE);
-    if (!drawMode) DrawStars((float)0, IMVP);
-    DrawSun((float)0, IMVP);
-    glDepthMask(GL_TRUE);
-}
-
 void GameManager::drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet) {
 
     GameManager::planet->draw(0, VP, V, lightPos, worldPos, ambVal, fadeDist, connectedToPlanet);

@@ -36,6 +36,7 @@ public:
     typedef Awesomium::JSValue(C::*getptr)(const Awesomium::JSArray& args);
 
     IAwesomiumAPI();
+    virtual ~IAwesomiumAPI();
 
     /// Initializes the API and hooks up all functions
     /// @oaram interfaceObject: The object that the API will talk to
