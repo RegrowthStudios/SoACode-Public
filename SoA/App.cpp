@@ -110,8 +110,8 @@ void App::drawFrameBuffer(const f32m4& VP) const {
         glUniform1f(program->getUniform("gamma"), 1.0f / graphicsOptions.gamma);
         glUniform1f(program->getUniform("fExposure"), graphicsOptions.hdrExposure);
     }
-
-    const ui32v2 viewport(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
+    
+    const ui32v2 viewport(_window.getWidth(), _window.getHeight());
     frameBuffer->draw(viewport, drawMode);
 
     program->disableVertexAttribArrays();

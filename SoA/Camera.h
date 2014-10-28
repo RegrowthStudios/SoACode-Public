@@ -5,7 +5,7 @@ class Camera
 {
 public:
     Camera();
-    void initialize();
+    void init(float aspectRatio);
     void offsetPosition(glm::dvec3 offset);
     void offsetPosition(glm::vec3 offset);
     void offsetAngles(float pitchAngle, float yawAngle);

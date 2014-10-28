@@ -27,13 +27,6 @@ bool MainGame::initSystems() {
     // Create The Window
     if (!_window.init()) return false;
 
-    // Set some global options stuff
-    // TODO(Ben): Fix this proper
-    graphicsOptions.screenWidth = _window.getWidth();
-    graphicsOptions.screenHeight = _window.getHeight();
-    graphicsOptions.isFullscreen = _window.isFullscreen();
-    graphicsOptions.isBorderless = _window.isBorderless();
-
     // Get The Machine's Graphics Capabilities
     _gDevice = new GraphicsDevice(_window);
     _gDevice->refreshInformation();

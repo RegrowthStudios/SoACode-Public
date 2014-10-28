@@ -50,6 +50,7 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     // Initialize the camera
+    _camera.init(_app->getWindow().getAspectRatio());
     _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
     _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
     _camera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
@@ -58,7 +59,13 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
 
     // Initialize the user interface
-    _awesomiumInterface.init("UI/MainMenu/", "MainMenu_UI", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
+    _awesomiumInterface.init("UI/MainMenu/",
+                             "MainMenu_UI",
+                             "index.html", 
+                             _app->getWindow().getWidth(), 
+                             _app->getWindow().getHeight(),
+                             &_api, 
+                             this);
 
     // Run the update thread for updating the planet
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
@@ -79,7 +86,13 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
         std::cout << "\n\nReloading MainMenu UI...\n\n";
         _awesomiumInterface.destroy();
-        _awesomiumInterface.init("UI/MainMenu/", "MainMenu_UI", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, this);
+        _awesomiumInterface.init("UI/MainMenu/",
+                                 "MainMenu_UI", 
+                                 "index.html", 
+                                 _app->getWindow().getWidth(),
+                                 _app->getWindow().getHeight(),
+                                 &_api,
+                                 this);
     }
 }
 
@@ -134,7 +147,7 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     GameManager::drawSpace(VP, 0);
     
     // Calculate the near clipping plane
-    double clip = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
+    double clip = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
     if (clip < 100) clip = 100;
 
     #define PLANET_ZFAR 300000000.0f
@@ -167,7 +180,7 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     const f32m4 identity(1.0f);
     _app->drawFrameBuffer(identity);
 
-    const ui32v2 viewPort(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
+    const ui32v2 viewPort(_app->getWindow().getWidth(), _app->getWindow().getHeight());
     frameBuffer->unBind(viewPort);
 
     // Render the awesomium user interface

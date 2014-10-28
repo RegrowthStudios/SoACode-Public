@@ -48,6 +48,10 @@ public:
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
 
+    // Getters
+    i32 getWindowWidth() const;
+    i32 getWindowHeight() const;
+
 private:
 
     /// Handles updating state based on input

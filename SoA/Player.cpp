@@ -95,8 +95,10 @@ Player::~Player(void)
     }
 }
 
-void Player::initialize(string playerName) {
+void Player::initialize(string playerName, float aspectRatio) {
     _name = playerName;
+    _chunkCamera.init(aspectRatio);
+    _worldCamera.init(aspectRatio);
 }
 
 void Player::updateCameras()
