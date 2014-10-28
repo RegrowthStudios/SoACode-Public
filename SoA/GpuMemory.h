@@ -15,7 +15,7 @@
 #ifndef GPUMEMORY_H_
 #define GPUMEMORY_H_
 
-#include <map>
+#include <unordered_map>
 
 class SamplerState;
 
@@ -44,13 +44,26 @@ public:
     /// @param textureID: The texture to free. Will be set to 0.
     static void freeTexture(ui32& textureID);
 
-    /// Gets the ammount of VRAM used in bytes
+    /// Creates an OpenGL buffer object
+    /// @param vbo: The result buffer ID
+    static void createBuffer(ui32& bufferID) {
+        glGenBuffers(1, &bufferID);
+        _buffers[bufferID] = 0;
+    }
+
+    //static void uploadBufferData(ui32 bufferID, 
+
+    /// Gets the amount of VRAM used in bytes
     static ui32 getTotalVramUsage() { return _totalVramUsage; }
 private:
 
     static ui32 _totalVramUsage; ///< The total VRAM usage by all objects
+    static ui32 _textureVramUsage; ///< The total VRAM usage by texture objects
+    static ui32 _bufferVramUsage; ///< The total VRAM usage by buffer objects
 
-    static std::map<ui32, ui32> _textures; ///< Store of texture objects
+    static std::unordered_map<ui32, ui32> _textures; ///< Store of texture objects
+
+    static std::unordered_map<ui32, ui32> _buffers;
 };
 
 }

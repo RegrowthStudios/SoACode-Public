@@ -31,6 +31,7 @@ const GLfloat skyboxUVs[48] = { 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,  // v1-v
 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 }; // v5-v4-v7-v6 (back)
 
 SkyboxRenderer::SkyboxRenderer() : 
+    _vao(0),
     _vbo(0),
     _ibo(0) {
     // Empty
