@@ -21,8 +21,6 @@ using namespace glm;
 
 int sunColor[64][3];
 
- GLushort starboxIndices[6][6];
-
 GLfloat colorVertices[1024];
 GLfloat cubeSpriteVerts[24];
 GLfloat cubeSpriteUVs[24];
@@ -183,7 +181,7 @@ void DrawStars(float theta, glm::mat4 &MVP)
     program->use();
     program->enableVertexAttribArrays();
 
-        // Bind our texture in Texture Unit 0
+    // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
     glUniform1i(program->getUniform("myTextureSampler"), 0);
@@ -201,7 +199,7 @@ void DrawStars(float theta, glm::mat4 &MVP)
     GLuint uvbuffer;
     glGenBuffers(1, &uvbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(starboxUVs), starboxUVs, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxUVs), skyboxUVs, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -212,7 +210,7 @@ void DrawStars(float theta, glm::mat4 &MVP)
 
     for (int i = 0; i < 6; i++){
         glBindTexture(GL_TEXTURE_2D, starboxTextures[i].ID);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, starboxIndices[i]); //offset
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, skyboxndices[i]); //offset
     }
 
     glDeleteBuffers(1, &vertexbuffer);

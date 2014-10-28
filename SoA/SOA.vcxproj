@@ -139,6 +139,7 @@
     <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="PDA.h" />
     <ClInclude Include="PdaAwesomiumAPI.h" />
+    <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
@@ -285,6 +286,7 @@
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PDA.cpp" />
     <ClCompile Include="PdaAwesomiumAPI.cpp" />
+    <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />

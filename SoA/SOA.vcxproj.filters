@@ -569,6 +569,9 @@
     <ClInclude Include="GameRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="SkyboxRenderer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -904,6 +907,9 @@
     </ClCompile>
     <ClCompile Include="GameRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxRenderer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

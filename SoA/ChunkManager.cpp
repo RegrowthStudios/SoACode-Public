@@ -53,16 +53,6 @@ ChunkManager::ChunkManager() : _isStationary(0), _cameraVoxelMapData(nullptr) {
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
 
-    i32 ci = 0;
-    for (i32 i = 0; i < 36; i += 6, ci += 4) {
-        starboxIndices[i / 6][i % 6] = ci;
-        starboxIndices[i / 6][i % 6 + 1] = ci + 1;
-        starboxIndices[i / 6][i % 6 + 2] = ci + 2;
-        starboxIndices[i / 6][i % 6 + 3] = ci + 2;
-        starboxIndices[i / 6][i % 6 + 4] = ci + 3;
-        starboxIndices[i / 6][i % 6 + 5] = ci;
-    }
-
     GlobalModelMatrix = glm::mat4(1.0);
 }
 
