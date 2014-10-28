@@ -29,6 +29,7 @@
 #include "SpriteFont.h"
 #include "SpriteBatch.h"
 #include "colors.h"
+#include "Options.h"
 
 #define THREAD ThreadId::UPDATE
 
@@ -69,7 +70,7 @@ void GamePlayScreen::destroy(const GameTime& gameTime) {
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     _player = GameManager::player;
-    _player->initialize("Ben"); //What an awesome name that is
+    _player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
     GameManager::initializeVoxelWorld(_player);
 
     // Initialize the PDA
@@ -177,12 +178,20 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     _app->drawFrameBuffer(_player->chunkProjectionMatrix() * _player->chunkViewMatrix());
     glEnable(GL_DEPTH_TEST);
 
-    const ui32v2 viewPort(graphicsOptions.screenWidth, graphicsOptions.screenHeight);
+    const ui32v2 viewPort(getWindowWidth(), getWindowHeight());
     frameBuffer->unBind(viewPort);
 
     // If you get an error here you will need to place more
     // checkGlError calls around, or use gdebugger, to find the source.
     checkGlError("GamePlayScreen::draw()");
+}
+
+i32 GamePlayScreen::getWindowWidth() const {
+    return _app->getWindow().getWidth();
+}
+
+i32 GamePlayScreen::getWindowHeight() const {
+    return _app->getWindow().getHeight();
 }
 
 void GamePlayScreen::handleInput() {
@@ -336,7 +345,7 @@ void GamePlayScreen::drawVoxelWorld() {
     if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
 
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)graphicsOptions.screenWidth / graphicsOptions.screenHeight, 2.0) + 1.0))*2.0);
+    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
     if (a < 0) a = 0;
 
     double clip = MAX(nearClip / planetScale * 0.5, a);

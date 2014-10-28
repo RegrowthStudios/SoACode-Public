@@ -56,27 +56,31 @@ public:
     }
 
     // Access Display Settings
-    const i32& getWidth() const {
+    i32 getWidth() const {
         return _displayMode.screenWidth;
     }
-    const i32& getHeight() const {
+    i32 getHeight() const {
         return _displayMode.screenHeight;
     }
-    const bool& isFullscreen() const {
+    float getAspectRatio() const {
+        return (float)_displayMode.screenWidth / (float)_displayMode.screenHeight;
+    }
+    bool isFullscreen() const {
         return _displayMode.isFullscreen;
     }
-    const bool& isBorderless() const {
+    bool isBorderless() const {
         return _displayMode.isFullscreen;
     }
-    const GameSwapInterval& getSwapInterval() const {
+    GameSwapInterval getSwapInterval() const {
         return _displayMode.swapInterval;
     }
-    const f32& getMaxFPS() const {
+    f32 getMaxFPS() const {
         return _displayMode.maxFPS;
     }
     const SDL_GLContext& getGLContext() const {
         return _glc;
     }
+
 
     // Change Display Settings
     void setScreenSize(const i32& w, const i32& h, const bool& overrideCheck = false);

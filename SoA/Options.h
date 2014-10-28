@@ -7,7 +7,6 @@
 extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
 struct GraphicsOptions {
-    i32 screenWidth, screenHeight;
     i32 cloudDetail, lodDistance, lodDetail, isFancyTrees, enableParticles, chunkLoadTime;
     i32 voxelRenderDistance, hudMode;
     i32 currTextureRes, defaultTextureRes;
@@ -18,7 +17,7 @@ struct GraphicsOptions {
     f32 secColorMult, fov;
     i32 maxFPS;
     f32 voxelLODThreshold, voxelLODThreshold2;
-    bool isFullscreen, isBorderless, isVsync, needsWindowReload, needsFboReload, needsFullscreenToggle;
+    bool isVsync, needsWindowReload, needsFboReload, needsFullscreenToggle;
     nString texturePackString, currTexturePack, defaultTexturePack;
 };
 extern GraphicsOptions graphicsOptions;

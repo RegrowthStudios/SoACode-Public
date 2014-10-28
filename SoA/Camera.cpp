@@ -36,9 +36,9 @@ Camera::Camera() : _position(0.0),
 }
 
 
-void Camera::initialize()
+void Camera::init(float aspectRatio)
 {
-
+    _aspectRatio = aspectRatio;
 }
 
 void Camera::offsetPosition(glm::dvec3 offset)
@@ -120,7 +120,6 @@ void Camera::updateView()
 
 void Camera::updateProjection()
 {
-    setAspectRatio(graphicsOptions.screenWidth / (float)graphicsOptions.screenHeight);
     _projectionMatrix = glm::perspective(_fieldOfView, _aspectRatio, _zNear, _zFar);
 }
 

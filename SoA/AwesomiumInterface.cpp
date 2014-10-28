@@ -5,7 +5,6 @@
 #include "AwesomiumInterface.h"
 
 #include "Errors.h"
-#include "Options.h"
 
 #ifndef AWESOMIUMINTERFACE_CPP_
 #define AWESOMIUMINTERFACE_CPP_
@@ -240,8 +239,8 @@ void AwesomiumInterface<C>::draw(vcore::GLProgram* program)
     program->use();
     program->enableVertexAttribArrays();
 
-    glUniform1f(program->getUniform("xdim"), graphicsOptions.screenWidth);
-    glUniform1f(program->getUniform("ydim"), graphicsOptions.screenHeight);
+    glUniform1f(program->getUniform("xdim"), _width);
+    glUniform1f(program->getUniform("ydim"), _height);
 
     glUniform1i(program->getUniform("roundMaskTexture"), 1);
     glUniform1f(program->getUniform("isRound"), 0.0f);

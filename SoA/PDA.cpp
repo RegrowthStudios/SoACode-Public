@@ -16,7 +16,13 @@ PDA::~PDA() {
 
 void PDA::init(GamePlayScreen* ownerScreen) {
     // Initialize the user interface
-    _awesomiumInterface.init("UI/PDA/", "PDA_UI", "index.html", graphicsOptions.screenWidth, graphicsOptions.screenHeight, &_api, ownerScreen);
+    _awesomiumInterface.init("UI/PDA/", 
+                             "PDA_UI",
+                             "index.html", 
+                             ownerScreen->getWindowWidth(),
+                             ownerScreen->getWindowHeight(),
+                             &_api, 
+                             ownerScreen);
 }
 
 void PDA::open() {
