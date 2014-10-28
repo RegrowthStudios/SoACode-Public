@@ -104,7 +104,12 @@ void GameWindow::readSettings() {
     IOManager iom;
     nString data;
     iom.readFileToString(DEFAULT_APP_CONFIG_FILE, data);
-    if (data.length()) Keg::parse(&_displayMode, data.c_str(), "GameDisplayMode");
+    if (data.length()) {
+        Keg::parse(&_displayMode, data.c_str(), "GameDisplayMode");
+    } else {
+        // If there is no app.config, save a default one.
+        saveSettings();
+    }
 }
 void GameWindow::saveSettings() const {
     GameDisplayMode modeBasis = {};
