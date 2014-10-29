@@ -17,10 +17,15 @@
 
 #include "IRenderStage.h"
 
+class Camera;
+
 class GameRenderStage : public vg::IRenderStage
 {
 public:
-    GameRenderStage();
+    GameRenderStage(vg::GLProgramManager* glProgramManager,
+                    vg::TextureCache* textureCache,
+                    Camera* chunkCamera,
+                    Camera* worldCamera);
     ~GameRenderStage();
 
     void render() override;
@@ -30,6 +35,13 @@ private:
     void drawPlanets();
     void drawVoxels();
 
+    Camera* _chunkCamera; ///< Camera that renders the chunks
+    Camera* _worldCamera; ///< Camera that renders the worlds
+
+    vg::GLProgramManager* _glProgramManager; ///< Holds the needed shaders
+    vg::TextureCache* _textureCache; ///< Holds the needed textures
+
+    vg::Texture* _skyboxTetxures[6]; ///< The skybox textures duh
 };
 
 #endif // GameRenderStage_h__

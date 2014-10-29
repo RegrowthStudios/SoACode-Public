@@ -1,18 +1,14 @@
 #include "stdafx.h"
 #include "IRenderStage.h"
 
-namespace vorb {
-namespace graphics {
 
-IRenderStage::IRenderStage() {
+vg::IRenderStage::IRenderStage() :
+    _renderTarget(nullptr) {
     // Empty
 }
 
 
-IRenderStage::~IRenderStage() {
+vg::IRenderStage::~IRenderStage() {
     // Empty
 }
 
-
-}
-}

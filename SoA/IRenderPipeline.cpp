@@ -1,17 +1,10 @@
 #include "stdafx.h"
 #include "IRenderPipeline.h"
 
-namespace vorb {
-namespace graphics {
-
-IRenderPipeline::IRenderPipeline()
-{
+vg::IRenderPipeline::IRenderPipeline() {
+    // Empty
 }
 
-
-IRenderPipeline::~IRenderPipeline()
-{
-}
-
-}
+vg::IRenderPipeline::~IRenderPipeline() {
+    // Empty
 }

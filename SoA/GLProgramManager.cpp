@@ -3,21 +3,17 @@
 
 #include "Errors.h"
 
-namespace vorb {
-namespace core {
-
-
-GLProgramManager::GLProgramManager() {
+vg::GLProgramManager::GLProgramManager() {
     // Empty
 }
 
 
-GLProgramManager::~GLProgramManager() {
+vg::GLProgramManager::~GLProgramManager() {
     // Empty
 }
 
 
-void GLProgramManager::addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr /* = nullptr */) {
+void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr /* = nullptr */) {
 
     bool rebuild = true;
 
@@ -75,7 +71,7 @@ void GLProgramManager::addProgram(nString shaderName, cString vertexPath, cStrin
     _programs[shaderName] = newProgram;
 }
 
-void GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
+void vg::GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
     // Check to see if the program is already made
     auto it = _programs.find(shaderName);
     if (it != _programs.end()) {
@@ -87,7 +83,7 @@ void GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
     _programs[shaderName] = program;
 }
 
-GLProgram* GLProgramManager::getProgram(nString shaderName) {
+GLProgram* vg::GLProgramManager::getProgram(nString shaderName) {
     auto it = _programs.find(shaderName);
     if (it != _programs.end()) {
         return it->second;
@@ -95,7 +91,7 @@ GLProgram* GLProgramManager::getProgram(nString shaderName) {
     return nullptr;
 }
 
-void GLProgramManager::destroy() {
+void vg::GLProgramManager::destroy() {
 
     for (auto prog : _programs) {
         prog.second->destroy();
@@ -103,7 +99,4 @@ void GLProgramManager::destroy() {
     }
 
     std::unordered_map<nString, GLProgram*>().swap(_programs);
-}
-
-}
 }

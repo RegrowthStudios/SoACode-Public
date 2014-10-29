@@ -1,10 +1,19 @@
 #include "stdafx.h"
+#include "GLProgramManager.h"
 #include "GameRenderStage.h"
 #include "FrameBuffer.h"
 #include "GameManager.h"
 #include "Planet.h"
+#include "Camera.h"
 
-GameRenderStage::GameRenderStage() {
+GameRenderStage::GameRenderStage(vg::GLProgramManager* glProgramManager,
+                                 vg::TextureCache* textureCache,
+                                 Camera* chunkCamera,
+                                 Camera* worldCamera) :
+    _glProgramManager(glProgramManager),
+    _textureCache(textureCache),
+    _chunkCamera(chunkCamera),
+    _worldCamera(worldCamera) {
     // Empty
 }
 
@@ -18,10 +27,14 @@ void GameRenderStage::render() {
     _renderTarget->bind();
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    f32m4 VP = _worldCamera->projectionMatrix() * _worldCamera->viewMatrix();
+                                
+
 }
 
 void GameRenderStage::drawSpace(glm::mat4 &VP, bool connectedToPlanet) {
-    glm::mat4 IMVP;
+    f32m4 IMVP;
 
     if (connectedToPlanet) {
         // If we are connected to the planet, we need to rotate the skybox
@@ -31,7 +44,7 @@ void GameRenderStage::drawSpace(glm::mat4 &VP, bool connectedToPlanet) {
     }
 
     glDepthMask(GL_FALSE);
- //   if (!drawMode) DrawStars((float)0, IMVP);
+   // _skyboxRenderer->drawSkybox(_glProgramManager->getProgram("Texture"), VP, 
  //   DrawSun((float)0, IMVP);
     glDepthMask(GL_TRUE);
 }

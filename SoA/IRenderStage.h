@@ -16,25 +16,27 @@
 #define IRenderStage_h_
 
 namespace vorb {
-namespace graphics {
+    namespace core {
+        namespace graphics {
 
-class FrameBuffer;
+            class FrameBuffer;
 
-class IRenderStage
-{
-public:
-    IRenderStage();
-    virtual ~IRenderStage();
+            class IRenderStage
+            {
+            public:
+                IRenderStage();
+                virtual ~IRenderStage();
 
-    /// Renders the stage
-    virtual void render() = 0;
-protected:
-    FrameBuffer* _renderTarget;
-};
+                /// Renders the stage
+                virtual void render() = 0;
+            protected:
+                FrameBuffer* _renderTarget;
+            };
 
+        }
+    }
 }
-}
 
-namespace vg = vorb::graphics;
+namespace vg = vorb::core::graphics;
 
 #endif // IRenderStage_h_

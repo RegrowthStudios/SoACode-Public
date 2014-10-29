@@ -15,30 +15,32 @@
 #define IRenderPipeline_h_
 
 namespace vorb {
-namespace graphics {
+    namespace core {
+        namespace graphics {
 
-class IRenderStage;
+            class IRenderStage;
 
-/// This abstract class is an interface for a rendering pipeline
-class IRenderPipeline
-{
-public:
-    IRenderPipeline();
-    virtual ~IRenderPipeline();
+            /// This abstract class is an interface for a rendering pipeline
+            class IRenderPipeline
+            {
+            public:
+                IRenderPipeline();
+                virtual ~IRenderPipeline();
 
-    /// Renders the pipeline
-    virtual void render() = 0;
+                /// Renders the pipeline
+                virtual void render() = 0;
 
-    /// Frees all resources
-    virtual void destroy() = 0;
+                /// Frees all resources
+                virtual void destroy() = 0;
 
-protected:
-    std::vector<IRenderStage*> _stages;
-};
+            protected:
+                std::vector<IRenderStage*> _stages; ///< Stores all the render stages
+            };
 
+        }
+    }
 }
-}
 
-namespace vg = vorb::graphics;
+namespace vg = vorb::core::graphics;
 
 #endif // IRenderPipeline_h_
