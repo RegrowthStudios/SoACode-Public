@@ -100,6 +100,7 @@ void GameWindow::setDefaultSettings(GameDisplayMode* mode) {
     mode->maxFPS = DEFAULT_MAX_FPS;
     mode->swapInterval = DEFAULT_SWAP_INTERVAL;
 }
+
 void GameWindow::readSettings() {
     IOManager iom;
     nString data;
@@ -111,6 +112,7 @@ void GameWindow::readSettings() {
         saveSettings();
     }
 }
+
 void GameWindow::saveSettings() const {
     GameDisplayMode modeBasis = {};
     setDefaultSettings(&modeBasis);

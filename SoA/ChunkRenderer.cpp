@@ -14,6 +14,7 @@
 
 const float sonarDistance = 200;
 const float sonarWidth = 30;
+
 void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const f64v3 &position)
 {
     //*********************Blocks*******************
@@ -79,7 +80,7 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
 
     float blockAmbient = 0.000f;
     glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3fv(program->getUniform("lightColor"), &(gameRenderParams->sunlightColor[0]);
+    glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
     float fadeDist;
     if (NoChunkFade){

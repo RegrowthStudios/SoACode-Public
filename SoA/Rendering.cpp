@@ -78,7 +78,7 @@ void WorldRenderer::DrawLine(glm::vec3 a, glm::vec3 b)
     glDrawArrays(GL_LINES, 0, 2);
 }
 
-void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color)
+void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, const glm::mat4 &VP, const glm::vec4& color)
 {
     // Vertex names
     #define BOT_BACK_LEFT 0

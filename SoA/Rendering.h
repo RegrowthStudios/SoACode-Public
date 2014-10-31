@@ -92,6 +92,6 @@ private:
 
 extern WorldRenderer worldRenderer;
 
-void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color);
+void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const f64v3 &playerPos, const f32m4 &VP, const f32v4& color);
 
 void Draw3DCube(class Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation);

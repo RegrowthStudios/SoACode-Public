@@ -3,7 +3,7 @@
 
 
 vg::IRenderStage::IRenderStage(Camera* camera /* = nullptr */) :
-    _renderTarget(nullptr),
+    _inputFbo(nullptr),
     _camera(camera) {
     // Empty
 }

@@ -29,7 +29,7 @@ namespace vorb {
                 IRenderStage(Camera* camera = nullptr);
                 virtual ~IRenderStage();
 
-                virtual void setState(vg::FrameBuffer* frameBuffer = nullptr) = 0;
+                virtual void setState(FrameBuffer* inputFbo = nullptr) = 0;
 
                 /// Renders the stage
                 virtual void draw() = 0;
@@ -41,9 +41,9 @@ namespace vorb {
                 virtual void setCamera(Camera* camera) { _camera = camera; }
 
                 /// Sets the render target
-                virtual void setRenderTarget(FrameBuffer* renderTarget) { _renderTarget = renderTarget; }
+                virtual void setInputFbo(FrameBuffer* inputFbo) { _inputFbo = inputFbo; }
             protected:
-                FrameBuffer* _renderTarget; ///< Optional Render Target
+                FrameBuffer* _inputFbo; ///< Optional Render Target
                 Camera* _camera; ///< Optional Camera, not needed for post processing stages
             };
 

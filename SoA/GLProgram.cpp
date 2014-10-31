@@ -9,7 +9,7 @@
 // Will Our Variable Names Honestly Be More Than A KB
 #define PROGRAM_VARIABLE_MAX_LENGTH 1024
 
-GLProgram* vg::GLProgram::_programInUse = nullptr;
+vg::GLProgram* vg::GLProgram::_programInUse = nullptr;
 
 vg::GLProgram::GLProgram(bool init /*= false*/) :
     _id(0),

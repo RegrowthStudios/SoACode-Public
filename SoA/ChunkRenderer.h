@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef ChunkRenderer_h__
+#define ChunkRenderer_h__
+
 #include <vector>
 #include "types.h"
 #include "ChunkMesh.h"
@@ -27,3 +31,5 @@ private:
     static void drawChunkWater(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
 
 };
+
+#endif // ChunkRenderer_h__

@@ -32,9 +32,6 @@ namespace vorb {
 
                 /// Frees all resources
                 virtual void destroy() = 0;
-
-            protected:
-                std::vector<IRenderStage*> _stages; ///< Stores all the render stages
             };
 
         }

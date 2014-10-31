@@ -563,12 +563,6 @@
     <ClInclude Include="IRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="FullRenderPipeline.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="GameRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
     <ClInclude Include="SkyboxRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -595,6 +589,18 @@
     </ClInclude>
     <ClInclude Include="GameRenderParams.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuRenderPipeline.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="HdrRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="AwesomiumRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumInterface.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -925,12 +931,6 @@
     <ClCompile Include="IRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="FullRenderPipeline.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="GameRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
     <ClCompile Include="SkyboxRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
@@ -956,6 +956,15 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="TransparentVoxelRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="AwesomiumRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="HdrRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>

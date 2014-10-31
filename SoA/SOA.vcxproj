@@ -112,17 +112,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
-    <ClInclude Include="FullRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
-    <ClInclude Include="GameRenderStage.h" />
     <ClInclude Include="GpuMemory.h" />
+    <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GLProgramManager.h" />
+    <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="IRenderPipeline.h" />
@@ -135,6 +136,7 @@
     <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
+    <ClInclude Include="MainMenuRenderPipeline.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
@@ -270,12 +272,12 @@
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
-    <ClCompile Include="FullRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
-    <ClCompile Include="GameRenderStage.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
+    <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />
@@ -286,6 +288,7 @@
     <ClCompile Include="IRenderStage.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
+    <ClCompile Include="MainMenuRenderPipeline.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="colors.cpp" />

@@ -16,7 +16,7 @@ static const f32 wholeScreenVertices[] = { 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1
 
 static const ui16 boxDrawIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
-FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 height, ui32 msaa) :
+vg::FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 height, ui32 msaa) :
     _vbo(0),
     _ibo(0),
     _width(width),
@@ -99,7 +99,7 @@ FrameBuffer::FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 heigh
     glBindVertexArray(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-FrameBuffer::~FrameBuffer()
+vg::FrameBuffer::~FrameBuffer()
 {
     if (renderedTextureIDs[FB_DRAW] != 0){
         glDeleteTextures(1, &renderedTextureIDs[FB_DRAW]);
@@ -141,7 +141,7 @@ FrameBuffer::~FrameBuffer()
     glBindVertexArray(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-void FrameBuffer::bind()
+void vg::FrameBuffer::bind()
 {
     if (_msaa > 0){
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferIDs[FB_MSAA]);
@@ -150,13 +150,15 @@ void FrameBuffer::bind()
     }
     glViewport(0, 0, _width, _height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 }
-void FrameBuffer::unBind(const ui32v2& viewportDimensions)
+
+void vg::FrameBuffer::unBind(const ui32v2& viewportDimensions)
 {
     glBindVertexArray(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, viewportDimensions.x, viewportDimensions.y);
 }
-void FrameBuffer::checkErrors(nString name)
+
+void vg::FrameBuffer::checkErrors(nString name)
 {
     checkGlError(name);
     // Always check that our framebuffer is ok
@@ -180,7 +182,8 @@ void FrameBuffer::checkErrors(nString name)
         exit(414);
     }
 }
-void FrameBuffer::draw(const ui32v2& destViewportDimensions, i32 drawMode)
+
+void vg::FrameBuffer::draw(const ui32v2& destViewportDimensions, i32 drawMode)
 {
     if (_vbo == 0){
         glGenBuffers(1, &_vbo);

@@ -462,10 +462,10 @@ void SpriteBatch::createProgram() {
         _program = new vg::GLProgram(true);
 
         // Create the vertex shader
-        _program->addShader(vcore::ShaderType::VERTEX, VS_SRC);
+        _program->addShader(vg::ShaderType::VERTEX, VS_SRC);
 
         // Create the fragment shader
-        _program->addShader(vcore::ShaderType::FRAGMENT, FS_SRC);
+        _program->addShader(vg::ShaderType::FRAGMENT, FS_SRC);
 
         // Set the attributes
         std::vector <nString> attributes;

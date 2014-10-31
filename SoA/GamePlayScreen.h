@@ -63,9 +63,6 @@ private:
     /// Handles mouse up input for player
     void onMouseUp(const SDL_Event& e);
 
-    /// Draws the voxel world
-    void drawVoxelWorld();
-
     /// Draws the developer hud
     void drawDevHUD();
 

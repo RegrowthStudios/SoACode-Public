@@ -83,7 +83,7 @@ void vg::GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
     _programs[shaderName] = program;
 }
 
-GLProgram* vg::GLProgramManager::getProgram(nString shaderName) {
+vg::GLProgram* vg::GLProgramManager::getProgram(nString shaderName) {
     auto it = _programs.find(shaderName);
     if (it != _programs.end()) {
         return it->second;

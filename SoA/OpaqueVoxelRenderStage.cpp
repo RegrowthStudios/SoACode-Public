@@ -1,8 +1,7 @@
 #include "stdafx.h"
+#include "OpaqueVoxelRenderStage.h"
 #include "Camera.h"
 #include "MeshManager.h"
-#include "OpaqueVoxelRenderStage.h"
-#include "ChunkRenderer.h"
 
 
 OpaqueVoxelRenderStage::OpaqueVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager) :
@@ -19,7 +18,7 @@ OpaqueVoxelRenderStage::~OpaqueVoxelRenderStage()
 
 void OpaqueVoxelRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/)
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    _inputFbo = frameBuffer;
 }
 
 void OpaqueVoxelRenderStage::draw()
