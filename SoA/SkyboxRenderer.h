@@ -29,7 +29,7 @@ public:
     ~SkyboxRenderer();
 
     /// Draw the skybox
-    void drawSkybox(vcore::GLProgram* program, const f32m4& VP, vg::Texture textures[]);
+    void drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Texture textures[]);
 
     /// Frees the skybox mesh
     void destroy();
@@ -37,7 +37,7 @@ public:
 private:
 
     /// Initializes the _vbo and _ibo buffers
-    void initBuffers(vcore::GLProgram* program);
+    void initBuffers(vg::GLProgram* program);
 
     ui32 _vao;
     ui32 _vbo;

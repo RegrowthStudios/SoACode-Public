@@ -120,7 +120,7 @@ bool VoxelEditor::isEditing() {
     return (_startPosition.x != INT_MAX && _endPosition.x != INT_MAX);
 }
 
-void VoxelEditor::drawGuides(const f64v3& cameraPos, glm::mat4 &VP, int blockID)
+void VoxelEditor::drawGuides(const f64v3& cameraPos, const glm::mat4 &VP, int blockID)
 {
     switch (_currentTool) {
         case EDITOR_TOOLS::AABOX:

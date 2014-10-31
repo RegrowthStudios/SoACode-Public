@@ -227,7 +227,7 @@ void AwesomiumInterface<C>::update()
 }
 
 template <class C>
-void AwesomiumInterface<C>::draw(vcore::GLProgram* program)
+void AwesomiumInterface<C>::draw(vg::GLProgram* program)
 {
     //Check if draw coords were set
     if (_vbo == 0 || _renderedTexture == 0) return;

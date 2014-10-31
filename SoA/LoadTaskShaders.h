@@ -18,7 +18,7 @@ public:
     }
 private:
     virtual void load() {
-        vcore::GLProgramManager* glProgramManager = GameManager::glProgramManager;
+        vg::GLProgramManager* glProgramManager = GameManager::glProgramManager;
 
         //***** Attribute Vectors ******
         // So that the same VAO can be used for multiple shaders,

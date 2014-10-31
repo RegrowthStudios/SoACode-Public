@@ -16,11 +16,13 @@ FullRenderPipeline::~FullRenderPipeline() {
     destroy();
 }
 
-void FullRenderPipeline::init(vg::GLProgramManager* glProgramManager, vg::TextureCache* textureCache, Camera* chunkCamera, Camera* worldCamera) {
+void FullRenderPipeline::init(vg::GLProgramManager* glProgramManager, vg::TextureCache* textureCache,
+                              Camera* chunkCamera, Camera* worldCamera, GameWindow* gameWindow,
+                              MeshManager* meshManager) {
     _isInitialized = true;
 
     // Game Render Stage
-    _gameRenderStage = new GameRenderStage(glProgramManager, textureCache, chunkCamera, worldCamera);
+    _gameRenderStage = new GameRenderStage(glProgramManager, textureCache, chunkCamera, worldCamera, gameWindow, meshManager);
     _stages.push_back(_gameRenderStage);
 }
 

@@ -22,6 +22,8 @@
 class SkyboxRenderer;
 class Camera;
 class GameRenderStage;
+class GameWindow;
+class MeshManager;
 
 class FullRenderPipeline : public vg::IRenderPipeline
 {
@@ -37,7 +39,9 @@ public:
     void init(vg::GLProgramManager* glProgramManager,
               vg::TextureCache* textureCache,
               Camera* chunkCamera,
-              Camera* worldCamera);
+              Camera* worldCamera,
+              GameWindow* gameWindow,
+              MeshManager* meshManager);
 
     /// Renders the pipeline
     void render() override;
@@ -46,7 +50,6 @@ public:
     void destroy() override;
 
 private:
-    SkyboxRenderer* _skyboxRenderer; ///< Renders the skybox
 
     GameRenderStage* _gameRenderStage; ///< Renders the game scene
 

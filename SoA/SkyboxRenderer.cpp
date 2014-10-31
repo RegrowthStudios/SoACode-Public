@@ -43,7 +43,7 @@ SkyboxRenderer::~SkyboxRenderer() {
     destroy();
 }
 
-void SkyboxRenderer::drawSkybox(vcore::GLProgram* program, const f32m4& VP, vg::Texture textures[]) {
+void SkyboxRenderer::drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Texture textures[]) {
 
     glDisable(GL_CULL_FACE);
 
@@ -92,7 +92,7 @@ void SkyboxRenderer::destroy() {
     }
 }
 
-void SkyboxRenderer::initBuffers(vcore::GLProgram* program) {
+void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
     // Vertex Array Object
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);

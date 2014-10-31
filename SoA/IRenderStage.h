@@ -15,6 +15,8 @@
 #ifndef IRenderStage_h_
 #define IRenderStage_h_
 
+class Camera;
+
 namespace vorb {
     namespace core {
         namespace graphics {
@@ -24,13 +26,25 @@ namespace vorb {
             class IRenderStage
             {
             public:
-                IRenderStage();
+                IRenderStage(Camera* camera = nullptr);
                 virtual ~IRenderStage();
 
+                virtual void setState(vg::FrameBuffer* frameBuffer = nullptr) = 0;
+
                 /// Renders the stage
-                virtual void render() = 0;
+                virtual void draw() = 0;
+
+                /// Check if the stage is visible
+                virtual bool isVisible() = 0;
+
+                /// Sets the camera
+                virtual void setCamera(Camera* camera) { _camera = camera; }
+
+                /// Sets the render target
+                virtual void setRenderTarget(FrameBuffer* renderTarget) { _renderTarget = renderTarget; }
             protected:
-                FrameBuffer* _renderTarget;
+                FrameBuffer* _renderTarget; ///< Optional Render Target
+                Camera* _camera; ///< Optional Camera, not needed for post processing stages
             };
 
         }

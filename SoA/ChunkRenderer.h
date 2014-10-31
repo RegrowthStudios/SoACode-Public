@@ -4,14 +4,16 @@
 #include "ChunkMesh.h"
 #include "GLProgram.h"
 
+class GameRenderParams;
+
 class ChunkRenderer {
 public:
-    static void drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, glm::mat4 &VP, glm::dvec3 &position);
-    static void drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir);
-    static void drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir);
-    static void drawTransparentBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir);
-    //static void drawPhysicsBlocks(glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir);
-    static void drawWater(const std::vector <ChunkMesh *>& chunkMeshes, glm::mat4 &VP, const glm::dvec3 &position, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, glm::vec3 &lightPos, glm::vec3 &lightColor, bool underWater);
+    static void drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const f64v3 &position);
+    static void drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, const f32v3& eyeDir);
+    static void drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, const f32v3& eyeDir);
+    static void drawTransparentBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, const f32v3& eyeDir);
+    //static void drawPhysicsBlocks(f32m4 &VP, const f64v3 &position, GLfloat lightActive, const GLfloat *eyeDir);
+    static void drawWater(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, bool underWater);
 
     static void bindTransparentVao(ChunkMesh *CMI);
     static void bindCutoutVao(ChunkMesh *CMI);
@@ -19,9 +21,9 @@ public:
     static void bindWaterVao(ChunkMesh *CMI);
    
 private:
-    static void drawChunkBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
-    static void drawChunkTransparentBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP);
-    static void drawChunkCutoutBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP);
-    static void drawChunkWater(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
+    static void drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+    static void drawChunkTransparentBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawChunkCutoutBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawChunkWater(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
 
 };

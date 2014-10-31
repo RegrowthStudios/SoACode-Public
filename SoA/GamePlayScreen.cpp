@@ -445,7 +445,7 @@ void GamePlayScreen::drawVoxelWorld() {
 
     // TODO(Ben): Render the particles
     //if (particleMeshes.size() > 0){
-    //    vcore::GLProgram* bProgram = GameManager::glProgramManager->getProgram("Billboard");
+    //    vg::GLProgram* bProgram = GameManager::glProgramManager->getProgram("Billboard");
     //    bProgram->use();
 
     //    glUniform1f(bProgram->getUniform("lightType"), (GLfloat)player->lightActive);

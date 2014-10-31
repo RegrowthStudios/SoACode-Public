@@ -92,10 +92,6 @@ private:
 
 extern WorldRenderer worldRenderer;
 
-void DrawSun(float theta, glm::mat4 &MVP);
-
-void DrawStars(float theta, glm::mat4 &MVP);
-
 void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color);
 
 void Draw3DCube(class Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation);

@@ -246,11 +246,11 @@ void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     if (chunk && chunk->isAccessible) chunks[7] = chunk;
 }
 
-void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
+void ChunkManager::drawChunkLines(const glm::mat4 &VP, const f64v3& position) {
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
     // Shader that is lazily initialized
-    static vcore::GLProgram* chunkLineProgram = nullptr;
+    static vg::GLProgram* chunkLineProgram = nullptr;
     // The mesh that is built from the chunks
     vcore::Mesh mesh;
     mesh.init(vcore::PrimitiveType::LINES, true);
@@ -331,9 +331,9 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
         mesh.uploadAndClearLocal();
         // Lazily initialize shader
         if (chunkLineProgram == nullptr) {
-            chunkLineProgram = new vcore::GLProgram(true);
-            chunkLineProgram->addShader(vcore::ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
-            chunkLineProgram->addShader(vcore::ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
+            chunkLineProgram = new vg::GLProgram(true);
+            chunkLineProgram->addShader(vg::ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
+            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
             chunkLineProgram->setAttributes(vcore::Mesh::defaultShaderAttributes);
             chunkLineProgram->link();
             chunkLineProgram->initUniforms();

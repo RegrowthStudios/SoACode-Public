@@ -38,7 +38,7 @@ MeshManager::MeshManager() {
 void MeshManager::updateTerrainMesh(TerrainMeshMessage* tmm) {
     TerrainBuffers *tb = tmm->terrainBuffers;
 
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
 
     if (tmm->indexSize){
         if (tb->vaoID == 0) glGenVertexArrays(1, &(tb->vaoID));

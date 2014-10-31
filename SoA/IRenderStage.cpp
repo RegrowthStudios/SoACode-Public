@@ -2,8 +2,9 @@
 #include "IRenderStage.h"
 
 
-vg::IRenderStage::IRenderStage() :
-    _renderTarget(nullptr) {
+vg::IRenderStage::IRenderStage(Camera* camera /* = nullptr */) :
+    _renderTarget(nullptr),
+    _camera(camera) {
     // Empty
 }
 

@@ -113,8 +113,10 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="FullRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
+    <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GameRenderStage.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
@@ -126,6 +128,7 @@
     <ClInclude Include="IRenderPipeline.h" />
     <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="IVoxelMapper.h" />
+    <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskPlanet.h" />
     <ClInclude Include="LoadTaskShaders.h" />
@@ -136,13 +139,18 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="PDA.h" />
     <ClInclude Include="PdaAwesomiumAPI.h" />
+    <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SonarRenderStage.h" />
+    <ClInclude Include="SpaceRenderStage.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
+    <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
     <ClInclude Include="InitScreen.h" />
@@ -263,6 +271,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="FullRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderStage.cpp" />
@@ -275,6 +284,7 @@
     <ClCompile Include="ImageSaver.cpp" />
     <ClCompile Include="IRenderPipeline.cpp" />
     <ClCompile Include="IRenderStage.cpp" />
+    <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -283,12 +293,17 @@
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PDA.cpp" />
     <ClCompile Include="PdaAwesomiumAPI.cpp" />
+    <ClCompile Include="PlanetRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SonarRenderStage.cpp" />
+    <ClCompile Include="SpaceRenderStage.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
+    <ClCompile Include="TransparentVoxelRenderStage.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />

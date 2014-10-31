@@ -335,7 +335,7 @@ void SpriteBatch::end(SpriteSortMode ssm /*= SpriteSortMode::Texture*/) {
     generateBatches();
 }
 
-void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vg::GLProgram* shader /*= nullptr*/) {
     //if (bs == nullptr) bs = BlendState::PremultipliedAlphaBlend;
     if (ds == nullptr) ds = &DepthState::NONE;
     if (rs == nullptr) rs = &RasterizerState::CULL_NONE;
@@ -372,7 +372,7 @@ void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* b
 
     shader->unuse();
 }
-void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vg::GLProgram* shader /*= nullptr*/) {
     f32m4 mCamera(
         2.0f / screenSize.x, 0, 0, 0,
         0, -2.0f / screenSize.y, 0, 0,
@@ -381,7 +381,7 @@ void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const Ble
         );
     renderBatch(mWorld, mCamera, /*bs, */ ss, ds, rs, shader);
 }
-void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
+void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vg::GLProgram* shader /*= nullptr*/) {
     f32m4 mIdentity(
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -459,7 +459,7 @@ void SpriteBatch::createProgram() {
     if (!_program) {
 
         // Allocate the program
-        _program = new vcore::GLProgram(true);
+        _program = new vg::GLProgram(true);
 
         // Create the vertex shader
         _program->addShader(vcore::ShaderType::VERTEX, VS_SRC);
@@ -520,7 +520,7 @@ void SpriteBatch::disposeProgram() {
     }
 }
 
-vcore::GLProgram* SpriteBatch::_program = nullptr;
+vg::GLProgram* SpriteBatch::_program = nullptr;
 
 void SpriteBatch::SpriteBatchCall::set(i32 iOff, ui32 texID, std::vector<SpriteBatchCall*>& calls) {
     textureID = texID;
