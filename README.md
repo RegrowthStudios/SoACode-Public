@@ -1,14 +1,20 @@
 # Seed of Andromeda
 This repository contains the source code for Seed of Andromeda.
 
-# Getting Started
+## Getting Started
 This guide will walk you through setting up as a developer for
 Seed of Andromeda.  There is a basic requirement of having several
 packages installed prior to being able to develop.  In addition,
 we support all three major operating systems:
+
+### Installing and building:
 * [Windows](#Windows)
 * [Mac](#Mac)
 * [Linux](#Linux)
+ 
+### Contributing
+* [Wiki](https://github.com/RegrowthStudios/SoACode/wiki)
+* [Issues](https://github.com/RegrowthStudios/SoACode/issues)
 
 
 ## Windows
