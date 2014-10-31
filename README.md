@@ -20,8 +20,10 @@ we support all three major operating systems:
 
 ### Installation
 1. Open a dos window.
-``` Windows + R ```
-``` cmd ```
+```
+Windows + R
+cmd
+```
 2. Create a folder to hold the repositories
 ```
 cd c:\
