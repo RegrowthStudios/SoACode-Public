@@ -2,6 +2,7 @@
 #include "OpaqueVoxelRenderStage.h"
 #include "Camera.h"
 #include "MeshManager.h"
+#include "ChunkRenderer.h"
 
 
 OpaqueVoxelRenderStage::OpaqueVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager) :

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "ChunkRenderer.h"
-
 #include "GameManager.h"
 #include "GLProgramManager.h"
 #include "Options.h"
