@@ -21,6 +21,7 @@
 #include "Frustum.h"
 #include "TerrainPatch.h"
 #include "FrameBuffer.h"
+#include "LoadTaskShaders.h"
 #include "FileSystem.h"
 #include "MeshManager.h"
 
@@ -102,6 +103,7 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 
 void MainMenuScreen::update(const GameTime& gameTime) {
 
+
     _awesomiumInterface.update();
 
     _camera.update();
@@ -126,6 +128,12 @@ void MainMenuScreen::update(const GameTime& gameTime) {
                 break;
         }
     }
+    // Check for shader reload
+    /*  if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+          GameManager::glProgramManager->destroy();
+          LoadTaskShaders shaderTask;
+          shaderTask.load();
+          }*/
 
     bdt += glSpeedFactor * 0.01;
 }

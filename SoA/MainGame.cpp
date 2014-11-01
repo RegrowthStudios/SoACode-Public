@@ -38,7 +38,7 @@ bool MainGame::initSystems() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     DepthState::FULL.set();
-    RasterizerState::CULL_COUNTER_CLOCKWISE.set();
+    RasterizerState::CULL_CLOCKWISE.set();
     SamplerState::initPredefined();
 
     // Initialize Frame Buffer

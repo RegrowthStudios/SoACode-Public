@@ -83,7 +83,7 @@ namespace graphics {
         /// Binds a buffer
         /// @param bufferID: The ID of the buffer
         /// @param target: The desired buffer target
-        static void bindBuffer(ui32& bufferID, BufferTarget target) {
+        static void bindBuffer(const ui32& bufferID, BufferTarget target) {
             glBindBuffer(static_cast<GLenum>(target), bufferID);
         }
     

@@ -22,8 +22,6 @@ void HdrRenderStage::draw() {
     /// Used for screen space motion blur
    // static bool start = 1;
 
-    vg::GLProgram* program;
-
     /*if (graphicsOptions.motionBlur > 0) {
         program = GameManager::glProgramManager->getProgram("MotionBlur");
         program->use();

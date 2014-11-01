@@ -153,6 +153,9 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 
 void GamePlayScreen::draw(const GameTime& gameTime) {
    
+    MeshManager mm;
+    GameRenderParams* grp;
+   // ChunkRenderer::drawCutoutBlocks(mm.getChunkMeshes(), _player->getChunkCamera().projectionMatrix() * _player->getChunkCamera().viewMatrix(), grp, _player->getChunkCamera().position(), _player->getChunkCamera().direction());
 
     // If you get an error here you will need to place more
     // checkGlError calls around, or use gdebugger, to find the source.

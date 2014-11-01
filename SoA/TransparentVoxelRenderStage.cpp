@@ -26,6 +26,6 @@ void TransparentVoxelRenderStage::draw() {
 }
 
 bool TransparentVoxelRenderStage::isVisible() {
-
+    return true;
 }
 

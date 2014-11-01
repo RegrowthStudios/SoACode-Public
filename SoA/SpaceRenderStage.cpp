@@ -19,12 +19,12 @@ SpaceRenderStage::~SpaceRenderStage() {
 
 void SpaceRenderStage::draw() {
     // Set the camera clipping plane for rendering the skybox and update the projection matrix
-#define SKYBOX_ZNEAR 1000000.0f
-#define SKYBOX_ZFAR 30000000.0f
+    // The clipping dimensions don't matter so long as the skybox fits inside them
+#define SKYBOX_ZNEAR 0.01f
+#define SKYBOX_ZFAR 300000.0f
     _camera->setClippingPlane(SKYBOX_ZNEAR, SKYBOX_ZFAR);
     _camera->updateProjection();
     drawSpace(_camera->projectionMatrix() * _camera->viewMatrix());
-    drawSun(0.0f, _camera->projectionMatrix() * _camera->viewMatrix());
 }
 
 void SpaceRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/) {

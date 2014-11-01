@@ -5,7 +5,8 @@
 
 #include "stdafx.h"
 
-struct GameRenderParams {
+class GameRenderParams {
+public:
     f32v3 sunlightDirection;
     f32v3 sunlightColor;  
     float sunlightIntensity;

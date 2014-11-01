@@ -17,9 +17,7 @@ void AwesomiumRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/) 
 }
 
 void AwesomiumRenderStage::draw() {
-    glDisable(GL_DEPTH_TEST);
     _awesomiumInterface->draw(_glProgram);
-    glEnable(GL_DEPTH_TEST);
 }
 
 bool AwesomiumRenderStage::isVisible() {

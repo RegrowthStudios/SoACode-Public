@@ -15,7 +15,7 @@
 #define VERTS_PER_QUAD 4
 #define SKYBOX_FACES 6
 
-const float skyboxSize = 15000000.0f;
+const float skyboxSize = 100.0f;
 const GLfloat skyboxVertices[72] = {
     -skyboxSize, skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, skyboxSize, -skyboxSize, skyboxSize, skyboxSize, skyboxSize, skyboxSize,  // v1-v2-v3-v0 (front)
     skyboxSize, skyboxSize, skyboxSize, skyboxSize, -skyboxSize, skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, skyboxSize, -skyboxSize,     // v0-v3-v4-v5 (right)
@@ -65,9 +65,9 @@ void SkyboxRenderer::drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Tex
     }
 
     // Draw each of the 6 sides
-    for (int i = 0; i < INDICES_PER_QUAD; i++){
+    for (int i = 0; i < SKYBOX_FACES; i++) {
         glBindTexture(GL_TEXTURE_2D, textures[i].ID);
-        glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD, GL_UNSIGNED_SHORT, (void*)i); //offset
+        glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD, GL_UNSIGNED_SHORT, (void*)(i * sizeof(ui16)* INDICES_PER_QUAD)); //offset
     }
 
     // Unbind shader
@@ -115,16 +115,16 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
     vg::GpuMemory::bindBuffer(_ibo, vg::BufferTarget::ELEMENT_ARRAY);
 
     // Index buffer Object
-    ui16 skyboxIndices[6][6];
+    ui16 skyboxIndices[36];
     // Set up indices
     i32 ci = 0;
     for (i32 i = 0; i < INDICES_PER_QUAD * SKYBOX_FACES; i += INDICES_PER_QUAD, ci += VERTS_PER_QUAD) {
-        skyboxIndices[i / INDICES_PER_QUAD][i % INDICES_PER_QUAD] = ci;
-        skyboxIndices[i / INDICES_PER_QUAD][i % INDICES_PER_QUAD + 1] = ci + 1;
-        skyboxIndices[i / INDICES_PER_QUAD][i % INDICES_PER_QUAD + 2] = ci + 2;
-        skyboxIndices[i / INDICES_PER_QUAD][i % INDICES_PER_QUAD + 3] = ci + 2;
-        skyboxIndices[i / INDICES_PER_QUAD][i % INDICES_PER_QUAD + 4] = ci + 3;
-        skyboxIndices[i / INDICES_PER_QUAD][i % INDICES_PER_QUAD + 5] = ci;
+        skyboxIndices[i] = ci;
+        skyboxIndices[i + 1] = ci + 1;
+        skyboxIndices[i + 2] = ci + 2;
+        skyboxIndices[i + 3] = ci + 2;
+        skyboxIndices[i + 4] = ci + 3;
+        skyboxIndices[i + 5] = ci;
     }
 
     vg::GpuMemory::uploadBufferData(_ibo, vg::BufferTarget::ELEMENT_ARRAY, sizeof(skyboxIndices), skyboxIndices, vg::BufferUsage::STATIC_DRAW);

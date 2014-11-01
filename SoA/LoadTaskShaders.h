@@ -12,6 +12,7 @@ class LoadTaskShaders : public ILoadTask {
     // So that these classes can call load()
     friend class LoadScreen;
     friend class GamePlayScreen;
+    friend class MainMenuScreen;
 public:
     LoadTaskShaders() {
         // Empty

@@ -4,7 +4,6 @@
 #include "MeshManager.h"
 #include "ChunkRenderer.h"
 
-
 OpaqueVoxelRenderStage::OpaqueVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager) :
     IRenderStage(camera),
     _gameRenderParams(gameRenderParams),
