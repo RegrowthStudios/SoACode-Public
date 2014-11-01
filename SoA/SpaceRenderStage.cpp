@@ -20,8 +20,8 @@ SpaceRenderStage::~SpaceRenderStage() {
 void SpaceRenderStage::draw() {
     // Set the camera clipping plane for rendering the skybox and update the projection matrix
     // The clipping dimensions don't matter so long as the skybox fits inside them
-#define SKYBOX_ZNEAR 0.01f
-#define SKYBOX_ZFAR 300000.0f
+    #define SKYBOX_ZNEAR 0.01f
+    #define SKYBOX_ZFAR 300.0f
     _camera->setClippingPlane(SKYBOX_ZNEAR, SKYBOX_ZFAR);
     _camera->updateProjection();
     drawSpace(_camera->projectionMatrix() * _camera->viewMatrix());
@@ -48,7 +48,7 @@ void SpaceRenderStage::drawSpace(glm::mat4 &VP) {
 
     glDepthMask(GL_FALSE);
     _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
-    drawSun((float)0, VP);
+   // drawSun((float)0, VP);
     glDepthMask(GL_TRUE);
 }
 

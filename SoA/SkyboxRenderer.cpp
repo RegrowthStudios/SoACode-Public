@@ -15,8 +15,8 @@
 #define VERTS_PER_QUAD 4
 #define SKYBOX_FACES 6
 
-const float skyboxSize = 100.0f;
-const GLfloat skyboxVertices[72] = {
+const float skyboxSize = 10.0f;
+const float skyboxVertices[72] = {
     -skyboxSize, skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, skyboxSize, -skyboxSize, skyboxSize, skyboxSize, skyboxSize, skyboxSize,  // v1-v2-v3-v0 (front)
     skyboxSize, skyboxSize, skyboxSize, skyboxSize, -skyboxSize, skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, skyboxSize, -skyboxSize,     // v0-v3-v4-v5 (right)
     -skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, skyboxSize, skyboxSize, skyboxSize, skyboxSize, skyboxSize, skyboxSize, -skyboxSize,    // v6-v1-v0-v5 (top)
@@ -24,7 +24,7 @@ const GLfloat skyboxVertices[72] = {
     -skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize,    // v7-v4-v3-v2 (bottom)
     skyboxSize, skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, -skyboxSize };     // v5-v4-v7-v6 (back)
 
-const GLfloat skyboxUVs[48] = { 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,  // v1-v2-v3-v0 (front)
+const float skyboxUVs[48] = { 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,  // v1-v2-v3-v0 (front)
 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, // v0-v3-v4-v5 (right)
 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v1-v0-v5 (top)
 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v7-v2-v1 (left)
@@ -44,8 +44,6 @@ SkyboxRenderer::~SkyboxRenderer() {
 }
 
 void SkyboxRenderer::drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Texture textures[]) {
-
-    glDisable(GL_CULL_FACE);
 
     // Bind shader
     program->use();
@@ -76,7 +74,6 @@ void SkyboxRenderer::drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Tex
     // Always unbind the vao
     glBindVertexArray(0);
 
-    glEnable(GL_CULL_FACE);
 }
 
 void SkyboxRenderer::destroy() {
@@ -115,15 +112,15 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
     vg::GpuMemory::bindBuffer(_ibo, vg::BufferTarget::ELEMENT_ARRAY);
 
     // Index buffer Object
-    ui16 skyboxIndices[36];
+    ui16 skyboxIndices[INDICES_PER_QUAD * SKYBOX_FACES];
     // Set up indices
     i32 ci = 0;
     for (i32 i = 0; i < INDICES_PER_QUAD * SKYBOX_FACES; i += INDICES_PER_QUAD, ci += VERTS_PER_QUAD) {
         skyboxIndices[i] = ci;
-        skyboxIndices[i + 1] = ci + 1;
+        skyboxIndices[i + 1] = ci + 3;
         skyboxIndices[i + 2] = ci + 2;
         skyboxIndices[i + 3] = ci + 2;
-        skyboxIndices[i + 4] = ci + 3;
+        skyboxIndices[i + 4] = ci + 1;
         skyboxIndices[i + 5] = ci;
     }
 
@@ -131,6 +128,6 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
 
     // Set up attribute pointers
     program->enableVertexAttribArrays();
-    glVertexAttribPointer(program->getAttribute("vertexPosition_modelspace"), 3, GL_FLOAT, GL_FALSE, 0, (void*)offsetof(SkyboxVertex, position));
-    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_FLOAT, GL_FALSE, 0, (void*)offsetof(SkyboxVertex, texCoords));
+    glVertexAttribPointer(program->getAttribute("vertexPosition_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), (void*)offsetof(SkyboxVertex, position));
+    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), (void*)offsetof(SkyboxVertex, texCoords));
 }

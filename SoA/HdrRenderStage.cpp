@@ -61,7 +61,9 @@ void HdrRenderStage::draw() {
     glUniform1f(_glProgram->getUniform("fExposure"), graphicsOptions.hdrExposure);
   //  }
 
+    glDisable(GL_DEPTH_TEST);
     _inputFbo->draw(_destViewport, 0 /* drawMode */);
+    glEnable(GL_DEPTH_TEST);
 
     _glProgram->disableVertexAttribArrays();
     _glProgram->unuse();

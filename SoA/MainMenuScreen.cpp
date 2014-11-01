@@ -49,7 +49,6 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
-
     // Initialize the camera
     _camera.init(_app->getWindow().getAspectRatio());
     _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
@@ -141,8 +140,6 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 void MainMenuScreen::draw(const GameTime& gameTime) {
 
     _renderPipeline.render();
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void MainMenuScreen::initRenderPipeline() {

@@ -77,6 +77,9 @@ bool GameWindow::init() {
     setBorderless(_displayMode.isBorderless, true);
     setSwapInterval(_displayMode.swapInterval, true);
 
+    // Make sure default clear depth is 1.0f
+    glClearDepth(1.0f);
+
     return true;
 }
 void GameWindow::dispose() {

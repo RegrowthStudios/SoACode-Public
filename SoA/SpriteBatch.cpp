@@ -421,11 +421,11 @@ void SpriteBatch::generateBatches() {
     call->indices = 6;
     _batches.push_back(call);
     verts[vi++] = _glyphs[0]->vtl;
-    verts[vi++] = _glyphs[0]->vtr;
     verts[vi++] = _glyphs[0]->vbl;
-    verts[vi++] = _glyphs[0]->vbl;
-    verts[vi++] = _glyphs[0]->vtr;
     verts[vi++] = _glyphs[0]->vbr;
+    verts[vi++] = _glyphs[0]->vbr;
+    verts[vi++] = _glyphs[0]->vtr;
+    verts[vi++] = _glyphs[0]->vtl;
     _glyphRecycler.recycle(_glyphs[0]);
 
     int gc = _glyphs.size();
@@ -433,11 +433,11 @@ void SpriteBatch::generateBatches() {
         SpriteGlyph* glyph = _glyphs[i];
         call = call->append(glyph, _batches, &_batchRecycler);
         verts[vi++] = glyph->vtl;
-        verts[vi++] = glyph->vtr;
         verts[vi++] = glyph->vbl;
-        verts[vi++] = glyph->vbl;
-        verts[vi++] = glyph->vtr;
         verts[vi++] = glyph->vbr;
+        verts[vi++] = glyph->vbr;
+        verts[vi++] = glyph->vtr;
+        verts[vi++] = glyph->vtl;
         _glyphRecycler.recycle(_glyphs[i]);
     }
     _glyphs.swap(std::vector<SpriteGlyph*>());

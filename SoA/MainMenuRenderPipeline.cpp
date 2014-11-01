@@ -49,23 +49,21 @@ void MainMenuRenderPipeline::init(const ui32v2& viewport, Camera* camera, IAweso
 void MainMenuRenderPipeline::render() {
  
     // Bind the FBO
- //   _hdrFrameBuffer->bind();
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_DEPTH_TEST);
+    _hdrFrameBuffer->bind();
+    // Clear depth buffer. Don't have to clear color since skybox will overwrite it
+    glClear(GL_DEPTH_BUFFER_BIT);
+
     // Main render passes
     _spaceRenderStage->draw();
- //   _planetRenderStage->draw();
- //   glDisable(GL_CULL_FACE);
+    _planetRenderStage->draw();
     _awesomiumRenderStage->draw();
- //   glEnable(GL_CULL_FACE);
+
     // Post processing
- //   _hdrRenderStage->setState(_hdrFrameBuffer);
- //   _hdrRenderStage->draw();
+    _hdrRenderStage->setState(_hdrFrameBuffer);
+    _hdrRenderStage->draw();
 
-    glEnable(GL_DEPTH_TEST);
-
-    checkGlError("LAWL");
+    // Check for errors, just in case
+    checkGlError("MainMenuRenderPipeline::render()");
 }
 
 void MainMenuRenderPipeline::destroy() {
