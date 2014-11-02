@@ -30,8 +30,7 @@ class SpriteBatch;
 class SpriteFont;
 struct TerrainMeshMessage;
 
-class GamePlayScreen : public IAppScreen<App>
-{
+class GamePlayScreen : public IAppScreen<App> {
     friend class PdaAwesomiumAPI;
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
@@ -97,5 +96,6 @@ private:
     volatile bool _threadRunning; ///< True when the thread should be running
 
     GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
+};
 
 #endif // GAMEPLAYSCREEN_H_
