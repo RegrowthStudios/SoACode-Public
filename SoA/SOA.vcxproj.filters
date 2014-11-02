@@ -603,10 +603,13 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="GamePlayRenderPipeline.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="PdaRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="DevHudRenderStage.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -973,11 +976,18 @@
     <ClCompile Include="SkyboxRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GameRenderParams.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="DevHudRenderStage.cpp" />
+    <ClCompile Include="GamePlayRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="PdaRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="DevHudRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

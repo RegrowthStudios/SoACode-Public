@@ -163,7 +163,7 @@ void GamePlayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
-                         _app, _player, _app->meshManager, GameManager::glProgramManager);
+                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager);
 }
 
 void GamePlayScreen::handleInput() {

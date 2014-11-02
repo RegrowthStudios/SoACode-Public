@@ -46,12 +46,12 @@ public:
     /// Frees all resources
     virtual void destroy() override;
 private:
-    SkyboxRenderStage* _skyboxRenderStage; ///< Renders the skybox
-    PlanetRenderStage* _planetRenderStage; ///< Renders the planets
-    AwesomiumRenderStage* _awesomiumRenderStage; ///< Renders the UI
-    HdrRenderStage* _hdrRenderStage; ///< Renders HDR post-processing
+    SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
+    PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
+    AwesomiumRenderStage* _awesomiumRenderStage = nullptr; ///< Renders the UI
+    HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
 
-    vg::FrameBuffer* _hdrFrameBuffer; ///< Framebuffer needed for the HDR rendering
+    vg::FrameBuffer* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
 
     ui32v4 _viewport; ///< Viewport to draw to
 };

@@ -1,39 +1,31 @@
 #include "stdafx.h"
-#include "GamePlayRenderPipeline.h"
-#include "Errors.h"
-#include "SkyboxRenderStage.h"
-#include "OpaqueVoxelRenderStage.h"
-#include "CutoutVoxelRenderStage.h"
-#include "LiquidVoxelRenderStage.h"
-#include "DevHudRenderStage.h"
-#include "TransparentVoxelRenderStage.h"
-#include "PlanetRenderStage.h"
-#include "HdrRenderStage.h"
-#include "MeshManager.h"
-#include "FrameBuffer.h"
-#include "Options.h"
+
 #include "Camera.h"
+#include "CutoutVoxelRenderStage.h"
+#include "DevHudRenderStage.h"
+#include "Errors.h"
+#include "FrameBuffer.h"
+#include "GamePlayRenderPipeline.h"
+#include "HdrRenderStage.h"
+#include "LiquidVoxelRenderStage.h"
+#include "MeshManager.h"
+#include "OpaqueVoxelRenderStage.h"
+#include "Options.h"
+#include "PdaRenderStage.h"
+#include "PlanetRenderStage.h"
+#include "SkyboxRenderStage.h"
+#include "TransparentVoxelRenderStage.h"
 
 #define DEVHUD_FONT_SIZE 32
 
-GamePlayRenderPipeline::GamePlayRenderPipeline() :
-    _skyboxRenderStage(nullptr),
-    _planetRenderStage(nullptr),
-    _opaqueVoxelRenderStage(nullptr),
-    _cutoutVoxelRenderStage(nullptr),
-    _transparentVoxelRenderStage(nullptr),
-    _liquidVoxelRenderStage(nullptr),
-    _devHudRenderStage(nullptr),
-    _awesomiumRenderStage(nullptr),
-    _hdrRenderStage(nullptr),
-    _hdrFrameBuffer(nullptr) {
+GamePlayRenderPipeline::GamePlayRenderPipeline() {
     // Empty
 }
 
 void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
                                   const Camera* worldCamera, const App* app,
                                   const Player* player, const MeshManager* meshManager,
-                                  const vg::GLProgramManager* glProgramManager) {
+                                  PDA* pda, const vg::GLProgramManager* glProgramManager) {
     // Set the viewport
     _viewport = viewport;
 
@@ -68,6 +60,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _transparentVoxelRenderStage = new TransparentVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
     _liquidVoxelRenderStage = new LiquidVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
     _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
+    _pdaRenderStage = new PdaRenderStage(pda);
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), _viewport);
 }
 
@@ -103,6 +96,9 @@ void GamePlayRenderPipeline::render() {
     // Dev hud
     _devHudRenderStage->draw();
 
+    // PDA
+    _pdaRenderStage->draw();
+
     // Post processing
     _hdrRenderStage->setInputFbo(_hdrFrameBuffer);
     _hdrRenderStage->draw();
@@ -134,8 +130,8 @@ void GamePlayRenderPipeline::destroy() {
     delete _devHudRenderStage;
     _devHudRenderStage = nullptr;
 
-    delete _awesomiumRenderStage;
-    _awesomiumRenderStage = nullptr;
+    delete _pdaRenderStage;
+    _pdaRenderStage = nullptr;
 
     delete _hdrRenderStage;
     _hdrRenderStage = nullptr;

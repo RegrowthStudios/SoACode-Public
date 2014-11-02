@@ -9,12 +9,7 @@
 #include "FrameBuffer.h"
 #include "Options.h"
 
-MainMenuRenderPipeline::MainMenuRenderPipeline() :
-    _skyboxRenderStage(nullptr),
-    _planetRenderStage(nullptr),
-    _awesomiumRenderStage(nullptr),
-    _hdrRenderStage(nullptr),
-    _hdrFrameBuffer(nullptr) {
+MainMenuRenderPipeline::MainMenuRenderPipeline() {
     // Empty
 }
 

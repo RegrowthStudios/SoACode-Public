@@ -128,11 +128,14 @@ void MainMenuScreen::update(const GameTime& gameTime) {
         }
     }
     // Check for shader reload
-    /*  if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-          GameManager::glProgramManager->destroy();
-          LoadTaskShaders shaderTask;
-          shaderTask.load();
-          }*/
+    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+        GameManager::glProgramManager->destroy();
+        LoadTaskShaders shaderTask;
+        shaderTask.load();
+        // Reload the pipeline with new shaders
+        _renderPipeline.destroy();
+        initRenderPipeline();
+    }
 
     bdt += glSpeedFactor * 0.01;
 }

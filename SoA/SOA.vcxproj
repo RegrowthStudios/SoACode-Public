@@ -147,6 +147,7 @@
     <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="PDA.h" />
     <ClInclude Include="PdaAwesomiumAPI.h" />
+    <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
@@ -305,6 +306,7 @@
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PDA.cpp" />
     <ClCompile Include="PdaAwesomiumAPI.cpp" />
+    <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PlanetRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
