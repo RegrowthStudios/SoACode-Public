@@ -1,4 +1,13 @@
-
+/// 
+///  FrameBuffer.h
+///  Vorb Engine
+///
+///  Created by Benjamin Arnold on 1 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  Short Description
+///
 
 #pragma once
 
