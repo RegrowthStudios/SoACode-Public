@@ -28,13 +28,15 @@ public:
     /// @param camera: The camera handle
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param meshManager: Handle to the class that holds meshes
-    OpaqueVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager);
+    OpaqueVoxelRenderStage(const Camera* camera, 
+                           const GameRenderParams* gameRenderParams,
+                           const MeshManager* meshManager);
 
     /// Draws the render stage
     virtual void draw() override;
 private:
-    GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
-    MeshManager* _meshManager; ///< Stores the meshes we need to render
+    const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
+    const MeshManager* _meshManager; ///< Stores the meshes we need to render
 };
 
 #endif // OpaqueVoxelRenderStage_h__

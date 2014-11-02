@@ -9,5 +9,7 @@ AwesomiumRenderStage::AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterfa
 }
 
 void AwesomiumRenderStage::draw() {
+    glDisable(GL_DEPTH_TEST);
     _awesomiumInterface->draw(_glProgram);
+    glEnable(GL_DEPTH_TEST);
 }

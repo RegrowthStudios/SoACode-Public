@@ -5,7 +5,8 @@
 #include "MeshManager.h"
 
 
-SonarRenderStage::SonarRenderStage(Camera* camera, MeshManager* meshManager) :
+SonarRenderStage::SonarRenderStage(const Camera* camera, 
+                                   const MeshManager* meshManager) :
     IRenderStage(camera),
     _meshManager(meshManager) {
     // Empty

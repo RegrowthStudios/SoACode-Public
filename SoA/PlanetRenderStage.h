@@ -24,7 +24,7 @@ class PlanetRenderStage : public vg::IRenderStage
 public:
     /// Constructor which injects dependencies
     /// @param camera: The camera handle
-    PlanetRenderStage(Camera* camera);
+    PlanetRenderStage(const Camera* camera);
 
     /// Draws the render stage
     virtual void draw() override;

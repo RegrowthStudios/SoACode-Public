@@ -5,6 +5,7 @@
 #include "OpaqueVoxelRenderStage.h"
 #include "CutoutVoxelRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
+#include "DevHudRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
 #include "PlanetRenderStage.h"
 #include "HdrRenderStage.h"
@@ -13,6 +14,7 @@
 #include "Options.h"
 #include "Camera.h"
 
+#define DEVHUD_FONT_SIZE 32
 
 GamePlayRenderPipeline::GamePlayRenderPipeline() :
     _skyboxRenderStage(nullptr),
@@ -21,22 +23,22 @@ GamePlayRenderPipeline::GamePlayRenderPipeline() :
     _cutoutVoxelRenderStage(nullptr),
     _transparentVoxelRenderStage(nullptr),
     _liquidVoxelRenderStage(nullptr),
+    _devHudRenderStage(nullptr),
     _awesomiumRenderStage(nullptr),
     _hdrRenderStage(nullptr),
-    _hdrFrameBuffer(nullptr)
-{
+    _hdrFrameBuffer(nullptr) {
     // Empty
 }
 
 void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
-                                  Camera* worldCamera, MeshManager* meshManager,
-                                  vg::GLProgramManager* glProgramManager) {
+                                  const Camera* worldCamera, const App* app,
+                                  const Player* player, const MeshManager* meshManager,
+                                  const vg::GLProgramManager* glProgramManager) {
     // Set the viewport
     _viewport = viewport;
 
-    // Set cameras
+    // Hold the world camera
     _worldCamera = worldCamera;
-    _chunkCamera = chunkCamera;
 
     // Check to make sure we aren't leaking memory
     if (_skyboxRenderStage != nullptr) {
@@ -55,13 +57,17 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
                                               _viewport.z, _viewport.w);
     }
 
+    // Get window dimensions
+    f32v2 windowDims(_viewport.z, _viewport.w);
+
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), _worldCamera);
     _planetRenderStage = new PlanetRenderStage(_worldCamera);
-    _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(_chunkCamera, &_gameRenderParams, meshManager);
-    _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(_chunkCamera, &_gameRenderParams, meshManager);
-    _transparentVoxelRenderStage = new TransparentVoxelRenderStage(_chunkCamera, &_gameRenderParams, meshManager);
-    _liquidVoxelRenderStage = new LiquidVoxelRenderStage(_chunkCamera, &_gameRenderParams, meshManager);
+    _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
+    _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
+    _transparentVoxelRenderStage = new TransparentVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
+    _liquidVoxelRenderStage = new LiquidVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
+    _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), _viewport);
 }
 
@@ -94,6 +100,9 @@ void GamePlayRenderPipeline::render() {
     _liquidVoxelRenderStage->draw();
     _transparentVoxelRenderStage->draw();
 
+    // Dev hud
+    _devHudRenderStage->draw();
+
     // Post processing
     _hdrRenderStage->setInputFbo(_hdrFrameBuffer);
     _hdrRenderStage->draw();
@@ -103,6 +112,7 @@ void GamePlayRenderPipeline::render() {
 }
 
 void GamePlayRenderPipeline::destroy() {
+    // Make sure everything is freed here!
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
 
@@ -121,6 +131,9 @@ void GamePlayRenderPipeline::destroy() {
     delete _liquidVoxelRenderStage;
     _liquidVoxelRenderStage = nullptr;
 
+    delete _devHudRenderStage;
+    _devHudRenderStage = nullptr;
+
     delete _awesomiumRenderStage;
     _awesomiumRenderStage = nullptr;
 
@@ -129,4 +142,8 @@ void GamePlayRenderPipeline::destroy() {
 
     delete _hdrFrameBuffer;
     _hdrFrameBuffer = nullptr;
+}
+
+void GamePlayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
+    _devHudRenderStage->cycleMode(offset);
 }

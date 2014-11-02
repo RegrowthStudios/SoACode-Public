@@ -4,7 +4,9 @@
 #include "MeshManager.h"
 #include "ChunkRenderer.h"
 
-LiquidVoxelRenderStage::LiquidVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager) :
+LiquidVoxelRenderStage::LiquidVoxelRenderStage(const Camera* camera,
+                                               const GameRenderParams* gameRenderParams,
+                                               const MeshManager* meshManager) :
     IRenderStage(camera),
     _gameRenderParams(gameRenderParams),
     _meshManager(meshManager) {

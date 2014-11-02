@@ -27,12 +27,14 @@ public:
     /// @param camera: The camera handle
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param meshManager: Handle to the class that holds meshes
-    LiquidVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager);
+    LiquidVoxelRenderStage(const Camera* camera,
+                           const GameRenderParams* gameRenderParams, 
+                           const MeshManager* meshManager);
     /// Draws the render stage
     virtual void draw() override;
 private:
-    MeshManager* _meshManager; ///< Holds the meshes to render
-    GameRenderParams* _gameRenderParams; ///< Some shared rendering parameters
+    const MeshManager* _meshManager; ///< Holds the meshes to render
+    const GameRenderParams* _gameRenderParams; ///< Some shared rendering parameters
 };
 
 #endif // LiquidVoxelRenderStage_h__

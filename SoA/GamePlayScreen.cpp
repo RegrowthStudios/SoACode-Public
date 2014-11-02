@@ -33,21 +33,10 @@
 
 #define THREAD ThreadId::UPDATE
 
-// Each mode includes the previous mode
-enum DevUiModes { 
-    DEVUIMODE_NONE, 
-    DEVUIMODE_CROSSHAIR,
-    DEVUIMODE_HANDS, 
-    DEVUIMODE_FPS, 
-    DEVUIMODE_ALL };
-
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
     _threadRunning(false), 
-    _inFocus(true),
-    _devHudSpriteBatch(nullptr),
-    _devHudSpriteFont(nullptr),
-    _devHudMode(DEVUIMODE_CROSSHAIR) {
+    _inFocus(true) {
     // Empty
 }
 
@@ -148,7 +137,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     // Update the PDA
     _pda.update();
 
-    // Sort all meshes // TODO(Ben): There is redundance here
+    // Sort all meshes // TODO(Ben): There is redundancy here
     _app->meshManager->sortMeshes(_player->headPosition);
 
     // Process any updates from the render thread
@@ -156,7 +145,9 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 }
 
 void GamePlayScreen::draw(const GameTime& gameTime) {
-   
+
+    updateWorldCameraClip();
+
     _renderPipeline.render();
 }
 
@@ -171,7 +162,8 @@ i32 GamePlayScreen::getWindowHeight() const {
 void GamePlayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), _app->meshManager, GameManager::glProgramManager);
+    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
+                         _app, _player, _app->meshManager, GameManager::glProgramManager);
 }
 
 void GamePlayScreen::handleInput() {
@@ -258,10 +250,7 @@ void GamePlayScreen::handleInput() {
 
     // Dev hud
     if (inputManager->getKeyDown(INPUT_HUD)) {
-        _devHudMode++;
-        if (_devHudMode > DEVUIMODE_ALL) {
-            _devHudMode = DEVUIMODE_NONE;
-        }
+        _renderPipeline.cycleDevHud();
     }
 
     // Update inputManager internal state
@@ -286,135 +275,6 @@ void GamePlayScreen::onMouseUp(const SDL_Event& e) {
             GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
         }
     }
-}
-
-void GamePlayScreen::drawDevHUD() {
-    f32v2 windowDims(_app->getWindow().getWidth(), _app->getWindow().getHeight());
-    char buffer[256];
-    // Lazily load spritebatch
-    if (!_devHudSpriteBatch) {
-        _devHudSpriteBatch = new SpriteBatch(true, true);
-        _devHudSpriteFont = new SpriteFont("Fonts\\chintzy.ttf", 32);
-    }
-
-    _devHudSpriteBatch->begin();
-
-    // Draw crosshair
-    const f32v2 cSize(26.0f);
-    _devHudSpriteBatch->draw(crosshairTexture.ID, 
-                             (windowDims - cSize) / 2.0f,
-                             cSize,
-                             ColorRGBA8(255, 255, 255, 128));
-    
-    int offset = 0;
-    int fontHeight = _devHudSpriteFont->getFontHeight();
-
-    // Fps Counters
-    if (_devHudMode >= DEVUIMODE_FPS) {
-        
-        std::sprintf(buffer, "Render FPS: %.0f", _app->getFps());
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-
-        std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-    }
-
-    // Items in hands
-    if (_devHudMode >= DEVUIMODE_HANDS) {
-        const f32v2 SCALE(0.75f);
-        // Left Hand
-        if (_player->leftEquippedItem) {
-            std::sprintf(buffer, "Left Hand: %s (%d)",
-                        _player->leftEquippedItem->name.c_str(),
-                        _player->leftEquippedItem->count);
-
-            _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                           buffer,
-                                           f32v2(0.0f, windowDims.y - fontHeight),
-                                           SCALE,
-                                           color::White);
-        }
-        // Right Hand
-        if (_player->rightEquippedItem) {
-            std::sprintf(buffer, "Right Hand: %s (%d)",
-                         _player->rightEquippedItem->name.c_str(),
-                         _player->rightEquippedItem->count);
-
-            _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                           buffer,
-                                           f32v2(windowDims.x - _devHudSpriteFont->measure(buffer).x, windowDims.y - fontHeight),
-                                           SCALE,
-                                           color::White);
-        }
-    }
-    
-    // Other debug text
-    if (_devHudMode >= DEVUIMODE_ALL) {
-        const f32v2 NUMBER_SCALE(0.75f);
-        // Grid position
-        offset++;
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       "Grid Position",
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-        std::sprintf(buffer, "X %.2f", _player->headPosition.x);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Y %.2f", _player->headPosition.y);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Z %.2f", _player->headPosition.z);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        
-        // World position
-        offset++;
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       "World Position",
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-        std::sprintf(buffer, "X %-9.2f", _player->worldPosition.x);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Y %-9.2f", _player->worldPosition.y);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Z %-9.2f", _player->worldPosition.z);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-    }
-
-    _devHudSpriteBatch->end();
-    // Render to the screen
-    _devHudSpriteBatch->renderBatch(windowDims);
 }
 
 void GamePlayScreen::updatePlayer() {
@@ -506,4 +366,20 @@ void GamePlayScreen::processMessages() {
                 break;
         }
     }
+}
+
+void GamePlayScreen::updateWorldCameraClip() {
+    //far znear for maximum Terrain Patch z buffer precision
+    //this is currently incorrect
+    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    if (nearClip < 0.1) nearClip = 0.1;
+    double a = 0.0;
+    // TODO(Ben): This is crap fix it (Sorry Brian)
+    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
+    if (a < 0) a = 0;
+
+    double clip = MAX(nearClip / planetScale * 0.5, a);
+    // The world camera has a dynamic clipping plane
+    _player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    _player->getWorldCamera().updateProjection();
 }

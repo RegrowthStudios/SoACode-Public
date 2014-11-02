@@ -26,7 +26,7 @@ namespace vorb {
             class IRenderStage
             {
             public:
-                IRenderStage(Camera* camera = nullptr);
+                IRenderStage(const Camera* camera = nullptr);
                 virtual ~IRenderStage();
 
                 /// Renders the stage
@@ -39,13 +39,13 @@ namespace vorb {
                 virtual void setIsVisible(bool isVisible) { _isVisible = isVisible; }
 
                 /// Sets the camera
-                virtual void setCamera(Camera* camera) { _camera = camera; }
+                virtual void setCamera(const Camera* camera) { _camera = camera; }
 
                 /// Sets the render target
                 virtual void setInputFbo(FrameBuffer* inputFbo) { _inputFbo = inputFbo; }
             protected:
                 FrameBuffer* _inputFbo; ///< Optional Render Target
-                Camera* _camera; ///< Optional Camera, not needed for post processing stages
+                const Camera* _camera; ///< Optional Camera, not needed for post processing stages
                 bool _isVisible; ///< Determines if the stage should be rendered
             };
 

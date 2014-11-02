@@ -46,7 +46,7 @@ namespace vorb {
 
                 /// Gets a shader from the cache
                 /// returns nullptr if the shader doesn't exist
-                GLProgram* getProgram(nString shaderName);
+                GLProgram* getProgram(nString shaderName) const;
 
                 /// Frees all resources
                 void destroy();

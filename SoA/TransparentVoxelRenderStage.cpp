@@ -4,10 +4,13 @@
 #include "MeshManager.h"
 #include "ChunkRenderer.h"
 
-TransparentVoxelRenderStage::TransparentVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager) :
+TransparentVoxelRenderStage::TransparentVoxelRenderStage(const Camera* camera, 
+                                                         const GameRenderParams* gameRenderParams, 
+                                                         const MeshManager* meshManager) :
     IRenderStage(camera),
     _gameRenderParams(gameRenderParams),
     _meshManager(meshManager) {
+    // Empty
 }
 
 void TransparentVoxelRenderStage::draw() {

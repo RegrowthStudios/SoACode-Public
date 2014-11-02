@@ -605,6 +605,9 @@
     <ClInclude Include="GamePlayRenderPipeline.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="DevHudRenderStage.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -974,6 +977,7 @@
     <ClCompile Include="GameRenderParams.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
+    <ClCompile Include="DevHudRenderStage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

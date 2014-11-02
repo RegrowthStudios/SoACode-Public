@@ -35,9 +35,13 @@ public:
     const glm::mat4 &projectionMatrix() const { return _projectionMatrix; }
     const glm::mat4 &viewMatrix() const { return _viewMatrix; }
 
-    float getFocalLength() const { return _focalLength; }
-    float getPitchAngle() const { return _pitchAngle; }
-    float getYawAngle() const { return _yawAngle; }
+    const float& getNearClip() const { return _zNear; }
+    const float& getFarClip() const { return _zFar; }
+    const float& getFieldOfView() const { return _fieldOfView; }
+    const float& getAspectRatio() const { return _aspectRatio; }
+    const float& getFocalLength() const { return _focalLength; }
+    const float& getPitchAngle() const { return _pitchAngle; }
+    const float& getYawAngle() const { return _yawAngle; }
 
 protected:
     void normalizeAngles();

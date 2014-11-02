@@ -65,6 +65,9 @@ private:
     /// loading the planet in the background.
     void updateThreadFunc();
 
+    /// Updates the dynamic clipping plane for the world camera
+    void updateWorldCameraClip();
+
     vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface; ///< The user interface
     
     MainMenuAPI _api; ///< The callback API for the user interface

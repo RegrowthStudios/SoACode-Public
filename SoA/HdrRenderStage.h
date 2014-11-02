@@ -29,7 +29,7 @@ public:
     virtual void draw() override;
 private:
     vg::GLProgram* _glProgram; ///< Stores the program we use to render
-    ui32v4 _destViewport; ///< Stores the viewport we want to draw to. (x,y,w,h)
+    const ui32v4 _destViewport; ///< Stores the viewport we want to draw to. (x,y,w,h)
 };
 
 #endif // HdrRenderStage_h__

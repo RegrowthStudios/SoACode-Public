@@ -35,18 +35,18 @@ class GamePlayScreen : public IAppScreen<App> {
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
-    virtual i32 getNextScreen() const;
-    virtual i32 getPreviousScreen() const;
+    virtual i32 getNextScreen() const override;
+    virtual i32 getPreviousScreen() const override;
 
-    virtual void build();
-    virtual void destroy(const GameTime& gameTime);
+    virtual void build() override;
+    virtual void destroy(const GameTime& gameTime) override;
 
-    virtual void onEntry(const GameTime& gameTime);
-    virtual void onExit(const GameTime& gameTime);
+    virtual void onEntry(const GameTime& gameTime) override;
+    virtual void onExit(const GameTime& gameTime) override;
 
-    virtual void onEvent(const SDL_Event& e);
-    virtual void update(const GameTime& gameTime);
-    virtual void draw(const GameTime& gameTime);
+    virtual void onEvent(const SDL_Event& e) override;
+    virtual void update(const GameTime& gameTime) override;
+    virtual void draw(const GameTime& gameTime) override;
 
     // Getters
     i32 getWindowWidth() const;
@@ -66,9 +66,6 @@ private:
     /// Handles mouse up input for player
     void onMouseUp(const SDL_Event& e);
 
-    /// Draws the developer hud
-    void drawDevHUD();
-
     /// Updates the player
     void updatePlayer();
 
@@ -79,16 +76,16 @@ private:
     /// Processes messages from the update->render thread
     void processMessages();
 
+    /// Updates the dynamic clipping plane for the world camera
+    void updateWorldCameraClip();
+
     Player* _player; ///< The current player
 
     PDA _pda; ///< The PDA
 
-    int _devHudMode;
-    SpriteBatch* _devHudSpriteBatch; ///< Used for rendering any dev hud UI
-    SpriteFont* _devHudSpriteFont; ///< Used for rendering any dev hud font
-
     bool _inFocus; ///< true when the window is in focus
 
+    // TODO(Ben): Should they be stored here?
     //Camera _voxelCamera; ///< The camera for rendering the voxels
     //Camera _planetCamera; ///< The camera for rendering the planet
 

@@ -139,6 +139,8 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
 void MainMenuScreen::draw(const GameTime& gameTime) {
 
+    updateWorldCameraClip();
+
     _renderPipeline.render();
 }
 
@@ -214,4 +216,20 @@ void MainMenuScreen::updateThreadFunc() {
         
         physicsFps = fpsLimiter.endFrame();
     }
+}
+
+void MainMenuScreen::updateWorldCameraClip() {
+    //far znear for maximum Terrain Patch z buffer precision
+    //this is currently incorrect
+    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    if (nearClip < 0.1) nearClip = 0.1;
+    double a = 0.0;
+    // TODO(Ben): This is crap fix it (Sorry Brian)
+    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
+    if (a < 0) a = 0;
+
+    double clip = MAX(nearClip / planetScale * 0.5, a);
+    // The world camera has a dynamic clipping plane
+    _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    _camera.updateProjection();
 }

@@ -115,6 +115,7 @@
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
+    <ClInclude Include="DevHudRenderStage.h" />
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
@@ -276,6 +277,7 @@
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
+    <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
