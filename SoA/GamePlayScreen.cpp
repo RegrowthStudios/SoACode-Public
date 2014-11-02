@@ -170,7 +170,7 @@ i32 GamePlayScreen::getWindowHeight() const {
 void GamePlayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), GameManager::glProgramManager);
+    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), _app->meshManager, GameManager::glProgramManager);
 }
 
 void GamePlayScreen::handleInput() {

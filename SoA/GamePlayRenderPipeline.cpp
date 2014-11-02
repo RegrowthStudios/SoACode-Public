@@ -2,17 +2,27 @@
 #include "GamePlayRenderPipeline.h"
 #include "Errors.h"
 #include "SkyboxRenderStage.h"
+#include "OpaqueVoxelRenderStage.h"
 #include "PlanetRenderStage.h"
 #include "HdrRenderStage.h"
+#include "MeshManager.h"
 #include "FrameBuffer.h"
 #include "Options.h"
+#include "Camera.h"
 
 
-GamePlayRenderPipeline::GamePlayRenderPipeline() {
+GamePlayRenderPipeline::GamePlayRenderPipeline() :
+    _skyboxRenderStage(nullptr),
+    _planetRenderStage(nullptr),
+    _opaqueVoxelRenderStage(nullptr),
+    _awesomiumRenderStage(nullptr),
+    _hdrRenderStage(nullptr),
+    _hdrFrameBuffer(nullptr)
+{
     // Empty
 }
 
-void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera, Camera* worldCamera, vg::GLProgramManager* glProgramManager) {
+void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera, Camera* worldCamera, MeshManager* meshManager, vg::GLProgramManager* glProgramManager) {
     // Set the viewport
     _viewport = viewport;
 
@@ -22,7 +32,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera, C
 
     // Check to make sure we aren't leaking memory
     if (_skyboxRenderStage != nullptr) {
-        pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
+        pError("Reinitializing GamePlayRenderPipeline without first calling destroy()!");
     }
 
     // Construct frame buffer
@@ -37,6 +47,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera, C
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), _worldCamera);
     _planetRenderStage = new PlanetRenderStage(_worldCamera);
+    _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(_chunkCamera, &_gameRenderParams, meshManager);
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), _viewport);
 }
 
@@ -45,14 +56,24 @@ GamePlayRenderPipeline::~GamePlayRenderPipeline() {
 }
 
 void GamePlayRenderPipeline::render() {
+    // Set up the gameRenderParams
+    _gameRenderParams.calculateParams(_worldCamera->position(), false);
     // Bind the FBO
     _hdrFrameBuffer->bind();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    // Main render passes
+    // worldCamera passes
     _skyboxRenderStage->draw();
     _planetRenderStage->draw();
+
+    // Clear the depth buffer so we can draw the voxel passes
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // chunkCamera passes
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    _opaqueVoxelRenderStage->draw();
 
     // Post processing
     _hdrRenderStage->setInputFbo(_hdrFrameBuffer);

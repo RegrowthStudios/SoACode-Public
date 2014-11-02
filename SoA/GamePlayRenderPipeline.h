@@ -17,20 +17,24 @@
 #include "IRenderPipeline.h"
 #include "GLProgramManager.h"
 #include "FrameBuffer.h"
+#include "GameRenderParams.h"
 
 /// Forward declarations
 class SkyboxRenderStage;
 class PlanetRenderStage;
+class OpaqueVoxelRenderStage;
+class AwesomiumRenderStage;
 class HdrRenderStage;
 class Camera;
 class IAwesomiumInterface;
+class MeshManager;
 
 class GamePlayRenderPipeline : public vg::IRenderPipeline {
 public:
     GamePlayRenderPipeline();
     ~GamePlayRenderPipeline();
 
-    void init(const ui32v4& viewport, Camera* chunkCamera, Camera* worldCamera, vg::GLProgramManager* glProgramManager);
+    void init(const ui32v4& viewport, Camera* chunkCamera, Camera* worldCamera, MeshManager* meshManager, vg::GLProgramManager* glProgramManager);
 
     /// Renders the pipeline
     virtual void render() override;
@@ -40,9 +44,13 @@ public:
 private: 
     SkyboxRenderStage* _skyboxRenderStage; ///< Renders the skybox
     PlanetRenderStage* _planetRenderStage; ///< Renders the planets
+    OpaqueVoxelRenderStage* _opaqueVoxelRenderStage;
+    AwesomiumRenderStage* _awesomiumRenderStage; ///< Renders the UI
     HdrRenderStage* _hdrRenderStage; ///< Renders HDR post-processing
 
     vg::FrameBuffer* _hdrFrameBuffer; ///< Framebuffer needed for the HDR rendering
+
+    GameRenderParams _gameRenderParams; ///< Shared rendering parameters for voxels
 
     ui32v4 _viewport; ///< Viewport to draw to
     Camera* _chunkCamera;
