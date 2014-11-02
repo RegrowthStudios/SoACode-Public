@@ -76,6 +76,9 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     // Initialize the PDA
     _pda.init(this);
 
+    // Set up the rendering
+    initRenderPipeline();
+
     // Initialize and run the update thread
     _updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
 
@@ -153,13 +156,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 
 void GamePlayScreen::draw(const GameTime& gameTime) {
    
-    MeshManager mm;
-    GameRenderParams* grp;
-   // ChunkRenderer::drawCutoutBlocks(mm.getChunkMeshes(), _player->getChunkCamera().projectionMatrix() * _player->getChunkCamera().viewMatrix(), grp, _player->getChunkCamera().position(), _player->getChunkCamera().direction());
-
-    // If you get an error here you will need to place more
-    // checkGlError calls around, or use gdebugger, to find the source.
-    checkGlError("GamePlayScreen::draw()");
+    _renderPipeline.render();
 }
 
 i32 GamePlayScreen::getWindowWidth() const {
@@ -168,6 +165,12 @@ i32 GamePlayScreen::getWindowWidth() const {
 
 i32 GamePlayScreen::getWindowHeight() const {
     return _app->getWindow().getHeight();
+}
+
+void GamePlayScreen::initRenderPipeline() {
+    // Set up the rendering pipeline and pass in dependencies
+    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
+    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), GameManager::glProgramManager);
 }
 
 void GamePlayScreen::handleInput() {

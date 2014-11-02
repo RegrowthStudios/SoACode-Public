@@ -23,6 +23,7 @@
 #include "Random.h"
 #include "LoadMonitor.h"
 #include "PDA.h"
+#include "GamePlayRenderPipeline.h"
 
 class App;
 class SpriteBatch;
@@ -53,6 +54,9 @@ public:
     i32 getWindowHeight() const;
 
 private:
+
+    /// Initializes the rendering
+    void initRenderPipeline();
 
     /// Handles updating state based on input
     void handleInput();
@@ -91,6 +95,7 @@ private:
 
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running
-};
+
+    GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
 
 #endif // GAMEPLAYSCREEN_H_

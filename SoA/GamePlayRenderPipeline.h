@@ -15,12 +15,12 @@
 #define GamePlayRenderPipeline_h__
 
 #include "IRenderPipeline.h"
+#include "GLProgramManager.h"
 #include "FrameBuffer.h"
 
 /// Forward declarations
 class SkyboxRenderStage;
 class PlanetRenderStage;
-class AwesomiumRenderStage;
 class HdrRenderStage;
 class Camera;
 class IAwesomiumInterface;
@@ -30,6 +30,8 @@ public:
     GamePlayRenderPipeline();
     ~GamePlayRenderPipeline();
 
+    void init(const ui32v4& viewport, Camera* chunkCamera, Camera* worldCamera, vg::GLProgramManager* glProgramManager);
+
     /// Renders the pipeline
     virtual void render() override;
 
@@ -38,12 +40,13 @@ public:
 private: 
     SkyboxRenderStage* _skyboxRenderStage; ///< Renders the skybox
     PlanetRenderStage* _planetRenderStage; ///< Renders the planets
-    AwesomiumRenderStage* _awesomiumRenderStage; ///< Renders the UI
     HdrRenderStage* _hdrRenderStage; ///< Renders HDR post-processing
 
     vg::FrameBuffer* _hdrFrameBuffer; ///< Framebuffer needed for the HDR rendering
 
     ui32v4 _viewport; ///< Viewport to draw to
+    Camera* _chunkCamera;
+    Camera* _worldCamera;
 };
 
 #endif // GamePlayRenderPipeline_h__
