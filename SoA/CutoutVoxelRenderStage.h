@@ -1,3 +1,17 @@
+/// 
+///  CutoutVoxelRenderStage.h
+///  Seed of Andromeda
+///
+///  Created by Benjamin Arnold on 1 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  This file implements the render stage for cutout voxels.
+///  cutout voxels have pixels that are either fully opaque, or
+///  fully transparent, and it's shader uses glDiscard to discard
+///  transparent fragments.
+///
+
 #pragma once
 
 #ifndef CutoutVoxelRenderStage_h__
@@ -11,18 +25,17 @@ class MeshManager;
 
 class CutoutVoxelRenderStage : public vg::IRenderStage {
 public:
+    /// Constructor which injects dependencies
+    /// @param camera: The camera handle
+    /// @param gameRenderParams: Shared parameters for rendering voxels
+    /// @param meshManager: Handle to the class that holds meshes
     CutoutVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager);
-    ~CutoutVoxelRenderStage();
 
-    virtual void setState(vg::FrameBuffer* frameBuffer = nullptr) override;
-
+    /// Draws the render stage
     virtual void draw() override;
-
-    virtual bool isVisible() override;
-
 private:
-    GameRenderParams* _gameRenderParams;
-    MeshManager* _meshManager;
+    GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
+    MeshManager* _meshManager; ///< Stores the meshes we need to render
 };
 
 #endif // CutoutVoxelRenderStage_h__

@@ -1,3 +1,14 @@
+/// 
+///  MainMenuRenderPipeline.h
+///  Seed of Andromeda
+///
+///  Created by Benjamin Arnold on 1 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  This file implements the rendering pipeline for the main menu screen.
+///
+
 #pragma once
 
 #ifndef MainMenuRenderPipeline_h__
@@ -7,7 +18,8 @@
 #include "GLProgramManager.h"
 #include "FrameBuffer.h"
 
-class SpaceRenderStage;
+/// Forward declarations
+class SkyboxRenderStage;
 class PlanetRenderStage;
 class AwesomiumRenderStage;
 class HdrRenderStage;
@@ -20,20 +32,28 @@ public:
     MainMenuRenderPipeline();
     ~MainMenuRenderPipeline();
 
-    void init(const ui32v2& viewport, Camera* camera, IAwesomiumInterface* awesomiumInterface, vg::GLProgramManager* glProgramManager);
+    /// Initializes the pipeline and passes dependencies
+    /// @param viewport: The viewport to draw to.
+    /// @param camera: The camera used for rendering.
+    /// @param awesomiumInterface: The user interface
+    /// @param glProgramManager: The program cache that contains all needed
+    /// GLPrograms
+    void init(const ui32v4& viewport, Camera* camera, IAwesomiumInterface* awesomiumInterface, vg::GLProgramManager* glProgramManager);
 
+    /// Renders the pipeline
     virtual void render() override;
 
+    /// Frees all resources
     virtual void destroy() override;
 private:
-    SpaceRenderStage* _spaceRenderStage;
-    PlanetRenderStage* _planetRenderStage;
-    AwesomiumRenderStage* _awesomiumRenderStage;
-    HdrRenderStage* _hdrRenderStage;
+    SkyboxRenderStage* _skyboxRenderStage; ///< Renders the skybox
+    PlanetRenderStage* _planetRenderStage; ///< Renders the planets
+    AwesomiumRenderStage* _awesomiumRenderStage; ///< Renders the UI
+    HdrRenderStage* _hdrRenderStage; ///< Renders HDR post-processing
 
-    vg::FrameBuffer* _hdrFrameBuffer;
+    vg::FrameBuffer* _hdrFrameBuffer; ///< Framebuffer needed for the HDR rendering
 
-    ui32v2 _viewport;
+    ui32v4 _viewport; ///< Viewport to draw to
 };
 
 #endif // MainMenuRenderPipeline_h__

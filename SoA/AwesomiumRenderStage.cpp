@@ -8,18 +8,6 @@ AwesomiumRenderStage::AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterfa
     _glProgram(glProgram) {
 }
 
-
-AwesomiumRenderStage::~AwesomiumRenderStage() {
-}
-
-void AwesomiumRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/) {
-    throw std::logic_error("The method or operation is not implemented.");
-}
-
 void AwesomiumRenderStage::draw() {
     _awesomiumInterface->draw(_glProgram);
-}
-
-bool AwesomiumRenderStage::isVisible() {
-    throw std::logic_error("The method or operation is not implemented.");
 }

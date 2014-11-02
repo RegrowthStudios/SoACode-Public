@@ -1,3 +1,15 @@
+/// 
+///  OpaqueVoxelRenderStage.h
+///  Seed of Andromeda
+///
+///  Created by Benjamin Arnold on 1 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  This file implements the render stage for opaque voxels.
+///  Opaque voxels have no transparency.
+///
+
 #pragma once
 
 #ifndef OpaqueVoxelRenderStage_h__
@@ -12,18 +24,17 @@ class MeshManager;
 class OpaqueVoxelRenderStage : public vg::IRenderStage
 {
 public:
+    /// Constructor which injects dependencies
+    /// @param camera: The camera handle
+    /// @param gameRenderParams: Shared parameters for rendering voxels
+    /// @param meshManager: Handle to the class that holds meshes
     OpaqueVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager);
-    ~OpaqueVoxelRenderStage();
 
-    virtual void setState(vg::FrameBuffer* frameBuffer = nullptr) override;
-
+    /// Draws the render stage
     virtual void draw() override;
-
-    virtual bool isVisible() override;
-
 private:
-    GameRenderParams* _gameRenderParams;
-    MeshManager* _meshManager;
+    GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
+    MeshManager* _meshManager; ///< Stores the meshes we need to render
 };
 
 #endif // OpaqueVoxelRenderStage_h__

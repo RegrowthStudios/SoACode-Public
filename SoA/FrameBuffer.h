@@ -18,7 +18,7 @@ namespace vorb {
                 void unBind(const ui32v2& viewportDimensions);
                 void checkErrors(nString name = "Frame Buffer");
 
-                void draw(const ui32v2& destViewportDimensions, i32 drawMode);
+                void draw(const ui32v4& destViewport, i32 drawMode);
 
 #define FB_DRAW 0
 #define FB_MSAA 1

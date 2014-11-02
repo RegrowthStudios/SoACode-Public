@@ -1,3 +1,15 @@
+/// 
+///  HdrRenderStage.h
+///  Seed of Andromeda
+///
+///  Created by Benjamin Arnold on 1 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  This file implements the HDR render stage, which
+///  does HDR post processing.
+///
+
 #pragma once
 
 #ifndef HdrRenderStage_h__
@@ -8,17 +20,16 @@
 
 class HdrRenderStage : public vg::IRenderStage {
 public:
-    HdrRenderStage(vg::GLProgram* glProgram, const ui32v2& destViewport);
-    ~HdrRenderStage();
+    /// Constructor which injects dependencies
+    /// @param glProgram: The program used to render HDR
+    /// @param destViewport: Viewport we want to draw to. (x,y,w,h)
+    HdrRenderStage(vg::GLProgram* glProgram, const ui32v4& destViewport);
 
-    virtual void setState(vg::FrameBuffer* frameBuffer = nullptr) override;
-
+    /// Draws the render stage
     virtual void draw() override;
-
-    virtual bool isVisible() override;
 private:
-    vg::GLProgram* _glProgram;
-    ui32v2 _destViewport;
+    vg::GLProgram* _glProgram; ///< Stores the program we use to render
+    ui32v4 _destViewport; ///< Stores the viewport we want to draw to. (x,y,w,h)
 };
 
 #endif // HdrRenderStage_h__

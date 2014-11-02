@@ -1,23 +1,12 @@
 #include "stdafx.h"
 #include "LiquidVoxelRenderStage.h"
 
-
-LiquidVoxelRenderStage::LiquidVoxelRenderStage()
-{
+LiquidVoxelRenderStage::LiquidVoxelRenderStage() {
+    // Empty
 }
 
+void LiquidVoxelRenderStage::draw() {
 
-LiquidVoxelRenderStage::~LiquidVoxelRenderStage()
-{
-}
-
-void LiquidVoxelRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/)
-{
-    throw std::logic_error("The method or operation is not implemented.");
-}
-
-void LiquidVoxelRenderStage::draw()
-{
     throw std::logic_error("The method or operation is not implemented.");
 
     //glProgram->use();
@@ -32,9 +21,4 @@ void LiquidVoxelRenderStage::draw()
     //// DRAW STUFF HERE
 
     //glProgram->unuse();
-}
-
-bool LiquidVoxelRenderStage::isVisible()
-{
-    throw std::logic_error("The method or operation is not implemented.");
 }

@@ -1,3 +1,14 @@
+/// 
+///  AwesomiumRenderStage.h
+///  Seed of Andromeda
+///
+///  Created by Benjamin Arnold on 1 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  This file provides the render stage for awesomium UI
+///
+
 #pragma once
 
 #ifndef AwesomiumRenderStage_h__
@@ -10,17 +21,16 @@ class IAwesomiumInterface;
 
 class AwesomiumRenderStage : public vg::IRenderStage {
 public:
+    /// Constructor which injects dependencies
+    /// @param awesomiumInterface: The user interface handle
+    /// @param glProgram: The opengl program used to render the interface
     AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface, vg::GLProgram* glProgram);
-    ~AwesomiumRenderStage();
 
-    virtual void setState(vg::FrameBuffer* frameBuffer = nullptr) override;
-
+    // Draws the render stage
     virtual void draw() override;
-
-    virtual bool isVisible() override;
 private:
-    IAwesomiumInterface* _awesomiumInterface;
-    vg::GLProgram* _glProgram;
+    IAwesomiumInterface* _awesomiumInterface; ///< The user interface handle
+    vg::GLProgram* _glProgram; ///< The texture GLSL program
 };
 
 #endif // AwesomiumRenderStage_h__

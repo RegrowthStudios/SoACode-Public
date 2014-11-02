@@ -569,9 +569,6 @@
     <ClInclude Include="TransparentVoxelRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="SpaceRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
     <ClInclude Include="SonarRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -601,6 +598,9 @@
     </ClInclude>
     <ClInclude Include="IAwesomiumInterface.h">
       <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyboxRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -934,9 +934,6 @@
     <ClCompile Include="SkyboxRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="SpaceRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
     <ClCompile Include="CutoutVoxelRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
@@ -965,6 +962,9 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="HdrRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,17 +5,9 @@
 #include "Options.h"
 
 
-HdrRenderStage::HdrRenderStage(vg::GLProgram* glProgram, const ui32v2& destViewport) :
+HdrRenderStage::HdrRenderStage(vg::GLProgram* glProgram, const ui32v4& destViewport) :
     _glProgram(glProgram),
     _destViewport(destViewport) {
-}
-
-
-HdrRenderStage::~HdrRenderStage() {
-}
-
-void HdrRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/) {
-    _inputFbo = frameBuffer;
 }
 
 void HdrRenderStage::draw() {
@@ -67,8 +59,4 @@ void HdrRenderStage::draw() {
 
     _glProgram->disableVertexAttribArrays();
     _glProgram->unuse();
-}
-
-bool HdrRenderStage::isVisible() {
-    throw std::logic_error("The method or operation is not implemented.");
 }

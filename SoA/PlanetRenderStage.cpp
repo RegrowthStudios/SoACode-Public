@@ -19,18 +19,8 @@
 #include "VoxelWorld.h"
 
 PlanetRenderStage::PlanetRenderStage(Camera* camera) :
-    _camera(camera)
-{
-}
-
-
-PlanetRenderStage::~PlanetRenderStage()
-{
-}
-
-void PlanetRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/)
-{
-    throw std::logic_error("The method or operation is not implemented.");
+    IRenderStage(camera) {
+    // Empty
 }
 
 void PlanetRenderStage::draw()
@@ -61,9 +51,4 @@ void PlanetRenderStage::draw()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
     GameManager::planet->drawTrees(VP, _camera->position(), 0.1f /*ambVal*/);
-}
-
-bool PlanetRenderStage::isVisible()
-{
-    throw std::logic_error("The method or operation is not implemented.");
 }

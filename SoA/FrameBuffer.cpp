@@ -183,7 +183,7 @@ void vg::FrameBuffer::checkErrors(nString name)
     }
 }
 
-void vg::FrameBuffer::draw(const ui32v2& destViewportDimensions, i32 drawMode)
+void vg::FrameBuffer::draw(const ui32v4& destViewport, i32 drawMode)
 {
     if (_vbo == 0){
         glGenBuffers(1, &_vbo);
@@ -205,7 +205,7 @@ void vg::FrameBuffer::draw(const ui32v2& destViewportDimensions, i32 drawMode)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderedTextureIDs[FB_DRAW]);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, destViewportDimensions.x, destViewportDimensions.y); // Render on the whole screen, complete from the lower left corner to the upper right
+    glViewport(destViewport.x, destViewport.y, destViewport.z, destViewport.w); // Render on the whole screen, complete from the lower left corner to the upper right
 
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 

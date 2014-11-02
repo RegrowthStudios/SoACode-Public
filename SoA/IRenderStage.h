@@ -6,7 +6,7 @@
 ///  Copyright 2014 Regrowth Studios
 ///  All Rights Reserved
 ///  
-///  This file provides an interface for a render pipeline
+///  This file provides an abstract interface for a render 
 ///  stage.
 ///
 
@@ -29,13 +29,14 @@ namespace vorb {
                 IRenderStage(Camera* camera = nullptr);
                 virtual ~IRenderStage();
 
-                virtual void setState(FrameBuffer* inputFbo = nullptr) = 0;
-
                 /// Renders the stage
                 virtual void draw() = 0;
 
                 /// Check if the stage is visible
-                virtual bool isVisible() = 0;
+                virtual bool isVisible() const { return _isVisible; }
+
+                /// Sets the visibility of the stage
+                virtual void setIsVisible(bool isVisible) { _isVisible = isVisible; }
 
                 /// Sets the camera
                 virtual void setCamera(Camera* camera) { _camera = camera; }
@@ -45,6 +46,7 @@ namespace vorb {
             protected:
                 FrameBuffer* _inputFbo; ///< Optional Render Target
                 Camera* _camera; ///< Optional Camera, not needed for post processing stages
+                bool _isVisible; ///< Determines if the stage should be rendered
             };
 
         }

@@ -2,7 +2,7 @@
 #include "MainMenuRenderPipeline.h"
 
 #include "Errors.h"
-#include "SpaceRenderStage.h"
+#include "SkyboxRenderStage.h"
 #include "PlanetRenderStage.h"
 #include "AwesomiumRenderStage.h"
 #include "HdrRenderStage.h"
@@ -10,37 +10,39 @@
 #include "Options.h"
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() :
-_spaceRenderStage(nullptr),
-_planetRenderStage(nullptr),
-_awesomiumRenderStage(nullptr),
-_hdrRenderStage(nullptr),
-_hdrFrameBuffer(nullptr) {
+    _skyboxRenderStage(nullptr),
+    _planetRenderStage(nullptr),
+    _awesomiumRenderStage(nullptr),
+    _hdrRenderStage(nullptr),
+    _hdrFrameBuffer(nullptr) {
+    // Empty
 }
 
 
 MainMenuRenderPipeline::~MainMenuRenderPipeline() {
+    destroy();
 }
 
-void MainMenuRenderPipeline::init(const ui32v2& viewport, Camera* camera, IAwesomiumInterface* awesomiumInterface, vg::GLProgramManager* glProgramManager) {
-
+void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera, IAwesomiumInterface* awesomiumInterface, vg::GLProgramManager* glProgramManager) {
+    // Set the viewport
     _viewport = viewport;
 
     // Check to make sure we aren't leaking memory
-    if (_spaceRenderStage != nullptr) {
+    if (_skyboxRenderStage != nullptr) {
         pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
     }
 
     // Construct frame buffer
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _viewport.x, _viewport.y, graphicsOptions.msaa);
+        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w, graphicsOptions.msaa);
     } else {
         glDisable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _viewport.x, _viewport.y);
+        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w);
     }
 
     // Init render stages
-    _spaceRenderStage = new SpaceRenderStage(glProgramManager->getProgram("Texture"), camera);
+    _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), camera);
     _planetRenderStage = new PlanetRenderStage(camera);
     _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), _viewport);
@@ -54,12 +56,12 @@ void MainMenuRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Main render passes
-    _spaceRenderStage->draw();
+    _skyboxRenderStage->draw();
     _planetRenderStage->draw();
     _awesomiumRenderStage->draw();
 
     // Post processing
-    _hdrRenderStage->setState(_hdrFrameBuffer);
+    _hdrRenderStage->setInputFbo(_hdrFrameBuffer);
     _hdrRenderStage->draw();
 
     // Check for errors, just in case
@@ -67,8 +69,8 @@ void MainMenuRenderPipeline::render() {
 }
 
 void MainMenuRenderPipeline::destroy() {
-    delete _spaceRenderStage;
-    _spaceRenderStage = nullptr;
+    delete _skyboxRenderStage;
+    _skyboxRenderStage = nullptr;
 
     delete _planetRenderStage;
     _planetRenderStage = nullptr;

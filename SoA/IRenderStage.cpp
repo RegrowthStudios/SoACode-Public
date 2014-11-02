@@ -4,7 +4,8 @@
 
 vg::IRenderStage::IRenderStage(Camera* camera /* = nullptr */) :
     _inputFbo(nullptr),
-    _camera(camera) {
+    _camera(camera),
+    _isVisible(true) {
     // Empty
 }
 
@@ -12,4 +13,3 @@ vg::IRenderStage::IRenderStage(Camera* camera /* = nullptr */) :
 vg::IRenderStage::~IRenderStage() {
     // Empty
 }
-

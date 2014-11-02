@@ -1,3 +1,15 @@
+/// 
+///  LiquidVoxelRenderStage.h
+///  Seed of Andromeda
+///
+///  Created by Benjamin Arnold on 1 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  This file implements the render stage for
+///  liquid voxel rendering.
+///
+
 #pragma once
 
 #ifndef LiquidVoxelRenderStage_h__
@@ -9,14 +21,8 @@ class LiquidVoxelRenderStage : public vg::IRenderStage
 {
 public:
     LiquidVoxelRenderStage();
-    ~LiquidVoxelRenderStage();
-
-    virtual void setState(vg::FrameBuffer* frameBuffer = nullptr) override;
-
+    /// Draws the render stage
     virtual void draw() override;
-
-    virtual bool isVisible() override;
-
 };
 
 #endif // LiquidVoxelRenderStage_h__

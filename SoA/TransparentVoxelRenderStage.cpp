@@ -7,25 +7,16 @@
 TransparentVoxelRenderStage::TransparentVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager) :
     IRenderStage(camera),
     _gameRenderParams(gameRenderParams),
-    _meshManager(meshManager)
-{
+    _meshManager(meshManager) {
 }
 
-TransparentVoxelRenderStage::~TransparentVoxelRenderStage()
-{
-}
-
-void TransparentVoxelRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/) {
-
+TransparentVoxelRenderStage::~TransparentVoxelRenderStage() {
+    // Empty
 }
 
 void TransparentVoxelRenderStage::draw() {
     glDepthMask(GL_FALSE);
     ChunkRenderer::drawTransparentBlocks(_meshManager->getChunkMeshes(), _camera->projectionMatrix() * _camera->viewMatrix(), _gameRenderParams, _camera->position(), _camera->direction());
     glDepthMask(GL_TRUE);
-}
-
-bool TransparentVoxelRenderStage::isVisible() {
-    return true;
 }
 

@@ -148,7 +148,7 @@
     <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
-    <ClInclude Include="SpaceRenderStage.h" />
+    <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
@@ -303,7 +303,7 @@
     <ClCompile Include="PlanetRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
-    <ClCompile Include="SpaceRenderStage.cpp" />
+    <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

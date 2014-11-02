@@ -62,7 +62,7 @@ public:
     const i32& getHeight() const {
         return _displayMode.screenHeight;
     }
-    ui32v2 getViewport() const {
+    ui32v2 getViewportDims() const {
         return ui32v2(_displayMode.screenWidth, _displayMode.screenHeight);
     }
     float getAspectRatio() const {

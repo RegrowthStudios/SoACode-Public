@@ -11,22 +11,7 @@ OpaqueVoxelRenderStage::OpaqueVoxelRenderStage(Camera* camera, GameRenderParams*
 {
 }
 
-
-OpaqueVoxelRenderStage::~OpaqueVoxelRenderStage()
-{
-}
-
-void OpaqueVoxelRenderStage::setState(vg::FrameBuffer* frameBuffer /*= nullptr*/)
-{
-    _inputFbo = frameBuffer;
-}
-
 void OpaqueVoxelRenderStage::draw()
 {
     ChunkRenderer::drawBlocks(_meshManager->getChunkMeshes(), _camera->projectionMatrix() * _camera->viewMatrix(), _gameRenderParams, _camera->position(), _camera->direction());
-}
-
-bool OpaqueVoxelRenderStage::isVisible()
-{
-    throw std::logic_error("The method or operation is not implemented.");
 }
