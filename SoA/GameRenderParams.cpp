@@ -6,10 +6,11 @@
 #include "Camera.h"
 #include "utils.h"
 #include "Rendering.h"
+#include "Player.h"
 
 void GameRenderParams::calculateParams(const f64v3& worldCameraPos, bool isUnderwater) {
     // Calculate fog
-    glm::vec3 lightPos = glm::vec3(1.0, 0.0, 0.0);
+    glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);
     float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCameraPos, 1.0))));
 
     calculateFog(theta, isUnderwater);
@@ -40,17 +41,21 @@ void GameRenderParams::calculateFog(float theta, bool isUnderwater) {
 
 void GameRenderParams::calculateSunlight(float theta) {
     // Calculate sunlight
-#define AMB_MULT 0.76f
-#define AMB_OFFSET 0.1f
-#define MIN_THETA 0.01f
-#define THETA_MULT 8.0f
-#define SUN_COLOR_MAP_HEIGHT 64.0f
-#define SUN_THETA_OFF 0.06f
+    #define AMB_MULT 0.76f
+    #define AMB_OFFSET 0.1f
+    #define MIN_THETA 0.01f
+    #define THETA_MULT 8.0f
+    #define SUN_COLOR_MAP_HEIGHT 64.0f
+    #define SUN_THETA_OFF 0.06f
+
+    sunlightDirection = glm::normalize(f64v3(f64m4(glm::inverse(GameManager::player->worldRotationMatrix)) *
+        f64m4(GameManager::planet->invRotationMatrix) * f64v4(1.0, 0.0, 0.0, 1.0)));
+
     float sunTheta = MAX(0.0f, theta + SUN_THETA_OFF);
     if (sunTheta > 1) sunTheta = 1;
-    float ambVal = sunTheta * AMB_MULT + AMB_OFFSET;
-    if (ambVal > 1.0f) ambVal = 1.0f;
-    float diffVal = 1.0f - ambVal;
+    sunlightIntensity = sunTheta * AMB_MULT + AMB_OFFSET;
+    if (sunlightIntensity > 1.0f) sunlightIntensity = 1.0f;
+    float diffVal = 1.0f - sunlightIntensity;
 
     if (theta < MIN_THETA) {
         diffVal += (theta - MIN_THETA) * THETA_MULT;

@@ -95,6 +95,7 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     delete _updateThread;
     _app->meshManager->destroy();
     _pda.destroy();
+    _renderPipeline.destroy();
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
@@ -211,6 +212,9 @@ void GamePlayScreen::handleInput() {
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask;
         shaderTask.load();
+        // Need to reinitialize the render pipeline with new shaders
+        _renderPipeline.destroy();
+        initRenderPipeline();
     }
     if (inputManager->getKeyDown(INPUT_INVENTORY)) {
         if (_pda.isOpen()) {

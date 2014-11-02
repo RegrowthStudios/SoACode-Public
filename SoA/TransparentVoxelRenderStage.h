@@ -29,7 +29,6 @@ public:
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param meshManager: Handle to the class that holds meshes
     TransparentVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager);
-    ~TransparentVoxelRenderStage();
 
     /// Draws the render stage
     virtual void draw() override;

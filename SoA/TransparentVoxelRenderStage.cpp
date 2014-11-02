@@ -10,10 +10,6 @@ TransparentVoxelRenderStage::TransparentVoxelRenderStage(Camera* camera, GameRen
     _meshManager(meshManager) {
 }
 
-TransparentVoxelRenderStage::~TransparentVoxelRenderStage() {
-    // Empty
-}
-
 void TransparentVoxelRenderStage::draw() {
     glDepthMask(GL_FALSE);
     ChunkRenderer::drawTransparentBlocks(_meshManager->getChunkMeshes(), _camera->projectionMatrix() * _camera->viewMatrix(), _gameRenderParams, _camera->position(), _camera->direction());

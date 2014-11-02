@@ -1,24 +1,17 @@
 #include "stdafx.h"
 #include "LiquidVoxelRenderStage.h"
+#include "Camera.h"
+#include "MeshManager.h"
+#include "ChunkRenderer.h"
 
-LiquidVoxelRenderStage::LiquidVoxelRenderStage() {
+LiquidVoxelRenderStage::LiquidVoxelRenderStage(Camera* camera, GameRenderParams* gameRenderParams, MeshManager* meshManager) :
+    IRenderStage(camera),
+    _gameRenderParams(gameRenderParams),
+    _meshManager(meshManager) {
     // Empty
 }
 
 void LiquidVoxelRenderStage::draw() {
-
-    throw std::logic_error("The method or operation is not implemented.");
-
-    //glProgram->use();
-
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, waterTexture);
-    //glUniform1i(glProgram->getUniform("samplerName1"), 0);
-    //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, bricksTexture);
-    //glUniform1i(glProgram->getUniform("samplerName2"), 1);
-
-    //// DRAW STUFF HERE
-
-    //glProgram->unuse();
+    // Render water meshes
+    ChunkRenderer::drawWater(_meshManager->getChunkMeshes(), _camera->projectionMatrix() * _camera->viewMatrix(), _gameRenderParams, _camera->position(), false);
 }

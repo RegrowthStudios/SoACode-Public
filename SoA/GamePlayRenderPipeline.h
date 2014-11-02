@@ -23,6 +23,9 @@
 class SkyboxRenderStage;
 class PlanetRenderStage;
 class OpaqueVoxelRenderStage;
+class TransparentVoxelRenderStage;
+class CutoutVoxelRenderStage;
+class LiquidVoxelRenderStage;
 class AwesomiumRenderStage;
 class HdrRenderStage;
 class Camera;
@@ -45,6 +48,9 @@ private:
     SkyboxRenderStage* _skyboxRenderStage; ///< Renders the skybox
     PlanetRenderStage* _planetRenderStage; ///< Renders the planets
     OpaqueVoxelRenderStage* _opaqueVoxelRenderStage;
+    CutoutVoxelRenderStage* _cutoutVoxelRenderStage;
+    TransparentVoxelRenderStage* _transparentVoxelRenderStage;
+    LiquidVoxelRenderStage* _liquidVoxelRenderStage;
     AwesomiumRenderStage* _awesomiumRenderStage; ///< Renders the UI
     HdrRenderStage* _hdrRenderStage; ///< Renders HDR post-processing
 
