@@ -20,7 +20,6 @@
 #include "utils.h"
 
 //Bytes to read at a time. 8192 is a good size
-#define READ_SIZE 8192
 #define WRITE_SIZE 8192
 
 inline i32 fileTruncate(i32 fd, i64 size)
@@ -778,34 +777,25 @@ bool RegionFileManager::tryConvertSave(ui32 regionVersion, ui32 chunkVersion) {
 
 //Writes sector data, be sure to fseek to the correct position first
 bool RegionFileManager::writeSectors(ui8* srcBuffer, ui32 size) {
-    ui32 writeSize = WRITE_SIZE;
-    ui32 padLength = 0;
-    for (ui32 i = 0; i < size; i += WRITE_SIZE){
-        if (writeSize > size - i){
-            padLength = SECTOR_SIZE - (size - i) % SECTOR_SIZE;
-            if (padLength == SECTOR_SIZE) padLength = 0;
-            writeSize = size - i + padLength;
-        }
 
-        if (fwrite(&(srcBuffer[i]), 1, writeSize, _regionFile->file) != writeSize){
-            pError("Chunk Saving: Did not write enough bytes at A " + to_string(writeSize) + " " + to_string(size));
-            return false;
-        }
+    if (size % SECTOR_SIZE) {
+        ui32 padLength = SECTOR_SIZE - size % SECTOR_SIZE;
+        if (padLength == SECTOR_SIZE) padLength = 0;
+        size += padLength;
     }
+
+    if (fwrite(srcBuffer, 1, size, _regionFile->file) != size) {
+        pError("Chunk Saving: Did not write enough bytes at A " + to_string(size);
+        return false;
+    }
+    
 }
 
 //Read sector data, be sure to fseek to the correct position first
 bool RegionFileManager::readSectors(ui8* dstBuffer, ui32 size) {
-    ui32 readSize = READ_SIZE;
-
-    for (ui32 i = 0; i < size; i += READ_SIZE){
-        if (readSize > size - i){    
-            readSize = size - i;
-        }
-        if (fread(dstBuffer + i, 1, readSize, _regionFile->file) != readSize){
-            pError("Chunk Loading: Did not read enough bytes at A " + to_string(readSize) + " " + to_string(_regionFile->totalSectors));
-            return false;
-        }
+    if (fread(dstBuffer, 1, size, _regionFile->file) != size) {
+        pError("Chunk Loading: Did not read enough bytes at A " + to_string(size) + " " + to_string(_regionFile->totalSectors));
+        return false;
     }
 }
 

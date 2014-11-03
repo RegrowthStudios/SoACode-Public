@@ -18,7 +18,6 @@
 #define REGION_LAYER 256
 #define REGION_SIZE 4096
 
-
 #define REGION_VER_0 1000
 #define CHUNK_VER_0 1000
 
