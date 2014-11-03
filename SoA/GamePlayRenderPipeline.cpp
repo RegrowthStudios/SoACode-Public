@@ -77,8 +77,8 @@ void GamePlayRenderPipeline::render() {
     _gameRenderParams.calculateParams(_worldCamera->getPosition(), _chunkCamera, &_meshManager->getChunkMeshes(), false);
     // Bind the FBO
     _hdrFrameBuffer->bind();
-    // Clear depth buffer. Don't have to clear color since skybox will overwrite it
-    glClear(GL_DEPTH_BUFFER_BIT);
+  
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
     _skyboxRenderStage->draw();
