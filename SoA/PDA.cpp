@@ -40,7 +40,7 @@ void PDA::update() {
     _awesomiumInterface.update();
 }
 
-void PDA::draw() {
+void PDA::draw() const {
     _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
 }
 

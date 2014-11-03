@@ -84,7 +84,7 @@ public:
 
     /// Draws the UI
     /// @param program: the opengl program to use
-    void draw(vg::GLProgram* program) override;
+    void draw(vg::GLProgram* program) const override;
 
     /// Sets the dest rectangle to render the UI
     /// @param rect: Dest rectangle (x,y,w,h)

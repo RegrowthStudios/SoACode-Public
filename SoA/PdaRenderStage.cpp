@@ -3,7 +3,7 @@
 #include "PdaRenderStage.h"
 
 
-PdaRenderStage::PdaRenderStage(PDA* pda) :
+PdaRenderStage::PdaRenderStage(const PDA* pda) :
     _pda(pda) {
     // Empty
 }

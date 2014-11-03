@@ -25,7 +25,7 @@ GamePlayRenderPipeline::GamePlayRenderPipeline() {
 void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
                                   const Camera* worldCamera, const App* app,
                                   const Player* player, const MeshManager* meshManager,
-                                  PDA* pda, const vg::GLProgramManager* glProgramManager) {
+                                  const PDA* pda, const vg::GLProgramManager* glProgramManager) {
     // Set the viewport
     _viewport = viewport;
 

@@ -10,7 +10,6 @@ OpaqueVoxelRenderStage::OpaqueVoxelRenderStage(const GameRenderParams* gameRende
     // Empty
 }
 
-void OpaqueVoxelRenderStage::draw()
-{
+void OpaqueVoxelRenderStage::draw() {
     ChunkRenderer::drawBlocks(_gameRenderParams);
 }

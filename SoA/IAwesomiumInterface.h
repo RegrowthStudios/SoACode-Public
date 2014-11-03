@@ -33,7 +33,7 @@ public:
 
     /// Draws the UI
     /// @param program: the opengl program to use
-    virtual void draw(vg::GLProgram* program) = 0;
+    virtual void draw(vg::GLProgram* program) const = 0;
 
     /// Sets the dest rectangle to render the UI
     /// @param rect: Dest rectangle (x,y,w,h)
