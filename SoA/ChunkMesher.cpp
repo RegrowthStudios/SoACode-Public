@@ -189,6 +189,8 @@ void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer&
         return getHorizontalTextureIndex(mi, result, blockTexture.innerSeams, rightDir, frontDir, directionIndex);
     case ConnectedTextureMethods::VERTICAL:
         return getVerticalTextureIndex(mi, result, blockTexture.reducedMethod, upDir, directionIndex);
+    case ConnectedTextureMethods::FLORA:
+        return getFloraTextureIndex(mi, blockTexture, result);
     }
 }
 
@@ -216,6 +218,37 @@ void ChunkMesher::getRandomTextureIndex(const MesherInfo &mi, const BlockTexture
             }
         }
     }
+}
+
+void ChunkMesher::getFloraTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result) {
+    //TODO: MurmurHash3
+    int seed = getPositionSeed(mi.x + mi.task->position.x, mi.y + mi.task->position.y, mi.z + mi.task->position.z);
+
+    float r = (PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo.totalWeight;
+    float totalWeight = 0;
+
+    int column;
+
+    if (blockTexInfo.weights.length()) {
+        for (int i = 0; i < blockTexInfo.size.x; i++) {
+            totalWeight += blockTexInfo.weights[i];
+            if (r <= totalWeight) {
+                column = i;
+                break;
+            }
+        }
+    } else {
+        for (int i = 0; i < blockTexInfo.size.x; i++) {
+            totalWeight += 1.0f;
+            if (r <= totalWeight) {
+                column = i;
+                break;
+            }
+        }
+    }
+
+    result += column;
+
 }
 
 //Gets a connected texture offset by looking at the surrounding blocks
