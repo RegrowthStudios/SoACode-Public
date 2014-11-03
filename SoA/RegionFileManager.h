@@ -19,10 +19,8 @@
 #define REGION_SIZE 4096
 
 #define REGION_VER_0 1000
-#define CHUNK_VER_0 1000
 
 #define CURRENT_REGION_VER REGION_VER_0
-#define CURRENT_CHUNK_VER CHUNK_VER_0
 
 #define CHUNK_DATA_SIZE (CHUNK_SIZE * 4) //right now a voxel is 4 bytes
 
@@ -91,7 +89,7 @@ private:
     bool rleCompressChunk(Chunk* chunk);
     bool zlibCompress();
 
-    bool tryConvertSave(ui32 regionVersion, ui32 chunkVersion);
+    bool tryConvertSave(ui32 regionVersion);
 
     bool writeSectors(ui8* srcBuffer, ui32 size);
     bool readSectors(ui8* dstBuffer, ui32 size);
@@ -105,7 +103,7 @@ private:
     //Byte buffer for reading chunk data
     ui32 _bufferSize;
     ui8 _byteBuffer[CHUNK_DATA_SIZE];
-    //Byte buffer for compressed data. It is slighly larger because of worst case with RLE
+    //Byte buffer for compressed data. It is slightly larger because of worst case with RLE
     uLongf _compressedBufferSize;
     ui8 _compressedByteBuffer[CHUNK_DATA_SIZE + CHUNK_SIZE * 4 + sizeof(ChunkHeader)];
     //Dynamic byte buffer used in copying contents of a file for resize

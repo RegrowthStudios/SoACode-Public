@@ -19,9 +19,6 @@
 #include "Planet.h"
 #include "utils.h"
 
-//Bytes to read at a time. 8192 is a good size
-#define WRITE_SIZE 8192
-
 inline i32 fileTruncate(i32 fd, i64 size)
 {
 #if defined(_WIN32) || defined(_WIN64) 
@@ -386,7 +383,6 @@ bool RegionFileManager::saveVersionFile() {
 
     SaveVersion currentVersion;
     BufferUtils::setInt(currentVersion.regionVersion, CURRENT_REGION_VER);
-    BufferUtils::setInt(currentVersion.chunkVersion, CURRENT_CHUNK_VER);
 
     fwrite(&currentVersion, 1, sizeof(SaveVersion), file);
     fclose(file);
@@ -400,7 +396,7 @@ bool RegionFileManager::checkVersion() {
     if (!file) {
         pError(GameManager::saveFilePath + "/Region/version.dat not found. Game will assume the version is correct, but it is "
                + "probable that this save will not work if the version is wrong. If this is a save from 0.1.6 or earlier, then it is "
-               + "only compatable with version 0.1.6 of the game. In that case, please make a new save or download 0.1.6 to play this save.");
+               + "only compatible with version 0.1.6 of the game. In that case, please make a new save or download 0.1.6 to play this save.");
         return saveVersionFile();
     }
     SaveVersion version;
@@ -408,10 +404,9 @@ bool RegionFileManager::checkVersion() {
     fread(&version, 1, sizeof(SaveVersion), file);
 
     ui32 regionVersion = BufferUtils::extractInt(version.regionVersion);
-    ui32 chunkVersion = BufferUtils::extractInt(version.chunkVersion);
-
-    if (chunkVersion != CURRENT_CHUNK_VER || regionVersion != CURRENT_REGION_VER) {
-        return tryConvertSave(regionVersion, chunkVersion);
+   
+    if (regionVersion != CURRENT_REGION_VER) {
+        return tryConvertSave(regionVersion);
     }
     return true;
 }
@@ -432,16 +427,9 @@ bool RegionFileManager::readVoxelData_v0() {
         return false;
     }
 
-    int readSize = READ_SIZE;
-    for (int i = 0; i < voxelDataSize; i += READ_SIZE){
-        //If the number of bytes we have left to read is less than the readSize, only read what we need
-        if (readSize > voxelDataSize - i){
-            readSize = voxelDataSize - i;
-        }
-        if (fread(&(_compressedByteBuffer[i]), 1, readSize, _regionFile->file) != readSize){
-            cout << "Did not read enough bytes at Z\n";
-            return false;
-        }
+    if (fread(_compressedByteBuffer, 1, voxelDataSize, _regionFile->file) != voxelDataSize) {
+        cout << "Did not read enough bytes at Z\n";
+        return false;
     }
 
     uLongf bufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
@@ -770,7 +758,7 @@ bool RegionFileManager::zlibCompress() {
 }
 
 //TODO: Implement this
-bool RegionFileManager::tryConvertSave(ui32 regionVersion, ui32 chunkVersion) {
+bool RegionFileManager::tryConvertSave(ui32 regionVersion) {
     pError("Invalid region file version!");
     return false;
 }
@@ -785,7 +773,7 @@ bool RegionFileManager::writeSectors(ui8* srcBuffer, ui32 size) {
     }
 
     if (fwrite(srcBuffer, 1, size, _regionFile->file) != size) {
-        pError("Chunk Saving: Did not write enough bytes at A " + to_string(size);
+        pError("Chunk Saving: Did not write enough bytes at A " + to_string(size));
         return false;
     }
     
