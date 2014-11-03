@@ -1,9 +1,10 @@
 #pragma once
-#include "LoadMonitor.h"
 #include "BlockData.h"
 #include "BlockLoader.h"
+#include "Errors.h"
 #include "FileSystem.h"
 #include "GameManager.h"
+#include "LoadMonitor.h"
 #include "Player.h"
 
 // This is hacky and temporary, it does way to much
@@ -12,14 +13,14 @@ class LoadTaskBlockData : public ILoadTask {
 
         initConnectedTextures();
 
-        // Load in ini. Comment out to load in yml
-        if (!(fileManager.loadBlocks("Data/BlockData.ini"))) exit(123432);
-        // Save in .yml
-        BlockLoader::saveBlocks("Data/BlockData.yml");
-
         // Load in .yml
-        //BlockLoader::loadBlocks("Data/BlockData.yml");
+        if (!BlockLoader::loadBlocks("Data/BlockData.yml")) {
+            pError("Failed to load Data/BlockData.yml");
+            exit(123456);
+        }
 
+        // Uncomment to Save in .yml
+        //BlockLoader::saveBlocks("Data/SavedBlockData.yml");
 
         Player* player = GameManager::player;
 
