@@ -29,6 +29,9 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     // Set the viewport
     _viewport = viewport;
 
+    // Grab mesh manager handle
+    _meshManager = meshManager;
+
     // Get the camera handles
     _worldCamera = worldCamera;
     _chunkCamera = chunkCamera;
