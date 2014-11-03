@@ -214,6 +214,7 @@ private:
     SmartVoxelContainer<ui16> _blockIDContainer;
     SmartVoxelContainer<ui8> _sunlightContainer;
     SmartVoxelContainer<ui16> _lampLightContainer;
+    SmartVoxelContainer<ui16> _tertiaryDataContainer;
 
     int _levelOfDetail;
 

@@ -201,6 +201,8 @@ void ChunkMesher::getRandomTextureIndex(const MesherInfo &mi, const BlockTexture
 
     float r = (PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo.totalWeight;
     float totalWeight = 0;
+
+    // TODO(Ben): Binary search?
     if (blockTexInfo.weights.length()){
         for (int i = 0; i < blockTexInfo.numTiles; i++) {
             totalWeight += blockTexInfo.weights[i];
@@ -229,6 +231,7 @@ void ChunkMesher::getFloraTextureIndex(const MesherInfo &mi, const BlockTextureL
 
     int column;
 
+    // TODO(Ben): Binary search?
     if (blockTexInfo.weights.length()) {
         for (int i = 0; i < blockTexInfo.size.x; i++) {
             totalWeight += blockTexInfo.weights[i];
