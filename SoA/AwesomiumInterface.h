@@ -17,11 +17,7 @@
 
 #include "SDL/SDL.h"
 #include "IAwesomiumAPI.h"
-#include <Awesomium/BitmapSurface.h>
-#include <Awesomium/DataPak.h>
-#include <Awesomium/DataSource.h>
-#include <Awesomium/STLHelpers.h>
-#include <Awesomium/WebCore.h>
+#include "IAwesomiumInterface.h"
 
 #include "OpenglSurfaceFactory.h"
 
@@ -56,7 +52,7 @@ private:
 /// The template argument should be the API class derived from
 /// IAwesomiumAPI
 template <class C>
-class AwesomiumInterface {
+class AwesomiumInterface : public IAwesomiumInterface{
 public:
     AwesomiumInterface();
     ~AwesomiumInterface();
@@ -72,31 +68,31 @@ public:
     bool init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen);
 
     /// Frees all resources
-    void destroy();
+    void destroy() override;
     
     /// Invokes a JS function
     /// @param functionName: Name of the function
     /// @param args: the argument list
-    void invokeFunction(const cString functionName, const Awesomium::JSArray& args = Awesomium::JSArray());
+    void invokeFunction(const cString functionName, const Awesomium::JSArray& args = Awesomium::JSArray()) override;
 
     /// Handles an SDL event
     /// @param evnt: the SDL event to handle
-    void handleEvent(const SDL_Event& evnt);
+    void handleEvent(const SDL_Event& evnt) override;
 
     /// Updates the UI
-    void update();
+    void update() override;
 
     /// Draws the UI
     /// @param program: the opengl program to use
-    void draw(vcore::GLProgram* program);
+    void draw(vg::GLProgram* program) const override;
 
     /// Sets the dest rectangle to render the UI
     /// @param rect: Dest rectangle (x,y,w,h)
-    void setDrawRect(const i32v4& rect);
+    void setDrawRect(const i32v4& rect) override;
 
     /// Sets the color of the UI
     /// @param color: desired color
-    void setColor(const ColorRGBA8& color);
+    void setColor(const ColorRGBA8& color) override;
 
 private:
     /// Gets the awesomium mouse button from an SDL button
@@ -124,14 +120,6 @@ private:
     ui16 _numFiles; ///< the number of files writen by the awesomium data pak
 
     Awesomium::OpenglSurfaceFactory* _openglSurfaceFactory; ///< custom surface factory for rendering
-
-    /// Awesomium variables
-    Awesomium::DataSource* _data_source;
-    Awesomium::WebSession* _webSession;
-    Awesomium::WebCore* _webCore;
-    Awesomium::WebView* _webView;
-    Awesomium::JSValue _gameInterface;
-    Awesomium::JSValue _window;
 
     C* _awesomiumAPI; ///< the API to use for custom function calls
 

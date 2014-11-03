@@ -58,9 +58,9 @@ public:
     void drawString(SpriteFont* font, const cString s, f32v2 position, f32 desiredHeight, f32 scaleX, const ColorRGBA8& tint, f32 depth = 0.0f);
     void end(SpriteSortMode ssm = SpriteSortMode::TEXTURE);
 
-    void renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
-    void renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
-    void renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vcore::GLProgram* shader = nullptr);
+    void renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vg::GLProgram* shader = nullptr);
+    void renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vg::GLProgram* shader = nullptr);
+    void renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss = nullptr, const DepthState* ds = nullptr, const RasterizerState* rs = nullptr, vg::GLProgram* shader = nullptr);
 
     void sortGlyphs(SpriteSortMode ssm);
     void generateBatches();
@@ -103,7 +103,7 @@ private:
     PtrRecycler<SpriteBatchCall> _batchRecycler;
 
     // Custom Shader
-    static vcore::GLProgram* _program;
+    static vg::GLProgram* _program;
 
     // Default White Pixel Texture
     ui32 _texPixel;

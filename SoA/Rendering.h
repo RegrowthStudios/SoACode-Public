@@ -22,36 +22,6 @@ extern int sunColor[64][3];
 //  v2------v3
 
 
-const float starboxSize = 15000000.0f;
-const GLfloat starboxVertices[72] = { -starboxSize, starboxSize, starboxSize, -starboxSize, -starboxSize, starboxSize, starboxSize, -starboxSize, starboxSize, starboxSize, starboxSize, starboxSize,  // v1-v2-v3-v0 (front)
-
-                        starboxSize, starboxSize, starboxSize,   starboxSize, -starboxSize, starboxSize,   starboxSize, -starboxSize, -starboxSize,  starboxSize, starboxSize, -starboxSize,     // v0-v3-v4-v5 (right)
-
-                        -starboxSize, starboxSize, -starboxSize,   -starboxSize, starboxSize, starboxSize,   starboxSize, starboxSize, starboxSize,  starboxSize, starboxSize, -starboxSize,    // v6-v1-v0-v5 (top)
-
-                        -starboxSize, starboxSize, -starboxSize,   -starboxSize, -starboxSize, -starboxSize,  -starboxSize, -starboxSize, starboxSize,   -starboxSize, starboxSize, starboxSize,   // v6-v7-v2-v1 (left)
-
-                        -starboxSize, -starboxSize, -starboxSize,   starboxSize, -starboxSize, -starboxSize,   starboxSize, -starboxSize, starboxSize,  -starboxSize, -starboxSize, starboxSize,    // v7-v4-v3-v2 (bottom)
-
-                        starboxSize, starboxSize, -starboxSize,   starboxSize, -starboxSize, -starboxSize,   -starboxSize, -starboxSize, -starboxSize,  -starboxSize, starboxSize, -starboxSize};     // v5-v4-v7-v6 (back)
-
-// cube //
-//    v6----- v5
-//   /|      /|
-//  v1------v0|
-//  | |     | |
-//  | |v7---|-|v4
-//  |/      |/
-//  v2------v3
-
-extern GLushort starboxIndices[6][6];
-
-const GLfloat starboxUVs[48] = {   1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,  // v1-v2-v3-v0 (front)
-                                    1.0, 1.0,  1.0, 0.0,  0.0, 0.0, 0.0, 1.0, // v0-v3-v4-v5 (right)
-                                    1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v1-v0-v5 (top)
-                                    1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v7-v2-v1 (left)
-                                    1.0, 0.0, 0.0, 0.0,   0.0, 1.0, 1.0, 1.0,  // v7-v4-v3-v2 (bottom)
-                                    1.0, 1.0,  1.0, 0.0,   0.0, 0.0,  0.0, 1.0 }; // v5-v4-v7-v6 (back)
 
 extern GLfloat colorVertices[1024];
 extern GLfloat cubeSpriteVerts[24];
@@ -122,10 +92,6 @@ private:
 
 extern WorldRenderer worldRenderer;
 
-void DrawSun(float theta, glm::mat4 &MVP);
-
-void DrawStars(float theta, glm::mat4 &MVP);
-
-void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color);
+void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const f64v3 &playerPos, const f32m4 &VP, const f32v4& color);
 
 void Draw3DCube(class Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation);

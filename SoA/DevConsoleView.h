@@ -17,7 +17,7 @@ public:
     DevConsoleView();
     ~DevConsoleView();
 
-    void init(DevConsole* console, i32 linesToRender, vcore::GLProgramManager* glProgramManager);
+    void init(DevConsole* console, i32 linesToRender, vg::GLProgramManager* glProgramManager);
     void dispose();
 
     void onEvent(const SDL_Event& e);

@@ -53,16 +53,6 @@ ChunkManager::ChunkManager() : _isStationary(0), _cameraVoxelMapData(nullptr) {
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
 
-    i32 ci = 0;
-    for (i32 i = 0; i < 36; i += 6, ci += 4) {
-        starboxIndices[i / 6][i % 6] = ci;
-        starboxIndices[i / 6][i % 6 + 1] = ci + 1;
-        starboxIndices[i / 6][i % 6 + 2] = ci + 2;
-        starboxIndices[i / 6][i % 6 + 3] = ci + 2;
-        starboxIndices[i / 6][i % 6 + 4] = ci + 3;
-        starboxIndices[i / 6][i % 6 + 5] = ci;
-    }
-
     GlobalModelMatrix = glm::mat4(1.0);
 }
 
@@ -256,11 +246,11 @@ void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     if (chunk && chunk->isAccessible) chunks[7] = chunk;
 }
 
-void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
+void ChunkManager::drawChunkLines(const glm::mat4 &VP, const f64v3& position) {
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
     // Shader that is lazily initialized
-    static vcore::GLProgram* chunkLineProgram = nullptr;
+    static vg::GLProgram* chunkLineProgram = nullptr;
     // The mesh that is built from the chunks
     vcore::Mesh mesh;
     mesh.init(vcore::PrimitiveType::LINES, true);
@@ -341,9 +331,9 @@ void ChunkManager::drawChunkLines(glm::mat4 &VP, const f64v3& position) {
         mesh.uploadAndClearLocal();
         // Lazily initialize shader
         if (chunkLineProgram == nullptr) {
-            chunkLineProgram = new vcore::GLProgram(true);
-            chunkLineProgram->addShader(vcore::ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
-            chunkLineProgram->addShader(vcore::ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
+            chunkLineProgram = new vg::GLProgram(true);
+            chunkLineProgram->addShader(vg::ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
+            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
             chunkLineProgram->setAttributes(vcore::Mesh::defaultShaderAttributes);
             chunkLineProgram->link();
             chunkLineProgram->initUniforms();

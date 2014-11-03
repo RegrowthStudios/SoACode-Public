@@ -64,45 +64,17 @@ float FpsCounter::endFrame() {
 }
 
 void FpsCounter::calculateFPS() {
-    //The number of frames to average
-    static const int NUM_SAMPLES = 10;
-    //Stores all the frametimes for each frame that we will average
-    static float frameTimes[NUM_SAMPLES];
-    //The current frame we are on
-    static int currentFrame = 0;
-    //the ticks of the previous frame
-    static float prevTicks = SDL_GetTicks();
-
-    //Ticks for the current frame
-    float currentTicks = SDL_GetTicks();
+    
+    #define DECAY 0.9
 
     //Calculate the number of ticks (ms) for this frame
-    _frameTime = currentTicks - prevTicks;
-    frameTimes[currentFrame % NUM_SAMPLES] = _frameTime;
-
-    //current ticks is now previous ticks
-    prevTicks = currentTicks;
-
-    //The number of frames to average
-    int count;
-
-    currentFrame++;
-    if (currentFrame < NUM_SAMPLES) {
-        count = currentFrame;
-    } else {
-        count = NUM_SAMPLES;
-    }
-
-    //Average all the frame times
-    float frameTimeAverage = 0;
-    for (int i = 0; i < count; i++) {
-        frameTimeAverage += frameTimes[i];
-    }
-    frameTimeAverage /= count;
-
+    float timeThisFrame = SDL_GetTicks() - _startTicks;
+    // Use a simple moving average to decay the FPS
+    _frameTime = _frameTime * DECAY + timeThisFrame * (1.0f - DECAY);
+  
     //Calculate FPS
-    if (frameTimeAverage > 0) {
-        _fps = MS_PER_SECOND / frameTimeAverage;
+    if (_frameTime > 0.0f) {
+        _fps = MS_PER_SECOND / _frameTime;
     } else {
         _fps = 60.0f;
     }

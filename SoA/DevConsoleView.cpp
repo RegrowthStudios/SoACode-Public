@@ -21,7 +21,7 @@ DevConsoleView::~DevConsoleView() {
     dispose();
 }
 
-void DevConsoleView::init(DevConsole* console, i32 linesToRender, vcore::GLProgramManager* glProgramManager) {
+void DevConsoleView::init(DevConsole* console, i32 linesToRender, vg::GLProgramManager* glProgramManager) {
     _renderRing.set_capacity(linesToRender);
     _renderRing.clear();
 

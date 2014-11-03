@@ -95,6 +95,9 @@ void LoadScreen::onExit(const GameTime& gameTime) {
         _loadTasks[i] = nullptr;
     }
     std::vector<ILoadTask*>().swap(_loadTasks);
+
+    // Restore default rasterizer state
+    RasterizerState::CULL_CLOCKWISE.set();
 }
 
 void LoadScreen::onEvent(const SDL_Event& e) {

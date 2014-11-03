@@ -335,7 +335,7 @@ void SpriteBatch::end(SpriteSortMode ssm /*= SpriteSortMode::Texture*/) {
     generateBatches();
 }
 
-void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vg::GLProgram* shader /*= nullptr*/) {
     //if (bs == nullptr) bs = BlendState::PremultipliedAlphaBlend;
     if (ds == nullptr) ds = &DepthState::NONE;
     if (rs == nullptr) rs = &RasterizerState::CULL_NONE;
@@ -372,7 +372,7 @@ void SpriteBatch::renderBatch(f32m4 mWorld, f32m4 mCamera, /*const BlendState* b
 
     shader->unuse();
 }
-void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
+void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vg::GLProgram* shader /*= nullptr*/) {
     f32m4 mCamera(
         2.0f / screenSize.x, 0, 0, 0,
         0, -2.0f / screenSize.y, 0, 0,
@@ -381,7 +381,7 @@ void SpriteBatch::renderBatch(f32m4 mWorld, const f32v2& screenSize, /*const Ble
         );
     renderBatch(mWorld, mCamera, /*bs, */ ss, ds, rs, shader);
 }
-void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vcore::GLProgram* shader /*= nullptr*/) {
+void SpriteBatch::renderBatch(const f32v2& screenSize, /*const BlendState* bs = nullptr,*/ const SamplerState* ss /*= nullptr*/, const DepthState* ds /*= nullptr*/, const RasterizerState* rs /*= nullptr*/, vg::GLProgram* shader /*= nullptr*/) {
     f32m4 mIdentity(
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -421,11 +421,11 @@ void SpriteBatch::generateBatches() {
     call->indices = 6;
     _batches.push_back(call);
     verts[vi++] = _glyphs[0]->vtl;
-    verts[vi++] = _glyphs[0]->vtr;
     verts[vi++] = _glyphs[0]->vbl;
-    verts[vi++] = _glyphs[0]->vbl;
-    verts[vi++] = _glyphs[0]->vtr;
     verts[vi++] = _glyphs[0]->vbr;
+    verts[vi++] = _glyphs[0]->vbr;
+    verts[vi++] = _glyphs[0]->vtr;
+    verts[vi++] = _glyphs[0]->vtl;
     _glyphRecycler.recycle(_glyphs[0]);
 
     int gc = _glyphs.size();
@@ -433,11 +433,11 @@ void SpriteBatch::generateBatches() {
         SpriteGlyph* glyph = _glyphs[i];
         call = call->append(glyph, _batches, &_batchRecycler);
         verts[vi++] = glyph->vtl;
-        verts[vi++] = glyph->vtr;
         verts[vi++] = glyph->vbl;
-        verts[vi++] = glyph->vbl;
-        verts[vi++] = glyph->vtr;
         verts[vi++] = glyph->vbr;
+        verts[vi++] = glyph->vbr;
+        verts[vi++] = glyph->vtr;
+        verts[vi++] = glyph->vtl;
         _glyphRecycler.recycle(_glyphs[i]);
     }
     _glyphs.swap(std::vector<SpriteGlyph*>());
@@ -459,13 +459,13 @@ void SpriteBatch::createProgram() {
     if (!_program) {
 
         // Allocate the program
-        _program = new vcore::GLProgram(true);
+        _program = new vg::GLProgram(true);
 
         // Create the vertex shader
-        _program->addShader(vcore::ShaderType::VERTEX, VS_SRC);
+        _program->addShader(vg::ShaderType::VERTEX, VS_SRC);
 
         // Create the fragment shader
-        _program->addShader(vcore::ShaderType::FRAGMENT, FS_SRC);
+        _program->addShader(vg::ShaderType::FRAGMENT, FS_SRC);
 
         // Set the attributes
         std::vector <nString> attributes;
@@ -520,7 +520,7 @@ void SpriteBatch::disposeProgram() {
     }
 }
 
-vcore::GLProgram* SpriteBatch::_program = nullptr;
+vg::GLProgram* SpriteBatch::_program = nullptr;
 
 void SpriteBatch::SpriteBatchCall::set(i32 iOff, ui32 texID, std::vector<SpriteBatchCall*>& calls) {
     textureID = texID;

@@ -8,7 +8,6 @@ _commandListeners() {}
 void DevConsole::addListener(FuncNewCommand f, void* meta) {
     EventBinding eb = { f, meta };
     _commandListeners.emplace_back(eb);
-    //_commandListeners.push_back(eb);
 }
 void DevConsole::removeListener(FuncNewCommand f) {
     auto foundListener = std::find(_commandListeners.begin(), _commandListeners.end(), f);

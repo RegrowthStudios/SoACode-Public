@@ -21,6 +21,7 @@
 #include "Frustum.h"
 #include "TerrainPatch.h"
 #include "FrameBuffer.h"
+#include "LoadTaskShaders.h"
 #include "FileSystem.h"
 #include "MeshManager.h"
 
@@ -48,13 +49,12 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
-
     // Initialize the camera
     _camera.init(_app->getWindow().getAspectRatio());
     _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
     _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
     _camera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
-    _camera.setUp(glm::cross(_camera.right(), _camera.direction()));
+    _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(1000000.0f, 30000000.0f);
     _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
 
@@ -67,6 +67,9 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
                              &_api, 
                              this);
 
+    // Init rendering
+    initRenderPipeline();
+
     // Run the update thread for updating the planet
     _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
 }
@@ -76,6 +79,7 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     _updateThread->join();
     delete _updateThread;
     _awesomiumInterface.destroy();
+    _renderPipeline.destroy();
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
@@ -97,6 +101,7 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {
+
 
     _awesomiumInterface.update();
 
@@ -122,72 +127,30 @@ void MainMenuScreen::update(const GameTime& gameTime) {
                 break;
         }
     }
+    // Check for shader reload
+    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+        GameManager::glProgramManager->destroy();
+        LoadTaskShaders shaderTask;
+        shaderTask.load();
+        // Reload the pipeline with new shaders
+        _renderPipeline.destroy();
+        initRenderPipeline();
+    }
 
     bdt += glSpeedFactor * 0.01;
 }
 
 void MainMenuScreen::draw(const GameTime& gameTime) {
 
-    FrameBuffer* frameBuffer = _app->frameBuffer;
+    updateWorldCameraClip();
 
-    // Bind the framebuffer and clear it
-    frameBuffer->bind();
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    _renderPipeline.render();
+}
 
-    #define SKYBOX_ZNEAR 1000000.0f
-    #define SKYBOX_ZFAR 30000000.0f
-  
-    // Set the camera clipping plane for rendering the skybox and update the projection matrix
-    _camera.setClippingPlane(SKYBOX_ZNEAR, SKYBOX_ZFAR);
-    _camera.updateProjection();
-    glm::mat4 VP = _camera.projectionMatrix() * _camera.viewMatrix();
-
-    // Draw space
-    GameManager::drawSpace(VP, 0);
-    
-    // Calculate the near clipping plane
-    double clip = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    if (clip < 100) clip = 100;
-
-    #define PLANET_ZFAR 300000000.0f
-    #define PLANET_PATCH_OFFSET 10000000.0
-
-    // Set the clipping plane for the camera for the planet
-    _camera.setClippingPlane(clip, MAX(PLANET_ZFAR / planetScale, closestTerrainPatchDistance + PLANET_PATCH_OFFSET));
-    _camera.updateProjection();
-
-    VP = _camera.projectionMatrix() * _camera.viewMatrix();
-
-    glm::dmat4 fvm;
-    fvm = glm::lookAt(
-        glm::dvec3(0.0),           // Camera is here
-        glm::dvec3(glm::dmat4(GameManager::planet->invRotationMatrix) * glm::dvec4(_camera.direction(), 1.0)), // and looks here : at the same position, plus "direction"
-        glm::dvec3(_camera.up())                  // Head is up (set to 0,-1,0 to look upside-down)
-        );
-
-    // Extract the frustum for frustum culling
-    ExtractFrustum(glm::dmat4(_camera.projectionMatrix()), fvm, worldFrustum);
-
-    #define FADE_DISTANCE 1000.0f
-    // Draw the planet using the _camera
-    GameManager::drawPlanet(_camera.position(), VP, _camera.viewMatrix(), 1.0, glm::vec3(1.0, 0.0, 0.0), FADE_DISTANCE, 0);
-
-    glDisable(GL_DEPTH_TEST);
-    
-    // Render the framebuffer with HDR post processing
-    // TODO(Ben): fix this
-    const f32m4 identity(1.0f);
-    _app->drawFrameBuffer(identity);
-
-    const ui32v2 viewPort(_app->getWindow().getWidth(), _app->getWindow().getHeight());
-    frameBuffer->unBind(viewPort);
-
-    // Render the awesomium user interface
-    _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
-    glEnable(GL_DEPTH_TEST);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+void MainMenuScreen::initRenderPipeline() {
+    // Set up the rendering pipeline and pass in dependencies
+    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
+    _renderPipeline.init(viewport, &_camera, &_awesomiumInterface, GameManager::glProgramManager);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -249,11 +212,27 @@ void MainMenuScreen::updateThreadFunc() {
             }
         }
 
-        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.position(), 1.0));
+        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
 
         GameManager::planet->rotationUpdate();
         GameManager::updatePlanet(camPos, 10);
         
         physicsFps = fpsLimiter.endFrame();
     }
+}
+
+void MainMenuScreen::updateWorldCameraClip() {
+    //far znear for maximum Terrain Patch z buffer precision
+    //this is currently incorrect
+    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    if (nearClip < 0.1) nearClip = 0.1;
+    double a = 0.0;
+    // TODO(Ben): This is crap fix it (Sorry Brian)
+    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
+    if (a < 0) a = 0;
+
+    double clip = MAX(nearClip / planetScale * 0.5, a);
+    // The world camera has a dynamic clipping plane
+    _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    _camera.updateProjection();
 }

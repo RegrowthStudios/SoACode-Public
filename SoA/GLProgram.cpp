@@ -3,18 +3,15 @@
 
 #include "IOManager.h"
 
-namespace vorb {
-namespace core {
-
 // We Don't Want To Get OpenGL's Default Attributes
 #define PROGRAM_VARIABLE_IGNORED_PREFIX "gl_"
 #define PROGRAM_VARIABLE_IGNORED_PREFIX_LEN 3
 // Will Our Variable Names Honestly Be More Than A KB
 #define PROGRAM_VARIABLE_MAX_LENGTH 1024
 
-GLProgram* GLProgram::_programInUse = nullptr;
+vg::GLProgram* vg::GLProgram::_programInUse = nullptr;
 
-GLProgram::GLProgram(bool init /*= false*/) :
+vg::GLProgram::GLProgram(bool init /*= false*/) :
     _id(0),
     _idVS(0),
     _idFS(0),
@@ -22,16 +19,16 @@ GLProgram::GLProgram(bool init /*= false*/) :
     if (init) this->init();
 }
 
-GLProgram::~GLProgram() {
+vg::GLProgram::~GLProgram() {
     destroy();
 }
 
-void GLProgram::init() {
+void vg::GLProgram::init() {
     if (getIsCreated()) return;
     _isLinked = false;
     _id = glCreateProgram();
 }
-void GLProgram::destroy() {
+void vg::GLProgram::destroy() {
     // Delete The Shaders
     if (_idVS) {
         if (_id) glDetachShader(_id, _idVS);
@@ -51,7 +48,7 @@ void GLProgram::destroy() {
     }
 }
 
-bool GLProgram::addShader(ShaderType type, const cString src) {
+bool vg::GLProgram::addShader(ShaderType type, const cString src) {
     // Get the GLenum shader type from the wrapper
     i32 glType = static_cast<GLenum>(type);
     // Check Current State
@@ -102,7 +99,7 @@ bool GLProgram::addShader(ShaderType type, const cString src) {
     return true;
 }
 
-bool GLProgram::addShaderFile(ShaderType type, const cString file) {
+bool vg::GLProgram::addShaderFile(ShaderType type, const cString file) {
     IOManager iom;
     nString src;
 
@@ -110,7 +107,7 @@ bool GLProgram::addShaderFile(ShaderType type, const cString file) {
     return addShader(type, src.c_str());
 }
 
-void GLProgram::setAttribute(nString name, ui32 index) {
+void vg::GLProgram::setAttribute(nString name, ui32 index) {
     // Don't Add Attributes If The Program Is Already Linked
     if (_isLinked) return;
 
@@ -118,7 +115,7 @@ void GLProgram::setAttribute(nString name, ui32 index) {
     _attributes[name] = index;
 }
 
-void GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
+void vg::GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
     // Don't Add Attributes If The Program Is Already Linked
     if (_isLinked) return;
 
@@ -131,7 +128,7 @@ void GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
     }
 }
 
-void GLProgram::setAttributes(const std::vector<std::pair<nString, ui32> >& attr) {
+void vg::GLProgram::setAttributes(const std::vector<std::pair<nString, ui32> >& attr) {
     // Don't Add Attributes If The Program Is Already Linked
     if (_isLinked) return;
 
@@ -144,7 +141,7 @@ void GLProgram::setAttributes(const std::vector<std::pair<nString, ui32> >& attr
     }
 }
 
-void GLProgram::setAttributes(const std::vector<nString>& attr) {
+void vg::GLProgram::setAttributes(const std::vector<nString>& attr) {
     // Don't Add Attributes If The Program Is Already Linked
     if (_isLinked) return;
 
@@ -155,7 +152,7 @@ void GLProgram::setAttributes(const std::vector<nString>& attr) {
     }
 }
 
-bool GLProgram::link() {
+bool vg::GLProgram::link() {
     // Don't Relink Or Attempt A Non-initialized Link
     if (getIsLinked() || !getIsCreated()) return false;
 
@@ -181,7 +178,7 @@ bool GLProgram::link() {
     return _isLinked;
 }
 
-void GLProgram::initAttributes() {
+void vg::GLProgram::initAttributes() {
     // How Many Attributes Are In The Program
     i32 count;
     glGetProgramiv(_id, GL_ACTIVE_ATTRIBUTES, &count);
@@ -207,7 +204,7 @@ void GLProgram::initAttributes() {
         }
     }
 }
-void GLProgram::initUniforms() {
+void vg::GLProgram::initUniforms() {
     // How Many Uniforms Are In The Program
     i32 count;
     glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &count);
@@ -234,30 +231,27 @@ void GLProgram::initUniforms() {
     }
 }
 
-void GLProgram::enableVertexAttribArrays() const {
+void vg::GLProgram::enableVertexAttribArrays() const {
     for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
         glEnableVertexAttribArray(it->second);
     }
 }
 
-void GLProgram::disableVertexAttribArrays() const {
+void vg::GLProgram::disableVertexAttribArrays() const {
     for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
         glDisableVertexAttribArray(it->second);
     }
 }
 
-void GLProgram::use() {
+void vg::GLProgram::use() {
     if (_programInUse != this) {
         _programInUse = this;
         glUseProgram(_id);
     }
 }
-void GLProgram::unuse() {
+void vg::GLProgram::unuse() {
     if (_programInUse) {
         _programInUse = nullptr;
         glUseProgram(0);
     }
-}
-
-}
 }

@@ -3,7 +3,7 @@
 #include "BlockData.h"
 #include "ChunkMesh.h"
 
-class RenderTask;
+struct RenderTask;
 class Chunk;
 struct ChunkMeshData;
 struct BlockTexture;

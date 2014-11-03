@@ -274,7 +274,7 @@ void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayer
     }
 }
 
-void TerrainPatch::DrawTrees(TerrainBuffers *tb, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+void TerrainPatch::DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
 
     if (tb->inFrustum){

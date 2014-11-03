@@ -28,7 +28,7 @@ extern vg::Texture cloudTexture1;
 extern vg::Texture WaterTexture;
 extern vg::Texture normalLeavesTexture, pineLeavesTexture, mushroomCapTexture, treeTrunkTexture1;
 extern vg::Texture ballMaskTexture;
-extern vg::Texture starboxTextures[6];
+extern vg::Texture skyboxTextures[6];
 extern vg::Texture BlankTextureID;
 extern vg::Texture explosionTexture;
 extern vg::Texture fireTexture;

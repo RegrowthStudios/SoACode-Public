@@ -38,7 +38,7 @@ bool MainGame::initSystems() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     DepthState::FULL.set();
-    RasterizerState::CULL_COUNTER_CLOCKWISE.set();
+    RasterizerState::CULL_CLOCKWISE.set();
     SamplerState::initPredefined();
 
     // Initialize Frame Buffer
@@ -54,9 +54,14 @@ bool MainGame::initSystems() {
 }
 
 void MainGame::run() {
-    SDL_Init(SDL_INIT_EVERYTHING);
+  
+    // Initialize everything except SDL audio and SDL haptic feedback.
+    SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK);
 
-    // for counting the fps
+    // Make sure we are using hardware acceleration
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+    // For counting the fps
     FpsCounter fpsCounter;
 
     // Game Loop

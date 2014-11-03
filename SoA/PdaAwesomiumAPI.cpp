@@ -4,7 +4,6 @@
 #include "GamePlayScreen.h"
 #include "Player.h"
 
-
 void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions

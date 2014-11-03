@@ -8,7 +8,7 @@ enum class MeshType { NONE, BLOCK, LEAVES, FLORA, CROSSFLORA, LIQUID, FLAT };
 
 enum class MeshJobType;
 
-class RenderTask;
+struct RenderTask;
 class Chunk;
 class ChunkGridData;
 

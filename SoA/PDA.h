@@ -45,7 +45,7 @@ public:
     void update();
 
     /// Draws the PDA
-    void draw();
+    void draw() const;
 
     /// Handles an event
     /// @param e: The event to handle

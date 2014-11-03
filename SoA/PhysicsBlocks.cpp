@@ -311,7 +311,7 @@ PhysicsBlockBatch::~PhysicsBlockBatch()
     }
 }
 
-void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vcore::GLProgram* program, const f64v3 &PlayerPos, f32m4 &VP)
+void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program, const f64v3 &PlayerPos, f32m4 &VP)
 {
     if (pbm == NULL) return;
     if (pbm->numBlocks == 0) return;

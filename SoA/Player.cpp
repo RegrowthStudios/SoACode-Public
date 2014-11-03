@@ -54,11 +54,12 @@ Player::Player() : scannedBlock(0),
                     _zoomSpeed(0.04f),
                     _zoomPercent(1.0f),
                     isGrounded(0),
-                    _acceleration(1.4f),
-                    _maxVelocity(1.0f),
+                    _acceleration(0.04f),
+                    _maxVelocity(0.21f),
                     currCh(NULL),
                     isSwimming(0),
                     isUnderWater(0),
+                    _friction(0.006f),
                     isDragBreak(0),
                     dragBlock(NULL),
                     voxelMapData(0,0,0,0)
@@ -335,9 +336,9 @@ void Player::groundMove()
 {
     double maxVel = _maxVelocity;
 
-    const glm::vec3 &direction = _chunkCamera.direction();
-    const glm::vec3 &right = _chunkCamera.right();
-    const glm::vec3 &up = _chunkCamera.up();
+    const glm::vec3 &direction = _chunkCamera.getDirection();
+    const glm::vec3 &right = _chunkCamera.getRight();
+    const glm::vec3 &up = _chunkCamera.getUp();
 
     vec3 walkDir = vec3(0.0f);
     vec3 planeDir;
@@ -364,18 +365,18 @@ void Player::groundMove()
             dirAgility = 0;
         }
         else if (walkDir.x == 0 && walkDir.z == 0){ //we are decelerating
-            dirAgility = 0.012f * glSpeedFactor * (1.0 + (1.0 - _moveMod));
+            dirAgility = _acceleration * glSpeedFactor * (1.0 + (1.0 - _moveMod));
         }
         else{
-            dirAgility = 0.012f * glSpeedFactor * _moveMod; //looks like this always happens.
+            dirAgility = _acceleration * glSpeedFactor * _moveMod; //looks like this always happens.
         }
     }
     else{ //we want ice to have slow accel and decel
         if (direction.x == 0 && direction.z == 0){ //we are decelerating
-            dirAgility = 0.012f * glSpeedFactor * (1.0 / _moveMod);
+            dirAgility = _acceleration * glSpeedFactor * (1.0 / _moveMod);
         }
         else{
-            dirAgility = 0.012f * glSpeedFactor * (1.0 / _moveMod);
+            dirAgility = _acceleration * glSpeedFactor * (1.0 / _moveMod);
         }
     }
 
@@ -502,8 +503,8 @@ void Player::flyModeMove()
         facePosition.y -= _maxVelocity;
     }
 
-    const glm::vec3 direction = _chunkCamera.direction();
-    const glm::vec3 right = _chunkCamera.right();
+    const glm::vec3 direction = _chunkCamera.getDirection();
+    const glm::vec3 right = _chunkCamera.getRight();
 
     float altspeed = 20000; //350;
     float ctrlSpeed = 50 + MAX((glm::length(worldPosition) - _worldRadius)*0.02*planetScale, 0);
@@ -614,8 +615,8 @@ void Player::calculateWorldPosition()
     worldRotationMatrix[2] = glm::vec4(biTangent, 0);
     worldRotationMatrix[3] = glm::vec4(0, 0, 0, 1);
 
-    const glm::vec3 direction = _chunkCamera.direction();
-    const glm::vec3 right = _chunkCamera.right();
+    const glm::vec3 direction = _chunkCamera.getDirection();
+    const glm::vec3 right = _chunkCamera.getRight();
 
     glm::vec3 worldDirection = glm::normalize( glm::vec3 (worldRotationMatrix * glm::vec4(direction, 1)));
 
@@ -640,7 +641,7 @@ void Player::calculateHeadPosition()
     double bobSinTheta = sin(_cameraBobTheta);
     double bobCosTheta = cos(_cameraBobTheta);
 
-    const glm::vec3 &right = _chunkCamera.right();
+    const glm::vec3 &right = _chunkCamera.getRight();
 
     headPosition = gridPosition;
     headPosition.x += right.x*(bobCosTheta/7.0);
@@ -659,7 +660,6 @@ void Player::flyToggle()
 void Player::setMoveSpeed(float accel, float max)
 {
     _acceleration = accel;
-    _friction = 0.006f;
     _maxVelocity = max;
 }
 
