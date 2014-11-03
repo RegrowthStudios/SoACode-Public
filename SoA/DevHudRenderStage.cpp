@@ -11,6 +11,7 @@ DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize, const
     _spriteBatch(new SpriteBatch(true, true)),
     _spriteFont(new SpriteFont(fontPath, fontSize)),
     _player(player),
+    _mode(DevUiModes::CROSSHAIR),
     _app(app),
     _windowDims(windowDims),
     _fontHeight(_spriteFont->getFontHeight()) {
