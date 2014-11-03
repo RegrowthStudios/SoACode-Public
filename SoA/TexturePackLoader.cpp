@@ -244,7 +244,7 @@ void TexturePackLoader::writeDebugAtlases() {
     for (int i = 0; i < _numAtlasPages; i++) {
 
         SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, _packInfo.resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
-        SDL_SaveBMP(surface, ("atlas" + to_string(i) + "b.bmp").c_str());
+        SDL_SaveBMP(surface, ("atlas" + to_string(i) + ".bmp").c_str());
 
     }
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -399,7 +399,7 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             }
             // If no weights, they are all equal
             if (layer.weights.length() == 0) {
-                layer.totalWeight = layer.numTiles;
+                layer.totalWeight = width / _packInfo.resolution;
             } else { // Need to check if there is the right number of weights
                 if (layer.weights.length() * _packInfo.resolution != width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
@@ -407,6 +407,10 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
                     return nullptr;
                 }
             }
+            // Tile dimensions and count
+            layer.size.x = width / _packInfo.resolution;
+            layer.size.y = floraRows;
+            layer.numTiles = layer.size.x * layer.size.y;
             break;
         case ConnectedTextureMethods::NONE:
             DIM_CHECK(width, 1, height, 1, NONE);
