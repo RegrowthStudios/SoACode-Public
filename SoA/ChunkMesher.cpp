@@ -110,7 +110,7 @@ void ChunkMesher::GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLight
 }
 
 //This function checks all surrounding blocks and stores occlusion information in faces[]. It also stores the adjacent light and sunlight for each face.
-bool ChunkMesher::checkBlockFaces(bool faces[6], ui8 lampLights[26][3], i8 sunlights[26], const RenderTask* task, const bool occlude, const int btype, const int wc)
+bool ChunkMesher::checkBlockFaces(bool faces[6], ui8 lampLights[26][3], i8 sunlights[26], const RenderTask* task, const BlockOcclusion occlude, const int btype, const int wc)
 {
     //*** END GET_L_COLOR
 
@@ -118,42 +118,42 @@ bool ChunkMesher::checkBlockFaces(bool faces[6], ui8 lampLights[26][3], i8 sunli
     bool hasFace = false;
     ui16 lightColor;
 
-    if (faces[XNEG] = ((nblock = &GETBLOCK(blockIDData[wc - 1]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[XNEG] = ((nblock = &GETBLOCK(blockIDData[wc - 1]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
         hasFace = true;
         lightColor = lampLightData[wc - 1];
         GET_L_COLOR(lampLights[12]);
         sunlights[12] = sunlightData[wc - 1];
     }
 
-    if (faces[XPOS] = ((nblock = &GETBLOCK(blockIDData[1 + wc]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[XPOS] = ((nblock = &GETBLOCK(blockIDData[1 + wc]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
         hasFace = true;
         lightColor = lampLightData[1 + wc];
         GET_L_COLOR(lampLights[13]);
         sunlights[13] = (sunlightData[1 + wc]);
     }
 
-    if (faces[YNEG] = ((nblock = &GETBLOCK(blockIDData[wc - dataLayer]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[YNEG] = ((nblock = &GETBLOCK(blockIDData[wc - dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
         hasFace = true;
         lightColor = lampLightData[wc - dataLayer];
         GET_L_COLOR(lampLights[4]);
         sunlights[4] = sunlightData[wc - dataLayer];
     }
 
-    if (faces[YPOS] = ((nblock = &GETBLOCK(blockIDData[wc + dataLayer]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[YPOS] = ((nblock = &GETBLOCK(blockIDData[wc + dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
         hasFace = true;
         lightColor = lampLightData[wc + dataLayer];
         GET_L_COLOR(lampLights[21]);
         sunlights[21] = sunlightData[wc + dataLayer];
     }
 
-    if (faces[ZNEG] = ((nblock = &GETBLOCK(blockIDData[wc - dataWidth]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[ZNEG] = ((nblock = &GETBLOCK(blockIDData[wc - dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
         hasFace = true;
         lightColor = lampLightData[wc - dataWidth];
         GET_L_COLOR(lampLights[10]);
         sunlights[10] = sunlightData[wc - dataWidth];
     }
 
-    if (faces[ZPOS] = ((nblock = &GETBLOCK(blockIDData[wc + dataWidth]))->occlude == 0 || ((nblock->occlude == 2 || occlude == 2) && nblock->ID != btype))){
+    if (faces[ZPOS] = ((nblock = &GETBLOCK(blockIDData[wc + dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
         hasFace = true;
         lightColor = lampLightData[wc + dataWidth];
         GET_L_COLOR(lampLights[15]);
@@ -276,49 +276,49 @@ void ChunkMesher::getConnectedTextureIndex(const MesherInfo &mi, int& result, bo
     if (innerSeams) {
         // Top Front Left
         Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x80;
         }
 
         // Top Front Right
         block = &GETBLOCK(blockIDData[wc + upDir + rightDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x20;
         }
 
         // Bottom front Right
         block = &GETBLOCK(blockIDData[wc - upDir + rightDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x8;
         }
 
         //Bottom front
         block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0xE;
         }
 
         // Bottom front Left
         block = &GETBLOCK(blockIDData[wc - upDir - rightDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x2;
         }
 
         //Left front
         block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x83;
         }
 
         //Top front
         block = &GETBLOCK(blockIDData[wc + upDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0xE0;
         }
 
         //Right front
         block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
-        if (block->occlude) {
+        if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x38;
         }
     }
@@ -347,7 +347,7 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
 
     // Left
     block = &GETBLOCK(blockIDData[wc - rightDir]);
-    if (block->base[offset] == tex || block->occlude == 0) {
+    if (block->base[offset] == tex || block->occlude == BlockOcclusion::NONE) {
         connectedOffset |= 0x8;
 
         if (block->base[offset] == tex) {
@@ -378,7 +378,7 @@ void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int ri
 
     // Right
     block = &GETBLOCK(blockIDData[wc + rightDir]);
-    if (block->base[offset] == tex || block->occlude == 0) {
+    if (block->base[offset] == tex || block->occlude == BlockOcclusion::NONE) {
         connectedOffset |= 0x1;
 
         if (block->base[offset] == tex) {
@@ -468,7 +468,7 @@ void ChunkMesher::getHorizontalTextureIndex(const MesherInfo &mi, int& result, b
 void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 {
     const Block &block = Blocks[mi.btype];
-    const bool occlude = (block.occlude != 0);
+
     ui8 lampLights[26][3];
     GLbyte sunlights[26];
     ColorRGB8 color, overlayColor;
@@ -500,7 +500,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     bool faces[6] = { false, false, false, false, false, false };
     //Check for which faces are occluded by nearby blocks
-    if (checkBlockFaces(faces, lampLights, sunlights, mi.task, occlude, btype, wc) == 0) {
+    if (checkBlockFaces(faces, lampLights, sunlights, mi.task, block.occlude, btype, wc) == 0) {
         mi.mergeFront = 0;
         mi.mergeBack = 0;
         mi.mergeBot = 0;
@@ -1009,19 +1009,19 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
         //Get occlusion
         nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::LEFT]);
-        faces[XNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
+        faces[XNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::BACK]);
-        faces[ZNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
+        faces[ZNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::RIGHT]);
-        faces[XPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
+        faces[XPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::FRONT]);
-        faces[ZPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
+        faces[ZPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(blockIDData[wc + PADDED_OFFSETS::BOTTOM]);
-        faces[YNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
+        faces[YNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
     }
 
     left = LEVEL(wc + PADDED_OFFSETS::LEFT);
@@ -1047,7 +1047,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     //only occlude top if we are a full water block and our sides arent down at all
     if (liquidLevel == 1.0f && backRightHeight == 1.0f && backLeftHeight == 1.0f && frontLeftHeight == 1.0f && frontRightHeight == 1.0f) {
         nextBlock = &GETBLOCK(task->chData[wc + PADDED_OFFSETS::TOP]);
-        faces[YPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && !nextBlock->occlude);
+        faces[YPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
     } else {
         faces[YPOS] = true;
     }

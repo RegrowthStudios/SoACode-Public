@@ -471,7 +471,7 @@ void PhysicsEngine::performExplosions()
         if (Blocks[val].emitterOnBreak){
             particleEngine.addEmitter(Blocks[val].emitterOnBreak, _deferredExplosions.front().ppos, val);
         }
-        explosion(_deferredExplosions.front().ppos, Blocks[val].explosionRays, Blocks[val].explosivePower, Blocks[val].powerLoss);
+        explosion(_deferredExplosions.front().ppos, Blocks[val].explosionRays, Blocks[val].explosivePower, Blocks[val].explosionPowerLoss);
         _deferredExplosions.pop();
         if (SDL_GetTicks() - sticks > 20) break;
     }

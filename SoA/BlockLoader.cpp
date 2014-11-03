@@ -4,14 +4,15 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "BlockData.h"
+#include "Errors.h"
+#include "GameManager.h"
 #include "IOManager.h"
 #include "Keg.h"
+#include "TexturePackLoader.h"
 
 bool BlockLoader::loadBlocks(const nString& filePath) {
     IOManager ioManager; // TODO: Pass in a real boy
     const cString data = ioManager.readFileToString(filePath.c_str());
-
-    // TODO(Cristian): Implement this
 
     YAML::Node node = YAML::Load(data);
     if (node.IsNull() || !node.IsMap()) {
@@ -26,10 +27,21 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
         nString name = kvp.first.as<nString>();
         Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
 
-        // TODO: Ben's magic gumbo recipe
+        // Bit of post-processing on the block
+        b.active = true;
+        GameManager::texturePackLoader->registerBlockTexture(b.topTexName);
+        GameManager::texturePackLoader->registerBlockTexture(b.leftTexName);
+        GameManager::texturePackLoader->registerBlockTexture(b.rightTexName);
+        GameManager::texturePackLoader->registerBlockTexture(b.backTexName);
+        GameManager::texturePackLoader->registerBlockTexture(b.frontTexName);
+        GameManager::texturePackLoader->registerBlockTexture(b.bottomTexName);
+
         Blocks[b.ID] = b;
     }
     delete[] data;
+
+    // Set up the water blocks
+    if (!(SetWaterBlocks(LOWWATER))) return 0;
 
     return true;
 }
@@ -63,4 +75,31 @@ bool BlockLoader::saveBlocks(const nString& filePath) {
     file.flush();
     file.close();
     return true;
+}
+
+i32 BlockLoader::SetWaterBlocks(int startID) {
+    float weight = 0;
+    Blocks[startID].name = "Water (1)"; //now build rest of water blocks
+    for (int i = startID + 1; i <= startID + 99; i++) {
+        if (Blocks[i].active) {
+            char buffer[1024];
+            sprintf(buffer, "ERROR: Block ID %d reserved for Water is already used by %s", i, Blocks[i].name);
+            showMessage(buffer);
+            return 0;
+        }
+        Blocks[i] = Blocks[startID];
+        Blocks[i].name = "Water (" + to_string(i - startID + 1) + ")";
+        Blocks[i].waterMeshLevel = i - startID + 1;
+    }
+    for (int i = startID + 100; i < startID + 150; i++) {
+        if (Blocks[i].active) {
+            char buffer[1024];
+            sprintf(buffer, "ERROR: Block ID %d reserved for Pressurized Water is already used by %s", i, Blocks[i].name);
+            showMessage(buffer);
+            return 0;
+        }
+        Blocks[i] = Blocks[startID];
+        Blocks[i].name = "Water Pressurized (" + to_string(i - (startID + 99)) + ")";
+        Blocks[i].waterMeshLevel = i - startID + 1;
+    }
 }

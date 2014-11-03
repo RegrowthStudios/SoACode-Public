@@ -39,6 +39,20 @@ e->addValue("opposite", ConnectedTextureSymmetry::OPPOSITE);
 e->addValue("all", ConnectedTextureSymmetry::ALL);
 KEG_ENUM_INIT_END
 
+KEG_ENUM_INIT_BEGIN(PhysicsProperties, PhysicsProperties, e);
+e->addValue("none", PhysicsProperties::P_NONE);
+e->addValue("solid", PhysicsProperties::P_SOLID);
+e->addValue("liquid", PhysicsProperties::P_LIQUID);
+e->addValue("powder", PhysicsProperties::P_POWDER);
+e->addValue("snow", PhysicsProperties::P_SNOW);
+KEG_ENUM_INIT_END
+
+KEG_ENUM_INIT_BEGIN(BlockOcclusion, BlockOcclusion, e);
+e->addValue("none", BlockOcclusion::NONE);
+e->addValue("self", BlockOcclusion::SELF);
+e->addValue("all", BlockOcclusion::ALL);
+KEG_ENUM_INIT_END
+
 KEG_ENUM_INIT_BEGIN(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e);
 e->addValue("none", ConnectedTextureReducedMethod::NONE);
 e->addValue("top", ConnectedTextureReducedMethod::TOP);
@@ -80,38 +94,37 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("ID", Keg::Value::basic(Keg::BasicType::UI1
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("burnTransformID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, burnTransformID)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waveEffect", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waveEffect)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, lightColor)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("physicsProperty", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, physicsProperty)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("physicsProperty", Keg::Value::custom("PhysicsProperties", offsetof(Block, physicsProperty), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterMeshLevel", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waterMeshLevel)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("floatingAction", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, floatingAction)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("occlude", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, occlude)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("occlusion", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, occlude)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("spawnerVal", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, spawnerVal)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("sinkVal", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, sinkVal)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionRays", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, explosionRays)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("meshType", Keg::Value::custom("MeshType", offsetof(Block, meshType), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("moveMod", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, moveMod)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionResistance", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosionResistance)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosivePower", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosivePower)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionPower", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosivePower)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("flammability", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, flammability)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("powerLoss", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, powerLoss)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionPowerLoss", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosionPowerLoss)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("colorFilter", Keg::Value::basic(Keg::BasicType::F32_V3, offsetof(Block, colorFilter)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("color", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, color)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("overlayColor", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, overlayColor)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("particleTex", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, particleTex)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("powderMove", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, powderMove)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("collide", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, collide)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterBreak", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, waterBreak)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("isLight", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, isLight)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("blockLight", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, blockLight)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("useable", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, useable)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("allowLight", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, allowLight)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("isCrushable", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, isCrushable)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("isSupportive", Keg::Value::basic(Keg::BasicType::UI8, offsetof(Block, isSupportive)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("leftTexName", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, leftTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("rightTexName", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, rightTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("frontTexName", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, frontTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("backTexName", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, backTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("topTexName", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, topTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("bottomTexName", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, bottomTexName)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("colorOverlay", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, overlayColor)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("emitter", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, emitterName)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("movesPowder", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, powderMove)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("collide", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, collide)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterBreak", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, waterBreak)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("scatterSunRays", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, blockLight)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("useable", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, useable)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("allowsLight", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, allowLight)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("crushable", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, isCrushable)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("supportive", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, isSupportive)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureLeft", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, leftTexName)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureRight", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, rightTexName)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureFront", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, frontTexName)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureBack", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, backTexName)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureTop", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, topTexName)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureBottom", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, bottomTexName)));
 KEG_TYPE_INIT_END
 
 vector <Block> Blocks;
@@ -220,7 +233,7 @@ overlayColor(255, 255, 255) {
     name = leftTexName = rightTexName = backTexName = frontTexName = topTexName = bottomTexName = particleTexName = "";
     particleTex = 0;
     collide = 1;
-    occlude = 1;
+    occlude = BlockOcclusion::ALL;
     meshType = MeshType::BLOCK;
     waveEffect = 0;
     explosionResistance = 1.0;
@@ -233,9 +246,10 @@ overlayColor(255, 255, 255) {
     waterBreak = 0;
     isCrushable = 0;
     floatingAction = 1;
+    flammability = 0.0f;
     isSupportive = 1;
     explosivePower = 0.0;
-    powerLoss = 0.0;
+    explosionPowerLoss = 0.0;
     explosionRays = 0;
     physicsProperty = P_NONE;
     powderMove = 0;

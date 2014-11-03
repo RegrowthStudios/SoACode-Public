@@ -12,5 +12,10 @@ public:
     /// @param filePath: The .yml file path
     /// @return true on success, false on failure
     static bool saveBlocks(const nString& filePath);
+private:
+
+    /// Sets up the water blocks. This is temporary
+    /// @param startID: ID of first water block
+    static i32 SetWaterBlocks(int startID);
 };
 

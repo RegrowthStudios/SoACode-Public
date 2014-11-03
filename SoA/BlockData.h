@@ -50,6 +50,22 @@ enum class ConnectedTextureReducedMethod {
 };
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
+enum PhysicsProperties {
+    P_NONE,
+    P_SOLID,
+    P_LIQUID, 
+    P_POWDER,
+    P_SNOW
+};
+KEG_ENUM_DECL(PhysicsProperties);
+
+enum class BlockOcclusion {
+    NONE,
+    ALL,
+    SELF
+};
+KEG_ENUM_DECL(BlockOcclusion);
+
 struct BlockTextureLayer {
     // Set defaults in constructor for no .tex file
     BlockTextureLayer() : 
@@ -135,7 +151,7 @@ enum BlocksStones { SANDSTONE = 64, SHALE, LIMESTONE, GRAVEL, BASALT, SLATE, GNE
 enum BlockTextures1{ T_DIRT, T_DIRTGRASS, T_GRASS, T_STONE , T_WATER, T_SAND, T_WOOD, T_SNOW = 12, T_ICE = 13, T_REDSAND = 21};
 
 const int physStart = 2;
-enum PhysicsProperties {P_NONE, P_SOLID, P_LIQUID, P_POWDER, P_SNOW};
+
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
 
 enum Explosives { TNT = 112, NITRO, C4 };
@@ -211,13 +227,13 @@ public:
     ui16 burnTransformID;
     i16 waveEffect;
     ui16 lightColor;
-    i16 physicsProperty;
     i16 waterMeshLevel;
     i16 floatingAction;
-    i16 occlude;
     ui16 spawnerVal;
     ui16 sinkVal;
     ui16 explosionRays;
+
+    BlockOcclusion occlude;
 
     MeshType meshType;
 
@@ -225,23 +241,25 @@ public:
     GLfloat explosionResistance;
     GLfloat explosivePower;
     GLfloat flammability;
-    GLfloat powerLoss;
+    GLfloat explosionPowerLoss;
     f32v3 colorFilter;
+
+    PhysicsProperties physicsProperty;
 
     ColorRGB8 color;
     ColorRGB8 overlayColor;
     ColorRGB8 averageColor;
     ui8 particleTex;
-    ui8 powderMove;
-    ui8 collide;
-    ui8 waterBreak;
-    ui8 isLight;
-    ui8 blockLight;
-    ui8 useable;
-    ui8 allowLight;
-    ui8 isCrushable;
-    ui8 isSupportive;
-    ui8 active;
+    bool powderMove;
+    bool collide;
+    bool waterBreak;
+    bool isLight;
+    bool blockLight;
+    bool useable;
+    bool allowLight;
+    bool isCrushable;
+    bool isSupportive;
+    bool active;
 
     BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
