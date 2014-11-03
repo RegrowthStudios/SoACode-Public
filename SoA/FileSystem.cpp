@@ -1153,7 +1153,6 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
         if (rv.size() == 0) return "No description.";
         return rv;
     }
-
 }
 
 void FileManager::loadNoiseDescriptions(const char *filename) {
