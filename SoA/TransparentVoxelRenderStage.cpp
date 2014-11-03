@@ -4,18 +4,14 @@
 #include "MeshManager.h"
 #include "ChunkRenderer.h"
 
-TransparentVoxelRenderStage::TransparentVoxelRenderStage(const Camera* camera, 
-                                                         const GameRenderParams* gameRenderParams, 
-                                                         const MeshManager* meshManager) :
-    IRenderStage(camera),
-    _gameRenderParams(gameRenderParams),
-    _meshManager(meshManager) {
+TransparentVoxelRenderStage::TransparentVoxelRenderStage(const GameRenderParams* gameRenderParams) :
+    _gameRenderParams(gameRenderParams) {
     // Empty
 }
 
 void TransparentVoxelRenderStage::draw() {
     glDepthMask(GL_FALSE);
-    ChunkRenderer::drawTransparentBlocks(_meshManager->getChunkMeshes(), _camera->projectionMatrix() * _camera->viewMatrix(), _gameRenderParams, _camera->position(), _camera->direction());
+    ChunkRenderer::drawTransparentBlocks(_gameRenderParams);
     glDepthMask(GL_TRUE);
 }
 

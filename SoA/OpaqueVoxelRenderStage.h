@@ -25,18 +25,13 @@ class OpaqueVoxelRenderStage : public vg::IRenderStage
 {
 public:
     /// Constructor which injects dependencies
-    /// @param camera: The camera handle
     /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param meshManager: Handle to the class that holds meshes
-    OpaqueVoxelRenderStage(const Camera* camera, 
-                           const GameRenderParams* gameRenderParams,
-                           const MeshManager* meshManager);
+    OpaqueVoxelRenderStage(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
     virtual void draw() override;
 private:
     const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
-    const MeshManager* _meshManager; ///< Stores the meshes we need to render
 };
 
 #endif // OpaqueVoxelRenderStage_h__

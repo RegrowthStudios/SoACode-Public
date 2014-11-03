@@ -377,13 +377,13 @@ void GameManager::clickDragRay(bool isBreakRay) {
     VoxelRayQuery rq;
     if (isBreakRay) {
         // Obtain The Simple Query
-        rq = VRayHelper::getQuery(player->getChunkCamera().position(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+        rq = VRayHelper::getQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rq.distance > MAX_RANGE || rq.id == NONE) return;
     } else {
         // Obtain The Full Query
-        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().position(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
@@ -408,8 +408,8 @@ void GameManager::scanWSO() {
 
 #define SCAN_MAX_DISTANCE 20.0
     VoxelRayQuery rq = VRayHelper::getQuery(
-        player->getChunkCamera().position(),
-        player->getChunkCamera().direction(),
+        player->getChunkCamera().getPosition(),
+        player->getChunkCamera().getDirection(),
         SCAN_MAX_DISTANCE,
         GameManager::chunkManager,
         isSolidBlock

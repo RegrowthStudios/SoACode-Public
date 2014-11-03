@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "Camera.h"
 #include "ChunkRenderer.h"
 #include "GameManager.h"
 #include "GLProgramManager.h"
@@ -14,7 +15,7 @@
 const float sonarDistance = 200;
 const float sonarWidth = 30;
 
-void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const f64v3 &position)
+void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 {
     //*********************Blocks*******************
 
@@ -41,9 +42,14 @@ void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, cons
 
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
+
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (unsigned int i = 0; i < chunkMeshes.size(); i++)
     {
-        ChunkRenderer::drawChunkBlocks(chunkMeshes[i], program, position, VP);
+        ChunkRenderer::drawChunkBlocks(chunkMeshes[i], program, 
+                                       gameRenderParams->chunkCamera->getPosition(),
+                                       gameRenderParams->VP);
     }
 
     glDepthMask(GL_TRUE);
@@ -52,14 +58,16 @@ void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, cons
     program->unuse();
 }
 
-void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, const f32v3& eyeDir)
+void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 {
+    const f64v3& position = gameRenderParams->chunkCamera->getPosition();
+
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Block");
     program->use();
 
     glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
 
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(eyeDir[0]));
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
     glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
     glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
     glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
@@ -114,6 +122,8 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
     mz = (int)position.z;
     ChunkMesh *cm;
 
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (int i = chunkMeshes.size() - 1; i >= 0; i--)
     {
         cm = chunkMeshes[i];
@@ -131,7 +141,7 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
         if (SphereInFrustum((float)(cmPos.x + CHUNK_WIDTH / 2 - position.x), (float)(cmPos.y + CHUNK_WIDTH / 2 - position.y), (float)(cmPos.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)){
             if (cm->distance < fadeDist + 12.5){
                 cm->inFrustum = 1;
-                ChunkRenderer::drawChunkBlocks(cm, program, position, VP);
+                ChunkRenderer::drawChunkBlocks(cm, program, position, gameRenderParams->VP);
             } else{
                 cm->inFrustum = 0;
             }
@@ -144,14 +154,16 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
     program->unuse();
 }
 
-void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, const f32v3& eyeDir)
+void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 {
+    const f64v3& position = gameRenderParams->chunkCamera->getPosition();
+
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Cutout");
     program->use();
 
     glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
 
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(eyeDir[0]));
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
     glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
     glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
     glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
@@ -206,12 +218,14 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
     mz = (int)position.z;
     ChunkMesh *cm;
 
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (int i = chunkMeshes.size() - 1; i >= 0; i--)
     {
         cm = chunkMeshes[i];
 
         if (cm->inFrustum){
-            ChunkRenderer::drawChunkCutoutBlocks(cm, program, position, VP);
+            ChunkRenderer::drawChunkCutoutBlocks(cm, program, position, gameRenderParams->VP);
         }
     }
     glEnable(GL_CULL_FACE);
@@ -220,14 +234,16 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
 
 }
 
-void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, const f32v3& eyeDir)
+void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderParams)
 {
+    const f64v3& position = gameRenderParams->chunkCamera->getPosition();
+
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Transparency");
     program->use();
 
     glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
 
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(eyeDir[0]));
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
     glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
     glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
     glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
@@ -286,6 +302,8 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
         oldPos = intPosition;
     }
 
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (int i = 0; i < chunkMeshes.size(); i++)
     {
         cm = chunkMeshes[i];
@@ -309,7 +327,7 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
                 }
             }
 
-            ChunkRenderer::drawChunkTransparentBlocks(cm, program, position, VP);
+            ChunkRenderer::drawChunkTransparentBlocks(cm, program, position, gameRenderParams->VP);
         }
     }
     glEnable(GL_CULL_FACE);
@@ -358,7 +376,7 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
 //    program->unuse();
 //}
 
-void ChunkRenderer::drawWater(const std::vector <ChunkMesh *>& chunkMeshes, const f32m4 &VP, const GameRenderParams* gameRenderParams, const f64v3 &position, bool underWater)
+void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
 {
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
     program->use();
@@ -387,21 +405,22 @@ void ChunkRenderer::drawWater(const std::vector <ChunkMesh *>& chunkMeshes, cons
     glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
     glUniform1i(program->getUniform("normalMap"), 6);
 
-    if (underWater) glDisable(GL_CULL_FACE);
+    if (gameRenderParams->isUnderwater) glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
-    ChunkMesh *cm;
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
     {
-        cm = chunkMeshes[i];
-
-        ChunkRenderer::drawChunkWater(cm, program, position, VP);
+        ChunkRenderer::drawChunkWater(chunkMeshes[i], program,
+                                      gameRenderParams->chunkCamera->getPosition(), 
+                                      gameRenderParams->VP);
     }
 
     glDepthMask(GL_TRUE);
-    if (underWater) glEnable(GL_CULL_FACE);
+    if (gameRenderParams->isUnderwater) glEnable(GL_CULL_FACE);
 
     program->unuse();
 }

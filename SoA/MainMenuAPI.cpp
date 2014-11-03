@@ -37,7 +37,7 @@ void MainMenuAPI::setOwnerScreen(IGameScreen* ownerScreen) {
 
 Awesomium::JSValue MainMenuAPI::getCameraPosition(const Awesomium::JSArray& args) {
     Awesomium::JSArray rv;
-    const f64v3& pos = _ownerScreen->getCamera().position();
+    const f64v3& pos = _ownerScreen->getCamera().getPosition();
     rv.Push(Awesomium::JSValue(pos.x));
     rv.Push(Awesomium::JSValue(pos.y));
     rv.Push(Awesomium::JSValue(pos.z));

@@ -26,16 +26,16 @@ PlanetRenderStage::PlanetRenderStage(const Camera* camera) :
 void PlanetRenderStage::draw()
 {
   
-    f32m4 VP = _camera->projectionMatrix() * _camera->viewMatrix();
+    f32m4 VP = _camera->getProjectionMatrix() * _camera->getViewMatrix();
 
-    GameManager::planet->draw(0, VP, _camera->viewMatrix(), f32v3(1.0f, 0.0f, 0.0f), _camera->position(), 0.1 /*_ambientLight + 0.1*/, _camera->getNearClip() / planetScale, true /*connectedToPlanet*/);
+    GameManager::planet->draw(0, VP, _camera->getViewMatrix(), f32v3(1.0f, 0.0f, 0.0f), _camera->getPosition(), 0.1 /*_ambientLight + 0.1*/, _camera->getNearClip() / planetScale, true /*connectedToPlanet*/);
 
     if (true /*connectedToPlanet*/) {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 1.0)), _camera->position());
+        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 1.0)), _camera->getPosition());
     } else {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, f32v3(1.0f, 0.0f, 0.0f), _camera->position());
+        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, f32v3(1.0f, 0.0f, 0.0f), _camera->getPosition());
     }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-    GameManager::planet->drawTrees(VP, _camera->position(), 0.1f /*ambVal*/);
+    GameManager::planet->drawTrees(VP, _camera->getPosition(), 0.1f /*ambVal*/);
 }

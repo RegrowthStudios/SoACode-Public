@@ -29,8 +29,9 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     // Set the viewport
     _viewport = viewport;
 
-    // Hold the world camera
+    // Get the camera handles
     _worldCamera = worldCamera;
+    _chunkCamera = chunkCamera;
 
     // Check to make sure we aren't leaking memory
     if (_skyboxRenderStage != nullptr) {
@@ -55,10 +56,10 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), _worldCamera);
     _planetRenderStage = new PlanetRenderStage(_worldCamera);
-    _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
-    _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
-    _transparentVoxelRenderStage = new TransparentVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
-    _liquidVoxelRenderStage = new LiquidVoxelRenderStage(chunkCamera, &_gameRenderParams, meshManager);
+    _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
+    _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
+    _transparentVoxelRenderStage = new TransparentVoxelRenderStage(&_gameRenderParams);
+    _liquidVoxelRenderStage = new LiquidVoxelRenderStage(&_gameRenderParams);
     _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
     _pdaRenderStage = new PdaRenderStage(pda);
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), _viewport);
@@ -70,7 +71,7 @@ GamePlayRenderPipeline::~GamePlayRenderPipeline() {
 
 void GamePlayRenderPipeline::render() {
     // Set up the gameRenderParams
-    _gameRenderParams.calculateParams(_worldCamera->position(), false);
+    _gameRenderParams.calculateParams(_worldCamera->getPosition(), _chunkCamera, &_meshManager->getChunkMeshes(), false);
     // Bind the FBO
     _hdrFrameBuffer->bind();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it

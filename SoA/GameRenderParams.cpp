@@ -1,14 +1,25 @@
 #include "stdafx.h"
 #include "GameRenderParams.h"
 
+#include "Camera.h"
 #include "GameManager.h"
 #include "Planet.h"
-#include "Camera.h"
-#include "utils.h"
-#include "Rendering.h"
 #include "Player.h"
+#include "Rendering.h"
+#include "utils.h"
 
-void GameRenderParams::calculateParams(const f64v3& worldCameraPos, bool isUnderwater) {
+void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
+                                       const Camera* ChunkCamera,
+                                       const std::vector<ChunkMesh*>* ChunkMeshes,
+                                       bool IsUnderwater) {
+    chunkCamera = ChunkCamera;
+    isUnderwater = IsUnderwater;
+
+    // Cache the VP to prevent needless multiplies
+    VP = chunkCamera->getProjectionMatrix() * chunkCamera->getViewMatrix();
+    
+    chunkMeshes = ChunkMeshes;
+
     // Calculate fog
     glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);
     float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCameraPos, 1.0))));

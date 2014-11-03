@@ -26,7 +26,7 @@ void SkyboxRenderStage::draw() {
         updateProjectionMatrix();
     }
     // Draw using custom proj and camera view
-    drawSpace(_projectionMatrix * _camera->viewMatrix());
+    drawSpace(_projectionMatrix * _camera->getViewMatrix());
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {

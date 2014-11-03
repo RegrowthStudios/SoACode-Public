@@ -4,10 +4,17 @@
 #define GameRenderParams_h__
 
 #include "stdafx.h"
+#include <vector>
+
+class ChunkMesh;
+class Camera;
 
 class GameRenderParams {
 public:
-    void calculateParams(const f64v3& worldCameraPos, bool isUnderwater);
+    void calculateParams(const f64v3& worldCameraPos,
+                         const Camera* ChunkCamera, 
+                         const std::vector<ChunkMesh*>* ChunkMeshes,
+                         bool IsUnderwater);
 
     f32v3 sunlightDirection;
     f32v3 sunlightColor;  
@@ -16,6 +23,10 @@ public:
     float fogEnd;
     float fogStart;
     float lightActive;
+    f32m4 VP;
+    const Camera* chunkCamera;
+    const std::vector <ChunkMesh *>* chunkMeshes;
+    bool isUnderwater;
 private:
     void calculateFog(float theta, bool isUnderwater);
     void calculateSunlight(float theta);

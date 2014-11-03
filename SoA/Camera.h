@@ -27,13 +27,13 @@ public:
     void setUseAngles(bool useAngles){ _useAngles = useAngles; }
 
     //getters
-    const glm::dvec3 &position() const { return _position; }
-    const glm::vec3 &direction() const { return _direction; }
-    const glm::vec3 &right() const { return _right; }
-    const glm::vec3 &up() const { return _up; }
+    const glm::dvec3& getPosition() const { return _position; }
+    const glm::vec3& getDirection() const { return _direction; }
+    const glm::vec3& getRight() const { return _right; }
+    const glm::vec3& getUp() const { return _up; }
 
-    const glm::mat4 &projectionMatrix() const { return _projectionMatrix; }
-    const glm::mat4 &viewMatrix() const { return _viewMatrix; }
+    const glm::mat4& getProjectionMatrix() const { return _projectionMatrix; }
+    const glm::mat4& getViewMatrix() const { return _viewMatrix; }
 
     const float& getNearClip() const { return _zNear; }
     const float& getFarClip() const { return _zFar; }

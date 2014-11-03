@@ -336,9 +336,9 @@ void Player::groundMove()
 {
     double maxVel = _maxVelocity;
 
-    const glm::vec3 &direction = _chunkCamera.direction();
-    const glm::vec3 &right = _chunkCamera.right();
-    const glm::vec3 &up = _chunkCamera.up();
+    const glm::vec3 &direction = _chunkCamera.getDirection();
+    const glm::vec3 &right = _chunkCamera.getRight();
+    const glm::vec3 &up = _chunkCamera.getUp();
 
     vec3 walkDir = vec3(0.0f);
     vec3 planeDir;
@@ -503,8 +503,8 @@ void Player::flyModeMove()
         facePosition.y -= _maxVelocity;
     }
 
-    const glm::vec3 direction = _chunkCamera.direction();
-    const glm::vec3 right = _chunkCamera.right();
+    const glm::vec3 direction = _chunkCamera.getDirection();
+    const glm::vec3 right = _chunkCamera.getRight();
 
     float altspeed = 20000; //350;
     float ctrlSpeed = 50 + MAX((glm::length(worldPosition) - _worldRadius)*0.02*planetScale, 0);
@@ -615,8 +615,8 @@ void Player::calculateWorldPosition()
     worldRotationMatrix[2] = glm::vec4(biTangent, 0);
     worldRotationMatrix[3] = glm::vec4(0, 0, 0, 1);
 
-    const glm::vec3 direction = _chunkCamera.direction();
-    const glm::vec3 right = _chunkCamera.right();
+    const glm::vec3 direction = _chunkCamera.getDirection();
+    const glm::vec3 right = _chunkCamera.getRight();
 
     glm::vec3 worldDirection = glm::normalize( glm::vec3 (worldRotationMatrix * glm::vec4(direction, 1)));
 
@@ -641,7 +641,7 @@ void Player::calculateHeadPosition()
     double bobSinTheta = sin(_cameraBobTheta);
     double bobCosTheta = cos(_cameraBobTheta);
 
-    const glm::vec3 &right = _chunkCamera.right();
+    const glm::vec3 &right = _chunkCamera.getRight();
 
     headPosition = gridPosition;
     headPosition.x += right.x*(bobCosTheta/7.0);

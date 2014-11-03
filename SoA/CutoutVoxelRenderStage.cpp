@@ -1,22 +1,18 @@
 #include "stdafx.h"
-#include "CutoutVoxelRenderStage.h"
 #include "Camera.h"
-#include "MeshManager.h"
 #include "ChunkRenderer.h"
+#include "CutoutVoxelRenderStage.h"
+#include "MeshManager.h"
 
 
-CutoutVoxelRenderStage::CutoutVoxelRenderStage(const Camera* camera,
-                                               const GameRenderParams* gameRenderParams,
-                                               const MeshManager* meshManager) :
-    IRenderStage(camera),
-    _gameRenderParams(gameRenderParams),
-    _meshManager(meshManager) {
+CutoutVoxelRenderStage::CutoutVoxelRenderStage(const GameRenderParams* gameRenderParams) :
+    _gameRenderParams(gameRenderParams) {
     // Empty
 }
 
 
 void CutoutVoxelRenderStage::draw()
 {
-    ChunkRenderer::drawCutoutBlocks(_meshManager->getChunkMeshes(), _camera->projectionMatrix() * _camera->viewMatrix(), _gameRenderParams, _camera->position(), _camera->direction());
+    ChunkRenderer::drawCutoutBlocks(_gameRenderParams);
 }
 

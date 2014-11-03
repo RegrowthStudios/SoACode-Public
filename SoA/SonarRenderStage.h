@@ -26,13 +26,12 @@ public:
     /// Constructor which injects dependencies
     /// @param camera: The camera handle
     /// @param meshManager: Handle to the class that holds meshes
-    SonarRenderStage(const Camera* camera, 
-                     const MeshManager* meshManager);
+    SonarRenderStage(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
     virtual void draw() override;
 private:
-    const MeshManager* _meshManager; ///< Stores the meshes we need to render
+    const GameRenderParams* _gameRenderParams; ///< Handle to shared parameters
 };
 
 #endif // SonarRenderStage_h__

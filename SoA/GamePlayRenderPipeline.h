@@ -81,6 +81,8 @@ private:
 
     ui32v4 _viewport; ///< Viewport to draw to
     const Camera* _worldCamera = nullptr; ///< handle to world camera
+    const Camera* _chunkCamera = nullptr; ///< handle to chunk camera
+    const MeshManager* _meshManager; ///< Handle to the meshes
 };
 
 #endif // GamePlayRenderPipeline_h__
