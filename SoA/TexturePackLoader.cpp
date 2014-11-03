@@ -334,6 +334,8 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
 
 BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height) {
    
+    ui32 floraRows;
+
     // Helper for checking dimensions
 #define DIM_CHECK(w, cw, h, ch, method) \
     if (width != _packInfo.resolution * cw) { \
@@ -368,6 +370,12 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             layer.numTiles = width / height;
             if (layer.weights.length() == 0) {
                 layer.totalWeight = layer.numTiles;
+            } else { // Need to check if there is the right number of weights
+                if (layer.weights.length() * _packInfo.resolution != width) {
+                    pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " + 
+                           to_string(layer.weights.length()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                    return nullptr;
+                }
             }
             break;
         case ConnectedTextureMethods::GRASS:
@@ -383,6 +391,22 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             DIM_CHECK(width, layer.size.x, height, layer.size.y, REPEAT);
             break;
         case ConnectedTextureMethods::FLORA:
+            floraRows = BlockTextureLayer::getFloraRows(layer.floraHeight);
+            if (height != _packInfo.resolution * floraRows) {
+                pError("Texture " + layer.path + " texture height must be equal to (maxFloraHeight^2 + maxFloraHeight) / 2 * resolution = " +
+                       to_string(height) + " but it is " + to_string(_packInfo.resolution * floraRows));
+                return nullptr;
+            }
+            // If no weights, they are all equal
+            if (layer.weights.length() == 0) {
+                layer.totalWeight = layer.numTiles;
+            } else { // Need to check if there is the right number of weights
+                if (layer.weights.length() * _packInfo.resolution != width) {
+                    pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
+                           to_string(layer.weights.length()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                    return nullptr;
+                }
+            }
             break;
         case ConnectedTextureMethods::NONE:
             DIM_CHECK(width, 1, height, 1, NONE);

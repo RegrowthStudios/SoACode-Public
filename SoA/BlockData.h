@@ -66,7 +66,8 @@ enum class BlockOcclusion {
 };
 KEG_ENUM_DECL(BlockOcclusion);
 
-struct BlockTextureLayer {
+class BlockTextureLayer {
+public:
     // Set defaults in constructor for no .tex file
     BlockTextureLayer() : 
         method(ConnectedTextureMethods::NONE),
@@ -75,6 +76,7 @@ struct BlockTextureLayer {
         reducedMethod(ConnectedTextureReducedMethod::NONE),
         useMapColor(""),
         colorMapIndex(0),
+        floraHeight(0),
         totalWeight(0),
         numTiles(1),
         textureIndex(0),
@@ -83,12 +85,18 @@ struct BlockTextureLayer {
         path("") {
         // Empty
     }
+
+    static ui32 getFloraRows(ui32 floraMaxHeight) {
+        return (floraMaxHeight * floraMaxHeight + floraMaxHeight) / 2;
+    }
+
     ConnectedTextureMethods method;
     i32v2 size;
     ConnectedTextureSymmetry symmetry;
     ConnectedTextureReducedMethod reducedMethod;
     nString useMapColor;
     ui32 colorMapIndex;
+    ui32 floraHeight;
     Array<i32> weights;
     i32 totalWeight;
     i32 numTiles;

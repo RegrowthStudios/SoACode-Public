@@ -70,11 +70,10 @@ KEG_TYPE_INIT_BEGIN_DEF_VAR(BlockTextureLayer)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("method", Keg::Value::custom("ConnectedTextureMethods", offsetof(BlockTextureLayer, method), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("reducedMethod", Keg::Value::custom("ConnectedTextureReducedMethod", offsetof(BlockTextureLayer, reducedMethod), true));
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32_V2, size);
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("width", Keg::Value::basic(Keg::BasicType::I32, offsetof(BlockTextureLayer, size)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("height", Keg::Value::basic(Keg::BasicType::I32, offsetof(BlockTextureLayer, size) + sizeof(i32)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("symmetry", Keg::Value::custom("ConnectedTextureSymmetry", offsetof(BlockTextureLayer, symmetry), true));
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, BOOL, innerSeams);
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, BOOL, transparency);
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("height", Keg::Value::basic(Keg::BasicType::UI32, offsetof(BlockTextureLayer, floraHeight)));
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, STRING, useMapColor);
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32, totalWeight);
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32, numTiles);

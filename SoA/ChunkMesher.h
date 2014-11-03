@@ -7,7 +7,7 @@ struct RenderTask;
 class Chunk;
 struct ChunkMeshData;
 struct BlockTexture;
-struct BlockTextureLayer;
+class BlockTextureLayer;
 
 
 // each worker thread gets one of these
