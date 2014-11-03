@@ -1289,7 +1289,7 @@ i32 FileManager::loadBlocks(nString filePath) {
                 b->explosivePower = iniVal->getFloat();
                 break;
             case BLOCK_INI_EXPLOSIONPOWERLOSS:
-                b->powerLoss = iniVal->getFloat();
+                b->explosionPowerLoss = iniVal->getFloat();
                 break;
             case BLOCK_INI_EXPLOSIONRAYS:
                 b->explosionRays = iniVal->getInt();
@@ -1322,7 +1322,7 @@ i32 FileManager::loadBlocks(nString filePath) {
                 b->powderMove = iniVal->getInt();
                 break;
             case BLOCK_INI_PHYSICSPROPERTY:
-                b->physicsProperty = iniVal->getInt();
+                b->physicsProperty = (PhysicsProperties)iniVal->getInt();
                 break;
             case BLOCK_INI_SUPPORTIVE:
                 b->isSupportive = iniVal->getInt();
@@ -1345,8 +1345,8 @@ i32 FileManager::loadBlocks(nString filePath) {
                 GameManager::texturePackLoader->registerBlockTexture(b->bottomTexName);
                 break;
             case BLOCK_INI_TEXTURE_PARTICLE:
-                b->particleTexName = iniVal->getStr();
-                GameManager::texturePackLoader->registerBlockTexture(b->particleTexName);
+                b->emitterName = iniVal->getStr();
+                GameManager::texturePackLoader->registerBlockTexture(b->emitterName);
                 break;
             case BLOCK_INI_USEABLE:
                 b->useable = iniVal->getInt();
@@ -1430,7 +1430,7 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.emitterOnBreakName != b->emitterOnBreakName) iniValues.back().push_back(IniValue("emitterOnBreak", b->emitterOnBreakName));
             if (db.emitterRandomName != b->emitterRandomName) iniValues.back().push_back(IniValue("emitterRandom", b->emitterRandomName));
             if (db.explosivePower != b->explosivePower) iniValues.back().push_back(IniValue("explosionPower", b->explosivePower));
-            if (db.powerLoss != b->powerLoss) iniValues.back().push_back(IniValue("explosionPowerLoss", b->powerLoss));
+            if (db.explosionPowerLoss != b->explosionPowerLoss) iniValues.back().push_back(IniValue("explosionPowerLoss", b->explosionPowerLoss));
             if (db.explosionRays != b->explosionRays) iniValues.back().push_back(IniValue("explosionRays", to_string(b->explosionRays)));
             if (db.explosionResistance != b->explosionResistance) iniValues.back().push_back(IniValue("explosiveResistance", b->explosionResistance));
             if (db.flammability != b->flammability) iniValues.back().push_back(IniValue("flammability", b->flammability));
@@ -1475,7 +1475,7 @@ i32 FileManager::saveBlocks(nString filePath) {
                 if (b->topTexName.size()) iniValues.back().push_back(IniValue("textureTop", b->topTexName));
             }
 
-            if (db.particleTexName != b->particleTexName) iniValues.back().push_back(IniValue("textureParticle", b->particleTexName));
+            if (db.emitterName != b->emitterName) iniValues.back().push_back(IniValue("textureParticle", b->emitterName));
             if (db.waterMeshLevel != b->waterMeshLevel) iniValues.back().push_back(IniValue("waterMeshLevel", to_string(b->waterMeshLevel)));
             if (db.waveEffect != b->waveEffect) iniValues.back().push_back(IniValue("waveEffect", to_string(b->waveEffect)));
             if (db.occlude != b->occlude) iniValues.back().push_back(IniValue("occlude", to_string(b->occlude)));

@@ -50,6 +50,14 @@ enum class ConnectedTextureReducedMethod {
 };
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
+enum PhysicsProperties {
+    P_NONE,
+    P_SOLID,
+    P_LIQUID, 
+    P_POWDER,
+    P_SNOW
+};
+
 struct BlockTextureLayer {
     // Set defaults in constructor for no .tex file
     BlockTextureLayer() : 
@@ -135,7 +143,7 @@ enum BlocksStones { SANDSTONE = 64, SHALE, LIMESTONE, GRAVEL, BASALT, SLATE, GNE
 enum BlockTextures1{ T_DIRT, T_DIRTGRASS, T_GRASS, T_STONE , T_WATER, T_SAND, T_WOOD, T_SNOW = 12, T_ICE = 13, T_REDSAND = 21};
 
 const int physStart = 2;
-enum PhysicsProperties {P_NONE, P_SOLID, P_LIQUID, P_POWDER, P_SNOW};
+
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
 
 enum Explosives { TNT = 112, NITRO, C4 };
@@ -211,7 +219,6 @@ public:
     ui16 burnTransformID;
     i16 waveEffect;
     ui16 lightColor;
-    i16 physicsProperty;
     i16 waterMeshLevel;
     i16 floatingAction;
     i16 occlude;
@@ -225,8 +232,10 @@ public:
     GLfloat explosionResistance;
     GLfloat explosivePower;
     GLfloat flammability;
-    GLfloat powerLoss;
+    GLfloat explosionPowerLoss;
     f32v3 colorFilter;
+
+    PhysicsProperties physicsProperty;
 
     ColorRGB8 color;
     ColorRGB8 overlayColor;

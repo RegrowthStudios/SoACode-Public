@@ -18,7 +18,6 @@ DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize, const
     // Empty
 }
 
-
 DevHudRenderStage::~DevHudRenderStage() {
     delete _spriteBatch;
     delete _spriteFont;
