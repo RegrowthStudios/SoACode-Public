@@ -131,18 +131,11 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
     if (_app->getFps()) {
         glSpeedFactor = 60.0f / _app->getFps();
-        if (glSpeedFactor > 3.0f) { // Cap variable timstep at 20fps
+        if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
             glSpeedFactor = 3.0f;
         }
     }
     
-    static int i = 0;
-    i++;
-    if (i == 60) {
-     std::cout << glSpeedFactor << std::endl;
-     i = 0;
-    }
-
     // Update the input
     handleInput();
 
