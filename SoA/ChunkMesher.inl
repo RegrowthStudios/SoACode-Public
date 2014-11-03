@@ -7,7 +7,7 @@
 
 inline void ChunkMesher::GetLeftLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
 {
-    if (Blocks[GETBLOCKTYPE(data[c - 1])].occlude){
+    if (Blocks[GETBLOCKTYPE(data[c - 1])].occlude != BlockOcclusion::NONE){
         memset(l, 0, 3);
         sl = -1;
     } else{
@@ -19,7 +19,7 @@ inline void ChunkMesher::GetLeftLightData(int c, ui8 l[3], i8 &sl, ui16 *data, u
 inline void ChunkMesher::GetRightLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
 {
 
-    if (Blocks[GETBLOCKTYPE(data[c + 1])].occlude){
+    if (Blocks[GETBLOCKTYPE(data[c + 1])].occlude != BlockOcclusion::NONE){
         memset(l, 0, 3);
         sl = -1;
     } else{
@@ -30,7 +30,7 @@ inline void ChunkMesher::GetRightLightData(int c, ui8 l[3], i8 &sl, ui16 *data, 
 }
 inline void ChunkMesher::GetFrontLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
 {
-    if (Blocks[GETBLOCKTYPE(data[c + dataWidth])].occlude){
+    if (Blocks[GETBLOCKTYPE(data[c + dataWidth])].occlude != BlockOcclusion::NONE){
         memset(l, 0, 3);
         sl = -1;
     } else{
@@ -41,7 +41,7 @@ inline void ChunkMesher::GetFrontLightData(int c, ui8 l[3], i8 &sl, ui16 *data, 
 }
 inline void ChunkMesher::GetBackLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
 {
-    if (Blocks[GETBLOCKTYPE(data[c - dataWidth])].occlude){
+    if (Blocks[GETBLOCKTYPE(data[c - dataWidth])].occlude != BlockOcclusion::NONE){
         memset(l, 0, 3);
         sl = -1;
     } else{
@@ -52,7 +52,7 @@ inline void ChunkMesher::GetBackLightData(int c, ui8 l[3], i8 &sl, ui16 *data, u
 }
 inline void ChunkMesher::GetBottomLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
 {
-    if (Blocks[GETBLOCKTYPE(data[c - dataLayer])].occlude){
+    if (Blocks[GETBLOCKTYPE(data[c - dataLayer])].occlude != BlockOcclusion::NONE){
         memset(l, 0, 3);
         sl = -1;
     } else{
@@ -63,7 +63,7 @@ inline void ChunkMesher::GetBottomLightData(int c, ui8 l[3], i8 &sl, ui16 *data,
 }
 inline void ChunkMesher::GetTopLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData)
 {
-    if (Blocks[GETBLOCKTYPE(data[c + dataLayer])].occlude){
+    if (Blocks[GETBLOCKTYPE(data[c + dataLayer])].occlude != BlockOcclusion::NONE){
         memset(l, 0, 3);
         sl = -1;
     } else{

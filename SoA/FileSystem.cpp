@@ -1358,7 +1358,7 @@ i32 FileManager::loadBlocks(nString filePath) {
                 b->waveEffect = iniVal->getInt();
                 break;
             case BLOCK_INI_OCCLUDE:
-                b->occlude = iniVal->getInt();
+                b->occlude = (BlockOcclusion)iniVal->getInt();
                 break;
             case BLOCK_INI_SOURCE:
                 b->spawnerVal = iniVal->getInt();
@@ -1478,7 +1478,7 @@ i32 FileManager::saveBlocks(nString filePath) {
             if (db.emitterName != b->emitterName) iniValues.back().push_back(IniValue("textureParticle", b->emitterName));
             if (db.waterMeshLevel != b->waterMeshLevel) iniValues.back().push_back(IniValue("waterMeshLevel", to_string(b->waterMeshLevel)));
             if (db.waveEffect != b->waveEffect) iniValues.back().push_back(IniValue("waveEffect", to_string(b->waveEffect)));
-            if (db.occlude != b->occlude) iniValues.back().push_back(IniValue("occlude", to_string(b->occlude)));
+            if (db.occlude != b->occlude) iniValues.back().push_back(IniValue("occlude", to_string((int)b->occlude)));
             for (size_t j = 0; j < b->altColors.size(); j++) {
                 iniValues.back().push_back(IniValue("altColor" + to_string(j), to_string(b->altColors[j].r) + "," + to_string(b->altColors[j].g) + "," + to_string(b->altColors[j].b)));
             }

@@ -201,7 +201,7 @@ void Chunk::CheckEdgeBlocks()
     y = CHUNK_WIDTH - 1;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 topBlocked = 0;
                 z = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -212,7 +212,7 @@ void Chunk::CheckEdgeBlocks()
     x = 0;
     for (y = 0; y < CHUNK_WIDTH; y++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 leftBlocked = 0;
                 z = CHUNK_WIDTH;
                 y = CHUNK_WIDTH;
@@ -223,7 +223,7 @@ void Chunk::CheckEdgeBlocks()
     x = CHUNK_WIDTH - 1;
     for (y = 0; y < CHUNK_WIDTH; y++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 rightBlocked = 0;
                 z = CHUNK_WIDTH;
                 y = CHUNK_WIDTH;
@@ -235,7 +235,7 @@ void Chunk::CheckEdgeBlocks()
     y = 0;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 bottomBlocked = 0;
                 z = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -247,7 +247,7 @@ void Chunk::CheckEdgeBlocks()
     z = CHUNK_WIDTH - 1;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (y = 0; y < CHUNK_WIDTH; y++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 frontBlocked = 0;
                 y = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -259,7 +259,7 @@ void Chunk::CheckEdgeBlocks()
     z = 0;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (y = 0; y < CHUNK_WIDTH; y++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 backBlocked = 0;
                 y = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;

@@ -47,7 +47,7 @@ private:
     void bindVBOIndicesID();
 
     void GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLights[26][3], GLbyte sunlights[26], GLushort* chData, ui8* chSunData, ui16 *chLampData, bool faces[6]);
-    bool checkBlockFaces(bool faces[6], ui8 lampLights[26][3], sbyte sunlights[26], const RenderTask* task, const bool occlude, const i32 btype, const i32 wc);
+    bool checkBlockFaces(bool faces[6], ui8 lampLights[26][3], sbyte sunlights[26], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
     void calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj);
 

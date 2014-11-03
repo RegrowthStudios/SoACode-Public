@@ -57,6 +57,14 @@ enum PhysicsProperties {
     P_POWDER,
     P_SNOW
 };
+KEG_ENUM_DECL(PhysicsProperties);
+
+enum class BlockOcclusion {
+    NONE,
+    ALL,
+    SELF
+};
+KEG_ENUM_DECL(BlockOcclusion);
 
 struct BlockTextureLayer {
     // Set defaults in constructor for no .tex file
@@ -221,10 +229,11 @@ public:
     ui16 lightColor;
     i16 waterMeshLevel;
     i16 floatingAction;
-    i16 occlude;
     ui16 spawnerVal;
     ui16 sinkVal;
     ui16 explosionRays;
+
+    BlockOcclusion occlude;
 
     MeshType meshType;
 
@@ -241,16 +250,16 @@ public:
     ColorRGB8 overlayColor;
     ColorRGB8 averageColor;
     ui8 particleTex;
-    ui8 powderMove;
-    ui8 collide;
-    ui8 waterBreak;
-    ui8 isLight;
-    ui8 blockLight;
-    ui8 useable;
-    ui8 allowLight;
-    ui8 isCrushable;
-    ui8 isSupportive;
-    ui8 active;
+    bool powderMove;
+    bool collide;
+    bool waterBreak;
+    bool isLight;
+    bool blockLight;
+    bool useable;
+    bool allowLight;
+    bool isCrushable;
+    bool isSupportive;
+    bool active;
 
     BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
