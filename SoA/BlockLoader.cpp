@@ -24,7 +24,7 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
     Blocks.resize(numBlocks);
     Keg::Value v = Keg::Value::custom("Block", 0);
     for (auto& kvp : node) {
-        nString name = kvp.first.as<nString>();
+        b.name = kvp.first.as<nString>();
         Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
 
         // Bit of post-processing on the block
