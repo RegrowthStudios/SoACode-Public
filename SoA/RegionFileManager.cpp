@@ -22,6 +22,8 @@
 // Section tags
 #define TAG_VOXELDATA 0x1
 
+const char TAG_VOXELDATA_STR[4] = {0, 0, 0, TAG_VOXELDATA};
+
 inline i32 fileTruncate(i32 fd, i64 size)
 {
 #if defined(_WIN32) || defined(_WIN64) 
@@ -229,7 +231,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     //Get the chunk header
     if (!readChunkHeader()) return false;
 
-    if (!readVoxelData_v0()) return false;
+    if (!readChunkData_v0()) return false;
    
     //Fill the chunk with the aquired data
     if (!fillChunkVoxelData(chunk)) return false;
@@ -320,6 +322,9 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
         pError("Region: Chunk data fseek save error GG! " + to_string(chunkSectorOffset));
         return false;
     }
+
+    // Write the voxel data tag
+    fwrite(TAG_VOXELDATA_STR, 1, 4, _regionFile->file);
 
     //Write the header and data
     writeSectors(_compressedByteBuffer, (ui32)_compressedBufferSize);
@@ -414,7 +419,7 @@ bool RegionFileManager::readChunkHeader() {
     return true;
 }
 
-bool RegionFileManager::readVoxelData_v0() {
+bool RegionFileManager::readChunkData_v0() {
 
     ui32 dataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
 
