@@ -19,6 +19,9 @@
 #include "Planet.h"
 #include "utils.h"
 
+// Section tags
+#define TAG_VOXELDATA 0x1
+
 inline i32 fileTruncate(i32 fd, i64 size)
 {
 #if defined(_WIN32) || defined(_WIN64) 
@@ -249,11 +252,6 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
     ui32 tableOffset;
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
 
-    ui32 oldVoxelDataSize = 0;
-    ui32 oldAuxDataSize = 0;
-
-    ui32 padLength;
-
     i32 numOldSectors;
 
     //If chunkOffset is zero, then we need to add the entry
@@ -278,9 +276,8 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
         //Get the chunk header
         if (!readChunkHeader()) return false;
-        oldVoxelDataSize = BufferUtils::extractInt(_chunkHeader.voxelDataSize);
-        oldAuxDataSize = BufferUtils::extractInt(_chunkHeader.auxDataSize);
-        numOldSectors = sectorsFromBytes(oldVoxelDataSize + oldAuxDataSize + sizeof(ChunkHeader));
+        ui32 oldDataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
+        numOldSectors = sectorsFromBytes(oldDataLength + sizeof(ChunkHeader));
 
         if (numOldSectors > _regionFile->totalSectors) {
             cout << (to_string(chunkSectorOffset) + " " + to_string(tableOffset) + "Chunk Header Corrupted\n");
@@ -312,10 +309,9 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     //Set the header data
     BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
-    BufferUtils::setInt(_chunkHeader.voxelDataSize, _compressedBufferSize - sizeof(ChunkHeader));
-    BufferUtils::setInt(_chunkHeader.auxDataSize, 0);
     BufferUtils::setInt(_chunkHeader.timeStamp, 0);
-
+    BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
+    
     //Copy the header data to the write buffer
     memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
 
@@ -420,20 +416,20 @@ bool RegionFileManager::readChunkHeader() {
 
 bool RegionFileManager::readVoxelData_v0() {
 
-    ui32 voxelDataSize = BufferUtils::extractInt(_chunkHeader.voxelDataSize);
+    ui32 dataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
 
-    if (voxelDataSize > sizeof(_compressedByteBuffer)) {
+    if (dataLength > sizeof(_compressedByteBuffer)) {
         pError("Region voxel input buffer overflow");
         return false;
     }
 
-    if (fread(_compressedByteBuffer, 1, voxelDataSize, _regionFile->file) != voxelDataSize) {
+    if (fread(_compressedByteBuffer, 1, dataLength, _regionFile->file) != dataLength) {
         cout << "Did not read enough bytes at Z\n";
         return false;
     }
 
     uLongf bufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
-    int zresult = uncompress(_byteBuffer, &bufferSize, _compressedByteBuffer, voxelDataSize);
+    int zresult = uncompress(_byteBuffer, &bufferSize, _compressedByteBuffer, dataLength);
 
     return (!checkZlibError("decompression", zresult));
  
@@ -739,7 +735,6 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     int jMult, kMult;
 
     chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
-
 
     rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
     rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);

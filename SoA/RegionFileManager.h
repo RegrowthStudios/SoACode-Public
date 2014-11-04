@@ -31,8 +31,7 @@
 struct ChunkHeader {
     ui8 compression[4];
     ui8 timeStamp[4];
-    ui8 voxelDataSize[4]; //size including the header
-    ui8 auxDataSize[4]; //size of all other data, i.e. particles, entities, ect.
+    ui8 dataLength[4]; //length of the data
 };
 
 struct RegionFileHeader {
