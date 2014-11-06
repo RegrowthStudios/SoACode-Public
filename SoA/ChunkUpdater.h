@@ -21,7 +21,8 @@ private:
     //TODO: Replace with emitterOnBreak
     static void breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force = 0.0f, glm::vec3 extraForce = glm::vec3(0.0f));
 
-    static void placeFlora(Chunk* chunk, int blockIndex, int blockType);
+    static void placeFlora(Chunk* chunk, int blockIndex, int blockID);
+    static void removeFlora(Chunk* chunk, int blockIndex, int blockID);
 
     //Fire
     static void updateFireBlock(Chunk* chunk, int blockIndex);

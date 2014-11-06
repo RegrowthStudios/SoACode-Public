@@ -298,6 +298,11 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
         }
     }
 
+    // If its a plant, we need to do some extra iteration
+    if (block.floraHeight) {
+        removeFlora(chunk, blockIndex, blockID);
+    }
+
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
     chunk->numBlocks--;
     if (chunk->numBlocks < 0) chunk->numBlocks = 0;
@@ -567,7 +572,7 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
 }
 
 // TODO(Ben): Make this cleaner
-void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
+void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockID) {
     
     // Start it out at -1 so when we add 1 we get 0.
     ui16 floraHeight = -1;
@@ -576,7 +581,7 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
     // Get tertiary data
     if (blockIndex > CHUNK_LAYER) {
         // Only need the data if its the same plant as we are
-        if (chunk->getBlockID(blockIndex - CHUNK_LAYER) == blockType) {
+        if (chunk->getBlockID(blockIndex - CHUNK_LAYER) == blockID) {
             tertiaryData = chunk->getTertiaryData(blockIndex - CHUNK_LAYER);
             // Grab height and position
             floraHeight = VoxelBits::getFloraHeight(tertiaryData);
@@ -618,7 +623,7 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
         }
 
         // Loop while this is the same block type
-        if (chunk->getBlockID(blockIndex) == blockType) {
+        if (chunk->getBlockID(blockIndex) == blockID) {
             tertiaryData = chunk->getTertiaryData(blockIndex);
             // Set new flora height
             VoxelBits::setFloraHeight(tertiaryData, floraHeight);
@@ -627,6 +632,28 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
             return;
         }
 
+    }
+}
+
+void ChunkUpdater::removeFlora(Chunk* chunk, int blockIndex, int blockID) {
+    // Grab tertiary data
+    ui16 tertiaryData = chunk->getTertiaryData(blockIndex);
+    // Grab height and position
+    ui16 floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+    // Set tertiary data to 0
+    chunk->setTertiaryData(blockIndex, 0);
+
+    // Recursively kill above flora blocks
+    blockIndex += CHUNK_LAYER;
+    if (blockIndex < CHUNK_SIZE) {
+        if (chunk->getBlockID(blockIndex) == blockID) {
+            removeBlock(chunk, blockIndex, true);
+        }
+    } else if (chunk->top && chunk->top->isAccessible) {
+        blockIndex -= CHUNK_SIZE;
+        if (chunk->top->getBlockID(blockIndex) == blockID) {
+            removeBlock(chunk->top, blockIndex, true);
+        }
     }
 }
 
