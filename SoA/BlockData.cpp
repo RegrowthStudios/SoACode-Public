@@ -92,7 +92,7 @@ KEG_TYPE_INIT_BEGIN_DEF_VAR(Block)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("ID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, ID)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("burnTransformID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, burnTransformID)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waveEffect", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waveEffect)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, lightColor)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, lightColor)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("physicsProperty", Keg::Value::custom("PhysicsProperties", offsetof(Block, physicsProperty), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterMeshLevel", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waterMeshLevel)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("floatingAction", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, floatingAction)));
@@ -226,7 +226,8 @@ emitterOnBreak(NULL),
 emitterRandom(NULL),
 emitterRandomName(""),
 color(255, 255, 255),
-overlayColor(255, 255, 255) {
+overlayColor(255, 255, 255),
+lightColor(0, 0, 0) {
     allowLight = 0;
     ID = 0;
     name = leftTexName = rightTexName = backTexName = frontTexName = topTexName = bottomTexName = particleTexName = "";
@@ -240,7 +241,6 @@ overlayColor(255, 255, 255) {
     useable = 1;
     blockLight = 1;
     waterMeshLevel = 0;
-    lightColor = 0;
     waterBreak = 0;
     isCrushable = 0;
     floatingAction = 1;

@@ -234,7 +234,7 @@ public:
     ui16 ID;
     ui16 burnTransformID;
     i16 waveEffect;
-    ui16 lightColor;
+    ui16 lightColorPacked; /// 5 bit RGB light color packed into a ui16
     i16 waterMeshLevel;
     i16 floatingAction;
     ui16 spawnerVal;
@@ -258,6 +258,7 @@ public:
     ColorRGB8 color;
     ColorRGB8 overlayColor;
     ColorRGB8 averageColor;
+    ColorRGB8 lightColor;
     ui8 particleTex;
     bool powderMove;
     bool collide;
