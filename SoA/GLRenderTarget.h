@@ -15,6 +15,8 @@
 #ifndef GLRenderTarget_h__
 #define GLRenderTarget_h__
 
+#include "GLEnums.h"
+
 namespace vorb {
     namespace core {
         namespace graphics {
@@ -33,8 +35,15 @@ namespace vorb {
 
                 /// Initialize The FrameBuffer On The GPU
                 /// 
-                GLRenderTarget& init(ui32 format = GL_RGBA8, ui32 depthStencilFormat = GL_DEPTH24_STENCIL8, ui32 msaa = 0);
+                GLRenderTarget& init(
+                    TextureInternalFormat format = TextureInternalFormat::RGBA8,
+                    TextureInternalFormat depthStencilFormat = TextureInternalFormat::DEPTH24_STENCIL8,
+                    ui32 msaa = 0);
                 void dispose();
+
+                const ui32& getID() const {
+                    return _fbo;
+                }
 
                 const ui32v2& getSize() const {
                     return _size;
@@ -48,12 +57,16 @@ namespace vorb {
 
                 void use() const;
                 static void unuse(ui32 w, ui32 h);
+
+                void bindTexture() const;
+                void unbindTexture() const;
             private:
                 ui32v2 _size; ///< The Width And Height Of The FrameBuffer
 
                 ui32 _fbo = 0; ///< FrameBuffer ID
                 ui32 _texColor = 0; ///< Color Texture Of FrameBuffer
                 ui32 _texDS = 0; ///< Depth/Stencil Texture Of FrameBuffer
+                VGEnum textureTarget; ///< The Kinds Of Textures Bound To This FBO
             };
         }
     }
