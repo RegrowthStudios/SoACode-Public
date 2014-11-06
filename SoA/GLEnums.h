@@ -430,7 +430,7 @@ namespace vorb {
                 STENCIL_INDEX8 = GL_STENCIL_INDEX8
             };
             enum class DrawBufferMode {
-                NONE = 0,
+                NONE = GL_NONE,
                 BACK = GL_BACK,
                 BACK_LEFT = GL_BACK_LEFT,
                 BACK_RIGHT = GL_BACK_RIGHT,
@@ -455,7 +455,6 @@ namespace vorb {
                 FRONT_LEFT = GL_FRONT_LEFT,
                 FRONT_RIGHT = GL_FRONT_RIGHT,
                 LEFT = GL_LEFT,
-                NONE = GL_NONE,
                 RIGHT = GL_RIGHT
             };
             enum class FramebufferErrorCode {

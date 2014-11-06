@@ -30,10 +30,10 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera, IAweso
     // Construct frame buffer
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w, graphicsOptions.msaa);
+        _hdrFrameBuffer = new vg::FrameBuffer(vg::TextureInternalFormat::RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w, graphicsOptions.msaa);
     } else {
         glDisable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w);
+        _hdrFrameBuffer = new vg::FrameBuffer(vg::TextureInternalFormat::RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w);
     }
 
     // Init render stages
