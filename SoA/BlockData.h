@@ -262,7 +262,6 @@ public:
     bool powderMove;
     bool collide;
     bool waterBreak;
-    bool isLight;
     bool blockLight;
     bool useable;
     bool allowLight;

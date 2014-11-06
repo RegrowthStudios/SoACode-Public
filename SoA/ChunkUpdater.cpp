@@ -152,7 +152,7 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
         chunk->setLampLight(blockIndex, 0);
     }
     //Light placement
-    if (block.isLight){
+    if (block.lightColor){
         chunk->setLampLight(blockIndex, block.lightColor);
         chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColor));
     }
@@ -199,7 +199,7 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
     }
 
     //Light placement
-    if (block.isLight){
+    if (block.lightColor) {
         chunk->setLampLight(blockIndex, block.lightColor);
         chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColor));
     }
@@ -262,7 +262,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     chunk->setBlockData(blockIndex, NONE);
 
     //Update lighting
-    if (block.blockLight || block.isLight){
+    if (block.blockLight || block.lightColor) {
         //This will pull light from neighbors
         chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
         chunk->setLampLight(blockIndex, 0);
@@ -313,7 +313,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
     chunk->setBlockData(blockIndex, NONE);
 
     //Update lighting
-    if (block.blockLight || block.isLight){
+    if (block.blockLight || block.lightColor) {
         //This will pull light from neighbors
         chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
         chunk->setLampLight(blockIndex, 0);

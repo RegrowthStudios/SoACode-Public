@@ -240,7 +240,6 @@ overlayColor(255, 255, 255) {
     useable = 1;
     blockLight = 1;
     waterMeshLevel = 0;
-    isLight = 0;
     lightColor = 0;
     waterBreak = 0;
     isCrushable = 0;

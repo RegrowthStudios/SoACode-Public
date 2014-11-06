@@ -80,7 +80,6 @@ void BlockLoader::postProcessBlockLoad(Block* block) {
     GameManager::texturePackLoader->registerBlockTexture(block->backTexName);
     GameManager::texturePackLoader->registerBlockTexture(block->frontTexName);
     GameManager::texturePackLoader->registerBlockTexture(block->bottomTexName);
-    if (block->lightColor)
 }
 
 
