@@ -122,6 +122,7 @@ public:
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
     int getSunlight(int c) const;
+    ui16 getTertiaryData(int c) const;
     int getFloraHeight(int c) const;
 
     ui16 getLampLight(int c) const;

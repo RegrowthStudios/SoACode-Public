@@ -38,6 +38,7 @@ public:
     i32 levelOfDetail;
     MeshType meshType;
     bool mergeUp, mergeBot, mergeFront, mergeBack;
+    const Block* currentBlock;
 
     RenderTask* task;
     ChunkGridData* chunkGridData;

@@ -27,6 +27,7 @@ public:
     ui16 chData[PADDED_CHUNK_SIZE];
     ui16 chLampData[PADDED_CHUNK_SIZE];
     ui8 chSunlightData[PADDED_CHUNK_SIZE];
+    ui16 chTertiaryData[PADDED_CHUNK_SIZE];
     ChunkGridData* chunkGridData;
 	i32 wSize;
 	ui16 wvec[CHUNK_SIZE];

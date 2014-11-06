@@ -53,7 +53,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     ui16 data;
     ui16 lampData;
     ui8 sunlightData;
-    ui16 tertiaryData = 0;
+    ui16 tertiaryData;
 
     for (int y = 0; y < CHUNK_WIDTH; y++){
         pnum = chunk->numBlocks;
@@ -65,6 +65,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 data = 0;
                 sunlightData = 0;
                 lampData = 0;
+                tertiaryData = 0;
 
                 snowDepth = heightMap[hindex].snowDepth;
                 sandDepth = heightMap[hindex].sandDepth;

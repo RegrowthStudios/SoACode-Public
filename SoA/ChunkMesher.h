@@ -85,9 +85,10 @@ private:
     ui8 lodSunData[18 * 18 * 18];
 
     //Pointers to the voxel data array that is currently in use
-    ui16* blockIDData;
-    ui16* lampLightData;
-    ui8* sunlightData;
+    ui16* _blockIDData;
+    ui16* _lampLightData;
+    ui8* _sunlightData;
+    ui16* _tertiaryData;
 
     ui32 _finalQuads[7000];
 

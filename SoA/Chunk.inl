@@ -324,6 +324,10 @@ inline int Chunk::getSunlight(int c) const {
     return _sunlightContainer.get(c);
 }
 
+inline ui16 Chunk::getTertiaryData(int c) const {
+    return _tertiaryDataContainer.get(c);
+}
+
 inline int Chunk::getFloraHeight(int c) const {
     return _tertiaryDataContainer.get(c) & FLORA_HEIGHT_MASK;
 }
