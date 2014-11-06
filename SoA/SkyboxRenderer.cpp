@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "SkyboxRenderer.h"
+
+#include "GLEnums.h"
 #include "GpuMemory.h"
 
 // Skybox Cube //
@@ -96,7 +98,7 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
 
     // Vertex Buffer Object
     vg::GpuMemory::createBuffer(_vbo);
-    vg::GpuMemory::bindBuffer(_vbo, vg::BufferTarget::ARRAY);
+    vg::GpuMemory::bindBuffer(_vbo, vg::BufferTarget::ARRAY_BUFFER);
 
     SkyboxVertex verts[VERTS_PER_QUAD * SKYBOX_FACES];
     for (int i = 0; i < VERTS_PER_QUAD * SKYBOX_FACES; i++) {
@@ -106,10 +108,10 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
         verts[i].texCoords = f32v2(skyboxUVs[i * 2], skyboxUVs[i * 2 + 1]);
     }
 
-    vg::GpuMemory::uploadBufferData(_vbo, vg::BufferTarget::ARRAY, sizeof(verts), verts, vg::BufferUsage::STATIC_DRAW);
+    vg::GpuMemory::uploadBufferData(_vbo, vg::BufferTarget::ARRAY_BUFFER, sizeof(verts), verts, vg::BufferUsageHint::STATIC_DRAW);
 
     vg::GpuMemory::createBuffer(_ibo);
-    vg::GpuMemory::bindBuffer(_ibo, vg::BufferTarget::ELEMENT_ARRAY);
+    vg::GpuMemory::bindBuffer(_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
 
     // Index buffer Object
     ui16 skyboxIndices[INDICES_PER_QUAD * SKYBOX_FACES];
@@ -124,7 +126,7 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
         skyboxIndices[i + 5] = ci;
     }
 
-    vg::GpuMemory::uploadBufferData(_ibo, vg::BufferTarget::ELEMENT_ARRAY, sizeof(skyboxIndices), skyboxIndices, vg::BufferUsage::STATIC_DRAW);
+    vg::GpuMemory::uploadBufferData(_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(skyboxIndices), skyboxIndices, vg::BufferUsageHint::STATIC_DRAW);
 
     // Set up attribute pointers
     program->enableVertexAttribArrays();
