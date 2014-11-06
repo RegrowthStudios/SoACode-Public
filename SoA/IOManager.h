@@ -46,6 +46,26 @@ public:
     bool readFileToString(const cString path, nString& data);
     const cString readFileToString(const cString path);
     bool readFileToData(const cString path, std::vector<ui8>& data);
+
+    /// Writes a string to a file. Creates file if it doesn't exist
+    /// @param path: The path to the file
+    /// @param data: The data to write to file
+    /// @return true on success
+    bool writeStringToFile(const cString path, const nString& data);
+
+    /// Makes a directory
+    /// @param path: The directory path to make
+    bool makeDirectory(const cString path);
+
+    /// Check if a file exists
+    /// @param path: The path to the file
+    /// @return true if file exists
+    bool fileExists(const cString path);
+
+    /// Check if a directory exists
+    // @param path: The path to the directory
+    /// @return true if directory exists
+    bool directoryExists(const cString path);
 private:
     // Search Order (Top-Down)
     cString _searchDir;
