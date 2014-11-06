@@ -108,9 +108,11 @@ void IOManager::getDirectoryEntries(nString dirPath, std::vector<boost::filesyst
     boost::filesystem::directory_iterator end_iter;
     boost::filesystem::path targetDir(dirPath);
 
-    for (boost::filesystem::directory_iterator dir_iter(targetDir); dir_iter != end_iter; ++dir_iter) {
-        // Emplace a copy of the path reference
-        entries.emplace_back(boost::filesystem::path(dir_iter->path()));
+    if (boost::filesystem::exists(targetDir)) {
+        for (boost::filesystem::directory_iterator dir_iter(targetDir); dir_iter != end_iter; ++dir_iter) {
+            // Emplace a copy of the path reference
+            entries.emplace_back(boost::filesystem::path(dir_iter->path()));
+        }
     }
 }
 
@@ -227,7 +229,7 @@ bool IOManager::resolveFile(const cString path, nString& resultAbsolutePath) {
 }
 
 bool IOManager::writeStringToFile(const cString path, const nString& data) {
-    FILE* file;
+    FILE* file = nullptr;
     fopen_s(&file, path, "w");
     if (file) {
       fwrite(data.c_str(), 1, data.length(), file);

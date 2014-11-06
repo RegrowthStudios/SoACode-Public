@@ -1184,6 +1184,7 @@ void FileManager::loadNoiseDescriptions(const char *filename) {
 }
 
 i32 FileManager::makeSaveDirectories(nString filePath) {
+    boost::filesystem::create_directory("Saves");
     boost::filesystem::create_directory(filePath);
     boost::filesystem::create_directory(filePath + "/Players");
     boost::filesystem::create_directory(filePath + "/Data");

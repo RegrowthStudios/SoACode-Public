@@ -247,6 +247,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
                 if (!fillChunkVoxelData(chunk)) return false;
                 break;
             default:
+                std::cout << "TAG " << tag << std::endl;
                 return false;
         }
     }
@@ -255,6 +256,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
 
 //Saves a chunk to a region file
 bool RegionFileManager::saveChunk(Chunk* chunk) {
+
     //Used for copying sectors if we need to resize the file
     if (_copySectorsBuffer) {
         delete[] _copySectorsBuffer;
@@ -327,18 +329,12 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
     BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
     BufferUtils::setInt(_chunkHeader.timeStamp, 0);
     BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
-    
-    //Copy the header data to the write buffer
-    memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
 
     //seek to the chunk
     if (!seekToChunk(chunkSectorOffset)){
         pError("Region: Chunk data fseek save error GG! " + to_string(chunkSectorOffset));
         return false;
     }
-
-    // Write the voxel data tag
-    fwrite(TAG_VOXELDATA_STR, 1, 4, _regionFile->file);
 
     //Write the header and data
     writeSectors(_compressedByteBuffer, (ui32)_compressedBufferSize);
@@ -719,6 +715,7 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
 }
 
 bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
+
     ui16* blockIDData;
     ui8* sunlightData;
     ui16* lampLightData;
@@ -746,6 +743,10 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     Chunk::modifyLock.unlock();
 
     _bufferSize = 0;
+
+    // Set the tag
+    memcpy(_chunkBuffer, TAG_VOXELDATA_STR, 4);
+    _bufferSize += 4;
 
     int jStart, jEnd, jInc;
     int kStart, kEnd, kInc;
