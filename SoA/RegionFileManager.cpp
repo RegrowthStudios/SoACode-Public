@@ -623,6 +623,9 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
     chunk->_lampLightContainer.initFromSortedArray(lampLightNodes);
     chunk->_sunlightContainer.initFromSortedArray(sunlightNodes);
     chunk->_tertiaryDataContainer.initFromSortedArray(tertiaryDataNodes);
+    if (chunk->_tertiaryDataContainer._dataTree.size() != 32768) {
+        pError("Here " + std::to_string(chunk->_tertiaryDataContainer._dataTree.size()));
+    }
 
     return true;
 }

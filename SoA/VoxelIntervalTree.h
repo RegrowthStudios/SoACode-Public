@@ -56,7 +56,7 @@ public:
             tot += _tree[i].length;
         }
         if (tot != 32768) {
-            std::cout << "rofl";
+            pError("Invalid Tree! Total size is not 32768, it is " + to_string(tot));
             fflush(stdout);
         }
 
