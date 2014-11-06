@@ -218,9 +218,6 @@
     <ClInclude Include="FragFile.h">
       <Filter>SOA Files\Data\IO Utils</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -614,6 +611,9 @@
     <ClInclude Include="GLEnums.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -693,9 +693,6 @@
     </ClCompile>
     <ClCompile Include="FragFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>SOA Files\Rendering</Filter>
@@ -993,6 +990,9 @@
     </ClCompile>
     <ClCompile Include="GLRenderTarget.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
