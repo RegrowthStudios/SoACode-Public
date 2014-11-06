@@ -252,7 +252,7 @@ void ChunkMesher::getFloraTextureIndex(const MesherInfo &mi, const BlockTextureL
 
     result += column;
 
-
+    int height = 
 
 }
 
