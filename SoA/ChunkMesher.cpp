@@ -229,6 +229,8 @@ void ChunkMesher::getFloraTextureIndex(const MesherInfo &mi, const BlockTextureL
     float r = (PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo.totalWeight;
     float totalWeight = 0;
 
+    int wc = mi.wc;
+
     int column;
 
     // TODO(Ben): Binary search?
@@ -252,7 +254,9 @@ void ChunkMesher::getFloraTextureIndex(const MesherInfo &mi, const BlockTextureL
 
     result += column;
 
-    int height = 
+    // Get the height of the current voxel
+    int height = MIN(VoxelBits::getFloraHeight(_tertiaryData[wc]), mi.currentBlock->floraHeight);
+    int ypos = VoxelBits::getFloraPosition(_tertiaryData[wc]);
 
 }
 

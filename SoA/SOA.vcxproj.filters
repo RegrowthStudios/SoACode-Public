@@ -611,6 +611,9 @@
     <ClInclude Include="DevHudRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelBits.h">
+      <Filter>SOA Files\Voxel\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

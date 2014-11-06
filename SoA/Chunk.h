@@ -14,6 +14,7 @@
 #include "SmartVoxelContainer.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
+#include "VoxelBits.h"
 #include "VoxelLightEngine.h"
 
 //used by threadpool
@@ -29,15 +30,6 @@ enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DR
 
 struct LightMessage;
 struct RenderTask;
-
-//For lamp colors. Used to extract color values from the 16 bit color code
-#define LAMP_RED_MASK 0x7C00
-#define LAMP_GREEN_MASK 0x3E0
-#define LAMP_BLUE_MASK 0x1f
-#define LAMP_RED_SHIFT 10
-#define LAMP_GREEN_SHIFT 5
-#define FLORA_HEIGHT_MASK 0x1f
-//no blue shift
 
 class ChunkGridData {
 public:
@@ -133,10 +125,6 @@ public:
     const Block& getBlock(int c) const;
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
-
-    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
-    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
-    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
 
     int getLevelOfDetail() const { return _levelOfDetail; }
 

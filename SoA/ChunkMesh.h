@@ -19,6 +19,7 @@ enum class MeshJobType;
 struct RenderTask;
 class Chunk;
 class ChunkGridData;
+class Block;
 
 // Stores Chunk Mesh Information
 struct MesherInfo {
