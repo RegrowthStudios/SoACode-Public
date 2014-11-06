@@ -249,7 +249,6 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
             default:
                 return false;
         }
-        
     }
     return true;
 }

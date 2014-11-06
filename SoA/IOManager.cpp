@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "IOManager.h"
 
-#include <direct.h> // for mkdir windows
-
 #include "utils.h"
 
 IOManager::IOManager() :
@@ -240,7 +238,7 @@ bool IOManager::writeStringToFile(const cString path, const nString& data) {
 }
 
 bool IOManager::makeDirectory(const cString path) {
-    return _mkdir(path) == 0;
+    return boost::filesystem::create_directory(path);
 }
 
 bool IOManager::fileExists(const cString path) {
