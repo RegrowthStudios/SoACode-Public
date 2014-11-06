@@ -229,7 +229,8 @@ bool IOManager::resolveFile(const cString path, nString& resultAbsolutePath) {
 }
 
 bool IOManager::writeStringToFile(const cString path, const nString& data) {
-    FILE* file = openFile(path, "w");
+    FILE* file;
+    fopen_s(&file, path, "w");
     if (file) {
       fwrite(data.c_str(), 1, data.length(), file);
       fclose(file);
