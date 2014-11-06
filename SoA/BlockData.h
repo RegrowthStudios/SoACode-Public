@@ -240,6 +240,7 @@ public:
     ui16 spawnerVal;
     ui16 sinkVal;
     ui16 explosionRays;
+    ui16 floraHeight = 0;
 
     BlockOcclusion occlude;
 

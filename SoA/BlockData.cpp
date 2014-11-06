@@ -344,6 +344,14 @@ void Block::InitializeTexture() {
         GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
         particleTex = particleTexture.base.textureIndex;
 
+        // Calculate flora height
+        // TODO(Ben): Not really a good place for this
+        if (pxTexInfo.base.method == ConnectedTextureMethods::FLORA) {
+            // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
+            // which becomes n = (sqrt(8 * y + 1) - 1) / 2
+            int y = pxTexInfo.base.size.y;
+            floraHeight = (sqrt(8 * y + 1) - 1) / 2;
+        }
     }
 }
 

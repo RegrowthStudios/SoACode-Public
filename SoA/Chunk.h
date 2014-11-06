@@ -36,6 +36,7 @@ struct RenderTask;
 #define LAMP_BLUE_MASK 0x1f
 #define LAMP_RED_SHIFT 10
 #define LAMP_GREEN_SHIFT 5
+#define FLORA_HEIGHT_MASK 0x1f
 //no blue shift
 
 class ChunkGridData {
@@ -121,6 +122,7 @@ public:
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
     int getSunlight(int c) const;
+    int getFloraHeight(int c) const;
 
     ui16 getLampLight(int c) const;
     ui16 getLampRed(int c) const;
@@ -142,6 +144,7 @@ public:
     void setBlockData(int c, ui16 val);
     void setSunlight(int c, ui8 val);
     void setLampLight(int c, ui16 val);
+    void setFloraHeight(int c, ui16 val);
 
     void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
     
