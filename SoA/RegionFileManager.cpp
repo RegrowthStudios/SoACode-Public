@@ -22,7 +22,7 @@
 // Section tags
 #define TAG_VOXELDATA 0x1
 
-const char TAG_VOXELDATA_STR[4] = {0, 0, 0, TAG_VOXELDATA};
+const char TAG_VOXELDATA_STR[4] = { TAG_VOXELDATA, 0, 0, 0 };
 
 inline i32 fileTruncate(i32 fd, i64 size)
 {
@@ -239,7 +239,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     while (_chunkOffset < _chunkBufferSize) {
         // Read the tag
         ui32 tag = BufferUtils::extractInt(_chunkBuffer, _chunkOffset);
-        _chunkOffset += sizeof(tag);
+        _chunkOffset += sizeof(ui32);
 
         switch (tag) {
             case TAG_VOXELDATA:
@@ -247,7 +247,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
                 if (!fillChunkVoxelData(chunk)) return false;
                 break;
             default:
-                std::cout << "TAG " << tag << std::endl;
+                std::cout << "INVALID TAG " << tag << std::endl;
                 return false;
         }
     }
@@ -329,6 +329,9 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
     BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
     BufferUtils::setInt(_chunkHeader.timeStamp, 0);
     BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
+
+    //Copy the header data to the write buffer
+    memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
 
     //seek to the chunk
     if (!seekToChunk(chunkSectorOffset)){
@@ -657,8 +660,8 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
                 if (!first) {
                     index = i*CHUNK_LAYER + j*jMult + k*kMult;
                     if (data[index] != curr){
-                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
                         _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
                         _chunkBuffer[_bufferSize++] = curr;
                         tot += count;
 
@@ -673,8 +676,8 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
             }
         }
     }
-    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
     _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
     tot += count;
     _chunkBuffer[_bufferSize++] = curr;
 }
@@ -691,10 +694,10 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
                 if (!first){
                     index = i*CHUNK_LAYER + j*jMult + k*kMult;
                     if (data[index] != curr){
-                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
                         _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-                        _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
+                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
                         _chunkBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);                   
                         tot += count;
                         curr = data[index];
                         count = 1;
@@ -707,10 +710,10 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
             }
         }
     }
-    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
     _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-    _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
+    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
     _chunkBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
     tot += count;
 }
 
