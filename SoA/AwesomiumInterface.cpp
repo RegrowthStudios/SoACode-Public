@@ -262,7 +262,7 @@ void AwesomiumInterface<C>::draw(vg::GLProgram* program) const
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
     program->disableVertexAttribArrays();
-    program->use();
+    program->unuse();
 }
 
 template <class C>
