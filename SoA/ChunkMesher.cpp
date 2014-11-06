@@ -255,8 +255,8 @@ void ChunkMesher::getFloraTextureIndex(const MesherInfo &mi, const BlockTextureL
     result += column;
 
     // Get the height of the current voxel
-    int height = MIN(VoxelBits::getFloraHeight(_tertiaryData[wc]), mi.currentBlock->floraHeight) - 1;
-    int yPos = VoxelBits::getFloraPosition(_tertiaryData[wc]);
+    int height = MIN(VoxelBits::getFloraHeight(_tertiaryData[wc]), mi.currentBlock->floraHeight);
+    int yPos = height - VoxelBits::getFloraPosition(_tertiaryData[wc]);
 
     // Move the result to the flora of the correct height
     result += blockTexInfo.size.x * (height * height + height) / 2;

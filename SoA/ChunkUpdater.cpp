@@ -132,8 +132,6 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
     // If its a plant, we need to do some extra iteration
     if (block.floraHeight) {
         placeFlora(chunk, blockIndex, blockType);
-        ui16 tert = chunk->getTertiaryData(blockIndex);
-        std::cout << VoxelBits::getFloraHeight(tert) << " " << VoxelBits::getFloraPosition(tert) << std::endl;
     }
 
     //Check for light removal due to block occlusion
@@ -571,9 +569,10 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
 // TODO(Ben): Make this cleaner
 void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
     
-    ui16 floraHeight = 0;
-    ui16 floraYpos = 0;
-    ui16 tertiaryData = -1; // Start it out at -1 so when we add 1 we get 0.
+    // Start it out at -1 so when we add 1 we get 0.
+    ui16 floraHeight = -1;
+    ui16 floraYpos = -1;
+    ui16 tertiaryData; 
     // Get tertiary data
     if (blockIndex > CHUNK_LAYER) {
         // Only need the data if its the same plant as we are
@@ -582,7 +581,6 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
             // Grab height and position
             floraHeight = VoxelBits::getFloraHeight(tertiaryData);
             floraYpos = VoxelBits::getFloraPosition(tertiaryData);
-            tertiaryData = 0;
         }
     } else {
 
@@ -593,14 +591,15 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
                 // Grab height and position
                 floraHeight = VoxelBits::getFloraHeight(tertiaryData);
                 floraYpos = VoxelBits::getFloraPosition(tertiaryData);
-                tertiaryData = 0;
             }
         } else {
             return;
         }
     }
+    tertiaryData = 0;
+    floraHeight += 1; // add one since we are bigger now
     // Add 1 to the tertiary data
-    VoxelBits::setFloraHeight(tertiaryData, floraHeight + 1);
+    VoxelBits::setFloraHeight(tertiaryData, floraHeight);
     VoxelBits::setFloraPosition(tertiaryData, floraYpos + 1);
     // Set it
     chunk->setTertiaryData(blockIndex, tertiaryData);
@@ -621,8 +620,8 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
         // Loop while this is the same block type
         if (chunk->getBlockID(blockIndex) == blockType) {
             tertiaryData = chunk->getTertiaryData(blockIndex);
-            // Increase flora height
-            VoxelBits::setFloraHeight(tertiaryData, VoxelBits::getFloraHeight(tertiaryData) + 1);
+            // Set new flora height
+            VoxelBits::setFloraHeight(tertiaryData, floraHeight);
             chunk->setTertiaryData(blockIndex, tertiaryData);
         } else {
             return;
