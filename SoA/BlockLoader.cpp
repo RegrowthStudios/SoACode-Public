@@ -4,6 +4,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "BlockData.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "IOManager.h"
@@ -80,6 +81,11 @@ void BlockLoader::postProcessBlockLoad(Block* block) {
     GameManager::texturePackLoader->registerBlockTexture(block->backTexName);
     GameManager::texturePackLoader->registerBlockTexture(block->frontTexName);
     GameManager::texturePackLoader->registerBlockTexture(block->bottomTexName);
+
+    // Pack light color
+    block->lightColorPacked = (ui16)block->lightColor.r << LAMP_RED_SHIFT |
+        (ui16)block->lightColor.g << LAMP_GREEN_SHIFT |
+        (ui16)block->lightColor.b);
 }
 
 
