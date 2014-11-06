@@ -231,11 +231,26 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     //Get the chunk header
     if (!readChunkHeader()) return false;
 
+    // Read all chunk data
     if (!readChunkData_v0()) return false;
-   
-    //Fill the chunk with the aquired data
-    if (!fillChunkVoxelData(chunk)) return false;
+    
+    // Read all tags and process the data
+    _chunkOffset = 0;
+    while (_chunkOffset < _chunkBufferSize) {
+        // Read the tag
+        ui32 tag = BufferUtils::extractInt(_chunkBuffer, _chunkOffset);
+        _chunkOffset += sizeof(tag);
 
+        switch (tag) {
+            case TAG_VOXELDATA:
+                //Fill the chunk with the aquired data
+                if (!fillChunkVoxelData(chunk)) return false;
+                break;
+            default:
+                return false;
+        }
+        
+    }
     return true;
 }
 
@@ -433,8 +448,8 @@ bool RegionFileManager::readChunkData_v0() {
         return false;
     }
 
-    uLongf bufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
-    int zresult = uncompress(_byteBuffer, &bufferSize, _compressedByteBuffer, dataLength);
+    _chunkBufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
+    int zresult = uncompress(_chunkBuffer, &_chunkBufferSize, _compressedByteBuffer, dataLength);
 
     return (!checkZlibError("decompression", zresult));
  
@@ -454,8 +469,8 @@ int RegionFileManager::rleUncompressArray(ui8* data, ui32& byteIndex, int jStart
     //Read block data
     while (blockCounter < CHUNK_SIZE){
         //Grab a run of RLE data
-        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
-        value = _byteBuffer[byteIndex + 2];
+        runSize = BufferUtils::extractShort(_chunkBuffer, byteIndex);
+        value = _chunkBuffer[byteIndex + 2];
 
         for (int q = 0; q < runSize; q++){
             index = i * CHUNK_LAYER + j * jMult + k * kMult;
@@ -497,8 +512,8 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
     //Read block data
     while (blockCounter < CHUNK_SIZE){
         //Grab a run of RLE data
-        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
-        value = BufferUtils::extractShort(_byteBuffer, byteIndex + 2);
+        runSize = BufferUtils::extractShort(_chunkBuffer, byteIndex);
+        value = BufferUtils::extractShort(_chunkBuffer, byteIndex + 2);
 
         for (int q = 0; q < runSize; q++){
             index = i * CHUNK_LAYER + j * jMult + k * kMult;
@@ -527,8 +542,6 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
 }
 
 bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
-   // return false;
-    ui32 byteIndex = 0;
 
     ui8 lightVal;
 
@@ -541,11 +554,11 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
 
     chunk->numBlocks = 0;
 
-    if (rleUncompressArray(blockIDBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    if (rleUncompressArray(_blockIDBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(lampLightBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    if (rleUncompressArray(_lampLightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(sunlightBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    if (rleUncompressArray(_sunlightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
     //Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
     static vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
@@ -562,15 +575,15 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
     ui8 sunlight;
 
     //Add first nodes
-    blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, blockIDBuffer[0]));
-    lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, lampLightBuffer[0]));
-    sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, sunlightBuffer[0]));
+    blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _blockIDBuffer[0]));
+    lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _lampLightBuffer[0]));
+    sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
 
     //Construct the node vectors
     for (int i = 1; i < CHUNK_SIZE; i++) {
-        blockID = blockIDBuffer[i];
-        lampLight = lampLightBuffer[i];
-        sunlight = sunlightBuffer[i];
+        blockID = _blockIDBuffer[i];
+        lampLight = _lampLightBuffer[i];
+        sunlight = _sunlightBuffer[i];
 
         if (blockID != 0) chunk->numBlocks++;
         
@@ -649,9 +662,9 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
                 if (!first) {
                     index = i*CHUNK_LAYER + j*jMult + k*kMult;
                     if (data[index] != curr){
-                        _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-                        _byteBuffer[_bufferSize++] = curr;
+                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+                        _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+                        _chunkBuffer[_bufferSize++] = curr;
                         tot += count;
 
                         curr = data[index];
@@ -665,10 +678,10 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
             }
         }
     }
-    _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+    _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
     tot += count;
-    _byteBuffer[_bufferSize++] = curr;
+    _chunkBuffer[_bufferSize++] = curr;
 }
 
 void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
@@ -683,10 +696,10 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
                 if (!first){
                     index = i*CHUNK_LAYER + j*jMult + k*kMult;
                     if (data[index] != curr){
-                        _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-                        _byteBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+                        _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
+                        _chunkBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
                         tot += count;
                         curr = data[index];
                         count = 1;
@@ -699,10 +712,10 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
             }
         }
     }
-    _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-    _byteBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+    _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
+    _chunkBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
     tot += count;
 }
 
@@ -714,19 +727,19 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     //Need to lock so that nobody modifies the interval tree out from under us
     Chunk::modifyLock.lock();
     if (chunk->_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
-        blockIDData = blockIDBuffer;
+        blockIDData = _blockIDBuffer;
         chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
     } else {
         blockIDData = chunk->_blockIDContainer.getDataArray();
     }
     if (chunk->_lampLightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
-        lampLightData = lampLightBuffer;
+        lampLightData = _lampLightBuffer;
         chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
     } else {
         lampLightData = chunk->_lampLightContainer.getDataArray();
     }
     if (chunk->_sunlightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
-        sunlightData = sunlightBuffer;
+        sunlightData = _sunlightBuffer;
         chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
     } else {
         sunlightData = chunk->_sunlightContainer.getDataArray();
@@ -751,7 +764,7 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
 bool RegionFileManager::zlibCompress() {
     _compressedBufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
     //Compress the data, and leave space for the uncompressed chunk header
-    int zresult = compress2(_compressedByteBuffer + sizeof(ChunkHeader), &_compressedBufferSize, _byteBuffer, _bufferSize, 6);
+    int zresult = compress2(_compressedByteBuffer + sizeof(ChunkHeader), &_compressedBufferSize, _chunkBuffer, _bufferSize, 6);
     _compressedBufferSize += sizeof(ChunkHeader);
 
     return (!checkZlibError("compression", zresult));

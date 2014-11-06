@@ -74,7 +74,7 @@ private:
     void closeRegionFile(RegionFile* regionFile);
 
     bool readChunkHeader();
-    bool readVoxelData_v0();
+    bool readChunkData_v0();
 
     int rleUncompressArray(ui8* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
     int rleUncompressArray(ui16* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
@@ -101,7 +101,7 @@ private:
     
     //Byte buffer for reading chunk data
     ui32 _bufferSize;
-    ui8 _byteBuffer[CHUNK_DATA_SIZE];
+    ui8 _chunkBuffer[CHUNK_DATA_SIZE];
     //Byte buffer for compressed data. It is slightly larger because of worst case with RLE
     uLongf _compressedBufferSize;
     ui8 _compressedByteBuffer[CHUNK_DATA_SIZE + CHUNK_SIZE * 4 + sizeof(ChunkHeader)];
@@ -109,14 +109,16 @@ private:
     ui32 _copySectorsBufferSize;
     ui8* _copySectorsBuffer;
 
-    ui16 blockIDBuffer[CHUNK_SIZE];
-    ui8 sunlightBuffer[CHUNK_SIZE];
-    ui16 lampLightBuffer[CHUNK_SIZE];
+    ui16 _blockIDBuffer[CHUNK_SIZE];
+    ui8 _sunlightBuffer[CHUNK_SIZE];
+    ui16 _lampLightBuffer[CHUNK_SIZE];
 
     ui8 _chunkHeaderBuffer[sizeof(ChunkHeader)];
     ui8 _regionFileHeaderBuffer[sizeof(RegionFileHeader)];
 
     ui32 _maxCacheSize;
+    ui32 _chunkOffset; ///< Offset into the chunk data
+    uLongf _chunkBufferSize;
     std::map <nString, RegionFile*> _regionFileCache;
     std::deque <RegionFile*> _regionFileCacheQueue;
 
