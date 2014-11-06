@@ -53,7 +53,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     ui16 data;
     ui16 lampData;
     ui8 sunlightData;
-    ui16 tertiaryData;
+    ui16 tertiaryData = 0;
 
     for (int y = 0; y < CHUNK_WIDTH; y++){
         pnum = chunk->numBlocks;

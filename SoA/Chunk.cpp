@@ -101,6 +101,7 @@ void Chunk::clear(bool clearDraw)
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();
+    _lampLightContainer.clear();
 
     _state = ChunkStates::LOAD;
     isAccessible = 0;

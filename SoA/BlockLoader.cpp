@@ -83,9 +83,9 @@ void BlockLoader::postProcessBlockLoad(Block* block) {
     GameManager::texturePackLoader->registerBlockTexture(block->bottomTexName);
 
     // Pack light color
-    block->lightColorPacked = (ui16)block->lightColor.r << LAMP_RED_SHIFT |
-        (ui16)block->lightColor.g << LAMP_GREEN_SHIFT |
-        (ui16)block->lightColor.b);
+    block->lightColorPacked = ((ui16)block->lightColor.r << LAMP_RED_SHIFT) |
+        ((ui16)block->lightColor.g << LAMP_GREEN_SHIFT) |
+        (ui16)block->lightColor.b;
 }
 
 
