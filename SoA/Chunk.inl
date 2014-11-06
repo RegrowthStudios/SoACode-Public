@@ -369,6 +369,10 @@ inline void Chunk::setBlockData(int c, ui16 val) {
     _blockIDContainer.set(c, val);
 }
 
+inline void Chunk::setTertiaryData(int c, ui16 val) {
+    _tertiaryDataContainer.set(c, val);
+}
+
 inline GLushort Chunk::getBlockData(int c) const {
     return _blockIDContainer.get(c);
 }

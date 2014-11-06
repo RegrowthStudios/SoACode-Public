@@ -131,6 +131,7 @@ public:
     //setters
     void setBlockID(int c, int val);
     void setBlockData(int c, ui16 val);
+    void setTertiaryData(int c, ui16 val);
     void setSunlight(int c, ui8 val);
     void setLampLight(int c, ui16 val);
     void setFloraHeight(int c, ui16 val);

@@ -54,8 +54,8 @@ namespace VoxelBits {
         b = (b & (~FLORA_HEIGHT_MASK)) | floraHeight;
     }
 
-    inline void setFloraPosition(ui16& b, ui16 floraHeight) {
-        b = (b & (~FLORA_YPOS_MASK)) | (floraHeight << FLORA_YPOS_SHIFT);
+    inline void setFloraPosition(ui16& b, ui16 yPos) {
+        b = (b & (~FLORA_YPOS_MASK)) | (yPos << FLORA_YPOS_SHIFT);
     }
 
     inline ui16 getLampRedFromHex(ui16 color) { 

@@ -129,6 +129,13 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
         particleEngine.addEmitter(block.emitter, glm::dvec3(chunk->gridPosition.x + pos.x, chunk->gridPosition.y + pos.y, chunk->gridPosition.z + pos.z), blockType);
     }
 
+    // If its a plant, we need to do some extra iteration
+    if (block.floraHeight) {
+        placeFlora(chunk, blockIndex, blockType);
+        ui16 tert = chunk->getTertiaryData(blockIndex);
+        std::cout << VoxelBits::getFloraHeight(tert) << " " << VoxelBits::getFloraPosition(tert) << std::endl;
+    }
+
     //Check for light removal due to block occlusion
     if (block.blockLight) {
 
@@ -558,6 +565,69 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
         if (!chunk->mesh || chunk->mesh->inFrustum){
             particleEngine.addParticles(BPARTICLES, glm::dvec3(chunk->gridPosition.x + x, chunk->gridPosition.y + y, chunk->gridPosition.z + z), 0, 0.1, 0, 1, color, Blocks[btype].base.px, 2.0f, 4, extraForce);
         }
+    }
+}
+
+// TODO(Ben): Make this cleaner
+void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockType) {
+    
+    ui16 floraHeight = 0;
+    ui16 floraYpos = 0;
+    ui16 tertiaryData = -1; // Start it out at -1 so when we add 1 we get 0.
+    // Get tertiary data
+    if (blockIndex > CHUNK_LAYER) {
+        // Only need the data if its the same plant as we are
+        if (chunk->getBlockID(blockIndex - CHUNK_LAYER) == blockType) {
+            tertiaryData = chunk->getTertiaryData(blockIndex - CHUNK_LAYER);
+            // Grab height and position
+            floraHeight = VoxelBits::getFloraHeight(tertiaryData);
+            floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+            tertiaryData = 0;
+        }
+    } else {
+
+        if (chunk->bottom && chunk->bottom->isAccessible) {
+            // Only need the data if its the same plant as we are
+            if (chunk->bottom->getBlockID(blockIndex - CHUNK_LAYER + CHUNK_SIZE) == blockIndex) {
+                tertiaryData = chunk->bottom->getTertiaryData(blockIndex - CHUNK_LAYER + CHUNK_SIZE);
+                // Grab height and position
+                floraHeight = VoxelBits::getFloraHeight(tertiaryData);
+                floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+                tertiaryData = 0;
+            }
+        } else {
+            return;
+        }
+    }
+    // Add 1 to the tertiary data
+    VoxelBits::setFloraHeight(tertiaryData, floraHeight + 1);
+    VoxelBits::setFloraPosition(tertiaryData, floraYpos + 1);
+    // Set it
+    chunk->setTertiaryData(blockIndex, tertiaryData);
+    // Loop downwards through all flora blocks of the same type and increase their height by 1
+    while (true) {
+        // Move the index down
+        if (blockIndex >= CHUNK_LAYER) {
+            blockIndex -= CHUNK_LAYER;
+        } else {
+            if (chunk->bottom && chunk->bottom->isAccessible) {
+                chunk = chunk->bottom;
+            } else {
+                return;
+            }
+            blockIndex = blockIndex - CHUNK_LAYER + CHUNK_SIZE;
+        }
+
+        // Loop while this is the same block type
+        if (chunk->getBlockID(blockIndex) == blockType) {
+            tertiaryData = chunk->getTertiaryData(blockIndex);
+            // Increase flora height
+            VoxelBits::setFloraHeight(tertiaryData, VoxelBits::getFloraHeight(tertiaryData) + 1);
+            chunk->setTertiaryData(blockIndex, tertiaryData);
+        } else {
+            return;
+        }
+
     }
 }
 
