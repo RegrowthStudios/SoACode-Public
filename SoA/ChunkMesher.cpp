@@ -586,7 +586,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.pzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pzTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail - 1], VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pzTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2 + 2));
@@ -651,7 +651,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.nzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nzTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail - 1], VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nzTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
@@ -710,7 +710,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.pyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pyTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail - 1], VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pyTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 2, mi.z2 + 1));
@@ -771,7 +771,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.nyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nyTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail - 1], VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nyTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2, mi.z2 + 1));
@@ -832,7 +832,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.pxTexInfo.base.transparency) {  
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail - 1], VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
@@ -875,7 +875,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
         if (block.nxTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail], VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nxTexInfo);
+            VoxelMesher::makeFloraFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices[mi.levelOfDetail - 1], VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nxTexInfo);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
