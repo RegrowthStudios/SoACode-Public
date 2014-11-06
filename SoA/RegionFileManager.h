@@ -112,6 +112,7 @@ private:
     ui16 _blockIDBuffer[CHUNK_SIZE];
     ui8 _sunlightBuffer[CHUNK_SIZE];
     ui16 _lampLightBuffer[CHUNK_SIZE];
+    ui16 _tertiaryDataBuffer[CHUNK_SIZE];
 
     ui8 _chunkHeaderBuffer[sizeof(ChunkHeader)];
     ui8 _regionFileHeaderBuffer[sizeof(RegionFileHeader)];

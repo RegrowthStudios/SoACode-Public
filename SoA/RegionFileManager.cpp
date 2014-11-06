@@ -558,10 +558,15 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
 
     if (rleUncompressArray(_sunlightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
+    if (rleUncompressArray(_tertiaryDataBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
+
     //Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
     static vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
     static vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
     static vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
+    static vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+
     //Make the size 0
     blockIDNodes.clear();
     lampLightNodes.clear();
@@ -571,17 +576,20 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
     ui16 blockID;
     ui16 lampLight;
     ui8 sunlight;
+    ui16 tertiaryData;
 
     //Add first nodes
     blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _blockIDBuffer[0]));
     lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _lampLightBuffer[0]));
     sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
+    tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
 
     //Construct the node vectors
     for (int i = 1; i < CHUNK_SIZE; i++) {
         blockID = _blockIDBuffer[i];
         lampLight = _lampLightBuffer[i];
         sunlight = _sunlightBuffer[i];
+        tertiaryData = _tertiaryDataBuffer[i];
 
         if (blockID != 0) chunk->numBlocks++;
         
@@ -604,11 +612,17 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
         } else {
             sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(i, 1, sunlight));
         }
+        if (tertiaryData == tertiaryDataNodes.back().data) {
+            tertiaryDataNodes.back().length++;
+        } else {
+            tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, tertiaryData));
+        }
     }
   
     chunk->_blockIDContainer.initFromSortedArray(blockIDNodes);
     chunk->_lampLightContainer.initFromSortedArray(lampLightNodes);
     chunk->_sunlightContainer.initFromSortedArray(sunlightNodes);
+    chunk->_tertiaryDataContainer.initFromSortedArray(tertiaryDataNodes);
 
     return true;
 }
@@ -722,6 +736,7 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     ui16* blockIDData;
     ui8* sunlightData;
     ui16* lampLightData;
+    ui16* tertiaryData;
 
     //Need to lock so that nobody modifies the interval tree out from under us
     Chunk::modifyLock.lock();
@@ -743,6 +758,12 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     } else {
         sunlightData = chunk->_sunlightContainer.getDataArray();
     }
+    if (chunk->_tertiaryDataContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+        tertiaryData = _tertiaryDataBuffer;
+        chunk->_tertiaryDataContainer.uncompressIntoBuffer(tertiaryData);
+    } else {
+        tertiaryData = chunk->_tertiaryDataContainer.getDataArray();
+    }
     Chunk::modifyLock.unlock();
 
     _bufferSize = 0;
@@ -760,6 +781,7 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
     rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
     rleCompressArray(sunlightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    rleCompressArray(tertiaryData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
     return true;
 }
