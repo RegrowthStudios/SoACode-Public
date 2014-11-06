@@ -119,6 +119,7 @@
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="GLRenderTarget.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
@@ -282,6 +283,7 @@
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GLRenderTarget.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />
