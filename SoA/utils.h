@@ -315,28 +315,28 @@ inline i32 fastCeil(f32 x) {
 // /////////////////////////////////////////////////////////////////////
 //    Buffer Utilities
 // /////////////////////////////////////////////////////////////////////
-//Big endian buffer utils
+//Little endian buffer utils
 namespace BufferUtils {
 
     inline ui32 extractInt(ui8* a, ui32 i) {
-        return (((ui32)a[i]) << SHIFT_THREE_BYTES) |
-               (((ui32)a[i + 1]) << SHIFT_TWO_BYTES) |
-               (((ui32)a[i + 2]) << SHIFT_ONE_BYTE) |
-               (((ui32)a[i + 3]));
+        return (((ui32)a[i + 3]) << SHIFT_THREE_BYTES) |
+               (((ui32)a[i + 2]) << SHIFT_TWO_BYTES) |
+               (((ui32)a[i + 1]) << SHIFT_ONE_BYTE) |
+               (((ui32)a[i]));
     }
 
     inline ui32 extractInt(ui8* a) {
-        return (((ui32)a[0]) << SHIFT_THREE_BYTES) |
-               (((ui32)a[1]) << SHIFT_TWO_BYTES) |
-               (((ui32)a[2]) << SHIFT_ONE_BYTE) |
-               (((ui32)a[3]));
+        return (((ui32)a[3]) << SHIFT_THREE_BYTES) |
+               (((ui32)a[2]) << SHIFT_TWO_BYTES) |
+               (((ui32)a[1]) << SHIFT_ONE_BYTE) |
+               (((ui32)a[0]));
     }
 
     inline ui16 extractShort(ui8* a, ui32 i) {
-        return (((ui32)a[i]) << SHIFT_ONE_BYTE) | (((ui32)a[i + 1]));
+        return (((ui32)a[i + 1]) << SHIFT_ONE_BYTE) | (((ui32)a[i]));
     }
     inline ui16 extractShort(ui8* a) {
-        return (((ui32)a[0]) << SHIFT_ONE_BYTE) | (((ui32)a[1]));
+        return (((ui32)a[1]) << SHIFT_ONE_BYTE) | (((ui32)a[0]));
     }
 
     inline f32 extractFloat(ui8* a, ui32 i) {
@@ -353,29 +353,29 @@ namespace BufferUtils {
     }
 
     inline i32 setInt(ui8* a, ui32 i, ui32 data) {
-        a[i] = (ui8)(data >> SHIFT_THREE_BYTES);
-        a[i + 1] = (ui8)((data & BYTE03) >> SHIFT_TWO_BYTES);
-        a[i + 2] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
-        a[i + 3] = (ui8)(data & BYTE01);
+        a[i + 3] = (ui8)(data >> SHIFT_THREE_BYTES);
+        a[i + 2] = (ui8)((data & BYTE03) >> SHIFT_TWO_BYTES);
+        a[i + 1] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[i] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
 
     inline i32 setInt(ui8* a, ui32 data) {
-        a[0] = (ui8)(data >> SHIFT_THREE_BYTES);
-        a[1] = (ui8)((data & BYTE03) >> SHIFT_TWO_BYTES);
-        a[2] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
-        a[3] = (ui8)(data & BYTE01);
+        a[3] = (ui8)(data >> SHIFT_THREE_BYTES);
+        a[2] = (ui8)((data & BYTE03) >> SHIFT_TWO_BYTES);
+        a[1] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[0] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
 
     inline i32 setShort(ui8* a, ui32 i, ui32 data) {
-        a[i] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
-        a[i + 1] = (ui8)(data & BYTE01);
+        a[i + 1] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[i] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
     inline i32 setShort(ui8* a, ui32 data) {
-        a[0] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
-        a[1] = (ui8)(data & BYTE01);
+        a[1] = (ui8)((data & BYTE02) >> SHIFT_ONE_BYTE);
+        a[0] = (ui8)(data & BYTE01);
         return sizeof(ui32);
     }
 
