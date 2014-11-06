@@ -209,16 +209,8 @@ void vg::FrameBuffer::draw(const ui32v4& destViewport, i32 drawMode)
 
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     // Draw the triangles !
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-
-    if (drawMode == 0){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //Solid mode
-    } else if (drawMode == 1){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); //Point mode
-    } else if (drawMode == 2){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //Wireframe mode
-    }
 }
