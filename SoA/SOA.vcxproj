@@ -112,6 +112,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="EventManager.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
@@ -257,6 +258,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />

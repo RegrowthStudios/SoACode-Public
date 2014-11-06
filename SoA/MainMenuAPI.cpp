@@ -23,7 +23,7 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     ADDFUNC(getCameraPosition);
     ADDFUNC(getPlanetRadius);
     ADDFUNC(getSaveFiles);
-
+    
     ADDFUNC(setCameraFocalLength);
     ADDFUNC(setCameraPosition);
     ADDFUNC(setCameraTarget);

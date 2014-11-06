@@ -117,6 +117,9 @@
     <Filter Include="SOA Files\Game\Tools">
       <UniqueIdentifier>{da75023d-4b8b-4790-af72-c6535569b583}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Ext\Event">
+      <UniqueIdentifier>{41ca9f3d-3814-46f9-b207-165cdc5d2041}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -551,6 +554,9 @@
     <ClInclude Include="PdaAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
+    <ClInclude Include="EventManager.h">
+      <Filter>SOA Files\Ext\Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -874,6 +880,9 @@
     </ClCompile>
     <ClCompile Include="PdaAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="EventManager.cpp">
+      <Filter>SOA Files\Ext\Event</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
