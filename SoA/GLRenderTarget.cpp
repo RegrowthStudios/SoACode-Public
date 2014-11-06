@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "GLRenderTarget.h"
 
+#include "SamplerState.h"
+
 vg::GLRenderTarget::GLRenderTarget(ui32 w, ui32 h) :
 _size(w, h) {
     // Empty
@@ -25,6 +27,7 @@ vg::GLRenderTarget& vg::GLRenderTarget::init(
     } else {
         glTexImage2D(textureTarget, 0, (VGEnum)format, _size.x, _size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     }
+    SamplerState::POINT_CLAMP.set(textureTarget);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureTarget, _texColor, 0);
 
     // Create Depth And Stencil Target
@@ -34,8 +37,9 @@ vg::GLRenderTarget& vg::GLRenderTarget::init(
         if (msaa > 0) {
             glTexImage2DMultisample(textureTarget, msaa, (VGEnum)depthStencilFormat, _size.x, _size.y, GL_FALSE);
         } else {
-            glTexImage2D(textureTarget, 0, (VGEnum)depthStencilFormat, _size.x, _size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexImage2D(textureTarget, 0, (VGEnum)depthStencilFormat, _size.x, _size.y, 0, (VGEnum)vg::TextureFormat::DEPTH_COMPONENT, (VGEnum)vg::TexturePixelType::FLOAT, nullptr);
         }
+        SamplerState::POINT_CLAMP.set(textureTarget);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, textureTarget, _texDS, 0);
     }
 
