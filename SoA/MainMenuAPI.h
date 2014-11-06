@@ -72,6 +72,11 @@ private:
     /// provided by getSaveFiles
     void loadSaveGame(const Awesomium::JSArray& args);
 
+    /// Creates a new save game if name is valid and save
+    /// doesn't already exist.
+    /// @param args: Argument should be the string name
+    void newSaveGame(const Awesomium::JSArray& args);
+
     MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 

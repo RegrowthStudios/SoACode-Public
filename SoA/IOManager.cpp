@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "IOManager.h"
 
+#include <direct.h> // for mkdir windows
+
 #include "utils.h"
 
 IOManager::IOManager() :
@@ -224,6 +226,30 @@ bool IOManager::resolveFile(const cString path, nString& resultAbsolutePath) {
     }
 
     return false;
+}
+
+bool IOManager::writeStringToFile(const cString path, const nString& data) {
+    FILE* file = openFile(path, "w");
+    if (file) {
+      fwrite(data.c_str(), 1, data.length(), file);
+      fclose(file);
+      return true;
+    }
+    return false;
+}
+
+bool IOManager::makeDirectory(const cString path) {
+    return _mkdir(path) == 0;
+}
+
+bool IOManager::fileExists(const cString path) {
+    boost::filesystem::path p(path);
+    return !boost::filesystem::is_directory(p) && boost::filesystem::exists((p));
+}
+
+bool IOManager::directoryExists(const cString path) {
+    boost::filesystem::path p(path);
+    return boost::filesystem::is_directory(p) && boost::filesystem::exists((p));
 }
 
 cString IOManager::_execDir = nullptr;
