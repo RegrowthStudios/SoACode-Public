@@ -80,6 +80,12 @@ private:
         glProgramManager->addProgram("BasicColor",
                                      "Shaders/BasicShading/BasicColorShading.vert",
                                      "Shaders/BasicShading/BasicColorShading.frag");
+
+        /***** Night Vision *****/
+        glProgramManager->addProgram("NightVision",
+                                     "Shaders/PostProcessing/PassThrough.vert",
+                                     "Shaders/PostProcessing/NightVision.frag");
+
         /***** HDR *****/
         glProgramManager->addProgram("HDR",
                                      "Shaders/PostProcessing/PassThrough.vert",

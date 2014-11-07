@@ -2,7 +2,6 @@
 #include "GamePlayScreen.h"
 
 #include "Player.h"
-#include "FrameBuffer.h"
 #include "App.h"
 #include "GameManager.h"
 #include "InputManager.h"
@@ -184,6 +183,9 @@ void GamePlayScreen::handleInput() {
     }
     if (inputManager->getKeyDown(INPUT_FLY)) {
         _player->flyToggle();
+    }
+    if (inputManager->getKeyDown(INPUT_NIGHT_VISION)) {
+        _renderPipeline.toggleNightVision();
     }
     if (inputManager->getKeyDown(INPUT_GRID)) {
         gridState = !gridState;

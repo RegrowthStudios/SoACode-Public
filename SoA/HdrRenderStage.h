@@ -15,21 +15,22 @@
 #ifndef HdrRenderStage_h__
 #define HdrRenderStage_h__
 
-#include "IRenderStage.h"
+#include "FullQuadVBO.h"
 #include "GLProgram.h"
+#include "IRenderStage.h"
 
 class HdrRenderStage : public vg::IRenderStage {
 public:
     /// Constructor which injects dependencies
     /// @param glProgram: The program used to render HDR
-    /// @param destViewport: Viewport we want to draw to. (x,y,w,h)
-    HdrRenderStage(vg::GLProgram* glProgram, const ui32v4& destViewport);
+    /// @param quad: Quad used for rendering to screen
+    HdrRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad);
 
     /// Draws the render stage
     virtual void draw() override;
 private:
     vg::GLProgram* _glProgram; ///< Stores the program we use to render
-    const ui32v4 _destViewport; ///< Stores the viewport we want to draw to. (x,y,w,h)
+    vg::FullQuadVBO* _quad; ///< For use in processing through data
 };
 
 #endif // HdrRenderStage_h__

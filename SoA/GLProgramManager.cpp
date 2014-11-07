@@ -2,6 +2,7 @@
 #include "GLProgramManager.h"
 
 #include "Errors.h"
+#include "GLEnums.h"
 
 vg::GLProgramManager::GLProgramManager() {
     // Empty
@@ -32,14 +33,14 @@ void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cS
         newProgram = new GLProgram(true);
 
         // Create the vertex shader
-        if (!newProgram->addShaderFile(ShaderType::VERTEX, vertexPath)) {
+        if (!newProgram->addShaderFile(vg::ShaderType::VERTEX_SHADER, vertexPath)) {
             showMessage("Vertex shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
             delete newProgram;
             continue;
         }
 
         // Create the fragment shader
-        if (!newProgram->addShaderFile(ShaderType::FRAGMENT, fragmentPath)) {
+        if (!newProgram->addShaderFile(vg::ShaderType::FRAGMENT_SHADER, fragmentPath)) {
             showMessage("Fragment shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
             delete newProgram;
             continue;

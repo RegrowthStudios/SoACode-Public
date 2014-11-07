@@ -218,9 +218,6 @@
     <ClInclude Include="FragFile.h">
       <Filter>SOA Files\Data\IO Utils</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -229,9 +226,6 @@
     </ClInclude>
     <ClInclude Include="GeometrySorter.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEnums.h">
-      <Filter>SOA Files\Ext</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
       <Filter>SOA Files</Filter>
@@ -485,9 +479,6 @@
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="MessageManager.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskShaders.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -617,6 +608,24 @@
     <ClInclude Include="BlockTextureMethods.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
+    <ClInclude Include="GLRenderTarget.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="GLEnums.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="RTSwapChain.hpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="FullQuadVBO.h">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="NightVisionRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageManager.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -696,9 +705,6 @@
     </ClCompile>
     <ClCompile Include="FragFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>SOA Files\Rendering</Filter>
@@ -996,6 +1002,15 @@
     </ClCompile>
     <ClCompile Include="BlockTextureMethods.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderTarget.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="FullQuadVBO.cpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="NightVisionRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

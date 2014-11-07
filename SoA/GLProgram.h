@@ -21,12 +21,7 @@
 namespace vorb {
     namespace core {
         namespace graphics {
-
-            // Wraper class for shader types
-            enum class ShaderType {
-                VERTEX = GL_VERTEX_SHADER,
-                FRAGMENT = GL_FRAGMENT_SHADER
-            };
+            enum class ShaderType;
 
             // Encapsulates A Simple OpenGL Program And Its Shaders
             class GLProgram {
