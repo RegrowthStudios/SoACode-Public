@@ -15,7 +15,6 @@
 #include "ChunkUpdater.h"
 #include "FileSystem.h"
 #include "FloraGenerator.h"
-#include "FrameBuffer.h"
 #include "Frustum.h"
 #include "GLEnums.h"
 #include "GLProgram.h"

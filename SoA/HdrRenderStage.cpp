@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "FrameBuffer.h"
 #include "HdrRenderStage.h"
 #include "GLProgram.h"
 #include "Options.h"

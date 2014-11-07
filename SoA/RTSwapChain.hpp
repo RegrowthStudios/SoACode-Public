@@ -15,6 +15,8 @@
 #ifndef RTSwapChain_h__
 #define RTSwapChain_h__
 
+#include "GLRenderTarget.h"
+
 namespace vorb {
     namespace core {
         namespace graphics {

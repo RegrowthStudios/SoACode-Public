@@ -14,7 +14,6 @@
 #ifndef MainMenuRenderPipeline_h__
 #define MainMenuRenderPipeline_h__
 
-#include "FrameBuffer.h"
 #include "FullQuadVBO.h"
 #include "GLProgramManager.h"
 #include "GLRenderTarget.h"

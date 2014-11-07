@@ -611,9 +611,6 @@
     <ClInclude Include="GLEnums.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="RTSwapChain.hpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClInclude>
@@ -996,9 +993,6 @@
     </ClCompile>
     <ClCompile Include="GLRenderTarget.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="FullQuadVBO.cpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>

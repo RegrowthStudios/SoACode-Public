@@ -21,8 +21,6 @@ namespace vorb {
     namespace core {
         namespace graphics {
 
-            class FrameBuffer;
-
             class IRenderStage
             {
             public:
@@ -40,11 +38,7 @@ namespace vorb {
 
                 /// Sets the camera
                 virtual void setCamera(const Camera* camera) { _camera = camera; }
-
-                /// Sets the render target
-                virtual void setInputFbo(FrameBuffer* inputFbo) { _inputFbo = inputFbo; }
             protected:
-                FrameBuffer* _inputFbo; ///< Optional Render Target
                 const Camera* _camera; ///< Optional Camera, not needed for post processing stages
                 bool _isVisible; ///< Determines if the stage should be rendered
             };

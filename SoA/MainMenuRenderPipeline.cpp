@@ -6,7 +6,6 @@
 #include "PlanetRenderStage.h"
 #include "AwesomiumRenderStage.h"
 #include "HdrRenderStage.h"
-#include "FrameBuffer.h"
 #include "Options.h"
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() {
