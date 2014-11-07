@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "FullQuadVBO.h"
 
-
-void vg::FullQuadVBO::init() {
+void vg::FullQuadVBO::init(i32 attrLocation /*= 0*/) {
     glGenBuffers(2, _buffers);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ib);
@@ -16,7 +15,7 @@ void vg::FullQuadVBO::init() {
 
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(attrLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ARRAY_BUFFER, _vb);
     glBindVertexArray(0);
 }
