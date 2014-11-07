@@ -1843,10 +1843,11 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //Stores the data for a chunk mesh
     chunkMeshData = new ChunkMeshData(renderTask);
 
-    _blockIDData = renderTask->chData;
-    _lampLightData = renderTask->chLampData;
-    _sunlightData = renderTask->chSunlightData;
-    _tertiaryData = renderTask->chTertiaryData;
+    mi.blockIDData = _blockIDData = renderTask->chData;
+    mi.lampLightData = _lampLightData = renderTask->chLampData;
+    mi.sunlightData = _sunlightData = renderTask->chSunlightData;
+    mi.tertiaryData = _tertiaryData = renderTask->chTertiaryData;
+
 
     if (renderTask->levelOfDetail > 1) {
         computeLODData(renderTask->levelOfDetail);

@@ -113,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
+    <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
@@ -277,6 +278,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AwesomiumRenderStage.cpp" />
+    <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />

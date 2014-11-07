@@ -41,6 +41,12 @@ public:
     bool mergeUp, mergeBot, mergeFront, mergeBack;
     const Block* currentBlock;
 
+    // Pointers to the voxel data
+    ui16* blockIDData;
+    ui16* lampLightData;
+    ui8* sunlightData;
+    ui16* tertiaryData;
+
     RenderTask* task;
     ChunkGridData* chunkGridData;
 };

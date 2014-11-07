@@ -614,6 +614,9 @@
     <ClInclude Include="VoxelBits.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="BlockTextureMethods.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -990,6 +993,9 @@
     </ClCompile>
     <ClCompile Include="DevHudRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTextureMethods.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
