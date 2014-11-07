@@ -479,9 +479,6 @@
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="MessageManager.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskShaders.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -618,7 +615,10 @@
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="NightVisionRenderStage.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageManager.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1000,7 +1000,9 @@
     <ClCompile Include="FullQuadVBO.cpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="NightVisionRenderStage.cpp" />
+    <ClCompile Include="NightVisionRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
