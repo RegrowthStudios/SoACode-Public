@@ -184,6 +184,9 @@ void GamePlayScreen::handleInput() {
     if (inputManager->getKeyDown(INPUT_FLY)) {
         _player->flyToggle();
     }
+    if (inputManager->getKeyDown(INPUT_NIGHT_VISION)) {
+        _renderPipeline.toggleNightVision();
+    }
     if (inputManager->getKeyDown(INPUT_GRID)) {
         gridState = !gridState;
     }
