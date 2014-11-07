@@ -14,6 +14,8 @@
 #ifndef FrameBuffer_h__
 #define FrameBuffer_h__
 
+#include "GLRenderTarget.h"
+
 namespace vorb {
     namespace core {
         namespace graphics {
@@ -21,7 +23,7 @@ namespace vorb {
             class FrameBuffer
             {
             public:
-                FrameBuffer(i32 internalFormat, GLenum type, ui32 width, ui32 height, ui32 msaa = 0);
+                FrameBuffer(vg::TextureInternalFormat internalFormat, GLenum type, ui32 width, ui32 height, ui32 msaa = 0);
                 ~FrameBuffer();
                 void bind();
                 void unBind(const ui32v2& viewportDimensions);
@@ -31,12 +33,11 @@ namespace vorb {
 
 #define FB_DRAW 0
 #define FB_MSAA 1
+                GLRenderTarget fboSimple;
+                GLRenderTarget fboMSAA;
 
-                ui32 frameBufferIDs[2]; //color
-                ui32 depthTextureIDs[2];
                 ui32 quadVertexArrayID;
                 ui32 quadVertexBufferID;
-                ui32 renderedTextureIDs[2];
 
                 // Getters
                 ui32 getWidth() const { return _width; }

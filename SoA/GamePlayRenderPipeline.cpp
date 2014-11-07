@@ -4,13 +4,13 @@
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
 #include "Errors.h"
-#include "FrameBuffer.h"
 #include "GamePlayRenderPipeline.h"
 #include "HdrRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
 #include "MeshManager.h"
 #include "OpaqueVoxelRenderStage.h"
 #include "Options.h"
+#include "NightVisionRenderStage.h"
 #include "PdaRenderStage.h"
 #include "PlanetRenderStage.h"
 #include "SkyboxRenderStage.h"
@@ -41,17 +41,19 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
         pError("Reinitializing GamePlayRenderPipeline without first calling destroy()!");
     }
 
-    // Construct frame buffer
+    // Construct framebuffer
+    _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
+    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, vg::TextureInternalFormat::DEPTH_COMPONENT32, graphicsOptions.msaa);
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT,
-                                              _viewport.z, _viewport.w,
-                                              graphicsOptions.msaa);
     } else {
         glDisable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT,
-                                              _viewport.z, _viewport.w);
     }
+
+    // Make swap chain
+    _swapChain = new vg::RTSwapChain<2>(_viewport.z, _viewport.w);
+    _swapChain->init(vg::TextureInternalFormat::RGBA8);
+    _quad.init();
 
     // Get window dimensions
     f32v2 windowDims(_viewport.z, _viewport.w);
@@ -65,7 +67,11 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _liquidVoxelRenderStage = new LiquidVoxelRenderStage(&_gameRenderParams);
     _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
     _pdaRenderStage = new PdaRenderStage(pda);
-    _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), _viewport);
+    _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
+    _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
+
+    // No post-process effects to begin with
+    _nightVisionRenderStage->setIsVisible(false);
 }
 
 GamePlayRenderPipeline::~GamePlayRenderPipeline() {
@@ -76,7 +82,7 @@ void GamePlayRenderPipeline::render() {
     // Set up the gameRenderParams
     _gameRenderParams.calculateParams(_worldCamera->getPosition(), _chunkCamera, &_meshManager->getChunkMeshes(), false);
     // Bind the FBO
-    _hdrFrameBuffer->bind();
+    _hdrFrameBuffer->use();
   
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -104,7 +110,19 @@ void GamePlayRenderPipeline::render() {
     _pdaRenderStage->draw();
 
     // Post processing
-    _hdrRenderStage->setInputFbo(_hdrFrameBuffer);
+    _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
+
+    // TODO: More Effects
+    if (_nightVisionRenderStage->isVisible()) {
+        _nightVisionRenderStage->draw();
+        _swapChain->swap();
+        _swapChain->use(0, false);
+    }
+
+    // Draw to backbuffer for the last effect
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     _hdrRenderStage->draw();
 
     // Check for errors, just in case
@@ -137,13 +155,27 @@ void GamePlayRenderPipeline::destroy() {
     delete _pdaRenderStage;
     _pdaRenderStage = nullptr;
 
+    delete _nightVisionRenderStage;
+    _nightVisionRenderStage = nullptr;
+
     delete _hdrRenderStage;
     _hdrRenderStage = nullptr;
 
+    _hdrFrameBuffer->dispose();
     delete _hdrFrameBuffer;
     _hdrFrameBuffer = nullptr;
+
+    _swapChain->dispose();
+    delete _swapChain;
+    _swapChain = nullptr;
+
+    _quad.dispose();
 }
 
 void GamePlayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
     _devHudRenderStage->cycleMode(offset);
+}
+
+void GamePlayRenderPipeline::toggleNightVision() {
+    _nightVisionRenderStage->setIsVisible(!_nightVisionRenderStage->isVisible());
 }

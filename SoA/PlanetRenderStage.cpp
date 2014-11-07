@@ -5,7 +5,6 @@
 #include "ChunkManager.h"
 #include "ChunkIOManager.h"
 #include "DebugRenderer.h"
-#include "FrameBuffer.h"
 #include "GLProgramManager.h"
 #include "GameManager.h"
 #include "GameWindow.h"

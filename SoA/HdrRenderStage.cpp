@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "FrameBuffer.h"
 #include "HdrRenderStage.h"
 #include "GLProgram.h"
 #include "Options.h"
 
 
-HdrRenderStage::HdrRenderStage(vg::GLProgram* glProgram, const ui32v4& destViewport) :
+HdrRenderStage::HdrRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad) :
     _glProgram(glProgram),
-    _destViewport(destViewport) {
+    _quad(quad) {
+    // Empty
 }
 
 void HdrRenderStage::draw() {
@@ -54,7 +54,7 @@ void HdrRenderStage::draw() {
   //  }
 
     glDisable(GL_DEPTH_TEST);
-    _inputFbo->draw(_destViewport, 0 /* drawMode */);
+    _quad->draw();
     glEnable(GL_DEPTH_TEST);
 
     _glProgram->disableVertexAttribArrays();

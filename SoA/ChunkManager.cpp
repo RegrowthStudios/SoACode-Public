@@ -15,8 +15,8 @@
 #include "ChunkUpdater.h"
 #include "FileSystem.h"
 #include "FloraGenerator.h"
-#include "FrameBuffer.h"
 #include "Frustum.h"
+#include "GLEnums.h"
 #include "GLProgram.h"
 #include "Mesh.h"
 #include "Options.h"
@@ -332,8 +332,8 @@ void ChunkManager::drawChunkLines(const glm::mat4 &VP, const f64v3& position) {
         // Lazily initialize shader
         if (chunkLineProgram == nullptr) {
             chunkLineProgram = new vg::GLProgram(true);
-            chunkLineProgram->addShader(vg::ShaderType::VERTEX, vcore::Mesh::defaultVertexShaderSource);
-            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT, vcore::Mesh::defaultFragmentShaderSource);
+            chunkLineProgram->addShader(vg::ShaderType::VERTEX_SHADER, vcore::Mesh::defaultVertexShaderSource);
+            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, vcore::Mesh::defaultFragmentShaderSource);
             chunkLineProgram->setAttributes(vcore::Mesh::defaultShaderAttributes);
             chunkLineProgram->link();
             chunkLineProgram->initUniforms();

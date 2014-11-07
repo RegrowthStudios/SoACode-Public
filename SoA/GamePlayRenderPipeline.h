@@ -14,10 +14,12 @@
 #ifndef GamePlayRenderPipeline_h__
 #define GamePlayRenderPipeline_h__
 
-#include "FrameBuffer.h"
-#include "GLProgramManager.h"
+#include "FullQuadVBO.h"
 #include "GameRenderParams.h"
+#include "GLProgramManager.h"
+#include "GLRenderTarget.h"
 #include "IRenderPipeline.h"
+#include "RTSwapChain.hpp"
 
 /// Forward declarations
 class App;
@@ -29,6 +31,7 @@ class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
 class MeshManager;
 class OpaqueVoxelRenderStage;
+class NightVisionRenderStage;
 class PDA;
 class PdaRenderStage;
 class PlanetRenderStage;
@@ -64,7 +67,9 @@ public:
     /// Cycles the dev hud
     /// @param offset: How much to offset the current mode
     void cycleDevHud(int offset = 1);
-private: 
+    /// Toggle the visibility of night vision
+    void toggleNightVision();
+private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     OpaqueVoxelRenderStage* _opaqueVoxelRenderStage = nullptr; ///< Renders opaque voxels
@@ -73,9 +78,12 @@ private:
     LiquidVoxelRenderStage* _liquidVoxelRenderStage = nullptr; ///< Renders liquid voxels
     DevHudRenderStage* _devHudRenderStage = nullptr; ///< renders the dev/debug HUD
     PdaRenderStage* _pdaRenderStage = nullptr;
+    NightVisionRenderStage* _nightVisionRenderStage = nullptr; ///< Renders night vision
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
 
-    vg::FrameBuffer* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
+    vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
+    vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
+    vg::FullQuadVBO _quad; ///< Quad used for post-processing
 
     GameRenderParams _gameRenderParams; ///< Shared rendering parameters for voxels
 

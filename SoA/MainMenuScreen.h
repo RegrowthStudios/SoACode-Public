@@ -26,7 +26,6 @@
 #include "MainMenuRenderPipeline.h"
 
 class App;
-class FrameBuffer;
 struct TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
