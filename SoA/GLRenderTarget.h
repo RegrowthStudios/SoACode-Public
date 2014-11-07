@@ -35,13 +35,13 @@ namespace vorb {
 
                 /// Initialize the framebuffer on the GPU
                 /// @param format: Internal storage of the color texture target
-                /// @param depthStencilFormat: Internal storage found in depth/stencil texture (NONE to halt creation of texture)
                 /// @param msaa: Number of MSAA samples
                 /// @return Self
-                GLRenderTarget& init(
-                    TextureInternalFormat format = TextureInternalFormat::RGBA8,
-                    TextureInternalFormat depthStencilFormat = TextureInternalFormat::DEPTH24_STENCIL8,
-                    ui32 msaa = 0);
+                GLRenderTarget& init(TextureInternalFormat format = TextureInternalFormat::RGBA8, ui32 msaa = 0);
+                /// Append a depth texture into the framebuffer
+                /// @param depthFormat: Internal storage found in depth/stencil texture
+                /// @return Self
+                GLRenderTarget& initDepth(TextureInternalFormat depthFormat = TextureInternalFormat::DEPTH_COMPONENT32);
 
                 /// Dispose all GPU resources used by this FBO
                 void dispose();
@@ -53,6 +53,11 @@ namespace vorb {
                 /// @return OpenGL color texture ID
                 const ui32& getTextureID() const {
                     return _texColor;
+                }
+                
+                /// @return True if this is initialized with MSAA
+                bool isMSAA() const {
+                    return _msaa > 0;
                 }
 
                 /// @return Size of the FBO in pixels (W,H)
@@ -87,10 +92,11 @@ namespace vorb {
             private:
                 ui32v2 _size; ///< The Width And Height Of The FrameBuffer
 
-                ui32 _fbo = 0; ///< FrameBuffer ID
-                ui32 _texColor = 0; ///< Color Texture Of FrameBuffer
-                ui32 _texDS = 0; ///< Depth/Stencil Texture Of FrameBuffer
-                VGEnum textureTarget; ///< The Kinds Of Textures Bound To This FBO
+                ui32 _fbo = 0; ///< Framebuffer ID
+                ui32 _texColor = 0; ///< Color texture of framebuffer
+                ui32 _texDepth = 0; ///< Depth texture of framebuffer
+                ui32 _msaa = 0; ///< MSAA sample count in this framebuffer
+                VGEnum _textureTarget; ///< The kinds of textures bound to this FBO
             };
         }
     }
