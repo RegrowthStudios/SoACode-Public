@@ -40,7 +40,7 @@ vg::GLRenderTarget& vg::GLRenderTarget::init(
             glTexImage2D(textureTarget, 0, (VGEnum)depthStencilFormat, _size.x, _size.y, 0, (VGEnum)vg::TextureFormat::DEPTH_COMPONENT, (VGEnum)vg::TexturePixelType::FLOAT, nullptr);
         }
         SamplerState::POINT_CLAMP.set(textureTarget);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, textureTarget, _texDS, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureTarget, _texDS, 0);
     }
 
     // Set the output location for pixels
