@@ -7,6 +7,10 @@
 #include "global.h"
 #include "FileSystem.h"
 
+#include "EventManager.h"
+#include "GameManager.h"
+#include "Inputs.h"
+
 
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {

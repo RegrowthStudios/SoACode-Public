@@ -5,10 +5,12 @@
 #include "GameManager.h"
 #include "InputManager.h"
 #include "LoadMonitor.h"
+#include "EventManager.h"
 
 // Sample Dependency Task
 class LoadTaskGameManager : public ILoadTask {
     virtual void load() {
+        GameManager::eventManager = new EventManager;
         GameManager::inputManager = new InputManager;
         initInputs();
         GameManager::inputManager->loadAxes();

@@ -29,6 +29,7 @@
 #include "WSOAtlas.h"
 #include "WSOData.h"
 #include "WSOScanner.h"
+#include "EventManager.h"
 
 #include "utils.h"
 #include "VoxelEditor.h"
@@ -55,6 +56,7 @@ vcore::GLProgramManager* GameManager::glProgramManager = new vcore::GLProgramMan
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
 TerrainGenerator* GameManager::terrainGenerator = nullptr;
+EventManager* GameManager::eventManager = nullptr;
 
 Player *GameManager::player;
 vector <Marker> GameManager::markers;

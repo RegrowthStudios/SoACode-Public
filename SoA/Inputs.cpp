@@ -3,6 +3,9 @@
 
 #include "GameManager.h"
 #include "InputManager.h"
+#include "EventManager.h"
+
+#include <stdio.h>
 
 // Input Commands Sorted Alphabetically
 i32 INPUT_BLOCK_SCANNER = -1;
@@ -37,6 +40,8 @@ i32 INPUT_VERTICAL = -1;
 i32 INPUT_WATER_UPDATE = -1;
 i32 INPUT_ZOOM = -1;
 i32 INPUT_RANDOM_DEBUG = -1;
+
+i32 EVENT_LEFT_MOUSE_BUTTON = -1;
 
 // Reduce Some Code
 #define CREATE_INPUT(ID,KEY,VAR) \
@@ -99,5 +104,4 @@ void initInputs() {
     // Block Utilities
     CREATE_INPUT(Block Scanner, SDLK_q, INPUT_BLOCK_SCANNER);
     CREATE_INPUT(Block Select, SDLK_b, INPUT_BLOCK_DRAG);
-
 }

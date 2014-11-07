@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "EventManager.h"
 
-EventManager::EventManager():
-_events(),
-_eventIDs()
-{}
+#include <stdio.h>
+
+EventManager::EventManager() {}
 
 EventManager::~EventManager() {}
 
@@ -15,6 +14,8 @@ i32 EventManager::registerEvent(std::string functionName) {
     _eventIDs[functionName] = id;
 
     _events.push_back(std::vector<Listener>());
+
+    return id;
 }
 
 bool EventManager::deregisterEvent(i32 eventID) {
@@ -26,6 +27,14 @@ bool EventManager::deregisterEvent(i32 eventID) {
 }
 
 bool EventManager::addEventListener(i32 eventID, Listener listener) {
+    if(eventID < 0 || eventID >= _events.size()) return false;
+
+    _events[eventID].push_back(listener);
+
+    return true;
+}
+
+bool EventManager::removeEventListener(i32 eventID, Listener listener) {
     if(eventID < 0 || eventID >= _events.size()) return false;
 
     for(auto iter = _events[eventID].begin(); iter != _events[eventID].end(); iter++) {

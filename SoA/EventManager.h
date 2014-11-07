@@ -21,6 +21,7 @@ public:
     bool deregisterEvent(i32 eventID);
 
     bool addEventListener(i32 eventID, Listener listener);
+    bool removeEventListener(i32 eventID, Listener listener);
 
     bool throwEvent(i32 eventID, EventData data) const;
 
