@@ -1,13 +1,13 @@
 ///
 /// GLRenderTarget.h
-/// Seed of Andromeda
+/// Vorb Engine
 ///
 /// Created by Cristian Zaloj on 6 Nov 2014
 /// Copyright 2014 Regrowth Studios
 /// All Rights Reserved
 ///
 /// Summary:
-/// An OpenGL FBO Object That Contains Minimum Functionality
+/// An OpenGL FBO object that contains minimum functionality
 ///
 
 #pragma once
