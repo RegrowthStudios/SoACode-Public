@@ -31,6 +31,7 @@ class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
 class MeshManager;
 class OpaqueVoxelRenderStage;
+class NightVisionRenderStage;
 class PDA;
 class PdaRenderStage;
 class PlanetRenderStage;
@@ -75,6 +76,7 @@ private:
     LiquidVoxelRenderStage* _liquidVoxelRenderStage = nullptr; ///< Renders liquid voxels
     DevHudRenderStage* _devHudRenderStage = nullptr; ///< renders the dev/debug HUD
     PdaRenderStage* _pdaRenderStage = nullptr;
+    NightVisionRenderStage* _nightVisionRenderStage = nullptr; ///< Renders night vision
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
 
     vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering

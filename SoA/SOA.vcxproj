@@ -145,6 +145,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="PDA.h" />
@@ -306,6 +307,7 @@
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PDA.cpp" />

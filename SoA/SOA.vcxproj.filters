@@ -617,6 +617,9 @@
     <ClInclude Include="FullQuadVBO.h">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClInclude>
+    <ClInclude Include="NightVisionRenderStage.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -997,6 +1000,7 @@
     <ClCompile Include="FullQuadVBO.cpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
+    <ClCompile Include="NightVisionRenderStage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

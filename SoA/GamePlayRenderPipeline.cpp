@@ -10,6 +10,7 @@
 #include "MeshManager.h"
 #include "OpaqueVoxelRenderStage.h"
 #include "Options.h"
+#include "NightVisionRenderStage.h"
 #include "PdaRenderStage.h"
 #include "PlanetRenderStage.h"
 #include "SkyboxRenderStage.h"
@@ -66,6 +67,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _liquidVoxelRenderStage = new LiquidVoxelRenderStage(&_gameRenderParams);
     _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
     _pdaRenderStage = new PdaRenderStage(pda);
+    _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
 }
 
@@ -108,6 +110,9 @@ void GamePlayRenderPipeline::render() {
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
 
     // TODO: More Effects
+    _nightVisionRenderStage->draw();
+    _swapChain->swap();
+    _swapChain->use(0, false);
 
     // Draw to backbuffer for the last effect
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -144,6 +149,9 @@ void GamePlayRenderPipeline::destroy() {
 
     delete _pdaRenderStage;
     _pdaRenderStage = nullptr;
+
+    delete _nightVisionRenderStage;
+    _nightVisionRenderStage = nullptr;
 
     delete _hdrRenderStage;
     _hdrRenderStage = nullptr;
