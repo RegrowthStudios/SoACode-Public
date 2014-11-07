@@ -67,7 +67,9 @@ public:
     /// Cycles the dev hud
     /// @param offset: How much to offset the current mode
     void cycleDevHud(int offset = 1);
-private: 
+    /// Toggle the visibility of night vision
+    void toggleNightVision();
+private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     OpaqueVoxelRenderStage* _opaqueVoxelRenderStage = nullptr; ///< Renders opaque voxels

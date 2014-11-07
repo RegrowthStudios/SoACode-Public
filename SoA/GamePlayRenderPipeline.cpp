@@ -69,6 +69,9 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _pdaRenderStage = new PdaRenderStage(pda);
     _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
+
+    // No post-process effects to begin with
+    _nightVisionRenderStage->setIsVisible(false);
 }
 
 GamePlayRenderPipeline::~GamePlayRenderPipeline() {
@@ -110,9 +113,11 @@ void GamePlayRenderPipeline::render() {
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
 
     // TODO: More Effects
-    _nightVisionRenderStage->draw();
-    _swapChain->swap();
-    _swapChain->use(0, false);
+    if (_nightVisionRenderStage->isVisible()) {
+        _nightVisionRenderStage->draw();
+        _swapChain->swap();
+        _swapChain->use(0, false);
+    }
 
     // Draw to backbuffer for the last effect
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -169,4 +174,8 @@ void GamePlayRenderPipeline::destroy() {
 
 void GamePlayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
     _devHudRenderStage->cycleMode(offset);
+}
+
+void GamePlayRenderPipeline::toggleNightVision() {
+    _nightVisionRenderStage->setIsVisible(!_nightVisionRenderStage->isVisible());
 }
