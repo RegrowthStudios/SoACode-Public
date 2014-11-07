@@ -26,7 +26,7 @@ namespace vorb {
                 /// Specify A FrameBuffer With A Certain Size
                 /// @param w: Width Of FrameBuffer In Pixels
                 /// @param h: Width Of FrameBuffer In Pixels
-                GLRenderTarget(ui32 w, ui32 h);
+                GLRenderTarget(ui32 w = 0, ui32 h = 0);
                 /// Specify A FrameBuffer With A Certain Size
                 /// @param s: Width And Height Of FrameBuffer In Pixels
                 GLRenderTarget(ui32v2 s) : GLRenderTarget(s.x, s.y) {
@@ -44,6 +44,9 @@ namespace vorb {
                 const ui32& getID() const {
                     return _fbo;
                 }
+                const ui32& getTextureID() const {
+                    return _texColor;
+                }
 
                 const ui32v2& getSize() const {
                     return _size;
@@ -54,6 +57,8 @@ namespace vorb {
                 const ui32& getHeight() const {
                     return _size.y;
                 }
+
+                void setSize(const ui32& w, const ui32& h);
 
                 void use() const;
                 static void unuse(ui32 w, ui32 h);

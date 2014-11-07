@@ -614,6 +614,12 @@
     <ClInclude Include="FrameBuffer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="RTSwapChain.hpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="FullQuadVBO.h">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -993,6 +999,9 @@
     </ClCompile>
     <ClCompile Include="FrameBuffer.cpp">
       <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="FullQuadVBO.cpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

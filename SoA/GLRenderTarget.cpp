@@ -3,7 +3,7 @@
 
 #include "SamplerState.h"
 
-vg::GLRenderTarget::GLRenderTarget(ui32 w, ui32 h) :
+vg::GLRenderTarget::GLRenderTarget(ui32 w /*= 0*/, ui32 h /*= 0*/) :
 _size(w, h) {
     // Empty
 }
@@ -86,4 +86,15 @@ void vg::GLRenderTarget::bindTexture() const {
 }
 void vg::GLRenderTarget::unbindTexture() const {
     glBindTexture(textureTarget, 0);
+}
+
+void vg::GLRenderTarget::setSize(const ui32& w, const ui32& h) {
+    if (_fbo != 0) {
+#ifdef DEBUG
+        std::cerr << "Cannot Change Size Of An FBO That Is Already Initialized" << std::endl;
+#endif // DEBUG
+    }
+
+    _size.x = w;
+    _size.y = h;
 }
