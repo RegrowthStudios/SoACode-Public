@@ -15,9 +15,11 @@
 #define GamePlayRenderPipeline_h__
 
 #include "FrameBuffer.h"
+#include "FullQuadVBO.h"
 #include "GLProgramManager.h"
 #include "GameRenderParams.h"
 #include "IRenderPipeline.h"
+#include "RTSwapChain.hpp"
 
 /// Forward declarations
 class App;
@@ -75,7 +77,9 @@ private:
     PdaRenderStage* _pdaRenderStage = nullptr;
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
 
-    vg::FrameBuffer* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
+    vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
+    vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
+    vg::FullQuadVBO _quad; ///< Quad used for post-processing
 
     GameRenderParams _gameRenderParams; ///< Shared rendering parameters for voxels
 

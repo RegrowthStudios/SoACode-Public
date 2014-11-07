@@ -27,26 +27,31 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera, IAweso
         pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
     }
 
-    // Construct frame buffer
+    // Construct framebuffer
+    _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
+    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, vg::TextureInternalFormat::DEPTH_COMPONENT32, graphicsOptions.msaa);
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(vg::TextureInternalFormat::RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w, graphicsOptions.msaa);
     } else {
         glDisable(GL_MULTISAMPLE);
-        _hdrFrameBuffer = new vg::FrameBuffer(vg::TextureInternalFormat::RGBA16F, GL_HALF_FLOAT, _viewport.z, _viewport.w);
     }
+
+    // Make swap chain
+    _swapChain = new vg::RTSwapChain<2>(_viewport.z, _viewport.w);
+    _swapChain->init(vg::TextureInternalFormat::RGBA8);
+    _quad.init();
 
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), camera);
     _planetRenderStage = new PlanetRenderStage(camera);
     _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
-    _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), _viewport);
+    _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
 }
 
 void MainMenuRenderPipeline::render() {
  
     // Bind the FBO
-    _hdrFrameBuffer->bind();
+    _hdrFrameBuffer->use();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -56,7 +61,14 @@ void MainMenuRenderPipeline::render() {
     _awesomiumRenderStage->draw();
 
     // Post processing
-    _hdrRenderStage->setInputFbo(_hdrFrameBuffer);
+    _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
+
+    // TODO: More Effects?
+
+    // Draw to backbuffer for the last effect
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     _hdrRenderStage->draw();
 
     // Check for errors, just in case
@@ -76,6 +88,13 @@ void MainMenuRenderPipeline::destroy() {
     delete _hdrRenderStage;
     _hdrRenderStage = nullptr;
 
+    _hdrFrameBuffer->dispose();
     delete _hdrFrameBuffer;
     _hdrFrameBuffer = nullptr;
+
+    _swapChain->dispose();
+    delete _swapChain;
+    _swapChain = nullptr;
+
+    _quad.dispose();
 }

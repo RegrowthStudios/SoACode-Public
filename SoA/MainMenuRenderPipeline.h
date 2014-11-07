@@ -14,9 +14,12 @@
 #ifndef MainMenuRenderPipeline_h__
 #define MainMenuRenderPipeline_h__
 
-#include "IRenderPipeline.h"
-#include "GLProgramManager.h"
 #include "FrameBuffer.h"
+#include "FullQuadVBO.h"
+#include "GLProgramManager.h"
+#include "GLRenderTarget.h"
+#include "IRenderPipeline.h"
+#include "RTSwapChain.hpp"
 
 /// Forward declarations
 class SkyboxRenderStage;
@@ -51,7 +54,9 @@ private:
     AwesomiumRenderStage* _awesomiumRenderStage = nullptr; ///< Renders the UI
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
 
-    vg::FrameBuffer* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
+    vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
+    vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
+    vg::FullQuadVBO _quad; ///< Quad used for post-processing
 
     ui32v4 _viewport; ///< Viewport to draw to
 };
