@@ -169,12 +169,6 @@ const GLfloat VoxelMesher::physicsBlockVertices[72] = { -PHYS_V, PHYS_V, PHYS_V,
 void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture& texInfo)
 {
 
-    //get the face index so we can determine the axis alignment
-    int faceIndex = vertexOffset / CUBE_FACE_1_VERTEX_OFFSET;
-    //Multiply the axis by the sign bit to get the correct offset
-    GLubyte uOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][0]] * cubeFaceAxisSign[faceIndex][0]);
-    GLubyte vOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][1]] * cubeFaceAxisSign[faceIndex][1]);
-
     // 7 per coord
     pos.x *= POSITION_RESOLUTION;
     pos.y *= POSITION_RESOLUTION;
@@ -298,14 +292,14 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
 #define UV_0 128
 #define UV_1 129
 
-    Verts[vertexIndex].tex[0] = UV_0 + uOffset;
-    Verts[vertexIndex].tex[1] = UV_1 + vOffset;
-    Verts[vertexIndex + 1].tex[0] = UV_0 + uOffset;
-    Verts[vertexIndex + 1].tex[1] = UV_0 + vOffset;
-    Verts[vertexIndex + 2].tex[0] = UV_1 + uOffset;
-    Verts[vertexIndex + 2].tex[1] = UV_0 + vOffset;
-    Verts[vertexIndex + 3].tex[0] = UV_1 + uOffset;
-    Verts[vertexIndex + 3].tex[1] = UV_1 + vOffset;
+    Verts[vertexIndex].tex[0] = UV_0;
+    Verts[vertexIndex].tex[1] = UV_1;
+    Verts[vertexIndex + 1].tex[0] = UV_0;
+    Verts[vertexIndex + 1].tex[1] = UV_0;
+    Verts[vertexIndex + 2].tex[0] = UV_1;
+    Verts[vertexIndex + 2].tex[1] = UV_0;
+    Verts[vertexIndex + 3].tex[0] = UV_1;
+    Verts[vertexIndex + 3].tex[1] = UV_1;
 
     // *********** Base Texture
     Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;

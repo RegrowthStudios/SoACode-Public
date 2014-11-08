@@ -115,7 +115,7 @@ bool checkGlError(const nString& errorLocation) {
             pError("At " + errorLocation + ". Error code 1285: GL_OUT_OF_MEMORY");
             break;
         default:
-            pError("At " + errorLocation + ". Error code UNKNOWN");
+            pError("At " + errorLocation + ". Error code " + std::to_string(error) + ": UNKNOWN");
             break;
         }
         return true;

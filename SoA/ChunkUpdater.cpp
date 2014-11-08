@@ -129,6 +129,11 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
         particleEngine.addEmitter(block.emitter, glm::dvec3(chunk->gridPosition.x + pos.x, chunk->gridPosition.y + pos.y, chunk->gridPosition.z + pos.z), blockType);
     }
 
+    // If its a plant, we need to do some extra iteration
+    if (block.floraHeight) {
+        placeFlora(chunk, blockIndex, blockType);
+    }
+
     //Check for light removal due to block occlusion
     if (block.blockLight) {
 
@@ -152,9 +157,9 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
         chunk->setLampLight(blockIndex, 0);
     }
     //Light placement
-    if (block.isLight){
-        chunk->setLampLight(blockIndex, block.lightColor);
-        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColor));
+    if (block.lightColorPacked){
+        chunk->setLampLight(blockIndex, block.lightColorPacked);
+        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColorPacked));
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
@@ -199,9 +204,9 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
     }
 
     //Light placement
-    if (block.isLight){
-        chunk->setLampLight(blockIndex, block.lightColor);
-        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColor));
+    if (block.lightColorPacked) {
+        chunk->setLampLight(blockIndex, block.lightColorPacked);
+        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColorPacked));
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
@@ -262,7 +267,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     chunk->setBlockData(blockIndex, NONE);
 
     //Update lighting
-    if (block.blockLight || block.isLight){
+    if (block.blockLight || block.lightColorPacked) {
         //This will pull light from neighbors
         chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
         chunk->setLampLight(blockIndex, 0);
@@ -293,6 +298,11 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
         }
     }
 
+    // If its a plant, we need to do some extra iteration
+    if (block.floraHeight) {
+        removeFlora(chunk, blockIndex, blockID);
+    }
+
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
     chunk->numBlocks--;
     if (chunk->numBlocks < 0) chunk->numBlocks = 0;
@@ -313,7 +323,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
     chunk->setBlockData(blockIndex, NONE);
 
     //Update lighting
-    if (block.blockLight || block.isLight){
+    if (block.blockLight || block.lightColorPacked) {
         //This will pull light from neighbors
         chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
         chunk->setLampLight(blockIndex, 0);
@@ -557,6 +567,92 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
     if (Blocks[btype].meshType != MeshType::NONE && Blocks[btype].explosivePower == 0){
         if (!chunk->mesh || chunk->mesh->inFrustum){
             particleEngine.addParticles(BPARTICLES, glm::dvec3(chunk->gridPosition.x + x, chunk->gridPosition.y + y, chunk->gridPosition.z + z), 0, 0.1, 0, 1, color, Blocks[btype].base.px, 2.0f, 4, extraForce);
+        }
+    }
+}
+
+// TODO(Ben): Make this cleaner
+void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockID) {
+    
+    // Start it out at -1 so when we add 1 we get 0.
+    ui16 floraHeight = -1;
+    ui16 floraYpos = -1;
+    ui16 tertiaryData; 
+    // Get tertiary data
+    if (blockIndex > CHUNK_LAYER) {
+        // Only need the data if its the same plant as we are
+        if (chunk->getBlockID(blockIndex - CHUNK_LAYER) == blockID) {
+            tertiaryData = chunk->getTertiaryData(blockIndex - CHUNK_LAYER);
+            // Grab height and position
+            floraHeight = VoxelBits::getFloraHeight(tertiaryData);
+            floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+        }
+    } else {
+
+        if (chunk->bottom && chunk->bottom->isAccessible) {
+            // Only need the data if its the same plant as we are
+            if (chunk->bottom->getBlockID(blockIndex - CHUNK_LAYER + CHUNK_SIZE) == blockIndex) {
+                tertiaryData = chunk->bottom->getTertiaryData(blockIndex - CHUNK_LAYER + CHUNK_SIZE);
+                // Grab height and position
+                floraHeight = VoxelBits::getFloraHeight(tertiaryData);
+                floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+            }
+        } else {
+            return;
+        }
+    }
+    tertiaryData = 0;
+    floraHeight += 1; // add one since we are bigger now
+    // Add 1 to the tertiary data
+    VoxelBits::setFloraHeight(tertiaryData, floraHeight);
+    VoxelBits::setFloraPosition(tertiaryData, floraYpos + 1);
+    // Set it
+    chunk->setTertiaryData(blockIndex, tertiaryData);
+    // Loop downwards through all flora blocks of the same type and increase their height by 1
+    while (true) {
+        // Move the index down
+        if (blockIndex >= CHUNK_LAYER) {
+            blockIndex -= CHUNK_LAYER;
+        } else {
+            if (chunk->bottom && chunk->bottom->isAccessible) {
+                chunk = chunk->bottom;
+            } else {
+                return;
+            }
+            blockIndex = blockIndex - CHUNK_LAYER + CHUNK_SIZE;
+        }
+
+        // Loop while this is the same block type
+        if (chunk->getBlockID(blockIndex) == blockID) {
+            tertiaryData = chunk->getTertiaryData(blockIndex);
+            // Set new flora height
+            VoxelBits::setFloraHeight(tertiaryData, floraHeight);
+            chunk->setTertiaryData(blockIndex, tertiaryData);
+        } else {
+            return;
+        }
+
+    }
+}
+
+void ChunkUpdater::removeFlora(Chunk* chunk, int blockIndex, int blockID) {
+    // Grab tertiary data
+    ui16 tertiaryData = chunk->getTertiaryData(blockIndex);
+    // Grab height and position
+    ui16 floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+    // Set tertiary data to 0
+    chunk->setTertiaryData(blockIndex, 0);
+
+    // Recursively kill above flora blocks
+    blockIndex += CHUNK_LAYER;
+    if (blockIndex < CHUNK_SIZE) {
+        if (chunk->getBlockID(blockIndex) == blockID) {
+            removeBlock(chunk, blockIndex, true);
+        }
+    } else if (chunk->top && chunk->top->isAccessible) {
+        blockIndex -= CHUNK_SIZE;
+        if (chunk->top->getBlockID(blockIndex) == blockID) {
+            removeBlock(chunk->top, blockIndex, true);
         }
     }
 }

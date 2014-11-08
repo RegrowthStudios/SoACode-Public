@@ -602,6 +602,12 @@
     <ClInclude Include="DevHudRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelBits.h">
+      <Filter>SOA Files\Voxel\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTextureMethods.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
     <ClInclude Include="GLRenderTarget.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
@@ -993,6 +999,9 @@
     </ClCompile>
     <ClCompile Include="DevHudRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTextureMethods.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
     <ClCompile Include="GLRenderTarget.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>

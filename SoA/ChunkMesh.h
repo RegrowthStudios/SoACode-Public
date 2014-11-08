@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "OpenGLStructs.h"
+#include "BlockTextureMethods.h"
 
 #include <vector>
 
@@ -19,10 +20,14 @@ enum class MeshJobType;
 struct RenderTask;
 class Chunk;
 class ChunkGridData;
+class Block;
 
 // Stores Chunk Mesh Information
-struct MesherInfo {
+class MesherInfo {
 public:
+
+    void init(int dataWidth, int dataLayer);
+
     i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
     i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
     i32 wsize;
@@ -38,6 +43,20 @@ public:
     i32 levelOfDetail;
     MeshType meshType;
     bool mergeUp, mergeBot, mergeFront, mergeBack;
+    const Block* currentBlock;
+
+    // Pointers to the voxel data
+    ui16* blockIDData;
+    ui16* lampLightData;
+    ui8* sunlightData;
+    ui16* tertiaryData;
+
+    BlockTextureMethodParams pyBaseMethodParams, pyOverlayMethodParams;
+    BlockTextureMethodParams nyBaseMethodParams, nyOverlayMethodParams;
+    BlockTextureMethodParams pxBaseMethodParams, pxOverlayMethodParams;
+    BlockTextureMethodParams nxBaseMethodParams, nxOverlayMethodParams;
+    BlockTextureMethodParams pzBaseMethodParams, pzOverlayMethodParams;
+    BlockTextureMethodParams nzBaseMethodParams, nzOverlayMethodParams;
 
     RenderTask* task;
     ChunkGridData* chunkGridData;

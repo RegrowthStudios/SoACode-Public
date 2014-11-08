@@ -31,6 +31,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> dataVector;
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampVector;
     std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunVector;
+    std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataVector;
 
     chunk->numNeighbors = 0;
 
@@ -50,8 +51,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     chunk->minh = chunk->gridPosition.y - heightMap[CHUNK_LAYER / 2].height; //pick center height as the overall height for minerals
 
     ui16 data;
-    ui8 lampData;
+    ui16 lampData;
     ui8 sunlightData;
+    ui16 tertiaryData;
 
     for (int y = 0; y < CHUNK_WIDTH; y++){
         pnum = chunk->numBlocks;
@@ -63,6 +65,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 data = 0;
                 sunlightData = 0;
                 lampData = 0;
+                tertiaryData = 0;
 
                 snowDepth = heightMap[hindex].snowDepth;
                 sandDepth = heightMap[hindex].sandDepth;
@@ -202,7 +205,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     dataVector.emplace_back(0, 1, data);
                     lampVector.emplace_back(0, 1, lampData);
                     sunVector.emplace_back(0, 1, sunlightData);
-
+                    tertiaryDataVector.emplace_back(0, 1, tertiaryData);
                 } else {
 
                     if (data == dataVector.back().data) {
@@ -219,6 +222,11 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                         sunVector.back().length++;
                     } else {
                         sunVector.emplace_back(c, 1, sunlightData);
+                    }
+                    if (tertiaryData == tertiaryDataVector.back().data) {
+                        tertiaryDataVector.back().length++;
+                    } else {
+                        tertiaryDataVector.emplace_back(c, 1, tertiaryData);
                     }
                    
                 }
@@ -241,6 +249,11 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
             } else {
                 sunVector.emplace_back(c, CHUNK_SIZE - c, MAXLIGHT);
             }
+            if (tertiaryDataVector.back().data == 0) {
+                tertiaryDataVector.back().length += CHUNK_SIZE - c;
+            } else {
+                tertiaryDataVector.emplace_back(c, CHUNK_SIZE - c, 0);
+            }
             break;
         }
     }
@@ -248,6 +261,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     chunk->_blockIDContainer.initFromSortedArray(dataVector);
     chunk->_lampLightContainer.initFromSortedArray(lampVector);
     chunk->_sunlightContainer.initFromSortedArray(sunVector);
+    chunk->_tertiaryDataContainer.initFromSortedArray(tertiaryDataVector);
 
     if (chunk->numBlocks){
         LoadMinerals(chunk);

@@ -324,6 +324,14 @@ inline int Chunk::getSunlight(int c) const {
     return _sunlightContainer.get(c);
 }
 
+inline ui16 Chunk::getTertiaryData(int c) const {
+    return _tertiaryDataContainer.get(c);
+}
+
+inline int Chunk::getFloraHeight(int c) const {
+    return _tertiaryDataContainer.get(c) & FLORA_HEIGHT_MASK;
+}
+
 inline ui16 Chunk::getLampLight(int c) const {
     return _lampLightContainer.get(c);
 }
@@ -348,12 +356,21 @@ inline void Chunk::setLampLight(int c, ui16 val) {
     _lampLightContainer.set(c, val);
 }
 
+// TODO(Ben): .setWithMask to avoid an extra traversal
+inline void Chunk::setFloraHeight(int c, ui16 val) {
+    _tertiaryDataContainer.set(c, (_tertiaryDataContainer.get(c) & (~FLORA_HEIGHT_MASK)) | val);
+}
+
 inline void Chunk::setBlockID(int c, int val) {
     _blockIDContainer.set(c, val);
 }
 
 inline void Chunk::setBlockData(int c, ui16 val) {
     _blockIDContainer.set(c, val);
+}
+
+inline void Chunk::setTertiaryData(int c, ui16 val) {
+    _tertiaryDataContainer.set(c, val);
 }
 
 inline GLushort Chunk::getBlockData(int c) const {

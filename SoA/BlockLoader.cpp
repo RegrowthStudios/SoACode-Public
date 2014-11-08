@@ -4,6 +4,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "BlockData.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "IOManager.h"
@@ -28,13 +29,7 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
         Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
 
         // Bit of post-processing on the block
-        b.active = true;
-        GameManager::texturePackLoader->registerBlockTexture(b.topTexName);
-        GameManager::texturePackLoader->registerBlockTexture(b.leftTexName);
-        GameManager::texturePackLoader->registerBlockTexture(b.rightTexName);
-        GameManager::texturePackLoader->registerBlockTexture(b.backTexName);
-        GameManager::texturePackLoader->registerBlockTexture(b.frontTexName);
-        GameManager::texturePackLoader->registerBlockTexture(b.bottomTexName);
+        postProcessBlockLoad(&b);
 
         Blocks[b.ID] = b;
     }
@@ -76,6 +71,23 @@ bool BlockLoader::saveBlocks(const nString& filePath) {
     file.close();
     return true;
 }
+
+
+void BlockLoader::postProcessBlockLoad(Block* block) {
+    block->active = true;
+    GameManager::texturePackLoader->registerBlockTexture(block->topTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->leftTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->rightTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->backTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->frontTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->bottomTexName);
+
+    // Pack light color
+    block->lightColorPacked = ((ui16)block->lightColor.r << LAMP_RED_SHIFT) |
+        ((ui16)block->lightColor.g << LAMP_GREEN_SHIFT) |
+        (ui16)block->lightColor.b;
+}
+
 
 i32 BlockLoader::SetWaterBlocks(int startID) {
     float weight = 0;

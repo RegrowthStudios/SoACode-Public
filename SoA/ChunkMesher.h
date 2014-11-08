@@ -7,7 +7,7 @@ struct RenderTask;
 class Chunk;
 struct ChunkMeshData;
 struct BlockTexture;
-struct BlockTextureLayer;
+class BlockTextureLayer;
 
 
 // each worker thread gets one of these
@@ -30,15 +30,6 @@ private:
     void mergeRightVerts(MesherInfo& mi);
     void mergeLeftVerts(MesherInfo& mi);
     void mergeBottomVerts(MesherInfo& mi);
-
-    
-    void getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ColorRGB8& color);
-    void getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
-    void getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
-    void getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ColorRGB8& color);
-    void getVerticalTextureIndex(const MesherInfo &mi, int& result, ConnectedTextureReducedMethod rm, int upDir, unsigned int offset);
-    void getHorizontalTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int frontDir, unsigned int offset);
-
 
     void addBlockToMesh(MesherInfo& mi);
     void addFloraToMesh(MesherInfo& mi);
@@ -84,9 +75,10 @@ private:
     ui8 lodSunData[18 * 18 * 18];
 
     //Pointers to the voxel data array that is currently in use
-    ui16* blockIDData;
-    ui16* lampLightData;
-    ui8* sunlightData;
+    ui16* _blockIDData;
+    ui16* _lampLightData;
+    ui8* _sunlightData;
+    ui16* _tertiaryData;
 
     ui32 _finalQuads[7000];
 

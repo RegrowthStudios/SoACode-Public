@@ -477,7 +477,7 @@ void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* p
 }
 
 void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
-    if (CMI->transVboID == 0) return;
+    if (CMI->transVaoID == 0) return;
 
     GlobalModelMatrix[3][0] = ((float)((double)CMI->position.x - playerPos.x));
     GlobalModelMatrix[3][1] = ((float)((double)CMI->position.y - playerPos.y));
@@ -489,8 +489,6 @@ void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *CMI, const vg::G
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
     glBindVertexArray(CMI->transVaoID);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CMI->transIndexID);
 
     glDrawElements(GL_TRIANGLES, CMI->meshInfo.transVboSize, GL_UNSIGNED_INT, nullptr);
 
@@ -549,6 +547,7 @@ void ChunkRenderer::bindTransparentVao(ChunkMesh *CMI)
     glBindVertexArray(CMI->transVaoID);
 
     glBindBuffer(GL_ARRAY_BUFFER, CMI->transVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CMI->transIndexID);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);

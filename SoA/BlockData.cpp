@@ -69,11 +69,10 @@ KEG_TYPE_INIT_BEGIN_DEF_VAR(BlockTextureLayer)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("method", Keg::Value::custom("ConnectedTextureMethods", offsetof(BlockTextureLayer, method), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("reducedMethod", Keg::Value::custom("ConnectedTextureReducedMethod", offsetof(BlockTextureLayer, reducedMethod), true));
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32_V2, size);
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("width", Keg::Value::basic(Keg::BasicType::I32, offsetof(BlockTextureLayer, size)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("height", Keg::Value::basic(Keg::BasicType::I32, offsetof(BlockTextureLayer, size) + sizeof(i32)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("symmetry", Keg::Value::custom("ConnectedTextureSymmetry", offsetof(BlockTextureLayer, symmetry), true));
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, BOOL, innerSeams);
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, BOOL, transparency);
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("height", Keg::Value::basic(Keg::BasicType::UI32, offsetof(BlockTextureLayer, floraHeight)));
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, STRING, useMapColor);
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32, totalWeight);
 KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32, numTiles);
@@ -92,7 +91,7 @@ KEG_TYPE_INIT_BEGIN_DEF_VAR(Block)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("ID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, ID)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("burnTransformID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, burnTransformID)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waveEffect", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waveEffect)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, lightColor)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, lightColor)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("physicsProperty", Keg::Value::custom("PhysicsProperties", offsetof(Block, physicsProperty), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterMeshLevel", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waterMeshLevel)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("floatingAction", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, floatingAction)));
@@ -226,7 +225,8 @@ emitterOnBreak(NULL),
 emitterRandom(NULL),
 emitterRandomName(""),
 color(255, 255, 255),
-overlayColor(255, 255, 255) {
+overlayColor(255, 255, 255),
+lightColor(0, 0, 0) {
     allowLight = 0;
     ID = 0;
     name = leftTexName = rightTexName = backTexName = frontTexName = topTexName = bottomTexName = particleTexName = "";
@@ -240,8 +240,6 @@ overlayColor(255, 255, 255) {
     useable = 1;
     blockLight = 1;
     waterMeshLevel = 0;
-    isLight = 0;
-    lightColor = 0;
     waterBreak = 0;
     isCrushable = 0;
     floatingAction = 1;
@@ -344,6 +342,14 @@ void Block::InitializeTexture() {
         GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
         particleTex = particleTexture.base.textureIndex;
 
+        // Calculate flora height
+        // TODO(Ben): Not really a good place for this
+        if (pxTexInfo.base.method == ConnectedTextureMethods::FLORA) {
+            // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
+            // which becomes n = (sqrt(8 * y + 1) - 1) / 2
+            int y = pxTexInfo.base.size.y;
+            floraHeight = (sqrt(8 * y + 1) - 1) / 2;
+        }
     }
 }
 

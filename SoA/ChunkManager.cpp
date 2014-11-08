@@ -1095,7 +1095,9 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
     bool save = 0;
 
-    if (SDL_GetTicks() - saveTicks >= 60000) { //save once per minute
+    #define MS_PER_MINUTE 60000
+
+    if (SDL_GetTicks() - saveTicks >= MS_PER_MINUTE) { //save once per minute
         save = 1;
         cout << "SAVING\n";
         saveTicks = SDL_GetTicks();

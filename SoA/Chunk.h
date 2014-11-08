@@ -14,6 +14,7 @@
 #include "SmartVoxelContainer.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
+#include "VoxelBits.h"
 #include "VoxelLightEngine.h"
 
 //used by threadpool
@@ -29,14 +30,6 @@ enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DR
 
 struct LightMessage;
 struct RenderTask;
-
-//For lamp colors. Used to extract color values from the 16 bit color code
-#define LAMP_RED_MASK 0x7C00
-#define LAMP_GREEN_MASK 0x3E0
-#define LAMP_BLUE_MASK 0x1f
-#define LAMP_RED_SHIFT 10
-#define LAMP_GREEN_SHIFT 5
-//no blue shift
 
 class ChunkGridData {
 public:
@@ -121,6 +114,8 @@ public:
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
     int getSunlight(int c) const;
+    ui16 getTertiaryData(int c) const;
+    int getFloraHeight(int c) const;
 
     ui16 getLampLight(int c) const;
     ui16 getLampRed(int c) const;
@@ -131,17 +126,15 @@ public:
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
-    static ui16 getLampRedFromHex(ui16 color) { return (color & LAMP_RED_MASK) >> LAMP_RED_SHIFT; }
-    static ui16 getLampGreenFromHex(ui16 color) { return (color & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT; }
-    static ui16 getLampBlueFromHex(ui16 color) { return color & LAMP_BLUE_MASK; }
-
     int getLevelOfDetail() const { return _levelOfDetail; }
 
     //setters
     void setBlockID(int c, int val);
     void setBlockData(int c, ui16 val);
+    void setTertiaryData(int c, ui16 val);
     void setSunlight(int c, ui8 val);
     void setLampLight(int c, ui16 val);
+    void setFloraHeight(int c, ui16 val);
 
     void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
     
@@ -214,6 +207,7 @@ private:
     SmartVoxelContainer<ui16> _blockIDContainer;
     SmartVoxelContainer<ui8> _sunlightContainer;
     SmartVoxelContainer<ui16> _lampLightContainer;
+    SmartVoxelContainer<ui16> _tertiaryDataContainer;
 
     int _levelOfDetail;
 

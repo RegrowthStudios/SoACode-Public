@@ -58,6 +58,9 @@ i32 TextureAtlasStitcher::addTexture(const BlockTextureLayer& layer) {
         case ConnectedTextureMethods::VERTICAL:
             index = mapContiguous(VERTICAL_TILES);
             break;
+        case ConnectedTextureMethods::FLORA:
+            index = mapContiguous(layer.numTiles);
+            break;
         default:
             index = mapSingle();
             break;
@@ -111,6 +114,9 @@ void TextureAtlasStitcher::buildPixelData(const std::vector <BlockLayerLoadData>
                 break;
             case ConnectedTextureMethods::VERTICAL:
                 writeToAtlasContiguous(layer->textureIndex, pixels, 1, 4, 4);
+                break;
+            case ConnectedTextureMethods::FLORA:
+                writeToAtlasContiguous(layer->textureIndex, pixels, layer->size.x, layer->size.y, layer->numTiles);
                 break;
             default:
                 writeToAtlas(layer->textureIndex, pixels, _resolution, _resolution, _resolution * BYTES_PER_PIXEL);

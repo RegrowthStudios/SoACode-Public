@@ -113,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
+    <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="LoadTaskGameManager.h" />
+    <ClInclude Include="VoxelBits.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -279,6 +281,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AwesomiumRenderStage.cpp" />
+    <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
