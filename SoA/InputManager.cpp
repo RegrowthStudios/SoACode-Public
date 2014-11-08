@@ -11,7 +11,6 @@
 #include "GameManager.h"
 #include "Inputs.h"
 
-
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
     _iniKeys["type"] = 0;
@@ -184,6 +183,12 @@ void InputManager::loadAxes() {
 
 void InputManager::update() {
     for (auto iter = _previousKeyStates.begin(); iter != _previousKeyStates.end(); iter++) {
+        if(iter->second && !_currentKeyStates[iter->first]) { //Up
+            GameManager::eventManager->throwEvent(&InputEventData(EVENT_BUTTON_UP, iter->first));
+        } else if(!iter->second && _currentKeyStates[iter->first]) { //Down
+            GameManager::eventManager->throwEvent(&InputEventData(EVENT_BUTTON_DOWN, iter->first));
+        }
+
         iter->second = _currentKeyStates[iter->first];
     }
 }

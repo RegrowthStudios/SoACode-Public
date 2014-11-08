@@ -41,7 +41,13 @@ i32 INPUT_WATER_UPDATE = -1;
 i32 INPUT_ZOOM = -1;
 i32 INPUT_RANDOM_DEBUG = -1;
 
-i32 EVENT_LEFT_MOUSE_BUTTON = -1;
+i32 EVENT_BUTTON_DOWN = -1;
+i32 EVENT_BUTTON_UP=  -1;
+
+void buttonListener(EventData* data) {
+    InputEventData* inputData = static_cast<InputEventData*>(data);
+    std::cout << inputData->key << " " << inputData->eventID << std::endl;
+}
 
 // Reduce Some Code
 #define CREATE_INPUT(ID,KEY,VAR) \
@@ -104,4 +110,9 @@ void initInputs() {
     // Block Utilities
     CREATE_INPUT(Block Scanner, SDLK_q, INPUT_BLOCK_SCANNER);
     CREATE_INPUT(Block Select, SDLK_b, INPUT_BLOCK_DRAG);
+
+    EVENT_BUTTON_DOWN = GameManager::eventManager->registerEvent("Button Down");
+    EVENT_BUTTON_UP = GameManager::eventManager->registerEvent("Button Up");
+    GameManager::eventManager->addEventListener(EVENT_BUTTON_DOWN, buttonListener);
+    GameManager::eventManager->addEventListener(EVENT_BUTTON_UP, buttonListener);
 }

@@ -2,9 +2,17 @@
 #include <SDL\SDL_events.h>
 #include <SDL\SDL_joystick.h>
 
+#include "EventManager.h"
+
 enum SDLKey;
 
 #define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.ini"
+
+class InputEventData: public EventData {
+public:
+    InputEventData(i32 eventID, ui32 key): EventData(eventID), key(key) {}
+    ui32 key;
+};
 
 class InputManager {
 public:
