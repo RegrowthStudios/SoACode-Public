@@ -53,7 +53,7 @@ void GameRenderParams::calculateFog(float theta, bool isUnderwater) {
 void GameRenderParams::calculateSunlight(float theta) {
     // Calculate sunlight
     #define AMB_MULT 0.76f
-    #define AMB_OFFSET 0.1f
+    #define AMB_OFFSET 0.02f
     #define MIN_THETA 0.01f
     #define THETA_MULT 8.0f
     #define SUN_COLOR_MAP_HEIGHT 64.0f
@@ -72,6 +72,7 @@ void GameRenderParams::calculateSunlight(float theta) {
         diffVal += (theta - MIN_THETA) * THETA_MULT;
         if (diffVal < 0.0f) diffVal = 0.0f;
     }
+
     int sunHeight = (int)(theta * SUN_COLOR_MAP_HEIGHT);
     if (theta < 0) {
         sunHeight = 0;
