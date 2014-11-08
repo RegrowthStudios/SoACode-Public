@@ -170,9 +170,9 @@ GLubyte ChunkMesher::calculateSmoothLighting(int accumulatedLight, int numAdjace
 }
 
 void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj) {
-    dst.r = calculateSmoothLighting(src0[0] + src1[0] + src2[0] + src3[0] + numAdj, numAdj);
-    dst.g = calculateSmoothLighting(src0[1] + src1[1] + src2[1] + src3[1] + numAdj, numAdj);
-    dst.b = calculateSmoothLighting(src0[2] + src1[2] + src2[2] + src3[2] + numAdj, numAdj);
+    dst.r = calculateSmoothLighting(src0[0] + src1[0] + src2[0] + src3[0], numAdj);
+    dst.g = calculateSmoothLighting(src0[1] + src1[1] + src2[1] + src3[1], numAdj);
+    dst.b = calculateSmoothLighting(src0[2] + src1[2] + src2[2] + src3[2], numAdj);
 }
 
 void ChunkMesher::addBlockToMesh(MesherInfo& mi)
@@ -262,10 +262,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateLampColor(_frontVerts[mi.frontIndex + 1].lampColor, lampLights[6], lampLights[7], lampLights[14], lampLights[15], nearBlocks[1]);
             calculateLampColor(_frontVerts[mi.frontIndex + 2].lampColor, lampLights[7], lampLights[8], lampLights[15], lampLights[16], nearBlocks[2]);
             calculateLampColor(_frontVerts[mi.frontIndex + 3].lampColor, lampLights[24], lampLights[25], lampLights[15], lampLights[16], nearBlocks[3]);
-            _frontVerts[mi.frontIndex].sunlight = calculateSmoothLighting(sunlights[23] + sunlights[24] + sunlights[14] + sunlights[15] + nearBlocks[0], nearBlocks[0]);
-            _frontVerts[mi.frontIndex + 1].sunlight = calculateSmoothLighting(sunlights[6] + sunlights[7] + sunlights[14] + sunlights[15] + nearBlocks[1], nearBlocks[1]);
-            _frontVerts[mi.frontIndex + 2].sunlight = calculateSmoothLighting(sunlights[7] + sunlights[8] + sunlights[15] + sunlights[16] + nearBlocks[2], nearBlocks[2]);
-            _frontVerts[mi.frontIndex + 3].sunlight = calculateSmoothLighting(sunlights[24] + sunlights[25] + sunlights[15] + sunlights[16] + nearBlocks[3], nearBlocks[3]);
+            _frontVerts[mi.frontIndex].sunlight = calculateSmoothLighting(sunlights[23] + sunlights[24] + sunlights[14] + sunlights[15], nearBlocks[0]);
+            _frontVerts[mi.frontIndex + 1].sunlight = calculateSmoothLighting(sunlights[6] + sunlights[7] + sunlights[14] + sunlights[15], nearBlocks[1]);
+            _frontVerts[mi.frontIndex + 2].sunlight = calculateSmoothLighting(sunlights[7] + sunlights[8] + sunlights[15] + sunlights[16], nearBlocks[2]);
+            _frontVerts[mi.frontIndex + 3].sunlight = calculateSmoothLighting(sunlights[24] + sunlights[25] + sunlights[15] + sunlights[16], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeFront && mi.pbtype == btype &&
@@ -321,10 +321,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateLampColor(_backVerts[mi.backIndex + 1].lampColor, lampLights[1], lampLights[2], lampLights[11], lampLights[10], nearBlocks[1]);
             calculateLampColor(_backVerts[mi.backIndex + 2].lampColor, lampLights[0], lampLights[1], lampLights[9], lampLights[10], nearBlocks[2]);
             calculateLampColor(_backVerts[mi.backIndex + 3].lampColor, lampLights[17], lampLights[18], lampLights[9], lampLights[10], nearBlocks[3]);
-            _backVerts[mi.backIndex].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[11] + sunlights[10] + nearBlocks[0], nearBlocks[0]);
-            _backVerts[mi.backIndex + 1].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[11] + sunlights[10] + nearBlocks[1], nearBlocks[1]);
-            _backVerts[mi.backIndex + 2].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[9] + sunlights[10] + nearBlocks[2], nearBlocks[2]);
-            _backVerts[mi.backIndex + 3].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[9] + sunlights[10] + nearBlocks[3], nearBlocks[3]);
+            _backVerts[mi.backIndex].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[11] + sunlights[10], nearBlocks[0]);
+            _backVerts[mi.backIndex + 1].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[11] + sunlights[10], nearBlocks[1]);
+            _backVerts[mi.backIndex + 2].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[9] + sunlights[10], nearBlocks[2]);
+            _backVerts[mi.backIndex + 3].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[9] + sunlights[10], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBack && mi.pbtype == btype &&
@@ -379,10 +379,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateLampColor(_topVerts[mi.topIndex + 1].lampColor, lampLights[20], lampLights[21], lampLights[23], lampLights[24], nearBlocks[1]);
             calculateLampColor(_topVerts[mi.topIndex + 2].lampColor, lampLights[21], lampLights[22], lampLights[24], lampLights[25], nearBlocks[2]);
             calculateLampColor(_topVerts[mi.topIndex + 3].lampColor, lampLights[18], lampLights[19], lampLights[21], lampLights[22], nearBlocks[3]);
-            _topVerts[mi.topIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[20] + sunlights[21] + nearBlocks[0], nearBlocks[0]);
-            _topVerts[mi.topIndex + 1].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[21] + sunlights[23] + sunlights[24] + nearBlocks[1], nearBlocks[1]);
-            _topVerts[mi.topIndex + 2].sunlight = calculateSmoothLighting(sunlights[21] + sunlights[22] + sunlights[24] + sunlights[25] + nearBlocks[2], nearBlocks[2]);
-            _topVerts[mi.topIndex + 3].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[21] + sunlights[22] + nearBlocks[3], nearBlocks[3]);
+            _topVerts[mi.topIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[20] + sunlights[21], nearBlocks[0]);
+            _topVerts[mi.topIndex + 1].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[21] + sunlights[23] + sunlights[24], nearBlocks[1]);
+            _topVerts[mi.topIndex + 2].sunlight = calculateSmoothLighting(sunlights[21] + sunlights[22] + sunlights[24] + sunlights[25], nearBlocks[2]);
+            _topVerts[mi.topIndex + 3].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[21] + sunlights[22], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeUp && mi.pbtype == btype &&
@@ -437,10 +437,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateLampColor(_bottomVerts[mi.botIndex + 1].lampColor, lampLights[4], lampLights[5], lampLights[7], lampLights[8], nearBlocks[1]);
             calculateLampColor(_bottomVerts[mi.botIndex + 2].lampColor, lampLights[3], lampLights[4], lampLights[6], lampLights[7], nearBlocks[2]);
             calculateLampColor(_bottomVerts[mi.botIndex + 3].lampColor, lampLights[0], lampLights[1], lampLights[3], lampLights[4], nearBlocks[3]);
-            _bottomVerts[mi.botIndex].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[4] + sunlights[5] + nearBlocks[0], nearBlocks[0]);
-            _bottomVerts[mi.botIndex + 1].sunlight = calculateSmoothLighting(sunlights[4] + sunlights[5] + sunlights[7] + sunlights[8] + nearBlocks[1], nearBlocks[1]);
-            _bottomVerts[mi.botIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[4] + sunlights[6] + sunlights[7] + nearBlocks[2], nearBlocks[2]);
-            _bottomVerts[mi.botIndex + 3].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[3] + sunlights[4] + nearBlocks[3], nearBlocks[3]);
+            _bottomVerts[mi.botIndex].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[4] + sunlights[5], nearBlocks[0]);
+            _bottomVerts[mi.botIndex + 1].sunlight = calculateSmoothLighting(sunlights[4] + sunlights[5] + sunlights[7] + sunlights[8], nearBlocks[1]);
+            _bottomVerts[mi.botIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[4] + sunlights[6] + sunlights[7], nearBlocks[2]);
+            _bottomVerts[mi.botIndex + 3].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[3] + sunlights[4], nearBlocks[3]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBot && mi.pbtype == btype &&
@@ -492,10 +492,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateLampColor(_rightVerts[mi.rightIndex + 1].lampColor, lampLights[5], lampLights[8], lampLights[13], lampLights[16], nearBlocks[1]);
             calculateLampColor(_rightVerts[mi.rightIndex + 2].lampColor, lampLights[2], lampLights[5], lampLights[11], lampLights[13], nearBlocks[2]);
             calculateLampColor(_rightVerts[mi.rightIndex + 3].lampColor, lampLights[19], lampLights[22], lampLights[11], lampLights[13], nearBlocks[3]);
-            _rightVerts[mi.rightIndex].sunlight = calculateSmoothLighting(sunlights[25] + sunlights[22] + sunlights[13] + sunlights[16] + nearBlocks[0], nearBlocks[0]);
-            _rightVerts[mi.rightIndex + 1].sunlight = calculateSmoothLighting(sunlights[5] + sunlights[8] + sunlights[13] + sunlights[16] + nearBlocks[1], nearBlocks[1]);
-            _rightVerts[mi.rightIndex + 2].sunlight = calculateSmoothLighting(sunlights[2] + sunlights[5] + sunlights[11] + sunlights[13] + nearBlocks[2], nearBlocks[2]);
-            _rightVerts[mi.rightIndex + 3].sunlight = calculateSmoothLighting(sunlights[19] + sunlights[22] + sunlights[11] + sunlights[13] + nearBlocks[3], nearBlocks[3]);
+            _rightVerts[mi.rightIndex].sunlight = calculateSmoothLighting(sunlights[25] + sunlights[22] + sunlights[13] + sunlights[16], nearBlocks[0]);
+            _rightVerts[mi.rightIndex + 1].sunlight = calculateSmoothLighting(sunlights[5] + sunlights[8] + sunlights[13] + sunlights[16], nearBlocks[1]);
+            _rightVerts[mi.rightIndex + 2].sunlight = calculateSmoothLighting(sunlights[2] + sunlights[5] + sunlights[11] + sunlights[13], nearBlocks[2]);
+            _rightVerts[mi.rightIndex + 3].sunlight = calculateSmoothLighting(sunlights[19] + sunlights[22] + sunlights[11] + sunlights[13], nearBlocks[3]);
 
             mi.rightIndex += 4;
         }
@@ -532,10 +532,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateLampColor(_leftVerts[mi.leftIndex + 1].lampColor, lampLights[0], lampLights[3], lampLights[9], lampLights[12], nearBlocks[1]);
             calculateLampColor(_leftVerts[mi.leftIndex + 2].lampColor, lampLights[3], lampLights[6], lampLights[14], lampLights[12], nearBlocks[2]);
             calculateLampColor(_leftVerts[mi.leftIndex + 3].lampColor, lampLights[20], lampLights[23], lampLights[14], lampLights[12], nearBlocks[3]);
-            _leftVerts[mi.leftIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[20] + sunlights[9] + sunlights[12] + nearBlocks[0], nearBlocks[0]);
-            _leftVerts[mi.leftIndex + 1].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[3] + sunlights[9] + sunlights[12] + nearBlocks[1], nearBlocks[1]);
-            _leftVerts[mi.leftIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[6] + sunlights[14] + sunlights[12] + nearBlocks[2], nearBlocks[2]);
-            _leftVerts[mi.leftIndex + 3].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[23] + sunlights[14] + sunlights[12] + nearBlocks[3], nearBlocks[3]);
+            _leftVerts[mi.leftIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[20] + sunlights[9] + sunlights[12], nearBlocks[0]);
+            _leftVerts[mi.leftIndex + 1].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[3] + sunlights[9] + sunlights[12], nearBlocks[1]);
+            _leftVerts[mi.leftIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[6] + sunlights[14] + sunlights[12], nearBlocks[2]);
+            _leftVerts[mi.leftIndex + 3].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[23] + sunlights[14] + sunlights[12], nearBlocks[3]);
 
             mi.leftIndex += 4;
         }

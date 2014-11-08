@@ -90,4 +90,4 @@ extern bool sonarActive;
 const int maxParticles = 100000;
 const int BPARTICLES = 4;
 
-const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.19f;
+const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
