@@ -283,6 +283,8 @@ void TexturePackLoader::loadAllBlockTextures() {
         pixels = getPixels(blockTexture.base.path, width, height);
         // Store handle to the layer, do postprocessing, add layer to load
         blockTextureLoadData.base = postProcessLayer(pixels, blockTexture.base, width, height);
+        // Init the func
+        if (blockTextureLoadData.base) blockTextureLoadData.base->initBlockTextureFunc();
 
         // Check if we have an overlay
         if (blockTexture.overlay.path.empty() == false) {
@@ -290,6 +292,8 @@ void TexturePackLoader::loadAllBlockTextures() {
             pixels = getPixels(blockTexture.overlay.path, width, height);
             // Store handle to the layer, do postprocessing, add layer to load
             blockTextureLoadData.overlay = postProcessLayer(pixels, blockTexture.overlay, width, height);
+            // Init the func
+            if (blockTextureLoadData.overlay) blockTextureLoadData.overlay->initBlockTextureFunc();
         }
 
         // Add it to the list of load datas

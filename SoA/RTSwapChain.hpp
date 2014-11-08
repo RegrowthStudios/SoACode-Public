@@ -37,7 +37,7 @@ namespace vorb {
                 /// @param format: Internal pixel format for the color textures
                 void init(TextureInternalFormat format = TextureInternalFormat::RGBA8) {
                     for (i32 i = 0; i < N; i++) {
-                        _fbos[i].init(format, TextureInternalFormat::NONE, 0);
+                        _fbos[i].init(format, 0);
                     }
                 }
                 /// Dispose all of the FBOs on the chain

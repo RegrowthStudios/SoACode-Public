@@ -15,27 +15,40 @@
 #ifndef BlockTextureMethods_h__
 #define BlockTextureMethods_h__
 
-#include "BlockData.h"
-#include "ChunkMesh.h"
+class MesherInfo;
+class BlockTextureLayer;
 
 class BlockTextureMethodParams {
 public:
-    const MesherInfo* mesherInfo;
-    const BlockTextureLayer* blockTexInfo;
+
+    void init(MesherInfo* mi, i32 RightDir, i32 UpDir, i32 FrontDir, i32 Offset) {
+        mesherInfo = mi;
+        rightDir = RightDir;
+        upDir = UpDir;
+        frontDir = FrontDir;
+        offset = Offset;
+    }
+
+    void set(const BlockTextureLayer* blockTextureLayer, ColorRGB8& Color) {
+        blockTexInfo = blockTextureLayer;
+        color = &Color;
+    }
+
+    const MesherInfo* mesherInfo = nullptr;
+    const BlockTextureLayer* blockTexInfo = nullptr;
     i32 rightDir;
     i32 upDir;
     i32 frontDir;
     ui32 offset;
-    ColorRGB8* color;
+    ColorRGB8* color = nullptr;
 };
 
-
-typedef std::function <void(BlockTextureMethodParams& params, int& result)> blockTextureFunc;
+typedef std::function <void(BlockTextureMethodParams& params, int& result)> BlockTextureFunc;
 
 namespace BlockTextureMethods {
-    void getDefaultTextureIndex(BlockTextureMethodParams& params, int& result) { /* Do nothing */ };
+    inline void getDefaultTextureIndex(BlockTextureMethodParams& params, int& result) { /* Do nothing */ };
     extern void getRandomTextureIndex(BlockTextureMethodParams& params, int& result);
-    extern void getFloraTextureIndex(BlockTextureMethodParams& paramso, int& result);
+    extern void getFloraTextureIndex(BlockTextureMethodParams& params, int& result);
     extern void getConnectedTextureIndex(BlockTextureMethodParams& params, int& result);
     extern void getGrassTextureIndex(BlockTextureMethodParams& params, int& result);
     extern void getVerticalTextureIndex(BlockTextureMethodParams& params, int& result);

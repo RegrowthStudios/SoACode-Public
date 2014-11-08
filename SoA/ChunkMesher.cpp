@@ -175,343 +175,6 @@ void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], u
     dst.b = calculateSmoothLighting(src0[2] + src1[2] + src2[2] + src3[2] + numAdj, numAdj);
 }
 
-//Gets texture offset according to the texturing method
-//Grass method may change color
-void ChunkMesher::getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ColorRGB8& color) {
-    switch (blockTexture.method) {
-    case ConnectedTextureMethods::CONNECTED:
-        return getConnectedTextureIndex(mi, result, blockTexture.innerSeams, rightDir, upDir, frontDir, directionIndex);
-    case ConnectedTextureMethods::RANDOM:
-        return getRandomTextureIndex(mi, blockTexture, result);
-    case ConnectedTextureMethods::GRASS:
-        return getGrassTextureIndex(mi, result, rightDir, upDir, frontDir, directionIndex, color);
-    case ConnectedTextureMethods::HORIZONTAL:
-        return getHorizontalTextureIndex(mi, result, blockTexture.innerSeams, rightDir, frontDir, directionIndex);
-    case ConnectedTextureMethods::VERTICAL:
-        return getVerticalTextureIndex(mi, result, blockTexture.reducedMethod, upDir, directionIndex);
-    case ConnectedTextureMethods::FLORA:
-        return getFloraTextureIndex(mi, blockTexture, result);
-    }
-}
-
-//Gets a random offset for use by random textures
-void ChunkMesher::getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result) {
-    //TODO: MurmurHash3
-    int seed = getPositionSeed(mi.x + mi.task->position.x, mi.y + mi.task->position.y, mi.z + mi.task->position.z);
-
-    float r = (PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo.totalWeight;
-    float totalWeight = 0;
-
-    // TODO(Ben): Binary search?
-    if (blockTexInfo.weights.length()){
-        for (int i = 0; i < blockTexInfo.numTiles; i++) {
-            totalWeight += blockTexInfo.weights[i];
-            if (r <= totalWeight) {
-                result += i;
-                return;
-            }
-        }
-    } else {
-        for (int i = 0; i < blockTexInfo.numTiles; i++) {
-            totalWeight += 1.0f;
-            if (r <= totalWeight) {
-                result += i;
-                return;
-            }
-        }
-    }
-}
-
-void ChunkMesher::getFloraTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result) {
-    //TODO: MurmurHash3
-    int seed = getPositionSeed(mi.x + mi.task->position.x, mi.y + mi.task->position.y, mi.z + mi.task->position.z);
-
-    float r = (PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo.totalWeight;
-    float totalWeight = 0;
-
-    int wc = mi.wc;
-
-    int column;
-
-    // TODO(Ben): Binary search?
-    if (blockTexInfo.weights.length()) {
-        for (int i = 0; i < blockTexInfo.size.x; i++) {
-            totalWeight += blockTexInfo.weights[i];
-            if (r <= totalWeight) {
-                column = i;
-                break;
-            }
-        }
-    } else {
-        for (int i = 0; i < blockTexInfo.size.x; i++) {
-            totalWeight += 1.0f;
-            if (r <= totalWeight) {
-                column = i;
-                break;
-            }
-        }
-    }
-
-    result += column;
-
-    // Get the height of the current voxel
-    int height = MIN(VoxelBits::getFloraHeight(_tertiaryData[wc]), mi.currentBlock->floraHeight);
-    int yPos = height - VoxelBits::getFloraPosition(_tertiaryData[wc]);
-
-    // Move the result to the flora of the correct height
-    result += blockTexInfo.size.x * (height * height + height) / 2;
-    // Offset by the ypos
-    result += blockTexInfo.size.x * yPos;
-
-}
-
-//Gets a connected texture offset by looking at the surrounding blocks
-void ChunkMesher::getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset) {
-
-    int connectedOffset = 0;
-    int wc = mi.wc;
-    int tex = result;
-   
-    // Top Left
-    Block *block = &GETBLOCK(_blockIDData[wc + upDir - rightDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0x80;
-    }
-
-    // Top
-    block = &GETBLOCK(_blockIDData[wc + upDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0xE0;
-    }
-
-    // Top Right
-    block = &GETBLOCK(_blockIDData[wc + upDir + rightDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0x20;
-    }
-
-    // Right
-    block = &GETBLOCK(_blockIDData[wc + rightDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0x38;
-    }
-
-    // Bottom Right
-    block = &GETBLOCK(_blockIDData[wc - upDir + rightDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0x8;
-    }
-
-    // Bottom
-    block = &GETBLOCK(_blockIDData[wc - upDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0xE;
-    }
-
-    // Bottom Left
-    block = &GETBLOCK(_blockIDData[wc - upDir - rightDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0x2;
-    }
-
-    // Left
-    block = &GETBLOCK(_blockIDData[wc - rightDir]);
-    if (block->base[offset] != tex) {
-        connectedOffset |= 0x83;
-    }
-
-    if (innerSeams) {
-        // Top Front Left
-        Block *block = &GETBLOCK(_blockIDData[wc + upDir - rightDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0x80;
-        }
-
-        // Top Front Right
-        block = &GETBLOCK(_blockIDData[wc + upDir + rightDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0x20;
-        }
-
-        // Bottom front Right
-        block = &GETBLOCK(_blockIDData[wc - upDir + rightDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0x8;
-        }
-
-        //Bottom front
-        block = &GETBLOCK(_blockIDData[wc - upDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0xE;
-        }
-
-        // Bottom front Left
-        block = &GETBLOCK(_blockIDData[wc - upDir - rightDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0x2;
-        }
-
-        //Left front
-        block = &GETBLOCK(_blockIDData[wc - rightDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0x83;
-        }
-
-        //Top front
-        block = &GETBLOCK(_blockIDData[wc + upDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0xE0;
-        }
-
-        //Right front
-        block = &GETBLOCK(_blockIDData[wc + rightDir + frontDir]);
-        if (block->occlude != BlockOcclusion::NONE) {
-            connectedOffset |= 0x38;
-        }
-    }
-
-
-    result += connectedTextureOffsets[connectedOffset];
-}
-
-//Gets a grass side texture offset by looking at the surrounding blocks
-void ChunkMesher::getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ColorRGB8& color) {
-
-    int connectedOffset = 0;
-    int wc = mi.wc;
-
-    int tex = result;
-
-    // Bottom Front
-    Block* block = &GETBLOCK(_blockIDData[wc - upDir + frontDir]);
-    if (mi.levelOfDetail > 1 || block->base[offset] == tex) {
-        block = &GETBLOCK(_blockIDData[wc]);
-        result = block->pyTexInfo.base.textureIndex;
-        getTextureIndex(mi, block->pyTexInfo.base, result, rightDir, upDir, frontDir, 1, color);
-        block->GetBlockColor(color, 0, mi.temperature, mi.rainfall, block->pyTexInfo);
-        return;
-    }
-
-    // Left
-    block = &GETBLOCK(_blockIDData[wc - rightDir]);
-    if (block->base[offset] == tex || block->occlude == BlockOcclusion::NONE) {
-        connectedOffset |= 0x8;
-
-        if (block->base[offset] == tex) {
-            // bottom front Left
-            block = &GETBLOCK(_blockIDData[wc - upDir - rightDir + frontDir]);
-            if (block->base[offset] == tex) {
-                connectedOffset |= 0xC;
-            }
-        }
-    }
-    // Front left
-    block = &GETBLOCK(_blockIDData[wc - rightDir + frontDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 0x8;
-    }
- 
-    // Bottom left
-    block = &GETBLOCK(_blockIDData[wc - upDir - rightDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 0xC;
-    }
-
-    // bottom right
-    block = &GETBLOCK(_blockIDData[wc - upDir + rightDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 0x3;
-    }
-
-    // Right
-    block = &GETBLOCK(_blockIDData[wc + rightDir]);
-    if (block->base[offset] == tex || block->occlude == BlockOcclusion::NONE) {
-        connectedOffset |= 0x1;
-
-        if (block->base[offset] == tex) {
-            // bottom front Right
-            block = &GETBLOCK(_blockIDData[wc - upDir + rightDir + frontDir]);
-            if (block->base[offset] == tex) {
-                connectedOffset |= 0x3;
-            }
-        }
-    }
-
-    // Front right
-    block = &GETBLOCK(_blockIDData[wc + rightDir + frontDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 0x1;
-    }
-
-    result += grassTextureOffsets[connectedOffset];
-}
-
-void ChunkMesher::getVerticalTextureIndex(const MesherInfo &mi, int& result, ConnectedTextureReducedMethod rm, int upDir, unsigned int offset) {
-
-    static int verticalOffsets[4] = { 0, 1, 3, 2 };
-
-    int connectedOffset;
-    int wc = mi.wc;
-
-    int tex = result;
-
-    if (rm == ConnectedTextureReducedMethod::NONE){
-        connectedOffset = 0;
-    } else if (rm == ConnectedTextureReducedMethod::TOP) {
-        connectedOffset = 1;
-    } else { //BOTTOM
-        connectedOffset = 2;
-    }
-
-    //top bit
-    Block *block = &GETBLOCK(_blockIDData[wc + upDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 2;
-    }
-    //bottom bit
-    block = &GETBLOCK(_blockIDData[wc - upDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 1;
-    }
-
-    result += verticalOffsets[connectedOffset];
-}
-
-void ChunkMesher::getHorizontalTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int frontDir, unsigned int offset) {
-    static int horizontalOffsets[4] = { 0, 1, 3, 2 };
-
-    int connectedOffset = 0;
-    int wc = mi.wc;
-
-    int tex = result;
-
-    //right bit
-    Block *block = &GETBLOCK(_blockIDData[wc + rightDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 1;
-    }
-    //left bit
-    block = &GETBLOCK(_blockIDData[wc - rightDir]);
-    if (block->base[offset] == tex) {
-        connectedOffset |= 2;
-    }
-
-    if (innerSeams) {
-        //front right bit
-        Block *block = &GETBLOCK(_blockIDData[wc + rightDir + frontDir]);
-        if (block->base[offset] == tex) {
-            connectedOffset &= 2;
-        }
-        //front left bit
-        block = &GETBLOCK(_blockIDData[wc - rightDir + frontDir]);
-        if (block->base[offset] == tex) {
-            connectedOffset &= 1;
-        }
-    }
-
-    result += horizontalOffsets[connectedOffset];
-}
-
 void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 {
     const Block &block = Blocks[mi.btype];
@@ -577,12 +240,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
         }
 
-        textureIndex = block.pzTexInfo.base.textureIndex;
-        overlayTextureIndex = block.pzTexInfo.overlay.textureIndex;
-
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.pzTexInfo.base, textureIndex, 1, dataLayer, dataWidth, 2, color);
-        getTextureIndex(mi, block.pzTexInfo.overlay, overlayTextureIndex, 1, dataLayer, dataWidth, 8, overlayColor);
+        textureIndex = block.pzTexInfo.base.getBlockTextureIndex(mi.pzBaseMethodParams, color);
+        overlayTextureIndex = block.pzTexInfo.overlay.getBlockTextureIndex(mi.pzOverlayMethodParams, overlayColor);
 
         if (block.pzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
@@ -642,12 +302,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
         }
        
-        textureIndex = block.nzTexInfo.base.textureIndex;
-        overlayTextureIndex = block.nzTexInfo.overlay.textureIndex;
-
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.nzTexInfo.base, textureIndex, -1, dataLayer, -dataWidth, 5, color);
-        getTextureIndex(mi, block.nzTexInfo.overlay, overlayTextureIndex, -1, dataLayer, -dataWidth, 11, overlayColor);
+
+        textureIndex = block.nzTexInfo.base.getBlockTextureIndex(mi.nzBaseMethodParams, color);
+        overlayTextureIndex = block.nzTexInfo.overlay.getBlockTextureIndex(mi.nzOverlayMethodParams, overlayColor);
 
         if (block.nzTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
@@ -701,12 +359,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
         }
 
-        textureIndex = block.pyTexInfo.base.textureIndex;
-        overlayTextureIndex = block.pyTexInfo.overlay.textureIndex;
-
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.pyTexInfo.base, textureIndex, 1, -dataWidth, dataLayer, 1, color);
-        getTextureIndex(mi, block.pyTexInfo.overlay, overlayTextureIndex, 1, -dataWidth, dataLayer, 7, overlayColor);
+        textureIndex = block.pyTexInfo.base.getBlockTextureIndex(mi.pyBaseMethodParams, color);
+        overlayTextureIndex = block.pyTexInfo.overlay.getBlockTextureIndex(mi.pyOverlayMethodParams, overlayColor);
 
         if (block.pyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
@@ -762,12 +417,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
         }
        
-        textureIndex = block.nyTexInfo.base.textureIndex;
-        overlayTextureIndex = block.nyTexInfo.overlay.textureIndex;
-
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.nyTexInfo.base, textureIndex, -1, -dataWidth, -dataLayer, 4, color);
-        getTextureIndex(mi, block.nyTexInfo.overlay, overlayTextureIndex, -1, -dataWidth, -dataLayer, 10, overlayColor);
+        textureIndex = block.nyTexInfo.base.getBlockTextureIndex(mi.nyBaseMethodParams, color);
+        overlayTextureIndex = block.nyTexInfo.overlay.getBlockTextureIndex(mi.nyOverlayMethodParams, overlayColor);
 
         if (block.nyTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
@@ -822,12 +474,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
         }
       
-        textureIndex = block.pxTexInfo.base.textureIndex;
-        overlayTextureIndex = block.pxTexInfo.overlay.textureIndex;
-
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.pxTexInfo.base, textureIndex, -dataWidth, dataLayer, 1, 0, color);
-        getTextureIndex(mi, block.pxTexInfo.overlay, overlayTextureIndex, -dataWidth, dataLayer, 1, 6, overlayColor);
+        textureIndex = block.pxTexInfo.base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
+        overlayTextureIndex = block.pxTexInfo.overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
 
 
         if (block.pxTexInfo.base.transparency) {  
@@ -866,12 +515,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
         }
 
-        textureIndex = block.nxTexInfo.base.textureIndex;
-        overlayTextureIndex = block.nxTexInfo.overlay.textureIndex;
-
         //We will offset the texture index based on the texture method
-        getTextureIndex(mi, block.nxTexInfo.base, textureIndex, dataWidth, dataLayer, -1, 3, color);
-        getTextureIndex(mi, block.nxTexInfo.overlay, overlayTextureIndex, dataWidth, dataLayer, -1, 9, overlayColor);
+        textureIndex = block.nxTexInfo.base.getBlockTextureIndex(mi.nxBaseMethodParams, color);
+        overlayTextureIndex = block.nxTexInfo.overlay.getBlockTextureIndex(mi.nxOverlayMethodParams, overlayColor);
 
         if (block.nxTexInfo.base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
@@ -925,12 +571,9 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 
     Blocks[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.pxTexInfo);
 
-    i32 textureIndex = block.pxTexInfo.base.textureIndex;
-    i32 overlayTextureIndex = block.pxTexInfo.overlay.textureIndex;
-
     //We will offset the texture index based on the texture method
-    getTextureIndex(mi, block.pxTexInfo.base, textureIndex, -dataWidth, dataLayer, 1, 0, color);
-    getTextureIndex(mi, block.pxTexInfo.overlay, overlayTextureIndex, -dataWidth, dataLayer, 1, 6, overlayColor);
+    i32 textureIndex = block.pxTexInfo.base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
+    i32 overlayTextureIndex = block.pxTexInfo.overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
 
     int r;
 
@@ -1849,6 +1492,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     mi.tertiaryData = _tertiaryData = renderTask->chTertiaryData;
 
 
+
     if (renderTask->levelOfDetail > 1) {
         computeLODData(renderTask->levelOfDetail);
     } else {
@@ -1856,6 +1500,9 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
         dataWidth = PADDED_CHUNK_WIDTH;
         dataSize = PADDED_CHUNK_SIZE;
     }
+
+    // Init the mesh info
+    mi.init(dataWidth, dataLayer);
 
     mi.levelOfDetail = renderTask->levelOfDetail;
     int lodStep = (1 << (mi.levelOfDetail - 1));

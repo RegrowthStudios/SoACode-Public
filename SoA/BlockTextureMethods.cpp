@@ -1,5 +1,8 @@
 #include "stdafx.h"
+
+#include "BlockData.h"
 #include "BlockTextureMethods.h"
+#include "ChunkMesh.h"
 #include "RenderTask.h"
 #include "VoxelBits.h"
 #include "utils.h"
@@ -95,6 +98,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
 
     // Top Left
     Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir]);
+
     if (block->base[offset] != tex) {
         connectedOffset |= 0x80;
     }
@@ -214,8 +218,8 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     if (mi->levelOfDetail > 1 || block->base[offset] == tex) {
         block = &GETBLOCK(blockIDData[wc]);
         result = block->pyTexInfo.base.textureIndex;
-   //     getTextureIndex(mi, block->pyTexInfo.base, result, rightDir, upDir, frontDir, 1, color);
-     //   block->GetBlockColor(color, 0, mi->temperature, mi->rainfall, block->pyTexInfo);
+        block->pyTexInfo.base.blockTextureFunc(params, result);
+        block->GetBlockColor(*params.color, 0, mi->temperature, mi->rainfall, block->pyTexInfo);
         return;
     }
 
@@ -232,6 +236,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
             }
         }
     }
+
     // Front left
     block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
     if (block->base[offset] == tex) {

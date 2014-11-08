@@ -8,6 +8,7 @@
 #include "Keg.h"
 #include "Rendering.h"
 #include "ChunkMesh.h"
+#include "BlockTextureMethods.h"
 
 #define VISITED_NODE 3945
 #define LOWWATER 3946
@@ -82,12 +83,47 @@ public:
         textureIndex(0),
         innerSeams(false),
         transparency(false),
-        path("") {
+        path(""),
+        blockTextureFunc(BlockTextureMethods::getDefaultTextureIndex) {
         // Empty
     }
 
     static ui32 getFloraRows(ui32 floraMaxHeight) {
         return (floraMaxHeight * floraMaxHeight + floraMaxHeight) / 2;
+    }
+
+    // Sets the texture funct based on the method
+    // needs to have the method
+    void initBlockTextureFunc() {
+        switch (method) {
+            case ConnectedTextureMethods::CONNECTED:
+                blockTextureFunc = BlockTextureMethods::getConnectedTextureIndex;
+                break;
+            case ConnectedTextureMethods::RANDOM:
+                blockTextureFunc = BlockTextureMethods::getRandomTextureIndex;
+                break;
+            case ConnectedTextureMethods::GRASS:
+                blockTextureFunc = BlockTextureMethods::getGrassTextureIndex;
+                break;
+            case ConnectedTextureMethods::HORIZONTAL:
+                blockTextureFunc = BlockTextureMethods::getHorizontalTextureIndex;
+                break;
+            case ConnectedTextureMethods::VERTICAL:
+                blockTextureFunc = BlockTextureMethods::getVerticalTextureIndex;
+                break;
+            case ConnectedTextureMethods::FLORA:
+                blockTextureFunc = BlockTextureMethods::getFloraTextureIndex;
+                break;
+            default:
+                break;
+        }
+    }
+
+    i32 getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8 color) const {
+        i32 index = textureIndex;
+        params.set(this, color);
+        blockTextureFunc(params, index);
+        return index;
     }
 
     ConnectedTextureMethods method;
@@ -104,6 +140,7 @@ public:
     bool innerSeams;
     bool transparency;
     nString path;
+    BlockTextureFunc blockTextureFunc;
 
     /// "less than" operator for inserting into sets in TexturePackLoader
     bool operator<(const BlockTextureLayer& b) const;

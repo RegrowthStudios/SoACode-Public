@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "OpenGLStructs.h"
+#include "BlockTextureMethods.h"
 
 #include <vector>
 
@@ -22,8 +23,11 @@ class ChunkGridData;
 class Block;
 
 // Stores Chunk Mesh Information
-struct MesherInfo {
+class MesherInfo {
 public:
+
+    void init(int dataWidth, int dataLayer);
+
     i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
     i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
     i32 wsize;
@@ -46,6 +50,13 @@ public:
     ui16* lampLightData;
     ui8* sunlightData;
     ui16* tertiaryData;
+
+    BlockTextureMethodParams pyBaseMethodParams, pyOverlayMethodParams;
+    BlockTextureMethodParams nyBaseMethodParams, nyOverlayMethodParams;
+    BlockTextureMethodParams pxBaseMethodParams, pxOverlayMethodParams;
+    BlockTextureMethodParams nxBaseMethodParams, nxOverlayMethodParams;
+    BlockTextureMethodParams pzBaseMethodParams, pzOverlayMethodParams;
+    BlockTextureMethodParams nzBaseMethodParams, nzOverlayMethodParams;
 
     RenderTask* task;
     ChunkGridData* chunkGridData;

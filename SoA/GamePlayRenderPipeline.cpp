@@ -43,7 +43,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
 
     // Construct framebuffer
     _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
-    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, vg::TextureInternalFormat::DEPTH_COMPONENT32, graphicsOptions.msaa);
+    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
     } else {
