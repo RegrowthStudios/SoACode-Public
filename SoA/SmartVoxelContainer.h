@@ -54,7 +54,7 @@ public:
         }
     }
 
-#define QUITE_FRAMES_UNTIL_COMPRESS 10
+#define QUIET_FRAMES_UNTIL_COMPRESS 10
 #define ACCESS_COUNT_UNTIL_DECOMPRESS 20
 
     inline void update() {
@@ -74,7 +74,7 @@ public:
                 _state = VoxelStorageState::FLAT_ARRAY;
             }
         } else {
-            if (_quietFrames >= QUITE_FRAMES_UNTIL_COMPRESS) {
+            if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
                 std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
                 dataVector.reserve(CHUNK_WIDTH / 2);
                 dataVector.emplace_back(0, 1, _dataArray[0]);
