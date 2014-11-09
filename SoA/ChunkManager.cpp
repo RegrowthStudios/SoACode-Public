@@ -1109,6 +1109,10 @@ void ChunkManager::updateChunks(const f64v3& position) {
         cs->calculateDistance2(intPosition);
         chunk = cs->chunk;
 
+        if (chunk->_state > ChunkStates::TREES) {
+            chunk->updateContainers();
+        }
+
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
             if (chunk->dirty && chunk->_state > ChunkStates::TREES) {

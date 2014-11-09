@@ -28,10 +28,16 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     int rainfall;
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
-    std::vector<VoxelIntervalTree<ui16>::LightweightNode> dataVector;
-    std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampVector;
-    std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunVector;
-    std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataVector;
+    // Init the containers
+    chunk->_blockIDContainer.init(VoxelStorageState::FLAT_ARRAY);
+    chunk->_lampLightContainer.init(VoxelStorageState::FLAT_ARRAY);
+    chunk->_sunlightContainer.init(VoxelStorageState::FLAT_ARRAY);
+    chunk->_tertiaryDataContainer.init(VoxelStorageState::FLAT_ARRAY);
+    // Grab the handles to the arrays
+    ui16* blockIDArray = chunk->_blockIDContainer._dataArray;
+    ui16* lampLightArray = chunk->_lampLightContainer._dataArray;
+    ui8* sunLightArray = chunk->_sunlightContainer._dataArray;
+    ui16* tertiaryDataArray = chunk->_tertiaryDataContainer._dataArray;
 
     chunk->numNeighbors = 0;
 
@@ -199,69 +205,23 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                     chunk->spawnerBlocks.push_back(c); 
                 }
 
-                //modify the data
-                if (c == 0) {
-
-                    dataVector.emplace_back(0, 1, data);
-                    lampVector.emplace_back(0, 1, lampData);
-                    sunVector.emplace_back(0, 1, sunlightData);
-                    tertiaryDataVector.emplace_back(0, 1, tertiaryData);
-                } else {
-
-                    if (data == dataVector.back().data) {
-                        dataVector.back().length++;
-                    } else {
-                        dataVector.emplace_back(c, 1, data);
-                    }
-                    if (lampData == lampVector.back().data) {
-                        lampVector.back().length++;
-                    } else {
-                        lampVector.emplace_back(c, 1, lampData);
-                    }
-                    if (sunlightData == sunVector.back().data) {
-                        sunVector.back().length++;
-                    } else {
-                        sunVector.emplace_back(c, 1, sunlightData);
-                    }
-                    if (tertiaryData == tertiaryDataVector.back().data) {
-                        tertiaryDataVector.back().length++;
-                    } else {
-                        tertiaryDataVector.emplace_back(c, 1, tertiaryData);
-                    }
-                   
-                }
+                blockIDArray[c] = data;
+                lampLightArray[c] = lampData;
+                sunLightArray[c] = sunlightData;
+                tertiaryDataArray[c] = tertiaryData;
             }
         }
         if (pnum == chunk->numBlocks && maph - h < 0){
 
-            if (dataVector.back().data == 0) {
-                dataVector.back().length += CHUNK_SIZE - c;
-            } else {
-                dataVector.emplace_back(c, CHUNK_SIZE - c, 0);
-            }
-            if (lampVector.back().data == 0) {
-                lampVector.back().length += CHUNK_SIZE - c;
-            } else {
-                lampVector.emplace_back(c, CHUNK_SIZE - c, 0);
-            }
-            if (sunVector.back().data == MAXLIGHT) {
-                sunVector.back().length += CHUNK_SIZE - c;
-            } else {
-                sunVector.emplace_back(c, CHUNK_SIZE - c, MAXLIGHT);
-            }
-            if (tertiaryDataVector.back().data == 0) {
-                tertiaryDataVector.back().length += CHUNK_SIZE - c;
-            } else {
-                tertiaryDataVector.emplace_back(c, CHUNK_SIZE - c, 0);
+            for ( ; c < CHUNK_SIZE; c++) {
+                blockIDArray[c] = 0;
+                lampLightArray[c] = 0;
+                sunLightArray[c] = MAXLIGHT;
+                tertiaryDataArray[c] = 0;
             }
             break;
         }
     }
-
-    chunk->_blockIDContainer.initFromSortedArray(dataVector);
-    chunk->_lampLightContainer.initFromSortedArray(lampVector);
-    chunk->_sunlightContainer.initFromSortedArray(sunVector);
-    chunk->_tertiaryDataContainer.initFromSortedArray(tertiaryDataVector);
 
     if (chunk->numBlocks){
         LoadMinerals(chunk);
