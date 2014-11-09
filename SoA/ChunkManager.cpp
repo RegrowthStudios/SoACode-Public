@@ -174,10 +174,6 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     //This doesnt function correctly
     //caveOcclusion(position);
-    //  globalMultiplePreciseTimer.start("Physics Engine");
-    //Chunk::modifyLock.lock();
-    // GameManager::physicsEngine->update(viewDir);
-    //Chunk::modifyLock.unlock();
 
     globalMultiplePreciseTimer.start("Thread Waiting");
     Chunk* ch;

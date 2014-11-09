@@ -7,6 +7,7 @@ class ChunkUpdater {
 public:
     static void randomBlockUpdates(Chunk* chunk);
     static void placeBlock(Chunk* chunk, int blockIndex, int blockType);
+    static void placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType);
     static void placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int blockType);
     static void removeBlock(Chunk* chunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
     static void removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex);

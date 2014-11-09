@@ -54,8 +54,8 @@ public:
         }
     }
 
-#define QUIET_FRAMES_UNTIL_COMPRESS 10
-#define ACCESS_COUNT_UNTIL_DECOMPRESS 20
+#define QUIET_FRAMES_UNTIL_COMPRESS 20000
+#define ACCESS_COUNT_UNTIL_DECOMPRESS 5
 
     inline void update() {
         if (_accessCount >= ACCESS_COUNT_UNTIL_DECOMPRESS) {
@@ -72,6 +72,7 @@ public:
                 _dataTree.clear();
                 // Set the new state
                 _state = VoxelStorageState::FLAT_ARRAY;
+                std::printf("D \n");
             }
         } else {
             if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
@@ -85,6 +86,7 @@ public:
                         dataVector.emplace_back(i, 1, _dataArray[i]);
                     }
                 }
+                std::printf("C \n");
                 // Free memory
                 delete[] _dataArray;
                 _dataArray = nullptr;

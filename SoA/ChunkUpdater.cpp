@@ -174,6 +174,69 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
     chunk->dirty = true;
 }
 
+void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
+  
+    Block &block = GETBLOCK(blockType);
+
+    if (chunk->getBlockData(blockIndex) == NONE) {
+        chunk->numBlocks++;
+    }
+    chunk->setBlockData(blockIndex, blockType);
+
+    if (block.spawnerVal || block.sinkVal) {
+        chunk->spawnerBlocks.push_back(blockIndex);
+    }
+
+    const i32v3 pos = getPosFromBlockIndex(blockIndex);
+
+    if (block.emitter) {
+        particleEngine.addEmitter(block.emitter, glm::dvec3(chunk->gridPosition.x + pos.x, chunk->gridPosition.y + pos.y, chunk->gridPosition.z + pos.z), blockType);
+    }
+
+    // If its a plant, we need to do some extra iteration
+    if (block.floraHeight) {
+        placeFlora(chunk, blockIndex, blockType);
+    }
+
+    //Check for light removal due to block occlusion
+    if (block.blockLight) {
+
+        if (chunk->getSunlight(blockIndex)) {
+            if (chunk->getSunlight(blockIndex) == MAXLIGHT) {
+                chunk->setSunlight(blockIndex, 0);
+                chunk->sunRemovalList.push_back(blockIndex);
+            } else {
+                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+                chunk->setSunlight(blockIndex, 0);
+            }
+        }
+
+        if (chunk->getLampLight(blockIndex)) {
+            chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+            chunk->setLampLight(blockIndex, 0);
+        }
+    } else if (block.colorFilter != f32v3(1.0f)) {
+        //This will pull light from neighbors
+        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+        chunk->setLampLight(blockIndex, 0);
+    }
+    //Light placement
+    if (block.lightColorPacked) {
+        chunk->setLampLight(blockIndex, block.lightColorPacked);
+        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColorPacked));
+    }
+
+    if (GETBLOCKTYPE(blockType) >= LOWWATER) {
+        chunk->changeState(ChunkStates::WATERMESH);
+        updateNeighborStates(chunk, pos, ChunkStates::WATERMESH);
+    } else {
+        chunk->changeState(ChunkStates::MESH);
+        updateNeighborStates(chunk, pos, ChunkStates::MESH);
+
+    }
+    chunk->dirty = true;
+}
+
 //Simplified placeBlock for liquid physics
 void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int blockType)
 {

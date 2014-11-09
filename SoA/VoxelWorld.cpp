@@ -51,7 +51,7 @@ void VoxelWorld::update(const glm::dvec3 &position, const glm::dvec3 &viewDir)
     // Update the Chunks
     _chunkManager->update(position, viewDir);
     // Update the physics
-    updatePhysics(position, viewDir)
+    updatePhysics(position, viewDir);
 }
 
 void VoxelWorld::setPlanet(Planet *planet)
@@ -75,6 +75,13 @@ void VoxelWorld::endSession()
 }
 
 void VoxelWorld::updatePhysics(const glm::dvec3 &position, const glm::dvec3 &viewDir) {
+    // Update Cellular automata Engine
     globalMultiplePreciseTimer.start("CAEngine Update");
     GameManager::caEngine->update(*_chunkManager);
+
+    // Update physics engine
+    globalMultiplePreciseTimer.start("Physics Engine");
+    Chunk::modifyLock.lock();
+    GameManager::physicsEngine->update(viewDir);
+    Chunk::modifyLock.unlock();
 }

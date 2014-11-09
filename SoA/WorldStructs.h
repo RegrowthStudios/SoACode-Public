@@ -6,7 +6,7 @@
 #include "Texture2d.h"
 #include "Timing.h"
 
-extern MultiplePreciseTimer globalMultiplePreciseTimer;
+extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
