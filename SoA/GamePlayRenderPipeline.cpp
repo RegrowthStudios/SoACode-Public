@@ -12,6 +12,7 @@
 #include "Options.h"
 #include "NightVisionRenderStage.h"
 #include "PdaRenderStage.h"
+#include "PhysicsBlockRenderStage.h"
 #include "PlanetRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
@@ -60,6 +61,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
 
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), _worldCamera);
+    _physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, &_meshManager->getPhysicsBlockMeshes());
     _planetRenderStage = new PlanetRenderStage(_worldCamera);
     _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
     _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
@@ -99,6 +101,7 @@ void GamePlayRenderPipeline::render() {
 
     // chunkCamera passes
     _opaqueVoxelRenderStage->draw();
+    _physicsBlockRenderStage->draw();
     _cutoutVoxelRenderStage->draw();
     _liquidVoxelRenderStage->draw();
     _transparentVoxelRenderStage->draw();
@@ -133,6 +136,9 @@ void GamePlayRenderPipeline::destroy() {
     // Make sure everything is freed here!
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
+
+    delete _planetRenderStage;
+    _planetRenderStage = nullptr;
 
     delete _planetRenderStage;
     _planetRenderStage = nullptr;

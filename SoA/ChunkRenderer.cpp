@@ -1,16 +1,17 @@
 #include "stdafx.h"
 
 #include "Camera.h"
-#include "ChunkRenderer.h"
-#include "GameManager.h"
-#include "GLProgramManager.h"
-#include "Options.h"
-#include "GLProgram.h"
-#include "Frustum.h"
 #include "Chunk.h"
-#include "global.h"
+#include "ChunkRenderer.h"
+#include "Frustum.h"
+#include "GLProgram.h"
+#include "GLProgramManager.h"
+#include "GameManager.h"
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
+#include "Options.h"
+#include "PhysicsBlocks.h"
+#include "global.h"
 
 const float sonarDistance = 200;
 const float sonarWidth = 30;
@@ -336,45 +337,45 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 
 }
 
-//void ChunkRenderer::drawPhysicsBlocks(f32m4& VP, const f64v3 &position, f32v3 &lightPos, f32v3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
-//{
-//    vg::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
-//    program->use();
-//
-//    glUniform1f(program->getUniform("lightType"), lightActive);
-//
-//    glUniform1f(program->getUniform("alphaMult"), 1.0f);
-//
-//    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-//    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-//    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-//    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-//    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
-//    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
-//    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
-//
-//    bindBlockPacks();
-//
-//    glUniform1f(program->getUniform("sunVal"), sunVal);
-//
-//    float blockAmbient = 0.000f;
-//    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-//    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
-//
-//    if (NoChunkFade){
-//        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)10000.0f);
-//    } else{
-//        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
-//    }
-//
-//    for (Uint32 i = 0; i < physicsBlockMeshes.size(); i++){
-//        PhysicsBlockBatch::draw(physicsBlockMeshes[i], program, position, VP);
-//    }
-//    glVertexAttribDivisor(5, 0); //restore divisors
-//    glVertexAttribDivisor(6, 0);
-//    glVertexAttribDivisor(7, 0);
-//    program->unuse();
-//}
+void ChunkRenderer::drawPhysicsBlocks(const GameRenderParams* gameRenderParams,
+                                      const std::vector<PhysicsBlockMesh*>* physicsBlockMeshes)
+{
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
+    program->use();
+
+    glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
+
+    glUniform1f(program->getUniform("alphaMult"), 1.0f);
+
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
+    glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
+    glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
+    glUniform3fv(program->getUniform("lightPosition_worldspace"), 1, &(gameRenderParams->sunlightDirection[0]));
+    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
+
+    glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
+
+    float blockAmbient = 0.000f;
+    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
+    glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
+
+    if (NoChunkFade){
+        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)10000.0f);
+    } else{
+        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
+    }
+
+    const std::vector<PhysicsBlockMesh*>& meshes = *physicsBlockMeshes;
+    for (Uint32 i = 0; i < meshes.size(); i++) {
+        PhysicsBlockBatch::draw(meshes[i], program, gameRenderParams->chunkCamera->getPosition(), gameRenderParams->VP);
+    }
+    glVertexAttribDivisor(5, 0); //restore divisors
+    glVertexAttribDivisor(6, 0);
+    glVertexAttribDivisor(7, 0);
+    program->unuse();
+}
 
 void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
 {

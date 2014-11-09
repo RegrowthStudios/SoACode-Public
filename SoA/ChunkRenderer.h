@@ -9,6 +9,7 @@
 #include "GLProgram.h"
 
 class GameRenderParams;
+class PhysicsBlockMesh;
 
 class ChunkRenderer {
 public:
@@ -16,7 +17,8 @@ public:
     static void drawBlocks(const GameRenderParams* gameRenderParams);
     static void drawCutoutBlocks(const GameRenderParams* gameRenderParams);
     static void drawTransparentBlocks(const GameRenderParams* gameRenderParams);
-    //static void drawPhysicsBlocks(const GameRenderParams* gameRenderParams);
+    static void drawPhysicsBlocks(const GameRenderParams* gameRenderParams, 
+                                  const std::vector<PhysicsBlockMesh*>* physicsBlockMeshes);
     static void drawWater(const GameRenderParams* gameRenderParams);
 
     static void bindTransparentVao(ChunkMesh *CMI);

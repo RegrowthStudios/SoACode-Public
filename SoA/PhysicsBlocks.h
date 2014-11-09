@@ -8,7 +8,7 @@
 
 class Chunk;
 
-struct PhysicsBlockMesh {
+class PhysicsBlockMesh {
 public:
     PhysicsBlockMesh() : vboID(0), positionLightBufferID(0), vecIndex(-1), numBlocks(0) {}
 
@@ -19,7 +19,8 @@ public:
     i32 bX, bY, bZ;
 };
 
-struct PhysicsBlockMeshMessage {
+class PhysicsBlockMeshMessage {
+public:
     PhysicsBlockMeshMessage() : mesh(nullptr), numBlocks(0), bX(0), bY(0), bZ(0) {}
 
     PhysicsBlockMesh* mesh;
@@ -47,7 +48,7 @@ public:
     PhysicsBlockBatch(i32 BlockType, ui8 temp, ui8 rain);
     ~PhysicsBlockBatch();
 
-    static void draw(PhysicsBlockMesh* pbm, const vg::GLProgram* program, const f64v3& PlayerPos, f32m4& VP);
+    static void draw(PhysicsBlockMesh* pbm, const vg::GLProgram* program, const f64v3& PlayerPos, const f32m4& VP);
     bool update();
     void addBlock(const f64v3& pos, i32 ydiff, f32v2& dir, f32v3 extraForce);
 
