@@ -4,6 +4,7 @@
 #include "VoxelPlanetMapper.h"
 
 #include "BlockData.h"
+#include "CAEngine.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "Errors.h"
@@ -12,9 +13,9 @@
 #include "PhysicsEngine.h"
 #include "Planet.h"
 #include "Sound.h"
+#include "VoxelEditor.h"
 #include "global.h"
 #include "utils.h"
-#include "VoxelEditor.h"
 
 VoxelWorld::VoxelWorld() : _planet(NULL), _chunkManager(NULL) {
 
@@ -35,7 +36,7 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
     _chunkManager = new ChunkManager();
     GameManager::chunkManager = _chunkManager;
     
-    if (planet == NULL) showMessage("Initialized chunkmanager with NULL planet!");
+    if (planet == NULL) showMessage("Initialized chunk manager with NULL planet!");
 
     _chunkManager->planet = planet;
 
@@ -47,7 +48,10 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
 
 void VoxelWorld::update(const glm::dvec3 &position, const glm::dvec3 &viewDir)
 {
+    // Update the Chunks
     _chunkManager->update(position, viewDir);
+    // Update the physics
+    updatePhysics(position, viewDir)
 }
 
 void VoxelWorld::setPlanet(Planet *planet)
@@ -68,4 +72,9 @@ void VoxelWorld::endSession()
     delete _chunkManager;
     _chunkManager = NULL;
     GameManager::chunkManager = NULL;
+}
+
+void VoxelWorld::updatePhysics(const glm::dvec3 &position, const glm::dvec3 &viewDir) {
+    globalMultiplePreciseTimer.start("CAEngine Update");
+    GameManager::caEngine->update(*_chunkManager);
 }

@@ -149,16 +149,11 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
-    //  globalMultiplePreciseTimer.start("CAEngine Update");
-    //  GameManager::caEngine->update(*this);
 
     globalMultiplePreciseTimer.start("Loaded Chunks");
     updateLoadedChunks();
 
     globalMultiplePreciseTimer.start("Sort");
-    //  cout << "BEGIN SORT\n";
-    //   fflush(stdout);
-
 
 
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
@@ -169,8 +164,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     }
     k++;
 
-    // cout << "END SORT\n";
-    // fflush(stdout);
+
     globalMultiplePreciseTimer.start("Mesh List");
     updateMeshList(4);
     globalMultiplePreciseTimer.start("Generate List");
