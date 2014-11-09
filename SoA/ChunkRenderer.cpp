@@ -340,7 +340,7 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 void ChunkRenderer::drawPhysicsBlocks(const GameRenderParams* gameRenderParams,
                                       const std::vector<PhysicsBlockMesh*>* physicsBlockMeshes)
 {
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlock");
     program->use();
 
     glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);

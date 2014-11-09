@@ -18,6 +18,59 @@
 
 #include "utils.h"
 
+void PhysicsBlockMesh::createVao(const vg::GLProgram* glProgram) {
+    if (vaoID != 0) {
+        glGenVertexArrays(1, &vaoID);
+    }
+    glBindVertexArray(vaoID);
+    // 1rst attribute buffer : vertices
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+
+    ui32 loc; // Attribute location
+
+    // * Global instance attributes here
+    loc = glProgram->getAttribute("vertexPosition_blendMode");
+    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)0);
+    glVertexAttribDivisor(loc, 0);
+    //UVs
+    loc = glProgram->getAttribute("vertexUV");
+    glVertexAttribPointer(loc, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)4);
+    glVertexAttribDivisor(loc, 0);
+    //textureAtlas_textureIndex
+    loc = glProgram->getAttribute("textureAtlas_textureIndex");
+    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)8);
+    glVertexAttribDivisor(loc, 0);
+    //textureDimensions
+    loc = glProgram->getAttribute("textureDimensions");
+    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)12);
+    glVertexAttribDivisor(loc, 0);
+    //normals
+    loc = glProgram->getAttribute("normal");
+    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockVertex), (void*)16);
+    glVertexAttribDivisor(loc, 0);
+
+    // * Per instance attributes here *
+    glBindBuffer(GL_ARRAY_BUFFER, positionLightBufferID);
+    //center
+    loc = glProgram->getAttribute("centerPosition");
+    glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(PhysicsBlockPosLight), (void*)0);
+    glVertexAttribDivisor(loc, 1);
+    //color
+    loc = glProgram->getAttribute("vertexColor");
+    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)12);
+    glVertexAttribDivisor(loc, 1);
+    //overlayColor
+    loc = glProgram->getAttribute("overlayColor");
+    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)16);
+    glVertexAttribDivisor(7, 1);
+    //light
+    loc = glProgram->getAttribute("vertexLight");
+    glVertexAttribPointer(loc, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)20);
+    glVertexAttribDivisor(8, 1);
+
+    glBindVertexArray(0);
+}
+
 PhysicsBlock::PhysicsBlock(const glm::dvec3 &pos, int BlockType, int ydiff, glm::vec2 &dir, glm::vec3 extraForce)
 {
     int btype;
@@ -324,47 +377,12 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
-    // 1rst attribute buffer : vertices
-    glBindBuffer(GL_ARRAY_BUFFER, pbm->vboID);
-    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)0);
-
-    //UVs
-    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)4);
-
-    //textureAtlas_textureIndex
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)8);
-
-    //textureDimensions
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)12);
-
-    //normals
-    glVertexAttribPointer(4, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockVertex), (void*)16);
-
-    //center
-    glBindBuffer(GL_ARRAY_BUFFER, pbm->positionLightBufferID);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(PhysicsBlockPosLight), (void*)0);
-
-    //color
-    glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)12);
-
-    //overlayColor
-    glVertexAttribPointer(7, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)16);
-
-    //light
-    glVertexAttribPointer(8, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)20);
-
-    glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same vertices -> 0
-    glVertexAttribDivisor(1, 0);
-    glVertexAttribDivisor(2, 0);
-    glVertexAttribDivisor(3, 0);
-    glVertexAttribDivisor(4, 0);
-    glVertexAttribDivisor(5, 1); // positions : one per cube
-    glVertexAttribDivisor(6, 1); // color : one per cube
-    glVertexAttribDivisor(7, 1); // color : one per cube
-    glVertexAttribDivisor(8, 1); // light : one per cube
+    glBindVertexArray(pbm->vaoID);
 
     //TODO: glDrawElementsInstanced
     glDrawArraysInstanced(GL_TRIANGLES, 0, 36, pbm->numBlocks); //draw instanced arrays
+
+    glBindVertexArray(0);
 }
 
 bool PhysicsBlockBatch::update()

@@ -10,10 +10,13 @@ class Chunk;
 
 class PhysicsBlockMesh {
 public:
-    PhysicsBlockMesh() : vboID(0), positionLightBufferID(0), vecIndex(-1), numBlocks(0) {}
+    PhysicsBlockMesh() : vboID(0), positionLightBufferID(0), vaoID(0), vecIndex(-1), numBlocks(0) {}
+
+    void createVao(const vg::GLProgram* glProgram);
 
     ui32 vboID;
     ui32 positionLightBufferID;
+    ui32 vaoID;
     i32 numBlocks;
     i32 vecIndex;
     i32 bX, bY, bZ;
