@@ -29,8 +29,16 @@ public:
         }
     }
 
+    inline void init(VoxelStorageState state) {
+        _state = state;
+        if (_state == VoxelStorageState::FLAT_ARRAY) {
+            _dataArray = new T[CHUNK_SIZE];
+        }
+    }
+
     //Creates the tree using a sorted array of data. The number of voxels should add up to 32768
-    inline void initFromSortedArray(const std::vector <typename VoxelIntervalTree<T>::LightweightNode>& data) {
+    inline void initFromSortedArray(VoxelStorageState state, const std::vector <typename VoxelIntervalTree<T>::LightweightNode>& data) {
+        _state = state;
         _accessCount = 0;
         _quietFrames = 0;
         if (_state == VoxelStorageState::INTERVAL_TREE) {
