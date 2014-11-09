@@ -7,9 +7,12 @@
 #include "global.h"
 #include "FileSystem.h"
 
-#include "EventManager.h"
 #include "GameManager.h"
 #include "Inputs.h"
+
+#include <string>
+#include <sstream>
+#include <stdio.h>
 
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
@@ -102,7 +105,6 @@ i32 InputManager::createAxis(const nString& axisName, ui32 defaultPositiveKey, u
 }
 
 int InputManager::createAxis(const std::string &axisName, unsigned int defaultPositiveKey) {
-
     i32 id = getAxisID(axisName);
     if (id >= 0) return id;
     id = _axes.size();
@@ -112,8 +114,11 @@ int InputManager::createAxis(const std::string &axisName, unsigned int defaultPo
     axis->type = AxisType::SINGLE_KEY;
     axis->defaultPositiveKey = defaultPositiveKey;
     axis->positiveKey = defaultPositiveKey;
+    axis->upEvent = Event<ui32>(this);
+    axis->downEvent = Event<ui32>(this);
     //Not applicable for this type of axis
     axis->negativeKey = (SDLKey)0;
+    axis->defaultNegativeKey = (SDLKey)0;
     axis->joystick = NULL;
     axis->joystickAxis = -1;
     axis->joystickButton = -1;
@@ -171,6 +176,10 @@ void InputManager::loadAxes(const std::string &location) {
                 break;
             }
         }
+        if(curAxis->type == AxisType::SINGLE_KEY) {
+            curAxis->upEvent = Event<ui32>();
+            curAxis->downEvent = Event<ui32>();
+        }
         _axisLookup[curAxis->name] = _axes.size();
         _axes.push_back(curAxis);
         curAxis = NULL;
@@ -182,13 +191,19 @@ void InputManager::loadAxes() {
 }
 
 void InputManager::update() {
-    for (auto iter = _previousKeyStates.begin(); iter != _previousKeyStates.end(); iter++) {
-        if(iter->second && !_currentKeyStates[iter->first]) { //Up
-            GameManager::eventManager->throwEvent(&InputEventData(EVENT_BUTTON_UP, iter->first));
-        } else if(!iter->second && _currentKeyStates[iter->first]) { //Down
-            GameManager::eventManager->throwEvent(&InputEventData(EVENT_BUTTON_DOWN, iter->first));
+    for(Axis* axis : _axes) {
+        switch(axis->type) {
+        case SINGLE_KEY:
+            if(!_previousKeyStates[axis->positiveKey] && _currentKeyStates[axis->positiveKey]) //Up
+                axis->upEvent(axis->positiveKey);
+            else if(_previousKeyStates[axis->positiveKey] && !_currentKeyStates[axis->positiveKey]) //Down
+                axis->downEvent(axis->positiveKey);
+            break;
+        default:
+            break;
         }
-
+    }
+    for (auto iter = _previousKeyStates.begin(); iter != _previousKeyStates.end(); iter++) {
         iter->second = _currentKeyStates[iter->first];
     }
 }
@@ -217,6 +232,40 @@ void InputManager::pushEvent(const SDL_Event& inputEvent) {
     case SDL_KEYUP:
         _currentKeyStates[inputEvent.key.keysym.sym] = false;
         break;
+    }
+}
+
+IDelegate<ui32>* InputManager::subscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f) {
+    if(axisID < 0 || axisID >= _axes.size() || f == nullptr || _axes[axisID]->type != AxisType::SINGLE_KEY) return nullptr;
+    switch(eventType) {
+    case UP:
+        return _axes[axisID]->upEvent.add(f);
+    case DOWN:
+        std::cout << "subscribing" << axisID << std::endl;
+        return _axes[axisID]->downEvent.add(f);
+    }
+    return nullptr;
+}
+
+template<typename F>
+IDelegate<ui32>* InputManager::subscribeFunctor(const i32 axisID, EventType eventType, F f) {
+    if(axisID < 0 || axisID >= _axes.size() || _axes[axisID]->type != AxisType::SINGLE_KEY) return nullptr;
+    switch(eventType) {
+    case UP:
+        return _axes[axisID]->upEvent.addFunctor(f);
+    case DOWN:
+        return _axes[axisID]->downEvent.addFunctor(f);
+    }
+    return nullptr;
+}
+
+void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f) {
+    if(axisID < 0 || axisID >= _axes.size() || f == nullptr || _axes[axisID]->type != AxisType::SINGLE_KEY) return;
+    switch(eventType) {
+    case UP:
+        _axes[axisID]->upEvent.remove(f);
+    case DOWN:
+        _axes[axisID]->downEvent.remove(f);
     }
 }
 

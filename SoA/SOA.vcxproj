@@ -61,6 +61,8 @@
       </ForcedUsingFiles>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -92,6 +94,8 @@
       </ForcedUsingFiles>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -112,7 +116,8 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Computer.h" />
-    <ClInclude Include="EventManager.h" />
+    <ClInclude Include="Event.hpp" />
+    <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
@@ -258,7 +263,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Computer.cpp" />
-    <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />

@@ -554,8 +554,11 @@
     <ClInclude Include="PdaAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
-    <ClInclude Include="EventManager.h">
+    <ClInclude Include="Event.hpp">
       <Filter>SOA Files\Ext\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePlayScreenEvents.hpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -880,9 +883,6 @@
     </ClCompile>
     <ClCompile Include="PdaAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="EventManager.cpp">
-      <Filter>SOA Files\Ext\Event</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

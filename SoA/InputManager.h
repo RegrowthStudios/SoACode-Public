@@ -2,17 +2,11 @@
 #include <SDL\SDL_events.h>
 #include <SDL\SDL_joystick.h>
 
-#include "EventManager.h"
+#include "Event.hpp"
 
 enum SDLKey;
 
 #define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.ini"
-
-class InputEventData: public EventData {
-public:
-    InputEventData(i32 eventID, ui32 key): EventData(eventID), key(key) {}
-    ui32 key;
-};
 
 class InputManager {
 public:
@@ -22,6 +16,11 @@ public:
         JOYSTICK_AXIS,
         JOYSTICK_BUTTON,
         NONE
+    };
+
+    enum EventType {
+        UP,
+        DOWN
     };
 
     struct Axis {
@@ -34,6 +33,8 @@ public:
         SDL_Joystick* joystick;
         i32 joystickAxis;
         i32 joystickButton;
+        Event<ui32> upEvent;
+        Event<ui32> downEvent;
     };
 
     InputManager();
@@ -85,6 +86,11 @@ public:
     void update();
     // Makes the internal map aware that some input event has occurred
     void pushEvent(const SDL_Event& inputEvent);
+
+    IDelegate<ui32>* subscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f);
+    template<typename F>
+    IDelegate<ui32>* subscribeFunctor(const i32 axisID, EventType eventType, F f);
+    void unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f);
 private:
     i32 getIniKey(const nString& val); //For use with ini file loading
 

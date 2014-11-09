@@ -30,16 +30,10 @@
 #include "SpriteBatch.h"
 #include "colors.h"
 #include "Options.h"
+#include "GamePlayScreenEvents.hpp"
+#include "Event.hpp"
 
 #define THREAD ThreadId::UPDATE
-
-// Each mode includes the previous mode
-enum DevUiModes { 
-    DEVUIMODE_NONE, 
-    DEVUIMODE_CROSSHAIR,
-    DEVUIMODE_HANDS, 
-    DEVUIMODE_FPS, 
-    DEVUIMODE_ALL };
 
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
@@ -47,7 +41,15 @@ CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _inFocus(true),
     _devHudSpriteBatch(nullptr),
     _devHudSpriteFont(nullptr),
-    _devHudMode(DEVUIMODE_CROSSHAIR) {
+    _devHudMode(DEVUIMODE_CROSSHAIR),
+    _onPauseKeyDown(nullptr),
+    _onFlyKeyDown(nullptr),
+    _onGridKeyDown(nullptr),
+    _onReloadTexturesKeyDown(nullptr),
+    _onReloadShadersKeyDown(nullptr),
+    _onInventoryKeyDown(nullptr),
+    _onReloadUIKeyDown(nullptr),
+    _onHUDKeyDown(nullptr) {
     // Empty
 }
 
@@ -59,12 +61,15 @@ i32 GamePlayScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
 
-void GamePlayScreen::build(){
+//#define SUBSCRIBE(ID, CLASS, VAR) \
+//    VAR = inputManager->subscribe(ID, InputManager::EventType::DOWN, new CLASS(this));
 
+void GamePlayScreen::build() {
+    
 }
 
 void GamePlayScreen::destroy(const GameTime& gameTime) {
-
+    
 }
 
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
@@ -84,9 +89,43 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
+    InputManager* inputManager = GameManager::inputManager;
+    _onPauseKeyDown = inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
+    _onFlyKeyDown = inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
+    _onGridKeyDown = inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
+    _onReloadTexturesKeyDown = inputManager->subscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadTexturesKeyDown(this));
+    _onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadShadersKeyDown(this));
+    _onInventoryKeyDown = inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
+    _onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
+    _onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
+    InputManager* inputManager = GameManager::inputManager;
+    inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
+    delete _onPauseKeyDown;
+
+    inputManager->unsubscribe(INPUT_FLY, InputManager::EventType::DOWN, _onFlyKeyDown);
+    delete _onFlyKeyDown;
+
+    inputManager->unsubscribe(INPUT_GRID, InputManager::EventType::DOWN, _onGridKeyDown);
+    delete _onGridKeyDown;
+
+    inputManager->unsubscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, _onReloadTexturesKeyDown);
+    delete _onReloadTexturesKeyDown;
+
+    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, _onReloadShadersKeyDown);
+    delete _onReloadShadersKeyDown;
+
+    inputManager->unsubscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, _onInventoryKeyDown);
+    delete _onInventoryKeyDown;
+
+    inputManager->unsubscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, _onReloadUIKeyDown);
+    delete _onReloadUIKeyDown;
+
+    inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, _onHUDKeyDown);
+    delete _onHUDKeyDown;
+
     _threadRunning = false;
     _updateThread->join();
     delete _updateThread;
@@ -197,62 +236,6 @@ i32 GamePlayScreen::getWindowHeight() const {
 void GamePlayScreen::handleInput() {
     // Get input manager handle
     InputManager* inputManager = GameManager::inputManager;
-    // Handle key inputs
-    if (inputManager->getKeyDown(INPUT_PAUSE)) {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        _inFocus = false;
-    }
-    if (inputManager->getKeyDown(INPUT_FLY)) {
-        _player->flyToggle();
-    }
-    if (inputManager->getKeyDown(INPUT_GRID)) {
-        gridState = !gridState;
-    }
-    if (inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)) {
-        // Free atlas
-        vg::GpuMemory::freeTexture(blockPack.textureInfo.ID);
-        // Free all textures
-        GameManager::textureCache->destroy();
-        // Reload textures
-        GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + graphicsOptions.texturePackString + "/");
-        GameManager::texturePackLoader->uploadTextures();
-        GameManager::texturePackLoader->writeDebugAtlases();
-        GameManager::texturePackLoader->setBlockTextures(Blocks);
-
-        GameManager::getTextureHandles();
-
-        // Initialize all the textures for blocks.
-        for (size_t i = 0; i < Blocks.size(); i++) {
-            Blocks[i].InitializeTexture();
-        }
-
-        GameManager::texturePackLoader->destroy();
-    }
-    if (inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-        GameManager::glProgramManager->destroy();
-        LoadTaskShaders shaderTask;
-        shaderTask.load();
-    }
-    if (inputManager->getKeyDown(INPUT_INVENTORY)) {
-        if (_pda.isOpen()) {
-            _pda.close();
-            SDL_SetRelativeMouseMode(SDL_TRUE);
-            _inFocus = true;
-            SDL_StartTextInput();
-        } else {
-            _pda.open();
-            SDL_SetRelativeMouseMode(SDL_FALSE);
-            _inFocus = false;
-            SDL_StopTextInput();
-        }
-    }
-    if (inputManager->getKeyDown(INPUT_RELOAD_UI)) {
-        if (_pda.isOpen()) {
-            _pda.close();
-        }
-        _pda.destroy();
-        _pda.init(this);
-    }
 
     // Block placement
     if (!_pda.isOpen()) {
@@ -270,14 +253,6 @@ void GamePlayScreen::handleInput() {
                 _player->dragBlock = _player->rightEquippedItem;
                 GameManager::clickDragRay(false);
             }
-        }
-    }
-
-    // Dev hud
-    if (inputManager->getKeyDown(INPUT_HUD)) {
-        _devHudMode++;
-        if (_devHudMode > DEVUIMODE_ALL) {
-            _devHudMode = DEVUIMODE_NONE;
         }
     }
 

@@ -34,8 +34,5 @@ extern i32 INPUT_WATER_UPDATE;
 extern i32 INPUT_ZOOM;
 extern i32 INPUT_RANDOM_DEBUG;
 
-extern i32 EVENT_BUTTON_DOWN;
-extern i32 EVENT_BUTTON_UP;
-
 // Initialize Input IDs At Runtime
 extern void initInputs();
