@@ -74,33 +74,30 @@ void PhysicsBlockMesh::createVao(const vg::GLProgram* glProgram) {
     glBindVertexArray(0);
 }
 
-PhysicsBlock::PhysicsBlock(const glm::dvec3 &pos, int BlockType, int ydiff, glm::vec2 &dir, glm::vec3 extraForce)
+PhysicsBlock::PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 BlockType, i32 ydiff, f32v2& dir, f32v3 extraForce) :
+    position(pos),
+    batch(Batch),
+    done(false),
+    colliding(false)
 {
-    int btype;
     double v = 0.0;
     bool tree = 0;
     done = 0;
     if (dir[0] != 0 || dir[1] != 0) tree = 1;
 
-    blockType = BlockType;
-    btype = (GETBLOCKTYPE(BlockType));
-    position = pos;
-    int flags = GETFLAGS(BlockType) >> 12;
     if (ydiff < 0) ydiff = -ydiff;
 
-    grav = GRAVITY;
-    fric = 0.985f;
     if (ydiff > 50){
         if (tree){
-            grav = GRAVITY;
-            fric = 0.98f - 0.02f;
+     //       grav = GRAVITY;
+     //       fric = 0.98f - 0.02f;
         }
         v = 1.0;
     } else if (ydiff > 1){
         v = (ydiff - 1) / 49.0f;
         if (tree){
-            grav = GRAVITY;
-            fric = 0.98f - 0.02*(ydiff - 1) / 49.0f;
+     //       grav = GRAVITY;
+     //       fric = 0.98f - 0.02*(ydiff - 1) / 49.0f;
         }
     }
 
@@ -128,181 +125,95 @@ const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 
 
 bool PhysicsBlock::update()
 {
-    if (done == 2) return 1; //defer destruction by two frames for good measure
+    if (done == 2) return true; //defer destruction by two frames for good measure
     if (done != 0) {
         done++;
-        return 0;
+        return false;
     }
 
-    i32v3 chPos;
-    int val;
-    int bx, by, bz, btype;
-    int c;
-    int r;
-    int *dr;
-    int blockID = GETBLOCKTYPE(blockType);
-    bool fc = 1, bc = 1, lc = 1, rc = 1;
-    bool iscrush = 0;
-    bool moved;
-    Chunk *ch;
+    i32& blockID = batch->_blockID;
 
-    if (globalDebug2 == 0) return 0;
+    if (globalDebug2 == 0) return false;
 
-    position += velocity * physSpeedFactor;
-    velocity.y -= grav * physSpeedFactor;
-    if (velocity.y < -5.3f) velocity.y = -5.3f;
-    velocity.z *= fric;
-    velocity.x *= fric;
+    // If we are colliding, we reverse motion until we hit an air block
+    if (colliding) {
+        position -= velocity * physSpeedFactor;
+        velocity.y += 0.01f; // make it move upwards so it doesn't fall forever
+        if (velocity.y > 0.5f) velocity.y = 0.5f;
+    } else {
+        // Update Motion
+        velocity.y -= batch->_gravity * physSpeedFactor;
+        if (velocity.y < -1.0f) velocity.y = -1.0f;
+        velocity.z *= batch->_friction;
+        velocity.x *= batch->_friction;
+        position += velocity * physSpeedFactor;   
+    }
 
-    chPos = GameManager::chunkManager->getChunkPosition(position);
+    // Get world position
+    f64v3 worldPos = f64v3(position) + batch->_position;
 
-    ch = GameManager::chunkManager->getChunk(chPos);
+    // Get the chunk position
+    i32v3 chPos = GameManager::chunkManager->getChunkPosition(worldPos);
+    
+    // Get the chunk
+    Chunk* ch = GameManager::chunkManager->getChunk(chPos);
+    if ((!ch) || ch->isAccessible == 0) return true;
 
-    i32v3 relativePos;
-    relativePos.x = position.x - chPos.x * CHUNK_WIDTH;
-    relativePos.y = position.y - chPos.y * CHUNK_WIDTH;
-    relativePos.z = position.z - chPos.z * CHUNK_WIDTH;
+    
+    f32v3 relativePos(worldPos.x - chPos.x * CHUNK_WIDTH,
+                      worldPos.y - chPos.y * CHUNK_WIDTH,
+                      worldPos.z - chPos.z * CHUNK_WIDTH);
 
-    if ((!ch) || ch->isAccessible == 0) return 1;
+    // Grab block index coords
+    int bx = (int)relativePos.x % CHUNK_WIDTH;
+    int by = (int)relativePos.y % CHUNK_WIDTH;
+    int bz = (int)relativePos.z % CHUNK_WIDTH;
 
-    bx = relativePos.x % CHUNK_WIDTH;
-    by = relativePos.y % CHUNK_WIDTH;
-    bz = relativePos.z % CHUNK_WIDTH;
+    int c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
 
-    c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
-    val = ch->getBlockID(c);
-    if (Blocks[val].collide || (Blocks[val].physicsProperty == P_LIQUID && GETBLOCK(blockType).physicsProperty >= P_POWDER)){
-        if (Blocks[btype = (blockID)].isCrushable){
+    // Get the colliding block
+    i32 collideID = ch->getBlockID(c);
+    Block& collideBlock = Blocks[collideID];
+
+    // If we are colliding we need an air block
+    if (colliding) {
+        if (collideBlock.collide == false) {
+            if (Blocks[blockID].explosivePower) {
+                GameManager::physicsEngine->addExplosion(
+                    ExplosionNode(f64v3(position) + batch->_position,
+                    blockID));
+            } else {
+                ChunkUpdater::placeBlock(ch, c, batch->blockType);
+            }
+            // Mark this block as done so it can be removed in a few frames
+            done = 1;
+        }
+        return false;
+    }
+
+    // Check if its collidable
+    if (collideBlock.collide) {
+        // If physics block crushable, like leaves, just break it.
+        if (Blocks[blockID].isCrushable) {
             glm::vec4 color;
-            color.r = Blocks[btype].color.r;
-            color.g = Blocks[btype].color.g;
-            color.b = Blocks[btype].color.b;
+            color.r = Blocks[blockID].color.r;
+            color.g = Blocks[blockID].color.g;
+            color.b = Blocks[blockID].color.b;
             color.a = 255;
 
-            if (Blocks[btype].altColors.size()){
-                GLuint flags = (blockID) >> 12;
-                if (flags){
-                    color.r = Blocks[btype].altColors[flags - 1].r;
-                    color.g = Blocks[btype].altColors[flags - 1].g;
-                    color.b = Blocks[btype].altColors[flags - 1].b;
-                }
-            }
-
-            particleEngine.addParticles(BPARTICLES, glm::dvec3((int)position.x - 1.0, (int)position.y + 1.0, (int)position.z - 1.0), 0, 0.1, 300, 1, color, Blocks[GETBLOCKTYPE(blockType)].base.px, 2.0f, 4);
-            return 1;
+            particleEngine.addParticles(BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
+            return true;
         }
-        double fx, fy, fz;
-        if (position.x > 0){
-            fx = position.x - ((int)(position.x)) - 0.5;
-        } else{
-            fx = position.x - ((int)(position.x)) + 0.5;
+        
+        // If colliding block is crushable, break that block
+        if (collideBlock.isCrushable) {
+            ChunkUpdater::removeBlock(ch, c, true);
+        } else {
+            colliding = true;
         }
-        if (position.y > 0){
-            fy = position.y - ((int)(position.y)) - 0.5;
-        } else{
-            fy = position.y - ((int)(position.y)) + 0.5;
-        }
-        if (position.z > 0){
-            fz = position.z - ((int)(position.z)) - 0.5;
-        } else{
-            fz = position.z - ((int)(position.z)) + 0.5;
-        }
-
-        double Afx = ABS(fx);
-        double Afy = ABS(fy);
-        double Afz = ABS(fz);
-
-        if (((fx > 0 && ((rc = Blocks[GETBLOCKTYPE(ch->getRightBlockData(c))].collide) == 0)) || (fx <= 0 && ((lc = Blocks[GETBLOCKTYPE(ch->getLeftBlockData(c))].collide) == 0))) && Afx >= Afy && Afx >= Afz){
-            if (fx > 0){
-                position.x += 0.5001 - Afx;
-            } else{
-                position.x -= 0.5001 - Afx;
-            }
-        } else if (((fz > 0 && (fc = Blocks[GETBLOCKTYPE(ch->getFrontBlockData(c))].collide) == 0) || (fz <= 0 && (bc = Blocks[GETBLOCKTYPE(ch->getBackBlockData(c))].collide) == 0)) && Afz > Afy){
-            if (fz > 0){
-                position.z += 0.5001 - Afz;
-            } else{
-                position.z -= 0.5001 - Afz;
-            }
-        } else{
-            if (Blocks[val].isCrushable){
-                ChunkUpdater::removeBlock(ch, c, 1);
-            } else if (Blocks[GETBLOCKTYPE(ch->getTopBlockData(c))].collide == 0){
-                if (by < CHUNK_WIDTH - 1){
-                    if (Blocks[btype].explosivePower){
-                        GameManager::physicsEngine->addExplosion(ExplosionNode(position, blockType));
-                    } else{
-                        ChunkUpdater::placeBlock(ch, c + CHUNK_LAYER, blockType);
-                    }
-                } else if (ch->top && ch->top->isAccessible){
-                    if (Blocks[btype].explosivePower){
-                        GameManager::physicsEngine->addExplosion(ExplosionNode(position, blockType));
-                    } else{
-                        ChunkUpdater::placeBlock(ch->top, c - CHUNK_SIZE + CHUNK_LAYER, blockType);
-                    }
-                }
-                done = 1;
-                //pop it into place
-                position.x -= fx;
-                position.y -= (fy - 0.5);
-                position.z -= fz;
-                return 0;
-            } else{
-                r = rand() % 24;
-                dr = &(bdirs[r * 4]);
-                moved = 0;
-                for (int k = 0; k < 4; k++){
-                    r = dr[k];
-                    switch (r){
-                    case 0:
-                        if (fc == 0){
-                            position.z += 0.5001 - Afz;
-                            k = 4;
-                            moved = 1;
-                        }
-                        break;
-                    case 1:
-                        if (bc == 0){
-                            position.z -= 0.5001 - Afz;
-                            k = 4;
-                            moved = 1;
-                        }
-                        break;
-                    case 2:
-                        if (lc == 0){
-                            position.x -= 0.5001 - Afx;
-                            k = 4;
-                            moved = 1;
-                        }
-                        break;
-                    case 3:
-                        if (rc == 0){
-                            position.x += 0.5001 - Afx;
-                            k = 4;
-                            moved = 1;
-                        }
-                        break;
-                    }
-                }
-                if (!moved){
-                    velocity = glm::vec3(0);
-                    position.y += 1.0 - (fy - 0.5);
-                }
-            }
-            if (velocity.y > 0){
-                velocity.y = -(velocity.y*0.6);
-            }
-            velocity.x *= 0.8;
-            velocity.z *= 0.8;
-        }
-    } else if (Blocks[val].isCrushable){
-        ChunkUpdater::removeBlock(ch, c, 1);
-        return 0;
-    } else{
-        light[LIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getLampLight(c))));
-        light[SUNLIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
     }
-    return 0;
+
+    return false;
 }
 
 //temp and rain for dirtgrass
@@ -314,16 +225,17 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     vector <PhysicsBlockVertex> &verts = pbmm->verts;
     verts.resize(36);
 
-    int btype;
+    _gravity = GRAVITY;
+    _friction = 0.985f;
+    _blockID = GETBLOCKTYPE(BlockType);
+
     double v = 0.0;
     bool tree = 0;
-
-    btype = (GETBLOCKTYPE(BlockType));
 
     int flags = GETFLAGS(BlockType) >> 12;
 
     int index = 0;
-    Block &block = Blocks[btype];
+    Block &block = Blocks[_blockID];
 
     //front
     VoxelMesher::makePhysicsBlockFace(verts, 0, index, block.pzTexInfo);
@@ -399,17 +311,16 @@ bool PhysicsBlockBatch::update()
     ColorRGB8 color, overlayColor;
 
     //need to fix this so that color is correct
-    Blocks[physicsBlocks[0].blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[physicsBlocks[0].blockType].pzTexInfo);
+    Blocks[blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[blockType].pzTexInfo);
 
     while (i < physicsBlocks.size()){
         if (physicsBlocks[i].update()){
             physicsBlocks[i] = physicsBlocks.back();
             physicsBlocks.pop_back(); //dont need to increment i 
         } else{ //if it was successfully updated, add its data to the buffers
-            verts[i].pos[0] = physicsBlocks[i].position.x - _bX;
-            verts[i].pos[1] = physicsBlocks[i].position.y - _bY;
-            verts[i].pos[2] = physicsBlocks[i].position.z - _bZ;
+            verts[i].pos = physicsBlocks[i].position;
 
+            // TODO(Color) can be instanced
             verts[i].color = color;
             verts[i].overlayColor = overlayColor;
 
@@ -433,9 +344,9 @@ bool PhysicsBlockBatch::update()
         return 1;
     }
 
-    pbmm->bX = _bX;
-    pbmm->bY = _bY;
-    pbmm->bZ = _bZ;
+    pbmm->bX = _position.x;
+    pbmm->bY = _position.y;
+    pbmm->bZ = _position.z;
     pbmm->numBlocks = _numBlocks;
     if (_mesh == NULL){
         pError("AHHHHH WHAT? Physics block mesh null!?");
@@ -452,9 +363,7 @@ bool PhysicsBlockBatch::update()
 void PhysicsBlockBatch::addBlock(const glm::dvec3 &pos, int ydiff, glm::vec2 &dir, glm::vec3 extraForce)
 {
     if (physicsBlocks.size() == 0){ //if its the first one, set it to this block
-        _bX = pos.x;
-        _bY = pos.y;
-        _bZ = pos.z;
+        _position = pos;
     }
-    physicsBlocks.push_back(PhysicsBlock(pos, blockType, ydiff, dir, extraForce));
+    physicsBlocks.emplace_back(f32v3(pos - _position), this, blockType, ydiff, dir, extraForce);
 }
