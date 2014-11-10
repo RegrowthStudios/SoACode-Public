@@ -16,9 +16,12 @@
 #define NightVisionRenderStage_h__
 
 #define NIGHT_VISION_NOISE_QUALITY 512
-#define DEFAULT_LUMINANCE_THRESHOLD 0.15f
-#define DEFAULT_COLOR_AMPLIFICATION 5.0f
-#define DEFAULT_NOISE_TIME_STEP 0.016667f
+#define NIGHT_VISION_DEFAULT_LUMINANCE_THRESHOLD 1.15f
+#define NIGHT_VISION_DEFAULT_COLOR_AMPLIFICATION 5.0f
+#define NIGHT_VISION_DEFAULT_NOISE_TIME_STEP 0.016667f
+#define NIGHT_VISION_TEXTURE_SLOT_COLOR 0
+#define NIGHT_VISION_TEXTURE_SLOT_NOISE 1
+#define NIGHT_VISION_DEFAULT_VISION_COLOR f32v3(2.2f, 0.92f, 0.53f)
 
 #include "FullQuadVBO.h"
 #include "GLProgram.h"
@@ -41,7 +44,8 @@ private:
     vg::GLProgram* _glProgram; ///< Stores the program we use to render
     vg::FullQuadVBO* _quad; ///< For use in processing through data
     vg::Texture _texNoise; ///< A noise texture for blurry static
-    float _et = 0.0f; ///< Counter for elapsed total time
+    f32 _et = 0.0f; ///< Counter for elapsed total time
+    f32v3 _visionColorHSL = NIGHT_VISION_DEFAULT_VISION_COLOR; ///< Color of night vision
 };
 
 #endif // NightVisionRenderStage_h__

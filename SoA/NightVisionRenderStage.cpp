@@ -3,6 +3,7 @@
 
 #include <ctime>
 
+#include "colors.h"
 #include "GLProgram.h"
 #include "Options.h"
 #include "Random.h"
@@ -36,18 +37,22 @@ NightVisionRenderStage::~NightVisionRenderStage() {
 }
 
 void NightVisionRenderStage::draw() {
-    _et += DEFAULT_NOISE_TIME_STEP;
+    _et += NIGHT_VISION_DEFAULT_NOISE_TIME_STEP;
+
+    //_visionColorHSL.r = fmod(_visionColorHSL.r = 0.005f, 6.28f);
+    f32v3 _visionColor = color::convertHSLToRGB(_visionColorHSL);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, _texNoise.ID);
 
     _glProgram->use();
     _glProgram->enableVertexAttribArrays();
-    glUniform1i(_glProgram->getUniform("sceneBuffer"), 0);
-    glUniform1i(_glProgram->getUniform("noiseTex"), 1);
-    glUniform1f(_glProgram->getUniform("luminanceThreshold"), DEFAULT_LUMINANCE_THRESHOLD);
-    glUniform1f(_glProgram->getUniform("colorAmplification"), DEFAULT_COLOR_AMPLIFICATION);
-    glUniform1f(_glProgram->getUniform("elapsedTime"), _et);
+    glUniform1i(_glProgram->getUniform("unTexColor"), NIGHT_VISION_TEXTURE_SLOT_COLOR);
+    glUniform1i(_glProgram->getUniform("unTexNoise"), NIGHT_VISION_TEXTURE_SLOT_NOISE);
+    glUniform1f(_glProgram->getUniform("unLuminanceExponent"), NIGHT_VISION_DEFAULT_LUMINANCE_THRESHOLD);
+    glUniform1f(_glProgram->getUniform("unColorAmplification"), NIGHT_VISION_DEFAULT_COLOR_AMPLIFICATION);
+    glUniform1f(_glProgram->getUniform("unTime"), _et);
+    glUniform3f(_glProgram->getUniform("unVisionColor"), _visionColor.r, _visionColor.g, _visionColor.b);
 
     glDisable(GL_DEPTH_TEST);
     _quad->draw();
