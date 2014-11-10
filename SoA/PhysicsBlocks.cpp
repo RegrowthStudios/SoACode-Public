@@ -124,7 +124,6 @@ const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 
 
 bool PhysicsBlock::update()
 {
-    return false;
     if (done == 2) return true; //defer destruction by two frames for good measure
     if (done != 0) {
         done++;
