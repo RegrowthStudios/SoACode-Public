@@ -10,9 +10,7 @@
 TaskQueueManager taskQueueManager;
 
 ThreadPool::ThreadPool() {
-    _isClosed = 0;
-    _isInitialized = 0;
-    size = 0;
+    // Empty
 }
 
 ThreadPool::~ThreadPool() {
@@ -62,11 +60,11 @@ void ThreadPool::initialize(ui64 sz) {
         _workerData[i].chunkMesher = NULL;
     }
     if (sz > 20) sz = 20;
-    size = sz;
+    _size = sz;
     for (Uint32 i = 0; i < 60; i++) {
         taskQueueManager.renderTaskPool.push_back(new RenderTask());
     }
-    _workers.reserve(size + 5);
+    _workers.reserve(_size + 5);
     cout << "THREADPOOL SIZE: " << sz << endl;
     for (Uint32 i = 0; i < sz; i++) {
         _workers.push_back(new std::thread(WorkerThread, &(_workerData[i])));
@@ -102,25 +100,25 @@ void ThreadPool::close() {
     taskQueueManager.renderTaskPool.clear();
 
     _workers.clear();
-    size = 0;
+    _size = 0;
     _isInitialized = false;
 }
 
 void ThreadPool::addThread() {
-    if (size == 20) return;
-    _workers.push_back(new std::thread(WorkerThread, &(_workerData[size++])));
+    if (_size == 20) return;
+    _workers.push_back(new std::thread(WorkerThread, &(_workerData[_size++])));
 }
 
 void ThreadPool::removeThread() {
-    size--;
-    _workers[size]->detach();
-    _workerData[size].stop = 1;
+    _size--;
+    _workers[_size]->detach();
+    _workerData[_size].stop = 1;
     taskQueueManager.cond.notify_all();
     taskQueueManager.lock.lock();
-    while (_workerData[size].finished != 1) {
+    while (_workerData[_size].finished != 1) {
         taskQueueManager.lock.unlock(); taskQueueManager.lock.lock();
     }
-    delete _workers[size];
+    delete _workers[_size];
     _workers.pop_back();
     taskQueueManager.lock.unlock();
 }

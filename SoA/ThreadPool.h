@@ -24,11 +24,13 @@ public:
     int addRenderJob(Chunk* chunk, MeshJobType type);
     bool isFinished();
 
-    i32 size;
+    const i32& getSize() const { return _size; }
+
 private:
     // need to keep track of threads so we can join them
-    bool _isInitialized;
-    bool _isClosed;
+    bool _isInitialized = false;
+    bool _isClosed = false;
+    i32 _size = 0;
     std::vector<std::thread*> _workers;
     WorkerData _workerData[NUM_WORKER_CONTEXT];
 };
