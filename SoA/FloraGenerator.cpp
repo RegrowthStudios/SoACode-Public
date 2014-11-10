@@ -93,11 +93,11 @@ int FloraGenerator::generateFlora(Chunk *chunk) {
 
         if (c >= CHUNK_LAYER) {
             if (chunk->getBlockID(c - CHUNK_LAYER) != (ui16)Blocks::NONE) {
-                ChunkUpdater::placeBlock(chunk, c, plantsToLoad[i].ft->baseBlock);
+                ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
             }
         } else if (chunk->bottom && chunk->bottom->isAccessible) {
             if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != (ui16)Blocks::NONE) {
-                ChunkUpdater::placeBlock(chunk->bottom, c, plantsToLoad[i].ft->baseBlock);
+                ChunkUpdater::placeBlockNoUpdate(chunk->bottom, c, plantsToLoad[i].ft->baseBlock);
             }
         } else {
             return 0;
@@ -397,7 +397,7 @@ void FloraGenerator::placeTreeNodes() {
     for (Uint32 j = 0; j < wnodes.size(); j++) { //wood nodes
         c = wnodes[j].c;
         owner = wnodes[j].owner;
-        ChunkUpdater::placeBlock(owner, c, wnodes[j].blockType);
+        ChunkUpdater::placeBlockNoUpdate(owner, c, wnodes[j].blockType);
 
         if (c >= CHUNK_LAYER) {
             if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
@@ -410,7 +410,7 @@ void FloraGenerator::placeTreeNodes() {
         c = lnodes[j].c;
         owner = lnodes[j].owner;
         if (owner->getBlockID(c) == (ui16)Blocks::NONE) {
-            ChunkUpdater::placeBlock(owner, c, lnodes[j].blockType);
+            ChunkUpdater::placeBlockNoUpdate(owner, c, lnodes[j].blockType);
         }
     }
 }
@@ -426,7 +426,7 @@ void FloraGenerator::placeTreeNodesAndRecord() {
         c = wnodes[j].c;
         owner = wnodes[j].owner;
         tmp = owner->getBlockData(c);
-        ChunkUpdater::placeBlock(owner, c, wnodes[j].blockType);
+        ChunkUpdater::placeBlockNoUpdate(owner, c, wnodes[j].blockType);
         wnodes[j].blockType = tmp;
 
         if (c >= CHUNK_LAYER) {
@@ -442,7 +442,7 @@ void FloraGenerator::placeTreeNodesAndRecord() {
         tmp = owner->getBlockData(c);
 
         if (tmp == (ui16)Blocks::NONE) {
-            ChunkUpdater::placeBlock(owner, c, lnodes[j].blockType);
+            ChunkUpdater::placeBlockNoUpdate(owner, c, lnodes[j].blockType);
         }
         lnodes[j].blockType = tmp;
     }

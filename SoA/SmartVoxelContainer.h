@@ -54,8 +54,8 @@ public:
         }
     }
 
-#define QUIET_FRAMES_UNTIL_COMPRESS 10
-#define ACCESS_COUNT_UNTIL_DECOMPRESS 20
+#define QUIET_FRAMES_UNTIL_COMPRESS 60
+#define ACCESS_COUNT_UNTIL_DECOMPRESS 5
 
     inline void update() {
         if (_accessCount >= ACCESS_COUNT_UNTIL_DECOMPRESS) {
