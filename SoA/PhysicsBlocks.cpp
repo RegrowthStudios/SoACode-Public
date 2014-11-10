@@ -111,9 +111,8 @@ PhysicsBlock::PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 Block
 
     velocity += extraForce;
 
-    light[0] = 0;
-    light[1] = 255;
-
+    light[LIGHT] = 0;
+    light[SUNLIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + LIGHT_MULT));
 }
 
 int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0, 3, 1, 2,
@@ -125,6 +124,7 @@ const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 
 
 bool PhysicsBlock::update()
 {
+    return false;
     if (done == 2) return true; //defer destruction by two frames for good measure
     if (done != 0) {
         done++;
@@ -138,8 +138,8 @@ bool PhysicsBlock::update()
     // If we are colliding, we reverse motion until we hit an air block
     if (colliding) {
         position -= velocity * physSpeedFactor;
-        velocity.y += 0.01f; // make it move upwards so it doesn't fall forever
-        if (velocity.y > 0.5f) velocity.y = 0.5f;
+        velocity.y -= 0.01f; // make it move upwards so it doesn't fall forever
+        if (velocity.y < -0.5f) velocity.y = -0.5f;
     } else {
         // Update Motion
         velocity.y -= batch->_gravity * physSpeedFactor;
@@ -211,6 +211,11 @@ bool PhysicsBlock::update()
         } else {
             colliding = true;
         }
+    } else {
+        // Grab light data from grid
+        // TODO(Ben): Get Lamp Light
+        light[LIGHT] = 0;
+        light[SUNLIGHT] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
     }
 
     return false;
@@ -235,7 +240,7 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     int flags = GETFLAGS(BlockType) >> 12;
 
     int index = 0;
-    Block &block = Blocks[_blockID];
+    const Block &block = Blocks[_blockID];
 
     //front
     VoxelMesher::makePhysicsBlockFace(verts, 0, index, block.pzTexInfo);
