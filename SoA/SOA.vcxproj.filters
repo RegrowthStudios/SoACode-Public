@@ -123,6 +123,12 @@
     <Filter Include="SOA Files\Rendering\RenderPipelines\RenderStages">
       <UniqueIdentifier>{ed09a071-ec97-4fd2-922b-f2c36eba05dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Game\Tools\AR">
+      <UniqueIdentifier>{853856ea-242e-44d2-8339-eaf88777864f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Game\Universe">
+      <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -626,6 +632,18 @@
     <ClInclude Include="MessageManager.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="ARProcessor.h">
+      <Filter>SOA Files\Game\Tools\AR</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystem.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceObject.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceQuadrant.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1011,6 +1029,15 @@
     </ClCompile>
     <ClCompile Include="NightVisionRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="ARProcessor.cpp">
+      <Filter>SOA Files\Game\Tools\AR</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceQuadrant.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceObject.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

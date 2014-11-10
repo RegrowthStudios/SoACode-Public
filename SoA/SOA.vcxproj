@@ -112,6 +112,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="Computer.h" />
@@ -157,6 +158,9 @@
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
+    <ClInclude Include="SpaceObject.h" />
+    <ClInclude Include="SpaceQuadrant.h" />
+    <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
@@ -280,6 +284,7 @@
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="Computer.cpp" />
@@ -320,6 +325,8 @@
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
+    <ClCompile Include="SpaceObject.cpp" />
+    <ClCompile Include="SpaceQuadrant.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
