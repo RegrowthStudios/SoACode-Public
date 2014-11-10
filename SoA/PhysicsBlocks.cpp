@@ -19,54 +19,57 @@
 #include "utils.h"
 
 void PhysicsBlockMesh::createVao(const vg::GLProgram* glProgram) {
-    if (vaoID != 0) {
+    if (vaoID == 0) {
         glGenVertexArrays(1, &vaoID);
     }
     glBindVertexArray(vaoID);
-    // 1rst attribute buffer : vertices
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
 
     ui32 loc; // Attribute location
 
-    // * Global instance attributes here
+    // Enable attributes
+    glProgram->enableVertexAttribArrays();
+
+    // * Global instance attributes here *
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+
     loc = glProgram->getAttribute("vertexPosition_blendMode");
-    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)0);
+    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)offsetof(PhysicsBlockVertex, position));
     glVertexAttribDivisor(loc, 0);
     //UVs
     loc = glProgram->getAttribute("vertexUV");
-    glVertexAttribPointer(loc, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)4);
+    glVertexAttribPointer(loc, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)offsetof(PhysicsBlockVertex, tex));
     glVertexAttribDivisor(loc, 0);
     //textureAtlas_textureIndex
     loc = glProgram->getAttribute("textureAtlas_textureIndex");
-    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)8);
+    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)offsetof(PhysicsBlockVertex, textureAtlas));
     glVertexAttribDivisor(loc, 0);
     //textureDimensions
     loc = glProgram->getAttribute("textureDimensions");
-    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)12);
+    glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PhysicsBlockVertex), (void*)offsetof(PhysicsBlockVertex, textureWidth));
     glVertexAttribDivisor(loc, 0);
     //normals
     loc = glProgram->getAttribute("normal");
-    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockVertex), (void*)16);
+    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockVertex), (void*)offsetof(PhysicsBlockVertex, normal));
     glVertexAttribDivisor(loc, 0);
 
     // * Per instance attributes here *
     glBindBuffer(GL_ARRAY_BUFFER, positionLightBufferID);
     //center
     loc = glProgram->getAttribute("centerPosition");
-    glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(PhysicsBlockPosLight), (void*)0);
+    glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(PhysicsBlockPosLight), (void*)offsetof(PhysicsBlockPosLight, pos));
     glVertexAttribDivisor(loc, 1);
     //color
     loc = glProgram->getAttribute("vertexColor");
-    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)12);
+    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)offsetof(PhysicsBlockPosLight, color));
     glVertexAttribDivisor(loc, 1);
     //overlayColor
     loc = glProgram->getAttribute("overlayColor");
-    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)16);
-    glVertexAttribDivisor(7, 1);
+    glVertexAttribPointer(loc, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)offsetof(PhysicsBlockPosLight, overlayColor));
+    glVertexAttribDivisor(loc, 1);
     //light
     loc = glProgram->getAttribute("vertexLight");
-    glVertexAttribPointer(loc, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)20);
-    glVertexAttribDivisor(8, 1);
+    glVertexAttribPointer(loc, 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PhysicsBlockPosLight), (void*)offsetof(PhysicsBlockPosLight, light));
+    glVertexAttribDivisor(loc, 1);
 
     glBindVertexArray(0);
 }
@@ -323,26 +326,26 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     Block &block = Blocks[btype];
 
     //front
-    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 0, index, block.pzTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, 0, index, block.pzTexInfo);
     index += 6;
     //right
-    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 12, index, block.pxTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, 12, index, block.pxTexInfo);
     index += 6;
     //top
 
-    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 24, index, block.pyTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, 24, index, block.pyTexInfo);
     index += 6;
     //left
 
-    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 36, index, block.nxTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, 36, index, block.nxTexInfo);
     index += 6;
     //bottom
 
-    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 48, index, block.nyTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, 48, index, block.nyTexInfo);
     index += 6;
     //back
 
-    VoxelMesher::makePhysicsBlockFace(verts, VoxelMesher::physicsBlockVertices, 60, index, block.nzTexInfo);
+    VoxelMesher::makePhysicsBlockFace(verts, 60, index, block.nzTexInfo);
     index += 6;
 
     _mesh = new PhysicsBlockMesh;

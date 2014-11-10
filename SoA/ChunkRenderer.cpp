@@ -337,46 +337,6 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 
 }
 
-void ChunkRenderer::drawPhysicsBlocks(const GameRenderParams* gameRenderParams,
-                                      const std::vector<PhysicsBlockMesh*>* physicsBlockMeshes)
-{
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlock");
-    program->use();
-
-    glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
-
-    glUniform1f(program->getUniform("alphaMult"), 1.0f);
-
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
-    glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
-    glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
-    glUniform3fv(program->getUniform("lightPosition_worldspace"), 1, &(gameRenderParams->sunlightDirection[0]));
-    glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
-    glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
-
-    glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
-
-    float blockAmbient = 0.000f;
-    glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
-
-    if (NoChunkFade){
-        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)10000.0f);
-    } else{
-        glUniform1f(program->getUniform("fadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
-    }
-
-    const std::vector<PhysicsBlockMesh*>& meshes = *physicsBlockMeshes;
-    for (Uint32 i = 0; i < meshes.size(); i++) {
-        PhysicsBlockBatch::draw(meshes[i], program, gameRenderParams->chunkCamera->getPosition(), gameRenderParams->VP);
-    }
-    glVertexAttribDivisor(5, 0); //restore divisors
-    glVertexAttribDivisor(6, 0);
-    glVertexAttribDivisor(7, 0);
-    program->unuse();
-}
-
 void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
 {
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
