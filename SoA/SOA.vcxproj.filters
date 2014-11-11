@@ -644,6 +644,9 @@
     <ClInclude Include="SpaceComponents.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsBlockRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1044,6 +1047,9 @@
     </ClCompile>
     <ClCompile Include="SpaceComponents.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsBlockRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

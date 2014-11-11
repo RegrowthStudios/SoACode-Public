@@ -24,7 +24,7 @@ class PhysicsBlockMeshMessage;
 
 struct ChunkMesh;
 struct ParticleMesh;
-struct PhysicsBlockMesh;
+class PhysicsBlockMesh;
 
 class MeshManager
 {

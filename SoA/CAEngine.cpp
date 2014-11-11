@@ -37,34 +37,34 @@ void CAEngine::update(const ChunkManager &chunkManager) {
         waterCounter = 0;
     }
 
-    //const ChunkSlot *allChunkSlots = chunkManager.getAllChunkSlots();
+    const std::vector<ChunkSlot>& chunkSlots = chunkManager.getChunkSlots(0);
 
-    //Chunk* chunk;
-    //if (updateWater && updatePowders) {
-    //    for (int i = 0; i < chunkManager.csGridSize; i++){
-    //        _chunk = allChunkSlots[i].chunk;
-    //        if (_chunk){
-    //            updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-    //            updateLiquidBlocks();
-    //            updatePowderBlocks();
-    //        }
-    //    }
-    //} else if (updateWater) {
-    //    for (int i = 0; i < chunkManager.csGridSize; i++){
-    //        _chunk = allChunkSlots[i].chunk;
-    //        if (_chunk){
-    //            updateLiquidBlocks();
-    //        }
-    //    }
-    //} else if (updatePowders) {
-    //    for (int i = 0; i < chunkManager.csGridSize; i++){
-    //        _chunk = allChunkSlots[i].chunk;
-    //        if (_chunk){
-    //            updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-    //            updatePowderBlocks();
-    //        }
-    //    }
-    //}
+    Chunk* chunk;
+    if (updateWater && updatePowders) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            _chunk = chunkSlots[i].chunk;
+            if (_chunk){
+                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
+                updateLiquidBlocks();
+                updatePowderBlocks();
+            }
+        }
+    } else if (updateWater) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            _chunk = chunkSlots[i].chunk;
+            if (_chunk){
+                updateLiquidBlocks();
+            }
+        }
+    } else if (updatePowders) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            _chunk = chunkSlots[i].chunk;
+            if (_chunk){
+                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
+                updatePowderBlocks();
+            }
+        }
+    }
 
     frameCounter++;
     powderCounter++;

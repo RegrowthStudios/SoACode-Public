@@ -151,21 +151,6 @@ const ui8 VoxelMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
         7, 7, 0, 7, 0, 0, 0, 0, 7, 0, 7, 7 } };
 
 
-//Physics block vertex data
-#define PHYS_V 0.499f
-const GLfloat VoxelMesher::physicsBlockVertices[72] = { -PHYS_V, PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, PHYS_V, -PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V,  // v1-v2-v3-v0 (front)
-
-    PHYS_V, PHYS_V, PHYS_V, PHYS_V, -PHYS_V, PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, PHYS_V, -PHYS_V,     // v0-v3-v4-v499 (right)
-
-    -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, PHYS_V, -PHYS_V,    // v6-v1-v0-v499 (top)
-
-    -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, PHYS_V, PHYS_V,   // v6-v7-v2-v1 (left)
-
-    -PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, PHYS_V,    // v7-v4-v3-v2 (bottom)
-
-    PHYS_V, PHYS_V, -PHYS_V, PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, -PHYS_V, PHYS_V, -PHYS_V };     // v5-v4-v7-v6 (back)
-
-
 void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture& texInfo)
 {
 
@@ -550,7 +535,7 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
     verts[index + 3].textureUnit = (GLubyte)textureUnit;
 }
 
-void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture)
+void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
 {
     ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / ATLAS_SIZE);
     ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % ATLAS_SIZE);

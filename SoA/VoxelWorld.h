@@ -27,6 +27,7 @@ public:
     inline ChunkManager &getChunkManager() { return *_chunkManager; }
 
 private:
+    void updatePhysics(const glm::dvec3 &position, const glm::dvec3 &viewDir);
 
     //the planet associated with this world
     Planet* _planet;

@@ -620,10 +620,10 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
         }
     }
   
-    chunk->_blockIDContainer.initFromSortedArray(blockIDNodes);
-    chunk->_lampLightContainer.initFromSortedArray(lampLightNodes);
-    chunk->_sunlightContainer.initFromSortedArray(sunlightNodes);
-    chunk->_tertiaryDataContainer.initFromSortedArray(tertiaryDataNodes);
+    chunk->_blockIDContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, blockIDNodes);
+    chunk->_lampLightContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, lampLightNodes);
+    chunk->_sunlightContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, sunlightNodes);
+    chunk->_tertiaryDataContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, tertiaryDataNodes);
 
     return true;
 }
