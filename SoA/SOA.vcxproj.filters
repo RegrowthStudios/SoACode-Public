@@ -123,6 +123,12 @@
     <Filter Include="SOA Files\Rendering\RenderPipelines\RenderStages">
       <UniqueIdentifier>{ed09a071-ec97-4fd2-922b-f2c36eba05dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Game\Tools\AR">
+      <UniqueIdentifier>{853856ea-242e-44d2-8339-eaf88777864f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Game\Universe">
+      <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -175,9 +181,6 @@
     </ClInclude>
     <ClInclude Include="Collision.h">
       <Filter>SOA Files\Game\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>SOA Files\ECS</Filter>
     </ClInclude>
     <ClInclude Include="ComponentTable.hpp">
       <Filter>SOA Files\ECS</Filter>
@@ -626,6 +629,21 @@
     <ClInclude Include="MessageManager.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="ARProcessor.h">
+      <Filter>SOA Files\Game\Tools\AR</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystem.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Events.hpp">
+      <Filter>SOA Files\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceComponents.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
     <ClInclude Include="PhysicsBlockRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -1014,6 +1032,21 @@
     </ClCompile>
     <ClCompile Include="NightVisionRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="ARProcessor.cpp">
+      <Filter>SOA Files\Game\Tools\AR</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystem.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceComponents.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsBlockRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
