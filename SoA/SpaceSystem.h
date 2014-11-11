@@ -15,8 +15,23 @@
 #ifndef SpaceSystem_h__
 #define SpaceSystem_h__
 
-class SpaceSystem {
+#include "ComponentTable.hpp"
+#include "ECS.h"
+#include "SpaceComponents.h"
 
+typedef vcore::ComponentTable<SpaceObject> CTableSpaceObject;
+typedef vcore::ComponentTable<SpaceQuadrant> CTableSpaceQuadrant;
+
+#define SPACE_SYSTEM_CT_OBJECT_NAME "Object"
+#define SPACE_SYSTEM_CT_QUADRANT_NAME "Quadrant"
+
+class SpaceSystem {
+public:
+    SpaceSystem();
+
+    vcore::ECS ecs;
+    CTableSpaceObject tblObject;
+    CTableSpaceQuadrant tblQuadrants;
 };
 
 #endif // SpaceSystem_h__

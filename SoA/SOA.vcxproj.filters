@@ -182,9 +182,6 @@
     <ClInclude Include="Collision.h">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
     <ClInclude Include="ComponentTable.hpp">
       <Filter>SOA Files\ECS</Filter>
     </ClInclude>
@@ -638,10 +635,13 @@
     <ClInclude Include="SpaceSystem.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="SpaceObject.h">
-      <Filter>SOA Files\Game\Universe</Filter>
+    <ClInclude Include="ECS.h">
+      <Filter>SOA Files\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="SpaceQuadrant.h">
+    <ClInclude Include="Events.hpp">
+      <Filter>SOA Files\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceComponents.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1033,10 +1033,16 @@
     <ClCompile Include="ARProcessor.cpp">
       <Filter>SOA Files\Game\Tools\AR</Filter>
     </ClCompile>
-    <ClCompile Include="SpaceQuadrant.cpp">
+    <ClCompile Include="Entity.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystem.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="SpaceObject.cpp">
+    <ClCompile Include="SpaceComponents.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>

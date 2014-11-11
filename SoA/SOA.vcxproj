@@ -118,6 +118,8 @@
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
+    <ClInclude Include="ECS.h" />
+    <ClInclude Include="Events.hpp" />
     <ClInclude Include="FullQuadVBO.h" />
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
@@ -158,8 +160,7 @@
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
-    <ClInclude Include="SpaceObject.h" />
-    <ClInclude Include="SpaceQuadrant.h" />
+    <ClInclude Include="SpaceComponents.h" />
     <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
@@ -176,7 +177,6 @@
     <ClInclude Include="ChunkGenerator.h" />
     <ClInclude Include="ChunkMesh.h" />
     <ClInclude Include="ChunkRenderer.h" />
-    <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentTable.hpp" />
     <ClInclude Include="ComponentTableBase.h" />
     <ClInclude Include="DevConsole.h" />
@@ -290,6 +290,8 @@
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
+    <ClCompile Include="ECS.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FullQuadVBO.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
@@ -325,8 +327,8 @@
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
-    <ClCompile Include="SpaceObject.cpp" />
-    <ClCompile Include="SpaceQuadrant.cpp" />
+    <ClCompile Include="SpaceComponents.cpp" />
+    <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
