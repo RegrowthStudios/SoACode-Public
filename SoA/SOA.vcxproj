@@ -115,6 +115,7 @@
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="concurrentqueue.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
     <ClInclude Include="FullQuadVBO.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
+    <ClInclude Include="IThreadPoolTask.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />

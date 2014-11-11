@@ -14,34 +14,21 @@ ThreadPool::ThreadPool() {
 }
 
 ThreadPool::~ThreadPool() {
-    if (_isInitialized == 1 && _isClosed == 0) {
-        taskQueueManager.lock.lock();
-        for (size_t i = 0; i < _workers.size(); i++) {
-            if (_workers[i]) {
-                _workers[i]->detach();
-                _workerData[i].stop = 1;
-            }
-        }
-        taskQueueManager.lock.unlock();
-        while (!isFinished()); //wait for all workers to finish
-        taskQueueManager.cond.notify_all();
-
-        for (size_t i = 0; i < _workers.size(); i++) {
-            while (_workerData[i].finished != 1);
-            if (_workers[i] != NULL) delete _workers[i];
-        }
+    if (_isInitialized == true && _isClosed == false) {
+        close();
     }
 }
 
-void ThreadPool::clearJobs() {
-    taskQueueManager.lock.lock();
-    while (taskQueueManager.loadTaskQueue.size()) {
-        delete taskQueueManager.loadTaskQueue.front().loadData;
-        taskQueueManager.loadTaskQueue.pop();
+void ThreadPool::clearTasks() {
+    #define BATCH_SIZE 50
+    IThreadPoolTask* tasks[BATCH_SIZE];
+    int size;
+    // Grab and kill tasks in batches
+    while ((size = _tasks.try_dequeue_bulk(tasks, BATCH_SIZE))) {
+        for (int i = 0; i < size; i++) {
+            delete tasks[i];
+        }
     }
-    queue<LoadTask>().swap(taskQueueManager.loadTaskQueue);
-    queue<RenderTask*>().swap(taskQueueManager.renderTaskQueue);
-    taskQueueManager.lock.unlock();
 }
 
 void ThreadPool::addLoadJob(Chunk *chunk, LoadData *ld) {
@@ -55,7 +42,7 @@ void ThreadPool::addLoadJob(Chunk *chunk, LoadData *ld) {
 void ThreadPool::initialize(ui64 sz) {
     if (_isInitialized) return;
     _isInitialized = 1;
-    _isClosed = 0;
+    _isClosed = false;
     for (int i = 0; i < 20; i++) {
         _workerData[i].chunkMesher = NULL;
     }
@@ -72,36 +59,38 @@ void ThreadPool::initialize(ui64 sz) {
 }
 
 void ThreadPool::close() {
-    _isClosed = true;
-    clearJobs();
+    // Clear all tasks
+    clearTasks();
+    // Wait for threads to all wait
     while (!(isFinished()));
-    taskQueueManager.lock.lock();
-    for (size_t i = 0; i < _workers.size(); i++) {
-        _workers[i]->detach();
-        _workerData[i].stop = 1;
-    }
-    taskQueueManager.lock.unlock();
 
-    taskQueueManager.cond.notify_all();
-
-    for (size_t i = 0; i < _workers.size();) {
-        taskQueueManager.lock.lock();
-        if (_workerData[i].finished == 1) {
-            delete _workers[i];
-            _workers[i] = NULL;
-            i++;
+    // Scope for lock_guard
+    {
+        // Lock the mutex
+        std::lock_guard<std::mutex> lock(_condMutex);
+        // Tell threads to quit
+        for (size_t i = 0; i < _workers.size(); i++) {
+            _workerData[i].stop = true;
         }
-        taskQueueManager.lock.unlock();
     }
+    // Wake all threads so they can quit
+    _cond.notify_all();
+    // Join all threads
+    for (size_t i = 0; i < _workers.size(); i++) {
+        _workers[i]->join();
+        delete _workers[i];
+    }
+    // Free memory
+    std::vector<std::thread*>().swap(_workers);
 
     for (Uint32 i = 0; i < taskQueueManager.renderTaskPool.size(); i++) {
         delete taskQueueManager.renderTaskPool[i];
     }
     taskQueueManager.renderTaskPool.clear();
 
-    _workers.clear();
     _size = 0;
     _isInitialized = false;
+    _isClosed = true;
 }
 
 void ThreadPool::addThread() {
@@ -110,17 +99,7 @@ void ThreadPool::addThread() {
 }
 
 void ThreadPool::removeThread() {
-    _size--;
-    _workers[_size]->detach();
-    _workerData[_size].stop = 1;
-    taskQueueManager.cond.notify_all();
-    taskQueueManager.lock.lock();
-    while (_workerData[_size].finished != 1) {
-        taskQueueManager.lock.unlock(); taskQueueManager.lock.lock();
-    }
-    delete _workers[_size];
-    _workers.pop_back();
-    taskQueueManager.lock.unlock();
+   
 }
 
 int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
@@ -150,16 +129,43 @@ int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
 }
 
 bool ThreadPool::isFinished() {
-    taskQueueManager.lock.lock();
-    if (taskQueueManager.loadTaskQueue.size() != 0 || taskQueueManager.renderTaskQueue.size() != 0) {
-        taskQueueManager.lock.unlock();
-        taskQueueManager.lock.lock();
-    }
+    // Lock the mutex
+    std::lock_guard<std::mutex> lock(_condMutex);
+    // Check that the queue is empty
+    if (_tasks.size_approx() != 0) return false;
+    // Check that all workers are asleep
     for (size_t i = 0; i < _workers.size(); i++) {
-        if (_workerData[i].waiting == 0) {
-            taskQueueManager.lock.unlock(); return 0;
+        if (_workerData[i].waiting == false) {
+            return false;
         }
     }
-    taskQueueManager.lock.unlock();
-    return 1;
+    return true;
+}
+
+void ThreadPool::workerThreadFunc(WorkerData* data) {
+    data->waiting = false;
+    data->stop = false;
+    IThreadPoolTask* task;
+
+    std::unique_lock<std::mutex> lock(_condMutex);
+    while (true) {
+        // Wait for work
+        data->waiting = true;
+        _cond.wait(lock);
+        lock.unlock();
+        // Check for exit
+        if (data->stop) return;
+
+        // Grab a task if one exists
+        if (_tasks.try_dequeue(task)) {
+            task->execute();
+            // Store result if needed
+            if (task->shouldAddToFinishedTasks()) {
+                _finishedTasks.enqueue(task);
+            }
+        }
+
+        // Re-lock the cond mutex so we can go to sleep
+        lock.lock();
+    }
 }

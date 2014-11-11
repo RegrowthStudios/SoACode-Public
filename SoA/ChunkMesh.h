@@ -17,7 +17,7 @@ enum class MeshType {
 
 enum class MeshJobType;
 
-struct RenderTask;
+class RenderTask;
 class Chunk;
 class ChunkGridData;
 class Block;

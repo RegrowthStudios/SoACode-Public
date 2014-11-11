@@ -29,7 +29,7 @@ enum LightTypes {LIGHT, SUNLIGHT};
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
 struct LightMessage;
-struct RenderTask;
+class RenderTask;
 
 class ChunkGridData {
 public:

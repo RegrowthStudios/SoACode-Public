@@ -394,7 +394,7 @@ ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
 
 void ChunkManager::clearAll() {
     // Clear the threadpool
-    threadPool.clearJobs();
+    threadPool.clearTasks();
     while (!(threadPool.isFinished()));
 
     // Clear finished generating chunks

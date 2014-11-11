@@ -3,6 +3,10 @@
 
 #include "Chunk.h"
 
+void RenderTask::execute() {
+
+}
+
 void RenderTask::setChunk(Chunk* ch, MeshJobType cType) {
     type = cType;
     chunk = ch;

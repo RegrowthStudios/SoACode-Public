@@ -5,7 +5,7 @@
 
 #include "LoadTask.h"
 
-struct RenderTask;
+class RenderTask;
 struct ChunkMeshData;
 
 // Manages Task Queue

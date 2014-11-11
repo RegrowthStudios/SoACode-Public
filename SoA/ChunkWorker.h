@@ -4,9 +4,8 @@ class ChunkMesher;
 // Worker Thread Context
 struct WorkerData {
 public:
-    bool waiting;
-    bool finished;
-    bool stop;
+    volatile bool waiting;
+    volatile bool stop;
 
     // Each Thread Gets Its Own Mesher
     ChunkMesher* chunkMesher;
