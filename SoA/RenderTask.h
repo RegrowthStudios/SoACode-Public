@@ -1,4 +1,20 @@
+///
+/// RenderTask.h
+/// Seed of Andromeda
+///
+/// Created by Benjamin Arnold on 11 Nov 2014
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// This file has the implementation of a render task for SoA
+///
+
 #pragma once
+
+#ifndef RenderTask_h__
+#define RenderTask_h__
+
 #include "Constants.h"
 
 class Chunk;
@@ -36,3 +52,5 @@ public:
     Chunk* chunk;
     int levelOfDetail;
 };
+
+#endif // RenderTask_h__

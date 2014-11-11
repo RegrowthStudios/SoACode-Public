@@ -269,9 +269,6 @@
     <ClInclude Include="LoadScreen.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
     <ClInclude Include="lodepng.h">
       <Filter>SOA Files\Rendering\Images</Filter>
     </ClInclude>
@@ -631,6 +628,9 @@
     </ClInclude>
     <ClInclude Include="IThreadPoolTask.h">
       <Filter>SOA Files\Ext\ADT</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

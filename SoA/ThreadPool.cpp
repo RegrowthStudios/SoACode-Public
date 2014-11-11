@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
+#include "GenerateTask.h"
 
-#include "TaskQueueManager.h"
 #include "Errors.h"
 #include "Chunk.h"
 #include "WorldStructs.h"
@@ -29,7 +29,7 @@ void ThreadPool::clearTasks() {
 
 void ThreadPool::addLoadJob(Chunk *chunk, LoadData *ld) {
    
-    LoadTask* task = new LoadTask(chunk, ld);
+    GenerateTask* task = new GenerateTask(chunk, ld);
     chunk->inGenerateThread = true;
 
     taskQueueManager.cond.notify_one();

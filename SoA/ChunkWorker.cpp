@@ -24,7 +24,7 @@ void WorkerThreadOld(WorkerData *data) {
     std::unique_lock<std::mutex> rpLock(taskQueueManager.rpLock);
     rpLock.unlock();
 
-    LoadTask loadTask;
+    GenerateTask loadTask;
     RenderTask* renderTask;
     Chunk* chunk = nullptr;
 

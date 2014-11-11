@@ -248,7 +248,7 @@
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="global.h" />
-    <ClInclude Include="LoadTask.h" />
+    <ClInclude Include="GenerateTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="Random.h" />
