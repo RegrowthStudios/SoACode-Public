@@ -24,7 +24,7 @@ public:
     static void makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture& texInfo);
     static void setFaceLight(BlockVertex* Verts, int index, const ColorRGB8& lampColor, ui8 sunlight);
     static void makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, const ColorRGB8& lampColor, ui8 sunlight, const ColorRGB8& color, ui8 textureUnit);
-    static void makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, const GLfloat *blockPositions, int vertexOffset, int &index, const BlockTexture& blockTexture);
+    static void makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture);
 
 #define POSITION_RESOLUTION 7
 #define ATLAS_SIZE 256
@@ -42,6 +42,5 @@ public:
     static const GLbyte floraNormals[NUM_VERTICES];
     static const ui8 floraVertices[NUM_FLORA_MESHES][NUM_FLORA_VERTICES];
     static const ui8 crossFloraVertices[NUM_CROSSFLORA_MESHES][NUM_CROSSFLORA_VERTICES];
-    static const GLfloat physicsBlockVertices[NUM_VERTICES];
 };
 

@@ -152,6 +152,10 @@ public:
         return _chunkDiagnostics;
     }
 
+    const std::vector<ChunkSlot>& getChunkSlots(int levelOfDetail) const {
+        return _chunkSlots[levelOfDetail];
+    }
+
     // Forces a remesh of all chunks
     void remeshAllChunks();
 

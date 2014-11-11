@@ -34,6 +34,7 @@ class OpaqueVoxelRenderStage;
 class NightVisionRenderStage;
 class PDA;
 class PdaRenderStage;
+class PhysicsBlockRenderStage;
 class PlanetRenderStage;
 class Player;
 class SkyboxRenderStage;
@@ -71,6 +72,7 @@ public:
     void toggleNightVision();
 private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
+    PhysicsBlockRenderStage* _physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
     PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     OpaqueVoxelRenderStage* _opaqueVoxelRenderStage = nullptr; ///< Renders opaque voxels
     CutoutVoxelRenderStage* _cutoutVoxelRenderStage = nullptr; ///< Renders cutout voxels
