@@ -19,15 +19,22 @@ class WorkerData;
 
 class IThreadPoolTask {
 public:
-    IThreadPoolTask() { /* Empty */ };
+    /// Constructor
+    /// @param taskId: Optional unique identifier for task type.
+    IThreadPoolTask(i32 taskId = 0) : _taskId(taskId) { /* Empty */ };
     virtual ~IThreadPoolTask() { /* Empty */ };
+
     /// Executes the task
     virtual void execute(WorkerData* workerData) = 0;
 
     /// Checks if this should be stored in a finished tasks queue
     virtual const bool& shouldAddToFinishedTasks() const { return _shouldAddToFinishedTasks; }
 
+    /// Gets the task ID
+    const i32& getTaskId() const { return _taskId; }
+
 protected:
+    i32 _taskId;
     bool _shouldAddToFinishedTasks = false; ///< SHould it be stored in a finished tasks queue
 };
 

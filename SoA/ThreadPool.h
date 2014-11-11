@@ -3,7 +3,6 @@
 #include <thread>
 #include <condition_variable>
 
-#include "ChunkWorker.h"
 #include "concurrentqueue.h"
 #include "IThreadPoolTask.h"
 
@@ -41,20 +40,33 @@ public:
 
     /// Adds a task to the task queue
     /// @param task: The task to add
-    void addTask(IThreadPoolTask* task) { _tasks.enqueue(task); }
+    void addTask(IThreadPoolTask* task) { 
+        _tasks.enqueue(task);
+        _cond.notify_one(); 
+    }
 
     /// Add an array of tasks to the task queue
     /// @param tasks: The array of tasks to add
     /// @param size: The size of the array
-    void addTasks(IThreadPoolTask* tasks[], size_t size) { _tasks.enqueue_bulk(tasks, size); }
+    void addTasks(IThreadPoolTask* tasks[], size_t size) { 
+        _tasks.enqueue_bulk(tasks, size);
+        _cond.notify_all(); 
+    }
    
     /// Adds a vector of tasks to the task queue
     /// @param tasks: The vector of tasks to add
-    void addTasks(std::vector<IThreadPoolTask*> tasks) { _tasks.enqueue_bulk(tasks.data(), tasks.size()); }
+    void addTasks(std::vector<IThreadPoolTask*> tasks) { 
+        _tasks.enqueue_bulk(tasks.data(), tasks.size());
+        _cond.notify_all();
+    }
     
-    
-    void addLoadJob(Chunk* chunk, LoadData* ld);
-    int addRenderJob(Chunk* chunk, MeshJobType type);
+    /// Gets a bulk of tasks from the finished tasks
+    /// @param taskBuffer: Buffer to store the tasks
+    /// @param maxSize: Max tasks to deque
+    /// @return: The number of dequeued tasks
+    size_t getFinishedTasks(IThreadPoolTask** taskBuffer, size_t maxSize) {
+        return _finishedTasks.try_dequeue_bulk(taskBuffer, maxSize);
+    }
 
     /// Checks if the threadpool is finished with all it's work
     /// @return true when all threads are sleeping and all work is done

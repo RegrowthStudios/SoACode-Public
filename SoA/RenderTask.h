@@ -28,10 +28,12 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 enum class MeshJobType { DEFAULT, LIQUID };
 
+#define RENDER_TASK_ID 0
+
 // Represents A Mesh Creation Task
 class RenderTask : public IThreadPoolTask {
 public:
-
+    RenderTask() : IThreadPoolTask(RENDER_TASK_ID) {}
     // Executes the task
     void execute(WorkerData* workerData) override;
     // Helper Function To Set The Chunk Data
@@ -51,6 +53,7 @@ public:
     MeshJobType type; 
 	i32v3 position;
     Chunk* chunk;
+    ChunkMeshData* chunkMeshData;
     int levelOfDetail;
 };
 

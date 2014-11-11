@@ -20,10 +20,12 @@
 class Chunk;
 struct LoadData;
 
+#define GENERATE_TASK_ID 1
+
 // Represents A Chunk Load Task
 struct GenerateTask : public IThreadPoolTask {
 public:
-
+    GenerateTask() : IThreadPoolTask(GENERATE_TASK_ID) { }
     void execute(WorkerData* workerData) override;
 
     // Chunk To Be Loaded

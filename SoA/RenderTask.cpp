@@ -16,6 +16,7 @@ void RenderTask::execute(WorkerData* workerData) {
     }
     chunk->inFinishedMeshes = true;
     // BEN: Is this even needed?
+    chunkMeshData = workerData->chunkMesher->chunkMeshData;
     workerData->chunkMesher->chunkMeshData = nullptr;
 }
 

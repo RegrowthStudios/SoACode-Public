@@ -47,6 +47,8 @@ public:
 };
 
 class ChunkSlot;
+class RenderTask;
+class GenerateTask;
 
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
@@ -183,11 +185,17 @@ private:
     // Initializes the threadpool
     void initializeThreadPool();
 
+    // Gets all finished tasks from threadpool
+    void processFinishedTasks();
+
+    // Processes a generate task that is finished
+    void processFinishedGenerateTask(GenerateTask* task);
+
+    // Processes a render task that is finished
+    void processFinishedRenderTask(RenderTask* task);
+
     // Updates all chunks that have been loaded
     void updateLoadedChunks();
-
-    // Updates all chunks that are finished generating meshes
-    void uploadFinishedMeshes();
 
     // Creates a chunk and any needed grid data at a given chunk position
     // @param chunkPosition: position to create the chunk at
@@ -308,9 +316,6 @@ private:
     boost::circular_buffer<Chunk*> _loadList;
     // List of chunks that need to be generated on the threadPool
     boost::circular_buffer<Chunk*> _generateList;
-
-    // Stack of finished meshes, used only by uploadFinishedMeshes()
-    vector<ChunkMeshData*> _finishedChunkMeshes;
 
     // Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;

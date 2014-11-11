@@ -27,14 +27,6 @@ void ThreadPool::clearTasks() {
     }
 }
 
-void ThreadPool::addLoadJob(Chunk *chunk, LoadData *ld) {
-   
-    GenerateTask* task = new GenerateTask(chunk, ld);
-    chunk->inGenerateThread = true;
-
-    _cond.notify_one();
-}
-
 void ThreadPool::init(ui32 size) {
     // Check if its already initialized
     if (_isInitialized) return;
@@ -77,26 +69,6 @@ void ThreadPool::destroy() {
 
     // We are no longer initialized
     _isInitialized = false;
-}
-
-int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
-    assert(chunk != nullptr);
-
-    RenderTask *newRenderTask; //makes the task and allocates the memory for the buffers
-  
-    newRenderTask = new RenderTask;
-
-    newRenderTask->setChunk(chunk, type);
-  
-    chunk->SetupMeshData(newRenderTask);
-
-    chunk->inRenderThread = true;
-    
-    addTask(newRenderTask);
-
-    _cond.notify_one();
-
-    return 1;
 }
 
 bool ThreadPool::isFinished() {
