@@ -170,9 +170,6 @@
     <ClInclude Include="ChunkUpdater.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkWorker.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
     <ClInclude Include="Collision.h">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
@@ -676,9 +673,6 @@
     <ClCompile Include="ChunkUpdater.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
-    <ClCompile Include="ChunkWorker.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
     <ClCompile Include="CloseTerrainPatch.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
@@ -1020,6 +1014,9 @@
     </ClCompile>
     <ClCompile Include="PhysicsBlockRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

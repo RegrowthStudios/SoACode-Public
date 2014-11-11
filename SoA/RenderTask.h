@@ -16,6 +16,7 @@
 #define RenderTask_h__
 
 #include "Constants.h"
+#include "IThreadPoolTask.h"
 
 class Chunk;
 class ChunkGridData;
@@ -32,7 +33,7 @@ class RenderTask : public IThreadPoolTask {
 public:
 
     // Executes the task
-    void execute();
+    void execute(WorkerData* workerData) override;
     // Helper Function To Set The Chunk Data
     void setChunk(Chunk* ch, MeshJobType cType);
 

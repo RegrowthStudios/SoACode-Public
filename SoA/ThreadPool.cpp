@@ -32,7 +32,7 @@ void ThreadPool::addLoadJob(Chunk *chunk, LoadData *ld) {
     GenerateTask* task = new GenerateTask(chunk, ld);
     chunk->inGenerateThread = true;
 
-    taskQueueManager.cond.notify_one();
+    _cond.notify_one();
 }
 
 void ThreadPool::init(ui32 size) {
@@ -74,12 +74,6 @@ void ThreadPool::destroy() {
     }
     // Free memory
     std::vector<WorkerThread*>().swap(_workers);
-
-    // Delete pool of render tasks
-    for (Uint32 i = 0; i < taskQueueManager.renderTaskPool.size(); i++) {
-        delete taskQueueManager.renderTaskPool[i];
-    }
-    taskQueueManager.renderTaskPool.clear();
 
     // We are no longer initialized
     _isInitialized = false;

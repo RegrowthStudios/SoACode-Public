@@ -15,12 +15,17 @@
 #ifndef LoadTask_h__
 #define LoadTask_h__
 
+#include "IThreadPoolTask.h"
+
 class Chunk;
 struct LoadData;
 
 // Represents A Chunk Load Task
-struct GenerateTask {
+struct GenerateTask : public IThreadPoolTask {
 public:
+
+    void execute(WorkerData* workerData) override;
+
     // Chunk To Be Loaded
     Chunk* chunk;
 
@@ -32,6 +37,7 @@ public:
         chunk = ch;
         loadData = ld;
     }
+
 };
 
 #endif // LoadTask_h__

@@ -193,7 +193,6 @@
     <ClInclude Include="LoadScreen.h" />
     <ClInclude Include="CAEngine.h" />
     <ClInclude Include="ChunkMesher.h" />
-    <ClInclude Include="ChunkWorker.h" />
     <ClInclude Include="DebugRenderer.h" />
     <ClInclude Include="DepthState.h" />
     <ClInclude Include="FragFile.h" />
@@ -291,6 +290,7 @@
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="GLRenderTarget.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
@@ -341,7 +341,6 @@
     <ClCompile Include="LoadBar.cpp" />
     <ClCompile Include="LoadScreen.cpp" />
     <ClCompile Include="CAEngine.cpp" />
-    <ClCompile Include="ChunkWorker.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="DepthState.cpp" />
     <ClCompile Include="FragFile.cpp" />

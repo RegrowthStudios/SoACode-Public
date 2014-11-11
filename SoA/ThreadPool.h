@@ -14,6 +14,16 @@ struct LoadData;
 
 enum class MeshJobType;
 
+// Worker data for a threadPool
+class WorkerData {
+public:
+    volatile bool waiting;
+    volatile bool stop;
+
+    // Each Thread Gets Its Own Mesher
+    ChunkMesher* chunkMesher;
+};
+
 class ThreadPool {
 public:
     ThreadPool();
@@ -36,7 +46,7 @@ public:
     /// Add an array of tasks to the task queue
     /// @param tasks: The array of tasks to add
     /// @param size: The size of the array
-    void addTasks(IThreadPoolTask* tasks[], size_t size) {= _tasks.enqueue_bulk(tasks, size); }
+    void addTasks(IThreadPoolTask* tasks[], size_t size) { _tasks.enqueue_bulk(tasks, size); }
    
     /// Adds a vector of tasks to the task queue
     /// @param tasks: The vector of tasks to add

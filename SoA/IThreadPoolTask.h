@@ -15,12 +15,14 @@
 #ifndef ThreadPoolTask_h__
 #define ThreadPoolTask_h__
 
+class WorkerData;
+
 class IThreadPoolTask {
 public:
     IThreadPoolTask() { /* Empty */ };
     virtual ~IThreadPoolTask() { /* Empty */ };
     /// Executes the task
-    virtual void execute() = 0;
+    virtual void execute(WorkerData* workerData) = 0;
 
     /// Checks if this should be stored in a finished tasks queue
     virtual const bool& shouldAddToFinishedTasks() const { return _shouldAddToFinishedTasks; }

@@ -25,7 +25,6 @@
 #include "Planet.h"
 #include "RenderTask.h"
 #include "Sound.h"
-#include "TaskQueueManager.h"
 #include "TerrainGenerator.h"
 #include "TerrainPatch.h"
 #include "ThreadPool.h"
@@ -393,21 +392,12 @@ ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
 }
 
 void ChunkManager::clearAll() {
-    // Clear the threadpool
-    threadPool.clearTasks();
-    while (!(threadPool.isFinished()));
-
-    // Clear finished generating chunks
-    std::vector<Chunk*>().swap(taskQueueManager.finishedChunks);
-
-    // Clear finished chunk meshes
-    for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) delete taskQueueManager.finishedChunkMeshes[i];
-    std::vector<ChunkMeshData *>().swap(_finishedChunkMeshes);
+   
 
     // Clear the chunk IO thread
     GameManager::chunkIOManager->clear();
 
-    // Close the threadpool
+    // Destroy the thread pool
     threadPool.destroy();
 
     _setupList.clear();
