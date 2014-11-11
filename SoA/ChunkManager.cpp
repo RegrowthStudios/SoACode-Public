@@ -408,7 +408,7 @@ void ChunkManager::clearAll() {
     GameManager::chunkIOManager->clear();
 
     // Close the threadpool
-    threadPool.close();
+    threadPool.destroy();
 
     _setupList.clear();
     _generateList.clear();
@@ -521,7 +521,7 @@ void ChunkManager::initializeThreadPool() {
     if (hc > 1) hc--;
 
     // Initialize the threadpool with hc threads
-    threadPool.initialize(hc);
+    threadPool.init(hc);
     // Give some time for the threads to spin up
     SDL_Delay(100);
 }

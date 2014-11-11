@@ -7,16 +7,12 @@
 #include "WorldStructs.h"
 #include "RenderTask.h"
 
-TaskQueueManager taskQueueManager;
-
 ThreadPool::ThreadPool() {
     // Empty
 }
 
 ThreadPool::~ThreadPool() {
-    if (_isInitialized == true && _isClosed == false) {
-        close();
-    }
+    destroy();
 }
 
 void ThreadPool::clearTasks() {
@@ -32,33 +28,29 @@ void ThreadPool::clearTasks() {
 }
 
 void ThreadPool::addLoadJob(Chunk *chunk, LoadData *ld) {
-    taskQueueManager.lock.lock();
-    taskQueueManager.loadTaskQueue.push(LoadTask(chunk, ld));
+   
+    LoadTask* task = new LoadTask(chunk, ld);
     chunk->inGenerateThread = true;
-    taskQueueManager.lock.unlock();
+
     taskQueueManager.cond.notify_one();
 }
 
-void ThreadPool::initialize(ui64 sz) {
+void ThreadPool::init(ui32 size) {
+    // Check if its already initialized
     if (_isInitialized) return;
-    _isInitialized = 1;
-    _isClosed = false;
-    for (int i = 0; i < 20; i++) {
-        _workerData[i].chunkMesher = NULL;
-    }
-    if (sz > 20) sz = 20;
-    _size = sz;
-    for (Uint32 i = 0; i < 60; i++) {
-        taskQueueManager.renderTaskPool.push_back(new RenderTask());
-    }
-    _workers.reserve(_size + 5);
-    cout << "THREADPOOL SIZE: " << sz << endl;
-    for (Uint32 i = 0; i < sz; i++) {
-        _workers.push_back(new std::thread(WorkerThread, &(_workerData[i])));
+    _isInitialized = true;
+
+    cout << "THREADPOOL SIZE: " << size << endl;
+
+    /// Allocate all threads
+    _workers.resize(size);
+    for (ui32 i = 0; i < size; i++) {
+        _workers[i] = new WorkerThread(&(this->workerThreadFunc));
     }
 }
 
-void ThreadPool::close() {
+void ThreadPool::destroy() {
+    if (!_isInitialized) return;
     // Clear all tasks
     clearTasks();
     // Wait for threads to all wait
@@ -70,7 +62,7 @@ void ThreadPool::close() {
         std::lock_guard<std::mutex> lock(_condMutex);
         // Tell threads to quit
         for (size_t i = 0; i < _workers.size(); i++) {
-            _workerData[i].stop = true;
+            _workers[i]->data.stop = true;
         }
     }
     // Wake all threads so they can quit
@@ -81,50 +73,35 @@ void ThreadPool::close() {
         delete _workers[i];
     }
     // Free memory
-    std::vector<std::thread*>().swap(_workers);
+    std::vector<WorkerThread*>().swap(_workers);
 
+    // Delete pool of render tasks
     for (Uint32 i = 0; i < taskQueueManager.renderTaskPool.size(); i++) {
         delete taskQueueManager.renderTaskPool[i];
     }
     taskQueueManager.renderTaskPool.clear();
 
-    _size = 0;
+    // We are no longer initialized
     _isInitialized = false;
-    _isClosed = true;
-}
-
-void ThreadPool::addThread() {
-    if (_size == 20) return;
-    _workers.push_back(new std::thread(WorkerThread, &(_workerData[_size++])));
-}
-
-void ThreadPool::removeThread() {
-   
 }
 
 int ThreadPool::addRenderJob(Chunk *chunk, MeshJobType type) {
     assert(chunk != nullptr);
+
     RenderTask *newRenderTask; //makes the task and allocates the memory for the buffers
-    taskQueueManager.rpLock.lock();
-    if (taskQueueManager.renderTaskPool.empty()) {
-        taskQueueManager.rpLock.unlock();
-        return 0;
-    }
-    newRenderTask = taskQueueManager.renderTaskPool.back();
-    taskQueueManager.renderTaskPool.pop_back();
-    taskQueueManager.rpLock.unlock(); //we can free lock while we work on data
+  
+    newRenderTask = new RenderTask;
+
     newRenderTask->setChunk(chunk, type);
-    assert(newRenderTask->chunk != nullptr);
+  
     chunk->SetupMeshData(newRenderTask);
-    assert(newRenderTask->chunk != nullptr);
 
     chunk->inRenderThread = true;
-    taskQueueManager.lock.lock();
-    assert(newRenderTask->chunk != nullptr);
-    taskQueueManager.renderTaskQueue.push(newRenderTask);
-    taskQueueManager.lock.unlock();
+    
+    addTask(newRenderTask);
 
-    taskQueueManager.cond.notify_one();
+    _cond.notify_one();
+
     return 1;
 }
 
@@ -135,7 +112,7 @@ bool ThreadPool::isFinished() {
     if (_tasks.size_approx() != 0) return false;
     // Check that all workers are asleep
     for (size_t i = 0; i < _workers.size(); i++) {
-        if (_workerData[i].waiting == false) {
+        if (_workers[i]->data.waiting == false) {
             return false;
         }
     }

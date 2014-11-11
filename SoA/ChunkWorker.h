@@ -12,4 +12,4 @@ public:
 };
 
 // Only Loads Chunks
-void WorkerThread(WorkerData* data);
+void WorkerThreadOld(WorkerData* data);

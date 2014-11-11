@@ -371,9 +371,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="TaskQueueManager.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
     <ClInclude Include="TerrainGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>

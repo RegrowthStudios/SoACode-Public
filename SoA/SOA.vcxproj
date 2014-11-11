@@ -254,7 +254,6 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
-    <ClInclude Include="TaskQueueManager.h" />
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="ObjectLoader.h" />

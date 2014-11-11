@@ -9,7 +9,7 @@
 #include "RenderTask.h"
 #include "TaskQueueManager.h"
 
-void WorkerThread(WorkerData *data) {
+void WorkerThreadOld(WorkerData *data) {
     // First Set Up The OpenGL Context
     data->chunkMesher = new ChunkMesher();
 
