@@ -16,12 +16,15 @@
 #define NightVisionRenderStage_h__
 
 #define NIGHT_VISION_NOISE_QUALITY 512
-#define NIGHT_VISION_DEFAULT_LUMINANCE_THRESHOLD 1.15f
+#define NIGHT_VISION_DEFAULT_NOISE_POWER 0.001f
+#define NIGHT_VISION_DEFAULT_NOISE_COLOR 0.2f
+#define NIGHT_VISION_DEFAULT_LUMINANCE_TARE 0.5f
+#define NIGHT_VISION_DEFAULT_LUMINANCE_EXPONENT 1.15f
 #define NIGHT_VISION_DEFAULT_COLOR_AMPLIFICATION 5.0f
 #define NIGHT_VISION_DEFAULT_NOISE_TIME_STEP 0.016667f
 #define NIGHT_VISION_TEXTURE_SLOT_COLOR 0
 #define NIGHT_VISION_TEXTURE_SLOT_NOISE 1
-#define NIGHT_VISION_DEFAULT_VISION_COLOR f32v3(2.2f, 0.92f, 0.53f)
+#define NIGHT_VISION_DEFAULT_VISION_COLOR f32v3(0.1f, 0.95f, 0.2f)
 
 #include "FullQuadVBO.h"
 #include "GLProgram.h"
@@ -33,10 +36,12 @@ struct NightVisionRenderParams {
 public:
     static NightVisionRenderParams createDefault();
 
-    f32v3 colorHSL;
+    f32v3 color;
     f32 luminanceExponent;
     f32 luminanceTare;
     f32 colorAmplification;
+    f32 noisePower;
+    f32 noiseColor;
 };
 KEG_TYPE_DECL(NightVisionRenderParams);
 

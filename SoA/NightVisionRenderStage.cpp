@@ -11,17 +11,22 @@
 
 KEG_TYPE_INIT_BEGIN(NightVisionRenderParams, NightVisionRenderParams, kt)
 using namespace Keg;
-kt->addValue("Color", Value::basic(BasicType::F32_V3, offsetof(NightVisionRenderParams, colorHSL)));
-kt->addValue("LuminanceExponent", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceExponent)));
-kt->addValue("LuminanceTare", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceTare)));
-kt->addValue("ColorAmplification", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, colorAmplification)));
+kt->addValue("Color", Value::basic(BasicType::F32_V3, offsetof(NightVisionRenderParams, color)));
+kt->addValue("Contrast", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceExponent)));
+kt->addValue("Filter", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceTare)));
+kt->addValue("Brightness", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, colorAmplification)));
+kt->addValue("Noise", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, noisePower)));
+kt->addValue("ColorNoise", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, noiseColor)));
 KEG_ENUM_INIT_END
 
 NightVisionRenderParams NightVisionRenderParams::createDefault() {
     NightVisionRenderParams v = {};
     v.colorAmplification = NIGHT_VISION_DEFAULT_COLOR_AMPLIFICATION;
-    v.luminanceExponent = NIGHT_VISION_DEFAULT_LUMINANCE_THRESHOLD;
-    v.colorHSL = NIGHT_VISION_DEFAULT_VISION_COLOR;
+    v.luminanceExponent = NIGHT_VISION_DEFAULT_LUMINANCE_EXPONENT;
+    v.luminanceTare = NIGHT_VISION_DEFAULT_LUMINANCE_TARE;
+    v.noisePower = NIGHT_VISION_DEFAULT_NOISE_POWER;
+    v.noiseColor = NIGHT_VISION_DEFAULT_NOISE_COLOR;
+    v.color = NIGHT_VISION_DEFAULT_VISION_COLOR;
     return v;
 }
 
@@ -81,8 +86,10 @@ void NightVisionRenderStage::draw() {
 void NightVisionRenderStage::setParams(NightVisionRenderParams* params) {
     _glProgram->use();
     glUniform1f(_glProgram->getUniform("unLuminanceExponent"), params->luminanceExponent);
+    glUniform1f(_glProgram->getUniform("unLuminanceTare"), params->luminanceTare);
+    glUniform1f(_glProgram->getUniform("unNoisePower"), params->noisePower);
+    glUniform1f(_glProgram->getUniform("unNoiseColor"), params->noiseColor);
     glUniform1f(_glProgram->getUniform("unColorAmplification"), params->colorAmplification);
-    f32v3 _visionColor = color::convertHSLToRGB(params->colorHSL);
-    glUniform3f(_glProgram->getUniform("unVisionColor"), _visionColor.r, _visionColor.g, _visionColor.b);
+    glUniform3f(_glProgram->getUniform("unVisionColor"), params->color.r, params->color.g, params->color.b);
 }
 
