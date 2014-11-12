@@ -71,6 +71,8 @@ public:
     void cycleDevHud(int offset = 1);
     /// Toggle the visibility of night vision
     void toggleNightVision();
+    /// Load night vision data
+    void loadNightVision();
 private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     PhysicsBlockRenderStage* _physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
