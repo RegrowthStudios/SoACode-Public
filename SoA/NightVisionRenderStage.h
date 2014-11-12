@@ -26,7 +26,19 @@
 #include "FullQuadVBO.h"
 #include "GLProgram.h"
 #include "IRenderStage.h"
+#include "Keg.h"
 #include "Texture.h"
+
+struct NightVisionRenderParams {
+public:
+    static NightVisionRenderParams createDefault();
+
+    f32v3 colorHSL;
+    f32 luminanceExponent;
+    f32 luminanceTare;
+    f32 colorAmplification;
+};
+KEG_TYPE_DECL(NightVisionRenderParams);
 
 /// Renders a night vision post-process effect
 class NightVisionRenderStage : public vg::IRenderStage {
@@ -37,6 +49,8 @@ public:
     NightVisionRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad);
     /// Dispose OpenGL resources
     virtual ~NightVisionRenderStage();
+
+    void setParams(NightVisionRenderParams* params);
 
     /// Draws the render stage
     virtual void draw() override;

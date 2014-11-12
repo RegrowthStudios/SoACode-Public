@@ -74,6 +74,20 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
 
     // No post-process effects to begin with
     _nightVisionRenderStage->setIsVisible(false);
+    IOManager iom;
+    const cString nvData = iom.readFileToString("Data/NV.yml");
+    if (nvData) {
+        Array<NightVisionRenderParams> arr;
+        YAML::Node node = YAML::Load(nvData);
+        Keg::Value v = Keg::Value::array(0, Keg::Value::custom("NightVisionRenderParams", 0, false));
+        Keg::evalData((ui8*)&arr, &v, node, Keg::getGlobalEnvironment());
+        for (i32 i = 0; i < arr.length(); i++) {
+            _nvParams.push_back(arr[i]);
+        }
+    }
+    if (_nvParams.size() < 1) {
+        _nvParams.push_back(NightVisionRenderParams::createDefault());
+    }
 }
 
 GamePlayRenderPipeline::~GamePlayRenderPipeline() {
@@ -183,5 +197,16 @@ void GamePlayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
 }
 
 void GamePlayRenderPipeline::toggleNightVision() {
-    _nightVisionRenderStage->setIsVisible(!_nightVisionRenderStage->isVisible());
+    if (!_nightVisionRenderStage->isVisible()) {
+        _nightVisionRenderStage->setIsVisible(true);
+        _nvIndex = 0;
+        _nightVisionRenderStage->setParams(&_nvParams[_nvIndex]);
+    } else {
+        _nvIndex++;
+        if (_nvIndex >= _nvParams.size()) {
+            _nightVisionRenderStage->setIsVisible(false);
+        } else {
+            _nightVisionRenderStage->setParams(&_nvParams[_nvIndex]);
+        }
+    }
 }
