@@ -425,6 +425,7 @@ namespace moodycamel {
             implicitProducerHashResizeInProgress(ATOMIC_FLAG_INIT),
             nextExplicitConsumerId(0),
             globalExplicitConsumerOffset(0) {
+            implicitProducerHashResizeInProgress = {};
             populate_initial_implicit_producer_hash();
             populate_initial_block_list(capacity / BLOCK_SIZE + ((capacity & (BLOCK_SIZE - 1)) == 0 ? 0 : 1));
         }

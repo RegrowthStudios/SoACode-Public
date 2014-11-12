@@ -20,6 +20,7 @@
 
 class Chunk;
 class ChunkGridData;
+class ChunkMeshData;
 
 // Sizes For A Padded Chunk
 const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);

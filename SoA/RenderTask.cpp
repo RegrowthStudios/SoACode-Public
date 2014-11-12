@@ -14,8 +14,7 @@ void RenderTask::execute(WorkerData* workerData) {
             workerData->chunkMesher->createOnlyWaterMesh(this);
             break;
     }
-    chunk->inFinishedMeshes = true;
-    // BEN: Is this even needed?
+    // todo(Ben): Is this even needed?
     chunkMeshData = workerData->chunkMesher->chunkMeshData;
     workerData->chunkMesher->chunkMeshData = nullptr;
 }

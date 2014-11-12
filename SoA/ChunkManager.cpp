@@ -529,7 +529,7 @@ void ChunkManager::processFinishedTasks() {
 
     for (size_t i = 0; i < numTasks; i++) {
         task = taskBuffer[i];
-        
+
         // Postprocessing based on task type
         switch (task->getTaskId()) {
             case RENDER_TASK_ID:
@@ -542,13 +542,14 @@ void ChunkManager::processFinishedTasks() {
                 pError("Unknown thread pool Task!");
                 break;
         }
+        
         delete task;
     }
 }
 
 void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
     Chunk *ch = task->chunk;
-    ch->inFinishedChunks = false;
+
     ch->inGenerateThread = false;
     ch->isAccessible = true;
 
@@ -571,6 +572,9 @@ void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
 
 void ChunkManager::processFinishedRenderTask(RenderTask* task) {
     Chunk* chunk = task->chunk;
+    chunk->ownerTask = nullptr;
+    // Don't do anything if the chunk should be freed
+    if (chunk->freeWaiting) return;
     ChunkMeshData *cmd = task->chunkMeshData;
 
     chunk->inRenderThread = 0;
@@ -632,6 +636,9 @@ void ChunkManager::updateLoadedChunks() {
 
         ch = GameManager::chunkIOManager->finishedLoadChunks[i];
         ch->inLoadThread = 0;
+        ch->ownerTask = nullptr;
+        // Don't do anything if the chunk should be freed
+        if (ch->freeWaiting) continue;
 
         if (!(ch->freeWaiting)) {
             if (ch->loadStatus == 999) { //retry loading it. probably a mistake
@@ -977,37 +984,6 @@ void ChunkManager::clearChunkFromLists(Chunk* chunk) {
     // Remove from any chunk list
     if (chunk->_chunkListPtr != nullptr) {
         chunk->removeFromChunkList();
-    }
-
-    // Remove from finished chunks queue
-    if (chunk->inFinishedChunks) {
-        taskQueueManager.fcLock.lock();
-        for (size_t i = 0; i < taskQueueManager.finishedChunks.size(); i++) {
-            if (taskQueueManager.finishedChunks[i] == chunk) {
-                taskQueueManager.finishedChunks[i] = taskQueueManager.finishedChunks.back();
-                chunk->inFinishedChunks = 0;
-                chunk->inGenerateThread = 0;
-                taskQueueManager.finishedChunks.pop_back();
-                break;
-            }
-        }
-        taskQueueManager.fcLock.unlock();
-    }
-
-    // Remove from finished meshes queue
-    if (chunk->inFinishedMeshes) {
-        taskQueueManager.frLock.lock();
-        for (size_t i = 0; i < taskQueueManager.finishedChunkMeshes.size(); i++) {
-            if (taskQueueManager.finishedChunkMeshes[i]->chunk == chunk) {
-                delete taskQueueManager.finishedChunkMeshes[i];
-                taskQueueManager.finishedChunkMeshes[i] = taskQueueManager.finishedChunkMeshes.back();
-                chunk->inFinishedMeshes = 0;
-                chunk->inRenderThread = 0;
-                taskQueueManager.finishedChunkMeshes.pop_back();
-                break;
-            }
-        }
-        taskQueueManager.frLock.unlock();
     }
 
     // Sever any connections with neighbor chunks

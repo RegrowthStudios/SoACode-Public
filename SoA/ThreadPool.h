@@ -7,6 +7,7 @@
 #include "IThreadPoolTask.h"
 
 class Chunk;
+class ChunkMesher;
 struct LoadData;
 
 #define NUM_WORKER_CONTEXT 20
@@ -41,7 +42,7 @@ public:
     /// Adds a task to the task queue
     /// @param task: The task to add
     void addTask(IThreadPoolTask* task) { 
-        _tasks.enqueue(task);
+    //    _tasks.enqueue(task);
         _cond.notify_one(); 
     }
 
@@ -49,14 +50,14 @@ public:
     /// @param tasks: The array of tasks to add
     /// @param size: The size of the array
     void addTasks(IThreadPoolTask* tasks[], size_t size) { 
-        _tasks.enqueue_bulk(tasks, size);
+    //    _tasks.enqueue_bulk(tasks, size);
         _cond.notify_all(); 
     }
    
     /// Adds a vector of tasks to the task queue
     /// @param tasks: The vector of tasks to add
     void addTasks(std::vector<IThreadPoolTask*> tasks) { 
-        _tasks.enqueue_bulk(tasks.data(), tasks.size());
+    //    _tasks.enqueue_bulk(tasks.data(), tasks.size());
         _cond.notify_all();
     }
     
@@ -65,7 +66,7 @@ public:
     /// @param maxSize: Max tasks to deque
     /// @return: The number of dequeued tasks
     size_t getFinishedTasks(IThreadPoolTask** taskBuffer, size_t maxSize) {
-        return _finishedTasks.try_dequeue_bulk(taskBuffer, maxSize);
+//        return _finishedTasks.try_dequeue_bulk(taskBuffer, maxSize);
     }
 
     /// Checks if the threadpool is finished with all it's work
@@ -77,15 +78,15 @@ public:
 
 private:
     // Typedef for func ptr
-    typedef void(ThreadPool::*workerFunc)();
+    typedef void (ThreadPool::*workerFunc)(WorkerData*);
 
     /// Class definition for worker thread
     class WorkerThread {
     public:
         /// Creates the thread
         /// @param func: The function the thread should execute
-        WorkerThread(workerFunc func) {
-            thread = new std::thread(func, &data);
+        WorkerThread(workerFunc func, ThreadPool* threadPool) {
+            thread = new std::thread(func, threadPool, &data);
         }
 
         /// Joins the worker thread
@@ -100,8 +101,8 @@ private:
     void workerThreadFunc(WorkerData* data);
 
     /// Lock free task queues
-    moodycamel::ConcurrentQueue<IThreadPoolTask*> _tasks; ///< Holds tasks to execute
-    moodycamel::ConcurrentQueue<IThreadPoolTask*> _finishedTasks; ///< Holds finished tasks
+    moodycamel::ConcurrentQueue<int> _tasks; ///< Holds tasks to execute
+   // moodycamel::ConcurrentQueue<IThreadPoolTask*> _finishedTasks; ///< Holds finished tasks
 
     std::mutex _condMutex; ///< Mutex for the conditional variable
     std::condition_variable _cond; ///< Conditional variable that workers block on

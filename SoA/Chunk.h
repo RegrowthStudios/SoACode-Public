@@ -23,6 +23,7 @@ const int MAXLIGHT = 31;
 
 class Block;
 struct PlantData;
+class IThreadPoolTask;
 
 enum LightTypes {LIGHT, SUNLIGHT};
 
@@ -157,9 +158,9 @@ public:
     volatile bool inSaveThread;
     volatile bool inRenderThread;
     volatile bool inGenerateThread;
-    volatile bool inFinishedMeshes;
-    volatile bool inFinishedChunks;
     bool isAccessible;
+
+    IThreadPoolTask* ownerTask; ///< Pointer to task that is working on us
 
     ChunkMesh *mesh;
 

@@ -30,11 +30,17 @@ public:
     /// Checks if this should be stored in a finished tasks queue
     virtual const bool& shouldAddToFinishedTasks() const { return _shouldAddToFinishedTasks; }
 
-    /// Gets the task ID
+    /// Setters
+    void setIsFinished(bool isFinished) { _isFinished = isFinished; }
+    void setShouldAddToFinishedtasks(bool shouldAdd) { _shouldAddToFinishedTasks = shouldAdd; }
+
+    /// Getters
     const i32& getTaskId() const { return _taskId; }
+    const bool& getIsFinished() const { return _isFinished; }
 
 protected:
     i32 _taskId;
+    bool _isFinished = false;
     bool _shouldAddToFinishedTasks = false; ///< SHould it be stored in a finished tasks queue
 };
 

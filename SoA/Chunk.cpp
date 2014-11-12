@@ -45,8 +45,6 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	inLoadThread = 0;
 	inGenerateThread = 0;
 	inRenderThread = 0;
-	inFinishedMeshes = 0;
-	inFinishedChunks = 0;
 	inSaveThread = 0;
 	dirty = 0;
 	//THIS MUST COME BEFORE CLEARBUFFERS
@@ -84,6 +82,7 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	drawWater = 0;
 	occlude = 0;
     owner = Owner;
+    ownerTask = nullptr;
     distance2 = Owner->distance2;
     chunkGridData = owner->chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;

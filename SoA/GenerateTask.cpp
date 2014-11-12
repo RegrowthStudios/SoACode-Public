@@ -6,5 +6,4 @@
 void GenerateTask::execute(WorkerData* workerData) {
     ChunkGenerator::generateChunk(chunk, loadData);
     delete loadData;
-    chunk->inFinishedChunks = true;
 }

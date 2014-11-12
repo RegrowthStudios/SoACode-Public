@@ -4,6 +4,7 @@
 
 #include "Errors.h"
 #include "Chunk.h"
+#include "ChunkMesher.h"
 #include "WorldStructs.h"
 #include "RenderTask.h"
 
@@ -20,11 +21,11 @@ void ThreadPool::clearTasks() {
     IThreadPoolTask* tasks[BATCH_SIZE];
     int size;
     // Grab and kill tasks in batches
-    while ((size = _tasks.try_dequeue_bulk(tasks, BATCH_SIZE))) {
+   /* while ((size = _tasks.try_dequeue_bulk(tasks, BATCH_SIZE))) {
         for (int i = 0; i < size; i++) {
             delete tasks[i];
         }
-    }
+    }*/
 }
 
 void ThreadPool::init(ui32 size) {
@@ -37,7 +38,7 @@ void ThreadPool::init(ui32 size) {
     /// Allocate all threads
     _workers.resize(size);
     for (ui32 i = 0; i < size; i++) {
-        _workers[i] = new WorkerThread(&(this->workerThreadFunc));
+        _workers[i] = new WorkerThread(&ThreadPool::workerThreadFunc, this);
     }
 }
 
@@ -75,7 +76,7 @@ bool ThreadPool::isFinished() {
     // Lock the mutex
     std::lock_guard<std::mutex> lock(_condMutex);
     // Check that the queue is empty
-    if (_tasks.size_approx() != 0) return false;
+   // if (_tasks.size_approx() != 0) return false;
     // Check that all workers are asleep
     for (size_t i = 0; i < _workers.size(); i++) {
         if (_workers[i]->data.waiting == false) {
@@ -90,6 +91,8 @@ void ThreadPool::workerThreadFunc(WorkerData* data) {
     data->stop = false;
     IThreadPoolTask* task;
 
+    data->chunkMesher = new ChunkMesher;
+
     std::unique_lock<std::mutex> lock(_condMutex);
     while (true) {
         // Wait for work
@@ -97,16 +100,19 @@ void ThreadPool::workerThreadFunc(WorkerData* data) {
         _cond.wait(lock);
         lock.unlock();
         // Check for exit
-        if (data->stop) return;
-
-        // Grab a task if one exists
-        if (_tasks.try_dequeue(task)) {
-            task->execute();
-            // Store result if needed
-            if (task->shouldAddToFinishedTasks()) {
-                _finishedTasks.enqueue(task);
-            }
+        if (data->stop) {
+            delete data->chunkMesher;
+            return;
         }
+        // Grab a task if one exists
+        //if (_tasks.try_dequeue(task)) {
+        //    task->execute(data);
+        //    task->setIsFinished(true);
+        //    // Store result if needed
+        //    if (task->shouldAddToFinishedTasks()) {
+        //        _finishedTasks.enqueue(task);
+        //    }
+        //}
 
         // Re-lock the cond mutex so we can go to sleep
         lock.lock();
