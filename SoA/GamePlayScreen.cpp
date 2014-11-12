@@ -187,6 +187,9 @@ void GamePlayScreen::handleInput() {
     if (inputManager->getKeyDown(INPUT_NIGHT_VISION)) {
         _renderPipeline.toggleNightVision();
     }
+    if (inputManager->getKeyDown(INPUT_NIGHT_VISION_RELOAD)) {
+        _renderPipeline.loadNightVision();
+    }
     if (inputManager->getKeyDown(INPUT_GRID)) {
         gridState = !gridState;
     }
