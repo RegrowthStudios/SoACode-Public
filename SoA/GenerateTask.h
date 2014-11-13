@@ -26,6 +26,13 @@ struct LoadData;
 struct GenerateTask : public IThreadPoolTask {
 public:
     GenerateTask() : IThreadPoolTask(true, GENERATE_TASK_ID) { }
+    // Initialize Task With Data
+    GenerateTask(Chunk *ch = 0, LoadData *ld = 0) : IThreadPoolTask(true, GENERATE_TASK_ID) {
+        chunk = ch;
+        loadData = ld;
+    }
+
+
     void execute(WorkerData* workerData) override;
 
     // Chunk To Be Loaded
@@ -34,11 +41,7 @@ public:
     // Loading Information
     LoadData* loadData;
 
-    // Initialize Task With Data
-    GenerateTask(Chunk *ch = 0, LoadData *ld = 0) {
-        chunk = ch;
-        loadData = ld;
-    }
+   
 
 };
 
