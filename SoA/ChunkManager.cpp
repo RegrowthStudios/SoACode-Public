@@ -391,9 +391,8 @@ ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
     return it->second;
 }
 
-void ChunkManager::clearAll() {
+void ChunkManager::destroy() {
    
-
     // Clear the chunk IO thread
     GameManager::chunkIOManager->clear();
 
@@ -430,6 +429,9 @@ void ChunkManager::clearAll() {
     deleteAllChunks();
 
     vector<ChunkSlot>().swap(_chunkSlots[0]);
+
+    std::vector<RenderTask*>().swap(_freeRenderTasks);
+    std::vector<GenerateTask*>().swap(_freeGenerateTasks);
 }
 
 void ChunkManager::saveAllChunks() {

@@ -116,7 +116,7 @@ public:
     ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
     // Clears everything, freeing all memory. Should be called when ending a game
-    void clearAll();
+    void destroy();
 
     // Saves all chunks that are dirty
     void saveAllChunks();
