@@ -43,8 +43,6 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	hasLoadedSunlight = 0;
 	isAccessible = 0;
 	inLoadThread = 0;
-	inGenerateThread = 0;
-	inRenderThread = 0;
 	inSaveThread = 0;
 	dirty = 0;
 	//THIS MUST COME BEFORE CLEARBUFFERS

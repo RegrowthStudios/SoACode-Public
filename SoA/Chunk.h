@@ -14,6 +14,7 @@
 #include "SmartVoxelContainer.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
+#include "Vorb.h"
 #include "VoxelBits.h"
 #include "VoxelLightEngine.h"
 
@@ -23,7 +24,11 @@ const int MAXLIGHT = 31;
 
 class Block;
 struct PlantData;
-class IThreadPoolTask;
+namespace vorb {
+    namespace core {
+        class IThreadPoolTask;
+    }
+}
 
 enum LightTypes {LIGHT, SUNLIGHT};
 
@@ -156,11 +161,9 @@ public:
     int loadStatus;
     volatile bool inLoadThread;
     volatile bool inSaveThread;
-    volatile bool inRenderThread;
-    volatile bool inGenerateThread;
     bool isAccessible;
 
-    IThreadPoolTask* ownerTask; ///< Pointer to task that is working on us
+    vcore::IThreadPoolTask* ownerTask; ///< Pointer to task that is working on us
 
     ChunkMesh *mesh;
 

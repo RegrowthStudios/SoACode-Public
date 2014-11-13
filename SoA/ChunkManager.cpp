@@ -178,7 +178,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     Chunk* ch;
     for (size_t i = 0; i < _threadWaitingChunks.size();) {
         ch = _threadWaitingChunks[i];
-        if (ch->inSaveThread == false && ch->inLoadThread == false && ch->inRenderThread == false && ch->inGenerateThread == false) {
+        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->ownerTask) {
             freeChunk(_threadWaitingChunks[i]);
             _threadWaitingChunks[i] = _threadWaitingChunks.back();
             _threadWaitingChunks.pop_back();
@@ -563,7 +563,6 @@ void ChunkManager::processFinishedTasks() {
 void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
     Chunk *ch = task->chunk;
 
-    ch->inGenerateThread = false;
     ch->isAccessible = true;
 
     if (!(ch->freeWaiting)) {
@@ -590,7 +589,6 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
     if (chunk->freeWaiting) return;
     ChunkMeshData *cmd = task->chunkMeshData;
 
-    chunk->inRenderThread = 0;
     //remove the chunk if it is waiting to be freed
     if (chunk->freeWaiting) {
         cmd->chunkMesh = chunk->mesh;
@@ -853,7 +851,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
 
                 chunk->occlude = 0;
 
-                if (chunk->numNeighbors == 6 && chunk->inRenderThread == 0) {
+                if (chunk->numNeighbors == 6 && !chunk->ownerTask) {
                     
                     // Get a render task
                     if (_freeRenderTasks.size()) {
@@ -869,8 +867,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                         newRenderTask->setChunk(chunk, RenderTaskType::LIQUID);
                     }
                     chunk->SetupMeshData(newRenderTask);
-                    chunk->inRenderThread = true;
-
+                    chunk->ownerTask = newRenderTask;
                     threadPool.addTask(newRenderTask);
 
                     chunk->removeFromChunkList();
@@ -905,8 +902,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
         _generateList.pop_front();
 
-        chunk->isAccessible = false;
-        chunk->inGenerateThread = true;       
+        chunk->isAccessible = false;      
 
         // Get a generate task
         if (_freeGenerateTasks.size()) {
@@ -918,7 +914,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
         // Initialize the task
         generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
-
+        chunk->ownerTask = generateTask;
         // Add the task
         threadPool.addTask(generateTask);
 
@@ -1029,7 +1025,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         }
         // Remove the chunk from any important lists
         clearChunkFromLists(chunk);
-        if (chunk->inSaveThread || chunk->inRenderThread || chunk->inLoadThread || chunk->inGenerateThread) {
+        if (chunk->inSaveThread || chunk->inLoadThread || chunk->ownerTask) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             _threadWaitingChunks.push_back(chunk);
@@ -1179,7 +1175,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 VoxelLightEngine::calculateLight(chunk);
             }
             // Check to see if it needs to be added to the mesh list
-            if (chunk->_chunkListPtr == nullptr && chunk->inRenderThread == false) {
+            if (chunk->_chunkListPtr == nullptr && chunk->ownerTask == false) {
                 switch (chunk->_state) {
                 case ChunkStates::WATERMESH:
                 case ChunkStates::MESH:

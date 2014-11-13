@@ -19,7 +19,7 @@ void RenderTask::execute(vcore::WorkerData* workerData) {
             workerData->chunkMesher->createOnlyWaterMesh(this);
             break;
     }
-    // todo(Ben): Is this even needed?
+    // TODO(Ben): Is this even needed?
     chunkMeshData = workerData->chunkMesher->chunkMeshData;
     workerData->chunkMesher->chunkMeshData = nullptr;
 }
