@@ -33,7 +33,7 @@ enum class MeshJobType { DEFAULT, LIQUID };
 
 // Represents A Mesh Creation Task
 class RenderTask : public IThreadPoolTask {
-public:+
+public:
     RenderTask() : IThreadPoolTask(true, RENDER_TASK_ID) {}
     // Executes the task
     void execute(WorkerData* workerData) override;
