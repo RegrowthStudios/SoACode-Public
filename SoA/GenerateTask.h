@@ -25,7 +25,7 @@ struct LoadData;
 // Represents A Chunk Load Task
 struct GenerateTask : public IThreadPoolTask {
 public:
-    GenerateTask() : IThreadPoolTask(GENERATE_TASK_ID) { }
+    GenerateTask() : IThreadPoolTask(true, GENERATE_TASK_ID) { }
     void execute(WorkerData* workerData) override;
 
     // Chunk To Be Loaded

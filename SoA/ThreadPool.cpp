@@ -21,11 +21,11 @@ void ThreadPool::clearTasks() {
     IThreadPoolTask* tasks[BATCH_SIZE];
     int size;
     // Grab and kill tasks in batches
-   /* while ((size = _tasks.try_dequeue_bulk(tasks, BATCH_SIZE))) {
+    while ((size = _tasks.try_dequeue_bulk(tasks, BATCH_SIZE))) {
         for (int i = 0; i < size; i++) {
             delete tasks[i];
         }
-    }*/
+    }
 }
 
 void ThreadPool::init(ui32 size) {
@@ -76,7 +76,7 @@ bool ThreadPool::isFinished() {
     // Lock the mutex
     std::lock_guard<std::mutex> lock(_condMutex);
     // Check that the queue is empty
-   // if (_tasks.size_approx() != 0) return false;
+    if (_tasks.size_approx() != 0) return false;
     // Check that all workers are asleep
     for (size_t i = 0; i < _workers.size(); i++) {
         if (_workers[i]->data.waiting == false) {
@@ -105,14 +105,17 @@ void ThreadPool::workerThreadFunc(WorkerData* data) {
             return;
         }
         // Grab a task if one exists
-        //if (_tasks.try_dequeue(task)) {
-        //    task->execute(data);
-        //    task->setIsFinished(true);
-        //    // Store result if needed
-        //    if (task->shouldAddToFinishedTasks()) {
-        //        _finishedTasks.enqueue(task);
-        //    }
-        //}
+        std::cout << "TRY\n";
+        if (_tasks.try_dequeue(task)) {
+            std::cout << "DEQ\n";
+            task->execute(data);
+            task->setIsFinished(true);
+            // Store result if needed
+            if (1 || task->shouldAddToFinishedTasks()) {
+                std::cout << "ADD\n";
+                _finishedTasks.enqueue(task);
+            }
+        }
 
         // Re-lock the cond mutex so we can go to sleep
         lock.lock();

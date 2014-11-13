@@ -21,8 +21,13 @@ class IThreadPoolTask {
 public:
     /// Constructor
     /// @param taskId: Optional unique identifier for task type.
-    IThreadPoolTask(i32 taskId = 0) : _taskId(taskId) { /* Empty */ };
-    virtual ~IThreadPoolTask() { /* Empty */ };
+    IThreadPoolTask(bool shouldAddToFinishedTasks = false, i32 taskId = -1) :
+        _shouldAddToFinishedTasks(shouldAddToFinishedTasks),
+        _taskId(taskId) { 
+        /* Empty */ 
+    }
+
+    virtual ~IThreadPoolTask() { /* Empty */ }
 
     /// Executes the task
     virtual void execute(WorkerData* workerData) = 0;
@@ -41,7 +46,7 @@ public:
 protected:
     i32 _taskId;
     bool _isFinished = false;
-    bool _shouldAddToFinishedTasks = false; ///< SHould it be stored in a finished tasks queue
+    bool _shouldAddToFinishedTasks; ///< SHould it be stored in a finished tasks queue
 };
 
 #endif // ThreadPoolTask_h__

@@ -539,7 +539,7 @@ void ChunkManager::processFinishedTasks() {
                 processFinishedGenerateTask(static_cast<GenerateTask*>(task));
                 break;
             default:
-                pError("Unknown thread pool Task!");
+                pError("Unknown thread pool Task! ID = " + to_string(task->getTaskId()));
                 break;
         }
         
