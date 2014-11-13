@@ -534,16 +534,27 @@ void ChunkManager::processFinishedTasks() {
         switch (task->getTaskId()) {
             case RENDER_TASK_ID:
                 processFinishedRenderTask(static_cast<RenderTask*>(task));
+                if (_freeRenderTasks.size() < MAX_CACHED_TASKS) {
+                    // Store the render task so we don't have to call new
+                    _freeRenderTasks.push_back(static_cast<RenderTask*>(task));
+                } else {
+                    delete task;
+                }
                 break;
             case GENERATE_TASK_ID:
                 processFinishedGenerateTask(static_cast<GenerateTask*>(task));
+                if (_freeGenerateTasks.size() < MAX_CACHED_TASKS) {
+                   // Store the generate task so we don't have to call new
+                  _freeGenerateTasks.push_back(static_cast<GenerateTask*>(task));
+                } else {
+                    delete task;
+                }
                 break;
             default:
                 pError("Unknown thread pool Task! ID = " + to_string(task->getTaskId()));
+                delete task;
                 break;
         }
-        
-        delete task;
     }
 }
 
@@ -841,8 +852,14 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                 chunk->occlude = 0;
 
                 if (chunk->numNeighbors == 6 && chunk->inRenderThread == 0) {
-                   
-                    newRenderTask = new RenderTask;
+                    
+                    // Get a render task
+                    if (_freeRenderTasks.size()) {
+                        newRenderTask = _freeRenderTasks.back();
+                        _freeRenderTasks.pop_back();
+                    } else {
+                        newRenderTask = new RenderTask;
+                    }
 
                     if (chunk->_state == ChunkStates::MESH) {
                         newRenderTask->setChunk(chunk, MeshJobType::DEFAULT);
@@ -877,6 +894,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
     Chunk* chunk;
     i32 startX, startZ;
     i32 ip, jp;
+    GenerateTask* generateTask;
 
     while (_generateList.size()) {
         chunk = _generateList.front();
@@ -888,7 +906,19 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         chunk->isAccessible = false;
         chunk->inGenerateThread = true;       
 
-        threadPool.addTask(new GenerateTask(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator)));
+        // Get a generate task
+        if (_freeGenerateTasks.size()) {
+            generateTask = _freeGenerateTasks.back();
+            _freeGenerateTasks.pop_back();
+        } else {
+            generateTask = new GenerateTask;
+        }
+
+        // Initialize the task
+        generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
+
+        // Add the task
+        threadPool.addTask(generateTask);
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }

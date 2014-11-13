@@ -320,6 +320,11 @@ private:
     // Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
 
+    /// Max size of the tasks vectors
+    #define MAX_CACHED_TASKS 50
+    std::vector<RenderTask*> _freeRenderTasks; ///< For recycling render tasks
+    std::vector<GenerateTask*> _freeGenerateTasks; ///< For recycling generateTasks
+
     // Used by cave occlusion
     i32 _poccx, _poccy, _poccz;
 
