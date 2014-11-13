@@ -23,16 +23,16 @@ struct LoadData;
 #define GENERATE_TASK_ID 1
 
 // Represents A Chunk Load Task
-struct GenerateTask : public IThreadPoolTask {
+struct GenerateTask : public vcore::IThreadPoolTask {
 public:
-    GenerateTask() : IThreadPoolTask(true, GENERATE_TASK_ID) { }
+    GenerateTask() : vcore::IThreadPoolTask(true, GENERATE_TASK_ID) {}
 
     void init(Chunk *ch = 0, LoadData *ld = 0) {
         chunk = ch;
         loadData = ld;
     }
 
-    void execute(WorkerData* workerData) override;
+    void execute(vcore::WorkerData* workerData) override;
 
     // Chunk To Be Loaded
     Chunk* chunk;

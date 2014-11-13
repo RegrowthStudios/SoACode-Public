@@ -3,7 +3,7 @@
 #include "ChunkGenerator.h"
 #include "GenerateTask.h"
 
-void GenerateTask::execute(WorkerData* workerData) {
+void GenerateTask::execute(vcore::WorkerData* workerData) {
     ChunkGenerator::generateChunk(chunk, loadData);
     delete loadData;
 }

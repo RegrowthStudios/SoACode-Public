@@ -1,22 +1,21 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
-#include "GenerateTask.h"
 
-#include "Errors.h"
-#include "Chunk.h"
 #include "ChunkMesher.h"
-#include "WorldStructs.h"
+#include "Errors.h"
+#include "GenerateTask.h"
 #include "RenderTask.h"
+#include "WorldStructs.h"
 
-ThreadPool::ThreadPool() {
+vcore::ThreadPool::ThreadPool() {
     // Empty
 }
 
-ThreadPool::~ThreadPool() {
+vcore::ThreadPool::~ThreadPool() {
     destroy();
 }
 
-void ThreadPool::clearTasks() {
+void vcore::ThreadPool::clearTasks() {
     #define BATCH_SIZE 50
     IThreadPoolTask* tasks[BATCH_SIZE];
     int size;
@@ -28,7 +27,7 @@ void ThreadPool::clearTasks() {
     }
 }
 
-void ThreadPool::init(ui32 size) {
+void vcore::ThreadPool::init(ui32 size) {
     // Check if its already initialized
     if (_isInitialized) return;
     _isInitialized = true;
@@ -42,7 +41,7 @@ void ThreadPool::init(ui32 size) {
     }
 }
 
-void ThreadPool::destroy() {
+void vcore::ThreadPool::destroy() {
     if (!_isInitialized) return;
     // Clear all tasks
     clearTasks();
@@ -72,7 +71,7 @@ void ThreadPool::destroy() {
     _isInitialized = false;
 }
 
-bool ThreadPool::isFinished() {
+bool vcore::ThreadPool::isFinished() {
     // Lock the mutex
     std::lock_guard<std::mutex> lock(_condMutex);
     // Check that the queue is empty
@@ -86,11 +85,12 @@ bool ThreadPool::isFinished() {
     return true;
 }
 
-void ThreadPool::workerThreadFunc(WorkerData* data) {
+void vcore::ThreadPool::workerThreadFunc(WorkerData* data) {
     data->waiting = false;
     data->stop = false;
     IThreadPoolTask* task;
 
+    //TODO(Ben): Remove this to make it more general
     data->chunkMesher = new ChunkMesher;
 
     std::unique_lock<std::mutex> lock(_condMutex);

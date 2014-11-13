@@ -5,7 +5,7 @@
 #include "ChunkMesher.h"
 #include "ThreadPool.h"
 
-void RenderTask::execute(WorkerData* workerData) {
+void RenderTask::execute(vcore::WorkerData* workerData) {
     switch (type) {
         case MeshJobType::DEFAULT:
             workerData->chunkMesher->createChunkMesh(this);

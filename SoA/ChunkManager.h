@@ -341,6 +341,6 @@ private:
     vvoxel::VoxelMapData* _cameraVoxelMapData;
 
     // The threadpool for generating chunks and meshes
-    ThreadPool threadPool;
+    vcore::ThreadPool threadPool;
 };
 

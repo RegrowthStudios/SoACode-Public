@@ -32,11 +32,11 @@ enum class MeshJobType { DEFAULT, LIQUID };
 #define RENDER_TASK_ID 0
 
 // Represents A Mesh Creation Task
-class RenderTask : public IThreadPoolTask {
+class RenderTask : public vcore::IThreadPoolTask {
 public:
-    RenderTask() : IThreadPoolTask(true, RENDER_TASK_ID) {}
+    RenderTask() : vcore::IThreadPoolTask(true, RENDER_TASK_ID) {}
     // Executes the task
-    void execute(WorkerData* workerData) override;
+    void execute(vcore::WorkerData* workerData) override;
     // Helper Function To Set The Chunk Data
     void setChunk(Chunk* ch, MeshJobType cType);
 
