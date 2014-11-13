@@ -27,7 +27,7 @@ const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
 const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
 const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
-enum class MeshJobType { DEFAULT, LIQUID };
+enum class RenderTaskType { DEFAULT, LIQUID };
 
 #define RENDER_TASK_ID 0
 
@@ -38,7 +38,7 @@ public:
     // Executes the task
     void execute(vcore::WorkerData* workerData) override;
     // Helper Function To Set The Chunk Data
-    void setChunk(Chunk* ch, MeshJobType cType);
+    void setChunk(Chunk* ch, RenderTaskType cType);
 
     // Notice that the edges of the chunk data are padded. We have to do this because
     // We don't want to have to access neighboring chunks in multiple threads, that requires
@@ -51,7 +51,7 @@ public:
 	i32 wSize;
 	ui16 wvec[CHUNK_SIZE];
 	i32 num;
-    MeshJobType type; 
+    RenderTaskType type; 
 	i32v3 position;
     Chunk* chunk;
     ChunkMeshData* chunkMeshData;

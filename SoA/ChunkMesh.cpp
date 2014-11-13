@@ -44,7 +44,7 @@ ChunkMesh::ChunkMesh(Chunk *ch) : vboID(0),
     position(ch->gridPosition)
 {}
 
-ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), transVertIndex(0), type(MeshJobType::DEFAULT) {
+ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), transVertIndex(0), type(RenderTaskType::DEFAULT) {
 }
 
 ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), transVertIndex(0), type(task->type) {

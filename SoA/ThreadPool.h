@@ -27,7 +27,7 @@ class Chunk;
 class ChunkMesher;
 struct LoadData;
 
-enum class MeshJobType;
+enum class RenderTaskType;
 
 namespace vorb {
     namespace core {
@@ -35,11 +35,12 @@ namespace vorb {
         // Worker data for a threadPool
         class WorkerData {
         public:
+            ~WorkerData() { delete chunkMesher; }
             volatile bool waiting;
             volatile bool stop;
 
             // Each Thread Gets Its Own Mesher
-            ChunkMesher* chunkMesher;
+            ChunkMesher* chunkMesher = nullptr;
         };
 
         class ThreadPool {

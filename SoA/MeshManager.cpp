@@ -127,7 +127,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
     cm->transQuadPositions.swap(cmd->transQuadPositions);
 
     switch (cmd->type) {
-        case MeshJobType::DEFAULT:
+        case RenderTaskType::DEFAULT:
             if (cmd->vertices.size()) {
                 if (cm->vecIndex == UNINITIALIZED_INDEX){
                     cm->vecIndex = _chunkMeshes.size();
@@ -199,7 +199,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
             }
             cm->meshInfo = cmd->meshInfo;
             //The missing break is deliberate!
-        case MeshJobType::LIQUID:
+        case RenderTaskType::LIQUID:
 
             cm->meshInfo.waterIndexSize = cmd->meshInfo.waterIndexSize;
             if (cmd->waterVertices.size()) {

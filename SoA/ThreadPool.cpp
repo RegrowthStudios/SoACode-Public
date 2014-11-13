@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
 
-#include "ChunkMesher.h"
 #include "Errors.h"
 #include "GenerateTask.h"
 #include "RenderTask.h"
@@ -90,9 +89,6 @@ void vcore::ThreadPool::workerThreadFunc(WorkerData* data) {
     data->stop = false;
     IThreadPoolTask* task;
 
-    //TODO(Ben): Remove this to make it more general
-    data->chunkMesher = new ChunkMesher;
-
     std::unique_lock<std::mutex> lock(_condMutex);
     while (true) {
         // Wait for work
@@ -101,7 +97,6 @@ void vcore::ThreadPool::workerThreadFunc(WorkerData* data) {
         lock.unlock();
         // Check for exit
         if (data->stop) {
-            delete data->chunkMesher;
             return;
         }
         // Grab a task if one exists
@@ -111,7 +106,7 @@ void vcore::ThreadPool::workerThreadFunc(WorkerData* data) {
             task->execute(data);
             task->setIsFinished(true);
             // Store result if needed
-            if (1 || task->shouldAddToFinishedTasks()) {
+            if (task->shouldAddToFinishedTasks()) {
                 std::cout << "ADD\n";
                 _finishedTasks.enqueue(task);
             }

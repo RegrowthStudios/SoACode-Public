@@ -609,7 +609,7 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
 
     //Check if we need to allocate a new chunk mesh or orphan the current chunk mesh so that it can be freed in openglManager
     switch (cmd->type) {
-        case MeshJobType::DEFAULT:
+        case RenderTaskType::DEFAULT:
             if (cmd->waterVertices.empty() && cmd->transVertices.empty() && cmd->vertices.empty() && cmd->cutoutVertices.empty()) {
                 chunk->mesh = nullptr;
             } else if (chunk->mesh == nullptr) {
@@ -617,7 +617,7 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
                 cmd->chunkMesh = chunk->mesh;
             }
             break;
-        case MeshJobType::LIQUID:
+        case RenderTaskType::LIQUID:
             if (cmd->waterVertices.empty() && (chunk->mesh == nullptr || (chunk->mesh->vboID == 0 && chunk->mesh->cutoutVboID == 0 && chunk->mesh->transVboID == 0))) {
                 chunk->mesh = nullptr;
             } else if (chunk->mesh == nullptr) {
@@ -864,9 +864,9 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                     }
 
                     if (chunk->_state == ChunkStates::MESH) {
-                        newRenderTask->setChunk(chunk, MeshJobType::DEFAULT);
+                        newRenderTask->setChunk(chunk, RenderTaskType::DEFAULT);
                     } else {
-                        newRenderTask->setChunk(chunk, MeshJobType::LIQUID);
+                        newRenderTask->setChunk(chunk, RenderTaskType::LIQUID);
                     }
                     chunk->SetupMeshData(newRenderTask);
                     chunk->inRenderThread = true;
