@@ -119,6 +119,7 @@
     <ClInclude Include="concurrentqueue.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
+    <ClInclude Include="FixedSizeArrayRecycler.hpp" />
     <ClInclude Include="FullQuadVBO.h" />
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />

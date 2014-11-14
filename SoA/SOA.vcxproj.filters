@@ -632,6 +632,9 @@
     <ClInclude Include="ChunkGridRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="FixedSizeArrayRecycler.hpp">
+      <Filter>SOA Files\Ext\ADT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
