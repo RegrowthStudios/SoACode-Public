@@ -94,7 +94,8 @@ namespace vorb {
 
             /// Getters
             const i32& getSize() const { return _workers.size(); }
-
+            const size_t& getTasksSizeApprox() const { return _tasks.size_approx(); }
+            const size_t& getFinishedTasksSizeApprox() const { return _finishedTasks.size_approx(); }
         private:
             // Typedef for func ptr
             typedef void (ThreadPool::*workerFunc)(WorkerData*);

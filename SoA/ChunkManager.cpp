@@ -154,6 +154,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Sort");
 
+    std::cout << _threadPool.getTasksSizeApprox() << " " << _threadPool.getFinishedTasksSizeApprox() << std::endl;
 
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
         recursiveSortChunkList(_setupList, 0, _setupList.size());
@@ -289,7 +290,7 @@ void ChunkManager::destroy() {
     GameManager::chunkIOManager->clear();
 
     // Destroy the thread pool
-    threadPool.destroy();
+    _threadPool.destroy();
 
     _setupList.clear();
     _generateList.clear();
@@ -405,7 +406,7 @@ void ChunkManager::initializeThreadPool() {
     if (hc > 1) hc--;
 
     // Initialize the threadpool with hc threads
-    threadPool.init(hc);
+    _threadPool.init(hc);
     // Give some time for the threads to spin up
     SDL_Delay(100);
 }
@@ -417,7 +418,7 @@ void ChunkManager::processFinishedTasks() {
     // Stores tasks for bulk deque
     vcore::IThreadPoolTask* taskBuffer[MAX_TASKS];
 
-    size_t numTasks = threadPool.getFinishedTasks(taskBuffer, MAX_TASKS);
+    size_t numTasks = _threadPool.getFinishedTasks(taskBuffer, MAX_TASKS);
 
     vcore::IThreadPoolTask* task;
 
@@ -539,7 +540,7 @@ void ChunkManager::updateLoadedChunks() {
 
         ch = GameManager::chunkIOManager->finishedLoadChunks[i];
         ch->inLoadThread = 0;
-        ch->ownerTask = nullptr;
+        
         // Don't do anything if the chunk should be freed
         if (ch->freeWaiting) continue;
 
@@ -757,7 +758,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                     }
                     chunk->SetupMeshData(newRenderTask);
                     chunk->ownerTask = newRenderTask;
-                    threadPool.addTask(newRenderTask);
+                    _threadPool.addTask(newRenderTask);
 
                     chunk->removeFromChunkList();
                 }
@@ -805,7 +806,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
         chunk->ownerTask = generateTask;
         // Add the task
-        threadPool.addTask(generateTask);
+        _threadPool.addTask(generateTask);
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }
