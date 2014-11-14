@@ -163,7 +163,6 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     }
     k++;
 
-
     globalMultiplePreciseTimer.start("Mesh List");
     updateMeshList(4);
     globalMultiplePreciseTimer.start("Generate List");
@@ -562,7 +561,7 @@ void ChunkManager::processFinishedTasks() {
 
 void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
     Chunk *ch = task->chunk;
-
+    ch->ownerTask = nullptr;
     ch->isAccessible = true;
 
     if (!(ch->freeWaiting)) {
@@ -843,9 +842,6 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
         if (chunk->numNeighbors == 6 && chunk->owner->inFrustum) {     
             VoxelLightEngine::calculateLight(chunk);
             
-            if (chunk->numBlocks < 0) {
-                cout << "CHUNK NUM < 0 == " << chunk->numBlocks << endl;
-            }
             //TODO: BEN, Need to make sure chunk->num is always correct
             if (chunk->numBlocks) { 
 
