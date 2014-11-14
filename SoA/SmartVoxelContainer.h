@@ -102,6 +102,7 @@ namespace vorb {
 
             /// Updates the container. Call once per frame
             inline void update() {
+                // If access count is higher than the threshold, this is not a quiet frame
                 if (_accessCount >= ACCESS_COUNT_UNTIL_DECOMPRESS) {
                     _quietFrames = 0;
                 } else {
@@ -109,6 +110,7 @@ namespace vorb {
                 }
 
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    // Check if we should uncompress the data
                     if (_quietFrames == 0) {
                         _dataArray = _arrayRecycler->create();
                         uncompressIntoBuffer(_dataArray);
@@ -118,10 +120,13 @@ namespace vorb {
                         _state = VoxelStorageState::FLAT_ARRAY;
                     }
                 } else {
+                    // Check if we should compress the data
                     if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
+                        // Sorted array for creating the interval tree
                         std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
                         dataVector.reserve(CHUNK_WIDTH / 2);
                         dataVector.emplace_back(0, 1, _dataArray[0]);
+                        // Set the data
                         for (int i = 1; i < CHUNK_SIZE; i++) {
                             if (_dataArray[i] == dataVector.back().data) {
                                 dataVector.back().length++;
@@ -153,10 +158,14 @@ namespace vorb {
                 }
             }
 
+            /// Uncompressed the interval tree into a buffer.
+            /// May only be called when getState() == VoxelStorageState::INTERVAL_TREE
+            /// or you will get a null access violation.
+            /// @param buffer: Buffer of memory to store the result
             inline void uncompressIntoBuffer(T* buffer) { _dataTree.uncompressIntoBuffer(buffer); }
 
+            /// Getters
             VoxelStorageState getState() { return _state; }
-
             T* getDataArray() { return _dataArray; }
 
         private: 
