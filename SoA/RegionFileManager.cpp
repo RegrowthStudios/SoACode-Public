@@ -620,10 +620,10 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
         }
     }
   
-    chunk->_blockIDContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, blockIDNodes);
-    chunk->_lampLightContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, lampLightNodes);
-    chunk->_sunlightContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, sunlightNodes);
-    chunk->_tertiaryDataContainer.initFromSortedArray(VoxelStorageState::INTERVAL_TREE, tertiaryDataNodes);
+    chunk->_blockIDContainer.initFromSortedArray(vvoxel::VoxelStorageState::INTERVAL_TREE, blockIDNodes);
+    chunk->_lampLightContainer.initFromSortedArray(vvoxel::VoxelStorageState::INTERVAL_TREE, lampLightNodes);
+    chunk->_sunlightContainer.initFromSortedArray(vvoxel::VoxelStorageState::INTERVAL_TREE, sunlightNodes);
+    chunk->_tertiaryDataContainer.initFromSortedArray(vvoxel::VoxelStorageState::INTERVAL_TREE, tertiaryDataNodes);
 
     return true;
 }
@@ -741,25 +741,25 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
 
     //Need to lock so that nobody modifies the interval tree out from under us
     Chunk::modifyLock.lock();
-    if (chunk->_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         blockIDData = _blockIDBuffer;
         chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
     } else {
         blockIDData = chunk->_blockIDContainer.getDataArray();
     }
-    if (chunk->_lampLightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->_lampLightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         lampLightData = _lampLightBuffer;
         chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
     } else {
         lampLightData = chunk->_lampLightContainer.getDataArray();
     }
-    if (chunk->_sunlightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         sunlightData = _sunlightBuffer;
         chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
     } else {
         sunlightData = chunk->_sunlightContainer.getDataArray();
     }
-    if (chunk->_tertiaryDataContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->_tertiaryDataContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         tertiaryData = _tertiaryDataBuffer;
         chunk->_tertiaryDataContainer.uncompressIntoBuffer(tertiaryData);
     } else {

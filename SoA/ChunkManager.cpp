@@ -41,10 +41,18 @@ const f32 skyR = 135.0f / 255.0f, skyG = 206.0f / 255.0f, skyB = 250.0f / 255.0f
 
 const i32 CTERRAIN_PATCH_WIDTH = 5;
 
+#define MAX_VOXEL_ARRAYS_TO_CACHE 200
+#define NUM_SHORT_VOXEL_ARRAYS 3
+#define NUM_BYTE_VOXEL_ARRAYS 1
+
 //TEXTURE TUTORIAL STUFF
 
 //5846 5061
-ChunkManager::ChunkManager() : _isStationary(0), _cameraVoxelMapData(nullptr) {
+ChunkManager::ChunkManager() : 
+    _isStationary(0),
+    _cameraVoxelMapData(nullptr),
+    _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
+    _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS) {
     NoChunkFade = 0;
     planet = NULL;
     _poccx = _poccy = _poccz = -1;
@@ -325,6 +333,9 @@ void ChunkManager::destroy() {
 
     std::vector<RenderTask*>().swap(_freeRenderTasks);
     std::vector<GenerateTask*>().swap(_freeGenerateTasks);
+
+    _shortFixedSizeArrayRecycler.destroy();
+    _byteFixedSizeArrayRecycler.destroy();
 }
 
 void ChunkManager::saveAllChunks() {
@@ -967,7 +978,7 @@ inline Chunk* ChunkManager::produceChunk() {
     }
     _chunkDiagnostics.numCurrentlyAllocated++;
     _chunkDiagnostics.totalAllocated++;
-    return new Chunk();
+    return new Chunk(&_shortFixedSizeArrayRecycler, &_byteFixedSizeArrayRecycler);
 }
 
 void ChunkManager::deleteAllChunks() {

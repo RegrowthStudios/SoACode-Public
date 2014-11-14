@@ -29,10 +29,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
     // Init the containers
-    chunk->_blockIDContainer.init(VoxelStorageState::FLAT_ARRAY);
-    chunk->_lampLightContainer.init(VoxelStorageState::FLAT_ARRAY);
-    chunk->_sunlightContainer.init(VoxelStorageState::FLAT_ARRAY);
-    chunk->_tertiaryDataContainer.init(VoxelStorageState::FLAT_ARRAY);
+    chunk->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+    chunk->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+    chunk->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+    chunk->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
     // Grab the handles to the arrays
     ui16* blockIDArray = chunk->_blockIDContainer._dataArray;
     ui16* lampLightArray = chunk->_lampLightContainer._dataArray;

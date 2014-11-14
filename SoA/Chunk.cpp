@@ -297,7 +297,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
-    if (_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
 
         int s = 0;
         //block data
@@ -331,7 +331,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
         }
         renderTask->wSize = s;
     }
-    if (_lampLightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_lampLightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         //lamp data
         c = 0;
         for (int i = 0; i < _lampLightContainer._dataTree.size(); i++) {
@@ -356,7 +356,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             }
         }
     }
-    if (_sunlightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         //sunlight data
         c = 0;
         for (int i = 0; i < _sunlightContainer._dataTree.size(); i++) {
@@ -381,7 +381,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             }
         }
     }
-    if (_tertiaryDataContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_tertiaryDataContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         //tertiary data
         c = 0;
         for (int i = 0; i < _tertiaryDataContainer._dataTree.size(); i++) {

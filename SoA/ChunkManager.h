@@ -13,10 +13,11 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "GameManager.h"
-#include "ThreadPool.h"
 #include "ChunkIOManager.h"
+#include "FixedSizeArrayRecycler.hpp"
+#include "GameManager.h"
 #include "IVoxelMapper.h"
+#include "ThreadPool.h"
 #include "WorldStructs.h"
 
 const i32 lodStep = 1;
@@ -337,5 +338,8 @@ private:
 
     // The threadpool for generating chunks and meshes
     vcore::ThreadPool _threadPool;
+
+    vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data
+    vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> _byteFixedSizeArrayRecycler; ///< For recycling voxel data
 };
 

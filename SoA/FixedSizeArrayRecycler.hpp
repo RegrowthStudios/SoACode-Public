@@ -16,6 +16,7 @@
 #define FixedSizeArrayRecycler_h__
 
 #include <vector>
+#include <mutex>
 
 namespace vorb {
     namespace core {
@@ -30,20 +31,25 @@ namespace vorb {
 
             /// Frees all arrays
             void destroy() {
+                _lock.lock();
                 for (auto& data : _arrays) {
                     delete[] data;
                 }
                 std::vector<T*>().swap(_arrays);
+                _lock.unlock();
             }
 
             /// Gets an array of type T with size N. May allocate new memory
             /// @return Pointer to the array
             T* create() {
                 T* rv;
-                if (_arrays.size() {
+                _lock.lock();
+                if (_arrays.size()) {
                     rv = _arrays.back();
                     _arrays.pop_back();
+                    _lock.unlock();
                 } else {
+                    _lock.unlock();
                     rv = new T[N];
                 }
                 return rv;
@@ -53,12 +59,16 @@ namespace vorb {
             /// Does not check for double recycles, and does not
             /// check that size is actually N, so be careful.
             /// @param data: The pointer to the array to be recycled.
-            /// must be of size N.
+            /// must be of size N. You should no longer use data after it has
+            /// been recycled, as it may be deleted.
             void recycle(T* data) {
+                _lock.lock();
                 /// Only recycle it if there is room for it
                 if (_arrays.size() < _maxSize) {
                     _arrays.push_back(data);
+                    _lock.unlock();
                 } else {
+                    _lock.unlock();
                     delete[] data;
                 }
             }
@@ -70,6 +80,7 @@ namespace vorb {
         private:
             ui32 _maxSize; ///< Maximum number of arrays to hold
             std::vector<T*> _arrays; ///< Stack of recycled array data
+            std::mutex _lock; ///< mutex for thread safety
         };
     }
 }

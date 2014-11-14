@@ -114,7 +114,16 @@ public:
     void removeFromChunkList();
     void clearChunkListPtr();
 
-    Chunk(){
+    /// Constructor
+    /// @param shortRecycler: Recycler for ui16 data arrays
+    /// @param byteRecycler: Recycler for ui8 data arrays
+    Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 
+          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) : 
+          _blockIDContainer(shortRecycler), 
+          _sunlightContainer(byteRecycler),
+          _lampLightContainer(shortRecycler),
+          _tertiaryDataContainer(shortRecycler) {
+        // Empty
     }
     ~Chunk(){
         clearBuffers();
@@ -215,10 +224,10 @@ private:
     ChunkStates _state;
 
     //The data that defines the voxels
-    SmartVoxelContainer<ui16> _blockIDContainer;
-    SmartVoxelContainer<ui8> _sunlightContainer;
-    SmartVoxelContainer<ui16> _lampLightContainer;
-    SmartVoxelContainer<ui16> _tertiaryDataContainer;
+    vvoxel::SmartVoxelContainer<ui16> _blockIDContainer;
+    vvoxel::SmartVoxelContainer<ui8> _sunlightContainer;
+    vvoxel::SmartVoxelContainer<ui16> _lampLightContainer;
+    vvoxel::SmartVoxelContainer<ui16> _tertiaryDataContainer;
 
     int _levelOfDetail;
 
