@@ -813,6 +813,12 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
             generateTask = new GenerateTask;
         }
 
+        // Init the containers
+        chunk->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+        chunk->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+        chunk->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+        chunk->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+
         // Initialize the task
         generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
         chunk->ownerTask = generateTask;
