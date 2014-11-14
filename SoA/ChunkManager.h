@@ -77,11 +77,6 @@ public:
     // @param chunks: a pointer to a Chunk[8] that will be filled by the function
     void getClosestChunks(f64v3& coord, class Chunk** chunks);
 
-    // Draws the chunk grid. Should be called by the render thread
-    // @param VP: View projection matrix
-    // @param position: camera position
-    void drawChunkLines(const glm::mat4& VP, const f64v3& position);
-
     // Gets the block that is intersecting with a ray
     // @param dir: the ray direction
     // @param pos: the ray start position

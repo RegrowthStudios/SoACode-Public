@@ -170,7 +170,8 @@ void GamePlayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
-                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager);
+                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager,
+                         GameManager::chunkManager->getChunkSlots(0));
 }
 
 void GamePlayScreen::handleInput() {
@@ -189,6 +190,9 @@ void GamePlayScreen::handleInput() {
     }
     if (inputManager->getKeyDown(INPUT_GRID)) {
         gridState = !gridState;
+    }
+    if (inputManager->getKeyDown(INPUT_GRID)) {
+        _renderPipeline.toggleChunkGrid();
     }
     if (inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)) {
         // Free atlas

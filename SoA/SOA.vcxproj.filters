@@ -629,6 +629,9 @@
     <ClInclude Include="GenerateTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkGridRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1017,6 +1020,9 @@
     </ClCompile>
     <ClCompile Include="GenerateTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkGridRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -114,6 +114,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="BlockTextureMethods.h" />
+    <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="concurrentqueue.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
@@ -283,6 +284,7 @@
   <ItemGroup>
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
+    <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
