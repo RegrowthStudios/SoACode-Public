@@ -15,55 +15,65 @@
 #ifndef FixedSizeArrayRecycler_h__
 #define FixedSizeArrayRecycler_h__
 
-template<int N, typename T>
-class FixedSizeArrayRecylcer {
-public:
-    /// Constructor
-    /// @param maxSize: The maximum number of arrays to hold at any time.
-    FixedSizeArrayRecycler(ui32 maxSize) : _maxSize(maxSize) { /* Empty */ }
-    ~FixedSizeArrayRecylcer() { destroy(); }
+#include <vector>
 
-    /// Frees all arrays
-    void destroy() {
-        for (auto& array : _arrays) {
-            delete[] array;
-        }
-        std::vector<T*>().swap(_arrays);
+namespace vorb {
+    namespace core {
+
+        template<int N, typename T>
+        class FixedSizeArrayRecycler {
+        public:
+            /// Constructor
+            /// @param maxSize: The maximum number of arrays to hold at any time.
+            FixedSizeArrayRecycler(ui32 maxSize) : _maxSize(maxSize) { /* Empty */ }
+            ~FixedSizeArrayRecycler() { destroy(); }
+
+            /// Frees all arrays
+            void destroy() {
+                for (auto& data : _arrays) {
+                    delete[] data;
+                }
+                std::vector<T*>().swap(_arrays);
+            }
+
+            /// Gets an array of type T with size N. May allocate new memory
+            /// @return Pointer to the array
+            T* create() {
+                T* rv;
+                if (_arrays.size() {
+                    rv = _arrays.back();
+                    _arrays.pop_back();
+                } else {
+                    rv = new T[N];
+                }
+                return rv;
+            }
+
+            /// Recycles an array of type T with size N.
+            /// Does not check for double recycles, and does not
+            /// check that size is actually N, so be careful.
+            /// @param data: The pointer to the array to be recycled.
+            /// must be of size N.
+            void recycle(T* data) {
+                /// Only recycle it if there is room for it
+                if (_arrays.size() < _maxSize) {
+                    _arrays.push_back(data);
+                } else {
+                    delete[] data;
+                }
+            }
+
+            /// getters
+            const size_t& getSize() const { return _arrays.size(); }
+            int getArraySize() const { return N; }
+            int getElementSize() const { return sizeof(T); }
+        private:
+            ui32 _maxSize; ///< Maximum number of arrays to hold
+            std::vector<T*> _arrays; ///< Stack of recycled array data
+        };
     }
-
-    /// Gets an array of type T with size N. May allocate new memory
-    /// @return Pointer to the array
-    T* create() {
-        T* rv;
-        if (_arrays.size() {
-            rv = _arrays.back();
-            _arrays.pop_back();
-        } else {
-            rv = new T[N];
-        }
-        return rv;
-    }
-
-    /// Recycles an array of type T with size N.
-    /// Does not check for double recycles, and does not
-    /// check that size is actually N, so be careful.
-    /// @param array: The pointer to the array to be recycled.
-    /// must be of size N.
-    void recycle(T* array) {
-        /// Only recycle it if there is room for it
-        if (_arrays.size() < _maxSize) {
-            _arrays.push_back(array);
-        } else {
-            delete[] array;
-        }
-    }
-
-    /// getters
-    const size_t& getSize() const { return _arrays.size(); }
-private:
-    ui32 _maxSize; ///< Maximum number of arrays to hold
-    // Stack of arrays
-    std::vector<T*> _arrays;
-};
+}
+// Namespace Alias
+namespace vcore = vorb::core;
 
 #endif // FixedSizeArrayRecycler_h__

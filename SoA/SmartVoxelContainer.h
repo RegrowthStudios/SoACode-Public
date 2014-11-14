@@ -1,122 +1,177 @@
+///
+/// SmartVoxelContainer.h
+/// Vorb Engine
+///
+/// Created by Benjamin Arnold on 14 Nov 2014
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// 
+///
+
+#pragma once
+
+#ifndef SmartVoxelContainer_h__
+#define SmartVoxelContainer_h__
+
 #include "VoxelIntervalTree.h"
 #include "Constants.h"
 
-enum class VoxelStorageState { FLAT_ARRAY, INTERVAL_TREE };
+#include "FixedSizeArrayRecycler.hpp"
 
-template <typename T>
-class SmartVoxelContainer {
-public:
+namespace vorb {
+    namespace voxel {
 
-    friend class Chunk;
+        enum class VoxelStorageState { FLAT_ARRAY, INTERVAL_TREE };
 
-    SmartVoxelContainer() : _dataArray(nullptr), _accessCount(0), _quietFrames(0), _state(VoxelStorageState::FLAT_ARRAY) {}
+        template <typename T>
+        class SmartVoxelContainer {
+        public:
 
-    inline T get(ui16 index) const {
-       // _accessCount++;
-        if (_state == VoxelStorageState::INTERVAL_TREE) {
-            return _dataTree.getData(index);
-        } else { //_state == FLAT_ARRAY
-            return _dataArray[index];
-        }
-    }
+            friend class Chunk;
 
-    inline void set(ui16 index, T value) {
-        _accessCount++;
-        if (_state == VoxelStorageState::INTERVAL_TREE) {
-            _dataTree.insert(index, value);
-        } else { //_state == FLAT_ARRAY
-            _dataArray[index] = value;
-        }
-    }
+            /// Constructor
+            /// @param arrayRecycler: Pointer to a recycler. Template parameters must be
+            /// <CHUNK_SIZE, T>
+            SmartVoxelContainer(vcore::FixedSizeArrayRecycler* arrayRecycler) :
+                _dataArray(nullptr), _accessCount(0), _quietFrames(0),
+                _state(VoxelStorageState::FLAT_ARRAY), _arrayRecycler(arrayRecycler) {
+                // Make sure the size is correct
+                assert(_arrayRecycler->getArraySize() == CHUNK_SIZE);
+                // Make sure the type is correct
+                assert(_arrayRecycler->getElementSize() == sizeof(T));
+            }
 
-    inline void init(VoxelStorageState state) {
-        _state = state;
-        if (_state == VoxelStorageState::FLAT_ARRAY) {
-            _dataArray = new T[CHUNK_SIZE];
-        }
-    }
-
-    //Creates the tree using a sorted array of data. The number of voxels should add up to 32768
-    inline void initFromSortedArray(VoxelStorageState state, const std::vector <typename VoxelIntervalTree<T>::LightweightNode>& data) {
-        _state = state;
-        _accessCount = 0;
-        _quietFrames = 0;
-        if (_state == VoxelStorageState::INTERVAL_TREE) {
-            _dataTree.createFromSortedArray(data);
-        } else {
-            _dataArray = new T[CHUNK_SIZE];
-            int index = 0;
-            for (int i = 0; i < data.size(); i++) {
-                for (int j = 0; j < data[i].length; j++) {
-                    _dataArray[index++] = data[i].data;
+            /// Gets the element at index
+            /// @param index: must be (0, CHUNK_SIZE]
+            /// @return The element
+            inline T get(ui16 index) const {
+                // _accessCount++;
+                if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    return _dataTree.getData(index);
+                } else { //_state == FLAT_ARRAY
+                    return _dataArray[index];
                 }
             }
-        }
-    }
 
-#define QUIET_FRAMES_UNTIL_COMPRESS 60
-#define ACCESS_COUNT_UNTIL_DECOMPRESS 5
-
-    inline void update() {
-        if (_accessCount >= ACCESS_COUNT_UNTIL_DECOMPRESS) {
-            _quietFrames = 0;
-        } else {
-            _quietFrames++;
-        }
-
-        if (_state == VoxelStorageState::INTERVAL_TREE) {
-            if (_quietFrames == 0) {
-                _dataArray = new T[CHUNK_SIZE];
-                uncompressIntoBuffer(_dataArray);
-                // Free memory
-                _dataTree.clear();
-                // Set the new state
-                _state = VoxelStorageState::FLAT_ARRAY;
+            /// Sets the element at index
+            /// @param index: must be (0, CHUNK_SIZE]
+            /// @param value: The value to set at index
+            inline void set(ui16 index, T value) {
+                _accessCount++;
+                if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    _dataTree.insert(index, value);
+                } else { //_state == FLAT_ARRAY
+                    _dataArray[index] = value;
+                }
             }
-        } else {
-            if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
-                std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
-                dataVector.reserve(CHUNK_WIDTH / 2);
-                dataVector.emplace_back(0, 1, _dataArray[0]);
-                for (int i = 1; i < CHUNK_SIZE; i++) {
-                    if (_dataArray[i] == dataVector.back().data) {
-                        dataVector.back().length++;
-                    } else {
-                        dataVector.emplace_back(i, 1, _dataArray[i]);
+
+            /// Initializes the container
+            inline void init(VoxelStorageState state) {
+                _state = state;
+                if (_state == VoxelStorageState::FLAT_ARRAY) {
+                    _dataArray = _arrayRecycler->create();
+                }
+            }
+
+            /// Creates the tree using a sorted array of data. 
+            /// The number of voxels should add up to CHUNK_SIZE
+            /// @param state: Initial state of the container
+            /// @param data: The sorted array used to populate the container
+            inline void initFromSortedArray(VoxelStorageState state, 
+                                            const std::vector <typename VoxelIntervalTree<T>::LightweightNode>& data) {
+                _state = state;
+                _accessCount = 0;
+                _quietFrames = 0;
+                if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    _dataTree.createFromSortedArray(data);
+                } else {
+                    _dataArray = _arrayRecycler->create();
+                    int index = 0;
+                    for (int i = 0; i < data.size(); i++) {
+                        for (int j = 0; j < data[i].length; j++) {
+                            _dataArray[index++] = data[i].data;
+                        }
                     }
                 }
-                // Free memory
-                delete[] _dataArray;
-                _dataArray = nullptr;
-                // Set new state
-                _state = VoxelStorageState::INTERVAL_TREE;
-                // Create the tree
-                _dataTree.createFromSortedArray(dataVector);
             }
-        }
-        _accessCount = 0;
+
+            #define QUIET_FRAMES_UNTIL_COMPRESS 60
+            #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
+
+            /// Updates the container. Call once per frame
+            inline void update() {
+                if (_accessCount >= ACCESS_COUNT_UNTIL_DECOMPRESS) {
+                    _quietFrames = 0;
+                } else {
+                    _quietFrames++;
+                }
+
+                if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    if (_quietFrames == 0) {
+                        _dataArray = _arrayRecycler->create();
+                        uncompressIntoBuffer(_dataArray);
+                        // Free memory
+                        _dataTree.clear();
+                        // Set the new state
+                        _state = VoxelStorageState::FLAT_ARRAY;
+                    }
+                } else {
+                    if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
+                        std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
+                        dataVector.reserve(CHUNK_WIDTH / 2);
+                        dataVector.emplace_back(0, 1, _dataArray[0]);
+                        for (int i = 1; i < CHUNK_SIZE; i++) {
+                            if (_dataArray[i] == dataVector.back().data) {
+                                dataVector.back().length++;
+                            } else {
+                                dataVector.emplace_back(i, 1, _dataArray[i]);
+                            }
+                        }
+                        // Recycle memory
+                        _arrayRecycler->recycle(_dataArray);
+                        _dataArray = nullptr;
+                        // Set new state
+                        _state = VoxelStorageState::INTERVAL_TREE;
+                        // Create the tree
+                        _dataTree.createFromSortedArray(dataVector);
+                    }
+                }
+                _accessCount = 0;
+            }
+
+            /// Clears the container and frees memory
+            inline void clear() {
+                _accessCount = 0;
+                _quietFrames = 0;
+                if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    _dataTree.clear();
+                } else {
+                    _arrayRecycler->recycle(_dataArray);
+                    _dataArray = nullptr;
+                }
+            }
+
+            inline void uncompressIntoBuffer(T* buffer) { _dataTree.uncompressIntoBuffer(buffer); }
+
+            VoxelStorageState getState() { return _state; }
+
+            T* getDataArray() { return _dataArray; }
+
+        private: 
+            VoxelIntervalTree<T> _dataTree; ///< Interval tree of voxel data
+            T* _dataArray; ///< pointer to an array of voxel data
+            int _accessCount; ///< Number of times the container was accessed this frame
+            int _quietFrames; ///< Number of frames since we have had heavy updates
+
+            VoxelStorageState _state; ///< Current data structure state
+
+            vcore::FixedSizeArrayRecycler* _arrayRecycler; ///< For recycling the voxel arrays
+        };
     }
+}
+// Namespace Alias
+namespace vvoxel = vorb::voxel;
 
-    inline void clear() {
-        if (_state == VoxelStorageState::INTERVAL_TREE) {
-            _dataTree.clear();
-        } else {
-            delete[] _dataArray;
-            _dataArray = nullptr;
-        }
-    }
-
-    inline void uncompressIntoBuffer(T* buffer) { _dataTree.uncompressIntoBuffer(buffer); }
-
-    VoxelStorageState getState() { return _state; }
-
-    T* getDataArray() { return _dataArray; }
-
-public: //TEMP SHOULD BE PRIVATE
-     VoxelIntervalTree<T> _dataTree;
-    T* _dataArray;
-    int _accessCount; ///< Number of times the container was accessed this frame
-    int _quietFrames; ///< Number of frames since we have had heavy updates
-
-    VoxelStorageState _state;
-};
+#endif // SmartVoxelContainer_h__
