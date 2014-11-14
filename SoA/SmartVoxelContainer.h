@@ -134,6 +134,7 @@ namespace vorb {
                         // Recycle memory
                         _arrayRecycler->recycle(_dataArray);
                         _dataArray = nullptr;
+                        
                         // Set new state
                         _state = VoxelStorageState::INTERVAL_TREE;
                         // Create the tree
@@ -149,7 +150,7 @@ namespace vorb {
                 _quietFrames = 0;
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     _dataTree.clear();
-                } else {
+                } else if (_dataArray) {
                     _arrayRecycler->recycle(_dataArray);
                     _dataArray = nullptr;
                 }
