@@ -100,14 +100,13 @@ void vcore::ThreadPool::workerThreadFunc(WorkerData* data) {
             return;
         }
         // Grab a task if one exists
-        std::cout << "TRY\n";
+
         if (_tasks.try_dequeue(task)) {
-            std::cout << "DEQ\n";
+
             task->execute(data);
             task->setIsFinished(true);
             // Store result if needed
             if (task->shouldAddToFinishedTasks()) {
-                std::cout << "ADD\n";
                 _finishedTasks.enqueue(task);
             }
         }

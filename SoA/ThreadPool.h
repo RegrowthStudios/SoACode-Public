@@ -62,7 +62,6 @@ namespace vorb {
             /// @param task: The task to add
             void addTask(IThreadPoolTask* task) {
                 _tasks.enqueue(task);
-                std::cout << task->getTaskId() << std::endl;
                 _cond.notify_one();
             }
 
