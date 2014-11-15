@@ -162,8 +162,6 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Sort");
 
-    std::cout << _threadPool.getTasksSizeApprox() << " " << _threadPool.getFinishedTasksSizeApprox() << std::endl;
-
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
         recursiveSortChunkList(_setupList, 0, _setupList.size());
         recursiveSortChunkList(_meshList, 0, _meshList.size());

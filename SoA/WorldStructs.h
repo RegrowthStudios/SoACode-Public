@@ -141,7 +141,7 @@ struct HeightData
     GLint sandDepth;
     GLint flags;
     GLubyte depth;
-    Biome *biome;
+    Biome *biome = nullptr;
     GLushort surfaceBlock;
 };
 
