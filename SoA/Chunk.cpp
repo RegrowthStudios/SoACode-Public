@@ -83,7 +83,6 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
     distance2 = owner->distance2;
     chunkGridData = owner->chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;
-    deb = 4;
 }
 
 vector <Chunk*> *dbgst;
@@ -93,7 +92,6 @@ void Chunk::clear(bool clearDraw)
     clearBuffers();
     freeWaiting = false;
     voxelMapData = nullptr;
-    deb = 99;
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();

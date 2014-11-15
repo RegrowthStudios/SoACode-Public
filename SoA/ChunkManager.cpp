@@ -834,14 +834,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
     while (_generateList.size()) {
         chunk = _generateList.front();
-        if (chunk->voxelMapData == nullptr) {
-            std::cout << chunk->deb << std::endl;
-            std::cout << "HERE";
-        }
-        if (chunk->deb != 4) {
-            std::cout << chunk->deb << std::endl;
-            std::cout << "HERE";
-        }
+
         _generateList.pop_front();
         chunk->clearChunkListPtr();
 
@@ -873,9 +866,6 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
         chunk->lastOwnerTask = generateTask;
         // Add the task
-        if (chunk->voxelMapData == nullptr) {
-            std::cout << "MAP DATA NULL";
-        }
         _threadPool.addTask(generateTask);
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
@@ -1067,10 +1057,6 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
         cs->calculateDistance2(intPosition);
         chunk = cs->chunk;
-        if (chunk->deb != 4) {
-            std::cout << chunk->deb << std::endl;
-            std::cout << "UH OH";
-        }
         if (chunk->_state > ChunkStates::TREES) {
             chunk->updateContainers();
         }

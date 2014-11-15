@@ -175,8 +175,6 @@ public:
 
     ChunkMesh *mesh;
 
-    int deb = 4;
-
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
     std::vector <GLushort> spawnerBlocks;
