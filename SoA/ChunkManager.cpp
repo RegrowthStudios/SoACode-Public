@@ -750,7 +750,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
 
                 chunk->occlude = 0;
 
-                if (chunk->numNeighbors == 6 && !chunk->ownerTask) {
+                if (chunk->numNeighbors == 6) {
                     
                     // Get a render task
                     if (_freeRenderTasks.size()) {
@@ -770,6 +770,8 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                     _threadPool.addTask(newRenderTask);
 
                     chunk->removeFromChunkList();
+
+                    chunk->_state = ChunkStates::DRAW;
                 }
             } else {
                 chunk->clearBuffers();

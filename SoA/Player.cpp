@@ -62,8 +62,7 @@ Player::Player() : scannedBlock(0),
                     _friction(0.006f),
                     isDragBreak(0),
                     dragBlock(NULL),
-                    voxelMapData(0,0,0,0)
-{
+                    voxelMapData(0,0,0,0) {
 
     velocity.x = 0;
     velocity.y = 0;
