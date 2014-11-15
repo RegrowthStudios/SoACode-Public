@@ -290,15 +290,20 @@ void MeshManager::updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm) {
             _physicsBlockMeshes.push_back(pbm);
         }
     } else if (pbmm->posLight.size() != 0){
+        
+        if (pbm->positionLightBufferID == 0) {
+            glGenBuffers(1, &pbm->positionLightBufferID);
+        }
+
+        if (pbm->vaoID == 0) {
+            pbm->createVao(GameManager::glProgramManager->getProgram("PhysicsBlock"));
+        }
 
         pbm->bX = pbmm->bX;
         pbm->bY = pbmm->bY;
         pbm->bZ = pbmm->bZ;
         pbm->numBlocks = pbmm->numBlocks;
 
-        if (pbm->positionLightBufferID == 0){
-            glGenBuffers(1, &pbm->positionLightBufferID);
-        }
         glBindBuffer(GL_ARRAY_BUFFER, pbm->positionLightBufferID);
         glBufferData(GL_ARRAY_BUFFER, pbmm->posLight.size() * sizeof(PhysicsBlockPosLight), NULL, GL_STREAM_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, pbmm->posLight.size() * sizeof(PhysicsBlockPosLight), &(pbmm->posLight[0]));
@@ -312,6 +317,9 @@ void MeshManager::updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm) {
             _physicsBlockMeshes[pbm->vecIndex] = _physicsBlockMeshes.back();
             _physicsBlockMeshes[pbm->vecIndex]->vecIndex = pbm->vecIndex;
             _physicsBlockMeshes.pop_back();
+        }
+        if (pbm->vaoID != 0) {
+            glDeleteBuffers(1, &pbm->vaoID);
         }
         if (pbm->vboID != 0){
             glDeleteBuffers(1, &pbm->vboID);

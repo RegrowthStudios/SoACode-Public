@@ -62,6 +62,13 @@ public:
     friend class RegionFileManager;
 
     void init(const i32v3 &gridPos, ChunkSlot* Owner);
+
+    void updateContainers() {
+        _blockIDContainer.update();
+        _sunlightContainer.update();
+        _lampLightContainer.update();
+        _tertiaryDataContainer.update();
+    }
     
     void changeState(ChunkStates State);
     

@@ -6,7 +6,7 @@
 #include "Texture2d.h"
 #include "Timing.h"
 
-extern MultiplePreciseTimer globalMultiplePreciseTimer;
+extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
@@ -178,7 +178,7 @@ struct BillboardVertex
 
 struct PhysicsBlockPosLight
 {
-    GLfloat pos[3]; //12
+    f32v3 pos; //12
     ColorRGB8 color; //15
     GLubyte pad1; //16
     ColorRGB8 overlayColor; //19
