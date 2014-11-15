@@ -8,6 +8,7 @@
 #include "Keg.h"
 #include "Rendering.h"
 #include "ChunkMesh.h"
+#include "BlockTextureMethods.h"
 
 #define VISITED_NODE 3945
 #define LOWWATER 3946
@@ -50,7 +51,24 @@ enum class ConnectedTextureReducedMethod {
 };
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
-struct BlockTextureLayer {
+enum PhysicsProperties {
+    P_NONE,
+    P_SOLID,
+    P_LIQUID, 
+    P_POWDER,
+    P_SNOW
+};
+KEG_ENUM_DECL(PhysicsProperties);
+
+enum class BlockOcclusion {
+    NONE,
+    ALL,
+    SELF
+};
+KEG_ENUM_DECL(BlockOcclusion);
+
+class BlockTextureLayer {
+public:
     // Set defaults in constructor for no .tex file
     BlockTextureLayer() : 
         method(ConnectedTextureMethods::NONE),
@@ -59,20 +77,62 @@ struct BlockTextureLayer {
         reducedMethod(ConnectedTextureReducedMethod::NONE),
         useMapColor(""),
         colorMapIndex(0),
+        floraHeight(0),
         totalWeight(0),
         numTiles(1),
         textureIndex(0),
         innerSeams(false),
         transparency(false),
-        path("") {
+        path(""),
+        blockTextureFunc(BlockTextureMethods::getDefaultTextureIndex) {
         // Empty
     }
+
+    static ui32 getFloraRows(ui32 floraMaxHeight) {
+        return (floraMaxHeight * floraMaxHeight + floraMaxHeight) / 2;
+    }
+
+    // Sets the texture funct based on the method
+    // needs to have the method
+    void initBlockTextureFunc() {
+        switch (method) {
+            case ConnectedTextureMethods::CONNECTED:
+                blockTextureFunc = BlockTextureMethods::getConnectedTextureIndex;
+                break;
+            case ConnectedTextureMethods::RANDOM:
+                blockTextureFunc = BlockTextureMethods::getRandomTextureIndex;
+                break;
+            case ConnectedTextureMethods::GRASS:
+                blockTextureFunc = BlockTextureMethods::getGrassTextureIndex;
+                break;
+            case ConnectedTextureMethods::HORIZONTAL:
+                blockTextureFunc = BlockTextureMethods::getHorizontalTextureIndex;
+                break;
+            case ConnectedTextureMethods::VERTICAL:
+                blockTextureFunc = BlockTextureMethods::getVerticalTextureIndex;
+                break;
+            case ConnectedTextureMethods::FLORA:
+                blockTextureFunc = BlockTextureMethods::getFloraTextureIndex;
+                break;
+            default:
+                break;
+        }
+    }
+
+    i32 getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8 color) const {
+        i32 index = textureIndex;
+        params.set(this, color);
+        blockTextureFunc(params, index);
+        return index;
+    }
+
     ConnectedTextureMethods method;
     i32v2 size;
     ConnectedTextureSymmetry symmetry;
     ConnectedTextureReducedMethod reducedMethod;
     nString useMapColor;
     ui32 colorMapIndex;
+    ui32 floraHeight;
     Array<i32> weights;
     i32 totalWeight;
     i32 numTiles;
@@ -80,6 +140,7 @@ struct BlockTextureLayer {
     bool innerSeams;
     bool transparency;
     nString path;
+    BlockTextureFunc blockTextureFunc;
 
     /// "less than" operator for inserting into sets in TexturePackLoader
     bool operator<(const BlockTextureLayer& b) const;
@@ -135,7 +196,7 @@ enum BlocksStones { SANDSTONE = 64, SHALE, LIMESTONE, GRAVEL, BASALT, SLATE, GNE
 enum BlockTextures1{ T_DIRT, T_DIRTGRASS, T_GRASS, T_STONE , T_WATER, T_SAND, T_WOOD, T_SNOW = 12, T_ICE = 13, T_REDSAND = 21};
 
 const int physStart = 2;
-enum PhysicsProperties {P_NONE, P_SOLID, P_LIQUID, P_POWDER, P_SNOW};
+
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
 
 enum Explosives { TNT = 112, NITRO, C4 };
@@ -210,14 +271,15 @@ public:
     ui16 ID;
     ui16 burnTransformID;
     i16 waveEffect;
-    ui16 lightColor;
-    i16 physicsProperty;
+    ui16 lightColorPacked; /// 5 bit RGB light color packed into a ui16
     i16 waterMeshLevel;
     i16 floatingAction;
-    i16 occlude;
     ui16 spawnerVal;
     ui16 sinkVal;
     ui16 explosionRays;
+    ui16 floraHeight = 0;
+
+    BlockOcclusion occlude;
 
     MeshType meshType;
 
@@ -225,23 +287,25 @@ public:
     GLfloat explosionResistance;
     GLfloat explosivePower;
     GLfloat flammability;
-    GLfloat powerLoss;
+    GLfloat explosionPowerLoss;
     f32v3 colorFilter;
+
+    PhysicsProperties physicsProperty;
 
     ColorRGB8 color;
     ColorRGB8 overlayColor;
     ColorRGB8 averageColor;
+    ColorRGB8 lightColor;
     ui8 particleTex;
-    ui8 powderMove;
-    ui8 collide;
-    ui8 waterBreak;
-    ui8 isLight;
-    ui8 blockLight;
-    ui8 useable;
-    ui8 allowLight;
-    ui8 isCrushable;
-    ui8 isSupportive;
-    ui8 active;
+    bool powderMove;
+    bool collide;
+    bool waterBreak;
+    bool blockLight;
+    bool useable;
+    bool allowLight;
+    bool isCrushable;
+    bool isSupportive;
+    bool active;
 
     BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures

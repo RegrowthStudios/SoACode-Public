@@ -181,3 +181,7 @@ desktop.ini
 
 # Python files
 *.pyc
+
+# A Folder To Put Personal Stuff
+Mine/
+

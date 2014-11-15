@@ -3,11 +3,11 @@
 #include "BlockData.h"
 #include "ChunkMesh.h"
 
-class RenderTask;
+struct RenderTask;
 class Chunk;
 struct ChunkMeshData;
 struct BlockTexture;
-struct BlockTextureLayer;
+class BlockTextureLayer;
 
 
 // each worker thread gets one of these
@@ -31,15 +31,6 @@ private:
     void mergeLeftVerts(MesherInfo& mi);
     void mergeBottomVerts(MesherInfo& mi);
 
-    
-    void getTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ColorRGB8& color);
-    void getRandomTextureIndex(const MesherInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
-    void getConnectedTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
-    void getGrassTextureIndex(const MesherInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ColorRGB8& color);
-    void getVerticalTextureIndex(const MesherInfo &mi, int& result, ConnectedTextureReducedMethod rm, int upDir, unsigned int offset);
-    void getHorizontalTextureIndex(const MesherInfo &mi, int& result, bool innerSeams, int rightDir, int frontDir, unsigned int offset);
-
-
     void addBlockToMesh(MesherInfo& mi);
     void addFloraToMesh(MesherInfo& mi);
     void addLiquidToMesh(MesherInfo& mi);
@@ -47,7 +38,7 @@ private:
     void bindVBOIndicesID();
 
     void GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLights[26][3], GLbyte sunlights[26], GLushort* chData, ui8* chSunData, ui16 *chLampData, bool faces[6]);
-    bool checkBlockFaces(bool faces[6], ui8 lampLights[26][3], sbyte sunlights[26], const RenderTask* task, const bool occlude, const i32 btype, const i32 wc);
+    bool checkBlockFaces(bool faces[6], ui8 lampLights[26][3], sbyte sunlights[26], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
     void calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj);
 
@@ -84,9 +75,10 @@ private:
     ui8 lodSunData[18 * 18 * 18];
 
     //Pointers to the voxel data array that is currently in use
-    ui16* blockIDData;
-    ui16* lampLightData;
-    ui8* sunlightData;
+    ui16* _blockIDData;
+    ui16* _lampLightData;
+    ui8* _sunlightData;
+    ui16* _tertiaryData;
 
     ui32 _finalQuads[7000];
 

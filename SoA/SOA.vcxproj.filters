@@ -119,6 +119,12 @@
     </Filter>
     <Filter Include="SOA Files\Ext\Event">
       <UniqueIdentifier>{41ca9f3d-3814-46f9-b207-165cdc5d2041}</UniqueIdentifier>
+	</Filter>
+    <Filter Include="SOA Files\Rendering\RenderPipelines">
+      <UniqueIdentifier>{09cebf8a-9329-4dea-aac4-4d56d9dd2f37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Rendering\RenderPipelines\RenderStages">
+      <UniqueIdentifier>{ed09a071-ec97-4fd2-922b-f2c36eba05dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -215,9 +221,6 @@
     <ClInclude Include="FragFile.h">
       <Filter>SOA Files\Data\IO Utils</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -226,9 +229,6 @@
     </ClInclude>
     <ClInclude Include="GeometrySorter.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEnums.h">
-      <Filter>SOA Files\Ext</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
       <Filter>SOA Files</Filter>
@@ -482,9 +482,6 @@
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="MessageManager.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskShaders.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -559,6 +556,84 @@
     </ClInclude>
     <ClInclude Include="GamePlayScreenEvents.hpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
+	</ClInclude>
+    <ClInclude Include="IRenderPipeline.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyboxRenderer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="TransparentVoxelRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="SonarRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="OpaqueVoxelRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="LiquidVoxelRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="CutoutVoxelRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="GameRenderParams.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuRenderPipeline.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="HdrRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="AwesomiumRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumInterface.h">
+      <Filter>SOA Files\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyboxRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePlayRenderPipeline.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="PdaRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="DevHudRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelBits.h">
+      <Filter>SOA Files\Voxel\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTextureMethods.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderTarget.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="GLEnums.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="RTSwapChain.hpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="FullQuadVBO.h">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="NightVisionRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageManager.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -639,9 +714,6 @@
     </ClCompile>
     <ClCompile Include="FragFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>SOA Files\Rendering</Filter>
@@ -835,7 +907,6 @@
     <ClCompile Include="MainMenuScreen.cpp">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="GameWindow.cpp">
       <Filter>SOA Files\Screens\Base</Filter>
     </ClCompile>
@@ -883,6 +954,72 @@
     </ClCompile>
     <ClCompile Include="PdaAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxRenderer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="CutoutVoxelRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="LiquidVoxelRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageManager.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="OpaqueVoxelRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="SonarRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="TransparentVoxelRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="AwesomiumRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="HdrRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="GameRenderParams.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="GamePlayRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="PdaRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="DevHudRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTextureMethods.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderTarget.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="FullQuadVBO.cpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="NightVisionRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

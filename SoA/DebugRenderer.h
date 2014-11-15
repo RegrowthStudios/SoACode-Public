@@ -146,7 +146,7 @@ private:
     SimpleMesh* _lineMesh;
 
     // Program that is currently in use
-    vcore::GLProgram* _program;
+    vg::GLProgram* _program;
 
     std::chrono::time_point<std::chrono::system_clock> _previousTimePoint;
     std::chrono::time_point<std::chrono::system_clock> _currentTimePoint;

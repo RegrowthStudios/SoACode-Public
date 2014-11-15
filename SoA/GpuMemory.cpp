@@ -8,19 +8,18 @@
 
 #define RGBA_BYTES 4
 
-namespace vorb {
-namespace core {
-namespace graphics {
+ui32 vg::GpuMemory::_totalVramUsage = 0;
+ui32 vg::GpuMemory::_textureVramUsage = 0;
+ui32 vg::GpuMemory::_bufferVramUsage = 0;
 
-ui32 GpuMemory::_totalVramUsage = 0;
+std::unordered_map<ui32, ui32> vg::GpuMemory::_textures;
+std::unordered_map<ui32, ui32> vg::GpuMemory::_buffers;
 
-std::map<ui32, ui32> GpuMemory::_textures;
-
-ui32 GpuMemory::uploadTexture(const ui8* pixels,
-                              ui32 width,
-                              ui32 height,
-                              SamplerState* samplingParameters,
-                              i32 mipmapLevels /* = INT_MAX */) {
+ui32 vg::GpuMemory::uploadTexture(const ui8* pixels,
+                                ui32 width,
+                                ui32 height,
+                                SamplerState* samplingParameters,
+                                i32 mipmapLevels /* = INT_MAX */) {
     // Create one OpenGL texture
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -54,20 +53,22 @@ ui32 GpuMemory::uploadTexture(const ui8* pixels,
 
     // Calculate memory usage
     ui32 vramUsage = width * height * RGBA_BYTES;
-    // Store the texture and its memrory usage
+    // Store the texture and its memory usage
     _textures[textureID] = vramUsage;
     _totalVramUsage += vramUsage;
+    _textureVramUsage += vramUsage;
 
     return textureID;
 }
 
-void GpuMemory::freeTexture(ui32& textureID) {
+void vg::GpuMemory::freeTexture(ui32& textureID) {
     
     // See if the texture was uploaded through GpuMemory
     auto it = _textures.find(textureID);
     if (it != _textures.end()) {
         // Reduce total vram usage
         _totalVramUsage -= it->second;
+        _textureVramUsage -= it->second;
         _textures.erase(it);
     }
 
@@ -76,6 +77,59 @@ void GpuMemory::freeTexture(ui32& textureID) {
     textureID = 0;
 }
 
+void vg::GpuMemory::uploadBufferData(ui32 bufferID, BufferTarget target, ui32 bufferSize, const void* data, BufferUsageHint usage)
+{
+    // Orphan the buffer by default
+    glBufferData(static_cast<GLenum>(target), bufferSize, nullptr, static_cast<GLenum>(usage));
+    glBufferSubData(static_cast<GLenum>(target), 0, bufferSize, data);
+
+    // Track the VRAM usage
+    auto it = _buffers.find(bufferID);
+    if (it != _buffers.end()) {
+        ui32 memoryDiff = bufferSize - it->second;
+        _totalVramUsage += memoryDiff;
+        _bufferVramUsage += memoryDiff;
+        it->second = bufferSize;
+    } else {
+        // Start tracking the buffer object if it is not tracked
+        _buffers[bufferID] = bufferSize;
+        _totalVramUsage += bufferSize;
+        _bufferVramUsage += bufferSize;
+    }
 }
+
+void vg::GpuMemory::freeBuffer(ui32& bufferID)
+{
+    // Reduce our memory counters
+    auto it = _buffers.find(bufferID);
+    if (it != _buffers.end()) {
+        _totalVramUsage -= it->second;
+        _bufferVramUsage -= it->second;
+        _buffers.erase(it);
+    }
+
+    // Delete the buffer
+    glDeleteBuffers(1, &bufferID);
+    bufferID = 0;
 }
+
+void vg::GpuMemory::changeTextureMemory(ui32 s) {
+    _textureVramUsage += s;
+    _totalVramUsage += s;
+}
+void vg::GpuMemory::changeBufferMemory(ui32 s) {
+    _bufferVramUsage += s;
+    _totalVramUsage += s;
+}
+
+ui32 vg::GpuMemory::getFormatSize(ui32 format) {
+    switch (format) {
+    case GL_RGBA4:
+    case GL_RGBA16:
+        return 2;
+    case GL_RGBA8:
+        return 4;
+    default:
+        break;
+    }
 }

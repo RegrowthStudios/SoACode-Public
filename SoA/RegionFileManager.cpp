@@ -19,9 +19,10 @@
 #include "Planet.h"
 #include "utils.h"
 
-//Bytes to read at a time. 8192 is a good size
-#define READ_SIZE 8192
-#define WRITE_SIZE 8192
+// Section tags
+#define TAG_VOXELDATA 0x1
+
+const char TAG_VOXELDATA_STR[4] = { TAG_VOXELDATA, 0, 0, 0 };
 
 inline i32 fileTruncate(i32 fd, i64 size)
 {
@@ -230,16 +231,32 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     //Get the chunk header
     if (!readChunkHeader()) return false;
 
-    if (!readVoxelData_v0()) return false;
-   
-    //Fill the chunk with the aquired data
-    if (!fillChunkVoxelData(chunk)) return false;
+    // Read all chunk data
+    if (!readChunkData_v0()) return false;
+    
+    // Read all tags and process the data
+    _chunkOffset = 0;
+    while (_chunkOffset < _chunkBufferSize) {
+        // Read the tag
+        ui32 tag = BufferUtils::extractInt(_chunkBuffer, _chunkOffset);
+        _chunkOffset += sizeof(ui32);
 
+        switch (tag) {
+            case TAG_VOXELDATA:
+                //Fill the chunk with the aquired data
+                if (!fillChunkVoxelData(chunk)) return false;
+                break;
+            default:
+                std::cout << "INVALID TAG " << tag << std::endl;
+                return false;
+        }
+    }
     return true;
 }
 
 //Saves a chunk to a region file
 bool RegionFileManager::saveChunk(Chunk* chunk) {
+
     //Used for copying sectors if we need to resize the file
     if (_copySectorsBuffer) {
         delete[] _copySectorsBuffer;
@@ -252,11 +269,6 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     ui32 tableOffset;
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
-
-    ui32 oldVoxelDataSize = 0;
-    ui32 oldAuxDataSize = 0;
-
-    ui32 padLength;
 
     i32 numOldSectors;
 
@@ -282,9 +294,8 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
         //Get the chunk header
         if (!readChunkHeader()) return false;
-        oldVoxelDataSize = BufferUtils::extractInt(_chunkHeader.voxelDataSize);
-        oldAuxDataSize = BufferUtils::extractInt(_chunkHeader.auxDataSize);
-        numOldSectors = sectorsFromBytes(oldVoxelDataSize + oldAuxDataSize + sizeof(ChunkHeader));
+        ui32 oldDataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
+        numOldSectors = sectorsFromBytes(oldDataLength + sizeof(ChunkHeader));
 
         if (numOldSectors > _regionFile->totalSectors) {
             cout << (to_string(chunkSectorOffset) + " " + to_string(tableOffset) + "Chunk Header Corrupted\n");
@@ -316,9 +327,8 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     //Set the header data
     BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
-    BufferUtils::setInt(_chunkHeader.voxelDataSize, _compressedBufferSize - sizeof(ChunkHeader));
-    BufferUtils::setInt(_chunkHeader.auxDataSize, 0);
     BufferUtils::setInt(_chunkHeader.timeStamp, 0);
+    BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
 
     //Copy the header data to the write buffer
     memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
@@ -387,7 +397,6 @@ bool RegionFileManager::saveVersionFile() {
 
     SaveVersion currentVersion;
     BufferUtils::setInt(currentVersion.regionVersion, CURRENT_REGION_VER);
-    BufferUtils::setInt(currentVersion.chunkVersion, CURRENT_CHUNK_VER);
 
     fwrite(&currentVersion, 1, sizeof(SaveVersion), file);
     fclose(file);
@@ -401,7 +410,7 @@ bool RegionFileManager::checkVersion() {
     if (!file) {
         pError(GameManager::saveFilePath + "/Region/version.dat not found. Game will assume the version is correct, but it is "
                + "probable that this save will not work if the version is wrong. If this is a save from 0.1.6 or earlier, then it is "
-               + "only compatable with version 0.1.6 of the game. In that case, please make a new save or download 0.1.6 to play this save.");
+               + "only compatible with version 0.1.6 of the game. In that case, please make a new save or download 0.1.6 to play this save.");
         return saveVersionFile();
     }
     SaveVersion version;
@@ -409,10 +418,9 @@ bool RegionFileManager::checkVersion() {
     fread(&version, 1, sizeof(SaveVersion), file);
 
     ui32 regionVersion = BufferUtils::extractInt(version.regionVersion);
-    ui32 chunkVersion = BufferUtils::extractInt(version.chunkVersion);
-
-    if (chunkVersion != CURRENT_CHUNK_VER || regionVersion != CURRENT_REGION_VER) {
-        return tryConvertSave(regionVersion, chunkVersion);
+   
+    if (regionVersion != CURRENT_REGION_VER) {
+        return tryConvertSave(regionVersion);
     }
     return true;
 }
@@ -424,29 +432,22 @@ bool RegionFileManager::readChunkHeader() {
     return true;
 }
 
-bool RegionFileManager::readVoxelData_v0() {
+bool RegionFileManager::readChunkData_v0() {
 
-    ui32 voxelDataSize = BufferUtils::extractInt(_chunkHeader.voxelDataSize);
+    ui32 dataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
 
-    if (voxelDataSize > sizeof(_compressedByteBuffer)) {
+    if (dataLength > sizeof(_compressedByteBuffer)) {
         pError("Region voxel input buffer overflow");
         return false;
     }
 
-    int readSize = READ_SIZE;
-    for (int i = 0; i < voxelDataSize; i += READ_SIZE){
-        //If the number of bytes we have left to read is less than the readSize, only read what we need
-        if (readSize > voxelDataSize - i){
-            readSize = voxelDataSize - i;
-        }
-        if (fread(&(_compressedByteBuffer[i]), 1, readSize, _regionFile->file) != readSize){
-            cout << "Did not read enough bytes at Z\n";
-            return false;
-        }
+    if (fread(_compressedByteBuffer, 1, dataLength, _regionFile->file) != dataLength) {
+        cout << "Did not read enough bytes at Z\n";
+        return false;
     }
 
-    uLongf bufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
-    int zresult = uncompress(_byteBuffer, &bufferSize, _compressedByteBuffer, voxelDataSize);
+    _chunkBufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
+    int zresult = uncompress(_chunkBuffer, &_chunkBufferSize, _compressedByteBuffer, dataLength);
 
     return (!checkZlibError("decompression", zresult));
  
@@ -466,8 +467,8 @@ int RegionFileManager::rleUncompressArray(ui8* data, ui32& byteIndex, int jStart
     //Read block data
     while (blockCounter < CHUNK_SIZE){
         //Grab a run of RLE data
-        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
-        value = _byteBuffer[byteIndex + 2];
+        runSize = BufferUtils::extractShort(_chunkBuffer, byteIndex);
+        value = _chunkBuffer[byteIndex + 2];
 
         for (int q = 0; q < runSize; q++){
             index = i * CHUNK_LAYER + j * jMult + k * kMult;
@@ -509,8 +510,8 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
     //Read block data
     while (blockCounter < CHUNK_SIZE){
         //Grab a run of RLE data
-        runSize = BufferUtils::extractShort(_byteBuffer, byteIndex);
-        value = BufferUtils::extractShort(_byteBuffer, byteIndex + 2);
+        runSize = BufferUtils::extractShort(_chunkBuffer, byteIndex);
+        value = BufferUtils::extractShort(_chunkBuffer, byteIndex + 2);
 
         for (int q = 0; q < runSize; q++){
             index = i * CHUNK_LAYER + j * jMult + k * kMult;
@@ -539,8 +540,6 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
 }
 
 bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
-   // return false;
-    ui32 byteIndex = 0;
 
     ui8 lightVal;
 
@@ -553,36 +552,45 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
 
     chunk->numBlocks = 0;
 
-    if (rleUncompressArray(blockIDBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    if (rleUncompressArray(_blockIDBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(lampLightBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    if (rleUncompressArray(_lampLightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(sunlightBuffer, byteIndex, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    if (rleUncompressArray(_sunlightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
+    if (rleUncompressArray(_tertiaryDataBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
 
     //Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
     static vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
     static vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
     static vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
+    static vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+
     //Make the size 0
     blockIDNodes.clear();
     lampLightNodes.clear();
     sunlightNodes.clear();
+    tertiaryDataNodes.clear();
      //   chunk->_blockIDContainer.initFromSortedArray()
 
     ui16 blockID;
     ui16 lampLight;
     ui8 sunlight;
+    ui16 tertiaryData;
 
     //Add first nodes
-    blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, blockIDBuffer[0]));
-    lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, lampLightBuffer[0]));
-    sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, sunlightBuffer[0]));
+    blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _blockIDBuffer[0]));
+    lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _lampLightBuffer[0]));
+    sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
+    tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
 
     //Construct the node vectors
     for (int i = 1; i < CHUNK_SIZE; i++) {
-        blockID = blockIDBuffer[i];
-        lampLight = lampLightBuffer[i];
-        sunlight = sunlightBuffer[i];
+        blockID = _blockIDBuffer[i];
+        lampLight = _lampLightBuffer[i];
+        sunlight = _sunlightBuffer[i];
+        tertiaryData = _tertiaryDataBuffer[i];
 
         if (blockID != 0) chunk->numBlocks++;
         
@@ -605,11 +613,17 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
         } else {
             sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(i, 1, sunlight));
         }
+        if (tertiaryData == tertiaryDataNodes.back().data) {
+            tertiaryDataNodes.back().length++;
+        } else {
+            tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, tertiaryData));
+        }
     }
   
     chunk->_blockIDContainer.initFromSortedArray(blockIDNodes);
     chunk->_lampLightContainer.initFromSortedArray(lampLightNodes);
     chunk->_sunlightContainer.initFromSortedArray(sunlightNodes);
+    chunk->_tertiaryDataContainer.initFromSortedArray(tertiaryDataNodes);
 
     return true;
 }
@@ -661,9 +675,9 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
                 if (!first) {
                     index = i*CHUNK_LAYER + j*jMult + k*kMult;
                     if (data[index] != curr){
-                        _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-                        _byteBuffer[_bufferSize++] = curr;
+                        _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+                        _chunkBuffer[_bufferSize++] = curr;
                         tot += count;
 
                         curr = data[index];
@@ -677,10 +691,10 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
             }
         }
     }
-    _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
     tot += count;
-    _byteBuffer[_bufferSize++] = curr;
+    _chunkBuffer[_bufferSize++] = curr;
 }
 
 void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
@@ -695,10 +709,10 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
                 if (!first){
                     index = i*CHUNK_LAYER + j*jMult + k*kMult;
                     if (data[index] != curr){
-                        _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-                        _byteBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
-                        _byteBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+                        _chunkBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+                        _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);                   
                         tot += count;
                         curr = data[index];
                         count = 1;
@@ -711,41 +725,53 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
             }
         }
     }
-    _byteBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (ui8)(count & 0xFF);
-    _byteBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
-    _byteBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
+    _chunkBuffer[_bufferSize++] = (ui8)(curr & 0xFF);
+    _chunkBuffer[_bufferSize++] = (ui8)((curr & 0xFF00) >> 8);
     tot += count;
 }
 
 bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
+
     ui16* blockIDData;
     ui8* sunlightData;
     ui16* lampLightData;
+    ui16* tertiaryData;
 
     //Need to lock so that nobody modifies the interval tree out from under us
     Chunk::modifyLock.lock();
     if (chunk->_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
-        blockIDData = blockIDBuffer;
+        blockIDData = _blockIDBuffer;
         chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
     } else {
         blockIDData = chunk->_blockIDContainer.getDataArray();
     }
     if (chunk->_lampLightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
-        lampLightData = lampLightBuffer;
+        lampLightData = _lampLightBuffer;
         chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
     } else {
         lampLightData = chunk->_lampLightContainer.getDataArray();
     }
     if (chunk->_sunlightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
-        sunlightData = sunlightBuffer;
+        sunlightData = _sunlightBuffer;
         chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
     } else {
         sunlightData = chunk->_sunlightContainer.getDataArray();
     }
+    if (chunk->_tertiaryDataContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+        tertiaryData = _tertiaryDataBuffer;
+        chunk->_tertiaryDataContainer.uncompressIntoBuffer(tertiaryData);
+    } else {
+        tertiaryData = chunk->_tertiaryDataContainer.getDataArray();
+    }
     Chunk::modifyLock.unlock();
 
     _bufferSize = 0;
+
+    // Set the tag
+    memcpy(_chunkBuffer, TAG_VOXELDATA_STR, 4);
+    _bufferSize += 4;
 
     int jStart, jEnd, jInc;
     int kStart, kEnd, kInc;
@@ -753,10 +779,10 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
 
     chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
-
     rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
     rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
     rleCompressArray(sunlightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    rleCompressArray(tertiaryData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
     return true;
 }
@@ -764,48 +790,39 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
 bool RegionFileManager::zlibCompress() {
     _compressedBufferSize = CHUNK_DATA_SIZE + CHUNK_SIZE * 2;
     //Compress the data, and leave space for the uncompressed chunk header
-    int zresult = compress2(_compressedByteBuffer + sizeof(ChunkHeader), &_compressedBufferSize, _byteBuffer, _bufferSize, 6);
+    int zresult = compress2(_compressedByteBuffer + sizeof(ChunkHeader), &_compressedBufferSize, _chunkBuffer, _bufferSize, 6);
     _compressedBufferSize += sizeof(ChunkHeader);
 
     return (!checkZlibError("compression", zresult));
 }
 
 //TODO: Implement this
-bool RegionFileManager::tryConvertSave(ui32 regionVersion, ui32 chunkVersion) {
+bool RegionFileManager::tryConvertSave(ui32 regionVersion) {
     pError("Invalid region file version!");
     return false;
 }
 
 //Writes sector data, be sure to fseek to the correct position first
 bool RegionFileManager::writeSectors(ui8* srcBuffer, ui32 size) {
-    ui32 writeSize = WRITE_SIZE;
-    ui32 padLength = 0;
-    for (ui32 i = 0; i < size; i += WRITE_SIZE){
-        if (writeSize > size - i){
-            padLength = SECTOR_SIZE - (size - i) % SECTOR_SIZE;
-            if (padLength == SECTOR_SIZE) padLength = 0;
-            writeSize = size - i + padLength;
-        }
 
-        if (fwrite(&(srcBuffer[i]), 1, writeSize, _regionFile->file) != writeSize){
-            pError("Chunk Saving: Did not write enough bytes at A " + to_string(writeSize) + " " + to_string(size));
-            return false;
-        }
+    if (size % SECTOR_SIZE) {
+        ui32 padLength = SECTOR_SIZE - size % SECTOR_SIZE;
+        if (padLength == SECTOR_SIZE) padLength = 0;
+        size += padLength;
     }
+
+    if (fwrite(srcBuffer, 1, size, _regionFile->file) != size) {
+        pError("Chunk Saving: Did not write enough bytes at A " + to_string(size));
+        return false;
+    }
+    
 }
 
 //Read sector data, be sure to fseek to the correct position first
 bool RegionFileManager::readSectors(ui8* dstBuffer, ui32 size) {
-    ui32 readSize = READ_SIZE;
-
-    for (ui32 i = 0; i < size; i += READ_SIZE){
-        if (readSize > size - i){    
-            readSize = size - i;
-        }
-        if (fread(dstBuffer + i, 1, readSize, _regionFile->file) != readSize){
-            pError("Chunk Loading: Did not read enough bytes at A " + to_string(readSize) + " " + to_string(_regionFile->totalSectors));
-            return false;
-        }
+    if (fread(dstBuffer, 1, size, _regionFile->file) != size) {
+        pError("Chunk Loading: Did not read enough bytes at A " + to_string(size) + " " + to_string(_regionFile->totalSectors));
+        return false;
     }
 }
 

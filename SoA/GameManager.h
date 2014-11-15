@@ -36,7 +36,7 @@ public:
     static void update();
     static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);
     static void drawMarkers();
-    static void drawSpace(glm::mat4 &VP, bool connectedToPlanet);
+
     static void drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet);
     static void addMarker(glm::dvec3 pos, string name, glm::vec3 color);
     static void clickDragRay(bool isBreakRay);
@@ -63,7 +63,7 @@ public:
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
     static class DebugRenderer* debugRenderer;
-    static vcore::GLProgramManager* glProgramManager;
+    static vg::GLProgramManager* glProgramManager;
     static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
     static class vg::TextureCache* textureCache;
 

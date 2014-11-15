@@ -52,8 +52,8 @@ public:
 
     T* getDataArray() { return _dataArray; }
 
-private:
-    VoxelIntervalTree<T> _dataTree;
+public: //TEMP SHOULD BE PRIVATE
+     VoxelIntervalTree<T> _dataTree;
     T* _dataArray;
 
     VoxelStorageState _state;

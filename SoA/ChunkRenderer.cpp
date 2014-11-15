@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
+#include "Camera.h"
 #include "ChunkRenderer.h"
-
 #include "GameManager.h"
 #include "GLProgramManager.h"
 #include "Options.h"
@@ -9,15 +9,17 @@
 #include "Frustum.h"
 #include "Chunk.h"
 #include "global.h"
+#include "GameRenderParams.h"
 #include "GeometrySorter.h"
 
 const float sonarDistance = 200;
 const float sonarWidth = 30;
-void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, glm::mat4 &VP, glm::dvec3 &position)
+
+void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 {
     //*********************Blocks*******************
 
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Sonar");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Sonar");
     program->use();
 
     // Bind the block textures
@@ -40,9 +42,14 @@ void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, glm:
 
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
+
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (unsigned int i = 0; i < chunkMeshes.size(); i++)
     {
-        ChunkRenderer::drawChunkBlocks(chunkMeshes[i], program, position, VP);
+        ChunkRenderer::drawChunkBlocks(chunkMeshes[i], program, 
+                                       gameRenderParams->chunkCamera->getPosition(),
+                                       gameRenderParams->VP);
     }
 
     glDepthMask(GL_TRUE);
@@ -51,18 +58,20 @@ void ChunkRenderer::drawSonar(const std::vector <ChunkMesh *>& chunkMeshes, glm:
     program->unuse();
 }
 
-void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 {
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Block");
+    const f64v3& position = gameRenderParams->chunkCamera->getPosition();
+
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Block");
     program->use();
 
-    glUniform1f(program->getUniform("lightType"), lightActive);
+    glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
 
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
+    glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
+    glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
+    glUniform3fv(program->getUniform("lightPosition_worldspace"), 1, &(gameRenderParams->sunlightDirection[0]));
     glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
 
@@ -72,13 +81,13 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
-    glUniform1f(program->getUniform("sunVal"), sunVal);
+    glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
 
     glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
     float blockAmbient = 0.000f;
     glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
     float fadeDist;
     if (NoChunkFade){
@@ -96,7 +105,7 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
 
     glDisable(GL_CULL_FACE);
 
-    glm::dvec3 cpos;
+    f64v3 cpos;
 
     static GLuint saveTicks = SDL_GetTicks();
     bool save = 0;
@@ -112,6 +121,8 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
     my = (int)position.y;
     mz = (int)position.z;
     ChunkMesh *cm;
+
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
 
     for (int i = chunkMeshes.size() - 1; i >= 0; i--)
     {
@@ -130,7 +141,7 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
         if (SphereInFrustum((float)(cmPos.x + CHUNK_WIDTH / 2 - position.x), (float)(cmPos.y + CHUNK_WIDTH / 2 - position.y), (float)(cmPos.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)){
             if (cm->distance < fadeDist + 12.5){
                 cm->inFrustum = 1;
-                ChunkRenderer::drawChunkBlocks(cm, program, position, VP);
+                ChunkRenderer::drawChunkBlocks(cm, program, position, gameRenderParams->VP);
             } else{
                 cm->inFrustum = 0;
             }
@@ -143,18 +154,20 @@ void ChunkRenderer::drawBlocks(const std::vector <ChunkMesh *>& chunkMeshes, con
     program->unuse();
 }
 
-void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 {
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Cutout");
+    const f64v3& position = gameRenderParams->chunkCamera->getPosition();
+
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Cutout");
     program->use();
 
-    glUniform1f(program->getUniform("lightType"), lightActive);
+    glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
 
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
+    glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
+    glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
+    glUniform3fv(program->getUniform("lightPosition_worldspace"), 1, &(gameRenderParams->sunlightDirection[0]));
     glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(program->getUniform("alphaMult"), graphicsOptions.specularIntensity*0.3);
 
@@ -164,13 +177,13 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
-    glUniform1f(program->getUniform("sunVal"), sunVal);
+    glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
 
     glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
     float blockAmbient = 0.000f;
     glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
     float fadeDist;
     if (NoChunkFade){
@@ -188,7 +201,7 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
 
     glDisable(GL_CULL_FACE);
 
-    glm::dvec3 cpos;
+    f64v3 cpos;
 
     static GLuint saveTicks = SDL_GetTicks();
     bool save = 0;
@@ -205,12 +218,14 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
     mz = (int)position.z;
     ChunkMesh *cm;
 
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (int i = chunkMeshes.size() - 1; i >= 0; i--)
     {
         cm = chunkMeshes[i];
 
         if (cm->inFrustum){
-            ChunkRenderer::drawChunkCutoutBlocks(cm, program, position, VP);
+            ChunkRenderer::drawChunkCutoutBlocks(cm, program, position, gameRenderParams->VP);
         }
     }
     glEnable(GL_CULL_FACE);
@@ -219,18 +234,20 @@ void ChunkRenderer::drawCutoutBlocks(const std::vector <ChunkMesh *>& chunkMeshe
 
 }
 
-void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunkMeshes, const glm::mat4 &VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderParams)
 {
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Transparency");
+    const f64v3& position = gameRenderParams->chunkCamera->getPosition();
+
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Transparency");
     program->use();
 
-    glUniform1f(program->getUniform("lightType"), lightActive);
+    glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
 
-    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, eyeDir);
-    glUniform1f(program->getUniform("fogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("fogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("fogColor"), 1, fogColor);
-    glUniform3f(program->getUniform("lightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3fv(program->getUniform("eyeNormalWorldspace"), 1, &(gameRenderParams->chunkCamera->getDirection()[0]));
+    glUniform1f(program->getUniform("fogEnd"), gameRenderParams->fogEnd);
+    glUniform1f(program->getUniform("fogStart"), gameRenderParams->fogStart);
+    glUniform3fv(program->getUniform("fogColor"), 1, &(gameRenderParams->fogColor[0]));
+    glUniform3fv(program->getUniform("lightPosition_worldspace"), 1, &(gameRenderParams->sunlightDirection[0]));
     glUniform1f(program->getUniform("specularExponent"), graphicsOptions.specularExponent);
     glUniform1f(program->getUniform("specularIntensity"), graphicsOptions.specularIntensity*0.3);
 
@@ -240,13 +257,13 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
-    glUniform1f(program->getUniform("sunVal"), sunVal);
+    glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
 
     glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
     float blockAmbient = 0.000f;
     glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("lightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
     float fadeDist;
     if (NoChunkFade){
@@ -262,7 +279,7 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
 
     glDisable(GL_CULL_FACE);
 
-    glm::dvec3 cpos;
+    f64v3 cpos;
 
     static GLuint saveTicks = SDL_GetTicks();
     bool save = 0;
@@ -284,6 +301,8 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
         sort = true;
         oldPos = intPosition;
     }
+
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
 
     for (int i = 0; i < chunkMeshes.size(); i++)
     {
@@ -308,7 +327,7 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
                 }
             }
 
-            ChunkRenderer::drawChunkTransparentBlocks(cm, program, position, VP);
+            ChunkRenderer::drawChunkTransparentBlocks(cm, program, position, gameRenderParams->VP);
         }
     }
     glEnable(GL_CULL_FACE);
@@ -317,9 +336,9 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
 
 }
 
-//void ChunkRenderer::drawPhysicsBlocks(glm::mat4& VP, const glm::dvec3 &position, glm::vec3 &lightPos, glm::vec3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
+//void ChunkRenderer::drawPhysicsBlocks(f32m4& VP, const f64v3 &position, f32v3 &lightPos, f32v3 &lightColor, GLfloat lightActive, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, const GLfloat *eyeDir)
 //{
-//    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
+//    vg::GLProgram* program = GameManager::glProgramManager->getProgram("PhysicsBlocks");
 //    program->use();
 //
 //    glUniform1f(program->getUniform("lightType"), lightActive);
@@ -357,18 +376,18 @@ void ChunkRenderer::drawTransparentBlocks(const std::vector <ChunkMesh *>& chunk
 //    program->unuse();
 //}
 
-void ChunkRenderer::drawWater(const std::vector <ChunkMesh *>& chunkMeshes, glm::mat4 &VP, const glm::dvec3 &position, GLfloat sunVal, GLfloat fogEnd, GLfloat fogStart, GLfloat *fogColor, glm::vec3 &lightPos, glm::vec3 &lightColor, bool underWater)
+void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
 {
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
     program->use();
 
-    glUniform1f(program->getUniform("sunVal"), sunVal);
+    glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
 
-    glUniform1f(program->getUniform("FogEnd"), (GLfloat)fogEnd);
-    glUniform1f(program->getUniform("FogStart"), (GLfloat)fogStart);
-    glUniform3fv(program->getUniform("FogColor"), 1, fogColor);
+    glUniform1f(program->getUniform("FogEnd"), gameRenderParams->fogEnd);
+    glUniform1f(program->getUniform("FogStart"), gameRenderParams->fogStart);
+    glUniform3fv(program->getUniform("FogColor"), 1, &(gameRenderParams->fogColor[0]));
 
-    glUniform3fv(program->getUniform("LightPosition_worldspace"), 1, &(lightPos[0]));
+    glUniform3fv(program->getUniform("LightPosition_worldspace"), 1, &(gameRenderParams->sunlightDirection[0]));
 
     if (NoChunkFade){
         glUniform1f(program->getUniform("FadeDistance"), (GLfloat)10000.0f);
@@ -378,7 +397,7 @@ void ChunkRenderer::drawWater(const std::vector <ChunkMesh *>& chunkMeshes, glm:
 
     float blockAmbient = 0.000f;
     glUniform3f(program->getUniform("AmbientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3f(program->getUniform("LightColor"), (GLfloat)lightColor.r, (GLfloat)lightColor.g, (GLfloat)lightColor.b);
+    glUniform3fv(program->getUniform("LightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
@@ -386,26 +405,27 @@ void ChunkRenderer::drawWater(const std::vector <ChunkMesh *>& chunkMeshes, glm:
     glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
     glUniform1i(program->getUniform("normalMap"), 6);
 
-    if (underWater) glDisable(GL_CULL_FACE);
+    if (gameRenderParams->isUnderwater) glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
-    ChunkMesh *cm;
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+
     for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
     {
-        cm = chunkMeshes[i];
-
-        ChunkRenderer::drawChunkWater(cm, program, position, VP);
+        ChunkRenderer::drawChunkWater(chunkMeshes[i], program,
+                                      gameRenderParams->chunkCamera->getPosition(), 
+                                      gameRenderParams->VP);
     }
 
     glDepthMask(GL_TRUE);
-    if (underWater) glEnable(GL_CULL_FACE);
+    if (gameRenderParams->isUnderwater) glEnable(GL_CULL_FACE);
 
     program->unuse();
 }
 
-void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
     if (CMI->vboID == 0) return;
 
@@ -413,7 +433,7 @@ void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vcore::GLProgram
     GlobalModelMatrix[3][1] = ((float)((double)CMI->position.y - PlayerPos.y));
     GlobalModelMatrix[3][2] = ((float)((double)CMI->position.z - PlayerPos.z));
 
-    glm::mat4 MVP = VP * GlobalModelMatrix;
+    f32m4 MVP = VP * GlobalModelMatrix;
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
@@ -456,21 +476,19 @@ void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vcore::GLProgram
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP) {
-    if (CMI->transVboID == 0) return;
+void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
+    if (CMI->transVaoID == 0) return;
 
     GlobalModelMatrix[3][0] = ((float)((double)CMI->position.x - playerPos.x));
     GlobalModelMatrix[3][1] = ((float)((double)CMI->position.y - playerPos.y));
     GlobalModelMatrix[3][2] = ((float)((double)CMI->position.z - playerPos.z));
 
-    glm::mat4 MVP = VP * GlobalModelMatrix;
+    f32m4 MVP = VP * GlobalModelMatrix;
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
 
     glBindVertexArray(CMI->transVaoID);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CMI->transIndexID);
 
     glDrawElements(GL_TRIANGLES, CMI->meshInfo.transVboSize, GL_UNSIGNED_INT, nullptr);
 
@@ -478,14 +496,14 @@ void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *CMI, const vcore
 
 }
 
-void ChunkRenderer::drawChunkCutoutBlocks(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &playerPos, const glm::mat4 &VP) {
+void ChunkRenderer::drawChunkCutoutBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
     if (CMI->cutoutVaoID == 0) return;
 
     GlobalModelMatrix[3][0] = ((float)((double)CMI->position.x - playerPos.x));
     GlobalModelMatrix[3][1] = ((float)((double)CMI->position.y - playerPos.y));
     GlobalModelMatrix[3][2] = ((float)((double)CMI->position.z - playerPos.z));
 
-    glm::mat4 MVP = VP * GlobalModelMatrix;
+    f32m4 MVP = VP * GlobalModelMatrix;
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
@@ -498,7 +516,7 @@ void ChunkRenderer::drawChunkCutoutBlocks(const ChunkMesh *CMI, const vcore::GLP
 
 }
 
-void ChunkRenderer::drawChunkWater(const ChunkMesh *CMI, const vcore::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+void ChunkRenderer::drawChunkWater(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
     //use drawWater bool to avoid checking frustum twice
     if (CMI->inFrustum && CMI->waterVboID){
@@ -507,7 +525,7 @@ void ChunkRenderer::drawChunkWater(const ChunkMesh *CMI, const vcore::GLProgram*
         GlobalModelMatrix[3][1] = (float)((double)CMI->position.y - PlayerPos.y);
         GlobalModelMatrix[3][2] = (float)((double)CMI->position.z - PlayerPos.z);
 
-        glm::mat4 MVP = VP * GlobalModelMatrix;
+        f32m4 MVP = VP * GlobalModelMatrix;
 
         glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
         glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
@@ -529,6 +547,7 @@ void ChunkRenderer::bindTransparentVao(ChunkMesh *CMI)
     glBindVertexArray(CMI->transVaoID);
 
     glBindBuffer(GL_ARRAY_BUFFER, CMI->transVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CMI->transIndexID);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);

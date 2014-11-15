@@ -96,6 +96,7 @@
       </ForcedIncludeFiles>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -115,39 +116,63 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AwesomiumRenderStage.h" />
+    <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="Event.hpp" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
+    <ClInclude Include="CutoutVoxelRenderStage.h" />
+    <ClInclude Include="DevHudRenderStage.h" />
+    <ClInclude Include="FullQuadVBO.h" />
+    <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
+    <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="GLRenderTarget.h" />
     <ClInclude Include="GpuMemory.h" />
+    <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GLProgramManager.h" />
+    <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="ImageSaver.h" />
+    <ClInclude Include="IRenderPipeline.h" />
+    <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="IVoxelMapper.h" />
+    <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskPlanet.h" />
     <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
+    <ClInclude Include="MainMenuRenderPipeline.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="NightVisionRenderStage.h" />
+    <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="PDA.h" />
     <ClInclude Include="PdaAwesomiumAPI.h" />
+    <ClInclude Include="PdaRenderStage.h" />
+    <ClInclude Include="PlanetRenderStage.h" />
+    <ClInclude Include="RTSwapChain.hpp" />
+    <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SonarRenderStage.h" />
+    <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
+    <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="Vorb.h" />
     <ClInclude Include="colors.h" />
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="LoadTaskGameManager.h" />
+    <ClInclude Include="VoxelBits.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -223,7 +248,6 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="FileSystem.h" />
-    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="global.h" />
@@ -262,16 +286,29 @@
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AwesomiumRenderStage.cpp" />
+    <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="CutoutVoxelRenderStage.cpp" />
+    <ClCompile Include="DevHudRenderStage.cpp" />
+    <ClCompile Include="FullQuadVBO.cpp" />
+    <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
+    <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GLRenderTarget.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
+    <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="IAwesomiumAPI.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GLProgramManager.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImageSaver.cpp" />
+    <ClCompile Include="IRenderPipeline.cpp" />
+    <ClCompile Include="IRenderStage.cpp" />
+    <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
+    <ClCompile Include="MainMenuRenderPipeline.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="colors.cpp" />
@@ -279,11 +316,19 @@
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="NightVisionRenderStage.cpp" />
+    <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PDA.cpp" />
     <ClCompile Include="PdaAwesomiumAPI.cpp" />
+    <ClCompile Include="PdaRenderStage.cpp" />
+    <ClCompile Include="PlanetRenderStage.cpp" />
+    <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SonarRenderStage.cpp" />
+    <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
+    <ClCompile Include="TransparentVoxelRenderStage.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
@@ -350,7 +395,6 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="FileSystem.cpp" />
-    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="global.cpp" />

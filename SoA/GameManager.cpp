@@ -51,7 +51,7 @@ MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 DebugRenderer* GameManager::debugRenderer = nullptr;
-vcore::GLProgramManager* GameManager::glProgramManager = new vcore::GLProgramManager();
+vg::GLProgramManager* GameManager::glProgramManager = new vg::GLProgramManager();
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
 TerrainGenerator* GameManager::terrainGenerator = nullptr;
@@ -119,12 +119,12 @@ void GameManager::getTextureHandles() {
     treeTrunkTexture1 = textureCache->findTexture("FarTerrain/tree_trunk_1.png");
     waterNormalTexture = textureCache->findTexture("Blocks/Liquids/water_normal_map.png");
 
-    starboxTextures[0] = textureCache->findTexture("Sky/StarSkybox/front.png");
-    starboxTextures[1] = textureCache->findTexture("Sky/StarSkybox/right.png");
-    starboxTextures[2] = textureCache->findTexture("Sky/StarSkybox/top.png");
-    starboxTextures[3] = textureCache->findTexture("Sky/StarSkybox/left.png");
-    starboxTextures[4] = textureCache->findTexture("Sky/StarSkybox/bottom.png");
-    starboxTextures[5] = textureCache->findTexture("Sky/StarSkybox/back.png");
+    skyboxTextures[0] = textureCache->findTexture("Sky/StarSkybox/front.png");
+    skyboxTextures[1] = textureCache->findTexture("Sky/StarSkybox/right.png");
+    skyboxTextures[2] = textureCache->findTexture("Sky/StarSkybox/top.png");
+    skyboxTextures[3] = textureCache->findTexture("Sky/StarSkybox/left.png");
+    skyboxTextures[4] = textureCache->findTexture("Sky/StarSkybox/bottom.png");
+    skyboxTextures[5] = textureCache->findTexture("Sky/StarSkybox/back.png");
 
     waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
     ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
@@ -348,20 +348,6 @@ void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
     planet->updateLODs(worldPosition, maxTicks);
 }
 
-void GameManager::drawSpace(glm::mat4 &VP, bool connectedToPlanet) {
-    glm::mat4 IMVP;
-    if (connectedToPlanet) {
-        IMVP = VP * GameManager::planet->invRotationMatrix;
-    } else {
-        IMVP = VP;
-    }
-
-    glDepthMask(GL_FALSE);
-    if (!drawMode) DrawStars((float)0, IMVP);
-    DrawSun((float)0, IMVP);
-    glDepthMask(GL_TRUE);
-}
-
 void GameManager::drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet) {
 
     GameManager::planet->draw(0, VP, V, lightPos, worldPos, ambVal, fadeDist, connectedToPlanet);
@@ -391,13 +377,13 @@ void GameManager::clickDragRay(bool isBreakRay) {
     VoxelRayQuery rq;
     if (isBreakRay) {
         // Obtain The Simple Query
-        rq = VRayHelper::getQuery(player->getChunkCamera().position(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+        rq = VRayHelper::getQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rq.distance > MAX_RANGE || rq.id == NONE) return;
     } else {
         // Obtain The Full Query
-        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().position(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
@@ -422,8 +408,8 @@ void GameManager::scanWSO() {
 
 #define SCAN_MAX_DISTANCE 20.0
     VoxelRayQuery rq = VRayHelper::getQuery(
-        player->getChunkCamera().position(),
-        player->getChunkCamera().direction(),
+        player->getChunkCamera().getPosition(),
+        player->getChunkCamera().getDirection(),
         SCAN_MAX_DISTANCE,
         GameManager::chunkManager,
         isSolidBlock

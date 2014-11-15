@@ -7,7 +7,6 @@
 #include "GamePlayScreen.h"
 #include "ScreenList.h"
 #include "SpriteBatch.h"
-#include "FrameBuffer.h"
 #include "MeshManager.h"
 #include "Options.h"
 
@@ -30,15 +29,6 @@ void App::onInit() {
     // Load the graphical options
     initializeOptions();
     loadOptions();
-
-    // Construct framebuffer
-    if (graphicsOptions.msaa > 0){
-        glEnable(GL_MULTISAMPLE);
-        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _window.getWidth(), _window.getHeight(), graphicsOptions.msaa);
-    } else{
-        glDisable(GL_MULTISAMPLE);
-        frameBuffer = new FrameBuffer(GL_RGBA16F, GL_HALF_FLOAT, _window.getWidth(), _window.getHeight());
-    }
 
     SamplerState::initPredefined();
 
@@ -65,57 +55,3 @@ App::~App() {
 
     delete meshManager;
 }
-
-void App::drawFrameBuffer(const f32m4& VP) const {
-
-    /// Used for screen space motion blur
-    static bool start = 1;
-
-    vcore::GLProgram* program;
-
-    if (graphicsOptions.motionBlur > 0){
-        program = GameManager::glProgramManager->getProgram("MotionBlur");
-        program->use();
-        program->enableVertexAttribArrays();
-
-        static f32m4 currMat;
-        static f32m4 oldVP;
-        static f32m4 newInverseVP;
-
-        if (start){
-            oldVP = VP;
-            start = 0;
-        } else{
-            oldVP = currMat;
-        }
-        currMat = VP;
-        newInverseVP = glm::inverse(currMat);
-
-        glUniform1i(program->getUniform("renderedTexture"), 0);
-        glUniform1i(program->getUniform("depthTexture"), 1);
-        glUniform1f(program->getUniform("gamma"), 1.0f / graphicsOptions.gamma);
-        glUniform1f(program->getUniform("fExposure"), graphicsOptions.hdrExposure);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, frameBuffer->depthTextureIDs[FB_DRAW]);
-
-        glUniformMatrix4fv(program->getUniform("prevVP"), 1, GL_FALSE, &oldVP[0][0]);
-        glUniformMatrix4fv(program->getUniform("inverseVP"), 1, GL_FALSE, &newInverseVP[0][0]);
-        glUniform1i(program->getUniform("numSamples"), (int)graphicsOptions.motionBlur);
-    } else{
-        start = 0;
-        program = GameManager::glProgramManager->getProgram("HDR");
-        program->use();
-        program->enableVertexAttribArrays();
-        glUniform1i(program->getUniform("renderedTexture"), 0);
-        glUniform1f(program->getUniform("gamma"), 1.0f / graphicsOptions.gamma);
-        glUniform1f(program->getUniform("fExposure"), graphicsOptions.hdrExposure);
-    }
-    
-    const ui32v2 viewport(_window.getWidth(), _window.getHeight());
-    frameBuffer->draw(viewport, drawMode);
-
-    program->disableVertexAttribArrays();
-    program->unuse();
-}
-

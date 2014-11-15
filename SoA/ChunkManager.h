@@ -78,7 +78,7 @@ public:
     // Draws the chunk grid. Should be called by the render thread
     // @param VP: View projection matrix
     // @param position: camera position
-    void drawChunkLines(glm::mat4& VP, const f64v3& position);
+    void drawChunkLines(const glm::mat4& VP, const f64v3& position);
 
     // Gets the block that is intersecting with a ray
     // @param dir: the ray direction

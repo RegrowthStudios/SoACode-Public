@@ -6,7 +6,6 @@
 #include "colors.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
-#include "FrameBuffer.h"
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
@@ -95,6 +94,9 @@ void LoadScreen::onExit(const GameTime& gameTime) {
         _loadTasks[i] = nullptr;
     }
     std::vector<ILoadTask*>().swap(_loadTasks);
+
+    // Restore default rasterizer state
+    RasterizerState::CULL_CLOCKWISE.set();
 }
 
 void LoadScreen::onEvent(const SDL_Event& e) {

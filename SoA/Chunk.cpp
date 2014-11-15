@@ -101,6 +101,7 @@ void Chunk::clear(bool clearDraw)
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();
+    _tertiaryDataContainer.clear();
 
     _state = ChunkStates::LOAD;
     isAccessible = 0;
@@ -201,7 +202,7 @@ void Chunk::CheckEdgeBlocks()
     y = CHUNK_WIDTH - 1;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 topBlocked = 0;
                 z = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -212,7 +213,7 @@ void Chunk::CheckEdgeBlocks()
     x = 0;
     for (y = 0; y < CHUNK_WIDTH; y++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 leftBlocked = 0;
                 z = CHUNK_WIDTH;
                 y = CHUNK_WIDTH;
@@ -223,7 +224,7 @@ void Chunk::CheckEdgeBlocks()
     x = CHUNK_WIDTH - 1;
     for (y = 0; y < CHUNK_WIDTH; y++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 rightBlocked = 0;
                 z = CHUNK_WIDTH;
                 y = CHUNK_WIDTH;
@@ -235,7 +236,7 @@ void Chunk::CheckEdgeBlocks()
     y = 0;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 bottomBlocked = 0;
                 z = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -247,7 +248,7 @@ void Chunk::CheckEdgeBlocks()
     z = CHUNK_WIDTH - 1;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (y = 0; y < CHUNK_WIDTH; y++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 frontBlocked = 0;
                 y = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -259,7 +260,7 @@ void Chunk::CheckEdgeBlocks()
     z = 0;
     for (x = 0; x < CHUNK_WIDTH; x++){
         for (y = 0; y < CHUNK_WIDTH; y++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == 0){
+            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
                 backBlocked = 0;
                 y = CHUNK_WIDTH;
                 x = CHUNK_WIDTH;
@@ -289,6 +290,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
     ui16* chData = renderTask->chData;
     ui16* chLampData = renderTask->chLampData;
     ui8* chSunlightData = renderTask->chSunlightData;
+    ui16* chTertiaryData = renderTask->chTertiaryData;
 
     //set chunkGridData
     renderTask->chunkGridData = chunkGridData;
@@ -343,6 +345,19 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
                 chSunlightData[wc] = _sunlightContainer._dataTree[i].data;
             }
         }
+        //tertiary data
+        c = 0;
+        for (int i = 0; i < _tertiaryDataContainer._dataTree.size(); i++) {
+            for (int j = 0; j < _tertiaryDataContainer._dataTree[i].length; j++) {
+                c = _tertiaryDataContainer._dataTree[i].getStart() + j;
+
+                assert(c < CHUNK_SIZE);
+                getPosFromBlockIndex(c, pos);
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+
+                chTertiaryData[wc] = _tertiaryDataContainer._dataTree[i].data;
+            }
+        }
 
         assert(renderTask->chunk != nullptr);
 
@@ -359,6 +374,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
                     }
                     chLampData[wc] = _lampLightContainer._dataArray[c];
                     chSunlightData[wc] = _sunlightContainer._dataArray[c];
+                    chTertiaryData[wc] = _tertiaryDataContainer._dataArray[c];
                 }
             }
         }
@@ -379,9 +395,11 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
                 chData[off2] = (ch1->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
                 chLampData[off2] = ch1->getLampLight(CHUNK_SIZE - CHUNK_LAYER + off1);
                 chSunlightData[off2] = ch1->getSunlight(CHUNK_SIZE - CHUNK_LAYER + off1);
+                chTertiaryData[off2] = ch1->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
                 chData[off2 + PADDED_SIZE - PADDED_LAYER] = (ch2->getBlockData(off1)); //top
                 chLampData[off2 + PADDED_SIZE - PADDED_LAYER] = ch2->getLampLight(off1);
                 chSunlightData[off2 + PADDED_SIZE - PADDED_LAYER] = ch2->getSunlight(off1);
+                chTertiaryData[off2 + PADDED_SIZE - PADDED_LAYER] = ch2->getTertiaryData(off1);
             }
         }
     }
@@ -393,8 +411,10 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             
                 chLampData[off2] = 0;
                 chSunlightData[off2] = 0;
+                chTertiaryData[off2] = 0;
                 chLampData[off2 + PADDED_SIZE - PADDED_LAYER] = 0;
                 chSunlightData[off2 + PADDED_SIZE - PADDED_LAYER] = 0;
+                chTertiaryData[off2 + PADDED_SIZE - PADDED_LAYER] = 0;
                 chData[off2 + PADDED_SIZE - PADDED_LAYER] = 0;
                 chData[off2] = 0;
             }
@@ -409,6 +429,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
             chLampData[off2] = ch1->getLampLight(CHUNK_SIZE - CHUNK_LAYER + off1);
             chSunlightData[off2] = ch1->getSunlight(CHUNK_SIZE - CHUNK_LAYER + off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
         }
 
         //bottomleftback
@@ -420,6 +441,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
         //bottomleftfront
         ch2 = ch1->front;
@@ -430,6 +452,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
     else{
@@ -437,14 +460,17 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[z*PADDED_WIDTH] = 0;
             chLampData[z*PADDED_WIDTH] = 0;
             chSunlightData[z*PADDED_WIDTH] = 0;
+            chTertiaryData[z*PADDED_WIDTH] = 0;
         }
 
         chData[0] = 0;
         chLampData[0] = 0;
         chSunlightData[0] = 0;
+        chTertiaryData[0] = 0;
         chData[PADDED_LAYER - PADDED_WIDTH] = 0;
         chLampData[PADDED_LAYER - PADDED_WIDTH] = 0;
         chSunlightData[PADDED_LAYER - PADDED_WIDTH] = 0;
+        chTertiaryData[PADDED_LAYER - PADDED_WIDTH] = 0;
     }
 
     //bottomright
@@ -457,6 +483,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
 
         //bottomrightback
@@ -468,6 +495,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
         //bottomrightfront
         ch2 = ch1->front;
@@ -478,6 +506,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -491,6 +520,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -505,6 +535,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -521,9 +552,11 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
                 chData[off2] = ch1->getBlockData(off1 + CHUNK_WIDTH - 1); //left
                 chLampData[off2] = ch1->getLampLight(off1 + CHUNK_WIDTH - 1);
                 chSunlightData[off2] = ch1->getSunlight(off1 + CHUNK_WIDTH - 1);
+                chTertiaryData[off2] = ch1->getTertiaryData(off1 + CHUNK_WIDTH - 1);
                 chData[off2 + PADDED_WIDTH - 1] = (ch2->getBlockData(off1));
                 chLampData[off2 + PADDED_WIDTH - 1] = ch2->getLampLight(off1);
                 chSunlightData[off2 + PADDED_WIDTH - 1] = ch2->getSunlight(off1);
+                chTertiaryData[off2 + PADDED_WIDTH - 1] = ch2->getTertiaryData(off1);
             }
         }
     }
@@ -535,8 +568,10 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             
                 chLampData[off2] = 0;
                 chSunlightData[off2] = 0;
+                chTertiaryData[off2] = 0;
                 chLampData[off2 + PADDED_WIDTH - 1] = 0;
                 chSunlightData[off2 + PADDED_WIDTH - 1] = 0;
+                chTertiaryData[off2 + PADDED_WIDTH - 1] = 0;
                 chData[off2 + PADDED_WIDTH - 1] = 0;
                 chData[off2] = 0;
             }
@@ -555,9 +590,11 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
                 chData[off2] = ch1->getBlockData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
                 chLampData[off2] = ch1->getLampLight(off1 + CHUNK_LAYER - CHUNK_WIDTH);
                 chSunlightData[off2] = ch1->getSunlight(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+                chTertiaryData[off2] = ch1->getTertiaryData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
                 chData[off2 + PADDED_LAYER - PADDED_WIDTH] = (ch2->getBlockData(off1));
                 chLampData[off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->getLampLight(off1);
                 chSunlightData[off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->getSunlight(off1);
+                chTertiaryData[off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->getTertiaryData(off1);
             }
         }
     }
@@ -569,8 +606,10 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             
                 chLampData[off2] = 0;
                 chSunlightData[off2] = 0;
+                chTertiaryData[off2] = 0;
                 chLampData[off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
                 chSunlightData[off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
+                chTertiaryData[off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
                 chData[off2 + PADDED_LAYER - PADDED_WIDTH] = 0;
                 chData[off2] = 0;
             }
@@ -586,6 +625,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
 
         //topleftback
@@ -597,6 +637,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
         //topleftfront
         ch2 = ch1->front;
@@ -607,6 +648,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -620,6 +662,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
 
         //toprightback
@@ -631,6 +674,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
         //toprightfront
         ch2 = ch1->front;
@@ -641,6 +685,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -655,6 +700,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
     
@@ -669,6 +715,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -682,6 +729,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
     
@@ -695,6 +743,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -708,6 +757,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 
@@ -721,6 +771,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             chData[off2] = (ch1->getBlockData(off1));
             chLampData[off2] = ch1->getLampLight(off1);
             chSunlightData[off2] = ch1->getSunlight(off1);
+            chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
     }
 }

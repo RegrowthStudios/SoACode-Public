@@ -2,7 +2,6 @@
 #include "GamePlayScreen.h"
 
 #include "Player.h"
-#include "FrameBuffer.h"
 #include "App.h"
 #include "GameManager.h"
 #include "InputManager.h"
@@ -39,9 +38,6 @@ CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
     _threadRunning(false), 
     _inFocus(true),
-    _devHudSpriteBatch(nullptr),
-    _devHudSpriteFont(nullptr),
-    _devHudMode(DEVUIMODE_CROSSHAIR),
     _onPauseKeyDown(nullptr),
     _onFlyKeyDown(nullptr),
     _onGridKeyDown(nullptr),
@@ -80,6 +76,9 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     // Initialize the PDA
     _pda.init(this);
+
+    // Set up the rendering
+    initRenderPipeline();
 
     // Initialize and run the update thread
     _updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
@@ -131,6 +130,7 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     delete _updateThread;
     _app->meshManager->destroy();
     _pda.destroy();
+    _renderPipeline.destroy();
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
@@ -174,6 +174,14 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
 
 void GamePlayScreen::update(const GameTime& gameTime) {
 
+    // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
+    if (_app->getFps()) {
+        glSpeedFactor = 60.0f / _app->getFps();
+        if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
+            glSpeedFactor = 3.0f;
+        }
+    }
+    
     // Update the input
     handleInput();
 
@@ -183,7 +191,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     // Update the PDA
     _pda.update();
 
-    // Sort all meshes // TODO(Ben): There is redundance here
+    // Sort all meshes // TODO(Ben): There is redundancy here
     _app->meshManager->sortMeshes(_player->headPosition);
 
     // Process any updates from the render thread
@@ -191,38 +199,10 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 }
 
 void GamePlayScreen::draw(const GameTime& gameTime) {
-    FrameBuffer* frameBuffer = _app->frameBuffer;
 
-    frameBuffer->bind();
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    updateWorldCameraClip();
 
-    // We need to store two frustums, one for the world camera and one for the chunk camera
-    // TODO(Ben): The camera class should handle the frustum
-    ExtractFrustum(glm::dmat4(_player->worldProjectionMatrix()), glm::dmat4(_player->worldViewMatrix()), worldFrustum);
-    ExtractFrustum(glm::dmat4(_player->chunkProjectionMatrix()), glm::dmat4(_player->chunkViewMatrix()), gridFrustum);
-    
-    drawVoxelWorld();
-
-    // Drawing crosshair
-    if (_devHudMode != DEVUIMODE_NONE) {
-        drawDevHUD();
-    }
-
-    glDisable(GL_DEPTH_TEST);
-    // Draw PDA if its open
-    if (_pda.isOpen()) {
-        _pda.draw();
-    }
-    _app->drawFrameBuffer(_player->chunkProjectionMatrix() * _player->chunkViewMatrix());
-    glEnable(GL_DEPTH_TEST);
-
-    const ui32v2 viewPort(getWindowWidth(), getWindowHeight());
-    frameBuffer->unBind(viewPort);
-
-    // If you get an error here you will need to place more
-    // checkGlError calls around, or use gdebugger, to find the source.
-    checkGlError("GamePlayScreen::draw()");
+    _renderPipeline.render();
 }
 
 i32 GamePlayScreen::getWindowWidth() const {
@@ -231,6 +211,13 @@ i32 GamePlayScreen::getWindowWidth() const {
 
 i32 GamePlayScreen::getWindowHeight() const {
     return _app->getWindow().getHeight();
+}
+
+void GamePlayScreen::initRenderPipeline() {
+    // Set up the rendering pipeline and pass in dependencies
+    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
+    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
+                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager);
 }
 
 void GamePlayScreen::handleInput() {
@@ -278,318 +265,6 @@ void GamePlayScreen::onMouseUp(const SDL_Event& e) {
             GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
         }
     }
-}
-
-// TODO(Ben): Break this up
-void GamePlayScreen::drawVoxelWorld() {
-
-    Camera& worldCamera = _player->getWorldCamera();
-    Camera& chunkCamera = _player->getChunkCamera();
-
-    MeshManager* meshManager = _app->meshManager;
-
-    float FogColor[3];
-    float fogStart, fogEnd;
-    glm::vec3 lightPos = glm::vec3(1.0, 0.0, 0.0);
-    float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCamera.position(), 1.0))));
-
-    #define FOG_THETA_MULT 100.0f
-    #define FOG_THETA_OFFSET 50.0f
-
-    glm::mat4 VP;
-    //********************************* TODO: PRECOMPILED HEADERS for compilation speed?
-    float fogTheta = glm::clamp(theta, 0.0f, 1.0f);
-    fogStart = 0;
-    if (_player->isUnderWater){
-        float underwaterColor = fogTheta / 2.0f;
-        fogEnd = FOG_THETA_OFFSET + fogTheta * FOG_THETA_MULT;
-        FogColor[0] = underwaterColor;
-        FogColor[1] = underwaterColor;
-        FogColor[2] = underwaterColor;
-    } else{
-        fogEnd = 100000;
-        FogColor[0] = 1.0;
-        FogColor[1] = 1.0;
-        FogColor[2] = 1.0;
-    }
-
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    if (nearClip < 0.1) nearClip = 0.1;
-    double a = 0.0;
-
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    if (a < 0) a = 0;
-
-    double clip = MAX(nearClip / planetScale * 0.5, a);
-
-
-
-    worldCamera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    worldCamera.updateProjection();
-
-    VP = worldCamera.projectionMatrix() * worldCamera.viewMatrix();
-
-    #define AMB_MULT 0.76f
-    #define AMB_OFFSET 0.1f
-    #define MIN_THETA 0.01f
-    #define THETA_MULT 8.0f
-    #define SUN_COLOR_MAP_HEIGHT 64.0f
-    #define SUN_THETA_OFF 0.06f
-
-    float sunTheta = MAX(0.0f, theta + SUN_THETA_OFF);
-    if (sunTheta > 1) sunTheta = 1;
-
-    float ambVal = sunTheta * AMB_MULT + AMB_OFFSET;
-    if (ambVal > 1.0f) ambVal = 1.0f;
-    float diffVal = 1.0f - ambVal;
-    glm::vec3 diffColor;
-
-    if (theta < MIN_THETA){
-        diffVal += (theta - MIN_THETA) * THETA_MULT;
-        if (diffVal < 0.0f) diffVal = 0.0f;
-    }
-
-    int sunHeight = (int)(theta * SUN_COLOR_MAP_HEIGHT);
-    if (theta < 0){
-        sunHeight = 0;
-    }
-    diffColor.r = ((float)sunColor[sunHeight][0] / 255.0f) * diffVal;
-    diffColor.g = ((float)sunColor[sunHeight][1] / 255.0f) * diffVal;
-    diffColor.b = ((float)sunColor[sunHeight][2] / 255.0f) * diffVal;
-
-    GameManager::drawSpace(VP, 1);
-    GameManager::drawPlanet(worldCamera.position(), VP, worldCamera.viewMatrix(), ambVal + 0.1, lightPos, nearClip / planetScale, 1);
-
-    if (graphicsOptions.hudMode == 0){
-        for (size_t i = 0; i < GameManager::markers.size(); i++){
-            GameManager::markers[i].Draw(VP, worldCamera.position());
-        }
-    }
-
-    //close znear for chunks
-    VP = chunkCamera.projectionMatrix() * chunkCamera.viewMatrix();
-
-    glClearDepth(1.0);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    //*********************Blocks*******************
-    lightPos = glm::normalize(glm::dvec3(glm::dmat4(glm::inverse(_player->worldRotationMatrix)) * glm::dmat4(GameManager::planet->invRotationMatrix) * glm::dvec4(lightPos, 1)));
-
-    const glm::vec3 chunkDirection = chunkCamera.direction();
-
-    ChunkRenderer::drawBlocks(meshManager->getChunkMeshes(), VP, chunkCamera.position(), lightPos, diffColor, _player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-    ChunkRenderer::drawCutoutBlocks(meshManager->getChunkMeshes(), VP, chunkCamera.position(), lightPos, diffColor, _player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-
-    // TODO(Ben): Globals are bad mkay?
-    if (gridState != 0) {
-        GameManager::voxelWorld->getChunkManager().drawChunkLines(VP, chunkCamera.position());
-    }
-
-    glDepthMask(GL_FALSE);
-    ChunkRenderer::drawTransparentBlocks(meshManager->getChunkMeshes(), VP, chunkCamera.position(), lightPos, diffColor, _player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-    glDepthMask(GL_TRUE);
-
-    if (sonarActive){
-        glDisable(GL_DEPTH_TEST);
-        ChunkRenderer::drawSonar(meshManager->getChunkMeshes(), VP, _player->headPosition);
-        glEnable(GL_DEPTH_TEST);
-    }
-
-
-    if (GameManager::voxelEditor->isEditing()){
-        int ID;
-        if (_player->dragBlock != NULL){
-            ID = _player->dragBlock->ID;
-        } else{
-            ID = 0;
-        }
-        GameManager::voxelEditor->drawGuides(chunkCamera.position(), VP, ID);
-    }
-
-    glLineWidth(1);
-
-    // TODO(Ben): Render the physics blocks again.
-  /*  if (physicsBlockMeshes.size()){
-        DrawPhysicsBlocks(VP, chunkCamera.position(), lightPos, diffColor, player->lightActive, ambVal, fogEnd, fogStart, FogColor, &(chunkDirection[0]));
-    }*/
-
-
-    //********************Water********************
-    ChunkRenderer::drawWater(meshManager->getChunkMeshes(), VP, chunkCamera.position(), sunTheta, fogEnd, fogStart, FogColor, lightPos, diffColor, _player->isUnderWater);
-
-    // TODO(Ben): Render the particles
-    //if (particleMeshes.size() > 0){
-    //    vcore::GLProgram* bProgram = GameManager::glProgramManager->getProgram("Billboard");
-    //    bProgram->use();
-
-    //    glUniform1f(bProgram->getUniform("lightType"), (GLfloat)player->lightActive);
-    //    glUniform3fv(bProgram->getUniform("eyeNormalWorldspace"), 1, &(chunkDirection[0]));
-    //    glUniform1f(bProgram->getUniform("sunVal"), st);
-    //    glUniform3f(bProgram->getUniform("AmbientLight"), (GLfloat)1.1f, (GLfloat)1.1f, (GLfloat)1.1f);
-
-    //    const glm::mat4 &chunkViewMatrix = chunkCamera.viewMatrix();
-
-    //    glm::vec3 cameraRight(chunkViewMatrix[0][0], chunkViewMatrix[1][0], chunkViewMatrix[2][0]);
-    //    glm::vec3 cameraUp(chunkViewMatrix[0][1], chunkViewMatrix[1][1], chunkViewMatrix[2][1]);
-
-    //    glUniform3f(bProgram->getUniform("cameraUp_worldspace"), cameraUp.x, cameraUp.y, cameraUp.z);
-    //    glUniform3f(bProgram->getUniform("cameraRight_worldspace"), cameraRight.x, cameraRight.y, cameraRight.z);
-
-
-    //    //glDepthMask(GL_FALSE);
-
-    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    //    for (size_t i = 0; i < particleMeshes.size(); i++){
-
-    //        if (particleMeshes[i]->animated){
-    //            ParticleBatch::drawAnimated(particleMeshes[i], player->headPosition, VP);
-    //        } else{
-    //            ParticleBatch::draw(particleMeshes[i], player->headPosition, VP);
-    //        }
-    //    }
-    //    // TODO(Ben): Maybe make this a part of GLProgram?
-    //    glVertexAttribDivisor(0, 0);
-    //    glVertexAttribDivisor(2, 0); //restore divisors
-    //    glVertexAttribDivisor(3, 0);
-    //    glVertexAttribDivisor(4, 0);
-    //    glVertexAttribDivisor(5, 0);
-
-
-    //    bProgram->unuse();
-    //}
-    GameManager::debugRenderer->render(VP, glm::vec3(chunkCamera.position()));
-}
-
-void GamePlayScreen::drawDevHUD() {
-    f32v2 windowDims(_app->getWindow().getWidth(), _app->getWindow().getHeight());
-    char buffer[256];
-    // Lazily load spritebatch
-    if (!_devHudSpriteBatch) {
-        _devHudSpriteBatch = new SpriteBatch(true, true);
-        _devHudSpriteFont = new SpriteFont("Fonts\\chintzy.ttf", 32);
-    }
-
-    _devHudSpriteBatch->begin();
-
-    // Draw crosshair
-    const f32v2 cSize(26.0f);
-    _devHudSpriteBatch->draw(crosshairTexture.ID, 
-                             (windowDims - cSize) / 2.0f,
-                             cSize,
-                             ColorRGBA8(255, 255, 255, 128));
-    
-    int offset = 0;
-    int fontHeight = _devHudSpriteFont->getFontHeight();
-
-    // Fps Counters
-    if (_devHudMode >= DEVUIMODE_FPS) {
-        
-        std::sprintf(buffer, "Render FPS: %.0f", _app->getFps());
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-
-        std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-    }
-
-    // Items in hands
-    if (_devHudMode >= DEVUIMODE_HANDS) {
-        const f32v2 SCALE(0.75f);
-        // Left Hand
-        if (_player->leftEquippedItem) {
-            std::sprintf(buffer, "Left Hand: %s (%d)",
-                        _player->leftEquippedItem->name.c_str(),
-                        _player->leftEquippedItem->count);
-
-            _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                           buffer,
-                                           f32v2(0.0f, windowDims.y - fontHeight),
-                                           SCALE,
-                                           color::White);
-        }
-        // Right Hand
-        if (_player->rightEquippedItem) {
-            std::sprintf(buffer, "Right Hand: %s (%d)",
-                         _player->rightEquippedItem->name.c_str(),
-                         _player->rightEquippedItem->count);
-
-            _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                           buffer,
-                                           f32v2(windowDims.x - _devHudSpriteFont->measure(buffer).x, windowDims.y - fontHeight),
-                                           SCALE,
-                                           color::White);
-        }
-    }
-    
-    // Other debug text
-    if (_devHudMode >= DEVUIMODE_ALL) {
-        const f32v2 NUMBER_SCALE(0.75f);
-        // Grid position
-        offset++;
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       "Grid Position",
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-        std::sprintf(buffer, "X %.2f", _player->headPosition.x);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Y %.2f", _player->headPosition.y);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Z %.2f", _player->headPosition.z);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        
-        // World position
-        offset++;
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       "World Position",
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       f32v2(1.0f),
-                                       color::White);
-        std::sprintf(buffer, "X %-9.2f", _player->worldPosition.x);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Y %-9.2f", _player->worldPosition.y);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-        std::sprintf(buffer, "Z %-9.2f", _player->worldPosition.z);
-        _devHudSpriteBatch->drawString(_devHudSpriteFont,
-                                       buffer,
-                                       f32v2(0.0f, fontHeight * offset++),
-                                       NUMBER_SCALE,
-                                       color::White);
-    }
-
-    _devHudSpriteBatch->end();
-    // Render to the screen
-    _devHudSpriteBatch->renderBatch(windowDims);
 }
 
 void GamePlayScreen::updatePlayer() {
@@ -642,7 +317,7 @@ void GamePlayScreen::updateThreadFunc() {
             }
         }
 
-        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_player->getWorldCamera().position(), 1.0));
+        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_player->getWorldCamera().getPosition(), 1.0));
 
         GameManager::update();
 
@@ -681,4 +356,20 @@ void GamePlayScreen::processMessages() {
                 break;
         }
     }
+}
+
+void GamePlayScreen::updateWorldCameraClip() {
+    //far znear for maximum Terrain Patch z buffer precision
+    //this is currently incorrect
+    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    if (nearClip < 0.1) nearClip = 0.1;
+    double a = 0.0;
+    // TODO(Ben): This is crap fix it (Sorry Brian)
+    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
+    if (a < 0) a = 0;
+
+    double clip = MAX(nearClip / planetScale * 0.5, a);
+    // The world camera has a dynamic clipping plane
+    _player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    _player->getWorldCamera().updateProjection();
 }

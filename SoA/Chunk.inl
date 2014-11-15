@@ -197,14 +197,14 @@ inline int Chunk::getTopBlockData(int c, int y, int *c2, Chunk **owner)
 inline void Chunk::getLeftLightData(int c, GLbyte &l, GLbyte &sl)
 {
     if (c%CHUNK_WIDTH > 0){
-        if (getBlock(c - 1).occlude){
+        if (getBlock(c - 1).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
      //       l = (lightData[0][c - 1]);
     //        sl = (lightData[1][c - 1]);
         }
     } else if (left && left->isAccessible){
-        if (left->getBlock(c + CHUNK_WIDTH - 1).occlude){
+        if (left->getBlock(c + CHUNK_WIDTH - 1).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
        //     l = (left->lightData[0][c + CHUNK_WIDTH - 1]);
@@ -218,14 +218,14 @@ inline void Chunk::getLeftLightData(int c, GLbyte &l, GLbyte &sl)
 inline void Chunk::getRightLightData(int c, GLbyte &l, GLbyte &sl)
 {
     if (c%CHUNK_WIDTH < CHUNK_WIDTH - 1){
-        if (getBlock(c + 1).occlude){
+        if (getBlock(c + 1).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
    //         l = (lightData[0][c + 1]);
    //         sl = (lightData[1][c + 1]);
         }
     } else if (right && right->isAccessible){
-        if (right->getBlock(c - CHUNK_WIDTH + 1).occlude){
+        if (right->getBlock(c - CHUNK_WIDTH + 1).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
   //          l = (right->lightData[0][c - CHUNK_WIDTH + 1]);
@@ -239,14 +239,14 @@ inline void Chunk::getRightLightData(int c, GLbyte &l, GLbyte &sl)
 inline void Chunk::getFrontLightData(int c, GLbyte &l, GLbyte &sl)
 {
     if ((c%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
-        if (getBlock(c + CHUNK_WIDTH).occlude){
+        if (getBlock(c + CHUNK_WIDTH).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
   //          l = (lightData[0][c + CHUNK_WIDTH]);
   //          sl = (lightData[1][c + CHUNK_WIDTH]);
         }
     } else if (front && front->isAccessible){
-        if (front->getBlock(c - CHUNK_LAYER + CHUNK_WIDTH).occlude){
+        if (front->getBlock(c - CHUNK_LAYER + CHUNK_WIDTH).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
   //          l = (front->lightData[0][c - CHUNK_LAYER + CHUNK_WIDTH]);
@@ -260,14 +260,14 @@ inline void Chunk::getFrontLightData(int c, GLbyte &l, GLbyte &sl)
 inline void Chunk::getBackLightData(int c, GLbyte &l, GLbyte &sl)
 {
     if ((c%CHUNK_LAYER) / CHUNK_WIDTH > 0){
-        if (getBlock(c - CHUNK_WIDTH).occlude){
+        if (getBlock(c - CHUNK_WIDTH).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
   //          l = (lightData[0][c - CHUNK_WIDTH]);
   //          sl = (lightData[1][c - CHUNK_WIDTH]);
         }
     } else if (back && back->isAccessible){
-        if (back->getBlock(c + CHUNK_LAYER - CHUNK_WIDTH).occlude){
+        if (back->getBlock(c + CHUNK_LAYER - CHUNK_WIDTH).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
     //        l = (back->lightData[0][c + CHUNK_LAYER - CHUNK_WIDTH]);
@@ -281,14 +281,14 @@ inline void Chunk::getBackLightData(int c, GLbyte &l, GLbyte &sl)
 inline void Chunk::getBottomLightData(int c, GLbyte &l, GLbyte &sl)
 {
     if (c / CHUNK_LAYER > 0){
-        if (getBlock(c - CHUNK_LAYER).occlude){
+        if (getBlock(c - CHUNK_LAYER).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
     //        l = lightData[0][c - CHUNK_LAYER];
    //         sl = lightData[1][c - CHUNK_LAYER];
         }
     } else if (bottom && bottom->isAccessible){
-        if (bottom->getBlock(c + CHUNK_SIZE - CHUNK_LAYER).occlude){
+        if (bottom->getBlock(c + CHUNK_SIZE - CHUNK_LAYER).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
     //        l = bottom->lightData[0][c + CHUNK_SIZE - CHUNK_LAYER];
@@ -302,14 +302,14 @@ inline void Chunk::getBottomLightData(int c, GLbyte &l, GLbyte &sl)
 inline void Chunk::getTopLightData(int c, GLbyte &l, GLbyte &sl)
 {
     if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
-        if (getBlock(c + CHUNK_LAYER).occlude){
+        if (getBlock(c + CHUNK_LAYER).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
  //           l = (lightData[0][c + CHUNK_LAYER]);
  //           sl = (lightData[1][c + CHUNK_LAYER]);
         }
     } else if (top && top->isAccessible){
-        if (top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).occlude){
+        if (top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).occlude != BlockOcclusion::NONE){
             l = sl = -1;
         } else{
     //        l = (top->lightData[0][c - CHUNK_SIZE + CHUNK_LAYER]);
@@ -322,6 +322,14 @@ inline void Chunk::getTopLightData(int c, GLbyte &l, GLbyte &sl)
 
 inline int Chunk::getSunlight(int c) const {
     return _sunlightContainer.get(c);
+}
+
+inline ui16 Chunk::getTertiaryData(int c) const {
+    return _tertiaryDataContainer.get(c);
+}
+
+inline int Chunk::getFloraHeight(int c) const {
+    return _tertiaryDataContainer.get(c) & FLORA_HEIGHT_MASK;
 }
 
 inline ui16 Chunk::getLampLight(int c) const {
@@ -348,12 +356,21 @@ inline void Chunk::setLampLight(int c, ui16 val) {
     _lampLightContainer.set(c, val);
 }
 
+// TODO(Ben): .setWithMask to avoid an extra traversal
+inline void Chunk::setFloraHeight(int c, ui16 val) {
+    _tertiaryDataContainer.set(c, (_tertiaryDataContainer.get(c) & (~FLORA_HEIGHT_MASK)) | val);
+}
+
 inline void Chunk::setBlockID(int c, int val) {
     _blockIDContainer.set(c, val);
 }
 
 inline void Chunk::setBlockData(int c, ui16 val) {
     _blockIDContainer.set(c, val);
+}
+
+inline void Chunk::setTertiaryData(int c, ui16 val) {
+    _tertiaryDataContainer.set(c, val);
 }
 
 inline GLushort Chunk::getBlockData(int c) const {

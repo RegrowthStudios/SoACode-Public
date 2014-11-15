@@ -4,14 +4,16 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "BlockData.h"
+#include "Chunk.h"
+#include "Errors.h"
+#include "GameManager.h"
 #include "IOManager.h"
 #include "Keg.h"
+#include "TexturePackLoader.h"
 
 bool BlockLoader::loadBlocks(const nString& filePath) {
     IOManager ioManager; // TODO: Pass in a real boy
     const cString data = ioManager.readFileToString(filePath.c_str());
-
-    // TODO(Cristian): Implement this
 
     YAML::Node node = YAML::Load(data);
     if (node.IsNull() || !node.IsMap()) {
@@ -23,13 +25,18 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
     Blocks.resize(numBlocks);
     Keg::Value v = Keg::Value::custom("Block", 0);
     for (auto& kvp : node) {
-        nString name = kvp.first.as<nString>();
+        b.name = kvp.first.as<nString>();
         Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
 
-        // TODO: Ben's magic gumbo recipe
+        // Bit of post-processing on the block
+        postProcessBlockLoad(&b);
+
         Blocks[b.ID] = b;
     }
     delete[] data;
+
+    // Set up the water blocks
+    if (!(SetWaterBlocks(LOWWATER))) return 0;
 
     return true;
 }
@@ -63,4 +70,48 @@ bool BlockLoader::saveBlocks(const nString& filePath) {
     file.flush();
     file.close();
     return true;
+}
+
+
+void BlockLoader::postProcessBlockLoad(Block* block) {
+    block->active = true;
+    GameManager::texturePackLoader->registerBlockTexture(block->topTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->leftTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->rightTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->backTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->frontTexName);
+    GameManager::texturePackLoader->registerBlockTexture(block->bottomTexName);
+
+    // Pack light color
+    block->lightColorPacked = ((ui16)block->lightColor.r << LAMP_RED_SHIFT) |
+        ((ui16)block->lightColor.g << LAMP_GREEN_SHIFT) |
+        (ui16)block->lightColor.b;
+}
+
+
+i32 BlockLoader::SetWaterBlocks(int startID) {
+    float weight = 0;
+    Blocks[startID].name = "Water (1)"; //now build rest of water blocks
+    for (int i = startID + 1; i <= startID + 99; i++) {
+        if (Blocks[i].active) {
+            char buffer[1024];
+            sprintf(buffer, "ERROR: Block ID %d reserved for Water is already used by %s", i, Blocks[i].name);
+            showMessage(buffer);
+            return 0;
+        }
+        Blocks[i] = Blocks[startID];
+        Blocks[i].name = "Water (" + to_string(i - startID + 1) + ")";
+        Blocks[i].waterMeshLevel = i - startID + 1;
+    }
+    for (int i = startID + 100; i < startID + 150; i++) {
+        if (Blocks[i].active) {
+            char buffer[1024];
+            sprintf(buffer, "ERROR: Block ID %d reserved for Pressurized Water is already used by %s", i, Blocks[i].name);
+            showMessage(buffer);
+            return 0;
+        }
+        Blocks[i] = Blocks[startID];
+        Blocks[i].name = "Water Pressurized (" + to_string(i - (startID + 99)) + ")";
+        Blocks[i].waterMeshLevel = i - startID + 1;
+    }
 }

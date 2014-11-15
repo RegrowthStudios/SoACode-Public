@@ -20,6 +20,11 @@ IAwesomiumAPI<C>::IAwesomiumAPI()  :
 }
 
 template <class C>
+IAwesomiumAPI<C>::~IAwesomiumAPI() {
+    // Empty
+}
+
+template <class C>
 void IAwesomiumAPI<C>::addFunction(const nString& name, typename IAwesomiumAPI<C>::getptr func) {
     _returnFunctions[name] = func;
     _interfaceObject->SetCustomMethod(Awesomium::WSLit(name.c_str()), true);

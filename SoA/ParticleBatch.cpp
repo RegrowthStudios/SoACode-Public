@@ -335,7 +335,7 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, ballMaskTexture.ID);
 
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
 
     glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
 
@@ -385,7 +385,7 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
         }
     }
 
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
 
     glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
 

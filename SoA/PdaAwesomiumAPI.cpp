@@ -4,7 +4,6 @@
 #include "GamePlayScreen.h"
 #include "Player.h"
 
-
 void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions
@@ -41,7 +40,7 @@ Awesomium::JSValue PdaAwesomiumAPI::getInventory(const Awesomium::JSArray& args)
 }
 
 #define HAND_LEFT 0
-#define HAND_RIGHT 2
+#define HAND_RIGHT 1
 
 void PdaAwesomiumAPI::selectItem(const Awesomium::JSArray& args) {
     

@@ -133,9 +133,6 @@ public:
     OnHUDKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_devHudMode++;
-        if(_screen->_devHudMode > DEVUIMODE_ALL) {
-            _screen->_devHudMode = DEVUIMODE_NONE;
-        }
+        _renderPipeline.cycleDevHud();
     }
 };

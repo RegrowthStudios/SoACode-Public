@@ -29,6 +29,7 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     ADDFUNC(setCameraTarget);
     ADDFUNC(print);
     ADDFUNC(loadSaveGame);
+    ADDFUNC(newSaveGame);
 }
 
 void MainMenuAPI::setOwnerScreen(IGameScreen* ownerScreen) {
@@ -37,7 +38,7 @@ void MainMenuAPI::setOwnerScreen(IGameScreen* ownerScreen) {
 
 Awesomium::JSValue MainMenuAPI::getCameraPosition(const Awesomium::JSArray& args) {
     Awesomium::JSArray rv;
-    const f64v3& pos = _ownerScreen->getCamera().position();
+    const f64v3& pos = _ownerScreen->getCamera().getPosition();
     rv.Push(Awesomium::JSValue(pos.x));
     rv.Push(Awesomium::JSValue(pos.y));
     rv.Push(Awesomium::JSValue(pos.z));
@@ -104,4 +105,11 @@ void MainMenuAPI::loadSaveGame(const Awesomium::JSArray& args) {
 
     nString fileName = "Saves/" + Awesomium::ToString(args[0].ToString());
     _ownerScreen->loadGame(fileName);
+}
+
+void MainMenuAPI::newSaveGame(const Awesomium::JSArray& args) {
+    if (!args.size()) return;
+
+    nString fileName = "Saves/" + Awesomium::ToString(args[0].ToString());
+    _ownerScreen->newGame(fileName);
 }

@@ -21,8 +21,6 @@ using namespace glm;
 
 int sunColor[64][3];
 
- GLushort starboxIndices[6][6];
-
 GLfloat colorVertices[1024];
 GLfloat cubeSpriteVerts[24];
 GLfloat cubeSpriteUVs[24];
@@ -80,151 +78,7 @@ void WorldRenderer::DrawLine(glm::vec3 a, glm::vec3 b)
     glDrawArrays(GL_LINES, 0, 2);
 }
 
-GLfloat sunUVs[8];
-GLfloat sunVerts[12];
-GLushort sunIndices[6];
-
-void DrawSun(float theta, glm::mat4 &MVP){
-
-    double radius = 2800000.0;
-    double size = 200000.0;
-    float off = (float)atan(size/radius); //arctan(size/radius)  in radians
-    float cosTheta = cos(theta - off);
-    float sinTheta = sin(theta - off);
-    float cosTheta2 = cos(theta + off);
-    float sinTheta2 = sin(theta + off);
-
-    // Bind shader
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture");
-    program->use();
-    program->enableVertexAttribArrays();
-
-    glDepthMask(GL_FALSE);
-    glDisable(GL_CULL_FACE);
-
-        // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sunTexture.ID);
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(program->getUniform("myTextureSampler"), 0);
-
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    sunUVs[0] = 0;
-    sunUVs[1] = 0;
-    sunUVs[2] = 0;
-    sunUVs[3] = 1;
-    sunUVs[4] = 1;
-    sunUVs[5] = 1;
-    sunUVs[6] = 1;
-    sunUVs[7] = 0;
-
-    sunIndices[0] = 0;
-    sunIndices[1] = 1;
-    sunIndices[2] = 2;
-    sunIndices[3] = 2;
-    sunIndices[4] = 3;
-    sunIndices[5] = 0;
-
-    sunVerts[0] = cosTheta2*radius;
-    sunVerts[2] = sinTheta2*radius;
-    sunVerts[1] = -size;
-
-    sunVerts[3] = cosTheta*radius;
-    sunVerts[5] = sinTheta*radius;
-    sunVerts[4] = -size;
-
-    sunVerts[6] = cosTheta*radius;
-    sunVerts[8] = sinTheta*radius;
-    sunVerts[7] = size;
-
-    sunVerts[9] = cosTheta2*radius;
-    sunVerts[11] = sinTheta2*radius;
-    sunVerts[10] = size;
-
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sunVerts), sunVerts, GL_STATIC_DRAW);
-
-    GLuint uvbuffer;
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sunUVs), sunUVs, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    // 2nd attribute buffer : UVs
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, sunIndices);
-
-    program->disableVertexAttribArrays();
-    program->unuse();
-    
-    glDepthMask(GL_TRUE);
-    glEnable(GL_CULL_FACE);
-
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &uvbuffer);
-}
-
-void DrawStars(float theta, glm::mat4 &MVP)
-{
-    glDisable(GL_CULL_FACE);
-
-    // Bind shader
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("Texture");
-    program->use();
-    program->enableVertexAttribArrays();
-
-        // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(program->getUniform("myTextureSampler"), 0);
-
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(starboxVertices), starboxVertices, GL_STATIC_DRAW);
-
-    GLuint uvbuffer;
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(starboxUVs), starboxUVs, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    // 2nd attribute buffer : UVs
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    for (int i = 0; i < 6; i++){
-        glBindTexture(GL_TEXTURE_2D, starboxTextures[i].ID);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, starboxIndices[i]); //offset
-    }
-
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &uvbuffer);
-
-    program->disableVertexAttribArrays();
-    program->unuse();
-
-    glEnable(GL_CULL_FACE);
-}
-
-void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, glm::mat4 &VP, glm::vec4 color)
+void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, const glm::mat4 &VP, const glm::vec4& color)
 {
     // Vertex names
     #define BOT_BACK_LEFT 0
@@ -245,7 +99,7 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     glm::mat4 MVP = VP * GlobalModelMatrix;
 
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
 
     program->use();
     program->enableVertexAttribArrays();
@@ -422,7 +276,7 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     glm::mat4 M = GlobalModelMatrix * rotation * translation;
     glm::mat4 MVP = VP * M;
 
-    vcore::GLProgram* program = nullptr;
+    vg::GLProgram* program = nullptr;
 
     switch (block->meshType) {
         case MeshType::CROSSFLORA:

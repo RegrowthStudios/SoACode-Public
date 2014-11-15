@@ -15,8 +15,6 @@ class LoadTaskGameManager : public ILoadTask {
         GameManager::gameState = GameStates::MAINMENU;
         GameManager::initializeSystems();
         GameManager::player = new Player();
-        #define SPEEDMOD 0.0095f
-        GameManager::player->setMoveSpeed(SPEEDMOD, 0.166f);
         GameManager::registerTexturesForLoad();
     }
 };

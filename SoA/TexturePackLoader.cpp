@@ -244,7 +244,7 @@ void TexturePackLoader::writeDebugAtlases() {
     for (int i = 0; i < _numAtlasPages; i++) {
 
         SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, _packInfo.resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
-        SDL_SaveBMP(surface, ("atlas" + to_string(i) + "b.bmp").c_str());
+        SDL_SaveBMP(surface, ("atlas" + to_string(i) + ".bmp").c_str());
 
     }
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -283,6 +283,8 @@ void TexturePackLoader::loadAllBlockTextures() {
         pixels = getPixels(blockTexture.base.path, width, height);
         // Store handle to the layer, do postprocessing, add layer to load
         blockTextureLoadData.base = postProcessLayer(pixels, blockTexture.base, width, height);
+        // Init the func
+        if (blockTextureLoadData.base) blockTextureLoadData.base->initBlockTextureFunc();
 
         // Check if we have an overlay
         if (blockTexture.overlay.path.empty() == false) {
@@ -290,6 +292,8 @@ void TexturePackLoader::loadAllBlockTextures() {
             pixels = getPixels(blockTexture.overlay.path, width, height);
             // Store handle to the layer, do postprocessing, add layer to load
             blockTextureLoadData.overlay = postProcessLayer(pixels, blockTexture.overlay, width, height);
+            // Init the func
+            if (blockTextureLoadData.overlay) blockTextureLoadData.overlay->initBlockTextureFunc();
         }
 
         // Add it to the list of load datas
@@ -334,6 +338,8 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
 
 BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height) {
    
+    ui32 floraRows;
+
     // Helper for checking dimensions
 #define DIM_CHECK(w, cw, h, ch, method) \
     if (width != _packInfo.resolution * cw) { \
@@ -368,6 +374,12 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             layer.numTiles = width / height;
             if (layer.weights.length() == 0) {
                 layer.totalWeight = layer.numTiles;
+            } else { // Need to check if there is the right number of weights
+                if (layer.weights.length() * _packInfo.resolution != width) {
+                    pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " + 
+                           to_string(layer.weights.length()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                    return nullptr;
+                }
             }
             break;
         case ConnectedTextureMethods::GRASS:
@@ -383,6 +395,26 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             DIM_CHECK(width, layer.size.x, height, layer.size.y, REPEAT);
             break;
         case ConnectedTextureMethods::FLORA:
+            floraRows = BlockTextureLayer::getFloraRows(layer.floraHeight);
+            if (height != _packInfo.resolution * floraRows) {
+                pError("Texture " + layer.path + " texture height must be equal to (maxFloraHeight^2 + maxFloraHeight) / 2 * resolution = " +
+                       to_string(height) + " but it is " + to_string(_packInfo.resolution * floraRows));
+                return nullptr;
+            }
+            // If no weights, they are all equal
+            if (layer.weights.length() == 0) {
+                layer.totalWeight = width / _packInfo.resolution;
+            } else { // Need to check if there is the right number of weights
+                if (layer.weights.length() * _packInfo.resolution != width) {
+                    pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
+                           to_string(layer.weights.length()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                    return nullptr;
+                }
+            }
+            // Tile dimensions and count
+            layer.size.x = width / _packInfo.resolution;
+            layer.size.y = floraRows;
+            layer.numTiles = layer.size.x * layer.size.y;
             break;
         case ConnectedTextureMethods::NONE:
             DIM_CHECK(width, 1, height, 1, NONE);

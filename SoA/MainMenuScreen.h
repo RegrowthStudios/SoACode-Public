@@ -23,9 +23,9 @@
 #include "MainMenuAPI.h"
 #include "Random.h"
 #include "LoadMonitor.h"
+#include "MainMenuRenderPipeline.h"
 
 class App;
-class FrameBuffer;
 struct TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
@@ -52,14 +52,24 @@ public:
     IOManager& getIOManager() { return _ioManager; }
 
 private:
- 
+
+    /// Initializes the rendering
+    void initRenderPipeline();
+
     /// Loads a save file and prepares to play the game
     /// @param fileName: The name of the save file
     void loadGame(const nString& fileName);
 
+    /// Makes a new save file and prepares to play the game
+    /// @param fileName: The name of the save file
+    void newGame(const nString& fileName);
+
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
+
+    /// Updates the dynamic clipping plane for the world camera
+    void updateWorldCameraClip();
 
     vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface; ///< The user interface
     
@@ -71,6 +81,8 @@ private:
 
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running
+
+    MainMenuRenderPipeline _renderPipeline; ///< This handles all rendering for the main menu
 };
 
 #endif // MAINMENUSCREEN_H_

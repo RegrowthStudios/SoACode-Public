@@ -89,7 +89,7 @@ int FloraGenerator::generateFlora(Chunk *chunk) {
     for (int i = plantsToLoad.size() - 1; i >= 0; i--) {
         c = plantsToLoad[i].startc;
         Block &block = GETBLOCK(plantsToLoad[i].ft->baseBlock);
-        bool occ = block.blockLight || block.isLight;
+        bool occ = block.blockLight || block.lightColorPacked;
 
         if (c >= CHUNK_LAYER) {
             if (chunk->getBlockID(c - CHUNK_LAYER) != (ui16)Blocks::NONE) {

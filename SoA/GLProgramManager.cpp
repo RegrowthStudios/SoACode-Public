@@ -2,22 +2,19 @@
 #include "GLProgramManager.h"
 
 #include "Errors.h"
+#include "GLEnums.h"
 
-namespace vorb {
-namespace core {
-
-
-GLProgramManager::GLProgramManager() {
+vg::GLProgramManager::GLProgramManager() {
     // Empty
 }
 
 
-GLProgramManager::~GLProgramManager() {
+vg::GLProgramManager::~GLProgramManager() {
     // Empty
 }
 
 
-void GLProgramManager::addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr /* = nullptr */) {
+void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr /* = nullptr */) {
 
     bool rebuild = true;
 
@@ -36,14 +33,14 @@ void GLProgramManager::addProgram(nString shaderName, cString vertexPath, cStrin
         newProgram = new GLProgram(true);
 
         // Create the vertex shader
-        if (!newProgram->addShaderFile(ShaderType::VERTEX, vertexPath)) {
+        if (!newProgram->addShaderFile(vg::ShaderType::VERTEX_SHADER, vertexPath)) {
             showMessage("Vertex shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
             delete newProgram;
             continue;
         }
 
         // Create the fragment shader
-        if (!newProgram->addShaderFile(ShaderType::FRAGMENT, fragmentPath)) {
+        if (!newProgram->addShaderFile(vg::ShaderType::FRAGMENT_SHADER, fragmentPath)) {
             showMessage("Fragment shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
             delete newProgram;
             continue;
@@ -75,7 +72,7 @@ void GLProgramManager::addProgram(nString shaderName, cString vertexPath, cStrin
     _programs[shaderName] = newProgram;
 }
 
-void GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
+void vg::GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
     // Check to see if the program is already made
     auto it = _programs.find(shaderName);
     if (it != _programs.end()) {
@@ -87,7 +84,7 @@ void GLProgramManager::addProgram(nString shaderName, GLProgram* program) {
     _programs[shaderName] = program;
 }
 
-GLProgram* GLProgramManager::getProgram(nString shaderName) {
+vg::GLProgram* vg::GLProgramManager::getProgram(nString shaderName) const {
     auto it = _programs.find(shaderName);
     if (it != _programs.end()) {
         return it->second;
@@ -95,7 +92,7 @@ GLProgram* GLProgramManager::getProgram(nString shaderName) {
     return nullptr;
 }
 
-void GLProgramManager::destroy() {
+void vg::GLProgramManager::destroy() {
 
     for (auto prog : _programs) {
         prog.second->destroy();
@@ -103,7 +100,4 @@ void GLProgramManager::destroy() {
     }
 
     std::unordered_map<nString, GLProgram*>().swap(_programs);
-}
-
-}
 }

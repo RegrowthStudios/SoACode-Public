@@ -476,7 +476,7 @@ void Planet::rotationUpdate()
     invRotationMatrix = glm::inverse(rotationMatrix);
 }
 
-void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec3 lightPos, glm::dvec3 &PlayerPos, GLfloat sunVal, float fadeDistance, bool connectedToPlanet)
+void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, GLfloat sunVal, float fadeDistance, bool connectedToPlanet)
 {    
     
     glActiveTexture(GL_TEXTURE0);
@@ -520,11 +520,11 @@ void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec
     }
 }
 
-void Planet::drawTrees(glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVal)
+void Planet::drawTrees(const glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVal)
 {
     glm::vec3 worldUp = glm::vec3(glm::normalize(PlayerPos));
 //    glDisable(GL_CULL_FACE);
-    vcore::GLProgram* program = GameManager::glProgramManager->getProgram("TreeBillboard");
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("TreeBillboard");
     program->use();
     program->enableVertexAttribArrays();
 
@@ -554,7 +554,7 @@ void Planet::drawTrees(glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVa
 
 void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, float fadeDistance, bool onPlanet)
 {
-    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
+    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
     shader->use();
 
     const int txv[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -635,7 +635,7 @@ void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec
 
 void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, bool onPlanet)
 {
-    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
+    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
     shader->use();
 
     const int textureUnits[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -1032,7 +1032,7 @@ void Atmosphere::loadProperties(string filePath)
     m_fWavelength4[2] = powf(m_fWavelength[2], 4.0f);
 }
 
-void Atmosphere::draw(float theta, glm::mat4 &MVP, glm::vec3 lightPos, glm::dvec3 &ppos)
+void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
 {
     glDepthMask(GL_FALSE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1046,9 +1046,9 @@ void Atmosphere::draw(float theta, glm::mat4 &MVP, glm::vec3 lightPos, glm::dvec
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Atmosphere::drawSkyFromAtmosphere(float theta, glm::mat4 &MVP, glm::vec3 lightPos, glm::dvec3 &ppos)
+void Atmosphere::drawSkyFromAtmosphere(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
 {
-    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromAtmosphere");
+    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromAtmosphere");
     shader->use();
 
     glm::mat4 GlobalModelMatrix(1.0);
@@ -1109,9 +1109,9 @@ void Atmosphere::drawSkyFromAtmosphere(float theta, glm::mat4 &MVP, glm::vec3 li
     shader->unuse();
 }
 
-void Atmosphere::drawSkyFromSpace(float theta, glm::mat4 &MVP, glm::vec3 lightPos, glm::dvec3 &ppos)
+void Atmosphere::drawSkyFromSpace(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
 {
-    vcore::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromSpace");
+    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromSpace");
     shader->use();
 
     glm::mat4 GlobalModelMatrix(1.0);
