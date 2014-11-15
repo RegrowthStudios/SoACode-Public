@@ -17,6 +17,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
     timer.start();
     HeightData *heightMap = ld->heightMap;
 
+    if (chunk->voxelMapData == nullptr) {
+        std::cout << "MAP DATA NULL";
+    }
+
     // used for tree coords
     int wz, wx;
     chunk->voxelMapData->getVoxelGridPos(wz, wx);

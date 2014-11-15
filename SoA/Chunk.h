@@ -172,7 +172,7 @@ public:
     volatile bool inSaveThread;
     bool isAccessible;
 
-    vcore::IThreadPoolTask* ownerTask; ///< Pointer to task that is working on us
+    vcore::IThreadPoolTask* lastOwnerTask; ///< Pointer to task that is working on us
 
     ChunkMesh *mesh;
 

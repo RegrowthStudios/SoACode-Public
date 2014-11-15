@@ -80,7 +80,7 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	drawWater = 0;
 	occlude = 0;
     owner = Owner;
-    ownerTask = nullptr;
+    lastOwnerTask = nullptr;
     distance2 = Owner->distance2;
     chunkGridData = owner->chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;

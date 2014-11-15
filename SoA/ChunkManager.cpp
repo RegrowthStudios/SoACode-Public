@@ -184,7 +184,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     Chunk* ch;
     for (size_t i = 0; i < _threadWaitingChunks.size();) {
         ch = _threadWaitingChunks[i];
-        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->ownerTask) {
+        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask) {
             freeChunk(_threadWaitingChunks[i]);
             _threadWaitingChunks[i] = _threadWaitingChunks.back();
             _threadWaitingChunks.pop_back();
@@ -195,7 +195,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Finished Tasks");
     processFinishedTasks();
-    //change the parameter to true to print out the timingsm
+    //change the parameter to true to print out the timings
     globalMultiplePreciseTimer.end(false);
 
     timeEndPeriod(1);
@@ -464,7 +464,7 @@ void ChunkManager::processFinishedTasks() {
 
 void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
     Chunk *ch = task->chunk;
-    ch->ownerTask = nullptr;
+    if (task == ch->lastOwnerTask) ch->lastOwnerTask = nullptr;
     ch->isAccessible = true;
 
     if (!(ch->freeWaiting)) {
@@ -486,7 +486,7 @@ void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
 
 void ChunkManager::processFinishedRenderTask(RenderTask* task) {
     Chunk* chunk = task->chunk;
-    chunk->ownerTask = nullptr;
+    if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
     // Don't do anything if the chunk should be freed
     if (chunk->freeWaiting) return;
     ChunkMeshData *cmd = task->chunkMeshData;
@@ -675,6 +675,10 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
             generator->postProcessHeightmap(chunkGridData->heightData);
         }
 
+        if (chunk->chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
+            std::cout << "HERE";
+        }
+
         chunksToLoad.push_back(chunk);
 
         if (SDL_GetTicks() - sticks >= maxTicks) {
@@ -770,7 +774,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                         newRenderTask->setChunk(chunk, RenderTaskType::LIQUID);
                     }
                     chunk->SetupMeshData(newRenderTask);
-                    chunk->ownerTask = newRenderTask;
+                    chunk->lastOwnerTask = newRenderTask;
                     _threadPool.addTask(newRenderTask);
 
                     chunk->removeFromChunkList();
@@ -824,10 +828,18 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         chunk->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
 
 
+        //If the heightmap has not been generated, generate it.
+        if (chunk->chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
+            std::cout << "HERE";
+        }
+
         // Initialize the task
         generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
-        chunk->ownerTask = generateTask;
+        chunk->lastOwnerTask = generateTask;
         // Add the task
+        if (chunk->voxelMapData == nullptr) {
+            std::cout << "MAP DATA NULL";
+        }
         _threadPool.addTask(generateTask);
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
@@ -937,7 +949,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         }
         // Remove the chunk from any important lists
         clearChunkFromLists(chunk);
-        if (chunk->inSaveThread || chunk->inLoadThread || chunk->ownerTask) {
+        if (chunk->inSaveThread || chunk->inLoadThread || chunk->lastOwnerTask) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             _threadWaitingChunks.push_back(chunk);
@@ -1087,7 +1099,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 VoxelLightEngine::calculateLight(chunk);
             }
             // Check to see if it needs to be added to the mesh list
-            if (chunk->_chunkListPtr == nullptr && chunk->ownerTask == false) {
+            if (chunk->_chunkListPtr == nullptr && chunk->lastOwnerTask == false) {
                 switch (chunk->_state) {
                 case ChunkStates::WATERMESH:
                 case ChunkStates::MESH:
