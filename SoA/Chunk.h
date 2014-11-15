@@ -111,7 +111,6 @@ public:
     void SetupMeshData(RenderTask *renderTask);
 
     void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
-    void removeFromChunkList();
     void clearChunkListPtr();
 
     /// Constructor
@@ -176,6 +175,8 @@ public:
 
     ChunkMesh *mesh;
 
+    int deb = 4;
+
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
     std::vector <GLushort> spawnerBlocks;
@@ -217,8 +218,7 @@ public:
     vvoxel::VoxelMapData* voxelMapData;
 
 private:
-    // Keeps track of which setup list we belong to, and where we are in the list.
-    int _chunkListIndex;
+    // Keeps track of which setup list we belong to
     boost::circular_buffer<Chunk*> *_chunkListPtr;
 
     ChunkStates _state;

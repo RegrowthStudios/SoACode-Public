@@ -222,10 +222,6 @@ private:
     // @param chunk: the chunk to connect
     void setupNeighbors(Chunk* chunk);
 
-    // Clears a chunk from any lists and buffers
-    // @param the chunk to clear
-    void clearChunkFromLists(Chunk* chunk);
-
     // Frees a chunk from the world. 
     // The chunk may be recycled, or it may need to wait for some threads
     // to finish processing on it.
@@ -272,12 +268,6 @@ private:
     // @param cameraPos: the camera position
     // @param offset: the offset, must be unit length.
     ChunkSlot* tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& cameraPos, const i32v3& offset);
-
-    // Sorts a chunk list recursively
-    // @param v: the list to sort
-    // @Param start: should be 0
-    // @param size: size of v
-    void recursiveSortChunkList(boost::circular_buffer<Chunk*>& v, i32 start, i32 size);
 
     // Calculates cave occlusion. This is temporarily broken // TODO(Ben): Fix cave occlusion
     void caveOcclusion(const f64v3& ppos);

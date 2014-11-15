@@ -49,7 +49,6 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	mesh = NULL;
 	clearBuffers();
 	_chunkListPtr = NULL;
-	_chunkListIndex = -1;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
     gridPosition = gridPos;
@@ -81,10 +80,10 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	occlude = 0;
     owner = Owner;
     lastOwnerTask = nullptr;
-    distance2 = Owner->distance2;
+    distance2 = owner->distance2;
     chunkGridData = owner->chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;
-
+    deb = 4;
 }
 
 vector <Chunk*> *dbgst;
@@ -94,7 +93,7 @@ void Chunk::clear(bool clearDraw)
     clearBuffers();
     freeWaiting = false;
     voxelMapData = nullptr;
-
+    deb = 99;
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();
@@ -102,9 +101,8 @@ void Chunk::clear(bool clearDraw)
 
     _state = ChunkStates::LOAD;
     isAccessible = 0;
-    left = right = front = back = top = bottom = NULL;
-    _chunkListPtr = NULL;
-    _chunkListIndex = -1;
+    left = right = front = back = top = bottom = nullptr;
+    _chunkListPtr = nullptr;
     treeTryTicks = 0;
 
     vector<ui16>().swap(spawnerBlocks);
@@ -806,20 +804,11 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 
 void Chunk::addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr) {
     _chunkListPtr = chunkListPtr;
-    _chunkListIndex = chunkListPtr->size();
     chunkListPtr->push_back(this);
-}
-
-void Chunk::removeFromChunkList() {
-    (*_chunkListPtr)[_chunkListIndex] = _chunkListPtr->back();
-    (*_chunkListPtr)[_chunkListIndex]->_chunkListIndex = _chunkListIndex;
-    _chunkListPtr->pop_back();
-    clearChunkListPtr();
 }
 
 void Chunk::clearChunkListPtr() {
     _chunkListPtr = nullptr;
-    _chunkListIndex = -1;
 }
 
 int Chunk::getRainfall(int xz) const {

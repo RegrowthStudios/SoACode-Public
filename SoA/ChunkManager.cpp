@@ -119,6 +119,14 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     makeChunkAt(chunkPosition, startingMapData);
 }
 
+bool sortChunksAscending(const Chunk* a, const Chunk* b) {
+    return a->distance2 < b->distance2;
+}
+
+bool sortChunksDescending(const Chunk* a, const Chunk* b) {
+    return a->distance2 > b->distance2;
+}
+
 void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     timeBeginPeriod(1);
@@ -163,9 +171,9 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     globalMultiplePreciseTimer.start("Sort");
 
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
-        recursiveSortChunkList(_setupList, 0, _setupList.size());
-        recursiveSortChunkList(_meshList, 0, _meshList.size());
-        recursiveSortChunkList(_loadList, 0, _loadList.size());
+        std::sort(_setupList.begin(), _setupList.end(), sortChunksDescending);
+        std::sort(_meshList.begin(), _meshList.end(), sortChunksDescending);
+        std::sort(_loadList.begin(), _loadList.end(), sortChunksDescending);
         k = 0;
     }
     k++;
@@ -184,7 +192,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     Chunk* ch;
     for (size_t i = 0; i < _threadWaitingChunks.size();) {
         ch = _threadWaitingChunks[i];
-        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask) {
+        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask && !ch->_chunkListPtr) {
             freeChunk(_threadWaitingChunks[i]);
             _threadWaitingChunks[i] = _threadWaitingChunks.back();
             _threadWaitingChunks.pop_back();
@@ -320,8 +328,8 @@ void ChunkManager::destroy() {
     GameManager::physicsEngine->clearAll();
 
     for (size_t i = 0; i < _threadWaitingChunks.size(); i++) { //kill the residual waiting threads too
-        _threadWaitingChunks[i]->clear();
-        recycleChunk(_threadWaitingChunks[i]);
+        _threadWaitingChunks[i]->inSaveThread = nullptr;
+        freeChunk(_threadWaitingChunks[i]);
     }
     std::vector<Chunk*>().swap(_threadWaitingChunks);
 
@@ -558,11 +566,7 @@ void ChunkManager::updateLoadedChunks() {
         if (ch->freeWaiting) continue;
 
         if (!(ch->freeWaiting)) {
-            if (ch->loadStatus == 999) { //retry loading it. probably a mistake
-                ch->loadStatus = 0;
-                ch->isAccessible = false;
-                addToLoadList(ch);
-            } else if (ch->loadStatus == 1) { //it is not saved. Generate!
+            if (ch->loadStatus == 1) { //it is not saved. Generate!
                 ch->loadStatus == 0;
                 ch->isAccessible = false;
                 addToGenerateList(ch);
@@ -658,10 +662,13 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
     ui32 sticks = SDL_GetTicks();
     while (!_loadList.empty()) {
         chunk = _loadList.back();
-        _loadList.pop_back();
 
+        _loadList.pop_back();
         chunk->clearChunkListPtr();
      
+        // Check if the chunk is waiting to be freed
+        if (chunk->freeWaiting) continue;
+
         chunk->isAccessible = 0;
 
         chunkGridData = chunk->chunkGridData;
@@ -673,10 +680,6 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
 
             generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
             generator->postProcessHeightmap(chunkGridData->heightData);
-        }
-
-        if (chunk->chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-            std::cout << "HERE";
         }
 
         chunksToLoad.push_back(chunk);
@@ -704,6 +707,15 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
         chunk->setupWaitingTime = 0;
         state = chunk->_state;
 
+        // Check if the chunk is waiting to be freed
+        if (chunk->freeWaiting) {
+            // Remove from the setup list
+            _setupList[i] = _setupList.back();
+            _setupList.pop_back();
+            chunk->clearChunkListPtr();
+            continue;
+        }
+
         switch (state) {
         case ChunkStates::TREES:
             if (chunk->numNeighbors == 6) {
@@ -711,7 +723,9 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
                     if (FloraGenerator::generateFlora(chunk)) {
                         chunk->_state = ChunkStates::MESH;
 
-                        chunk->removeFromChunkList();
+                        // Remove from the setup list
+                        _setupList[i] = _setupList.back();
+                        _setupList.pop_back();
 
                         addToMeshList(chunk);
 
@@ -728,7 +742,6 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
             break;
         default: // chunks that should not be here should be removed
             cout << "ERROR: Chunk with state " << (int)state << " in setup list.\n";
-            chunk->removeFromChunkList();
             break;
         }
 
@@ -749,6 +762,15 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
     for (i32 i = _meshList.size() - 1; i >= 0; i--) {
         state = _meshList[i]->_state;
         chunk = _meshList[i];
+
+        // If it is waiting to be freed, dont do anything with it
+        if (chunk->freeWaiting) {
+            // Remove from the mesh list
+            _meshList[i] = _meshList.back();
+            _meshList.pop_back();
+            chunk->clearChunkListPtr();
+            continue;
+        }
 
         if (chunk->numNeighbors == 6 && chunk->owner->inFrustum) {     
             VoxelLightEngine::calculateLight(chunk);
@@ -777,13 +799,19 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                     chunk->lastOwnerTask = newRenderTask;
                     _threadPool.addTask(newRenderTask);
 
-                    chunk->removeFromChunkList();
+                    // Remove from the mesh list
+                    _meshList[i] = _meshList.back();
+                    _meshList.pop_back();
+                    chunk->clearChunkListPtr();
 
                     chunk->_state = ChunkStates::DRAW;
                 }
             } else {
                 chunk->clearBuffers();
-                chunk->removeFromChunkList();
+                // Remove from the mesh list
+                _meshList[i] = _meshList.back();
+                _meshList.pop_back();
+                chunk->clearChunkListPtr();
 
                 chunk->_state = ChunkStates::INACTIVE;
             }
@@ -806,10 +834,19 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
     while (_generateList.size()) {
         chunk = _generateList.front();
-       
+        if (chunk->voxelMapData == nullptr) {
+            std::cout << chunk->deb << std::endl;
+            std::cout << "HERE";
+        }
+        if (chunk->deb != 4) {
+            std::cout << chunk->deb << std::endl;
+            std::cout << "HERE";
+        }
+        _generateList.pop_front();
         chunk->clearChunkListPtr();
 
-        _generateList.pop_front();
+        // If it is waiting to be freed, dont do anything with it
+        if (chunk->freeWaiting) continue;
 
         chunk->isAccessible = false;      
 
@@ -826,7 +863,6 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         chunk->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
         chunk->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
         chunk->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-
 
         //If the heightmap has not been generated, generate it.
         if (chunk->chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
@@ -928,28 +964,16 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     }
 }
 
-void ChunkManager::clearChunkFromLists(Chunk* chunk) {
-
-    // Clear any opengl buffers
-    chunk->clearBuffers();
-
-    // Remove from any chunk list
-    if (chunk->_chunkListPtr != nullptr) {
-        chunk->removeFromChunkList();
-    }
-
-    // Sever any connections with neighbor chunks
-    chunk->clearNeighbors();
-}
-
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
         if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
             GameManager::chunkIOManager->addToSaveList(chunk);
         }
-        // Remove the chunk from any important lists
-        clearChunkFromLists(chunk);
-        if (chunk->inSaveThread || chunk->inLoadThread || chunk->lastOwnerTask) {
+        // Clear any opengl buffers
+        chunk->clearBuffers();
+        // Sever any connections with neighbor chunks
+        chunk->clearNeighbors();
+        if (chunk->inSaveThread || chunk->inLoadThread || chunk->lastOwnerTask || chunk->_chunkListPtr) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             _threadWaitingChunks.push_back(chunk);
@@ -963,8 +987,10 @@ void ChunkManager::freeChunk(Chunk* chunk) {
                 delete chunk->chunkGridData;
             }
             // Completely clear the chunk and then recycle it
+            
             chunk->clear();
-            recycleChunk(chunk);
+            delete chunk;
+            //recycleChunk(chunk);
         }
     }
 }
@@ -1041,7 +1067,10 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
         cs->calculateDistance2(intPosition);
         chunk = cs->chunk;
-
+        if (chunk->deb != 4) {
+            std::cout << chunk->deb << std::endl;
+            std::cout << "UH OH";
+        }
         if (chunk->_state > ChunkStates::TREES) {
             chunk->updateContainers();
         }
@@ -1053,7 +1082,6 @@ void ChunkManager::updateChunks(const f64v3& position) {
             }
             _chunkSlotMap.erase(chunk->chunkPosition);
 
-            chunk->clearNeighbors();
             freeChunk(chunk);
             cs->chunk = nullptr;
             
@@ -1155,96 +1183,6 @@ ChunkSlot* ChunkManager::tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& ca
         
     }
     return nullptr;
-}
-
-void ChunkManager::recursiveSortChunkList(boost::circular_buffer<Chunk*>& v, i32 start, i32 size) {
-    if (size < 2) return;
-    i32 i, j;
-    Chunk* pivot, *mid, *last, *tmp;
-
-    pivot = v[start];
-
-    //end recursion when small enough
-    if (size == 2) {
-        if ((pivot->distance2 - pivot->setupWaitingTime) < (v[start + 1]->distance2 - v[start + 1]->setupWaitingTime)) {
-            v[start] = v[start + 1];
-            v[start + 1] = pivot;
-
-            v[start]->_chunkListIndex = start;
-            v[start + 1]->_chunkListIndex = start + 1;
-            
-        }
-        return;
-    }
-
-    mid = v[start + size / 2];
-    last = v[start + size - 1];
-
-    //variables to minimize dereferences
-    i32 md, ld, pd;
-    pd = pivot->distance2 - pivot->setupWaitingTime;
-    md = mid->distance2 - mid->setupWaitingTime;
-    ld = last->distance2 - last->setupWaitingTime;
-
-    //calculate pivot
-    if ((pd > md && md > ld) || (pd < md && md < ld)) {
-        v[start] = mid;
-
-        v[start + size / 2] = pivot;
-
-     
-        mid->_chunkListIndex = start;
-        pivot->_chunkListIndex = start + size / 2;
-        
-
-        pivot = mid;
-        pd = md;
-    } else if ((pd > ld && ld > md) || (pd < ld && ld < md)) {
-        v[start] = last;
-
-        v[start + size - 1] = pivot;
-
-
-        last->_chunkListIndex = start;
-        pivot->_chunkListIndex = start + size - 1;
-        
-
-        pivot = last;
-        pd = ld;
-    }
-
-    i = start + 1;
-    j = start + size - 1;
-
-    //increment and decrement pointers until they are past each other
-    while (i <= j) {
-        while (i < start + size - 1 && (v[i]->distance2 - v[i]->setupWaitingTime) > pd) i++;
-        while (j > start + 1 && (v[j]->distance2 - v[j]->setupWaitingTime) < pd) j--;
-
-        if (i <= j) {
-            tmp = v[i];
-            v[i] = v[j];
-            v[j] = tmp;
-
-            v[i]->_chunkListIndex = i;
-            v[j]->_chunkListIndex = j;
-            
-            i++;
-            j--;
-        }
-    }
-
-    //swap pivot with rightmost element in left set
-    v[start] = v[j];
-    v[j] = pivot;
-
-    v[start]->_chunkListIndex = start;
-    v[j]->_chunkListIndex = j;
-    
-
-    //sort the two subsets excluding the pivot point
-    recursiveSortChunkList(v, start, j - start);
-    recursiveSortChunkList(v, j + 1, start + size - j - 1);
 }
 
 void ChunkManager::caveOcclusion(const f64v3& ppos) {
