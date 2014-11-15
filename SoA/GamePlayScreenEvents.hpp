@@ -12,6 +12,7 @@
 #include "Options.h"
 #include "PDA.h"
 #include "types.h"
+#include "GamePlayRenderPipeline.h"
 
 class GamePlayScreenDelegate: IDelegate<ui32> {
 public:
@@ -133,6 +134,6 @@ public:
     OnHUDKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _renderPipeline.cycleDevHud();
+        _screen->_renderPipeline.cycleDevHud();
     }
 };
