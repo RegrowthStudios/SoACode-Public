@@ -307,14 +307,17 @@ int InputManager::getIniKey(const std::string &val) {
 }
 
 unsigned int InputManager::getNegativeKey(const int axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return UINT32_MAX;
     return _axes.at(axisID)->negativeKey;
 }
 
 void InputManager::setNegativeKey(const int axisID, unsigned int key) {
+    if(axisID < 0 || axisID >= _axes.size()) return;
     _axes.at(axisID)->negativeKey = key;
 }
 
 unsigned int InputManager::getPositiveKey(const int axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return UINT32_MAX;
     return _axes.at(axisID)->positiveKey;
 }
 
@@ -323,15 +326,18 @@ void InputManager::setPositiveKey(const int axisID, unsigned int key) {
 }
 
 void InputManager::setPositiveKeyToDefault(const int axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return;
     Axis* axis = _axes.at(axisID);
     axis->positiveKey = axis->defaultPositiveKey;
 }
 
 void InputManager::setNegativeKeyToDefault(const int axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return;
     Axis* axis = _axes.at(axisID);
     axis->negativeKey = axis->defaultNegativeKey;
 }
 
 InputManager::AxisType InputManager::getAxisType(const int axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return AxisType::NONE;
     return _axes.at(axisID)->type;
 }

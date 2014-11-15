@@ -1,5 +1,9 @@
 ///
+/// Events.hpp
+///
 /// Created by Cristian Zaloj on 8 Nov 2014
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
 ///
 /// Summary:
 /// C#-style events
@@ -13,6 +17,8 @@
 #include <algorithm>
 
 /// This is the main function pointer
+
+/// @author Cristian Zaloj
 template<typename... Params>
 class IDelegate {
 public:
@@ -23,6 +29,8 @@ public:
 };
 
 /// Functor object to hold instances of anonymous lambdas
+
+/// @author Cristian Zaloj
 template<typename F, typename... Params>
 class Delegate: public IDelegate<Params...> {
 public:
@@ -56,10 +64,13 @@ inline IDelegate<Params...>* createDelegate(F f) {
 }
 
 /// An event that invokes methods taking certain arguments
+
+/// @author Cristian Zaloj
 template<typename... Params>
 class Event {
 public:
     /// Create an event with a sender attached to it
+
     /// @param sender: Owner object sent with each invokation
     Event(void* sender = nullptr):
         _sender(sender) {
@@ -67,19 +78,23 @@ public:
     }
 
     /// Call all bound methods
+
     /// @param p: Arguments used in function calls
     void send(Params... p) {
         for(auto& f : _funcs) {
             f->invoke(_sender, p...);
         }
     }
+
     /// Call all bound methods
+
     /// @param p: Arguments used in function calls
     void operator()(Params... p) {
         this->send(p...);
     }
 
     /// Add a function to this event
+
     /// @param f: A subscriber
     /// @return The delegate passed in
     IDelegate<Params...>* add(IDelegate<Params...>* f) {
@@ -87,7 +102,9 @@ public:
         _funcs.push_back(f);
         return f;
     }
+
     /// Add a function to this event
+
     /// @param f: A unknown-type subscriber
     /// @return The newly made delegate (CALLER DELETE)
     template<typename F>
@@ -97,6 +114,7 @@ public:
     }
 
     /// Remove a function (just one) from this event
+
     /// @param f: A subscriber
     void remove(IDelegate<Params...>* f) {
         if(f == nullptr) return;

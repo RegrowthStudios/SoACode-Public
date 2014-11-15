@@ -1,4 +1,19 @@
+/// 
+///  GamePlayScreenEvents.hpp
+///  Seed of Andromeda
+///
+///  Created by Frank McCoy on 9 Nov 2014
+///  Copyright 2014 Regrowth Studios
+///  All Rights Reserved
+///  
+///  This file provides the event delegates for the GamePlayScreen
+///
+
+
 #pragma once
+
+#ifndef GAME_PLAY_SCREEN_EVENTS_HPP
+#define GAME_PLAY_SCREEN_EVENTS_HPP
 
 #include "Event.hpp"
 #include "GamePlayScreen.h"
@@ -14,6 +29,9 @@
 #include "types.h"
 #include "GamePlayRenderPipeline.h"
 
+/// Generic delegate for all delegates that require access tot he GamePlayScreen
+
+// @author Frank McCoy
 class GamePlayScreenDelegate: IDelegate<ui32> {
 public:
     GamePlayScreenDelegate() {}
@@ -24,6 +42,7 @@ protected:
     GamePlayScreen* _screen;
 };
 
+/// Delegate to handle when the Pause key down event
 class OnPauseKeyDown: GamePlayScreenDelegate {
 public:
     OnPauseKeyDown() {}
@@ -35,6 +54,8 @@ public:
     }
 };
 
+
+/// Delegate to handle when the Fly key down event
 class OnFlyKeyDown: GamePlayScreenDelegate {
 public:
     OnFlyKeyDown() {}
@@ -45,6 +66,7 @@ public:
     }
 };
 
+/// Delegate to handle when the Grid key down event
 class OnGridKeyDown: GamePlayScreenDelegate {
 public:
     OnGridKeyDown() {}
@@ -55,6 +77,7 @@ public:
     }
 };
 
+/// Delegate to handle when the Reload Textures key down event
 class OnReloadTexturesKeyDown: GamePlayScreenDelegate {
 public:
     OnReloadTexturesKeyDown() {}
@@ -82,6 +105,7 @@ public:
     }
 };
 
+/// Delegate to handle when the Reload Shdaers key down event
 class OnReloadShadersKeyDown: GamePlayScreenDelegate {
 public:
     OnReloadShadersKeyDown() {}
@@ -94,6 +118,7 @@ public:
     }
 };
 
+/// Delegate to handle when the Inventory key down event
 class OnInventoryKeyDown: GamePlayScreenDelegate {
 public:
     OnInventoryKeyDown() {}
@@ -114,6 +139,7 @@ public:
     }
 };
 
+/// Delegate to handle when the Reload UI key down event
 class OnReloadUIKeyDown: GamePlayScreenDelegate {
 public:
     OnReloadUIKeyDown() {}
@@ -128,6 +154,7 @@ public:
     }
 };
 
+/// Delegate to handle when the HUD key down event
 class OnHUDKeyDown: GamePlayScreenDelegate {
 public:
     OnHUDKeyDown() {}
@@ -137,3 +164,5 @@ public:
         _screen->_renderPipeline.cycleDevHud();
     }
 };
+
+#endif //GAME_PLAY_SCREEN_EVENTS_HPP
