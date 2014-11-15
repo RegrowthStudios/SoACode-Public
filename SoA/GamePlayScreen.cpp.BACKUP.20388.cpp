@@ -37,7 +37,11 @@
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
     _threadRunning(false), 
+<<<<<<< HEAD
     _inFocus(true),
+    _devHudSpriteBatch(nullptr),
+    _devHudSpriteFont(nullptr),
+    _devHudMode(DEVUIMODE_CROSSHAIR),
     _onPauseKeyDown(nullptr),
     _onFlyKeyDown(nullptr),
     _onGridKeyDown(nullptr),
@@ -46,6 +50,9 @@ CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _onInventoryKeyDown(nullptr),
     _onReloadUIKeyDown(nullptr),
     _onHUDKeyDown(nullptr) {
+=======
+    _inFocus(true) {
+>>>>>>> develop
     // Empty
 }
 
@@ -223,6 +230,71 @@ void GamePlayScreen::initRenderPipeline() {
 void GamePlayScreen::handleInput() {
     // Get input manager handle
     InputManager* inputManager = GameManager::inputManager;
+<<<<<<< HEAD
+=======
+    // Handle key inputs
+    if (inputManager->getKeyDown(INPUT_PAUSE)) {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        _inFocus = false;
+    }
+    if (inputManager->getKeyDown(INPUT_FLY)) {
+        _player->flyToggle();
+    }
+    if (inputManager->getKeyDown(INPUT_NIGHT_VISION)) {
+        _renderPipeline.toggleNightVision();
+    }
+    if (inputManager->getKeyDown(INPUT_GRID)) {
+        gridState = !gridState;
+    }
+    if (inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)) {
+        // Free atlas
+        vg::GpuMemory::freeTexture(blockPack.textureInfo.ID);
+        // Free all textures
+        GameManager::textureCache->destroy();
+        // Reload textures
+        GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + graphicsOptions.texturePackString + "/");
+        GameManager::texturePackLoader->uploadTextures();
+        GameManager::texturePackLoader->writeDebugAtlases();
+        GameManager::texturePackLoader->setBlockTextures(Blocks);
+
+        GameManager::getTextureHandles();
+
+        // Initialize all the textures for blocks.
+        for (size_t i = 0; i < Blocks.size(); i++) {
+            Blocks[i].InitializeTexture();
+        }
+
+        GameManager::texturePackLoader->destroy();
+    }
+    if (inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+        GameManager::glProgramManager->destroy();
+        LoadTaskShaders shaderTask;
+        shaderTask.load();
+        // Need to reinitialize the render pipeline with new shaders
+        _renderPipeline.destroy();
+        initRenderPipeline();
+    }
+    if (inputManager->getKeyDown(INPUT_INVENTORY)) {
+        if (_pda.isOpen()) {
+            _pda.close();
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+            _inFocus = true;
+            SDL_StartTextInput();
+        } else {
+            _pda.open();
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+            _inFocus = false;
+            SDL_StopTextInput();
+        }
+    }
+    if (inputManager->getKeyDown(INPUT_RELOAD_UI)) {
+        if (_pda.isOpen()) {
+            _pda.close();
+        }
+        _pda.destroy();
+        _pda.init(this);
+    }
+>>>>>>> develop
 
     // Block placement
     if (!_pda.isOpen()) {
@@ -243,6 +315,14 @@ void GamePlayScreen::handleInput() {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Dev hud
+    if (inputManager->getKeyDown(INPUT_HUD)) {
+        _renderPipeline.cycleDevHud();
+    }
+
+>>>>>>> develop
     // Update inputManager internal state
     inputManager->update();
 }
