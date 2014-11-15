@@ -132,7 +132,7 @@ void Chunk::clearBuffers()
 		ChunkMeshData *cmd = new ChunkMeshData(this);
 		cmd->chunkMesh = mesh;
 		mesh = NULL;
-		cmd->debugCode = 1; 
+
         GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                              Message(MessageID::CHUNK_MESH, 
                                              (void*)cmd));

@@ -11,8 +11,6 @@
 #include "GameManager.h"
 #include "Planet.h"
 
-#define UNINITIALIZED_INDEX -1
-
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
     // Block Vertices
     if (vboID == 0){
@@ -117,18 +115,14 @@ void MeshManager::updateTerrainMesh(TerrainMeshMessage* tmm) {
 void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
     ChunkMesh *cm = cmd->chunkMesh;
 
-    if (cmd->chunkMesh == NULL){
-        pError("Chunkmesh == NULL : " + to_string(cmd->debugCode));
-        printf(" Chunkmesh == NULL");
-    }
-
     //store the index data for sorting in the chunk mesh
     cm->transQuadIndices.swap(cmd->transQuadIndices);
     cm->transQuadPositions.swap(cmd->transQuadPositions);
 
     switch (cmd->type) {
         case RenderTaskType::DEFAULT:
-            if (cmd->vertices.size()) {
+            if (cmd->vertices.size()) 
+            {
                 if (cm->vecIndex == UNINITIALIZED_INDEX){
                     cm->vecIndex = _chunkMeshes.size();
                     _chunkMeshes.push_back(cm);
@@ -197,11 +191,11 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
                     cm->cutoutVboID = 0;
                 }
             }
-            cm->meshInfo = cmd->meshInfo;
+            cm->meshInfo = cmd->chunkMeshRenderData;
             //The missing break is deliberate!
         case RenderTaskType::LIQUID:
 
-            cm->meshInfo.waterIndexSize = cmd->meshInfo.waterIndexSize;
+            cm->meshInfo.waterIndexSize = cmd->chunkMeshRenderData.waterIndexSize;
             if (cmd->waterVertices.size()) {
                 if (cm->vecIndex == UNINITIALIZED_INDEX){
                     cm->vecIndex = _chunkMeshes.size();

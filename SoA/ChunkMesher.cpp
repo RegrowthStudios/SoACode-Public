@@ -1631,7 +1631,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     int indice = (index / 4) * 6;
 
-    ChunkMeshRenderData& meshInfo = chunkMeshData->meshInfo;
+    ChunkMeshRenderData& meshInfo = chunkMeshData->chunkMeshRenderData;
 
     //add all vertices to the vbo
     if (chunkMeshData->vertices.size() || chunkMeshData->transVertices.size() || chunkMeshData->cutoutVertices.size()) {
@@ -1694,7 +1694,7 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
 
 
 	if (mi.liquidIndex){
-        chunkMeshData->meshInfo.waterIndexSize = (mi.liquidIndex * 6) / 4;
+        chunkMeshData->chunkMeshRenderData.waterIndexSize = (mi.liquidIndex * 6) / 4;
 		chunkMeshData->waterVertices.swap(_waterVboVerts);
 	}
     

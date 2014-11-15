@@ -491,23 +491,27 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
     if (chunk->freeWaiting) return;
     ChunkMeshData *cmd = task->chunkMeshData;
 
-    //remove the chunk if it is waiting to be freed
+    // Remove the chunk if it is waiting to be freed
     if (chunk->freeWaiting) {
-        cmd->chunkMesh = chunk->mesh;
-        chunk->mesh = NULL;
-        if (cmd->chunkMesh != NULL) {
-            cmd->debugCode = 2;
+        if (chunk->mesh != NULL) {
+            // Chunk no longer needs the mesh handle
+            chunk->mesh = NULL;
+            // Set the properties to defaults that the mesh is deleted
+            *cmd = ChunkMeshData(chunk);
+            // Send the message
             GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                                     Message(MessageID::CHUNK_MESH,
                                                     (void *)cmd));
+        } else {
+            delete cmd;
         }
         return;
     }
 
-    //set add the chunk mesh to the message
+    // Add the chunk mesh to the message
     cmd->chunkMesh = chunk->mesh;
 
-    //Check if we need to allocate a new chunk mesh or orphan the current chunk mesh so that it can be freed in openglManager
+    // Check if we need to allocate a new chunk mesh or orphan the current chunk mesh so that it can be freed in openglManager
     switch (cmd->type) {
         case RenderTaskType::DEFAULT:
             if (cmd->waterVertices.empty() && cmd->transVertices.empty() && cmd->vertices.empty() && cmd->cutoutVertices.empty()) {
@@ -529,7 +533,7 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
 
     //if the chunk has a mesh, send it
     if (cmd->chunkMesh) {
-        cmd->debugCode = 3;
+
         GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                                 Message(MessageID::CHUNK_MESH,
                                                 (void *)cmd));
