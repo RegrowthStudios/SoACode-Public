@@ -15,9 +15,11 @@ enum class MeshType {
     FLAT 
 };
 
-enum class MeshJobType;
+#define UNINITIALIZED_INDEX -1
 
-struct RenderTask;
+enum class RenderTaskType;
+
+class RenderTask;
 class Chunk;
 class ChunkGridData;
 class Block;
@@ -71,23 +73,23 @@ struct ChunkMeshRenderData {
     ui32 waterIndexSize;
 };
 
-struct ChunkMeshData
+class ChunkMeshData
 {
+public:
     ChunkMeshData(Chunk *ch);
     ChunkMeshData(RenderTask *task);
 
     void addTransQuad(const i8v3& pos);
 
-    ChunkMeshRenderData meshInfo;
+    ChunkMeshRenderData chunkMeshRenderData;
 
     std::vector <BlockVertex> vertices;
     std::vector <BlockVertex> transVertices;
     std::vector <BlockVertex> cutoutVertices;
     std::vector <LiquidVertex> waterVertices;
     Chunk *chunk;
-    struct ChunkMesh *chunkMesh;
-    MeshJobType type;
-    int debugCode;
+    struct ChunkMesh *chunkMesh = nullptr;
+    RenderTaskType type;
 
     //*** Transparency info for sorting ***
     ui32 transVertIndex;

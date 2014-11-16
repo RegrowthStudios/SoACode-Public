@@ -86,7 +86,8 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
         pError("UI Initialization Error: URL was unable to be parsed.");
         return false;
     }
-
+    // Sleep a bit to give time for initialization
+    Sleep(50);
     // Set up the Game interface
     _gameInterface = _webView->CreateGlobalJavascriptObject(Awesomium::WSLit("App"));
     if (_gameInterface.IsObject()){
@@ -101,11 +102,14 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     _webView->LoadURL(url);
 
     // Wait for our WebView to finish loading
-    while (_webView->IsLoading()) _webCore->Update();
+    while (_webView->IsLoading()) {
+        Sleep(50);
+        _webCore->Update();
+    }
 
     // Sleep a bit and update once more to give scripts and plugins
     // on the page a chance to finish loading.
-    Sleep(30);
+    Sleep(50);
     _webCore->Update();
     _webView->SetTransparent(true);
     _webView->set_js_method_handler(&_methodHandler);

@@ -19,9 +19,9 @@ float PreciseTimer::stop() {
 }
 
 void MultiplePreciseTimer::start(std::string tag) {
+    if (_index >= intervals.size()) intervals.push_back(Interval(tag));
     if (_timer.isRunning()) stop();
-    if (_samples == 0) intervals.push_back(Interval(tag));
-
+    
     _timer.start();
      
 }

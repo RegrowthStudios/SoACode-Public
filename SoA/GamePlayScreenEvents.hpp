@@ -73,7 +73,7 @@ public:
     OnGridKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        gridState = !gridState;
+        _screen->_renderPipeline.toggleChunkGrid();
     }
 };
 

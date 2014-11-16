@@ -37,17 +37,17 @@ ChunkMesh::ChunkMesh(Chunk *ch) : vboID(0),
     cutoutVaoID(0), 
     cutoutVboID(0), 
     waterVboID(0), 
-    vecIndex(-1),
+    vecIndex(UNINITIALIZED_INDEX),
     distance(30.0f),
     needsSort(true), 
     inFrustum(false), 
     position(ch->gridPosition)
 {}
 
-ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), transVertIndex(0), type(MeshJobType::DEFAULT) {
+ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), type(RenderTaskType::DEFAULT){
 }
 
-ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), transVertIndex(0), type(task->type) {
+ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), type(task->type) {
 }
 
 void ChunkMeshData::addTransQuad(const i8v3& pos) {

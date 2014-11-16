@@ -58,6 +58,7 @@ class GamePlayScreen : public IAppScreen<App> {
     friend class OnInventoryKeyDown;
     friend class OnReloadUIKeyDown;
     friend class OnHUDKeyDown;
+    friend class OnGridKeyDown;
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
@@ -118,6 +119,7 @@ private:
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running
 
+    /// Delegates
     IDelegate<ui32>* _onPauseKeyDown;
     IDelegate<ui32>* _onFlyKeyDown;
     IDelegate<ui32>* _onGridKeyDown;

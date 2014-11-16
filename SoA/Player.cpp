@@ -54,7 +54,7 @@ Player::Player() : scannedBlock(0),
                     _zoomSpeed(0.04f),
                     _zoomPercent(1.0f),
                     isGrounded(0),
-                    _acceleration(0.04f),
+                    _acceleration(0.02f),
                     _maxVelocity(0.21f),
                     currCh(NULL),
                     isSwimming(0),
@@ -62,8 +62,7 @@ Player::Player() : scannedBlock(0),
                     _friction(0.006f),
                     isDragBreak(0),
                     dragBlock(NULL),
-                    voxelMapData(0,0,0,0)
-{
+                    voxelMapData(0,0,0,0) {
 
     velocity.x = 0;
     velocity.y = 0;

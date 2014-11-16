@@ -68,7 +68,7 @@ void VoxelWorld::getClosestChunks(glm::dvec3 &coord, class Chunk **chunks)
 void VoxelWorld::endSession()
 {
     GameManager::chunkIOManager->onQuit();
-    _chunkManager->clearAll();
+    _chunkManager->destroy();
     delete _chunkManager;
     _chunkManager = NULL;
     GameManager::chunkManager = NULL;
