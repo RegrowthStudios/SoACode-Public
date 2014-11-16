@@ -61,7 +61,7 @@ KEG_ENUM_INIT_END
 KEG_ENUM_INIT_BEGIN(BlendType, BlendType, e)
 e->addValue("add", BlendType::ADD);
 e->addValue("multiply", BlendType::MULTIPLY);
-e->addValue("replace", BlendType::REPLACE);
+e->addValue("replace", BlendType::ALPHA);
 e->addValue("subtract", BlendType::SUBTRACT);
 KEG_ENUM_INIT_END
 

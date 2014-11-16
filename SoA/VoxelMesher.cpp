@@ -161,21 +161,8 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
-    ubyte blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (texInfo.blendMode) {
-        case BlendType::REPLACE:
-            blendMode++; //Sets blendType to 00 01 01 10
-            break;
-        case BlendType::ADD:
-            blendMode += 4; //Sets blendType to 00 01 10 01
-            break;
-        case BlendType::SUBTRACT:
-            blendMode -= 4; //Sets blendType to 00 01 00 01
-            break;
-        case BlendType::MULTIPLY:
-            blendMode -= 16; //Sets blendType to 00 01 01 01
-            break;
-    }
+    ui8 blendMode = getBlendMode(texInfo.blendMode);
+
     Verts[vertexIndex].blendMode = blendMode;
     Verts[vertexIndex + 1].blendMode = blendMode;
     Verts[vertexIndex + 2].blendMode = blendMode;
@@ -325,21 +312,8 @@ void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, 
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
-    ubyte blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (texInfo.blendMode) {
-        case BlendType::REPLACE:
-            blendMode++; //Sets blendType to 00 01 01 10
-            break;
-        case BlendType::ADD:
-            blendMode += 4; //Sets blendType to 00 01 10 01
-            break;
-        case BlendType::SUBTRACT:
-            blendMode -= 4; //Sets blendType to 00 01 00 01
-            break;
-        case BlendType::MULTIPLY:
-            blendMode -= 16; //Sets blendType to 00 01 01 01
-            break;
-    }
+    ui8 blendMode = getBlendMode(texInfo.blendMode);
+    
     Verts[vertexIndex].blendMode = blendMode;
     Verts[vertexIndex + 1].blendMode = blendMode;
     Verts[vertexIndex + 2].blendMode = blendMode;
@@ -493,21 +467,8 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
-    ubyte blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (texInfo.blendMode) {
-        case BlendType::REPLACE:
-            blendMode++; //Sets blendType to 00 01 01 10
-            break;
-        case BlendType::ADD:
-            blendMode += 4; //Sets blendType to 00 01 10 01
-            break;
-        case BlendType::SUBTRACT:
-            blendMode -= 4; //Sets blendType to 00 01 00 01
-            break;
-        case BlendType::MULTIPLY:
-            blendMode -= 16; //Sets blendType to 00 01 01 01
-            break;
-    }
+    ui8 blendMode = getBlendMode(texInfo.blendMode);
+    
     Verts[vertexIndex].blendMode = blendMode;
     Verts[vertexIndex + 1].blendMode = blendMode;
     Verts[vertexIndex + 2].blendMode = blendMode;
@@ -708,21 +669,7 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int v
     ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.textureIndex / ATLAS_SIZE);
     ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.textureIndex % ATLAS_SIZE);
 
-    ui8 blendMode = 0x25; //0x25 = 00 10 01 01
-    switch (blockTexture.blendMode) {
-        case BlendType::REPLACE:
-            blendMode++; //Sets blendType to 00 01 01 10
-            break;
-        case BlendType::ADD:
-            blendMode += 4; //Sets blendType to 00 01 10 01
-            break;
-        case BlendType::SUBTRACT:
-            blendMode -= 4; //Sets blendType to 00 01 00 01
-            break;
-        case BlendType::MULTIPLY:
-            blendMode -= 16; //Sets blendType to 00 01 01 01
-            break;
-    }
+    ui8 blendMode = getBlendMode(blockTexture.blendMode);
 
     const GLubyte* cverts = cubeVertices[0];
 
@@ -841,4 +788,23 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int v
     verts[index + 4].overlayTextureIndex = overlayTextureIndex;
     verts[index + 5].overlayTextureIndex = overlayTextureIndex;
 
+}
+
+ui8 VoxelMesher::getBlendMode(const BlendType& blendType) {
+    ubyte blendMode = 0x14; //0x14 = 00 01 01 00
+    switch (blendType) {
+        case BlendType::ALPHA:
+            blendMode |= 1; //Sets blendMode to 00 01 01 01
+            break;
+        case BlendType::ADD:
+            blendMode += 4; //Sets blendMode to 00 01 10 00
+            break;
+        case BlendType::SUBTRACT:
+            blendMode -= 4; //Sets blendMode to 00 01 00 00
+            break;
+        case BlendType::MULTIPLY:
+            blendMode -= 16; //Sets blendMode to 00 00 01 00
+            break;
+    }
+    return blendMode;
 }

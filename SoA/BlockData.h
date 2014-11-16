@@ -148,7 +148,7 @@ public:
 KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
-    BlockTexture() : blendMode(BlendType::REPLACE){};
+    BlockTexture() : blendMode(BlendType::ALPHA){};
     BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
         base(b), overlay(o), blendMode(bt){
         // Empty
