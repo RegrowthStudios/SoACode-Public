@@ -15,6 +15,8 @@
 #ifndef SmartVoxelContainer_h__
 #define SmartVoxelContainer_h__
 
+#include <mutex>
+
 #include "VoxelIntervalTree.h"
 #include "Constants.h"
 
@@ -98,7 +100,8 @@ namespace vorb {
             #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
 
             /// Updates the container. Call once per frame
-            inline void update() {
+            /// @param dataLock: The mutex that guards the data
+            inline void update(std::mutex& dataLock) {
                 // If access count is higher than the threshold, this is not a quiet frame
                 if (_accessCount >= ACCESS_COUNT_UNTIL_DECOMPRESS) {
                     _quietFrames = 0;
@@ -109,16 +112,19 @@ namespace vorb {
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     // Check if we should uncompress the data
                     if (_quietFrames == 0) {
+                        dataLock.lock();
                         _dataArray = _arrayRecycler->create();
                         uncompressIntoBuffer(_dataArray);
                         // Free memory
                         _dataTree.clear();
                         // Set the new state
                         _state = VoxelStorageState::FLAT_ARRAY;
+                        dataLock.unlock();
                     }
                 } else {
                     // Check if we should compress the data
                     if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
+                        dataLock.lock();
                         // Sorted array for creating the interval tree
                         std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
                         dataVector.reserve(CHUNK_WIDTH / 2);
@@ -139,6 +145,7 @@ namespace vorb {
                         _state = VoxelStorageState::INTERVAL_TREE;
                         // Create the tree
                         _dataTree.createFromSortedArray(dataVector);
+                        dataLock.unlock();
                     }
                 }
                 _accessCount = 0;
@@ -148,12 +155,14 @@ namespace vorb {
             inline void clear() {
                 _accessCount = 0;
                 _quietFrames = 0;
+                dataLock.lock();
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     _dataTree.clear();
                 } else if (_dataArray) {
                     _arrayRecycler->recycle(_dataArray);
                     _dataArray = nullptr;
                 }
+                dataLock.unlock();
             }
 
             /// Uncompressed the interval tree into a buffer.

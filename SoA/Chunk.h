@@ -70,10 +70,10 @@ public:
     void init(const i32v3 &gridPos, ChunkSlot* Owner);
 
     void updateContainers() {
-        _blockIDContainer.update();
-        _sunlightContainer.update();
-        _lampLightContainer.update();
-        _tertiaryDataContainer.update();
+        _blockIDContainer.update(dataLock);
+        _sunlightContainer.update(dataLock);
+        _lampLightContainer.update(dataLock);
+        _tertiaryDataContainer.update(dataLock);
     }
     
     void changeState(ChunkStates State);
@@ -208,12 +208,11 @@ public:
     
     Chunk *right, *left, *front, *back, *top, *bottom;
 
-    //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
-    static std::mutex modifyLock;
-
     ChunkSlot* owner;
     ChunkGridData* chunkGridData;
     vvoxel::VoxelMapData* voxelMapData;
+
+    std::mutex dataLock; ///< Lock that guards chunk data. Try to minimize locking.
 
 private:
     // Keeps track of which setup list we belong to

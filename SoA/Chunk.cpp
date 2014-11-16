@@ -28,8 +28,6 @@ vector <MineralData*> Chunk::possibleMinerals;
 glm::mat4 MVP;
 glm::mat4 GlobalModelMatrix;
 
-//Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
-std::mutex Chunk::modifyLock;
 
 //1735
 //1500

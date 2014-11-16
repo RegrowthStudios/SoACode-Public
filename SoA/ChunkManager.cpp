@@ -156,11 +156,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Update Chunks");
 
-    Chunk::modifyLock.lock();
-
     updateChunks(position);
-
-    Chunk::modifyLock.unlock();
 
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
