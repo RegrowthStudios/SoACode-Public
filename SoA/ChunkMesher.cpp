@@ -118,42 +118,42 @@ bool ChunkMesher::checkBlockFaces(bool faces[6], ui8 lampLights[26][3], i8 sunli
     bool hasFace = false;
     ui16 lightColor;
 
-    if (faces[XNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - 1]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
+    if (faces[XNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - 1]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))){
         hasFace = true;
         lightColor = _lampLightData[wc - 1];
         GET_L_COLOR(lampLights[12]);
         sunlights[12] = _sunlightData[wc - 1];
     }
 
-    if (faces[XPOS] = ((nblock = &GETBLOCK(_blockIDData[1 + wc]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
+    if (faces[XPOS] = ((nblock = &GETBLOCK(_blockIDData[1 + wc]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
         lightColor = _lampLightData[1 + wc];
         GET_L_COLOR(lampLights[13]);
         sunlights[13] = (_sunlightData[1 + wc]);
     }
 
-    if (faces[YNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
+    if (faces[YNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
         lightColor = _lampLightData[wc - dataLayer];
         GET_L_COLOR(lampLights[4]);
         sunlights[4] = _sunlightData[wc - dataLayer];
     }
 
-    if (faces[YPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
+    if (faces[YPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
         lightColor = _lampLightData[wc + dataLayer];
         GET_L_COLOR(lampLights[21]);
         sunlights[21] = _sunlightData[wc + dataLayer];
     }
 
-    if (faces[ZNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
+    if (faces[ZNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
         lightColor = _lampLightData[wc - dataWidth];
         GET_L_COLOR(lampLights[10]);
         sunlights[10] = _sunlightData[wc - dataWidth];
     }
 
-    if (faces[ZPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF) && nblock->ID != btype))){
+    if (faces[ZPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
         lightColor = _lampLightData[wc + dataWidth];
         GET_L_COLOR(lampLights[15]);

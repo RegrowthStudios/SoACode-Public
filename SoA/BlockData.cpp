@@ -49,6 +49,7 @@ KEG_ENUM_INIT_END
 KEG_ENUM_INIT_BEGIN(BlockOcclusion, BlockOcclusion, e);
 e->addValue("none", BlockOcclusion::NONE);
 e->addValue("self", BlockOcclusion::SELF);
+e->addValue("selfOnly", BlockOcclusion::SELF_ONLY);
 e->addValue("all", BlockOcclusion::ALL);
 KEG_ENUM_INIT_END
 
@@ -95,7 +96,7 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicT
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("physicsProperty", Keg::Value::custom("PhysicsProperties", offsetof(Block, physicsProperty), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterMeshLevel", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waterMeshLevel)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("floatingAction", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, floatingAction)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("occlusion", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, occlude)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("occlusion", Keg::Value::custom("BlockOcclusion", offsetof(Block, occlude), true));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("spawnerVal", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, spawnerVal)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("sinkVal", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, sinkVal)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionRays", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, explosionRays)));
