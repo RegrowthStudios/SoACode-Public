@@ -81,7 +81,6 @@ void VoxelWorld::updatePhysics(const glm::dvec3 &position, const glm::dvec3 &vie
 
     // Update physics engine
     globalMultiplePreciseTimer.start("Physics Engine");
-    Chunk::modifyLock.lock();
+
     GameManager::physicsEngine->update(viewDir);
-    Chunk::modifyLock.unlock();
 }

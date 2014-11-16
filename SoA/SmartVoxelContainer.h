@@ -155,14 +155,12 @@ namespace vorb {
             inline void clear() {
                 _accessCount = 0;
                 _quietFrames = 0;
-                dataLock.lock();
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     _dataTree.clear();
                 } else if (_dataArray) {
                     _arrayRecycler->recycle(_dataArray);
                     _dataArray = nullptr;
                 }
-                dataLock.unlock();
             }
 
             /// Uncompressed the interval tree into a buffer.

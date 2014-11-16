@@ -277,10 +277,8 @@ void GamePlayScreen::updatePlayer() {
     _player->setMoveMod(1.0f);
     _player->canCling = 0;
     _player->collisionData.yDecel = 0.0f;
-    //    cout << "C";
 
     // Number of steps to integrate the collision over
-    Chunk::modifyLock.lock();
     for (int i = 0; i < PLAYER_COLLISION_STEPS; i++){
         _player->gridPosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
         _player->facePosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
@@ -289,7 +287,6 @@ void GamePlayScreen::updatePlayer() {
         aabbChunkCollision(_player, &(_player->gridPosition), chunks, 8);
         _player->applyCollisionData();
     }
-    Chunk::modifyLock.unlock();
 
     delete[] chunks;
 }

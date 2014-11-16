@@ -70,10 +70,10 @@ public:
     void init(const i32v3 &gridPos, ChunkSlot* Owner);
 
     void updateContainers() {
-        _blockIDContainer.update(dataLock);
-        _sunlightContainer.update(dataLock);
-        _lampLightContainer.update(dataLock);
-        _tertiaryDataContainer.update(dataLock);
+        _blockIDContainer.update(_dataLock);
+        _sunlightContainer.update(_dataLock);
+        _lampLightContainer.update(_dataLock);
+        _tertiaryDataContainer.update(_dataLock);
     }
     
     void changeState(ChunkStates State);
@@ -205,16 +205,21 @@ public:
 
     static ui32 vboIndicesID;
 
-    
     Chunk *right, *left, *front, *back, *top, *bottom;
 
     ChunkSlot* owner;
     ChunkGridData* chunkGridData;
     vvoxel::VoxelMapData* voxelMapData;
 
-    std::mutex dataLock; ///< Lock that guards chunk data. Try to minimize locking.
+    // Thread safety functions
+    inline void lock() { _dataLock.lock(); }
+    inline void unlock() { _dataLock.unlock(); }
+    std::mutex& getDataLock() { return _dataLock; }
 
 private:
+
+    std::mutex _dataLock; ///< Lock that guards chunk data. Try to minimize locking.
+
     // Keeps track of which setup list we belong to
     boost::circular_buffer<Chunk*> *_chunkListPtr;
 

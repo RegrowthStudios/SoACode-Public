@@ -225,7 +225,7 @@ void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     //clear the memory for the chunk pointer array
     chunks[0] = chunks[1] = chunks[2] = chunks[3] = chunks[4] = chunks[5] = chunks[6] = chunks[7] = nullptr;
 
-    //If the 8 nnearby exist and are accessible then set them in the array. NOTE: Perhaps order matters? 
+    //If the 8 nearby exist and are accessible then set them in the array. NOTE: Perhaps order matters? 
 
     GETCHUNK(0, 0, 0);
     if (chunk && chunk->isAccessible) chunks[0] = chunk;
@@ -957,11 +957,14 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         }
         // Clear any opengl buffers
         chunk->clearBuffers();
+        // Lock to prevent data races
+        chunk->lock();
         // Sever any connections with neighbor chunks
         chunk->clearNeighbors();
         if (chunk->inSaveThread || chunk->inLoadThread || chunk->lastOwnerTask || chunk->_chunkListPtr) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
+            chunk->unlock();
             _threadWaitingChunks.push_back(chunk);
         } else {
             // Reduce the ref count since the chunk no longer needs chunkGridData
@@ -975,8 +978,8 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             // Completely clear the chunk and then recycle it
             
             chunk->clear();
-            delete chunk;
-            //recycleChunk(chunk);
+            chunk->unlock();
+            recycleChunk(chunk);
         }
     }
 }

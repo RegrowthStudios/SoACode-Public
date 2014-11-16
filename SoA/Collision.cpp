@@ -137,6 +137,9 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 si
 
         if (!(chunks[i]) || chunks[i]->isAccessible == false) continue; //avoid errors
 
+        // Lock the chunk for thread safety
+        std::lock_guard<std::mutex>(chunks[i]->getDataLock());
+
         //find the midpoint so that we can subdivide the chunk into 8 sections
         x = chunks[i]->gridPosition.x + CHUNK_WIDTH / 2;
         y = chunks[i]->gridPosition.y + CHUNK_WIDTH / 2;
