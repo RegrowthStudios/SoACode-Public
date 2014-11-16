@@ -225,10 +225,6 @@ void GamePlayScreen::handleInput() {
     // Get input manager handle
     InputManager* inputManager = GameManager::inputManager;
 
-    if (inputManager->getKeyDown(INPUT_GRID)) {
-        gridState = !gridState;
-    }
-
     // Block placement
     if (!_pda.isOpen()) {
         if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
