@@ -9,10 +9,17 @@ struct ChunkMeshData;
 struct BlockTexture;
 class BlockTextureLayer;
 
+// Sizes For A Padded Chunk
+const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
+const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
+const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 // each worker thread gets one of these
 class ChunkMesher {
 public:
+
+    friend class Chunk;
+
     ChunkMesher();
     ~ChunkMesher();
     
@@ -74,11 +81,16 @@ private:
     ui16 lodLampData[18 * 18 * 18];
     ui8 lodSunData[18 * 18 * 18];
 
-    //Pointers to the voxel data array that is currently in use
-    ui16* _blockIDData;
-    ui16* _lampLightData;
-    ui8* _sunlightData;
-    ui16* _tertiaryData;
+    Chunk* chunk; ///< The chunk we are currently meshing;
+    ChunkGridData* chunkGridData; ///< current grid data
+
+    int wSize;
+    // Voxel data arrays
+    ui16 _wvec[CHUNK_SIZE];
+    ui16 _blockIDData[PADDED_CHUNK_SIZE];
+    ui16 _lampLightData[PADDED_CHUNK_SIZE];
+    ui8 _sunlightData[PADDED_CHUNK_SIZE];
+    ui16 _tertiaryData[PADDED_CHUNK_SIZE];
 
     ui32 _finalQuads[7000];
 

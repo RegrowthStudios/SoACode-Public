@@ -10,6 +10,8 @@ void RenderTask::execute(vcore::WorkerData* workerData) {
     if (workerData->chunkMesher == nullptr) {
         workerData->chunkMesher = new ChunkMesher;
     }
+    // Pre-processing
+    chunk->setupMeshData(workerData->chunkMesher);
     // Mesh based on render job type
     switch (type) {
         case RenderTaskType::DEFAULT:
@@ -24,10 +26,7 @@ void RenderTask::execute(vcore::WorkerData* workerData) {
     workerData->chunkMesher->chunkMeshData = nullptr;
 }
 
-void RenderTask::setChunk(Chunk* ch, RenderTaskType cType) {
+void RenderTask::init(Chunk* ch, RenderTaskType cType) {
     type = cType;
     chunk = ch;
-    num = ch->numBlocks;
-    position = ch->gridPosition;
-    wSize = 0;
 }

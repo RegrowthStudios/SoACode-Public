@@ -4,6 +4,7 @@
 #include <boost\circular_buffer.hpp>
 
 #include "BlockData.h"
+#include "ChunkMesher.h"
 #include "Errors.h"
 #include "Frustum.h"
 #include "GameManager.h"
@@ -259,7 +260,7 @@ void Chunk::CheckEdgeBlocks()
     }
 }
 
-void Chunk::setupMeshData(RenderTask *renderTask)
+void Chunk::setupMeshData(ChunkMesher* chunkMesher)
 {
     int x, y, z, off1, off2;
 
@@ -268,25 +269,21 @@ void Chunk::setupMeshData(RenderTask *renderTask)
     int c = 0;
 
     i32v3 pos;
-    Chunk* chunk = renderTask->chunk;
-    assert(chunk != nullptr);
 
-    ui16* wvec = renderTask->wvec;
-    ui16* chData = renderTask->chData;
-    ui16* chLampData = renderTask->chLampData;
-    ui8* chSunlightData = renderTask->chSunlightData;
-    ui16* chTertiaryData = renderTask->chTertiaryData;
+    ui16* wvec = chunkMesher->_wvec;
+    ui16* chData = chunkMesher->_blockIDData;
+    ui16* chLampData = chunkMesher->_lampLightData;
+    ui8* chSunlightData = chunkMesher->_sunlightData;
+    ui16* chTertiaryData = chunkMesher->_tertiaryData;
 
-    //set chunkGridData
-    renderTask->chunkGridData = chunkGridData;
-
-    //Set LOD
-    renderTask->levelOfDetail = _levelOfDetail;
+    chunkMesher->wSize = 0;
+    chunkMesher->chunk = this;
+    chunkMesher->chunkGridData = chunkGridData;
 
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
 
-    chunk->lock();
+    lock();
 
     if (_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
 
@@ -306,7 +303,7 @@ void Chunk::setupMeshData(RenderTask *renderTask)
 
             }
         }
-        renderTask->wSize = s;
+        chunkMesher->wSize = s;
     } else {
         int s = 0;
         for (y = 0; y < CHUNK_WIDTH; y++) {
@@ -320,7 +317,7 @@ void Chunk::setupMeshData(RenderTask *renderTask)
                 }
             }
         }
-        renderTask->wSize = s;
+        chunkMesher->wSize = s;
     }
     if (_lampLightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         //lamp data
@@ -398,7 +395,7 @@ void Chunk::setupMeshData(RenderTask *renderTask)
             }
         }
     }
-    chunk->unlock();
+    unlock();
  
     //top and bottom
     ch1 = bottom;

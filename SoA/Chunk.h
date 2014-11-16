@@ -36,6 +36,7 @@ enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DR
 
 struct LightMessage;
 class RenderTask;
+class ChunkMesher;
 
 class ChunkGridData {
 public:
@@ -108,7 +109,7 @@ public:
     void CheckEdgeBlocks();
     int GetPlantType(int x, int z, Biome *biome);
 
-    void setupMeshData(RenderTask *renderTask);
+    void setupMeshData(ChunkMesher *chunkMesher);
 
     void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
     void clearChunkListPtr();

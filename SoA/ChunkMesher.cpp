@@ -206,7 +206,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     mi.rainfall = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].rainfall;
 
     //get bit flags (needs to be changed) -Ben
-    GLuint flags = GETFLAGS(mi.task->chData[mi.wc]);
+    GLuint flags = GETFLAGS(mi.blockIDData[mi.wc]);
 
     bool faces[6] = { false, false, false, false, false, false };
     //Check for which faces are occluded by nearby blocks
@@ -220,7 +220,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     //Get nearby lighting information
 
-    GetLightDataArray(wc, mi.x, mi.y, mi.z, lampLights, sunlights, mi.task->chData, mi.task->chSunlightData, mi.task->chLampData, faces);
+    GetLightDataArray(wc, mi.x, mi.y, mi.z, lampLights, sunlights, mi.blockIDData, _sunlightData, _lampLightData, faces);
 
     if (faces[ZPOS]){ //0 1 2 3
         //Get the color of the block
@@ -559,10 +559,10 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 
     GLuint flags = GETFLAGS(_blockIDData[mi.wc]);
 
-    ui8 sunLight = mi.task->chSunlightData[wc];
-    ColorRGB8 lampLight((mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
-        (mi.task->chLampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-        mi.task->chLampData[wc] & LAMP_BLUE_MASK);
+    ui8 sunLight = _sunlightData[wc];
+    ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+                        (_lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
+                        _lampLightData[wc] & LAMP_BLUE_MASK);
 
     sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
     lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
@@ -607,7 +607,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 }
 
 //Gets the liquid level from a block index
-#define LEVEL(i) ((task->chData[i] == 0) ? 0 : (((nextBlock = &GETBLOCK(task->chData[i]))->physicsProperty == block.physicsProperty) ? nextBlock->waterMeshLevel : 0))
+#define LEVEL(i) ((_blockIDData[i] == 0) ? 0 : (((nextBlock = &GETBLOCK(_blockIDData[i]))->physicsProperty == block.physicsProperty) ? nextBlock->waterMeshLevel : 0))
 
 #define CALCULATE_LIQUID_VERTEX_HEIGHT(height, heightA, heightB, cornerIndex) \
     div = 0; \
@@ -674,15 +674,15 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     ui8 uOff = x * 7;
     ui8 vOff = 224 - z * 7;
 
-    ui8 temperature = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
-    ui8 depth = task->chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
+    ui8 temperature = chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
+    ui8 depth = chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
 
     ColorRGB8 color = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
 
-    ui8 sunlight = mi.task->chSunlightData[wc];
-    ColorRGB8 lampLight((mi.task->chLampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
-        (mi.task->chLampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-        mi.task->chLampData[wc] & LAMP_BLUE_MASK);
+    ui8 sunlight = _sunlightData[wc];
+    ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+                        (_lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
+                        _lampLightData[wc] & LAMP_BLUE_MASK);
 
     sunlight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunlight)));
     lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
@@ -737,7 +737,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
     //only occlude top if we are a full water block and our sides arent down at all
     if (liquidLevel == 1.0f && backRightHeight == 1.0f && backLeftHeight == 1.0f && frontLeftHeight == 1.0f && frontRightHeight == 1.0f) {
-        nextBlock = &GETBLOCK(task->chData[wc + PADDED_OFFSETS::TOP]);
+        nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::TOP]);
         faces[YPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
     } else {
         faces[YPOS] = true;
@@ -1459,6 +1459,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     int waveEffect;
     Block *block;
+    Chunk* chunk = renderTask->chunk;
 
     //Stores the information about the current mesh job
     MesherInfo mi = {};
@@ -1469,7 +1470,8 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     //store the render task so we can pass it to functions
     mi.task = renderTask;
-    mi.chunkGridData = renderTask->chunkGridData;
+    mi.chunkGridData = chunk->chunkGridData;
+    mi.position = chunk->gridPosition;
 
     //Used in merging
     _currPrevRightQuads = 0;
@@ -1486,15 +1488,15 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //Stores the data for a chunk mesh
     chunkMeshData = new ChunkMeshData(renderTask);
 
-    mi.blockIDData = _blockIDData = renderTask->chData;
-    mi.lampLightData = _lampLightData = renderTask->chLampData;
-    mi.sunlightData = _sunlightData = renderTask->chSunlightData;
-    mi.tertiaryData = _tertiaryData = renderTask->chTertiaryData;
+    mi.blockIDData = _blockIDData;
+    mi.lampLightData = _lampLightData;
+    mi.sunlightData = _sunlightData;
+    mi.tertiaryData = _tertiaryData;
 
+    int levelOfDetail = chunk->getLevelOfDetail();
 
-
-    if (renderTask->levelOfDetail > 1) {
-        computeLODData(renderTask->levelOfDetail);
+    if (levelOfDetail > 1) {
+        computeLODData(levelOfDetail);
     } else {
         dataLayer = PADDED_CHUNK_LAYER;
         dataWidth = PADDED_CHUNK_WIDTH;
@@ -1504,7 +1506,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     // Init the mesh info
     mi.init(dataWidth, dataLayer);
 
-    mi.levelOfDetail = renderTask->levelOfDetail;
+    mi.levelOfDetail = levelOfDetail;
     int lodStep = (1 << (mi.levelOfDetail - 1));
 
     for (mi.y = 0; mi.y < dataWidth-2; mi.y++) {
@@ -1682,9 +1684,9 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
 
     mi.task = renderTask;
 
-    for (int i = 0; i < renderTask->wSize; i++) {
-        mi.wc = renderTask->wvec[i];
-        mi.btype = GETBLOCKTYPE(renderTask->chData[mi.wc]);
+    for (int i = 0; i < wSize; i++) {
+        mi.wc = _wvec[i];
+        mi.btype = GETBLOCKTYPE(_blockIDData[mi.wc]);
         mi.x = (mi.wc % PADDED_CHUNK_WIDTH) - 1;
         mi.y = (mi.wc / PADDED_CHUNK_LAYER) - 1;
         mi.z = ((mi.wc % PADDED_CHUNK_LAYER) / PADDED_CHUNK_WIDTH) - 1;
@@ -1878,7 +1880,7 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
         }
     }
 
-    _blockIDData = lodIDData;
-    _lampLightData = lodLampData;
-    _sunlightData = lodSunData;
+ //   _blockIDData = lodIDData;
+ //   _lampLightData = lodLampData;
+ //   _sunlightData = lodSunData;
 }

@@ -789,11 +789,11 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                     }
 
                     if (chunk->_state == ChunkStates::MESH) {
-                        newRenderTask->setChunk(chunk, RenderTaskType::DEFAULT);
+                        newRenderTask->init(chunk, RenderTaskType::DEFAULT);
                     } else {
-                        newRenderTask->setChunk(chunk, RenderTaskType::LIQUID);
+                        newRenderTask->init(chunk, RenderTaskType::LIQUID);
                     }
-                    chunk->setupMeshData(newRenderTask);
+
                     chunk->lastOwnerTask = newRenderTask;
                     _threadPool.addTask(newRenderTask);
 

@@ -12,7 +12,7 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
     //TODO: MurmurHash3
     const MesherInfo* mi = params.mesherInfo;
     const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
-    int seed = getPositionSeed(mi->x + mi->task->position.x, mi->y + mi->task->position.y, mi->z + mi->task->position.z);
+    int seed = getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
 
     float r = (PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo->totalWeight;
     float totalWeight = 0;
@@ -40,7 +40,7 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
 void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, int& result) {
     //TODO: MurmurHash3
     const MesherInfo* mi = params.mesherInfo;
-    int seed = getPositionSeed(mi->x + mi->task->position.x, mi->y + mi->task->position.y, mi->z + mi->task->position.z);
+    int seed = getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
 
     float r = (PseudoRand(seed) + 1.0) * 0.5 * params.blockTexInfo->totalWeight;
     float totalWeight = 0;
