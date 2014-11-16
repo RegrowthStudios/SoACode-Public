@@ -115,6 +115,8 @@ public:
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask;
         shaderTask.load();
+        _screen->_renderPipeline.destroy();
+        _screen->initRenderPipeline();
     }
 };
 
