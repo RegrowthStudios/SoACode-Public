@@ -61,6 +61,8 @@
       </ForcedUsingFiles>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -92,6 +94,8 @@
       </ForcedUsingFiles>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
@@ -117,6 +121,8 @@
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="concurrentqueue.h" />
+    <ClInclude Include="Event.hpp" />
+    <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
     <ClInclude Include="FixedSizeArrayRecycler.hpp" />
