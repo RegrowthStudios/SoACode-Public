@@ -108,7 +108,7 @@ public:
     void CheckEdgeBlocks();
     int GetPlantType(int x, int z, Biome *biome);
 
-    void SetupMeshData(RenderTask *renderTask);
+    void setupMeshData(RenderTask *renderTask);
 
     void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
     void clearChunkListPtr();
@@ -169,7 +169,7 @@ public:
     int loadStatus;
     volatile bool inLoadThread;
     volatile bool inSaveThread;
-    bool isAccessible;
+    volatile bool isAccessible;
 
     vcore::IThreadPoolTask* lastOwnerTask; ///< Pointer to task that is working on us
 
@@ -218,6 +218,10 @@ public:
 
 private:
 
+    /// _dataLock guards chunk data.
+    /// Since only the main thread modifies data, the main thread does not
+    /// need to lock when reading, only when writing. All other threads should
+    /// lock when reading.
     std::mutex _dataLock; ///< Lock that guards chunk data. Try to minimize locking.
 
     // Keeps track of which setup list we belong to

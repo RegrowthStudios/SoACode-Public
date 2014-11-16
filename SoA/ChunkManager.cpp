@@ -181,6 +181,8 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     globalMultiplePreciseTimer.start("Setup List");
     updateSetupList(4);
 
+    std::cout << _threadPool.getTasksSizeApprox() << std::endl;
+
     //This doesnt function correctly
     //caveOcclusion(position);
 
@@ -791,7 +793,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                     } else {
                         newRenderTask->setChunk(chunk, RenderTaskType::LIQUID);
                     }
-                    chunk->SetupMeshData(newRenderTask);
+                    chunk->setupMeshData(newRenderTask);
                     chunk->lastOwnerTask = newRenderTask;
                     _threadPool.addTask(newRenderTask);
 
