@@ -82,6 +82,7 @@ void TexturePackLoader::getBlockTexture(nString& key, BlockTexture& texture) {
         if (it->second.overlay) {
             texture.overlay = *it->second.overlay;
         }
+        texture.blendMode = it->second.blendMode;
     }
 }
 
@@ -144,7 +145,6 @@ TexturePackInfo TexturePackLoader::loadPackFile(const nString& filePath) {
     pError("Failed to load texture pack file " + filePath);
     return rv;
 }
-
 
 ColorRGB8* TexturePackLoader::getColorMap(const nString& name) {
     auto it = _blockColorMapLookupTable.find(name);
@@ -230,7 +230,6 @@ void TexturePackLoader::destroy() {
     _numAtlasPages = 0;
 }
 
-
 void TexturePackLoader::writeDebugAtlases() {
     int width = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
     int height = width;
@@ -295,6 +294,9 @@ void TexturePackLoader::loadAllBlockTextures() {
             // Init the func
             if (blockTextureLoadData.overlay) blockTextureLoadData.overlay->initBlockTextureFunc();
         }
+
+        // Set blend mode
+        blockTextureLoadData.blendMode = blockTexture.blendMode;
 
         // Add it to the list of load datas
         _blockTextureLoadDatas[texturePath] = blockTextureLoadData;

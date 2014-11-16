@@ -57,6 +57,7 @@ class GamePlayScreen : public IAppScreen<App> {
     friend class OnFlyKeyDown;
     friend class OnInventoryKeyDown;
     friend class OnReloadUIKeyDown;
+    friend class OnReloadShadersKeyDown;
     friend class OnHUDKeyDown;
     friend class OnGridKeyDown;
 public:
