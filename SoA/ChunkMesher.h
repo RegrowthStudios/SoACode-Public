@@ -76,11 +76,6 @@ private:
     int dataLayer;
     int dataSize;
 
-    //Used to store LOD data when LOD is in effect
-    ui16 lodIDData[18 * 18 * 18];
-    ui16 lodLampData[18 * 18 * 18];
-    ui8 lodSunData[18 * 18 * 18];
-
     Chunk* chunk; ///< The chunk we are currently meshing;
     ChunkGridData* chunkGridData; ///< current grid data
 

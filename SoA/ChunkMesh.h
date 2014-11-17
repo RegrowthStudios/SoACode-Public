@@ -42,6 +42,7 @@ public:
     i32 pbtype;
     i32 pupIndex, pfrontIndex, pbackIndex, pbotIndex;
     i32 temperature, rainfall;
+    i32 levelOfDetail;
     MeshType meshType;
     bool mergeUp, mergeBot, mergeFront, mergeBack;
     const Block* currentBlock;
