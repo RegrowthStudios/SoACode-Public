@@ -13,10 +13,11 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "GameManager.h"
-#include "ThreadPool.h"
 #include "ChunkIOManager.h"
+#include "FixedSizeArrayRecycler.hpp"
+#include "GameManager.h"
 #include "IVoxelMapper.h"
+#include "ThreadPool.h"
 #include "WorldStructs.h"
 
 const i32 lodStep = 1;
@@ -47,6 +48,8 @@ public:
 };
 
 class ChunkSlot;
+class RenderTask;
+class GenerateTask;
 
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
@@ -74,11 +77,6 @@ public:
     // @param coord: the position in question
     // @param chunks: a pointer to a Chunk[8] that will be filled by the function
     void getClosestChunks(f64v3& coord, class Chunk** chunks);
-
-    // Draws the chunk grid. Should be called by the render thread
-    // @param VP: View projection matrix
-    // @param position: camera position
-    void drawChunkLines(const glm::mat4& VP, const f64v3& position);
 
     // Gets the block that is intersecting with a ray
     // @param dir: the ray direction
@@ -114,7 +112,7 @@ public:
     ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
     // Clears everything, freeing all memory. Should be called when ending a game
-    void clearAll();
+    void destroy();
 
     // Saves all chunks that are dirty
     void saveAllChunks();
@@ -183,11 +181,17 @@ private:
     // Initializes the threadpool
     void initializeThreadPool();
 
+    // Gets all finished tasks from threadpool
+    void processFinishedTasks();
+
+    // Processes a generate task that is finished
+    void processFinishedGenerateTask(GenerateTask* task);
+
+    // Processes a render task that is finished
+    void processFinishedRenderTask(RenderTask* task);
+
     // Updates all chunks that have been loaded
     void updateLoadedChunks();
-
-    // Updates all chunks that are finished generating meshes
-    void uploadFinishedMeshes();
 
     // Creates a chunk and any needed grid data at a given chunk position
     // @param chunkPosition: position to create the chunk at
@@ -217,10 +221,6 @@ private:
     // Setups any chunk neighbor connections
     // @param chunk: the chunk to connect
     void setupNeighbors(Chunk* chunk);
-
-    // Clears a chunk from any lists and buffers
-    // @param the chunk to clear
-    void clearChunkFromLists(Chunk* chunk);
 
     // Frees a chunk from the world. 
     // The chunk may be recycled, or it may need to wait for some threads
@@ -269,12 +269,6 @@ private:
     // @param offset: the offset, must be unit length.
     ChunkSlot* tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& cameraPos, const i32v3& offset);
 
-    // Sorts a chunk list recursively
-    // @param v: the list to sort
-    // @Param start: should be 0
-    // @param size: size of v
-    void recursiveSortChunkList(boost::circular_buffer<Chunk*>& v, i32 start, i32 size);
-
     // Calculates cave occlusion. This is temporarily broken // TODO(Ben): Fix cave occlusion
     void caveOcclusion(const f64v3& ppos);
     // Used by cave occlusion
@@ -309,11 +303,13 @@ private:
     // List of chunks that need to be generated on the threadPool
     boost::circular_buffer<Chunk*> _generateList;
 
-    // Stack of finished meshes, used only by uploadFinishedMeshes()
-    vector<ChunkMeshData*> _finishedChunkMeshes;
-
     // Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
+
+    /// Max size of the tasks vectors
+    #define MAX_CACHED_TASKS 50
+    std::vector<RenderTask*> _freeRenderTasks; ///< For recycling render tasks
+    std::vector<GenerateTask*> _freeGenerateTasks; ///< For recycling generateTasks
 
     // Used by cave occlusion
     i32 _poccx, _poccy, _poccz;
@@ -331,6 +327,9 @@ private:
     vvoxel::VoxelMapData* _cameraVoxelMapData;
 
     // The threadpool for generating chunks and meshes
-    ThreadPool threadPool;
+    vcore::ThreadPool _threadPool;
+
+    vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data
+    vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> _byteFixedSizeArrayRecycler; ///< For recycling voxel data
 };
 

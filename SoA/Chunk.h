@@ -14,6 +14,7 @@
 #include "SmartVoxelContainer.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
+#include "Vorb.h"
 #include "VoxelBits.h"
 #include "VoxelLightEngine.h"
 
@@ -23,13 +24,18 @@ const int MAXLIGHT = 31;
 
 class Block;
 struct PlantData;
+namespace vorb {
+    namespace core {
+        class IThreadPoolTask;
+    }
+}
 
 enum LightTypes {LIGHT, SUNLIGHT};
 
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
 struct LightMessage;
-struct RenderTask;
+class RenderTask;
 
 class ChunkGridData {
 public:
@@ -105,10 +111,18 @@ public:
     void SetupMeshData(RenderTask *renderTask);
 
     void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
-    void removeFromChunkList();
     void clearChunkListPtr();
 
-    Chunk(){
+    /// Constructor
+    /// @param shortRecycler: Recycler for ui16 data arrays
+    /// @param byteRecycler: Recycler for ui8 data arrays
+    Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 
+          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) : 
+          _blockIDContainer(shortRecycler), 
+          _sunlightContainer(byteRecycler),
+          _lampLightContainer(shortRecycler),
+          _tertiaryDataContainer(shortRecycler) {
+        // Empty
     }
     ~Chunk(){
         clearBuffers();
@@ -155,11 +169,9 @@ public:
     int loadStatus;
     volatile bool inLoadThread;
     volatile bool inSaveThread;
-    volatile bool inRenderThread;
-    volatile bool inGenerateThread;
-    volatile bool inFinishedMeshes;
-    volatile bool inFinishedChunks;
     bool isAccessible;
+
+    vcore::IThreadPoolTask* lastOwnerTask; ///< Pointer to task that is working on us
 
     ChunkMesh *mesh;
 
@@ -204,17 +216,16 @@ public:
     vvoxel::VoxelMapData* voxelMapData;
 
 private:
-    // Keeps track of which setup list we belong to, and where we are in the list.
-    int _chunkListIndex;
+    // Keeps track of which setup list we belong to
     boost::circular_buffer<Chunk*> *_chunkListPtr;
 
     ChunkStates _state;
 
     //The data that defines the voxels
-    SmartVoxelContainer<ui16> _blockIDContainer;
-    SmartVoxelContainer<ui8> _sunlightContainer;
-    SmartVoxelContainer<ui16> _lampLightContainer;
-    SmartVoxelContainer<ui16> _tertiaryDataContainer;
+    vvoxel::SmartVoxelContainer<ui16> _blockIDContainer;
+    vvoxel::SmartVoxelContainer<ui8> _sunlightContainer;
+    vvoxel::SmartVoxelContainer<ui16> _lampLightContainer;
+    vvoxel::SmartVoxelContainer<ui16> _tertiaryDataContainer;
 
     int _levelOfDetail;
 

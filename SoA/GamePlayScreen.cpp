@@ -29,13 +29,23 @@
 #include "SpriteBatch.h"
 #include "colors.h"
 #include "Options.h"
+#include "GamePlayScreenEvents.hpp"
+#include "Event.hpp"
 
 #define THREAD ThreadId::UPDATE
 
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
     _updateThread(nullptr),
     _threadRunning(false), 
-    _inFocus(true) {
+    _inFocus(true),
+    _onPauseKeyDown(nullptr),
+    _onFlyKeyDown(nullptr),
+    _onGridKeyDown(nullptr),
+    _onReloadTexturesKeyDown(nullptr),
+    _onReloadShadersKeyDown(nullptr),
+    _onInventoryKeyDown(nullptr),
+    _onReloadUIKeyDown(nullptr),
+    _onHUDKeyDown(nullptr) {
     // Empty
 }
 
@@ -47,12 +57,15 @@ i32 GamePlayScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
 
-void GamePlayScreen::build(){
+//#define SUBSCRIBE(ID, CLASS, VAR) \
+//    VAR = inputManager->subscribe(ID, InputManager::EventType::DOWN, new CLASS(this));
 
+void GamePlayScreen::build() {
+    
 }
 
 void GamePlayScreen::destroy(const GameTime& gameTime) {
-
+    
 }
 
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
@@ -75,9 +88,55 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
+    InputManager* inputManager = GameManager::inputManager;
+    _onPauseKeyDown = inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
+    _onFlyKeyDown = inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
+    _onGridKeyDown = inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
+    _onReloadTexturesKeyDown = inputManager->subscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadTexturesKeyDown(this));
+    _onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadShadersKeyDown(this));
+    _onInventoryKeyDown = inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
+    _onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
+    _onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
+    _onNightVisionToggle = inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+        _renderPipeline.toggleNightVision();
+    });
+    _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+        _renderPipeline.loadNightVision();
+    });
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
+    InputManager* inputManager = GameManager::inputManager;
+    inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
+    delete _onPauseKeyDown;
+
+    inputManager->unsubscribe(INPUT_FLY, InputManager::EventType::DOWN, _onFlyKeyDown);
+    delete _onFlyKeyDown;
+
+    inputManager->unsubscribe(INPUT_GRID, InputManager::EventType::DOWN, _onGridKeyDown);
+    delete _onGridKeyDown;
+
+    inputManager->unsubscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, _onReloadTexturesKeyDown);
+    delete _onReloadTexturesKeyDown;
+
+    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, _onReloadShadersKeyDown);
+    delete _onReloadShadersKeyDown;
+
+    inputManager->unsubscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, _onInventoryKeyDown);
+    delete _onInventoryKeyDown;
+
+    inputManager->unsubscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, _onReloadUIKeyDown);
+    delete _onReloadUIKeyDown;
+
+    inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, _onHUDKeyDown);
+    delete _onHUDKeyDown;
+
+    inputManager->unsubscribe(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, _onNightVisionToggle);
+    delete _onNightVisionToggle;
+
+    inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, _onNightVisionReload);
+    delete _onNightVisionReload;
+
     _threadRunning = false;
     _updateThread->join();
     delete _updateThread;
@@ -170,77 +229,13 @@ void GamePlayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
-                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager);
+                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager,
+                         GameManager::chunkManager->getChunkSlots(0));
 }
 
 void GamePlayScreen::handleInput() {
     // Get input manager handle
     InputManager* inputManager = GameManager::inputManager;
-    // Handle key inputs
-    if (inputManager->getKeyDown(INPUT_PAUSE)) {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        _inFocus = false;
-    }
-    if (inputManager->getKeyDown(INPUT_FLY)) {
-        _player->flyToggle();
-    }
-    if (inputManager->getKeyDown(INPUT_NIGHT_VISION)) {
-        _renderPipeline.toggleNightVision();
-    }
-    if (inputManager->getKeyDown(INPUT_NIGHT_VISION_RELOAD)) {
-        _renderPipeline.loadNightVision();
-    }
-    if (inputManager->getKeyDown(INPUT_GRID)) {
-        gridState = !gridState;
-    }
-    if (inputManager->getKeyDown(INPUT_RELOAD_TEXTURES)) {
-        // Free atlas
-        vg::GpuMemory::freeTexture(blockPack.textureInfo.ID);
-        // Free all textures
-        GameManager::textureCache->destroy();
-        // Reload textures
-        GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + graphicsOptions.texturePackString + "/");
-        GameManager::texturePackLoader->uploadTextures();
-        GameManager::texturePackLoader->writeDebugAtlases();
-        GameManager::texturePackLoader->setBlockTextures(Blocks);
-
-        GameManager::getTextureHandles();
-
-        // Initialize all the textures for blocks.
-        for (size_t i = 0; i < Blocks.size(); i++) {
-            Blocks[i].InitializeTexture();
-        }
-
-        GameManager::texturePackLoader->destroy();
-    }
-    if (inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-        GameManager::glProgramManager->destroy();
-        LoadTaskShaders shaderTask;
-        shaderTask.load();
-        // Need to reinitialize the render pipeline with new shaders
-        _renderPipeline.destroy();
-        initRenderPipeline();
-    }
-    if (inputManager->getKeyDown(INPUT_INVENTORY)) {
-        if (_pda.isOpen()) {
-            _pda.close();
-            SDL_SetRelativeMouseMode(SDL_TRUE);
-            _inFocus = true;
-            SDL_StartTextInput();
-        } else {
-            _pda.open();
-            SDL_SetRelativeMouseMode(SDL_FALSE);
-            _inFocus = false;
-            SDL_StopTextInput();
-        }
-    }
-    if (inputManager->getKeyDown(INPUT_RELOAD_UI)) {
-        if (_pda.isOpen()) {
-            _pda.close();
-        }
-        _pda.destroy();
-        _pda.init(this);
-    }
 
     // Block placement
     if (!_pda.isOpen()) {
@@ -259,11 +254,6 @@ void GamePlayScreen::handleInput() {
                 GameManager::clickDragRay(false);
             }
         }
-    }
-
-    // Dev hud
-    if (inputManager->getKeyDown(INPUT_HUD)) {
-        _renderPipeline.cycleDevHud();
     }
 
     // Update inputManager internal state

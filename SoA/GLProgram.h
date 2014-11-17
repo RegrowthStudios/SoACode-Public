@@ -16,6 +16,7 @@
 #ifndef GLPROGRAM_H_
 #define GLPROGRAM_H_
 
+#include "GLenums.h"
 #include "Vorb.h"
 
 namespace vorb {

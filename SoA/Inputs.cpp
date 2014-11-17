@@ -4,6 +4,8 @@
 #include "GameManager.h"
 #include "InputManager.h"
 
+#include <stdio.h>
+
 // Input Commands Sorted Alphabetically
 i32 INPUT_BLOCK_SCANNER = -1;
 i32 INPUT_BLOCK_DRAG = -1;
@@ -103,5 +105,4 @@ void initInputs() {
     // Block Utilities
     CREATE_INPUT(Block Scanner, SDLK_q, INPUT_BLOCK_SCANNER);
     CREATE_INPUT(Block Select, SDLK_b, INPUT_BLOCK_DRAG);
-
 }

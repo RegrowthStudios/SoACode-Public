@@ -7,12 +7,16 @@
 #include "LoadMonitor.h"
 #include "GLProgramManager.h"
 
+class OnReloadShaderKeyDown;
+
 // TODO(Ben): Somehow make this asynchronous
 class LoadTaskShaders : public ILoadTask {
     // So that these classes can call load()
     friend class LoadScreen;
     friend class GamePlayScreen;
+    friend class OnReloadShadersKeyDown;
     friend class MainMenuScreen;
+
 public:
     LoadTaskShaders() {
         // Empty

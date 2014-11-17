@@ -10,7 +10,7 @@ public:
 };
 
 enum class BlendType {
-    REPLACE,
+    ALPHA,
     ADD,
     SUBTRACT,
     MULTIPLY

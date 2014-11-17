@@ -43,17 +43,12 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	hasLoadedSunlight = 0;
 	isAccessible = 0;
 	inLoadThread = 0;
-	inGenerateThread = 0;
-	inRenderThread = 0;
-	inFinishedMeshes = 0;
-	inFinishedChunks = 0;
 	inSaveThread = 0;
 	dirty = 0;
 	//THIS MUST COME BEFORE CLEARBUFFERS
 	mesh = NULL;
 	clearBuffers();
 	_chunkListPtr = NULL;
-	_chunkListIndex = -1;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
     gridPosition = gridPos;
@@ -84,10 +79,10 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	drawWater = 0;
 	occlude = 0;
     owner = Owner;
-    distance2 = Owner->distance2;
+    lastOwnerTask = nullptr;
+    distance2 = owner->distance2;
     chunkGridData = owner->chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;
-
 }
 
 vector <Chunk*> *dbgst;
@@ -97,7 +92,6 @@ void Chunk::clear(bool clearDraw)
     clearBuffers();
     freeWaiting = false;
     voxelMapData = nullptr;
-
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();
@@ -105,9 +99,8 @@ void Chunk::clear(bool clearDraw)
 
     _state = ChunkStates::LOAD;
     isAccessible = 0;
-    left = right = front = back = top = bottom = NULL;
-    _chunkListPtr = NULL;
-    _chunkListIndex = -1;
+    left = right = front = back = top = bottom = nullptr;
+    _chunkListPtr = nullptr;
     treeTryTicks = 0;
 
     vector<ui16>().swap(spawnerBlocks);
@@ -135,7 +128,7 @@ void Chunk::clearBuffers()
 		ChunkMeshData *cmd = new ChunkMeshData(this);
 		cmd->chunkMesh = mesh;
 		mesh = NULL;
-		cmd->debugCode = 1; 
+
         GameManager::messageManager->enqueue(ThreadId::UPDATE,
                                              Message(MessageID::CHUNK_MESH, 
                                              (void*)cmd));
@@ -300,7 +293,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 
     //Must have all neighbors
     assert(top && left && right && back && front && bottom);
-    if (_blockIDContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
 
         int s = 0;
         //block data
@@ -334,7 +327,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
         }
         renderTask->wSize = s;
     }
-    if (_lampLightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_lampLightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         //lamp data
         c = 0;
         for (int i = 0; i < _lampLightContainer._dataTree.size(); i++) {
@@ -359,7 +352,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             }
         }
     }
-    if (_sunlightContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         //sunlight data
         c = 0;
         for (int i = 0; i < _sunlightContainer._dataTree.size(); i++) {
@@ -384,7 +377,7 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
             }
         }
     }
-    if (_tertiaryDataContainer.getState() == VoxelStorageState::INTERVAL_TREE) {
+    if (_tertiaryDataContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         //tertiary data
         c = 0;
         for (int i = 0; i < _tertiaryDataContainer._dataTree.size(); i++) {
@@ -809,20 +802,11 @@ void Chunk::SetupMeshData(RenderTask *renderTask)
 
 void Chunk::addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr) {
     _chunkListPtr = chunkListPtr;
-    _chunkListIndex = chunkListPtr->size();
     chunkListPtr->push_back(this);
-}
-
-void Chunk::removeFromChunkList() {
-    (*_chunkListPtr)[_chunkListIndex] = _chunkListPtr->back();
-    (*_chunkListPtr)[_chunkListIndex]->_chunkListIndex = _chunkListIndex;
-    _chunkListPtr->pop_back();
-    clearChunkListPtr();
 }
 
 void Chunk::clearChunkListPtr() {
     _chunkListPtr = nullptr;
-    _chunkListIndex = -1;
 }
 
 int Chunk::getRainfall(int xz) const {

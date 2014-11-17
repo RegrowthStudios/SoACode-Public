@@ -25,14 +25,16 @@
 /// Forward declarations
 class App;
 class Camera;
+class ChunkGridRenderStage;
+class ChunkSlot;
 class CutoutVoxelRenderStage;
 class DevHudRenderStage;
 class HdrRenderStage;
 class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
 class MeshManager;
-class OpaqueVoxelRenderStage;
 class NightVisionRenderStage;
+class OpaqueVoxelRenderStage;
 class PDA;
 class PdaRenderStage;
 class PhysicsBlockRenderStage;
@@ -55,10 +57,12 @@ public:
     /// @param meshManager: Stores all needed meshes
     /// @param pda: The PDA to render
     /// @param glProgramManager: Contains all the needed GLPrograms
+    /// @param chunkSlots: The chunk slots for debug rendering
     void init(const ui32v4& viewport, Camera* chunkCamera,
               const Camera* worldCamera, const App* app,
               const Player* player, const MeshManager* meshManager,
-              const PDA* pda, const vg::GLProgramManager* glProgramManager);
+              const PDA* pda, const vg::GLProgramManager* glProgramManager,
+              const std::vector<ChunkSlot>& chunkSlots);
 
     /// Renders the pipeline
     virtual void render() override;
@@ -73,12 +77,15 @@ public:
     void toggleNightVision();
     /// Load night vision data
     void loadNightVision();
+    /// Toggle the visibility of chunkGrid
+    void toggleChunkGrid();
 private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     PhysicsBlockRenderStage* _physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
     PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     OpaqueVoxelRenderStage* _opaqueVoxelRenderStage = nullptr; ///< Renders opaque voxels
     CutoutVoxelRenderStage* _cutoutVoxelRenderStage = nullptr; ///< Renders cutout voxels
+    ChunkGridRenderStage* _chunkGridRenderStage = nullptr;
     TransparentVoxelRenderStage* _transparentVoxelRenderStage = nullptr; ///< Renders transparent voxels
     LiquidVoxelRenderStage* _liquidVoxelRenderStage = nullptr; ///< Renders liquid voxels
     DevHudRenderStage* _devHudRenderStage = nullptr; ///< renders the dev/debug HUD

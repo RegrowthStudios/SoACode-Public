@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "Camera.h"
+#include "ChunkGridRenderStage.h"
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
 #include "Errors.h"
@@ -26,7 +27,8 @@ GamePlayRenderPipeline::GamePlayRenderPipeline() {
 void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
                                   const Camera* worldCamera, const App* app,
                                   const Player* player, const MeshManager* meshManager,
-                                  const PDA* pda, const vg::GLProgramManager* glProgramManager) {
+                                  const PDA* pda, const vg::GLProgramManager* glProgramManager,
+                                  const std::vector<ChunkSlot>& chunkSlots) {
     // Set the viewport
     _viewport = viewport;
 
@@ -65,6 +67,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _planetRenderStage = new PlanetRenderStage(_worldCamera);
     _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
     _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
+    _chunkGridRenderStage = new ChunkGridRenderStage(&_gameRenderParams, chunkSlots);
     _transparentVoxelRenderStage = new TransparentVoxelRenderStage(&_gameRenderParams);
     _liquidVoxelRenderStage = new LiquidVoxelRenderStage(&_gameRenderParams);
     _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
@@ -73,6 +76,9 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
 
     loadNightVision();
+    // No post-process effects to begin with
+    _nightVisionRenderStage->setIsVisible(false);
+    _chunkGridRenderStage->setIsVisible(false);
 }
 
 GamePlayRenderPipeline::~GamePlayRenderPipeline() {
@@ -102,6 +108,7 @@ void GamePlayRenderPipeline::render() {
     _opaqueVoxelRenderStage->draw();
     _physicsBlockRenderStage->draw();
     _cutoutVoxelRenderStage->draw();
+    _chunkGridRenderStage->draw();
     _liquidVoxelRenderStage->draw();
     _transparentVoxelRenderStage->draw();
 
@@ -216,4 +223,8 @@ void GamePlayRenderPipeline::loadNightVision() {
     if (_nvParams.size() < 1) {
         _nvParams.push_back(NightVisionRenderParams::createDefault());
     }
+}
+
+void GamePlayRenderPipeline::toggleChunkGrid() {
+    _chunkGridRenderStage->setIsVisible(!_chunkGridRenderStage->isVisible());
 }

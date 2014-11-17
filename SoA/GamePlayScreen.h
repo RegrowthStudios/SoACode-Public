@@ -30,8 +30,36 @@ class SpriteBatch;
 class SpriteFont;
 struct TerrainMeshMessage;
 
+template<typename... Params>
+class IDelegate;
+class GamePlayScreenDelegate;
+class OnPauseKeyDown;
+class OnFlyKeyDown;
+class OnGridKeyDown;
+class OnReloadTexturesKeyDown;
+class OnReloadShadersKeyDown;
+class OnInventoryKeyDown;
+class OnReloadUIKeyDown;
+class OnHUDKeyDown;
+
+// Each mode includes the previous mode
+enum DevUiModes {
+    DEVUIMODE_NONE,
+    DEVUIMODE_CROSSHAIR,
+    DEVUIMODE_HANDS,
+    DEVUIMODE_FPS,
+    DEVUIMODE_ALL
+};
+
 class GamePlayScreen : public IAppScreen<App> {
     friend class PdaAwesomiumAPI;
+    friend class OnPauseKeyDown;
+    friend class OnFlyKeyDown;
+    friend class OnInventoryKeyDown;
+    friend class OnReloadUIKeyDown;
+    friend class OnReloadShadersKeyDown;
+    friend class OnHUDKeyDown;
+    friend class OnGridKeyDown;
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
@@ -92,6 +120,17 @@ private:
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running
 
+    /// Delegates
+    IDelegate<ui32>* _onPauseKeyDown;
+    IDelegate<ui32>* _onFlyKeyDown;
+    IDelegate<ui32>* _onGridKeyDown;
+    IDelegate<ui32>* _onReloadTexturesKeyDown;
+    IDelegate<ui32>* _onReloadShadersKeyDown;
+    IDelegate<ui32>* _onInventoryKeyDown;
+    IDelegate<ui32>* _onReloadUIKeyDown;
+    IDelegate<ui32>* _onHUDKeyDown;
+    IDelegate<ui32>* _onNightVisionToggle;
+    IDelegate<ui32>* _onNightVisionReload;
     GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
 };
 

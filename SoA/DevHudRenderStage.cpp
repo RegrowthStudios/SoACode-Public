@@ -11,7 +11,7 @@ DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize, const
     _spriteBatch(new SpriteBatch(true, true)),
     _spriteFont(new SpriteFont(fontPath, fontSize)),
     _player(player),
-    _mode(DevUiModes::CROSSHAIR),
+    _mode(DevUiModes::HANDS),
     _app(app),
     _windowDims(windowDims),
     _fontHeight(_spriteFont->getFontHeight()) {
@@ -28,7 +28,7 @@ void DevHudRenderStage::draw() {
     // Lazily load spritebatch
     if (!_spriteBatch) {
         _spriteBatch = new SpriteBatch(true, true);
-        _spriteFont = new SpriteFont("Fonts\\chintzy.ttf", 32);
+        _spriteFont = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
     }
 
     // Reset the yOffset

@@ -63,7 +63,8 @@ KEG_ENUM_DECL(PhysicsProperties);
 enum class BlockOcclusion {
     NONE,
     ALL,
-    SELF
+    SELF,
+    SELF_ONLY
 };
 KEG_ENUM_DECL(BlockOcclusion);
 
@@ -148,7 +149,7 @@ public:
 KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
-    BlockTexture() : blendMode(BlendType::REPLACE){};
+    BlockTexture() : blendMode(BlendType::ALPHA){};
     BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
         base(b), overlay(o), blendMode(bt){
         // Empty

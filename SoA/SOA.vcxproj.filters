@@ -117,6 +117,9 @@
     <Filter Include="SOA Files\Game\Tools">
       <UniqueIdentifier>{da75023d-4b8b-4790-af72-c6535569b583}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Ext\Event">
+      <UniqueIdentifier>{41ca9f3d-3814-46f9-b207-165cdc5d2041}</UniqueIdentifier>
+	</Filter>
     <Filter Include="SOA Files\Rendering\RenderPipelines">
       <UniqueIdentifier>{09cebf8a-9329-4dea-aac4-4d56d9dd2f37}</UniqueIdentifier>
     </Filter>
@@ -175,9 +178,6 @@
     </ClInclude>
     <ClInclude Include="ChunkUpdater.h">
       <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkWorker.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="Collision.h">
       <Filter>SOA Files\Game\Physics</Filter>
@@ -271,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="LoadScreen.h">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="lodepng.h">
       <Filter>SOA Files\Rendering\Images</Filter>
@@ -373,9 +370,6 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TaskQueueManager.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="TerrainGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
@@ -551,6 +545,12 @@
     <ClInclude Include="PdaAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Event.hpp">
+      <Filter>SOA Files\Ext\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePlayScreenEvents.hpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+	</ClInclude>
     <ClInclude Include="IRenderPipeline.h">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
@@ -647,6 +647,21 @@
     <ClInclude Include="PhysicsBlockRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="concurrentqueue.h">
+      <Filter>SOA Files\Ext\ADT</Filter>
+    </ClInclude>
+    <ClInclude Include="IThreadPoolTask.h">
+      <Filter>SOA Files\Ext\ADT</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkGridRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedSizeArrayRecycler.hpp">
+      <Filter>SOA Files\Ext\ADT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -690,9 +705,6 @@
     </ClCompile>
     <ClCompile Include="ChunkUpdater.cpp">
       <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkWorker.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
     <ClCompile Include="CloseTerrainPatch.cpp">
       <Filter>SOA Files\Rendering</Filter>
@@ -1049,6 +1061,12 @@
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsBlockRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkGridRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
