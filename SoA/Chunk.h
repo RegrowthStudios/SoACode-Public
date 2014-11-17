@@ -79,6 +79,8 @@ public:
     
     void changeState(ChunkStates State);
     
+    bool isNeighborFreeWaiting();
+
     int getLeftBlockData(int c);
     int getLeftBlockData(int c, int x, int *c2, Chunk **owner);
     int getRightBlockData(int c);

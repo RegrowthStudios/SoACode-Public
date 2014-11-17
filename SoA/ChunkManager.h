@@ -286,7 +286,7 @@ private:
     std::vector<ChunkSlot> _chunkSlots[6]; //one per LOD
 
     // list of chunks that are waiting for threads to finish on them
-    std::vector<Chunk*> _threadWaitingChunks;
+    std::vector<Chunk*> _freeWaitingChunks;
 
     // hashmap of chunk slots
     std::unordered_map<i32v3, ChunkSlot*> _chunkSlotMap;

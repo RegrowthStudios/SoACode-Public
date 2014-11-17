@@ -188,12 +188,13 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Thread Waiting");
     Chunk* ch;
-    for (size_t i = 0; i < _threadWaitingChunks.size();) {
-        ch = _threadWaitingChunks[i];
-        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask && !ch->_chunkListPtr) {
-            freeChunk(_threadWaitingChunks[i]);
-            _threadWaitingChunks[i] = _threadWaitingChunks.back();
-            _threadWaitingChunks.pop_back();
+    for (size_t i = 0; i < _freeWaitingChunks.size();) {
+        ch = _freeWaitingChunks[i];
+        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask && !ch->_chunkListPtr
+            && !ch->isNeighborFreeWaiting()) {
+            freeChunk(_freeWaitingChunks[i]);
+            _freeWaitingChunks[i] = _freeWaitingChunks.back();
+            _freeWaitingChunks.pop_back();
         } else {
             i++;
         }
@@ -325,11 +326,11 @@ void ChunkManager::destroy() {
 
     GameManager::physicsEngine->clearAll();
 
-    for (size_t i = 0; i < _threadWaitingChunks.size(); i++) { //kill the residual waiting threads too
-        _threadWaitingChunks[i]->inSaveThread = nullptr;
-        freeChunk(_threadWaitingChunks[i]);
+    for (size_t i = 0; i < _freeWaitingChunks.size(); i++) { //kill the residual waiting threads too
+        _freeWaitingChunks[i]->inSaveThread = nullptr;
+        freeChunk(_freeWaitingChunks[i]);
     }
-    std::vector<Chunk*>().swap(_threadWaitingChunks);
+    std::vector<Chunk*>().swap(_freeWaitingChunks);
 
     deleteAllChunks();
 
@@ -963,11 +964,13 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         chunk->lock();
         // Sever any connections with neighbor chunks
         chunk->clearNeighbors();
-        if (chunk->inSaveThread || chunk->inLoadThread || chunk->lastOwnerTask || chunk->_chunkListPtr) {
+        if (chunk->inSaveThread || chunk->inLoadThread || 
+            chunk->lastOwnerTask || chunk->_chunkListPtr ||
+            chunk->isNeighborFreeWaiting()) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             chunk->unlock();
-            _threadWaitingChunks.push_back(chunk);
+            _freeWaitingChunks.push_back(chunk);
         } else {
             // Reduce the ref count since the chunk no longer needs chunkGridData
             chunk->chunkGridData->refCount--;

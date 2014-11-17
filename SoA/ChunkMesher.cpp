@@ -1497,22 +1497,19 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     if (levelOfDetail > 1) {
         computeLODData(levelOfDetail);
-    } else {
-        dataLayer = PADDED_CHUNK_LAYER;
-        dataWidth = PADDED_CHUNK_WIDTH;
-        dataSize = PADDED_CHUNK_SIZE;
     }
+
+    dataLayer = PADDED_CHUNK_LAYER;
+    dataWidth = PADDED_CHUNK_WIDTH;
+    dataSize = PADDED_CHUNK_SIZE;
 
     // Init the mesh info
     mi.init(dataWidth, dataLayer);
 
-    mi.levelOfDetail = levelOfDetail;
-    int lodStep = (1 << (mi.levelOfDetail - 1));
-
     for (mi.y = 0; mi.y < dataWidth-2; mi.y++) {
 
         mi.y2 = mi.y * 2;
-        mi.ny = mi.y * lodStep;
+        mi.ny = mi.y;
 
         //reset all indexes to zero for each layer
         mi.topIndex = 0;
@@ -1524,12 +1521,12 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
         for (mi.z = 0; mi.z < dataWidth-2; mi.z++){
 
             mi.z2 = mi.z * 2;
-            mi.nz = mi.z * lodStep;
+            mi.nz = mi.z;
 
             for (mi.x = 0; mi.x < dataWidth-2; mi.x++){
 
                 mi.x2 = mi.x * 2;
-                mi.nx = mi.x * lodStep;
+                mi.nx = mi.x;
  
                 //We use wc instead of c, because the array is sentinalized at all edges so we dont have to access neighbor chunks with mutexes
                 mi.wc = (mi.y + 1)*(dataLayer)+(mi.z + 1)*(dataWidth)+(mi.x + 1); //get the expanded c for our sentinelized array

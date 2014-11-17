@@ -440,137 +440,137 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher)
             }
         }
     }
-    //bottomleft
-    ch1 = bottom->left;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off2 = z*PADDED_WIDTH;            
+    ////bottomleft
+    //ch1 = bottom->left;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off2 = z*PADDED_WIDTH;            
 
-            chData[off2] = (ch1->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
-            chLampData[off2] = ch1->getLampLight(CHUNK_SIZE - CHUNK_LAYER + off1);
-            chSunlightData[off2] = ch1->getSunlight(CHUNK_SIZE - CHUNK_LAYER + off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
-        }
-        ch1->unlock();
+    //        chData[off2] = (ch1->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
+    //        chLampData[off2] = ch1->getLampLight(CHUNK_SIZE - CHUNK_LAYER + off1);
+    //        chSunlightData[off2] = ch1->getSunlight(CHUNK_SIZE - CHUNK_LAYER + off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
+    //    }
+    //    ch1->unlock();
 
-        //bottomleftback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible) {
-            off1 = CHUNK_SIZE - 1;
-            off2 = 0;    
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
+    //    //bottomleftback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible) {
+    //        off1 = CHUNK_SIZE - 1;
+    //        off2 = 0;    
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
 
-        //bottomleftfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible) {
-            off1 = CHUNK_SIZE - CHUNK_LAYER + CHUNK_WIDTH - 1;
-            off2 = PADDED_LAYER - PADDED_WIDTH;    
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
-    }
-    else{
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            chData[z*PADDED_WIDTH] = 0;
-            chLampData[z*PADDED_WIDTH] = 0;
-            chSunlightData[z*PADDED_WIDTH] = 0;
-            chTertiaryData[z*PADDED_WIDTH] = 0;
-        }
+    //    //bottomleftfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible) {
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER + CHUNK_WIDTH - 1;
+    //        off2 = PADDED_LAYER - PADDED_WIDTH;    
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
+    //}
+    //else{
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        chData[z*PADDED_WIDTH] = 0;
+    //        chLampData[z*PADDED_WIDTH] = 0;
+    //        chSunlightData[z*PADDED_WIDTH] = 0;
+    //        chTertiaryData[z*PADDED_WIDTH] = 0;
+    //    }
 
-        chData[0] = 0;
-        chLampData[0] = 0;
-        chSunlightData[0] = 0;
-        chTertiaryData[0] = 0;
-        chData[PADDED_LAYER - PADDED_WIDTH] = 0;
-        chLampData[PADDED_LAYER - PADDED_WIDTH] = 0;
-        chSunlightData[PADDED_LAYER - PADDED_WIDTH] = 0;
-        chTertiaryData[PADDED_LAYER - PADDED_WIDTH] = 0;
-    }
+    //    chData[0] = 0;
+    //    chLampData[0] = 0;
+    //    chSunlightData[0] = 0;
+    //    chTertiaryData[0] = 0;
+    //    chData[PADDED_LAYER - PADDED_WIDTH] = 0;
+    //    chLampData[PADDED_LAYER - PADDED_WIDTH] = 0;
+    //    chSunlightData[PADDED_LAYER - PADDED_WIDTH] = 0;
+    //    chTertiaryData[PADDED_LAYER - PADDED_WIDTH] = 0;
+    //}
 
-    //bottomright
-    ch1 = bottom->right;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off1 = CHUNK_SIZE - CHUNK_LAYER + (z - 1)*CHUNK_WIDTH;
-            off2 = z*PADDED_WIDTH + PADDED_WIDTH - 1;        
+    ////bottomright
+    //ch1 = bottom->right;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER + (z - 1)*CHUNK_WIDTH;
+    //        off2 = z*PADDED_WIDTH + PADDED_WIDTH - 1;        
 
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
 
-        //bottomrightback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible) {
-            off1 = CHUNK_SIZE - CHUNK_WIDTH;
-            off2 = PADDED_WIDTH - 1;
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
-        //bottomrightfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible) {
-            off1 = CHUNK_SIZE - CHUNK_LAYER;
-            off2 = PADDED_LAYER - 1;
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
-    }
+    //    //bottomrightback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible) {
+    //        off1 = CHUNK_SIZE - CHUNK_WIDTH;
+    //        off2 = PADDED_WIDTH - 1;
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
+    //    //bottomrightfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible) {
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER;
+    //        off2 = PADDED_LAYER - 1;
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
+    //}
 
-    //backbottom
-    ch1 = back->bottom;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = CHUNK_SIZE - CHUNK_WIDTH + x - 1;
-            off2 = x;
+    ////backbottom
+    //ch1 = back->bottom;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = CHUNK_SIZE - CHUNK_WIDTH + x - 1;
+    //        off2 = x;
 
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
 
 
-    //frontbottom
-    ch1 = front->bottom;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = CHUNK_SIZE - CHUNK_LAYER + x - 1;
-            off2 = PADDED_LAYER - PADDED_WIDTH + x;
-        
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
+    ////frontbottom
+    //ch1 = front->bottom;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = CHUNK_SIZE - CHUNK_LAYER + x - 1;
+    //        off2 = PADDED_LAYER - PADDED_WIDTH + x;
+    //    
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
 
 
     //left and right
@@ -657,184 +657,184 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher)
         }
     }
     //topleft
-    ch1 = top->left;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off1 = z*CHUNK_WIDTH - 1;
-            off2 = z*PADDED_WIDTH + PADDED_SIZE - PADDED_LAYER;
-            
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
+    //ch1 = top->left;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off1 = z*CHUNK_WIDTH - 1;
+    //        off2 = z*PADDED_WIDTH + PADDED_SIZE - PADDED_LAYER;
+    //        
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
 
-        //topleftback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible) {
-            off1 = CHUNK_LAYER - 1;
-            off2 = PADDED_SIZE - PADDED_LAYER;
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
-        //topleftfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible) {
-            off1 = CHUNK_WIDTH - 1;
-            off2 = PADDED_SIZE - PADDED_WIDTH;
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
-    }
+    //    //topleftback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible) {
+    //        off1 = CHUNK_LAYER - 1;
+    //        off2 = PADDED_SIZE - PADDED_LAYER;
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
+    //    //topleftfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible) {
+    //        off1 = CHUNK_WIDTH - 1;
+    //        off2 = PADDED_SIZE - PADDED_WIDTH;
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
+    //}
 
-    //topright
-    ch1 = top->right;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (z = 1; z < PADDED_WIDTH - 1; z++){
-            off1 = (z - 1)*CHUNK_WIDTH;
-            off2 = (z + 1)*PADDED_WIDTH - 1 + PADDED_SIZE - PADDED_LAYER;
-        
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
+    ////topright
+    //ch1 = top->right;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (z = 1; z < PADDED_WIDTH - 1; z++){
+    //        off1 = (z - 1)*CHUNK_WIDTH;
+    //        off2 = (z + 1)*PADDED_WIDTH - 1 + PADDED_SIZE - PADDED_LAYER;
+    //    
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
 
-        //toprightback
-        ch2 = ch1->back;
-        if (ch2 && ch2->isAccessible){
-            off1 = CHUNK_LAYER - CHUNK_WIDTH;
-            off2 = PADDED_SIZE - PADDED_LAYER + PADDED_WIDTH - 1;
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
-        //toprightfront
-        ch2 = ch1->front;
-        if (ch2 && ch2->isAccessible){
-            off1 = 0;
-            off2 = PADDED_SIZE - 1;
-            ch2->lock();
-            chData[off2] = (ch2->getBlockData(off1));
-            chLampData[off2] = ch2->getLampLight(off1);
-            chSunlightData[off2] = ch2->getSunlight(off1);
-            chTertiaryData[off2] = ch2->getTertiaryData(off1);
-            ch2->unlock();
-        }
-    }
+    //    //toprightback
+    //    ch2 = ch1->back;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = CHUNK_LAYER - CHUNK_WIDTH;
+    //        off2 = PADDED_SIZE - PADDED_LAYER + PADDED_WIDTH - 1;
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
+    //    //toprightfront
+    //    ch2 = ch1->front;
+    //    if (ch2 && ch2->isAccessible){
+    //        off1 = 0;
+    //        off2 = PADDED_SIZE - 1;
+    //        ch2->lock();
+    //        chData[off2] = (ch2->getBlockData(off1));
+    //        chLampData[off2] = ch2->getLampLight(off1);
+    //        chSunlightData[off2] = ch2->getSunlight(off1);
+    //        chTertiaryData[off2] = ch2->getTertiaryData(off1);
+    //        ch2->unlock();
+    //    }
+    //}
 
 
-    //backtop
-    ch1 = back->top;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = CHUNK_LAYER - CHUNK_WIDTH + x - 1;
-            off2 = PADDED_SIZE - PADDED_LAYER + x;
-        
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
-    
+    ////backtop
+    //ch1 = back->top;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = CHUNK_LAYER - CHUNK_WIDTH + x - 1;
+    //        off2 = PADDED_SIZE - PADDED_LAYER + x;
+    //    
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
+    //
 
-    //fronttop
-    ch1 = front->top;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (x = 1; x < PADDED_WIDTH - 1; x++){
-            off1 = x - 1;
-            off2 = PADDED_SIZE - PADDED_WIDTH + x;
+    ////fronttop
+    //ch1 = front->top;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (x = 1; x < PADDED_WIDTH - 1; x++){
+    //        off1 = x - 1;
+    //        off2 = PADDED_SIZE - PADDED_WIDTH + x;
 
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
 
-    //leftback
-    ch1 = left->back;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = y*CHUNK_LAYER - 1;
-            off2 = y*PADDED_LAYER;
+    ////leftback
+    //ch1 = left->back;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = y*CHUNK_LAYER - 1;
+    //        off2 = y*PADDED_LAYER;
 
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
-    
-    //rightback
-    ch1 = right->back;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = y*CHUNK_LAYER - CHUNK_WIDTH;
-            off2 = y*PADDED_LAYER + PADDED_WIDTH - 1;
-            
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
+    //
+    ////rightback
+    //ch1 = right->back;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = y*CHUNK_LAYER - CHUNK_WIDTH;
+    //        off2 = y*PADDED_LAYER + PADDED_WIDTH - 1;
+    //        
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
 
-    //leftfront
-    ch1 = left->front;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = (y - 1)*CHUNK_LAYER + CHUNK_WIDTH - 1;
-            off2 = (y + 1)*PADDED_LAYER - PADDED_WIDTH;
-            
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
+    ////leftfront
+    //ch1 = left->front;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = (y - 1)*CHUNK_LAYER + CHUNK_WIDTH - 1;
+    //        off2 = (y + 1)*PADDED_LAYER - PADDED_WIDTH;
+    //        
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
 
-    //rightfront
-    ch1 = right->front;
-    if (ch1 && ch1->isAccessible){
-        ch1->lock();
-        for (y = 1; y < PADDED_WIDTH - 1; y++){
-            off1 = (y - 1)*CHUNK_LAYER;
-            off2 = (y + 1)*PADDED_LAYER - 1;
+    ////rightfront
+    //ch1 = right->front;
+    //if (ch1 && ch1->isAccessible){
+    //    ch1->lock();
+    //    for (y = 1; y < PADDED_WIDTH - 1; y++){
+    //        off1 = (y - 1)*CHUNK_LAYER;
+    //        off2 = (y + 1)*PADDED_LAYER - 1;
 
-            chData[off2] = (ch1->getBlockData(off1));
-            chLampData[off2] = ch1->getLampLight(off1);
-            chSunlightData[off2] = ch1->getSunlight(off1);
-            chTertiaryData[off2] = ch1->getTertiaryData(off1);
-        }
-        ch1->unlock();
-    }
+    //        chData[off2] = (ch1->getBlockData(off1));
+    //        chLampData[off2] = ch1->getLampLight(off1);
+    //        chSunlightData[off2] = ch1->getSunlight(off1);
+    //        chTertiaryData[off2] = ch1->getTertiaryData(off1);
+    //    }
+    //    ch1->unlock();
+    //}
 }
 
 void Chunk::addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr) {
