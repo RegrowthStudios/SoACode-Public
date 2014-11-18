@@ -1723,8 +1723,9 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
     ui16 surfaceTertiaryData;
     ui16 lampLightData;
     ui8 sunLightData;
-    int avgHeight;
-    float height;
+
+    // For finding minimum bounding box
+    int minX, maxX, minY, maxY, minZ, maxZ;
 
     // Loop through each LOD block
     for (int y = 1; y < PADDED_CHUNK_WIDTH - 1; y += lodStep) {
@@ -1732,55 +1733,41 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
             for (int x = 1; x < PADDED_CHUNK_WIDTH - 1; x += lodStep) {
                 startIndex = y * PADDED_CHUNK_LAYER + z * PADDED_CHUNK_WIDTH + x;
 
-                surfaceBlockID = 0;
-                avgHeight = 0;
-                // Determine average height by looping up through each column
-                for (int lz = 0; lz < lodStep; lz++) {
-                    for (int lx = 0; lx < lodStep; lx++) {
-                        for (ly = 0; ; ly++) {
-                            blockIndex = startIndex + ly * PADDED_CHUNK_LAYER + lz * PADDED_CHUNK_WIDTH + lx;
-                            if (GETBLOCK(_blockIDData[ly]).occlude == BlockOcclusion::NONE) {
-                                // Get surface block
-                                if (ly) {
-                                    surfaceBlockID = _blockIDData[blockIndex - PADDED_CHUNK_LAYER];
-                                    surfaceTertiaryData = _tertiaryData[blockIndex - PADDED_CHUNK_LAYER];
-                                }
-                                break;
-                            }
-                            if (ly == lodStep - 1) { // we are at the top, we can't average height then
+                minX = minY = minZ = INT_MAX;
+                maxX = maxY = maxZ = INT_MIN;
 
+                surfaceBlockID = 0;
+                // Determine average height by looping up through each column
+                for (ly = 0; ly < lodStep; ly++) {
+                    for (int lz = 0; lz < lodStep; lz++) {
+                        for (int lx = 0; lx < lodStep; lx++) {
+                            blockIndex = startIndex + ly * PADDED_CHUNK_LAYER + lz * PADDED_CHUNK_WIDTH + lx;
+                            if (GETBLOCK(_blockIDData[blockIndex]).occlude != BlockOcclusion::NONE) {
                                 // Check for surface block
-                                if (GETBLOCK(_blockIDData[ly + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE) {
-                                    surfaceBlockID = _blockIDData[blockIndex - PADDED_CHUNK_LAYER];
-                                    surfaceTertiaryData = _tertiaryData[blockIndex - PADDED_CHUNK_LAYER];
-                                } else {
-                                    // TODO(Ben): Evaluate an alternative to INT_MAX
-                                    // If we get here, that means there is a solid block above us, so we cant do average height.
-                                    avgHeight = HEIGHT_SENTINAL;
-                                    // Force loops to drop out
-                                    lx = lodStep;
-                                    lz = lodStep;
+                                if (GETBLOCK(_blockIDData[blockIndex + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE) {
+                                    surfaceBlockID = _blockIDData[blockIndex];
+                                    surfaceTertiaryData = _tertiaryData[blockIndex];
                                 }
-                                break;
+                                // Check for minimum bounding box
+                                if (lx < minX) minX = lx;
+                                if (ly < minY) minY = ly;
+                                if (lz < minZ) minZ = lz;
+                                if (lx > maxX) maxX = lx;
+                                if (ly > maxY) maxY = ly;
+                                if (lz > maxZ) maxZ = lz;
                             }
-                            
                         }
-                        avgHeight += ly;
                     }
                 }
 
-                // Compute average
-                avgHeight = fastFloor((float)avgHeight / lodLayer + 0.5f);
-
-                // Upper middle block index
-                blockIndex = startIndex + lodStep * PADDED_CHUNK_WIDTH - lodStep / 2;
-                // If we don't have a surface block, just pick the upper middle block
+                // If we don't have a surface block, just pick the bottom middle block
                 if (!surfaceBlockID) {
+                    blockIndex = startIndex + lodStep / 2;
                     surfaceBlockID = _blockIDData[blockIndex];
                     surfaceTertiaryData = _tertiaryData[blockIndex];
                 }
                 // Temporary, pick upper middle for lamp light.
-                lampLightData = _lampLightData[blockIndex];
+                lampLightData = 0;
 
                 // Set all of the blocks
                 for (ly = 0; ly < lodStep; ly++) {
@@ -1790,12 +1777,13 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                             if (blockIndex > PADDED_CHUNK_SIZE) {
                                 pError("SIZE IS " + to_string(blockIndex));
                             }
-                            if (ly <= avgHeight) {
-                                _blockIDData[blockIndex] = surfaceBlockID;
-                                _tertiaryData[blockIndex] = surfaceTertiaryData;
-                            } else {
+                            // If its in the minimum box, set it to the surface block
+                            if (lx < minX || lx > maxX || ly < minY || ly > maxY || lz < minZ || lz > maxZ) {
                                 _blockIDData[blockIndex] = 0;
                                 _tertiaryData[blockIndex] = 0;
+                            } else {
+                                _blockIDData[blockIndex] = surfaceBlockID;
+                                _tertiaryData[blockIndex] = surfaceTertiaryData;
                             }
                             _sunlightData[blockIndex] = 31;
                             _lampLightData[blockIndex] = lampLightData;
