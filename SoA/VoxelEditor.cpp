@@ -70,6 +70,9 @@ void VoxelEditor::placeAABox(Item *block) {
         xStart = end.x;
     }
 
+    // Keep track of which chunk is locked
+    Chunk* lockedChunk = nullptr;
+
     for (int y = yStart; y <= yEnd; y++) {
         for (int z = zStart; z <= zEnd; z++) {
             for (int x = xStart; x <= xEnd; x++) {
@@ -77,6 +80,11 @@ void VoxelEditor::placeAABox(Item *block) {
                 chunkManager->getBlockAndChunk(i32v3(x, y, z), &chunk, blockIndex);
 
                 if (chunk && chunk->isAccessible) {
+                    if (lockedChunk != chunk) {
+                        if (lockedChunk) lockedChunk->unlock();
+                        chunk->lock();
+                        lockedChunk = chunk;
+                    }
                     blockID = chunk->getBlockID(blockIndex);
 
                     if (breakBlocks){
@@ -94,6 +102,7 @@ void VoxelEditor::placeAABox(Item *block) {
                             block->count--;
                             if (block->count == 0){
                                 stopDragging();
+                                if (lockedChunk) lockedChunk->unlock();
                                 return;
                             }
                         }
@@ -102,7 +111,7 @@ void VoxelEditor::placeAABox(Item *block) {
             }
         }
     }
-
+    if (lockedChunk) lockedChunk->unlock();
     stopDragging();
 }
 
