@@ -1744,7 +1744,8 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                             blockIndex = startIndex + ly * PADDED_CHUNK_LAYER + lz * PADDED_CHUNK_WIDTH + lx;
                             if (GETBLOCK(_blockIDData[blockIndex]).occlude != BlockOcclusion::NONE) {
                                 // Check for surface block
-                                if (GETBLOCK(_blockIDData[blockIndex + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE) {
+                                if (GETBLOCK(_blockIDData[blockIndex + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE || surfaceBlockID == 0) {
+                                    // TODO(Ben): Do better than just picking a random surfaceBlock
                                     surfaceBlockID = _blockIDData[blockIndex];
                                     surfaceTertiaryData = _tertiaryData[blockIndex];
                                 }
@@ -1760,12 +1761,6 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                     }
                 }
 
-                // If we don't have a surface block, just pick the bottom middle block
-                if (!surfaceBlockID) {
-                    blockIndex = startIndex + lodStep / 2;
-                    surfaceBlockID = _blockIDData[blockIndex];
-                    surfaceTertiaryData = _tertiaryData[blockIndex];
-                }
                 // Temporary, pick upper middle for lamp light.
                 lampLightData = 0;
 
