@@ -129,6 +129,8 @@ private:
     IDelegate<ui32>* _onInventoryKeyDown;
     IDelegate<ui32>* _onReloadUIKeyDown;
     IDelegate<ui32>* _onHUDKeyDown;
+    IDelegate<ui32>* _onNightVisionToggle;
+    IDelegate<ui32>* _onNightVisionReload;
     GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
 };
 

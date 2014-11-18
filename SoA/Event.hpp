@@ -32,7 +32,7 @@ public:
 
 /// @author Cristian Zaloj
 template<typename F, typename... Params>
-class Delegate: public IDelegate<Params...> {
+class Delegate : public IDelegate<Params...> {
 public:
     /// Empty constructor
     Delegate() {

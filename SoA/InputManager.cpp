@@ -247,18 +247,6 @@ IDelegate<ui32>* InputManager::subscribe(const i32 axisID, EventType eventType, 
     return nullptr;
 }
 
-template<typename F>
-IDelegate<ui32>* InputManager::subscribeFunctor(const i32 axisID, EventType eventType, F f) {
-    if(axisID < 0 || axisID >= _axes.size() || _axes[axisID]->type != AxisType::SINGLE_KEY) return nullptr;
-    switch(eventType) {
-    case UP:
-        return _axes[axisID]->upEvent.addFunctor(f);
-    case DOWN:
-        return _axes[axisID]->downEvent.addFunctor(f);
-    }
-    return nullptr;
-}
-
 void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f) {
     if(axisID < 0 || axisID >= _axes.size() || f == nullptr || _axes[axisID]->type != AxisType::SINGLE_KEY) return;
     switch(eventType) {

@@ -97,6 +97,12 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _onInventoryKeyDown = inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
     _onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
     _onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
+    _onNightVisionToggle = inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+        _renderPipeline.toggleNightVision();
+    });
+    _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+        _renderPipeline.loadNightVision();
+    });
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
@@ -124,6 +130,12 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
 
     inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, _onHUDKeyDown);
     delete _onHUDKeyDown;
+
+    inputManager->unsubscribe(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, _onNightVisionToggle);
+    delete _onNightVisionToggle;
+
+    inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, _onNightVisionReload);
+    delete _onNightVisionReload;
 
     _threadRunning = false;
     _updateThread->join();

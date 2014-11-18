@@ -106,9 +106,8 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionResistance", Keg::Value::basic(Ke
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionPower", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosivePower)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("flammability", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, flammability)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionPowerLoss", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosionPowerLoss)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("colorFilter", Keg::Value::basic(Keg::BasicType::F32_V3, offsetof(Block, colorFilter)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColorFilter", Keg::Value::basic(Keg::BasicType::F32_V3, offsetof(Block, colorFilter)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("color", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, color)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("colorOverlay", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, overlayColor)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("emitter", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, emitterName)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("movesPowder", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, powderMove)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("collide", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, collide)));
