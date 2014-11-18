@@ -196,7 +196,9 @@ public:
     /// @param f: The functor to subscribe to the axes' event.
     /// @return The newly made delegate.
     template<typename F>
-    IDelegate<ui32>* subscribeFunctor(const i32 axisID, EventType eventType, F f);
+    IDelegate<ui32>* subscribeFunctor(const i32 axisID, EventType eventType, F f) {
+        return subscribe(axisID, eventType, createDelegate<F, ui32>(f));
+    }
 
     /// Unsubscribes a delegate from a Axes' event.
 

@@ -19,6 +19,7 @@
 #include "GLProgramManager.h"
 #include "GLRenderTarget.h"
 #include "IRenderPipeline.h"
+#include "NightVisionRenderStage.h"
 #include "RTSwapChain.hpp"
 
 /// Forward declarations
@@ -74,6 +75,8 @@ public:
     void cycleDevHud(int offset = 1);
     /// Toggle the visibility of night vision
     void toggleNightVision();
+    /// Load night vision data
+    void loadNightVision();
     /// Toggle the visibility of chunkGrid
     void toggleChunkGrid();
 private:
@@ -95,6 +98,10 @@ private:
     vg::FullQuadVBO _quad; ///< Quad used for post-processing
 
     GameRenderParams _gameRenderParams; ///< Shared rendering parameters for voxels
+    
+    // TODO: This is only for visualization purposes, must remove
+    std::vector<NightVisionRenderParams> _nvParams; ///< Different night vision styles
+    i32 _nvIndex = 0;
 
     ui32v4 _viewport; ///< Viewport to draw to
     const Camera* _worldCamera = nullptr; ///< handle to world camera
