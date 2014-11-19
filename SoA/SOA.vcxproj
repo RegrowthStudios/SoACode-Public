@@ -123,6 +123,7 @@
     <ClInclude Include="Computer.h" />
     <ClInclude Include="concurrentqueue.h" />
     <ClInclude Include="Event.hpp" />
+    <ClInclude Include="FloraTask.h" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
@@ -302,6 +303,7 @@
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="ECS.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FullQuadVBO.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />

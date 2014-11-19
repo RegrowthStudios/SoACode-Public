@@ -30,14 +30,19 @@ enum class RenderTaskType { DEFAULT, LIQUID };
 class RenderTask : public vcore::IThreadPoolTask {
 public:
     RenderTask() : vcore::IThreadPoolTask(true, RENDER_TASK_ID) {}
+
     // Executes the task
     void execute(vcore::WorkerData* workerData) override;
-    // Helper Function To Set The Chunk Data
+
+    // Initializes the task
     void init(Chunk* ch, RenderTaskType cType);
 
     RenderTaskType type; 
     Chunk* chunk;
     ChunkMeshData* chunkMeshData;
+
+private:
+    void updateLight();
 };
 
 #endif // RenderTask_h__

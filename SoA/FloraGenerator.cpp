@@ -77,13 +77,15 @@ KEG_TYPE_INIT_END
 vector <TreeNode> FloraGenerator::wnodes;
 vector <TreeNode> FloraGenerator::lnodes;
 
-int FloraGenerator::generateFlora(Chunk *chunk) {
+i32 FloraGenerator::generateFlora(Chunk *chunk) {
     int c;
     int xz, y;
     wnodes.clear();
     lnodes.clear();
     vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
     vector <TreeData> &treesToLoad = chunk->treesToLoad;
+
+    Chunk* lockedChunk = nullptr;
 
     //load plants
     for (int i = plantsToLoad.size() - 1; i >= 0; i--) {
@@ -92,12 +94,27 @@ int FloraGenerator::generateFlora(Chunk *chunk) {
         bool occ = block.blockLight || block.lightColorPacked;
 
         if (c >= CHUNK_LAYER) {
+            if (chunk != lockedChunk) {
+                if (lockedChunk) lockedChunk->unlock();
+                chunk->lock();
+                lockedChunk = chunk;
+            }
             if (chunk->getBlockID(c - CHUNK_LAYER) != (ui16)Blocks::NONE) {
                 ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
             }
         } else if (chunk->bottom && chunk->bottom->isAccessible) {
+            if (chunk->bottom != lockedChunk) {
+                if (lockedChunk) lockedChunk->unlock();
+                chunk->bottom->lock();
+                lockedChunk = chunk->bottom;
+            }
             if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != (ui16)Blocks::NONE) {
-                ChunkUpdater::placeBlockNoUpdate(chunk->bottom, c, plantsToLoad[i].ft->baseBlock);
+                if (chunk != lockedChunk) {
+                    lockedChunk->unlock();
+                    chunk->lock();
+                    lockedChunk = chunk;
+                }
+                ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
             }
         } else {
             return 0;
@@ -108,20 +125,22 @@ int FloraGenerator::generateFlora(Chunk *chunk) {
     //we dont want flora to set the dirty bit
     chunk->dirty = false;
 
+    if (lockedChunk) lockedChunk->unlock();
+
     //Load Trees
-    for (int i = treesToLoad.size() - 1; i >= 0; i--) {
-        c = treesToLoad[i].startc;
+    /*  for (int i = treesToLoad.size() - 1; i >= 0; i--) {
+          c = treesToLoad[i].startc;
 
-        if (generateTreeNodes(chunk, c, treesToLoad[i]) != 0) return 0;
+          if (generateTreeNodes(chunk, c, treesToLoad[i]) != 0) return 0;
 
-        placeTreeNodes();
+          placeTreeNodes();
 
-        treesToLoad.pop_back();
-        wnodes.clear();
-        lnodes.clear();
-    }
+          treesToLoad.pop_back();
+          wnodes.clear();
+          lnodes.clear();
+          }
 
-    chunk->dirty = false;
+          chunk->dirty = false;*/
     return 1;
 }
 

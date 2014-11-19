@@ -30,3 +30,13 @@ void RenderTask::init(Chunk* ch, RenderTaskType cType) {
     type = cType;
     chunk = ch;
 }
+
+void RenderTask::updateLight() {
+    if (chunk->sunRemovalList.size()) {
+        VoxelLightEngine::calculateSunlightRemoval(chunk);
+    }
+    if (chunk->sunExtendList.size()) {
+        VoxelLightEngine::calculateSunlightExtend(chunk);
+    }
+    VoxelLightEngine::calculateLight(chunk);
+}

@@ -16,6 +16,7 @@
 #include "ChunkUpdater.h"
 #include "FileSystem.h"
 #include "FloraGenerator.h"
+#include "FloraTask.h"
 #include "Frustum.h"
 #include "GLEnums.h"
 #include "GLProgram.h"
@@ -180,8 +181,6 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     updateGenerateList(4);
     globalMultiplePreciseTimer.start("Setup List");
     updateSetupList(4);
-
-    std::cout << _threadPool.getTasksSizeApprox() << std::endl;
 
     //This doesnt function correctly
     //caveOcclusion(position);
@@ -461,6 +460,9 @@ void ChunkManager::processFinishedTasks() {
                     delete task;
                 }
                 break;
+            case FLORA_TASK_ID:
+                processFinisedFloraTask(static_cast<FloraTask*>(task));
+                break;
             default:
                 pError("Unknown thread pool Task! ID = " + to_string(task->getTaskId()));
                 delete task;
@@ -548,6 +550,21 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
 
     if (chunk->_chunkListPtr == nullptr) chunk->_state = ChunkStates::DRAW;
     
+}
+
+void ChunkManager::processFinisedFloraTask(FloraTask* task) {
+    Chunk* chunk = task->chunk;
+    if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
+    if (task->isSuccessful) {
+        chunk->_state = ChunkStates::MESH;
+        addToMeshList(chunk);
+        delete task;
+    } else {
+        // If the task wasn't successful, add it back to the task queue so it can try again.
+        task->setIsFinished(false);
+        chunk->lastOwnerTask = task;
+        _threadPool.addTask(task);
+    }
 }
 
 //add the loaded chunks to the setup list
@@ -718,25 +735,13 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
         switch (state) {
         case ChunkStates::TREES:
             if (chunk->numNeighbors == 6) {
-                if (chunk->treeTryTicks == 0) { //keep us from continuing to try a tree when it wont ever load
-                    if (FloraGenerator::generateFlora(chunk)) {
-                        chunk->_state = ChunkStates::MESH;
-
-                        // Remove from the setup list
-                        _setupList[i] = _setupList.back();
-                        _setupList.pop_back();
-
-                        addToMeshList(chunk);
-
-                    } else {
-                        chunk->treeTryTicks = 1;
-                    }
-                } else {
-                    chunk->treeTryTicks++;
-                    if (chunk->treeTryTicks >= 15) { //pause for 15 frames, or roughly 0.25 second
-                        chunk->treeTryTicks = 0;
-                    }
-                }
+                FloraTask* floraTask = new FloraTask;
+                floraTask->init(chunk);
+                chunk->lastOwnerTask = floraTask;
+                _threadPool.addTask(floraTask);
+                // Remove from the setup list
+                _setupList[i] = _setupList.back();
+                _setupList.pop_back();
             }
             break;
         default: // chunks that should not be here should be removed
@@ -762,7 +767,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
         state = _meshList[i]->_state;
         chunk = _meshList[i];
 
-        // If it is waiting to be freed, dont do anything with it
+        // If it is waiting to be freed, don't do anything with it
         if (chunk->freeWaiting) {
             // Remove from the mesh list
             _meshList[i] = _meshList.back();
@@ -772,9 +777,8 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
         }
 
         if (chunk->numNeighbors == 6 && chunk->owner->inFrustum) {     
-            VoxelLightEngine::calculateLight(chunk);
             
-            //TODO: BEN, Need to make sure chunk->num is always correct
+            //TODO: BEN, Need to make sure chunk->numBlocks is always correct
             if (chunk->numBlocks) { 
 
                 chunk->occlude = 0;
@@ -1106,22 +1110,14 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
             if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(chunk);
 
-            // calculate light stuff: THIS CAN LAG THE GAME
-            if (chunk->_state > ChunkStates::TREES) {
-                if (chunk->sunRemovalList.size()) {
-                    VoxelLightEngine::calculateSunlightRemoval(chunk);
-                }
-                if (chunk->sunExtendList.size()) {
-                    VoxelLightEngine::calculateSunlightExtend(chunk);
-                }
-                VoxelLightEngine::calculateLight(chunk);
-            }
             // Check to see if it needs to be added to the mesh list
             if (chunk->_chunkListPtr == nullptr && chunk->lastOwnerTask == false) {
                 switch (chunk->_state) {
                 case ChunkStates::WATERMESH:
                 case ChunkStates::MESH:
                     addToMeshList(chunk);
+                    break;
+                default:
                     break;
                 }
             }

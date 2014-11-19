@@ -48,8 +48,9 @@ public:
 };
 
 class ChunkSlot;
-class RenderTask;
+class FloraTask;
 class GenerateTask;
+class RenderTask;
 
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
@@ -189,6 +190,9 @@ private:
 
     // Processes a render task that is finished
     void processFinishedRenderTask(RenderTask* task);
+
+    // Processes a flora task that is finished
+    void processFinisedFloraTask(FloraTask* task);
 
     // Updates all chunks that have been loaded
     void updateLoadedChunks();
