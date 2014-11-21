@@ -11,32 +11,43 @@ struct Biome;
 //static flora generation class. Both trees and plants are considered flora
 class FloraGenerator {
 public:
-    static i32 generateFlora(Chunk *chunk);
-    static i32 generateTreeNodes(Chunk *chunk, i32 sc, TreeData &treeData);
+
+    // Don't change TreeDir order
+    enum TreeDir {
+        TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
+    };
+
+    bool generateFlora(Chunk *chunk);
     static i32 makeLODTreeData(TreeData &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
     static i32 makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt);
     static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
 
     //Places all the blocks for the tree
-    static void placeTreeNodes();
-    //Places all the blocks for the tree and records the old blocks
-    static void placeTreeNodesAndRecord();
+    void placeTreeNodes();
 
 private:
-    static i32 makeBranch(Chunk *chunk, i32 step, i32 initStep, i32 c, i32 dir, bool makeNode, TreeData *td, i32 initDir, i32 initSize, i32 leafSizeMod, bool isRoot, i32 initBranchDir);
-    static i32 makeLeaves(Chunk *chunk, i32 step, i32 c, i32 dir, bool branch, i32 startStep, bool makeNode, i32 ntype);
-    static i32 makeCluster(Chunk *chunk, i32 size, i32 c, i32 ntype);
-    static i32 makeSphere(Chunk *chunk, i32 c, i32 block, i32 rad);
-    static i32 makeRoundLeaves(Chunk *chunk, i32 c, i32 dir, bool branch, bool makeNode, i32 ntype, i32 dx, i32 dy, i32 dz, i32 rad);
-    static i32 makeMushroomLeaves(Chunk *chunk, i32 c, i32 dir, bool branch, bool makeNode, i32 ntype, i32 lamntype, i32 dx, i32 dy, i32 dz, i32 rad, TreeType *tt);
-    static i32 makeDroopyLeaves(Chunk *chunk, i32 length, i32 c, TreeData *td, i32 ntype);
-    static i32 makeMushroomCap(Chunk *chunk, i32 c, TreeData &td, i32 block, i32 rad);
+    bool generateTree(const TreeData& treeData, Chunk* startChunk);
+    bool generateTrunk();
+    bool makeTrunkSlice(int blockIndex, Chunk* chunk, int h, float heightRatio);
+    bool makeTrunkOuterRing(int blockIndex, Chunk* chunk, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>& nodes);
+    bool directionalMove(int& blockIndex, Chunk*& chunk, TreeDir dir);
+    bool recursiveMakeSlice(int blockIndex, Chunk *chunk, i32 step, TreeDir dir, TreeDir rightDir, TreeDir leftDir, bool makeNode, i32 blockID, std::vector<TreeNode>& nodes);
 
-    static std::vector<TreeNode> wnodes;
-    static std::vector<TreeNode> lnodes;
+    bool recursiveMakeBranch(int blockIndex, Chunk* chunk, int step, TreeDir dir, TreeDir initDir, int thickness, bool isRoot);
+    bool makeSphere(int blockIndex, Chunk* chunk, int radius, int blockID, std::vector<TreeNode>& nodes);
+    bool makeCluster(int blockIndex, Chunk* chunk, int size, int blockID, std::vector<TreeNode>& nodes);
+    i32 makeMushroomLeaves(Chunk *chunk, i32 c, i32 dir, bool branch, bool makeNode, i32 ntype, i32 lamntype, i32 dx, i32 dy, i32 dz, i32 rad, TreeType *tt);
+    bool makeDroopyLeaves(int blockIndex, Chunk* chunk, int length, int blockID, std::vector<TreeNode>& nodes);
+    i32 makeMushroomCap(Chunk *chunk, i32 c, i32 block, i32 rad);
 
-    //The root chunk for generation
-    // Chunk *_chunk;
+    void lockChunk(Chunk* chunk);
+
+    std::vector<TreeNode> _wnodes;
+    std::vector<TreeNode> _lnodes;
+
+    Chunk* _lockedChunk;
+    Chunk* _startChunk;
+    const TreeData* _treeData;
 };
 
 enum class TreeLeafShape {

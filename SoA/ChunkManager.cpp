@@ -461,7 +461,7 @@ void ChunkManager::processFinishedTasks() {
                 }
                 break;
             case FLORA_TASK_ID:
-                processFinisedFloraTask(static_cast<FloraTask*>(task));
+                processFinishedFloraTask(static_cast<FloraTask*>(task));
                 break;
             default:
                 pError("Unknown thread pool Task! ID = " + to_string(task->getTaskId()));
@@ -552,7 +552,7 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
     
 }
 
-void ChunkManager::processFinisedFloraTask(FloraTask* task) {
+void ChunkManager::processFinishedFloraTask(FloraTask* task) {
     Chunk* chunk = task->chunk;
     if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
     if (task->isSuccessful) {

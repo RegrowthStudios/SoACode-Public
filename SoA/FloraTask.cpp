@@ -7,8 +7,13 @@
 
 void FloraTask::execute(vcore::WorkerData* workerData) {
 
+    // Lazily initialize flora generator
+    if (workerData->floraGenerator == nullptr) {
+        workerData->floraGenerator = new FloraGenerator();
+    }
+
     isSuccessful = false;
-    if (FloraGenerator::generateFlora(chunk)) {
+    if (workerData->floraGenerator->generateFlora(chunk)) {
         isSuccessful = true;
     }
 }

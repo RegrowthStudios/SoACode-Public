@@ -192,7 +192,7 @@ private:
     void processFinishedRenderTask(RenderTask* task);
 
     // Processes a flora task that is finished
-    void processFinisedFloraTask(FloraTask* task);
+    void processFinishedFloraTask(FloraTask* task);
 
     // Updates all chunks that have been loaded
     void updateLoadedChunks();

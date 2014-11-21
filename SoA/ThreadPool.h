@@ -25,6 +25,7 @@
 
 class Chunk;
 class ChunkMesher;
+class FloraGenerator;
 struct LoadData;
 
 enum class RenderTaskType;
@@ -39,8 +40,10 @@ namespace vorb {
             volatile bool waiting;
             volatile bool stop;
 
-            // Each Thread Gets Its Own Mesher
+            // Each thread gets its own mesher and flora generator
+            // TODO(Ben): Decouple this
             ChunkMesher* chunkMesher = nullptr;
+            FloraGenerator* floraGenerator = nullptr;
         };
 
         class ThreadPool {

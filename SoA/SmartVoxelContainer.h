@@ -137,6 +137,7 @@ namespace vorb {
                                 dataVector.emplace_back(i, 1, _dataArray[i]);
                             }
                         }
+
                         // Recycle memory
                         _arrayRecycler->recycle(_dataArray);
                         _dataArray = nullptr;
