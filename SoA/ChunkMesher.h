@@ -47,7 +47,7 @@ private:
     bool checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
     void calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj);
-    void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset);
+    void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
 
     void computeLODData(int levelOfDetail);
 

@@ -111,20 +111,23 @@ void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 
     dst.b = calculateSmoothLighting(GETBLUE(src0) + GETBLUE(src1) + GETBLUE(src2) + GETBLUE(src3), numAdj);
 }
 
-void ChunkMesher::calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset) {
+void ChunkMesher::calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]) {
     
+    // Ambient occlusion factor
+#define OCCLUSION_FACTOR 0.23f;
     // Helper macro
-#define CALCULATE_VERTEX(f, s1, s2) \
+#define CALCULATE_VERTEX(v, s1, s2) \
     nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude + \
-        (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset]).occlude + \
-        (int)GETBLOCK(_blockIDData[blockIndex s2 rightOffset]).occlude + \
-        (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset s2 rightOffset]).occlude; \
-    calculateLampColor(face[f].lampColor, _lampLightData[blockIndex], \
+    (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset]).occlude + \
+    (int)GETBLOCK(_blockIDData[blockIndex s2 rightOffset]).occlude + \
+    (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset s2 rightOffset]).occlude; \
+    ambientOcclusion[v] = 1.0f - nearOccluders * OCCLUSION_FACTOR; \
+    calculateLampColor(face[v].lampColor, _lampLightData[blockIndex], \
                        _lampLightData[blockIndex s1 frontOffset], \
                        _lampLightData[blockIndex s2 rightOffset], \
                        _lampLightData[blockIndex s1 frontOffset s2 rightOffset], \
                        nearOccluders); \
-    face[f].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] + \
+    face[v].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] + \
                                                _sunlightData[blockIndex s1 frontOffset] + \
                                                _sunlightData[blockIndex s2 rightOffset] + \
                                                _sunlightData[blockIndex s1 frontOffset s2 rightOffset], \
@@ -144,7 +147,7 @@ void ChunkMesher::calculateFaceLight(BlockVertex* face, int blockIndex, int upOf
     CALCULATE_VERTEX(2, +, +)
 
     // Vertex 3
-    CALCULATE_VERTEX(2, -, +)
+    CALCULATE_VERTEX(3, -, +)
 
 }
 
@@ -152,14 +155,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 {
     const Block &block = Blocks[mi.btype];
 
-    ui8 lampLights[26][3];
-    GLbyte sunlights[26];
     ColorRGB8 color, overlayColor;
     const int wc = mi.wc;
     const int btype = mi.btype;
-    int nearBlocks[4];
     int textureIndex, overlayTextureIndex;
-    const GLfloat OCCLUSION_FACTOR = 0.2f;
 
     GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -194,18 +193,6 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     if (faces[ZPOS]){ //0 1 2 3
         //Get the color of the block
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pzTexInfo);
-
-        //Count the number of solid blocks ad add them to near blocks for ambient occlusion
-        nearBlocks[0] = (int)(sunlights[23] == -1) + (int)(sunlights[24] == -1) + (int)(sunlights[14] == -1);
-        nearBlocks[1] = (int)(sunlights[6] == -1) + (int)(sunlights[7] == -1) + (int)(sunlights[14] == -1);
-        nearBlocks[2] = (int)(sunlights[7] == -1) + (int)(sunlights[8] == -1) + (int)(sunlights[16] == -1);
-        nearBlocks[3] = (int)(sunlights[24] == -1) + (int)(sunlights[25] == -1) + (int)(sunlights[16] == -1);
-        //Calculate ambient occlusion based on nearby blocks
-
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
         
         //We will offset the texture index based on the texture method
         textureIndex = block.pzTexInfo.base.getBlockTextureIndex(mi.pzBaseMethodParams, color);
@@ -220,12 +207,11 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             mi.mergeFront = false;
         } else {
+            //Set up the light data using smooth lighting
+            calculateFaceLight(&_frontVerts[mi.frontIndex], wc, PADDED_CHUNK_WIDTH, 1, PADDED_CHUNK_LAYER, ambientOcclusion);
+
             //Set up most of the vertex data for a face
             VoxelMesher::makeCubeFace(_frontVerts, CUBE_FACE_0_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
-
-            //Set up the light data using smooth lighting
-
-            calculateFaceLight(&_frontVerts[mi.frontIndex], wc, PADDED_CHUNK_WIDTH, 1, PADDED_CHUNK_LAYER);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeFront && mi.pbtype == btype &&
@@ -250,16 +236,6 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     if (faces[ZNEG]) {
         //Get the color of the block
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.nzTexInfo);
-
-        nearBlocks[0] = (int)(sunlights[18] == -1) + (int)(sunlights[19] == -1) + (int)(sunlights[11] == -1);
-        nearBlocks[1] = (int)(sunlights[1] == -1) + (int)(sunlights[2] == -1) + (int)(sunlights[11] == -1);
-        nearBlocks[2] = (int)(sunlights[0] == -1) + (int)(sunlights[1] == -1) + (int)(sunlights[9] == -1);
-        nearBlocks[3] = (int)(sunlights[17] == -1) + (int)(sunlights[18] == -1) + (int)(sunlights[9] == -1);
-       
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
        
         //We will offset the texture index based on the texture method
 
@@ -274,9 +250,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
             mi.mergeBack = false;
         } else {
-            VoxelMesher::makeCubeFace(_backVerts, CUBE_FACE_5_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
 
-            calculateFaceLight(&_backVerts[mi.backIndex], wc, -PADDED_CHUNK_WIDTH, -1, -PADDED_CHUNK_LAYER);
+            calculateFaceLight(&_backVerts[mi.backIndex], wc, -PADDED_CHUNK_WIDTH, -1, -PADDED_CHUNK_LAYER, ambientOcclusion);
+
+            VoxelMesher::makeCubeFace(_backVerts, CUBE_FACE_5_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBack && mi.pbtype == btype &&
@@ -300,16 +277,6 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     if (faces[YPOS]){ //0 5 6 1                        
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pyTexInfo);
 
-        nearBlocks[0] = (int)(sunlights[17] == -1) + (int)(sunlights[18] == -1) + (int)(sunlights[20] == -1);
-        nearBlocks[1] = (int)(sunlights[20] == -1) + (int)(sunlights[23] == -1) + (int)(sunlights[24] == -1);
-        nearBlocks[2] = (int)(sunlights[22] == -1) + (int)(sunlights[24] == -1) + (int)(sunlights[25] == -1);
-        nearBlocks[3] = (int)(sunlights[18] == -1) + (int)(sunlights[19] == -1) + (int)(sunlights[22] == -1);
-        
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
-
         //We will offset the texture index based on the texture method
         textureIndex = block.pyTexInfo.base.getBlockTextureIndex(mi.pyBaseMethodParams, color);
         overlayTextureIndex = block.pyTexInfo.overlay.getBlockTextureIndex(mi.pyOverlayMethodParams, overlayColor);
@@ -323,10 +290,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             mi.mergeUp = false;
         } else {
+            calculateFaceLight(&_topVerts[mi.topIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ambientOcclusion);
+
             VoxelMesher::makeCubeFace(_topVerts, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
             
-            calculateFaceLight(&_topVerts[mi.topIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1);
-
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeUp && mi.pbtype == btype &&
                 CompareVertices(_topVerts[mi.pupIndex], _topVerts[mi.pupIndex + 3]) && CompareVertices(_topVerts[mi.pupIndex + 3], _topVerts[mi.topIndex]) && CompareVertices(_topVerts[mi.topIndex], _topVerts[mi.topIndex + 3]) &&//-z vertices
@@ -348,16 +315,6 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     if (faces[YNEG]) {
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.nyTexInfo);
-
-        nearBlocks[0] = (int)(sunlights[1] == -1) + (int)(sunlights[2] == -1) + (int)(sunlights[5] == -1);
-        nearBlocks[1] = (int)(sunlights[5] == -1) + (int)(sunlights[7] == -1) + (int)(sunlights[8] == -1);
-        nearBlocks[2] = (int)(sunlights[3] == -1) + (int)(sunlights[6] == -1) + (int)(sunlights[7] == -1);
-        nearBlocks[3] = (int)(sunlights[0] == -1) + (int)(sunlights[1] == -1) + (int)(sunlights[3] == -1);
-       
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR; 
        
         //We will offset the texture index based on the texture method
         textureIndex = block.nyTexInfo.base.getBlockTextureIndex(mi.nyBaseMethodParams, color);
@@ -372,10 +329,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             mi.mergeBot = false;
         } else {
+            calculateFaceLight(&_bottomVerts[mi.botIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ambientOcclusion);
 
             VoxelMesher::makeCubeFace(_bottomVerts, CUBE_FACE_4_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
-
-            calculateFaceLight(&_bottomVerts[mi.botIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBot && mi.pbtype == btype &&
@@ -397,16 +353,6 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     if (faces[XPOS]) {
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pxTexInfo);
-
-        nearBlocks[0] = (int)(sunlights[25] == -1) + (int)(sunlights[22] == -1) + (int)(sunlights[16] == -1);
-        nearBlocks[1] = (int)(sunlights[5] == -1) + (int)(sunlights[8] == -1) + (int)(sunlights[16] == -1);
-        nearBlocks[2] = (int)(sunlights[2] == -1) + (int)(sunlights[5] == -1) + (int)(sunlights[11] == -1);
-        nearBlocks[3] = (int)(sunlights[19] == -1) + (int)(sunlights[22] == -1) + (int)(sunlights[11] == -1);
-       
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
       
         //We will offset the texture index based on the texture method
         textureIndex = block.pxTexInfo.base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
@@ -420,9 +366,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            VoxelMesher::makeCubeFace(_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
+            calculateFaceLight(&_rightVerts[mi.rightIndex], wc, 1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, ambientOcclusion);
 
-            calculateFaceLight(&_rightVerts[mi.rightIndex], wc, 1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH);
+            VoxelMesher::makeCubeFace(_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
 
             mi.rightIndex += 4;
         }
@@ -430,16 +376,6 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     if (faces[XNEG]) {
         Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.nxTexInfo);
-
-        nearBlocks[0] = (int)(sunlights[17] == -1) + (int)(sunlights[20] == -1) + (int)(sunlights[9] == -1);
-        nearBlocks[1] = (int)(sunlights[0] == -1) + (int)(sunlights[3] == -1) + (int)(sunlights[9] == -1);
-        nearBlocks[2] = (int)(sunlights[3] == -1) + (int)(sunlights[6] == -1) + (int)(sunlights[14] == -1);
-        nearBlocks[3] = (int)(sunlights[20] == -1) + (int)(sunlights[23] == -1) + (int)(sunlights[14] == -1);
-        
-        ambientOcclusion[0] = 1.0f - nearBlocks[0] * OCCLUSION_FACTOR;
-        ambientOcclusion[1] = 1.0f - nearBlocks[1] * OCCLUSION_FACTOR;
-        ambientOcclusion[2] = 1.0f - nearBlocks[2] * OCCLUSION_FACTOR;
-        ambientOcclusion[3] = 1.0f - nearBlocks[3] * OCCLUSION_FACTOR;
 
         //We will offset the texture index based on the texture method
         textureIndex = block.nxTexInfo.base.getBlockTextureIndex(mi.nxBaseMethodParams, color);
@@ -452,9 +388,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            VoxelMesher::makeCubeFace(_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
+           
+            calculateFaceLight(&_leftVerts[mi.leftIndex], wc, 1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, ambientOcclusion);
 
-            calculateFaceLight(&_leftVerts[mi.leftIndex], wc, 1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH);
+            VoxelMesher::makeCubeFace(_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
 
             mi.leftIndex += 4;
         }

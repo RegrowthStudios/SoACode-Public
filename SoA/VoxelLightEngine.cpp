@@ -176,6 +176,7 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
             if (chunk->getBlock(blockIndex).blockLight == 0){
 
                 if (chunk->getSunlight(blockIndex) != MAXLIGHT){
+                    chunk->changeState(ChunkStates::MESH);
                     chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, MAXLIGHT));
                 }
             } else{
