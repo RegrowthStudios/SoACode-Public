@@ -17,9 +17,9 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
         while (chunk->sunlightRemovalQueue.size()){
             auto& node = chunk->sunlightRemovalQueue.front();
             removeSunlightBFS(chunk, (int)node.blockIndex, node.oldLightVal);
-            chunk->sunlightRemovalQueue.pop_front();
+            chunk->sunlightRemovalQueue.pop();
         }
-        boost::circular_buffer<SunlightRemovalNode>().swap(chunk->sunlightRemovalQueue); //forces memory to be freed
+        std::queue<SunlightRemovalNode>().swap(chunk->sunlightRemovalQueue); //forces memory to be freed
     }
 
     if (chunk->sunlightUpdateQueue.size()) {
@@ -28,9 +28,9 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
         while (chunk->sunlightUpdateQueue.size()){
             auto& node = chunk->sunlightUpdateQueue.front();
             placeSunlightBFS(chunk, (int)node.blockIndex, (int)node.lightVal);
-            chunk->sunlightUpdateQueue.pop_front();
+            chunk->sunlightUpdateQueue.pop();
         }
-        boost::circular_buffer<SunlightUpdateNode>().swap(chunk->sunlightUpdateQueue); //forces memory to be freed
+        std::queue<SunlightUpdateNode>().swap(chunk->sunlightUpdateQueue); //forces memory to be freed
     }
 
     //Voxel Light Calculation
@@ -40,9 +40,9 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
         while (chunk->lampLightRemovalQueue.size()){
             auto& node = chunk->lampLightRemovalQueue.front();
             removeLampLightBFS(chunk, (int)node.blockIndex, node.oldLightColor);
-            chunk->lampLightRemovalQueue.pop_front();
+            chunk->lampLightRemovalQueue.pop();
         }
-        boost::circular_buffer<LampLightRemovalNode>().swap(chunk->lampLightRemovalQueue); //forces memory to be freed
+        std::queue<LampLightRemovalNode>().swap(chunk->lampLightRemovalQueue); //forces memory to be freed
     }
 
     if (chunk->lampLightUpdateQueue.size()) {
@@ -51,9 +51,9 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
         for (ui32 i = 0; i < chunk->lampLightUpdateQueue.size(); i++){
             auto& node = chunk->lampLightUpdateQueue.front();
             placeLampLightBFS(chunk, (int)node.blockIndex, node.lightColor);
-            chunk->lampLightUpdateQueue.pop_front();
+            chunk->lampLightUpdateQueue.pop();
         }
-        boost::circular_buffer<LampLightUpdateNode>().swap(chunk->lampLightUpdateQueue); //forces memory to be freed
+        std::queue<LampLightUpdateNode>().swap(chunk->lampLightUpdateQueue); //forces memory to be freed
     }
     if (_lockedChunk) {
         _lockedChunk->unlock();
@@ -176,9 +176,9 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
             if (chunk->getBlock(blockIndex).blockLight == 0){
 
                 if (chunk->getSunlight(blockIndex) != MAXLIGHT){
-                    chunk->changeState(ChunkStates::MESH);
-                    chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, MAXLIGHT));
+                    chunk->sunlightUpdateQueue.emplace(blockIndex, MAXLIGHT);
                 }
+            
             } else{
                 return;
             }
@@ -192,9 +192,9 @@ inline void removeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 ligh
     if (lightVal > 0){
         if (lightVal <= light){
             chunk->setSunlight(blockIndex, 0);
-            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, light));
+            chunk->sunlightRemovalQueue.emplace(blockIndex, light);
         } else {
-            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, 0));
+            chunk->sunlightUpdateQueue.emplace(blockIndex, 0);
         }
     }
 }
@@ -280,7 +280,7 @@ inline void placeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light
     if (chunk->getSunlight(blockIndex) < light){
         if (chunk->getBlock(blockIndex).allowLight){
             chunk->setSunlight(blockIndex, light);
-            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, light));
+            chunk->sunlightUpdateQueue.emplace(blockIndex, light);
         }
     }
 }
@@ -389,13 +389,13 @@ inline void removeLampNeighborUpdate(Chunk* chunk, int blockIndex, ui16 intensit
 
     if ((nextRed && nextRed <= intensityRed) || (nextGreen && nextGreen <= intensityGreen) || (nextBlue && nextBlue <= intensityBlue)){
         chunk->setLampLight(blockIndex, 0);
-        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, light));
+        chunk->lampLightRemovalQueue.emplace(blockIndex, light);
 
         if (nextRed > intensityRed || nextGreen > intensityGreen || nextBlue > intensityBlue){
-            chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, 0));
+            chunk->lampLightUpdateQueue.emplace(blockIndex, 0);
         }
     } else if (nextLight > 0) {
-        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, 0));
+        chunk->lampLightUpdateQueue.emplace(blockIndex, 0);
     }
 }
 
@@ -503,7 +503,7 @@ inline void placeLampNeighborUpdate(Chunk* chunk, int blockIndex, ui16 intensity
     if (nextLight != currentLight){
         if (chunk->getBlock(blockIndex).allowLight){
             chunk->setLampLight(blockIndex, nextLight);
-            chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, nextLight));
+            chunk->lampLightUpdateQueue.emplace(blockIndex, nextLight);
         }
     }
 }

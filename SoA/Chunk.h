@@ -197,11 +197,10 @@ public:
 
     std::vector <ui16> blockUpdateList[8][2];
 
-    //Even though these are vectors, they are treated as fifo usually, and when not, it doesn't matter
-    boost::circular_buffer <SunlightUpdateNode> sunlightUpdateQueue;
-    boost::circular_buffer <SunlightRemovalNode> sunlightRemovalQueue;
-    boost::circular_buffer <LampLightUpdateNode> lampLightUpdateQueue;
-    boost::circular_buffer <LampLightRemovalNode> lampLightRemovalQueue;
+    std::queue <SunlightUpdateNode> sunlightUpdateQueue;
+    std::queue <SunlightRemovalNode> sunlightRemovalQueue;
+    std::queue <LampLightUpdateNode> lampLightUpdateQueue;
+    std::queue <LampLightRemovalNode> lampLightRemovalQueue;
 
     std::vector <ui16> sunRemovalList;
     std::vector <ui16> sunExtendList;
