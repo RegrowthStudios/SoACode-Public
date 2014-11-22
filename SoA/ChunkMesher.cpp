@@ -113,78 +113,38 @@ void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 
 
 void ChunkMesher::calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset) {
     
+    // Helper macro
+#define CALCULATE_VERTEX(f, s1, s2) \
+    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude + \
+        (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset]).occlude + \
+        (int)GETBLOCK(_blockIDData[blockIndex s2 rightOffset]).occlude + \
+        (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset s2 rightOffset]).occlude; \
+    calculateLampColor(face[f].lampColor, _lampLightData[blockIndex], \
+                       _lampLightData[blockIndex s1 frontOffset], \
+                       _lampLightData[blockIndex s2 rightOffset], \
+                       _lampLightData[blockIndex s1 frontOffset s2 rightOffset], \
+                       nearOccluders); \
+    face[f].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] + \
+                                               _sunlightData[blockIndex s1 frontOffset] + \
+                                               _sunlightData[blockIndex s2 rightOffset] + \
+                                               _sunlightData[blockIndex s1 frontOffset s2 rightOffset], \
+                                               nearOccluders);
+
     // Move the block index upwards
     blockIndex += upOffset;
     int nearOccluders; ///< For ambient occlusion
 
-    // Vertex 1
-    // Calculate ambient occlusion
-    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex - rightOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset - rightOffset]).occlude;
-    // Calculate smooth lamp color by sampling values of 4 nearby blocks
-    calculateLampColor(face[0].lampColor, _lampLightData[blockIndex], 
-                       _lampLightData[blockIndex - frontOffset], 
-                       _lampLightData[blockIndex - rightOffset], 
-                       _lampLightData[blockIndex - frontOffset - rightOffset],
-                       nearOccluders);
-    // Calculate smooth sunlight color by sampling values of 4 nearby blocks
-    face[0].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] + 
-                                               _sunlightData[blockIndex - frontOffset] +
-                                               _sunlightData[blockIndex - rightOffset] + 
-                                               _sunlightData[blockIndex - frontOffset - rightOffset],
-                                               nearOccluders);
- 
-    // Vertex 2
-    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex - rightOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset - rightOffset]).occlude;
-    calculateLampColor(face[1].lampColor, 
-                       _lampLightData[blockIndex],
-                       _lampLightData[blockIndex + frontOffset],
-                       _lampLightData[blockIndex - rightOffset],
-                       _lampLightData[blockIndex + frontOffset - rightOffset],
-                       nearOccluders);
-    face[1].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] +
-                                               _sunlightData[blockIndex + frontOffset] +
-                                               _sunlightData[blockIndex - rightOffset] +
-                                               _sunlightData[blockIndex + frontOffset - rightOffset],
-                                               nearOccluders);
- 
-    // Vertex 3
-    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex + rightOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset + rightOffset]).occlude;
-    calculateLampColor(face[2].lampColor, _lampLightData[blockIndex], 
-                       _lampLightData[blockIndex + frontOffset],
-                       _lampLightData[blockIndex + rightOffset],
-                       _lampLightData[blockIndex + frontOffset + rightOffset],
-                       nearOccluders);
-    face[2].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] +
-                                               _sunlightData[blockIndex + frontOffset] +
-                                               _sunlightData[blockIndex + rightOffset] +
-                                               _sunlightData[blockIndex + frontOffset + rightOffset],
-                                               nearOccluders);
+    // Vertex 0
+    CALCULATE_VERTEX(0, -, -)
 
-    // Vertex 4
-    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex + rightOffset]).occlude +
-        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset + rightOffset]).occlude;
-    calculateLampColor(face[3].lampColor, 
-                       _lampLightData[blockIndex],
-                       _lampLightData[blockIndex - frontOffset],
-                       _lampLightData[blockIndex + rightOffset],
-                       _lampLightData[blockIndex - frontOffset + rightOffset],
-                       nearOccluders);
-    face[3].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] +
-                                               _sunlightData[blockIndex - frontOffset] +
-                                               _sunlightData[blockIndex + rightOffset] +
-                                               _sunlightData[blockIndex - frontOffset + rightOffset],
-                                               nearOccluders);
+    // Vertex 1
+    CALCULATE_VERTEX(1, +, -)
+   
+    // Vertex 2
+    CALCULATE_VERTEX(2, +, +)
+
+    // Vertex 3
+    CALCULATE_VERTEX(2, -, +)
 
 }
 
