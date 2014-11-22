@@ -38,12 +38,13 @@ namespace vorb {
                     // Empty
                 }
 
-                GBuffer& init(ui32 msaa = 0);
+                GBuffer& init();
                 GBuffer& initDepth(TextureInternalFormat depthFormat = TextureInternalFormat::DEPTH_COMPONENT32);
                 void dispose();
 
                 void use();
 
+                /// @return OpenGL texture IDs
                 const GBuffer::TextureIDs& getTextureIDs() const {
                     return _tex;
                 }
@@ -61,16 +62,8 @@ namespace vorb {
                     return _size.y;
                 }
 
-                /// @return True if this is initialized with MSAA
-                bool isMSAA() const {
-                    return _msaa > 0;
-                }
-
             private:
                 ui32v2 _size; ///< The width and height of the GBuffer
-
-                ui32 _msaa = 0; ///< MSAA sample count in this GBuffer
-                VGEnum _textureTarget; ///< The kinds of textures bound to this GBuffer
 
                 //union {
                 //    struct {
@@ -82,7 +75,7 @@ namespace vorb {
                 //};
                 ui32 _fbo; ///< The rendering target
                 union {
-                    TextureIDs _tex = { 0, 0, 0 };
+                    TextureIDs _tex;
                     ui32 _textures[3]; ///< All 3 textures
                 };
                 ui32 _texDepth = 0; ///< Depth texture of GBuffer
