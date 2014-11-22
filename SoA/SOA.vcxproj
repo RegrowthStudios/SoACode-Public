@@ -135,6 +135,7 @@
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="GBuffer.h" />
     <ClInclude Include="GLRenderTarget.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="gtypes.h" />
@@ -312,6 +313,7 @@
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="GLRenderTarget.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
