@@ -8,13 +8,6 @@
 void VoxelLightEngine::calculateLight(Chunk* chunk)
 {
     //Flush all edge queues
-  /*  flushLightQueue(chunk, chunk->lightFromMain);
-    flushLightQueue(chunk, chunk->lightFromRight);
-    flushLightQueue(chunk, chunk->lightFromLeft);
-    flushLightQueue(chunk, chunk->lightFromFront);
-    flushLightQueue(chunk, chunk->lightFromBack);
-    flushLightQueue(chunk, chunk->lightFromTop);
-    flushLightQueue(chunk, chunk->lightFromBottom);*/
 
 
     //Sunlight Calculation
@@ -51,22 +44,6 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
         vector<LampLightUpdateNode>().swap(chunk->lampLightUpdateQueue); //forces memory to be freed
     }
 
-}
-
-void VoxelLightEngine::flushLightQueue(Chunk* chunk, moodycamel::ReaderWriterQueue<ui32>& queue) {
-    //ui32 data;
-    //LightMessage result;
-    //while (queue.try_dequeue(data)) {
-    //    result = *((LightMessage*)&data);
-    //    //If light value is < 0 that indicates a removal.
-    //    if (result.lightValue < 0) {
-    //        chunk->lightData[result.lightType][result.blockIndex] = 0;
-    //        removeLightBFS(chunk, (int)result.blockIndex, (int)result.lightType, -result.lightValue);
-    //    } else { //Else its an addition
-    //        chunk->lightData[result.lightType][result.blockIndex] = result.lightValue;
-    //        placeLight(chunk, (int)result.blockIndex, result.lightType, result.lightValue);
-    //    }
-    //}
 }
 
 void VoxelLightEngine::calculateSunlightExtend(Chunk* chunk)

@@ -43,18 +43,20 @@ class Chunk;
 
 class VoxelLightEngine {
 public:
-    static void calculateLight(Chunk* chunk);
-    static void calculateSunlightExtend(Chunk* chunk);
-    static void calculateSunlightRemoval(Chunk* chunk);
+    void calculateLight(Chunk* chunk);
+    void calculateSunlightExtend(Chunk* chunk);
+    void calculateSunlightRemoval(Chunk* chunk);
 
-    static void checkTopForSunlight(Chunk* chunk);
+    void checkTopForSunlight(Chunk* chunk);
 private:
-    static void flushLightQueue(Chunk* chunk, moodycamel::ReaderWriterQueue<ui32>& queue);
-    
-    static void blockSunRay(Chunk* chunk, int xz, int y);
-    static void extendSunRay(Chunk* chunk, int xz, int y);
-    static void removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLightVal);
-    static void placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intensity);
-    static void removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 light);
-    static void placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 intensity);
+   
+    void blockSunRay(Chunk* chunk, int xz, int y);
+    void extendSunRay(Chunk* chunk, int xz, int y);
+    void removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLightVal);
+    void placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intensity);
+    void removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 light);
+    void placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 intensity);
+
+    Chunk* _chunk;
+    Chunk* _lockedChunk;
 };

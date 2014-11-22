@@ -6,6 +6,8 @@
 #include "ThreadPool.h"
 
 void RenderTask::execute(vcore::WorkerData* workerData) {
+    // Mesh updates are accompanied by light updates
+    updateLight();
     // Lazily allocate chunkMesher
     if (workerData->chunkMesher == nullptr) {
         workerData->chunkMesher = new ChunkMesher;
