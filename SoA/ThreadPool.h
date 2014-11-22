@@ -26,6 +26,7 @@
 class Chunk;
 class ChunkMesher;
 class FloraGenerator;
+class VoxelLightEngine;
 struct LoadData;
 
 enum class RenderTaskType;
@@ -36,14 +37,19 @@ namespace vorb {
         // Worker data for a threadPool
         class WorkerData {
         public:
-            ~WorkerData() { delete chunkMesher; }
+            ~WorkerData() { 
+                delete chunkMesher;
+                delete floraGenerator;
+                delete voxelLightEngine;
+            }
             volatile bool waiting;
             volatile bool stop;
 
-            // Each thread gets its own mesher and flora generator
+            // Each thread gets its own generators
             // TODO(Ben): Decouple this
             ChunkMesher* chunkMesher = nullptr;
             FloraGenerator* floraGenerator = nullptr;
+            VoxelLightEngine* voxelLightEngine = nullptr;
         };
 
         class ThreadPool {

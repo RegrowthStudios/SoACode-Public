@@ -111,10 +111,10 @@ void Chunk::clear(bool clearDraw)
         vector <GLushort>().swap(blockUpdateList[i][0]); //release the memory manually
         vector <GLushort>().swap(blockUpdateList[i][1]);
     }
-    vector<LampLightRemovalNode>().swap(lampLightRemovalQueue);
-    vector<LampLightUpdateNode>().swap(lampLightUpdateQueue);
-    vector<SunlightRemovalNode>().swap(sunlightRemovalQueue);
-    vector<SunlightUpdateNode>().swap(sunlightUpdateQueue);
+    boost::circular_buffer<LampLightRemovalNode>().swap(lampLightRemovalQueue);
+    boost::circular_buffer<LampLightUpdateNode>().swap(lampLightUpdateQueue);
+    boost::circular_buffer<SunlightRemovalNode>().swap(sunlightRemovalQueue);
+    boost::circular_buffer<SunlightUpdateNode>().swap(sunlightUpdateQueue);
     if (clearDraw){
         clearBuffers();
     }

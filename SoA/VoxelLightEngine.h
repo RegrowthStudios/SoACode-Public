@@ -1,7 +1,5 @@
 #pragma once
 
-#include "readerwriterqueue.h"
-
 //Used to tell neighbors to update light
 //struct LightMessage {
 //    LightMessage() {};

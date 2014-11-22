@@ -51,6 +51,7 @@ class ChunkSlot;
 class FloraTask;
 class GenerateTask;
 class RenderTask;
+class VoxelLightEngine;
 
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
@@ -332,6 +333,8 @@ private:
 
     // The threadpool for generating chunks and meshes
     vcore::ThreadPool _threadPool;
+
+    VoxelLightEngine* _voxelLightEngine; ///< Used for checking top chunks for sunlight
 
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> _byteFixedSizeArrayRecycler; ///< For recycling voxel data

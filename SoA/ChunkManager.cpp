@@ -57,6 +57,7 @@ ChunkManager::ChunkManager() :
     NoChunkFade = 0;
     planet = NULL;
     _poccx = _poccy = _poccz = -1;
+    _voxelLightEngine = new VoxelLightEngine();
 
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
@@ -66,6 +67,7 @@ ChunkManager::ChunkManager() :
 
 ChunkManager::~ChunkManager() {
     deleteAllChunks();
+    delete _voxelLightEngine;
 }
 
 void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
@@ -481,7 +483,7 @@ void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
         setupNeighbors(ch);
 
         //check to see if the top chunk has light that should end up in this chunk
-        VoxelLightEngine::checkTopForSunlight(ch);
+        _voxelLightEngine->checkTopForSunlight(ch);
 
         if (ch->treesToLoad.size() || ch->plantsToLoad.size()) {
             ch->_state = ChunkStates::TREES;

@@ -4,7 +4,7 @@
 #include <set>
 #include <mutex>
 
-#include <boost/circular_buffer_fwd.hpp>
+#include <boost/circular_buffer.hpp>
 
 #include "Vorb.h"
 #include "IVoxelMapper.h"
@@ -198,10 +198,10 @@ public:
     std::vector <ui16> blockUpdateList[8][2];
 
     //Even though these are vectors, they are treated as fifo usually, and when not, it doesn't matter
-    std::vector <SunlightUpdateNode> sunlightUpdateQueue;
-    std::vector <SunlightRemovalNode> sunlightRemovalQueue;
-    std::vector <LampLightUpdateNode> lampLightUpdateQueue;
-    std::vector <LampLightRemovalNode> lampLightRemovalQueue;
+    boost::circular_buffer <SunlightUpdateNode> sunlightUpdateQueue;
+    boost::circular_buffer <SunlightRemovalNode> sunlightRemovalQueue;
+    boost::circular_buffer <LampLightUpdateNode> lampLightUpdateQueue;
+    boost::circular_buffer <LampLightRemovalNode> lampLightRemovalQueue;
 
     std::vector <ui16> sunRemovalList;
     std::vector <ui16> sunExtendList;

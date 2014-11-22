@@ -9,40 +9,51 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
 {
     //Flush all edge queues
     _lockedChunk = nullptr;
-    lockChunk(chunk);
 
     //Sunlight Calculation
     if (chunk->sunlightRemovalQueue.size()) {
+        lockChunk(chunk);
         //Removal
-        for (ui32 i = 0; i < chunk->sunlightRemovalQueue.size(); i++){
-            removeSunlightBFS(chunk, (int)chunk->sunlightRemovalQueue[i].blockIndex, chunk->sunlightRemovalQueue[i].oldLightVal);
+        while (chunk->sunlightRemovalQueue.size()){
+            auto& node = chunk->sunlightRemovalQueue.front();
+            removeSunlightBFS(chunk, (int)node.blockIndex, node.oldLightVal);
+            chunk->sunlightRemovalQueue.pop_front();
         }
-        vector<SunlightRemovalNode>().swap(chunk->sunlightRemovalQueue); //forces memory to be freed
+        boost::circular_buffer<SunlightRemovalNode>().swap(chunk->sunlightRemovalQueue); //forces memory to be freed
     }
 
     if (chunk->sunlightUpdateQueue.size()) {
+        lockChunk(chunk);
         //Addition
-        for (ui32 i = 0; i < chunk->sunlightUpdateQueue.size(); i++){
-            placeSunlightBFS(chunk, (int)chunk->sunlightUpdateQueue[i].blockIndex, (int)chunk->sunlightUpdateQueue[i].lightVal);
+        while (chunk->sunlightUpdateQueue.size()){
+            auto& node = chunk->sunlightUpdateQueue.front();
+            placeSunlightBFS(chunk, (int)node.blockIndex, (int)node.lightVal);
+            chunk->sunlightUpdateQueue.pop_front();
         }
-        vector<SunlightUpdateNode>().swap(chunk->sunlightUpdateQueue); //forces memory to be freed
+        boost::circular_buffer<SunlightUpdateNode>().swap(chunk->sunlightUpdateQueue); //forces memory to be freed
     }
 
     //Voxel Light Calculation
     if (chunk->lampLightRemovalQueue.size()) {
+        lockChunk(chunk);
         //Removal
-        for (ui32 i = 0; i < chunk->lampLightRemovalQueue.size(); i++){
-            removeLampLightBFS(chunk, (int)chunk->lampLightRemovalQueue[i].blockIndex, chunk->lampLightRemovalQueue[i].oldLightColor);
+        while (chunk->lampLightRemovalQueue.size()){
+            auto& node = chunk->lampLightRemovalQueue.front();
+            removeLampLightBFS(chunk, (int)node.blockIndex, node.oldLightColor);
+            chunk->lampLightRemovalQueue.pop_front();
         }
-        vector<LampLightRemovalNode>().swap(chunk->lampLightRemovalQueue); //forces memory to be freed
+        boost::circular_buffer<LampLightRemovalNode>().swap(chunk->lampLightRemovalQueue); //forces memory to be freed
     }
 
     if (chunk->lampLightUpdateQueue.size()) {
+        lockChunk(chunk);
         //Addition
         for (ui32 i = 0; i < chunk->lampLightUpdateQueue.size(); i++){
-            placeLampLightBFS(chunk, (int)chunk->lampLightUpdateQueue[i].blockIndex, chunk->lampLightUpdateQueue[i].lightColor);
+            auto& node = chunk->lampLightUpdateQueue.front();
+            placeLampLightBFS(chunk, (int)node.blockIndex, node.lightColor);
+            chunk->lampLightUpdateQueue.pop_front();
         }
-        vector<LampLightUpdateNode>().swap(chunk->lampLightUpdateQueue); //forces memory to be freed
+        boost::circular_buffer<LampLightUpdateNode>().swap(chunk->lampLightUpdateQueue); //forces memory to be freed
     }
     if (_lockedChunk) {
         _lockedChunk->unlock();
@@ -131,6 +142,7 @@ void VoxelLightEngine::blockSunRay(Chunk* chunk, int xz, int y)
             if (chunk->bottom && chunk->bottom->isAccessible){
                 lockChunk(chunk->bottom);
                 VoxelLightEngine::blockSunRay(chunk->bottom, xz, 31); //continue the algorithm
+                lockChunk(chunk);
             }
             return;
         } else{
@@ -156,6 +168,7 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
             if (chunk->bottom && chunk->bottom->isAccessible){
                 lockChunk(chunk->bottom);
                 extendSunRay(chunk->bottom, xz, 31); //continue the algorithm
+                lockChunk(chunk);
             }
             return;
         } else{
@@ -163,7 +176,7 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
             if (chunk->getBlock(blockIndex).blockLight == 0){
 
                 if (chunk->getSunlight(blockIndex) != MAXLIGHT){
-                    chunk->sunlightUpdateQueue.emplace_back(blockIndex, MAXLIGHT);
+                    chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, MAXLIGHT));
                 }
             } else{
                 return;
@@ -178,9 +191,9 @@ inline void removeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 ligh
     if (lightVal > 0){
         if (lightVal <= light){
             chunk->setSunlight(blockIndex, 0);
-            chunk->sunlightRemovalQueue.emplace_back(blockIndex, light);
+            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, light));
         } else {
-            chunk->sunlightUpdateQueue.emplace_back(blockIndex, 0);
+            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, 0));
         }
     }
 }
@@ -208,43 +221,55 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
     if (x > 0){ //left
         removeSunlightNeighborUpdate(chunk, blockIndex - 1, nextIntensity);
     } else if (left && left->isAccessible){
+        lockChunk(left);
         removeSunlightNeighborUpdate(left, blockIndex + CHUNK_WIDTH - 1, nextIntensity);
         left->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (x < CHUNK_WIDTH - 1){ //right
         removeSunlightNeighborUpdate(chunk, blockIndex + 1, nextIntensity);
     } else if (right && right->isAccessible){
+        lockChunk(right);
         removeSunlightNeighborUpdate(right, blockIndex - CHUNK_WIDTH + 1, nextIntensity);
         right->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (z > 0){ //back
         removeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_WIDTH, nextIntensity);
     } else if (back && back->isAccessible){
+        lockChunk(back);
         removeSunlightNeighborUpdate(back, blockIndex + CHUNK_LAYER - CHUNK_WIDTH, nextIntensity);
         back->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (z < CHUNK_WIDTH - 1){ //front
         removeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_WIDTH, nextIntensity);
     } else if (front && front->isAccessible){
+        lockChunk(front);
         removeSunlightNeighborUpdate(front, blockIndex - CHUNK_LAYER + CHUNK_WIDTH, nextIntensity);
         front->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (y > 0){ //bottom
         removeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_LAYER, nextIntensity);
     } else if (bottom && bottom->isAccessible){
+        lockChunk(bottom);
         removeSunlightNeighborUpdate(bottom, CHUNK_SIZE - CHUNK_LAYER + blockIndex, nextIntensity);
         bottom->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (y < CHUNK_WIDTH - 1){ //top
         removeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_LAYER, nextIntensity);
     } else if (top && top->isAccessible){
+        lockChunk(top);
         removeSunlightNeighborUpdate(top, blockIndex - CHUNK_SIZE + CHUNK_LAYER, nextIntensity);
         top->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
     chunk->changeState(ChunkStates::MESH);
 
@@ -254,7 +279,7 @@ inline void placeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light
     if (chunk->getSunlight(blockIndex) < light){
         if (chunk->getBlock(blockIndex).allowLight){
             chunk->setSunlight(blockIndex, light);
-            chunk->sunlightUpdateQueue.emplace_back(blockIndex, light);
+            chunk->sunlightUpdateQueue.push_back(SunlightUpdateNode(blockIndex, light));
         }
     }
 }
@@ -289,43 +314,55 @@ void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intens
     if (x > 0){ //left
         placeSunlightNeighborUpdate(chunk, blockIndex - 1, newIntensity);
     } else if (left && left->isAccessible){
+        lockChunk(left);
         placeSunlightNeighborUpdate(left, blockIndex + CHUNK_WIDTH - 1, newIntensity);
         left->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (x < CHUNK_WIDTH - 1){ //right
         placeSunlightNeighborUpdate(chunk, blockIndex + 1, newIntensity);
     } else if (right && right->isAccessible){
+        lockChunk(right);
         placeSunlightNeighborUpdate(right, blockIndex - CHUNK_WIDTH + 1, newIntensity);
-        right->changeState(ChunkStates::MESH);       
+        right->changeState(ChunkStates::MESH); 
+        lockChunk(chunk);
     }
 
     if (z > 0){ //back
         placeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_WIDTH, newIntensity);
     } else if (back && back->isAccessible){
+        lockChunk(back);
         placeSunlightNeighborUpdate(back, blockIndex + CHUNK_LAYER - CHUNK_WIDTH, newIntensity);
         back->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (z < CHUNK_WIDTH - 1){ //front
         placeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_WIDTH, newIntensity);
     } else if (front && front->isAccessible){
+        lockChunk(front);
         placeSunlightNeighborUpdate(front, blockIndex - CHUNK_LAYER + CHUNK_WIDTH, newIntensity);
         front->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (y > 0){ //bottom
         placeSunlightNeighborUpdate(chunk, blockIndex - CHUNK_LAYER, newIntensity);
     } else if (bottom && bottom->isAccessible){
+        lockChunk(bottom);
         placeSunlightNeighborUpdate(bottom, CHUNK_SIZE - CHUNK_LAYER + blockIndex, newIntensity);
         bottom->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (y < CHUNK_WIDTH - 1){ //top
         placeSunlightNeighborUpdate(chunk, blockIndex + CHUNK_LAYER, newIntensity);
     } else if (top && top->isAccessible){
+        lockChunk(top);
         placeSunlightNeighborUpdate(top, blockIndex - CHUNK_SIZE + CHUNK_LAYER, newIntensity);
         top->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     chunk->changeState(ChunkStates::MESH);
@@ -399,43 +436,55 @@ void VoxelLightEngine::removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 lig
     if (x > 0){ //left
         removeLampNeighborUpdate(chunk, blockIndex - 1, intensityRed, intensityGreen, intensityBlue, light);    
     } else if (left && left->isAccessible){
+        lockChunk(left);
         removeLampNeighborUpdate(left, blockIndex + CHUNK_WIDTH - 1, intensityRed, intensityGreen, intensityBlue, light);
         left->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (x < CHUNK_WIDTH - 1){ //right
         removeLampNeighborUpdate(chunk, blockIndex + 1, intensityRed, intensityGreen, intensityBlue, light);
     } else if (right && right->isAccessible){
+        lockChunk(right);
         removeLampNeighborUpdate(right, blockIndex - CHUNK_WIDTH + 1, intensityRed, intensityGreen, intensityBlue, light);
         right->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (z > 0){ //back
         removeLampNeighborUpdate(chunk, blockIndex - CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue, light);
     } else if (back && back->isAccessible){
+        lockChunk(back);
         removeLampNeighborUpdate(back, blockIndex + CHUNK_LAYER - CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue, light);
         back->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (z < CHUNK_WIDTH - 1){ //front
         removeLampNeighborUpdate(chunk, blockIndex + CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue, light);
     } else if (front && front->isAccessible){
+        lockChunk(front);
         removeLampNeighborUpdate(front, blockIndex - CHUNK_LAYER + CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue, light);
         front->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (y > 0){ //bottom
         removeLampNeighborUpdate(chunk, blockIndex - CHUNK_LAYER, intensityRed, intensityGreen, intensityBlue, light);
     } else if (bottom && bottom->isAccessible){
+        lockChunk(bottom);
         removeLampNeighborUpdate(bottom, CHUNK_SIZE - CHUNK_LAYER + blockIndex, intensityRed, intensityGreen, intensityBlue, light);
         bottom->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (y < CHUNK_WIDTH - 1){ //top
         removeLampNeighborUpdate(chunk, blockIndex + CHUNK_LAYER, intensityRed, intensityGreen, intensityBlue, light);
     } else if (top && top->isAccessible){
+        lockChunk(top);
         removeLampNeighborUpdate(top, blockIndex - CHUNK_SIZE + CHUNK_LAYER, intensityRed, intensityGreen, intensityBlue, light);
         top->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
     chunk->changeState(ChunkStates::MESH);
 
@@ -521,42 +570,54 @@ void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 inte
     if (x > 0){ //left
         placeLampNeighborUpdate(chunk, blockIndex - 1, intensityRed, intensityGreen, intensityBlue);
     } else if (left && left->isAccessible){
+        lockChunk(left);
         placeLampNeighborUpdate(left, blockIndex + CHUNK_WIDTH - 1, intensityRed, intensityGreen, intensityBlue);
         left->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (x < CHUNK_WIDTH - 1){ //right
         placeLampNeighborUpdate(chunk, blockIndex + 1, intensityRed, intensityGreen, intensityBlue);
     } else if (right && right->isAccessible){
+        lockChunk(right);
         placeLampNeighborUpdate(right, blockIndex - CHUNK_WIDTH + 1, intensityRed, intensityGreen, intensityBlue);
         right->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (z > 0){ //back
         placeLampNeighborUpdate(chunk, blockIndex - CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue);
     } else if (back && back->isAccessible){
+        lockChunk(back);
         placeLampNeighborUpdate(back, blockIndex + CHUNK_LAYER - CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue);
         back->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (z < CHUNK_WIDTH - 1){ //front
         placeLampNeighborUpdate(chunk, blockIndex + CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue);
     } else if (front && front->isAccessible){
+        lockChunk(front);
         placeLampNeighborUpdate(front, blockIndex - CHUNK_LAYER + CHUNK_WIDTH, intensityRed, intensityGreen, intensityBlue);
         front->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     if (y > 0){ //bottom
         placeLampNeighborUpdate(chunk, blockIndex - CHUNK_LAYER, intensityRed, intensityGreen, intensityBlue);
     } else if (bottom && bottom->isAccessible){
+        lockChunk(bottom);
         placeLampNeighborUpdate(bottom, CHUNK_SIZE - CHUNK_LAYER + blockIndex, intensityRed, intensityGreen, intensityBlue);
         bottom->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
     if (y < CHUNK_WIDTH - 1){ //top
         placeLampNeighborUpdate(chunk, blockIndex + CHUNK_LAYER, intensityRed, intensityGreen, intensityBlue);
     } else if (top && top->isAccessible){
+        lockChunk(top);
         placeLampNeighborUpdate(top, blockIndex - CHUNK_SIZE + CHUNK_LAYER, intensityRed, intensityGreen, intensityBlue);
         top->changeState(ChunkStates::MESH);
+        lockChunk(chunk);
     }
 
     chunk->changeState(ChunkStates::MESH);

@@ -21,6 +21,7 @@
 class Chunk;
 class ChunkGridData;
 class ChunkMeshData;
+class VoxelLightEngine;
 
 enum class RenderTaskType { DEFAULT, LIQUID };
 
@@ -42,7 +43,7 @@ public:
     ChunkMeshData* chunkMeshData;
 
 private:
-    void updateLight();
+    void updateLight(VoxelLightEngine* voxelLightEngine);
 };
 
 #endif // RenderTask_h__
