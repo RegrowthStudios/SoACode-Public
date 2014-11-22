@@ -57,6 +57,7 @@ private:
     void removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 light);
     void placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 intensity);
 
-    Chunk* _chunk;
-    Chunk* _lockedChunk;
+    void lockChunk(Chunk* chunk);
+
+    Chunk* _lockedChunk = nullptr;
 };
