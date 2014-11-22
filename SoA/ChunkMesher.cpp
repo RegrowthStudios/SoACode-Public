@@ -114,13 +114,13 @@ void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 
 void ChunkMesher::calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]) {
     
     // Ambient occlusion factor
-#define OCCLUSION_FACTOR 0.23f;
+#define OCCLUSION_FACTOR 0.2f;
     // Helper macro
 #define CALCULATE_VERTEX(v, s1, s2) \
-    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude + \
-    (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset]).occlude + \
-    (int)GETBLOCK(_blockIDData[blockIndex s2 rightOffset]).occlude + \
-    (int)GETBLOCK(_blockIDData[blockIndex s1 frontOffset s2 rightOffset]).occlude; \
+    nearOccluders = (int)(GETBLOCK(_blockIDData[blockIndex]).occlude != BlockOcclusion::NONE) + \
+    (int)(GETBLOCK(_blockIDData[blockIndex s1 frontOffset]).occlude != BlockOcclusion::NONE) + \
+    (int)(GETBLOCK(_blockIDData[blockIndex s2 rightOffset]).occlude != BlockOcclusion::NONE) + \
+    (int)(GETBLOCK(_blockIDData[blockIndex s1 frontOffset s2 rightOffset]).occlude != BlockOcclusion::NONE); \
     ambientOcclusion[v] = 1.0f - nearOccluders * OCCLUSION_FACTOR; \
     calculateLampColor(face[v].lampColor, _lampLightData[blockIndex], \
                        _lampLightData[blockIndex s1 frontOffset], \
@@ -329,7 +329,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             mi.mergeBot = false;
         } else {
-            calculateFaceLight(&_bottomVerts[mi.botIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ambientOcclusion);
+            calculateFaceLight(&_bottomVerts[mi.botIndex], wc, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, -1, ambientOcclusion);
 
             VoxelMesher::makeCubeFace(_bottomVerts, CUBE_FACE_4_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
 
