@@ -1102,8 +1102,5 @@
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
     </None>
-    <None Include="ChunkMesher.inl">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </None>
   </ItemGroup>
 </Project>

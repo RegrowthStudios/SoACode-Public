@@ -3,8 +3,8 @@
 
 #include <random>
 
-#include "VoxelMesher.h"
 #include "BlockData.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "Options.h"
@@ -13,8 +13,9 @@
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"
 #include "ThreadPool.h"
-#include "utils.h"
+#include "VoxelMesher.h"
 #include "VoxelUtils.h"
+#include "utils.h"
 
 ChunkMesher::ChunkMesher()
 {
@@ -60,104 +61,36 @@ void ChunkMesher::bindVBOIndicesID()
 
 #define CompareVerticesLight(v1, v2) (v1.sunlight == v2.sunlight && !memcmp(&v1.lampColor, &v2.lampColor, 3) && !memcmp(&v1.color, &v2.color, 3))
 
-//Fills chLightData with the lighting information of the surrounding blocks. This will be used to calculate lighting and ambient occlusion
-//It only has to get the light voxels that were not grabbed in checkBlockFaces()
-void ChunkMesher::GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLights[26][3], GLbyte sunlights[26], GLushort *chData, ui8* chSunData, ui16 *chLampData, bool faces[6])
-{
-    int c2;
-    //bottom 8 voxels
-    if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YNEG]){
-        c2 = c - dataLayer;
-        GetBackLightData(c2, lampLights[1], sunlights[1], chData, chSunData, chLampData);
-        GetLeftLightData(c2, lampLights[3], sunlights[3], chData, chSunData, chLampData);
-        GetRightLightData(c2, lampLights[5], sunlights[5], chData, chSunData, chLampData);
-        GetFrontLightData(c2, lampLights[7], sunlights[7], chData, chSunData, chLampData);
-
-        GetLeftLightData(c2 - dataWidth, lampLights[0], sunlights[0], chData, chSunData, chLampData);
-        GetRightLightData(c2 - dataWidth, lampLights[2], sunlights[2], chData, chSunData, chLampData);
-        
-        GetLeftLightData(c2 + dataWidth, lampLights[6], sunlights[6], chData, chSunData, chLampData);
-        GetRightLightData(c2 + dataWidth, lampLights[8], sunlights[8], chData, chSunData, chLampData);
-        
-    }
-    //top 8 voxels
-    if (faces[XNEG] || faces[ZNEG] || faces[XPOS] || faces[ZPOS] || faces[YPOS]){
-        c2 = c + dataLayer;
-        GetBackLightData(c2, lampLights[18], sunlights[18], chData, chSunData, chLampData);
-        GetLeftLightData(c2, lampLights[20], sunlights[20], chData, chSunData, chLampData);
-        GetRightLightData(c2, lampLights[22], sunlights[22], chData, chSunData, chLampData);
-        GetFrontLightData(c2, lampLights[24], sunlights[24], chData, chSunData, chLampData);
-            
-        GetLeftLightData(c2 - dataWidth, lampLights[17], sunlights[17], chData, chSunData, chLampData);
-        GetRightLightData(c2 - dataWidth, lampLights[19], sunlights[19], chData, chSunData, chLampData);
-        
-        GetLeftLightData(c2 + dataWidth, lampLights[23], sunlights[23], chData, chSunData, chLampData);
-        GetRightLightData(c2 + dataWidth, lampLights[25], sunlights[25], chData, chSunData, chLampData);
-    }
-    //left 2 voxels
-    if (faces[XNEG] || faces[ZNEG] || faces[ZPOS]){
-        //left
-        c2 = c-1;
-        GetBackLightData(c2, lampLights[9], sunlights[9], chData, chSunData, chLampData);
-        GetFrontLightData(c2, lampLights[14], sunlights[14], chData, chSunData, chLampData);
-    }
-    //right 2 voxels
-    if (faces[XPOS] || faces[ZPOS] || faces[ZNEG]){
-        c2 = c+1;
-        GetBackLightData(c2, lampLights[11], sunlights[11], chData, chSunData, chLampData);
-        GetFrontLightData(c2, lampLights[16], sunlights[16], chData, chSunData, chLampData);
-    }
-}
-
 //This function checks all surrounding blocks and stores occlusion information in faces[]. It also stores the adjacent light and sunlight for each face.
-bool ChunkMesher::checkBlockFaces(bool faces[6], ui8 lampLights[26][3], i8 sunlights[26], const RenderTask* task, const BlockOcclusion occlude, const int btype, const int wc)
+bool ChunkMesher::checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const int btype, const int wc)
 {
     //*** END GET_L_COLOR
 
     Block *nblock;
     bool hasFace = false;
-    ui16 lightColor;
 
     if (faces[XNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - 1]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))){
         hasFace = true;
-        lightColor = _lampLightData[wc - 1];
-        GET_L_COLOR(lampLights[12]);
-        sunlights[12] = _sunlightData[wc - 1];
     }
 
     if (faces[XPOS] = ((nblock = &GETBLOCK(_blockIDData[1 + wc]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
-        lightColor = _lampLightData[1 + wc];
-        GET_L_COLOR(lampLights[13]);
-        sunlights[13] = (_sunlightData[1 + wc]);
     }
 
     if (faces[YNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
-        lightColor = _lampLightData[wc - dataLayer];
-        GET_L_COLOR(lampLights[4]);
-        sunlights[4] = _sunlightData[wc - dataLayer];
     }
 
     if (faces[YPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
-        lightColor = _lampLightData[wc + dataLayer];
-        GET_L_COLOR(lampLights[21]);
-        sunlights[21] = _sunlightData[wc + dataLayer];
     }
 
     if (faces[ZNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
-        lightColor = _lampLightData[wc - dataWidth];
-        GET_L_COLOR(lampLights[10]);
-        sunlights[10] = _sunlightData[wc - dataWidth];
     }
 
     if (faces[ZPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
-        lightColor = _lampLightData[wc + dataWidth];
-        GET_L_COLOR(lampLights[15]);
-        sunlights[15] = _sunlightData[wc + dataWidth];
     }
 
     return hasFace;
@@ -169,10 +102,90 @@ GLubyte ChunkMesher::calculateSmoothLighting(int accumulatedLight, int numAdjace
     return (GLubyte)(255.0f * (LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ((float)(accumulatedLight) / (4 - numAdjacentBlocks)))));
 }
 
-void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj) {
-    dst.r = calculateSmoothLighting(src0[0] + src1[0] + src2[0] + src3[0], numAdj);
-    dst.g = calculateSmoothLighting(src0[1] + src1[1] + src2[1] + src3[1], numAdj);
-    dst.b = calculateSmoothLighting(src0[2] + src1[2] + src2[2] + src3[2], numAdj);
+void ChunkMesher::calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj) {
+    #define GETRED(a) ((a & LAMP_RED_MASK) >> LAMP_RED_SHIFT)
+    #define GETGREEN(a) ((a & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT)
+    #define GETBLUE(a) (a & LAMP_BLUE_MASK)
+    dst.r = calculateSmoothLighting(GETRED(src0) + GETRED(src1) + GETRED(src2) + GETRED(src3), numAdj);
+    dst.g = calculateSmoothLighting(GETGREEN(src0) + GETGREEN(src1) + GETGREEN(src2) + GETGREEN(src3), numAdj);
+    dst.b = calculateSmoothLighting(GETBLUE(src0) + GETBLUE(src1) + GETBLUE(src2) + GETBLUE(src3), numAdj);
+}
+
+void ChunkMesher::calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset) {
+    
+    // Move the block index upwards
+    blockIndex += upOffset;
+    int nearOccluders; ///< For ambient occlusion
+
+    // Vertex 1
+    // Calculate ambient occlusion
+    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex - rightOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset - rightOffset]).occlude;
+    // Calculate smooth lamp color by sampling values of 4 nearby blocks
+    calculateLampColor(face[0].lampColor, _lampLightData[blockIndex], 
+                       _lampLightData[blockIndex - frontOffset], 
+                       _lampLightData[blockIndex - rightOffset], 
+                       _lampLightData[blockIndex - frontOffset - rightOffset],
+                       nearOccluders);
+    // Calculate smooth sunlight color by sampling values of 4 nearby blocks
+    face[0].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] + 
+                                               _sunlightData[blockIndex - frontOffset] +
+                                               _sunlightData[blockIndex - rightOffset] + 
+                                               _sunlightData[blockIndex - frontOffset - rightOffset],
+                                               nearOccluders);
+ 
+    // Vertex 2
+    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex - rightOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset - rightOffset]).occlude;
+    calculateLampColor(face[1].lampColor, 
+                       _lampLightData[blockIndex],
+                       _lampLightData[blockIndex + frontOffset],
+                       _lampLightData[blockIndex - rightOffset],
+                       _lampLightData[blockIndex + frontOffset - rightOffset],
+                       nearOccluders);
+    face[1].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] +
+                                               _sunlightData[blockIndex + frontOffset] +
+                                               _sunlightData[blockIndex - rightOffset] +
+                                               _sunlightData[blockIndex + frontOffset - rightOffset],
+                                               nearOccluders);
+ 
+    // Vertex 3
+    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex + rightOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex + frontOffset + rightOffset]).occlude;
+    calculateLampColor(face[2].lampColor, _lampLightData[blockIndex], 
+                       _lampLightData[blockIndex + frontOffset],
+                       _lampLightData[blockIndex + rightOffset],
+                       _lampLightData[blockIndex + frontOffset + rightOffset],
+                       nearOccluders);
+    face[2].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] +
+                                               _sunlightData[blockIndex + frontOffset] +
+                                               _sunlightData[blockIndex + rightOffset] +
+                                               _sunlightData[blockIndex + frontOffset + rightOffset],
+                                               nearOccluders);
+
+    // Vertex 4
+    nearOccluders = (int)GETBLOCK(_blockIDData[blockIndex]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex + rightOffset]).occlude +
+        (int)GETBLOCK(_blockIDData[blockIndex - frontOffset + rightOffset]).occlude;
+    calculateLampColor(face[3].lampColor, 
+                       _lampLightData[blockIndex],
+                       _lampLightData[blockIndex - frontOffset],
+                       _lampLightData[blockIndex + rightOffset],
+                       _lampLightData[blockIndex - frontOffset + rightOffset],
+                       nearOccluders);
+    face[3].sunlight = calculateSmoothLighting(_sunlightData[blockIndex] +
+                                               _sunlightData[blockIndex - frontOffset] +
+                                               _sunlightData[blockIndex + rightOffset] +
+                                               _sunlightData[blockIndex - frontOffset + rightOffset],
+                                               nearOccluders);
+
 }
 
 void ChunkMesher::addBlockToMesh(MesherInfo& mi)
@@ -210,17 +223,13 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     bool faces[6] = { false, false, false, false, false, false };
     //Check for which faces are occluded by nearby blocks
-    if (checkBlockFaces(faces, lampLights, sunlights, mi.task, block.occlude, btype, wc) == 0) {
+    if (checkBlockFaces(faces, mi.task, block.occlude, btype, wc) == 0) {
         mi.mergeFront = 0;
         mi.mergeBack = 0;
         mi.mergeBot = 0;
         mi.mergeUp = 0;
         return;
     }
-
-    //Get nearby lighting information
-
-    GetLightDataArray(wc, mi.x, mi.y, mi.z, lampLights, sunlights, mi.blockIDData, _sunlightData, _lampLightData, faces);
 
     if (faces[ZPOS]){ //0 1 2 3
         //Get the color of the block
@@ -256,14 +265,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             //Set up the light data using smooth lighting
 
-            calculateLampColor(_frontVerts[mi.frontIndex].lampColor, lampLights[23], lampLights[24], lampLights[14], lampLights[15], nearBlocks[0]);
-            calculateLampColor(_frontVerts[mi.frontIndex + 1].lampColor, lampLights[6], lampLights[7], lampLights[14], lampLights[15], nearBlocks[1]);
-            calculateLampColor(_frontVerts[mi.frontIndex + 2].lampColor, lampLights[7], lampLights[8], lampLights[15], lampLights[16], nearBlocks[2]);
-            calculateLampColor(_frontVerts[mi.frontIndex + 3].lampColor, lampLights[24], lampLights[25], lampLights[15], lampLights[16], nearBlocks[3]);
-            _frontVerts[mi.frontIndex].sunlight = calculateSmoothLighting(sunlights[23] + sunlights[24] + sunlights[14] + sunlights[15], nearBlocks[0]);
-            _frontVerts[mi.frontIndex + 1].sunlight = calculateSmoothLighting(sunlights[6] + sunlights[7] + sunlights[14] + sunlights[15], nearBlocks[1]);
-            _frontVerts[mi.frontIndex + 2].sunlight = calculateSmoothLighting(sunlights[7] + sunlights[8] + sunlights[15] + sunlights[16], nearBlocks[2]);
-            _frontVerts[mi.frontIndex + 3].sunlight = calculateSmoothLighting(sunlights[24] + sunlights[25] + sunlights[15] + sunlights[16], nearBlocks[3]);
+            calculateFaceLight(&_frontVerts[mi.frontIndex], wc, PADDED_CHUNK_WIDTH, 1, PADDED_CHUNK_LAYER);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeFront && mi.pbtype == btype &&
@@ -314,14 +316,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         } else {
             VoxelMesher::makeCubeFace(_backVerts, CUBE_FACE_5_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
 
-            calculateLampColor(_backVerts[mi.backIndex].lampColor, lampLights[18], lampLights[19], lampLights[11], lampLights[10], nearBlocks[0]);
-            calculateLampColor(_backVerts[mi.backIndex + 1].lampColor, lampLights[1], lampLights[2], lampLights[11], lampLights[10], nearBlocks[1]);
-            calculateLampColor(_backVerts[mi.backIndex + 2].lampColor, lampLights[0], lampLights[1], lampLights[9], lampLights[10], nearBlocks[2]);
-            calculateLampColor(_backVerts[mi.backIndex + 3].lampColor, lampLights[17], lampLights[18], lampLights[9], lampLights[10], nearBlocks[3]);
-            _backVerts[mi.backIndex].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[11] + sunlights[10], nearBlocks[0]);
-            _backVerts[mi.backIndex + 1].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[11] + sunlights[10], nearBlocks[1]);
-            _backVerts[mi.backIndex + 2].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[9] + sunlights[10], nearBlocks[2]);
-            _backVerts[mi.backIndex + 3].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[9] + sunlights[10], nearBlocks[3]);
+            calculateFaceLight(&_backVerts[mi.backIndex], wc, -PADDED_CHUNK_WIDTH, -1, -PADDED_CHUNK_LAYER);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBack && mi.pbtype == btype &&
@@ -369,16 +364,8 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             mi.mergeUp = false;
         } else {
             VoxelMesher::makeCubeFace(_topVerts, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
-
-            //Check for +x direction merging
-            calculateLampColor(_topVerts[mi.topIndex].lampColor, lampLights[17], lampLights[18], lampLights[20], lampLights[21], nearBlocks[0]);
-            calculateLampColor(_topVerts[mi.topIndex + 1].lampColor, lampLights[20], lampLights[21], lampLights[23], lampLights[24], nearBlocks[1]);
-            calculateLampColor(_topVerts[mi.topIndex + 2].lampColor, lampLights[21], lampLights[22], lampLights[24], lampLights[25], nearBlocks[2]);
-            calculateLampColor(_topVerts[mi.topIndex + 3].lampColor, lampLights[18], lampLights[19], lampLights[21], lampLights[22], nearBlocks[3]);
-            _topVerts[mi.topIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[18] + sunlights[20] + sunlights[21], nearBlocks[0]);
-            _topVerts[mi.topIndex + 1].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[21] + sunlights[23] + sunlights[24], nearBlocks[1]);
-            _topVerts[mi.topIndex + 2].sunlight = calculateSmoothLighting(sunlights[21] + sunlights[22] + sunlights[24] + sunlights[25], nearBlocks[2]);
-            _topVerts[mi.topIndex + 3].sunlight = calculateSmoothLighting(sunlights[18] + sunlights[19] + sunlights[21] + sunlights[22], nearBlocks[3]);
+            
+            calculateFaceLight(&_topVerts[mi.topIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeUp && mi.pbtype == btype &&
@@ -428,14 +415,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             VoxelMesher::makeCubeFace(_bottomVerts, CUBE_FACE_4_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
 
-            calculateLampColor(_bottomVerts[mi.botIndex].lampColor, lampLights[1], lampLights[2], lampLights[4], lampLights[5], nearBlocks[0]);
-            calculateLampColor(_bottomVerts[mi.botIndex + 1].lampColor, lampLights[4], lampLights[5], lampLights[7], lampLights[8], nearBlocks[1]);
-            calculateLampColor(_bottomVerts[mi.botIndex + 2].lampColor, lampLights[3], lampLights[4], lampLights[6], lampLights[7], nearBlocks[2]);
-            calculateLampColor(_bottomVerts[mi.botIndex + 3].lampColor, lampLights[0], lampLights[1], lampLights[3], lampLights[4], nearBlocks[3]);
-            _bottomVerts[mi.botIndex].sunlight = calculateSmoothLighting(sunlights[1] + sunlights[2] + sunlights[4] + sunlights[5], nearBlocks[0]);
-            _bottomVerts[mi.botIndex + 1].sunlight = calculateSmoothLighting(sunlights[4] + sunlights[5] + sunlights[7] + sunlights[8], nearBlocks[1]);
-            _bottomVerts[mi.botIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[4] + sunlights[6] + sunlights[7], nearBlocks[2]);
-            _bottomVerts[mi.botIndex + 3].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[1] + sunlights[3] + sunlights[4], nearBlocks[3]);
+            calculateFaceLight(&_bottomVerts[mi.botIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBot && mi.pbtype == btype &&
@@ -482,14 +462,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         } else {
             VoxelMesher::makeCubeFace(_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
 
-            calculateLampColor(_rightVerts[mi.rightIndex].lampColor, lampLights[25], lampLights[22], lampLights[13], lampLights[16], nearBlocks[0]);
-            calculateLampColor(_rightVerts[mi.rightIndex + 1].lampColor, lampLights[5], lampLights[8], lampLights[13], lampLights[16], nearBlocks[1]);
-            calculateLampColor(_rightVerts[mi.rightIndex + 2].lampColor, lampLights[2], lampLights[5], lampLights[11], lampLights[13], nearBlocks[2]);
-            calculateLampColor(_rightVerts[mi.rightIndex + 3].lampColor, lampLights[19], lampLights[22], lampLights[11], lampLights[13], nearBlocks[3]);
-            _rightVerts[mi.rightIndex].sunlight = calculateSmoothLighting(sunlights[25] + sunlights[22] + sunlights[13] + sunlights[16], nearBlocks[0]);
-            _rightVerts[mi.rightIndex + 1].sunlight = calculateSmoothLighting(sunlights[5] + sunlights[8] + sunlights[13] + sunlights[16], nearBlocks[1]);
-            _rightVerts[mi.rightIndex + 2].sunlight = calculateSmoothLighting(sunlights[2] + sunlights[5] + sunlights[11] + sunlights[13], nearBlocks[2]);
-            _rightVerts[mi.rightIndex + 3].sunlight = calculateSmoothLighting(sunlights[19] + sunlights[22] + sunlights[11] + sunlights[13], nearBlocks[3]);
+            calculateFaceLight(&_rightVerts[mi.rightIndex], wc, 1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH);
 
             mi.rightIndex += 4;
         }
@@ -521,19 +494,11 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         } else {
             VoxelMesher::makeCubeFace(_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
 
-            calculateLampColor(_leftVerts[mi.leftIndex].lampColor, lampLights[17], lampLights[20], lampLights[9], lampLights[12], nearBlocks[0]);
-            calculateLampColor(_leftVerts[mi.leftIndex + 1].lampColor, lampLights[0], lampLights[3], lampLights[9], lampLights[12], nearBlocks[1]);
-            calculateLampColor(_leftVerts[mi.leftIndex + 2].lampColor, lampLights[3], lampLights[6], lampLights[14], lampLights[12], nearBlocks[2]);
-            calculateLampColor(_leftVerts[mi.leftIndex + 3].lampColor, lampLights[20], lampLights[23], lampLights[14], lampLights[12], nearBlocks[3]);
-            _leftVerts[mi.leftIndex].sunlight = calculateSmoothLighting(sunlights[17] + sunlights[20] + sunlights[9] + sunlights[12], nearBlocks[0]);
-            _leftVerts[mi.leftIndex + 1].sunlight = calculateSmoothLighting(sunlights[0] + sunlights[3] + sunlights[9] + sunlights[12], nearBlocks[1]);
-            _leftVerts[mi.leftIndex + 2].sunlight = calculateSmoothLighting(sunlights[3] + sunlights[6] + sunlights[14] + sunlights[12], nearBlocks[2]);
-            _leftVerts[mi.leftIndex + 3].sunlight = calculateSmoothLighting(sunlights[20] + sunlights[23] + sunlights[14] + sunlights[12], nearBlocks[3]);
+            calculateFaceLight(&_leftVerts[mi.leftIndex], wc, 1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH);
 
             mi.leftIndex += 4;
         }
     }
-
 }
 
 //adds a flora mesh

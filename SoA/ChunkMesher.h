@@ -44,18 +44,10 @@ private:
 
     void bindVBOIndicesID();
 
-    void GetLightDataArray(int c, int &x, int &y, int &z, ui8 lampLights[26][3], GLbyte sunlights[26], GLushort* chData, ui8* chSunData, ui16 *chLampData, bool faces[6]);
-    bool checkBlockFaces(bool faces[6], ui8 lampLights[26][3], sbyte sunlights[26], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
+    bool checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
-    void calculateLampColor(ColorRGB8& dst, ui8 src0[3], ui8 src1[3], ui8 src2[3], ui8 src3[3], ui8 numAdj);
-
-    //inlines
-    void GetLeftLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData);
-    void GetRightLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData);
-    void GetFrontLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData);
-    void GetBackLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData);
-    void GetBottomLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData);
-    void GetTopLightData(int c, ui8 l[3], i8 &sl, ui16 *data, ui8* sunlightData, ui16* lampData);
+    void calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj);
+    void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset);
 
     void computeLODData(int levelOfDetail);
 
@@ -109,5 +101,3 @@ private:
 
     BlockVertex _bottomVerts[4100];
 };
-
-#include "ChunkMesher.inl"
