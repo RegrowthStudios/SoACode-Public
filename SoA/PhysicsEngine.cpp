@@ -53,7 +53,7 @@ void PhysicsEngine::clearAll() {
 void PhysicsEngine::update(const f64v3 &viewDir) {
 
     performExplosions();
-    detectFloatingBlocks(viewDir);
+    //detectFloatingBlocks(viewDir);
 
     for (Uint32 i = 0; i < _activePhysicsBlockBatches.size();){
         if (_activePhysicsBlockBatches[i]->update()){
