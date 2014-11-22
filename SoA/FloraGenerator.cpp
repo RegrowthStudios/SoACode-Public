@@ -641,32 +641,36 @@ bool FloraGenerator::recursiveMakeSlice(int blockIndex, Chunk *chunk, i32 step, 
 }
 
 bool FloraGenerator::makeCluster(int blockIndex, Chunk* chunk, int size, int blockID, std::vector<TreeNode>& nodes) {
+    
     int innerBlockIndex = blockIndex;
     Chunk* innerChunk = chunk;
+
     // Center and up
-    for (int i = size; i >= 0; i--) {
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, size,
+    for (int i = size; i > 0; i--) {
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
                            TREE_LEFT, TREE_BACK, TREE_FRONT, true,
                            blockID, nodes)) return false;
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, size,
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
                            TREE_RIGHT, TREE_FRONT, TREE_BACK, false,
                            blockID, nodes)) return false;
-        if (!directionalMove(innerBlockIndex, chunk, TREE_UP)) return false;
+        if (!directionalMove(innerBlockIndex, innerChunk, TREE_UP)) return false;
     }
 
     innerBlockIndex = blockIndex;
     innerChunk = chunk;
+    if (!directionalMove(innerBlockIndex, innerChunk, TREE_DOWN)) return false;
+
     // Down
-    for (int i = size-1; i >= 0; i--) {
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, size,
+    for (int i = size-1; i > 0; i--) {
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
                            TREE_LEFT, TREE_BACK, TREE_FRONT, true,
                            blockID, nodes)) return false;
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, size,
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
                             TREE_RIGHT, TREE_FRONT, TREE_BACK, false,
                             blockID, nodes)) return false;
-        if (!directionalMove(innerBlockIndex, chunk, TREE_DOWN)) return false;
+        if (!directionalMove(innerBlockIndex, innerChunk, TREE_DOWN)) return false;
     }
-    return false;
+    return true;
 }
 
 // TODO(Ben): refactor this
@@ -939,10 +943,10 @@ bool FloraGenerator::recursiveMakeBranch(int blockIndex, Chunk* chunk, int step,
 
         // Get random move direction. 1/3 chance left, 1/3 chance right, 1/3 up or down
         // TODO(Ben): This is bad
-        int r = (int)((PseudoRand(chunk->gridPosition.x*blockIndex + blockIndex + step, blockIndex*blockIndex - chunk->gridPosition.z + step) + 1)*1.499); //between 0 and 2
+        int r = (int)((PseudoRand(chunk->gridPosition.x*blockIndex + blockIndex + step, blockIndex*blockIndex - chunk->gridPosition.z + step) + 1)*1.999); //between 0 and 2
         // If r == 1 then we are up/down so we should randomly flip direction
         if (r == 1) {
-            if (isRoot || (int)((PseudoRand(chunk->gridPosition.y*blockIndex + blockIndex + step, blockIndex - chunk->gridPosition.x + step) + 1)) == 0) {
+            if (isRoot) {
                 r = 3;
             }
         }
