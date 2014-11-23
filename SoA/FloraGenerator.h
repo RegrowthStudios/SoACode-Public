@@ -5,15 +5,14 @@
 class Chunk;
 struct TreeType;
 struct TreeData;
-struct TreeNode;
 struct Biome;
 
 //This node is used in tree generation
 class TreeNode {
 public:
-    TreeNode(ui16 C, ui16 ChunkOffset, ui16 BlockType) : c(C), chunkOffset(ChunkOffset), blockType(BlockType) {}
+    TreeNode(ui16 BlockIndex, ui16 ChunkOffset, ui16 BlockType) : blockIndex(BlockIndex), chunkOffset(ChunkOffset), blockType(BlockType) {}
 
-    ui16 c;
+    ui16 blockIndex;
     ui16 blockType;
     ui16 chunkOffset; ///< 0 XXXXX YYYYY ZZZZZ for positional offset. 00111 == 0
 };

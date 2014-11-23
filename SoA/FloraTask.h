@@ -23,21 +23,36 @@ class Chunk;
 
 #define FLORA_TASK_ID 2
 
+class GeneratedTreeNodes {
+public:
+    /// Try to place blocks roughly once per FRAMES_BEFORE_ATTEMPT frames
+    static const int FRAMES_BEFORE_ATTEMPT = 40;
+
+    int numFrames = 0; ///< Number of frames left before placement attempt
+    i32v3 startChunkGridPos; ///< Grid position of initial chunk
+    std::vector <TreeNode> wnodes; ///< Wood nodes
+    std::vector <TreeNode> lnodes; ///< Leaf nodes
+    std::vector <i32v3> allChunkPositions; ///< Stores positions of all chunks
+};
+
 class FloraTask : public vcore::IThreadPoolTask {
 public:
     FloraTask() : vcore::IThreadPoolTask(true, FLORA_TASK_ID) {}
 
-    // Executes the task
+    /// Executes the task
     virtual void execute(vcore::WorkerData* workerData) override;
 
-    // Initializes the task
+    /// Initializes the task
     void init(Chunk* ch) { chunk = ch; }
 
     bool isSuccessful; ///< True if the generation finished
     Chunk* chunk = nullptr;
 
-    std::vector <TreeNode> wnodes; ///< Wood nodes
-    std::vector <TreeNode> lnodes; ///< Leaf nodes
+    GeneratedTreeNodes* generatedTreeNodes;
+private:
+    /// Sorts TreeNode vectors based on chunk
+    /// @param generatedTreeNodes: The wrapper for the data to sort
+    void sortNodes(GeneratedTreeNodes* generatedTreeNodes);
 };
 
 #endif // FloraTask_h__

@@ -223,6 +223,14 @@ private:
     // @param maxTicks: maximum time the function is allowed
     i32 updateGenerateList(ui32 maxTicks);
 
+    // Updates the treesToPlace list
+    // @param maxTicks: maximum time the function is allowed
+    void updateTreesToPlace(ui32 maxTicks);
+
+    // Places a batch of tree nodes
+    // @param nodes: the nodes to place
+    void placeTreeNodes(GeneratedTreeNodes* nodes);
+
     // Setups any chunk neighbor connections
     // @param chunk: the chunk to connect
     void setupNeighbors(Chunk* chunk);
@@ -310,6 +318,8 @@ private:
 
     // Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
+
+    std::vector<GeneratedTreeNodes*> _treesToPlace; ///< List of tree batches we need to place
 
     /// Max size of the tasks vectors
     #define MAX_CACHED_TASKS 50

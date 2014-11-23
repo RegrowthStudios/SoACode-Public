@@ -878,6 +878,54 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
     return 0;
 }
 
+void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
+    ui32 startTicks = SDL_GetTicks();
+
+    for (int i = _treesToPlace.size() - 1; i >= 0; i--) {
+        // Check for timer end condition
+        if (SDL_GetTicks() - startTicks > maxTicks) break;
+
+        GeneratedTreeNodes* nodes = _treesToPlace[i];
+        if (nodes->numFrames <= 0) {
+            // Check to see if initial chunk is unloaded
+            if (getChunk(nodes->startChunkGridPos) == nullptr) {
+                delete nodes;
+                _treesToPlace.pop_back();
+                continue;
+            }
+            // Check to see if all the chunks we need are available
+            bool allChunksLoaded = true;
+            for (auto& it : nodes->allChunkPositions) {
+                if (getChunk(it) == nullptr) {
+                    allChunksLoaded = false;
+                    break;
+                }
+            }
+            // Check to see if we can now place the nodes
+            if (allChunksLoaded) {
+                placeTreeNodes(nodes);
+                delete nodes;
+                _treesToPlace.pop_back();
+            } else {
+                // We should wait FRAMES_BEFORE_ATTEMPT frames before retrying
+                nodes->numFrames = GeneratedTreeNodes::FRAMES_BEFORE_ATTEMPT;
+            }
+        } else {
+            nodes->numFrames--;
+        }
+    }
+}
+
+void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
+    // Decompress all chunks to arrays for efficiency
+    for (auto& it : nodes->allChunkPositions) {
+        Chunk* chunk = getChunk(it);
+        if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+           
+        }
+    }
+}
+
 void ChunkManager::setupNeighbors(Chunk* chunk) {
     i32v3 chPos;
     chPos.x = fastFloor(chunk->gridPosition.x / (float)CHUNK_WIDTH);

@@ -4,7 +4,30 @@
 #include "Chunk.h"
 #include "ThreadPool.h"
 
+#include <algorithm>
+
+bool searchVector(const std::vector <ui16>& allChunkOffsets, ui16 offset) {
+    return (std::find(allChunkOffsets.begin(), allChunkOffsets.end(), offset) != allChunkOffsets.end());
+}
+
+inline i32 getXOffset(ui16 offset) {
+#define X_SHIFT 10 
+    return (offset >> X_SHIFT);
+}
+
+inline i32 getYOffset(ui16 offset) {
+#define Y_SHIFT 5 
+    return ((offset >> Y_SHIFT) & 0x1F);
+}
+
+inline i32 getZOffset(ui16 offset) {
+    return (offset & 0x1F);
+}
+
 void FloraTask::execute(vcore::WorkerData* workerData) {
+
+    generatedTreeNodes = new GeneratedTreeNodes();
+    generatedTreeNodes->startChunkGridPos = chunk->gridPosition;
 
     // Lazily initialize flora generator
     if (workerData->floraGenerator == nullptr) {
@@ -12,7 +35,55 @@ void FloraTask::execute(vcore::WorkerData* workerData) {
     }
 
     isSuccessful = false;
-    if (workerData->floraGenerator->generateFlora(chunk, wnodes, lnodes)) {
+    if (workerData->floraGenerator->generateFlora(chunk, 
+        generatedTreeNodes->wnodes, 
+        generatedTreeNodes->lnodes)) {
         isSuccessful = true;
+        // Sort by chunk to minimize locking in the main thread
+        if (generatedTreeNodes->lnodes.size() || generatedTreeNodes->wnodes.size()) {
+            sortNodes(generatedTreeNodes);
+        }
+        // Get all chunk offsets so its easy to check if they are active in the main thread
+        std::vector <ui16> allChunkOffsets;
+        if (generatedTreeNodes->wnodes.size()) {
+            ui16 lastPos = generatedTreeNodes->wnodes[0].chunkOffset;
+            allChunkOffsets.push_back(lastPos);
+            for (int i = 1; i < generatedTreeNodes->wnodes.size(); i++) {
+                if (generatedTreeNodes->wnodes[i].chunkOffset != lastPos) {
+                    lastPos = generatedTreeNodes->wnodes[i].chunkOffset;
+                    allChunkOffsets.push_back(lastPos);
+                }
+            }
+        }
+        if (generatedTreeNodes->lnodes.size()) {
+            ui16 lastPos = generatedTreeNodes->lnodes[0].chunkOffset;
+            if (!searchVector(allChunkOffsets, lastPos)) {
+                allChunkOffsets.push_back(lastPos);
+            }
+            for (int i = 0; i < generatedTreeNodes->lnodes.size(); i++) {
+                if (generatedTreeNodes->lnodes[i].chunkOffset != lastPos) {
+                    lastPos = generatedTreeNodes->lnodes[i].chunkOffset;
+                    if (!searchVector(allChunkOffsets, lastPos)) {
+                        allChunkOffsets.push_back(lastPos);
+                    }
+                }
+            }
+        }
+        // Construct chunk positions using all chunk offsets
+        const i32v3& startPos = chunk->gridPosition;
+        for (auto& it : allChunkOffsets) {
+            generatedTreeNodes->allChunkPositions.emplace_back(startPos.x + getXOffset(it),
+                                                               startPos.y + getYOffset(it),
+                                                               startPos.z + getZOffset(it))
+        }
     }
+}
+
+bool sortByChunk(TreeNode& a, TreeNode& b) {
+    return (a.chunkOffset < b.chunkOffset);
+}
+
+void FloraTask::sortNodes(GeneratedTreeNodes* generatedTreeNodes) {
+    std::sort(generatedTreeNodes->lnodes.begin(), generatedTreeNodes->lnodes.end(), sortByChunk);
+    std::sort(generatedTreeNodes->wnodes.begin(), generatedTreeNodes->wnodes.end(), sortByChunk);
 }
