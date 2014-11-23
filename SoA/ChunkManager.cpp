@@ -921,7 +921,10 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     for (auto& it : nodes->allChunkPositions) {
         Chunk* chunk = getChunk(it);
         if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-           
+            chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY);
+        }
+        if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY);
         }
     }
 }

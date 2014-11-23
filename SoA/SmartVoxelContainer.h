@@ -99,6 +99,17 @@ namespace vorb {
             #define QUIET_FRAMES_UNTIL_COMPRESS 60
             #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
 
+            inline void changeState(VoxelStorageState newState) {
+                if (newState == _state) return;
+                if (newState == VoxelStorageState::INTERVAL_TREE) {
+                    uncompress();
+                } else {
+                    compress();
+                }
+                _quietFrames = 0;
+                _accessCount = 0;
+            }
+
             /// Updates the container. Call once per frame
             /// @param dataLock: The mutex that guards the data
             inline void update(std::mutex& dataLock) {
@@ -112,41 +123,12 @@ namespace vorb {
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     // Check if we should uncompress the data
                     if (_quietFrames == 0) {
-                        dataLock.lock();
-                        _dataArray = _arrayRecycler->create();
-                        uncompressIntoBuffer(_dataArray);
-                        // Free memory
-                        _dataTree.clear();
-                        // Set the new state
-                        _state = VoxelStorageState::FLAT_ARRAY;
-                        dataLock.unlock();
+                        uncompress();
                     }
                 } else {
                     // Check if we should compress the data
                     if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
-                        dataLock.lock();
-                        // Sorted array for creating the interval tree
-                        std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
-                        dataVector.reserve(CHUNK_WIDTH / 2);
-                        dataVector.emplace_back(0, 1, _dataArray[0]);
-                        // Set the data
-                        for (int i = 1; i < CHUNK_SIZE; i++) {
-                            if (_dataArray[i] == dataVector.back().data) {
-                                dataVector.back().length++;
-                            } else {
-                                dataVector.emplace_back(i, 1, _dataArray[i]);
-                            }
-                        }
-
-                        // Recycle memory
-                        _arrayRecycler->recycle(_dataArray);
-                        _dataArray = nullptr;
-                        
-                        // Set new state
-                        _state = VoxelStorageState::INTERVAL_TREE;
-                        // Create the tree
-                        _dataTree.createFromSortedArray(dataVector);
-                        dataLock.unlock();
+                        compress();
                     }
                 }
                 _accessCount = 0;
@@ -175,6 +157,44 @@ namespace vorb {
             T* getDataArray() { return _dataArray; }
 
         private: 
+
+            inline void uncompress() {
+                dataLock.lock();
+                _dataArray = _arrayRecycler->create();
+                uncompressIntoBuffer(_dataArray);
+                // Free memory
+                _dataTree.clear();
+                // Set the new state
+                _state = VoxelStorageState::FLAT_ARRAY;
+                dataLock.unlock();
+            }
+
+            inline void compress() {
+                dataLock.lock();
+                // Sorted array for creating the interval tree
+                std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
+                dataVector.reserve(CHUNK_WIDTH / 2);
+                dataVector.emplace_back(0, 1, _dataArray[0]);
+                // Set the data
+                for (int i = 1; i < CHUNK_SIZE; i++) {
+                    if (_dataArray[i] == dataVector.back().data) {
+                        dataVector.back().length++;
+                    } else {
+                        dataVector.emplace_back(i, 1, _dataArray[i]);
+                    }
+                }
+
+                // Recycle memory
+                _arrayRecycler->recycle(_dataArray);
+                _dataArray = nullptr;
+
+                // Set new state
+                _state = VoxelStorageState::INTERVAL_TREE;
+                // Create the tree
+                _dataTree.createFromSortedArray(dataVector);
+                dataLock.unlock();
+            }
+
             VoxelIntervalTree<T> _dataTree; ///< Interval tree of voxel data
             T* _dataArray; ///< pointer to an array of voxel data
             int _accessCount; ///< Number of times the container was accessed this frame
