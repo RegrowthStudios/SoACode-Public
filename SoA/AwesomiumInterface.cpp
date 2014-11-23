@@ -243,24 +243,21 @@ void AwesomiumInterface<C>::draw(vg::GLProgram* program) const
     program->use();
     program->enableVertexAttribArrays();
 
-    glUniform1f(program->getUniform("xdim"), _width);
-    glUniform1f(program->getUniform("ydim"), _height);
-
-    glUniform1i(program->getUniform("roundMaskTexture"), 1);
-    glUniform1f(program->getUniform("isRound"), 0.0f);
-
-    glUniform1f(program->getUniform("xmod"), (GLfloat)0.0f);
-    glUniform1f(program->getUniform("ymod"), (GLfloat)0.0f);
+    glUniform2f(program->getUniform("unScreenSize"), _width, _height);
+    glUniform2f(program->getUniform("unScreenDisplacement"), 0.0f, 0.0f);
+    glUniform1i(program->getUniform("unTexMain"), 0);
+    // TODO: Will this be removed?
+    //glUniform1i(program->getUniform("unTexMask"), 1);
+    //glUniform1f(program->getUniform("unMaskModifier"), 0.0f);
+    //glUniform2f(program->getUniform("unUVMaskStart"), 0.0f, 0.0f);
 
     // Bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _renderedTexture);
 
-    glUniform1i(program->getUniform("myTextureSampler"), 0);
-
-    glVertexAttribPointer(program->getAttribute("vertexPosition_screenspace"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
-    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)8);
-    glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), (void*)12);
+    glVertexAttribPointer(program->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), offsetptr(Vertex2D, pos));
+    glVertexAttribPointer(program->getAttribute("vUV"), 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), offsetptr(Vertex2D, uv));
+    glVertexAttribPointer(program->getAttribute("vTint"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), offsetptr(Vertex2D, color));
 
     // Draw call
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
