@@ -6,12 +6,14 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include "DepthState.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "ObjectLoader.h"
 #include "Options.h"
+#include "RasterizerState.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"
@@ -1032,13 +1034,13 @@ void Atmosphere::loadProperties(string filePath)
     m_fWavelength4[2] = powf(m_fWavelength[2], 4.0f);
 }
 
-void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
-{
-    glDepthMask(GL_FALSE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos) {
+    DepthState::READ.set();
+    RasterizerState::CULL_CLOCKWISE.set();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     drawSky(theta, MVP, lightPos, ppos);
     
-    glDepthMask(GL_TRUE);
+    DepthState::FULL.set();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
