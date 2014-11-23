@@ -53,9 +53,9 @@ void SkyboxRenderer::drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Tex
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(program->getUniform("myTextureSampler"), 0);
+    glUniform1i(program->getUniform("unTex"), 0);
     // Upload VP matrix
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &VP[0][0]);
+    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
     
     // Create the buffer objects if they aren't initialized
     if (_vbo == 0) {
@@ -130,6 +130,6 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
 
     // Set up attribute pointers
     program->enableVertexAttribArrays();
-    glVertexAttribPointer(program->getAttribute("vertexPosition_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), (void*)offsetof(SkyboxVertex, position));
-    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), (void*)offsetof(SkyboxVertex, texCoords));
+    glVertexAttribPointer(program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, position));
+    glVertexAttribPointer(program->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, texCoords));
 }

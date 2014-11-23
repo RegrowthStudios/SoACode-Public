@@ -75,8 +75,8 @@ private:
                                      "Shaders/AtmosphereShading/SkyFromSpace.frag");
         /***** Texture *****/
         std::vector<nString> dd;
-        dd.push_back("vertexPosition_modelspace");
-        dd.push_back("vertexUV");
+        dd.push_back("vPosition");
+        dd.push_back("vUV");
         glProgramManager->addProgram("Texture",
                                      "Shaders/TextureShading/TextureShading.vert",
                                      "Shaders/TextureShading/TextureShading.frag", &dd);
