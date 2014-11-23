@@ -16,6 +16,7 @@
 #define FloraTask_h__
 
 #include "IThreadPoolTask.h"
+#include "FloraGenerator.h"
 
 class WorkerData;
 class Chunk;
@@ -34,6 +35,9 @@ public:
 
     bool isSuccessful; ///< True if the generation finished
     Chunk* chunk = nullptr;
+
+    std::vector <TreeNode> wnodes; ///< Wood nodes
+    std::vector <TreeNode> lnodes; ///< Leaf nodes
 };
 
 #endif // FloraTask_h__

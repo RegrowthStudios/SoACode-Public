@@ -76,13 +76,8 @@ KEG_TYPE_INIT_END
 
 bool FloraGenerator::generateTree(const TreeData& treeData, Chunk* startChunk) {
     _treeData = &treeData;
-    _startChunk = startChunk;
 
     if (!generateTrunk()) return false;
-
-    placeTreeNodes();
-    _wnodes.clear();
-    _lnodes.clear();
 
     return true;
 }
@@ -91,7 +86,7 @@ bool FloraGenerator::generateTrunk() {
 
     const int& treeHeight = _treeData->treeHeight;
     int blockIndex = _treeData->startc;
-    Chunk* currentChunk = _startChunk;
+    ui16 chunkOffset = 0x1084; // == 0001000010000100
 
     float heightRatio;
     int trunkSlope;
@@ -100,18 +95,18 @@ bool FloraGenerator::generateTrunk() {
         // Calculate height ratio for interpolation
         heightRatio = h / (float)treeHeight;
         // Make this slice
-        if (!makeTrunkSlice(blockIndex, currentChunk, h, heightRatio)) return false;
+        if (!makeTrunkSlice(blockIndex, chunkOffset, h, heightRatio)) return false;
        
         // Calculate trunk slope
         trunkSlope = lerp(_treeData->trunkStartSlope, _treeData->trunkEndSlope, heightRatio);
 
         // TODO(Ben): allow for inverted trunk for hanging plants
         // Move the block index up
-        if (!directionalMove(blockIndex, currentChunk, TreeDir::TREE_UP)) return false;
+        directionalMove(blockIndex, chunkOffset, TreeDir::TREE_UP);
 
         // Move block index sideways according to slope
         if (h % trunkSlope == trunkSlope - 1) {
-            if (!directionalMove(blockIndex, currentChunk, (TreeDir)_treeData->trunkDir)) return false;
+            directionalMove(blockIndex, chunkOffset, (TreeDir)_treeData->trunkDir);
         }
     }
     return true;
@@ -165,11 +160,11 @@ int computeSide(int x, int z, int coreWidth) {
     return -1;
 }
 
-bool FloraGenerator::makeTrunkSlice(int blockIndex, Chunk* chunk, int h, float heightRatio) {
+bool FloraGenerator::makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, float heightRatio) {
     TreeType *treeType = _treeData->treeType;
     const int& coreWidth = treeType->coreWidth;
-    Chunk* innerChunk;
     int innerBlockIndex;
+    ui16 innerChunkOffset;
     int leafBlock = treeType->idLeaves | (_treeData->leafColor << 12); //This could be in treeData
     float branchMod = 1.0f;
     if (coreWidth > 1) branchMod = 1.0f / ((coreWidth*coreWidth) - ((coreWidth - 2)*(coreWidth - 2)));
@@ -191,12 +186,12 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, Chunk* chunk, int h, float h
     }
 
     for (int z = 0; z < coreWidth; z++) {
-        innerChunk = chunk;
         innerBlockIndex = blockIndex;
+        innerChunkOffset = chunkOffset;
         for (int x = 0; x < coreWidth; x++) {
 
             // Place core node
-            _wnodes.emplace_back(innerBlockIndex, treeType->idCore, innerChunk);
+            _wnodes->emplace_back(innerBlockIndex, innerChunkOffset, treeType->idCore);
 
             // Check if we are on the outer edge of the core
             if (z == 0 || x == 0 || z == coreWidth - 1 || x == coreWidth - 1) {
@@ -208,13 +203,13 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, Chunk* chunk, int h, float h
                 //  5  6  7
                 if (thickness) {
                     // Special case for coreWidth == 1
-                    if (!makeTrunkOuterRing(innerBlockIndex, innerChunk, x, z, coreWidth, thickness, treeType->idOuter, _wnodes)) return false;
+                    if (!makeTrunkOuterRing(innerBlockIndex, innerChunkOffset,  x, z, coreWidth, thickness, treeType->idOuter, _wnodes)) return false;
                 }
 
                 // Check for roots and branches
                 if (h == 0) { //roots
                     int dr = rand() % 4;
-                    if (!recursiveMakeBranch(blockIndex, chunk, branchLength * treeType->rootDepthMult, (TreeDir)dr, (TreeDir)dr, MAX(branchWidth, thickness), true)) return false;
+                    if (!recursiveMakeBranch(innerBlockIndex, innerChunkOffset, branchLength * treeType->rootDepthMult, (TreeDir)dr, (TreeDir)dr, MAX(branchWidth, thickness), true)) return false;
                 } else if (h > treeType->branchStart) {
                     //branches
                     float r = rand() % RAND_MAX / ((float)RAND_MAX);
@@ -235,24 +230,24 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, Chunk* chunk, int h, float h
                                 bdir = 1;
                             }
                         }
-                        if (!recursiveMakeBranch(blockIndex, chunk, branchLength, (TreeDir)dr, (TreeDir)dr, MAX(branchWidth, thickness), false)) return false;
+                        if (!recursiveMakeBranch(innerBlockIndex, innerChunkOffset, branchLength, (TreeDir)dr, (TreeDir)dr, MAX(branchWidth, thickness), false)) return false;
                     }
                 }
 
                 // Check for cap leaves
                 if (h == _treeData->treeHeight - 1) {
                     if (treeType->hasDroopyLeaves) {
-                        if (!makeDroopyLeaves(blockIndex, chunk, _treeData->droopyLength, leafBlock, _wnodes)) return false;
+                        if (!makeDroopyLeaves(innerBlockIndex, innerChunkOffset, _treeData->droopyLength, leafBlock, _wnodes)) return false;
                     }
                     switch (treeType->leafCapShape) {
                         case TreeLeafShape::ROUND:
-                            if (!makeSphere(blockIndex, chunk, _treeData->topLeafSize, leafBlock, _lnodes)) return false;
+                            if (!makeSphere(innerBlockIndex, innerChunkOffset, _treeData->topLeafSize, leafBlock, _lnodes)) return false;
                             break;
                         case TreeLeafShape::CLUSTER:
-                            if (!makeCluster(blockIndex, chunk, _treeData->topLeafSize, leafBlock, _lnodes)) return false;
+                            if (!makeCluster(innerBlockIndex, innerChunkOffset, _treeData->topLeafSize, leafBlock, _lnodes)) return false;
                             break;
                         case TreeLeafShape::MUSHROOM:
-                            if (makeMushroomCap(innerChunk, blockIndex, leafBlock, _treeData->topLeafSize)) return false;
+                            if (makeMushroomCap(innerBlockIndex, innerChunkOffset, leafBlock, _treeData->topLeafSize)) return false;
                             break;
                     }
                 }
@@ -263,33 +258,33 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, Chunk* chunk, int h, float h
                         int leafThickness = (int)(((_treeData->treeHeight - h) / 
                             (float)(_treeData->treeHeight - _treeData->branchStart))*_treeData->topLeafSize) - 
                             (h % 2) + thickness + coreWidth;
-                        if (!makeTrunkOuterRing(innerBlockIndex, innerChunk, x, z, coreWidth, leafThickness, leafBlock, _lnodes)) return false;
+                        if (!makeTrunkOuterRing(innerBlockIndex, innerChunkOffset,  x, z, coreWidth, leafThickness, leafBlock, _lnodes)) return false;
                     } 
                 }
               
             }
 
             // Move along X axis
-            if (!directionalMove(innerBlockIndex, innerChunk, TREE_RIGHT)) return false;
+            directionalMove(innerBlockIndex, innerChunkOffset, TREE_RIGHT);
         }
         // Move along Z axis
-        if (!directionalMove(blockIndex, chunk, TREE_FRONT)) return false;
+        directionalMove(blockIndex, chunkOffset, TREE_FRONT);
     }
 }
 
-bool FloraGenerator::makeTrunkOuterRing(int blockIndex, Chunk* chunk, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>& nodes) {
+bool FloraGenerator::makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>* nodes) {
     TreeType* treeType = _treeData->treeType;
     if (coreWidth == 1) {
-        if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+        if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
             TREE_LEFT, TREE_BACK, TREE_FRONT, false,
             treeType->idOuter, _wnodes)) return false;
-        if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+        if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
             TREE_RIGHT, TREE_FRONT, TREE_BACK, false,
             treeType->idOuter, _wnodes)) return false;
-        if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+        if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
             TREE_BACK, TREE_NO_DIR, TREE_NO_DIR, true,
             treeType->idOuter, _wnodes)) return false;
-        if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+        if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
             TREE_FRONT, TREE_NO_DIR, TREE_NO_DIR, true,
             treeType->idOuter, _wnodes)) return false;
     } else {
@@ -297,42 +292,42 @@ bool FloraGenerator::makeTrunkOuterRing(int blockIndex, Chunk* chunk, int x, int
 
         switch (side) {
             case 0:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_LEFT, TREE_BACK, TREE_NO_DIR, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
             case 1:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_BACK, TREE_NO_DIR, TREE_NO_DIR, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
             case 2:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_RIGHT, TREE_NO_DIR, TREE_BACK, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
             case 3:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_LEFT, TREE_NO_DIR, TREE_NO_DIR, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
             case 4:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_RIGHT, TREE_NO_DIR, TREE_NO_DIR, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
             case 5:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_LEFT, TREE_FRONT, TREE_NO_DIR, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
             case 6:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_FRONT, TREE_NO_DIR, TREE_NO_DIR, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
             case 7:
-                if (!recursiveMakeSlice(blockIndex, chunk, thickness,
+                if (!recursiveMakeSlice(blockIndex, chunkOffset, thickness,
                     TREE_RIGHT, TREE_FRONT, TREE_NO_DIR, false,
                     treeType->idOuter, _wnodes)) return false;
                 break;
@@ -342,85 +337,72 @@ bool FloraGenerator::makeTrunkOuterRing(int blockIndex, Chunk* chunk, int x, int
     }
 }
 
-bool FloraGenerator::directionalMove(int& blockIndex, Chunk*& chunk, TreeDir dir) {
+void FloraGenerator::directionalMove(int& blockIndex, ui16& chunkOffset, TreeDir dir) {
+    // Constants for chunkOffset
+    #define X_1 0x400
+    #define Y_1 0x20
+    #define Z_1 0x1
     switch (dir) {
         case TREE_UP:
             blockIndex += CHUNK_LAYER;
             if (blockIndex >= CHUNK_SIZE) {
-                if (chunk->top && chunk->top->isAccessible) {
-                    blockIndex -= CHUNK_SIZE;
-                    chunk = chunk->top;
-                } else {
-                    return false;
-                }
+                blockIndex -= CHUNK_SIZE;
+                chunkOffset += Y_1;
             }
             break;
         case TREE_DOWN:
             blockIndex -= CHUNK_LAYER;
             if (blockIndex < 0) {
-                if (chunk->bottom && chunk->bottom->isAccessible) {
-                    blockIndex += CHUNK_SIZE;
-                    chunk = chunk->bottom;
-                } else {
-                    return false;
-                }
+                blockIndex += CHUNK_SIZE;
+                chunkOffset -= Y_1;
             }
             break;
         case TREE_LEFT:
             if (blockIndex % CHUNK_WIDTH) {
                 blockIndex--;
-            } else if (chunk->left && chunk->left->isAccessible) {
-                blockIndex = blockIndex + CHUNK_WIDTH - 1;
-                chunk = chunk->left;
             } else {
-                return false;
+                blockIndex = blockIndex + CHUNK_WIDTH - 1;
+                chunkOffset -= X_1;
             }
             break;
         case TREE_BACK:
             if ((blockIndex % CHUNK_LAYER) / CHUNK_WIDTH) {
                 blockIndex -= CHUNK_WIDTH;
-            } else if (chunk->back && chunk->back->isAccessible) {
-                blockIndex = blockIndex + CHUNK_LAYER - CHUNK_WIDTH;
-                chunk = chunk->back;
             } else {
-                return false;
+                blockIndex = blockIndex + CHUNK_LAYER - CHUNK_WIDTH;
+                chunkOffset -= Z_1;
             }
             break;
         case TREE_RIGHT:
             if (blockIndex % CHUNK_WIDTH < CHUNK_WIDTH - 1) {
                 blockIndex++;
-            } else if (chunk->right && chunk->right->isAccessible) {
-                blockIndex = blockIndex - CHUNK_WIDTH + 1;
-                chunk = chunk->right;
             } else {
-                return false;
+                blockIndex = blockIndex - CHUNK_WIDTH + 1;
+                chunkOffset += X_1;
             }
             break;
         case TREE_FRONT:
             if ((blockIndex % CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1) {
                 blockIndex += CHUNK_WIDTH;
-            } else if (chunk->front && chunk->front->isAccessible) {
-                blockIndex = blockIndex - CHUNK_LAYER + CHUNK_WIDTH;
-                chunk = chunk->front;
             } else {
-                return false;
-            }
+                blockIndex = blockIndex - CHUNK_LAYER + CHUNK_WIDTH;
+                chunkOffset += Z_1;
+            } 
             break;
         default:
             break;
     }
-    return true;
 }
 
-bool FloraGenerator::generateFlora(Chunk *chunk) {
+bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes) {
     int c;
     int xz, y;
-    _wnodes.clear();
-    _lnodes.clear();
+   
     vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
     vector <TreeData> &treesToLoad = chunk->treesToLoad;
 
-    _lockedChunk = nullptr;
+    // For placing flora
+    Chunk* _lockedChunk = nullptr;
 
     //load plants
     for (int i = plantsToLoad.size() - 1; i >= 0; i--) {
@@ -429,14 +411,20 @@ bool FloraGenerator::generateFlora(Chunk *chunk) {
         bool occ = block.blockLight || block.lightColorPacked;
 
         if (c >= CHUNK_LAYER) {
-            lockChunk(chunk);
+            if (_lockedChunk) { _lockedChunk->unlock(); }
+            _lockedChunk = chunk;
+            _lockedChunk->lock();
             if (chunk->getBlockID(c - CHUNK_LAYER) != (ui16)Blocks::NONE) {
                 ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
             }
         } else if (chunk->bottom && chunk->bottom->isAccessible) {
-            lockChunk(chunk->bottom);
+            if (_lockedChunk) { _lockedChunk->unlock(); }
+            _lockedChunk = chunk;
+            _lockedChunk->lock();
             if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != (ui16)Blocks::NONE) {
-                lockChunk(chunk);
+                if (_lockedChunk) { _lockedChunk->unlock(); }
+                _lockedChunk = chunk->bottom;
+                _lockedChunk->lock();
                 ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
             }
         } else {
@@ -446,7 +434,9 @@ bool FloraGenerator::generateFlora(Chunk *chunk) {
 
         plantsToLoad.pop_back();
     }
-    //we dont want flora to set the dirty bit
+    // Make sure to unlock
+    if (_lockedChunk) _lockedChunk->unlock();
+    //we don't want flora to set the dirty bit
     chunk->dirty = false;
 
     //Load Trees
@@ -457,46 +447,43 @@ bool FloraGenerator::generateFlora(Chunk *chunk) {
             if (_lockedChunk) _lockedChunk->unlock();
             return false;
         }
-        placeTreeNodes();
 
         treesToLoad.pop_back();
-        _wnodes.clear();
-        _lnodes.clear();
     }
-    if (_lockedChunk) _lockedChunk->unlock();
+    
 
     return true;
 }
 
 void FloraGenerator::placeTreeNodes() {
-    int c;
-    int xz;
-    int y;
-    Chunk *owner;
+    //int c;
+    //int xz;
+    //int y;
+    //Chunk *owner;
 
-    for (Uint32 j = 0; j < _wnodes.size(); j++) { //wood nodes
-        c = _wnodes[j].c;
-        owner = _wnodes[j].owner;
-        lockChunk(owner);
-        ChunkUpdater::placeBlockNoUpdate(owner, c, _wnodes[j].blockType);
+    //for (Uint32 j = 0; j < _wnodes.size(); j++) { //wood nodes
+    //    c = _wnodes[j].c;
+    //    owner = _wnodes[j].owner;
+    //    lockChunk(owner);
+    //    ChunkUpdater::placeBlockNoUpdate(owner, c, _wnodes[j].blockType);
 
-        if (c >= CHUNK_LAYER) {
-            if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
-        } else if (owner->bottom && owner->bottom->isAccessible) {
-            if (owner->bottom->getBlockID(c + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(c + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
-        }
-    }
+    //    if (c >= CHUNK_LAYER) {
+    //        if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
+    //    } else if (owner->bottom && owner->bottom->isAccessible) {
+    //        if (owner->bottom->getBlockID(c + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(c + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
+    //    }
+    //}
 
-    for (Uint32 j = 0; j < _lnodes.size(); j++) { //leaf nodes
-        c = _lnodes[j].c;
-        owner = _lnodes[j].owner;
-        lockChunk(owner);
-        int blockID = owner->getBlockData(c);
+    //for (Uint32 j = 0; j < _lnodes.size(); j++) { //leaf nodes
+    //    c = _lnodes[j].c;
+    //    owner = _lnodes[j].owner;
+    //    lockChunk(owner);
+    //    int blockID = owner->getBlockData(c);
 
-        if (blockID == (ui16)Blocks::NONE) {
-            ChunkUpdater::placeBlockNoUpdate(owner, c, _lnodes[j].blockType);
-        }
-    }
+    //    if (blockID == (ui16)Blocks::NONE) {
+    //        ChunkUpdater::placeBlockNoUpdate(owner, c, _lnodes[j].blockType);
+    //    }
+    //}
 }
 
 int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, int X, int Z) {
@@ -593,17 +580,17 @@ i32 FloraGenerator::getTreeIndex(Biome *biome, i32 x, i32 z) {
     return -1;
 }
 
-bool FloraGenerator::recursiveMakeSlice(int blockIndex, Chunk *chunk, i32 step, TreeDir dir, TreeDir rightDir, TreeDir leftDir, bool makeNode, i32 blockID, std::vector<TreeNode>& nodes) {
+bool FloraGenerator::recursiveMakeSlice(int blockIndex, ui16 chunkOffset, i32 step, TreeDir dir, TreeDir rightDir, TreeDir leftDir, bool makeNode, i32 blockID, std::vector<TreeNode>* nodes) {
 
     while (step >= 0) {
 
         // Check for block placement
         if (makeNode) {
-            nodes.emplace_back(blockIndex, blockID, chunk);
+            nodes->emplace_back(blockIndex, chunkOffset, blockID);
 
             if (step == 0) {
                 // TODO(Ben): This is bad
-                if (PseudoRand(chunk->gridPosition.x + blockIndex - chunk->gridPosition.z, chunk->gridPosition.z + blockIndex) > 0.85) nodes.pop_back();
+                if (PseudoRand(chunkOffset + blockIndex, -chunkOffset - blockIndex) > 0.85) nodes->pop_back();
             }
         } else {
             makeNode = true;
@@ -614,74 +601,75 @@ bool FloraGenerator::recursiveMakeSlice(int blockIndex, Chunk *chunk, i32 step, 
             // Right Direction
             if (rightDir != TreeDir::TREE_NO_DIR) {
                 // Move over to the next block
-                Chunk* nextChunk = chunk;
                 int nextBlockIndex = blockIndex;
-                if (!directionalMove(nextBlockIndex, nextChunk, rightDir)) return false;
+                ui16 nextChunkOffset = chunkOffset;
+                directionalMove(nextBlockIndex, nextChunkOffset, rightDir);
                 // Recursive call
-                if (!recursiveMakeSlice(nextBlockIndex, nextChunk, step - 1, rightDir, 
+                if (!recursiveMakeSlice(nextBlockIndex, nextChunkOffset, step - 1, rightDir,
                     TREE_NO_DIR, TREE_NO_DIR, true, blockID, nodes)) return false;
             }
             // Left Direction
             if (leftDir != TreeDir::TREE_NO_DIR) {
                 // Move over to the next block
-                Chunk* nextChunk = chunk;
                 int nextBlockIndex = blockIndex;
-                if (!directionalMove(nextBlockIndex, nextChunk, leftDir)) return false;
+                ui16 nextChunkOffset = chunkOffset;
+                directionalMove(nextBlockIndex, nextChunkOffset, leftDir);
                 // Recursive call
-                if (!recursiveMakeSlice(nextBlockIndex, nextChunk, step - 1, leftDir,
+                if (!recursiveMakeSlice(nextBlockIndex, nextChunkOffset, step - 1, leftDir,
                     TREE_NO_DIR, TREE_NO_DIR, true, blockID, nodes)) return false;
             }
         }
         // Move in direction
-        if (!directionalMove(blockIndex, chunk, dir)) return false;
+        directionalMove(blockIndex, chunkOffset, dir);
         // Check end condition
         step--;
     }
     return true;
 }
 
-bool FloraGenerator::makeCluster(int blockIndex, Chunk* chunk, int size, int blockID, std::vector<TreeNode>& nodes) {
+bool FloraGenerator::makeCluster(int blockIndex, ui16 chunkOffset, int size, int blockID, std::vector<TreeNode>* nodes) {
     
     int innerBlockIndex = blockIndex;
-    Chunk* innerChunk = chunk;
+    ui16 innerChunkOffset = chunkOffset;
 
     // Center and up
     for (int i = size; i > 0; i--) {
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunkOffset, i,
                            TREE_LEFT, TREE_BACK, TREE_FRONT, true,
                            blockID, nodes)) return false;
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunkOffset, i,
                            TREE_RIGHT, TREE_FRONT, TREE_BACK, false,
                            blockID, nodes)) return false;
-        if (!directionalMove(innerBlockIndex, innerChunk, TREE_UP)) return false;
+        directionalMove(innerBlockIndex, innerChunkOffset, TREE_UP);
     }
 
     innerBlockIndex = blockIndex;
-    innerChunk = chunk;
-    if (!directionalMove(innerBlockIndex, innerChunk, TREE_DOWN)) return false;
+    innerChunkOffset = chunkOffset;
+
+    directionalMove(innerBlockIndex, innerChunkOffset, TREE_DOWN);
 
     // Down
     for (int i = size-1; i > 0; i--) {
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunkOffset, i,
                            TREE_LEFT, TREE_BACK, TREE_FRONT, true,
                            blockID, nodes)) return false;
-        if (!recursiveMakeSlice(innerBlockIndex, innerChunk, i,
+        if (!recursiveMakeSlice(innerBlockIndex, innerChunkOffset, i,
                             TREE_RIGHT, TREE_FRONT, TREE_BACK, false,
                             blockID, nodes)) return false;
-        if (!directionalMove(innerBlockIndex, innerChunk, TREE_DOWN)) return false;
+        directionalMove(innerBlockIndex, innerChunkOffset, TREE_DOWN);
     }
     return true;
 }
 
 // TODO(Ben): refactor this
-int FloraGenerator::makeMushroomLeaves(Chunk *chunk, int c, int dir, bool branch, bool makeNode, int ntype, int lamntype, int dx, int dy, int dz, int rad, TreeType *tt) {
+int FloraGenerator::makeMushroomLeaves(int c, ui16 chunkOffset, int dir, bool branch, bool makeNode, int ntype, int lamntype, int dx, int dy, int dz, int rad, TreeType *tt) {
     int code;
     int dist;
 
     if (branch) {
-        code = makeMushroomLeaves(chunk, c, (dir + 3) % 4, 0, 0, ntype, lamntype, dx, dy, dz, rad, tt);
+        code = makeMushroomLeaves(c, chunkOffset, (dir + 3) % 4, 0, 0, ntype, lamntype, dx, dy, dz, rad, tt);
         if (code) return code;
-        code = makeMushroomLeaves(chunk, c, (dir + 1) % 4, 0, 0, ntype, lamntype, dx, dy, dz, rad, tt);
+        code = makeMushroomLeaves(c, chunkOffset, (dir + 1) % 4, 0, 0, ntype, lamntype, dx, dy, dz, rad, tt);
         if (code) return code;
     }
 
@@ -698,59 +686,47 @@ int FloraGenerator::makeMushroomLeaves(Chunk *chunk, int c, int dir, bool branch
     dist = (int)(sqrt((double)(dx*dx + dy*dy + dz*dz)));
 
     if (dist > rad - tt->mushroomCapThickness) {
-        if (makeNode && chunk->getBlockID(c) == (ui16)Blocks::NONE) {
-            _lnodes.push_back(TreeNode(c, ntype, chunk));
+        if (makeNode) {
+            _lnodes->emplace_back(c, chunkOffset, ntype);
         }
     } else if (dist > rad - (tt->mushroomCapThickness + tt->mushroomCapGillThickness)) {
-        if (makeNode && chunk->getBlockID(c) == (ui16)Blocks::NONE) {
-            _lnodes.push_back(TreeNode(c, lamntype, chunk));
+        if (makeNode) {
+            _lnodes->emplace_back(c, chunkOffset, lamntype);
         }
     }
 
     if (dist >= rad) {
-        if (PseudoRand(chunk->gridPosition.x + c - chunk->gridPosition.z, chunk->gridPosition.z + c) > 0.8 && _lnodes.size()) _lnodes.pop_back();
+      //  if (PseudoRand(chunk->gridPosition.x + c - chunk->gridPosition.z, chunk->gridPosition.z + c) > 0.8 && _lnodes.size()) _lnodes.pop_back();
         return 0;
     }
 
     if (dir == 0) //left
     {
         if (c % CHUNK_WIDTH) {
-            return makeMushroomLeaves(chunk, c - 1, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
+            return makeMushroomLeaves(c - 1, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         } else {
-            if (chunk->left && chunk->left->isAccessible) {
-                return makeMushroomLeaves(chunk->left, c + CHUNK_WIDTH - 1, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
-            }
-            return 1;
+            return makeMushroomLeaves(c + CHUNK_WIDTH - 1, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         }
     } else if (dir == 1) //back
     {
         if ((c % CHUNK_LAYER) - CHUNK_WIDTH >= 0) {
-            return makeMushroomLeaves(chunk, c - CHUNK_WIDTH, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
+            return makeMushroomLeaves(c - CHUNK_WIDTH, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         } else {
-            if (chunk->back && chunk->back->isAccessible) {
-                return makeMushroomLeaves(chunk->back, c + CHUNK_LAYER - CHUNK_WIDTH, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
-            }
-            return 1;
+            return makeMushroomLeaves(c + CHUNK_LAYER - CHUNK_WIDTH, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         }
     } else if (dir == 2) //right
     {
         if ((c % CHUNK_WIDTH) < CHUNK_WIDTH - 1) {
-            return makeMushroomLeaves(chunk, c + 1, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
+            return makeMushroomLeaves(c + 1, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         } else {
-            if (chunk->right && chunk->right->isAccessible) {
-                return makeMushroomLeaves(chunk->right, c - CHUNK_WIDTH + 1, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
-            }
-            return 1;
+            return makeMushroomLeaves(c - CHUNK_WIDTH + 1, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         }
     } else if (dir == 3) //front
     {
         if ((c % CHUNK_LAYER) + CHUNK_WIDTH < CHUNK_LAYER) {
-            return makeMushroomLeaves(chunk, c + CHUNK_WIDTH, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
+            return makeMushroomLeaves(c + CHUNK_WIDTH, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         } else {
-            if (chunk->front && chunk->front->isAccessible) {
-                return makeMushroomLeaves(chunk->front, c - CHUNK_LAYER + CHUNK_WIDTH, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
-            }
-            return 1;
+            return makeMushroomLeaves(c - CHUNK_LAYER + CHUNK_WIDTH, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         }
     }
 
@@ -758,9 +734,9 @@ int FloraGenerator::makeMushroomLeaves(Chunk *chunk, int c, int dir, bool branch
     return 1;
 }
 
-bool FloraGenerator::makeDroopyLeaves(int blockIndex, Chunk* chunk, int length, int blockID, std::vector<TreeNode>& nodes) {
+bool FloraGenerator::makeDroopyLeaves(int blockIndex, ui16 chunkOffset, int length, int blockID, std::vector<TreeNode>* nodes) {
     // Place first node
-    nodes.emplace_back(blockIndex, blockID, chunk);
+    nodes->emplace_back(blockIndex, chunkOffset, blockID);
 
     int slope = _treeData->treeType->droopyLeavesSlope;
     int dslope = _treeData->treeType->droopyLeavesDSlope;
@@ -769,7 +745,7 @@ bool FloraGenerator::makeDroopyLeaves(int blockIndex, Chunk* chunk, int length, 
     // Loop through the 4 cardinal directions
     for (int dir = 0; dir < 4; dir++) {
         int innerBlockIndex = blockIndex;
-        Chunk* innerChunk = chunk;
+        ui16 innerChunkOffset = chunkOffset;
        
         int slopestep = 0;
         int step = 0;
@@ -792,9 +768,9 @@ bool FloraGenerator::makeDroopyLeaves(int blockIndex, Chunk* chunk, int length, 
 
             // Move sideways
             if (side) {
-                if (!directionalMove(innerBlockIndex, innerChunk, (TreeDir)dir)) return false;
+                directionalMove(innerBlockIndex, innerChunkOffset, (TreeDir)dir);
             } else { // Move downward
-                if (!directionalMove(innerBlockIndex, innerChunk, TREE_DOWN)) return false;
+                directionalMove(innerBlockIndex, innerChunkOffset, TREE_DOWN);
             }
 
             // For changing calculation
@@ -805,7 +781,7 @@ bool FloraGenerator::makeDroopyLeaves(int blockIndex, Chunk* chunk, int length, 
             }
 
             // Place node
-            nodes.emplace_back(innerBlockIndex, blockID, innerChunk);
+            nodes->emplace_back(innerBlockIndex, innerChunkOffset, blockID);
 
             step++;
         }
@@ -814,7 +790,7 @@ bool FloraGenerator::makeDroopyLeaves(int blockIndex, Chunk* chunk, int length, 
 }
 
 // TODO(Ben): Refactor this
-int FloraGenerator::makeMushroomCap(Chunk *chunk, int c, int block, int rad) {
+int FloraGenerator::makeMushroomCap(int c, ui16 chunkOffset, int block, int rad) {
     int code;
     int step;
     TreeType* treeType = _treeData->treeType;
@@ -830,9 +806,9 @@ int FloraGenerator::makeMushroomCap(Chunk *chunk, int c, int block, int rad) {
     step = 0;
     for (int i = 0; i < size; i++) {
         if (treeType->isMushroomCapInverted == 1) {
-            if (!directionalMove(c, chunk, TREE_UP)) return false;
+            directionalMove(c, chunkOffset, TREE_UP);
         } else {
-            if (!directionalMove(c, chunk, TREE_DOWN)) return false;
+            directionalMove(c, chunkOffset, TREE_DOWN);
         }
 
 
@@ -844,9 +820,9 @@ int FloraGenerator::makeMushroomCap(Chunk *chunk, int c, int block, int rad) {
             step += 2;
         }
 
-        code = makeMushroomLeaves(chunk, c, 0, 1, 1, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
+        code = makeMushroomLeaves(c, chunkOffset, 0, 1, 1, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
         if (code) return code;
-        code = makeMushroomLeaves(chunk, c, 2, 1, 0, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
+        code = makeMushroomLeaves(c, chunkOffset, 2, 1, 0, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
         if (code) return code;
         k++;
     }
@@ -854,11 +830,11 @@ int FloraGenerator::makeMushroomCap(Chunk *chunk, int c, int block, int rad) {
         while (step > rad - treeType->mushroomCapCurlLength) {
             step -= 2;
 
-            if (!directionalMove(c, chunk, TREE_DOWN)) return false;
+            directionalMove(c, chunkOffset, TREE_DOWN);
 
-            code = makeMushroomLeaves(chunk, c, 0, 1, 1, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
+            code = makeMushroomLeaves(c, chunkOffset, 0, 1, 1, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
             if (code) return code;
-            code = makeMushroomLeaves(chunk, c, 2, 1, 0, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
+            code = makeMushroomLeaves(c, chunkOffset, 2, 1, 0, block, treeType->idSpecial, 0, rad - step, 0, rad, treeType);
             if (code) return code;
         }
     }
@@ -866,7 +842,7 @@ int FloraGenerator::makeMushroomCap(Chunk *chunk, int c, int block, int rad) {
     return 0;
 }
 
-bool FloraGenerator::recursiveMakeBranch(int blockIndex, Chunk* chunk, int step, TreeDir dir, TreeDir initDir, int thickness, bool isRoot) {
+bool FloraGenerator::recursiveMakeBranch(int blockIndex, ui16 chunkOffset, int step, TreeDir dir, TreeDir initDir, int thickness, bool isRoot) {
     TreeType* treeType = _treeData->treeType;
     int leafBlock = treeType->idLeaves | (_treeData->leafColor << 12);
     int woodBlock = treeType->idOuter;
@@ -877,7 +853,7 @@ bool FloraGenerator::recursiveMakeBranch(int blockIndex, Chunk* chunk, int step,
     const float thicknessAttenuation = 0.5f;
     
     // Move once in dir without placing anything
-    directionalMove(blockIndex, chunk, dir);
+    directionalMove(blockIndex, chunkOffset, dir);
     step--;
 
     // Hard coded directions for recursiveMakeSlice
@@ -908,22 +884,22 @@ bool FloraGenerator::recursiveMakeBranch(int blockIndex, Chunk* chunk, int step,
     
     while (step >= 0) {
         // Place the block node
-        _wnodes.emplace_back(blockIndex, woodBlock, chunk);
+        _wnodes->emplace_back(blockIndex, chunkOffset, woodBlock);
         // Get thickness with linear interpolation based on length
         int newThickness = lerp(0, thickness, ((float)step / startStep) * (1.0 - thicknessAttenuation) + thicknessAttenuation);
         
         // Thickness using recursiveMakeSlice
         if (newThickness) {
-            if (!recursiveMakeSlice(blockIndex, chunk, newThickness,
+            if (!recursiveMakeSlice(blockIndex, chunkOffset, newThickness,
                                treeDirs[3], treeDirs[0], treeDirs[2], false,
                                treeType->idOuter, _wnodes)) return false;
-            if (!recursiveMakeSlice(blockIndex, chunk, newThickness,
+            if (!recursiveMakeSlice(blockIndex, chunkOffset, newThickness,
                                treeDirs[1], treeDirs[2], treeDirs[0], false,
                                treeType->idOuter, _wnodes)) return false;
-            if (!recursiveMakeSlice(blockIndex, chunk, newThickness,
+            if (!recursiveMakeSlice(blockIndex, chunkOffset, newThickness,
                                treeDirs[0], TREE_NO_DIR, TREE_NO_DIR, true,
                                treeType->idOuter, _wnodes)) return false;
-            if (!recursiveMakeSlice(blockIndex, chunk, newThickness,
+            if (!recursiveMakeSlice(blockIndex, chunkOffset, newThickness,
                                treeDirs[2], TREE_NO_DIR, TREE_NO_DIR, true,
                                treeType->idOuter, _wnodes)) return false;
         }
@@ -931,19 +907,19 @@ bool FloraGenerator::recursiveMakeBranch(int blockIndex, Chunk* chunk, int step,
         // Leaves
         if (step == 0 && !isRoot) {
             if (treeType->hasDroopyLeaves) {
-                if (!makeDroopyLeaves(blockIndex, chunk, _treeData->droopyLength, leafBlock, _wnodes)) return false;
+                if (!makeDroopyLeaves(blockIndex, chunkOffset, _treeData->droopyLength, leafBlock, _wnodes)) return false;
             }
 
             if (treeType->branchLeafShape == TreeLeafShape::ROUND) {
-                if (!makeSphere(blockIndex, chunk, newThickness + 3 + treeType->branchLeafSizeMod, leafBlock, _lnodes)) return false;
+                if (!makeSphere(blockIndex, chunkOffset, newThickness + 3 + treeType->branchLeafSizeMod, leafBlock, _lnodes)) return false;
             } else if (treeType->branchLeafShape == TreeLeafShape::CLUSTER) {
-                if (!makeCluster(blockIndex, chunk, newThickness + 3 + treeType->branchLeafSizeMod, leafBlock, _lnodes)) return false;
+                if (!makeCluster(blockIndex, chunkOffset, newThickness + 3 + treeType->branchLeafSizeMod, leafBlock, _lnodes)) return false;
             }
         }
 
         // Get random move direction. 1/3 chance left, 1/3 chance right, 1/3 up or down
         // TODO(Ben): This is bad
-        int r = (int)((PseudoRand(chunk->gridPosition.x*blockIndex + blockIndex + step, blockIndex*blockIndex - chunk->gridPosition.z + step) + 1)*1.999); //between 0 and 2
+        int r = (int)((PseudoRand(chunkOffset*blockIndex + blockIndex + step, blockIndex*blockIndex - chunkOffset + step) + 1)*1.999); //between 0 and 2
         // If r == 1 then we are up/down so we should randomly flip direction
         if (r == 1) {
             if (isRoot) {
@@ -957,23 +933,23 @@ bool FloraGenerator::recursiveMakeBranch(int blockIndex, Chunk* chunk, int step,
             int dr = rand() % 4;
             if (dr == r) dr = (dr + 1) % 4;
             if (dr == (initDir + 2) % 4) dr = (dr + 1) % 4; //must branch orthogonally
-            if (!(recursiveMakeBranch(blockIndex, chunk, step - 1, treeDirs[r], initDir, newThickness, isRoot))) return false;
+            if (!(recursiveMakeBranch(blockIndex, chunkOffset, step - 1, treeDirs[r], initDir, newThickness, isRoot))) return false;
         }
 
         // Move the block
-        if (!directionalMove(blockIndex, chunk, treeDirs[r])) return false;
+        directionalMove(blockIndex, chunkOffset, treeDirs[r]);
 
         step--;
     }
     return true;
 }
 
-bool FloraGenerator::makeSphere(int blockIndex, Chunk* chunk, int radius, int blockID, std::vector<TreeNode>& nodes) {
+bool FloraGenerator::makeSphere(int blockIndex, ui16 chunkOffset, int radius, int blockID, std::vector<TreeNode>* nodes) {
     // Shift over to the back, bottom, left hand corner
     for (int i = 0; i < radius; i++) {
-        if (!directionalMove(blockIndex, chunk, TREE_LEFT)) return false;
-        if (!directionalMove(blockIndex, chunk, TREE_BACK)) return false;
-        if (!directionalMove(blockIndex, chunk, TREE_DOWN)) return false;
+        directionalMove(blockIndex, chunkOffset, TREE_LEFT);
+        directionalMove(blockIndex, chunkOffset, TREE_BACK);
+        directionalMove(blockIndex, chunkOffset, TREE_DOWN);
     }
 
     const int radius2 = radius * radius;
@@ -984,35 +960,35 @@ bool FloraGenerator::makeSphere(int blockIndex, Chunk* chunk, int radius, int bl
     int dx, dy, dz;
 
     int zBlockIndex, xBlockIndex;
-    Chunk* zChunk, *xChunk;
+    ui16 zChunkOffset, xChunkOffset;
 
     // Loop through the bounding volume of the sphere
     for (int y = 0; y < width; y++) {
         dy = y - center;
         dy *= dy;
         zBlockIndex = blockIndex;
-        zChunk = chunk;
+        zChunkOffset = chunkOffset;
         for (int z = 0; z < width; z++) {
             dz = z - center;
             dz *= dz;
             xBlockIndex = zBlockIndex;
-            xChunk = zChunk;
+            xChunkOffset = chunkOffset;
             for (int x = 0; x < width; x++) {
                 dx = x - center;
                 dx *= dx;
                 distance2 = dx + dy + dz;
                 // Check the distance for placing a node
                 if (distance2 <= radius2) {
-                    nodes.emplace_back(xBlockIndex, blockID, xChunk);
+                    nodes->emplace_back(xBlockIndex, xChunkOffset, blockID);
                 }
                 // Move right
-                if (!directionalMove(xBlockIndex, xChunk, TREE_RIGHT)) return false;
+                directionalMove(xBlockIndex, xChunkOffset, TREE_RIGHT);
             }
             // Move front
-            if (!directionalMove(zBlockIndex, zChunk, TREE_FRONT)) return false;
+            directionalMove(zBlockIndex, zChunkOffset, TREE_FRONT);
         }
         // Move up
-        if (!directionalMove(blockIndex, chunk, TREE_UP)) return false;
+        directionalMove(blockIndex, chunkOffset, TREE_UP);
     }
 }
 
@@ -1023,12 +999,4 @@ void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom,
     outProps.topBranchLength = ratio * (top.length.max - top.length.min) + top.length.min;
     outProps.botBranchWidth = ratio * (bottom.width.max - bottom.width.min) + bottom.width.min;
     outProps.topBranchWidth = ratio * (top.width.max - top.width.min) + top.width.min;
-}
-
-void FloraGenerator::lockChunk(Chunk* chunk) {
-    if (chunk != _lockedChunk) {
-        if (_lockedChunk) _lockedChunk->unlock();
-        chunk->lock();
-        _lockedChunk = chunk;
-    }
 }

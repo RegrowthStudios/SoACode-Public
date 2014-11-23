@@ -8,6 +8,16 @@ struct TreeData;
 struct TreeNode;
 struct Biome;
 
+//This node is used in tree generation
+class TreeNode {
+public:
+    TreeNode(ui16 C, ui16 ChunkOffset, ui16 BlockType) : c(C), chunkOffset(ChunkOffset), blockType(BlockType) {}
+
+    ui16 c;
+    ui16 blockType;
+    ui16 chunkOffset; ///< 0 XXXXX YYYYY ZZZZZ for positional offset. 00111 == 0
+};
+
 //static flora generation class. Both trees and plants are considered flora
 class FloraGenerator {
 public:
@@ -17,7 +27,7 @@ public:
         TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
     };
 
-    bool generateFlora(Chunk *chunk);
+    bool generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes);
     static i32 makeLODTreeData(TreeData &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
     static i32 makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt);
     static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
@@ -26,27 +36,24 @@ public:
     void placeTreeNodes();
 
 private:
+    // generates a tree and stores the resulting nodes
     bool generateTree(const TreeData& treeData, Chunk* startChunk);
     bool generateTrunk();
-    bool makeTrunkSlice(int blockIndex, Chunk* chunk, int h, float heightRatio);
-    bool makeTrunkOuterRing(int blockIndex, Chunk* chunk, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>& nodes);
-    bool directionalMove(int& blockIndex, Chunk*& chunk, TreeDir dir);
-    bool recursiveMakeSlice(int blockIndex, Chunk *chunk, i32 step, TreeDir dir, TreeDir rightDir, TreeDir leftDir, bool makeNode, i32 blockID, std::vector<TreeNode>& nodes);
+    bool makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, float heightRatio);
+    bool makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>* nodes);
+    void directionalMove(int& blockIndex, ui16 &chunkOffset, TreeDir dir);
+    bool recursiveMakeSlice(int blockIndex, ui16 chunkOffset, i32 step, TreeDir dir, TreeDir rightDir, TreeDir leftDir, bool makeNode, i32 blockID, std::vector<TreeNode>* nodes);
 
-    bool recursiveMakeBranch(int blockIndex, Chunk* chunk, int step, TreeDir dir, TreeDir initDir, int thickness, bool isRoot);
-    bool makeSphere(int blockIndex, Chunk* chunk, int radius, int blockID, std::vector<TreeNode>& nodes);
-    bool makeCluster(int blockIndex, Chunk* chunk, int size, int blockID, std::vector<TreeNode>& nodes);
-    i32 makeMushroomLeaves(Chunk *chunk, i32 c, i32 dir, bool branch, bool makeNode, i32 ntype, i32 lamntype, i32 dx, i32 dy, i32 dz, i32 rad, TreeType *tt);
-    bool makeDroopyLeaves(int blockIndex, Chunk* chunk, int length, int blockID, std::vector<TreeNode>& nodes);
-    i32 makeMushroomCap(Chunk *chunk, i32 c, i32 block, i32 rad);
+    bool recursiveMakeBranch(int blockIndex, ui16 chunkOffset, int step, TreeDir dir, TreeDir initDir, int thickness, bool isRoot);
+    bool makeSphere(int blockIndex, ui16 chunkOffset, int radius, int blockID, std::vector<TreeNode>* nodes);
+    bool makeCluster(int blockIndex, ui16 chunkOffset, int size, int blockID, std::vector<TreeNode>* nodes);
+    i32 makeMushroomLeaves(i32 c, ui16 chunkOffset, i32 dir, bool branch, bool makeNode, i32 ntype, i32 lamntype, i32 dx, i32 dy, i32 dz, i32 rad, TreeType *tt);
+    bool makeDroopyLeaves(int blockIndex, ui16 chunkOffset, int length, int blockID, std::vector<TreeNode>* nodes);
+    i32 makeMushroomCap(i32 c, ui16 chunkOffset, i32 block, i32 rad);
 
-    void lockChunk(Chunk* chunk);
+    std::vector<TreeNode>* _wnodes;
+    std::vector<TreeNode>* _lnodes;
 
-    std::vector<TreeNode> _wnodes;
-    std::vector<TreeNode> _lnodes;
-
-    Chunk* _lockedChunk;
-    Chunk* _startChunk;
     const TreeData* _treeData;
 };
 
@@ -145,15 +152,6 @@ struct TreeData {
 
 typedef void(*TreeBranchInterpolator)(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
 void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
-
-//This node is used in tree generation
-struct TreeNode {
-    TreeNode(ui16 C, ui16 BlockType, Chunk* Owner) : c(C), blockType(BlockType), owner(Owner) {}
-
-    ui16 c;
-    ui16 blockType;
-    Chunk* owner;
-};
 
 //This is data specific to a breed of plant
 struct PlantType {

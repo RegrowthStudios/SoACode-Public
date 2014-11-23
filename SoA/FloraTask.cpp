@@ -2,7 +2,6 @@
 #include "FloraTask.h"
 
 #include "Chunk.h"
-#include "FloraGenerator.h"
 #include "ThreadPool.h"
 
 void FloraTask::execute(vcore::WorkerData* workerData) {
@@ -13,7 +12,7 @@ void FloraTask::execute(vcore::WorkerData* workerData) {
     }
 
     isSuccessful = false;
-    if (workerData->floraGenerator->generateFlora(chunk)) {
+    if (workerData->floraGenerator->generateFlora(chunk, wnodes, lnodes)) {
         isSuccessful = true;
     }
 }
