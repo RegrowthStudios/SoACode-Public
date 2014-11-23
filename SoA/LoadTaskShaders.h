@@ -121,10 +121,6 @@ private:
         glProgramManager->addProgram("Billboard",
                                      "Shaders/BillboardShading/BillboardShading.vert",
                                      "Shaders/BillboardShading/BillboardShading.frag");
-        /***** FixedSizeBillboard *****/
-        glProgramManager->addProgram("FixedSizeBillboard",
-                                     "Shaders/BillboardShading/FixedSizeBillboardShading.vert",
-                                     "Shaders/BillboardShading/FixedSizeBillboardShading.frag");
         /***** Sonar *****/
         glProgramManager->addProgram("Sonar",
                                      "Shaders/BlockShading/standardShading.vert",
