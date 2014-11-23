@@ -25,8 +25,7 @@ public:
     void initialize(nString filePath, f32 PlanetRadius);
     void loadProperties(nString filePath);
     void draw(f32 theta, const f32m4& MVP, f32v3 lightPos, const f64v3& ppos);
-    void drawSkyFromAtmosphere(f32 theta, const f32m4& mVP, f32v3 lightPos, const f64v3& ppos);
-    void drawSkyFromSpace(f32 theta, const f32m4& mVP, f32v3 lightPos, const f64v3& ppos);
+    void drawSky(f32 theta, const f32m4& mVP, f32v3 lightPos, const f64v3& ppos);
 
     std::vector<ColorVertex> vertices;
     std::vector<ui16> indices;

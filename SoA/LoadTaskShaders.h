@@ -60,19 +60,15 @@ private:
                                     "Shaders/TerrainShading/GroundFromAtmosphere.vert",
                                     "Shaders/TerrainShading/GroundFromAtmosphere.frag",
                                     &terrainAttribs);
-        /***** SkyFromAtmosphere *****/
-        glProgramManager->addProgram("SkyFromAtmosphere",
-                                     "Shaders/AtmosphereShading/SkyFromAtmosphere.vert",
-                                     "Shaders/AtmosphereShading/SkyFromAtmosphere.frag");
         /***** GroundFromSpace *****/
         glProgramManager->addProgram("GroundFromSpace",
                                      "Shaders/TerrainShading/GroundFromSpace.vert",
                                      "Shaders/TerrainShading/GroundFromSpace.frag",
                                      &terrainAttribs);
-        /***** SkyFromSpace *****/
-        glProgramManager->addProgram("SkyFromSpace",
-                                     "Shaders/AtmosphereShading/SkyFromSpace.vert",
-                                     "Shaders/AtmosphereShading/SkyFromSpace.frag");
+        /***** Sky *****/
+        glProgramManager->addProgram("Sky",
+                                     "Shaders/AtmosphereShading/Sky.vert",
+                                     "Shaders/AtmosphereShading/Sky.frag");
         /***** Texture *****/
         std::vector<nString> dd;
         dd.push_back("vPosition");
