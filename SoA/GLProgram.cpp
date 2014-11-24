@@ -72,7 +72,7 @@ bool vg::GLProgram::addShader(ShaderType type, const cString src, const cString 
     }
 
     // Compile The Shader
-    const cString* sources = new const cString[3]();
+    const cString sources[3];
     ui32 idS = glCreateShader(glType);
     char bufVersion[32];
     sprintf(bufVersion, "#version %d%d%d\n\0", _versionMajor, _versionMinor, _versionRevision);
