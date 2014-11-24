@@ -1035,17 +1035,6 @@ void Atmosphere::loadProperties(string filePath)
 }
 
 void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos) {
-    DepthState::READ.set();
-    RasterizerState::CULL_CLOCKWISE.set();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    drawSky(theta, MVP, lightPos, ppos);
-    
-    DepthState::FULL.set();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-void Atmosphere::drawSky(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
-{
     vg::GLProgram* shader = GameManager::glProgramManager->getProgram("Sky");
     shader->use();
 

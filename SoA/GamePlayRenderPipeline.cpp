@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"
 #include "CutoutVoxelRenderStage.h"
+#include "DepthState.h"
 #include "DevHudRenderStage.h"
 #include "Errors.h"
 #include "GamePlayRenderPipeline.h"
@@ -46,7 +47,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
 
     // Construct framebuffer
     _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
-    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
+    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa, vg::TextureFormat::RGBA, vg::TexturePixelType::HALF_FLOAT).initDepth();
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
     } else {
@@ -100,18 +101,16 @@ void GamePlayRenderPipeline::render() {
     // Clear the depth buffer so we can draw the voxel passes
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    // Bind voxel texture pack
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
-
-    // chunkCamera passes
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ZERO);
     _opaqueVoxelRenderStage->draw();
     _physicsBlockRenderStage->draw();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     _cutoutVoxelRenderStage->draw();
     _chunkGridRenderStage->draw();
     _liquidVoxelRenderStage->draw();
     _transparentVoxelRenderStage->draw();
-
+    
     // Dev hud
     _devHudRenderStage->draw();
 

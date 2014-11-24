@@ -1,9 +1,12 @@
 #include "stdafx.h"
+#include "SkyboxRenderStage.h"
+
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include "SkyboxRenderStage.h"
-#include "SkyboxRenderer.h"
+
 #include "Camera.h"
+#include "DepthState.h"
+#include "SkyboxRenderer.h"
 
 SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
                                      const Camera* camera) :
@@ -30,20 +33,8 @@ void SkyboxRenderStage::draw() {
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
-
-    //f32m4 IMVP;
-
-    //if (connectedToPlanet) {
-    //    // If we are connected to the planet, we need to rotate the skybox
-    //    IMVP = VP * GameManager::planet->invRotationMatrix;
-    //} else {
-    //    IMVP = VP;
-    //}
-
-    glDepthMask(GL_FALSE);
+    DepthState::NONE.set();
     _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
-   // drawSun((float)0, VP);
-    glDepthMask(GL_TRUE);
 }
 
 // Ben: This is terrible but I don't feel like fixing it since its temporary
