@@ -18,6 +18,8 @@ extern int MakeWaterQuadMap[(maxVertexWidth + 3)*(maxVertexWidth + 3)];
 extern vector<TerrainVertex> tvboVerts; //this is bigger that it needs to be but whatever
 extern vector<GLushort> lodIndices;
 
+class Camera;
+
 struct TerrainBuffers{
     TerrainBuffers() : vboID(0), vaoID(0), vboIndexID(0), treeVboID(0), indexSize(0), treeIndexSize(0), vecIndex(-1), inFrustum(0), distance(0.0){}
     GLuint vboID;
@@ -94,8 +96,7 @@ public:
     void DeleteChildren();
     //itinializes the LOD and computes distance
     void Initialize(int x, int y, int z, int wx, int wy, int wz, int Radius, int Face, TerrainPatch *Parent = NULL, int ChildNum = -1, int initialDetail = -1);
-    static void Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
-    void Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
+    static void Draw(TerrainBuffers *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
     static void DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
     static bool CheckHorizon(const glm::dvec3 &PlayerPoss, const glm::dvec3 &ClosestPoint);
     //inline void ExtractChildData();

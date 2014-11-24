@@ -5,6 +5,7 @@
 
 #include "BlockData.h"
 #include "CAEngine.h"
+#include "Camera.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "Errors.h"
@@ -46,12 +47,12 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
     setPlanet(planet);
 }
 
-void VoxelWorld::update(const glm::dvec3 &position, const glm::dvec3 &viewDir)
+void VoxelWorld::update(const Camera* camera)
 {
     // Update the Chunks
-    _chunkManager->update(position, viewDir);
+    _chunkManager->update(camera);
     // Update the physics
-    updatePhysics(position, viewDir);
+    updatePhysics(camera);
 }
 
 void VoxelWorld::setPlanet(Planet *planet)
@@ -74,7 +75,7 @@ void VoxelWorld::endSession()
     GameManager::chunkManager = NULL;
 }
 
-void VoxelWorld::updatePhysics(const glm::dvec3 &position, const glm::dvec3 &viewDir) {
+void VoxelWorld::updatePhysics(const Camera* camera) {
     // Update Cellular automata Engine
     globalMultiplePreciseTimer.start("CAEngine Update");
     GameManager::caEngine->update(*_chunkManager);
@@ -82,5 +83,5 @@ void VoxelWorld::updatePhysics(const glm::dvec3 &position, const glm::dvec3 &vie
     // Update physics engine
     globalMultiplePreciseTimer.start("Physics Engine");
 
-    GameManager::physicsEngine->update(viewDir);
+    GameManager::physicsEngine->update(f64v3(camera->getDirection()));
 }

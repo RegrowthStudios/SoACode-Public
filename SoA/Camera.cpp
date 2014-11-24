@@ -15,7 +15,7 @@
 #endif
 
 
-static const float maxPitch = 85.0f; //must be less than 90 to avoid gimbal lock
+static const float maxPitch = 89.0f; //must be less than 90 to avoid gimbal lock
 
 static inline float RadiansToDegrees(float radians) {
     return radians * 180.0f / (float)M_PI;
@@ -29,8 +29,8 @@ Camera::Camera() : _position(0.0),
                 _zNear(0.01f),
                 _zFar(100000.0f),
                 _aspectRatio(4.0f / 3.0f),
-                _viewChanged(1),
-                _projectionChanged(0),
+                _viewChanged(true),
+                _projectionChanged(true),
                 _useAngles(1)
 {
 }
@@ -81,13 +81,19 @@ void Camera::update()
         setFieldOfView(graphicsOptions.fov);
     }
 
+    bool updateFrustum = false;
     if (_viewChanged){
         updateView();
-        _viewChanged = 0;
+        _viewChanged = false;
+        updateFrustum = true;
     }
     if (_projectionChanged){
         updateProjection();
-        _projectionChanged = 0;
+        _projectionChanged = false;
+        updateFrustum = true;
+    }
+    if (updateFrustum) {
+        _frustum.update(_projectionMatrix, _viewMatrix);
     }
 }
 
@@ -146,18 +152,12 @@ void CinematicCamera::update()
             _right = glm::normalize(INTERPOLATE((float)hermite_t, _zoomStartRight, _zoomTargetRight));
         }
         _up = glm::normalize(glm::cross(_right, _direction));
-        _viewChanged = 1;
+        _viewChanged = true;
     }
     _position = _focalPoint - glm::dvec3(_direction*_focalLength);
 
-    if (_viewChanged){
-        updateView();
-        _viewChanged = 0;
-    }
-    if (_projectionChanged){
-        updateProjection();
-        _projectionChanged = 0;
-    }
+    // Call base class update
+    Camera::update();
 }
 
 void CinematicCamera::zoomTo(glm::dvec3 targetPos, double time_s, glm::dvec3 endDirection, glm::dvec3 endRight, glm::dvec3 midDisplace, double pushRadius, double endFocalLength)

@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "Frustum.h"
 
-void Frustum::update(const f64m4& projectionMatrix, const f64m4& viewMatrix) {
-    f64m4 model = projectionMatrix * viewMatrix;
+void Frustum::update(const f32m4& projectionMatrix, const f32m4& viewMatrix) {
+    f32m4 model = projectionMatrix * viewMatrix;
 
-    f64 clip[16];
-    f64 t;
+    f32 clip[16];
+    f32 t;
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             clip[i * 4 + j] = model[i][j];
@@ -91,14 +91,14 @@ void Frustum::update(const f64m4& projectionMatrix, const f64m4& viewMatrix) {
     _frustum[5][3] /= t;
 }
 
-bool Frustum::pointInFrustum(const f32v3& pos) {
+bool Frustum::pointInFrustum(const f32v3& pos) const {
     for (int p = 0; p < 4; p++) {
         if (_frustum[p][0] * pos.x + _frustum[p][1] * pos.y + _frustum[p][2] * pos.z + _frustum[p][3] <= 0) return false;
     }
     return true;
 }
 
-bool Frustum::sphereInFrustum(const f32v3& pos, float radius) {
+bool Frustum::sphereInFrustum(const f32v3& pos, float radius) const {
     for (int p = 0; p < 4; p++) { //*************************************** IGNORING FAR AND NEAR CLIPPING PLANE *****************************************************
         if (_frustum[p][0] * pos.x + _frustum[p][1] * pos.y + _frustum[p][2] * pos.z + _frustum[p][3] <= -radius) return false;
     }

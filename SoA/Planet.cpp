@@ -6,6 +6,7 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include "Camera.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "InputManager.h"
@@ -14,8 +15,8 @@
 #include "Options.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
-#include "TexturePackLoader.h"
 #include "TerrainPatch.h"
+#include "TexturePackLoader.h"
 
 
 ObjectLoader objectLoader;
@@ -476,7 +477,7 @@ void Planet::rotationUpdate()
     invRotationMatrix = glm::inverse(rotationMatrix);
 }
 
-void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, GLfloat sunVal, float fadeDistance, bool connectedToPlanet)
+void Planet::draw(float theta, const Camera* camera, glm::vec3 lightPos, GLfloat sunVal, float fadeDistance, bool connectedToPlanet)
 {    
     
     glActiveTexture(GL_TEXTURE0);
@@ -498,25 +499,29 @@ void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec
 
     closestTerrainPatchDistance = 999999999999.0;
 
+    const f64v3& playerPos = camera->getPosition();
+
     glm::dvec3 rotPlayerPos;
     glm::dvec3 nPlayerPos;
     glm::vec3 rotLightPos;
     rotLightPos = glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(lightPos, 1.0));
     bool onPlanet;
     if (connectedToPlanet){
-        rotPlayerPos = PlayerPos;
-        nPlayerPos = PlayerPos;
+        rotPlayerPos = playerPos;
+        nPlayerPos = playerPos;
         onPlanet = 1;
     }else{
-        rotPlayerPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(PlayerPos, 1.0));
-        nPlayerPos = PlayerPos;
+        rotPlayerPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(playerPos, 1.0));
+        nPlayerPos = playerPos;
         onPlanet = 0;
     }
 
-    if (glm::length(PlayerPos) > atmosphere.radius){
-        drawGroundFromSpace(theta, VP, rotLightPos, nPlayerPos, rotPlayerPos, onPlanet);
+    f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
+
+    if (glm::length(playerPos) > atmosphere.radius) {
+        drawGroundFromSpace(theta, camera, VP, rotLightPos, nPlayerPos, rotPlayerPos, onPlanet);
     }else{
-        drawGroundFromAtmosphere(theta, VP, rotLightPos, nPlayerPos, rotPlayerPos, fadeDistance, onPlanet);
+        drawGroundFromAtmosphere(theta, camera, VP, rotLightPos, nPlayerPos, rotPlayerPos, fadeDistance, onPlanet);
     }
 }
 
@@ -552,7 +557,7 @@ void Planet::drawTrees(const glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat
 
 }
 
-void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, float fadeDistance, bool onPlanet)
+void Planet::drawGroundFromAtmosphere(float theta, const Camera* camera, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, float fadeDistance, bool onPlanet)
 {
     vg::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
     shader->use();
@@ -609,23 +614,23 @@ void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec
     shader->enableVertexAttribArrays();
 
     for (size_t i = 0; i < drawList[P_TOP].size(); i++){
-        TerrainPatch::Draw(drawList[P_TOP][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[P_TOP][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[P_RIGHT].size(); i++){
-        TerrainPatch::Draw(drawList[P_RIGHT][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[P_RIGHT][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[P_BACK].size(); i++){
-        TerrainPatch::Draw(drawList[P_BACK][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[P_BACK][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CW);
     for (size_t i = 0; i < drawList[P_BOTTOM].size(); i++){
-        TerrainPatch::Draw(drawList[P_BOTTOM][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[P_BOTTOM][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[P_LEFT].size(); i++){
-        TerrainPatch::Draw(drawList[P_LEFT][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[P_LEFT][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[P_FRONT].size(); i++){
-        TerrainPatch::Draw(drawList[P_FRONT][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[P_FRONT][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CCW);
 
@@ -633,7 +638,7 @@ void Planet::drawGroundFromAtmosphere(float theta, const glm::mat4 &VP, glm::vec
     shader->unuse();
 }
 
-void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, bool onPlanet)
+void Planet::drawGroundFromSpace(float theta, const Camera* camera, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, bool onPlanet)
 {
     vg::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
     shader->use();
@@ -691,23 +696,23 @@ void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lig
     const ui32& worldOffsetID = shader->getUniform("worldOffset");
 
     for (size_t i = 0; i < drawList[0].size(); i++){
-        TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[0][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[2].size(); i++){
-        TerrainPatch::Draw(drawList[2][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[2][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[4].size(); i++){
-        TerrainPatch::Draw(drawList[4][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[4][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CW);
     for (size_t i = 0; i < drawList[5].size(); i++){
-        TerrainPatch::Draw(drawList[5][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[5][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[1].size(); i++){
-        TerrainPatch::Draw(drawList[1][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[1][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[3].size(); i++){
-        TerrainPatch::Draw(drawList[3][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[3][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CCW);
 

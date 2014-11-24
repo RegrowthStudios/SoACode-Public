@@ -139,7 +139,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
         dz = cz - mz;
         cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
 
-        if (SphereInFrustum((float)(cmPos.x + CHUNK_WIDTH / 2 - position.x), (float)(cmPos.y + CHUNK_WIDTH / 2 - position.y), (float)(cmPos.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum)){
+        if (gameRenderParams->chunkCamera->sphereInFrustum(f32v3(f64v3(cmPos) + f64v3(CHUNK_WIDTH / 2) - position), 28.0f)) {
             if (cm->distance < fadeDist + 12.5){
                 cm->inFrustum = 1;
                 ChunkRenderer::drawChunkBlocks(cm, program, position, gameRenderParams->VP);

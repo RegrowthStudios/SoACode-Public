@@ -47,6 +47,7 @@ public:
     i32 numAwaitingReuse;
 };
 
+class Camera;
 class ChunkSlot;
 class FloraTask;
 class GenerateTask;
@@ -72,9 +73,8 @@ public:
     void initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags);
 
     // Updates the chunks
-    // @param position: the position of the camera
-    // @viewDir: the view normal of the camera
-    void update(const f64v3& position, const f64v3& viewDir);
+    // @param camera: The camera that is rendering the voxels
+    void update(const Camera* camera);
 
     // Gets the 8 closest chunks to a point
     // @param coord: the position in question
@@ -270,7 +270,7 @@ private:
 
     // Updates all chunks
     // @param position: the camera position
-    void updateChunks(const f64v3& position);
+    void updateChunks(const Camera* cameran);
 
     // Updates the neighbors for a chunk slot, possible loading new chunks
     // @param cs: the chunkslot in question
