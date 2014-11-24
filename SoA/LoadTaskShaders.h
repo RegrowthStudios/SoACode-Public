@@ -89,11 +89,13 @@ private:
         /***** HDR *****/
         glProgramManager->addProgram("HDR",
                                      "Shaders/PostProcessing/PassThrough.vert",
-                                     "Shaders/PostProcessing/HDRShader.frag");
+                                     "Shaders/PostProcessing/MotionBlur.frag");
         /***** MotionBlur *****/
         glProgramManager->addProgram("MotionBlur",
                                      "Shaders/PostProcessing/PassThrough.vert",
-                                     "Shaders/PostProcessing/MotionBlur.frag");
+                                     "Shaders/PostProcessing/MotionBlur.frag",
+                                     nullptr,
+                                     "#define MOTION_BLUR\n");
         /***** Block *****/
         glProgramManager->addProgram("Block",
                                      "Shaders/BlockShading/standardShading.vert",
