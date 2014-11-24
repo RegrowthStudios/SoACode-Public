@@ -34,7 +34,12 @@ inline int Chunk::getLeftBlockData(int c)
     if (c%CHUNK_WIDTH > 0){
         return getBlockData(c - 1);
     } else if (left && left->isAccessible){
-        return left->getBlockData(c + CHUNK_WIDTH - 1);
+        unlock();
+        left->lock();
+        ui16 blockData = left->getBlockData(c + CHUNK_WIDTH - 1);
+        left->unlock();
+        lock();
+        return blockData;
     }
     return -1;
 }
@@ -48,7 +53,12 @@ inline int Chunk::getLeftBlockData(int c, int x, int *c2, Chunk **owner)
     } else if (left && left->isAccessible){
         *owner = left;
         *c2 = c + CHUNK_WIDTH - 1;
-        return left->getBlockData(c + CHUNK_WIDTH - 1);
+        unlock();
+        left->lock();
+        ui16 blockData = left->getBlockData(c + CHUNK_WIDTH - 1);
+        left->unlock();
+        lock();
+        return blockData;
     }
     *c2 = NULL;
     return VISITED_NODE;
@@ -59,7 +69,12 @@ inline int Chunk::getRightBlockData(int c)
     if (c%CHUNK_WIDTH < CHUNK_WIDTH - 1){
         return getBlockData(c + 1);
     } else if (right && right->isAccessible){
-        return right->getBlockData(c - CHUNK_WIDTH + 1);
+        unlock();
+        right->lock();
+        ui16 blockData = right->getBlockData(c - CHUNK_WIDTH + 1);
+        right->unlock();
+        lock();
+        return blockData;
     }
     return -1;
 }
@@ -73,7 +88,12 @@ inline int Chunk::getRightBlockData(int c, int x, int *c2, Chunk **owner)
     } else if (right && right->isAccessible){
         *owner = right;
         *c2 = c - CHUNK_WIDTH + 1;
-        return right->getBlockData(c - CHUNK_WIDTH + 1);
+        unlock();
+        right->lock();
+        ui16 blockData = right->getBlockData(c - CHUNK_WIDTH + 1);
+        right->unlock();
+        lock();
+        return blockData;
     }
     *c2 = NULL;
     return VISITED_NODE;
@@ -84,7 +104,12 @@ inline int Chunk::getFrontBlockData(int c)
     if ((c%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
         return getBlockData(c + CHUNK_WIDTH);
     } else if (front && front->isAccessible){
-        return front->getBlockData(c - CHUNK_LAYER + CHUNK_WIDTH);
+        unlock();
+        front->lock();
+        ui16 blockData = front->getBlockData(c - CHUNK_LAYER + CHUNK_WIDTH);
+        front->unlock();
+        lock();
+        return blockData;
     }
     return -1;
 }
@@ -98,7 +123,12 @@ inline int Chunk::getFrontBlockData(int c, int z, int *c2, Chunk **owner)
     } else if (front && front->isAccessible){
         *owner = front;
         *c2 = c - CHUNK_LAYER + CHUNK_WIDTH;
-        return front->getBlockData(c - CHUNK_LAYER + CHUNK_WIDTH);
+        unlock();
+        front->lock();
+        ui16 blockData = front->getBlockData(c - CHUNK_LAYER + CHUNK_WIDTH);
+        front->unlock();
+        lock();
+        return blockData;
     }
     *c2 = NULL;
     return 33;
@@ -109,7 +139,12 @@ inline int Chunk::getBackBlockData(int c)
     if ((c%CHUNK_LAYER) / CHUNK_WIDTH > 0){
         return getBlockData(c - CHUNK_WIDTH);
     } else if (back && back->isAccessible){
-        return back->getBlockData(c + CHUNK_LAYER - CHUNK_WIDTH);
+        unlock();
+        back->lock();
+        ui16 blockData = back->getBlockData(c + CHUNK_LAYER - CHUNK_WIDTH);
+        back->unlock();
+        lock();
+        return blockData;
     }
     return -1;
 }
@@ -123,7 +158,12 @@ inline int Chunk::getBackBlockData(int c, int z, int *c2, Chunk **owner)
     } else if (back && back->isAccessible){
         *owner = back;
         *c2 = c + CHUNK_LAYER - CHUNK_WIDTH;
-        return back->getBlockData(c + CHUNK_LAYER - CHUNK_WIDTH);
+        unlock();
+        back->lock();
+        ui16 blockData = back->getBlockData(c + CHUNK_LAYER - CHUNK_WIDTH);
+        back->unlock();
+        lock();
+        return blockData;
     }
     *c2 = NULL;
     return VISITED_NODE;
@@ -134,7 +174,12 @@ inline int Chunk::getBottomBlockData(int c)
     if (c / CHUNK_LAYER > 0){
         return getBlockData(c - CHUNK_LAYER);
     } else if (bottom && bottom->isAccessible){
-        return bottom->getBlockData(c + CHUNK_SIZE - CHUNK_LAYER);
+        unlock();
+        bottom->lock();
+        ui16 blockData = bottom->getBlockData(c + CHUNK_SIZE - CHUNK_LAYER);
+        bottom->unlock();
+        lock();
+        return blockData;
     }
     return -1;
 }
@@ -148,7 +193,12 @@ inline int Chunk::getBottomBlockData(int c, int y, int *c2, Chunk **owner)
     } else if (bottom && bottom->isAccessible){
         *owner = bottom;
         *c2 = c + CHUNK_SIZE - CHUNK_LAYER;
-        return bottom->getBlockData(c + CHUNK_SIZE - CHUNK_LAYER);
+        unlock();
+        bottom->lock();
+        ui16 blockData = bottom->getBlockData(c + CHUNK_SIZE - CHUNK_LAYER);
+        bottom->unlock();
+        lock();
+        return blockData;
     }
     *c2 = NULL;
     return VISITED_NODE;
@@ -159,7 +209,12 @@ inline int Chunk::getTopBlockData(int c)
     if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
         return getBlockData(c + CHUNK_LAYER);
     } else if (top && top->isAccessible){
-        return top->getBlockData(c - CHUNK_SIZE + CHUNK_LAYER);
+        unlock();
+        top->lock();
+        ui16 blockData = top->getBlockData(c - CHUNK_SIZE + CHUNK_LAYER);
+        top->unlock();
+        lock();
+        return blockData;
     }
     return -1;
 }
@@ -183,7 +238,12 @@ inline int Chunk::getTopBlockData(int c, int *c2, Chunk **owner)
     } else if (top && top->isAccessible){
         *owner = top;
         *c2 = c - CHUNK_SIZE + CHUNK_LAYER;
-        return top->getBlockData(c - CHUNK_SIZE + CHUNK_LAYER);
+        unlock();
+        top->lock();
+        ui16 blockData = top->getBlockData(c - CHUNK_SIZE + CHUNK_LAYER);
+        top->unlock();
+        lock();
+        return blockData;
     }
     *c2 = NULL;
     return 33;
@@ -198,7 +258,12 @@ inline int Chunk::getTopBlockData(int c, int y, int *c2, Chunk **owner)
     } else if (top && top->isAccessible){
         *owner = top;
         *c2 = c - CHUNK_SIZE + CHUNK_LAYER;
-        return top->getBlockData(c - CHUNK_SIZE + CHUNK_LAYER);
+        unlock();
+        top->lock();
+        ui16 blockData = top->getBlockData(c - CHUNK_SIZE + CHUNK_LAYER);
+        top->unlock();
+        lock();
+        return blockData;
     }
     *c2 = NULL;
     return VISITED_NODE;

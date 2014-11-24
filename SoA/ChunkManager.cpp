@@ -597,6 +597,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
 
         //If the heightmap has not been generated, generate it.
         ChunkGridData* chunkGridData = ch->chunkGridData;
+        
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
             generator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
             generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
@@ -1065,6 +1066,59 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
             chunk->top->numNeighbors++;
         }
     }
+}
+
+void ChunkManager::updateCaPhysics() {
+    static unsigned int frameCounter = 0;
+    static unsigned int powderCounter = 0;
+    static unsigned int waterCounter = 0;
+
+    bool updatePowders = false;
+    bool updateWater = false;
+
+    if (powderCounter >= 4 || (powderCounter == 2 && physSpeedFactor >= 2.0)) {
+        if (isWaterUpdating) updatePowders = true;
+        powderCounter = 0;
+    }
+
+    if (waterCounter >= 2 || (waterCounter == 1 && physSpeedFactor >= 2.0)) {
+        if (isWaterUpdating) updateWater = true;
+        waterCounter = 0;
+    }
+
+    const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
+
+    Chunk* chunk;
+    if (updateWater && updatePowders) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            chunk = chunkSlots[i].chunk;
+            if (chunk && (chunk->hasCaUpdates(0) || chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
+                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
+                updateLiquidBlocks();
+                updatePowderBlocks();
+            }
+        }
+    } else if (updateWater) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            chunk = chunkSlots[i].chunk;
+            if (chunk && chunk->hasCaUpdates(0)) {
+                updateLiquidBlocks();
+            }
+        }
+    } else if (updatePowders) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            chunk = chunkSlots[i].chunk;
+            if (chunk && (chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
+                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
+                updatePowderBlocks();
+            }
+        }
+    }
+
+    frameCounter++;
+    powderCounter++;
+    waterCounter++;
+    if (frameCounter == 3) frameCounter = 0;
 }
 
 void ChunkManager::freeChunk(Chunk* chunk) {

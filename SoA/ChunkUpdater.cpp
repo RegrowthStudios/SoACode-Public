@@ -11,6 +11,13 @@
 #include "VoxelLightEngine.h"
 #include "VoxelUtils.h"
 
+void lockChunk(Chunk*& lockedChunk, Chunk* chunk) {
+    if (lockedChunk == chunk) return;
+    if (lockedChunk) lockedChunk->unlock();
+    lockedChunk = chunk;
+    lockedChunk->lock();
+}
+
 void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 {
     if (!chunk->isAccessible) return;
@@ -28,7 +35,10 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
     i32v3 pos;
 
-    for (int i = 0; i < 15; i++){
+    Chunk* lockedChunk = nullptr;
+
+    lockChunk(lockedChunk, chunk);
+    for (int i = 0; i < 15; i++) {
         needsSetup = false;
 
         blockIndex = RandomUpdateOrder[chunk->blockUpdateIndex++];
@@ -44,6 +54,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
         }
 
         //TODO: Replace most of this with block update scripts
+        //TODO(Ben): There are race conditions here!
         if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKTYPE(chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner)) < LOWWATER)){
             chunk->setBlockID(blockIndex, NONE);
             owner->numBlocks--;
@@ -102,6 +113,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
             }
         }
     }
+    if (lockedChunk) lockedChunk->unlock();
 }
 
 void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)

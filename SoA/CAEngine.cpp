@@ -19,59 +19,6 @@ CAEngine::CAEngine() {
     _highIndex = _lowIndex + _range - 1;
 }
 
-void CAEngine::update(const ChunkManager &chunkManager) {
-    static unsigned int frameCounter = 0;
-    static unsigned int powderCounter = 0;
-    static unsigned int waterCounter = 0;
-
-    bool updatePowders = false;
-    bool updateWater = false;
-
-    if (powderCounter >= 4 || (powderCounter == 2 && physSpeedFactor >= 2.0)){
-        if (isWaterUpdating) updatePowders = true;
-        powderCounter = 0;
-    }
-
-    if (waterCounter >= 2 || (waterCounter == 1 && physSpeedFactor >= 2.0)){
-        if (isWaterUpdating) updateWater = true;
-        waterCounter = 0;
-    }
-
-    const std::vector<ChunkSlot>& chunkSlots = chunkManager.getChunkSlots(0);
-
-    Chunk* chunk;
-    if (updateWater && updatePowders) {
-        for (int i = 0; i < chunkSlots.size(); i++) {
-            _chunk = chunkSlots[i].chunk;
-            if (_chunk){
-                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-                updateLiquidBlocks();
-                updatePowderBlocks();
-            }
-        }
-    } else if (updateWater) {
-        for (int i = 0; i < chunkSlots.size(); i++) {
-            _chunk = chunkSlots[i].chunk;
-            if (_chunk){
-                updateLiquidBlocks();
-            }
-        }
-    } else if (updatePowders) {
-        for (int i = 0; i < chunkSlots.size(); i++) {
-            _chunk = chunkSlots[i].chunk;
-            if (_chunk){
-                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-                updatePowderBlocks();
-            }
-        }
-    }
-
-    frameCounter++;
-    powderCounter++;
-    waterCounter++;
-    if (frameCounter == 3) frameCounter = 0;
-}
-
 void CAEngine::updateSpawnerBlocks(bool powders)
 {
     int spawnerVal;
@@ -753,4 +700,11 @@ void CAEngine::snowPhysics(int c)
             }
         }
     }
+}
+
+void CAEngine::lockChunk(Chunk* chunk) {
+    if (_lockedChunk == chunk) return;
+    if (_lockedChunk) _lockedChunk->unlock();
+    _lockedChunk = chunk;
+    _lockedChunk->lock();
 }

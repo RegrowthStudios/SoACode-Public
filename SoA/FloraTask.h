@@ -18,8 +18,8 @@
 #include "IThreadPoolTask.h"
 #include "FloraGenerator.h"
 
-class WorkerData;
 class Chunk;
+class WorkerData;
 
 #define FLORA_TASK_ID 2
 
@@ -40,7 +40,7 @@ public:
     FloraTask() : vcore::IThreadPoolTask(true, FLORA_TASK_ID) {}
 
     /// Executes the task
-    virtual void execute(vcore::WorkerData* workerData) override;
+    void execute(vcore::WorkerData* workerData) override;
 
     /// Initializes the task
     void init(Chunk* ch) { chunk = ch; }

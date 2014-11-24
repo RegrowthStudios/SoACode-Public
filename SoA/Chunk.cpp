@@ -845,6 +845,9 @@ void Chunk::addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr) {
 void Chunk::clearChunkListPtr() {
     _chunkListPtr = nullptr;
 }
+bool Chunk::hasCaUpdates(int index) {
+    return !blockUpdateList[index][activeUpdateList[index]].empty();
+}
 
 int Chunk::getRainfall(int xz) const {
     return (int)chunkGridData->heightData[xz].rainfall;

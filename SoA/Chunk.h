@@ -116,6 +116,8 @@ public:
     void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
     void clearChunkListPtr();
 
+    bool hasCaUpdates(int index);
+
     /// Constructor
     /// @param shortRecycler: Recycler for ui16 data arrays
     /// @param byteRecycler: Recycler for ui8 data arrays

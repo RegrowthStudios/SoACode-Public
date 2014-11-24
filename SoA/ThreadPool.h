@@ -23,6 +23,7 @@
 #include "concurrentqueue.h"
 #include "IThreadPoolTask.h"
 
+class CAEngine;
 class Chunk;
 class ChunkMesher;
 class FloraGenerator;
@@ -41,6 +42,7 @@ namespace vorb {
                 delete chunkMesher;
                 delete floraGenerator;
                 delete voxelLightEngine;
+                delete caEngine;
             }
             volatile bool waiting;
             volatile bool stop;
@@ -50,6 +52,7 @@ namespace vorb {
             ChunkMesher* chunkMesher = nullptr;
             FloraGenerator* floraGenerator = nullptr;
             VoxelLightEngine* voxelLightEngine = nullptr;
+            CAEngine* caEngine = nullptr;
         };
 
         class ThreadPool {
