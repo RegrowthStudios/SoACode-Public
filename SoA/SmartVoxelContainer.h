@@ -102,9 +102,9 @@ namespace vorb {
             inline void changeState(VoxelStorageState newState, std::mutex& dataLock) {
                 if (newState == _state) return;
                 if (newState == VoxelStorageState::INTERVAL_TREE) {
-                    uncompress(dataLock);
-                } else {
                     compress(dataLock);
+                } else {
+                    uncompress(dataLock);
                 }
                 _quietFrames = 0;
                 _accessCount = 0;

@@ -86,7 +86,7 @@ bool FloraGenerator::generateTrunk() {
 
     const int& treeHeight = _treeData->treeHeight;
     int blockIndex = _treeData->startc;
-    ui16 chunkOffset = 0x1084; // == 0001000010000100
+    ui16 chunkOffset = 0x1CE7; // == 0001110011100111
 
     float heightRatio;
     int trunkSlope;
@@ -399,6 +399,9 @@ bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, 
    
     vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
     vector <TreeData> &treesToLoad = chunk->treesToLoad;
+
+    _wnodes = &wnodes;
+    _lnodes = &lnodes;
 
     // For placing flora
     Chunk* _lockedChunk = nullptr;

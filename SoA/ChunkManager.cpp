@@ -177,6 +177,8 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     }
     k++;
 
+    globalMultiplePreciseTimer.start("Trees To Place List");
+    updateTreesToPlace(3);
     globalMultiplePreciseTimer.start("Mesh List");
     updateMeshList(4);
     globalMultiplePreciseTimer.start("Generate List");
@@ -888,23 +890,28 @@ void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
     Chunk* startChunk;
 
+    std::cout << _treesToPlace.size() << std::endl;
+
     for (int i = _treesToPlace.size() - 1; i >= 0; i--) {
         // Check for timer end condition
         if (SDL_GetTicks() - startTicks > maxTicks) break;
 
         GeneratedTreeNodes* nodes = _treesToPlace[i];
+
         if (nodes->numFrames <= 0) {
             // Check to see if initial chunk is unloaded
             startChunk = getChunk(nodes->startChunkGridPos);
             if (startChunk == nullptr) {
                 delete nodes;
+                _treesToPlace[i] = _treesToPlace.back();
                 _treesToPlace.pop_back();
                 continue;
             }
             // Check to see if all the chunks we need are available
             bool allChunksLoaded = true;
             for (auto& it : nodes->allChunkPositions) {
-                if (getChunk(it) == nullptr) {
+                Chunk* chunk = getChunk(it);
+                if (chunk == nullptr || chunk->isAccessible == false) {
                     allChunksLoaded = false;
                     break;
                 }
@@ -913,6 +920,7 @@ void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
             if (allChunksLoaded) {
                 placeTreeNodes(nodes);
                 delete nodes;
+                _treesToPlace[i] = _treesToPlace.back();
                 _treesToPlace.pop_back();
                 // Update startChunk state 
                 startChunk->_state = ChunkStates::MESH;
@@ -932,10 +940,13 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     for (auto& it : nodes->allChunkPositions) {
         Chunk* chunk = getChunk(it);
         if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+            if (chunk->_state < ChunkStates::TREES) {
+                pError("HELLAOW");
+            }
             chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
         if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+       //     chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
     }
 
@@ -946,6 +957,7 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
 
     for (auto& node : nodes->wnodes) { //wood nodes
         blockIndex = node.blockIndex;
+       
         owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
         // Lock the chunk
         if (lockedChunk) lockedChunk->unlock();
