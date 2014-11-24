@@ -8,7 +8,7 @@ _size(w, h) {
     // Empty
 }
 
-vg::GLRenderTarget& vg::GLRenderTarget::init(vg::TextureInternalFormat format /*= TextureInternalFormat::RGBA8*/, ui32 msaa /*= 0*/) {
+vg::GLRenderTarget& vg::GLRenderTarget::init(vg::TextureInternalFormat format /*= TextureInternalFormat::RGBA8*/, ui32 msaa /*= 0*/, vg::TextureFormat pFormat /*= TextureFormat::RGBA*/, vg::TexturePixelType pType /*= TexturePixelType::UNSIGNED_BYTE*/) {
     // Make the framebuffer
     glGenFramebuffers(1, &_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
@@ -23,7 +23,7 @@ vg::GLRenderTarget& vg::GLRenderTarget::init(vg::TextureInternalFormat format /*
     if (msaa > 0) {
         glTexImage2DMultisample(_textureTarget, msaa, (VGEnum)format, _size.x, _size.y, GL_FALSE);
     } else {
-        glTexImage2D(_textureTarget, 0, (VGEnum)format, _size.x, _size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(_textureTarget, 0, (VGEnum)format, _size.x, _size.y, 0, (VGEnum)pFormat, (VGEnum)pType, nullptr);
     }
     SamplerState::POINT_CLAMP.set(_textureTarget);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _textureTarget, _texColor, 0);
@@ -39,7 +39,7 @@ vg::GLRenderTarget& vg::GLRenderTarget::init(vg::TextureInternalFormat format /*
 
     return *this;
 }
-vg::GLRenderTarget& vg::GLRenderTarget::initDepth(vg::TextureInternalFormat depthFormat /*= TextureInternalFormat::DEPTH_COMPONENT32*/) {
+vg::GLRenderTarget& vg::GLRenderTarget::initDepth(vg::TextureInternalFormat depthFormat /*= TextureInternalFormat::DEPTH_COMPONENT32F*/) {
     glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
     glGenTextures(1, &_texDepth);
     glBindTexture(_textureTarget, _texDepth);
@@ -50,6 +50,26 @@ vg::GLRenderTarget& vg::GLRenderTarget::initDepth(vg::TextureInternalFormat dept
     }
     SamplerState::POINT_CLAMP.set(_textureTarget);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _textureTarget, _texDepth, 0);
+
+    // Unbind used resources
+    glBindTexture(_textureTarget, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // TODO: Change The Memory Usage Of The GPU
+
+    return *this;
+}
+vg::GLRenderTarget& vg::GLRenderTarget::initDepthStencil(TextureInternalFormat stencilFormat /*= TextureInternalFormat::DEPTH24_STENCIL8*/) {
+    glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+    glGenTextures(1, &_texStencil);
+    glBindTexture(_textureTarget, _texStencil);
+    if (isMSAA()) {
+        glTexImage2DMultisample(_textureTarget, _msaa, (VGEnum)stencilFormat, _size.x, _size.y, GL_FALSE);
+    } else {
+        glTexImage2D(_textureTarget, 0, (VGEnum)stencilFormat, _size.x, _size.y, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    }
+    SamplerState::POINT_CLAMP.set(_textureTarget);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, _textureTarget, _texStencil, 0);
 
     // Unbind used resources
     glBindTexture(_textureTarget, 0);
@@ -74,6 +94,10 @@ void vg::GLRenderTarget::dispose() {
     if (_texDepth != 0) {
         glDeleteTextures(1, &_texDepth);
         _texDepth = 0;
+    }
+    if (_texStencil != 0) {
+        glDeleteTextures(1, &_texStencil);
+        _texStencil = 0;
     }
 }
 
