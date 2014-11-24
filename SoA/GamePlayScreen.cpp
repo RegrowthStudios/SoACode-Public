@@ -32,6 +32,8 @@
 #include "GamePlayScreenEvents.hpp"
 #include "Event.hpp"
 
+bool fst = true;
+
 #define THREAD ThreadId::UPDATE
 
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
@@ -254,6 +256,11 @@ void GamePlayScreen::handleInput() {
                 GameManager::clickDragRay(false);
             }
         }
+    }
+
+    if (inputManager->getKeyDown(INPUT_FLY)) {
+        fst = !fst;
+        std::cout << "FST";
     }
 
     // Update inputManager internal state
