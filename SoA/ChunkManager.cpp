@@ -10,8 +10,9 @@
 #include <ZLIB/zlib.h>
 
 #include "BlockData.h"
-#include "Camera.h"
 #include "CAEngine.h"
+#include "Camera.h"
+#include "CellularAutomataTask.h"
 #include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "ChunkUpdater.h"
@@ -1087,30 +1088,33 @@ void ChunkManager::updateCaPhysics() {
     }
 
     const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
-
+    CellularAutomataTask* caTask;
     Chunk* chunk;
     if (updateWater && updatePowders) {
         for (int i = 0; i < chunkSlots.size(); i++) {
             chunk = chunkSlots[i].chunk;
             if (chunk && (chunk->hasCaUpdates(0) || chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
-                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-                updateLiquidBlocks();
-                updatePowderBlocks();
+                caTask = new CellularAutomataTask(chunk, CA_FLAG_POWDER | CA_FLAG_LIQUID);
+                chunk->lastOwnerTask = caTask;
+                _threadPool.addTask(caTask);
             }
         }
     } else if (updateWater) {
         for (int i = 0; i < chunkSlots.size(); i++) {
             chunk = chunkSlots[i].chunk;
             if (chunk && chunk->hasCaUpdates(0)) {
-                updateLiquidBlocks();
+                caTask = new CellularAutomataTask(chunk, CA_FLAG_LIQUID);
+                chunk->lastOwnerTask = caTask;
+                _threadPool.addTask(caTask);
             }
         }
     } else if (updatePowders) {
         for (int i = 0; i < chunkSlots.size(); i++) {
             chunk = chunkSlots[i].chunk;
             if (chunk && (chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
-                updateSpawnerBlocks(frameCounter == 0); //spawners and sinks only right now
-                updatePowderBlocks();
+                caTask = new CellularAutomataTask(chunk, CA_FLAG_POWDER);
+                chunk->lastOwnerTask = caTask;
+                _threadPool.addTask(caTask);
             }
         }
     }

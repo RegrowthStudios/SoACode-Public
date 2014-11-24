@@ -8,11 +8,12 @@ class Chunk;
 class CAEngine {
 public:
     CAEngine();
-
-private:
+    void setChunk(Chunk* chunk) { _chunk = chunk; }
     void updateSpawnerBlocks(bool powders);
     void updateLiquidBlocks();
     void updatePowderBlocks();
+private:
+    
     void liquidPhysics(i32 startBlockIndex, i32 b);
     void powderPhysics(i32 c);
     void snowPhysics(i32 c);

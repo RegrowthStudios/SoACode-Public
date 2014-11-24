@@ -33,9 +33,9 @@ public:
     CellularAutomataTask(Chunk* chunk, ui32 flags);
 
     /// Executes the task
-    void execute(WorkerData* workerData) override;
+    void execute(vcore::WorkerData* workerData) override;
 private:
-    ui32 flags; ///< Flags that tell us what to update
+    ui32 _flags; ///< Flags that tell us what to update
     Chunk* _chunk; ///< The chunk we are updating
 };
 
