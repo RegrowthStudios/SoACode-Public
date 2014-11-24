@@ -191,6 +191,7 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Thread Waiting");
     Chunk* ch;
+
     for (size_t i = 0; i < _freeWaitingChunks.size();) {
         ch = _freeWaitingChunks[i];
         if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask && !ch->_chunkListPtr
@@ -686,6 +687,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
     TerrainGenerator* generator = GameManager::terrainGenerator;
 
     ui32 sticks = SDL_GetTicks();
+
     while (!_loadList.empty()) {
         chunk = _loadList.back();
 
@@ -695,7 +697,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         // Check if the chunk is waiting to be freed
         if (chunk->freeWaiting) continue;
 
-        chunk->isAccessible = 0;
+        chunk->isAccessible = false;
 
         chunkGridData = chunk->chunkGridData;
 
@@ -890,8 +892,6 @@ void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
     Chunk* startChunk;
 
-    std::cout << _treesToPlace.size() << std::endl;
-
     for (int i = _treesToPlace.size() - 1; i >= 0; i--) {
         // Check for timer end condition
         if (SDL_GetTicks() - startTicks > maxTicks) break;
@@ -940,13 +940,10 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     for (auto& it : nodes->allChunkPositions) {
         Chunk* chunk = getChunk(it);
         if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            if (chunk->_state < ChunkStates::TREES) {
-                pError("HELLAOW");
-            }
             chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
         if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-       //     chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
     }
 
@@ -1095,6 +1092,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             chunk->isNeighborFreeWaiting()) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
+            chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
             chunk->unlock();
             _freeWaitingChunks.push_back(chunk);
         } else {

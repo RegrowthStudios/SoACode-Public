@@ -26,6 +26,7 @@ inline bool Chunk::isNeighborFreeWaiting() {
     if (front && front->freeWaiting) return true;
     if (bottom && bottom->freeWaiting) return true;
     if (top && top->freeWaiting) return true;
+    return false;
 }
 
 inline int Chunk::getLeftBlockData(int c)
