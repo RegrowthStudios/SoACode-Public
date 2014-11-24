@@ -45,6 +45,9 @@ public:
     /// Initializes the task
     void init(Chunk* ch) { chunk = ch; }
 
+    /// Helper Function
+    static i32v3 getChunkOffset(ui16 offset);
+
     bool isSuccessful; ///< True if the generation finished
     Chunk* chunk = nullptr;
 

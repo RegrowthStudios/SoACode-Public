@@ -99,12 +99,12 @@ namespace vorb {
             #define QUIET_FRAMES_UNTIL_COMPRESS 60
             #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
 
-            inline void changeState(VoxelStorageState newState) {
+            inline void changeState(VoxelStorageState newState, std::mutex& dataLock) {
                 if (newState == _state) return;
                 if (newState == VoxelStorageState::INTERVAL_TREE) {
-                    uncompress();
+                    uncompress(dataLock);
                 } else {
-                    compress();
+                    compress(dataLock);
                 }
                 _quietFrames = 0;
                 _accessCount = 0;
@@ -123,12 +123,12 @@ namespace vorb {
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     // Check if we should uncompress the data
                     if (_quietFrames == 0) {
-                        uncompress();
+                        uncompress(dataLock);
                     }
                 } else {
                     // Check if we should compress the data
                     if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
-                        compress();
+                        compress(dataLock);
                     }
                 }
                 _accessCount = 0;
@@ -158,7 +158,7 @@ namespace vorb {
 
         private: 
 
-            inline void uncompress() {
+            inline void uncompress(std::mutex& dataLock) {
                 dataLock.lock();
                 _dataArray = _arrayRecycler->create();
                 uncompressIntoBuffer(_dataArray);
@@ -169,7 +169,7 @@ namespace vorb {
                 dataLock.unlock();
             }
 
-            inline void compress() {
+            inline void compress(std::mutex& dataLock) {
                 dataLock.lock();
                 // Sorted array for creating the interval tree
                 std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;

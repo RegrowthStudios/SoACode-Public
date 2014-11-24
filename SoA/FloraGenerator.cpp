@@ -396,7 +396,6 @@ void FloraGenerator::directionalMove(int& blockIndex, ui16& chunkOffset, TreeDir
 
 bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes) {
     int c;
-    int xz, y;
    
     vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
     vector <TreeData> &treesToLoad = chunk->treesToLoad;
@@ -441,7 +440,6 @@ bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, 
 
     //Load Trees
     for (int i = treesToLoad.size() - 1; i >= 0; i--) {
-        c = treesToLoad[i].startc;
 
         if (!generateTree(treesToLoad[i], chunk)) {
             if (_lockedChunk) _lockedChunk->unlock();
@@ -453,37 +451,6 @@ bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, 
     
 
     return true;
-}
-
-void FloraGenerator::placeTreeNodes() {
-    //int c;
-    //int xz;
-    //int y;
-    //Chunk *owner;
-
-    //for (Uint32 j = 0; j < _wnodes.size(); j++) { //wood nodes
-    //    c = _wnodes[j].c;
-    //    owner = _wnodes[j].owner;
-    //    lockChunk(owner);
-    //    ChunkUpdater::placeBlockNoUpdate(owner, c, _wnodes[j].blockType);
-
-    //    if (c >= CHUNK_LAYER) {
-    //        if (owner->getBlockID(c - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(c - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
-    //    } else if (owner->bottom && owner->bottom->isAccessible) {
-    //        if (owner->bottom->getBlockID(c + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(c + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
-    //    }
-    //}
-
-    //for (Uint32 j = 0; j < _lnodes.size(); j++) { //leaf nodes
-    //    c = _lnodes[j].c;
-    //    owner = _lnodes[j].owner;
-    //    lockChunk(owner);
-    //    int blockID = owner->getBlockData(c);
-
-    //    if (blockID == (ui16)Blocks::NONE) {
-    //        ChunkUpdater::placeBlockNoUpdate(owner, c, _lnodes[j].blockType);
-    //    }
-    //}
 }
 
 int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, int X, int Z) {
@@ -990,6 +957,7 @@ bool FloraGenerator::makeSphere(int blockIndex, ui16 chunkOffset, int radius, in
         // Move up
         directionalMove(blockIndex, chunkOffset, TREE_UP);
     }
+    return true;
 }
 
 void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio) {

@@ -31,9 +31,6 @@ public:
     static i32 makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt);
     static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
 
-    //Places all the blocks for the tree
-    void placeTreeNodes();
-
 private:
     // generates a tree and stores the resulting nodes
     bool generateTree(const TreeData& treeData, Chunk* startChunk);

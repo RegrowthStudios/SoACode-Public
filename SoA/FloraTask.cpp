@@ -24,6 +24,10 @@ inline i32 getZOffset(ui16 offset) {
     return (offset & 0x1F);
 }
 
+i32v3 FloraTask::getChunkOffset(ui16 offset) {
+    return i32v3(getXOffset(offset), getYOffset(offset), getZOffset(offset));
+}
+
 void FloraTask::execute(vcore::WorkerData* workerData) {
 
     generatedTreeNodes = new GeneratedTreeNodes();
@@ -74,7 +78,7 @@ void FloraTask::execute(vcore::WorkerData* workerData) {
         for (auto& it : allChunkOffsets) {
             generatedTreeNodes->allChunkPositions.emplace_back(startPos.x + getXOffset(it),
                                                                startPos.y + getYOffset(it),
-                                                               startPos.z + getZOffset(it))
+                                                               startPos.z + getZOffset(it));
         }
     }
 }

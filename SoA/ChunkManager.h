@@ -50,6 +50,7 @@ public:
 class ChunkSlot;
 class FloraTask;
 class GenerateTask;
+class GeneratedTreeNodes;
 class RenderTask;
 class VoxelLightEngine;
 

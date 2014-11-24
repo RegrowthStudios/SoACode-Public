@@ -556,10 +556,16 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
 
 void ChunkManager::processFinishedFloraTask(FloraTask* task) {
     Chunk* chunk = task->chunk;
+    GeneratedTreeNodes* nodes;
     if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
     if (task->isSuccessful) {
-        chunk->_state = ChunkStates::MESH;
-        addToMeshList(chunk);
+        nodes = task->generatedTreeNodes;
+        if (nodes->lnodes.size() || nodes->wnodes.size()) {
+            _treesToPlace.push_back(nodes);
+        } else {
+            chunk->_state = ChunkStates::MESH;
+            addToMeshList(chunk);
+        }
         delete task;
     } else {
         // If the task wasn't successful, add it back to the task queue so it can try again.
@@ -880,6 +886,7 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
 
 void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
+    Chunk* startChunk;
 
     for (int i = _treesToPlace.size() - 1; i >= 0; i--) {
         // Check for timer end condition
@@ -888,7 +895,8 @@ void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
         GeneratedTreeNodes* nodes = _treesToPlace[i];
         if (nodes->numFrames <= 0) {
             // Check to see if initial chunk is unloaded
-            if (getChunk(nodes->startChunkGridPos) == nullptr) {
+            startChunk = getChunk(nodes->startChunkGridPos);
+            if (startChunk == nullptr) {
                 delete nodes;
                 _treesToPlace.pop_back();
                 continue;
@@ -906,6 +914,9 @@ void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
                 placeTreeNodes(nodes);
                 delete nodes;
                 _treesToPlace.pop_back();
+                // Update startChunk state 
+                startChunk->_state = ChunkStates::MESH;
+                addToMeshList(startChunk);
             } else {
                 // We should wait FRAMES_BEFORE_ATTEMPT frames before retrying
                 nodes->numFrames = GeneratedTreeNodes::FRAMES_BEFORE_ATTEMPT;
@@ -921,12 +932,58 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     for (auto& it : nodes->allChunkPositions) {
         Chunk* chunk = getChunk(it);
         if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
         if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
     }
+
+    int blockIndex;
+    Chunk* owner;
+    Chunk* lockedChunk = nullptr;
+    const i32v3& startPos = nodes->startChunkGridPos;
+
+    for (auto& node : nodes->wnodes) { //wood nodes
+        blockIndex = node.blockIndex;
+        owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
+        // Lock the chunk
+        if (lockedChunk) lockedChunk->unlock();
+        lockedChunk = owner;
+        lockedChunk->lock();
+
+        ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
+
+        // TODO(Ben): Use a smother property for block instead of this hard coded garbage
+        if (blockIndex >= CHUNK_LAYER) {
+            if (owner->getBlockID(blockIndex - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(blockIndex - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
+        } else if (owner->bottom && owner->bottom->isAccessible) {
+            // Lock the chunk
+            if (lockedChunk) lockedChunk->unlock();
+            lockedChunk = owner->bottom;
+            lockedChunk->lock();
+
+            if (owner->bottom->getBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
+        }
+    }
+
+    for (auto& node : nodes->lnodes) { //leaf nodes
+        blockIndex = node.blockIndex;
+        owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
+        // Lock the chunk
+        if (lockedChunk) lockedChunk->unlock();
+        lockedChunk = owner;
+        lockedChunk->lock();
+
+        int blockID = owner->getBlockData(blockIndex);
+
+        if (blockID == (ui16)Blocks::NONE) {
+            ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
+        }
+    }
+
+    // Dont forget to unlock
+    if (lockedChunk) lockedChunk->unlock();
 }
 
 void ChunkManager::setupNeighbors(Chunk* chunk) {
