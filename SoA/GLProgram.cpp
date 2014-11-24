@@ -48,7 +48,7 @@ void vg::GLProgram::destroy() {
     }
 }
 
-bool vg::GLProgram::addShader(ShaderType type, const cString src) {
+bool vg::GLProgram::addShader(ShaderType type, const cString src, const cString defines /*= nullptr*/) {
     // Get the GLenum shader type from the wrapper
     i32 glType = static_cast<GLenum>(type);
     // Check Current State
@@ -72,8 +72,19 @@ bool vg::GLProgram::addShader(ShaderType type, const cString src) {
     }
 
     // Compile The Shader
+    const cString* sources = new const cString[3]();
     ui32 idS = glCreateShader(glType);
-    glShaderSource(idS, 1, &src, 0);
+    char bufVersion[32];
+    sprintf(bufVersion, "#version %d%d%d\n\0", _versionMajor, _versionMinor, _versionRevision);
+    sources[0] = bufVersion;
+    if (defines) {
+        sources[1] = defines;
+        sources[2] = src;
+        glShaderSource(idS, 3, sources, 0);
+    } else {
+        sources[1] = src;
+        glShaderSource(idS, 2, sources, 0);
+    }
     glCompileShader(idS);
 
     // Check Status
@@ -99,12 +110,12 @@ bool vg::GLProgram::addShader(ShaderType type, const cString src) {
     return true;
 }
 
-bool vg::GLProgram::addShaderFile(ShaderType type, const cString file) {
+bool vg::GLProgram::addShaderFile(ShaderType type, const cString file, const cString defines /*= nullptr*/) {
     IOManager iom;
     nString src;
-
     iom.readFileToString(file, src);
-    return addShader(type, src.c_str());
+
+    return addShader(type, src.c_str(), defines);
 }
 
 void vg::GLProgram::setAttribute(nString name, ui32 index) {
@@ -150,6 +161,14 @@ void vg::GLProgram::setAttributes(const std::vector<nString>& attr) {
         glBindAttribLocation(_id, i, attr[i].c_str());
         _attributes[attr[i]] = i;
     }
+}
+
+vg::GLProgram& vg::GLProgram::setVersion(ui32 major, ui32 minor, ui32 revision) {
+    if (getIsCreated()) return *this;
+    _versionMajor = major;
+    _versionMinor = minor;
+    _versionRevision = revision;
+    return *this;
 }
 
 bool vg::GLProgram::link() {
@@ -255,3 +274,4 @@ void vg::GLProgram::unuse() {
         glUseProgram(0);
     }
 }
+
