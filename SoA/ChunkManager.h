@@ -197,7 +197,7 @@ private:
     void processFinishedFloraTask(FloraTask* task);
 
     // Updates all chunks that have been loaded
-    void updateLoadedChunks();
+    void updateLoadedChunks(ui32 maxTicks);
 
     // Creates a chunk and any needed grid data at a given chunk position
     // @param chunkPosition: position to create the chunk at

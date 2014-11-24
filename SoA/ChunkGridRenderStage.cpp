@@ -51,7 +51,6 @@ void ChunkGridRenderStage::draw() {
 
         if (((chunk->mesh && chunk->mesh->inFrustum) || _gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
 
-
             switch (chunk->getState()) {
                 case ChunkStates::GENERATE:
                     color = ColorRGBA8(255, 0, 255, 255);

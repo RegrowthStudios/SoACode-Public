@@ -167,9 +167,6 @@ void ChunkManager::update(const Camera* camera) {
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
 
-    globalMultiplePreciseTimer.start("Loaded Chunks");
-    updateLoadedChunks();
-
     globalMultiplePreciseTimer.start("Sort");
 
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
@@ -180,6 +177,9 @@ void ChunkManager::update(const Camera* camera) {
     }
     k++;
 
+    globalMultiplePreciseTimer.start("Loaded Chunks");
+    updateLoadedChunks(4);
+
     globalMultiplePreciseTimer.start("Trees To Place List");
     updateTreesToPlace(3);
     globalMultiplePreciseTimer.start("Mesh List");
@@ -189,7 +189,7 @@ void ChunkManager::update(const Camera* camera) {
     globalMultiplePreciseTimer.start("Setup List");
     updateSetupList(4);
 
-    //This doesnt function correctly
+    //This doesn't function correctly
     //caveOcclusion(position);
 
     globalMultiplePreciseTimer.start("Thread Waiting");
@@ -582,35 +582,41 @@ void ChunkManager::processFinishedFloraTask(FloraTask* task) {
 }
 
 //add the loaded chunks to the setup list
-void ChunkManager::updateLoadedChunks() {
+void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
 
+    ui32 startTicks = SDL_GetTicks();
     Chunk* ch;
+    TerrainGenerator* generator = GameManager::terrainGenerator;
     //IO load chunks
-    GameManager::chunkIOManager->flcLock.lock();
-    for (size_t i = 0; i < GameManager::chunkIOManager->finishedLoadChunks.size(); i++) {
+    while (GameManager::chunkIOManager->finishedLoadChunks.try_dequeue(ch)) {
 
-        ch = GameManager::chunkIOManager->finishedLoadChunks[i];
         ch->inLoadThread = 0;
         
         // Don't do anything if the chunk should be freed
         if (ch->freeWaiting) continue;
 
-        if (!(ch->freeWaiting)) {
-            if (ch->loadStatus == 1) { //it is not saved. Generate!
-                ch->loadStatus == 0;
-                ch->isAccessible = false;
-                addToGenerateList(ch);
-            } else {
-                setupNeighbors(ch);
-                ch->_state = ChunkStates::MESH;
-                addToMeshList(ch);
-                ch->dirty = false;
-                ch->isAccessible = true;
-            }
+        //If the heightmap has not been generated, generate it.
+        ChunkGridData* chunkGridData = ch->chunkGridData;
+        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
+            generator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
+            generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            generator->postProcessHeightmap(chunkGridData->heightData);
         }
+
+        if (ch->loadStatus == 1) { //it is not saved. Generate!
+            ch->loadStatus == 0;
+            ch->isAccessible = false;
+            addToGenerateList(ch);
+        } else {
+            setupNeighbors(ch);
+            ch->_state = ChunkStates::MESH;
+            addToMeshList(ch);
+            ch->dirty = false;
+            ch->isAccessible = true;
+        }
+        
+        if (SDL_GetTicks() - startTicks > maxTicks) break;
     }
-    GameManager::chunkIOManager->finishedLoadChunks.clear();
-    GameManager::chunkIOManager->flcLock.unlock();
 }
 
 void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
@@ -686,8 +692,6 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
 
     Chunk* chunk;
     vector<Chunk* > chunksToLoad;
-    ChunkGridData* chunkGridData;
-    TerrainGenerator* generator = GameManager::terrainGenerator;
 
     ui32 sticks = SDL_GetTicks();
 
@@ -701,17 +705,6 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         if (chunk->freeWaiting) continue;
 
         chunk->isAccessible = false;
-
-        chunkGridData = chunk->chunkGridData;
-
-        //If the heightmap has not been generated, generate it.
-        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-
-            generator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
-
-            generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            generator->postProcessHeightmap(chunkGridData->heightData);
-        }
 
         chunksToLoad.push_back(chunk);
 
@@ -874,11 +867,6 @@ i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
         chunk->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
         chunk->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
         chunk->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-
-        //If the heightmap has not been generated, generate it.
-        if (chunk->chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-            std::cout << "HERE";
-        }
 
         // Initialize the task
         generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));

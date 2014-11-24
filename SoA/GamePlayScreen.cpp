@@ -32,8 +32,6 @@
 #include "GamePlayScreenEvents.hpp"
 #include "Event.hpp"
 
-bool fst = true;
-
 #define THREAD ThreadId::UPDATE
 
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
@@ -258,11 +256,6 @@ void GamePlayScreen::handleInput() {
         }
     }
 
-    if (inputManager->getKeyDown(INPUT_FLY)) {
-        fst = !fst;
-        std::cout << "FST";
-    }
-
     // Update inputManager internal state
     inputManager->update();
 }
@@ -378,7 +371,7 @@ void GamePlayScreen::processMessages() {
 void GamePlayScreen::updateWorldCameraClip() {
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
     if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
     // TODO(Ben): This is crap fix it (Sorry Brian)
