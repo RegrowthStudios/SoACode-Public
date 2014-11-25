@@ -421,11 +421,11 @@ bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, 
             }
         } else if (chunk->bottom && chunk->bottom->isAccessible) {
             if (_lockedChunk) { _lockedChunk->unlock(); }
-            _lockedChunk = chunk;
+            _lockedChunk = chunk->bottom;
             _lockedChunk->lock();
             if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != (ui16)Blocks::NONE) {
-                if (_lockedChunk) { _lockedChunk->unlock(); }
-                _lockedChunk = chunk->bottom;
+                _lockedChunk->unlock();
+                _lockedChunk = chunk;
                 _lockedChunk->lock();
                 ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
             }
