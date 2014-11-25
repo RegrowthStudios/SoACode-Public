@@ -337,7 +337,7 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
 
-    glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
+    glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -347,8 +347,8 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
@@ -387,7 +387,7 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
 
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
 
-    glUniform1f(program->getUniform("alphaThreshold"), 0.01f);
+    glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -397,8 +397,8 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);

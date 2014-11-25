@@ -104,8 +104,8 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
     program->use();
     program->enableVertexAttribArrays();
 
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform4f(program->getUniform("Color"), (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
+    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform4f(program->getUniform("unColor"), (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
     // Lazily construct vbo
     static ui32 vbo = 0;
     static ui32 ibo = 0;

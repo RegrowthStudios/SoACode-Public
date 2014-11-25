@@ -1,9 +1,12 @@
 #include "stdafx.h"
+#include "SkyboxRenderStage.h"
+
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include "SkyboxRenderStage.h"
-#include "SkyboxRenderer.h"
+
 #include "Camera.h"
+#include "DepthState.h"
+#include "SkyboxRenderer.h"
 
 SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
                                      const Camera* camera) :
@@ -30,20 +33,8 @@ void SkyboxRenderStage::draw() {
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
-
-    //f32m4 IMVP;
-
-    //if (connectedToPlanet) {
-    //    // If we are connected to the planet, we need to rotate the skybox
-    //    IMVP = VP * GameManager::planet->invRotationMatrix;
-    //} else {
-    //    IMVP = VP;
-    //}
-
-    glDepthMask(GL_FALSE);
+    DepthState::NONE.set();
     _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
-   // drawSun((float)0, VP);
-    glDepthMask(GL_TRUE);
 }
 
 // Ben: This is terrible but I don't feel like fixing it since its temporary
@@ -67,9 +58,9 @@ void SkyboxRenderStage::drawSun(float theta, glm::mat4 &MVP) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sunTexture.ID);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(_glProgram->getUniform("myTextureSampler"), 0);
+    glUniform1i(_glProgram->getUniform("unTex"), 0);
 
-    glUniformMatrix4fv(_glProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(_glProgram->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

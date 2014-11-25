@@ -48,10 +48,10 @@ void HdrRenderStage::draw() {
 
     _glProgram->use();
     _glProgram->enableVertexAttribArrays();
-    glUniform1i(_glProgram->getUniform("renderedTexture"), 0);
-    glUniform1f(_glProgram->getUniform("gamma"), 1.0f / graphicsOptions.gamma);
-    glUniform1f(_glProgram->getUniform("fExposure"), graphicsOptions.hdrExposure);
-  //  }
+    glUniform1i(_glProgram->getUniform("unTex"), 0);
+    glUniform1f(_glProgram->getUniform("unGamma"), 1.0f / graphicsOptions.gamma);
+    glUniform1f(_glProgram->getUniform("unExposure"), graphicsOptions.hdrExposure);
+    //}
 
     glDisable(GL_DEPTH_TEST);
     _quad->draw();

@@ -104,14 +104,14 @@ struct ChunkMesh
 
     ChunkMeshRenderData meshInfo;
 
-    GLuint vboID;
-    GLuint vaoID;
-    GLuint transVboID;
-    GLuint transVaoID;
-    GLuint cutoutVboID;
-    GLuint cutoutVaoID;
-    GLuint waterVboID;
-    GLuint waterVaoID;
+    GLuint vboID = 0;
+    GLuint vaoID = 0;
+    GLuint transVboID = 0;
+    GLuint transVaoID = 0;
+    GLuint cutoutVboID = 0;
+    GLuint cutoutVaoID = 0;
+    GLuint waterVboID = 0;
+    GLuint waterVaoID = 0;
     float distance;
     glm::ivec3 position;
     int vecIndex;

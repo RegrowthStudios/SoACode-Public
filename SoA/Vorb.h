@@ -14,22 +14,19 @@
 #ifndef VORB_H_
 #define VORB_H_
 
+// Create empty namespaces for aliasing purposes
 namespace vorb{
     namespace core{
-        namespace graphics {
-            // Empty
-        }
+        namespace graphics { }
     }
-    namespace voxel {
-        // Empty
-    }
-    
+    namespace voxel { }
+    namespace ui { }
 }
-
 
 //Namespace aliases
 namespace vcore = vorb::core;
 namespace vvoxel = vorb::voxel;
 namespace vg = vorb::core::graphics;
+namespace vui = vorb::ui;
 
 #endif // VORB_H_

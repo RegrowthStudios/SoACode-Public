@@ -19,6 +19,10 @@
 #include "GLenums.h"
 #include "Vorb.h"
 
+#define GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR 1
+#define GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR 3
+#define GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION 0
+
 namespace vorb {
     namespace core {
         namespace graphics {
@@ -49,12 +53,12 @@ namespace vorb {
                 /// @param type: the type of shader
                 /// @param src: the shader source
                 /// @return true on success, false on failure
-                bool addShader(ShaderType type, const cString src);
+                bool addShader(ShaderType type, const cString src, const cString defines = nullptr);
                 /// Attatches shader to the build information
                 /// @param type: the type of shader
                 /// @param src: the shader file name
                 /// @return true on success, false on failure
-                bool addShaderFile(ShaderType type, const cString file);
+                bool addShaderFile(ShaderType type, const cString file, const cString defines = nullptr);
 
                 /// Sets an attribute
                 /// @param name: the attribute name
@@ -69,6 +73,13 @@ namespace vorb {
                 /// Sets a vector of attributes
                 /// @param attr: vector of attributes. Uses array index as element
                 void setAttributes(const std::vector<nString>& attr);
+                
+                /// Sets the shading language version only if it is not yet created
+                /// @param major: Major index
+                /// @param minor: Minor index
+                /// @param revision: Revision index
+                /// @return Self
+                GLProgram& setVersion(ui32 major, ui32 minor, ui32 revision);
 
                 /// Links the shader program. Should be called
                 /// after shaders are added
@@ -126,6 +137,11 @@ namespace vorb {
 
                 // Shader IDs
                 ui32 _idVS, _idFS;
+
+                // Shader versions
+                ui32 _versionMajor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR;
+                ui32 _versionMinor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR;
+                ui32 _versionRevision = GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION;
 
                 // True On A Successful Link
                 bool _isLinked;

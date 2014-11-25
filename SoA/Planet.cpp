@@ -7,12 +7,14 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "Camera.h"
+#include "DepthState.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "ObjectLoader.h"
 #include "Options.h"
+#include "RasterizerState.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
 #include "TerrainPatch.h"
@@ -1037,132 +1039,47 @@ void Atmosphere::loadProperties(string filePath)
     m_fWavelength4[2] = powf(m_fWavelength[2], 4.0f);
 }
 
-void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
-{
-    glDepthMask(GL_FALSE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    if (glm::length(ppos) > radius){
-        drawSkyFromSpace(theta, MVP, lightPos, ppos);
-    }else{
-        drawSkyFromAtmosphere(theta, MVP, lightPos, ppos);
-    }
-    
-    glDepthMask(GL_TRUE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-void Atmosphere::drawSkyFromAtmosphere(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
-{
-    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromAtmosphere");
+void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos) {
+    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("Sky");
     shader->use();
 
     glm::mat4 GlobalModelMatrix(1.0);
     GlobalModelMatrix[0][0] = radius;
     GlobalModelMatrix[1][1] = radius;
     GlobalModelMatrix[2][2] = radius;
-    GlobalModelMatrix[3][0] = ((float)((double)-ppos.x));
-    GlobalModelMatrix[3][1] = ((float)((double)-ppos.y));
-    GlobalModelMatrix[3][2] = ((float)((double)-ppos.z));
+    GlobalModelMatrix[3][0] = (f32)-ppos.x;
+    GlobalModelMatrix[3][1] = (f32)-ppos.y;
+    GlobalModelMatrix[3][2] = (f32)-ppos.z;
 
-    glm::quat quaternion;
     // Have to rotate it and draw it again to make a sphere
-    glm::vec3 EulerAngles(M_PI, 0, 0);
-    quaternion = glm::quat(EulerAngles);
-    glm::mat4 RotationMatrix = glm::toMat4(quaternion); 
-    glm::mat4 MVPr = MVP * GlobalModelMatrix;
-    glm::mat4 M = GlobalModelMatrix;
+    f32v3 EulerAngles(M_PI, 0, 0);
+    f32m4 RotationMatrix = glm::toMat4(glm::quat(EulerAngles));
+    f32m4 MVPr = MVP * GlobalModelMatrix;
+    f32m4 M = GlobalModelMatrix;
 
-    float m_Kr4PI = m_Kr*4.0f*M_PI;
-    float m_Km4PI = m_Km*4.0f*M_PI;
-    float m_fScale = 1.0 / (radius - planetRadius);
+    f32 m_Kr4PI = m_Kr * 4.0f* M_PI;
+    f32 m_Km4PI = m_Km * 4.0f* M_PI;
+    f32 m_fScale = 1.0 / (radius - planetRadius);
 
-    glUniformMatrix4fv(shader->getUniform("MVP"), 1, GL_FALSE, &MVPr[0][0]);
-
-    glUniform3f(shader->getUniform("v3CameraPos"), (float)ppos.x, (float)ppos.y, (float)ppos.z);
-
-    glUniform3f(shader->getUniform("v3LightPos"), lightPos.x, lightPos.y, lightPos.z);
-
-    glUniform3f(shader->getUniform("v3InvWavelength"), 1 / m_fWavelength4[0], 1 / m_fWavelength4[1], 1 / m_fWavelength4[2]);
-    glUniform1f(shader->getUniform("fCameraHeight"), glm::length(ppos));
-    
-    glUniform1f(shader->getUniform("fOuterRadius"), radius);
-    glUniform1f(shader->getUniform("fInnerRadius"), planetRadius);
-
-    glUniform1f(shader->getUniform("fKrESun"), m_Kr*m_ESun);
-    glUniform1f(shader->getUniform("fKmESun"), m_Km*m_ESun);
-    glUniform1f(shader->getUniform("fKr4PI"), m_Kr4PI);
-    glUniform1f(shader->getUniform("fKm4PI"), m_Km4PI);
-    glUniform1f(shader->getUniform("fScale"), m_fScale);
-    glUniform1f(shader->getUniform("fScaleDepth"), m_fRayleighScaleDepth);
-    glUniform1f(shader->getUniform("fScaleOverScaleDepth"), m_fScale / m_fRayleighScaleDepth);
-    glUniform1f(shader->getUniform("g"), m_g);
-    glUniform1f(shader->getUniform("g2"), m_g*m_g);
-    glUniform1f(shader->getUniform("fSamples"), fSamples);
-    glUniform1i(shader->getUniform("nSamples"), nSamples);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
-
-    shader->enableVertexAttribArrays();
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColorVertex), (void*)0);
-
-    glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
-
-    shader->disableVertexAttribArrays();
-
-    shader->unuse();
-}
-
-void Atmosphere::drawSkyFromSpace(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos)
-{
-    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("SkyFromSpace");
-    shader->use();
-
-    glm::mat4 GlobalModelMatrix(1.0);
-    GlobalModelMatrix[0][0] = radius;
-    GlobalModelMatrix[1][1] = radius;
-    GlobalModelMatrix[2][2] = radius;
-    GlobalModelMatrix[3][0] = ((float)((double)-ppos.x));
-    GlobalModelMatrix[3][1] = ((float)((double)-ppos.y));
-    GlobalModelMatrix[3][2] = ((float)((double)-ppos.z));
-
-    glm::quat quaternion;
-    // Have to rotate it and draw it again to make a sphere
-    glm::vec3 EulerAngles(M_PI, 0, 0);
-    quaternion = glm::quat(EulerAngles);
-    glm::mat4 RotationMatrix = glm::toMat4(quaternion); 
-    glm::mat4 MVPr = MVP * GlobalModelMatrix;
-    glm::mat4 M = GlobalModelMatrix;
-
-    float m_Kr4PI = m_Kr*4.0f*M_PI;
-    float m_Km4PI = m_Km*4.0f*M_PI;
-    float m_fScale = 1.0 / (radius - planetRadius);
-
-    glUniformMatrix4fv(shader->getUniform("MVP"), 1, GL_FALSE, &MVPr[0][0]);
-
-    glUniform3f(shader->getUniform("v3CameraPos"), (float)ppos.x, (float)ppos.y, (float)ppos.z);
-
-    glUniform3f(shader->getUniform("v3LightPos"), lightPos.x, lightPos.y, lightPos.z);
-
-    glUniform3f(shader->getUniform("v3InvWavelength"), 1 / m_fWavelength4[0], 1 / m_fWavelength4[1], 1 / m_fWavelength4[2]);
-  
-    glUniform1f(shader->getUniform("fCameraHeight2"), glm::length(ppos)*glm::length(ppos));
-    glUniform1f(shader->getUniform("fOuterRadius"), radius);
-    glUniform1f(shader->getUniform("fOuterRadius2"), radius*radius);
-    glUniform1f(shader->getUniform("fInnerRadius"), planetRadius);
-
-    glUniform1f(shader->getUniform("fKrESun"), m_Kr*m_ESun);
-    glUniform1f(shader->getUniform("fKmESun"), m_Km*m_ESun);
-    glUniform1f(shader->getUniform("fKr4PI"), m_Kr4PI);
-    glUniform1f(shader->getUniform("fKm4PI"), m_Km4PI);
-    glUniform1f(shader->getUniform("fScale"), m_fScale);
-    glUniform1f(shader->getUniform("fScaleDepth"), m_fRayleighScaleDepth);
-    glUniform1f(shader->getUniform("fScaleOverScaleDepth"), m_fScale/m_fRayleighScaleDepth);
-    glUniform1f(shader->getUniform("g"), m_g);
-    glUniform1f(shader->getUniform("g2"), m_g*m_g);
-    glUniform1f(shader->getUniform("fSamples"), fSamples);
-    glUniform1i(shader->getUniform("nSamples"), nSamples);
+    glUniformMatrix4fv(shader->getUniform("unWVP"), 1, GL_FALSE, &MVPr[0][0]);
+    glUniform3f(shader->getUniform("unCameraPos"), (float)ppos.x, (float)ppos.y, (float)ppos.z);
+    glUniform3f(shader->getUniform("unLightPos"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(shader->getUniform("unInvWavelength"), 1 / m_fWavelength4[0], 1 / m_fWavelength4[1], 1 / m_fWavelength4[2]);
+    glUniform1f(shader->getUniform("unCameraHeight2"), glm::length(ppos) * glm::length(ppos));
+    glUniform1f(shader->getUniform("unOuterRadius"), radius);
+    glUniform1f(shader->getUniform("unOuterRadius2"), radius * radius);
+    glUniform1f(shader->getUniform("unInnerRadius"), planetRadius);
+    glUniform1f(shader->getUniform("unKrESun"), m_Kr*m_ESun);
+    glUniform1f(shader->getUniform("unKmESun"), m_Km*m_ESun);
+    glUniform1f(shader->getUniform("unKr4PI"), m_Kr4PI);
+    glUniform1f(shader->getUniform("unKm4PI"), m_Km4PI);
+    glUniform1f(shader->getUniform("unScale"), m_fScale);
+    glUniform1f(shader->getUniform("unScaleDepth"), m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("unScaleOverScaleDepth"), m_fScale/m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("unG"), m_g);
+    glUniform1f(shader->getUniform("unG2"), m_g*m_g);
+    glUniform1i(shader->getUniform("unNumSamples"), nSamples);
+    glUniform1f(shader->getUniform("unNumSamplesF"), fSamples);
 
     glBindBuffer(GL_ARRAY_BUFFER, vboID);
 
