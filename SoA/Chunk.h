@@ -79,7 +79,9 @@ public:
     
     void changeState(ChunkStates State);
     
-    bool isNeighborFreeWaiting();
+    /// Checks if adjacent chunks are in thread, since we dont want
+    /// to remove chunks when their neighbors need them.
+    bool isAdjacentInThread();
 
     int getLeftBlockData(int c);
     int getLeftBlockData(int c, int x, int *c2, Chunk **owner);

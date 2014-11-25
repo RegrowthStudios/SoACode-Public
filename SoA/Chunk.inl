@@ -19,16 +19,6 @@ inline void Chunk::changeState(ChunkStates State)
     }
 }
 
-inline bool Chunk::isNeighborFreeWaiting() {
-    if (left && left->freeWaiting) return true;
-    if (right && right->freeWaiting) return true;
-    if (back && back->freeWaiting) return true;
-    if (front && front->freeWaiting) return true;
-    if (bottom && bottom->freeWaiting) return true;
-    if (top && top->freeWaiting) return true;
-    return false;
-}
-
 inline int Chunk::getLeftBlockData(int c)
 {
     if (c%CHUNK_WIDTH > 0){

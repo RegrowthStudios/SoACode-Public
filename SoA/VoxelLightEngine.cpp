@@ -212,12 +212,12 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
     int y = blockIndex / CHUNK_LAYER;
     int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
-    Chunk* top = chunk->top;
-    Chunk* bottom = chunk->bottom;
+    Chunk*& left = chunk->left;
+    Chunk*& right = chunk->right;
+    Chunk*& back = chunk->back;
+    Chunk*& front = chunk->front;
+    Chunk*& top = chunk->top;
+    Chunk*& bottom = chunk->bottom;
 
     if (x > 0){ //left
         removeSunlightNeighborUpdate(chunk, blockIndex - 1, nextIntensity);
@@ -305,12 +305,12 @@ void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intens
     int y = blockIndex / CHUNK_LAYER;
     int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
-    Chunk* top = chunk->top;
-    Chunk* bottom = chunk->bottom;
+    Chunk*& left = chunk->left;
+    Chunk*& right = chunk->right;
+    Chunk*& back = chunk->back;
+    Chunk*& front = chunk->front;
+    Chunk*& top = chunk->top;
+    Chunk*& bottom = chunk->bottom;
 
     if (x > 0){ //left
         placeSunlightNeighborUpdate(chunk, blockIndex - 1, newIntensity);
@@ -427,12 +427,12 @@ void VoxelLightEngine::removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 lig
     int y = blockIndex / CHUNK_LAYER;
     int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
-    Chunk* top = chunk->top;
-    Chunk* bottom = chunk->bottom;
+    Chunk*& left = chunk->left;
+    Chunk*& right = chunk->right;
+    Chunk*& back = chunk->back;
+    Chunk*& front = chunk->front;
+    Chunk*& top = chunk->top;
+    Chunk*& bottom = chunk->bottom;
 
     if (x > 0){ //left
         removeLampNeighborUpdate(chunk, blockIndex - 1, intensityRed, intensityGreen, intensityBlue, light);    
@@ -561,12 +561,12 @@ void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 inte
     int y = blockIndex / CHUNK_LAYER;
     int z = (blockIndex % CHUNK_LAYER) / CHUNK_WIDTH;
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
-    Chunk* top = chunk->top;
-    Chunk* bottom = chunk->bottom;
+    Chunk*& left = chunk->left;
+    Chunk*& right = chunk->right;
+    Chunk*& back = chunk->back;
+    Chunk*& front = chunk->front;
+    Chunk*& top = chunk->top;
+    Chunk*& bottom = chunk->bottom;
 
     if (x > 0){ //left
         placeLampNeighborUpdate(chunk, blockIndex - 1, intensityRed, intensityGreen, intensityBlue);

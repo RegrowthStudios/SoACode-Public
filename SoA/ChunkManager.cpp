@@ -198,8 +198,8 @@ void ChunkManager::update(const Camera* camera) {
 
     for (size_t i = 0; i < _freeWaitingChunks.size();) {
         ch = _freeWaitingChunks[i];
-        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask && !ch->_chunkListPtr
-            && !ch->isNeighborFreeWaiting()) {
+        if (ch->inSaveThread == false && ch->inLoadThread == false && 
+            !ch->lastOwnerTask && !ch->_chunkListPtr) {
             freeChunk(_freeWaitingChunks[i]);
             _freeWaitingChunks[i] = _freeWaitingChunks.back();
             _freeWaitingChunks.pop_back();
@@ -1137,8 +1137,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         // Sever any connections with neighbor chunks
         chunk->clearNeighbors();
         if (chunk->inSaveThread || chunk->inLoadThread || 
-            chunk->lastOwnerTask || chunk->_chunkListPtr ||
-            chunk->isNeighborFreeWaiting()) {
+            chunk->lastOwnerTask || chunk->_chunkListPtr) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
@@ -1241,21 +1240,23 @@ void ChunkManager::updateChunks(const Camera* camera) {
 
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
-            if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
-                GameManager::chunkIOManager->addToSaveList(cs->chunk);
-            }
-            _chunkSlotMap.erase(chunk->chunkPosition);
+            if (!chunk->isAdjacentInThread()) {
+                if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
+                    GameManager::chunkIOManager->addToSaveList(cs->chunk);
+                }
+                _chunkSlotMap.erase(chunk->chunkPosition);
 
-            freeChunk(chunk);
-            cs->chunk = nullptr;
-            
-            cs->clearNeighbors();
-          
-            _chunkSlots[0][i] = _chunkSlots[0].back();
-            _chunkSlots[0].pop_back();
-            if (i < _chunkSlots[0].size()) {
-                _chunkSlots[0][i].reconnectToNeighbors();
-                _chunkSlotMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
+                freeChunk(chunk);
+                cs->chunk = nullptr;
+
+                cs->clearNeighbors();
+
+                _chunkSlots[0][i] = _chunkSlots[0].back();
+                _chunkSlots[0].pop_back();
+                if (i < _chunkSlots[0].size()) {
+                    _chunkSlots[0][i].reconnectToNeighbors();
+                    _chunkSlotMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
+                }
             }
         } else { //inside maximum range
 
