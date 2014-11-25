@@ -344,10 +344,10 @@ void MeshManager::destroy() {
         if (cm->transVaoID != 0){
             glDeleteVertexArrays(1, &(cm->transVaoID));
         }
-        if (cm->transVboID == 0) {
+        if (cm->transVboID != 0) {
             glDeleteBuffers(1, &(cm->transVboID));
         }
-        if (cm->transIndexID == 0) {
+        if (cm->transIndexID != 0) {
             glDeleteBuffers(1, &(cm->transIndexID));
         }
         if (cm->cutoutVaoID != 0){
@@ -362,6 +362,7 @@ void MeshManager::destroy() {
         if (cm->waterVboID != 0){
             glDeleteBuffers(1, &(cm->waterVboID));
         }
+        delete cm;
     }
     std::vector<ChunkMesh*>().swap(_chunkMeshes);
 
