@@ -260,8 +260,7 @@ void Chunk::CheckEdgeBlocks()
     }
 }
 
-void Chunk::setupMeshData(ChunkMesher* chunkMesher)
-{
+void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     int x, y, z, off1, off2;
 
     Chunk *ch1, *ch2;

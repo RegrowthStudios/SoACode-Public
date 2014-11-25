@@ -793,32 +793,30 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
 
                 chunk->occlude = 0;
 
-                if (chunk->numNeighbors == 6) {
-                    
-                    // Get a render task
-                    if (_freeRenderTasks.size()) {
-                        newRenderTask = _freeRenderTasks.back();
-                        _freeRenderTasks.pop_back();
-                    } else {
-                        newRenderTask = new RenderTask;
-                    }
-
-                    if (chunk->_state == ChunkStates::MESH) {
-                        newRenderTask->init(chunk, RenderTaskType::DEFAULT);
-                    } else {
-                        newRenderTask->init(chunk, RenderTaskType::LIQUID);
-                    }
-
-                    chunk->lastOwnerTask = newRenderTask;
-                    _threadPool.addTask(newRenderTask);
-
-                    // Remove from the mesh list
-                    _meshList[i] = _meshList.back();
-                    _meshList.pop_back();
-                    chunk->clearChunkListPtr();
-
-                    chunk->_state = ChunkStates::DRAW;
+                // Get a render task
+                if (_freeRenderTasks.size()) {
+                    newRenderTask = _freeRenderTasks.back();
+                    _freeRenderTasks.pop_back();
+                } else {
+                    newRenderTask = new RenderTask;
                 }
+
+                if (chunk->_state == ChunkStates::MESH) {
+                    newRenderTask->init(chunk, RenderTaskType::DEFAULT);
+                } else {
+                    newRenderTask->init(chunk, RenderTaskType::LIQUID);
+                }
+
+                chunk->lastOwnerTask = newRenderTask;
+                _threadPool.addTask(newRenderTask);
+
+                // Remove from the mesh list
+                _meshList[i] = _meshList.back();
+                _meshList.pop_back();
+                chunk->clearChunkListPtr();
+
+                chunk->_state = ChunkStates::DRAW;
+                
             } else {
                 chunk->clearBuffers();
                 // Remove from the mesh list
@@ -1136,8 +1134,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         chunk->lock();
         // Sever any connections with neighbor chunks
         chunk->clearNeighbors();
-        if (chunk->inSaveThread || chunk->inLoadThread || 
-            chunk->lastOwnerTask || chunk->_chunkListPtr) {
+        if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
@@ -1241,7 +1238,7 @@ void ChunkManager::updateChunks(const Camera* camera) {
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
             // Only remove it if it isn't needed by its neighbors
-            if (!chunk->isAdjacentInThread()) {
+            if (!chunk->lastOwnerTask && !chunk->isAdjacentInThread()) {
                 if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
                     GameManager::chunkIOManager->addToSaveList(cs->chunk);
                 }
