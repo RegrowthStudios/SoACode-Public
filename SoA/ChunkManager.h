@@ -166,6 +166,9 @@ public:
     /// Returns an array of IDs that should be freed by the caller.
     const i16* getIDQuery(const i32v3& start, const i32v3& end) const;
 
+    /// Updates the cellular automata physics
+    void updateCaPhysics();
+
     /// ***** Public variables ******
 
     /// TODO(Ben): Implement this
@@ -235,9 +238,6 @@ private:
     /// Setups any chunk neighbor connections
     /// @param chunk: the chunk to connect
     void setupNeighbors(Chunk* chunk);
-
-    /// Updates the cellular automata physics
-    void updateCaPhysics();
 
     /// Frees a chunk from the world. 
     /// The chunk may be recycled, or it may need to wait for some threads

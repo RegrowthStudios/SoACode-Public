@@ -1240,6 +1240,7 @@ void ChunkManager::updateChunks(const Camera* camera) {
 
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
+            // Only remove it if it isn't needed by its neighbors
             if (!chunk->isAdjacentInThread()) {
                 if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
                     GameManager::chunkIOManager->addToSaveList(cs->chunk);
