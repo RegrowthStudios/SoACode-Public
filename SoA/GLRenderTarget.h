@@ -37,11 +37,15 @@ namespace vorb {
                 /// @param format: Internal storage of the color texture target
                 /// @param msaa: Number of MSAA samples
                 /// @return Self
-                GLRenderTarget& init(TextureInternalFormat format = TextureInternalFormat::RGBA8, ui32 msaa = 0);
+                GLRenderTarget& init(TextureInternalFormat format = TextureInternalFormat::RGBA8, ui32 msaa = 0, TextureFormat pFormat = TextureFormat::RGBA, TexturePixelType pType = TexturePixelType::UNSIGNED_BYTE);
                 /// Append a depth texture into the framebuffer
-                /// @param depthFormat: Internal storage found in depth/stencil texture
+                /// @param depthFormat: Internal storage found in depth texture
                 /// @return Self
-                GLRenderTarget& initDepth(TextureInternalFormat depthFormat = TextureInternalFormat::DEPTH_COMPONENT32);
+                GLRenderTarget& initDepth(TextureInternalFormat depthFormat = TextureInternalFormat::DEPTH_COMPONENT32F);
+                /// Append a stencil texture into the framebuffer
+                /// @param stencilFormat: Internal storage found in stencil texture
+                /// @return Self
+                GLRenderTarget& initDepthStencil(TextureInternalFormat stencilFormat = TextureInternalFormat::DEPTH24_STENCIL8);
 
                 /// Dispose all GPU resources used by this FBO
                 void dispose();
@@ -95,6 +99,7 @@ namespace vorb {
                 ui32 _fbo = 0; ///< Framebuffer ID
                 ui32 _texColor = 0; ///< Color texture of framebuffer
                 ui32 _texDepth = 0; ///< Depth texture of framebuffer
+                ui32 _texStencil = 0; ///< Stencil texture of framebuffer
                 ui32 _msaa = 0; ///< MSAA sample count in this framebuffer
                 VGEnum _textureTarget; ///< The kinds of textures bound to this FBO
             };

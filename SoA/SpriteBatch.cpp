@@ -10,7 +10,7 @@
 #include "SpriteFont.h"
 
 #pragma region Shader Source
-const cString VS_SRC = R"(#version 130
+const cString VS_SRC = R"(
 uniform mat4 World;
 uniform mat4 VP;
 
@@ -31,7 +31,7 @@ void main() {
     gl_Position = VP * worldPos;
 }
 )";
-const cString FS_SRC = R"(#version 130
+const cString FS_SRC = R"(
 uniform sampler2D SBTex;
 
 in vec2 fUV;

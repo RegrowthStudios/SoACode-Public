@@ -37,7 +37,7 @@ namespace vorb {
                 /// @param fragmentPath: The file path for the fragment shader
                 /// @param attr: The vector of attributes for the shader. If it is nullptr
                 /// attributes will be set automatically
-                void addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr = nullptr);
+                void addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr = nullptr, cString defines = nullptr);
                 /// Adds an existing shader to the cache of programs
                 /// @param shaderName: The string handle for the shader. Use this string
                 /// to get the shader in the future.

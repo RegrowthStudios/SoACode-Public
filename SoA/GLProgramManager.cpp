@@ -14,7 +14,7 @@ vg::GLProgramManager::~GLProgramManager() {
 }
 
 
-void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr /* = nullptr */) {
+void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cString fragmentPath, const std::vector<nString>* attr /* = nullptr */, cString defines /*= nullptr*/) {
 
     bool rebuild = true;
 
@@ -33,14 +33,14 @@ void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cS
         newProgram = new GLProgram(true);
 
         // Create the vertex shader
-        if (!newProgram->addShaderFile(vg::ShaderType::VERTEX_SHADER, vertexPath)) {
+        if (!newProgram->addShaderFile(vg::ShaderType::VERTEX_SHADER, vertexPath, defines)) {
             showMessage("Vertex shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
             delete newProgram;
             continue;
         }
 
         // Create the fragment shader
-        if (!newProgram->addShaderFile(vg::ShaderType::FRAGMENT_SHADER, fragmentPath)) {
+        if (!newProgram->addShaderFile(vg::ShaderType::FRAGMENT_SHADER, fragmentPath, defines)) {
             showMessage("Fragment shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
             delete newProgram;
             continue;

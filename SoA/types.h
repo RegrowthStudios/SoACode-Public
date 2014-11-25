@@ -263,3 +263,6 @@ struct Array : public ArrayBase {
 #define cString char*
 #define cwString wchar_t*
 #define nString std::string
+
+// Pointer offset
+#define offsetptr(s, m) ((void*)offsetof(s, m))

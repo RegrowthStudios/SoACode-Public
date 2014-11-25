@@ -60,23 +60,19 @@ private:
                                     "Shaders/TerrainShading/GroundFromAtmosphere.vert",
                                     "Shaders/TerrainShading/GroundFromAtmosphere.frag",
                                     &terrainAttribs);
-        /***** SkyFromAtmosphere *****/
-        glProgramManager->addProgram("SkyFromAtmosphere",
-                                     "Shaders/AtmosphereShading/SkyFromAtmosphere.vert",
-                                     "Shaders/AtmosphereShading/SkyFromAtmosphere.frag");
         /***** GroundFromSpace *****/
         glProgramManager->addProgram("GroundFromSpace",
                                      "Shaders/TerrainShading/GroundFromSpace.vert",
                                      "Shaders/TerrainShading/GroundFromSpace.frag",
                                      &terrainAttribs);
-        /***** SkyFromSpace *****/
-        glProgramManager->addProgram("SkyFromSpace",
-                                     "Shaders/AtmosphereShading/SkyFromSpace.vert",
-                                     "Shaders/AtmosphereShading/SkyFromSpace.frag");
+        /***** Sky *****/
+        glProgramManager->addProgram("Sky",
+                                     "Shaders/AtmosphereShading/Sky.vert",
+                                     "Shaders/AtmosphereShading/Sky.frag");
         /***** Texture *****/
         std::vector<nString> dd;
-        dd.push_back("vertexPosition_modelspace");
-        dd.push_back("vertexUV");
+        dd.push_back("vPosition");
+        dd.push_back("vUV");
         glProgramManager->addProgram("Texture",
                                      "Shaders/TextureShading/TextureShading.vert",
                                      "Shaders/TextureShading/TextureShading.frag", &dd);
@@ -93,11 +89,13 @@ private:
         /***** HDR *****/
         glProgramManager->addProgram("HDR",
                                      "Shaders/PostProcessing/PassThrough.vert",
-                                     "Shaders/PostProcessing/HDRShader.frag");
+                                     "Shaders/PostProcessing/MotionBlur.frag");
         /***** MotionBlur *****/
         glProgramManager->addProgram("MotionBlur",
                                      "Shaders/PostProcessing/PassThrough.vert",
-                                     "Shaders/PostProcessing/MotionBlur.frag");
+                                     "Shaders/PostProcessing/MotionBlur.frag",
+                                     nullptr,
+                                     "#define MOTION_BLUR\n");
         /***** Block *****/
         glProgramManager->addProgram("Block",
                                      "Shaders/BlockShading/standardShading.vert",
@@ -121,10 +119,6 @@ private:
         glProgramManager->addProgram("Billboard",
                                      "Shaders/BillboardShading/BillboardShading.vert",
                                      "Shaders/BillboardShading/BillboardShading.frag");
-        /***** FixedSizeBillboard *****/
-        glProgramManager->addProgram("FixedSizeBillboard",
-                                     "Shaders/BillboardShading/FixedSizeBillboardShading.vert",
-                                     "Shaders/BillboardShading/FixedSizeBillboardShading.frag");
         /***** Sonar *****/
         glProgramManager->addProgram("Sonar",
                                      "Shaders/BlockShading/standardShading.vert",
