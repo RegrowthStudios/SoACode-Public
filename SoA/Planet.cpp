@@ -515,11 +515,11 @@ void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec
         onPlanet = 0;
     }
 
-    if (glm::length(PlayerPos) > atmosphere.radius){
+    //if (glm::length(PlayerPos) > atmosphere.radius){
         drawGroundFromSpace(theta, VP, rotLightPos, nPlayerPos, rotPlayerPos, onPlanet);
-    }else{
-        drawGroundFromAtmosphere(theta, VP, rotLightPos, nPlayerPos, rotPlayerPos, fadeDistance, onPlanet);
-    }
+    //}else{
+    //    drawGroundFromAtmosphere(theta, VP, rotLightPos, nPlayerPos, rotPlayerPos, fadeDistance, onPlanet);
+    //}
 }
 
 void Planet::drawTrees(const glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVal)
@@ -640,57 +640,49 @@ void Planet::drawGroundFromSpace(float theta, const glm::mat4 &VP, glm::vec3 lig
     vg::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
     shader->use();
 
-    const int textureUnits[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    const i32 textureUnits[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
-    // TODO(Ben or Cristian): Figure out why getUniform doesnt work for the samplers here
-    glUniform1iv(glGetUniformLocation(shader->getID(), "textures"), 6, textureUnits);
-    glUniform1i(glGetUniformLocation(shader->getID(), "sunColorTexture"), textureUnits[6]);
-    glUniform1i(glGetUniformLocation(shader->getID(), "colorTexture"), textureUnits[7]);
-    glUniform1i(glGetUniformLocation(shader->getID(), "waterColorTexture"), textureUnits[3]);
-//    glUniform1i(shader->getUniform("sunColorTexture"), txv[6]);
-//    glUniform1i(shader->getUniform("colorTexture"), txv[7]);
-//    glUniform1i(shader->getUniform("waterColorTexture"), txv[3]);
+    glUniform1iv(glGetUniformLocation(shader->getID(), "unTextures"), 6, textureUnits);
+    glUniform1i(glGetUniformLocation(shader->getID(), "unTexSunGradient"), textureUnits[6]);
+    glUniform1i(glGetUniformLocation(shader->getID(), "unTexColor"), textureUnits[7]);
 
-    float m_Kr4PI = atmosphere.m_Kr*4.0f*M_PI;
-    float m_Km4PI = atmosphere.m_Km*4.0f*M_PI;
-    float m_fScale = 1 / (atmosphere.radius - scaledRadius);
+    f32 m_Kr4PI = atmosphere.m_Kr*4.0f*M_PI;
+    f32 m_Km4PI = atmosphere.m_Km*4.0f*M_PI;
+    f32 m_fScale = 1 / (atmosphere.radius - atmosphere.planetRadius);
 
-    glUniform3f(shader->getUniform("cameraPos"), (float)rotPlayerPos.x, (float)rotPlayerPos.y, (float)rotPlayerPos.z);
+    glUniform3f(shader->getUniform("unCameraPos"), (float)rotPlayerPos.x, (float)rotPlayerPos.y, (float)rotPlayerPos.z);
 
-    glUniform3f(shader->getUniform("lightPos"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(shader->getUniform("unLightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-    glUniform3f(shader->getUniform("invWavelength"), 1 / atmosphere.m_fWavelength4[0], 1 / atmosphere.m_fWavelength4[1], 1 / atmosphere.m_fWavelength4[2]);
+    glUniform3f(shader->getUniform("unInvWavelength"), 1 / atmosphere.m_fWavelength4[0], 1 / atmosphere.m_fWavelength4[1], 1 / atmosphere.m_fWavelength4[2]);
 
-    glUniform1f(shader->getUniform("specularExponent"), graphicsOptions.specularExponent);
-    glUniform1f(shader->getUniform("specularIntensity"), graphicsOptions.specularIntensity);
+    glUniform1f(shader->getUniform("unSpecularExponent"), graphicsOptions.specularExponent);
+    glUniform1f(shader->getUniform("unSpecularIntensity"), graphicsOptions.specularIntensity);
     
     #define MAX_FREEZE_TEMP 255.0f
-    glUniform1f(shader->getUniform("freezeTemp"), FREEZETEMP / MAX_FREEZE_TEMP);
 
-    glUniform1f(shader->getUniform("cameraHeight2"), glm::length(PlayerPos)*glm::length(PlayerPos));
-    glUniform1f(shader->getUniform("outerRadius"), atmosphere.radius);
-    glUniform1f(shader->getUniform("outerRadius2"), atmosphere.radius*atmosphere.radius);
-    glUniform1f(shader->getUniform("innerRadius"), scaledRadius);
-
-    glUniform1f(shader->getUniform("krESun"), atmosphere.m_Kr*atmosphere.m_ESun);
-    glUniform1f(shader->getUniform("kmESun"), atmosphere.m_Km*atmosphere.m_ESun);
-    glUniform1f(shader->getUniform("kr4PI"), m_Kr4PI);
-    glUniform1f(shader->getUniform("km4PI"), m_Km4PI);
-    glUniform1f(shader->getUniform("fScale"), m_fScale);
-    glUniform1f(shader->getUniform("scaleDepth"), atmosphere.m_fRayleighScaleDepth);
-    glUniform1f(shader->getUniform("fScaleOverScaleDepth"), m_fScale / atmosphere.m_fRayleighScaleDepth);
-    glUniform1f(shader->getUniform("fSamples"), atmosphere.fSamples);
-    glUniform1f(shader->getUniform("drawMode"), planetDrawMode);
-    glUniform1i(shader->getUniform("nSamples"), atmosphere.nSamples);
-
-    glUniform1f(shader->getUniform("dt"), bdt);
-
-    glUniform1f(shader->getUniform("secColorMult"), graphicsOptions.secColorMult);
+    glUniform1f(shader->getUniform("unCameraHeight2"), glm::length(PlayerPos)*glm::length(PlayerPos));
+    glUniform1f(shader->getUniform("unOuterRadius"), atmosphere.radius);
+    glUniform1f(shader->getUniform("unOuterRadius2"), atmosphere.radius*atmosphere.radius);
+    glUniform1f(shader->getUniform("unInnerRadius"), atmosphere.planetRadius);
+    glUniform1f(shader->getUniform("unKrESun"), atmosphere.m_Kr*atmosphere.m_ESun);
+    glUniform1f(shader->getUniform("unKmESun"), atmosphere.m_Km*atmosphere.m_ESun);
+    glUniform1f(shader->getUniform("unKr4PI"), m_Kr4PI);
+    glUniform1f(shader->getUniform("unKm4PI"), m_Km4PI);
+    glUniform1f(shader->getUniform("unScale"), m_fScale);
+    glUniform1f(shader->getUniform("unScaleDepth"), atmosphere.m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("unScaleOverScaleDepth"), m_fScale / atmosphere.m_fRayleighScaleDepth);
+    glUniform1f(shader->getUniform("unNumSamplesF"), atmosphere.fSamples);
+    glUniform1i(shader->getUniform("unNumSamples"), atmosphere.nSamples);
+    // glUniform1f(shader->getUniform("dt"), bdt); What was this used for?
+    glUniform1f(shader->getUniform("unG"), atmosphere.m_g);
+    glUniform1f(shader->getUniform("unG2"), atmosphere.m_g * atmosphere.m_g);
+    glUniform1f(shader->getUniform("unSecColorMult"), graphicsOptions.secColorMult);
 
     shader->enableVertexAttribArrays();
 
-    const ui32& mvpID = shader->getUniform("MVP");
-    const ui32& worldOffsetID = shader->getUniform("worldOffset");
+    const ui32& mvpID = shader->getUniform("unWVP");
+    const ui32& worldOffsetID = shader->getUniform("unWorld");
 
     for (size_t i = 0; i < drawList[0].size(); i++){
         TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);

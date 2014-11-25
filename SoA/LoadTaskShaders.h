@@ -32,13 +32,20 @@ private:
         // be set automatically.
 
         // Attributes for terrain shaders
+        std::vector<nString> terrainAttribsOld;
+        terrainAttribsOld.push_back("vertexPosition_modelspace");
+        terrainAttribsOld.push_back("vertexUV");
+        terrainAttribsOld.push_back("vertexNormal_modelspace");
+        terrainAttribsOld.push_back("vertexColor");
+        terrainAttribsOld.push_back("vertexSlopeColor");
+        terrainAttribsOld.push_back("texTempRainSpec");
         std::vector<nString> terrainAttribs;
-        terrainAttribs.push_back("vertexPosition_modelspace");
-        terrainAttribs.push_back("vertexUV");
-        terrainAttribs.push_back("vertexNormal_modelspace");
-        terrainAttribs.push_back("vertexColor");
-        terrainAttribs.push_back("vertexSlopeColor");
-        terrainAttribs.push_back("texTempRainSpec");
+        terrainAttribs.push_back("vPosition");
+        terrainAttribs.push_back("vUV");
+        terrainAttribs.push_back("vNormal");
+        terrainAttribs.push_back("vColor");
+        terrainAttribs.push_back("vColorSlope");
+        terrainAttribs.push_back("vTexTempRainSpec");
 
         // Attributes for block shaders
         std::vector<nString> blockAttribs;
@@ -59,7 +66,7 @@ private:
         glProgramManager->addProgram("GroundFromAtmosphere",
                                     "Shaders/TerrainShading/GroundFromAtmosphere.vert",
                                     "Shaders/TerrainShading/GroundFromAtmosphere.frag",
-                                    &terrainAttribs);
+                                    &terrainAttribsOld);
         /***** GroundFromSpace *****/
         glProgramManager->addProgram("GroundFromSpace",
                                      "Shaders/TerrainShading/GroundFromSpace.vert",

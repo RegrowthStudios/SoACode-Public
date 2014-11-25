@@ -206,13 +206,13 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const g
             GlobalModelMatrix[3][0] = ((float)((double)tb->drawX - PlayerPos.x));
             GlobalModelMatrix[3][1] = ((float)((double)tb->drawY - PlayerPos.y));
             GlobalModelMatrix[3][2] = ((float)((double)tb->drawZ - PlayerPos.z));
-            MVP = VP  * GlobalModelMatrix;
+            MVP = GlobalModelMatrix;
         }
         else{
             GlobalModelMatrix[3][0] = ((float)((double)-PlayerPos.x));
             GlobalModelMatrix[3][1] = ((float)((double)-PlayerPos.y));
             GlobalModelMatrix[3][2] = ((float)((double)-PlayerPos.z));
-            MVP = VP  * GlobalModelMatrix * GameManager::planet->rotationMatrix;
+            MVP = GlobalModelMatrix * GameManager::planet->rotationMatrix;
 
             GlobalModelMatrix[3][0] = ((float)((double)tb->drawX));
             GlobalModelMatrix[3][1] = ((float)((double)tb->drawY));
@@ -220,9 +220,10 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const g
             MVP *= GlobalModelMatrix;
         }
 
+        glUniformMatrix4fv(worldOffsetID, 1, GL_FALSE, &MVP[0][0]);
+        MVP = VP * MVP;
         glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
 
-        glUniform3f(worldOffsetID, tb->drawX, tb->drawY, tb->drawZ);
 
         glBindVertexArray(tb->vaoID);
         glDrawElements(GL_TRIANGLES, tb->indexSize, GL_UNSIGNED_SHORT, 0);
@@ -245,12 +246,12 @@ void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayer
                 GlobalModelMatrix[3][0] = ((float)((double)terrainBuffers->drawX - PlayerPos.x));
                 GlobalModelMatrix[3][1] = ((float)((double)terrainBuffers->drawY - PlayerPos.y));
                 GlobalModelMatrix[3][2] = ((float)((double)terrainBuffers->drawZ - PlayerPos.z));
-                MVP = VP  * GlobalModelMatrix ;
+                MVP = GlobalModelMatrix;
             }else{
                 GlobalModelMatrix[3][0] = ((float)((double)-PlayerPos.x));
                 GlobalModelMatrix[3][1] = ((float)((double)-PlayerPos.y));
                 GlobalModelMatrix[3][2] = ((float)((double)-PlayerPos.z));
-                MVP = VP  * GlobalModelMatrix * GameManager::planet->rotationMatrix;
+                MVP = GlobalModelMatrix * GameManager::planet->rotationMatrix;
 
                 GlobalModelMatrix[3][0] = ((float)((double)terrainBuffers->drawX));
                 GlobalModelMatrix[3][1] = ((float)((double)terrainBuffers->drawY));
@@ -258,7 +259,9 @@ void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayer
                 MVP *= GlobalModelMatrix;
             }
 
-            glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]); //some kind of crash here :/
+            glUniformMatrix4fv(worldOffsetID, 1, GL_FALSE, &MVP[0][0]);
+            MVP = VP * MVP;
+            glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
 
             glUniform3f(worldOffsetID, terrainBuffers->drawX, terrainBuffers->drawY, terrainBuffers->drawZ);
 
