@@ -48,7 +48,7 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
     if (chunk->lampLightUpdateQueue.size()) {
         lockChunk(chunk);
         //Addition
-        for (ui32 i = 0; i < chunk->lampLightUpdateQueue.size(); i++){
+        while (chunk->lampLightUpdateQueue.size()) {
             auto& node = chunk->lampLightUpdateQueue.front();
             placeLampLightBFS(chunk, (int)node.blockIndex, node.lightColor);
             chunk->lampLightUpdateQueue.pop();

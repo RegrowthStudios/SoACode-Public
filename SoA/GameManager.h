@@ -46,7 +46,6 @@ public:
     static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;
     static class PhysicsEngine* physicsEngine;
-    static class CAEngine* caEngine;
     static class SoundEngine* soundEngine;
     static class ChunkManager* chunkManager;
     static class InputManager* inputManager;

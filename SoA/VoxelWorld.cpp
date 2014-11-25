@@ -76,9 +76,6 @@ void VoxelWorld::endSession()
 }
 
 void VoxelWorld::updatePhysics(const Camera* camera) {
-    // Update Cellular automata Engine
-    globalMultiplePreciseTimer.start("CAEngine Update");
-    GameManager::caEngine->update(*_chunkManager);
 
     // Update physics engine
     globalMultiplePreciseTimer.start("Physics Engine");

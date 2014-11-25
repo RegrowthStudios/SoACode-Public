@@ -16,10 +16,10 @@ void CellularAutomataTask::execute(vcore::WorkerData* workerData) {
         workerData->caEngine = new CAEngine;
     }
     workerData->caEngine->setChunk(_chunk);
-    if (flags & CA_FLAG_POWDER) {
+    if (_flags & CA_FLAG_POWDER) {
         workerData->caEngine->updatePowderBlocks();
     }
-    if (flags & CA_FLAG_LIQUID) {
+    if (_flags & CA_FLAG_LIQUID) {
         workerData->caEngine->updateLiquidBlocks();
     }
 

@@ -42,7 +42,6 @@ Uint32 GameManager::maxLodTicks = 8;
 VoxelWorld *GameManager::voxelWorld = nullptr;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 PhysicsEngine *GameManager::physicsEngine = nullptr;
-CAEngine *GameManager::caEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
 ChunkManager *GameManager::chunkManager = nullptr;
 InputManager *GameManager::inputManager = nullptr;
@@ -67,7 +66,6 @@ void GameManager::initializeSystems() {
         voxelWorld = new VoxelWorld();
         voxelEditor = new VoxelEditor();
         physicsEngine = new PhysicsEngine();
-        caEngine = new CAEngine();
         soundEngine = new SoundEngine();
         chunkManager = &voxelWorld->getChunkManager();
         chunkIOManager = new ChunkIOManager();

@@ -21,6 +21,8 @@ CAEngine::CAEngine() {
 
 void CAEngine::updateSpawnerBlocks(bool powders)
 {
+    _lockedChunk = nullptr;
+    lockChunk(_chunk);
     int spawnerVal;
     int sinkVal;
     int c;
@@ -81,10 +83,16 @@ void CAEngine::updateSpawnerBlocks(bool powders)
         }
         i++;
     }
+    if (_lockedChunk) {
+        _lockedChunk->unlock();
+        _lockedChunk = nullptr;
+    }
 }
 
 void CAEngine::updateLiquidBlocks()
 {
+    _lockedChunk = nullptr;
+    lockChunk(_chunk);
     bool *activeUpdateList = _chunk->activeUpdateList;
     vector <GLushort> *blockUpdateList = _chunk->blockUpdateList[0];
     int actv = activeUpdateList[0];
@@ -109,11 +117,16 @@ void CAEngine::updateLiquidBlocks()
         _blockUpdateFlagList[_usedUpdateFlagList[i]] = 0;
     }
     _usedUpdateFlagList.clear();
-
+    if (_lockedChunk) {
+        _lockedChunk->unlock();
+        _lockedChunk = nullptr;
+    }
 }
 
 void CAEngine::updatePowderBlocks()
 {
+    _lockedChunk = nullptr;
+    lockChunk(_chunk);
     bool *activeUpdateList = _chunk->activeUpdateList;
     vector <GLushort> *blockUpdateList = _chunk->blockUpdateList[1];
     int actv = activeUpdateList[1];
@@ -166,6 +179,10 @@ void CAEngine::updatePowderBlocks()
             _blockUpdateFlagList[_usedUpdateFlagList[i]] = 0;
         }
         _usedUpdateFlagList.clear();
+    }
+    if (_lockedChunk) {
+        _lockedChunk->unlock();
+        _lockedChunk = nullptr;
     }
 }
 
