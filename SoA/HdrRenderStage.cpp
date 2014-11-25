@@ -33,7 +33,7 @@ void HdrRenderStage::draw() {
         glUniformMatrix4fv(_glProgram->getUniform("unVPPrev"), 1, GL_FALSE, &oldVP[0][0]);
         glUniformMatrix4fv(_glProgram->getUniform("unVPInv"), 1, GL_FALSE, &newInverseVP[0][0]);
         glUniform1i(_glProgram->getUniform("unNumSamples"), (int)graphicsOptions.motionBlur);
-        glUniform1f(_glProgram->getUniform("unBlurIntensity"), 10.8f);
+        glUniform1f(_glProgram->getUniform("unBlurIntensity"), 0.5f);
     }
 
     glDisable(GL_DEPTH_TEST);
