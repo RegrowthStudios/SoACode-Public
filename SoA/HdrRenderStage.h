@@ -17,20 +17,27 @@
 
 #include "FullQuadVBO.h"
 #include "GLProgram.h"
+#include "GLProgramManager.h"
 #include "IRenderStage.h"
+
+class Camera;
 
 class HdrRenderStage : public vg::IRenderStage {
 public:
     /// Constructor which injects dependencies
     /// @param glProgram: The program used to render HDR
     /// @param quad: Quad used for rendering to screen
-    HdrRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad);
+    /// @param camera: Camera used to render the scene
+    HdrRenderStage(const vg::GLProgramManager* glPM, vg::FullQuadVBO* quad, const Camera* camera);
 
     /// Draws the render stage
     virtual void draw() override;
 private:
-    vg::GLProgram* _glProgram; ///< Stores the program we use to render
+    vg::GLProgram* _glProgramDefault; ///< Stores the program we use to render
+    vg::GLProgram* _glProgramBlur; ///< Motion blur enabled
     vg::FullQuadVBO* _quad; ///< For use in processing through data
+    const Camera* _camera; ///< Used for motion blur
+    f32m4 _oldVP; ///< ViewProjection of previous frame
 };
 
 #endif // HdrRenderStage_h__

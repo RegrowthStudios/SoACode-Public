@@ -18,6 +18,16 @@
 struct TreeType;
 struct PlantType;
 
+struct AtmosphereProperties {
+public:
+    f32 rayleighConstant;
+    f32 rayleighScaleDepth;
+    f32 mieConstant;
+    f32 sunIntensity;
+    f32 mieAsymmetry;
+    f32v3 lightWavelengths;
+};
+
 class Atmosphere {
 public:
     Atmosphere();

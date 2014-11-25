@@ -61,15 +61,15 @@ vg::GLRenderTarget& vg::GLRenderTarget::initDepth(vg::TextureInternalFormat dept
 }
 vg::GLRenderTarget& vg::GLRenderTarget::initDepthStencil(TextureInternalFormat stencilFormat /*= TextureInternalFormat::DEPTH24_STENCIL8*/) {
     glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-    glGenTextures(1, &_texStencil);
-    glBindTexture(_textureTarget, _texStencil);
+    glGenTextures(1, &_texDepth);
+    glBindTexture(_textureTarget, _texDepth);
     if (isMSAA()) {
         glTexImage2DMultisample(_textureTarget, _msaa, (VGEnum)stencilFormat, _size.x, _size.y, GL_FALSE);
     } else {
         glTexImage2D(_textureTarget, 0, (VGEnum)stencilFormat, _size.x, _size.y, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
     }
     SamplerState::POINT_CLAMP.set(_textureTarget);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, _textureTarget, _texStencil, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, _textureTarget, _texDepth, 0);
 
     // Unbind used resources
     glBindTexture(_textureTarget, 0);
@@ -94,10 +94,6 @@ void vg::GLRenderTarget::dispose() {
     if (_texDepth != 0) {
         glDeleteTextures(1, &_texDepth);
         _texDepth = 0;
-    }
-    if (_texStencil != 0) {
-        glDeleteTextures(1, &_texStencil);
-        _texStencil = 0;
     }
 }
 

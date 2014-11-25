@@ -74,7 +74,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
     _pdaRenderStage = new PdaRenderStage(pda);
     _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
-    _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
+    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, _chunkCamera);
 
     loadNightVision();
     // No post-process effects to begin with
@@ -131,6 +131,8 @@ void GamePlayRenderPipeline::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
     _hdrRenderStage->draw();
 
     // Check for errors, just in case
