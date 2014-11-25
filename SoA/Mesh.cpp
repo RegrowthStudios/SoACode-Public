@@ -10,7 +10,7 @@ namespace core{
 #pragma region Default Shader
 
 // Default shader source
-const cString Mesh::defaultVertexShaderSource = R"(#version 130
+const cString Mesh::defaultVertexShaderSource = R"(
 uniform mat4 MVP;
 
 in vec3 vPosition;
@@ -26,7 +26,7 @@ void main() {
     gl_Position = MVP * vec4(vPosition, 1.0);
 }
 )";
-const cString Mesh::defaultFragmentShaderSource = R"(#version 130
+const cString Mesh::defaultFragmentShaderSource = R"(
 uniform sampler2D tex;
 
 in vec2 fUV;
