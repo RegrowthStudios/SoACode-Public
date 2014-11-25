@@ -223,10 +223,6 @@ private:
     /// @param maxTicks: maximum time the function is allowed
     i32 updateMeshList(ui32 maxTicks);
 
-    /// Updates the generate list
-    /// @param maxTicks: maximum time the function is allowed
-    i32 updateGenerateList(ui32 maxTicks);
-
     /// Updates the treesToPlace list
     /// @param maxTicks: maximum time the function is allowed
     void updateTreesToPlace(ui32 maxTicks);
@@ -252,10 +248,6 @@ private:
     /// Adds a chunk to the loadList
     /// @param chunk: the chunk to add
     void addToLoadList(Chunk* chunk);
-
-    /// Adds a chunk to the generateList
-    /// @param chunk: the chunk to add
-    void addToGenerateList(Chunk* chunk);
 
     /// Adds a chunk to the meshList
     /// @param chunk: the chunk to add
@@ -317,8 +309,6 @@ private:
     boost::circular_buffer<Chunk*> _meshList;
     /// List of chunks that need to be sent to the IO thread
     boost::circular_buffer<Chunk*> _loadList;
-    /// List of chunks that need to be generated on the threadPool
-    boost::circular_buffer<Chunk*> _generateList;
 
     /// Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;

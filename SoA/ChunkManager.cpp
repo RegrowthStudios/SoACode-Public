@@ -105,7 +105,6 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     _setupList.set_capacity(_csGridSize * 2);
     _meshList.set_capacity(_csGridSize * 2);
     _loadList.set_capacity(_csGridSize * 2);
-    _generateList.set_capacity(_csGridSize * 2);
 
     // Reserve capacity for chunkslots. If this capacity is not enough, we will get a 
     // crash. We use * 4 just in case. It should be plenty
@@ -185,8 +184,6 @@ void ChunkManager::update(const Camera* camera) {
     updateTreesToPlace(3);
     globalMultiplePreciseTimer.start("Mesh List");
     updateMeshList(4);
-    globalMultiplePreciseTimer.start("Generate List");
-    updateGenerateList(4);
     globalMultiplePreciseTimer.start("Setup List");
     updateSetupList(4);
 
@@ -314,7 +311,6 @@ void ChunkManager::destroy() {
     _threadPool.destroy();
 
     _setupList.clear();
-    _generateList.clear();
     _meshList.clear();
     _loadList.clear();
 
@@ -588,6 +584,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
     Chunk* ch;
     TerrainGenerator* generator = GameManager::terrainGenerator;
+    GenerateTask* generateTask;
     //IO load chunks
     while (GameManager::chunkIOManager->finishedLoadChunks.try_dequeue(ch)) {
 
@@ -605,10 +602,30 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
             generator->postProcessHeightmap(chunkGridData->heightData);
         }
 
-        if (ch->loadStatus == 1) { //it is not saved. Generate!
+        // If it is not saved. Generate it!
+        if (ch->loadStatus == 1) {
             ch->loadStatus == 0;
             ch->isAccessible = false;
-            addToGenerateList(ch);
+
+            // Get a generate task
+            if (_freeGenerateTasks.size()) {
+                generateTask = _freeGenerateTasks.back();
+                _freeGenerateTasks.pop_back();
+            } else {
+                generateTask = new GenerateTask;
+            }
+
+            // Init the containers
+            ch->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+
+            // Initialize the task
+            generateTask->init(ch, new LoadData(ch->chunkGridData->heightData, GameManager::terrainGenerator));
+            ch->lastOwnerTask = generateTask;
+            // Add the task
+            _threadPool.addTask(generateTask);
         } else {
             setupNeighbors(ch);
             ch->_state = ChunkStates::MESH;
@@ -828,51 +845,6 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             }
         }
 
-
-        if (SDL_GetTicks() - startTicks > maxTicks) break;
-    }
-    return 0;
-}
-
-i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
-
-    ui32 startTicks = SDL_GetTicks();
-    i32 state;
-    Chunk* chunk;
-    i32 startX, startZ;
-    i32 ip, jp;
-    GenerateTask* generateTask;
-
-    while (_generateList.size()) {
-        chunk = _generateList.front();
-
-        _generateList.pop_front();
-        chunk->clearChunkListPtr();
-
-        // If it is waiting to be freed, dont do anything with it
-        if (chunk->freeWaiting) continue;
-
-        chunk->isAccessible = false;      
-
-        // Get a generate task
-        if (_freeGenerateTasks.size()) {
-            generateTask = _freeGenerateTasks.back();
-            _freeGenerateTasks.pop_back();
-        } else {
-            generateTask = new GenerateTask;
-        }
-
-        // Init the containers
-        chunk->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-        chunk->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-        chunk->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-        chunk->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-
-        // Initialize the task
-        generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
-        chunk->lastOwnerTask = generateTask;
-        // Add the task
-        _threadPool.addTask(generateTask);
 
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }
@@ -1165,11 +1137,6 @@ void ChunkManager::addToSetupList(Chunk* chunk) {
 void ChunkManager::addToLoadList(Chunk* chunk) {
     chunk->_state = ChunkStates::LOAD;
     chunk->addToChunkList(&_loadList);
-}
-
-void ChunkManager::addToGenerateList(Chunk* chunk) {
-    chunk->_state = ChunkStates::GENERATE;
-    chunk->addToChunkList(&_generateList);
 }
 
 void ChunkManager::addToMeshList(Chunk* chunk) {
