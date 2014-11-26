@@ -35,10 +35,6 @@ namespace vorb {
             lockedChunk->lock();
         }
 
-        inline int getLeftBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
-            return getLeftBlockData(chunk, lockedChunk, getXFromBlockIndex(blockIndex), nextBlockIndex, owner);
-        }
-
         inline int getLeftBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int x, int& nextBlockIndex, Chunk*& owner) {
             if (x > 0) {
                 owner = chunk;
@@ -52,6 +48,10 @@ namespace vorb {
             return -1;
         }
 
+        inline int getLeftBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
+            return getLeftBlockData(chunk, lockedChunk, blockIndex, getXFromBlockIndex(blockIndex), nextBlockIndex, owner);
+        }
+
         inline int getLeftBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getXFromBlockIndex(blockIndex) > 0) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex - 1);
@@ -59,10 +59,6 @@ namespace vorb {
                 return chunk->left->getBlockDataSafe(lockedChunk, blockIndex + CHUNK_WIDTH - 1);
             }
             return -1;
-        }
-
-        inline int getRightBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
-            return getRightBlockData(chunk, lockedChunk, getXFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
         inline int getRightBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int x, int& nextBlockIndex, Chunk*& owner) {
@@ -78,6 +74,10 @@ namespace vorb {
             return -1;
         }
 
+        inline int getRightBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
+            return getRightBlockData(chunk, lockedChunk, blockIndex, getXFromBlockIndex(blockIndex), nextBlockIndex, owner);
+        }
+
         inline int getRightBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getXFromBlockIndex(blockIndex) < CHUNK_WIDTH - 1) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex + 1);
@@ -85,10 +85,6 @@ namespace vorb {
                 return chunk->right->getBlockDataSafe(lockedChunk, blockIndex - CHUNK_WIDTH + 1);
             }
             return -1;
-        }
-
-        inline int getFrontBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
-            return getFrontBlockData(chunk, lockedChunk, getZFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
         inline int getFrontBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int z, int& nextBlockIndex, Chunk*& owner) {
@@ -104,6 +100,10 @@ namespace vorb {
             return -1;
         }
 
+        inline int getFrontBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
+            return getFrontBlockData(chunk, lockedChunk, blockIndex, getZFromBlockIndex(blockIndex), nextBlockIndex, owner);
+        }
+
         inline int getFrontBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getZFromBlockIndex(blockIndex) < CHUNK_WIDTH - 1) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex + CHUNK_WIDTH);
@@ -111,10 +111,6 @@ namespace vorb {
                 return chunk->front->getBlockDataSafe(lockedChunk, blockIndex - CHUNK_LAYER + CHUNK_WIDTH);
             }
             return -1;
-        }
-
-        inline int getBackBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
-            return getBackBlockData(chunk, lockedChunk, getZFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
         inline int getBackBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int z, int& nextBlockIndex, Chunk*& owner) {
@@ -130,6 +126,10 @@ namespace vorb {
             return -1;
         }
 
+        inline int getBackBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
+            return getBackBlockData(chunk, lockedChunk, blockIndex, getZFromBlockIndex(blockIndex), nextBlockIndex, owner);
+        }
+
         inline int getBackBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getZFromBlockIndex(blockIndex) > 0) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex - CHUNK_WIDTH);
@@ -137,10 +137,6 @@ namespace vorb {
                 return chunk->back->getBlockDataSafe(lockedChunk, blockIndex + CHUNK_LAYER - CHUNK_WIDTH);
             }
             return -1;
-        }
-
-        inline int getBottomBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
-            return getBottomBlockData(chunk, lockedChunk, getYFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
         inline int getBottomBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int y, int& nextBlockIndex, Chunk*& owner) {
@@ -156,6 +152,10 @@ namespace vorb {
             return -1;
         }
 
+        inline int getBottomBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
+            return getBottomBlockData(chunk, lockedChunk, blockIndex, getYFromBlockIndex(blockIndex), nextBlockIndex, owner);
+        }
+
         inline int getBottomBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getYFromBlockIndex(blockIndex) > 0) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex - CHUNK_LAYER);
@@ -163,10 +163,6 @@ namespace vorb {
                 return chunk->bottom->getBlockDataSafe(lockedChunk, blockIndex + CHUNK_SIZE - CHUNK_LAYER);
             }
             return -1;
-        }
-
-        inline int getTopBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
-            return getTopBlockData(chunk, lockedChunk, getYFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
         inline int getTopBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int y, int& nextBlockIndex, Chunk*& owner) {
@@ -180,6 +176,10 @@ namespace vorb {
                 return owner->getBlockDataSafe(lockedChunk, nextBlockIndex);
             }
             return -1;
+        }
+
+        inline int getTopBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
+            return getTopBlockData(chunk, lockedChunk, blockIndex, getYFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
         inline int getTopBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {

@@ -916,17 +916,15 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     Chunk* lockedChunk = nullptr;
     const i32v3& startPos = nodes->startChunkGridPos;
 
+    int a = 0;
     for (auto& node : nodes->wnodes) { //wood nodes
         blockIndex = node.blockIndex;
        
         owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
         // Lock the chunk
-        if (lockedChunk) lockedChunk->unlock();
-        lockedChunk = owner;
-        lockedChunk->lock();
+        vvox::lockChunk(owner, lockedChunk);
 
         ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
-
         // TODO(Ben): Use a smother transform property for block instead of this hard coded garbage
         int blockID = GETBLOCKID(vvox::getBottomBlockData(owner, lockedChunk, blockIndex, blockIndex, owner));
         if (blockID == Blocks::DIRTGRASS) {
@@ -938,9 +936,7 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
         blockIndex = node.blockIndex;
         owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
         // Lock the chunk
-        if (lockedChunk) lockedChunk->unlock();
-        lockedChunk = owner;
-        lockedChunk->lock();
+        vvox::lockChunk(owner, lockedChunk);
 
         int blockID = owner->getBlockData(blockIndex);
 
