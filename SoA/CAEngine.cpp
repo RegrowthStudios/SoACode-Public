@@ -489,7 +489,7 @@ void CAEngine::powderPhysics(int blockIndex)
         3, 0, 1, 2, 3, 0, 2, 1, 3, 1, 2, 0, 3, 1, 0, 2, 3, 2, 0, 1, 3, 2, 1, 0 };
 
     // Aquire the lock
-    lockChunk(_chunk);
+    vvox::lockChunk(_chunk, _lockedChunk);
 
     int blockData = _chunk->getBlockData(blockIndex);
     int nextBlockData, nextBlockIndex;
@@ -501,7 +501,7 @@ void CAEngine::powderPhysics(int blockIndex)
 
     // *** Falling in Y direction ***
     // Get bottom block
-    nextBlockData = _chunk->getBottomBlockData(blockIndex, pos.y, nextBlockIndex, nextChunk);
+    nextBlockData = vvox::getBottomBlockData(_chunk, _lockedChunk, blockIndex, pos.y, nextBlockIndex, nextChunk);
     // Check for edge
     if (nextBlockData == -1) return;
     // Since getXXXBlockData may lock a chunk, we need this
@@ -512,14 +512,12 @@ void CAEngine::powderPhysics(int blockIndex)
     if (bottomBlock.isCrushable) {
         // Move down and crush block
         ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
-        lockChunk(_chunk);
-        ChunkUpdater::removeBlock(_chunk, blockIndex, false);
+        ChunkUpdater::removeBlockSafe(_chunk, _lockedChunk, blockIndex, false);
         return;
     } else if (bottomBlock.powderMove) {
         // Move down and swap places
         ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
-        lockChunk(_chunk);
-        ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
+        ChunkUpdater::placeBlockSafe(_chunk, _lockedChunk, blockIndex, nextBlockData);
         return;
     } else if (bottomBlock.physicsProperty != P_POWDER) {
         // We can only slide on powder, so if its not powder, we return.
@@ -537,23 +535,24 @@ void CAEngine::powderPhysics(int blockIndex)
         // Get the neighbor block in the direction
         switch (DIRS[i]) {
             case LEFT:
-                if (pos.x != 0) lockChunk(_chunk);
-                nextBlockData = _chunk->getLeftBlockData(blockIndex, pos.x,
+                // Only lock the chunk if we know we aren't about to go to a neighbor
+                if (pos.x != 0) vvox::lockChunk(_chunk, _lockedChunk);
+                nextBlockData = vvox::getLeftBlockData(_chunk, _lockedChunk, blockIndex, pos.x,
                                                          nextBlockIndex, nextChunk);
                 break;
             case RIGHT:
-                if (pos.x != CHUNK_WIDTH - 1) lockChunk(_chunk);
-                nextBlockData = _chunk->getRightBlockData(blockIndex, pos.x,
+                if (pos.x != CHUNK_WIDTH - 1) vvox::lockChunk(_chunk, _lockedChunk);
+                nextBlockData = vvox::getRightBlockData(_chunk, _lockedChunk, blockIndex, pos.x,
                                                           nextBlockIndex, nextChunk);
                 break;
             case BACK:
-                if (pos.z != 0) lockChunk(_chunk);
-                nextBlockData = _chunk->getBackBlockData(blockIndex, pos.z,
+                if (pos.z != 0) vvox::lockChunk(_chunk, _lockedChunk);
+                nextBlockData = vvox::getBackBlockData(_chunk, _lockedChunk, blockIndex, pos.z,
                                                          nextBlockIndex, nextChunk);
                 break;
             case FRONT:
-                if (pos.z != CHUNK_WIDTH - 1) lockChunk(_chunk);
-                nextBlockData = _chunk->getFrontBlockData(blockIndex, pos.z,
+                if (pos.z != CHUNK_WIDTH - 1) vvox::lockChunk(_chunk, _lockedChunk);
+                nextBlockData = vvox::getFrontBlockData(_chunk, _lockedChunk, blockIndex, pos.z,
                                                           nextBlockIndex, nextChunk);
                 break;
         }
@@ -562,7 +561,8 @@ void CAEngine::powderPhysics(int blockIndex)
         // Since getXXXBlockData may lock a chunk, we need this
         _lockedChunk = nextChunk;
         // Check bottom
-        const Block& diagonalBlock = GETBLOCK(nextChunk->getBottomBlockData(nextBlockIndex, pos.y));
+        const Block& diagonalBlock = GETBLOCK(vvox::getBottomBlockData(nextChunk, _lockedChunk, 
+                                              nextBlockIndex));
         // We only move to the side if we can fall down the next update
         if (diagonalBlock.powderMove || diagonalBlock.isCrushable) {
             // Get block info
@@ -570,24 +570,15 @@ void CAEngine::powderPhysics(int blockIndex)
             // Check if we can move
             if (nextBlock.isCrushable) {
                 // Move and crush block
-                ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
-                lockChunk(_chunk);
-                ChunkUpdater::removeBlock(_chunk, blockIndex, false);
+                ChunkUpdater::placeBlockSafe(nextChunk, _lockedChunk, nextBlockIndex, blockData);
+                ChunkUpdater::removeBlockSafe(_chunk, _lockedChunk, blockIndex, false);
                 return;
             } else if (nextBlock.powderMove) {
                 // Move and swap places
-                ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
-                lockChunk(_chunk);
-                ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
+                ChunkUpdater::placeBlockSafe(nextChunk, _lockedChunk, nextBlockIndex, blockData);
+                ChunkUpdater::placeBlockSafe(_chunk, _lockedChunk, blockIndex, nextBlockData);
                 return;
             }
         }
     }
-}
-
-void CAEngine::lockChunk(Chunk* chunk) {
-    if (_lockedChunk == chunk) return;
-    if (_lockedChunk) _lockedChunk->unlock();
-    _lockedChunk = chunk;
-    _lockedChunk->lock();
 }

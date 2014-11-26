@@ -120,7 +120,9 @@ public:
     ChunkStates getState() const { return _state; }
     GLushort getBlockData(int c) const;
     int getBlockID(int c) const;
+    int getBlockIDSafe(int c, Chunk*& lockedChunk);
     int getSunlight(int c) const;
+    int getSunlightSafe(int c, Chunk*& lockedChunk);
     ui16 getTertiaryData(int c) const;
     int getFloraHeight(int c) const;
 
@@ -136,12 +138,16 @@ public:
     int getLevelOfDetail() const { return _levelOfDetail; }
 
     //setters
-    void setBlockID(int c, int val);
     void setBlockData(int c, ui16 val);
+    void setBlockDataSafe(Chunk*& lockedChunk, int c, ui16 val);
     void setTertiaryData(int c, ui16 val);
+    void setTertiaryDataSafe(Chunk*& lockedChunk, int c, ui16 val);
     void setSunlight(int c, ui8 val);
+    void setSunlightSafe(Chunk*& lockedChunk, int c, ui8 val);
     void setLampLight(int c, ui16 val);
+    void setLampLightSafe(Chunk*& lockedChunk, int c, ui16 val);
     void setFloraHeight(int c, ui16 val);
+    void setFloraHeightSafe(Chunk*& lockedChunk, int c, ui16 val);
 
     void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
     

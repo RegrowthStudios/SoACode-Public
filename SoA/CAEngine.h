@@ -16,7 +16,6 @@ private:
     
     void liquidPhysics(i32 startBlockIndex, i32 b);
     void powderPhysics(i32 c);
-    void lockChunk(Chunk* chunk);
 
     i32 _dirIndex = 0;
     i32 _lowIndex;
