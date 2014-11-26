@@ -526,7 +526,7 @@ namespace Keg {
         if (nArray.size() > 0) {
             dest->setData(nArray.size());
             ui8* newDest = &dest->at<ui8>(0);
-            for (i32 i = 0; i < dest->length(); i++) {
+            for (i32 i = 0; i < dest->getLength(); i++) {
                 YAML::Node tmp = nArray[i];
                 evalData(newDest, decl->interiorValue, tmp, env);
                 newDest += type->getSizeInBytes();

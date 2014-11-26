@@ -1,13 +1,20 @@
 #pragma once
-#include <string>
-#include <cstdint>
 
+#ifndef types_h__
+#define types_h__
+
+#include <cstdint>
+#include <memory>
+#include <string>
+
+#ifdef TYPES_GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#endif
 
-// Note: char, size_t, And 3rd-Party Types May Be Used When Deemed Necessary
-
-// Integer Values
+/************************************************************************/
+/* Integer values                                                       */
+/************************************************************************/
 typedef int8_t i8;
 typedef int8_t sbyte;
 typedef int16_t i16;
@@ -19,242 +26,243 @@ typedef uint16_t ui16;
 typedef uint32_t ui32;
 typedef uint64_t ui64;
 
-// Integer Vectors
-typedef glm::detail::tvec2<i8> i8v2;
-typedef glm::detail::tvec3<i8> i8v3;
-typedef glm::detail::tvec4<i8> i8v4;
-typedef glm::lowp_ivec2 i16v2;
-typedef glm::lowp_ivec3 i16v3;
-typedef glm::lowp_ivec4 i16v4;
-typedef glm::mediump_ivec2 i32v2;
-typedef glm::mediump_ivec3 i32v3;
-typedef glm::mediump_ivec4 i32v4;
-typedef glm::highp_ivec2 i64v2;
-typedef glm::highp_ivec3 i64v3;
-typedef glm::highp_ivec4 i64v4;
-typedef glm::detail::tvec2<ui8> ui8v2;
-typedef glm::detail::tvec3<ui8> ui8v3;
-typedef glm::detail::tvec4<ui8> ui8v4;
-typedef glm::lowp_uvec2 ui16v2;
-typedef glm::lowp_uvec3 ui16v3;
-typedef glm::lowp_uvec4 ui16v4;
-typedef glm::mediump_uvec2 ui32v2;
-typedef glm::mediump_uvec3 ui32v3;
-typedef glm::mediump_uvec4 ui32v4;
-typedef glm::highp_uvec2 ui64v2;
-typedef glm::highp_uvec3 ui64v3;
-typedef glm::highp_uvec4 ui64v4;
-
-// Floating Point Values
+/************************************************************************/
+/* Floating point values                                                */
+/************************************************************************/
 typedef float f32;
 typedef double f64;
 
-// Floating Point Vectors
-typedef glm::mediump_vec2 f32v2;
-typedef glm::mediump_vec3 f32v3;
-typedef glm::mediump_vec4 f32v4;
-typedef glm::highp_vec2 f64v2;
-typedef glm::highp_vec3 f64v3;
-typedef glm::highp_vec4 f64v4;
+#ifdef TYPES_GLM
 
-// Floating Point Quaternions
+/************************************************************************/
+/* GLM types                                                            */
+/************************************************************************/
+#ifdef glm_core_type_gentype2
+// GLM Vec2 integer values
+typedef glm::detail::tvec2<i8> i8v2;
+typedef glm::lowp_ivec2 i16v2;
+typedef glm::mediump_ivec2 i32v2;
+typedef glm::highp_ivec2 i64v2;
+typedef glm::detail::tvec2<ui8> ui8v2;
+typedef glm::lowp_uvec2 ui16v2;
+typedef glm::mediump_uvec2 ui32v2;
+typedef glm::highp_uvec2 ui64v2;
+// GLM Vec2 floating point values
+typedef glm::mediump_vec2 f32v2;
+typedef glm::highp_vec2 f64v2;
+#endif
+#ifdef glm_core_type_gentype3
+// GLM Vec3 integer values
+typedef glm::detail::tvec3<i8> i8v3;
+typedef glm::lowp_ivec3 i16v3;
+typedef glm::mediump_ivec3 i32v3;
+typedef glm::highp_ivec3 i64v3;
+typedef glm::detail::tvec3<ui8> ui8v3;
+typedef glm::lowp_uvec3 ui16v3;
+typedef glm::mediump_uvec3 ui32v3;
+typedef glm::highp_uvec3 ui64v3;
+// GLM Vec3 floating point values
+typedef glm::mediump_vec3 f32v3;
+typedef glm::highp_vec3 f64v3;
+#endif
+#ifdef glm_core_type_gentype4
+// GLM Vec4 integer values
+typedef glm::detail::tvec4<i8> i8v4;
+typedef glm::lowp_ivec4 i16v4;
+typedef glm::mediump_ivec4 i32v4;
+typedef glm::highp_ivec4 i64v4;
+typedef glm::detail::tvec4<ui8> ui8v4;
+typedef glm::lowp_uvec4 ui16v4;
+typedef glm::mediump_uvec4 ui32v4;
+typedef glm::highp_uvec4 ui64v4;
+// GLM Vec4 floating point values
+typedef glm::mediump_vec4 f32v4;
+typedef glm::highp_vec4 f64v4;
+#endif
+
+#ifdef GLM_GTC_quaternion
+// GLM floating point quaternions
 typedef glm::mediump_quat f32q;
 typedef glm::highp_quat f64q;
+#endif
 
-// Floating Point Matrices
+// GLM floating point matrices
+#ifdef glm_core_type_mat4x4
 typedef glm::mediump_mat2 f32m2;
-typedef glm::mediump_mat3 f32m3;
-typedef glm::mediump_mat4 f32m4;
 typedef glm::highp_mat2 f64m2;
+#endif
+#ifdef glm_core_type_mat3x3
+typedef glm::mediump_mat3 f32m3;
 typedef glm::highp_mat3 f64m3;
+#endif
+#ifdef glm_core_type_mat4x4
+typedef glm::mediump_mat4 f32m4;
 typedef glm::highp_mat4 f64m4;
+#endif
 
-namespace std {
+#endif
 
-    //Hash function for i32v3
-    template <>
-    struct hash<i32v3>
-    {
-        std::size_t operator()(const i32v3& k) const
-        {
-            using std::size_t;
-            using std::hash;
-            using std::string;
-
-            // Compute individual hash values for first,
-            // second and third and combine them using XOR
-            // and bit shifting:
-
-            return ((hash<int>()(k.x)
-                ^ (hash<int>()(k.y) << 1)) >> 1)
-                ^ (hash<int>()(k.z) << 1);
-        }
-    };
-
-    //Hash function for i32v2
-    template <>
-    struct hash<i32v2>
-    {
-        std::size_t operator()(const i32v2& k) const
-        {
-            using std::size_t;
-            using std::hash;
-            using std::string;
-
-            // Compute individual hash values for first,
-            // second and third and combine them using XOR
-            // and bit shifting:
-
-            return ((hash<int>()(k.x)
-                ^ (hash<int>()(k.y) << 1)) >> 1);
-        }
-    };
-
-}
-
+/// RGBA color using 8-bit elements
 struct ColorRGBA8 {
 public:
-
-    ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a)
-    : r(r), g(g), b(b), a(a) {
-        // empty
+    /// Create a color specifying all elements
+    /// @param r: Red value
+    /// @param g: Green value 
+    /// @param b: Blue value
+    /// @param a: Alpha value
+    ColorRGBA8(ui8 r, ui8 g, ui8 b, ui8 a = 0xffu) :
+        r(r), g(g), b(b), a(a) {
+        // Empty
+    }
+    /// Default black color
+    ColorRGBA8() : ColorRGBA8(0, 0, 0) {
+        // Empty
     }
 
-    ColorRGBA8()
-    : r(0), g(0), b(0), a(0) {
-        // empty
+    /// Access a color element by its index
+    /// @param i: Color index in range [0,3]
+    /// @return Reference to color element
+    const ui8& operator[] (size_t i) const {
+        return data[i];
+    }
+    /// Access a color element by its index
+    /// @param i: Color index in range [0,3]
+    /// @return Reference to color element
+    ui8& operator[] (size_t i) {
+        return data[i];
     }
 
-    ui8 r;
-    ui8 g;
-    ui8 b;
-    ui8 a;
+    union {
+        struct {
+            ui8 r; ///< Red value
+            ui8 g; ///< Green value
+            ui8 b; ///< Blue value
+            ui8 a; ///< Alpha value
+        };
+        ui8 data[4]; ///< RGBA values stored in array
+    };
 };
-
+typedef ColorRGBA8 color4;
+/// RGB color using 8-bit elements
 struct ColorRGB8 {
 public:
-    ColorRGB8(ui8 r, ui8 g, ui8 b)
-    : r(r), g(g), b(b) {
-        // empty
+    /// Create a color specifying all elements
+    /// @param r: Red value
+    /// @param g: Green value 
+    /// @param b: Blue value
+    ColorRGB8(ui8 r, ui8 g, ui8 b) :
+        r(r), g(g), b(b) {
+        // Empty
+    }
+    /// Default black color
+    ColorRGB8() : ColorRGB8(0, 0, 0) {
+        // Empty
     }
 
-    ColorRGB8()
-    : r(0), g(0), b(0) {
-        // empty
+    /// Access a color element by its index
+    /// @param i: Color index in range [0,2]
+    /// @return Reference to color element
+    const ui8& operator[] (size_t i) const {
+        return data[i];
+    }
+    /// Access a color element by its index
+    /// @param i: Color index in range [0,2]
+    /// @return Reference to color element
+    ui8& operator[] (size_t i) {
+        return data[i];
     }
 
-    ui8 r;
-    ui8 g;
-    ui8 b;
+    union {
+        struct {
+            ui8 r; ///< Red value
+            ui8 g; ///< Green value
+            ui8 b; ///< Blue value
+        };
+        ui8 data[3]; ///< RGB values stored in array
+    };
 };
+typedef ColorRGB8 color3;
 
-template<typename T> struct Array;
-
-// A Better Array
-struct ArrayBase {
+/// A common array type for unknown values
+class ArrayBase {
     public:
-        ArrayBase(i32 elemSize)
-        : _data(nullptr), _elementSize(elemSize), _length(0) {
-            // empty
+        ArrayBase(ui32 elemSize) :
+            _elementSize(elemSize) {
+            // Empty
+        }
+        ArrayBase(ui32 elemSize, void* d, size_t l) : ArrayBase(elemSize) {
+            setData(d, l);
         }
 
-        ArrayBase(i32 elemSize, void* d, i32 l)
-        : _elementSize(elemSize), _length(l) {
-            if (_length > 0) {
-                _data = new ui8[_elementSize * _length];
-                memcpy(_data, d, _elementSize * _length);
-            } else {
-                _data = nullptr;
-            }
-        }
-
-        ArrayBase(const ArrayBase& other)
-        : ArrayBase(other._elementSize, other._data, other._length) {
-            // empty
-        }
-
-        ArrayBase& operator=(const ArrayBase& other) {
-            _elementSize = other._elementSize;
-            _length = other._length;
-            if (other._data) {
-                _data = new ui8[_elementSize * _length];
-                memcpy(_data, other._data, _elementSize * _length);
-            } else {
-                _data = nullptr;
-            }
-            return *this;
-        }
-
-        ~ArrayBase() {
-            if (_data) {
-                delete[] static_cast<ui8*>(_data);
-                _data = nullptr;
-                _length = 0;
-            }
-        }
-
-        const i32& length() const {
+        const size_t& getLength() const {
             return _length;
         }
 
-        void setData(void* data, i32 len) {
-            // Delete Previous Data
-            if (_data) {
-                delete[] static_cast<ui8*>(_data);
+        void setData(void* data, size_t len) {
+            _length = len;
+            if (_length > 0) {
+                // Create a new internal array
+                _dataShared.reset(new ui8[_elementSize * _length], [] (ui8* p) { delete[] p; });
+                _data = _dataShared.get();
+
+                // Copy data
+                if (data) memcpy(_data, data, _elementSize * _length);
+            } else {
+                // Delete any old data
+                _dataShared.reset();
                 _data = nullptr;
-                _length = 0;
-            }
-            // Set New Data
-            if (data && len > 0) {
-                _length = len;
-                _data = new ui8[_length * _elementSize];
-                memcpy(_data, data, _length * _elementSize);
             }
         }
-
-        void setData(i32 len = 0) {
-            // Delete Previous Data
-            if (_data) {
-                delete[] static_cast<ui8*>(_data);
-                _data = nullptr;
-                _length = 0;
-            }
-            // Set New Data
-            if (len > 0) {
-                _length = len;
-                _data = new ui8[_length * _elementSize]();
-            }
+        void setData(size_t len = 0) {
+            setData(nullptr, len);
         }
 
         template<typename T>
-        T& operator[] (size_t i) const {
+        T& operator[] (size_t i)  {
+            return ((T*)_data)[i];
+        }
+        template<typename T>
+        const T& operator[] (size_t i) const {
             return ((T*)_data)[i];
         }
 
         template<typename T>
-        T& at(size_t i) const {
+        T& at(size_t i){
+            return ((T*)_data)[i];
+        }
+        template<typename T>
+        const T& at(size_t i) const {
             return ((T*)_data)[i];
         }
 
     protected:
-        void* _data;
-        i32 _elementSize;
-        i32 _length;
+        std::shared_ptr<ui8> _dataShared;
+        void* _data = nullptr;
+        ui32 _elementSize = 0;
+        size_t _length = 0;
 };
 
-// A Better Array
+/// An array of known value types
 template<typename T>
-struct Array : public ArrayBase {
+class Array : public ArrayBase {
     public:
         Array() : ArrayBase(sizeof(T)) {
-            // empty
+            // Empty
+        }
+        Array(T* d, size_t l) : ArrayBase(sizeof(T), d, l) {
+            // Empty
         }
 
-        T& operator[] (size_t i) const {
+        T& operator[] (size_t i) {
             return ((T*)_data)[i];
         }
-
-        T& at(size_t i) const {
+        const T& operator[] (size_t i) const {
+            return ((T*)_data)[i];
+        }
+        T& at(size_t i) {
+            return ((T*)_data)[i];
+        }
+        const T& at(size_t i) const {
             return ((T*)_data)[i];
         }
 };
@@ -264,5 +272,7 @@ struct Array : public ArrayBase {
 #define cwString wchar_t*
 #define nString std::string
 
-// Pointer offset
+/// Pointer offset
 #define offsetptr(s, m) ((void*)offsetof(s, m))
+
+#endif // types_h__
