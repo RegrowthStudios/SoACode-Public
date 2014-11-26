@@ -494,48 +494,35 @@ void CAEngine::powderPhysics(int blockIndex)
     lockChunk(_chunk);
 
     int blockData = _chunk->getBlockData(blockIndex);
-    int blockID = GETBLOCKID(blockData);
-    int nextBlockData, nextBlockID, nextBlockIndex;
+    int nextBlockData, nextBlockIndex;
     // Make sure this is a powder block
-    if (Blocks[blockID].physicsProperty != P_POWDER) return;
-
-    i32v3 pos = getPosFromBlockIndex(blockIndex);
+    if (GETBLOCK(blockData).physicsProperty != P_POWDER) return;
 
     Chunk* nextChunk;
-    _chunk->getBottomBlockData(blockIndex, pos.y, )
+    i32v3 pos = getPosFromBlockIndex(blockIndex);
 
-    // Check for falling
-    if (pos.y == 0) {
-        // Edge condition
-        Chunk *& bottomChunk = _chunk->bottom;
-        if (bottomChunk && bottomChunk->isAccessible) {
-            // Lock the chunk for thread safety
-            lockChunk(bottomChunk);
-            // Get info about the block
-            nextBlockIndex = blockIndex - CHUNK_LAYER + CHUNK_SIZE;
-            nextBlockData = bottomChunk->getBlockData(nextBlockIndex);
-            nextBlockID = GETBLOCKID(nextBlockData);
-            const Block& nextBlock = Blocks[nextBlockID];
-            // Check if we can move down
-            if (nextBlock.isCrushable) {
-                // Move down and crush block
-                ChunkUpdater::placeBlock(bottomChunk, nextBlockIndex, blockData);
-                lockChunk(_chunk);
-                ChunkUpdater::removeBlock(_chunk, blockIndex, false);
-                return;
-            } else if (nextBlock.powderMove) {
-                // Move down and swap places
-                ChunkUpdater::placeBlock(bottomChunk, nextBlockIndex, blockData);
-                lockChunk(_chunk);
-                ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
-                return;
-            } else if (nextBlock.physicsProperty != P_POWDER) {
-                // We can only slide on powder, so if its not powder, we return.
-                return;
-            }
-        } else {
-            return;
-        }
+    // *** Falling in Y direction ***
+    // Get bottom block
+    nextBlockData = _chunk->getBottomBlockData(blockIndex, pos.y, nextBlockIndex, nextChunk);
+    if (nextBlockData == -1) return;
+    // Get block info
+    const Block& bottomBlock = GETBLOCK(nextBlockData);
+    // Check if we can move down
+    if (bottomBlock.isCrushable) {
+        // Move down and crush block
+        ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+        lockChunk(_chunk);
+        ChunkUpdater::removeBlock(_chunk, blockIndex, false);
+        return;
+    } else if (bottomBlock.powderMove) {
+        // Move down and swap places
+        ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+        lockChunk(_chunk);
+        ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
+        return;
+    } else if (bottomBlock.physicsProperty != P_POWDER) {
+        // We can only slide on powder, so if its not powder, we return.
+        return;
     }
 
     // We use _dirIndex to avoid any calls to rand(). We dont get truly random direction but
@@ -546,120 +533,45 @@ void CAEngine::powderPhysics(int blockIndex)
     if (_dirIndex == DIRS_SIZE) _dirIndex = 0;
     // Loop through our 4 "random" directions
     for (int i = _dirIndex; i < _dirIndex + NUM_AXIS; i++) {
+        // Get the neighbor block in the direction
         switch (DIRS[i]) {
             case LEFT:
+                if (pos.x != 0) lockChunk(_chunk);
+                nextBlockData = _chunk->getLeftBlockData(blockIndex, pos.x,
+                                                         nextBlockIndex, nextChunk);
                 break;
             case RIGHT:
-                break;
-            case FRONT:
+                if (pos.x != CHUNK_WIDTH - 1) lockChunk(_chunk);
+                nextBlockData = _chunk->getRightBlockData(blockIndex, pos.x,
+                                                          nextBlockIndex, nextChunk);
                 break;
             case BACK:
+                if (pos.z != 0) lockChunk(_chunk);
+                nextBlockData = _chunk->getBackBlockData(blockIndex, pos.z,
+                                                         nextBlockIndex, nextChunk);
+                break;
+            case FRONT:
+                if (pos.z != CHUNK_WIDTH - 1) lockChunk(_chunk);
+                nextBlockData = _chunk->getFrontBlockData(blockIndex, pos.z,
+                                                          nextBlockIndex, nextChunk);
                 break;
         }
-    }
-
-
-    int blockType = _chunk->getBlockID(c);
-    if (Blocks[blockType].physicsProperty != P_POWDER) return;
-    int x = c % CHUNK_WIDTH;
-    int y = c / CHUNK_LAYER;
-    int z = (c % CHUNK_LAYER) / CHUNK_WIDTH;
-    int xz;
-
-    const glm::ivec3 &position = _chunk->gridPosition;
-
-    GLushort tmp1;
-    int b, c2, c3;
-    Chunk *owner, *owner2;
-    bool hasChanged = 0;
-    int tmp;
-    int r;
-
-    //bottom
-    if (GETBLOCK(b = _chunk->getBottomBlockData(c, y, &c2, &owner)).isSupportive == 0){
-        if (!owner || (owner->isAccessible == 0)) return;
-        if (GETBLOCKID(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKID(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
-
-            GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->getBlockData(c));
-
-            ChunkUpdater::removeBlock(_chunk, c, false);
-            hasChanged = 1;
-        } else{ //otherwise do simple cellular automata
-            b = GETBLOCKID(b);
-            //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
-            if (owner->getBlock(c2).powderMove){
-                tmp = owner->getBlockData(c2);
-                ChunkUpdater::placeBlock(owner, c2, _chunk->getBlockData(c));
-                ChunkUpdater::placeBlock(_chunk, c, tmp);
-            } else{
-                ChunkUpdater::placeBlock(owner, c2, _chunk->getBlockData(c));
-                ChunkUpdater::removeBlock(_chunk, c, false);
-            }
-       
-            hasChanged = 1;
+        // Get block info
+        const Block& nextBlock = GETBLOCK(nextBlockData);
+        // Check if we can move
+        if (nextBlock.isCrushable) {
+            // Move and crush block
+            ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+            lockChunk(_chunk);
+            ChunkUpdater::removeBlock(_chunk, blockIndex, false);
+            return;
+        } else if (nextBlock.powderMove) {
+            // Move and swap places
+            ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+            lockChunk(_chunk);
+            ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
+            return;
         }
-    }
-
-    //powder can only slide on powder
-    if (hasChanged == 0 && GETBLOCK(b).physicsProperty == P_POWDER){
-        r = (rand() % 24) * 4;
-
-        for (int i = r; i < r + 4; i++){
-            tmp = dirs[i];
-
-            switch (tmp){
-                //left
-            case 0:
-                b = _chunk->getLeftBlockData(c, x, &c2, &owner);
-                if (GETBLOCK(b).powderMove){
-                    if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->getBlockData(c);
-                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                        ChunkUpdater::placeBlock(owner, c2, tmp1);
-                        hasChanged = 1;
-                    }
-                }
-                break;
-                //right
-            case 1:
-                b = _chunk->getRightBlockData(c, x, &c2, &owner);
-                if (GETBLOCK(b).powderMove){
-                    if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->getBlockData(c);
-                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                        ChunkUpdater::placeBlock(owner, c2, tmp1);
-                        hasChanged = 1;
-                    }
-                }
-                break;
-                //front
-            case 2:
-                b = _chunk->getFrontBlockData(c, z, &c2, &owner);
-                if (GETBLOCK(b).powderMove){
-                    if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->getBlockData(c);
-                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                        ChunkUpdater::placeBlock(owner, c2, tmp1);
-                        hasChanged = 1;
-                    }
-                }
-                break;
-                //back
-            case 3:
-                b = _chunk->getBackBlockData(c, z, &c2, &owner);
-                if (GETBLOCK(b).powderMove){
-                    if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        tmp1 = _chunk->getBlockData(c);
-                        ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                        ChunkUpdater::placeBlock(owner, c2, tmp1);
-                        hasChanged = 1;
-                    }
-                }
-                break;
-            }
-            if (hasChanged) break;
-        }
-
     }
 }
 
