@@ -662,11 +662,8 @@
     <ClInclude Include="FixedSizeArrayRecycler.hpp">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
-    <ClInclude Include="FloraTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
-    <ClInclude Include="CellularAutomataTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
+    <ClInclude Include="VoxelNavigation.inl">
+      <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1075,12 +1072,6 @@
     <ClCompile Include="ChunkGridRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="FloraTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
-    <ClCompile Include="CellularAutomataTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -1107,6 +1098,9 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
+    </None>
+    <None Include="ChunkMesher.inl">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -119,12 +119,10 @@
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="BlockTextureMethods.h" />
-    <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="concurrentqueue.h" />
     <ClInclude Include="Event.hpp" />
-    <ClInclude Include="FloraTask.h" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
@@ -240,6 +238,7 @@
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="WSO.h" />
@@ -298,14 +297,12 @@
     <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
-    <ClCompile Include="CellularAutomataTask.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="ECS.cpp" />
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FullQuadVBO.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
@@ -449,6 +446,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Chunk.inl" />
+    <None Include="ChunkMesher.inl" />
     <None Include="VoxelIntervalTree.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -126,7 +126,6 @@ void CAEngine::updateLiquidBlocks()
 void CAEngine::updatePowderBlocks()
 {
     _lockedChunk = nullptr;
-    lockChunk(_chunk);
     bool *activeUpdateList = _chunk->activeUpdateList;
     vector <GLushort> *blockUpdateList = _chunk->blockUpdateList[1];
     int actv = activeUpdateList[1];

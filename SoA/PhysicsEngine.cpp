@@ -500,240 +500,240 @@ void PhysicsEngine::detectFloatingBlocks(const glm::dvec3 &viewDir)
 //TODO: Refactor the crap out of this. Tell Ben to change this before you try reading it.
 void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const glm::dvec3 &viewDirection, int searchLength)
 {
-    Chunk *ch = fallNode->ch;
-    int c = fallNode->c;
-    double explosionDist = ((double)fallNode->explosionDist);
-    glm::vec3 explosionDir(0.0f);
-    glm::dvec3 explosionLoc((double)fallNode->explosionDir[0], (double)fallNode->explosionDir[1], (double)fallNode->explosionDir[2]);
-    if (explosionDist != 0){
-        searchLength /= 5;
-        explosionLoc = explosionLoc + glm::dvec3(ch->gridPosition * CHUNK_WIDTH) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH);
-    }
+    //Chunk *ch = fallNode->ch;
+    //int c = fallNode->c;
+    //double explosionDist = ((double)fallNode->explosionDist);
+    //glm::vec3 explosionDir(0.0f);
+    //glm::dvec3 explosionLoc((double)fallNode->explosionDir[0], (double)fallNode->explosionDir[1], (double)fallNode->explosionDir[2]);
+    //if (explosionDist != 0){
+    //    searchLength /= 5;
+    //    explosionLoc = explosionLoc + glm::dvec3(ch->gridPosition * CHUNK_WIDTH) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH);
+    //}
 
-    Chunk *sch = ch;
-    Chunk *chunk2;
-    GLushort blockType;
-    int n, ntree, ln;
-    int sc = c;
-    int ti;
-    int c2;
-    int startY, btype;
-    int floatingAction, nSinceWood, btypeMasked;
-    startY = ch->gridPosition.y + c / CHUNK_LAYER;
-    bool isLeaf, fall;
-    GLubyte support;
-    bool toDo[6] = { 1, 1, 1, 1, 1, 1 }; //left right front back bottom
-    glm::vec4 color;
-    glm::vec3 crs;
-    glm::vec2 right;
-    crs = glm::cross(glm::vec3(viewDirection.x, 0, viewDirection.z), glm::vec3(0.0, 1.0, 0.0));
-    //    if (exposion){
-    right = glm::normalize(glm::vec2(crs.x, crs.z));
-    floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
+    //Chunk *sch = ch;
+    //Chunk *chunk2;
+    //GLushort blockType;
+    //int n, ntree, ln;
+    //int sc = c;
+    //int ti;
+    //int c2;
+    //int startY, btype;
+    //int floatingAction, nSinceWood, btypeMasked;
+    //startY = ch->gridPosition.y + c / CHUNK_LAYER;
+    //bool isLeaf, fall;
+    //GLubyte support;
+    //bool toDo[6] = { 1, 1, 1, 1, 1, 1 }; //left right front back bottom
+    //glm::vec4 color;
+    //glm::vec3 crs;
+    //glm::vec2 right;
+    //crs = glm::cross(glm::vec3(viewDirection.x, 0, viewDirection.z), glm::vec3(0.0, 1.0, 0.0));
+    ////    if (exposion){
+    //right = glm::normalize(glm::vec2(crs.x, crs.z));
+    //floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
 
-    if (GETBLOCK(sch->getLeftBlockData(sc)).floatingAction == 0) toDo[1] = 0;
-    if (GETBLOCK(sch->getRightBlockData(sc)).floatingAction == 0) toDo[2] = 0;
-    if (GETBLOCK(sch->getFrontBlockData(sc)).floatingAction == 0) toDo[3] = 0;
-    if (GETBLOCK(sch->getBackBlockData(sc)).floatingAction == 0) toDo[4] = 0;
-    if (GETBLOCK(sch->getBottomBlockData(sc)).floatingAction == 0) toDo[5] = 0;
+    //if (GETBLOCK(sch->getLeftBlockData(sc)).floatingAction == 0) toDo[1] = 0;
+    //if (GETBLOCK(sch->getRightBlockData(sc)).floatingAction == 0) toDo[2] = 0;
+    //if (GETBLOCK(sch->getFrontBlockData(sc)).floatingAction == 0) toDo[3] = 0;
+    //if (GETBLOCK(sch->getBackBlockData(sc)).floatingAction == 0) toDo[4] = 0;
+    //if (GETBLOCK(sch->getBottomBlockData(sc)).floatingAction == 0) toDo[5] = 0;
 
-    for (ti = 0; ti < 6; ti++){
-        fall = 1;
-        n = start;
-        ntree = 0;
-        if (toDo[ti] == 0) continue;
+    //for (ti = 0; ti < 6; ti++){
+    //    fall = 1;
+    //    n = start;
+    //    ntree = 0;
+    //    if (toDo[ti] == 0) continue;
 
-        switch (ti){
-        case 0: //top
-            if (floatingAction == 1){
-                if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(sc + CHUNK_LAYER, sch, 0);
-                } else if (sch->top && sch->top->isAccessible){
-                    _fnodes[n++].setValues(sc - CHUNK_SIZE + CHUNK_LAYER, sch->top, 0);
-                }
-            } else if (floatingAction == 2){
-                if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
-                    ChunkUpdater::removeBlock(sch, sc + CHUNK_LAYER, 1);
-                } else if (sch->top && sch->top->isAccessible){
-                    ChunkUpdater::removeBlock(sch->top, sc - CHUNK_SIZE + CHUNK_LAYER, 1);
-                }
-                continue;
-            } else{
-                continue;
-            }
-            break;
-        case 1: //left
-            if (sc%CHUNK_WIDTH > 0){
-                _fnodes[n++].setValues(sc - 1, sch, 0);
-            } else if (sch->left && sch->left->isAccessible){
-                _fnodes[n++].setValues(sc + CHUNK_WIDTH - 1, sch->left, 0);
-            }
-            break;
-        case 2: //right
-            if (sc%CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                _fnodes[n++].setValues(sc + 1, sch, 0);
-            } else if (sch->right && sch->right->isAccessible){
-                _fnodes[n++].setValues(sc - CHUNK_WIDTH + 1, sch->right, 0);
-            }
-            break;
-        case 3: //front
-            if ((sc%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                _fnodes[n++].setValues(sc + CHUNK_WIDTH, sch, 0);
-            } else if (sch->front && sch->front->isAccessible){
-                _fnodes[n++].setValues(sc - CHUNK_LAYER + CHUNK_WIDTH, sch->front, 0);
-            }
-            break;
-        case 4: //back
-            if ((sc%CHUNK_LAYER) / CHUNK_WIDTH > 0){
-                _fnodes[n++].setValues(sc - CHUNK_WIDTH, sch, 0);
-            } else if (sch->back && sch->back->isAccessible){
-                _fnodes[n++].setValues(sc + CHUNK_LAYER - CHUNK_WIDTH, sch->back, 0);
-            }
-            break;
-        case 5: //bottom
-            if (sc / CHUNK_LAYER > 0){
-                _fnodes[n++].setValues(sc - CHUNK_LAYER, sch, 0);
-            } else if (sch->bottom && sch->bottom->isAccessible){
-                _fnodes[n++].setValues(sc + CHUNK_SIZE - CHUNK_LAYER, sch->bottom, 0);
-            }
-            break;
-        }
+    //    switch (ti){
+    //    case 0: //top
+    //        if (floatingAction == 1){
+    //            if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(sc + CHUNK_LAYER, sch, 0);
+    //            } else if (sch->top && sch->top->isAccessible){
+    //                _fnodes[n++].setValues(sc - CHUNK_SIZE + CHUNK_LAYER, sch->top, 0);
+    //            }
+    //        } else if (floatingAction == 2){
+    //            if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
+    //                ChunkUpdater::removeBlock(sch, sc + CHUNK_LAYER, 1);
+    //            } else if (sch->top && sch->top->isAccessible){
+    //                ChunkUpdater::removeBlock(sch->top, sc - CHUNK_SIZE + CHUNK_LAYER, 1);
+    //            }
+    //            continue;
+    //        } else{
+    //            continue;
+    //        }
+    //        break;
+    //    case 1: //left
+    //        if (sc%CHUNK_WIDTH > 0){
+    //            _fnodes[n++].setValues(sc - 1, sch, 0);
+    //        } else if (sch->left && sch->left->isAccessible){
+    //            _fnodes[n++].setValues(sc + CHUNK_WIDTH - 1, sch->left, 0);
+    //        }
+    //        break;
+    //    case 2: //right
+    //        if (sc%CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //            _fnodes[n++].setValues(sc + 1, sch, 0);
+    //        } else if (sch->right && sch->right->isAccessible){
+    //            _fnodes[n++].setValues(sc - CHUNK_WIDTH + 1, sch->right, 0);
+    //        }
+    //        break;
+    //    case 3: //front
+    //        if ((sc%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //            _fnodes[n++].setValues(sc + CHUNK_WIDTH, sch, 0);
+    //        } else if (sch->front && sch->front->isAccessible){
+    //            _fnodes[n++].setValues(sc - CHUNK_LAYER + CHUNK_WIDTH, sch->front, 0);
+    //        }
+    //        break;
+    //    case 4: //back
+    //        if ((sc%CHUNK_LAYER) / CHUNK_WIDTH > 0){
+    //            _fnodes[n++].setValues(sc - CHUNK_WIDTH, sch, 0);
+    //        } else if (sch->back && sch->back->isAccessible){
+    //            _fnodes[n++].setValues(sc + CHUNK_LAYER - CHUNK_WIDTH, sch->back, 0);
+    //        }
+    //        break;
+    //    case 5: //bottom
+    //        if (sc / CHUNK_LAYER > 0){
+    //            _fnodes[n++].setValues(sc - CHUNK_LAYER, sch, 0);
+    //        } else if (sch->bottom && sch->bottom->isAccessible){
+    //            _fnodes[n++].setValues(sc + CHUNK_SIZE - CHUNK_LAYER, sch->bottom, 0);
+    //        }
+    //        break;
+    //    }
 
-        ln = start + 1;
-        if (start == n) fall = 0;
-        for (int i = start; i < n; i++){
-            c = _fnodes[i].c;
-            ch = _fnodes[i].ch;
-            btype = _fnodes[i].blockType;
-            btypeMasked = GETBLOCKID(btype);
-            support = Blocks[btype].isSupportive;
-            nSinceWood = _fnodes[i].nSinceWood;
-            //if (nSinceWood > MAXLEAFRADIUS) continue;                   REMOVED 
-            if (!support && nSinceWood) nSinceWood++;
-            if (btypeMasked == WOOD){
-                nSinceWood = 1;
-                ntree++;
-                isLeaf = 0;
-            } else if (btypeMasked == LEAVES1 || btypeMasked == LEAVES2){
-                ntree++;
-                isLeaf = 1;
-            } else{
-                isLeaf = 0;
-            }
+    //    ln = start + 1;
+    //    if (start == n) fall = 0;
+    //    for (int i = start; i < n; i++){
+    //        c = _fnodes[i].c;
+    //        ch = _fnodes[i].ch;
+    //        btype = _fnodes[i].blockType;
+    //        btypeMasked = GETBLOCKID(btype);
+    //        support = Blocks[btype].isSupportive;
+    //        nSinceWood = _fnodes[i].nSinceWood;
+    //        //if (nSinceWood > MAXLEAFRADIUS) continue;                   REMOVED 
+    //        if (!support && nSinceWood) nSinceWood++;
+    //        if (btypeMasked == WOOD){
+    //            nSinceWood = 1;
+    //            ntree++;
+    //            isLeaf = 0;
+    //        } else if (btypeMasked == LEAVES1 || btypeMasked == LEAVES2){
+    //            ntree++;
+    //            isLeaf = 1;
+    //        } else{
+    //            isLeaf = 0;
+    //        }
 
-            floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
-            if (nSinceWood && !support && GETBLOCK(blockType).isSupportive){ ch->setBlockID(c, btype); continue; }//belongs to another tree!
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(c + CHUNK_LAYER, ch, nSinceWood);
-                } else if (ch->top && ch->top->isAccessible){
-                    _fnodes[n++].setValues(c - CHUNK_SIZE + CHUNK_LAYER, ch->top, nSinceWood);
-                }
-            }
-
-
-            floatingAction = Blocks[GETBLOCKID((blockType = ch->getLeftBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c%CHUNK_WIDTH > 0){
-                    _fnodes[n++].setValues(c - 1, ch, nSinceWood);
-                } else if (ch->left && ch->left->isAccessible){
-                    _fnodes[n++].setValues(c + CHUNK_WIDTH - 1, ch->left, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKID((blockType = ch->getRightBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c%CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(c + 1, ch, nSinceWood);
-                } else if (ch->right && ch->right->isAccessible){
-                    _fnodes[n++].setValues(c - CHUNK_WIDTH + 1, ch->right, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKID((blockType = ch->getFrontBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if ((c%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(c + CHUNK_WIDTH, ch, nSinceWood);
-                } else if (ch->front && ch->front->isAccessible){
-                    _fnodes[n++].setValues(c - CHUNK_LAYER + CHUNK_WIDTH, ch->front, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKID((blockType = ch->getBackBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if ((c%CHUNK_LAYER) / CHUNK_WIDTH > 0){
-                    _fnodes[n++].setValues(c - CHUNK_WIDTH, ch, nSinceWood);
-                } else if (ch->back && ch->back->isAccessible){
-                    _fnodes[n++].setValues(c + CHUNK_LAYER - CHUNK_WIDTH, ch->back, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKID((blockType = ch->getBottomBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c / CHUNK_LAYER > 0){
-                    _fnodes[n++].setValues(c - CHUNK_LAYER, ch, nSinceWood);
-                } else if (ch->bottom && ch->bottom->isAccessible){
-                    _fnodes[n++].setValues(c + CHUNK_SIZE - CHUNK_LAYER, ch->bottom, nSinceWood);
-                }
-            }
-            ln = n;
-            if (n >= start + searchLength){
-                fall = 0;
-                //GET BLOCK RETURNS -1 ON FAILURE COULD CRASH
-                if (GETBLOCKID(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
-                if (GETBLOCKID(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
-                if (GETBLOCKID(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
-                if (GETBLOCKID(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
-                if (GETBLOCKID(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
-                start = n;
-                //for (int j = 0; j < n; j++){
-                //    fnodes[j].ch->data[fnodes[j].c] = fnodes[j].blockType;
-                //}
-                break;
-            }
-        }
-
-        if (fall){
-            if (GETBLOCKID(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
-            if (GETBLOCKID(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
-            if (GETBLOCKID(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
-            if (GETBLOCKID(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
-            if (GETBLOCKID(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
+    //        floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
+    //        if (nSinceWood && !support && GETBLOCK(blockType).isSupportive){ ch->setBlockID(c, btype); continue; }//belongs to another tree!
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(c + CHUNK_LAYER, ch, nSinceWood);
+    //            } else if (ch->top && ch->top->isAccessible){
+    //                _fnodes[n++].setValues(c - CHUNK_SIZE + CHUNK_LAYER, ch->top, nSinceWood);
+    //            }
+    //        }
 
 
-            if ((float)ntree / (float)(n - start) < 0.7f) right = glm::vec2(0.0f);
-            //make those blocks fall
-            for (int i = n - 1; i >= start; i--){
-                blockType = GETBLOCKID(_fnodes[i].blockType);
-                Block &block = Blocks[blockType];
-                ch = _fnodes[i].ch;
-                c = _fnodes[i].c;
-                if (GETBLOCK(ch->getTopBlockData(c, c / CHUNK_LAYER, &c2, &chunk2)).floatingAction == 2){
-                    ChunkUpdater::removeBlock(chunk2, c2, 1);
-                }
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getLeftBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c%CHUNK_WIDTH > 0){
+    //                _fnodes[n++].setValues(c - 1, ch, nSinceWood);
+    //            } else if (ch->left && ch->left->isAccessible){
+    //                _fnodes[n++].setValues(c + CHUNK_WIDTH - 1, ch->left, nSinceWood);
+    //            }
+    //        }
 
-                if (explosionDist != 0){
-                    explosionDir = glm::vec3((glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH)) - explosionLoc);
-                }
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getRightBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c%CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(c + 1, ch, nSinceWood);
+    //            } else if (ch->right && ch->right->isAccessible){
+    //                _fnodes[n++].setValues(c - CHUNK_WIDTH + 1, ch->right, nSinceWood);
+    //            }
+    //        }
 
-                int y = c / CHUNK_LAYER;
-                int xz = c - y*CHUNK_LAYER;
-                int ydiff = startY - (ch->gridPosition.y + c / CHUNK_LAYER);
-                if (ydiff > 0) ydiff = 0;
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getFrontBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if ((c%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(c + CHUNK_WIDTH, ch, nSinceWood);
+    //            } else if (ch->front && ch->front->isAccessible){
+    //                _fnodes[n++].setValues(c - CHUNK_LAYER + CHUNK_WIDTH, ch->front, nSinceWood);
+    //            }
+    //        }
 
-                //TODO: BAD! Make this a script
-                if (blockType != FIRE) addPhysicsBlock(glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH + 0.5, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _fnodes[i].blockType, ydiff, right, explosionDir, ch->getTemperature(xz), ch->getRainfall(xz));
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getBackBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if ((c%CHUNK_LAYER) / CHUNK_WIDTH > 0){
+    //                _fnodes[n++].setValues(c - CHUNK_WIDTH, ch, nSinceWood);
+    //            } else if (ch->back && ch->back->isAccessible){
+    //                _fnodes[n++].setValues(c + CHUNK_LAYER - CHUNK_WIDTH, ch->back, nSinceWood);
+    //            }
+    //        }
 
-                ch->setBlockData(c, blockType); //so that removeBlock functions correctly
-                ChunkUpdater::removeBlock(ch, c, false);
-            }
-        }
-    }
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getBottomBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c / CHUNK_LAYER > 0){
+    //                _fnodes[n++].setValues(c - CHUNK_LAYER, ch, nSinceWood);
+    //            } else if (ch->bottom && ch->bottom->isAccessible){
+    //                _fnodes[n++].setValues(c + CHUNK_SIZE - CHUNK_LAYER, ch->bottom, nSinceWood);
+    //            }
+    //        }
+    //        ln = n;
+    //        if (n >= start + searchLength){
+    //            fall = 0;
+    //            //GET BLOCK RETURNS -1 ON FAILURE COULD CRASH
+    //            if (GETBLOCKID(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
+    //            if (GETBLOCKID(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
+    //            if (GETBLOCKID(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
+    //            if (GETBLOCKID(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
+    //            if (GETBLOCKID(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
+    //            start = n;
+    //            //for (int j = 0; j < n; j++){
+    //            //    fnodes[j].ch->data[fnodes[j].c] = fnodes[j].blockType;
+    //            //}
+    //            break;
+    //        }
+    //    }
+
+    //    if (fall){
+    //        if (GETBLOCKID(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
+    //        if (GETBLOCKID(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
+    //        if (GETBLOCKID(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
+    //        if (GETBLOCKID(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
+    //        if (GETBLOCKID(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
+
+
+    //        if ((float)ntree / (float)(n - start) < 0.7f) right = glm::vec2(0.0f);
+    //        //make those blocks fall
+    //        for (int i = n - 1; i >= start; i--){
+    //            blockType = GETBLOCKID(_fnodes[i].blockType);
+    //            Block &block = Blocks[blockType];
+    //            ch = _fnodes[i].ch;
+    //            c = _fnodes[i].c;
+    //            if (GETBLOCK(ch->getTopBlockData(c, c / CHUNK_LAYER, &c2, &chunk2)).floatingAction == 2){
+    //                ChunkUpdater::removeBlock(chunk2, c2, 1);
+    //            }
+
+    //            if (explosionDist != 0){
+    //                explosionDir = glm::vec3((glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH)) - explosionLoc);
+    //            }
+
+    //            int y = c / CHUNK_LAYER;
+    //            int xz = c - y*CHUNK_LAYER;
+    //            int ydiff = startY - (ch->gridPosition.y + c / CHUNK_LAYER);
+    //            if (ydiff > 0) ydiff = 0;
+
+    //            //TODO: BAD! Make this a script
+    //            if (blockType != FIRE) addPhysicsBlock(glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH + 0.5, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _fnodes[i].blockType, ydiff, right, explosionDir, ch->getTemperature(xz), ch->getRainfall(xz));
+
+    //            ch->setBlockData(c, blockType); //so that removeBlock functions correctly
+    //            ChunkUpdater::removeBlock(ch, c, false);
+    //        }
+    //    }
+    //}
 }
 
 void PhysicsEngine::restoreDetectFloatingBlocks(int &size)

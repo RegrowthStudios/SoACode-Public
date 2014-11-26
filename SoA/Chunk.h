@@ -83,23 +83,6 @@ public:
     /// to remove chunks when their neighbors need them.
     bool isAdjacentInThread();
 
-    // Helper functions for getting neighbor data. They will lock if
-    // accessing neighbor chunks, and will return -1 if neighbor is null.
-    int getLeftBlockData(int blockIndex);
-    int getLeftBlockData(int blockIndex, int x, int& nextBlockIndex, Chunk*& owner);
-    int getRightBlockData(int blockIndex);
-    int getRightBlockData(int blockIndex, int x, int& nextBlockIndex, Chunk*& owner);
-    int getFrontBlockData(int blockIndex);
-    int getFrontBlockData(int blockIndex, int z, int& nextBlockIndex, Chunk*& owner);
-    int getBackBlockData(int blockIndex);
-    int getBackBlockData(int blockIndex, int z, int& nextBlockIndex, Chunk*& owner);
-    int getBottomBlockData(int blockIndex);
-    int getBottomBlockData(int blockIndex, int y, int& nextBlockIndex, Chunk*& owner);
-    int getBottomBlockData(int blockIndex, int y);
-    int getTopBlockData(int blockIndex);
-    int getTopBlockData(int blockIndex, int& nextBlockIndex, Chunk*& owner);
-    int getTopBlockData(int blockIndex, int y, int& nextBlockIndex, Chunk*& owner);
-
     int getTopSunlight(int c);
 
     void clear(bool clearDraw = 1);
