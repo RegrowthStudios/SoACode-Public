@@ -396,7 +396,7 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
         }
     }
 
-    if (bdy < bdz && bdy < bdx && dy < -0.5 && Blocks[GETBLOCKTYPE(chunk->getBottomBlockData(c))].collide == 0){ //head y collision
+    if (bdy < bdz && bdy < bdx && dy < -0.5 && Blocks[GETBLOCKID(chunk->getBottomBlockData(c))].collide == 0){ //head y collision
          //TODO PREVENT A FAST MOVING PERSON FROM GOING THROUGH BOTTOM BY TESTING HOW MUCH WE CAN CROUCH BEFORE WE BOUNCE OFF
     //    cout << "A";
         if (bdy > cData->headSquish) cData->headSquish = bdy; 

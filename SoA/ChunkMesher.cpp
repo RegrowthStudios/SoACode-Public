@@ -1387,7 +1387,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
                 //We use wc instead of c, because the array is sentinalized at all edges so we dont have to access neighbor chunks with mutexes
                 mi.wc = (mi.y + 1)*(dataLayer)+(mi.z + 1)*(dataWidth)+(mi.x + 1); //get the expanded c for our sentinelized array
                 //get the block properties
-                mi.btype = GETBLOCKTYPE(_blockIDData[mi.wc]);
+                mi.btype = GETBLOCKID(_blockIDData[mi.wc]);
                 block = &(Blocks[mi.btype]);
 
 
@@ -1539,7 +1539,7 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
 
     for (int i = 0; i < wSize; i++) {
         mi.wc = _wvec[i];
-        mi.btype = GETBLOCKTYPE(_blockIDData[mi.wc]);
+        mi.btype = GETBLOCKID(_blockIDData[mi.wc]);
         mi.x = (mi.wc % PADDED_CHUNK_WIDTH) - 1;
         mi.y = (mi.wc / PADDED_CHUNK_LAYER) - 1;
         mi.z = ((mi.wc % PADDED_CHUNK_LAYER) / PADDED_CHUNK_WIDTH) - 1;

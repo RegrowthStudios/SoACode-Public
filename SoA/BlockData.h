@@ -21,7 +21,7 @@
 #define GETFLAG2(a) (((a) & 0x4000) >> 14)
 #define GETFLAG3(a) (((a) & 0x2000) >> 13)
 #define GETFLAG4(a) (((a) & 0x1000) >> 12)
-#define GETBLOCKTYPE(a) (((a) & 0x0FFF))
+#define GETBLOCKID(a) (((a) & 0x0FFF))
 #define GETBLOCK(a) ((Blocks[((a) & 0x0FFF)]))
 #define SETFLAGS(a, b) ((a) = ((a) | ((b) << 12)))
 

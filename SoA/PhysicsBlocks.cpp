@@ -231,7 +231,7 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
 
     _gravity = GRAVITY;
     _friction = 0.985f;
-    _blockID = GETBLOCKTYPE(BlockType);
+    _blockID = GETBLOCKID(BlockType);
 
     double v = 0.0;
     bool tree = 0;

@@ -83,28 +83,23 @@ public:
     /// to remove chunks when their neighbors need them.
     bool isAdjacentInThread();
 
-    int getLeftBlockData(int c);
-    int getLeftBlockData(int c, int x, int *c2, Chunk **owner);
-    int getRightBlockData(int c);
-    int getRightBlockData(int c, int x, int *c2, Chunk **owner);
-    int getFrontBlockData(int c);
-    int getFrontBlockData(int c, int z, int *c2, Chunk **owner);
-    int getBackBlockData(int c);
-    int getBackBlockData(int c, int z, int *c2, Chunk **owner);
-    int getBottomBlockData(int c);
-    int getBottomBlockData(int c, int y, int *c2, Chunk **owner);
-    int getTopBlockData(int c);
-    int getTopBlockData(int c, int *c2, Chunk **owner);
-    int getTopBlockData(int c, int y, int *c2, Chunk **owner);
+    // Helper functions for getting neighbor data. They will lock if
+    // accessing neighbor chunks, and will return -1 if neighbor is null.
+    int getLeftBlockData(int blockIndex);
+    int getLeftBlockData(int blockIndex, int x, int& nextBlockIndex, Chunk*& owner);
+    int getRightBlockData(int blockIndex);
+    int getRightBlockData(int blockIndex, int x, int& nextBlockIndex, Chunk*& owner);
+    int getFrontBlockData(int blockIndex);
+    int getFrontBlockData(int blockIndex, int z, int& nextBlockIndex, Chunk*& owner);
+    int getBackBlockData(int blockIndex);
+    int getBackBlockData(int blockIndex, int z, int& nextBlockIndex, Chunk*& owner);
+    int getBottomBlockData(int blockIndex);
+    int getBottomBlockData(int blockIndex, int y, int& nextBlockIndex, Chunk*& owner);
+    int getTopBlockData(int blockIndex);
+    int getTopBlockData(int blockIndex, int& nextBlockIndex, Chunk*& owner);
+    int getTopBlockData(int blockIndex, int y, int& nextBlockIndex, Chunk*& owner);
 
     int getTopSunlight(int c);
-
-    void getLeftLightData(int c, GLbyte &l, GLbyte &sl);
-    void getRightLightData(int c, GLbyte &l, GLbyte &sl);
-    void getFrontLightData(int c, GLbyte &l, GLbyte &sl);
-    void getBackLightData(int c, GLbyte &l, GLbyte &sl);
-    void getBottomLightData(int c, GLbyte &l, GLbyte &sl);
-    void getTopLightData(int c, GLbyte &l, GLbyte &sl);
 
     void clear(bool clearDraw = 1);
     void clearBuffers();

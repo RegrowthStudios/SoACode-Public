@@ -83,7 +83,7 @@ bool Particle::update(const f64v3& batchPosition) {
                 }
             } else { //y collide
                 tc = GETBLOCK(ch->getTopBlockData(c)).collide;
-                if(fy <= 0 && (Blocks[GETBLOCKTYPE(ch->getBottomBlockData(c))].collide == 0)) {
+                if(fy <= 0 && (Blocks[GETBLOCKID(ch->getBottomBlockData(c))].collide == 0)) {
                     position.y -= 0.5001f - Afy;
                 } else if(tc == 0) {
                     position.y += 0.5001f - Afy;

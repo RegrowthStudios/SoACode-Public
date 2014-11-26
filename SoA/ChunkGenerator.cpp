@@ -169,7 +169,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 
                 nh = h - (maph + snowDepth + sandDepth);
                 if (maph < 0) nh += 6; //add six layers of rock when underground to prevent water walls
-                if (data != NONE && (GETBLOCKTYPE(data) < LOWWATER) && nh <= 1){
+                if (data != NONE && (GETBLOCKID(data) < LOWWATER) && nh <= 1){
 
                     if (needsCave == 3){
                         generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity1, 9, 0, 5, 0.6, 0.0004);

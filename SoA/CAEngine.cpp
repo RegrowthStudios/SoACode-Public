@@ -67,7 +67,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
             }
         }
         if (sinkVal){
-            if (GETBLOCKTYPE(_chunk->getTopBlockData(c)) == sinkVal){
+            if (GETBLOCKID(_chunk->getTopBlockData(c)) == sinkVal){
                 if (c + CHUNK_LAYER < CHUNK_SIZE){
                     c = c + CHUNK_LAYER;
                     _chunk->setBlockID(c, NONE); //TODO: This is incorrect, should call RemoveBlock or something similar
@@ -475,15 +475,90 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
     }
 }
 
-//every permutation of 0-3
-const int dirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0, 3, 1, 2,
-1, 0, 2, 3, 1, 0, 3, 2, 1, 2, 0, 3, 1, 2, 3, 0, 1, 3, 2, 0, 1, 3, 0, 2,
-2, 0, 1, 3, 2, 0, 3, 1, 2, 1, 3, 0, 2, 1, 0, 3, 2, 3, 0, 1, 2, 3, 1, 0,
-3, 0, 1, 2, 3, 0, 2, 1, 3, 1, 2, 0, 3, 1, 0, 2, 3, 2, 0, 1, 3, 2, 1, 0 };
-
 //I will refactor this -Ben
-void CAEngine::powderPhysics(int c)
+void CAEngine::powderPhysics(int blockIndex)
 {
+    // Directional constants
+    #define LEFT 0
+    #define RIGHT 1
+    #define FRONT 2
+    #define BACK 3
+    // Every permutation of 0-3 for random axis directions
+    #define DIRS_SIZE 96
+    static const int DIRS[DIRS_SIZE] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0, 3, 1, 2,
+        1, 0, 2, 3, 1, 0, 3, 2, 1, 2, 0, 3, 1, 2, 3, 0, 1, 3, 2, 0, 1, 3, 0, 2,
+        2, 0, 1, 3, 2, 0, 3, 1, 2, 1, 3, 0, 2, 1, 0, 3, 2, 3, 0, 1, 2, 3, 1, 0,
+        3, 0, 1, 2, 3, 0, 2, 1, 3, 1, 2, 0, 3, 1, 0, 2, 3, 2, 0, 1, 3, 2, 1, 0 };
+
+    // Aquire the lock
+    lockChunk(_chunk);
+
+    int blockData = _chunk->getBlockData(blockIndex);
+    int blockID = GETBLOCKID(blockData);
+    int nextBlockData, nextBlockID, nextBlockIndex;
+    // Make sure this is a powder block
+    if (Blocks[blockID].physicsProperty != P_POWDER) return;
+
+    i32v3 pos = getPosFromBlockIndex(blockIndex);
+
+    Chunk* nextChunk;
+    _chunk->getBottomBlockData(blockIndex, pos.y, )
+
+    // Check for falling
+    if (pos.y == 0) {
+        // Edge condition
+        Chunk *& bottomChunk = _chunk->bottom;
+        if (bottomChunk && bottomChunk->isAccessible) {
+            // Lock the chunk for thread safety
+            lockChunk(bottomChunk);
+            // Get info about the block
+            nextBlockIndex = blockIndex - CHUNK_LAYER + CHUNK_SIZE;
+            nextBlockData = bottomChunk->getBlockData(nextBlockIndex);
+            nextBlockID = GETBLOCKID(nextBlockData);
+            const Block& nextBlock = Blocks[nextBlockID];
+            // Check if we can move down
+            if (nextBlock.isCrushable) {
+                // Move down and crush block
+                ChunkUpdater::placeBlock(bottomChunk, nextBlockIndex, blockData);
+                lockChunk(_chunk);
+                ChunkUpdater::removeBlock(_chunk, blockIndex, false);
+                return;
+            } else if (nextBlock.powderMove) {
+                // Move down and swap places
+                ChunkUpdater::placeBlock(bottomChunk, nextBlockIndex, blockData);
+                lockChunk(_chunk);
+                ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
+                return;
+            } else if (nextBlock.physicsProperty != P_POWDER) {
+                // We can only slide on powder, so if its not powder, we return.
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    // We use _dirIndex to avoid any calls to rand(). We dont get truly random direction but
+    // it appears random.
+    #define NUM_AXIS 4
+    _dirIndex += NUM_AXIS;
+    // Wrap back to zero
+    if (_dirIndex == DIRS_SIZE) _dirIndex = 0;
+    // Loop through our 4 "random" directions
+    for (int i = _dirIndex; i < _dirIndex + NUM_AXIS; i++) {
+        switch (DIRS[i]) {
+            case LEFT:
+                break;
+            case RIGHT:
+                break;
+            case FRONT:
+                break;
+            case BACK:
+                break;
+        }
+    }
+
+
     int blockType = _chunk->getBlockID(c);
     if (Blocks[blockType].physicsProperty != P_POWDER) return;
     int x = c % CHUNK_WIDTH;
@@ -503,14 +578,14 @@ void CAEngine::powderPhysics(int c)
     //bottom
     if (GETBLOCK(b = _chunk->getBottomBlockData(c, y, &c2, &owner)).isSupportive == 0){
         if (!owner || (owner->isAccessible == 0)) return;
-        if (GETBLOCKTYPE(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKTYPE(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
+        if (GETBLOCKID(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKID(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
 
             GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->getBlockData(c));
 
             ChunkUpdater::removeBlock(_chunk, c, false);
             hasChanged = 1;
         } else{ //otherwise do simple cellular automata
-            b = GETBLOCKTYPE(b);
+            b = GETBLOCKID(b);
             //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
             if (owner->getBlock(c2).powderMove){
                 tmp = owner->getBlockData(c2);
@@ -610,12 +685,12 @@ void CAEngine::snowPhysics(int c)
     //bottom
     if (GETBLOCK(b = _chunk->getBottomBlockData(c, y, &c2, &owner)).isSupportive == 0){
         if (!owner || (owner->isAccessible == 0)) return;
-        if (GETBLOCKTYPE(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKTYPE(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
+        if (GETBLOCKID(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKID(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
             GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->getBlockData(c));
             ChunkUpdater::removeBlock(_chunk, c, false);
             hasChanged = 1;
         } else{ //otherwise do simple cellular automata
-            b = GETBLOCKTYPE(b);
+            b = GETBLOCKID(b);
             //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
             if (owner->getBlock(c2).powderMove){
                 tmp = owner->getBlockData(c2);

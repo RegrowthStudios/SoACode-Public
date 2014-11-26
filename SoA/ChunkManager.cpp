@@ -151,6 +151,7 @@ void ChunkManager::update(const Camera* camera) {
     if (gridPosition != oldGridPosition) {
         _voxelMapper->offsetPosition(_cameraVoxelMapData, i32v2(gridPosition.y - oldGridPosition.y, gridPosition.x - oldGridPosition.x));
     }
+
     oldGridPosition = gridPosition;
 
     if (getChunk(chunkPosition) == nullptr) {
@@ -166,7 +167,7 @@ void ChunkManager::update(const Camera* camera) {
 
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
-
+        
     globalMultiplePreciseTimer.start("Sort");
 
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {

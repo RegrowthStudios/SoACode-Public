@@ -55,7 +55,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
         //TODO: Replace most of this with block update scripts
         //TODO(Ben): There are race conditions here!
-        if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKTYPE(chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner)) < LOWWATER)){
+        if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKID(chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner)) < LOWWATER)){
             chunk->setBlockID(blockIndex, NONE);
             owner->numBlocks--;
             needsSetup = true;
@@ -66,15 +66,15 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
             needsSetup = true;
             newState = ChunkStates::MESH;
         } else if (blockID == DIRTGRASS){
-            int bt = GETBLOCKTYPE(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner));
+            int bt = GETBLOCKID(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner));
             if ((Blocks[bt].collide && bt != LEAVES1) || bt >= LOWWATER){
                 chunk->setBlockID(blockIndex, DIRT);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
             }
         } else if (blockID == DIRT){
-            if ((rand() % 10 == 0) && (GETBLOCKTYPE(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner)) == NONE) && (GETBLOCKTYPE(chunk->getLeftBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKTYPE(chunk->getRightBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS ||
-                GETBLOCKTYPE(chunk->getFrontBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKTYPE(chunk->getBackBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS)){
+            if ((rand() % 10 == 0) && (GETBLOCKID(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner)) == NONE) && (GETBLOCKID(chunk->getLeftBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKID(chunk->getRightBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS ||
+                GETBLOCKID(chunk->getFrontBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKID(chunk->getBackBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS)){
                 chunk->setBlockID(blockIndex, DIRTGRASS);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
@@ -175,7 +175,7 @@ void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
     }
 
     ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
-    if (GETBLOCKTYPE(blockType) >= LOWWATER) {
+    if (GETBLOCKID(blockType) >= LOWWATER) {
         chunk->changeState(ChunkStates::WATERMESH);
         updateNeighborStates(chunk, pos, ChunkStates::WATERMESH);
     } else{
@@ -238,7 +238,7 @@ void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockTyp
         chunk->lampLightUpdateQueue.emplace(blockIndex, block.lightColorPacked);
     }
 
-    if (GETBLOCKTYPE(blockType) >= LOWWATER) {
+    if (GETBLOCKID(blockType) >= LOWWATER) {
         chunk->changeState(ChunkStates::WATERMESH);
         updateNeighborStates(chunk, pos, ChunkStates::WATERMESH);
     } else {
@@ -298,9 +298,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
 
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
-    if (chunk->getBlockID(blockIndex) == 0) {
-        cout << "ALREADY REMOVED\n";
-    }
+    if (chunk->getBlockID(blockIndex) == 0) return;
 
     GLbyte da, db, dc;
 
@@ -623,7 +621,7 @@ void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
 void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force, glm::vec3 extraForce)
 {
     glm::vec4 color;
-    int btype = GETBLOCKTYPE(blockType);
+    int btype = GETBLOCKID(blockType);
     GLuint flags = GETFLAGS(blockType);
 
     color.a = 255;

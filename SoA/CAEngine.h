@@ -19,6 +19,7 @@ private:
     void snowPhysics(i32 c);
     void lockChunk(Chunk* chunk);
 
+    i32 _dirIndex = 0;
     i32 _lowIndex;
     i32 _range;
     i32 _highIndex;
