@@ -475,7 +475,6 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
     }
 }
 
-//I will refactor this -Ben
 void CAEngine::powderPhysics(int blockIndex)
 {
     // Directional constants
@@ -504,7 +503,10 @@ void CAEngine::powderPhysics(int blockIndex)
     // *** Falling in Y direction ***
     // Get bottom block
     nextBlockData = _chunk->getBottomBlockData(blockIndex, pos.y, nextBlockIndex, nextChunk);
+    // Check for edge
     if (nextBlockData == -1) return;
+    // Since getXXXBlockData may lock a chunk, we need this
+    _lockedChunk = nextChunk;
     // Get block info
     const Block& bottomBlock = GETBLOCK(nextBlockData);
     // Check if we can move down
@@ -556,21 +558,30 @@ void CAEngine::powderPhysics(int blockIndex)
                                                           nextBlockIndex, nextChunk);
                 break;
         }
-        // Get block info
-        const Block& nextBlock = GETBLOCK(nextBlockData);
-        // Check if we can move
-        if (nextBlock.isCrushable) {
-            // Move and crush block
-            ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
-            lockChunk(_chunk);
-            ChunkUpdater::removeBlock(_chunk, blockIndex, false);
-            return;
-        } else if (nextBlock.powderMove) {
-            // Move and swap places
-            ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
-            lockChunk(_chunk);
-            ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
-            return;
+        // Check for edge
+        if (nextBlockData == -1) return;
+        // Since getXXXBlockData may lock a chunk, we need this
+        _lockedChunk = nextChunk;
+        // Check bottom
+        const Block& diagonalBlock = GETBLOCK(nextChunk->getBottomBlockData(nextBlockIndex, pos.y));
+        // We only move to the side if we can fall down the next update
+        if (diagonalBlock.powderMove || diagonalBlock.isCrushable) {
+            // Get block info
+            const Block& nextBlock = GETBLOCK(nextBlockData);
+            // Check if we can move
+            if (nextBlock.isCrushable) {
+                // Move and crush block
+                ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+                lockChunk(_chunk);
+                ChunkUpdater::removeBlock(_chunk, blockIndex, false);
+                return;
+            } else if (nextBlock.powderMove) {
+                // Move and swap places
+                ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+                lockChunk(_chunk);
+                ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
+                return;
+            }
         }
     }
 }

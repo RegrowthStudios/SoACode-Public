@@ -95,6 +95,7 @@ public:
     int getBackBlockData(int blockIndex, int z, int& nextBlockIndex, Chunk*& owner);
     int getBottomBlockData(int blockIndex);
     int getBottomBlockData(int blockIndex, int y, int& nextBlockIndex, Chunk*& owner);
+    int getBottomBlockData(int blockIndex, int y);
     int getTopBlockData(int blockIndex);
     int getTopBlockData(int blockIndex, int& nextBlockIndex, Chunk*& owner);
     int getTopBlockData(int blockIndex, int y, int& nextBlockIndex, Chunk*& owner);

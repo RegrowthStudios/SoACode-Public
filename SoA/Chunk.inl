@@ -151,8 +151,8 @@ inline int Chunk::getBottomBlockData(int blockIndex)
 
 inline int Chunk::getBottomBlockData(int blockIndex, int y, int& nextBlockIndex, Chunk*& owner)
 {
-    owner = this;
     if (y > 0){
+        owner = this;
         nextBlockIndex = blockIndex - CHUNK_LAYER;
         return getBlockData(nextBlockIndex);
     } else if (bottom && bottom->isAccessible){
@@ -161,6 +161,19 @@ inline int Chunk::getBottomBlockData(int blockIndex, int y, int& nextBlockIndex,
         unlock();
         bottom->lock();
         return bottom->getBlockData(nextBlockIndex);
+    }
+    return -1;
+}
+
+inline int Chunk::getBottomBlockData(int blockIndex, int y) {
+    if (y > 0) {
+        return getBlockData(blockIndex - CHUNK_LAYER);
+    } else if (bottom && bottom->isAccessible) {
+        unlock();
+        bottom->lock();
+        return bottom->getBlockData(blockIndex + CHUNK_SIZE - CHUNK_LAYER);
+        bottom->unlock();
+        lock();
     }
     return -1;
 }
