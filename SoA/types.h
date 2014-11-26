@@ -114,6 +114,18 @@ public:
         r(r), g(g), b(b), a(a) {
         // Empty
     }
+    /// Create a color specifying all elements in floating point values
+    /// @param r: Red value [0.0f, 1.0f]
+    /// @param g: Green value [0.0f, 1.0f]
+    /// @param b: Blue value [0.0f, 1.0f]
+    /// @param a: Alpha value [0.0f, 1.0f]
+    ColorRGBA8(f32 r, f32 g, f32 b, f32 a = 1.0f) : ColorRGBA8(
+        ((ui8)r * 255.0f),
+        ((ui8)g * 255.0f),
+        ((ui8)b * 255.0f),
+        ((ui8)a * 255.0f)) {
+        // Empty
+    }
     /// Default black color
     ColorRGBA8() : ColorRGBA8(0, 0, 0) {
         // Empty
@@ -142,7 +154,8 @@ public:
         ui8 data[4]; ///< RGBA values stored in array
     };
 };
-typedef ColorRGBA8 color4;
+typedef ColorRGBA8 color4; ///< Simple name for ColorRGBA8
+
 /// RGB color using 8-bit elements
 struct ColorRGB8 {
 public:
@@ -152,6 +165,16 @@ public:
     /// @param b: Blue value
     ColorRGB8(ui8 r, ui8 g, ui8 b) :
         r(r), g(g), b(b) {
+        // Empty
+    }
+    /// Create a color specifying all elements in floating point values
+    /// @param r: Red value [0.0f, 1.0f]
+    /// @param g: Green value [0.0f, 1.0f]
+    /// @param b: Blue value [0.0f, 1.0f]
+    ColorRGB8(f32 r, f32 g, f32 b) : ColorRGB8(
+        ((ui8)r * 255.0f),
+        ((ui8)g * 255.0f),
+        ((ui8)b * 255.0f)) {
         // Empty
     }
     /// Default black color
@@ -181,7 +204,7 @@ public:
         ui8 data[3]; ///< RGB values stored in array
     };
 };
-typedef ColorRGB8 color3;
+typedef ColorRGB8 color3; ///< Simple name for ColorRGB8
 
 /// A common array type for unknown values
 class ArrayBase {
