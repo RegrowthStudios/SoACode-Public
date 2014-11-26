@@ -7,8 +7,6 @@
 #include <set>
 #include <thread>
 
-#include <boost/circular_buffer.hpp>
-
 #include "Vorb.h"
 
 #include "BlockData.h"
@@ -303,12 +301,12 @@ private:
     /// Chunk Lists
     /// Stack of free chunks that have been recycled and can be used
     std::vector<Chunk*> _freeList;
-    /// List of chunks needing setup
-    boost::circular_buffer<Chunk*> _setupList;
-    /// List of chunks that need to be meshed on the threadPool
-    boost::circular_buffer<Chunk*> _meshList;
-    /// List of chunks that need to be sent to the IO thread
-    boost::circular_buffer<Chunk*> _loadList;
+    /// Stack of chunks needing setup
+    std::vector<Chunk*> _setupList;
+    /// Stack of chunks that need to be meshed on the threadPool
+    std::vector<Chunk*> _meshList;
+    /// Stack of chunks that need to be sent to the IO thread
+    std::vector<Chunk*> _loadList;
 
     /// Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;

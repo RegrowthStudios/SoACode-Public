@@ -101,10 +101,10 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* vox
     _csGridSize = csGridWidth * csGridWidth * csGridWidth;
     _chunkSlotMap.reserve(_csGridSize);
 
-    // Set initial capacity of circular buffers
-    _setupList.set_capacity(_csGridSize * 2);
-    _meshList.set_capacity(_csGridSize * 2);
-    _loadList.set_capacity(_csGridSize * 2);
+    // Set initial capacity of stacks for efficiency
+    _setupList.reserve(_csGridSize / 2);
+    _meshList.reserve(_csGridSize / 2);
+    _loadList.reserve(_csGridSize / 2);
 
     // Reserve capacity for chunkslots. If this capacity is not enough, we will get a 
     // crash. We use * 4 just in case. It should be plenty

@@ -836,7 +836,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     }
 }
 
-void Chunk::addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr) {
+void Chunk::addToChunkList(std::vector<Chunk*> *chunkListPtr) {
     _chunkListPtr = chunkListPtr;
     chunkListPtr->push_back(this);
 }

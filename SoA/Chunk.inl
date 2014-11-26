@@ -12,7 +12,7 @@ inline void Chunk::changeState(ChunkStates State)
         _state = State;
 
         //isAccessible is a flag that prevents threads from trying to
-        //acces the chunk when its loading or generating
+        //access the chunk when its loading or generating
         if (_state > ChunkStates::GENERATE){
             isAccessible = true;
         } else{

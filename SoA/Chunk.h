@@ -4,8 +4,6 @@
 #include <set>
 #include <mutex>
 
-#include <boost/circular_buffer.hpp>
-
 #include "Vorb.h"
 #include "IVoxelMapper.h"
 
@@ -94,7 +92,7 @@ public:
 
     void setupMeshData(ChunkMesher *chunkMesher);
 
-    void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
+    void addToChunkList(std::vector<Chunk*> *chunkListPtr);
     void clearChunkListPtr();
 
     bool hasCaUpdates(int index);
@@ -217,7 +215,7 @@ private:
     std::mutex _dataLock; ///< Lock that guards chunk data. Try to minimize locking.
 
     // Keeps track of which setup list we belong to
-    boost::circular_buffer<Chunk*> *_chunkListPtr;
+    std::vector <Chunk*> *_chunkListPtr;
 
     ChunkStates _state;
 

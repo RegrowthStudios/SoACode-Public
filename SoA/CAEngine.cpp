@@ -13,7 +13,7 @@
 
 CAEngine::CAEngine() {
     memset(_blockUpdateFlagList, 0, sizeof(_blockUpdateFlagList));
-    //temorary
+    //temporary
     _lowIndex = LOWWATER; 
     _range = 100;
     _highIndex = _lowIndex + _range - 1;
@@ -189,7 +189,7 @@ void CAEngine::updatePowderBlocks()
 }
 
 void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
-
+    return;
     i32v3 pos = getPosFromBlockIndex(startBlockIndex);
     Chunk* owner;
     i32 nextIndex;
