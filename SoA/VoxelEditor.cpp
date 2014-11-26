@@ -1,12 +1,13 @@
 #include "stdafx.h"
-
 #include "VoxelEditor.h"
+
+#include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "ChunkUpdater.h"
-#include "Sound.h"
-#include "BlockData.h"
 #include "Item.h"
+#include "Sound.h"
+#include "VoxelNavigation.inl"
 
 
 VoxelEditor::VoxelEditor() : _currentTool(EDITOR_TOOLS::AABOX), _startPosition(INT_MAX), _endPosition(INT_MAX) {
@@ -80,18 +81,14 @@ void VoxelEditor::placeAABox(Item *block) {
                 chunkManager->getBlockAndChunk(i32v3(x, y, z), &chunk, blockIndex);
 
                 if (chunk && chunk->isAccessible) {
-                    if (lockedChunk != chunk) {
-                        if (lockedChunk) lockedChunk->unlock();
-                        chunk->lock();
-                        lockedChunk = chunk;
-                    }
-                    blockID = chunk->getBlockID(blockIndex);
+                  
+                    blockID = chunk->getBlockIDSafe(lockedChunk, blockIndex);
 
                     if (breakBlocks){
                         if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)){
                             if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
-                            ChunkUpdater::removeBlock(chunk, blockIndex, true);
+                            ChunkUpdater::removeBlock(chunk, lockedChunk, blockIndex, true);
                         }
                     } else {
                         if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0))

@@ -927,16 +927,10 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
 
         ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
 
-        // TODO(Ben): Use a smother property for block instead of this hard coded garbage
-        if (blockIndex >= CHUNK_LAYER) {
-            if (owner->getBlockID(blockIndex - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(blockIndex - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
-        } else if (owner->bottom && owner->bottom->isAccessible) {
-            // Lock the chunk
-            if (lockedChunk) lockedChunk->unlock();
-            lockedChunk = owner->bottom;
-            lockedChunk->lock();
-
-            if (owner->bottom->getBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
+        // TODO(Ben): Use a smother transform property for block instead of this hard coded garbage
+        int blockID = GETBLOCKID(vvox::getBottomBlockData(owner, lockedChunk, blockIndex, blockIndex, owner));
+        if (blockID == Blocks::DIRTGRASS) {
+            owner->setBlockData(blockIndex, Blocks::DIRT);
         }
     }
 

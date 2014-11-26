@@ -195,7 +195,7 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 si
                                                 chunk = chunks[i];
                                                 if (chunk->isAccessible == false) continue;
 
-                                                blockID = chunk->getBlockIDSafe(c, lockedChunk);
+                                                blockID = chunk->getBlockIDSafe(lockedChunk, c);
 
                                                 if (blockID){
                                                     blockCollision(player, lockedChunk, chunks[i], blockID, c, bdx, bdy, bdz, dx, dy, dz);

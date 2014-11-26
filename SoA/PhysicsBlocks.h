@@ -37,7 +37,7 @@ public:
 class PhysicsBlock {
 public:
     PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 BlockType, i32 ydiff, f32v2& dir, f32v3 extraForce);
-    bool update();
+    bool update(Chunk*& lockedChunk);
 
     f32v3 position;
     f32v3 velocity;

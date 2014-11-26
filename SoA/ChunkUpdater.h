@@ -34,7 +34,7 @@ private:
     static void updateFireBlock(Chunk* chunk, int blockIndex);
     static float getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
     static void burnAdjacentBlocks(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
-    static inline void checkBurnBlock(int blockIndex, int blockType, Chunk *owner, float burnMult = 1.0);
+    static inline void checkBurnBlock(int blockIndex, Chunk*& lockedChunk, int blockType, Chunk *owner, float burnMult = 1.0);
 };
 
 

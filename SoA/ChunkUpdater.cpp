@@ -39,7 +39,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
         pos = getPosFromBlockIndex(blockIndex);
         
-        blockID = chunk->getBlockIDSafe(blockIndex, lockedChunk);
+        blockID = chunk->getBlockIDSafe(lockedChunk, blockIndex);
 
         if (Blocks[blockID].emitterRandom){
             // uncomment for falling leaves
@@ -49,8 +49,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
         //TODO: Replace most of this with block update scripts
         //TODO(Ben): There are race conditions here!
         if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKID(vvox::getBottomBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner)) < LOWWATER)) {
-            vvox::lockChunk(chunk, lockedChunk);
-            chunk->setBlockID(blockIndex, NONE);
+            chunk->setBlockDataSafe(lockedChunk, blockIndex, NONE);
             owner->numBlocks--;
             needsSetup = true;
             newState = ChunkStates::WATERMESH;
@@ -62,8 +61,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
         } else if (blockID == DIRTGRASS){
             int bt = GETBLOCKID(vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner));
             if ((Blocks[bt].collide && bt != LEAVES1) || bt >= LOWWATER){
-                vvox::lockChunk(chunk, lockedChunk);
-                chunk->setBlockID(blockIndex, DIRT);
+                chunk->setBlockDataSafe(lockedChunk, blockIndex, DIRT);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
             }
@@ -73,8 +71,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
                 GETBLOCKID(vvox::getRightBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner)) == DIRTGRASS ||
                 GETBLOCKID(vvox::getFrontBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner)) == DIRTGRASS ||
                 GETBLOCKID(vvox::getBackBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner)) == DIRTGRASS)) {
-                vvox::lockChunk(chunk, lockedChunk);
-                chunk->setBlockID(blockIndex, DIRTGRASS);
+                chunk->setBlockDataSafe(lockedChunk, blockIndex, DIRTGRASS);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
             }
@@ -123,10 +120,10 @@ void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIn
 void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
   
     //If you call placeBlock with the air block, call remove block
-    if (blockType == NONE) {
-        removeBlock(chunk, blockIndex, false);
-        return;
-    }
+ //   if (blockType == NONE) {
+ //       removeBlock(chunk, blockIndex, false);
+ //       return;
+ //   }
 
     Block &block = GETBLOCK(blockType);
 
@@ -681,21 +678,27 @@ float ChunkUpdater::getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int bl
     float flammability = 0.0f;
     // Bottom
     int bt = vvox::getBottomBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
     // Left
     bt = vvox::getLeftBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
     // Right
     bt = vvox::getRightBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
     // Back
     bt = vvox::getBackBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
     // Front
     bt = vvox::getFrontBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
     // Top
     bt = vvox::getTopBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
 
     if (flammability < 0) return 0.0f;
@@ -716,136 +719,162 @@ void ChunkUpdater::updateFireBlock(Chunk* chunk, int blockIndex){
     const float sideBotMult = 0.5;
     const float botMult = 0.8;
 
-    burnAdjacentBlocks(chunk, blockIndex);
-
     Chunk* lockedChunk = nullptr;
+
+    burnAdjacentBlocks(chunk, lockedChunk, blockIndex);
 
     //********************************************************left
     bt = vvox::getLeftBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //left front
     bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left back
     bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left top
     bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
     //left top front
     bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left top back
     bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left bottom
     bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //left bottom front
     bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //left bottom back
     bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //********************************************************right
     bt = vvox::getRightBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //left front
     bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left back
     bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left top
     bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
     //left top front
     bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left top back
     bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left bottom
     bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //left bottom front
     bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //left bottom back
     bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //******************************************************front
     bt = vvox::getFrontBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //front top
     bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
     //front bottom
     bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //********************************************************back
     bt = vvox::getBackBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //back top
     bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
     //back bottom
     bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //********************************************************top
     bt = vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
-    checkBurnBlock(blockIndex2, bt, owner2, topMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, topMult);
 
     //top front
     bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
     //top back
     bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
     //********************************************************bottom
     bt = vvox::getBottomBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
-    checkBurnBlock(blockIndex2, bt, owner2, botMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, botMult);
 
     //bottom front
     bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //bottom back
     bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     removeBlockSafe(chunk, lockedChunk, blockIndex, false);
 
@@ -945,15 +974,15 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, Chunk*& lockedChunk, int blo
     }
 }
 
-void ChunkUpdater::checkBurnBlock(int blockIndex, int blockType, Chunk *owner, float burnMult)
+void ChunkUpdater::checkBurnBlock(int blockIndex, Chunk*& lockedChunk, int blockType, Chunk *owner, float burnMult)
 {
     float burnProb;
     if ((blockType == NONE || GETBLOCK(blockType).waterBreak)){
-        burnProb = getBurnProbability(owner, blockIndex) * burnMult;
+        burnProb = getBurnProbability(owner, lockedChunk, blockIndex) * burnMult;
         if (burnProb > 0){
             float r = rand() / (float)RAND_MAX;
             if (r <= burnProb){
-               placeBlock(owner, blockIndex, FIRE);
+               placeBlockSafe(owner, lockedChunk, blockIndex, FIRE);
             }
         }
     }
