@@ -275,7 +275,8 @@ void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
     for (int i = 0; i < size; i++){
         
         // hack to stop generating minerals in the air
-        if (chunk->getBlockID(c)) {
+        int blockID = chunk->getBlockID(c);
+        if (blockID && blockID != DIRTGRASS && blockID < LOWWATER) {
             chunk->setBlockData(c, btype);
         }
 

@@ -215,7 +215,7 @@ private:
     std::mutex _dataLock; ///< Lock that guards chunk data. Try to minimize locking.
 
     // Keeps track of which setup list we belong to
-    std::vector <Chunk*> *_chunkListPtr;
+    std::vector <Chunk*>* _chunkListPtr;
 
     ChunkStates _state;
 
@@ -225,7 +225,7 @@ private:
     vvox::SmartVoxelContainer<ui16> _lampLightContainer;
     vvox::SmartVoxelContainer<ui16> _tertiaryDataContainer;
 
-    int _levelOfDetail;
+    int _levelOfDetail; ///< Determines the LOD of the chunk, 0 being base
 
 };
 
