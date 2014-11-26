@@ -61,7 +61,7 @@ public:
 
     void clear();
 
-    bool openRegionFile(nString region, vvoxel::VoxelMapData* voxelMapData, bool create);
+    bool openRegionFile(nString region, vvox::VoxelMapData* voxelMapData, bool create);
 
     bool tryLoadChunk(Chunk* chunk);
     bool saveChunk(Chunk* chunk);

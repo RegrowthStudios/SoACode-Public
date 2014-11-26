@@ -284,7 +284,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
 
     lock();
 
-    if (_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+    if (_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
         int s = 0;
         //block data
@@ -318,7 +318,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
         }
         chunkMesher->wSize = s;
     }
-    if (_lampLightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+    if (_lampLightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //lamp data
         c = 0;
         for (int i = 0; i < _lampLightContainer._dataTree.size(); i++) {
@@ -343,7 +343,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             }
         }
     }
-    if (_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+    if (_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //sunlight data
         c = 0;
         for (int i = 0; i < _sunlightContainer._dataTree.size(); i++) {
@@ -368,7 +368,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             }
         }
     }
-    if (_tertiaryDataContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+    if (_tertiaryDataContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //tertiary data
         c = 0;
         for (int i = 0; i < _tertiaryDataContainer._dataTree.size(); i++) {

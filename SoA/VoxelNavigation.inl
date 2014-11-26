@@ -141,5 +141,5 @@ namespace vorb {
     }
 }
 
-namespace vvoxel = vorb::voxel;
+namespace vvox = vorb::voxel;
 #endif // VoxelNavigation_inl__

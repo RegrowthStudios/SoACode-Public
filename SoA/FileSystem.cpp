@@ -1397,10 +1397,10 @@ i32 FileManager::savePlayerFile(Player *player) {
     float facey = player->facePosition.y;
     float facez = player->facePosition.z;
 
-    if (vvoxel::FaceSigns[face][rot][0] != vvoxel::FaceSigns[face][0][0]) {
+    if (vvox::FaceSigns[face][rot][0] != vvox::FaceSigns[face][0][0]) {
         facez = -facez;
     }
-    if (vvoxel::FaceSigns[face][rot][1] != vvoxel::FaceSigns[face][0][1]) {
+    if (vvox::FaceSigns[face][rot][1] != vvox::FaceSigns[face][0][1]) {
         facex = -facex;
     }
 

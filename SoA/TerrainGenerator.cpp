@@ -368,7 +368,7 @@ void TerrainGenerator::GetBaseBiome(int x, int y, int z, Biome **b, int h)
     *b = (GameManager::planet->baseBiomesLookupMap.find(BiomeMap[rainfall][temperature]))->second;
 }
 
-void TerrainGenerator::setVoxelMapping(vvoxel::VoxelMapData* voxelMapData, int Radius, int pScale) {
+void TerrainGenerator::setVoxelMapping(vvox::VoxelMapData* voxelMapData, int Radius, int pScale) {
     int rdir;
     voxelMapData->getGenerationIterationConstants(iPos, jPos, rPos, iDir, jDir, rdir);
     radius = Radius * rdir;

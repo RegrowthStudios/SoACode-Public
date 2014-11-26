@@ -72,7 +72,7 @@ ChunkManager::~ChunkManager() {
     delete _voxelLightEngine;
 }
 
-void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
+void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper, vvox::VoxelMapData* startingMapData, ui32 flags) {
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
@@ -617,10 +617,10 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
             }
 
             // Init the containers
-            ch->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-            ch->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-            ch->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-            ch->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_blockIDContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
+            ch->_lampLightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
+            ch->_sunlightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
+            ch->_tertiaryDataContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
 
             // Initialize the task
             generateTask->init(ch, new LoadData(ch->chunkGridData->heightData, GameManager::terrainGenerator));
@@ -639,7 +639,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
     }
 }
 
-void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
+void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
 
     // Get the voxel grid position
     i32v2 gridPos(chunkPosition.x, chunkPosition.z);
@@ -903,11 +903,11 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     // Decompress all chunks to arrays for efficiency
     for (auto& it : nodes->allChunkPositions) {
         Chunk* chunk = getChunk(it);
-        if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+        if (chunk->_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+            chunk->_blockIDContainer.changeState(vvox::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
-        if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+        if (chunk->_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+            chunk->_sunlightContainer.changeState(vvox::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
     }
 

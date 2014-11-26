@@ -70,7 +70,7 @@ public:
     /// @param gridPosition: the floating point starting grid position.
     /// @param voxelMapper: The chosen voxel mapping scheme
     /// @param flags: bitwise combination of ChunkManager::InitFlags
-    void initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags);
+    void initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper, vvox::VoxelMapData* startingMapData, ui32 flags);
 
     /// Updates the chunks
     /// @param camera: The camera that is rendering the voxels
@@ -206,7 +206,7 @@ private:
     /// @param chunkPosition: position to create the chunk at
     /// @param relativeMapData: the voxelMapData that this chunk is relative to.
     /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
-    void makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMapData* relativeMapData, const i32v2& ijOffset = i32v2(0));
+    void makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset = i32v2(0));
 
     /// Initializes minerals. This function is temporary.
     void initializeMinerals();
@@ -330,10 +330,10 @@ private:
     ChunkDiagnostics _chunkDiagnostics;
 
     /// The current voxel mapping scheme
-    vvoxel::IVoxelMapper* _voxelMapper;
+    vvox::IVoxelMapper* _voxelMapper;
 
     /// Voxel mapping data at the camera
-    vvoxel::VoxelMapData* _cameraVoxelMapData;
+    vvox::VoxelMapData* _cameraVoxelMapData;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool _threadPool;

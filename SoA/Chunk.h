@@ -40,14 +40,14 @@ class ChunkMesher;
 
 class ChunkGridData {
 public:
-    ChunkGridData(vvoxel::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData), refCount(1) {
+    ChunkGridData(vvox::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData), refCount(1) {
         //Mark the data as unloaded
         heightData[0].height = UNLOADED_HEIGHT;
     }
     ~ChunkGridData() {
         delete voxelMapData;
     }
-    vvoxel::VoxelMapData* voxelMapData;
+    vvox::VoxelMapData* voxelMapData;
     HeightData heightData[CHUNK_LAYER];
     int refCount;
 };
@@ -194,7 +194,7 @@ public:
 
     ChunkSlot* owner;
     ChunkGridData* chunkGridData;
-    vvoxel::VoxelMapData* voxelMapData;
+    vvox::VoxelMapData* voxelMapData;
 
     // Thread safety functions
     inline void lock() { _dataLock.lock(); }
@@ -215,10 +215,10 @@ private:
     ChunkStates _state;
 
     //The data that defines the voxels
-    vvoxel::SmartVoxelContainer<ui16> _blockIDContainer;
-    vvoxel::SmartVoxelContainer<ui8> _sunlightContainer;
-    vvoxel::SmartVoxelContainer<ui16> _lampLightContainer;
-    vvoxel::SmartVoxelContainer<ui16> _tertiaryDataContainer;
+    vvox::SmartVoxelContainer<ui16> _blockIDContainer;
+    vvox::SmartVoxelContainer<ui8> _sunlightContainer;
+    vvox::SmartVoxelContainer<ui16> _lampLightContainer;
+    vvox::SmartVoxelContainer<ui16> _tertiaryDataContainer;
 
     int _levelOfDetail;
 
