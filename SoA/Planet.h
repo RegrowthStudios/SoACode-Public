@@ -70,8 +70,7 @@ public:
 
     void draw(f32 theta, const f32m4& VP, const f32m4& V, f32v3 lightPos, const f64v3& PlayerPos, f32 sunVal, f32 fadeDistance, bool connectedToPlanet);
     void drawTrees(const f32m4& VP, const f64v3& PlayerPos, f32 sunVal);
-    void drawGroundFromAtmosphere(f32 theta, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, f32 fadeDistance, bool onPlanet);
-    void drawGroundFromSpace(f32 theta, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, bool onPlanet);
+    void drawGround(f32 theta, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, bool onPlanet);
 
     void updateLODs(f64v3& worldPosition, ui32 maxTicks);
     void rotationUpdate();
