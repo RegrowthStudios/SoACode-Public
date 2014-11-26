@@ -281,7 +281,6 @@
     <ClInclude Include="Texture2d.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="FloraGenerator.h" />
-    <ClInclude Include="types.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />

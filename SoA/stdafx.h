@@ -29,8 +29,7 @@
 #include <vector>
 
 #include <GL/glew.h>
-
-#include "types.h"
+#include <types.h>
 
 #endif // STDAFX_H_
 
