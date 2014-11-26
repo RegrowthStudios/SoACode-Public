@@ -102,6 +102,7 @@ i32 BlockLoader::SetWaterBlocks(int startID) {
         Blocks[i] = Blocks[startID];
         Blocks[i].name = "Water (" + to_string(i - startID + 1) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
+        Blocks[i].meshType = MeshType::LIQUID;
     }
     for (int i = startID + 100; i < startID + 150; i++) {
         if (Blocks[i].active) {

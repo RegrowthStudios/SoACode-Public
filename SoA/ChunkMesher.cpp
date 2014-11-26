@@ -1603,7 +1603,8 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                     for (int lz = 0; lz < lodStep; lz++) {
                         for (int lx = 0; lx < lodStep; lx++) {
                             blockIndex = startIndex + ly * PADDED_CHUNK_LAYER + lz * PADDED_CHUNK_WIDTH + lx;
-                            if (GETBLOCK(_blockIDData[blockIndex]).occlude != BlockOcclusion::NONE) {
+                            const Block& block = GETBLOCK(_blockIDData[blockIndex]);
+                            if (block.occlude != BlockOcclusion::NONE || block.meshType == MeshType::LIQUID) {
                                 // Check for surface block
                                 if (GETBLOCK(_blockIDData[blockIndex + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE || surfaceBlockID == 0) {
                                     // TODO(Ben): Do better than just picking a random surfaceBlock
