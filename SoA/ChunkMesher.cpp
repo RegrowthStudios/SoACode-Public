@@ -490,7 +490,6 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 //END CALCULATE_LIQUID_VERTEX_HEIGHT
 
 void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
-    return;
     const Block &block = Blocks[mi.btype];
     Block* nextBlock;
     i32 nextBlockID;
