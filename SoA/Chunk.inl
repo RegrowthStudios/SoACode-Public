@@ -104,15 +104,20 @@ inline void Chunk::setTertiaryDataSafe(Chunk*& lockedChunk, int c, ui16 val) {
     setTertiaryData(c, val);
 }
 
-inline GLushort Chunk::getBlockData(int c) const {
+inline ui16 Chunk::getBlockData(int c) const {
     return _blockIDContainer.get(c);
+}
+
+inline ui16 Chunk::getBlockDataSafe(Chunk*& lockedChunk, int c) {
+    vvox::lockChunk(this, lockedChunk);
+    return getBlockData(c);
 }
 
 inline int Chunk::getBlockID(int c) const {
     return _blockIDContainer.get(c) & 0x0FFF;
 }
 
-inline int Chunk::getBlockIDSafe(int c, Chunk*& lockedChunk) {
+inline int Chunk::getBlockIDSafe(Chunk*& lockedChunk, int c) {
     vvox::lockChunk(this, lockedChunk);
     return getBlockID(c);
 }

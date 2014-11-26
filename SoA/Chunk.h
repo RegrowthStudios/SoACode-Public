@@ -118,9 +118,10 @@ public:
     
     //getters
     ChunkStates getState() const { return _state; }
-    GLushort getBlockData(int c) const;
+    ui16 getBlockData(int c) const;
+    ui16 getBlockDataSafe(Chunk*& lockedChunk, int c);
     int getBlockID(int c) const;
-    int getBlockIDSafe(int c, Chunk*& lockedChunk);
+    int getBlockIDSafe(Chunk*& lockedChunk, int c);
     int getSunlight(int c) const;
     int getSunlightSafe(int c, Chunk*& lockedChunk);
     ui16 getTertiaryData(int c) const;
