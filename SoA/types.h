@@ -114,6 +114,14 @@ public:
         r(r), g(g), b(b), a(a) {
         // Empty
     }
+    /// Create a color specifying all elements in integer values
+    /// @param r: Red value
+    /// @param g: Green value
+    /// @param b: Blue value
+    /// @param a: Alpha value
+    ColorRGBA8(i32 r, i32 g, i32 b, i32 a = 1.0f) : ColorRGBA8((ui8)r, (ui8)g, (ui8)b, (ui8)a) {
+        // Empty
+    }
     /// Create a color specifying all elements in floating point values
     /// @param r: Red value [0.0f, 1.0f]
     /// @param g: Green value [0.0f, 1.0f]
@@ -165,6 +173,13 @@ public:
     /// @param b: Blue value
     ColorRGB8(ui8 r, ui8 g, ui8 b) :
         r(r), g(g), b(b) {
+        // Empty
+    }
+    /// Create a color specifying all elements in integer values
+    /// @param r: Red value
+    /// @param g: Green value
+    /// @param b: Blue value
+    ColorRGB8(i32 r, i32 g, i32 b) : ColorRGB8((ui8)r, (ui8)g, (ui8)b) {
         // Empty
     }
     /// Create a color specifying all elements in floating point values
