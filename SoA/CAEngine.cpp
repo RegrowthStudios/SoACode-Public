@@ -169,7 +169,7 @@ void CAEngine::updatePowderBlocks()
                 _usedUpdateFlagList.push_back(b);
                 _blockUpdateFlagList[b] = 1;
                 if (_chunk->getBlock(b).physicsProperty == P_SNOW){ 
-                    snowPhysics(b);
+                    powderPhysics(b);
                 }
             }
         }
@@ -581,137 +581,6 @@ void CAEngine::powderPhysics(int blockIndex)
                 lockChunk(_chunk);
                 ChunkUpdater::placeBlock(_chunk, blockIndex, nextBlockData);
                 return;
-            }
-        }
-    }
-}
-
-//I will refactor this -Ben
-void CAEngine::snowPhysics(int c)
-{
-    int tex = Blocks[SNOW].base.px;
-    int x = c % CHUNK_WIDTH;
-    int y = c / CHUNK_LAYER;
-    int z = (c % CHUNK_LAYER) / CHUNK_WIDTH;
-    int xz;
-    int blockType = _chunk->getBlockID(c);
-    GLushort tmp1;
-    int b, c2, c3;
-    Chunk *owner, *owner2;
-    bool hasChanged = 0;
-    int tmp;
-    int r;
-    bool isSnow = 0; // (blockType == SNOW);
-
-    const glm::ivec3 &position = _chunk->gridPosition;
-
-    //bottom
-    if (GETBLOCK(b = _chunk->getBottomBlockData(c, y, &c2, &owner)).isSupportive == 0){
-        if (!owner || (owner->isAccessible == 0)) return;
-        if (GETBLOCKID(owner->getBottomBlockData(c2, c2 / CHUNK_LAYER, &c3, &owner2)) == NONE && GETBLOCKID(owner2->getBottomBlockData(c3)) == NONE){ //if there is another empty space switch to a physics block
-            GameManager::physicsEngine->addPhysicsBlock(glm::dvec3((double)position.x + c%CHUNK_WIDTH + 0.5, (double)position.y + c / CHUNK_LAYER, (double)position.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _chunk->getBlockData(c));
-            ChunkUpdater::removeBlock(_chunk, c, false);
-            hasChanged = 1;
-        } else{ //otherwise do simple cellular automata
-            b = GETBLOCKID(b);
-            //    if (b != NONE && b < LOWWATER) owner->BreakBlock(c2, owner->data[c2]); //to break blocks
-            if (owner->getBlock(c2).powderMove){
-                tmp = owner->getBlockData(c2);
-            } else{
-                tmp = NONE;
-            }
-
-            owner->setBlockData(c2, _chunk->getBlockData(c));
-            ChunkUpdater::placeBlock(owner, c2, _chunk->getBlockData(c));
-            ChunkUpdater::placeBlock(_chunk, c, tmp);
-            _chunk->setBlockData(c, tmp);
-
-            owner->changeState(ChunkStates::MESH);
-            ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
-            if (isSnow) particleEngine.addParticles(1, glm::dvec3(position.x + x, position.y + y - 1.0, position.z + z), 0, 0.2, 10, 6, glm::vec4(255.0f), tex, 1.0f, 8);
-            hasChanged = 1;
-        }
-    }
-
-    //powder can only slide on powder
-    if (GETBLOCK(b).physicsProperty == P_SNOW){
-        if (!hasChanged){
-            r = (rand() % 24) * 4;
-
-            for (int i = r; i < r + 4; i++){
-                tmp = dirs[i];
-
-                switch (tmp){
-                    //left
-                case 0:
-                    b = _chunk->getLeftBlockData(c, x, &c2, &owner);
-                    if (GETBLOCK(b).powderMove){
-                        if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-                        
-                            tmp1 = _chunk->getBlockData(c);
-                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                            ChunkUpdater::placeBlock(owner, c2, tmp1);
-
-                            ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
-
-                            hasChanged = 1;
-                            if (isSnow) particleEngine.addParticles(1, glm::dvec3(position.x + x - 1.0, position.y + y, position.z + z), 0, 0.2, 10, 6, glm::vec4(255.0f), tex, 1.0f, 8);
-                        }
-                    }
-                    break;
-                    //right
-                case 1:
-                    b = _chunk->getRightBlockData(c, x, &c2, &owner);
-                    if (GETBLOCK(b).powderMove){
-                        if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-     
-                            tmp1 = _chunk->getBlockData(c);
-                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                            ChunkUpdater::placeBlock(owner, c2, tmp1);
-
-                            ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
- 
-                            hasChanged = 1;
-                            if (isSnow) particleEngine.addParticles(1, glm::dvec3(position.x + x + 1.0, position.y + y, position.z + z), 0, 0.2, 10, 6, glm::vec4(255.0f), tex, 1.0f, 8);
-                        }
-                    }
-                    break;
-                    //front
-                case 2:
-                    b = _chunk->getFrontBlockData(c, z, &c2, &owner);
-                    if (GETBLOCK(b).powderMove){
-                        if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-   
-                            tmp1 = _chunk->getBlockData(c);
-                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                            ChunkUpdater::placeBlock(owner, c2, tmp1); 
-                        
-                            ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
-
-                            hasChanged = 1;
-                            if (isSnow) particleEngine.addParticles(1, glm::dvec3(position.x + x, position.y + y, position.z + z + 1.0), 0, 0.2, 10, 6, glm::vec4(255.0f), tex, 1.0f, 8);
-                        }
-                    }
-                    break;
-                    //back
-                case 3:
-                    b = _chunk->getBackBlockData(c, z, &c2, &owner);
-                    if (GETBLOCK(b).powderMove){
-                        if (GETBLOCK(owner->getBottomBlockData(c2)).powderMove){
-
-                            tmp1 = _chunk->getBlockData(c);
-                            ChunkUpdater::placeBlock(_chunk, c, owner->getBlockData(c2));
-                            ChunkUpdater::placeBlock(owner, c2, tmp1);
-
-                            ChunkUpdater::snowAddBlockToUpdateList(owner, c2);
-
-                            hasChanged = 1;
-                            if (isSnow) particleEngine.addParticles(1, glm::dvec3(position.x + x, position.y + y, position.z + z - 1.0), 0, 0.2, 10, 6, glm::vec4(255.0f), tex, 1.0f, 8);
-                        }
-                    }
-                    break;
-                }
-                if (hasChanged) break;
             }
         }
     }
