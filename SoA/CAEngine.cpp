@@ -189,8 +189,6 @@ void CAEngine::updatePowderBlocks()
 }
 
 void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
-    return;
-
     // Helper function
     #define IS_LIQUID(b) ((b) >= _lowIndex && (b) < _highIndex)
 
