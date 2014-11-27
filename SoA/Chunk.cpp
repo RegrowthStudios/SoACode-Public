@@ -396,31 +396,27 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     }
     unlock();
  
-    //top and bottom
-    ch1 = bottom;
-    ch2 = top;
-
-    if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
-        ch1->lock();
-        ch2->lock();
+    if (bottom->isAccessible && top->isAccessible) {
+        bottom->lock();
+        top->lock();
         for (z = 1; z < PADDED_WIDTH - 1; z++){
             for (x = 1; x < PADDED_WIDTH - 1; x++){
                 off1 = (z - 1)*CHUNK_WIDTH + x - 1;
                 off2 = z*PADDED_WIDTH + x;        
 
                 //data
-                chData[off2] = (ch1->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
-                chLampData[off2] = ch1->getLampLight(CHUNK_SIZE - CHUNK_LAYER + off1);
-                chSunlightData[off2] = ch1->getSunlight(CHUNK_SIZE - CHUNK_LAYER + off1);
-                chTertiaryData[off2] = ch1->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
-                chData[off2 + PADDED_SIZE - PADDED_LAYER] = (ch2->getBlockData(off1)); //top
-                chLampData[off2 + PADDED_SIZE - PADDED_LAYER] = ch2->getLampLight(off1);
-                chSunlightData[off2 + PADDED_SIZE - PADDED_LAYER] = ch2->getSunlight(off1);
-                chTertiaryData[off2 + PADDED_SIZE - PADDED_LAYER] = ch2->getTertiaryData(off1);
+                chData[off2] = (bottom->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
+                chLampData[off2] = bottom->getLampLight(CHUNK_SIZE - CHUNK_LAYER + off1);
+                chSunlightData[off2] = bottom->getSunlight(CHUNK_SIZE - CHUNK_LAYER + off1);
+                chTertiaryData[off2] = bottom->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
+                chData[off2 + PADDED_SIZE - PADDED_LAYER] = (top->getBlockData(off1)); //top
+                chLampData[off2 + PADDED_SIZE - PADDED_LAYER] = top->getLampLight(off1);
+                chSunlightData[off2 + PADDED_SIZE - PADDED_LAYER] = top->getSunlight(off1);
+                chTertiaryData[off2 + PADDED_SIZE - PADDED_LAYER] = top->getTertiaryData(off1);
             }
         }
-        ch2->unlock();
-        ch1->unlock();
+        top->unlock();
+        bottom->unlock();
     }
     else{
         for (z = 1; z < PADDED_WIDTH - 1; z++){
@@ -572,29 +568,26 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     }
 
 
-    //left and right
-    ch1 = left;
-    ch2 = right;
-    if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
-        ch1->lock();
-        ch2->lock();
+    if (left->isAccessible && right->isAccessible){
+        left->lock();
+        right->lock();
         for (y = 1; y < PADDED_WIDTH - 1; y++){
             for (z = 1; z < PADDED_WIDTH - 1; z++){
                 off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
                 off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
 
-                chData[off2] = ch1->getBlockData(off1 + CHUNK_WIDTH - 1); //left
-                chLampData[off2] = ch1->getLampLight(off1 + CHUNK_WIDTH - 1);
-                chSunlightData[off2] = ch1->getSunlight(off1 + CHUNK_WIDTH - 1);
-                chTertiaryData[off2] = ch1->getTertiaryData(off1 + CHUNK_WIDTH - 1);
-                chData[off2 + PADDED_WIDTH - 1] = (ch2->getBlockData(off1));
-                chLampData[off2 + PADDED_WIDTH - 1] = ch2->getLampLight(off1);
-                chSunlightData[off2 + PADDED_WIDTH - 1] = ch2->getSunlight(off1);
-                chTertiaryData[off2 + PADDED_WIDTH - 1] = ch2->getTertiaryData(off1);
+                chData[off2] = left->getBlockData(off1 + CHUNK_WIDTH - 1); //left
+                chLampData[off2] = left->getLampLight(off1 + CHUNK_WIDTH - 1);
+                chSunlightData[off2] = left->getSunlight(off1 + CHUNK_WIDTH - 1);
+                chTertiaryData[off2] = left->getTertiaryData(off1 + CHUNK_WIDTH - 1);
+                chData[off2 + PADDED_WIDTH - 1] = (right->getBlockData(off1));
+                chLampData[off2 + PADDED_WIDTH - 1] = right->getLampLight(off1);
+                chSunlightData[off2 + PADDED_WIDTH - 1] = right->getSunlight(off1);
+                chTertiaryData[off2 + PADDED_WIDTH - 1] = right->getTertiaryData(off1);
             }
         }
-        ch2->unlock();
-        ch1->unlock();
+        right->unlock();
+        left->unlock();
     }
     else{
         for (y = 1; y < PADDED_WIDTH - 1; y++){
@@ -614,29 +607,26 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
         }
     }
 
-    //front and back
-    ch1 = back;
-    ch2 = front;
-    if (ch1 && ch2 && ch1->isAccessible && ch2->isAccessible){
-        ch1->lock();
-        ch2->lock();
+    if (back->isAccessible && front->isAccessible) {
+        back->lock();
+        front->lock();
         for (y = 1; y < PADDED_WIDTH - 1; y++){
             for (x = 1; x < PADDED_WIDTH - 1; x++){
                 off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
                 off2 = x + y*PADDED_LAYER;
             
-                chData[off2] = ch1->getBlockData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
-                chLampData[off2] = ch1->getLampLight(off1 + CHUNK_LAYER - CHUNK_WIDTH);
-                chSunlightData[off2] = ch1->getSunlight(off1 + CHUNK_LAYER - CHUNK_WIDTH);
-                chTertiaryData[off2] = ch1->getTertiaryData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
-                chData[off2 + PADDED_LAYER - PADDED_WIDTH] = (ch2->getBlockData(off1));
-                chLampData[off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->getLampLight(off1);
-                chSunlightData[off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->getSunlight(off1);
-                chTertiaryData[off2 + PADDED_LAYER - PADDED_WIDTH] = ch2->getTertiaryData(off1);
+                chData[off2] = back->getBlockData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+                chLampData[off2] = back->getLampLight(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+                chSunlightData[off2] = back->getSunlight(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+                chTertiaryData[off2] = back->getTertiaryData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+                chData[off2 + PADDED_LAYER - PADDED_WIDTH] = (front->getBlockData(off1));
+                chLampData[off2 + PADDED_LAYER - PADDED_WIDTH] = front->getLampLight(off1);
+                chSunlightData[off2 + PADDED_LAYER - PADDED_WIDTH] = front->getSunlight(off1);
+                chTertiaryData[off2 + PADDED_LAYER - PADDED_WIDTH] = front->getTertiaryData(off1);
             }
         }
-        ch2->unlock();
-        ch1->unlock();
+        front->unlock();
+        back->unlock();
     }
     else{
         for (y = 1; y < PADDED_WIDTH - 1; y++){
