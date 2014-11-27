@@ -759,6 +759,14 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     }
 }
 
+int ChunkMesher::getLiquidLevel(int blockIndex, const Block& block) {
+    int val = GETBLOCKID(_blockIDData[blockIndex]); // Get block ID
+    val = val - block.liquidStartID;
+    if (val < 0) return 0;
+    if (val > block.liquidLevels) return 0;
+    return val;
+}
+
 void ChunkMesher::mergeTopVerts(MesherInfo &mi)
 {
     if (mi.topIndex == 0) return;

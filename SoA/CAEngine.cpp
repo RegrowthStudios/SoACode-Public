@@ -190,6 +190,10 @@ void CAEngine::updatePowderBlocks()
 
 void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
     return;
+
+    // Helper function
+    #define IS_LIQUID(b) ((b) >= _lowIndex && (b) < _highIndex)
+
     i32v3 pos = getPosFromBlockIndex(startBlockIndex);
     Chunk* owner;
     i32 nextIndex;
@@ -231,7 +235,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
 
         if (startBlockID > _lowIndex + 10 && inFrustum) particleEngine.addParticles(1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
         return;
-    } else if (blockID >= _lowIndex && blockID < _highIndex) { //If we are falling on the same liquid
+    } else if (IS_LIQUID(blockID)) { //If we are falling on the same liquid
         //how much empty space there is
         diff = _highIndex - blockID;
 
@@ -289,7 +293,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         diffs[index] = (startBlockID - (_lowIndex - 1));
         adjOwners[index] = owner;
         adjIndices[index++] = nextIndex;
-    } else if (blockID >= _lowIndex && blockID < _highIndex){ //tmp CANT FLOW THOUGH FULL WATER
+    } else if (IS_LIQUID(blockID)){ //tmp CANT FLOW THOUGH FULL WATER
         
         if (nextCoord > 0){ //extra flow. its the secret!
             adjAdjIndices[index] = nextIndex - 1;
@@ -322,7 +326,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         diffs[index] = (startBlockID - (_lowIndex - 1));
         adjOwners[index] = owner;
         adjIndices[index++] = nextIndex;
-    } else if (blockID >= _lowIndex && blockID < _highIndex){ //tmp CANT FLOW THOUGH FULL WATER
+    } else if (IS_LIQUID(blockID)){ //tmp CANT FLOW THOUGH FULL WATER
 
         if (nextCoord > 0){ //extra flow. its the secret!
             adjAdjIndices[index] = nextIndex - CHUNK_WIDTH;
@@ -355,7 +359,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         diffs[index] = (startBlockID - (_lowIndex - 1));
         adjOwners[index] = owner;
         adjIndices[index++] = nextIndex;
-    } else if (blockID >= _lowIndex && blockID < _highIndex){ //tmp CANT FLOW THOUGH FULL WATER
+    } else if (IS_LIQUID(blockID)){ //tmp CANT FLOW THOUGH FULL WATER
 
         if (nextCoord < CHUNK_WIDTH - 1){ //extra flow. its the secret!
             adjAdjIndices[index] = nextIndex + 1;
@@ -388,7 +392,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         diffs[index] = (startBlockID - (_lowIndex - 1));
         adjOwners[index] = owner;
         adjIndices[index++] = nextIndex;
-    } else if (blockID >= _lowIndex && blockID < _highIndex){ //tmp CANT FLOW THOUGH FULL WATER
+    } else if (IS_LIQUID(blockID)){ //tmp CANT FLOW THOUGH FULL WATER
 
         if (nextCoord < CHUNK_WIDTH - 1){ //extra flow. its the secret!
             adjAdjIndices[index] = nextIndex + CHUNK_WIDTH;

@@ -279,6 +279,8 @@ public:
     ui16 sinkVal;
     ui16 explosionRays;
     ui16 floraHeight = 0;
+    ui16 liquidStartID = 0;
+    ui16 liquidLevels = 0;
 
     BlockOcclusion occlude;
 
