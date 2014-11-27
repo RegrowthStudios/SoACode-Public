@@ -49,8 +49,7 @@ void ChunkGridRenderStage::draw() {
         if (!chunk) continue;
         posOffset = f32v3(f64v3(chunk->gridPosition) - _gameRenderParams->chunkCamera->getPosition());
 
-        if (((chunk->mesh && chunk->mesh->inFrustum) || SphereInFrustum((float)(posOffset.x + CHUNK_WIDTH / 2), (float)(posOffset.y + CHUNK_WIDTH / 2), (float)(posOffset.z + CHUNK_WIDTH / 2), 28.0f, gridFrustum))) {
-
+        if (((chunk->mesh && chunk->mesh->inFrustum) || _gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
 
             switch (chunk->getState()) {
                 case ChunkStates::GENERATE:

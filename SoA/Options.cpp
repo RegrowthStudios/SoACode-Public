@@ -45,7 +45,7 @@ void initializeOptions() {
     gameOptions.mouseSensitivity = 30.0;
 
     graphicsOptions.specularExponent = 8.0f;
-    graphicsOptions.specularIntensity = 1.0f;
+    graphicsOptions.specularIntensity = 0.3f;
 
     soundOptions.effectVolume = 100;
     soundOptions.musicVolume = 100;

@@ -4,7 +4,7 @@
 #include <set>
 #include <mutex>
 
-#include <boost/circular_buffer_fwd.hpp>
+#include <boost/circular_buffer.hpp>
 
 #include "Vorb.h"
 #include "IVoxelMapper.h"
@@ -36,6 +36,7 @@ enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DR
 
 struct LightMessage;
 class RenderTask;
+class ChunkMesher;
 
 class ChunkGridData {
 public:
@@ -70,14 +71,18 @@ public:
     void init(const i32v3 &gridPos, ChunkSlot* Owner);
 
     void updateContainers() {
-        _blockIDContainer.update();
-        _sunlightContainer.update();
-        _lampLightContainer.update();
-        _tertiaryDataContainer.update();
+        _blockIDContainer.update(_dataLock);
+        _sunlightContainer.update(_dataLock);
+        _lampLightContainer.update(_dataLock);
+        _tertiaryDataContainer.update(_dataLock);
     }
     
     void changeState(ChunkStates State);
     
+    /// Checks if adjacent chunks are in thread, since we dont want
+    /// to remove chunks when their neighbors need them.
+    bool isAdjacentInThread();
+
     int getLeftBlockData(int c);
     int getLeftBlockData(int c, int x, int *c2, Chunk **owner);
     int getRightBlockData(int c);
@@ -108,10 +113,12 @@ public:
     void CheckEdgeBlocks();
     int GetPlantType(int x, int z, Biome *biome);
 
-    void SetupMeshData(RenderTask *renderTask);
+    void setupMeshData(ChunkMesher *chunkMesher);
 
     void addToChunkList(boost::circular_buffer<Chunk*> *chunkListPtr);
     void clearChunkListPtr();
+
+    bool hasCaUpdates(int index);
 
     /// Constructor
     /// @param shortRecycler: Recycler for ui16 data arrays
@@ -169,7 +176,7 @@ public:
     int loadStatus;
     volatile bool inLoadThread;
     volatile bool inSaveThread;
-    bool isAccessible;
+    volatile bool isAccessible;
 
     vcore::IThreadPoolTask* lastOwnerTask; ///< Pointer to task that is working on us
 
@@ -194,28 +201,35 @@ public:
 
     std::vector <ui16> blockUpdateList[8][2];
 
-    //Even though these are vectors, they are treated as fifo usually, and when not, it doesn't matter
-    std::vector <SunlightUpdateNode> sunlightUpdateQueue;
-    std::vector <SunlightRemovalNode> sunlightRemovalQueue;
-    std::vector <LampLightUpdateNode> lampLightUpdateQueue;
-    std::vector <LampLightRemovalNode> lampLightRemovalQueue;
+    std::queue <SunlightUpdateNode> sunlightUpdateQueue;
+    std::queue <SunlightRemovalNode> sunlightRemovalQueue;
+    std::queue <LampLightUpdateNode> lampLightUpdateQueue;
+    std::queue <LampLightRemovalNode> lampLightRemovalQueue;
 
     std::vector <ui16> sunRemovalList;
     std::vector <ui16> sunExtendList;
 
     static ui32 vboIndicesID;
 
-    
     Chunk *right, *left, *front, *back, *top, *bottom;
-
-    //Main thread locks this when modifying chunks, meaning some readers, such as the chunkIO thread, should lock this before reading.
-    static std::mutex modifyLock;
 
     ChunkSlot* owner;
     ChunkGridData* chunkGridData;
     vvoxel::VoxelMapData* voxelMapData;
 
+    // Thread safety functions
+    inline void lock() { _dataLock.lock(); }
+    inline void unlock() { _dataLock.unlock(); }
+    std::mutex& getDataLock() { return _dataLock; }
+
 private:
+
+    /// _dataLock guards chunk data.
+    /// Since only the main thread modifies data, the main thread does not
+    /// need to lock when reading, only when writing. All other threads should
+    /// lock when reading.
+    std::mutex _dataLock; ///< Lock that guards chunk data. Try to minimize locking.
+
     // Keeps track of which setup list we belong to
     boost::circular_buffer<Chunk*> *_chunkListPtr;
 

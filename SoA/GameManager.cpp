@@ -42,7 +42,6 @@ Uint32 GameManager::maxLodTicks = 8;
 VoxelWorld *GameManager::voxelWorld = nullptr;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 PhysicsEngine *GameManager::physicsEngine = nullptr;
-CAEngine *GameManager::caEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
 ChunkManager *GameManager::chunkManager = nullptr;
 InputManager *GameManager::inputManager = nullptr;
@@ -67,7 +66,6 @@ void GameManager::initializeSystems() {
         voxelWorld = new VoxelWorld();
         voxelEditor = new VoxelEditor();
         physicsEngine = new PhysicsEngine();
-        caEngine = new CAEngine();
         soundEngine = new SoundEngine();
         chunkManager = &voxelWorld->getChunkManager();
         chunkIOManager = new ChunkIOManager();
@@ -313,7 +311,7 @@ void GameManager::update() {
                 }
             }
 
-            voxelWorld->update(player->headPosition, glm::dvec3(player->chunkDirection()));
+            voxelWorld->update(&player->getChunkCamera());
 
             if (inputManager->getKey(INPUT_BLOCK_SCANNER)) {
                 player->scannedBlock = voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(player->chunkDirection()), player->headPosition);
@@ -346,20 +344,6 @@ void GameManager::update() {
 
 void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
     planet->updateLODs(worldPosition, maxTicks);
-}
-
-void GameManager::drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet) {
-
-    GameManager::planet->draw(0, VP, V, lightPos, worldPos, ambVal, fadeDist, connectedToPlanet);
-
-    if (connectedToPlanet) {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(lightPos, 1.0)), worldPos);
-    } else {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, lightPos, worldPos);
-    }
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-    GameManager::planet->drawTrees(VP, worldPos, ambVal);
 }
 
 void GameManager::addMarker(glm::dvec3 pos, string name, glm::vec3 color) {

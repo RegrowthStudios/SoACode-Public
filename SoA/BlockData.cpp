@@ -147,7 +147,7 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     LCHECK(symmetry);
     LCHECK(reducedMethod);
     LCHECK(useMapColor);
-    LCHECK(weights.length());
+    LCHECK(weights.getLength());
     LCHECK(totalWeight);
     LCHECK(numTiles);
     LCHECK(innerSeams);

@@ -264,7 +264,7 @@ T trilinearInterpolation_4_8_4(int x, int y, int z, T data[9][5][5])
 
 template <typename T>
 T lerp(T a, T b, float f) {
-    return a * (1.0f - f) + b * f;
+    return (T)(a * (1.0f - f) + b * f);
 }
 
 inline i32 getPositionSeed(int x, int y, int z) {
@@ -394,5 +394,44 @@ namespace BufferUtils {
     }
 
 }
+
+namespace std {
+    // Hash function for i32v3
+    template <>
+    struct hash<i32v3> {
+        std::size_t operator()(const i32v3& k) const {
+            using std::size_t;
+            using std::hash;
+            using std::string;
+
+            // Compute individual hash values for first,
+            // second and third and combine them using XOR
+            // and bit shifting:
+
+            return ((hash<int>()(k.x)
+                ^ (hash<int>()(k.y) << 1)) >> 1)
+                ^ (hash<int>()(k.z) << 1);
+        }
+    };
+
+    // Hash function for i32v2
+    template <>
+    struct hash<i32v2> {
+        std::size_t operator()(const i32v2& k) const {
+            using std::size_t;
+            using std::hash;
+            using std::string;
+
+            // Compute individual hash values for first,
+            // second and third and combine them using XOR
+            // and bit shifting:
+
+            return ((hash<int>()(k.x)
+                ^ (hash<int>()(k.y) << 1)) >> 1);
+        }
+    };
+
+}
+
 
 #endif // UTILS_H_

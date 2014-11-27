@@ -312,15 +312,15 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
     _ioManager.readFileToString(fileName.c_str(), data);
     if (data.length()) {
         if (Keg::parse(rv, data.c_str(), "BlockTexture") == Keg::Error::NONE) {
-            if (rv->base.weights.length() > 0) {
+            if (rv->base.weights.getLength() > 0) {
                 rv->base.totalWeight = 0;
-                for (i32 i = 0; i < rv->base.weights.length(); i++) {
+                for (i32 i = 0; i < rv->base.weights.getLength(); i++) {
                     rv->base.totalWeight += rv->base.weights[i];
                 }
             }
-            if (rv->overlay.weights.length() > 0) {
+            if (rv->overlay.weights.getLength() > 0) {
                 rv->overlay.totalWeight = 0;
-                for (i32 i = 0; i < rv->overlay.weights.length(); i++) {
+                for (i32 i = 0; i < rv->overlay.weights.getLength(); i++) {
                     rv->overlay.totalWeight += rv->overlay.weights[i];
                 }
             }
@@ -374,12 +374,12 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             break;
         case ConnectedTextureMethods::RANDOM:
             layer.numTiles = width / height;
-            if (layer.weights.length() == 0) {
+            if (layer.weights.getLength() == 0) {
                 layer.totalWeight = layer.numTiles;
             } else { // Need to check if there is the right number of weights
-                if (layer.weights.length() * _packInfo.resolution != width) {
+                if (layer.weights.getLength() * _packInfo.resolution != width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " + 
-                           to_string(layer.weights.length()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                        to_string(layer.weights.getLength()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
                     return nullptr;
                 }
             }
@@ -404,12 +404,12 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
                 return nullptr;
             }
             // If no weights, they are all equal
-            if (layer.weights.length() == 0) {
+            if (layer.weights.getLength() == 0) {
                 layer.totalWeight = width / _packInfo.resolution;
             } else { // Need to check if there is the right number of weights
-                if (layer.weights.length() * _packInfo.resolution != width) {
+                if (layer.weights.getLength() * _packInfo.resolution != width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
-                           to_string(layer.weights.length()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                           to_string(layer.weights.getLength()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
                     return nullptr;
                 }
             }

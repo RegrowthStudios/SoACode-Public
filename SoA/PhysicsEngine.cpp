@@ -50,10 +50,10 @@ void PhysicsEngine::clearAll() {
     _activePhysicsBlockBatches.clear();
 }
 
-void PhysicsEngine::update(const glm::dvec3 &viewDir) {
+void PhysicsEngine::update(const f64v3 &viewDir) {
 
     performExplosions();
-    detectFloatingBlocks(viewDir);
+    //detectFloatingBlocks(viewDir);
 
     for (Uint32 i = 0; i < _activePhysicsBlockBatches.size();){
         if (_activePhysicsBlockBatches[i]->update()){

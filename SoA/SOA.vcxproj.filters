@@ -671,6 +671,12 @@
     <ClInclude Include="gtypes.h">
       <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="FloraTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
+    <ClInclude Include="CellularAutomataTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1078,6 +1084,12 @@
     <ClCompile Include="GLRenderTarget.cpp">
       <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="FloraTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="CellularAutomataTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -1104,9 +1116,6 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
-    </None>
-    <None Include="ChunkMesher.inl">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
     </None>
   </ItemGroup>
 </Project>

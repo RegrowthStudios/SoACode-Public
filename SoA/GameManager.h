@@ -37,7 +37,6 @@ public:
     static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);
     static void drawMarkers();
 
-    static void drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet);
     static void addMarker(glm::dvec3 pos, string name, glm::vec3 color);
     static void clickDragRay(bool isBreakRay);
     static void scanWSO();
@@ -47,7 +46,6 @@ public:
     static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;
     static class PhysicsEngine* physicsEngine;
-    static class CAEngine* caEngine;
     static class SoundEngine* soundEngine;
     static class ChunkManager* chunkManager;
     static class InputManager* inputManager;

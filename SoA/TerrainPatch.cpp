@@ -2,13 +2,14 @@
 #include "TerrainPatch.h"
 
 #include "BlockData.h"
+#include "Camera.h"
 #include "Chunk.h"
 #include "FloraGenerator.h"
+#include "GameManager.h"
 #include "MessageManager.h"
 #include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
-#include "GameManager.h"
 
 #include "utils.h"
 
@@ -182,7 +183,7 @@ void TerrainPatch::Initialize(int x, int y, int z, int wx, int wy, int wz, int R
     }
 }
 
-void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
+void TerrainPatch::Draw(TerrainBuffers *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
 {//
     //calculate distance
     glm::dvec3 closestPoint;
@@ -197,7 +198,7 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const g
 
     tb->distance = distance;
     if (distance < closestTerrainPatchDistance) closestTerrainPatchDistance = distance;
-    if (SphereInFrustum((float)(tb->worldX + tb->boundingBox.x / 2 - rotPlayerPos.x), (float)(tb->worldY + tb->boundingBox.y / 2 - rotPlayerPos.y), (float)(tb->worldZ + tb->boundingBox.z / 2 - rotPlayerPos.z), (float)tb->cullRadius, worldFrustum)
+    if (camera->sphereInFrustum(f32v3(f64v3(tb->worldX, tb->worldY, tb->worldZ) + f64v3(tb->boundingBox) / 2.0 - rotPlayerPos), (float)tb->cullRadius)
         && (distance == 0 || CheckHorizon(rotPlayerPos, closestPoint))){
         tb->inFrustum = 1;
 
@@ -230,47 +231,6 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const g
     }
     else{
         tb->inFrustum = 0;
-    }
-}
-
-void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
-{
-    if (hasBuffers && terrainBuffers && terrainBuffers->indexSize){
-        if (distance < closestTerrainPatchDistance) closestTerrainPatchDistance = distance;
-        if (SphereInFrustum((float)(terrainBuffers->worldX + terrainBuffers->boundingBox.x / 2 - rotPlayerPos.x), (float)(terrainBuffers->worldY + terrainBuffers->boundingBox.y / 2 - rotPlayerPos.y), (float)(terrainBuffers->worldZ + terrainBuffers->boundingBox.z / 2 - rotPlayerPos.z), (float)terrainBuffers->cullRadius, worldFrustum)
-            && (CheckHorizon(rotPlayerPos, closestPoint))){
-            
-            glm::mat4 MVP;
-            if (onPlanet){
-                GlobalModelMatrix[3][0] = ((float)((double)terrainBuffers->drawX - PlayerPos.x));
-                GlobalModelMatrix[3][1] = ((float)((double)terrainBuffers->drawY - PlayerPos.y));
-                GlobalModelMatrix[3][2] = ((float)((double)terrainBuffers->drawZ - PlayerPos.z));
-                MVP = VP  * GlobalModelMatrix ;
-            }else{
-                GlobalModelMatrix[3][0] = ((float)((double)-PlayerPos.x));
-                GlobalModelMatrix[3][1] = ((float)((double)-PlayerPos.y));
-                GlobalModelMatrix[3][2] = ((float)((double)-PlayerPos.z));
-                MVP = VP  * GlobalModelMatrix * GameManager::planet->rotationMatrix;
-
-                GlobalModelMatrix[3][0] = ((float)((double)terrainBuffers->drawX));
-                GlobalModelMatrix[3][1] = ((float)((double)terrainBuffers->drawY));
-                GlobalModelMatrix[3][2] = ((float)((double)terrainBuffers->drawZ));
-                MVP *= GlobalModelMatrix;
-            }
-
-            glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]); //some kind of crash here :/
-
-            glUniform3f(worldOffsetID, terrainBuffers->drawX, terrainBuffers->drawY, terrainBuffers->drawZ);
-
-            glBindVertexArray(terrainBuffers->vaoID);
-            glDrawElements(GL_TRIANGLES, terrainBuffers->indexSize, GL_UNSIGNED_SHORT, 0);
-            glBindVertexArray(0);
-        }
-    }else if (lods[0]){
-        lods[0]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
-        lods[1]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
-        lods[2]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
-        lods[3]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
 }
 
@@ -739,13 +699,13 @@ bool TerrainPatch::CreateMesh()
                                         }
 
                                         switch (treeData.treeType->leafCapShape){
-                                            case 0:
+                                            case TreeLeafShape::CLUSTER:
                                                 ltex = 0; //none
                                                 break;
-                                            case 3:
+                                            case TreeLeafShape::PINE:
                                                 ltex = 2; //pine
                                                 break;
-                                            case 4:
+                                            case TreeLeafShape::MUSHROOM:
                                                 ltex = 3; //mushroom
                                                 break;
                                             default:
