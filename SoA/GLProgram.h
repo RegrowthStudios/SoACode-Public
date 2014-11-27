@@ -16,6 +16,7 @@
 #ifndef GLPROGRAM_H_
 #define GLPROGRAM_H_
 
+#include "gtypes.h"
 #include "GLenums.h"
 #include "Vorb.h"
 
