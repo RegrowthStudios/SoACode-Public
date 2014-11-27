@@ -34,7 +34,8 @@ namespace vorb {
             lockedChunk = chunkToLock;
             lockedChunk->lock();
         }
-
+        
+        /// Gets the blockData to the left of the input block. Owner and index are stored.
         inline int getLeftBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int x, int& nextBlockIndex, Chunk*& owner) {
             if (x > 0) {
                 owner = chunk;
@@ -48,10 +49,12 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the left of the input block. Owner and index are stored.
         inline int getLeftBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
             return getLeftBlockData(chunk, lockedChunk, blockIndex, getXFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
+        /// Gets the blockData to the left of the input block.
         inline int getLeftBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getXFromBlockIndex(blockIndex) > 0) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex - 1);
@@ -61,6 +64,7 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the right of the input block. Owner and index are stored.
         inline int getRightBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int x, int& nextBlockIndex, Chunk*& owner) {
             if (x < CHUNK_WIDTH - 1) {
                 owner = chunk;
@@ -74,10 +78,12 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the right of the input block. Owner and index are stored.
         inline int getRightBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
             return getRightBlockData(chunk, lockedChunk, blockIndex, getXFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
+        /// Gets the blockData to the right of the input block.
         inline int getRightBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getXFromBlockIndex(blockIndex) < CHUNK_WIDTH - 1) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex + 1);
@@ -87,6 +93,7 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the front of the input block. Owner and index are stored.
         inline int getFrontBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int z, int& nextBlockIndex, Chunk*& owner) {
             if (z < CHUNK_WIDTH - 1) {
                 owner = chunk;
@@ -100,10 +107,12 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the front of the input block. Owner and index are stored.
         inline int getFrontBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
             return getFrontBlockData(chunk, lockedChunk, blockIndex, getZFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
+        /// Gets the blockData to the front of the input block.
         inline int getFrontBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getZFromBlockIndex(blockIndex) < CHUNK_WIDTH - 1) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex + CHUNK_WIDTH);
@@ -113,6 +122,7 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the back of the input block. Owner and index are stored.
         inline int getBackBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int z, int& nextBlockIndex, Chunk*& owner) {
             if (z > 0) {
                 owner = chunk;
@@ -126,10 +136,12 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the back of the input block. Owner and index are stored.
         inline int getBackBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
             return getBackBlockData(chunk, lockedChunk, blockIndex, getZFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
+        /// Gets the blockData to the back of the input block.
         inline int getBackBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getZFromBlockIndex(blockIndex) > 0) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex - CHUNK_WIDTH);
@@ -139,6 +151,7 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the bottom of the input block. Owner and index are stored.
         inline int getBottomBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int y, int& nextBlockIndex, Chunk*& owner) {
             if (y > 0) {
                 owner = chunk;
@@ -152,10 +165,12 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the bottom of the input block. Owner and index are stored.
         inline int getBottomBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
             return getBottomBlockData(chunk, lockedChunk, blockIndex, getYFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
+        /// Gets the blockData to the bottom of the input block.
         inline int getBottomBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getYFromBlockIndex(blockIndex) > 0) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex - CHUNK_LAYER);
@@ -165,6 +180,7 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the top of the input block. Owner and index are stored.
         inline int getTopBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int y, int& nextBlockIndex, Chunk*& owner) {
             if (y < CHUNK_WIDTH - 1) {
                 owner = chunk;
@@ -178,10 +194,12 @@ namespace vorb {
             return -1;
         }
 
+        /// Gets the blockData to the top of the input block. Owner and index are stored.
         inline int getTopBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int& nextBlockIndex, Chunk*& owner) {
             return getTopBlockData(chunk, lockedChunk, blockIndex, getYFromBlockIndex(blockIndex), nextBlockIndex, owner);
         }
 
+        /// Gets the blockData to the top of the input block.
         inline int getTopBlockData(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
             if (getYFromBlockIndex(blockIndex) < CHUNK_WIDTH - 1) {
                 return chunk->getBlockDataSafe(lockedChunk, blockIndex + CHUNK_LAYER);
