@@ -353,7 +353,7 @@ void MeshManager::destroy() {
         if (cm->cutoutVaoID != 0){
             glDeleteVertexArrays(1, &(cm->cutoutVaoID));
         }
-        if (cm->cutoutVboID == 0) {
+        if (cm->cutoutVboID != 0) {
             glDeleteBuffers(1, &(cm->cutoutVboID));
         }
         if (cm->waterVaoID != 0){

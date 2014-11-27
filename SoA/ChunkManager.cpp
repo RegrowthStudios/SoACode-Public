@@ -11,11 +11,14 @@
 
 #include "BlockData.h"
 #include "CAEngine.h"
+#include "Camera.h"
+#include "CellularAutomataTask.h"
 #include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "ChunkUpdater.h"
 #include "FileSystem.h"
 #include "FloraGenerator.h"
+#include "FloraTask.h"
 #include "Frustum.h"
 #include "GLEnums.h"
 #include "GLProgram.h"
@@ -56,6 +59,7 @@ ChunkManager::ChunkManager() :
     NoChunkFade = 0;
     planet = NULL;
     _poccx = _poccy = _poccz = -1;
+    _voxelLightEngine = new VoxelLightEngine();
 
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
@@ -65,6 +69,7 @@ ChunkManager::ChunkManager() :
 
 ChunkManager::~ChunkManager() {
     deleteAllChunks();
+    delete _voxelLightEngine;
 }
 
 void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
@@ -100,7 +105,6 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     _setupList.set_capacity(_csGridSize * 2);
     _meshList.set_capacity(_csGridSize * 2);
     _loadList.set_capacity(_csGridSize * 2);
-    _generateList.set_capacity(_csGridSize * 2);
 
     // Reserve capacity for chunkslots. If this capacity is not enough, we will get a 
     // crash. We use * 4 just in case. It should be plenty
@@ -127,12 +131,14 @@ bool sortChunksDescending(const Chunk* a, const Chunk* b) {
     return a->distance2 > b->distance2;
 }
 
-void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
+void ChunkManager::update(const Camera* camera) {
 
     timeBeginPeriod(1);
 
     globalMultiplePreciseTimer.setDesiredSamples(10);
     globalMultiplePreciseTimer.start("Update");
+
+    const f64v3& position = camera->getPosition();
 
     static i32 k = 0;
 
@@ -156,17 +162,10 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
 
     globalMultiplePreciseTimer.start("Update Chunks");
 
-    Chunk::modifyLock.lock();
-
-    updateChunks(position);
-
-    Chunk::modifyLock.unlock();
+    updateChunks(camera);
 
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
-
-    globalMultiplePreciseTimer.start("Loaded Chunks");
-    updateLoadedChunks();
 
     globalMultiplePreciseTimer.start("Sort");
 
@@ -178,24 +177,29 @@ void ChunkManager::update(const f64v3& position, const f64v3& viewDir) {
     }
     k++;
 
+    globalMultiplePreciseTimer.start("Loaded Chunks");
+    updateLoadedChunks(4);
+
+    globalMultiplePreciseTimer.start("Trees To Place List");
+    updateTreesToPlace(3);
     globalMultiplePreciseTimer.start("Mesh List");
     updateMeshList(4);
-    globalMultiplePreciseTimer.start("Generate List");
-    updateGenerateList(4);
     globalMultiplePreciseTimer.start("Setup List");
     updateSetupList(4);
 
-    //This doesnt function correctly
+    //This doesn't function correctly
     //caveOcclusion(position);
 
     globalMultiplePreciseTimer.start("Thread Waiting");
     Chunk* ch;
-    for (size_t i = 0; i < _threadWaitingChunks.size();) {
-        ch = _threadWaitingChunks[i];
-        if (ch->inSaveThread == false && ch->inLoadThread == false && !ch->lastOwnerTask && !ch->_chunkListPtr) {
-            freeChunk(_threadWaitingChunks[i]);
-            _threadWaitingChunks[i] = _threadWaitingChunks.back();
-            _threadWaitingChunks.pop_back();
+
+    for (size_t i = 0; i < _freeWaitingChunks.size();) {
+        ch = _freeWaitingChunks[i];
+        if (ch->inSaveThread == false && ch->inLoadThread == false && 
+            !ch->lastOwnerTask && !ch->_chunkListPtr) {
+            freeChunk(_freeWaitingChunks[i]);
+            _freeWaitingChunks[i] = _freeWaitingChunks.back();
+            _freeWaitingChunks.pop_back();
         } else {
             i++;
         }
@@ -229,7 +233,7 @@ void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     //clear the memory for the chunk pointer array
     chunks[0] = chunks[1] = chunks[2] = chunks[3] = chunks[4] = chunks[5] = chunks[6] = chunks[7] = nullptr;
 
-    //If the 8 nnearby exist and are accessible then set them in the array. NOTE: Perhaps order matters? 
+    //If the 8 nearby exist and are accessible then set them in the array. NOTE: Perhaps order matters? 
 
     GETCHUNK(0, 0, 0);
     if (chunk && chunk->isAccessible) chunks[0] = chunk;
@@ -307,7 +311,6 @@ void ChunkManager::destroy() {
     _threadPool.destroy();
 
     _setupList.clear();
-    _generateList.clear();
     _meshList.clear();
     _loadList.clear();
 
@@ -327,11 +330,11 @@ void ChunkManager::destroy() {
 
     GameManager::physicsEngine->clearAll();
 
-    for (size_t i = 0; i < _threadWaitingChunks.size(); i++) { //kill the residual waiting threads too
-        _threadWaitingChunks[i]->inSaveThread = nullptr;
-        freeChunk(_threadWaitingChunks[i]);
+    for (size_t i = 0; i < _freeWaitingChunks.size(); i++) { //kill the residual waiting threads too
+        _freeWaitingChunks[i]->inSaveThread = nullptr;
+        freeChunk(_freeWaitingChunks[i]);
     }
-    std::vector<Chunk*>().swap(_threadWaitingChunks);
+    std::vector<Chunk*>().swap(_freeWaitingChunks);
 
     deleteAllChunks();
 
@@ -462,6 +465,9 @@ void ChunkManager::processFinishedTasks() {
                     delete task;
                 }
                 break;
+            case FLORA_TASK_ID:
+                processFinishedFloraTask(static_cast<FloraTask*>(task));
+                break;
             default:
                 pError("Unknown thread pool Task! ID = " + to_string(task->getTaskId()));
                 delete task;
@@ -480,7 +486,7 @@ void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
         setupNeighbors(ch);
 
         //check to see if the top chunk has light that should end up in this chunk
-        VoxelLightEngine::checkTopForSunlight(ch);
+        _voxelLightEngine->checkTopForSunlight(ch);
 
         if (ch->treesToLoad.size() || ch->plantsToLoad.size()) {
             ch->_state = ChunkStates::TREES;
@@ -551,36 +557,85 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
     
 }
 
+void ChunkManager::processFinishedFloraTask(FloraTask* task) {
+    Chunk* chunk = task->chunk;
+    GeneratedTreeNodes* nodes;
+    if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
+    if (task->isSuccessful) {
+        nodes = task->generatedTreeNodes;
+        if (nodes->lnodes.size() || nodes->wnodes.size()) {
+            _treesToPlace.push_back(nodes);
+        } else {
+            chunk->_state = ChunkStates::MESH;
+            addToMeshList(chunk);
+        }
+        delete task;
+    } else {
+        // If the task wasn't successful, add it back to the task queue so it can try again.
+        task->setIsFinished(false);
+        chunk->lastOwnerTask = task;
+        _threadPool.addTask(task);
+    }
+}
+
 //add the loaded chunks to the setup list
-void ChunkManager::updateLoadedChunks() {
+void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
 
+    ui32 startTicks = SDL_GetTicks();
     Chunk* ch;
+    TerrainGenerator* generator = GameManager::terrainGenerator;
+    GenerateTask* generateTask;
     //IO load chunks
-    GameManager::chunkIOManager->flcLock.lock();
-    for (size_t i = 0; i < GameManager::chunkIOManager->finishedLoadChunks.size(); i++) {
+    while (GameManager::chunkIOManager->finishedLoadChunks.try_dequeue(ch)) {
 
-        ch = GameManager::chunkIOManager->finishedLoadChunks[i];
         ch->inLoadThread = 0;
         
         // Don't do anything if the chunk should be freed
         if (ch->freeWaiting) continue;
 
-        if (!(ch->freeWaiting)) {
-            if (ch->loadStatus == 1) { //it is not saved. Generate!
-                ch->loadStatus == 0;
-                ch->isAccessible = false;
-                addToGenerateList(ch);
-            } else {
-                setupNeighbors(ch);
-                ch->_state = ChunkStates::MESH;
-                addToMeshList(ch);
-                ch->dirty = false;
-                ch->isAccessible = true;
-            }
+        //If the heightmap has not been generated, generate it.
+        ChunkGridData* chunkGridData = ch->chunkGridData;
+        
+        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
+            generator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
+            generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
+            generator->postProcessHeightmap(chunkGridData->heightData);
         }
+
+        // If it is not saved. Generate it!
+        if (ch->loadStatus == 1) {
+            ch->loadStatus == 0;
+            ch->isAccessible = false;
+
+            // Get a generate task
+            if (_freeGenerateTasks.size()) {
+                generateTask = _freeGenerateTasks.back();
+                _freeGenerateTasks.pop_back();
+            } else {
+                generateTask = new GenerateTask;
+            }
+
+            // Init the containers
+            ch->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+
+            // Initialize the task
+            generateTask->init(ch, new LoadData(ch->chunkGridData->heightData, GameManager::terrainGenerator));
+            ch->lastOwnerTask = generateTask;
+            // Add the task
+            _threadPool.addTask(generateTask);
+        } else {
+            setupNeighbors(ch);
+            ch->_state = ChunkStates::MESH;
+            addToMeshList(ch);
+            ch->dirty = false;
+            ch->isAccessible = true;
+        }
+        
+        if (SDL_GetTicks() - startTicks > maxTicks) break;
     }
-    GameManager::chunkIOManager->finishedLoadChunks.clear();
-    GameManager::chunkIOManager->flcLock.unlock();
 }
 
 void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
@@ -656,10 +711,9 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
 
     Chunk* chunk;
     vector<Chunk* > chunksToLoad;
-    ChunkGridData* chunkGridData;
-    TerrainGenerator* generator = GameManager::terrainGenerator;
 
     ui32 sticks = SDL_GetTicks();
+
     while (!_loadList.empty()) {
         chunk = _loadList.back();
 
@@ -669,18 +723,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         // Check if the chunk is waiting to be freed
         if (chunk->freeWaiting) continue;
 
-        chunk->isAccessible = 0;
-
-        chunkGridData = chunk->chunkGridData;
-
-        //If the heightmap has not been generated, generate it.
-        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-
-            generator->setVoxelMapping(chunkGridData->voxelMapData, planet->radius, 1.0);
-
-            generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            generator->postProcessHeightmap(chunkGridData->heightData);
-        }
+        chunk->isAccessible = false;
 
         chunksToLoad.push_back(chunk);
 
@@ -719,25 +762,13 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
         switch (state) {
         case ChunkStates::TREES:
             if (chunk->numNeighbors == 6) {
-                if (chunk->treeTryTicks == 0) { //keep us from continuing to try a tree when it wont ever load
-                    if (FloraGenerator::generateFlora(chunk)) {
-                        chunk->_state = ChunkStates::MESH;
-
-                        // Remove from the setup list
-                        _setupList[i] = _setupList.back();
-                        _setupList.pop_back();
-
-                        addToMeshList(chunk);
-
-                    } else {
-                        chunk->treeTryTicks = 1;
-                    }
-                } else {
-                    chunk->treeTryTicks++;
-                    if (chunk->treeTryTicks >= 15) { //pause for 15 frames, or roughly 0.25 second
-                        chunk->treeTryTicks = 0;
-                    }
-                }
+                FloraTask* floraTask = new FloraTask;
+                floraTask->init(chunk);
+                chunk->lastOwnerTask = floraTask;
+                _threadPool.addTask(floraTask);
+                // Remove from the setup list
+                _setupList[i] = _setupList.back();
+                _setupList.pop_back();
             }
             break;
         default: // chunks that should not be here should be removed
@@ -763,7 +794,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
         state = _meshList[i]->_state;
         chunk = _meshList[i];
 
-        // If it is waiting to be freed, dont do anything with it
+        // If it is waiting to be freed, don't do anything with it
         if (chunk->freeWaiting) {
             // Remove from the mesh list
             _meshList[i] = _meshList.back();
@@ -773,39 +804,36 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
         }
 
         if (chunk->numNeighbors == 6 && chunk->owner->inFrustum) {     
-            VoxelLightEngine::calculateLight(chunk);
             
-            //TODO: BEN, Need to make sure chunk->num is always correct
+            //TODO: BEN, Need to make sure chunk->numBlocks is always correct
             if (chunk->numBlocks) { 
 
                 chunk->occlude = 0;
 
-                if (chunk->numNeighbors == 6) {
-                    
-                    // Get a render task
-                    if (_freeRenderTasks.size()) {
-                        newRenderTask = _freeRenderTasks.back();
-                        _freeRenderTasks.pop_back();
-                    } else {
-                        newRenderTask = new RenderTask;
-                    }
-
-                    if (chunk->_state == ChunkStates::MESH) {
-                        newRenderTask->setChunk(chunk, RenderTaskType::DEFAULT);
-                    } else {
-                        newRenderTask->setChunk(chunk, RenderTaskType::LIQUID);
-                    }
-                    chunk->SetupMeshData(newRenderTask);
-                    chunk->lastOwnerTask = newRenderTask;
-                    _threadPool.addTask(newRenderTask);
-
-                    // Remove from the mesh list
-                    _meshList[i] = _meshList.back();
-                    _meshList.pop_back();
-                    chunk->clearChunkListPtr();
-
-                    chunk->_state = ChunkStates::DRAW;
+                // Get a render task
+                if (_freeRenderTasks.size()) {
+                    newRenderTask = _freeRenderTasks.back();
+                    _freeRenderTasks.pop_back();
+                } else {
+                    newRenderTask = new RenderTask;
                 }
+
+                if (chunk->_state == ChunkStates::MESH) {
+                    newRenderTask->init(chunk, RenderTaskType::DEFAULT);
+                } else {
+                    newRenderTask->init(chunk, RenderTaskType::LIQUID);
+                }
+
+                chunk->lastOwnerTask = newRenderTask;
+                _threadPool.addTask(newRenderTask);
+
+                // Remove from the mesh list
+                _meshList[i] = _meshList.back();
+                _meshList.pop_back();
+                chunk->clearChunkListPtr();
+
+                chunk->_state = ChunkStates::DRAW;
+                
             } else {
                 chunk->clearBuffers();
                 // Remove from the mesh list
@@ -823,54 +851,111 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
     return 0;
 }
 
-i32 ChunkManager::updateGenerateList(ui32 maxTicks) {
-
+void ChunkManager::updateTreesToPlace(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
-    i32 state;
-    Chunk* chunk;
-    i32 startX, startZ;
-    i32 ip, jp;
-    GenerateTask* generateTask;
+    Chunk* startChunk;
 
-    while (_generateList.size()) {
-        chunk = _generateList.front();
-
-        _generateList.pop_front();
-        chunk->clearChunkListPtr();
-
-        // If it is waiting to be freed, dont do anything with it
-        if (chunk->freeWaiting) continue;
-
-        chunk->isAccessible = false;      
-
-        // Get a generate task
-        if (_freeGenerateTasks.size()) {
-            generateTask = _freeGenerateTasks.back();
-            _freeGenerateTasks.pop_back();
-        } else {
-            generateTask = new GenerateTask;
-        }
-
-        // Init the containers
-        chunk->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-        chunk->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-        chunk->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-        chunk->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-
-        //If the heightmap has not been generated, generate it.
-        if (chunk->chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-            std::cout << "HERE";
-        }
-
-        // Initialize the task
-        generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, GameManager::terrainGenerator));
-        chunk->lastOwnerTask = generateTask;
-        // Add the task
-        _threadPool.addTask(generateTask);
-
+    for (int i = _treesToPlace.size() - 1; i >= 0; i--) {
+        // Check for timer end condition
         if (SDL_GetTicks() - startTicks > maxTicks) break;
+
+        GeneratedTreeNodes* nodes = _treesToPlace[i];
+
+        if (nodes->numFrames <= 0) {
+            // Check to see if initial chunk is unloaded
+            startChunk = getChunk(nodes->startChunkGridPos);
+            if (startChunk == nullptr) {
+                delete nodes;
+                _treesToPlace[i] = _treesToPlace.back();
+                _treesToPlace.pop_back();
+                continue;
+            }
+            // Check to see if all the chunks we need are available
+            bool allChunksLoaded = true;
+            for (auto& it : nodes->allChunkPositions) {
+                Chunk* chunk = getChunk(it);
+                if (chunk == nullptr || chunk->isAccessible == false) {
+                    allChunksLoaded = false;
+                    break;
+                }
+            }
+            // Check to see if we can now place the nodes
+            if (allChunksLoaded) {
+                placeTreeNodes(nodes);
+                delete nodes;
+                _treesToPlace[i] = _treesToPlace.back();
+                _treesToPlace.pop_back();
+                // Update startChunk state 
+                startChunk->_state = ChunkStates::MESH;
+                addToMeshList(startChunk);
+            } else {
+                // We should wait FRAMES_BEFORE_ATTEMPT frames before retrying
+                nodes->numFrames = GeneratedTreeNodes::FRAMES_BEFORE_ATTEMPT;
+            }
+        } else {
+            nodes->numFrames--;
+        }
     }
-    return 0;
+}
+
+void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
+    // Decompress all chunks to arrays for efficiency
+    for (auto& it : nodes->allChunkPositions) {
+        Chunk* chunk = getChunk(it);
+        if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+            chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+        }
+        if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
+            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+        }
+    }
+
+    int blockIndex;
+    Chunk* owner;
+    Chunk* lockedChunk = nullptr;
+    const i32v3& startPos = nodes->startChunkGridPos;
+
+    for (auto& node : nodes->wnodes) { //wood nodes
+        blockIndex = node.blockIndex;
+       
+        owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
+        // Lock the chunk
+        if (lockedChunk) lockedChunk->unlock();
+        lockedChunk = owner;
+        lockedChunk->lock();
+
+        ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
+
+        // TODO(Ben): Use a smother property for block instead of this hard coded garbage
+        if (blockIndex >= CHUNK_LAYER) {
+            if (owner->getBlockID(blockIndex - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(blockIndex - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
+        } else if (owner->bottom && owner->bottom->isAccessible) {
+            // Lock the chunk
+            if (lockedChunk) lockedChunk->unlock();
+            lockedChunk = owner->bottom;
+            lockedChunk->lock();
+
+            if (owner->bottom->getBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
+        }
+    }
+
+    for (auto& node : nodes->lnodes) { //leaf nodes
+        blockIndex = node.blockIndex;
+        owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
+        // Lock the chunk
+        if (lockedChunk) lockedChunk->unlock();
+        lockedChunk = owner;
+        lockedChunk->lock();
+
+        int blockID = owner->getBlockData(blockIndex);
+
+        if (blockID == (ui16)Blocks::NONE) {
+            ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
+        }
+    }
+
+    // Dont forget to unlock
+    if (lockedChunk) lockedChunk->unlock();
 }
 
 void ChunkManager::setupNeighbors(Chunk* chunk) {
@@ -954,6 +1039,62 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
     }
 }
 
+void ChunkManager::updateCaPhysics() {
+    static unsigned int frameCounter = 0;
+    static unsigned int powderCounter = 0;
+    static unsigned int waterCounter = 0;
+
+    bool updatePowders = false;
+    bool updateWater = false;
+
+    if (powderCounter >= 4 || (powderCounter == 2 && physSpeedFactor >= 2.0)) {
+        if (isWaterUpdating) updatePowders = true;
+        powderCounter = 0;
+    }
+
+    if (waterCounter >= 2 || (waterCounter == 1 && physSpeedFactor >= 2.0)) {
+        if (isWaterUpdating) updateWater = true;
+        waterCounter = 0;
+    }
+
+    const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
+    CellularAutomataTask* caTask;
+    Chunk* chunk;
+    if (updateWater && updatePowders) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            chunk = chunkSlots[i].chunk;
+            if (chunk && (chunk->hasCaUpdates(0) || chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
+                caTask = new CellularAutomataTask(chunk, CA_FLAG_POWDER | CA_FLAG_LIQUID);
+                chunk->lastOwnerTask = caTask;
+                _threadPool.addTask(caTask);
+            }
+        }
+    } else if (updateWater) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            chunk = chunkSlots[i].chunk;
+            if (chunk && chunk->hasCaUpdates(0)) {
+                caTask = new CellularAutomataTask(chunk, CA_FLAG_LIQUID);
+                chunk->lastOwnerTask = caTask;
+                _threadPool.addTask(caTask);
+            }
+        }
+    } else if (updatePowders) {
+        for (int i = 0; i < chunkSlots.size(); i++) {
+            chunk = chunkSlots[i].chunk;
+            if (chunk && (chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
+                caTask = new CellularAutomataTask(chunk, CA_FLAG_POWDER);
+                chunk->lastOwnerTask = caTask;
+                _threadPool.addTask(caTask);
+            }
+        }
+    }
+
+    frameCounter++;
+    powderCounter++;
+    waterCounter++;
+    if (frameCounter == 3) frameCounter = 0;
+}
+
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
         if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
@@ -961,12 +1102,16 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         }
         // Clear any opengl buffers
         chunk->clearBuffers();
+        // Lock to prevent data races
+        chunk->lock();
         // Sever any connections with neighbor chunks
         chunk->clearNeighbors();
-        if (chunk->inSaveThread || chunk->inLoadThread || chunk->lastOwnerTask || chunk->_chunkListPtr) {
+        if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
-            _threadWaitingChunks.push_back(chunk);
+            chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
+            chunk->unlock();
+            _freeWaitingChunks.push_back(chunk);
         } else {
             // Reduce the ref count since the chunk no longer needs chunkGridData
             chunk->chunkGridData->refCount--;
@@ -979,8 +1124,8 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             // Completely clear the chunk and then recycle it
             
             chunk->clear();
-            delete chunk;
-            //recycleChunk(chunk);
+            chunk->unlock();
+            recycleChunk(chunk);
         }
     }
 }
@@ -992,11 +1137,6 @@ void ChunkManager::addToSetupList(Chunk* chunk) {
 void ChunkManager::addToLoadList(Chunk* chunk) {
     chunk->_state = ChunkStates::LOAD;
     chunk->addToChunkList(&_loadList);
-}
-
-void ChunkManager::addToGenerateList(Chunk* chunk) {
-    chunk->_state = ChunkStates::GENERATE;
-    chunk->addToChunkList(&_generateList);
 }
 
 void ChunkManager::addToMeshList(Chunk* chunk) {
@@ -1030,12 +1170,13 @@ void ChunkManager::deleteAllChunks() {
     _freeList.clear();
 }
 
-void ChunkManager::updateChunks(const f64v3& position) {
+void ChunkManager::updateChunks(const Camera* camera) {
 
     ChunkSlot *cs;
     Chunk* chunk;
 
     i32v3 chPos;
+    const f64v3 position = camera->getPosition();
     i32v3 intPosition(position);
 
     //ui32 sticks = SDL_GetTicks();
@@ -1063,28 +1204,29 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
-            if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
-                GameManager::chunkIOManager->addToSaveList(cs->chunk);
-            }
-            _chunkSlotMap.erase(chunk->chunkPosition);
+            // Only remove it if it isn't needed by its neighbors
+            if (!chunk->lastOwnerTask && !chunk->isAdjacentInThread()) {
+                if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
+                    GameManager::chunkIOManager->addToSaveList(cs->chunk);
+                }
+                _chunkSlotMap.erase(chunk->chunkPosition);
 
-            freeChunk(chunk);
-            cs->chunk = nullptr;
-            
-            cs->clearNeighbors();
-          
-            _chunkSlots[0][i] = _chunkSlots[0].back();
-            _chunkSlots[0].pop_back();
-            if (i < _chunkSlots[0].size()) {
-                _chunkSlots[0][i].reconnectToNeighbors();
-                _chunkSlotMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
+                freeChunk(chunk);
+                cs->chunk = nullptr;
+
+                cs->clearNeighbors();
+
+                _chunkSlots[0][i] = _chunkSlots[0].back();
+                _chunkSlots[0].pop_back();
+                if (i < _chunkSlots[0].size()) {
+                    _chunkSlots[0][i].reconnectToNeighbors();
+                    _chunkSlotMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
+                }
             }
         } else { //inside maximum range
 
             // Check if it is in the view frustum
-            cs->inFrustum = SphereInFrustum((float)(cs->position.x + CHUNK_WIDTH / 2 - position.x),
-                                            (float)(cs->position.y + CHUNK_WIDTH / 2 - position.y),
-                                            (float)(cs->position.z + CHUNK_WIDTH / 2 - position.z), 28.0f, gridFrustum);
+            cs->inFrustum = camera->sphereInFrustum(f32v3(f64v3(cs->position) + f64v3(CHUNK_WIDTH / 2) - position), 28.0f);
 
             // See if neighbors need to be added
             if (cs->numNeighbors != 6) {
@@ -1102,22 +1244,14 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
             if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(chunk);
 
-            // calculate light stuff: THIS CAN LAG THE GAME
-            if (chunk->_state > ChunkStates::TREES) {
-                if (chunk->sunRemovalList.size()) {
-                    VoxelLightEngine::calculateSunlightRemoval(chunk);
-                }
-                if (chunk->sunExtendList.size()) {
-                    VoxelLightEngine::calculateSunlightExtend(chunk);
-                }
-                VoxelLightEngine::calculateLight(chunk);
-            }
             // Check to see if it needs to be added to the mesh list
             if (chunk->_chunkListPtr == nullptr && chunk->lastOwnerTask == false) {
                 switch (chunk->_state) {
                 case ChunkStates::WATERMESH:
                 case ChunkStates::MESH:
                     addToMeshList(chunk);
+                    break;
+                default:
                     break;
                 }
             }

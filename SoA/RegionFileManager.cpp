@@ -740,7 +740,7 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     ui16* tertiaryData;
 
     //Need to lock so that nobody modifies the interval tree out from under us
-    Chunk::modifyLock.lock();
+    chunk->lock();
     if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
         blockIDData = _blockIDBuffer;
         chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
@@ -765,7 +765,7 @@ bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
     } else {
         tertiaryData = chunk->_tertiaryDataContainer.getDataArray();
     }
-    Chunk::modifyLock.unlock();
+    chunk->unlock();
 
     _bufferSize = 0;
 

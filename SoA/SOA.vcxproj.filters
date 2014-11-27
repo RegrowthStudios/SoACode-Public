@@ -119,7 +119,7 @@
     </Filter>
     <Filter Include="SOA Files\Ext\Event">
       <UniqueIdentifier>{41ca9f3d-3814-46f9-b207-165cdc5d2041}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="SOA Files\Rendering\RenderPipelines">
       <UniqueIdentifier>{09cebf8a-9329-4dea-aac4-4d56d9dd2f37}</UniqueIdentifier>
     </Filter>
@@ -550,7 +550,7 @@
     </ClInclude>
     <ClInclude Include="GamePlayScreenEvents.hpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="IRenderPipeline.h">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
@@ -661,6 +661,12 @@
     </ClInclude>
     <ClInclude Include="FixedSizeArrayRecycler.hpp">
       <Filter>SOA Files\Ext\ADT</Filter>
+    </ClInclude>
+    <ClInclude Include="FloraTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
+    <ClInclude Include="CellularAutomataTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1069,6 +1075,12 @@
     <ClCompile Include="ChunkGridRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
+    <ClCompile Include="FloraTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="CellularAutomataTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -1095,9 +1107,6 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
-    </None>
-    <None Include="ChunkMesher.inl">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
     </None>
   </ItemGroup>
 </Project>

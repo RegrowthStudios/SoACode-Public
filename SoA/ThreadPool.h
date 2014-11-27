@@ -23,8 +23,11 @@
 #include "concurrentqueue.h"
 #include "IThreadPoolTask.h"
 
+class CAEngine;
 class Chunk;
 class ChunkMesher;
+class FloraGenerator;
+class VoxelLightEngine;
 struct LoadData;
 
 enum class RenderTaskType;
@@ -35,12 +38,21 @@ namespace vorb {
         // Worker data for a threadPool
         class WorkerData {
         public:
-            ~WorkerData() { delete chunkMesher; }
+            ~WorkerData() { 
+                delete chunkMesher;
+                delete floraGenerator;
+                delete voxelLightEngine;
+                delete caEngine;
+            }
             volatile bool waiting;
             volatile bool stop;
 
-            // Each Thread Gets Its Own Mesher
+            // Each thread gets its own generators
+            // TODO(Ben): Decouple this
             ChunkMesher* chunkMesher = nullptr;
+            FloraGenerator* floraGenerator = nullptr;
+            VoxelLightEngine* voxelLightEngine = nullptr;
+            CAEngine* caEngine = nullptr;
         };
 
         class ThreadPool {

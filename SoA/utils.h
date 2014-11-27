@@ -264,7 +264,7 @@ T trilinearInterpolation_4_8_4(int x, int y, int z, T data[9][5][5])
 
 template <typename T>
 T lerp(T a, T b, float f) {
-    return a * (1.0f - f) + b * f;
+    return (T)(a * (1.0f - f) + b * f);
 }
 
 inline i32 getPositionSeed(int x, int y, int z) {
