@@ -20,6 +20,8 @@
 class Chunk;
 class WorkerData;
 
+#define CA_TASK_ID 3
+
 enum CA_FLAG {
     CA_FLAG_LIQUID = 1,
     CA_FLAG_POWDER = 2 
@@ -27,6 +29,7 @@ enum CA_FLAG {
 
 class CellularAutomataTask : public vcore::IThreadPoolTask {
 public:
+    friend class ChunkManager;
     /// Constructs the task
     /// @param chunk: The the chunk to update
     /// @param flags: Combination of CA_FLAG

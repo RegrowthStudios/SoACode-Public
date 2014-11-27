@@ -442,6 +442,7 @@ void ChunkManager::processFinishedTasks() {
     size_t numTasks = _threadPool.getFinishedTasks(taskBuffer, MAX_TASKS);
 
     vcore::IThreadPoolTask* task;
+    Chunk* chunk;
 
     for (size_t i = 0; i < numTasks; i++) {
         task = taskBuffer[i];
@@ -469,8 +470,14 @@ void ChunkManager::processFinishedTasks() {
             case FLORA_TASK_ID:
                 processFinishedFloraTask(static_cast<FloraTask*>(task));
                 break;
+            case CA_TASK_ID:
+                chunk = static_cast<CellularAutomataTask*>(task)->_chunk;
+                if (task == chunk->lastOwnerTask) {
+                    chunk->lastOwnerTask = nullptr;
+                }
+                delete task;
+                break;
             default:
-                pError("Unknown thread pool Task! ID = " + to_string(task->getTaskId()));
                 delete task;
                 break;
         }

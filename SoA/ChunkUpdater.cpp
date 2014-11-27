@@ -53,7 +53,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
             owner->numBlocks--;
             needsSetup = true;
             newState = ChunkStates::WATERMESH;
-            ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+            ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
         } else if (blockID == FIRE) {
             updateFireBlock(chunk, blockIndex);
             needsSetup = true;
@@ -114,7 +114,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
 void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData) {
     vvox::lockChunk(chunk, lockedChunk);
-    placeBlock(chunk, blockIndex, blockData);
+    placeBlock(chunk, lockedChunk, blockIndex, blockData);
 }
 
 void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
@@ -187,7 +187,7 @@ void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockTyp
 }
 
 //Simplified placeBlock for liquid physics
-void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int blockType)
+void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType)
 {
     Block &block = GETBLOCK(blockType);
 
@@ -221,14 +221,14 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
         chunk->lampLightUpdateQueue.emplace(blockIndex, block.lightColorPacked);
     }
 
-    ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+    ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
   
     chunk->dirty = true;
 }
 
 void ChunkUpdater::placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType) {
     vvox::lockChunk(chunk, lockedChunk);
-    placeBlockFromLiquidPhysics(chunk, blockIndex, blockType);
+    placeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex, blockType);
 }
 
 void ChunkUpdater::removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
@@ -318,7 +318,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex
         removeFlora(chunk, lockedChunk, blockIndex, blockID);
     }
 
-    ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+    ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     chunk->numBlocks--;
     if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
@@ -334,7 +334,7 @@ void ChunkUpdater::removeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockI
     removeBlock(chunk, lockedChunk, blockIndex, isBreak, force, explodeDir);
 }
 
-void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
+void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)
 {
     const Block &block = chunk->getBlock(blockIndex);
 
@@ -374,7 +374,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
         }
     }
 
-    ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+    ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     chunk->numBlocks--;
     if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
@@ -385,7 +385,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
 
 void ChunkUpdater::removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
     vvox::lockChunk(chunk, lockedChunk);
-    removeBlockFromLiquidPhysics(chunk, blockIndex);
+    removeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex);
 }
 
 void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state) {
@@ -449,28 +449,28 @@ void ChunkUpdater::updateNeighborStates(Chunk* chunk, int blockIndex, ChunkState
     }
 }
 
-void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
+void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c)
 {
     int phys;
     const i32v3 pos = getPosFromBlockIndex(c);
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* front = chunk->front;
-    Chunk* back = chunk->back;
-    Chunk* top = chunk->top;
-    Chunk* bottom = chunk->bottom;
+    Chunk*& left = chunk->left;
+    Chunk*& right = chunk->right;
+    Chunk*& front = chunk->front;
+    Chunk*& back = chunk->back;
+    Chunk*& top = chunk->top;
+    Chunk*& bottom = chunk->bottom;
 
-    if ((phys = chunk->getBlock(c).physicsProperty - physStart) > -1) {
+    if ((phys = chunk->getBlockSafe(lockedChunk, c).physicsProperty - physStart) > -1) {
         chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
     }
 
     if (pos.x > 0){ //left
-        if ((phys = chunk->getBlock(c - 1).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - 1).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - 1);
         }
     } else if (left && left->isAccessible){
-        if ((phys = left->getBlock(c + CHUNK_WIDTH - 1).physicsProperty - physStart) > -1) {
+        if ((phys = left->getBlockSafe(lockedChunk, c + CHUNK_WIDTH - 1).physicsProperty - physStart) > -1) {
             left->blockUpdateList[phys][left->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH - 1);
         }
     } else{
@@ -478,11 +478,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.x < CHUNK_WIDTH - 1){ //right
-        if ((phys = chunk->getBlock(c + 1).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + 1).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + 1);
         }
     } else if (right && right->isAccessible){
-        if ((phys = right->getBlock(c - CHUNK_WIDTH + 1).physicsProperty - physStart) > -1) {
+        if ((phys = right->getBlockSafe(lockedChunk, c - CHUNK_WIDTH + 1).physicsProperty - physStart) > -1) {
             right->blockUpdateList[phys][right->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH + 1);
         }
     } else{
@@ -490,11 +490,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.z > 0){ //back
-        if ((phys = chunk->getBlock(c - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH);
         }
     } else if (back && back->isAccessible){
-        if ((phys = back->getBlock(c + CHUNK_LAYER - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
+        if ((phys = back->getBlockSafe(lockedChunk, c + CHUNK_LAYER - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             back->blockUpdateList[phys][back->activeUpdateList[phys]].push_back(c + CHUNK_LAYER - CHUNK_WIDTH);
         }
     } else{
@@ -502,11 +502,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.z < CHUNK_WIDTH - 1){ //front
-        if ((phys = chunk->getBlock(c + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH);
         }
     } else if (front && front->isAccessible){
-        if ((phys = front->getBlock(c - CHUNK_LAYER + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
+        if ((phys = front->getBlockSafe(lockedChunk, c - CHUNK_LAYER + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
             front->blockUpdateList[phys][front->activeUpdateList[phys]].push_back(c - CHUNK_LAYER + CHUNK_WIDTH);
         }
     } else{
@@ -514,11 +514,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.y > 0){ //bottom
-        if ((phys = chunk->getBlock(c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_LAYER);
         }
     } else if (bottom && bottom->isAccessible){
-        if ((phys = bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
+        if ((phys = bottom->getBlockSafe(lockedChunk, CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
             bottom->blockUpdateList[phys][bottom->activeUpdateList[phys]].push_back(CHUNK_SIZE - CHUNK_LAYER + c);
         }
     } else{
@@ -526,11 +526,11 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
     }
 
     if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = chunk->getBlock(c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
             chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_LAYER);
         }
     } else if (top && top->isAccessible){
-        if ((phys = top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
+        if ((phys = top->getBlockSafe(lockedChunk, c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
             top->blockUpdateList[phys][top->activeUpdateList[phys]].push_back(c - CHUNK_SIZE + CHUNK_LAYER);
         }
     }

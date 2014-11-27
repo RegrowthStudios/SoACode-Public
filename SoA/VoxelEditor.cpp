@@ -95,7 +95,7 @@ void VoxelEditor::placeAABox(Item *block) {
                         {
                             if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
-                            ChunkUpdater::placeBlock(chunk, blockIndex, block->ID);
+                            ChunkUpdater::placeBlock(chunk, lockedChunk, blockIndex, block->ID);
                             block->count--;
                             if (block->count == 0){
                                 stopDragging();

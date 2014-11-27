@@ -6,6 +6,7 @@
 
 
 CellularAutomataTask::CellularAutomataTask(Chunk* chunk, ui32 flags) : 
+    IThreadPoolTask(true, CA_TASK_ID),
     _chunk(chunk),
     _flags(flags) {
 }

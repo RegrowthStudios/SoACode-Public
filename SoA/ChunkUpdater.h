@@ -6,24 +6,24 @@ enum class ChunkStates;
 class ChunkUpdater {
 public:
     static void randomBlockUpdates(Chunk* chunk);
-    static void placeBlock(Chunk* chunk, int blockIndex, int blockType) {
+    static void placeBlock(Chunk* chunk, Chunk*& lockedChunk,  int blockIndex, int blockType) {
         placeBlockNoUpdate(chunk, blockIndex, blockType);
-        addBlockToUpdateList(chunk, blockIndex);
+        addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     }
     static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData);
     static void placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType);
-    static void placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int blockType);
+    static void placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
     static void placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
   
     static void removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
     static void removeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
-    static void removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex);
+    static void removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
     static void removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
 
     static void updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state);
     static void updateNeighborStates(Chunk* chunk, int blockID, ChunkStates state);
 
-    static void addBlockToUpdateList(Chunk* chunk, int c);
+    static void addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c);
     static void snowAddBlockToUpdateList(Chunk* chunk, int c);
 
 private:

@@ -182,7 +182,7 @@ bool PhysicsBlock::update(Chunk*& lockedChunk)
                     ExplosionNode(f64v3(position) + batch->_position,
                     blockID));
             } else {
-                ChunkUpdater::placeBlock(ch, c, batch->blockType);
+                ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
             }
             // Mark this block as done so it can be removed in a few frames
             done = 1;

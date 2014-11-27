@@ -47,8 +47,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                 if (c >= CHUNK_LAYER){
                     c = c - CHUNK_LAYER;
                     if (spawnerVal >= LOWWATER) {
-                        ChunkUpdater::placeBlock(_chunk, c, spawnerVal);
-                        ChunkUpdater::addBlockToUpdateList(_chunk, c);
+                        ChunkUpdater::placeBlock(_chunk, _lockedChunk, c, spawnerVal);
                     } else if (powders){
                         physicsBlockPos = glm::dvec3((double)_chunk->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->gridPosition.y + c / CHUNK_LAYER, (double)_chunk->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
                         GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
@@ -57,7 +56,6 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                     c = c - CHUNK_LAYER + CHUNK_SIZE;
                     if (spawnerVal >= LOWWATER){
                         ChunkUpdater::placeBlockSafe(bottom, _lockedChunk, c, spawnerVal);
-                        ChunkUpdater::addBlockToUpdateList(bottom, c);
                     } else if (powders){
                         physicsBlockPos = glm::dvec3((double)bottom->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)bottom->gridPosition.y + c / CHUNK_LAYER, (double)bottom->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
                         GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
@@ -70,12 +68,12 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                 if (c + CHUNK_LAYER < CHUNK_SIZE){
                     c = c + CHUNK_LAYER;
                     _chunk->setBlockDataSafe(_lockedChunk, c, NONE); //TODO: This is incorrect, should call RemoveBlock or something similar
-                    ChunkUpdater::addBlockToUpdateList(_chunk, c);
+                    ChunkUpdater::addBlockToUpdateList(_chunk, _lockedChunk, c);
                     _chunk->changeState(ChunkStates::MESH);
                 } else if (_chunk->top && _chunk->top->isAccessible){
                     c = c + CHUNK_LAYER - CHUNK_SIZE;
                     _chunk->top->setBlockDataSafe(_lockedChunk, c, NONE);
-                    ChunkUpdater::addBlockToUpdateList(_chunk->top, c);
+                    ChunkUpdater::addBlockToUpdateList(_chunk->top, _lockedChunk, c);
                     _chunk->top->changeState(ChunkStates::MESH);
                 }
             }
@@ -225,7 +223,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
 
     //If we are falling on an air block
     if (blockID == NONE){ 
-        ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, startBlockID);
+        ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, startBlockID);
         ChunkUpdater::removeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex);
 
         ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
@@ -240,7 +238,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         //if we cant completely fill in the empty space, fill it in as best we can
         if (startBlockID - _lowIndex + 1 > diff){
             startBlockID -= diff;
-            ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, blockID + diff);
+            ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, blockID + diff);
 
             if (diff > 10 && inFrustum) particleEngine.addParticles(1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
             hasChanged = 1;
@@ -251,7 +249,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
             }
 
         } else { //otherwise ALL liquid falls and we are done
-            ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, blockID + (startBlockID - _lowIndex + 1));
+            ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, blockID + (startBlockID - _lowIndex + 1));
             ChunkUpdater::removeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex);
 
             ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
@@ -262,7 +260,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         }
     } else if (Blocks[blockID].waterBreak) { //destroy a waterBreak block, such as flora
         ChunkUpdater::removeBlock(owner, _lockedChunk, nextIndex, true);
-        ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, startBlockID);
+        ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, startBlockID);
         ChunkUpdater::removeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex);
 
         ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
@@ -419,12 +417,12 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
             //diff /= num;
             if (diff < (startBlockID - _lowIndex + 1)){
                 if (blockID == NONE){
-                    ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, _lowIndex - 1 + diff);
+                    ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, _lowIndex - 1 + diff);
                 } else if (Blocks[blockID].waterBreak){
                     ChunkUpdater::removeBlock(owner, _lockedChunk, nextIndex, true);
-                    ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, _lowIndex - 1 + diff);              
+                    ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, _lowIndex - 1 + diff);
                 } else{
-                    ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, blockID + diff);
+                    ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, blockID + diff);
                 }
 
                
@@ -450,7 +448,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
                 diff = (startBlockID - _lowIndex + 1) / 2;
                 startBlockID -= diff;
 
-                ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, _lowIndex - 1 + diff);
+                ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, _lowIndex - 1 + diff);
 
                 if (owner != _chunk) {
                     owner->changeState(ChunkStates::WATERMESH);
@@ -460,7 +458,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
             } else if (blockID >= _lowIndex && blockID < startBlockID - 1){
                 diff = (startBlockID - blockID) / 2;
 
-                ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, blockID + diff);
+                ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, blockID + diff);
                 startBlockID -= diff;
          
                 if (owner != _chunk) {
@@ -514,12 +512,12 @@ void CAEngine::powderPhysics(int blockIndex)
     // Check if we can move down
     if (bottomBlock.isCrushable) {
         // Move down and crush block
-        ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+        ChunkUpdater::placeBlock(nextChunk, _lockedChunk, nextBlockIndex, blockData);
         ChunkUpdater::removeBlockSafe(_chunk, _lockedChunk, blockIndex, false);
         return;
     } else if (bottomBlock.powderMove) {
         // Move down and swap places
-        ChunkUpdater::placeBlock(nextChunk, nextBlockIndex, blockData);
+        ChunkUpdater::placeBlock(nextChunk, _lockedChunk, nextBlockIndex, blockData);
         ChunkUpdater::placeBlockSafe(_chunk, _lockedChunk, blockIndex, nextBlockData);
         return;
     } else if (bottomBlock.physicsProperty != P_POWDER) {

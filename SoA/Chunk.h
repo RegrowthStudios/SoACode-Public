@@ -131,6 +131,7 @@ public:
     ui16 getLampBlue(int c) const;
 
     const Block& getBlock(int c) const;
+    const Block& getBlockSafe(Chunk*& lockedChunk, int c);
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 

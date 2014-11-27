@@ -125,3 +125,8 @@ inline int Chunk::getBlockIDSafe(Chunk*& lockedChunk, int c) {
 inline const Block& Chunk::getBlock(int c) const {
     return Blocks[getBlockData(c)];
 }
+
+inline const Block& Chunk::getBlockSafe(Chunk*& lockedChunk, int c) {
+    vvox::lockChunk(this, lockedChunk);
+    return Blocks[getBlockData(c)];
+}
