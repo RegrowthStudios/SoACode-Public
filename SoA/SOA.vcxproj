@@ -135,6 +135,7 @@
     <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GLRenderTarget.h" />
     <ClInclude Include="GpuMemory.h" />
+    <ClInclude Include="gtypes.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />

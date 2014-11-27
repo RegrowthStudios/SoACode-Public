@@ -27,6 +27,11 @@
 namespace vorb {
     namespace core {
         namespace graphics {
+            struct ShaderSource {
+            public:
+                std::vector<const cString> sources;
+            };
+
             enum class ShaderType;
 
             // Encapsulates A Simple OpenGL Program And Its Shaders

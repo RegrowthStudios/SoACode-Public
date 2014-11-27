@@ -119,7 +119,7 @@
     </Filter>
     <Filter Include="SOA Files\Ext\Event">
       <UniqueIdentifier>{41ca9f3d-3814-46f9-b207-165cdc5d2041}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="SOA Files\Rendering\RenderPipelines">
       <UniqueIdentifier>{09cebf8a-9329-4dea-aac4-4d56d9dd2f37}</UniqueIdentifier>
     </Filter>
@@ -131,6 +131,12 @@
     </Filter>
     <Filter Include="SOA Files\Game\Universe">
       <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Vorb">
+      <UniqueIdentifier>{55891d5b-0543-4390-acad-b4d0a80b3f71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Vorb\Graphics">
+      <UniqueIdentifier>{189dfa46-b2e3-47b4-9730-ee9edb16c0f5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -232,9 +238,6 @@
     </ClInclude>
     <ClInclude Include="global.h">
       <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLProgram.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
     <ClInclude Include="GLStates.h">
       <Filter>SOA Files\Rendering\Wrappers\States</Filter>
@@ -550,7 +553,7 @@
     </ClInclude>
     <ClInclude Include="GamePlayScreenEvents.hpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="IRenderPipeline.h">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
@@ -611,12 +614,6 @@
     <ClInclude Include="BlockTextureMethods.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="GLRenderTarget.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEnums.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="RTSwapChain.hpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClInclude>
@@ -661,6 +658,18 @@
     </ClInclude>
     <ClInclude Include="FixedSizeArrayRecycler.hpp">
       <Filter>SOA Files\Ext\ADT</Filter>
+    </ClInclude>
+    <ClInclude Include="GLProgram.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLEnums.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderTarget.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gtypes.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -750,9 +759,6 @@
     </ClCompile>
     <ClCompile Include="global.cpp">
       <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GLProgram.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="GLTexture.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -1036,9 +1042,6 @@
     <ClCompile Include="BlockTextureMethods.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="GLRenderTarget.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="FullQuadVBO.cpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
@@ -1068,6 +1071,12 @@
     </ClCompile>
     <ClCompile Include="ChunkGridRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgram.cpp">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderTarget.cpp">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
