@@ -228,7 +228,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
     //If we are falling on an air block
     if (blockID == NONE){ 
         ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, startBlockID);
-        ChunkUpdater::removeBlockFromLiquidPhysics(_chunk, startBlockIndex);
+        ChunkUpdater::removeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex);
 
         ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
         if (owner != _chunk) ChunkUpdater::updateNeighborStates(owner, nextIndex, ChunkStates::WATERMESH);
@@ -254,7 +254,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
 
         } else { //otherwise ALL liquid falls and we are done
             ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, blockID + (startBlockID - _lowIndex + 1));
-            ChunkUpdater::removeBlockFromLiquidPhysics(_chunk, startBlockIndex);
+            ChunkUpdater::removeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex);
 
             ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
             if (owner != _chunk) ChunkUpdater::updateNeighborStates(owner, nextIndex, ChunkStates::WATERMESH);
@@ -265,7 +265,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
     } else if (Blocks[blockID].waterBreak) { //destroy a waterBreak block, such as flora
         ChunkUpdater::removeBlock(owner, _lockedChunk, nextIndex, true);
         ChunkUpdater::placeBlockFromLiquidPhysics(owner, nextIndex, startBlockID);
-        ChunkUpdater::removeBlockFromLiquidPhysics(_chunk, startBlockIndex);
+        ChunkUpdater::removeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex);
 
         ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
         if (owner != _chunk) ChunkUpdater::updateNeighborStates(owner, nextIndex, ChunkStates::WATERMESH);
@@ -287,7 +287,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         return;
     }
 
-    blockID = owner->getBlockID(nextIndex);
+    blockID = owner->getBlockIDSafe(_lockedChunk, nextIndex);
 
     if (blockID == NONE || Blocks[blockID].waterBreak){ //calculate diffs
         diffs[index] = (startBlockID - (_lowIndex - 1));
@@ -320,7 +320,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         return;
     }
 
-    blockID = owner->getBlockID(nextIndex);
+    blockID = owner->getBlockIDSafe(_lockedChunk, nextIndex);
 
     if (blockID == NONE || Blocks[blockID].waterBreak){ //calculate diffs
         diffs[index] = (startBlockID - (_lowIndex - 1));
@@ -353,7 +353,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         return;
     }
 
-    blockID = owner->getBlockID(nextIndex);
+    blockID = owner->getBlockIDSafe(_lockedChunk, nextIndex);
 
     if (blockID == NONE || Blocks[blockID].waterBreak){ //calculate diffs
         diffs[index] = (startBlockID - (_lowIndex - 1));
@@ -386,7 +386,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         return;
     }
 
-    blockID = owner->getBlockID(nextIndex);
+    blockID = owner->getBlockIDSafe(_lockedChunk, nextIndex);
 
     if (blockID == NONE || Blocks[blockID].waterBreak){ //calculate diffs
         diffs[index] = (startBlockID - (_lowIndex - 1));
@@ -414,7 +414,8 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         nextIndex = adjIndices[i];
         owner = adjOwners[i];
         diff = diffs[i] / numAdj;
-        blockID = owner->getBlockID(nextIndex);
+        //TODO(Ben): cache this instead
+        blockID = owner->getBlockIDSafe(_lockedChunk, nextIndex);
 
         if (diff > 0){
             //diff /= num;
@@ -446,7 +447,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         if (adjAdjOwners[i]){
             owner = adjAdjOwners[i];
             nextIndex = adjAdjIndices[i];
-            blockID = owner->getBlockID(nextIndex);
+            blockID = owner->getBlockIDSafe(_lockedChunk, nextIndex);
             if (blockID == NONE && startBlockID > _lowIndex){
                 diff = (startBlockID - _lowIndex + 1) / 2;
                 startBlockID -= diff;
@@ -474,7 +475,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
     }
 
     if (hasChanged) {
-        ChunkUpdater::placeBlockFromLiquidPhysics(_chunk, startBlockIndex, startBlockID);
+        ChunkUpdater::placeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex, startBlockID);
 
         _chunk->changeState(ChunkStates::WATERMESH);
         ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);

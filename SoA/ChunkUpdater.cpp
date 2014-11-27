@@ -226,6 +226,11 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
     chunk->dirty = true;
 }
 
+void ChunkUpdater::placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType) {
+    vvox::lockChunk(chunk, lockedChunk);
+    placeBlockFromLiquidPhysics(chunk, blockIndex, blockType);
+}
+
 void ChunkUpdater::removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
 {
     int blockID = chunk->getBlockID(blockIndex);
@@ -376,6 +381,11 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
 
     chunk->changeState(ChunkStates::WATERMESH);
     chunk->dirty = 1;
+}
+
+void ChunkUpdater::removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
+    vvox::lockChunk(chunk, lockedChunk);
+    removeBlockFromLiquidPhysics(chunk, blockIndex);
 }
 
 void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state) {
