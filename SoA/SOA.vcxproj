@@ -55,7 +55,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -88,7 +88,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
