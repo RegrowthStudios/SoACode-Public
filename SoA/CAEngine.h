@@ -1,49 +1,51 @@
 #pragma once
 #include "CellularAutomataTask.h"
 #include "Constants.h"
+#include "Keg.h"
 #include "LiquidData.h"
 
 class ChunkManager;
 class Chunk;
+class IOManager;
 
 /// Resolution of CA updates in frames
 #define CA_TICK_RES 4
+/// Should be half of CA_TICK_RES
+#define HALF_CA_TICK_RES 2
+
+class CaPhysicsData {
+public:
+    ui32 liquidLevels = 0;
+    ui32 updateRate = 0;
+    CA_FLAG caFlag;
+};
+KEG_TYPE_DECL(CaPhysicsData);
 
 class CaPhysicsType {
 public:
-    CaPhysicsType(ui32 ticksUntilUpdate, CA_FLAG caFlag) :
-        _ticksUntilUpdate(ticksUntilUpdate),
-        _caFlag(caFlag) {
-        _caIndex = numCaTypes++;
-    }
 
     /// Updates the type.
     /// @return true if it this physics type should simulate
-    bool update() {
-        _ticks++;
-        if (_ticks == _halfTicksUntilUpdate) {
-            _ticks = 0;
-            _isEven = !_isEven;
-            return true;
-        }
-        return false;
-    }
+    bool update();
+
+    bool loadFromYml(const nString& filePath, IOManager* ioManager);
 
     // Getters
     const int& getCaIndex() const { return _caIndex; }
-    const ui32& getTicksUntilUpdate() const { return _ticksUntilUpdate; }
-    const CA_FLAG& getCaFlag() const { return _caFlag; }
+    const ui32& getUpdateRate() const { return _data.updateRate; }
+    const CA_FLAG& getCaFlag() const { return _data.caFlag; }
     const bool& getIsEven() const { return _isEven; }
 
-    static const int& getNumCaTypes() { return numCaTypes; }
+    static const int& getNumCaTypes() { return typesCache.size(); }
 
+    static void clearTypes();
+
+    static std::map<nString, CaPhysicsType*> typesCache;
 private:
-    static int numCaTypes;
+    static std::vector<CaPhysicsType*> typesArray;
 
+    CaPhysicsData _data;
     int _caIndex;
-    ui32 _ticksUntilUpdate; ///< In units of CA_TICK_RES
-    ui32 _halfTicksUntilUpdate; ///< half of _ticksUntilUpdate
-    CA_FLAG _caFlag; ///< Determines which algorithm to use
     bool _isEven = false; 
 
     ui32 _ticks = 0; ///< Counts the ticks
@@ -54,8 +56,8 @@ public:
     CAEngine();
     void setChunk(Chunk* chunk) { _chunk = chunk; }
     void updateSpawnerBlocks(bool powders);
-    void updateLiquidBlocks();
-    void updatePowderBlocks();
+    void updateLiquidBlocks(int caIndex);
+    void updatePowderBlocks(int caIndex);
 private:
     
     void liquidPhysics(i32 startBlockIndex, i32 b);

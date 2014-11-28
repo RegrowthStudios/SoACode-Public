@@ -150,6 +150,7 @@ SpriteFont::SpriteFont(const cString font, int size, char cs, char ce) {
     delete[] bestPartition;
     TTF_CloseFont(f);
 }
+
 void SpriteFont::dispose() {
     if (_texID != 0) {
         glDeleteTextures(1, &_texID);

@@ -68,9 +68,8 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	blockUpdateIndex = 0;
     _levelOfDetail = 1;
     
-	for (int i = 0; i < 8; i++){
-		blockUpdateList[i][0].clear();
-		blockUpdateList[i][1].clear();
+    for (int i = 0; i < blockUpdateList.size(); i++) {
+		blockUpdateList[i].clear();
 		activeUpdateList[i] = 0;
 	}
 
@@ -109,8 +108,7 @@ void Chunk::clear(bool clearDraw)
     vector<ui16>().swap(sunExtendList); 
 
     for (int i = 0; i < 8; i++){
-        vector <GLushort>().swap(blockUpdateList[i][0]); //release the memory manually
-        vector <GLushort>().swap(blockUpdateList[i][1]);
+        vector <ui16>().swap(blockUpdateList[i]); //release the memory manually
     }
     std::queue<LampLightRemovalNode>().swap(lampLightRemovalQueue);
     std::queue<LampLightUpdateNode>().swap(lampLightUpdateQueue);
@@ -297,7 +295,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
 
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
                 chData[wc] = _blockIDContainer._dataTree[i].data;
-                if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
+                if (GETBLOCK(chData[wc]).meshType == MeshType::LIQUID) {
                     wvec[s++] = wc;
                 }
 
@@ -311,7 +309,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
                     chData[wc] = _blockIDContainer._dataArray[c];
-                    if (GETBLOCK(chData[wc]).physicsProperty == PhysicsProperties::P_LIQUID) {
+                    if (GETBLOCK(chData[wc]).meshType == MeshType::LIQUID) {
                         wvec[s++] = wc;
                     }
                 }
@@ -837,7 +835,7 @@ void Chunk::clearChunkListPtr() {
 }
 
 bool Chunk::hasCaUpdates(int index) {
-    return !blockUpdateList[index][activeUpdateList[index]].empty();
+    return !blockUpdateList[index * 2 + (int)activeUpdateList[index]].empty();
 }
 
 int Chunk::getRainfall(int xz) const {

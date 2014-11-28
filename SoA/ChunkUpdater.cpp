@@ -461,77 +461,77 @@ void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c
     Chunk*& top = chunk->top;
     Chunk*& bottom = chunk->bottom;
 
-    if ((phys = chunk->getBlockSafe(lockedChunk, c).physicsProperty - physStart) > -1) {
-        chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
+    if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {
+        chunk->addPhysicsUpdate(phys, c);
     }
 
     if (pos.x > 0){ //left
-        if ((phys = chunk->getBlockSafe(lockedChunk, c - 1).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - 1);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - 1).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - 1);
         }
     } else if (left && left->isAccessible){
-        if ((phys = left->getBlockSafe(lockedChunk, c + CHUNK_WIDTH - 1).physicsProperty - physStart) > -1) {
-            left->blockUpdateList[phys][left->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH - 1);
+        if ((phys = left->getBlockSafe(lockedChunk, c + CHUNK_WIDTH - 1).caIndex) > -1) {
+            left->addPhysicsUpdate(phys, c + CHUNK_WIDTH - 1);
         }
     } else{
         return;
     }
 
     if (pos.x < CHUNK_WIDTH - 1){ //right
-        if ((phys = chunk->getBlockSafe(lockedChunk, c + 1).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + 1);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + 1).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + 1);
         }
     } else if (right && right->isAccessible){
-        if ((phys = right->getBlockSafe(lockedChunk, c - CHUNK_WIDTH + 1).physicsProperty - physStart) > -1) {
-            right->blockUpdateList[phys][right->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH + 1);
+        if ((phys = right->getBlockSafe(lockedChunk, c - CHUNK_WIDTH + 1).caIndex) > -1) {
+            right->addPhysicsUpdate(phys, c - CHUNK_WIDTH + 1);
         }
     } else{
         return;
     }
 
     if (pos.z > 0){ //back
-        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_WIDTH).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - CHUNK_WIDTH);
         }
     } else if (back && back->isAccessible){
-        if ((phys = back->getBlockSafe(lockedChunk, c + CHUNK_LAYER - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            back->blockUpdateList[phys][back->activeUpdateList[phys]].push_back(c + CHUNK_LAYER - CHUNK_WIDTH);
+        if ((phys = back->getBlockSafe(lockedChunk, c + CHUNK_LAYER - CHUNK_WIDTH).caIndex) > -1) {
+            back->addPhysicsUpdate(phys, c + CHUNK_LAYER - CHUNK_WIDTH);
         }
     } else{
         return;
     }
 
     if (pos.z < CHUNK_WIDTH - 1){ //front
-        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_WIDTH).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + CHUNK_WIDTH);
         }
     } else if (front && front->isAccessible){
-        if ((phys = front->getBlockSafe(lockedChunk, c - CHUNK_LAYER + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            front->blockUpdateList[phys][front->activeUpdateList[phys]].push_back(c - CHUNK_LAYER + CHUNK_WIDTH);
+        if ((phys = front->getBlockSafe(lockedChunk, c - CHUNK_LAYER + CHUNK_WIDTH).caIndex) > -1) {
+            front->addPhysicsUpdate(phys, c - CHUNK_LAYER + CHUNK_WIDTH);
         }
     } else{
         return;
     }
 
     if (pos.y > 0){ //bottom
-        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_LAYER);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
         }
     } else if (bottom && bottom->isAccessible){
-        if ((phys = bottom->getBlockSafe(lockedChunk, CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
-            bottom->blockUpdateList[phys][bottom->activeUpdateList[phys]].push_back(CHUNK_SIZE - CHUNK_LAYER + c);
+        if ((phys = bottom->getBlockSafe(lockedChunk, CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
+            bottom->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
         }
     } else{
         return;
     }
 
     if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_LAYER);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
         }
     } else if (top && top->isAccessible){
-        if ((phys = top->getBlockSafe(lockedChunk, c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            top->blockUpdateList[phys][top->activeUpdateList[phys]].push_back(c - CHUNK_SIZE + CHUNK_LAYER);
+        if ((phys = top->getBlockSafe(lockedChunk, c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
+            top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
         }
     }
 }
@@ -541,29 +541,29 @@ void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
     int phys;
     const i32v3 pos = getPosFromBlockIndex(c);
 
-    if ((phys = chunk->getBlock(c).physicsProperty - physStart) > -1) {
-        chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
+    if ((phys = chunk->getBlock(c).caIndex) > -1) {
+        chunk->addPhysicsUpdate(phys, c);
     }
 
     if (pos.y > 0){ //bottom
-        if ((phys = chunk->getBlock(c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_LAYER);
+        if ((phys = chunk->getBlock(c - CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
         }
     } else if (chunk->bottom && chunk->bottom->isAccessible){
-        if ((phys = chunk->bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
-            chunk->bottom->blockUpdateList[phys][chunk->bottom->activeUpdateList[phys]].push_back(CHUNK_SIZE - CHUNK_LAYER + c);
+        if ((phys = chunk->bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
         }
     } else{
         return;
     }
 
     if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = chunk->getBlock(c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_LAYER);
+        if ((phys = chunk->getBlock(c + CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
         }
     } else if (chunk->top && chunk->top->isAccessible){
-        if ((phys = chunk->top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->top->blockUpdateList[phys][chunk->top->activeUpdateList[phys]].push_back(c - CHUNK_SIZE + CHUNK_LAYER);
+        if ((phys = chunk->top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
+            chunk->top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
         }
     }
 }

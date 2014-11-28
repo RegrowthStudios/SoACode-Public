@@ -24,6 +24,7 @@ class RenderTask;
 #define CA_TASK_ID 3
 
 enum CA_FLAG {
+    CA_FLAG_NONE = 0,
     CA_FLAG_LIQUID = 1,
     CA_FLAG_POWDER = 2 
 };

@@ -462,7 +462,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 }
 
 //Gets the liquid level from a block index
-#define LEVEL(i) ((_blockIDData[i] == 0) ? 0 : (((nextBlock = &GETBLOCK(_blockIDData[i]))->physicsProperty == block.physicsProperty) ? nextBlock->waterMeshLevel : 0))
+#define LEVEL(i) ((_blockIDData[i] == 0) ? 0 : (((nextBlock = &GETBLOCK(_blockIDData[i]))->caIndex == block.caIndex) ? nextBlock->waterMeshLevel : 0))
 
 #define CALCULATE_LIQUID_VERTEX_HEIGHT(height, heightA, heightB, cornerIndex) \
     div = 0; \
@@ -546,7 +546,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     nextBlockID = _blockIDData[wc + PADDED_OFFSETS::BOTTOM];
     nextBlock = &GETBLOCK(nextBlockID);
     //Check if the block is falling
-    if (nextBlockID == 0 || nextBlock->waterBreak || (nextBlock->physicsProperty == block.physicsProperty && nextBlock->waterMeshLevel != maxLevel)) {
+    if (nextBlockID == 0 || nextBlock->waterBreak || (nextBlock->caIndex == block.caIndex && nextBlock->waterMeshLevel != maxLevel)) {
         memset(faces, 1, 6); //all faces are active
   //      backLeftHeight = backRightHeight = frontLeftHeight = frontRightHeight 
         fallingReduction = 1.0f;
@@ -554,19 +554,19 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
         //Get occlusion
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::LEFT]);
-        faces[XNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[XNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BACK]);
-        faces[ZNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[ZNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::RIGHT]);
-        faces[XPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[XPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::FRONT]);
-        faces[ZPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[ZPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BOTTOM]);
-        faces[YNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[YNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
     }
 
     left = LEVEL(wc + PADDED_OFFSETS::LEFT);
@@ -592,7 +592,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     //only occlude top if we are a full water block and our sides arent down at all
     if (liquidLevel == 1.0f && backRightHeight == 1.0f && backLeftHeight == 1.0f && frontLeftHeight == 1.0f && frontRightHeight == 1.0f) {
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::TOP]);
-        faces[YPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[YPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
     } else {
         faces[YPOS] = true;
     }

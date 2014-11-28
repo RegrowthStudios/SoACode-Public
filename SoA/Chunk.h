@@ -77,7 +77,7 @@ public:
     
     void changeState(ChunkStates State);
     
-    /// Checks if adjacent chunks are in thread, since we dont want
+    /// Checks if adjacent chunks are in thread, since we don't want
     /// to remove chunks when their neighbors need them.
     bool isAdjacentInThread();
 
@@ -107,7 +107,7 @@ public:
           _sunlightContainer(byteRecycler),
           _lampLightContainer(shortRecycler),
           _tertiaryDataContainer(shortRecycler) {
-        blockUpdateList.resize(numCaTypes);
+        blockUpdateList.resize(numCaTypes * 2);
         // Empty
     }
     ~Chunk(){
@@ -152,6 +152,10 @@ public:
     void setFloraHeightSafe(Chunk*& lockedChunk, int c, ui16 val);
 
     void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
+
+    inline void addPhysicsUpdate(int caIndex, int blockIndex) {
+        blockUpdateList[(caIndex << 1) + (int)activeUpdateList[caIndex]].push_back(blockIndex);
+    }
     
     int numNeighbors;
     bool activeUpdateList[8];
@@ -189,7 +193,7 @@ public:
     int threadJob;
     float setupWaitingTime;
 
-    std::vector<std::vector <ui16>[2]> blockUpdateList;
+    std::vector< std::vector<ui16> > blockUpdateList;
 
     std::queue <SunlightUpdateNode> sunlightUpdateQueue;
     std::queue <SunlightRemovalNode> sunlightRemovalQueue;

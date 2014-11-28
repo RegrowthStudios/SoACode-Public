@@ -6,11 +6,61 @@
 #include "ChunkManager.h"
 #include "ChunkUpdater.h"
 #include "GameManager.h"
+#include "IOManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "VoxelUtils.h"
 
-int CaPhysicsType::numCaTypes = 0;
+std::map<nString, CaPhysicsType*> CaPhysicsType::typesCache;
+std::vector<CaPhysicsType*> CaPhysicsType::typesArray;
+
+KEG_ENUM_INIT_BEGIN(CA_FLAG, CA_FLAG, e)
+e->addValue("liquid", CA_FLAG::CA_FLAG_LIQUID);
+e->addValue("powder", CA_FLAG::CA_FLAG_POWDER);
+KEG_ENUM_INIT_END
+
+KEG_TYPE_INIT_BEGIN_DEF_VAR(CaPhysicsData)
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("updateRate", Keg::Value::basic(Keg::BasicType::UI32, offsetof(CaPhysicsData, updateRate)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("liquidLevels", Keg::Value::basic(Keg::BasicType::UI32, offsetof(CaPhysicsData, liquidLevels)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("algorithm", Keg::Value::custom("CA_FLAG", offsetof(CaPhysicsData, caFlag), true));
+KEG_TYPE_INIT_END
+
+bool CaPhysicsType::update() {
+    _ticks++;
+    if (_ticks == _data.updateRate * HALF_CA_TICK_RES) {
+        _ticks = 0;
+        _isEven = !_isEven;
+        return true;
+    }
+    return false;
+}
+
+bool CaPhysicsType::loadFromYml(const nString& filePath, IOManager* ioManager) {
+    // Load the file
+    nString fileData;
+    ioManager->readFileToString(filePath.c_str(), fileData);
+    if (fileData.length()) {
+        if (Keg::parse(&_data, fileData.c_str(), "CaPhysicsData") == Keg::Error::NONE) {
+            CaPhysicsType::typesCache[filePath] = this;
+            _caIndex = typesArray.size();
+            typesArray.push_back(this);
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+void CaPhysicsType::clearTypes() {
+    // Clear CA physics cache
+    for (auto& it : CaPhysicsType::typesCache) {
+        delete it.second;
+    }
+    CaPhysicsType::typesCache.clear();
+    typesArray.clear();
+}
 
 CAEngine::CAEngine() {
     memset(_blockUpdateFlagList, 0, sizeof(_blockUpdateFlagList));
@@ -87,12 +137,12 @@ void CAEngine::updateSpawnerBlocks(bool powders)
     }
 }
 
-void CAEngine::updateLiquidBlocks()
+void CAEngine::updateLiquidBlocks(int caIndex)
 {
     _lockedChunk = nullptr;
     vvox::lockChunk(_chunk, _lockedChunk);
     bool *activeUpdateList = _chunk->activeUpdateList;
-    vector <GLushort> *blockUpdateList = _chunk->blockUpdateList[0];
+    vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
     int actv = activeUpdateList[0];
     int size = blockUpdateList[actv].size(); 
     if (size == 0) {
@@ -125,11 +175,11 @@ void CAEngine::updateLiquidBlocks()
     }
 }
 
-void CAEngine::updatePowderBlocks()
+void CAEngine::updatePowderBlocks(int caIndex)
 {
     _lockedChunk = nullptr;
     bool *activeUpdateList = _chunk->activeUpdateList;
-    vector <GLushort> *blockUpdateList = _chunk->blockUpdateList[1];
+    vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
     int actv = activeUpdateList[1];
 
     Uint32 size = blockUpdateList[actv].size();
@@ -155,32 +205,32 @@ void CAEngine::updatePowderBlocks()
         _usedUpdateFlagList.clear();
     }
 
-    blockUpdateList = _chunk->blockUpdateList[2];
-    actv = activeUpdateList[2];
-    size = blockUpdateList[actv].size();
+ //   blockUpdateList = _chunk->blockUpdateList[2];
+ //   actv = activeUpdateList[2];
+ //   size = blockUpdateList[actv].size();
 
-    if (size != 0){
-        activeUpdateList[2] = !(activeUpdateList[2]);
-        int b;
-        Uint32 i;
+    //if (size != 0){
+    //    activeUpdateList[2] = !(activeUpdateList[2]);
+    //    int b;
+    //    Uint32 i;
 
-        for (i = 0; i < size; i++){ //snow
-            b = blockUpdateList[actv][i];
-            if (_blockUpdateFlagList[b] == 0){
-                _usedUpdateFlagList.push_back(b);
-                _blockUpdateFlagList[b] = 1;
-                if (_chunk->getBlock(b).physicsProperty == P_SNOW){ 
-                    powderPhysics(b);
-                }
-            }
-        }
-        blockUpdateList[actv].clear(); 
+    //    for (i = 0; i < size; i++){ //snow
+    //        b = blockUpdateList[actv][i];
+    //        if (_blockUpdateFlagList[b] == 0){
+    //            _usedUpdateFlagList.push_back(b);
+    //            _blockUpdateFlagList[b] = 1;
+    //            if (_chunk->getBlock(b).physicsProperty == P_SNOW){ 
+    //                powderPhysics(b);
+    //            }
+    //        }
+    //    }
+    //    blockUpdateList[actv].clear(); 
 
-        for (i = 0; i < _usedUpdateFlagList.size(); i++){
-            _blockUpdateFlagList[_usedUpdateFlagList[i]] = 0;
-        }
-        _usedUpdateFlagList.clear();
-    }
+    //    for (i = 0; i < _usedUpdateFlagList.size(); i++){
+    //        _blockUpdateFlagList[_usedUpdateFlagList[i]] = 0;
+    //    }
+    //    _usedUpdateFlagList.clear();
+    //}
     if (_lockedChunk) {
         _lockedChunk->unlock();
         _lockedChunk = nullptr;
@@ -496,7 +546,7 @@ void CAEngine::powderPhysics(int blockIndex)
     int blockData = _chunk->getBlockDataSafe(_lockedChunk, blockIndex);
     int nextBlockData, nextBlockIndex;
     // Make sure this is a powder block
-    if (GETBLOCK(blockData).physicsProperty != P_POWDER) return;
+    if (GETBLOCK(blockData).caFlag != CA_FLAG_POWDER) return;
 
     Chunk* nextChunk;
     i32v3 pos = getPosFromBlockIndex(blockIndex);
@@ -521,7 +571,7 @@ void CAEngine::powderPhysics(int blockIndex)
         ChunkUpdater::placeBlock(nextChunk, _lockedChunk, nextBlockIndex, blockData);
         ChunkUpdater::placeBlockSafe(_chunk, _lockedChunk, blockIndex, nextBlockData);
         return;
-    } else if (bottomBlock.physicsProperty != P_POWDER) {
+    } else if (bottomBlock.caFlag != CA_FLAG_POWDER) {
         // We can only slide on powder, so if its not powder, we return.
         return;
     }

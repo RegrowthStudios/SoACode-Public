@@ -3,12 +3,13 @@
 
 #include <SDL/SDL.h>
 
+#include "BlockTextureMethods.h"
+#include "CAEngine.h"
+#include "ChunkMesh.h"
 #include "Constants.h"
-#include "global.h"
 #include "Keg.h"
 #include "Rendering.h"
-#include "ChunkMesh.h"
-#include "BlockTextureMethods.h"
+#include "global.h"
 
 #define VISITED_NODE 3945
 #define LOWWATER 3946
@@ -50,15 +51,6 @@ enum class ConnectedTextureReducedMethod {
     BOTTOM
 };
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
-
-enum PhysicsProperties {
-    P_NONE,
-    P_SOLID,
-    P_LIQUID, 
-    P_POWDER,
-    P_SNOW
-};
-KEG_ENUM_DECL(PhysicsProperties);
 
 enum class BlockOcclusion {
     NONE,
@@ -196,8 +188,6 @@ enum BlocksStones { SANDSTONE = 64, SHALE, LIMESTONE, GRAVEL, BASALT, SLATE, GNE
 
 enum BlockTextures1{ T_DIRT, T_DIRTGRASS, T_GRASS, T_STONE , T_WATER, T_SAND, T_WOOD, T_SNOW = 12, T_ICE = 13, T_REDSAND = 21};
 
-const int physStart = 2;
-
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
 
 enum Explosives { TNT = 112, NITRO, C4 };
@@ -293,7 +283,9 @@ public:
     GLfloat explosionPowerLoss;
     f32v3 colorFilter;
 
-    PhysicsProperties physicsProperty;
+    int caIndex = -1;
+    CA_FLAG caFlag = CA_FLAG_NONE;
+    nString caFilePath = "";
 
     ColorRGB8 color;
     ColorRGB8 overlayColor;

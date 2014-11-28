@@ -1170,7 +1170,7 @@ inline Chunk* ChunkManager::produceChunk() {
     }
     _chunkDiagnostics.numCurrentlyAllocated++;
     _chunkDiagnostics.totalAllocated++;
-    return new Chunk(&_shortFixedSizeArrayRecycler, &_byteFixedSizeArrayRecycler);
+    return new Chunk(&_shortFixedSizeArrayRecycler, &_byteFixedSizeArrayRecycler, CaPhysicsType::getNumCaTypes());
 }
 
 void ChunkManager::deleteAllChunks() {
