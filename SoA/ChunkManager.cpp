@@ -446,7 +446,7 @@ void ChunkManager::processFinishedTasks() {
     for (size_t i = 0; i < numTasks; i++) {
         task = taskBuffer[i];
 
-        // Postprocessing based on task type
+        // Post processing based on task type
         switch (task->getTaskId()) {
             case RENDER_TASK_ID:
                 processFinishedRenderTask(static_cast<RenderTask*>(task));
@@ -481,6 +481,7 @@ void ChunkManager::processFinishedTasks() {
                 } else {
                     delete static_cast<CellularAutomataTask*>(task)->renderTask;
                 }
+                _numCaTasks--;
                 delete task;
                 break;
             default:
@@ -1045,7 +1046,7 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
 void ChunkManager::updateCaPhysics() {
 
     // TODO(Ben): Semi-fixed timestep
-    if (1 || _numCaTasks == 0) {
+    if (_numCaTasks == 0) {
         std::vector <CaPhysicsType*> typesToUpdate;
         // Check which types need to update
         for (auto& type : CaPhysicsType::typesArray) {

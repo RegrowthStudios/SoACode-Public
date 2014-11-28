@@ -50,7 +50,7 @@ public:
     RenderTask* renderTask = nullptr; ///< A nested to force re-mesh
 
 private:
-    std::vector<CaPhysicsType*> typesToUpdate;
+    std::vector<CaPhysicsType*> typesToUpdate; ///< All the CA types that will be updated by this task
     Chunk* _chunk; ///< The chunk we are updating
 };
 
