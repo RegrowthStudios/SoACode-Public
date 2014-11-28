@@ -35,6 +35,7 @@ public:
 private:
     vg::GLProgram* _glProgramDefault; ///< Stores the program we use to render
     vg::GLProgram* _glProgramBlur; ///< Motion blur enabled
+	vg::GLProgram* _glProgramDoFBlur; ///< Motion blur and DoF enabled
     vg::FullQuadVBO* _quad; ///< For use in processing through data
     const Camera* _camera; ///< Used for motion blur
     f32m4 _oldVP; ///< ViewProjection of previous frame

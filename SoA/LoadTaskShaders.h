@@ -103,6 +103,13 @@ private:
                                      "Shaders/PostProcessing/MotionBlur.frag",
                                      nullptr,
                                      "#define MOTION_BLUR\n");
+		/***** DoFMotionBlur *****/
+		glProgramManager->addProgram("DoFMotionBlur",
+									"Shaders/PostProcessing/PassThrough.vert",
+									"Shaders/PostProcessing/MotionBlur.frag",
+									nullptr,
+									"#define MOTION_BLUR\n#define DEPTH_OF_FIELD\n");
+
         /***** Block *****/
         glProgramManager->addProgram("Block",
                                      "Shaders/BlockShading/standardShading.vert",

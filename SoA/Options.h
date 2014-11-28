@@ -11,6 +11,7 @@ struct GraphicsOptions {
     i32 voxelRenderDistance, hudMode;
     i32 currTextureRes, defaultTextureRes;
     i32 motionBlur;
+	i32 depthOfField;
     i32 msaa, maxMsaa;
     f32 specularExponent, specularIntensity, lookSensitivity;
     f32 hdrExposure, gamma;

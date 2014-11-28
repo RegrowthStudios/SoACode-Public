@@ -36,6 +36,7 @@ void initializeOptions() {
     graphicsOptions.needsFullscreenToggle = 0;
     graphicsOptions.maxFPS = 60.0f;
     graphicsOptions.motionBlur = 8;
+	graphicsOptions.depthOfField = 1;
     graphicsOptions.msaa = 0;
     graphicsOptions.maxMsaa = 32;
     graphicsOptions.voxelLODThreshold = 128.0f;
