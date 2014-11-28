@@ -21,12 +21,14 @@ class Chunk;
 class WorkerData;
 class RenderTask;
 
+class CaPhysicsType;
+
 #define CA_TASK_ID 3
 
-enum CA_FLAG {
-    CA_FLAG_NONE = 0,
-    CA_FLAG_LIQUID = 1,
-    CA_FLAG_POWDER = 2 
+enum class CA_ALGORITHM {
+    NONE = 0,
+    LIQUID = 1,
+    POWDER = 2 
 };
 
 class CellularAutomataTask : public vcore::IThreadPoolTask {
@@ -35,7 +37,12 @@ public:
     /// Constructs the task
     /// @param chunk: The the chunk to update
     /// @param flags: Combination of CA_FLAG
-    CellularAutomataTask(Chunk* chunk, bool makeMesh, ui32 flags);
+    CellularAutomataTask(Chunk* chunk, bool makeMesh);
+
+    /// Adds a caPhysicsType for update
+    void addCaTypeToUpdate(CaPhysicsType* caType) {
+        typesToUpdate.push_back(caType);
+    }
 
     /// Executes the task
     void execute(vcore::WorkerData* workerData) override;
@@ -43,7 +50,7 @@ public:
     RenderTask* renderTask = nullptr; ///< A nested to force re-mesh
 
 private:
-    ui32 _flags; ///< Flags that tell us what to update
+    std::vector<CaPhysicsType*> typesToUpdate;
     Chunk* _chunk; ///< The chunk we are updating
 };
 

@@ -284,7 +284,7 @@ public:
     f32v3 colorFilter;
 
     int caIndex = -1;
-    CA_FLAG caFlag = CA_FLAG_NONE;
+    CA_ALGORITHM caAlg = CA_ALGORITHM::NONE;
     nString caFilePath = "";
 
     ColorRGB8 color;

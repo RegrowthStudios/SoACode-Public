@@ -6,19 +6,16 @@
 #include "RenderTask.h"
 #include "ThreadPool.h"
 
-CellularAutomataTask::CellularAutomataTask(Chunk* chunk, bool makeMesh, ui32 flags) : 
+CellularAutomataTask::CellularAutomataTask(Chunk* chunk, bool makeMesh) : 
     IThreadPoolTask(true, CA_TASK_ID),
-    _chunk(chunk),
-    _flags(flags) {
+    _chunk(chunk) {
+
+    typesToUpdate.reserve(2);
 
     if (makeMesh) {
         chunk->queuedForMesh = true;
         renderTask = new RenderTask();
-        if (_flags & CA_FLAG_POWDER) {
-            renderTask->init(_chunk, RenderTaskType::DEFAULT);
-        } else if (_flags & CA_FLAG_LIQUID) {
-            renderTask->init(_chunk, RenderTaskType::DEFAULT);
-        }
+        renderTask->init(_chunk, RenderTaskType::DEFAULT);
     }
 }
 
@@ -27,12 +24,19 @@ void CellularAutomataTask::execute(vcore::WorkerData* workerData) {
         workerData->caEngine = new CAEngine;
     }
     workerData->caEngine->setChunk(_chunk);
-    if (_flags & CA_FLAG_POWDER) {
-        workerData->caEngine->updatePowderBlocks(0);
+    for (auto& type : typesToUpdate) {
+        switch (type->getCaAlg()) {
+            case CA_ALGORITHM::LIQUID:
+                workerData->caEngine->updateLiquidBlocks(type->getCaIndex());
+                break;
+            case CA_ALGORITHM::POWDER:
+                workerData->caEngine->updatePowderBlocks(type->getCaIndex());
+                break;
+            default:
+                break;
+        }
     }
-    if (_flags & CA_FLAG_LIQUID) {
-        workerData->caEngine->updateLiquidBlocks(0);
-    }
+
     if (renderTask) {
         renderTask->execute(workerData);
     }

@@ -99,13 +99,13 @@ void BlockLoader::postProcessBlockLoad(Block* block, IOManager* ioManager) {
             // Load in the data
             if (newType->loadFromYml(block->caFilePath, ioManager)) {
                 block->caIndex = newType->getCaIndex();
-                block->caFlag = newType->getCaFlag();
+                block->caAlg = newType->getCaAlg();
             } else {
                 delete newType;
             }
         } else {
             block->caIndex = it->second->getCaIndex();
-            block->caFlag = it->second->getCaFlag();
+            block->caAlg = it->second->getCaAlg();
         }
     }
 }

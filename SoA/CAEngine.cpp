@@ -14,15 +14,16 @@
 std::map<nString, CaPhysicsType*> CaPhysicsType::typesCache;
 std::vector<CaPhysicsType*> CaPhysicsType::typesArray;
 
-KEG_ENUM_INIT_BEGIN(CA_FLAG, CA_FLAG, e)
-e->addValue("liquid", CA_FLAG::CA_FLAG_LIQUID);
-e->addValue("powder", CA_FLAG::CA_FLAG_POWDER);
+KEG_ENUM_INIT_BEGIN(CA_ALGORITHM, CA_ALGORITHM, e)
+e->addValue("none", CA_ALGORITHM::NONE);
+e->addValue("liquid", CA_ALGORITHM::LIQUID);
+e->addValue("powder", CA_ALGORITHM::POWDER);
 KEG_ENUM_INIT_END
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(CaPhysicsData)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("updateRate", Keg::Value::basic(Keg::BasicType::UI32, offsetof(CaPhysicsData, updateRate)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("liquidLevels", Keg::Value::basic(Keg::BasicType::UI32, offsetof(CaPhysicsData, liquidLevels)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("algorithm", Keg::Value::custom("CA_FLAG", offsetof(CaPhysicsData, caFlag), true));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("algorithm", Keg::Value::custom("CA_ALGORITHM", offsetof(CaPhysicsData, alg), true));
 KEG_TYPE_INIT_END
 
 bool CaPhysicsType::update() {
@@ -141,16 +142,16 @@ void CAEngine::updateLiquidBlocks(int caIndex)
 {
     _lockedChunk = nullptr;
     vvox::lockChunk(_chunk, _lockedChunk);
-    bool *activeUpdateList = _chunk->activeUpdateList;
+    std::vector<bool>& activeUpdateList = _chunk->activeUpdateList;
     vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
-    int actv = activeUpdateList[0];
+    int actv = activeUpdateList[caIndex];
     int size = blockUpdateList[actv].size(); 
     if (size == 0) {
         _lockedChunk->unlock();
         _lockedChunk = nullptr;
         return;
     }
-    activeUpdateList[0] = !(activeUpdateList[0]); //switch to other list
+    activeUpdateList[caIndex] = !(activeUpdateList[caIndex]); //switch to other list
     int c, blockID;
     Uint32 i;
 
@@ -178,13 +179,13 @@ void CAEngine::updateLiquidBlocks(int caIndex)
 void CAEngine::updatePowderBlocks(int caIndex)
 {
     _lockedChunk = nullptr;
-    bool *activeUpdateList = _chunk->activeUpdateList;
+    std::vector<bool>& activeUpdateList = _chunk->activeUpdateList;
     vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
-    int actv = activeUpdateList[1];
+    int actv = activeUpdateList[caIndex];
 
     Uint32 size = blockUpdateList[actv].size();
     if (size != 0){
-        activeUpdateList[1] = !(activeUpdateList[1]); //switch to other list
+        activeUpdateList[caIndex] = !(activeUpdateList[caIndex]); //switch to other list
         int b;
         Uint32 i;
 
@@ -546,7 +547,7 @@ void CAEngine::powderPhysics(int blockIndex)
     int blockData = _chunk->getBlockDataSafe(_lockedChunk, blockIndex);
     int nextBlockData, nextBlockIndex;
     // Make sure this is a powder block
-    if (GETBLOCK(blockData).caFlag != CA_FLAG_POWDER) return;
+    if (GETBLOCK(blockData).caAlg != CA_ALGORITHM::POWDER) return;
 
     Chunk* nextChunk;
     i32v3 pos = getPosFromBlockIndex(blockIndex);
@@ -571,7 +572,7 @@ void CAEngine::powderPhysics(int blockIndex)
         ChunkUpdater::placeBlock(nextChunk, _lockedChunk, nextBlockIndex, blockData);
         ChunkUpdater::placeBlockSafe(_chunk, _lockedChunk, blockIndex, nextBlockData);
         return;
-    } else if (bottomBlock.caFlag != CA_FLAG_POWDER) {
+    } else if (bottomBlock.caAlg != CA_ALGORITHM::POWDER) {
         // We can only slide on powder, so if its not powder, we return.
         return;
     }

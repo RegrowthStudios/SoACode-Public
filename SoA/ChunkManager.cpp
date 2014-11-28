@@ -1043,65 +1043,36 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
 }
 
 void ChunkManager::updateCaPhysics() {
-    static unsigned int frameCounter = 0;
-    static unsigned int powderCounter = 0;
-    static unsigned int waterCounter = 0;
 
-    bool updatePowders = false;
-    bool updateWater = false;
-
-    if (_numCaTasks == 0) {
-
-        // TODO(Ben): semi-fixed time step
-        if (powderCounter >= 4) {
-            if (isWaterUpdating) updatePowders = true;
-            powderCounter = 0;
+    // TODO(Ben): Semi-fixed timestep
+    if (1 || _numCaTasks == 0) {
+        std::vector <CaPhysicsType*> typesToUpdate;
+        // Check which types need to update
+        for (auto& type : CaPhysicsType::typesArray) {
+            if (type->update()) {
+                typesToUpdate.push_back(type);
+            }
         }
 
-        if (waterCounter >= 2) {
-            if (isWaterUpdating) updateWater = true;
-            waterCounter = 0;
-        }
-
-        const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
-        CellularAutomataTask* caTask;
-        Chunk* chunk;
-        if (updateWater && updatePowders) {
+        if (typesToUpdate.size()) {
+            const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
+            CellularAutomataTask* caTask;
+            Chunk* chunk;
+            
+            // Loop through all chunk slots and update chunks that have updates
             for (int i = 0; i < chunkSlots.size(); i++) {
                 chunk = chunkSlots[i].chunk;
-                if (chunk && chunk->numNeighbors == 6 && (chunk->hasCaUpdates(0) || chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
-                    caTask = new CellularAutomataTask(chunk, chunk->owner->inFrustum, CA_FLAG_POWDER | CA_FLAG_LIQUID);
-                    chunk->lastOwnerTask = caTask;
-                    _threadPool.addTask(caTask);
-                    _numCaTasks++;
-                }
-            }
-        } else if (updateWater) {
-            for (int i = 0; i < chunkSlots.size(); i++) {
-                chunk = chunkSlots[i].chunk;
-                if (chunk && chunk->numNeighbors == 6 && chunk->hasCaUpdates(0)) {
-                    caTask = new CellularAutomataTask(chunk, chunk->owner->inFrustum, CA_FLAG_LIQUID);
-                    chunk->lastOwnerTask = caTask;
-                    _threadPool.addTask(caTask);
-                    _numCaTasks++;
-                }
-            }
-        } else if (updatePowders) {
-            for (int i = 0; i < chunkSlots.size(); i++) {
-                chunk = chunkSlots[i].chunk;
-                if (chunk && chunk->numNeighbors == 6 && (chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
-                    caTask = new CellularAutomataTask(chunk, chunk->owner->inFrustum, CA_FLAG_POWDER);
+                if (chunk && chunk->numNeighbors == 6 && chunk->hasCaUpdates(typesToUpdate)) {
+                    caTask = new CellularAutomataTask(chunk, chunk->owner->inFrustum);
+                    for (auto& type : typesToUpdate) {
+                        caTask->addCaTypeToUpdate(type);
+                    }
                     chunk->lastOwnerTask = caTask;
                     _threadPool.addTask(caTask);
                     _numCaTasks++;
                 }
             }
         }
-
-        frameCounter++;
-        powderCounter++;
-        waterCounter++;
-        if (frameCounter == 3) frameCounter = 0;
     }
 }
 

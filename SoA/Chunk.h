@@ -34,6 +34,7 @@ enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DR
 
 struct LightMessage;
 class RenderTask;
+class CaPhysicsType;
 class ChunkMesher;
 
 class ChunkGridData {
@@ -95,7 +96,7 @@ public:
     void addToChunkList(std::vector<Chunk*> *chunkListPtr);
     void clearChunkListPtr();
 
-    bool hasCaUpdates(int index);
+    bool hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate);
 
     /// Constructor
     /// @param shortRecycler: Recycler for ui16 data arrays
@@ -108,6 +109,7 @@ public:
           _lampLightContainer(shortRecycler),
           _tertiaryDataContainer(shortRecycler) {
         blockUpdateList.resize(numCaTypes * 2);
+        activeUpdateList.resize(numCaTypes);
         // Empty
     }
     ~Chunk(){
@@ -158,7 +160,7 @@ public:
     }
     
     int numNeighbors;
-    bool activeUpdateList[8];
+    vector<bool> activeUpdateList;
     bool drawWater;
     bool hasLoadedSunlight;
     bool occlude; //this needs a new name

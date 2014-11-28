@@ -4,6 +4,7 @@
 #include <boost\circular_buffer.hpp>
 
 #include "BlockData.h"
+#include "CAEngine.h"
 #include "ChunkMesher.h"
 #include "Errors.h"
 #include "Frustum.h"
@@ -70,7 +71,6 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
     
     for (int i = 0; i < blockUpdateList.size(); i++) {
 		blockUpdateList[i].clear();
-		activeUpdateList[i] = 0;
 	}
 
 	spawnerBlocks.clear();
@@ -107,7 +107,7 @@ void Chunk::clear(bool clearDraw)
     vector<ui16>().swap(sunRemovalList);
     vector<ui16>().swap(sunExtendList); 
 
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < blockUpdateList.size(); i++) {
         vector <ui16>().swap(blockUpdateList[i]); //release the memory manually
     }
     std::queue<LampLightRemovalNode>().swap(lampLightRemovalQueue);
@@ -834,8 +834,14 @@ void Chunk::clearChunkListPtr() {
     _chunkListPtr = nullptr;
 }
 
-bool Chunk::hasCaUpdates(int index) {
-    return !blockUpdateList[index * 2 + (int)activeUpdateList[index]].empty();
+bool Chunk::hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate) {
+    for (auto& type : typesToUpdate) {
+        const int& caIndex = type->getCaIndex();
+        if (!blockUpdateList[caIndex * 2 + (int)activeUpdateList[caIndex]].empty()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int Chunk::getRainfall(int xz) const {
