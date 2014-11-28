@@ -16,6 +16,7 @@
 #ifndef GLPROGRAM_H_
 #define GLPROGRAM_H_
 
+#include "Events.hpp"
 #include "gtypes.h"
 #include "GLenums.h"
 #include "Vorb.h"
@@ -27,16 +28,26 @@
 namespace vorb {
     namespace core {
         namespace graphics {
-            struct ShaderSource {
-            public:
-                std::vector<const cString> sources;
-            };
-
             enum class ShaderType;
 
-            // Encapsulates A Simple OpenGL Program And Its Shaders
+            /// Holds information necessary for shader compilation
+            struct ShaderSource {
+                ShaderType stage = ShaderType::VERTEX_SHADER; ///< Shader's pipeline stage
+
+                i32 versionMajor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR; ///< GLSL major version
+                i32 versionMinor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR; ///< GLSL minor version
+                i32 versionRevision = GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION;  ///< GLSL revision version
+
+                std::vector<const cString> sources; ///< Strings of shader source code awaiting concatenation
+            };
+
+            // Encapsulates a simple OpenGL program and its shaders
             class GLProgram {
             public:
+                typedef std::pair<nString, VGAttribute> AttributeBinding; ///< Binds attribute names to locations
+                typedef std::map<nString, VGAttribute> AttributeMap; ///< Dictionary of attribute locations by name
+                typedef std::map<nString, VGUniform> UniformMap; ///< Dictionary of uniform locations by name
+
                 /// Create And Possibly Initialize Program
                 /// @param init: set to true to also call init()
                 GLProgram(bool init = false);
@@ -51,42 +62,29 @@ namespace vorb {
                     return _id != 0;
                 }
                 /// Returns the program ID
-                int getID() const  {
+                const VGProgram& getID() const  {
                     return _id;
                 }
 
-                /// Attatches shader to the build information
-                /// @param type: the type of shader
-                /// @param src: the shader source
+                /// Attaches shader to the build information
+                /// @param data: Shader's type, code, and version
                 /// @return true on success, false on failure
-                bool addShader(ShaderType type, const cString src, const cString defines = nullptr);
-                /// Attatches shader to the build information
-                /// @param type: the type of shader
-                /// @param src: the shader file name
-                /// @return true on success, false on failure
-                bool addShaderFile(ShaderType type, const cString file, const cString defines = nullptr);
+                bool addShader(const ShaderSource& data);
 
                 /// Sets an attribute
                 /// @param name: the attribute name
                 /// @param index: the attribute index
-                void setAttribute(nString name, ui32 index);
+                void setAttribute(nString name, VGAttribute index);
                 /// Sets a list of attribute
                 /// @param attr: map of attributes
-                void setAttributes(const std::map<nString, ui32>& attr);
+                void setAttributes(const std::map<nString, VGAttribute>& attr);
                 /// Sets a vector of attributes
                 /// @param attr: vector of attributes
-                void setAttributes(const std::vector<std::pair<nString, ui32> >& attr);
+                void setAttributes(const std::vector<AttributeBinding>& attr);
                 /// Sets a vector of attributes
                 /// @param attr: vector of attributes. Uses array index as element
                 void setAttributes(const std::vector<nString>& attr);
                 
-                /// Sets the shading language version only if it is not yet created
-                /// @param major: Major index
-                /// @param minor: Minor index
-                /// @param revision: Revision index
-                /// @return Self
-                GLProgram& setVersion(ui32 major, ui32 minor, ui32 revision);
-
                 /// Links the shader program. Should be called
                 /// after shaders are added
                 bool link();
@@ -103,13 +101,13 @@ namespace vorb {
                 /// Gets an attribute index
                 /// @param name: the attribute to get the index for
                 /// returns the integer attribute index
-                inline const ui32& getAttribute(const nString& name) const {
+                const ui32& getAttribute(const nString& name) const {
                     return _attributes.at(name);
                 }
                 /// Gets a uniform index
                 /// @param name: the uniform to get the index for
                 /// returns the integer uniform index
-                inline const ui32& getUniform(const nString& name) const {
+                const ui32& getUniform(const nString& name) const {
                     return _uniforms.at(name);
                 }
 
@@ -134,33 +132,29 @@ namespace vorb {
                 static GLProgram* getCurrentProgram() {
                     return _programInUse;
                 }
+
+                Event<nString> onShaderCompilationError;
+                Event<nString> onProgramLinkError;
             private:
                 // The Current Program In Use
                 static GLProgram* _programInUse;
 
                 // Program ID
-                ui32 _id;
+                VGProgram _id = 0;
 
                 // Shader IDs
-                ui32 _idVS, _idFS;
-
-                // Shader versions
-                ui32 _versionMajor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR;
-                ui32 _versionMinor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR;
-                ui32 _versionRevision = GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION;
+                VGShader _idVS = 0, _idFS = 0;
 
                 // True On A Successful Link
-                bool _isLinked;
+                bool _isLinked = false;
 
                 // Attribute And Uniform Map
-                std::map<nString, ui32> _attributes;
-                std::map<nString, ui32> _uniforms;
+                AttributeMap _attributes;
+                UniformMap _uniforms;
             };
-
         }
     }
 }
-
 namespace vg = vorb::core::graphics;
 
 #endif // GLPROGRAM_H_

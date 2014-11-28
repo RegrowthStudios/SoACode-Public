@@ -48,19 +48,21 @@ void vg::GLProgram::destroy() {
     }
 }
 
-bool vg::GLProgram::addShader(ShaderType type, const cString src, const cString defines /*= nullptr*/) {
+bool vg::GLProgram::addShader(const ShaderSource& data) {
     // Get the GLenum shader type from the wrapper
-    i32 glType = static_cast<GLenum>(type);
+    VGEnum glType = static_cast<VGEnum>(data.stage);
+
     // Check Current State
     if (getIsLinked() || !getIsCreated()) return false;
-    switch (glType) {
-        case GL_VERTEX_SHADER:
+    switch (data.stage) {
+        case ShaderType::VERTEX_SHADER:
             if (_idVS != 0) {
+                
                 printf("Attempting To Add Another Vertex Shader To Program\n");
                 throw 2;
             }
             break;
-        case GL_FRAGMENT_SHADER:
+        case ShaderType::FRAGMENT_SHADER:
             if (_idFS != 0) {
                 printf("Attempting To Add Another Fragment Shader To Program\n");
                 throw 2;
