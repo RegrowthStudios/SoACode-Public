@@ -28,6 +28,14 @@ bool MessageManager::tryDeque(ThreadId thread, Message& result) {
     }
 }
 
+size_t MessageManager::tryDequeMultiple(ThreadId thread, Message* messageBuffer, size_t maxSize) {
+    if (thread == ThreadId::UPDATE) {
+        return renderToPhysics.try_dequeue_bulk(messageBuffer, maxSize);
+    } else { // ThreadName::RENDERING
+        return physicsToRender.try_dequeue_bulk(messageBuffer, maxSize);
+    }
+}
+
 void MessageManager::waitForMessage(ThreadId thread, MessageID idToWait, Message& result) {
     if (thread == ThreadId::UPDATE) {
         while (true){

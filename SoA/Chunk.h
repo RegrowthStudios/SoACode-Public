@@ -101,11 +101,13 @@ public:
     /// @param shortRecycler: Recycler for ui16 data arrays
     /// @param byteRecycler: Recycler for ui8 data arrays
     Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 
-          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) : 
+          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler,
+          int numCaTypes) : 
           _blockIDContainer(shortRecycler), 
           _sunlightContainer(byteRecycler),
           _lampLightContainer(shortRecycler),
           _tertiaryDataContainer(shortRecycler) {
+        blockUpdateList.resize(numCaTypes);
         // Empty
     }
     ~Chunk(){
@@ -162,6 +164,9 @@ public:
     volatile bool inLoadThread;
     volatile bool inSaveThread;
     volatile bool isAccessible;
+    volatile bool queuedForMesh;
+
+    bool queuedForPhysics;
 
     vcore::IThreadPoolTask* lastOwnerTask; ///< Pointer to task that is working on us
 
@@ -184,7 +189,7 @@ public:
     int threadJob;
     float setupWaitingTime;
 
-    std::vector <ui16> blockUpdateList[8][2];
+    std::vector<std::vector <ui16>[2]> blockUpdateList;
 
     std::queue <SunlightUpdateNode> sunlightUpdateQueue;
     std::queue <SunlightRemovalNode> sunlightRemovalQueue;

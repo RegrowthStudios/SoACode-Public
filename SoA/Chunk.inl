@@ -8,7 +8,11 @@
 inline void Chunk::changeState(ChunkStates State)
 {
     //Only set the state if the new state is higher priority
-    if (_state > State){
+    if (_state > State) {
+        // Don't try to remesh it if its already queued for meshing.
+        if (State == ChunkStates::MESH || State == ChunkStates::WATERMESH) {
+            if (queuedForMesh) return;
+        }
         _state = State;
 
         //isAccessible is a flag that prevents threads from trying to

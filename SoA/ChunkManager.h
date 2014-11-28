@@ -336,6 +336,8 @@ private:
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool _threadPool;
 
+    int _numCaTasks = 0; ///< The number of CA tasks currently being processed
+
     VoxelLightEngine* _voxelLightEngine; ///< Used for checking top chunks for sunlight
 
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data

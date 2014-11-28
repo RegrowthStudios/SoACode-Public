@@ -39,9 +39,10 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	loadStatus = 0;
 	freeWaiting = 0;
 	hasLoadedSunlight = 0;
-	isAccessible = 0;
-	inLoadThread = 0;
-	inSaveThread = 0;
+    isAccessible = false;
+    inLoadThread = false;
+    inSaveThread = false;
+    queuedForMesh = false;
 	dirty = 0;
 	//THIS MUST COME BEFORE CLEARBUFFERS
 	mesh = NULL;
@@ -283,7 +284,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     assert(top && left && right && back && front && bottom);
 
     lock();
-
+    queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh
     if (_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
         int s = 0;

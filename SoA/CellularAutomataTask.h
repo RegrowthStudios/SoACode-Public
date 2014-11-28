@@ -19,6 +19,7 @@
 
 class Chunk;
 class WorkerData;
+class RenderTask;
 
 #define CA_TASK_ID 3
 
@@ -33,10 +34,13 @@ public:
     /// Constructs the task
     /// @param chunk: The the chunk to update
     /// @param flags: Combination of CA_FLAG
-    CellularAutomataTask(Chunk* chunk, ui32 flags);
+    CellularAutomataTask(Chunk* chunk, bool makeMesh, ui32 flags);
 
     /// Executes the task
     void execute(vcore::WorkerData* workerData) override;
+
+    RenderTask* renderTask = nullptr; ///< A nested to force re-mesh
+
 private:
     ui32 _flags; ///< Flags that tell us what to update
     Chunk* _chunk; ///< The chunk we are updating

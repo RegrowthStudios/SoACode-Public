@@ -10,6 +10,7 @@
 #include "PhysicsEngine.h"
 #include "VoxelUtils.h"
 
+int CaPhysicsType::numCaTypes = 0;
 
 CAEngine::CAEngine() {
     memset(_blockUpdateFlagList, 0, sizeof(_blockUpdateFlagList));
