@@ -25,10 +25,11 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
-    Block b;
+    
     Blocks.resize(numBlocks);
     Keg::Value v = Keg::Value::custom("Block", 0);
     for (auto& kvp : node) {
+        Block b;
         b.name = kvp.first.as<nString>();
         Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
 

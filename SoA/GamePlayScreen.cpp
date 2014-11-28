@@ -363,7 +363,7 @@ void GamePlayScreen::processMessages() {
                 break;
         }
     }
-    std::cout << "MESSAGES " << j << " " << k << " " << timer.stop() << std::endl;
+
     for (int i = 0; i < numMessages; i++) {
         Message& message = messageBuffer[i];
         switch (message.id) {
