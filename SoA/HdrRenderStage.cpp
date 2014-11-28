@@ -6,12 +6,12 @@
 #include "Options.h"
 
 HdrRenderStage::HdrRenderStage(const vg::GLProgramManager* glPM, vg::FullQuadVBO* quad, const Camera* camera) :
-_glProgramDefault(glPM->getProgram("HDR")),
-_glProgramBlur(glPM->getProgram("MotionBlur")),
-_glProgramDoFBlur(glPM->getProgram("DoFMotionBlur")),
-_quad(quad),
-_oldVP(1.0f),
-_camera(camera) {
+    _glProgramDefault(glPM->getProgram("HDR")),
+    _glProgramBlur(glPM->getProgram("MotionBlur")),
+    _glProgramDoFBlur(glPM->getProgram("DoFMotionBlur")),
+    _quad(quad),
+    _oldVP(1.0f),
+    _camera(camera) {
     // Empty
 }
 
@@ -31,7 +31,6 @@ void HdrRenderStage::draw() {
     glUniform1f(_glProgram->getUniform("unExposure"), graphicsOptions.hdrExposure);
     if (graphicsOptions.motionBlur > 0) {
         f32m4 newInverseVP = glm::inverse(vp);
-
         glUniform1i(_glProgram->getUniform("unTexDepth"), 1);
         glUniformMatrix4fv(_glProgram->getUniform("unVPPrev"), 1, GL_FALSE, &oldVP[0][0]);
         glUniformMatrix4fv(_glProgram->getUniform("unVPInv"), 1, GL_FALSE, &newInverseVP[0][0]);
@@ -39,7 +38,6 @@ void HdrRenderStage::draw() {
         glUniform1f(_glProgram->getUniform("unBlurIntensity"), 0.5f);
     }
     if (graphicsOptions.depthOfField > 0) {
-
         glUniform1f(_glProgram->getUniform("unFocalLen"), 70.0f);
         glUniform1f(_glProgram->getUniform("unZfocus"), 0.96f); // [0, 1]
     }
