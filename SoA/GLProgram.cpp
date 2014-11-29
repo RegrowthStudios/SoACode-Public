@@ -8,6 +8,12 @@
 #define PROGRAM_VARIABLE_IGNORED_PREFIX_LEN 3
 #define PROGRAM_VARIABLE_MAX_LENGTH 1024
 
+const vg::ShaderLanguageVersion vg::DEFAULT_SHADING_LANGUAGE_VERSION = vg::ShaderLanguageVersion(
+    GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR,
+    GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR,
+    GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION
+);
+
 vg::GLProgram* vg::GLProgram::_programInUse = nullptr;
 
 vg::GLProgram::GLProgram(bool init /*= false*/) {
@@ -77,15 +83,14 @@ bool vg::GLProgram::addShader(const ShaderSource& data) {
     char bufVersion[32];
     sprintf(bufVersion, "#version %d%d%d\n\0", data.version.major, data.version.minor, data.version.revision);
     sources[0] = bufVersion;
-    printf("%s", bufVersion);
-    
+
     // Append rest of shader code
-    for (i32 i = 0; i < data.sources.size(); i++) {
+    for (size_t i = 0; i < data.sources.size(); i++) {
         sources[i + 1] = data.sources[i];
     }
 
     // Compile shader
-    ui32 idS = glCreateShader((VGEnum)data.stage);
+    VGShader idS = glCreateShader((VGEnum)data.stage);
     glShaderSource(idS, data.sources.size() + 1, sources, 0);
     glCompileShader(idS);
     delete[] sources;
@@ -114,7 +119,7 @@ bool vg::GLProgram::addShader(const ShaderSource& data) {
     }
     return true;
 }
-bool vg::GLProgram::addShader(const ShaderType& type, const cString code, const ShaderLanguageVersion& version /*= ShaderLanguageVersion()*/) {
+bool vg::GLProgram::addShader(const ShaderType& type, const cString code, const ShaderLanguageVersion& version /*= DEFAULT_SHADING_LANGUAGE_VERSION*/) {
     ShaderSource src;
     src.stage = type;
     src.sources.push_back(code);

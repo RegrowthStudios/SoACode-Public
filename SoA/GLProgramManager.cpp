@@ -43,11 +43,11 @@ void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cS
         srcVert.sources.push_back(code);
         if (!newProgram->addShader(srcVert)) {
             showMessage("Vertex shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
-            delete code;
+            delete[] code;
             delete newProgram;
             continue;
         }
-        delete code;
+        delete[] code;
 
         // Create the fragment shader
         ShaderSource srcFrag;
@@ -57,11 +57,11 @@ void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cS
         srcFrag.sources.push_back(iom.readFileToString(fragmentPath));
         if (!newProgram->addShader(srcFrag)) {
             showMessage("Fragment shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
-            delete code;
+            delete[] code;
             delete newProgram;
             continue;
         }
-        delete code;
+        delete[] code;
 
         // Set the attributes
         if (attr) {

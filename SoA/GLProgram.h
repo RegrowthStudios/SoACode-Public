@@ -44,12 +44,7 @@ namespace vorb {
                 i32 minor; ///< GLSL minor version
                 i32 revision;  ///< GLSL revision version
             };
-
-            const ShaderLanguageVersion DEFAULT_VERSION = ShaderLanguageVersion(
-                GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR,
-                GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR,
-                GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION
-            );
+            extern const ShaderLanguageVersion DEFAULT_SHADING_LANGUAGE_VERSION; ///< Default language version
 
             /// Holds information necessary for shader compilation
             struct ShaderSource {
@@ -100,7 +95,7 @@ namespace vorb {
                 /// @param code: Shader's source code
                 /// @param version: Language version
                 /// @return True on success
-                bool addShader(const ShaderType& type, const cString code, const ShaderLanguageVersion& version = DEFAULT_VERSION);
+                bool addShader(const ShaderType& type, const cString code, const ShaderLanguageVersion& version = DEFAULT_SHADING_LANGUAGE_VERSION);
 
                 /// Sets an attribute before the link step
                 /// @param name: Attribute name
@@ -128,13 +123,13 @@ namespace vorb {
                 /// Gets an attribute index
                 /// @param name: The attribute's name
                 /// @return Attribute location
-                const ui32& getAttribute(const nString& name) const {
+                const VGAttribute& getAttribute(const nString& name) const {
                     return _attributes.at(name);
                 }
                 /// Gets a uniform index
                 /// @param name: The uniform's name
                 /// @return Uniform location
-                const ui32& getUniform(const nString& name) const {
+                const VGUniform& getUniform(const nString& name) const {
                     return _uniforms.at(name);
                 }
 
