@@ -33,6 +33,9 @@ namespace vorb {
                     // Empty
                 }
 
+                /// Destructor
+                ~GLRenderTarget() { dispose(); }
+
                 /// Initialize the framebuffer on the GPU
                 /// @param format: Internal storage of the color texture target
                 /// @param msaa: Number of MSAA samples
