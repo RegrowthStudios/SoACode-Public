@@ -15,8 +15,9 @@
 #define MESH_H_
 
 #include <vector>
-#include "SamplerState.h"
 #include "DepthState.h"
+#include "GLProgram.h"
+#include "SamplerState.h"
 #include "RasterizerState.h"
 
 namespace vorb {
@@ -97,7 +98,7 @@ public:
     // Default shader source
     static const cString defaultVertexShaderSource;
     static const cString defaultFragmentShaderSource;
-    static const std::vector<std::pair<nString, ui32> > defaultShaderAttributes;
+    static const std::vector<vg::GLProgram::AttributeBinding> defaultShaderAttributes;
 
 private:
     void upload(MeshUsage usage);

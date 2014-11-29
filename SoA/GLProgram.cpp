@@ -3,19 +3,14 @@
 
 #include "IOManager.h"
 
-// We Don't Want To Get OpenGL's Default Attributes
+// Used for querying attribute and uniforms variables within a program
 #define PROGRAM_VARIABLE_IGNORED_PREFIX "gl_"
 #define PROGRAM_VARIABLE_IGNORED_PREFIX_LEN 3
-// Will Our Variable Names Honestly Be More Than A KB
 #define PROGRAM_VARIABLE_MAX_LENGTH 1024
 
 vg::GLProgram* vg::GLProgram::_programInUse = nullptr;
 
-vg::GLProgram::GLProgram(bool init /*= false*/) :
-    _id(0),
-    _idVS(0),
-    _idFS(0),
-    _isLinked(false) {
+vg::GLProgram::GLProgram(bool init /*= false*/) {
     if (init) this->init();
 }
 
@@ -29,223 +24,227 @@ void vg::GLProgram::init() {
     _id = glCreateProgram();
 }
 void vg::GLProgram::destroy() {
-    // Delete The Shaders
+    // Delete the shaders
     if (_idVS) {
-        if (_id) glDetachShader(_id, _idVS);
         glDeleteShader(_idVS);
         _idVS = 0;
     }
     if (_idFS) {
-        if (_id) glDetachShader(_id, _idFS);
         glDeleteShader(_idFS);
         _idFS = 0;
     }
 
-    // Delete The Program
+    // Delete the program
     if (_id) {
+        _attributes.clear();
+        _uniforms.clear();
         glDeleteProgram(_id);
         _id = 0;
+        _isLinked = false;
     }
 }
 
 bool vg::GLProgram::addShader(const ShaderSource& data) {
-    // Get the GLenum shader type from the wrapper
-    VGEnum glType = static_cast<VGEnum>(data.stage);
+    // Check current state
+    if (getIsLinked() || !getIsCreated()) {
+        onShaderCompilationError("Cannot add a shader to a fully created or non-existent program");
+        return false;
+    }
 
-    // Check Current State
-    if (getIsLinked() || !getIsCreated()) return false;
+    // Check for preexisting stages
     switch (data.stage) {
         case ShaderType::VERTEX_SHADER:
             if (_idVS != 0) {
-                
-                printf("Attempting To Add Another Vertex Shader To Program\n");
-                throw 2;
+                onShaderCompilationError("Attempting to add another vertex shader");
+                return false;
             }
             break;
         case ShaderType::FRAGMENT_SHADER:
             if (_idFS != 0) {
-                printf("Attempting To Add Another Fragment Shader To Program\n");
-                throw 2;
+                onShaderCompilationError("Attempting to add another fragment shader");
+                return false;
             }
             break;
         default:
-            printf("Shader Type Is Not Supported\n");
-            throw 2;
+            onShaderCompilationError("Shader stage is not supported");
+            return false;
     }
 
-    // Compile The Shader
-    const cString sources[3];
-    ui32 idS = glCreateShader(glType);
+    // List of shader code
+    const cString* sources = new const cString[data.sources.size() + 1];
+
+    // Version information
     char bufVersion[32];
-    sprintf(bufVersion, "#version %d%d%d\n\0", _versionMajor, _versionMinor, _versionRevision);
+    sprintf(bufVersion, "#version %d%d%d\n\0", data.version.major, data.version.minor, data.version.revision);
     sources[0] = bufVersion;
-    if (defines) {
-        sources[1] = defines;
-        sources[2] = src;
-        glShaderSource(idS, 3, sources, 0);
-    } else {
-        sources[1] = src;
-        glShaderSource(idS, 2, sources, 0);
+    printf("%s", bufVersion);
+    
+    // Append rest of shader code
+    for (i32 i = 0; i < data.sources.size(); i++) {
+        sources[i + 1] = data.sources[i];
     }
-    glCompileShader(idS);
 
-    // Check Status
+    // Compile shader
+    ui32 idS = glCreateShader((VGEnum)data.stage);
+    glShaderSource(idS, data.sources.size() + 1, sources, 0);
+    glCompileShader(idS);
+    delete[] sources;
+
+    // Check status
     i32 status;
     glGetShaderiv(idS, GL_COMPILE_STATUS, &status);
     if (status != 1) {
         int infoLogLength;
-        printf("Shader Had Compilation Errors\n");
         glGetShaderiv(idS, GL_INFO_LOG_LENGTH, &infoLogLength);
         std::vector<char> FragmentShaderErrorMessage(infoLogLength);
         glGetShaderInfoLog(idS, infoLogLength, NULL, FragmentShaderErrorMessage.data());
-        fprintf(stdout, "%s\n", &FragmentShaderErrorMessage[0]);
+        onShaderCompilationError(&FragmentShaderErrorMessage[0]);
         glDeleteShader(idS);
         return false;
     }
 
-    // Bind Shader To Program
-    glAttachShader(_id, idS);
-    switch (glType) {
-        case GL_VERTEX_SHADER: _idVS = idS; break;
-        case GL_FRAGMENT_SHADER: _idFS = idS; break;
+    // Add shader to stage
+    switch (data.stage) {
+        case ShaderType::VERTEX_SHADER:
+            _idVS = idS;
+            break;
+        case ShaderType::FRAGMENT_SHADER:
+            _idFS = idS;
+            break;
     }
     return true;
 }
-
-bool vg::GLProgram::addShaderFile(ShaderType type, const cString file, const cString defines /*= nullptr*/) {
-    IOManager iom;
-    nString src;
-    iom.readFileToString(file, src);
-
-    return addShader(type, src.c_str(), defines);
+bool vg::GLProgram::addShader(const ShaderType& type, const cString code, const ShaderLanguageVersion& version /*= ShaderLanguageVersion()*/) {
+    ShaderSource src;
+    src.stage = type;
+    src.sources.push_back(code);
+    src.version = version;
+    return addShader(src);
 }
 
-void vg::GLProgram::setAttribute(nString name, ui32 index) {
-    // Don't Add Attributes If The Program Is Already Linked
-    if (_isLinked) return;
+void vg::GLProgram::setAttribute(nString name, VGAttribute index) {
+    // Adding attributes to a linked program does nothing
+    if (getIsLinked() || !getIsCreated()) return;
 
+    // Set the custom attribute
     glBindAttribLocation(_id, index, name.c_str());
     _attributes[name] = index;
 }
+void vg::GLProgram::setAttributes(const std::map<nString, VGAttribute>& attr) {
+    // Adding attributes to a linked program does nothing
+    if (getIsLinked() || !getIsCreated()) return;
 
-void vg::GLProgram::setAttributes(const std::map<nString, ui32>& attr) {
-    // Don't Add Attributes If The Program Is Already Linked
-    if (_isLinked) return;
-
-    // Set The Custom Attributes
-    auto attrIter = attr.begin();
-    while (attrIter != attr.end()) {
-        glBindAttribLocation(_id, attrIter->second, attrIter->first.c_str());
-        _attributes[attrIter->first] = attrIter->second;
-        attrIter++;
+    // Set the custom attributes
+    for (auto& binding : attr) {
+        glBindAttribLocation(_id, binding.second, binding.first.c_str());
+        _attributes[binding.first] = binding.second;
     }
 }
+void vg::GLProgram::setAttributes(const std::vector<AttributeBinding>& attr) {
+    // Adding attributes to a linked program does nothing
+    if (getIsLinked() || !getIsCreated()) return;
 
-void vg::GLProgram::setAttributes(const std::vector<std::pair<nString, ui32> >& attr) {
-    // Don't Add Attributes If The Program Is Already Linked
-    if (_isLinked) return;
-
-    // Set The Custom Attributes
-    auto attrIter = attr.begin();
-    while (attrIter != attr.end()) {
-        glBindAttribLocation(_id, attrIter->second, attrIter->first.c_str());
-        _attributes[attrIter->first] = attrIter->second;
-        attrIter++;
+    // Set the custom attributes
+    for (auto& binding : attr) {
+        glBindAttribLocation(_id, binding.second, binding.first.c_str());
+        _attributes[binding.first] = binding.second;
     }
 }
-
 void vg::GLProgram::setAttributes(const std::vector<nString>& attr) {
-    // Don't Add Attributes If The Program Is Already Linked
-    if (_isLinked) return;
+    // Adding attributes to a linked program does nothing
+    if (getIsLinked() || !getIsCreated()) return;
 
-    // Set The Custom Attributes
+    // Set the custom attributes
     for (ui32 i = 0; i < attr.size(); i++) {
         glBindAttribLocation(_id, i, attr[i].c_str());
         _attributes[attr[i]] = i;
     }
 }
 
-vg::GLProgram& vg::GLProgram::setVersion(ui32 major, ui32 minor, ui32 revision) {
-    if (getIsCreated()) return *this;
-    _versionMajor = major;
-    _versionMinor = minor;
-    _versionRevision = revision;
-    return *this;
-}
-
 bool vg::GLProgram::link() {
-    // Don't Relink Or Attempt A Non-initialized Link
-    if (getIsLinked() || !getIsCreated()) return false;
+    // Check internal state
+    if (getIsLinked() || !getIsCreated()) {
+        onProgramLinkError("Cannot link a fully created or non-existent program");
+        return false;
+    }
+
+    // Check for available shaders
+    if (!_idVS || !_idFS) {
+        onProgramLinkError("Insufficient stages for a program link");
+        return false;
+    }
 
     // Link The Program
+    glAttachShader(_id, _idVS);
+    glAttachShader(_id, _idFS);
     glLinkProgram(_id);
 
-    // Don't need the shaders anymore
-    if (_idVS) {
-        glDeleteShader(_idVS);
-        _idVS = 0;
-    }
-    if (_idFS) {
-        glDeleteShader(_idFS);
-        _idFS = 0;
-    }
+    // Detach and delete shaders
+    glDetachShader(_id, _idVS);
+    glDetachShader(_id, _idFS);
+    glDeleteShader(_idVS);
+    glDeleteShader(_idFS);
+    _idVS = 0;
+    _idFS = 0;
 
-    glValidateProgram(_id);
-
-    // Get The Link Status
+    // Check the link status
     i32 status;
     glGetProgramiv(_id, GL_LINK_STATUS, &status);
     _isLinked = status == 1;
-    return _isLinked;
+    if (!_isLinked) {
+        onProgramLinkError("Program had link errors");
+        return false;
+    }
+    return true;
 }
 
 void vg::GLProgram::initAttributes() {
-    // How Many Attributes Are In The Program
+    if (!getIsLinked()) return;
+
+    // Obtain attribute count
     i32 count;
     glGetProgramiv(_id, GL_ACTIVE_ATTRIBUTES, &count);
 
-    // Necessary Info
+    // Necessary info
     char name[PROGRAM_VARIABLE_MAX_LENGTH + 1];
     i32 len;
-
-    // Attribute Type
     GLenum type;
     i32 amount;
 
-    // Enumerate Through Attributes
+    // Enumerate through attributes
     for (int i = 0; i < count; i++) {
-        // Get Attribute Info
+        // Get attribute info
         glGetActiveAttrib(_id, i, PROGRAM_VARIABLE_MAX_LENGTH, &len, &amount, &type, name);
         name[len] = 0;
-        ui32 loc = glGetAttribLocation(_id, name);
+        VGAttribute loc = glGetAttribLocation(_id, name);
 
-        // Get Rid Of System Attributes
+        // Get rid of system attributes
         if (strncmp(name, PROGRAM_VARIABLE_IGNORED_PREFIX, PROGRAM_VARIABLE_IGNORED_PREFIX_LEN) != 0 && loc != -1) {
             _attributes[name] = loc;
         }
     }
 }
 void vg::GLProgram::initUniforms() {
-    // How Many Uniforms Are In The Program
+    if (!getIsLinked()) return;
+
+    // Obtain uniform count
     i32 count;
     glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &count);
 
-    // Necessary Info
+    // Necessary info
     char name[PROGRAM_VARIABLE_MAX_LENGTH + 1];
     i32 len;
-
-    // Uniform Type
     GLenum type;
     i32 amount;
 
-    // Enumerate Through Uniforms
+    // Enumerate through uniforms
     for (int i = 0; i < count; i++) {
-        // Get Uniform Info
+        // Get uniform info
         glGetActiveUniform(_id, i, PROGRAM_VARIABLE_MAX_LENGTH, &len, &amount, &type, name);
         name[len] = 0;
-        ui32 loc = glGetUniformLocation(_id, name);
+        VGUniform loc = glGetUniformLocation(_id, name);
 
-        // Get Rid Of System Uniforms
+        // Get rid of system uniforms
         if (strncmp(name, PROGRAM_VARIABLE_IGNORED_PREFIX, PROGRAM_VARIABLE_IGNORED_PREFIX_LEN) != 0 && loc != -1) {
             _uniforms[name] = loc;
         }
@@ -253,19 +252,18 @@ void vg::GLProgram::initUniforms() {
 }
 
 void vg::GLProgram::enableVertexAttribArrays() const {
-    for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
-        glEnableVertexAttribArray(it->second);
+    for (auto& attrBind : _attributes) {
+        glEnableVertexAttribArray(attrBind.second);
     }
 }
-
 void vg::GLProgram::disableVertexAttribArrays() const {
-    for (auto it = _attributes.begin(); it != _attributes.end(); it++) {
-        glDisableVertexAttribArray(it->second);
+    for (auto& attrBind : _attributes) {
+        glDisableVertexAttribArray(attrBind.second);
     }
 }
 
 void vg::GLProgram::use() {
-    if (_programInUse != this) {
+    if (!getIsInUse()) {
         _programInUse = this;
         glUseProgram(_id);
     }
@@ -276,4 +274,5 @@ void vg::GLProgram::unuse() {
         glUseProgram(0);
     }
 }
+
 

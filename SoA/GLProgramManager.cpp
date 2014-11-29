@@ -32,19 +32,36 @@ void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cS
         // Allocate the program
         newProgram = new GLProgram(true);
 
+        IOManager iom;
+        const cString code;
+
         // Create the vertex shader
-        if (!newProgram->addShaderFile(vg::ShaderType::VERTEX_SHADER, vertexPath, defines)) {
+        ShaderSource srcVert;
+        srcVert.stage = vg::ShaderType::VERTEX_SHADER;
+        if (defines) srcVert.sources.push_back(defines);
+        code = iom.readFileToString(vertexPath);
+        srcVert.sources.push_back(code);
+        if (!newProgram->addShader(srcVert)) {
             showMessage("Vertex shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
+            delete code;
             delete newProgram;
             continue;
         }
+        delete code;
 
         // Create the fragment shader
-        if (!newProgram->addShaderFile(vg::ShaderType::FRAGMENT_SHADER, fragmentPath, defines)) {
+        ShaderSource srcFrag;
+        srcFrag.stage = vg::ShaderType::FRAGMENT_SHADER;
+        if (defines) srcFrag.sources.push_back(defines);
+        code = iom.readFileToString(fragmentPath);
+        srcFrag.sources.push_back(iom.readFileToString(fragmentPath));
+        if (!newProgram->addShader(srcFrag)) {
             showMessage("Fragment shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
+            delete code;
             delete newProgram;
             continue;
         }
+        delete code;
 
         // Set the attributes
         if (attr) {

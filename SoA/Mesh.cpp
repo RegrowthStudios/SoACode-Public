@@ -40,10 +40,10 @@ void main() {
 )";
 
 // Default shader attributes
-const std::vector<std::pair<nString, ui32> > Mesh::defaultShaderAttributes = { 
-    std::pair<nString, ui32>("vPosition", 0),
-    std::pair<nString, ui32>("vTint", 1),
-    std::pair<nString, ui32>("vUV", 2)
+const std::vector<vg::GLProgram::AttributeBinding> Mesh::defaultShaderAttributes = { 
+    vg::GLProgram::AttributeBinding("vPosition", 0),
+    vg::GLProgram::AttributeBinding("vTint", 1),
+    vg::GLProgram::AttributeBinding("vUV", 2)
 };
 
 #pragma endregion

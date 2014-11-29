@@ -30,14 +30,31 @@ namespace vorb {
         namespace graphics {
             enum class ShaderType;
 
+            /// Store shader language version
+            struct ShaderLanguageVersion {
+                ShaderLanguageVersion(
+                    i32 maj = GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR,
+                    i32 min = GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR,
+                    i32 rev = GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION) :
+                    major(maj), minor(min), revision(rev) {
+                    // Empty
+                }
+
+                i32 major; ///< GLSL major version
+                i32 minor; ///< GLSL minor version
+                i32 revision;  ///< GLSL revision version
+            };
+
+            const ShaderLanguageVersion DEFAULT_VERSION = ShaderLanguageVersion(
+                GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR,
+                GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR,
+                GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION
+            );
+
             /// Holds information necessary for shader compilation
             struct ShaderSource {
                 ShaderType stage = ShaderType::VERTEX_SHADER; ///< Shader's pipeline stage
-
-                i32 versionMajor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR; ///< GLSL major version
-                i32 versionMinor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR; ///< GLSL minor version
-                i32 versionRevision = GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION;  ///< GLSL revision version
-
+                ShaderLanguageVersion version; ///< Language version
                 std::vector<const cString> sources; ///< Strings of shader source code awaiting concatenation
             };
 
@@ -48,50 +65,60 @@ namespace vorb {
                 typedef std::map<nString, VGAttribute> AttributeMap; ///< Dictionary of attribute locations by name
                 typedef std::map<nString, VGUniform> UniformMap; ///< Dictionary of uniform locations by name
 
-                /// Create And Possibly Initialize Program
-                /// @param init: set to true to also call init()
+                /// Create and possibly initialize program
+                /// @param init: True to call init()
                 GLProgram(bool init = false);
                 ~GLProgram();
 
-                /// Create GPU Resources
+                /// Create GPU resources
                 void init();
                 /// Free all resources
                 void destroy();
-                /// Returns true if the program was created
+                /// @return The program ID
+                const VGProgram& getID() const {
+                    return _id;
+                }
+                /// @return True if the program was created
                 bool getIsCreated() const {
                     return _id != 0;
                 }
-                /// Returns the program ID
-                const VGProgram& getID() const  {
-                    return _id;
+                /// @return True if the program is linked
+                bool getIsLinked() const {
+                    return _isLinked;
+                }
+                /// @return True if the program is in use
+                bool getIsInUse() const {
+                    return _programInUse == this;
                 }
 
                 /// Attaches shader to the build information
                 /// @param data: Shader's type, code, and version
-                /// @return true on success, false on failure
+                /// @return True on success
                 bool addShader(const ShaderSource& data);
+                /// Attaches shader to the build information
+                /// @param type: Shader's stage in the pipeline
+                /// @param code: Shader's source code
+                /// @param version: Language version
+                /// @return True on success
+                bool addShader(const ShaderType& type, const cString code, const ShaderLanguageVersion& version = DEFAULT_VERSION);
 
-                /// Sets an attribute
-                /// @param name: the attribute name
-                /// @param index: the attribute index
+                /// Sets an attribute before the link step
+                /// @param name: Attribute name
+                /// @param index: Attribute index
                 void setAttribute(nString name, VGAttribute index);
-                /// Sets a list of attribute
-                /// @param attr: map of attributes
+                /// Sets a list of attributes before the link step
+                /// @param attr: Map of attributes
                 void setAttributes(const std::map<nString, VGAttribute>& attr);
-                /// Sets a vector of attributes
-                /// @param attr: vector of attributes
+                /// Sets a list of attributes before the link step
+                /// @param attr: List of attribute bindings
                 void setAttributes(const std::vector<AttributeBinding>& attr);
-                /// Sets a vector of attributes
-                /// @param attr: vector of attributes. Uses array index as element
+                /// Sets a list of attributes before the link step
+                /// @param attr: List of attributes (array index as attribute index)
                 void setAttributes(const std::vector<nString>& attr);
                 
-                /// Links the shader program. Should be called
-                /// after shaders are added
+                /// Links the shader program using its currently added shaders
+                /// @return True on success
                 bool link();
-                /// Returns true if the program is linked
-                bool getIsLinked() const {
-                    return _isLinked;
-                }
 
                 /// Creates mappings for attributes
                 void initAttributes();
@@ -99,14 +126,14 @@ namespace vorb {
                 void initUniforms();
 
                 /// Gets an attribute index
-                /// @param name: the attribute to get the index for
-                /// returns the integer attribute index
+                /// @param name: The attribute's name
+                /// @return Attribute location
                 const ui32& getAttribute(const nString& name) const {
                     return _attributes.at(name);
                 }
                 /// Gets a uniform index
-                /// @param name: the uniform to get the index for
-                /// returns the integer uniform index
+                /// @param name: The uniform's name
+                /// @return Uniform location
                 const ui32& getUniform(const nString& name) const {
                     return _uniforms.at(name);
                 }
@@ -119,38 +146,27 @@ namespace vorb {
 
                 /// Tell the GPU to use the program
                 void use();
-
                 /// Will unuse whatever program is currently in use
                 static void unuse();
 
-                /// Returns true if the program is in use
-                bool getIsInUse() const {
-                    return _programInUse == this;
-                }
-
-                /// Returns the current program that is in use
+                /// @return The current program that is in use
                 static GLProgram* getCurrentProgram() {
                     return _programInUse;
                 }
 
-                Event<nString> onShaderCompilationError;
-                Event<nString> onProgramLinkError;
+                Event<nString> onShaderCompilationError; ///< Event signaled during addShader when an error occurs
+                Event<nString> onProgramLinkError; ///< Event signaled during link when an error occurs
             private:
-                // The Current Program In Use
-                static GLProgram* _programInUse;
+                VGProgram _id = 0; ///< Program
+                VGShader _idVS = 0; ///< Vertex shader
+                VGShader _idFS = 0; ///< Fragment shader
 
-                // Program ID
-                VGProgram _id = 0;
+                bool _isLinked = false; ///< Keeps track of link status
 
-                // Shader IDs
-                VGShader _idVS = 0, _idFS = 0;
+                AttributeMap _attributes; ///< Dictionary of attributes
+                UniformMap _uniforms; ///< Dictionary of uniforms
 
-                // True On A Successful Link
-                bool _isLinked = false;
-
-                // Attribute And Uniform Map
-                AttributeMap _attributes;
-                UniformMap _uniforms;
+                static GLProgram* _programInUse; ///< The current program in use
             };
         }
     }
