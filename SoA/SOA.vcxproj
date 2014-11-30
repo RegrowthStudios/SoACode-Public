@@ -416,7 +416,6 @@
     <ClCompile Include="ChunkIOManager.cpp" />
     <ClCompile Include="ChunkManager.cpp" />
     <ClCompile Include="ChunkMesher.cpp" />
-    <ClCompile Include="CloseTerrainPatch.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="FileSystem.cpp" />

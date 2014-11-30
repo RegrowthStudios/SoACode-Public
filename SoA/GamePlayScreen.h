@@ -30,7 +30,7 @@
 class App;
 class SpriteBatch;
 class SpriteFont;
-struct TerrainMeshMessage;
+class TerrainMeshMessage;
 
 template<typename... Params>
 class IDelegate;

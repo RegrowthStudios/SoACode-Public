@@ -183,7 +183,7 @@ void TerrainPatch::Initialize(int x, int y, int z, int wx, int wy, int wz, int R
     }
 }
 
-void TerrainPatch::Draw(TerrainBuffers *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
+void TerrainPatch::Draw(TerrainMesh *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
 {//
     //calculate distance
     glm::dvec3 closestPoint;
@@ -234,7 +234,7 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const Camera* camera, const glm::dve
     }
 }
 
-void TerrainPatch::DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
+void TerrainPatch::DrawTrees(TerrainMesh *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
 
     if (tb->inFrustum){
@@ -1024,7 +1024,7 @@ bool TerrainPatch::CreateMesh()
 
     TerrainMeshMessage *tmm = new TerrainMeshMessage;
     if (terrainBuffers == NULL){
-        terrainBuffers = new TerrainBuffers();
+        terrainBuffers = new TerrainMesh();
     }
     tmm->boundingBox = boundingBox;
     tmm->drawX = drawX;

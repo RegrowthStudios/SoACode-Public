@@ -52,7 +52,7 @@ Planet::~Planet()
 
 void Planet::clearMeshes()
 {
-    TerrainBuffers *tb;
+    TerrainMesh *tb;
     for (int k = 0; k < 6; k++){
         for (size_t i = 0; i < drawList[k].size(); i++){
             tb = drawList[k][i];

@@ -724,9 +724,6 @@
     <ClCompile Include="ChunkUpdater.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
-    <ClCompile Include="CloseTerrainPatch.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Collision.cpp">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClCompile>

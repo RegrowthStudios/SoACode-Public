@@ -99,7 +99,7 @@ public:
     // GM/r2
     std::vector< std::vector<class TerrainPatch*> > faces[6];
     std::vector<TerrainPatch*> LODUpdateList;
-    std::vector<struct TerrainBuffers*> drawList[6];
+    std::vector<class TerrainMesh*> drawList[6];
 
     //        double axialZTilt[66];
 

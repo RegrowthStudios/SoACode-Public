@@ -20,25 +20,26 @@ extern vector<GLushort> lodIndices;
 
 class Camera;
 
-struct TerrainBuffers{
-    TerrainBuffers() : vboID(0), vaoID(0), vboIndexID(0), treeVboID(0), indexSize(0), treeIndexSize(0), vecIndex(-1), inFrustum(0), distance(0.0){}
-    GLuint vboID;
-    GLuint vaoID;
-    GLuint vboIndexID;
-    GLuint treeVboID;
-    int indexSize;
-    int treeIndexSize;
+class TerrainMesh{
+public:
+    GLuint vboID = 0;
+    GLuint vaoID = 0;
+    GLuint vboIndexID = 0;
+    GLuint treeVboID = 0;
+    int indexSize = 0;
+    int treeIndexSize = 0;
     int worldX, worldY, worldZ;
-    int drawX, drawY, drawZ, vecIndex;
+    int drawX, drawY, drawZ, vecIndex = -1;
     int cullRadius;
-    double distance;
-    bool inFrustum;
+    double distance = 0.0;
+    bool inFrustum = false;
     glm::vec3 boundingBox;
 };
 
-struct TerrainMeshMessage{
+class TerrainMeshMessage{
+public:
     TerrainMeshMessage() : terrainBuffers(NULL), verts(NULL), indices(NULL), treeVerts(NULL), index(0), indexSize(0), treeIndexSize(0), face(0){}
-    TerrainBuffers* terrainBuffers;
+    TerrainMesh* terrainBuffers;
     TerrainVertex *verts;
     GLushort *indices;
     TreeVertex *treeVerts;
@@ -79,7 +80,7 @@ public:
     HeightData *lodMap;
     TerrainPatch* lods[4];
     TerrainPatch *parent;
-    TerrainBuffers *terrainBuffers;
+    TerrainMesh *terrainBuffers;
     volatile bool hasBuffers;
     //0 = no update needed. 1 = update needed 2 = child deletion needed 
     int updateCode;
@@ -96,8 +97,8 @@ public:
     void DeleteChildren();
     //itinializes the LOD and computes distance
     void Initialize(int x, int y, int z, int wx, int wy, int wz, int Radius, int Face, TerrainPatch *Parent = NULL, int ChildNum = -1, int initialDetail = -1);
-    static void Draw(TerrainBuffers *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
-    static void DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
+    static void Draw(TerrainMesh *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
+    static void DrawTrees(TerrainMesh *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
     static bool CheckHorizon(const glm::dvec3 &PlayerPoss, const glm::dvec3 &ClosestPoint);
     //inline void ExtractChildData();
     bool CreateMesh();
@@ -108,64 +109,6 @@ public:
     void SortChildren();
 
     glm::vec3 worldNormal;
-    glm::vec3 boundingBox;
-    glm::dvec3 closestPoint;
-};
-
-class CloseTerrainPatch{
-public:
-    int X, Y, Z;
-    int cX, cY, cZ;
-  //  FaceData faceData;
-    int step;
-    int lodMapStep;
-    int lodMapSize;
-    short detailLevel;
-    int indexSize;
-    int treeIndexSize;
-    bool hasMesh;
-    bool hasSkirt;
-    bool hasProperDist;
-    bool hasBoundingBox;
-    int vecIndex;
-    int updateVecIndex;
-    int distance;
-    int width;
-    float cullRadius;
-    bool drawTrees;
-    bool waitForMesh;
-
-    HeightData *lodMap;
-    CloseTerrainPatch* lods[4];
-    CloseTerrainPatch *parent;
-    GLuint vboID;
-    GLuint vaoID;
-    GLuint vboIndexID;
-    GLuint treeVboID;
-    //0 = no update needed. 1 = update needed 2 = child deletion needed 
-    int updateCode;
-    int childNum;
-
-    CloseTerrainPatch(int lodWidth);
-    ~CloseTerrainPatch();
-
-    void ClearBuffers();
-    void ClearTreeBuffers();
-    void ClearLODMap();
-
-    void DeleteChildren();
-    //itinializes the LOD and computes distance
-    void Initialize(int x, int y, int z, int wx, int wy, int wz, CloseTerrainPatch *Parent = NULL, int ChildNum = -1, int initialDetail = -1);
-    void Draw(glm::dvec3 &PlayerPos, glm::dvec3 &rotPlayerPos, glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
-    void DrawTrees(glm::dvec3 &PlayerPos, glm::mat4 &VP);
-    //inline void ExtractChildData();
-    bool CreateMesh();
-
-    inline void CreateChildren(int wx, int wy, int wz, int initialDetail = -1);
-    int update(int wx, int wy, int wz);
-    void CalculateDetailLevel(double dist, int threshold);
-    void SortChildren();
-
     glm::vec3 boundingBox;
     glm::dvec3 closestPoint;
 };

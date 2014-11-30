@@ -26,7 +26,7 @@
 #include "MainMenuRenderPipeline.h"
 
 class App;
-struct TerrainMeshMessage;
+class TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
 {

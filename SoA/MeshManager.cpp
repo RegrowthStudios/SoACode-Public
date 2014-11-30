@@ -34,7 +34,7 @@ MeshManager::MeshManager() {
 }
 
 void MeshManager::updateTerrainMesh(TerrainMeshMessage* tmm) {
-    TerrainBuffers *tb = tmm->terrainBuffers;
+    TerrainMesh *tb = tmm->terrainBuffers;
 
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
 
