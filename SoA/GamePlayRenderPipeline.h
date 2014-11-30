@@ -36,6 +36,8 @@ class MeshManager;
 class NightVisionRenderStage;
 class OpaqueVoxelRenderStage;
 class PDA;
+class PauseMenu;
+class PauseMenuRenderStage;
 class PdaRenderStage;
 class PhysicsBlockRenderStage;
 class PlanetRenderStage;
@@ -57,12 +59,13 @@ public:
     /// @param meshManager: Stores all needed meshes
     /// @param pda: The PDA to render
     /// @param glProgramManager: Contains all the needed GLPrograms
+    /// @param pauseMenu: The PauseMenu to render
     /// @param chunkSlots: The chunk slots for debug rendering
     void init(const ui32v4& viewport, Camera* chunkCamera,
               const Camera* worldCamera, const App* app,
               const Player* player, const MeshManager* meshManager,
               const PDA* pda, const vg::GLProgramManager* glProgramManager,
-              const std::vector<ChunkSlot>& chunkSlots);
+              const PauseMenu* pauseMenu, const std::vector<ChunkSlot>& chunkSlots);
 
     /// Renders the pipeline
     virtual void render() override;
@@ -88,8 +91,9 @@ private:
     ChunkGridRenderStage* _chunkGridRenderStage = nullptr;
     TransparentVoxelRenderStage* _transparentVoxelRenderStage = nullptr; ///< Renders transparent voxels
     LiquidVoxelRenderStage* _liquidVoxelRenderStage = nullptr; ///< Renders liquid voxels
-    DevHudRenderStage* _devHudRenderStage = nullptr; ///< renders the dev/debug HUD
-    PdaRenderStage* _pdaRenderStage = nullptr;
+    DevHudRenderStage* _devHudRenderStage = nullptr; ///< Renders the dev/debug HUD
+    PdaRenderStage* _pdaRenderStage = nullptr; ///< Renders the PDA
+    PauseMenuRenderStage* _pauseMenuRenderStage = nullptr; ///< Renders the pause menu
     NightVisionRenderStage* _nightVisionRenderStage = nullptr; ///< Renders night vision
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
 

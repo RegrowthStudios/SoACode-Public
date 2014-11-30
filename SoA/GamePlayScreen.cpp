@@ -61,11 +61,11 @@ i32 GamePlayScreen::getPreviousScreen() const {
 //    VAR = inputManager->subscribe(ID, InputManager::EventType::DOWN, new CLASS(this));
 
 void GamePlayScreen::build() {
-    
+    // Empty
 }
 
 void GamePlayScreen::destroy(const GameTime& gameTime) {
-    
+    // Destruction happens in onExit
 }
 
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
@@ -76,6 +76,9 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     // Initialize the PDA
     _pda.init(this);
+
+    // Initialize the Pause Menu
+    _pauseMenu.init(this);
 
     // Set up the rendering
     initRenderPipeline();
@@ -145,6 +148,7 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     _app->meshManager->destroy();
     _pda.destroy();
     _renderPipeline.destroy();
+    _pauseMenu.destroy();
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
@@ -155,6 +159,8 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
     // Push event to PDA if its open
     if (_pda.isOpen()) {
         _pda.onEvent(e);
+    } else if (_pauseMenu.isOpen()) { // Same for pause menu
+        _pauseMenu.onEvent(e);
     }
 
     // Handle custom input
@@ -203,7 +209,10 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     updatePlayer();
 
     // Update the PDA
-    _pda.update();
+    if (_pda.isOpen()) _pda.update();
+
+    // Updates the Pause Menu
+    if (_pauseMenu.isOpen()) _pauseMenu.update();
 
     // Sort all meshes // TODO(Ben): There is redundancy here
     _app->meshManager->sortMeshes(_player->headPosition);
@@ -232,7 +241,7 @@ void GamePlayScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
                          _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager,
-                         GameManager::chunkManager->getChunkSlots(0));
+                         &_pauseMenu, GameManager::chunkManager->getChunkSlots(0));
 }
 
 void GamePlayScreen::handleInput() {
@@ -240,7 +249,7 @@ void GamePlayScreen::handleInput() {
     InputManager* inputManager = GameManager::inputManager;
 
     // Block placement
-    if (!_pda.isOpen()) {
+    if (isInGame()) {
         if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(_player->leftEquippedItem)){
                 GameManager::clickDragRay(true);
@@ -264,7 +273,7 @@ void GamePlayScreen::handleInput() {
 
 void GamePlayScreen::onMouseDown(const SDL_Event& e) {
     SDL_StartTextInput();
-    if (!_pda.isOpen()) {
+    if (isInGame()) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         _inFocus = true;
     }

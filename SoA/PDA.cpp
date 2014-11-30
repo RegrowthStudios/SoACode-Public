@@ -5,8 +5,7 @@
 #include "GLProgram.h"
 
 
-PDA::PDA() : 
-    _isOpen(false) {
+PDA::PDA() {
     // Empty
 }
 

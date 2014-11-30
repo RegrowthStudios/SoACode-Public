@@ -672,9 +672,12 @@
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="PauseMenu.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClInclude>
     <ClInclude Include="PauseMenuAwesomiumAPI.h">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseMenuRenderStage.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1090,8 +1093,13 @@
     <ClCompile Include="CellularAutomataTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
-    <ClCompile Include="PauseMenu.cpp" />
-    <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
+    <ClCompile Include="PauseMenuAwesomiumAPI.cpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenu.cpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenuRenderStage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

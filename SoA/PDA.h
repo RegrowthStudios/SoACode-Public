@@ -33,6 +33,7 @@ public:
     ~PDA();
 
     /// Initializes the PDA
+    /// @param ownerScreen: The screen that owns this PDA
     void init(GamePlayScreen* ownerScreen);
 
     /// Opens the PDA
@@ -60,7 +61,7 @@ private:
 
     vui::AwesomiumInterface<PdaAwesomiumAPI> _awesomiumInterface; ///< The user interface
     
-    bool _isOpen;
+    bool _isOpen = false;
 };
 
 #endif // PDA_H_

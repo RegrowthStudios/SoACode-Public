@@ -23,14 +23,33 @@ public:
     PauseMenu();
     ~PauseMenu();
 
+    /// Initializes the Pause Menu
+    /// @param ownerScreen: The screen that owns this pause menu
+    void init(GamePlayScreen* ownerScreen);
+
+    /// Opens the Pause Menu
     void open();
+
+    /// Closes the Pause Menu
     void close();
 
+    /// Updates the Pause Menu
+    void update();
+
+    /// Draws the Pause Menu
+    void draw() const;
+
+    /// Handles an event
+    /// @param e: The event to handle
+    void onEvent(const SDL_Event& e);
+
+    /// Frees all resources
+    void destroy();
+
+    /// Returns true if the Pause Menu is open
     const bool& isOpen() const { return _isOpen; }
 private:
     vui::AwesomiumInterface<PauseMenuAwesomiumAPI> _awesomiumInterface; ///< The user interface
-
-    PauseMenuAwesomiumAPI _api; ///< The callback API for the user interface
 
     bool _isOpen;
 };
