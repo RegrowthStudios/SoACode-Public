@@ -51,6 +51,7 @@ public:
     virtual void invoke(void* sender, ui32 key) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         _screen->_inFocus = false;
+        _screen->_pauseMenu.open();
     }
 };
 
@@ -62,7 +63,9 @@ public:
     OnFlyKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_player->flyToggle();
+        if (_screen->isInGame()) {
+            _screen->_player->flyToggle();
+        }
     }
 };
 
@@ -73,7 +76,9 @@ public:
     OnGridKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_renderPipeline.toggleChunkGrid();
+        if (_screen->isInGame()) {
+            _screen->_renderPipeline.toggleChunkGrid();
+        }
     }
 };
 
@@ -127,16 +132,18 @@ public:
     OnInventoryKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        if(_screen->_pda.isOpen()) {
-            _screen->_pda.close();
-            SDL_SetRelativeMouseMode(SDL_TRUE);
-            _screen->_inFocus = true;
-            SDL_StartTextInput();
-        } else {
-            _screen->_pda.open();
-            SDL_SetRelativeMouseMode(SDL_FALSE);
-            _screen->_inFocus = false;
-            SDL_StopTextInput();
+        if (!_screen->_pauseMenu.isOpen()) {
+            if (_screen->_pda.isOpen()) {
+                _screen->_pda.close();
+                SDL_SetRelativeMouseMode(SDL_TRUE);
+                _screen->_inFocus = true;
+                SDL_StartTextInput();
+            } else {
+                _screen->_pda.open();
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+                _screen->_inFocus = false;
+                SDL_StopTextInput();
+            }
         }
     }
 };
@@ -163,7 +170,9 @@ public:
     OnHUDKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_renderPipeline.cycleDevHud();
+        if (_screen->isInGame()) {
+            _screen->_renderPipeline.cycleDevHud();
+        }
     }
 };
 

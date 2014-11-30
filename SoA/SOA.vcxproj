@@ -164,6 +164,9 @@
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="PauseMenu.h" />
+    <ClInclude Include="PauseMenuAwesomiumAPI.h" />
+    <ClInclude Include="PauseMenuRenderStage.h" />
     <ClInclude Include="PDA.h" />
     <ClInclude Include="PdaAwesomiumAPI.h" />
     <ClInclude Include="PdaRenderStage.h" />
@@ -337,6 +340,9 @@
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
+    <ClCompile Include="PauseMenu.cpp" />
+    <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
+    <ClCompile Include="PauseMenuRenderStage.cpp" />
     <ClCompile Include="PDA.cpp" />
     <ClCompile Include="PdaAwesomiumAPI.cpp" />
     <ClCompile Include="PdaRenderStage.cpp" />

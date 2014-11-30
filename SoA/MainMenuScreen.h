@@ -73,8 +73,6 @@ private:
 
     vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface; ///< The user interface
     
-    MainMenuAPI _api; ///< The callback API for the user interface
-
     IOManager _ioManager; ///< Helper class for IO operations
 
     CinematicCamera _camera; ///< The camera that looks at the planet from space

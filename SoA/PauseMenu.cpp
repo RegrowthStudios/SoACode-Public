@@ -1,51 +1,50 @@
 #include "stdafx.h"
-#include "PDA.h"
+#include "PauseMenu.h"
 
 #include "GamePlayScreen.h"
-#include "GLProgram.h"
 
-
-PDA::PDA() {
+PauseMenu::PauseMenu() {
     // Empty
 }
 
-
-PDA::~PDA() {
+PauseMenu::~PauseMenu() {
     // Empty
 }
 
-void PDA::init(GamePlayScreen* ownerScreen) {
+void PauseMenu::init(GamePlayScreen* ownerScreen) {
     // Initialize the user interface
-    _awesomiumInterface.init("UI/PDA/", 
-                             "PDA_UI",
-                             "index.html", 
+    _awesomiumInterface.init("UI/PauseMenu/",
+                             "PAUSE_UI",
+                             "pause.html",
                              ownerScreen->getWindowWidth(),
                              ownerScreen->getWindowHeight(),
                              ownerScreen);
 }
 
-void PDA::open() {
+void PauseMenu::open() {
     _awesomiumInterface.invokeFunction("openInventory");
     _isOpen = true;
 }
 
-void PDA::close() {
-    _awesomiumInterface.invokeFunction("close");
-    _isOpen = false;
+void PauseMenu::close() {
+    if (_isOpen) {
+        _awesomiumInterface.invokeFunction("close");
+        _isOpen = false;
+    }
 }
 
-void PDA::update() {
+void PauseMenu::update() {
     _awesomiumInterface.update();
 }
 
-void PDA::draw() const {
+void PauseMenu::draw() const {
     _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
 }
 
-void PDA::onEvent(const SDL_Event& e) {
+void PauseMenu::onEvent(const SDL_Event& e) {
     _awesomiumInterface.handleEvent(e);
 }
 
-void PDA::destroy() {
+void PauseMenu::destroy() {
     _awesomiumInterface.destroy();
 }

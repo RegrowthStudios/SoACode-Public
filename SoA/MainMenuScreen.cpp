@@ -63,7 +63,6 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
                              "index.html", 
                              _app->getWindow().getWidth(), 
                              _app->getWindow().getHeight(),
-                             &_api, 
                              this);
 
     // Init rendering
@@ -94,7 +93,6 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
                                  "index.html", 
                                  _app->getWindow().getWidth(),
                                  _app->getWindow().getHeight(),
-                                 &_api,
                                  this);
     }
 }
