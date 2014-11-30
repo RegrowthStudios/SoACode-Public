@@ -63,9 +63,8 @@ public:
     /// @param indexName: The name of the first file to open, ususally index.html
     /// @param width: The width of the UI window
     /// @param height: The height of the UI window
-    /// @param api: The function call API to use
     /// @return true on success, false on failure
-    bool init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen);
+    bool init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, IGameScreen* ownerScreen);
 
     /// Frees all resources
     void destroy() override;
@@ -121,7 +120,7 @@ private:
 
     Awesomium::OpenglSurfaceFactory* _openglSurfaceFactory; ///< custom surface factory for rendering
 
-    C* _awesomiumAPI; ///< the API to use for custom function calls
+    C _awesomiumAPI; ///< the API to use for custom function calls
 
     CustomJSMethodHandler<C> _methodHandler; ///< the method handler for the function calls
 

@@ -59,8 +59,6 @@ public:
 private:
 
     vui::AwesomiumInterface<PdaAwesomiumAPI> _awesomiumInterface; ///< The user interface
-
-    PdaAwesomiumAPI _api; ///< The callback API for the user interface
     
     bool _isOpen;
 };

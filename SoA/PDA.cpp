@@ -22,7 +22,6 @@ void PDA::init(GamePlayScreen* ownerScreen) {
                              "index.html", 
                              ownerScreen->getWindowWidth(),
                              ownerScreen->getWindowHeight(),
-                             &_api, 
                              ownerScreen);
 }
 
