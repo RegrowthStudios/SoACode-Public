@@ -1,5 +1,6 @@
 #pragma once
 #include "global.h"
+#include "Frustum.h"
 
 class Camera
 {
@@ -11,6 +12,10 @@ public:
     void offsetAngles(float pitchAngle, float yawAngle);
     void update();
     void updateProjection();
+
+    // Frustum wrappers
+    bool pointInFrustum(const f32v3& pos) const { return _frustum.pointInFrustum(pos); }
+    bool sphereInFrustum(const f32v3& pos, float radius) const { return _frustum.sphereInFrustum(pos, radius); }
 
     //setters
     void setFocalPoint(glm::dvec3 focalPoint) { _focalPoint = focalPoint; _viewChanged = 1; }
@@ -60,6 +65,8 @@ protected:
 
     glm::mat4 _projectionMatrix;
     glm::mat4 _viewMatrix;
+
+    Frustum _frustum; ///< For frustum culling
 };
 
 class CinematicCamera : public Camera

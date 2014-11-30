@@ -4,13 +4,10 @@
 
 #undef NDEBUG
 
-namespace vorb{
-namespace core{
-
 #pragma region Default Shader
 
 // Default shader source
-const cString Mesh::defaultVertexShaderSource = R"(
+const cString vcore::Mesh::defaultVertexShaderSource = R"(
 uniform mat4 MVP;
 
 in vec3 vPosition;
@@ -26,7 +23,7 @@ void main() {
     gl_Position = MVP * vec4(vPosition, 1.0);
 }
 )";
-const cString Mesh::defaultFragmentShaderSource = R"(
+const cString vcore::Mesh::defaultFragmentShaderSource = R"(
 uniform sampler2D tex;
 
 in vec2 fUV;
@@ -40,15 +37,15 @@ void main() {
 )";
 
 // Default shader attributes
-const std::vector<std::pair<nString, ui32> > Mesh::defaultShaderAttributes = { 
-    std::pair<nString, ui32>("vPosition", 0),
-    std::pair<nString, ui32>("vTint", 1),
-    std::pair<nString, ui32>("vUV", 2)
+const std::vector<vg::GLProgram::AttributeBinding> vcore::Mesh::defaultShaderAttributes = {
+    vg::GLProgram::AttributeBinding("vPosition", 0),
+    vg::GLProgram::AttributeBinding("vTint", 1),
+    vg::GLProgram::AttributeBinding("vUV", 2)
 };
 
 #pragma endregion
 
-Mesh::Mesh() :
+vcore::Mesh::Mesh() :
     _modelMatrix(1.0f),
     _vbo(0),
     _vao(0),
@@ -57,15 +54,15 @@ Mesh::Mesh() :
     _isIndexed(0),
     _numVertices(0),
     _numIndices(0),
-    _primitiveType(PrimitiveType::TRIANGLES)
+    _primitiveType(vg::PrimitiveType::TRIANGLES)
 {
 };
 
-Mesh::~Mesh() {
+vcore::Mesh::~Mesh() {
     destroy();
 }
 
-void Mesh::destroy() {
+void vcore::Mesh::destroy() {
     if (_vao != 0) {
         glDeleteVertexArrays(1, &_vao);
         _vao = 0;
@@ -83,18 +80,18 @@ void Mesh::destroy() {
     _isUploaded = false;
 }
 
-void Mesh::init(PrimitiveType primitiveType, bool isIndexed) {
+void vcore::Mesh::init(vg::PrimitiveType primitiveType, bool isIndexed) {
     _primitiveType = primitiveType;
     _isIndexed = isIndexed;
     createVertexArray();
 }
 
-void Mesh::reserve(int numVertices, int numIndices) {
+void vcore::Mesh::reserve(int numVertices, int numIndices) {
     _vertices.reserve(numVertices);
     _indices.reserve(numIndices);
 }
 
-void Mesh::draw() {
+void vcore::Mesh::draw() {
     // Need to have uploaded our data
     assert(_isUploaded);
     // A shader needs to be bound
@@ -104,14 +101,14 @@ void Mesh::draw() {
     glBindVertexArray(_vao);
     // Perform draw call
     if (_isIndexed) {
-        glDrawElements(static_cast<GLenum>(_primitiveType), _numIndices, GL_UNSIGNED_INT, (void*)0);
+        glDrawElements(static_cast<VGEnum>(_primitiveType), _numIndices, GL_UNSIGNED_INT, nullptr);
     } else {
-        glDrawArrays(static_cast<GLenum>(_primitiveType), 0, _numVertices);
+        glDrawArrays(static_cast<VGEnum>(_primitiveType), 0, _numVertices);
     }
     glBindVertexArray(0);
 }
 
-void Mesh::addVertices(const std::vector<MeshVertex>& newVertices) {
+void vcore::Mesh::addVertices(const std::vector<MeshVertex>& newVertices) {
     // This should only be called when not indexed
     assert(!_isIndexed);
     // Add the newVertices onto the _vertices array
@@ -123,7 +120,7 @@ void Mesh::addVertices(const std::vector<MeshVertex>& newVertices) {
     }
 }
 
-void Mesh::addVertices(const std::vector<MeshVertex>& newVertices, const std::vector<ui32>& newIndices) {
+void vcore::Mesh::addVertices(const std::vector<MeshVertex>& newVertices, const std::vector<ui32>& newIndices) {
     // This should only be called when indexed
     assert(_isIndexed);
     // Add the newVertices onto the _vertices array
@@ -142,17 +139,17 @@ void Mesh::addVertices(const std::vector<MeshVertex>& newVertices, const std::ve
     }
 }
 
-void Mesh::uploadAndClearLocal(MeshUsage usage) {
+void vcore::Mesh::uploadAndClearLocal(vg::BufferUsageHint usage) {
     upload(usage);
-    std::vector <MeshVertex>().swap(_vertices);
-    std::vector <ui32>().swap(_indices);
+    std::vector<MeshVertex>().swap(_vertices);
+    std::vector<ui32>().swap(_indices);
 }
 
-void Mesh::uploadAndKeepLocal(MeshUsage usage) {
+void vcore::Mesh::uploadAndKeepLocal(vg::BufferUsageHint usage) {
     upload(usage);
 }
 
-void Mesh::upload(MeshUsage usage) {
+void vcore::Mesh::upload(vg::BufferUsageHint usage) {
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVertex)* _vertices.size(), nullptr, static_cast<GLenum>(usage));
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MeshVertex)* _vertices.size(), _vertices.data());
@@ -170,7 +167,7 @@ void Mesh::upload(MeshUsage usage) {
     _isUploaded = true;
 }
 
-int Mesh::getNumPrimitives() const {
+i32 vcore::Mesh::getNumPrimitives() const {
     // If indexed, we use indices. Otherwise verts
     int n;
     if (!_isUploaded) {
@@ -186,23 +183,25 @@ int Mesh::getNumPrimitives() const {
             n = _numVertices;
         }
     }
+
     // Primitive count is based on type
     switch (_primitiveType) {
-        case PrimitiveType::LINES:
-            return n / 2;
-        case PrimitiveType::POINTS:
-            return n;
-        case PrimitiveType::TRIANGLES:
-            return n / 3;
+    case vg::PrimitiveType::LINES:
+        return n / 2;
+    case vg::PrimitiveType::POINTS:
+        return n;
+    case vg::PrimitiveType::TRIANGLES:
+        return n / 3;
+    default:
+        return 0;
     }
-    return 0;
 }
 
-void Mesh::createVertexArray() {
-    // Generate and bind vao
+void vcore::Mesh::createVertexArray() {
+    // Generate and bind VAO
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);
-    // Generate and bind vbo
+    // Generate and bind VBO
     glGenBuffers(1, &_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     // Generate and bind element buffer
@@ -215,12 +214,9 @@ void Mesh::createVertexArray() {
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     // Set attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(MeshVertex), (void*)offsetof(MeshVertex, position));
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, sizeof(MeshVertex), (void*)offsetof(MeshVertex, color));
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(MeshVertex), (void*)offsetof(MeshVertex, uv));
-    // Unbind vao
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(MeshVertex), offsetptr(MeshVertex, position));
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, sizeof(MeshVertex), offsetptr(MeshVertex, color));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(MeshVertex), offsetptr(MeshVertex, uv));
+    // Unbind VAO
     glBindVertexArray(0);
-}
-
-}
 }

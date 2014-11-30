@@ -28,17 +28,16 @@ public:
     static void initializeSound();
     static void saveState();
     static void savePlayerState();
-    static int newGame(string saveName);
-    static int loadGame(string saveName);
-    static void loadPlanet(string filePath);
+    static int newGame(nString saveName);
+    static int loadGame(nString saveName);
+    static void loadPlanet(nString filePath);
     static void initializePlanet(const glm::dvec3 cameraPos);
     static void initializeVoxelWorld(Player *plyr = nullptr);
     static void update();
     static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);
     static void drawMarkers();
 
-    static void drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet);
-    static void addMarker(glm::dvec3 pos, string name, glm::vec3 color);
+    static void addMarker(glm::dvec3 pos, nString name, glm::vec3 color);
     static void clickDragRay(bool isBreakRay);
     static void scanWSO();
     static void onQuit();
@@ -47,7 +46,6 @@ public:
     static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;
     static class PhysicsEngine* physicsEngine;
-    static class CAEngine* caEngine;
     static class SoundEngine* soundEngine;
     static class ChunkManager* chunkManager;
     static class InputManager* inputManager;
@@ -58,7 +56,7 @@ public:
     static bool gameInitialized;
     static float fogStart, fogEnd;
     static Uint32 maxLodTicks;
-    static vector <Marker> markers;
+    static std::vector <Marker> markers;
     static class Planet* planet;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;

@@ -2,21 +2,22 @@
 #include "TerrainPatch.h"
 
 #include "BlockData.h"
+#include "Camera.h"
 #include "Chunk.h"
 #include "FloraGenerator.h"
+#include "GameManager.h"
 #include "MessageManager.h"
 #include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
-#include "GameManager.h"
 
 #include "utils.h"
 
 int lodDetailLevels[DetailLevels+3] = {8/scale, 16/scale, 32/scale, 64/scale, 128/scale, 256/scale, 512/scale, 1024/scale, 2048/scale, 4096/scale, 8192/scale, 16384/scale, 32768/scale, 65536/scale, 131072/scale, 262144/scale, 524228/scale};
 int lodDistanceLevels[DetailLevels] = {500/scale, 1000/scale, 2000/scale, 4000/scale, 8000/scale, 16000/scale, 32000/scale, 64000/scale, 128000/scale, 256000/scale, 512000/scale, 1024000/scale, 4096000/scale, INT_MAX};
 
-vector<TerrainVertex> tvboVerts(8192, TerrainVertex()); //this is bigger that it needs to be but whatever
-vector<GLushort> lodIndices(32768);
+std::vector<TerrainVertex> tvboVerts(8192, TerrainVertex()); //this is bigger that it needs to be but whatever
+std::vector<GLushort> lodIndices(32768);
 
 int WaterIndexMap[(maxVertexWidth+3)*(maxVertexWidth+3)*2];
 int MakeWaterQuadMap[(maxVertexWidth+3)*(maxVertexWidth+3)];
@@ -182,7 +183,7 @@ void TerrainPatch::Initialize(int x, int y, int z, int wx, int wy, int wz, int R
     }
 }
 
-void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
+void TerrainPatch::Draw(TerrainBuffers *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
 {//
     //calculate distance
     glm::dvec3 closestPoint;
@@ -197,7 +198,7 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const g
 
     tb->distance = distance;
     if (distance < closestTerrainPatchDistance) closestTerrainPatchDistance = distance;
-    if (SphereInFrustum((float)(tb->worldX + tb->boundingBox.x / 2 - rotPlayerPos.x), (float)(tb->worldY + tb->boundingBox.y / 2 - rotPlayerPos.y), (float)(tb->worldZ + tb->boundingBox.z / 2 - rotPlayerPos.z), (float)tb->cullRadius, worldFrustum)
+    if (camera->sphereInFrustum(f32v3(f64v3(tb->worldX, tb->worldY, tb->worldZ) + f64v3(tb->boundingBox) / 2.0 - rotPlayerPos), (float)tb->cullRadius)
         && (distance == 0 || CheckHorizon(rotPlayerPos, closestPoint))){
         tb->inFrustum = 1;
 
@@ -234,7 +235,7 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const glm::dvec3 &PlayerPos, const g
     }
 }
 
-void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
+/*void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
 {
     if (hasBuffers && terrainBuffers && terrainBuffers->indexSize){
         if (distance < closestTerrainPatchDistance) closestTerrainPatchDistance = distance;
@@ -275,7 +276,7 @@ void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayer
         lods[2]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
         lods[3]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
-}
+}*/
 
 void TerrainPatch::DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
@@ -610,10 +611,10 @@ bool TerrainPatch::CreateMesh()
                 v1 /= magnitude;
 
                 if (index > tvboVerts.size()){
-                    cout << index << " " << sindex << " " << size << endl;
-                    cout << tvboVerts.size() << endl;
+                    std::cout << index << " " << sindex << " " << size << std::endl;
+                    std::cout << tvboVerts.size() << std::endl;
                     int q;
-                    cin >> q;
+                    std::cin >> q;
                 }
                 tvboVerts[index].normal = glm::vec3(v1); //size = 0 708
 
@@ -742,13 +743,13 @@ bool TerrainPatch::CreateMesh()
                                         }
 
                                         switch (treeData.treeType->leafCapShape){
-                                            case 0:
+                                            case TreeLeafShape::CLUSTER:
                                                 ltex = 0; //none
                                                 break;
-                                            case 3:
+                                            case TreeLeafShape::PINE:
                                                 ltex = 2; //pine
                                                 break;
-                                            case 4:
+                                            case TreeLeafShape::MUSHROOM:
                                                 ltex = 3; //mushroom
                                                 break;
                                             default:
@@ -1055,14 +1056,14 @@ bool TerrainPatch::CreateMesh()
         exit(15);
     }
     else if (index > tvboVerts.size()){
-        pError(("Index out of bounds for tvboVerts. " + to_string(index) + " / " + to_string(tvboVerts.size())).c_str());
+        pError(("Index out of bounds for tvboVerts. " + std::to_string(index) + " / " + std::to_string(tvboVerts.size())).c_str());
         exit(15);
     }
 
     
     if (index > 32768){
 
-        cout << "INDEX: " << endl;
+        std::cout << "INDEX: " << std::endl;
     }
 
     TerrainMeshMessage *tmm = new TerrainMeshMessage;
@@ -1091,7 +1092,7 @@ bool TerrainPatch::CreateMesh()
         }
     }
     if (indice == 0){ //this still happens
-        pError("Indice = 0! " + to_string(size) + " " + to_string(isize) + " " + to_string(width) + " " + to_string(step));
+        pError("Indice = 0! " + std::to_string(size) + " " + std::to_string(isize) + " " + std::to_string(width) + " " + std::to_string(step));
     }
     tmm->indexSize = indice;
     tmm->treeIndexSize = treeIndex * 6 / 4;

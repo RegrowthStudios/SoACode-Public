@@ -122,7 +122,7 @@ int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0,
 
 const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20 };
 
-bool PhysicsBlock::update()
+bool PhysicsBlock::update(Chunk*& lockedChunk)
 {
     if (done == 2) return true; //defer destruction by two frames for good measure
     if (done != 0) {
@@ -171,7 +171,7 @@ bool PhysicsBlock::update()
     int c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
 
     // Get the colliding block
-    i32 collideID = ch->getBlockID(c);
+    i32 collideID = ch->getBlockIDSafe(lockedChunk, c);
     Block& collideBlock = Blocks[collideID];
 
     // If we are colliding we need an air block
@@ -182,7 +182,7 @@ bool PhysicsBlock::update()
                     ExplosionNode(f64v3(position) + batch->_position,
                     blockID));
             } else {
-                ChunkUpdater::placeBlock(ch, c, batch->blockType);
+                ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
             }
             // Mark this block as done so it can be removed in a few frames
             done = 1;
@@ -206,7 +206,7 @@ bool PhysicsBlock::update()
         
         // If colliding block is crushable, break that block
         if (collideBlock.isCrushable) {
-            ChunkUpdater::removeBlock(ch, c, true);
+            ChunkUpdater::removeBlock(ch, lockedChunk, c, true);
         } else {
             colliding = true;
         }
@@ -226,12 +226,12 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     physicsBlocks.reserve(512);
 
     PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
-    vector <PhysicsBlockVertex> &verts = pbmm->verts;
+    std::vector <PhysicsBlockVertex> &verts = pbmm->verts;
     verts.resize(36);
 
     _gravity = GRAVITY;
     _friction = 0.985f;
-    _blockID = GETBLOCKTYPE(BlockType);
+    _blockID = GETBLOCKID(BlockType);
 
     double v = 0.0;
     bool tree = 0;
@@ -309,7 +309,7 @@ bool PhysicsBlockBatch::update()
     size_t i = 0;
 
     PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
-    vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
+    std::vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
     verts.resize(physicsBlocks.size());
     
     ColorRGB8 color, overlayColor;
@@ -317,8 +317,10 @@ bool PhysicsBlockBatch::update()
     //need to fix this so that color is correct
     Blocks[blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[blockType].pzTexInfo);
 
+    Chunk* lockedChunk = nullptr;
+
     while (i < physicsBlocks.size()){
-        if (physicsBlocks[i].update()){
+        if (physicsBlocks[i].update(lockedChunk)){
             physicsBlocks[i] = physicsBlocks.back();
             physicsBlocks.pop_back(); //dont need to increment i 
         } else{ //if it was successfully updated, add its data to the buffers
@@ -333,6 +335,7 @@ bool PhysicsBlockBatch::update()
             i++;
         }
     }
+    if (lockedChunk) lockedChunk->unlock();
 
     _numBlocks = i;
     verts.resize(_numBlocks); //chop off extras

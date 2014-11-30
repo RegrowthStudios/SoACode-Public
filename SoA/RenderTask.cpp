@@ -4,12 +4,20 @@
 #include "Chunk.h"
 #include "ChunkMesher.h"
 #include "ThreadPool.h"
+#include "VoxelLightEngine.h"
 
 void RenderTask::execute(vcore::WorkerData* workerData) {
+    // Mesh updates are accompanied by light updates
+    if (workerData->voxelLightEngine == nullptr) {
+        workerData->voxelLightEngine = new VoxelLightEngine();
+    }
+    updateLight(workerData->voxelLightEngine);
     // Lazily allocate chunkMesher
     if (workerData->chunkMesher == nullptr) {
         workerData->chunkMesher = new ChunkMesher;
     }
+    // Pre-processing
+    chunk->setupMeshData(workerData->chunkMesher);
     // Mesh based on render job type
     switch (type) {
         case RenderTaskType::DEFAULT:
@@ -24,10 +32,17 @@ void RenderTask::execute(vcore::WorkerData* workerData) {
     workerData->chunkMesher->chunkMeshData = nullptr;
 }
 
-void RenderTask::setChunk(Chunk* ch, RenderTaskType cType) {
+void RenderTask::init(Chunk* ch, RenderTaskType cType) {
     type = cType;
     chunk = ch;
-    num = ch->numBlocks;
-    position = ch->gridPosition;
-    wSize = 0;
+}
+
+void RenderTask::updateLight(VoxelLightEngine* voxelLightEngine) {
+    if (chunk->sunRemovalList.size()) {
+        voxelLightEngine->calculateSunlightRemoval(chunk);
+    }
+    if (chunk->sunExtendList.size()) {
+        voxelLightEngine->calculateSunlightExtend(chunk);
+    }
+    voxelLightEngine->calculateLight(chunk);
 }

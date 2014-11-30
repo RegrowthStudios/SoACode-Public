@@ -23,8 +23,11 @@
 #include "concurrentqueue.h"
 #include "IThreadPoolTask.h"
 
+class CAEngine;
 class Chunk;
 class ChunkMesher;
+class FloraGenerator;
+class VoxelLightEngine;
 struct LoadData;
 
 enum class RenderTaskType;
@@ -35,12 +38,21 @@ namespace vorb {
         // Worker data for a threadPool
         class WorkerData {
         public:
-            ~WorkerData() { delete chunkMesher; }
+            ~WorkerData() { 
+                delete chunkMesher;
+                delete floraGenerator;
+                delete voxelLightEngine;
+                delete caEngine;
+            }
             volatile bool waiting;
             volatile bool stop;
 
-            // Each Thread Gets Its Own Mesher
+            // Each thread gets its own generators
+            // TODO(Ben): Decouple this
             ChunkMesher* chunkMesher = nullptr;
+            FloraGenerator* floraGenerator = nullptr;
+            VoxelLightEngine* voxelLightEngine = nullptr;
+            CAEngine* caEngine = nullptr;
         };
 
         class ThreadPool {
@@ -93,9 +105,9 @@ namespace vorb {
             bool isFinished();
 
             /// Getters
-            const i32& getSize() const { return _workers.size(); }
-            const size_t& getTasksSizeApprox() const { return _tasks.size_approx(); }
-            const size_t& getFinishedTasksSizeApprox() const { return _finishedTasks.size_approx(); }
+            const i32 getSize() const { return _workers.size(); }
+            const size_t getTasksSizeApprox() const { return _tasks.size_approx(); }
+            const size_t getFinishedTasksSizeApprox() const { return _finishedTasks.size_approx(); }
         private:
             // Typedef for func ptr
             typedef void (ThreadPool::*workerFunc)(WorkerData*);

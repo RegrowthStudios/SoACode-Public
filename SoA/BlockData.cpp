@@ -38,14 +38,6 @@ e->addValue("opposite", ConnectedTextureSymmetry::OPPOSITE);
 e->addValue("all", ConnectedTextureSymmetry::ALL);
 KEG_ENUM_INIT_END
 
-KEG_ENUM_INIT_BEGIN(PhysicsProperties, PhysicsProperties, e);
-e->addValue("none", PhysicsProperties::P_NONE);
-e->addValue("solid", PhysicsProperties::P_SOLID);
-e->addValue("liquid", PhysicsProperties::P_LIQUID);
-e->addValue("powder", PhysicsProperties::P_POWDER);
-e->addValue("snow", PhysicsProperties::P_SNOW);
-KEG_ENUM_INIT_END
-
 KEG_ENUM_INIT_BEGIN(BlockOcclusion, BlockOcclusion, e);
 e->addValue("none", BlockOcclusion::NONE);
 e->addValue("self", BlockOcclusion::SELF);
@@ -93,7 +85,7 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("ID", Keg::Value::basic(Keg::BasicType::UI1
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("burnTransformID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, burnTransformID)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waveEffect", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waveEffect)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, lightColor)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("physicsProperty", Keg::Value::custom("PhysicsProperties", offsetof(Block, physicsProperty), true));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("caPhysics", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, caFilePath)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterMeshLevel", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waterMeshLevel)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("floatingAction", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, floatingAction)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("occlusion", Keg::Value::custom("BlockOcclusion", offsetof(Block, occlude), true));
@@ -125,14 +117,14 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureTop", Keg::Value::basic(Keg::BasicT
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureBottom", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, bottomTexName)));
 KEG_TYPE_INIT_END
 
-vector <Block> Blocks;
+std::vector <Block> Blocks;
 
-vector <int> TextureUnitIndices;
+std::vector <int> TextureUnitIndices;
 
 int connectedTextureOffsets[256];
 int grassTextureOffsets[32];
 
-map <string, BlockVariable> blockVariableMap;
+std::map <nString, BlockVariable> blockVariableMap;
 
 /// "less than" operator for inserting into sets in TexturePackLoader
 bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
@@ -147,7 +139,7 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     LCHECK(symmetry);
     LCHECK(reducedMethod);
     LCHECK(useMapColor);
-    LCHECK(weights.length());
+    LCHECK(weights.getLength());
     LCHECK(totalWeight);
     LCHECK(numTiles);
     LCHECK(innerSeams);
@@ -248,7 +240,6 @@ lightColor(0, 0, 0) {
     explosivePower = 0.0;
     explosionPowerLoss = 0.0;
     explosionRays = 0;
-    physicsProperty = P_NONE;
     powderMove = 0;
     moveMod = 1.0f;
     spawnerVal = 0;

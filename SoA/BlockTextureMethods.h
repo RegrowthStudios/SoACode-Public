@@ -15,6 +15,8 @@
 #ifndef BlockTextureMethods_h__
 #define BlockTextureMethods_h__
 
+#include <functional>
+
 class MesherInfo;
 class BlockTextureLayer;
 

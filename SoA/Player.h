@@ -132,7 +132,7 @@ public:
 
     i32 planetRowSize;
 
-    vvoxel::VoxelPlanetMapData voxelMapData;
+    vvox::VoxelPlanetMapData voxelMapData;
     CollisionData collisionData;
 
     f32m4 worldRotationMatrix;

@@ -22,10 +22,10 @@ class VoxelMesher
 public:
     static void makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture& texInfo);
     static void makeTransparentFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture& texInfo);
-    static void makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture& texInfo);
+    static void makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture& texInfo);
     static void setFaceLight(BlockVertex* Verts, int index, const ColorRGB8& lampColor, ui8 sunlight);
     static void makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui8 uOff, ui8 vOff, const ColorRGB8& lampColor, ui8 sunlight, const ColorRGB8& color, ui8 textureUnit);
-    static void makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture);
+    static void makePhysicsBlockFace(std::vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture);
     static ui8 getBlendMode(const BlendType& blendType);
 #define POSITION_RESOLUTION 7
 #define ATLAS_SIZE 256
@@ -34,7 +34,7 @@ public:
 #define NUM_VERTICES 72
 
     static const GLfloat leafVertices[NUM_VERTICES];
-    static const GLubyte cubeVertices[NUM_FACES][NUM_VERTICES];
+    static const GLubyte cubeVertices[NUM_VERTICES];
     static const int cubeFaceAxis[NUM_FACES][2];
     static const int cubeFaceAxisSign[NUM_FACES][2];
     static const GLfloat liquidVertices[NUM_VERTICES];

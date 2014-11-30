@@ -15,112 +15,111 @@
 #define MESH_H_
 
 #include <vector>
-#include "SamplerState.h"
+
 #include "DepthState.h"
+#include "GLEnums.h"
+#include "GLProgram.h"
+#include "gtypes.h"
 #include "RasterizerState.h"
+#include "SamplerState.h"
 
 namespace vorb {
-namespace core {
+    namespace core {
+        struct MeshVertex {
+        public:
+            f32v3 position;
+            f32v2 uv;
+            color4 color;
+        };
 
-enum class PrimitiveType {
-    TRIANGLES = GL_TRIANGLES,
-    LINES = GL_LINES,
-    POINTS = GL_POINTS
-};
+        // TODO(Ben): This belongs in Vorb.h or VorbErrors.h
+        enum class VorbError {
+            NONE,
+            INVALID_PARAMETER,
+            INVALID_STATE
+        };
 
-enum class MeshUsage {
-    STATIC = GL_STATIC_DRAW,
-    DYNAMIC = GL_DYNAMIC_DRAW,
-    STREAM = GL_STREAM_DRAW
-};
+        class Mesh {
+        public:
+            Mesh();
+            ~Mesh();
 
-struct MeshVertex {
-    f32v3 position;
-    f32v2 uv;
-    ColorRGBA8 color;
-};
+            /// Frees all resources
+            void destroy();
 
-// TODO(Ben): This belongs in Vorb.h or VorbErrors.h
-enum class VorbError { 
-    NONE,
-    INVALID_PARAMETER,
-    INVALID_STATE
-};
+            /// Initializes the mesh
+            /// @param primitiveType: type of primitive for this mesh
+            /// @param isIndexed: true when using glDrawElements, false for
+            /// glDrawArrays
+            void init(vg::PrimitiveType primitiveType, bool isIndexed);
 
-class Mesh
-{
-public:
+            /// Reserves a specific number of vertices and indices
+            /// @param numVertices: the number of vertices to reserve
+            /// @param numIndices: the number of indices to reserve
+            void reserve(i32 numVertices, i32 numIndices = 0);
 
-    Mesh();
-    ~Mesh();
+            /// Draws the mesh
+            void draw();
 
-    // Frees all resources
-    void destroy();
+            /// Adds vertices to the mesh
+            /// @param _vertices: vector of vertices to add
+            void addVertices(const std::vector<MeshVertex>& vertices);
 
-    // Initializes the mesh
-    // @param primitiveType: type of primitive for this mesh
-    // @param isIndexed: true when using glDrawElements, false for
-    // glDrawArrays
-    void init(PrimitiveType primitiveType, bool isIndexed);
+            /// Adds indexed vertices to the mesh
+            /// @param _vertices: vector of vertices to add
+            /// @param _indices: vector of indices to add
+            void addVertices(const std::vector<MeshVertex>& vertices, const std::vector<ui32>& indices);
 
-    // Reserves a specific number of vertices and indices
-    // @param numVertices: the number of vertices to reserve
-    // @param numIndices: the number of indices to reserve
-    void reserve(int numVertices, int numIndices = 0);
+            /// Uploads all data to the GPU and clears the local buffers
+            void uploadAndClearLocal(vg::BufferUsageHint usage = vg::BufferUsageHint::STATIC_DRAW);
+            /// Uploads all data to the GPU and keeps the local buffers
+            void uploadAndKeepLocal(vg::BufferUsageHint usage = vg::BufferUsageHint::STATIC_DRAW);
 
-    // Draws the mesh
-    void draw();
+            /************************************************************************/
+            /* Setters                                                              */
+            /************************************************************************/
+            void setModelMatrix(const f32m4& modelMatrix) {
+                _modelMatrix = modelMatrix;
+            }
 
-    // Adds vertices to the mesh
-    // @param _vertices: vector of vertices to add
-    void addVertices(const std::vector<MeshVertex>& vertices);
+            /************************************************************************/
+            /* Getters                                                              */
+            /************************************************************************/
+            f32m4 getModelMatrix() const {
+                return _modelMatrix;
+            }
+            i32 getNumVertices() const {
+                return _vertices.size();
+            }
+            int getNumPrimitives() const;
 
-    // Adds indexed vertices to the mesh
-    // @param _vertices: vector of vertices to add
-    // @param _indices: vector of indices to add
-    void addVertices(const std::vector<MeshVertex>& vertices,
-                        const std::vector<ui32>& indices);
+            static const cString defaultVertexShaderSource; ///< Default vertex shader code
+            static const cString defaultFragmentShaderSource; ///< Default fragment shader code
+            static const std::vector<vg::GLProgram::AttributeBinding> defaultShaderAttributes; ///< Default attribute locations
 
-    // Uploads all data to the GPU and clears the local buffers
-    void uploadAndClearLocal(MeshUsage usage = MeshUsage::STATIC);
-    // Uploads all data to the GPU and keeps the local buffers
-    void uploadAndKeepLocal(MeshUsage usage = MeshUsage::STATIC);
+        private:
+            void upload(vg::BufferUsageHint usage);
+            void createVertexArray();
 
-    // Setters
-    void setModelMatrix(const f32m4& modelMatrix) { _modelMatrix = modelMatrix; }
+            f32m4 _modelMatrix;
 
-    // Getters
-    f32m4 getModelMatrix() const { return _modelMatrix; }
-    int getNumVertices() const { return _vertices.size(); }
-    int getNumPrimitives() const;
+            VGVertexBuffer _vbo;
+            VGVertexArray _vao;
+            VGIndexBuffer _ibo;
 
-    // Default shader source
-    static const cString defaultVertexShaderSource;
-    static const cString defaultFragmentShaderSource;
-    static const std::vector<std::pair<nString, ui32> > defaultShaderAttributes;
+            bool _isIndexed;
+            bool _isUploaded;
 
-private:
-    void upload(MeshUsage usage);
-    void createVertexArray();
+            vg::PrimitiveType _primitiveType;
 
-    f32m4 _modelMatrix;
+            i32 _numVertices;
+            i32 _numIndices;
 
-    ui32 _vbo;
-    ui32 _vao;
-    ui32 _ibo;
-
-    bool _isIndexed;
-    bool _isUploaded;
-
-    PrimitiveType _primitiveType;
-
-    int _numVertices;
-    int _numIndices;
-
-    std::vector <MeshVertex> _vertices;
-    std::vector <ui32> _indices;
-};
-
+            std::vector<MeshVertex> _vertices;
+            std::vector<ui32> _indices;
+        };
+    }
 }
-}
+namespace vcore = vorb::core;
+
 #endif //MESH_H_

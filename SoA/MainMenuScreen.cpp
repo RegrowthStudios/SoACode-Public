@@ -70,7 +70,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     initRenderPipeline();
 
     // Run the update thread for updating the planet
-    _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
+    _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 }
 
 void MainMenuScreen::onExit(const GameTime& gameTime) {
@@ -158,13 +158,13 @@ void MainMenuScreen::loadGame(const nString& fileName) {
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
     if (fileManager.setSaveFile(fileName) != 0) {
-        cout << "Could not set save file.\n";
+        std::cout << "Could not set save file.\n";
         return;
     }
     // Check the planet string
-    string planetName = fileManager.getWorldString(fileName + "/World/");
+    nString planetName = fileManager.getWorldString(fileName + "/World/");
     if (planetName == "") {
-        cout << "NO PLANET NAME";
+        std::cout << "NO PLANET NAME";
         return;
     }
 
@@ -183,7 +183,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
     if (fileManager.setSaveFile(fileName) != 0) {
-        cout << "Could not set save file.\n";
+        std::cout << "Could not set save file.\n";
         return;
     }
    
@@ -246,7 +246,7 @@ void MainMenuScreen::updateThreadFunc() {
 void MainMenuScreen::updateWorldCameraClip() {
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
     if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
     // TODO(Ben): This is crap fix it (Sorry Brian)

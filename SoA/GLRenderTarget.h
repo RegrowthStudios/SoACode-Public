@@ -15,7 +15,9 @@
 #ifndef GLRenderTarget_h__
 #define GLRenderTarget_h__
 
+
 #include "GLEnums.h"
+#include "gtypes.h"
 
 namespace vorb {
     namespace core {
@@ -32,6 +34,9 @@ namespace vorb {
                 GLRenderTarget(ui32v2 s) : GLRenderTarget(s.x, s.y) {
                     // Empty
                 }
+
+                /// Destructor
+                ~GLRenderTarget() { dispose(); }
 
                 /// Initialize the framebuffer on the GPU
                 /// @param format: Internal storage of the color texture target

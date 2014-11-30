@@ -16,6 +16,8 @@
 #ifndef GLPROGRAM_H_
 #define GLPROGRAM_H_
 
+#include "Events.hpp"
+#include "gtypes.h"
 #include "GLenums.h"
 #include "Vorb.h"
 
@@ -28,66 +30,90 @@ namespace vorb {
         namespace graphics {
             enum class ShaderType;
 
-            // Encapsulates A Simple OpenGL Program And Its Shaders
+            /// Store shader language version
+            struct ShaderLanguageVersion {
+                ShaderLanguageVersion(
+                    i32 maj = GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR,
+                    i32 min = GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR,
+                    i32 rev = GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION) :
+                    major(maj), minor(min), revision(rev) {
+                    // Empty
+                }
+
+                i32 major; ///< GLSL major version
+                i32 minor; ///< GLSL minor version
+                i32 revision;  ///< GLSL revision version
+            };
+            extern const ShaderLanguageVersion DEFAULT_SHADING_LANGUAGE_VERSION; ///< Default language version
+
+            /// Holds information necessary for shader compilation
+            struct ShaderSource {
+                ShaderType stage = ShaderType::VERTEX_SHADER; ///< Shader's pipeline stage
+                ShaderLanguageVersion version; ///< Language version
+                std::vector<const cString> sources; ///< Strings of shader source code awaiting concatenation
+            };
+
+            // Encapsulates a simple OpenGL program and its shaders
             class GLProgram {
             public:
-                /// Create And Possibly Initialize Program
-                /// @param init: set to true to also call init()
+                typedef std::pair<nString, VGAttribute> AttributeBinding; ///< Binds attribute names to locations
+                typedef std::map<nString, VGAttribute> AttributeMap; ///< Dictionary of attribute locations by name
+                typedef std::map<nString, VGUniform> UniformMap; ///< Dictionary of uniform locations by name
+
+                /// Create and possibly initialize program
+                /// @param init: True to call init()
                 GLProgram(bool init = false);
                 ~GLProgram();
 
-                /// Create GPU Resources
+                /// Create GPU resources
                 void init();
                 /// Free all resources
                 void destroy();
-                /// Returns true if the program was created
+                /// @return The program ID
+                const VGProgram& getID() const {
+                    return _id;
+                }
+                /// @return True if the program was created
                 bool getIsCreated() const {
                     return _id != 0;
                 }
-                /// Returns the program ID
-                int getID() const  {
-                    return _id;
-                }
-
-                /// Attatches shader to the build information
-                /// @param type: the type of shader
-                /// @param src: the shader source
-                /// @return true on success, false on failure
-                bool addShader(ShaderType type, const cString src, const cString defines = nullptr);
-                /// Attatches shader to the build information
-                /// @param type: the type of shader
-                /// @param src: the shader file name
-                /// @return true on success, false on failure
-                bool addShaderFile(ShaderType type, const cString file, const cString defines = nullptr);
-
-                /// Sets an attribute
-                /// @param name: the attribute name
-                /// @param index: the attribute index
-                void setAttribute(nString name, ui32 index);
-                /// Sets a list of attribute
-                /// @param attr: map of attributes
-                void setAttributes(const std::map<nString, ui32>& attr);
-                /// Sets a vector of attributes
-                /// @param attr: vector of attributes
-                void setAttributes(const std::vector<std::pair<nString, ui32> >& attr);
-                /// Sets a vector of attributes
-                /// @param attr: vector of attributes. Uses array index as element
-                void setAttributes(const std::vector<nString>& attr);
-                
-                /// Sets the shading language version only if it is not yet created
-                /// @param major: Major index
-                /// @param minor: Minor index
-                /// @param revision: Revision index
-                /// @return Self
-                GLProgram& setVersion(ui32 major, ui32 minor, ui32 revision);
-
-                /// Links the shader program. Should be called
-                /// after shaders are added
-                bool link();
-                /// Returns true if the program is linked
+                /// @return True if the program is linked
                 bool getIsLinked() const {
                     return _isLinked;
                 }
+                /// @return True if the program is in use
+                bool getIsInUse() const {
+                    return _programInUse == this;
+                }
+
+                /// Attaches shader to the build information
+                /// @param data: Shader's type, code, and version
+                /// @return True on success
+                bool addShader(const ShaderSource& data);
+                /// Attaches shader to the build information
+                /// @param type: Shader's stage in the pipeline
+                /// @param code: Shader's source code
+                /// @param version: Language version
+                /// @return True on success
+                bool addShader(const ShaderType& type, const cString code, const ShaderLanguageVersion& version = DEFAULT_SHADING_LANGUAGE_VERSION);
+
+                /// Sets an attribute before the link step
+                /// @param name: Attribute name
+                /// @param index: Attribute index
+                void setAttribute(nString name, VGAttribute index);
+                /// Sets a list of attributes before the link step
+                /// @param attr: Map of attributes
+                void setAttributes(const std::map<nString, VGAttribute>& attr);
+                /// Sets a list of attributes before the link step
+                /// @param attr: List of attribute bindings
+                void setAttributes(const std::vector<AttributeBinding>& attr);
+                /// Sets a list of attributes before the link step
+                /// @param attr: List of attributes (array index as attribute index)
+                void setAttributes(const std::vector<nString>& attr);
+                
+                /// Links the shader program using its currently added shaders
+                /// @return True on success
+                bool link();
 
                 /// Creates mappings for attributes
                 void initAttributes();
@@ -95,15 +121,15 @@ namespace vorb {
                 void initUniforms();
 
                 /// Gets an attribute index
-                /// @param name: the attribute to get the index for
-                /// returns the integer attribute index
-                inline const ui32& getAttribute(const nString& name) const {
+                /// @param name: The attribute's name
+                /// @return Attribute location
+                const VGAttribute& getAttribute(const nString& name) const {
                     return _attributes.at(name);
                 }
                 /// Gets a uniform index
-                /// @param name: the uniform to get the index for
-                /// returns the integer uniform index
-                inline const ui32& getUniform(const nString& name) const {
+                /// @param name: The uniform's name
+                /// @return Uniform location
+                const VGUniform& getUniform(const nString& name) const {
                     return _uniforms.at(name);
                 }
 
@@ -115,46 +141,31 @@ namespace vorb {
 
                 /// Tell the GPU to use the program
                 void use();
-
                 /// Will unuse whatever program is currently in use
                 static void unuse();
 
-                /// Returns true if the program is in use
-                bool getIsInUse() const {
-                    return _programInUse == this;
-                }
-
-                /// Returns the current program that is in use
+                /// @return The current program that is in use
                 static GLProgram* getCurrentProgram() {
                     return _programInUse;
                 }
+
+                Event<nString> onShaderCompilationError; ///< Event signaled during addShader when an error occurs
+                Event<nString> onProgramLinkError; ///< Event signaled during link when an error occurs
             private:
-                // The Current Program In Use
-                static GLProgram* _programInUse;
+                VGProgram _id = 0; ///< Program
+                VGShader _idVS = 0; ///< Vertex shader
+                VGShader _idFS = 0; ///< Fragment shader
 
-                // Program ID
-                ui32 _id;
+                bool _isLinked = false; ///< Keeps track of link status
 
-                // Shader IDs
-                ui32 _idVS, _idFS;
+                AttributeMap _attributes; ///< Dictionary of attributes
+                UniformMap _uniforms; ///< Dictionary of uniforms
 
-                // Shader versions
-                ui32 _versionMajor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MAJOR;
-                ui32 _versionMinor = GL_PROGRAM_DEFAULT_SHADER_VERSION_MINOR;
-                ui32 _versionRevision = GL_PROGRAM_DEFAULT_SHADER_VERSION_REVISION;
-
-                // True On A Successful Link
-                bool _isLinked;
-
-                // Attribute And Uniform Map
-                std::map<nString, ui32> _attributes;
-                std::map<nString, ui32> _uniforms;
+                static GLProgram* _programInUse; ///< The current program in use
             };
-
         }
     }
 }
-
 namespace vg = vorb::core::graphics;
 
 #endif // GLPROGRAM_H_

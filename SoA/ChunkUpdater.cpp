@@ -9,6 +9,7 @@
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "VoxelLightEngine.h"
+#include "VoxelNavigation.inl"
 #include "VoxelUtils.h"
 
 void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
@@ -28,7 +29,9 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
     i32v3 pos;
 
-    for (int i = 0; i < 15; i++){
+    Chunk* lockedChunk = nullptr;
+
+    for (int i = 0; i < 15; i++) {
         needsSetup = false;
 
         blockIndex = RandomUpdateOrder[chunk->blockUpdateIndex++];
@@ -36,7 +39,7 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
 
         pos = getPosFromBlockIndex(blockIndex);
         
-        blockID = chunk->getBlockID(blockIndex);
+        blockID = chunk->getBlockIDSafe(lockedChunk, blockIndex);
 
         if (Blocks[blockID].emitterRandom){
             // uncomment for falling leaves
@@ -44,27 +47,31 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
         }
 
         //TODO: Replace most of this with block update scripts
-        if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKTYPE(chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner)) < LOWWATER)){
-            chunk->setBlockID(blockIndex, NONE);
+        //TODO(Ben): There are race conditions here!
+        if (blockID >= LOWWATER && blockID < LOWWATER + 5 && (GETBLOCKID(vvox::getBottomBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner)) < LOWWATER)) {
+            chunk->setBlockDataSafe(lockedChunk, blockIndex, NONE);
             owner->numBlocks--;
             needsSetup = true;
             newState = ChunkStates::WATERMESH;
-            ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+            ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
         } else if (blockID == FIRE) {
             updateFireBlock(chunk, blockIndex);
             needsSetup = true;
             newState = ChunkStates::MESH;
         } else if (blockID == DIRTGRASS){
-            int bt = GETBLOCKTYPE(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner));
+            int bt = GETBLOCKID(vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner));
             if ((Blocks[bt].collide && bt != LEAVES1) || bt >= LOWWATER){
-                chunk->setBlockID(blockIndex, DIRT);
+                chunk->setBlockDataSafe(lockedChunk, blockIndex, DIRT);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
             }
         } else if (blockID == DIRT){
-            if ((rand() % 10 == 0) && (GETBLOCKTYPE(chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner)) == NONE) && (GETBLOCKTYPE(chunk->getLeftBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKTYPE(chunk->getRightBlockData(blockIndex, pos.x, &blockIndex2, &owner)) == DIRTGRASS ||
-                GETBLOCKTYPE(chunk->getFrontBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS || GETBLOCKTYPE(chunk->getBackBlockData(blockIndex, pos.z, &blockIndex2, &owner)) == DIRTGRASS)){
-                chunk->setBlockID(blockIndex, DIRTGRASS);
+            if ((rand() % 10 == 0) && (GETBLOCKID(vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner)) == NONE) &&
+                (GETBLOCKID(vvox::getLeftBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner)) == DIRTGRASS ||
+                GETBLOCKID(vvox::getRightBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner)) == DIRTGRASS ||
+                GETBLOCKID(vvox::getFrontBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner)) == DIRTGRASS ||
+                GETBLOCKID(vvox::getBackBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner)) == DIRTGRASS)) {
+                chunk->setBlockDataSafe(lockedChunk, blockIndex, DIRTGRASS);
                 needsSetup = true;
                 newState = ChunkStates::MESH;
             }
@@ -102,80 +109,22 @@ void ChunkUpdater::randomBlockUpdates(Chunk* chunk)
             }
         }
     }
+    if (lockedChunk) lockedChunk->unlock();
 }
 
-void ChunkUpdater::placeBlock(Chunk* chunk, int blockIndex, int blockType)
-{
-    //If you call placeBlock with the air block, call remove block
-    if (blockType == NONE) {
-        removeBlock(chunk, blockIndex, false);
-        return;
-    }
-
-    Block &block = GETBLOCK(blockType);
-
-    if (chunk->getBlockData(blockIndex) == NONE) {
-        chunk->numBlocks++;
-    }
-    chunk->setBlockData(blockIndex, blockType);
-
-    if (block.spawnerVal || block.sinkVal){
-        chunk->spawnerBlocks.push_back(blockIndex);
-    }
-
-    const i32v3 pos = getPosFromBlockIndex(blockIndex);
-
-    if (block.emitter){
-        particleEngine.addEmitter(block.emitter, glm::dvec3(chunk->gridPosition.x + pos.x, chunk->gridPosition.y + pos.y, chunk->gridPosition.z + pos.z), blockType);
-    }
-
-    // If its a plant, we need to do some extra iteration
-    if (block.floraHeight) {
-        placeFlora(chunk, blockIndex, blockType);
-    }
-
-    //Check for light removal due to block occlusion
-    if (block.blockLight) {
-
-        if (chunk->getSunlight(blockIndex)){
-            if (chunk->getSunlight(blockIndex) == MAXLIGHT){
-                chunk->setSunlight(blockIndex, 0);
-                chunk->sunRemovalList.push_back(blockIndex);
-            } else {
-                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
-                chunk->setSunlight(blockIndex, 0);
-            }
-        }
-
-        if (chunk->getLampLight(blockIndex)){
-            chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
-            chunk->setLampLight(blockIndex, 0);
-        }
-    } else if (block.colorFilter != f32v3(1.0f)) {
-        //This will pull light from neighbors
-        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
-        chunk->setLampLight(blockIndex, 0);
-    }
-    //Light placement
-    if (block.lightColorPacked){
-        chunk->setLampLight(blockIndex, block.lightColorPacked);
-        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColorPacked));
-    }
-
-    ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
-    if (GETBLOCKTYPE(blockType) >= LOWWATER) {
-        chunk->changeState(ChunkStates::WATERMESH);
-        updateNeighborStates(chunk, pos, ChunkStates::WATERMESH);
-    } else{
-        chunk->changeState(ChunkStates::MESH);
-        updateNeighborStates(chunk, pos, ChunkStates::MESH);
-
-    }
-    chunk->dirty = true;
+void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData) {
+    vvox::swapLockedChunk(chunk, lockedChunk);
+    placeBlock(chunk, lockedChunk, blockIndex, blockData);
 }
 
 void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
   
+    //If you call placeBlock with the air block, call remove block
+ //   if (blockType == NONE) {
+ //       removeBlock(chunk, blockIndex, false);
+ //       return;
+ //   }
+
     Block &block = GETBLOCK(blockType);
 
     if (chunk->getBlockData(blockIndex) == NONE) {
@@ -206,27 +155,27 @@ void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockTyp
                 chunk->setSunlight(blockIndex, 0);
                 chunk->sunRemovalList.push_back(blockIndex);
             } else {
-                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
                 chunk->setSunlight(blockIndex, 0);
             }
         }
 
         if (chunk->getLampLight(blockIndex)) {
-            chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+            chunk->lampLightRemovalQueue.emplace(blockIndex, chunk->getLampLight(blockIndex));
             chunk->setLampLight(blockIndex, 0);
         }
     } else if (block.colorFilter != f32v3(1.0f)) {
         //This will pull light from neighbors
-        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+        chunk->lampLightRemovalQueue.emplace(blockIndex, chunk->getLampLight(blockIndex));
         chunk->setLampLight(blockIndex, 0);
     }
     //Light placement
     if (block.lightColorPacked) {
         chunk->setLampLight(blockIndex, block.lightColorPacked);
-        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColorPacked));
+        chunk->lampLightUpdateQueue.emplace(blockIndex, block.lightColorPacked);
     }
 
-    if (GETBLOCKTYPE(blockType) >= LOWWATER) {
+    if (GETBLOCKID(blockType) >= LOWWATER) {
         chunk->changeState(ChunkStates::WATERMESH);
         updateNeighborStates(chunk, pos, ChunkStates::WATERMESH);
     } else {
@@ -238,7 +187,7 @@ void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockTyp
 }
 
 //Simplified placeBlock for liquid physics
-void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int blockType)
+void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType)
 {
     Block &block = GETBLOCK(blockType);
 
@@ -255,13 +204,13 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
                 chunk->setSunlight(blockIndex, 0);
                 chunk->sunRemovalList.push_back(blockIndex);
             } else {
-                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
                 chunk->setSunlight(blockIndex, 0);
             }
         }
 
         if (chunk->getLampLight(blockIndex)){
-            chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+            chunk->lampLightRemovalQueue.emplace(blockIndex, chunk->getLampLight(blockIndex));
             chunk->setLampLight(blockIndex, 0);
         }
     }
@@ -269,15 +218,20 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex, int
     //Light placement
     if (block.lightColorPacked) {
         chunk->setLampLight(blockIndex, block.lightColorPacked);
-        chunk->lampLightUpdateQueue.push_back(LampLightUpdateNode(blockIndex, block.lightColorPacked));
+        chunk->lampLightUpdateQueue.emplace(blockIndex, block.lightColorPacked);
     }
 
-    ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+    ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
   
     chunk->dirty = true;
 }
 
-void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
+void ChunkUpdater::placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType) {
+    vvox::swapLockedChunk(chunk, lockedChunk);
+    placeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex, blockType);
+}
+
+void ChunkUpdater::removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
 {
     int blockID = chunk->getBlockID(blockIndex);
     const Block &block = Blocks[blockID];
@@ -286,9 +240,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
 
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
-    if (chunk->getBlockID(blockIndex) == 0) {
-        cout << "ALREADY REMOVED\n";
-    }
+    if (chunk->getBlockID(blockIndex) == 0) return;
 
     GLbyte da, db, dc;
 
@@ -332,7 +284,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     //Update lighting
     if (block.blockLight || block.lightColorPacked) {
         //This will pull light from neighbors
-        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+        chunk->lampLightRemovalQueue.emplace(blockIndex, chunk->getLampLight(blockIndex));
         chunk->setLampLight(blockIndex, 0);
 
         //sunlight update
@@ -342,7 +294,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else if (chunk->top && chunk->top->isAccessible) {
@@ -351,22 +303,22 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else {
             //This will pull light from neighbors
-            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+            chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
             chunk->setSunlight(blockIndex, 0);
         }
     }
 
     // If its a plant, we need to do some extra iteration
     if (block.floraHeight) {
-        removeFlora(chunk, blockIndex, blockID);
+        removeFlora(chunk, lockedChunk, blockIndex, blockID);
     }
 
-    ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+    ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     chunk->numBlocks--;
     if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
@@ -377,7 +329,12 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     updateNeighborStates(chunk, pos, ChunkStates::MESH);
 }
 
-void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
+void ChunkUpdater::removeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir) {
+    vvox::swapLockedChunk(chunk, lockedChunk);
+    removeBlock(chunk, lockedChunk, blockIndex, isBreak, force, explodeDir);
+}
+
+void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)
 {
     const Block &block = chunk->getBlock(blockIndex);
 
@@ -388,7 +345,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
     //Update lighting
     if (block.blockLight || block.lightColorPacked) {
         //This will pull light from neighbors
-        chunk->lampLightRemovalQueue.push_back(LampLightRemovalNode(blockIndex, chunk->getLampLight(blockIndex)));
+        chunk->lampLightRemovalQueue.emplace(blockIndex, chunk->getLampLight(blockIndex));
         chunk->setLampLight(blockIndex, 0);
 
         //sunlight update
@@ -398,7 +355,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else if (chunk->top && chunk->top->isAccessible) {
@@ -407,23 +364,28 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, int blockIndex)
                 chunk->sunExtendList.push_back(blockIndex);
             } else {
                 //This will pull light from neighbors
-                chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+                chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
                 chunk->setSunlight(blockIndex, 0);
             }
         } else {
             //This will pull light from neighbors
-            chunk->sunlightRemovalQueue.push_back(SunlightRemovalNode(blockIndex, chunk->getSunlight(blockIndex)));
+            chunk->sunlightRemovalQueue.emplace(blockIndex, chunk->getSunlight(blockIndex));
             chunk->setSunlight(blockIndex, 0);
         }
     }
 
-    ChunkUpdater::addBlockToUpdateList(chunk, blockIndex);
+    ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     chunk->numBlocks--;
     if (chunk->numBlocks < 0) chunk->numBlocks = 0;
 
 
     chunk->changeState(ChunkStates::WATERMESH);
     chunk->dirty = 1;
+}
+
+void ChunkUpdater::removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
+    vvox::swapLockedChunk(chunk, lockedChunk);
+    removeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex);
 }
 
 void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state) {
@@ -487,89 +449,89 @@ void ChunkUpdater::updateNeighborStates(Chunk* chunk, int blockIndex, ChunkState
     }
 }
 
-void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, int c)
+void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c)
 {
     int phys;
     const i32v3 pos = getPosFromBlockIndex(c);
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* front = chunk->front;
-    Chunk* back = chunk->back;
-    Chunk* top = chunk->top;
-    Chunk* bottom = chunk->bottom;
+    Chunk*& left = chunk->left;
+    Chunk*& right = chunk->right;
+    Chunk*& front = chunk->front;
+    Chunk*& back = chunk->back;
+    Chunk*& top = chunk->top;
+    Chunk*& bottom = chunk->bottom;
 
-    if ((phys = chunk->getBlock(c).physicsProperty - physStart) > -1) {
-        chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
+    if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {
+        chunk->addPhysicsUpdate(phys, c);
     }
 
     if (pos.x > 0){ //left
-        if ((phys = chunk->getBlock(c - 1).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - 1);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - 1).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - 1);
         }
     } else if (left && left->isAccessible){
-        if ((phys = left->getBlock(c + CHUNK_WIDTH - 1).physicsProperty - physStart) > -1) {
-            left->blockUpdateList[phys][left->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH - 1);
+        if ((phys = left->getBlockSafe(lockedChunk, c + CHUNK_WIDTH - 1).caIndex) > -1) {
+            left->addPhysicsUpdate(phys, c + CHUNK_WIDTH - 1);
         }
     } else{
         return;
     }
 
     if (pos.x < CHUNK_WIDTH - 1){ //right
-        if ((phys = chunk->getBlock(c + 1).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + 1);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + 1).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + 1);
         }
     } else if (right && right->isAccessible){
-        if ((phys = right->getBlock(c - CHUNK_WIDTH + 1).physicsProperty - physStart) > -1) {
-            right->blockUpdateList[phys][right->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH + 1);
+        if ((phys = right->getBlockSafe(lockedChunk, c - CHUNK_WIDTH + 1).caIndex) > -1) {
+            right->addPhysicsUpdate(phys, c - CHUNK_WIDTH + 1);
         }
     } else{
         return;
     }
 
     if (pos.z > 0){ //back
-        if ((phys = chunk->getBlock(c - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_WIDTH);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_WIDTH).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - CHUNK_WIDTH);
         }
     } else if (back && back->isAccessible){
-        if ((phys = back->getBlock(c + CHUNK_LAYER - CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            back->blockUpdateList[phys][back->activeUpdateList[phys]].push_back(c + CHUNK_LAYER - CHUNK_WIDTH);
+        if ((phys = back->getBlockSafe(lockedChunk, c + CHUNK_LAYER - CHUNK_WIDTH).caIndex) > -1) {
+            back->addPhysicsUpdate(phys, c + CHUNK_LAYER - CHUNK_WIDTH);
         }
     } else{
         return;
     }
 
     if (pos.z < CHUNK_WIDTH - 1){ //front
-        if ((phys = chunk->getBlock(c + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_WIDTH);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_WIDTH).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + CHUNK_WIDTH);
         }
     } else if (front && front->isAccessible){
-        if ((phys = front->getBlock(c - CHUNK_LAYER + CHUNK_WIDTH).physicsProperty - physStart) > -1) {
-            front->blockUpdateList[phys][front->activeUpdateList[phys]].push_back(c - CHUNK_LAYER + CHUNK_WIDTH);
+        if ((phys = front->getBlockSafe(lockedChunk, c - CHUNK_LAYER + CHUNK_WIDTH).caIndex) > -1) {
+            front->addPhysicsUpdate(phys, c - CHUNK_LAYER + CHUNK_WIDTH);
         }
     } else{
         return;
     }
 
     if (pos.y > 0){ //bottom
-        if ((phys = chunk->getBlock(c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_LAYER);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
         }
     } else if (bottom && bottom->isAccessible){
-        if ((phys = bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
-            bottom->blockUpdateList[phys][bottom->activeUpdateList[phys]].push_back(CHUNK_SIZE - CHUNK_LAYER + c);
+        if ((phys = bottom->getBlockSafe(lockedChunk, CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
+            bottom->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
         }
     } else{
         return;
     }
 
     if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = chunk->getBlock(c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_LAYER);
+        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
         }
     } else if (top && top->isAccessible){
-        if ((phys = top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            top->blockUpdateList[phys][top->activeUpdateList[phys]].push_back(c - CHUNK_SIZE + CHUNK_LAYER);
+        if ((phys = top->getBlockSafe(lockedChunk, c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
+            top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
         }
     }
 }
@@ -579,29 +541,29 @@ void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
     int phys;
     const i32v3 pos = getPosFromBlockIndex(c);
 
-    if ((phys = chunk->getBlock(c).physicsProperty - physStart) > -1) {
-        chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c);
+    if ((phys = chunk->getBlock(c).caIndex) > -1) {
+        chunk->addPhysicsUpdate(phys, c);
     }
 
     if (pos.y > 0){ //bottom
-        if ((phys = chunk->getBlock(c - CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c - CHUNK_LAYER);
+        if ((phys = chunk->getBlock(c - CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
         }
     } else if (chunk->bottom && chunk->bottom->isAccessible){
-        if ((phys = chunk->bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).physicsProperty - physStart) > -1) {
-            chunk->bottom->blockUpdateList[phys][chunk->bottom->activeUpdateList[phys]].push_back(CHUNK_SIZE - CHUNK_LAYER + c);
+        if ((phys = chunk->bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
         }
     } else{
         return;
     }
 
     if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = chunk->getBlock(c + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->blockUpdateList[phys][chunk->activeUpdateList[phys]].push_back(c + CHUNK_LAYER);
+        if ((phys = chunk->getBlock(c + CHUNK_LAYER).caIndex) > -1) {
+            chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
         }
     } else if (chunk->top && chunk->top->isAccessible){
-        if ((phys = chunk->top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).physicsProperty - physStart) > -1) {
-            chunk->top->blockUpdateList[phys][chunk->top->activeUpdateList[phys]].push_back(c - CHUNK_SIZE + CHUNK_LAYER);
+        if ((phys = chunk->top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
+            chunk->top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
         }
     }
 }
@@ -611,7 +573,7 @@ void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
 void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force, glm::vec3 extraForce)
 {
     glm::vec4 color;
-    int btype = GETBLOCKTYPE(blockType);
+    int btype = GETBLOCKID(blockType);
     GLuint flags = GETFLAGS(blockType);
 
     color.a = 255;
@@ -698,7 +660,7 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockID) {
     }
 }
 
-void ChunkUpdater::removeFlora(Chunk* chunk, int blockIndex, int blockID) {
+void ChunkUpdater::removeFlora(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockID) {
     // Grab tertiary data
     ui16 tertiaryData = chunk->getTertiaryData(blockIndex);
     // Grab height and position
@@ -710,36 +672,43 @@ void ChunkUpdater::removeFlora(Chunk* chunk, int blockIndex, int blockID) {
     blockIndex += CHUNK_LAYER;
     if (blockIndex < CHUNK_SIZE) {
         if (chunk->getBlockID(blockIndex) == blockID) {
-            removeBlock(chunk, blockIndex, true);
+            removeBlockSafe(chunk, lockedChunk, blockIndex, true);
         }
     } else if (chunk->top && chunk->top->isAccessible) {
         blockIndex -= CHUNK_SIZE;
         if (chunk->top->getBlockID(blockIndex) == blockID) {
-            removeBlock(chunk->top, blockIndex, true);
+            removeBlockSafe(chunk->top, lockedChunk, blockIndex, true);
         }
     }
 }
 
-float ChunkUpdater::getBurnProbability(Chunk* chunk, int blockIndex)
+float ChunkUpdater::getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)
 {
 
     float flammability = 0.0f;
-    //bottom
-    int bt = chunk->getBottomBlockData(blockIndex);
+    // Bottom
+    int bt = vvox::getBottomBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
-    bt = chunk->getLeftBlockData(blockIndex);
+    // Left
+    bt = vvox::getLeftBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
-    //right
-    bt = chunk->getRightBlockData(blockIndex);
+    // Right
+    bt = vvox::getRightBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
-    //back
-    bt = chunk->getBackBlockData(blockIndex);
+    // Back
+    bt = vvox::getBackBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
-    //front
-    bt = chunk->getFrontBlockData(blockIndex);
+    // Front
+    bt = vvox::getFrontBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
-    //top
-    bt = chunk->getTopBlockData(blockIndex);
+    // Top
+    bt = vvox::getTopBlockData(chunk, lockedChunk, blockIndex);
+    if (bt == -1) return 0.0f;
     flammability += GETBLOCK(bt).flammability;
 
     if (flammability < 0) return 0.0f;
@@ -760,139 +729,169 @@ void ChunkUpdater::updateFireBlock(Chunk* chunk, int blockIndex){
     const float sideBotMult = 0.5;
     const float botMult = 0.8;
 
-    burnAdjacentBlocks(chunk, blockIndex);
+    Chunk* lockedChunk = nullptr;
+
+    burnAdjacentBlocks(chunk, lockedChunk, blockIndex);
 
     //********************************************************left
-    bt = chunk->getLeftBlockData(blockIndex, pos.x, &blockIndex2, &owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    bt = vvox::getLeftBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //left front
-    bt = owner2->getFrontBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left back
-    bt = owner2->getBackBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left top
-    bt = owner2->getTopBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
     //left top front
-    bt = owner3->getFrontBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left top back
-    bt = owner3->getBackBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left bottom
-    bt = owner2->getBottomBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //left bottom front
-    bt = owner3->getFrontBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //left bottom back
-    bt = owner3->getBackBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //********************************************************right
-    bt = chunk->getRightBlockData(blockIndex, pos.x, &blockIndex2, &owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    bt = vvox::getRightBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //left front
-    bt = owner2->getFrontBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left back
-    bt = owner2->getBackBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3);
+    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
     //left top
-    bt = owner2->getTopBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
     //left top front
-    bt = owner3->getFrontBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left top back
-    bt = owner3->getBackBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideTopMult);
+    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
     //left bottom
-    bt = owner2->getBottomBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //left bottom front
-    bt = owner3->getFrontBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //left bottom back
-    bt = owner3->getBackBlockData(blockIndex3, (blockIndex3 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex4, &owner4);
-    checkBurnBlock(blockIndex4, bt, owner4, sideBotMult);
+    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
     //******************************************************front
-    bt = chunk->getFrontBlockData(blockIndex, pos.z, &blockIndex2, &owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    bt = vvox::getFrontBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //front top
-    bt = owner2->getTopBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
     //front bottom
-    bt = owner2->getBottomBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //********************************************************back
-    bt = chunk->getBackBlockData(blockIndex, pos.z, &blockIndex2, &owner2);
-
-    checkBurnBlock(blockIndex2, bt, owner2);
+    bt = vvox::getBackBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
     //back top
-    bt = owner2->getTopBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
     //back bottom
-    bt = owner2->getBottomBlockData(blockIndex2, blockIndex2 / CHUNK_LAYER, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //********************************************************top
-    bt = chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner2);
-    checkBurnBlock(blockIndex2, bt, owner2, topMult);
+    bt = vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, topMult);
 
     //top front
-    bt = owner2->getFrontBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
     //top back
-    bt = owner2->getBackBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideTopMult);
+    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
     //********************************************************bottom
-    bt = chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner2);
-    checkBurnBlock(blockIndex2, bt, owner2, botMult);
+    bt = vvox::getBottomBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, botMult);
 
     //bottom front
-    bt = owner2->getFrontBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
     //bottom back
-    bt = owner2->getBackBlockData(blockIndex2, (blockIndex2 % CHUNK_LAYER) / CHUNK_WIDTH, &blockIndex3, &owner3);
-    checkBurnBlock(blockIndex3, bt, owner3, sideBotMult);
+    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
-    removeBlock(chunk, blockIndex, false);
+    removeBlockSafe(chunk, lockedChunk, blockIndex, false);
+
+    if (lockedChunk) lockedChunk->unlock();
 }
 
-void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
+void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, Chunk*& lockedChunk, int blockIndex){
 
     int blockIndex2;
     Chunk *owner2;
@@ -900,100 +899,100 @@ void ChunkUpdater::burnAdjacentBlocks(Chunk* chunk, int blockIndex){
 
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
-    int bt = chunk->getBottomBlockData(blockIndex, pos.y, &blockIndex2, &owner2);
+    int bt = vvox::getBottomBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
     b = &(GETBLOCK(bt));
     if (b->flammability){
         if (b->burnTransformID == NONE){
-            removeBlock(owner2, blockIndex2, true);
+            removeBlockSafe(owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->setBlockData(blockIndex2, b->burnTransformID);
+            owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
     //left
-    bt = chunk->getLeftBlockData(blockIndex, pos.x, &blockIndex2, &owner2);
+    bt = vvox::getLeftBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
     b = &(GETBLOCK(bt));
     if (b->flammability){
         if (b->burnTransformID == NONE){
-            removeBlock(owner2, blockIndex2, true);
+            removeBlockSafe(owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->setBlockData(blockIndex2, b->burnTransformID);
+            owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
     //right
-    bt = chunk->getRightBlockData(blockIndex, pos.x, &blockIndex2, &owner2);
+    bt = vvox::getRightBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
     b = &(GETBLOCK(bt));
     if (b->flammability){
         if (b->burnTransformID == NONE){
-            removeBlock(owner2, blockIndex2, true);
+            removeBlockSafe(owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->setBlockData(blockIndex2, b->burnTransformID);
+            owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
     //back
-    bt = chunk->getBackBlockData(blockIndex, pos.z, &blockIndex2, &owner2);
+    bt = vvox::getBackBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
     b = &(GETBLOCK(bt));
     if (b->flammability){
         if (b->burnTransformID == NONE){
-            removeBlock(owner2, blockIndex2, true);
+            removeBlockSafe(owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->setBlockData(blockIndex2, b->burnTransformID);
+            owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
     //front
-    bt = chunk->getFrontBlockData(blockIndex, pos.z, &blockIndex2, &owner2);
+    bt = vvox::getFrontBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
     b = &(GETBLOCK(bt));
     if (b->flammability){
         if (b->burnTransformID == NONE){
-            removeBlock(owner2, blockIndex2, true);
+            removeBlockSafe(owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->setBlockData(blockIndex2, b->burnTransformID);
+            owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
     //top
-    bt = chunk->getTopBlockData(blockIndex, pos.y, &blockIndex2, &owner2);
+    bt = vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
     b = &(GETBLOCK(bt));
     if (b->flammability){
         if (b->burnTransformID == NONE){
-            removeBlock(owner2, blockIndex2, true);
+            removeBlockSafe(owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
                 particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
-            owner2->setBlockData(blockIndex2, b->burnTransformID);
+            owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
         owner2->changeState(ChunkStates::MESH);
     }
 }
 
-void ChunkUpdater::checkBurnBlock(int blockIndex, int blockType, Chunk *owner, float burnMult)
+void ChunkUpdater::checkBurnBlock(int blockIndex, Chunk*& lockedChunk, int blockType, Chunk *owner, float burnMult)
 {
     float burnProb;
     if ((blockType == NONE || GETBLOCK(blockType).waterBreak)){
-        burnProb = getBurnProbability(owner, blockIndex) * burnMult;
+        burnProb = getBurnProbability(owner, lockedChunk, blockIndex) * burnMult;
         if (burnProb > 0){
             float r = rand() / (float)RAND_MAX;
             if (r <= burnProb){
-               placeBlock(owner, blockIndex, FIRE);
+               placeBlockSafe(owner, lockedChunk, blockIndex, FIRE);
             }
         }
     }

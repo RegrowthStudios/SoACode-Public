@@ -289,10 +289,8 @@ void GamePlayScreen::updatePlayer() {
     _player->setMoveMod(1.0f);
     _player->canCling = 0;
     _player->collisionData.yDecel = 0.0f;
-    //    cout << "C";
 
     // Number of steps to integrate the collision over
-    Chunk::modifyLock.lock();
     for (int i = 0; i < PLAYER_COLLISION_STEPS; i++){
         _player->gridPosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
         _player->facePosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
@@ -301,7 +299,6 @@ void GamePlayScreen::updatePlayer() {
         aabbChunkCollision(_player, &(_player->gridPosition), chunks, 8);
         _player->applyCollisionData();
     }
-    Chunk::modifyLock.unlock();
 
     delete[] chunks;
 }
@@ -341,23 +338,44 @@ void GamePlayScreen::updateThreadFunc() {
 void GamePlayScreen::processMessages() {
 
     TerrainMeshMessage* tmm;
-    Message message;
-
+    int j = 0,k = 0;
     MeshManager* meshManager = _app->meshManager;
+    ChunkMesh* cm;
+    PreciseTimer timer;
+    timer.start();
+    int numMessages = GameManager::messageManager->tryDequeMultiple(ThreadId::RENDERING, messageBuffer, MESSAGES_PER_FRAME);
+    std::set<ChunkMesh*> updatedMeshes; // Keep track of which meshes we have already seen so we can ignore older duplicates
+    for (int i = numMessages - 1; i >= 0; i--) {
+        Message& message = messageBuffer[i];
+        switch (message.id) {
+            case MessageID::CHUNK_MESH:
+                j++;
+                cm = ((ChunkMeshData *)(message.data))->chunkMesh;
+                if (updatedMeshes.find(cm) == updatedMeshes.end()) {
+                    k++;
+                    updatedMeshes.insert(cm);
+                    meshManager->updateChunkMesh((ChunkMeshData *)(message.data));
+                } else {
+                    delete message.data;
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
-    while (GameManager::messageManager->tryDeque(ThreadId::RENDERING, message)) {
+    for (int i = 0; i < numMessages; i++) {
+        Message& message = messageBuffer[i];
         switch (message.id) {
             case MessageID::TERRAIN_MESH:
-                meshManager->updateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));
+                tmm = static_cast<TerrainMeshMessage*>(message.data);
+                meshManager->updateTerrainMesh(tmm);
                 break;
             case MessageID::REMOVE_TREES:
                 tmm = static_cast<TerrainMeshMessage*>(message.data);
                 if (tmm->terrainBuffers->treeVboID != 0) glDeleteBuffers(1, &(tmm->terrainBuffers->treeVboID));
                 tmm->terrainBuffers->treeVboID = 0;
                 delete tmm;
-                break;
-            case MessageID::CHUNK_MESH:
-                meshManager->updateChunkMesh((ChunkMeshData *)(message.data));
                 break;
             case MessageID::PARTICLE_MESH:
                 meshManager->updateParticleMesh((ParticleMeshMessage *)(message.data));
@@ -374,7 +392,7 @@ void GamePlayScreen::processMessages() {
 void GamePlayScreen::updateWorldCameraClip() {
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(GameManager::chunkIOManager->getLoadListSize()) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
     if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
     // TODO(Ben): This is crap fix it (Sorry Brian)

@@ -62,6 +62,7 @@ public:
 
     RenderTask* task;
     ChunkGridData* chunkGridData;
+    i32v3 position;
 };
 
 struct ChunkMeshRenderData {

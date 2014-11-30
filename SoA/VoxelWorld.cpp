@@ -5,6 +5,7 @@
 
 #include "BlockData.h"
 #include "CAEngine.h"
+#include "Camera.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "Errors.h"
@@ -27,7 +28,7 @@ VoxelWorld::~VoxelWorld()
 }
 
 
-void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* startingMapData, Planet *planet, GLuint flags)
+void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, Planet *planet, GLuint flags)
 {
     if (_chunkManager) {
         pError("VoxelWorld::initialize() called twice before end session!");
@@ -40,18 +41,18 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
 
     _chunkManager->planet = planet;
 
-    vvoxel::VoxelPlanetMapper* voxelPlanetMapper = new vvoxel::VoxelPlanetMapper(planet->facecsGridWidth);
+    vvox::VoxelPlanetMapper* voxelPlanetMapper = new vvox::VoxelPlanetMapper(planet->facecsGridWidth);
     _chunkManager->initialize(gpos, voxelPlanetMapper, startingMapData, flags);
 
     setPlanet(planet);
 }
 
-void VoxelWorld::update(const glm::dvec3 &position, const glm::dvec3 &viewDir)
+void VoxelWorld::update(const Camera* camera)
 {
     // Update the Chunks
-    _chunkManager->update(position, viewDir);
+    _chunkManager->update(camera);
     // Update the physics
-    updatePhysics(position, viewDir);
+    updatePhysics(camera);
 }
 
 void VoxelWorld::setPlanet(Planet *planet)
@@ -74,14 +75,12 @@ void VoxelWorld::endSession()
     GameManager::chunkManager = NULL;
 }
 
-void VoxelWorld::updatePhysics(const glm::dvec3 &position, const glm::dvec3 &viewDir) {
-    // Update Cellular automata Engine
-    globalMultiplePreciseTimer.start("CAEngine Update");
-    GameManager::caEngine->update(*_chunkManager);
+void VoxelWorld::updatePhysics(const Camera* camera) {
+
+    GameManager::chunkManager->updateCaPhysics();
 
     // Update physics engine
     globalMultiplePreciseTimer.start("Physics Engine");
-    Chunk::modifyLock.lock();
-    GameManager::physicsEngine->update(viewDir);
-    Chunk::modifyLock.unlock();
+
+    GameManager::physicsEngine->update(f64v3(camera->getDirection()));
 }

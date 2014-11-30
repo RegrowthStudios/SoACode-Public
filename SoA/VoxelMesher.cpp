@@ -23,52 +23,16 @@ const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f,
     1.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f };     // v5-v4-v7-v6 (back)
 
 // Cube Vertex Positional Resolution
-#define C_RES0 7
-#define C_RES1 C_RES0 << 1
-#define C_RES2 C_RES0 << 2
-#define C_RES3 C_RES0 << 3
-#define C_RES4 C_RES0 << 4
-#define C_RES5 C_RES0 << 5
+#define C_RES 7
 
 // Each block has a positional resolution of 7. There are 6 arrays for the LOD levels
-const GLubyte VoxelMesher::cubeVertices[6][72] = {
-    { 0, C_RES0, C_RES0, 0, 0, C_RES0, C_RES0, 0, C_RES0, C_RES0, C_RES0, C_RES0,  // v1-v2-v3-v0 (front)
-    C_RES0, C_RES0, C_RES0, C_RES0, 0, C_RES0, C_RES0, 0, 0, C_RES0, C_RES0, 0,     // v0-v3-v4-v5 (right)
-    0, C_RES0, 0, 0, C_RES0, C_RES0, C_RES0, C_RES0, C_RES0, C_RES0, C_RES0, 0,    // v6-v1-v0-v5 (top)
-    0, C_RES0, 0, 0, 0, 0, 0, 0, C_RES0, 0, C_RES0, C_RES0,   // v6-v7-v2-v1 (left)
-    C_RES0, 0, 0, C_RES0, 0, C_RES0, 0, 0, C_RES0, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    C_RES0, C_RES0, 0, C_RES0, 0, 0, 0, 0, 0, 0, C_RES0, 0 },     // v5-v4-v7-v6 (back)
-    { 0, C_RES1, C_RES1, 0, 0, C_RES1, C_RES1, 0, C_RES1, C_RES1, C_RES1, C_RES1,  // v1-v2-v3-v0 (front)
-    C_RES1, C_RES1, C_RES1, C_RES1, 0, C_RES1, C_RES1, 0, 0, C_RES1, C_RES1, 0,     // v0-v3-v4-v5 (right)
-    0, C_RES1, 0, 0, C_RES1, C_RES1, C_RES1, C_RES1, C_RES1, C_RES1, C_RES1, 0,    // v6-v1-v0-v5 (top)
-    0, C_RES1, 0, 0, 0, 0, 0, 0, C_RES1, 0, C_RES1, C_RES1,   // v6-v7-v2-v1 (left)
-    C_RES1, 0, 0, C_RES1, 0, C_RES1, 0, 0, C_RES1, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    C_RES1, C_RES1, 0, C_RES1, 0, 0, 0, 0, 0, 0, C_RES1, 0 },     // v5-v4-v7-v6 (back)
-    { 0, C_RES2, C_RES2, 0, 0, C_RES2, C_RES2, 0, C_RES2, C_RES2, C_RES2, C_RES2,  // v1-v2-v3-v0 (front)
-    C_RES2, C_RES2, C_RES2, C_RES2, 0, C_RES2, C_RES2, 0, 0, C_RES2, C_RES2, 0,     // v0-v3-v4-v5 (right)
-    0, C_RES2, 0, 0, C_RES2, C_RES2, C_RES2, C_RES2, C_RES2, C_RES2, C_RES2, 0,    // v6-v1-v0-v5 (top)
-    0, C_RES2, 0, 0, 0, 0, 0, 0, C_RES2, 0, C_RES2, C_RES2,   // v6-v7-v2-v1 (left)
-    C_RES2, 0, 0, C_RES2, 0, C_RES2, 0, 0, C_RES2, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    C_RES2, C_RES2, 0, C_RES2, 0, 0, 0, 0, 0, 0, C_RES2, 0 },     // v5-v4-v7-v6 (back)
-    { 0, C_RES3, C_RES3, 0, 0, C_RES3, C_RES3, 0, C_RES3, C_RES3, C_RES3, C_RES3,  // v1-v2-v3-v0 (front)
-    C_RES3, C_RES3, C_RES3, C_RES3, 0, C_RES3, C_RES3, 0, 0, C_RES3, C_RES3, 0,     // v0-v3-v4-v5 (right)
-    0, C_RES3, 0, 0, C_RES3, C_RES3, C_RES3, C_RES3, C_RES3, C_RES3, C_RES3, 0,    // v6-v1-v0-v5 (top)
-    0, C_RES3, 0, 0, 0, 0, 0, 0, C_RES3, 0, C_RES3, C_RES3,   // v6-v7-v2-v1 (left)
-    C_RES3, 0, 0, C_RES3, 0, C_RES3, 0, 0, C_RES3, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    C_RES3, C_RES3, 0, C_RES3, 0, 0, 0, 0, 0, 0, C_RES3, 0 },     // v5-v4-v7-v6 (back)
-    { 0, C_RES4, C_RES4, 0, 0, C_RES4, C_RES4, 0, C_RES4, C_RES4, C_RES4, C_RES4,  // v1-v2-v3-v0 (front)
-    C_RES4, C_RES4, C_RES4, C_RES4, 0, C_RES4, C_RES4, 0, 0, C_RES4, C_RES4, 0,     // v0-v3-v4-v5 (right)
-    0, C_RES4, 0, 0, C_RES4, C_RES4, C_RES4, C_RES4, C_RES4, C_RES4, C_RES4, 0,    // v6-v1-v0-v5 (top)
-    0, C_RES4, 0, 0, 0, 0, 0, 0, C_RES4, 0, C_RES4, C_RES4,   // v6-v7-v2-v1 (left)
-    C_RES4, 0, 0, C_RES4, 0, C_RES4, 0, 0, C_RES4, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    C_RES4, C_RES4, 0, C_RES4, 0, 0, 0, 0, 0, 0, C_RES4, 0 },     // v5-v4-v7-v6 (back)
-    { 0, C_RES5, C_RES5, 0, 0, C_RES5, C_RES5, 0, C_RES5, C_RES5, C_RES5, C_RES5,  // v1-v2-v3-v0 (front)
-    C_RES5, C_RES5, C_RES5, C_RES5, 0, C_RES5, C_RES5, 0, 0, C_RES5, C_RES5, 0,     // v0-v3-v4-v5 (right)
-    0, C_RES5, 0, 0, C_RES5, C_RES5, C_RES5, C_RES5, C_RES5, C_RES5, C_RES5, 0,    // v6-v1-v0-v5 (top)
-    0, C_RES5, 0, 0, 0, 0, 0, 0, C_RES5, 0, C_RES5, C_RES5,   // v6-v7-v2-v1 (left)
-    C_RES5, 0, 0, C_RES5, 0, C_RES5, 0, 0, C_RES5, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    C_RES5, C_RES5, 0, C_RES5, 0, 0, 0, 0, 0, 0, C_RES5, 0 } };     // v5-v4-v7-v6 (back)
-
+const GLubyte VoxelMesher::cubeVertices[72] = {
+    0, C_RES, C_RES, 0, 0, C_RES, C_RES, 0, C_RES, C_RES, C_RES, C_RES,  // v1-v2-v3-v0 (front)
+    C_RES, C_RES, C_RES, C_RES, 0, C_RES, C_RES, 0, 0, C_RES, C_RES, 0,     // v0-v3-v4-v5 (right)
+    0, C_RES, 0, 0, C_RES, C_RES, C_RES, C_RES, C_RES, C_RES, C_RES, 0,    // v6-v1-v0-v5 (top)
+    0, C_RES, 0, 0, 0, 0, 0, 0, C_RES, 0, C_RES, C_RES,   // v6-v7-v2-v1 (left)
+    C_RES, 0, 0, C_RES, 0, C_RES, 0, 0, C_RES, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
+    C_RES, C_RES, 0, C_RES, 0, 0, 0, 0, 0, 0, C_RES, 0 };
 //0 = x, 1 = y, 2 = z
 const int VoxelMesher::cubeFaceAxis[6][2] = { { 0, 1 }, { 2, 1 }, { 0, 2 }, { 2, 1 }, { 0, 2 }, { 0, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
 
@@ -448,7 +412,7 @@ void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, 
 }
 
 
-void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture& texInfo)
+void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture& texInfo)
 {
 
     //get the face index so we can determine the axis alignment
@@ -457,8 +421,7 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
     GLubyte uOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][0]] * cubeFaceAxisSign[faceIndex][0]);
     GLubyte vOffset = (GLubyte)(pos[cubeFaceAxis[faceIndex][1]] * cubeFaceAxisSign[faceIndex][1]);
 
-    const GLubyte* cverts = cubeVertices[levelOfDetail-1];
-    int lodTexOffset = (1 << (levelOfDetail - 1));
+    const GLubyte* cverts = cubeVertices;
 
     // 7 per coord
     pos.x *= POSITION_RESOLUTION;
@@ -572,16 +535,17 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int levelOfDetail, int vertex
         Verts[vertexIndex + 3].waveEffect = 0;
     }
 
-#define UV_0 128
+    #define UV_0 128
+    #define UV_1 129
 
     Verts[vertexIndex].tex[0] = UV_0 + uOffset;
-    Verts[vertexIndex].tex[1] = UV_0 + vOffset + lodTexOffset;
+    Verts[vertexIndex].tex[1] = UV_1 + vOffset;
     Verts[vertexIndex + 1].tex[0] = UV_0 + uOffset;
     Verts[vertexIndex + 1].tex[1] = UV_0 + vOffset;
-    Verts[vertexIndex + 2].tex[0] = UV_0 + uOffset + lodTexOffset;
+    Verts[vertexIndex + 2].tex[0] = UV_1 + uOffset;
     Verts[vertexIndex + 2].tex[1] = UV_0 + vOffset;
-    Verts[vertexIndex + 3].tex[0] = UV_0 + uOffset + lodTexOffset;
-    Verts[vertexIndex + 3].tex[1] = UV_0 + vOffset + lodTexOffset;
+    Verts[vertexIndex + 3].tex[0] = UV_1 + uOffset;
+    Verts[vertexIndex + 3].tex[1] = UV_1 + vOffset;
 
     // *********** Base Texture
     Verts[vertexIndex].textureIndex = (GLubyte)textureIndex;
@@ -661,7 +625,7 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
     verts[index + 3].textureUnit = (GLubyte)textureUnit;
 }
 
-void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
+void VoxelMesher::makePhysicsBlockFace(std::vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
 {
     ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / ATLAS_SIZE);
     ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % ATLAS_SIZE);
@@ -671,7 +635,7 @@ void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int v
 
     ui8 blendMode = getBlendMode(blockTexture.blendMode);
 
-    const GLubyte* cverts = cubeVertices[0];
+    const GLubyte* cverts = cubeVertices;
 
     verts[index].blendMode = blendMode;
     verts[index + 1].blendMode = blendMode;

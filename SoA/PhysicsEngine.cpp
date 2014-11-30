@@ -41,7 +41,7 @@ PhysicsEngine::~PhysicsEngine() {
 }
 
 void PhysicsEngine::clearAll() {
-    queue <ExplosionNode>().swap(_deferredExplosions);
+    std::queue <ExplosionNode>().swap(_deferredExplosions);
 
     for (Uint32 i = 0; i < _activePhysicsBlockBatches.size(); i++){
         _physicsBlockBatches[_activePhysicsBlockBatches[i]->blockType] = NULL;
@@ -50,10 +50,10 @@ void PhysicsEngine::clearAll() {
     _activePhysicsBlockBatches.clear();
 }
 
-void PhysicsEngine::update(const glm::dvec3 &viewDir) {
+void PhysicsEngine::update(const f64v3 &viewDir) {
 
     performExplosions();
-    detectFloatingBlocks(viewDir);
+    //detectFloatingBlocks(viewDir);
 
     for (Uint32 i = 0; i < _activePhysicsBlockBatches.size();){
         if (_activePhysicsBlockBatches[i]->update()){
@@ -151,256 +151,256 @@ void PhysicsEngine::pressureExplosion(glm::dvec3 &pos)
 
 void PhysicsEngine::pressureUpdate(PressureNode &pn)
 {
-    //    cout << pn.force << " ";
-    int c = pn.c;
-    int x = c%CHUNK_WIDTH;
-    int y = c / CHUNK_LAYER;
-    int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
-    Chunk *ch = pn.ch;
-    ExplosionInfo *explosionInfo = pn.explosionInfo;
-    int c2;
-    int blockID;
-    float force = pn.force;
+    ////    cout << pn.force << " ";
+    //int c = pn.c;
+    //int x = c%CHUNK_WIDTH;
+    //int y = c / CHUNK_LAYER;
+    //int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
+    //Chunk *ch = pn.ch;
+    //ExplosionInfo *explosionInfo = pn.explosionInfo;
+    //int c2;
+    //int blockID;
+    //float force = pn.force;
 
-    _visitedNodes.push_back(VisitedNode(ch, c));
+    //_visitedNodes.push_back(VisitedNode(ch, c));
 
-    glm::dvec3 worldSpaceCoords(ch->gridPosition * CHUNK_WIDTH + glm::ivec3(x, y, z));
+    //glm::dvec3 worldSpaceCoords(ch->gridPosition * CHUNK_WIDTH + glm::ivec3(x, y, z));
 
-    double distance = glm::length(worldSpaceCoords - explosionInfo->pos) - 30;
+    //double distance = glm::length(worldSpaceCoords - explosionInfo->pos) - 30;
 
-    float currForce;
-    if (distance > 0){
-        currForce = explosionInfo->force / (distance*distance);
-    } else{
-        currForce = explosionInfo->force;
-    }
+    //float currForce;
+    //if (distance > 0){
+    //    currForce = explosionInfo->force / (distance*distance);
+    //} else{
+    //    currForce = explosionInfo->force;
+    //}
 
-    force -= 1.0f;
-    currForce += force;
-    if (currForce <= 0.0f) return;
+    //force -= 1.0f;
+    //currForce += force;
+    //if (currForce <= 0.0f) return;
 
-    //LEFT
-    if (x > 0){
-        c2 = c - 1;
-        blockID = ch->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
+    ////LEFT
+    //if (x > 0){
+    //    c2 = c - 1;
+    //    blockID = ch->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
 
-            ch->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    } else if (ch->left && ch->left->isAccessible){
-        c2 = c + CHUNK_WIDTH - 1;
-        blockID = ch->left->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch->left, c2, 1);
+    //        ch->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //} else if (ch->left && ch->left->isAccessible){
+    //    c2 = c + CHUNK_WIDTH - 1;
+    //    blockID = ch->left->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch->left, c2, 1);
 
-            ch->left->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->left, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->left, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    }
+    //        ch->left->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->left, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->left, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //}
 
-    //RIGHT
-    if (x < 31){
-        c2 = c + 1;
-        blockID = ch->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
+    ////RIGHT
+    //if (x < 31){
+    //    c2 = c + 1;
+    //    blockID = ch->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
 
-            ch->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    } else if (ch->right && ch->right->isAccessible){
-        c2 = c - CHUNK_WIDTH + 1;
-        blockID = ch->right->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch->right, c2, 1);
+    //        ch->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //} else if (ch->right && ch->right->isAccessible){
+    //    c2 = c - CHUNK_WIDTH + 1;
+    //    blockID = ch->right->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch->right, c2, 1);
 
-            ch->right->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->right, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->right, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    }
+    //        ch->right->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->right, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->right, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //}
 
-    //BOTTOM
-    if (y > 0){
-        c2 = c - CHUNK_LAYER;
-        blockID = ch->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
+    ////BOTTOM
+    //if (y > 0){
+    //    c2 = c - CHUNK_LAYER;
+    //    blockID = ch->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
 
-            ch->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    } else if (ch->bottom && ch->bottom->isAccessible){
-        c2 = c + CHUNK_SIZE - CHUNK_LAYER;
-        blockID = ch->bottom->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch->bottom, c2, 1);
+    //        ch->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //} else if (ch->bottom && ch->bottom->isAccessible){
+    //    c2 = c + CHUNK_SIZE - CHUNK_LAYER;
+    //    blockID = ch->bottom->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch->bottom, c2, 1);
 
-            ch->bottom->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->bottom, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->bottom, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    }
+    //        ch->bottom->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->bottom, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->bottom, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //}
 
-    //TOP
-    if (y < 31){
-        c2 = c + CHUNK_LAYER;
-        blockID = ch->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
+    ////TOP
+    //if (y < 31){
+    //    c2 = c + CHUNK_LAYER;
+    //    blockID = ch->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
 
-            ch->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    } else if (ch->top && ch->top->isAccessible){
-        c2 = c - CHUNK_SIZE + CHUNK_LAYER;
-        blockID = ch->top->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch->top, c2, 1);
+    //        ch->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //} else if (ch->top && ch->top->isAccessible){
+    //    c2 = c - CHUNK_SIZE + CHUNK_LAYER;
+    //    blockID = ch->top->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch->top, c2, 1);
 
-            ch->top->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->top, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->top, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    }
+    //        ch->top->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->top, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->top, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //}
 
-    //BACK
-    if (z > 0){
-        c2 = c - CHUNK_WIDTH;
-        blockID = ch->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
+    ////BACK
+    //if (z > 0){
+    //    c2 = c - CHUNK_WIDTH;
+    //    blockID = ch->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
 
-            ch->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    } else if (ch->back && ch->back->isAccessible){
-        c2 = c + CHUNK_LAYER - CHUNK_WIDTH;
-        blockID = ch->back->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch->back, c2, 1);
+    //        ch->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //} else if (ch->back && ch->back->isAccessible){
+    //    c2 = c + CHUNK_LAYER - CHUNK_WIDTH;
+    //    blockID = ch->back->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch->back, c2, 1);
 
-            ch->back->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->back, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->back, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    }
+    //        ch->back->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->back, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->back, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //}
 
-    //FRONT
-    if (z < 31){
-        c2 = c + CHUNK_WIDTH;
-        blockID = ch->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
+    ////FRONT
+    //if (z < 31){
+    //    c2 = c + CHUNK_WIDTH;
+    //    blockID = ch->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch, c2, 1);
 
-            ch->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    } else if (ch->front && ch->front->isAccessible){
-        c2 = c - CHUNK_LAYER + CHUNK_WIDTH;
-        blockID = ch->front->getBlockID(c2);
-        if (blockID != VISITED_NODE){
-            Block &block = GETBLOCK(blockID);
-            if (blockID != NONE) ChunkUpdater::removeBlock(ch->front, c2, 1);
+    //        ch->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //} else if (ch->front && ch->front->isAccessible){
+    //    c2 = c - CHUNK_LAYER + CHUNK_WIDTH;
+    //    blockID = ch->front->getBlockID(c2);
+    //    if (blockID != VISITED_NODE){
+    //        Block &block = GETBLOCK(blockID);
+    //        if (blockID != NONE) ChunkUpdater::removeBlock(ch->front, c2, 1);
 
-            ch->front->setBlockID(c2, VISITED_NODE);
-            if (block.explosivePower != 0){
-                ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
-                _explosionsList.push_back(newExplosion);
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->front, c2, force - block.explosionResistance, newExplosion));
-            } else{
-                if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->front, c2, force - block.explosionResistance, explosionInfo));
-            }
-        }
-    }
+    //        ch->front->setBlockID(c2, VISITED_NODE);
+    //        if (block.explosivePower != 0){
+    //            ExplosionInfo *newExplosion = new ExplosionInfo(worldSpaceCoords, currForce + 10000.0f);
+    //            _explosionsList.push_back(newExplosion);
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->front, c2, force - block.explosionResistance, newExplosion));
+    //        } else{
+    //            if (currForce > block.explosionResistance) _pressureNodes.push_back(PressureNode(ch->front, c2, force - block.explosionResistance, explosionInfo));
+    //        }
+    //    }
+    //}
 
-    //water pressure attempt (not working)
-    /*if (ch->GetLeftBlock(c, x, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 0));
+    ////water pressure attempt (not working)
+    ///*if (ch->GetLeftBlock(c, x, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 0));
 
-    if (ch->GetRightBlock(c, x, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 1));
+    //if (ch->GetRightBlock(c, x, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 1));
 
-    if (ch->GetTopBlock(c, y, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 2));
+    //if (ch->GetTopBlock(c, y, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 2));
 
-    if (ch->GetBottomBlock(c, y, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 3));
+    //if (ch->GetBottomBlock(c, y, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 3));
 
-    if (ch->GetFrontBlock(c, z, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 4));
+    //if (ch->GetFrontBlock(c, z, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 4));
 
-    if (ch->GetBackBlock(c, z, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 5));*/
+    //if (ch->GetBackBlock(c, z, &c2, &owner) != VISITED_NODE) pressureNodes.push(PressureNode(owner, c2, force, 5));*/
 
 
 }
@@ -416,6 +416,7 @@ void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, con
     const float maxDistance = 10;
 
     Chunk* currentChunk;
+    Chunk* lockedChunk = nullptr;
 
     // A minimum chunk position for determining voxel coords using only positive numbers
     i32v3 relativeChunkSpot = GameManager::chunkManager->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
@@ -435,7 +436,7 @@ void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, con
             i32 voxelIndex = relativeLocation.x % CHUNK_WIDTH + (relativeLocation.y % CHUNK_WIDTH) * CHUNK_LAYER + (relativeLocation.z % CHUNK_WIDTH) * CHUNK_WIDTH;
 
             // Get Block ID
-            i32 blockID = currentChunk->getBlockID(voxelIndex);
+            i32 blockID = currentChunk->getBlockIDSafe(lockedChunk, voxelIndex);
 
             // Check For The Block ID
             if (blockID && (blockID < LOWWATER)) {
@@ -443,10 +444,12 @@ void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, con
                 force -= Blocks[blockID].explosionResistance;
 
                 // If the ray is out of force, return.
-                if (force < 0.0f) return;
-
+                if (force < 0.0f) {
+                    if (lockedChunk) lockedChunk->unlock();
+                    return;
+                }
                 rayToBlock = dir * vr.getDistanceTraversed();
-                ChunkUpdater::removeBlock(currentChunk, voxelIndex, 1, 0.4*force, rayToBlock);
+                ChunkUpdater::removeBlock(currentChunk, lockedChunk, voxelIndex, 1, 0.4*force, rayToBlock);
                 if (Blocks[blockID].explosivePower){
                     _deferredExplosions.push(ExplosionNode(pos + f64v3(rayToBlock), blockID));
                 }
@@ -456,6 +459,7 @@ void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, con
         // Traverse To The Next
         loc = vr.getNextVoxelPosition();
     }
+    if (lockedChunk) lockedChunk->unlock();
 }
 
 void PhysicsEngine::performExplosions()
@@ -480,268 +484,268 @@ void PhysicsEngine::performExplosions()
 
 void PhysicsEngine::detectFloatingBlocks(const glm::dvec3 &viewDir)
 {
-    int detectFloatingSize = 0;
-    glm::vec3 explosionDir;
-    for (Uint32 ni = 0; ni < _fallingCheckNodes.size(); ni++){ //allocate only enough time per frame.
-        if (detectFloatingSize >= F_NODES_MAX_SIZE - MAX_SEARCH_LENGTH){
-            for (int i = 0; i < MAX_SEARCH_LENGTH; i++){
-                _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].ch->setBlockID(_fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].c, _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].blockType);
-            }
-            detectFloatingSize -= MAX_SEARCH_LENGTH;
-        }
+    //int detectFloatingSize = 0;
+    //glm::vec3 explosionDir;
+    //for (Uint32 ni = 0; ni < _fallingCheckNodes.size(); ni++){ //allocate only enough time per frame.
+    //    if (detectFloatingSize >= F_NODES_MAX_SIZE - MAX_SEARCH_LENGTH){
+    //        for (int i = 0; i < MAX_SEARCH_LENGTH; i++){
+    //            _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].ch->setBlockID(_fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].c, _fnodes[detectFloatingSize - MAX_SEARCH_LENGTH + i].blockType);
+    //        }
+    //        detectFloatingSize -= MAX_SEARCH_LENGTH;
+    //    }
 
-        detectFloating(&_fallingCheckNodes[ni], detectFloatingSize, viewDir, MAX_SEARCH_LENGTH);
-    }
+    //    detectFloating(&_fallingCheckNodes[ni], detectFloatingSize, viewDir, MAX_SEARCH_LENGTH);
+    //}
 
-    _fallingCheckNodes.clear();
-    restoreDetectFloatingBlocks(detectFloatingSize);
+    //_fallingCheckNodes.clear();
+    //restoreDetectFloatingBlocks(detectFloatingSize);
 }
 
 //TODO: Refactor the crap out of this. Tell Ben to change this before you try reading it.
 void PhysicsEngine::detectFloating(FallingCheckNode *fallNode, int &start, const glm::dvec3 &viewDirection, int searchLength)
 {
-    Chunk *ch = fallNode->ch;
-    int c = fallNode->c;
-    double explosionDist = ((double)fallNode->explosionDist);
-    glm::vec3 explosionDir(0.0f);
-    glm::dvec3 explosionLoc((double)fallNode->explosionDir[0], (double)fallNode->explosionDir[1], (double)fallNode->explosionDir[2]);
-    if (explosionDist != 0){
-        searchLength /= 5;
-        explosionLoc = explosionLoc + glm::dvec3(ch->gridPosition * CHUNK_WIDTH) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH);
-    }
+    //Chunk *ch = fallNode->ch;
+    //int c = fallNode->c;
+    //double explosionDist = ((double)fallNode->explosionDist);
+    //glm::vec3 explosionDir(0.0f);
+    //glm::dvec3 explosionLoc((double)fallNode->explosionDir[0], (double)fallNode->explosionDir[1], (double)fallNode->explosionDir[2]);
+    //if (explosionDist != 0){
+    //    searchLength /= 5;
+    //    explosionLoc = explosionLoc + glm::dvec3(ch->gridPosition * CHUNK_WIDTH) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH);
+    //}
 
-    Chunk *sch = ch;
-    Chunk *chunk2;
-    GLushort blockType;
-    int n, ntree, ln;
-    int sc = c;
-    int ti;
-    int c2;
-    int startY, btype;
-    int floatingAction, nSinceWood, btypeMasked;
-    startY = ch->gridPosition.y + c / CHUNK_LAYER;
-    bool isLeaf, fall;
-    GLubyte support;
-    bool toDo[6] = { 1, 1, 1, 1, 1, 1 }; //left right front back bottom
-    glm::vec4 color;
-    glm::vec3 crs;
-    glm::vec2 right;
-    crs = glm::cross(glm::vec3(viewDirection.x, 0, viewDirection.z), glm::vec3(0.0, 1.0, 0.0));
-    //    if (exposion){
-    right = glm::normalize(glm::vec2(crs.x, crs.z));
-    floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
+    //Chunk *sch = ch;
+    //Chunk *chunk2;
+    //GLushort blockType;
+    //int n, ntree, ln;
+    //int sc = c;
+    //int ti;
+    //int c2;
+    //int startY, btype;
+    //int floatingAction, nSinceWood, btypeMasked;
+    //startY = ch->gridPosition.y + c / CHUNK_LAYER;
+    //bool isLeaf, fall;
+    //GLubyte support;
+    //bool toDo[6] = { 1, 1, 1, 1, 1, 1 }; //left right front back bottom
+    //glm::vec4 color;
+    //glm::vec3 crs;
+    //glm::vec2 right;
+    //crs = glm::cross(glm::vec3(viewDirection.x, 0, viewDirection.z), glm::vec3(0.0, 1.0, 0.0));
+    ////    if (exposion){
+    //right = glm::normalize(glm::vec2(crs.x, crs.z));
+    //floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
 
-    if (GETBLOCK(sch->getLeftBlockData(sc)).floatingAction == 0) toDo[1] = 0;
-    if (GETBLOCK(sch->getRightBlockData(sc)).floatingAction == 0) toDo[2] = 0;
-    if (GETBLOCK(sch->getFrontBlockData(sc)).floatingAction == 0) toDo[3] = 0;
-    if (GETBLOCK(sch->getBackBlockData(sc)).floatingAction == 0) toDo[4] = 0;
-    if (GETBLOCK(sch->getBottomBlockData(sc)).floatingAction == 0) toDo[5] = 0;
+    //if (GETBLOCK(sch->getLeftBlockData(sc)).floatingAction == 0) toDo[1] = 0;
+    //if (GETBLOCK(sch->getRightBlockData(sc)).floatingAction == 0) toDo[2] = 0;
+    //if (GETBLOCK(sch->getFrontBlockData(sc)).floatingAction == 0) toDo[3] = 0;
+    //if (GETBLOCK(sch->getBackBlockData(sc)).floatingAction == 0) toDo[4] = 0;
+    //if (GETBLOCK(sch->getBottomBlockData(sc)).floatingAction == 0) toDo[5] = 0;
 
-    for (ti = 0; ti < 6; ti++){
-        fall = 1;
-        n = start;
-        ntree = 0;
-        if (toDo[ti] == 0) continue;
+    //for (ti = 0; ti < 6; ti++){
+    //    fall = 1;
+    //    n = start;
+    //    ntree = 0;
+    //    if (toDo[ti] == 0) continue;
 
-        switch (ti){
-        case 0: //top
-            if (floatingAction == 1){
-                if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(sc + CHUNK_LAYER, sch, 0);
-                } else if (sch->top && sch->top->isAccessible){
-                    _fnodes[n++].setValues(sc - CHUNK_SIZE + CHUNK_LAYER, sch->top, 0);
-                }
-            } else if (floatingAction == 2){
-                if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
-                    ChunkUpdater::removeBlock(sch, sc + CHUNK_LAYER, 1);
-                } else if (sch->top && sch->top->isAccessible){
-                    ChunkUpdater::removeBlock(sch->top, sc - CHUNK_SIZE + CHUNK_LAYER, 1);
-                }
-                continue;
-            } else{
-                continue;
-            }
-            break;
-        case 1: //left
-            if (sc%CHUNK_WIDTH > 0){
-                _fnodes[n++].setValues(sc - 1, sch, 0);
-            } else if (sch->left && sch->left->isAccessible){
-                _fnodes[n++].setValues(sc + CHUNK_WIDTH - 1, sch->left, 0);
-            }
-            break;
-        case 2: //right
-            if (sc%CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                _fnodes[n++].setValues(sc + 1, sch, 0);
-            } else if (sch->right && sch->right->isAccessible){
-                _fnodes[n++].setValues(sc - CHUNK_WIDTH + 1, sch->right, 0);
-            }
-            break;
-        case 3: //front
-            if ((sc%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                _fnodes[n++].setValues(sc + CHUNK_WIDTH, sch, 0);
-            } else if (sch->front && sch->front->isAccessible){
-                _fnodes[n++].setValues(sc - CHUNK_LAYER + CHUNK_WIDTH, sch->front, 0);
-            }
-            break;
-        case 4: //back
-            if ((sc%CHUNK_LAYER) / CHUNK_WIDTH > 0){
-                _fnodes[n++].setValues(sc - CHUNK_WIDTH, sch, 0);
-            } else if (sch->back && sch->back->isAccessible){
-                _fnodes[n++].setValues(sc + CHUNK_LAYER - CHUNK_WIDTH, sch->back, 0);
-            }
-            break;
-        case 5: //bottom
-            if (sc / CHUNK_LAYER > 0){
-                _fnodes[n++].setValues(sc - CHUNK_LAYER, sch, 0);
-            } else if (sch->bottom && sch->bottom->isAccessible){
-                _fnodes[n++].setValues(sc + CHUNK_SIZE - CHUNK_LAYER, sch->bottom, 0);
-            }
-            break;
-        }
+    //    switch (ti){
+    //    case 0: //top
+    //        if (floatingAction == 1){
+    //            if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(sc + CHUNK_LAYER, sch, 0);
+    //            } else if (sch->top && sch->top->isAccessible){
+    //                _fnodes[n++].setValues(sc - CHUNK_SIZE + CHUNK_LAYER, sch->top, 0);
+    //            }
+    //        } else if (floatingAction == 2){
+    //            if (sc / CHUNK_LAYER < CHUNK_WIDTH - 1){
+    //                ChunkUpdater::removeBlock(sch, sc + CHUNK_LAYER, 1);
+    //            } else if (sch->top && sch->top->isAccessible){
+    //                ChunkUpdater::removeBlock(sch->top, sc - CHUNK_SIZE + CHUNK_LAYER, 1);
+    //            }
+    //            continue;
+    //        } else{
+    //            continue;
+    //        }
+    //        break;
+    //    case 1: //left
+    //        if (sc%CHUNK_WIDTH > 0){
+    //            _fnodes[n++].setValues(sc - 1, sch, 0);
+    //        } else if (sch->left && sch->left->isAccessible){
+    //            _fnodes[n++].setValues(sc + CHUNK_WIDTH - 1, sch->left, 0);
+    //        }
+    //        break;
+    //    case 2: //right
+    //        if (sc%CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //            _fnodes[n++].setValues(sc + 1, sch, 0);
+    //        } else if (sch->right && sch->right->isAccessible){
+    //            _fnodes[n++].setValues(sc - CHUNK_WIDTH + 1, sch->right, 0);
+    //        }
+    //        break;
+    //    case 3: //front
+    //        if ((sc%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //            _fnodes[n++].setValues(sc + CHUNK_WIDTH, sch, 0);
+    //        } else if (sch->front && sch->front->isAccessible){
+    //            _fnodes[n++].setValues(sc - CHUNK_LAYER + CHUNK_WIDTH, sch->front, 0);
+    //        }
+    //        break;
+    //    case 4: //back
+    //        if ((sc%CHUNK_LAYER) / CHUNK_WIDTH > 0){
+    //            _fnodes[n++].setValues(sc - CHUNK_WIDTH, sch, 0);
+    //        } else if (sch->back && sch->back->isAccessible){
+    //            _fnodes[n++].setValues(sc + CHUNK_LAYER - CHUNK_WIDTH, sch->back, 0);
+    //        }
+    //        break;
+    //    case 5: //bottom
+    //        if (sc / CHUNK_LAYER > 0){
+    //            _fnodes[n++].setValues(sc - CHUNK_LAYER, sch, 0);
+    //        } else if (sch->bottom && sch->bottom->isAccessible){
+    //            _fnodes[n++].setValues(sc + CHUNK_SIZE - CHUNK_LAYER, sch->bottom, 0);
+    //        }
+    //        break;
+    //    }
 
-        ln = start + 1;
-        if (start == n) fall = 0;
-        for (int i = start; i < n; i++){
-            c = _fnodes[i].c;
-            ch = _fnodes[i].ch;
-            btype = _fnodes[i].blockType;
-            btypeMasked = GETBLOCKTYPE(btype);
-            support = Blocks[btype].isSupportive;
-            nSinceWood = _fnodes[i].nSinceWood;
-            //if (nSinceWood > MAXLEAFRADIUS) continue;                   REMOVED 
-            if (!support && nSinceWood) nSinceWood++;
-            if (btypeMasked == WOOD){
-                nSinceWood = 1;
-                ntree++;
-                isLeaf = 0;
-            } else if (btypeMasked == LEAVES1 || btypeMasked == LEAVES2){
-                ntree++;
-                isLeaf = 1;
-            } else{
-                isLeaf = 0;
-            }
+    //    ln = start + 1;
+    //    if (start == n) fall = 0;
+    //    for (int i = start; i < n; i++){
+    //        c = _fnodes[i].c;
+    //        ch = _fnodes[i].ch;
+    //        btype = _fnodes[i].blockType;
+    //        btypeMasked = GETBLOCKID(btype);
+    //        support = Blocks[btype].isSupportive;
+    //        nSinceWood = _fnodes[i].nSinceWood;
+    //        //if (nSinceWood > MAXLEAFRADIUS) continue;                   REMOVED 
+    //        if (!support && nSinceWood) nSinceWood++;
+    //        if (btypeMasked == WOOD){
+    //            nSinceWood = 1;
+    //            ntree++;
+    //            isLeaf = 0;
+    //        } else if (btypeMasked == LEAVES1 || btypeMasked == LEAVES2){
+    //            ntree++;
+    //            isLeaf = 1;
+    //        } else{
+    //            isLeaf = 0;
+    //        }
 
-            floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
-            if (nSinceWood && !support && GETBLOCK(blockType).isSupportive){ ch->setBlockID(c, btype); continue; }//belongs to another tree!
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(c + CHUNK_LAYER, ch, nSinceWood);
-                } else if (ch->top && ch->top->isAccessible){
-                    _fnodes[n++].setValues(c - CHUNK_SIZE + CHUNK_LAYER, ch->top, nSinceWood);
-                }
-            }
-
-
-            floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getLeftBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c%CHUNK_WIDTH > 0){
-                    _fnodes[n++].setValues(c - 1, ch, nSinceWood);
-                } else if (ch->left && ch->left->isAccessible){
-                    _fnodes[n++].setValues(c + CHUNK_WIDTH - 1, ch->left, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getRightBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c%CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(c + 1, ch, nSinceWood);
-                } else if (ch->right && ch->right->isAccessible){
-                    _fnodes[n++].setValues(c - CHUNK_WIDTH + 1, ch->right, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getFrontBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if ((c%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
-                    _fnodes[n++].setValues(c + CHUNK_WIDTH, ch, nSinceWood);
-                } else if (ch->front && ch->front->isAccessible){
-                    _fnodes[n++].setValues(c - CHUNK_LAYER + CHUNK_WIDTH, ch->front, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getBackBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if ((c%CHUNK_LAYER) / CHUNK_WIDTH > 0){
-                    _fnodes[n++].setValues(c - CHUNK_WIDTH, ch, nSinceWood);
-                } else if (ch->back && ch->back->isAccessible){
-                    _fnodes[n++].setValues(c + CHUNK_LAYER - CHUNK_WIDTH, ch->back, nSinceWood);
-                }
-            }
-
-            floatingAction = Blocks[GETBLOCKTYPE((blockType = ch->getBottomBlockData(c)))].floatingAction;
-            if (nSinceWood && !support && Blocks[GETBLOCKTYPE(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
-            if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKTYPE(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
-                if (c / CHUNK_LAYER > 0){
-                    _fnodes[n++].setValues(c - CHUNK_LAYER, ch, nSinceWood);
-                } else if (ch->bottom && ch->bottom->isAccessible){
-                    _fnodes[n++].setValues(c + CHUNK_SIZE - CHUNK_LAYER, ch->bottom, nSinceWood);
-                }
-            }
-            ln = n;
-            if (n >= start + searchLength){
-                fall = 0;
-                //GET BLOCK RETURNS -1 ON FAILURE COULD CRASH
-                if (GETBLOCKTYPE(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
-                if (GETBLOCKTYPE(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
-                if (GETBLOCKTYPE(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
-                if (GETBLOCKTYPE(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
-                if (GETBLOCKTYPE(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
-                start = n;
-                //for (int j = 0; j < n; j++){
-                //    fnodes[j].ch->data[fnodes[j].c] = fnodes[j].blockType;
-                //}
-                break;
-            }
-        }
-
-        if (fall){
-            if (GETBLOCKTYPE(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
-            if (GETBLOCKTYPE(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
-            if (GETBLOCKTYPE(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
-            if (GETBLOCKTYPE(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
-            if (GETBLOCKTYPE(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
+    //        floatingAction = GETBLOCK((blockType = ch->getTopBlockData(c))).floatingAction;
+    //        if (nSinceWood && !support && GETBLOCK(blockType).isSupportive){ ch->setBlockID(c, btype); continue; }//belongs to another tree!
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c / CHUNK_LAYER < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(c + CHUNK_LAYER, ch, nSinceWood);
+    //            } else if (ch->top && ch->top->isAccessible){
+    //                _fnodes[n++].setValues(c - CHUNK_SIZE + CHUNK_LAYER, ch->top, nSinceWood);
+    //            }
+    //        }
 
 
-            if ((float)ntree / (float)(n - start) < 0.7f) right = glm::vec2(0.0f);
-            //make those blocks fall
-            for (int i = n - 1; i >= start; i--){
-                blockType = GETBLOCKTYPE(_fnodes[i].blockType);
-                Block &block = Blocks[blockType];
-                ch = _fnodes[i].ch;
-                c = _fnodes[i].c;
-                if (GETBLOCK(ch->getTopBlockData(c, c / CHUNK_LAYER, &c2, &chunk2)).floatingAction == 2){
-                    ChunkUpdater::removeBlock(chunk2, c2, 1);
-                }
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getLeftBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c%CHUNK_WIDTH > 0){
+    //                _fnodes[n++].setValues(c - 1, ch, nSinceWood);
+    //            } else if (ch->left && ch->left->isAccessible){
+    //                _fnodes[n++].setValues(c + CHUNK_WIDTH - 1, ch->left, nSinceWood);
+    //            }
+    //        }
 
-                if (explosionDist != 0){
-                    explosionDir = glm::vec3((glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH)) - explosionLoc);
-                }
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getRightBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c%CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(c + 1, ch, nSinceWood);
+    //            } else if (ch->right && ch->right->isAccessible){
+    //                _fnodes[n++].setValues(c - CHUNK_WIDTH + 1, ch->right, nSinceWood);
+    //            }
+    //        }
 
-                int y = c / CHUNK_LAYER;
-                int xz = c - y*CHUNK_LAYER;
-                int ydiff = startY - (ch->gridPosition.y + c / CHUNK_LAYER);
-                if (ydiff > 0) ydiff = 0;
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getFrontBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if ((c%CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1){
+    //                _fnodes[n++].setValues(c + CHUNK_WIDTH, ch, nSinceWood);
+    //            } else if (ch->front && ch->front->isAccessible){
+    //                _fnodes[n++].setValues(c - CHUNK_LAYER + CHUNK_WIDTH, ch->front, nSinceWood);
+    //            }
+    //        }
 
-                //TODO: BAD! Make this a script
-                if (blockType != FIRE) addPhysicsBlock(glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH + 0.5, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _fnodes[i].blockType, ydiff, right, explosionDir, ch->getTemperature(xz), ch->getRainfall(xz));
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getBackBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if ((c%CHUNK_LAYER) / CHUNK_WIDTH > 0){
+    //                _fnodes[n++].setValues(c - CHUNK_WIDTH, ch, nSinceWood);
+    //            } else if (ch->back && ch->back->isAccessible){
+    //                _fnodes[n++].setValues(c + CHUNK_LAYER - CHUNK_WIDTH, ch->back, nSinceWood);
+    //            }
+    //        }
 
-                ch->setBlockData(c, blockType); //so that removeBlock functions correctly
-                ChunkUpdater::removeBlock(ch, c, false);
-            }
-        }
-    }
+    //        floatingAction = Blocks[GETBLOCKID((blockType = ch->getBottomBlockData(c)))].floatingAction;
+    //        if (nSinceWood && !support && Blocks[GETBLOCKID(blockType)].isSupportive){ while (n > ln){ _fnodes[--n].ch->setBlockID(_fnodes[n].c, _fnodes[n].blockType); } ch->setBlockID(c, btype); continue; }
+    //        if ((nSinceWood == 0 || !isLeaf || ((GETBLOCKID(blockType)) != LEAVES1) || blockType == btype) && floatingAction == 1){
+    //            if (c / CHUNK_LAYER > 0){
+    //                _fnodes[n++].setValues(c - CHUNK_LAYER, ch, nSinceWood);
+    //            } else if (ch->bottom && ch->bottom->isAccessible){
+    //                _fnodes[n++].setValues(c + CHUNK_SIZE - CHUNK_LAYER, ch->bottom, nSinceWood);
+    //            }
+    //        }
+    //        ln = n;
+    //        if (n >= start + searchLength){
+    //            fall = 0;
+    //            //GET BLOCK RETURNS -1 ON FAILURE COULD CRASH
+    //            if (GETBLOCKID(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
+    //            if (GETBLOCKID(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
+    //            if (GETBLOCKID(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
+    //            if (GETBLOCKID(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
+    //            if (GETBLOCKID(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
+    //            start = n;
+    //            //for (int j = 0; j < n; j++){
+    //            //    fnodes[j].ch->data[fnodes[j].c] = fnodes[j].blockType;
+    //            //}
+    //            break;
+    //        }
+    //    }
+
+    //    if (fall){
+    //        if (GETBLOCKID(sch->getLeftBlockData(sc)) == NONE) toDo[1] = 0;
+    //        if (GETBLOCKID(sch->getRightBlockData(sc)) == NONE) toDo[2] = 0;
+    //        if (GETBLOCKID(sch->getFrontBlockData(sc)) == NONE) toDo[3] = 0;
+    //        if (GETBLOCKID(sch->getBackBlockData(sc)) == NONE) toDo[4] = 0;
+    //        if (GETBLOCKID(sch->getBottomBlockData(sc)) == NONE) toDo[5] = 0;
+
+
+    //        if ((float)ntree / (float)(n - start) < 0.7f) right = glm::vec2(0.0f);
+    //        //make those blocks fall
+    //        for (int i = n - 1; i >= start; i--){
+    //            blockType = GETBLOCKID(_fnodes[i].blockType);
+    //            Block &block = Blocks[blockType];
+    //            ch = _fnodes[i].ch;
+    //            c = _fnodes[i].c;
+    //            if (GETBLOCK(ch->getTopBlockData(c, c / CHUNK_LAYER, &c2, &chunk2)).floatingAction == 2){
+    //                ChunkUpdater::removeBlock(chunk2, c2, 1);
+    //            }
+
+    //            if (explosionDist != 0){
+    //                explosionDir = glm::vec3((glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH)) - explosionLoc);
+    //            }
+
+    //            int y = c / CHUNK_LAYER;
+    //            int xz = c - y*CHUNK_LAYER;
+    //            int ydiff = startY - (ch->gridPosition.y + c / CHUNK_LAYER);
+    //            if (ydiff > 0) ydiff = 0;
+
+    //            //TODO: BAD! Make this a script
+    //            if (blockType != FIRE) addPhysicsBlock(glm::dvec3(ch->gridPosition) + glm::dvec3(c%CHUNK_WIDTH + 0.5, c / CHUNK_LAYER, (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5), _fnodes[i].blockType, ydiff, right, explosionDir, ch->getTemperature(xz), ch->getRainfall(xz));
+
+    //            ch->setBlockData(c, blockType); //so that removeBlock functions correctly
+    //            ChunkUpdater::removeBlock(ch, c, false);
+    //        }
+    //    }
+    //}
 }
 
 void PhysicsEngine::restoreDetectFloatingBlocks(int &size)
 {
-    for (int i = 0; i < size; i++){
+  /*  for (int i = 0; i < size; i++){
         _fnodes[i].ch->setBlockID(_fnodes[i].c, _fnodes[i].blockType);
     }
-    size = 0;
+    size = 0;*/
 }
 
 void PhysicsEngine::addPhysicsBlock(const glm::dvec3 &pos, int blockType) {
@@ -781,8 +785,8 @@ FallingCheckNode::FallingCheckNode(Chunk *chk, GLushort C, GLbyte expNx, GLbyte 
 
 void FallingNode::setValues(GLushort C, Chunk *Ch, int nsw){
     c = C;
-    ch = Ch;
-    blockType = ch->getBlockData(c);
-    ch->setBlockID(c, NONE); //set the actual block to none for now
-    nSinceWood = nsw;
+    //ch = Ch;
+    //blockType = ch->getBlockData(c);
+    //ch->setBlockID(c, NONE); //set the actual block to none for now
+    //nSinceWood = nsw;
 }

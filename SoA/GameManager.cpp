@@ -42,7 +42,6 @@ Uint32 GameManager::maxLodTicks = 8;
 VoxelWorld *GameManager::voxelWorld = nullptr;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 PhysicsEngine *GameManager::physicsEngine = nullptr;
-CAEngine *GameManager::caEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
 ChunkManager *GameManager::chunkManager = nullptr;
 InputManager *GameManager::inputManager = nullptr;
@@ -57,7 +56,7 @@ vg::TextureCache* GameManager::textureCache = nullptr;
 TerrainGenerator* GameManager::terrainGenerator = nullptr;
 
 Player *GameManager::player;
-vector <Marker> GameManager::markers;
+std::vector <Marker> GameManager::markers;
 Planet *GameManager::planet = nullptr;
 nString GameManager::saveFilePath = "";
 GameStates GameManager::gameState = GameStates::MAINMENU;
@@ -67,7 +66,6 @@ void GameManager::initializeSystems() {
         voxelWorld = new VoxelWorld();
         voxelEditor = new VoxelEditor();
         physicsEngine = new PhysicsEngine();
-        caEngine = new CAEngine();
         soundEngine = new SoundEngine();
         chunkManager = &voxelWorld->getChunkManager();
         chunkIOManager = new ChunkIOManager();
@@ -153,18 +151,18 @@ void GameManager::savePlayerState() {
     fileManager.savePlayerFile(player);
 }
 
-int GameManager::newGame(string saveName) {
-    string dirPath = "Saves/";
+int GameManager::newGame(nString saveName) {
+    nString dirPath = "Saves/";
 
     for (size_t i = 0; i < saveName.size(); i++) {
         if (!((saveName[i] >= '0' && saveName[i] <= '9') || (saveName[i] >= 'a' && saveName[i] <= 'z') || (saveName[i] >= 'A' && saveName[i] <= 'Z') || (saveName[i] == ' ') || (saveName[i] == '_'))) {
             return 1;
         }
     }
-    cout << "CREATING " << saveName << endl;
-
+    std::cout << "CREATING " << saveName << std::endl;
+    // TODO: Boost
     if (_mkdir(dirPath.c_str()) == 0){ //Create the save directory if it's not there. Will fail if it is, but that's ok. Should probably be in CreateSaveFile.
-        cout << "Save directory " + dirPath + " did not exist and was created!" << endl;
+        std::cout << "Save directory " + dirPath + " did not exist and was created!" << std::endl;
     }
 
     int rv = fileManager.createSaveFile(dirPath + saveName);
@@ -177,20 +175,20 @@ int GameManager::newGame(string saveName) {
     return rv;
 }
 
-int GameManager::loadGame(string saveName) {
-    cout << "LOADING " << saveName << endl;
+int GameManager::loadGame(nString saveName) {
+    std::cout << "LOADING " << saveName << std::endl;
 
     //SaveFileInput(); //get the save file for the game
 
-    string dirPath = "Saves/";
+    nString dirPath = "Saves/";
     fileManager.makeSaveDirectories(dirPath + saveName);
     if (fileManager.setSaveFile(dirPath + saveName) != 0) {
-        cout << "Could not set save file.\n";
+        std::cout << "Could not set save file.\n";
         return 1;
     }
-    string planetName = fileManager.getWorldString(dirPath + saveName + "/World/");
+    nString planetName = fileManager.getWorldString(dirPath + saveName + "/World/");
     if (planetName == "") {
-        cout << "NO PLANET NAME";
+        std::cout << "NO PLANET NAME";
         return 1;
     }
 
@@ -201,7 +199,7 @@ int GameManager::loadGame(string saveName) {
 }
 
 void BindVBOIndicesID() {
-    vector<GLuint> indices;
+    std::vector<GLuint> indices;
     indices.resize(589824);
 
     int j = 0;
@@ -225,7 +223,7 @@ void BindVBOIndicesID() {
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-void GameManager::loadPlanet(string filePath) {
+void GameManager::loadPlanet(nString filePath) {
     //DrawLoadingScreen("Initializing planet...");
     if (planet) {
         delete planet;
@@ -313,7 +311,7 @@ void GameManager::update() {
                 }
             }
 
-            voxelWorld->update(player->headPosition, glm::dvec3(player->chunkDirection()));
+            voxelWorld->update(&player->getChunkCamera());
 
             if (inputManager->getKey(INPUT_BLOCK_SCANNER)) {
                 player->scannedBlock = voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(player->chunkDirection()), player->headPosition);
@@ -348,21 +346,7 @@ void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
     planet->updateLODs(worldPosition, maxTicks);
 }
 
-void GameManager::drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet) {
-
-    GameManager::planet->draw(0, VP, V, lightPos, worldPos, ambVal, fadeDist, connectedToPlanet);
-
-    if (connectedToPlanet) {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(lightPos, 1.0)), worldPos);
-    } else {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, lightPos, worldPos);
-    }
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-    GameManager::planet->drawTrees(VP, worldPos, ambVal);
-}
-
-void GameManager::addMarker(glm::dvec3 pos, string name, glm::vec3 color) {
+void GameManager::addMarker(glm::dvec3 pos, nString name, glm::vec3 color) {
     markers.push_back(Marker(pos, name, color));
     markers.back().num = markers.size() - 1;
 }

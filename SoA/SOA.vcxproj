@@ -55,7 +55,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -88,7 +88,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -119,10 +119,12 @@
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="BlockTextureMethods.h" />
+    <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="concurrentqueue.h" />
     <ClInclude Include="Event.hpp" />
+    <ClInclude Include="FloraTask.h" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
@@ -135,6 +137,7 @@
     <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GLRenderTarget.h" />
     <ClInclude Include="GpuMemory.h" />
+    <ClInclude Include="gtypes.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="BlockLoader.h" />
@@ -238,6 +241,7 @@
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="WSO.h" />
@@ -296,12 +300,14 @@
     <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
+    <ClCompile Include="CellularAutomataTask.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="ECS.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FullQuadVBO.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />

@@ -216,7 +216,7 @@ void GamePlayRenderPipeline::loadNightVision() {
         YAML::Node node = YAML::Load(nvData);
         Keg::Value v = Keg::Value::array(0, Keg::Value::custom("NightVisionRenderParams", 0, false));
         Keg::evalData((ui8*)&arr, &v, node, Keg::getGlobalEnvironment());
-        for (i32 i = 0; i < arr.length(); i++) {
+        for (i32 i = 0; i < arr.getLength(); i++) {
             _nvParams.push_back(arr[i]);
         }
         delete[] nvData;

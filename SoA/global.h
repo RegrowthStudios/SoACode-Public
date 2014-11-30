@@ -6,15 +6,13 @@
 
 #include "WorldStructs.h"
 
-void printVec(string desc, glm::vec3 vec);
-void printVec(string desc, glm::vec4 vec);
-void printVec(string desc, glm::dvec3 vec);
+void printVec(nString desc, f32v3 vec);
+void printVec(nString desc, f32v4 vec);
+void printVec(nString desc, f64v3 vec);
 
 extern glm::mat4 GlobalModelMatrix;
 
 extern Biome blankBiome;
-
-using namespace std;
 
 #if defined(WIN32) || defined(WIN64)
 extern HGLRC mainHGLRC;
@@ -72,7 +70,7 @@ extern GLushort boxDrawIndices[6];
 extern GLfloat boxUVs[8];
 
 //config settings
-extern string config_NoiseFileName;
+extern nString config_NoiseFileName;
 
 extern float physSpeedFactor;
 extern float glSpeedFactor;
@@ -80,7 +78,7 @@ extern float maxPhysicsFps;
 extern bool isWaterUpdating;
 extern bool isFancyTrees;
 
-extern mutex mainContextLock;
+extern std::mutex mainContextLock;
 extern void * mainOpenGLContext;
 
 extern bool MouseButtons[10];

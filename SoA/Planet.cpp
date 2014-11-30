@@ -6,6 +6,7 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include "Camera.h"
 #include "DepthState.h"
 #include "FileSystem.h"
 #include "GameManager.h"
@@ -16,8 +17,8 @@
 #include "RasterizerState.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
-#include "TexturePackLoader.h"
 #include "TerrainPatch.h"
+#include "TexturePackLoader.h"
 
 
 ObjectLoader objectLoader;
@@ -75,7 +76,7 @@ void Planet::clearMeshes()
     }
 }
 
-void Planet::initialize(string filePath)
+void Planet::initialize(nString filePath)
 {
     #define MAP_WIDTH 256
     #define DEFAULT_RADIUS 1000000
@@ -137,8 +138,8 @@ void Planet::initializeTerrain(const glm::dvec3 &startPosition)
     if (width%2 == 0){ // must be odd
         width++;
     }
-    cout << "RADIUS " << radius << " Width " << width << endl;
-    cout << "XYZ " << solarX << " " << solarY << " " << solarZ << endl;
+    std::cout << "RADIUS " << radius << " Width " << width << std::endl;
+    std::cout << "XYZ " << solarX << " " << solarY << " " << solarZ << std::endl;
 
     int centerX = 0;
     int centerY = 0 + scaledRadius;
@@ -265,7 +266,7 @@ void Planet::initializeTerrain(const glm::dvec3 &startPosition)
     }
 }
 
-void Planet::loadData(string filePath, bool ignoreBiomes)
+void Planet::loadData(nString filePath, bool ignoreBiomes)
 {    
 
     loadProperties(filePath + "properties.ini");
@@ -316,7 +317,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     GLubyte buffer[MAP_WIDTH * MAP_WIDTH][3];
     if (!ignoreBiomes){
         glActiveTexture(GL_TEXTURE8);
-        glBindTexture(GL_TEXTURE_2D, GameManager::planet->biomeMapTexture.ID);
+        glBindTexture(GL_TEXTURE_2D, GameManager::planet->biomeMapTexture.id);
         
         glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
 
@@ -336,7 +337,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     ColorRGB8* waterMap = GameManager::texturePackLoader->getColorMap("water");
 
     //color map!
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->colorMapTexture.id);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
     for (int y = 0; y < MAP_WIDTH; y++){
         for (int x = 0; x < MAP_WIDTH; x++) {
@@ -346,7 +347,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         }
     }
 
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->waterColorMapTexture.id);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, buffer);
     for (int y = 0; y < MAP_WIDTH; y++){
         for (int x = 0; x < MAP_WIDTH; x++) {
@@ -358,15 +359,15 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
     
 }
 
-void Planet::saveProperties(string filePath)
+void Planet::saveProperties(nString filePath)
 {
-    vector <vector <IniValue> > iniValues;
-    vector <string> iniSections;
+    std::vector <std::vector <IniValue> > iniValues;
+    std::vector <nString> iniSections;
 
     iniSections.push_back("");
-    iniValues.push_back(vector<IniValue>());
+    iniValues.push_back(std::vector<IniValue>());
     iniSections.push_back("Properties");
-    iniValues.push_back(vector<IniValue>());
+    iniValues.push_back(std::vector<IniValue>());
     iniValues.back().push_back(IniValue("x", 0));
     iniValues.back().push_back(IniValue("y", 0));
     iniValues.back().push_back(IniValue("z", 0));
@@ -375,7 +376,7 @@ void Planet::saveProperties(string filePath)
     iniValues.back().push_back(IniValue("density", density));
     iniValues.back().push_back(IniValue("axialTilt", axialZTilt));
     iniSections.push_back("Climate");
-    iniValues.push_back(vector<IniValue>());
+    iniValues.push_back(std::vector<IniValue>());
     iniValues.back().push_back(IniValue("baseTemperature", baseTemperature));
     iniValues.back().push_back(IniValue("minCelsius", minCelsius));
     iniValues.back().push_back(IniValue("maxCelsius", maxCelsius));
@@ -386,10 +387,10 @@ void Planet::saveProperties(string filePath)
     fileManager.saveIniFile(filePath, iniValues, iniSections);
 }
 
-void Planet::loadProperties(string filePath)
+void Planet::loadProperties(nString filePath)
 {
-    vector < vector <IniValue> > iniValues;
-    vector <string> iniSections;
+    std::vector < std::vector <IniValue> > iniValues;
+    std::vector <nString> iniSections;
     fileManager.loadIniFile(filePath, iniValues, iniSections);
 
     int iVal;
@@ -478,27 +479,29 @@ void Planet::rotationUpdate()
     invRotationMatrix = glm::inverse(rotationMatrix);
 }
 
-void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, GLfloat sunVal, float fadeDistance, bool connectedToPlanet)
+void Planet::draw(float theta, const Camera* camera, glm::vec3 lightPos, GLfloat sunVal, float fadeDistance, bool connectedToPlanet)
 {    
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, terrainTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, terrainTexture.id);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, biomeMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, biomeMapTexture.id);
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, waterColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, waterColorMapTexture.id);
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, waterNoiseTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, waterNoiseTexture.id);
 
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, sunColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, sunColorMapTexture.id);
 
     glActiveTexture(GL_TEXTURE7);
-    glBindTexture(GL_TEXTURE_2D, colorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, colorMapTexture.id);
 
     closestTerrainPatchDistance = 999999999999.0;
+
+    const f64v3& playerPos = camera->getPosition();
 
     glm::dvec3 rotPlayerPos;
     glm::dvec3 nPlayerPos;
@@ -506,16 +509,17 @@ void Planet::draw(float theta, const glm::mat4 &VP, const glm::mat4 &V, glm::vec
     rotLightPos = glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(lightPos, 1.0));
     bool onPlanet;
     if (connectedToPlanet){
-        rotPlayerPos = PlayerPos;
-        nPlayerPos = PlayerPos;
+        rotPlayerPos = playerPos;
+        nPlayerPos = playerPos;
         onPlanet = 1;
     }else{
-        rotPlayerPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(PlayerPos, 1.0));
-        nPlayerPos = PlayerPos;
+        rotPlayerPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(playerPos, 1.0));
+        nPlayerPos = playerPos;
         onPlanet = 0;
     }
 
-    drawGround(theta, VP, rotLightPos, nPlayerPos, rotPlayerPos, onPlanet);
+    f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
+    drawGround(theta, camera, VP, rotLightPos, nPlayerPos, rotPlayerPos, fadeDistance, onPlanet);
 }
 
 void Planet::drawTrees(const glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat sunVal)
@@ -527,13 +531,13 @@ void Planet::drawTrees(const glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat
     program->enableVertexAttribArrays();
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, treeTrunkTexture1.ID);
+    glBindTexture(GL_TEXTURE_2D, treeTrunkTexture1.id);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, normalLeavesTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, normalLeavesTexture.id);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, pineLeavesTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, pineLeavesTexture.id);
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, mushroomCapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, mushroomCapTexture.id);
 
     glUniform3f(program->getUniform("worldUp"), worldUp.x, worldUp.y, worldUp.z);
     glUniform1f(program->getUniform("FadeDistance"), (GLfloat)((csGridWidth / 2) * CHUNK_WIDTH)*invPlanetScale);
@@ -550,7 +554,7 @@ void Planet::drawTrees(const glm::mat4 &VP, const glm::dvec3 &PlayerPos, GLfloat
 
 }
 
-void Planet::drawGround(float theta, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, bool onPlanet)
+void Planet::drawGround(float theta, const Camera* camera, const glm::mat4 &VP, glm::vec3 lightPos, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, float fadeDistance, bool onPlanet)
 {
     vg::GLProgram* shader = GameManager::glProgramManager->getProgram("GroundFromSpace");
     shader->use();
@@ -600,23 +604,23 @@ void Planet::drawGround(float theta, const glm::mat4 &VP, glm::vec3 lightPos, co
     const ui32& worldOffsetID = shader->getUniform("unWorld");
 
     for (size_t i = 0; i < drawList[0].size(); i++){
-        TerrainPatch::Draw(drawList[0][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[0][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[2].size(); i++){
-        TerrainPatch::Draw(drawList[2][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[2][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[4].size(); i++){
-        TerrainPatch::Draw(drawList[4][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[4][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CW);
     for (size_t i = 0; i < drawList[5].size(); i++){
-        TerrainPatch::Draw(drawList[5][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[5][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[1].size(); i++){
-        TerrainPatch::Draw(drawList[1][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[1][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     for (size_t i = 0; i < drawList[3].size(); i++){
-        TerrainPatch::Draw(drawList[3][i], PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        TerrainPatch::Draw(drawList[3][i], camera, PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
     }
     glFrontFace(GL_CCW);
 
@@ -764,7 +768,7 @@ void Planet::clearBiomes() //MEMORY LEAKS ARE ON PURPOSE. NOT MEANT FOR FINAL GA
 void Planet::addBaseBiome(Biome *baseBiome, int mapColor)
 {
     baseBiome->vecIndex = bindex++;
-    baseBiomesLookupMap.insert(make_pair(mapColor, baseBiome));
+    baseBiomesLookupMap.insert(std::make_pair(mapColor, baseBiome));
     allBiomesLookupVector.push_back(baseBiome);
 
     //biome = new Biome; //freed in chunkmanager destructor
@@ -845,7 +849,7 @@ Atmosphere::Atmosphere()
     fSamples = (float)nSamples;
 }
 
-void Atmosphere::initialize(string filePath, float PlanetRadius)
+void Atmosphere::initialize(nString filePath, float PlanetRadius)
 {
     if (filePath.empty()){
         m_Kr = 0.0025;
@@ -870,9 +874,9 @@ void Atmosphere::initialize(string filePath, float PlanetRadius)
     radius = PlanetRadius*(1.025);
     planetRadius = PlanetRadius;
 
-    cout << "Loading Objects/icosphere.obj... ";
+    std::cout << "Loading Objects/icosphere.obj... ";
     objectLoader.load("Objects/icosphere.obj", vertices, indices);
-    cout << "Done!\n";
+    std::cout << "Done!\n";
 
     glGenBuffers(1, &(vboID)); // Create the buffer ID
     glBindBuffer(GL_ARRAY_BUFFER, vboID); // Bind the buffer (vertex array data)
@@ -890,10 +894,10 @@ void Atmosphere::initialize(string filePath, float PlanetRadius)
     indices.clear();
 }
 
-void Atmosphere::loadProperties(string filePath)
+void Atmosphere::loadProperties(nString filePath)
 {
-    vector < vector <IniValue> > iniValues;
-    vector <string> iniSections;
+    std::vector < std::vector <IniValue> > iniValues;
+    std::vector <nString> iniSections;
     fileManager.loadIniFile(filePath, iniValues, iniSections);
 
     int iVal;

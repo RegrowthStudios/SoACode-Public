@@ -30,7 +30,7 @@ void PlanetRenderStage::draw() {
 
     DepthState::FULL.set();
     glBlendFunc(GL_ONE, GL_ZERO);
-    GameManager::planet->draw(0, VP, _camera->getViewMatrix(), f32v3(1.0f, 0.0f, 0.0f), _camera->getPosition(), 0.1 /*_ambientLight + 0.1*/, _camera->getNearClip() / planetScale, true /*connectedToPlanet*/);
+    GameManager::planet->draw(0, _camera, f32v3(1.0f, 0.0f, 0.0f), 0.1 /*_ambientLight + 0.1*/, _camera->getNearClip() / planetScale, true /*connectedToPlanet*/);
 
     DepthState::READ.set();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);

@@ -25,7 +25,7 @@ namespace vorb{
 
 //Namespace aliases
 namespace vcore = vorb::core;
-namespace vvoxel = vorb::voxel;
+namespace vvox = vorb::voxel;
 namespace vg = vorb::core::graphics;
 namespace vui = vorb::ui;
 

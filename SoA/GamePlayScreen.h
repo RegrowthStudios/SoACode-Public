@@ -20,6 +20,7 @@
 
 #include "AwesomiumInterface.h"
 #include "MainMenuAPI.h"
+#include "MessageManager.h"
 #include "Random.h"
 #include "LoadMonitor.h"
 #include "PDA.h"
@@ -132,6 +133,9 @@ private:
     IDelegate<ui32>* _onNightVisionToggle;
     IDelegate<ui32>* _onNightVisionReload;
     GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
+
+    #define MESSAGES_PER_FRAME 300
+    Message messageBuffer[MESSAGES_PER_FRAME];
 };
 
 #endif // GAMEPLAYSCREEN_H_

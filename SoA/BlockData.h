@@ -3,12 +3,13 @@
 
 #include <SDL/SDL.h>
 
+#include "BlockTextureMethods.h"
+#include "CAEngine.h"
+#include "ChunkMesh.h"
 #include "Constants.h"
-#include "global.h"
 #include "Keg.h"
 #include "Rendering.h"
-#include "ChunkMesh.h"
-#include "BlockTextureMethods.h"
+#include "global.h"
 
 #define VISITED_NODE 3945
 #define LOWWATER 3946
@@ -21,7 +22,7 @@
 #define GETFLAG2(a) (((a) & 0x4000) >> 14)
 #define GETFLAG3(a) (((a) & 0x2000) >> 13)
 #define GETFLAG4(a) (((a) & 0x1000) >> 12)
-#define GETBLOCKTYPE(a) (((a) & 0x0FFF))
+#define GETBLOCKID(a) (((a) & 0x0FFF))
 #define GETBLOCK(a) ((Blocks[((a) & 0x0FFF)]))
 #define SETFLAGS(a, b) ((a) = ((a) | ((b) << 12)))
 
@@ -50,15 +51,6 @@ enum class ConnectedTextureReducedMethod {
     BOTTOM
 };
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
-
-enum PhysicsProperties {
-    P_NONE,
-    P_SOLID,
-    P_LIQUID, 
-    P_POWDER,
-    P_SNOW
-};
-KEG_ENUM_DECL(PhysicsProperties);
 
 enum class BlockOcclusion {
     NONE,
@@ -161,16 +153,13 @@ struct BlockTexture {
 };
 KEG_TYPE_DECL(BlockTexture);
 
-using namespace std;
-
-
-extern vector <int> TextureUnitIndices;
+extern std::vector <int> TextureUnitIndices;
 
 const int numBlocks = 4096;
 
-extern vector <class Block> Blocks;
+extern std::vector <class Block> Blocks;
 
-extern vector <int> TextureUnitIndices;
+extern std::vector <int> TextureUnitIndices;
 
 //TODO: KILL ALL OF THIS CRAP
 
@@ -195,8 +184,6 @@ enum BlocksMushroom { BLUEMUSHROOMBLOCK = 96, PURPLEMUSHROOMBLOCK, LAMELLABLOCK,
 enum BlocksStones { SANDSTONE = 64, SHALE, LIMESTONE, GRAVEL, BASALT, SLATE, GNEISS, GRANITE, MARBLE, REDSANDSTONE = 75};
 
 enum BlockTextures1{ T_DIRT, T_DIRTGRASS, T_GRASS, T_STONE , T_WATER, T_SAND, T_WOOD, T_SNOW = 12, T_ICE = 13, T_REDSAND = 21};
-
-const int physStart = 2;
 
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
 
@@ -224,10 +211,10 @@ struct BlockVariable
     int varType; //0 = int, 1 = float, 2 = byte
     int controlType; //0 = slider, 1 = list box
     bool editorAccessible;
-    vector <string> listNames;
+    std::vector<nString> listNames;
 };
 
-extern map <string, BlockVariable> blockVariableMap;
+extern std::map<nString, BlockVariable> blockVariableMap;
 
 struct ItemDrop
 {
@@ -279,6 +266,8 @@ public:
     ui16 sinkVal;
     ui16 explosionRays;
     ui16 floraHeight = 0;
+    ui16 liquidStartID = 0;
+    ui16 liquidLevels = 0;
 
     BlockOcclusion occlude;
 
@@ -291,7 +280,9 @@ public:
     GLfloat explosionPowerLoss;
     f32v3 colorFilter;
 
-    PhysicsProperties physicsProperty;
+    int caIndex = -1;
+    CA_ALGORITHM caAlg = CA_ALGORITHM::NONE;
+    nString caFilePath = "";
 
     ColorRGB8 color;
     ColorRGB8 overlayColor;

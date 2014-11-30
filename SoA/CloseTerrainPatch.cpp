@@ -158,37 +158,37 @@ void CloseTerrainPatch::Initialize(int x, int y, int z, int wx, int wy, int wz, 
 
 void CloseTerrainPatch::Draw(glm::dvec3 &PlayerPos, glm::dvec3 &rotPlayerPos, glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
 {
-    if (indexSize){
-        if (distance < closestTerrainPatchDistance) closestTerrainPatchDistance = distance;
-        if (SphereInFrustum((float)(boundingBox.x / 2 - rotPlayerPos.x), (float)(boundingBox.y / 2 - rotPlayerPos.y), (float)(boundingBox.z / 2 - rotPlayerPos.z), (float)cullRadius, worldFrustum)){
-
-            glm::mat4 MVP;
-
-            GlobalModelMatrix[3][0] = ((float)((double)X - PlayerPos.x));
-            GlobalModelMatrix[3][1] = ((float)((double)Y - PlayerPos.y));
-            GlobalModelMatrix[3][2] = ((float)((double)Z - PlayerPos.z));
-            MVP = VP  * GlobalModelMatrix;
-
-            glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]); //some kind of crash here :/
-
-//            glUniform3f(worldOffsetID, drawX, drawY, drawZ);
-
-
-            //    glBindBuffer(GL_ARRAY_BUFFER, vboID);
-            //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
-
-
-            glBindVertexArray(vaoID);
-            glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
-            glBindVertexArray(0);
-        }
-    }
-    else if (lods[0]){
-        lods[0]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
-        lods[1]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
-        lods[2]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
-        lods[3]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
-    }
+//    if (indexSize){
+//        if (distance < closestTerrainPatchDistance) closestTerrainPatchDistance = distance;
+//        if (SphereInFrustum((float)(boundingBox.x / 2 - rotPlayerPos.x), (float)(boundingBox.y / 2 - rotPlayerPos.y), (float)(boundingBox.z / 2 - rotPlayerPos.z), (float)cullRadius, worldFrustum)){
+//
+//            glm::mat4 MVP;
+//
+//            GlobalModelMatrix[3][0] = ((float)((double)X - PlayerPos.x));
+//            GlobalModelMatrix[3][1] = ((float)((double)Y - PlayerPos.y));
+//            GlobalModelMatrix[3][2] = ((float)((double)Z - PlayerPos.z));
+//            MVP = VP  * GlobalModelMatrix;
+//
+//            glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]); //some kind of crash here :/
+//
+////            glUniform3f(worldOffsetID, drawX, drawY, drawZ);
+//
+//
+//            //    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+//            //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
+//
+//
+//            glBindVertexArray(vaoID);
+//            glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
+//            glBindVertexArray(0);
+//        }
+//    }
+//    else if (lods[0]){
+//        lods[0]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+//        lods[1]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+//        lods[2]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+//        lods[3]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+//    }
 }
 
 void CloseTerrainPatch::DrawTrees(glm::dvec3 &PlayerPos, glm::mat4 &VP)
