@@ -15,7 +15,8 @@
 #ifndef GBuffer_h__
 #define GBuffer_h__
 
-#include "GLEnums.h"]
+#include "GLEnums.h"
+#include "gtypes.h"
 
 #define GBUFFER_INTERNAL_FORMAT_DEPTH vg::TextureInternalFormat::RGBA8
 #define GBUFFER_INTERNAL_FORMAT_NORMAL vg::TextureInternalFormat::RGBA16F
