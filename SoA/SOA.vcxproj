@@ -215,7 +215,6 @@
     <ClInclude Include="IGameScreen.h" />
     <ClInclude Include="GLEnums.h" />
     <ClInclude Include="GLProgram.h" />
-    <ClInclude Include="GLTexture.h" />
     <ClInclude Include="GraphicsDevice.h" />
     <ClInclude Include="IOManager.h" />
     <ClInclude Include="Item.h" />
@@ -371,7 +370,6 @@
     <ClCompile Include="DepthState.cpp" />
     <ClCompile Include="FragFile.cpp" />
     <ClCompile Include="GLProgram.cpp" />
-    <ClCompile Include="GLTexture.cpp" />
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Actor.cpp" />

@@ -242,9 +242,6 @@
     <ClInclude Include="GLStates.h">
       <Filter>SOA Files\Rendering\Wrappers\States</Filter>
     </ClInclude>
-    <ClInclude Include="GLTexture.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="GraphicsDevice.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
@@ -774,9 +771,6 @@
     </ClCompile>
     <ClCompile Include="global.cpp">
       <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GLTexture.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsDevice.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
