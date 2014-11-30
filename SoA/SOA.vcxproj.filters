@@ -698,6 +698,9 @@
     <ClInclude Include="Star.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="SolarSystem.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1122,6 +1125,7 @@
     <ClCompile Include="IPlanetaryBody.cpp" />
     <ClCompile Include="GasGiant.cpp" />
     <ClCompile Include="Star.cpp" />
+    <ClCompile Include="SolarSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

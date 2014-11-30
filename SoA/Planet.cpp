@@ -20,7 +20,6 @@ void Planet::draw() {
     throw std::logic_error("The method or operation is not implemented.");
 }
 
-
 bool Planet::loadProperties(const cString filePath) {
 
     return true;

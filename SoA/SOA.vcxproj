@@ -178,6 +178,7 @@
     <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="RTSwapChain.hpp" />
     <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SolarSystem.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceComponents.h" />
@@ -358,6 +359,7 @@
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PlanetRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SolarSystem.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceComponents.cpp" />

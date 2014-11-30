@@ -29,7 +29,7 @@ public:
     void init(const cString filePath);
 
     /// Updates the planet
-    /// @time: Time in sec since the beginning of this session
+    /// @time: Time in sec since the beginning of this game
     void update(f64 time) override;
 
     /// Draws the planet
