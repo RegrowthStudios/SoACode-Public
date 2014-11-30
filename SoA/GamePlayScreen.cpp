@@ -98,7 +98,9 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
     _onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
     _onNightVisionToggle = inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
-        _renderPipeline.toggleNightVision();
+        if (isInGame()) {
+            _renderPipeline.toggleNightVision();
+        }
     });
     _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
         _renderPipeline.loadNightVision();

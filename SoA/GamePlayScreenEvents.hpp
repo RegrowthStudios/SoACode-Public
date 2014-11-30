@@ -62,7 +62,9 @@ public:
     OnFlyKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_player->flyToggle();
+        if (_screen->isInGame()) {
+            _screen->_player->flyToggle();
+        }
     }
 };
 
@@ -73,7 +75,9 @@ public:
     OnGridKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_renderPipeline.toggleChunkGrid();
+        if (_screen->isInGame()) {
+            _screen->_renderPipeline.toggleChunkGrid();
+        }
     }
 };
 
@@ -163,7 +167,9 @@ public:
     OnHUDKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_renderPipeline.cycleDevHud();
+        if (_screen->isInGame()) {
+            _screen->_renderPipeline.cycleDevHud();
+        }
     }
 };
 

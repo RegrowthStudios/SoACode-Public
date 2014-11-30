@@ -81,6 +81,10 @@ public:
     i32 getWindowWidth() const;
     i32 getWindowHeight() const;
 
+    bool isInGame() const {
+        return !_pda.isOpen();
+    }
+
 private:
 
     /// Initializes the rendering
