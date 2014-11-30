@@ -28,7 +28,7 @@ namespace vorb {
         /// @param chunkToLock: Chunk that needs to be locked
         /// @param lockedChunk: Currently locked chunk, or nullptr if no chunk
         /// is locked. Will be set to chunkToLock if chunkToLock is locked.
-        inline void lockChunk(Chunk* chunkToLock, Chunk*& lockedChunk) {
+        inline void swapLockedChunk(Chunk* chunkToLock, Chunk*& lockedChunk) {
             if (chunkToLock == lockedChunk) return;
             if (lockedChunk) lockedChunk->unlock();
             lockedChunk = chunkToLock;

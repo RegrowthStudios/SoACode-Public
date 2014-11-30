@@ -935,7 +935,7 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
        
         owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
         // Lock the chunk
-        vvox::lockChunk(owner, lockedChunk);
+        vvox::swapLockedChunk(owner, lockedChunk);
 
         ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
         // TODO(Ben): Use a smother transform property for block instead of this hard coded garbage
@@ -949,7 +949,7 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
         blockIndex = node.blockIndex;
         owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
         // Lock the chunk
-        vvox::lockChunk(owner, lockedChunk);
+        vvox::swapLockedChunk(owner, lockedChunk);
 
         int blockID = owner->getBlockData(blockIndex);
 

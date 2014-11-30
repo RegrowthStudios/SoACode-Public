@@ -141,7 +141,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
 void CAEngine::updateLiquidBlocks(int caIndex)
 {
     _lockedChunk = nullptr;
-    vvox::lockChunk(_chunk, _lockedChunk);
+    vvox::swapLockedChunk(_chunk, _lockedChunk);
     std::vector<bool>& activeUpdateList = _chunk->activeUpdateList;
     vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
     int actv = activeUpdateList[caIndex];
@@ -589,22 +589,22 @@ void CAEngine::powderPhysics(int blockIndex)
         switch (DIRS[i]) {
             case LEFT:
                 // Only lock the chunk if we know we aren't about to go to a neighbor
-                if (pos.x != 0) vvox::lockChunk(_chunk, _lockedChunk);
+                if (pos.x != 0) vvox::swapLockedChunk(_chunk, _lockedChunk);
                 nextBlockData = vvox::getLeftBlockData(_chunk, _lockedChunk, blockIndex, pos.x,
                                                          nextBlockIndex, nextChunk);
                 break;
             case RIGHT:
-                if (pos.x != CHUNK_WIDTH - 1) vvox::lockChunk(_chunk, _lockedChunk);
+                if (pos.x != CHUNK_WIDTH - 1) vvox::swapLockedChunk(_chunk, _lockedChunk);
                 nextBlockData = vvox::getRightBlockData(_chunk, _lockedChunk, blockIndex, pos.x,
                                                           nextBlockIndex, nextChunk);
                 break;
             case BACK:
-                if (pos.z != 0) vvox::lockChunk(_chunk, _lockedChunk);
+                if (pos.z != 0) vvox::swapLockedChunk(_chunk, _lockedChunk);
                 nextBlockData = vvox::getBackBlockData(_chunk, _lockedChunk, blockIndex, pos.z,
                                                          nextBlockIndex, nextChunk);
                 break;
             case FRONT:
-                if (pos.z != CHUNK_WIDTH - 1) vvox::lockChunk(_chunk, _lockedChunk);
+                if (pos.z != CHUNK_WIDTH - 1) vvox::swapLockedChunk(_chunk, _lockedChunk);
                 nextBlockData = vvox::getFrontBlockData(_chunk, _lockedChunk, blockIndex, pos.z,
                                                           nextBlockIndex, nextChunk);
                 break;

@@ -39,7 +39,7 @@ inline int Chunk::getSunlight(int c) const {
 }
 
 inline int Chunk::getSunlightSafe(int c, Chunk*& lockedChunk) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     return getSunlight(c);
 }
 
@@ -72,7 +72,7 @@ inline void Chunk::setSunlight(int c, ui8 val) {
 }
 
 inline void Chunk::setSunlightSafe(Chunk*& lockedChunk, int c, ui8 val) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     setSunlight(c, val);
 }
 
@@ -81,7 +81,7 @@ inline void Chunk::setLampLight(int c, ui16 val) {
 }
 
 inline void Chunk::setLampLightSafe(Chunk*& lockedChunk, int c, ui16 val) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     setLampLight(c, val);
 }
 
@@ -95,7 +95,7 @@ inline void Chunk::setBlockData(int c, ui16 val) {
 }
 
 inline void Chunk::setBlockDataSafe(Chunk*& lockedChunk, int c, ui16 val) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     setBlockData(c, val);
 }
 
@@ -104,7 +104,7 @@ inline void Chunk::setTertiaryData(int c, ui16 val) {
 }
 
 inline void Chunk::setTertiaryDataSafe(Chunk*& lockedChunk, int c, ui16 val) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     setTertiaryData(c, val);
 }
 
@@ -113,7 +113,7 @@ inline ui16 Chunk::getBlockData(int c) const {
 }
 
 inline ui16 Chunk::getBlockDataSafe(Chunk*& lockedChunk, int c) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     return getBlockData(c);
 }
 
@@ -122,7 +122,7 @@ inline int Chunk::getBlockID(int c) const {
 }
 
 inline int Chunk::getBlockIDSafe(Chunk*& lockedChunk, int c) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     return getBlockID(c);
 }
 
@@ -131,6 +131,6 @@ inline const Block& Chunk::getBlock(int c) const {
 }
 
 inline const Block& Chunk::getBlockSafe(Chunk*& lockedChunk, int c) {
-    vvox::lockChunk(this, lockedChunk);
+    vvox::swapLockedChunk(this, lockedChunk);
     return Blocks[getBlockData(c)];
 }
