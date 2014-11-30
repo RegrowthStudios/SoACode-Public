@@ -24,7 +24,6 @@ public:
     Atmosphere();
 
     void initialize(nString filePath, f32 PlanetRadius);
-    void loadProperties(nString filePath);
     void draw(f32 theta, const f32m4& MVP, f32v3 lightPos, const f64v3& ppos);
 
     std::vector<ColorVertex> vertices;
@@ -68,9 +67,6 @@ public:
     void rotationUpdate();
     void flagTerrainForRebuild();
     void sortUpdateList();
-
-    void saveProperties(nString filePath);
-    void loadProperties(nString filePath);
 
     f64 getGravityAccel(f64 dist);
     f64 getAirFrictionForce(f64 dist, f64 velocity);

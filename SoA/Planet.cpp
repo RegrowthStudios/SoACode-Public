@@ -277,39 +277,7 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
 
     GameManager::planet = this;
     vg::TextureCache* textureCache = GameManager::textureCache;
-    if (!ignoreBiomes){
-        if (fileManager.loadNoiseFunctions((filePath + "Noise/TerrainNoise.SOANOISE").c_str(), 0, this)) {
-            pError("Failed to load terrain noise functions!");
-            exit(75);
-        }
-        if (fileManager.loadNoiseFunctions((filePath + "Noise/MandatoryNoise.SOANOISE").c_str(), 1, this)) {
-            pError("Failed to load mandatory noise functions!");
-            exit(76);
-        }
-    }
-    
-    if (fileManager.loadFloraData(this, filePath)) {
-        pError("Failed to load flora data!");
-        exit(77);
-    }
-    if (fileManager.loadAllTreeData(this, filePath)) {
-        pError("Failed to load tree data");
-        exit(78);
-    }
-    if (!ignoreBiomes){
-        if (fileManager.loadBiomeData(this, filePath)) {
-            pError("Failed to load biome data!");
-            exit(79);
-        }
-    }
-
-    //Uncomment to save all trees after loading, for file conversions
-     /*for (size_t i = 0; i < treeTypeVec.size(); i++){
-        fileManager.SaveTreeData(treeTypeVec[i]);
-    }*/
-
-    fileManager.saveBiomeData(this, filePath);
-    
+   
     sunColorMapTexture = textureCache->addTexture(filePath + "/Sky/sunColor.png", &SamplerState::LINEAR_CLAMP_MIPMAP);
 
 #define MAP_WIDTH 256
@@ -357,99 +325,6 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
         }
     }
     
-}
-
-void Planet::saveProperties(string filePath)
-{
-    vector <vector <IniValue> > iniValues;
-    vector <string> iniSections;
-
-    iniSections.push_back("");
-    iniValues.push_back(vector<IniValue>());
-    iniSections.push_back("Properties");
-    iniValues.push_back(vector<IniValue>());
-    iniValues.back().push_back(IniValue("x", 0));
-    iniValues.back().push_back(IniValue("y", 0));
-    iniValues.back().push_back(IniValue("z", 0));
-    iniValues.back().push_back(IniValue("radius", radius));
-    iniValues.back().push_back(IniValue("gravityConstant", gravityConstant));
-    iniValues.back().push_back(IniValue("density", density));
-    iniValues.back().push_back(IniValue("axialTilt", axialZTilt));
-    iniSections.push_back("Climate");
-    iniValues.push_back(vector<IniValue>());
-    iniValues.back().push_back(IniValue("baseTemperature", baseTemperature));
-    iniValues.back().push_back(IniValue("minCelsius", minCelsius));
-    iniValues.back().push_back(IniValue("maxCelsius", maxCelsius));
-    iniValues.back().push_back(IniValue("baseHumidity", baseRainfall));
-    iniValues.back().push_back(IniValue("minHumidity", minHumidity));
-    iniValues.back().push_back(IniValue("maxHumidity", maxHumidity));
-    
-    fileManager.saveIniFile(filePath, iniValues, iniSections);
-}
-
-void Planet::loadProperties(string filePath)
-{
-    vector < vector <IniValue> > iniValues;
-    vector <string> iniSections;
-    fileManager.loadIniFile(filePath, iniValues, iniSections);
-
-    int iVal;
-    IniValue *iniVal;
-    for (size_t i = 0; i < iniSections.size(); i++){
-        for (size_t j = 0; j < iniValues[i].size(); j++){
-            iniVal = &(iniValues[i][j]);
-
-            iVal = fileManager.getIniVal(iniVal->key);
-            switch (iVal){
-            case INI_X:
-                solarX = iniVal->getInt();
-                break;
-            case INI_Y:
-                solarY = iniVal->getInt();
-                break;
-            case INI_Z:
-                solarZ = iniVal->getInt();
-                break;
-            case INI_DENSITY:
-                density = iniVal->getFloat();
-                break;
-            case INI_GRAVITYCONSTANT:
-                gravityConstant = iniVal->getFloat();
-                break;
-            case INI_BASETEMPERATURE:
-                baseTemperature = iniVal->getInt();
-                break;
-            case INI_BASEHUMIDITY:
-                baseRainfall = iniVal->getInt();
-                break;
-            case INI_AXIALTILT:
-                axialZTilt = iniVal->getFloat();
-                break;
-            case INI_MINCELSIUS:
-                minCelsius = iniVal->getFloat();
-                break;
-            case INI_MAXCELSIUS:
-                maxCelsius = iniVal->getFloat();
-                break;
-            case INI_MINHUMIDITY:
-                minHumidity = iniVal->getFloat();
-                break;
-            case INI_MAXHUMIDITY:
-                maxHumidity = iniVal->getFloat();
-                break;
-            case INI_RADIUS:
-                radius = iniVal->getFloat();
-                scaledRadius = (radius - radius%CHUNK_WIDTH) / planetScale;
-                int width = scaledRadius / TerrainPatchWidth * 2;
-                if (width % 2 == 0){ // must be odd
-                    width++;
-                }
-                scaledRadius = (width*TerrainPatchWidth) / 2;
-                radius = (int)(scaledRadius*planetScale);
-                break;
-            }
-        }
-    }
 }
 
 void Planet::saveData()
@@ -986,57 +861,6 @@ void Atmosphere::initialize(string filePath, float PlanetRadius)
 
     vertices.clear();
     indices.clear();
-}
-
-void Atmosphere::loadProperties(string filePath)
-{
-    vector < vector <IniValue> > iniValues;
-    vector <string> iniSections;
-    fileManager.loadIniFile(filePath, iniValues, iniSections);
-
-    int iVal;
-    IniValue *iniVal;
-    for (size_t i = 0; i < iniSections.size(); i++){
-        for (size_t j = 0; j < iniValues[i].size(); j++){
-            iniVal = &(iniValues[i][j]);
-
-            iVal = fileManager.getIniVal(iniVal->key);
-            switch (iVal){
-                case INI_M_KR:
-                    m_Kr = iniVal->getFloat();
-                    break;
-                case INI_M_KM:
-                    m_Km = iniVal->getFloat();
-                    break;
-                case INI_M_ESUN:
-                    m_ESun = iniVal->getFloat();
-                    break;
-                case INI_M_G:
-                    m_g = iniVal->getFloat();
-                    break;
-                case INI_M_EXP:
-                    m_fExposure = iniVal->getFloat();
-                    break;
-                case INI_WAVELENGTHR:
-                    m_fWavelength[0] = iniVal->getFloat();
-                    break;
-                case INI_WAVELENGTHG:
-                    m_fWavelength[1] = iniVal->getFloat();
-                    break;
-                case INI_WAVELENGTHB:
-                    m_fWavelength[2] = iniVal->getFloat();
-                    break;
-                case INI_NSAMPLES:
-                    nSamples = iniVal->getInt();
-                    break;
-            }
-        }
-    }
-
-    fSamples = (float)nSamples;
-    m_fWavelength4[0] = powf(m_fWavelength[0], 4.0f);
-    m_fWavelength4[1] = powf(m_fWavelength[1], 4.0f);
-    m_fWavelength4[2] = powf(m_fWavelength[2], 4.0f);
 }
 
 void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos) {

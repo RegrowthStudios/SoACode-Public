@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "FloraGenerator.h"
 
+#include "Biome.h"
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkUpdater.h"

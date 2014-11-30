@@ -7,11 +7,13 @@
 #include "Vorb.h"
 #include "IVoxelMapper.h"
 
+#include "Biome.h"
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "SmartVoxelContainer.h"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
+#include "TerrainGenerator.h"
 #include "Vorb.h"
 #include "VoxelBits.h"
 #include "VoxelLightEngine.h"

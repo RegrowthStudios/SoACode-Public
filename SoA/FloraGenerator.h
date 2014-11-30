@@ -5,7 +5,7 @@
 class Chunk;
 struct TreeType;
 struct TreeData;
-struct Biome;
+class Biome;
 
 //This node is used in tree generation
 class TreeNode {

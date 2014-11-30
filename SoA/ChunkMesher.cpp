@@ -3,6 +3,7 @@
 
 #include <random>
 
+#include "Biome.h"
 #include "BlockData.h"
 #include "Chunk.h"
 #include "Errors.h"

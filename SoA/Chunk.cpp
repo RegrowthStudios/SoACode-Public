@@ -3,6 +3,7 @@
 
 #include <boost\circular_buffer.hpp>
 
+#include "Biome.h"
 #include "BlockData.h"
 #include "CAEngine.h"
 #include "ChunkMesher.h"

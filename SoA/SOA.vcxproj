@@ -118,6 +118,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
+    <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />

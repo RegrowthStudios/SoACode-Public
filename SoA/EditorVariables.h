@@ -45,7 +45,7 @@ enum BiomeVariableControlType {
     BIOME_VARIABLE_CONTROL_TYPE_SLIDER = 0,
     BIOME_VARIABLE_CONTROL_TYPE_LIST_BOX = 1
 };
-struct BiomeVariable {
+class BiomeVariable {
 public:
     BiomeVariable() {}
     BiomeVariable(f32 min, f32 max, f32 step, i32 byteOffset, i32 varType) :

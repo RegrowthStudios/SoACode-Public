@@ -1,6 +1,7 @@
 #pragma once
 #include "Actor.h"
 #include "Camera.h"
+#include "Biome.h"
 #include "Texture2d.h"
 #include "global.h"
 

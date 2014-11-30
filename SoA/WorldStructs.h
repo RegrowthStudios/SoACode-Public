@@ -56,56 +56,6 @@ struct NoiseInfo
     GLint type;
 };
 
-struct BiomeTree
-{
-    BiomeTree(GLfloat prob, GLint index) : probability(prob), 
-                                           treeIndex(index)
-    {
-    }
-    GLfloat probability;
-    GLint treeIndex;
-};
-
-struct BiomeFlora
-{
-    BiomeFlora(GLfloat prob, GLint index) : probability(prob), 
-                                           floraIndex(index)
-    {
-    }
-    GLfloat probability;
-    GLint floraIndex;
-};
-
-struct Biome
-{
-    Biome();
-
-    GLint vecIndex;
-    GLint hasAltColor;
-    GLint looseSoilDepth; //TO ADD
-    GLint isBase; //ISBASE MUST BE LAST GLINT
-    GLubyte r, g, b, padding;
-    GLushort surfaceBlock;
-    GLushort underwaterBlock;
-    GLushort beachBlock;
-    GLushort padding2; //PADDING2 MUST BE LAST GLushort
-    GLfloat treeChance;
-    GLfloat applyBiomeAt;
-    GLfloat lowTemp, highTemp, tempSlopeLength;
-    GLfloat lowRain, highRain, rainSlopeLength;
-    GLfloat maxHeight, maxHeightSlopeLength;
-    GLfloat minTerrainMult; //MINTERRAINMULT MUST BE LAST GLfloat
-    string name;
-    string filename;
-
-    GLushort surfaceLayers[SURFACE_DEPTH]; //stores the top 50 layers corresponding to this biome
-    NoiseInfo distributionNoise;
-    vector <NoiseInfo> terrainNoiseList;
-    vector <Biome*> childBiomes;
-    vector <BiomeTree> possibleTrees;
-    vector <BiomeFlora> possibleFlora;
-};
-
 //flags
 const int PLATEAU = 0x1;
 const int VOLCANO = 0x2;
@@ -117,7 +67,7 @@ struct LoadData
     LoadData()
     {
     }
-    LoadData(struct HeightData *hmap, class TerrainGenerator *gen)
+    LoadData(class HeightData *hmap, class TerrainGenerator *gen)
     {
         heightMap = hmap;
         generator = gen;
@@ -130,19 +80,6 @@ struct LoadData
 
     HeightData *heightMap;
     TerrainGenerator *generator;
-};
-
-struct HeightData
-{
-    GLint height;
-    GLint temperature;
-    GLint rainfall;
-    GLint snowDepth;
-    GLint sandDepth;
-    GLint flags;
-    GLubyte depth;
-    Biome *biome = nullptr;
-    GLushort surfaceBlock;
 };
 
 struct MineralData
