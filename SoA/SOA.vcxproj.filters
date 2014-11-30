@@ -678,7 +678,7 @@
       <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClInclude>
     <ClInclude Include="PauseMenuRenderStage.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1099,7 +1099,9 @@
     <ClCompile Include="PauseMenu.cpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClCompile>
-    <ClCompile Include="PauseMenuRenderStage.cpp" />
+    <ClCompile Include="PauseMenuRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

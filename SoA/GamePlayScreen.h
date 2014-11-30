@@ -62,6 +62,7 @@ class GamePlayScreen : public IAppScreen<App> {
     friend class OnReloadShadersKeyDown;
     friend class OnHUDKeyDown;
     friend class OnGridKeyDown;
+    friend class PauseMenuAwesomiumAPI;
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
@@ -78,6 +79,8 @@ public:
     virtual void update(const GameTime& gameTime) override;
     virtual void draw(const GameTime& gameTime) override;
 
+    void unPause() { _pauseMenu.close(); }
+
     // Getters
     i32 getWindowWidth() const;
     i32 getWindowHeight() const;
@@ -85,6 +88,7 @@ public:
     bool isInGame() const {
         return (!_pda.isOpen() && !_pauseMenu.isOpen());
     }
+
 
 private:
 

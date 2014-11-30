@@ -27,8 +27,10 @@ void PauseMenu::open() {
 }
 
 void PauseMenu::close() {
-    _awesomiumInterface.invokeFunction("close");
-    _isOpen = false;
+    if (_isOpen) {
+        _awesomiumInterface.invokeFunction("close");
+        _isOpen = false;
+    }
 }
 
 void PauseMenu::update() {

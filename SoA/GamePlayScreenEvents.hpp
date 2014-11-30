@@ -51,6 +51,7 @@ public:
     virtual void invoke(void* sender, ui32 key) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         _screen->_inFocus = false;
+        _screen->_pauseMenu.open();
     }
 };
 

@@ -26,10 +26,17 @@ public:
     /// @param ownerScreen: The GamePlayScreen that owns this interface
     void init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) override;
 
-    // Sets the owner screen. Should be a GamePlayScreen type
+    /// Sets the owner screen. Should be a GamePlayScreen type
     /// @param ownerScreen: The screen
     void setOwnerScreen(IGameScreen* ownerScreen) override;
 private:
+    /// Continues the game
+    /// @param args: Empty argument list
+    void continueGame(const Awesomium::JSArray& args);
+
+    /// Exits the game
+    /// @param args: Empty argument list
+    void exitGame(const Awesomium::JSArray& args);
 
     GamePlayScreen* _ownerScreen; ///< Handle to the main menu screen
 };

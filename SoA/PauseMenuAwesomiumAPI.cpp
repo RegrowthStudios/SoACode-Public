@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PauseMenuAwesomiumAPI.h"
 
+#include "App.h"
+#include "MainGame.h"
 #include "GamePlayScreen.h"
 
 void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
@@ -17,4 +19,13 @@ void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScre
 
 void PauseMenuAwesomiumAPI::setOwnerScreen(IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<GamePlayScreen*>(ownerScreen);
+}
+
+void PauseMenuAwesomiumAPI::continueGame(const Awesomium::JSArray& args) {
+    _ownerScreen->unPause();
+}
+
+void PauseMenuAwesomiumAPI::exitGame(const Awesomium::JSArray& args) {
+    // Remove the const qualifier and exit the game
+    const_cast<App*>(_ownerScreen->_app)->exitGame();
 }

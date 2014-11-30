@@ -51,7 +51,7 @@ public:
 private:
     vui::AwesomiumInterface<PauseMenuAwesomiumAPI> _awesomiumInterface; ///< The user interface
 
-    bool _isOpen;
+    bool _isOpen = false;
 };
 
 #endif // PauseMenu_h__
