@@ -11,5 +11,5 @@ IOrbitalBody::~IOrbitalBody() {
 }
 
 void IOrbitalBody::update(double time) {
-
+    // TODO(Ben): Calculate position based on time
 }

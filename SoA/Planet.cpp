@@ -7,7 +7,8 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 void Planet::init(const cString filePath) {
-
+    /// Load the initial properties
+    loadProperties(filePath);
 }
 
 void Planet::update(f64 time) {
@@ -20,7 +21,7 @@ void Planet::draw() {
 }
 
 
-bool Planet::loadProperties() {
+bool Planet::loadProperties(const cString filePath) {
 
     return true;
 }

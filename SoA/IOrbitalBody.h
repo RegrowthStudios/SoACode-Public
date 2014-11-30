@@ -34,7 +34,7 @@ public:
     virtual void draw() = 0;
 
 protected:
-    IOrbitalBody* _parentBody = nullptr; ///< The parent object. If it is nullptr, then the parent is space itself
+    IOrbitalBody* _parentBody = nullptr; ///< The parent object. If it is nullptr, then the parent is the system center
 
     // TODO(Ben): ECS this bitch
     f64v3 centerPosition_SU_ = f64v3(0.0); ///< Center position of object relative to _parentBody

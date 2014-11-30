@@ -6,7 +6,7 @@
 
 #include "Biome.h"
 #include "OpenGLStructs.h"
-#include "IOrbitalBody.h"
+#include "IPlanetaryBody.h"
 #include "Texture2d.h"
 #include "WorldStructs.h"
 
@@ -17,28 +17,27 @@
 #define P_BACK 4
 #define P_BOTTOM 5
 
-class TreeType;
-class PlantType;
 class Camera;
 
-class Planet : public IOrbitalBody {
+class Planet : public IPlanetaryBody {
 public:
     Planet();
     ~Planet();
 
     /// Initializes the planet
-    /// @param filePath: The path to the planet description
+    /// @param filePath: The path to the planet properties
     void init(const cString filePath);
 
+    /// Updates the planet
+    /// @time: Time in sec since the beginning of this session
     void update(f64 time) override;
 
+    /// Draws the planet
     virtual void draw() override;
 
 private:
     /// Loads the properties of the planet
-    bool loadProperties();
-
-    f64q poleAxis_; ///< Axis of rotation
-    f64 rotationalSpeed_MS_ = 0.0; ///< Rotational speed about _poleAxis in radians
-    f64 currentRotation_ = 0.0; ///< Current rotation about _poleAxis in radians
+    /// @param filePath: The path to the planet properties
+    /// @return true on success
+    bool loadProperties(const cString filePath);
 };

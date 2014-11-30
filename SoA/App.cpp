@@ -27,7 +27,7 @@ void App::addScreens() {
 void App::onInit() {
     
     // Load the graphical options
-    loadOptions("Data/options.yml");
+    loadOptions("Data/Options.yml");
 
     SamplerState::initPredefined();
 

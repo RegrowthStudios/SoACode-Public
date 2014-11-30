@@ -137,6 +137,7 @@
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="GasGiant.h" />
     <ClInclude Include="GLRenderTarget.h" />
     <ClInclude Include="GpuMemory.h" />
     <ClInclude Include="HdrRenderStage.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="ImageSaver.h" />
+    <ClInclude Include="IPlanetaryBody.h" />
     <ClInclude Include="IRenderPipeline.h" />
     <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="IVoxelMapper.h" />
@@ -180,6 +182,7 @@
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceComponents.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="Star.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
@@ -318,6 +321,7 @@
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GasGiant.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="GLRenderTarget.cpp" />
     <ClCompile Include="GpuMemory.cpp" />
@@ -328,6 +332,7 @@
     <ClCompile Include="GLProgramManager.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImageSaver.cpp" />
+    <ClCompile Include="IPlanetaryBody.cpp" />
     <ClCompile Include="IRenderPipeline.cpp" />
     <ClCompile Include="IRenderStage.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
@@ -357,6 +362,7 @@
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceComponents.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="Star.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
