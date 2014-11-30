@@ -132,6 +132,12 @@
     <Filter Include="SOA Files\Game\Universe">
       <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Vorb">
+      <UniqueIdentifier>{55891d5b-0543-4390-acad-b4d0a80b3f71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Vorb\Graphics">
+      <UniqueIdentifier>{189dfa46-b2e3-47b4-9730-ee9edb16c0f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -232,9 +238,6 @@
     </ClInclude>
     <ClInclude Include="global.h">
       <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLProgram.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
     <ClInclude Include="GLStates.h">
       <Filter>SOA Files\Rendering\Wrappers\States</Filter>
@@ -527,9 +530,6 @@
     <ClInclude Include="GpuMemory.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -611,12 +611,6 @@
     <ClInclude Include="BlockTextureMethods.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="GLRenderTarget.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEnums.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="RTSwapChain.hpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClInclude>
@@ -665,12 +659,28 @@
     <ClInclude Include="VoxelNavigation.inl">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="GLProgram.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLEnums.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderTarget.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gtypes.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="FloraTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
     <ClInclude Include="CellularAutomataTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="FloraTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
+
     <ClInclude Include="PauseMenu.h">
       <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClInclude>
@@ -679,6 +689,9 @@
     </ClInclude>
     <ClInclude Include="PauseMenuRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -768,9 +781,6 @@
     </ClCompile>
     <ClCompile Include="global.cpp">
       <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GLProgram.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="GLTexture.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -1054,9 +1064,6 @@
     <ClCompile Include="BlockTextureMethods.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="GLRenderTarget.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="FullQuadVBO.cpp">
       <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
@@ -1086,6 +1093,12 @@
     </ClCompile>
     <ClCompile Include="ChunkGridRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgram.cpp">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderTarget.cpp">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="FloraTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>

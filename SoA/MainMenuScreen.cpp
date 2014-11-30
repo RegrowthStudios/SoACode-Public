@@ -69,7 +69,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     initRenderPipeline();
 
     // Run the update thread for updating the planet
-    _updateThread = new thread(&MainMenuScreen::updateThreadFunc, this);
+    _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 }
 
 void MainMenuScreen::onExit(const GameTime& gameTime) {
@@ -156,13 +156,13 @@ void MainMenuScreen::loadGame(const nString& fileName) {
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
     if (fileManager.setSaveFile(fileName) != 0) {
-        cout << "Could not set save file.\n";
+        std::cout << "Could not set save file.\n";
         return;
     }
     // Check the planet string
-    string planetName = fileManager.getWorldString(fileName + "/World/");
+    nString planetName = fileManager.getWorldString(fileName + "/World/");
     if (planetName == "") {
-        cout << "NO PLANET NAME";
+        std::cout << "NO PLANET NAME";
         return;
     }
 
@@ -181,7 +181,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
     if (fileManager.setSaveFile(fileName) != 0) {
-        cout << "Could not set save file.\n";
+        std::cout << "Could not set save file.\n";
         return;
     }
    

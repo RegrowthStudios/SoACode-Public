@@ -130,8 +130,8 @@ public:
     i32 maximumDepth;
     std::vector<ui16> rockLayers;
 
-    std::map<string, i32> treeLookupMap;
-    std::map<string, i32> floraLookupMap;
+    std::map<nString, i32> treeLookupMap;
+    std::map<nString, i32> floraLookupMap;
 
     Atmosphere atmosphere;
 

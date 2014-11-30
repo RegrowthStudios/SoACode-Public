@@ -16,8 +16,8 @@
 int lodDetailLevels[DetailLevels+3] = {8/scale, 16/scale, 32/scale, 64/scale, 128/scale, 256/scale, 512/scale, 1024/scale, 2048/scale, 4096/scale, 8192/scale, 16384/scale, 32768/scale, 65536/scale, 131072/scale, 262144/scale, 524228/scale};
 int lodDistanceLevels[DetailLevels] = {500/scale, 1000/scale, 2000/scale, 4000/scale, 8000/scale, 16000/scale, 32000/scale, 64000/scale, 128000/scale, 256000/scale, 512000/scale, 1024000/scale, 4096000/scale, INT_MAX};
 
-vector<TerrainVertex> tvboVerts(8192, TerrainVertex()); //this is bigger that it needs to be but whatever
-vector<GLushort> lodIndices(32768);
+std::vector<TerrainVertex> tvboVerts(8192, TerrainVertex()); //this is bigger that it needs to be but whatever
+std::vector<GLushort> lodIndices(32768);
 
 int WaterIndexMap[(maxVertexWidth+3)*(maxVertexWidth+3)*2];
 int MakeWaterQuadMap[(maxVertexWidth+3)*(maxVertexWidth+3)];
@@ -567,10 +567,10 @@ bool TerrainPatch::CreateMesh()
                 v1 /= magnitude;
 
                 if (index > tvboVerts.size()){
-                    cout << index << " " << sindex << " " << size << endl;
-                    cout << tvboVerts.size() << endl;
+                    std::cout << index << " " << sindex << " " << size << std::endl;
+                    std::cout << tvboVerts.size() << std::endl;
                     int q;
-                    cin >> q;
+                    std::cin >> q;
                 }
                 tvboVerts[index].normal = glm::vec3(v1); //size = 0 708
 
@@ -1012,14 +1012,14 @@ bool TerrainPatch::CreateMesh()
         exit(15);
     }
     else if (index > tvboVerts.size()){
-        pError(("Index out of bounds for tvboVerts. " + to_string(index) + " / " + to_string(tvboVerts.size())).c_str());
+        pError(("Index out of bounds for tvboVerts. " + std::to_string(index) + " / " + std::to_string(tvboVerts.size())).c_str());
         exit(15);
     }
 
     
     if (index > 32768){
 
-        cout << "INDEX: " << endl;
+        std::cout << "INDEX: " << std::endl;
     }
 
     TerrainMeshMessage *tmm = new TerrainMeshMessage;
@@ -1048,7 +1048,7 @@ bool TerrainPatch::CreateMesh()
         }
     }
     if (indice == 0){ //this still happens
-        pError("Indice = 0! " + to_string(size) + " " + to_string(isize) + " " + to_string(width) + " " + to_string(step));
+        pError("Indice = 0! " + std::to_string(size) + " " + std::to_string(isize) + " " + std::to_string(width) + " " + std::to_string(step));
     }
     tmm->indexSize = indice;
     tmm->treeIndexSize = treeIndex * 6 / 4;

@@ -116,7 +116,7 @@ public:
         clearBuffers();
     }
 
-    static vector <MineralData*> possibleMinerals;
+    static std::vector<MineralData*> possibleMinerals;
     
     //getters
     ChunkStates getState() const { return _state; }
@@ -160,7 +160,7 @@ public:
     }
     
     int numNeighbors;
-    vector<bool> activeUpdateList;
+    std::vector<bool> activeUpdateList;
     bool drawWater;
     bool hasLoadedSunlight;
     bool occlude; //this needs a new name

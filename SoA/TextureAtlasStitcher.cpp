@@ -226,7 +226,7 @@ i32 TextureAtlasStitcher::mapSingle() {
 i32 TextureAtlasStitcher::mapBox(int width, int height) {
 
     if (width > BLOCK_TEXTURE_ATLAS_WIDTH || height > BLOCK_TEXTURE_ATLAS_WIDTH) {
-        pError("Repeat texture width or height > " + to_string(BLOCK_TEXTURE_ATLAS_WIDTH));
+        pError("Repeat texture width or height > " + std::to_string(BLOCK_TEXTURE_ATLAS_WIDTH));
         return 0;
     }
 

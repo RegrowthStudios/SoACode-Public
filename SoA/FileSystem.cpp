@@ -105,7 +105,7 @@ i32 FileManager::loadFloraNoiseFunctions(const cString filename, Planet* planet)
     double persistence, lowbound, upbound, frequency;
     int octaves, type;
     nString types;
-    map <nString, int>::iterator fit;
+    std::map <nString, int>::iterator fit;
 
     std::ifstream file;
 
@@ -114,7 +114,7 @@ i32 FileManager::loadFloraNoiseFunctions(const cString filename, Planet* planet)
     file.open(filename);
     if (file.fail()) {
         printf("ERROR: Flora Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
-        cin >> octaves;
+        std::cin >> octaves;
         file.close();
         return 1;
     }
@@ -129,12 +129,12 @@ i32 FileManager::loadFloraNoiseFunctions(const cString filename, Planet* planet)
             if (fit == planet->floraLookupMap.end()) {
                 printf("ERROR: (%s) Flora type %s not found in FloraData.txt\n", filename, types.c_str());
                 printf("Enter any key to continue... ");
-                cin >> types;
+                std::cin >> types;
             } else {
                 type = fit->second;
                 if (!(file >> persistence >> frequency >> octaves >> lowbound >> upbound)) {
                     printf("    ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
-                    cin >> octaves;
+                    std::cin >> octaves;
                     file.close();
                     return 1;
                 }
@@ -226,7 +226,7 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
 
     TerrainGenerator* generator = GameManager::terrainGenerator;
 
-    ifstream file;
+    std::ifstream file;
 
     char buffer[512];
 
@@ -292,7 +292,7 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
     return 0;
 }
 i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
-    ifstream file;
+    std::ifstream file;
     nString s;
     int blockID, textureID, meshType;
     char buffer[512];
@@ -359,7 +359,7 @@ i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
 i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
     printf("Loading TreeData...\n");
     TreeType *tree = NULL;
-    ifstream file;
+    std::ifstream file;
     int minSize, r, g, b;
     size_t i;
     nString s, name, fileName;
@@ -390,7 +390,7 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
         if (!(file >> fileName)) {
             printf("ERROR: (TreeData.txt) Could not read tree fileName for %s!\n", name.c_str());
             int a;
-            cin >> a;
+            std::cin >> a;
         }
         fileName = worldFilePath + "Trees/TreeTypes/" + fileName;
         tree = new TreeType;
@@ -416,7 +416,7 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
     file.open((worldFilePath + "Trees/Leaves.txt").c_str());
     if (file.fail()) {
         perror((worldFilePath + "Trees/Leaves.txt").c_str());
-        cin >> minSize;
+        std::cin >> minSize;
         file.close();
         return 1;
     }
@@ -460,7 +460,7 @@ i32 FileManager::loadTreeType(nString filePath, TreeType *tree) {
 }
 
 i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
-    ifstream file;
+    std::ifstream file;
     int mapColor, activeList = 0;
     char buffer[512];
     nString bfname;
@@ -592,7 +592,7 @@ i32 FileManager::saveBiomeData(Planet *planet, nString worldFilePath) {
 i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nString worldFilePath) {
     nString ts;
     nString childFileName;
-    ifstream biomeFile;
+    std::ifstream biomeFile;
     int activeList;
     double d;
     char buffer[512];
@@ -633,98 +633,98 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
         } else if (ts == "Underwater_Block_ID:") {
             if (!(biomeFile >> biome->underwaterBlock)) {
                 printf("    ERROR: %s trouble reading Underwater_Block_ID!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Beach_Block_ID:") {
             if (!(biomeFile >> biome->beachBlock)) {
                 printf("    ERROR: %s trouble reading Beach_Block_ID!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Apply_Biome_At:") {
             if (!(biomeFile >> biome->applyBiomeAt)) {
                 printf("    ERROR: %s trouble reading Apply_Biome_At!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Terrain_Mult:") {
             if (!(biomeFile >> biome->minTerrainMult)) {
                 printf("    ERROR: %s trouble reading Min_Terrain_Mult!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Temp:") {
             if (!(biomeFile >> biome->lowTemp)) {
                 printf("    ERROR: %s trouble reading Min_Temp!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Temp:") {
             if (!(biomeFile >> biome->highTemp)) {
                 printf("    ERROR: %s trouble reading Max_Temp!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Temp_Slope_Length:") {
             if (!(biomeFile >> biome->tempSlopeLength)) {
                 printf("    ERROR: %s trouble reading Temp_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Rain:") {
             if (!(biomeFile >> biome->lowRain)) {
                 printf("    ERROR: %s trouble reading Min_Rain!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Rain:") {
             if (!(biomeFile >> biome->highRain)) {
                 printf("    ERROR: %s trouble reading Max_Rain!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Height:") {
             if (!(biomeFile >> biome->maxHeight)) {
                 printf("    ERROR: %s trouble reading Max_Height!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Height_Slope_Length:") {
             if (!(biomeFile >> biome->maxHeightSlopeLength)) {
                 printf("    ERROR: %s trouble reading Max_Height_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Rain_Slope_Length:") {
             if (!(biomeFile >> biome->rainSlopeLength)) {
                 printf("    ERROR: %s trouble reading Rain_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Terrain_Color:") {
             if (!(biomeFile >> biome->hasAltColor)) {
                 printf("    ERROR: %s trouble reading active!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
             int a, b, c;
             if (!(biomeFile >> a >> b >> c)) {
                 printf("    ERROR: %s trouble reading terrain color!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -734,7 +734,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
         } else if (activeList == 1) { //tree types
             if (!(biomeFile >> d)) {
                 printf("    ERROR: %s trouble reading tree probability!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -742,14 +742,14 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             if (tit == planet->treeLookupMap.end()) {
                 printf("ERROR: (%s) Tree type %s not found in TreeData.txt\n", fileName.c_str(), ts.c_str());
                 printf("Enter any key to continue... ");
-                cin >> ts;
+                std::cin >> ts;
             } else {
                 biome->possibleTrees.push_back(BiomeTree(d, tit->second));
             }
         } else if (activeList == 2) { //flora types
             if (!(biomeFile >> d)) {
                 printf("    ERROR: %s trouble reading flora probability!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -757,7 +757,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             if (tit == planet->floraLookupMap.end()) {
                 printf("ERROR: (%s) Flora type %s not found in FloraData.txt\n", fileName.c_str(), ts.c_str());
                 printf("Enter any key to continue... ");
-                cin >> ts;
+                std::cin >> ts;
             } else {
                 biome->possibleFlora.push_back(BiomeFlora(d, tit->second));
             }
@@ -767,7 +767,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             childBiome->name = ts;
             if (!(biomeFile >> childFileName)) {
                 printf("    ERROR: %s trouble reading child filename!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -780,7 +780,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             if (sscanf(&(ts[0]), "%d", &(noisef.type)) == 0 ||
                 !(biomeFile >> noisef.persistence >> noisef.frequency >> noisef.octaves >> noisef.lowBound >> noisef.upBound >> noisef.scale >> noisef.composition)) {
                 printf("    ERROR: %s trouble reading unique terrain noise!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -790,7 +790,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
                 !(biomeFile >> biome->distributionNoise.frequency >> biome->distributionNoise.octaves >>
                 biome->distributionNoise.lowBound >> biome->distributionNoise.upBound)) {
                 printf("    ERROR: %s trouble reading Distribution_Noise!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -808,8 +808,8 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
     return 0;
 }
 i32 FileManager::saveBiome(Biome *biome) {
-    ofstream file;
-    map <nString, BiomeVariable>::iterator bit;
+    std::ofstream file;
+    std::map <nString, BiomeVariable>::iterator bit;
     NoiseInfo *np;
 
     if (biome->filename.size() < 4) return 1;
@@ -818,7 +818,7 @@ i32 FileManager::saveBiome(Biome *biome) {
     if (file.fail()) {
         perror((newFileName).c_str());
         int a;
-        cin >> a;
+        std::cin >> a;
         return 0;
     }
 
@@ -867,7 +867,7 @@ i32 FileManager::saveBiome(Biome *biome) {
     int findex;
     for (size_t i = 0; i < biome->possibleFlora.size(); i++) {
         findex = biome->possibleFlora[i].floraIndex;
-        cout << findex << endl;
+        std::cout << findex << std::endl;
         fflush(stdout);
         file << "PossibleFlora" << i << "= " << GameManager::planet->floraTypeVec[findex]->name << " " << biome->possibleFlora[i].probability;
         if (GameManager::planet->floraNoiseFunctions[findex]) {
@@ -904,7 +904,7 @@ void FileManager::saveAllBiomes(Planet *planet) {
 }
 
 i32 FileManager::saveTreeData(TreeType *tt) {
-#define STRCOMB(a,b) (to_string(a) + "," + to_string(b))
+#define STRCOMB(a,b) (std::to_string(a) + "," + std::to_string(b))
     std::vector <std::vector <IniValue> > iniValues;
     std::vector <nString> iniSections;
 
@@ -1108,9 +1108,9 @@ nString FileManager::getSaveFileNameDialog(const nString &prompt, const char *in
     GetSaveFileName(&ofns);
     return buffer;
 #elif
-    cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
+    std::cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
-    cin >> a;
+    std::cin >> a;
 #endif
     return "";
 }
@@ -1138,7 +1138,7 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
         if (rv.size() == 0) return "No description.";
         return rv;
     } else {
-        ifstream descFile(fileName + "description.txt");
+        std::ifstream descFile(fileName + "description.txt");
         if (descFile.fail()) {
             perror((fileName + "description.txt").c_str());
             descFile.close();
@@ -1156,7 +1156,7 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
 }
 
 void FileManager::loadNoiseDescriptions(const char *filename) {
-    ifstream file;
+    std::ifstream file;
     nString s;
     char buffer[1024];
     int i = 0;
@@ -1242,17 +1242,17 @@ i32 FileManager::createSaveFile(nString filePath) {
     return setSaveFile(filePath);
 }
 i32 FileManager::createWorldFile(nString filePath) {
-    ofstream file(filePath + "world.txt");
+    std::ofstream file(filePath + "world.txt");
     if (file.fail()) {
         perror((filePath + "world.txt").c_str());
         return 1;
     }
-    file << menuOptions.selectPlanetName << endl;
+    file << menuOptions.selectPlanetName << std::endl;
     file.close();
     return 0;
 }
 nString FileManager::getWorldString(nString filePath) {
-    ifstream file(filePath + "world.txt");
+    std::ifstream file(filePath + "world.txt");
     if (file.fail()) {
         return "";
     }
@@ -1365,12 +1365,12 @@ i32 FileManager::saveMarkers(Player *player) {
         m = &(GameManager::markers[i]);
         iniSections.push_back(m->name);
         iniValues.push_back(std::vector<IniValue>());
-        iniValues.back().push_back(IniValue("r", to_string(m->color.r)));
-        iniValues.back().push_back(IniValue("g", to_string(m->color.g)));
-        iniValues.back().push_back(IniValue("b", to_string(m->color.b)));
-        iniValues.back().push_back(IniValue("x", to_string(m->pos.x)));
-        iniValues.back().push_back(IniValue("y", to_string(m->pos.y)));
-        iniValues.back().push_back(IniValue("z", to_string(m->pos.z)));
+        iniValues.back().push_back(IniValue("r", std::to_string(m->color.r)));
+        iniValues.back().push_back(IniValue("g", std::to_string(m->color.g)));
+        iniValues.back().push_back(IniValue("b", std::to_string(m->color.b)));
+        iniValues.back().push_back(IniValue("x", std::to_string(m->pos.x)));
+        iniValues.back().push_back(IniValue("y", std::to_string(m->pos.y)));
+        iniValues.back().push_back(IniValue("z", std::to_string(m->pos.z)));
     }
 
     if (saveIniFile(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
@@ -1449,7 +1449,7 @@ i32 FileManager::loadIniFile(nString filePath, std::vector<std::vector<IniValue>
     int n;
     nString currentName = "";
     nString s, s2;
-    ifstream file;
+    std::ifstream file;
     int currSection = 0;
 
     iniSections.push_back("");
@@ -1534,7 +1534,7 @@ i32 FileManager::loadIniFile(nString filePath, std::vector<std::vector<IniValue>
     return 0;
 }
 i32 FileManager::saveIniFile(nString filePath, std::vector <std::vector <IniValue> > &iniValues, std::vector <nString> &iniSections) {
-    ofstream file;
+    std::ofstream file;
     file.open(filePath.c_str());
     if (file.fail()) {
         pError((filePath + " could not be opened for write").c_str());
@@ -1719,9 +1719,9 @@ i32 FileManager::getParticleType(nString fileName) {
 
 #pragma region TODO: Marked For Removal
 
-map <nString, INI_KEYS> IniMap;
-map <nString, INI_KEYS> BlockIniMap;
-map <nString, INI_KEYS> BiomeIniMap;
+std::map <nString, INI_KEYS> IniMap;
+std::map <nString, INI_KEYS> BlockIniMap;
+std::map <nString, INI_KEYS> BiomeIniMap;
 
 void FileManager::initializeINIMaps() {
     //       planet properties

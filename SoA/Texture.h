@@ -13,30 +13,28 @@
 #ifndef TEXTURE_H_
 #define TEXTURE_H_
 
-#include "stdafx.h"
+#include "gtypes.h"
 
 namespace vorb {
-namespace core {
-namespace graphics {
+    namespace core {
+        namespace graphics {
+            /// Wrapper struct for a texture
+            struct Texture {
+            public:
+                Texture(VGTexture id = 0, ui32 w = 0, ui32 h = 0) :
+                    id(id),
+                    width(w),
+                    height(h) {
+                    // Empty
+                }
 
-// Wrapper struct for a texture
-struct Texture {
-    Texture() : ID(0), width(0), height(0) {}
-    Texture(ui32 TextureID, ui32 Width, ui32 Height) :
-        ID(TextureID),
-        width(Width),
-        height(Height) {
-        // Empty
+                VGTexture id = 0; ///< OpenGL texture ID
+                ui32 width = 0; ///< Texture width in pixels
+                ui32 height = 0; ///< Texture height in pixels
+            };
+        }
     }
-    ui32 ID;
-    ui32 width;
-    ui32 height;
-};
-
 }
-}
-}
-
 namespace vg = vorb::core::graphics;
 
 #endif // TEXTURE_H_

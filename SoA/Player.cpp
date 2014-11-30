@@ -95,7 +95,7 @@ Player::~Player(void)
     }
 }
 
-void Player::initialize(string playerName, float aspectRatio) {
+void Player::initialize(nString playerName, float aspectRatio) {
     _name = playerName;
     _chunkCamera.init(aspectRatio);
     _worldCamera.init(aspectRatio);
@@ -692,7 +692,7 @@ void Player::applyCollisionData()
 {
     if (ABS(collisionData.xMove) > 10 || ABS(collisionData.yMove) > 10 || ABS(collisionData.zMove > 10) ||
         ABS(collisionData.xPush) > 1.0 || ABS(collisionData.yPush) > 1.0 || ABS(collisionData.zPush) > 1.0){
-        cout << "HUGE COLLISION BUG: " << collisionData.xMove << " " << collisionData.yMove << " " << collisionData.zMove << " " << collisionData.xPush << " " << collisionData.yPush << " " << collisionData.zPush << endl;
+        std::cout << "HUGE COLLISION BUG: " << collisionData.xMove << " " << collisionData.yMove << " " << collisionData.zMove << " " << collisionData.xPush << " " << collisionData.yPush << " " << collisionData.zPush << std::endl;
         pError("ApplyCollisionData Error!");
     }
 

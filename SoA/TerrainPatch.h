@@ -15,8 +15,8 @@ extern int lodDistanceLevels[DetailLevels];
 extern int WaterIndexMap[(maxVertexWidth + 3)*(maxVertexWidth + 3) * 2];
 extern int MakeWaterQuadMap[(maxVertexWidth + 3)*(maxVertexWidth + 3)];
 
-extern vector<TerrainVertex> tvboVerts; //this is bigger that it needs to be but whatever
-extern vector<GLushort> lodIndices;
+extern std::vector<TerrainVertex> tvboVerts; //this is bigger that it needs to be but whatever
+extern std::vector<ui16> lodIndices;
 
 class Camera;
 
@@ -33,7 +33,7 @@ struct TerrainBuffers{
     int cullRadius;
     double distance;
     bool inFrustum;
-    glm::vec3 boundingBox;
+    f32v3 boundingBox;
 };
 
 struct TerrainMeshMessage{
@@ -49,7 +49,7 @@ struct TerrainMeshMessage{
     int worldX, worldY, worldZ;
     int drawX, drawY, drawZ, vecIndex;
     int cullRadius;
-    glm::vec3 boundingBox;
+    f32v3 boundingBox;
 };
 
 class TerrainPatch{
@@ -94,8 +94,8 @@ public:
     void ClearLODMap();
 
     void DeleteChildren();
-    //itinializes the LOD and computes distance
-    void Initialize(int x, int y, int z, int wx, int wy, int wz, int Radius, int Face, TerrainPatch *Parent = NULL, int ChildNum = -1, int initialDetail = -1);
+    // Initializes the LOD and computes distance
+    void Initialize(int x, int y, int z, int wx, int wy, int wz, int Radius, int Face, TerrainPatch *Parent = nullptr, int ChildNum = -1, int initialDetail = -1);
     static void Draw(TerrainBuffers *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
     static void DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
     static bool CheckHorizon(const glm::dvec3 &PlayerPoss, const glm::dvec3 &ClosestPoint);
@@ -107,9 +107,9 @@ public:
     void CalculateDetailLevel(double dist, int threshold);
     void SortChildren();
 
-    glm::vec3 worldNormal;
-    glm::vec3 boundingBox;
-    glm::dvec3 closestPoint;
+    f32v3 worldNormal;
+    f32v3 boundingBox;
+    f64v3 closestPoint;
 };
 
 class CloseTerrainPatch{
@@ -156,8 +156,8 @@ public:
     void DeleteChildren();
     //itinializes the LOD and computes distance
     void Initialize(int x, int y, int z, int wx, int wy, int wz, CloseTerrainPatch *Parent = NULL, int ChildNum = -1, int initialDetail = -1);
-    void Draw(glm::dvec3 &PlayerPos, glm::dvec3 &rotPlayerPos, glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
-    void DrawTrees(glm::dvec3 &PlayerPos, glm::mat4 &VP);
+    void Draw(f64v3 &PlayerPos, f64v3 &rotPlayerPos, f32m4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
+    void DrawTrees(f64v3 &PlayerPos, f32m4 &VP);
     //inline void ExtractChildData();
     bool CreateMesh();
 
@@ -166,6 +166,6 @@ public:
     void CalculateDetailLevel(double dist, int threshold);
     void SortChildren();
 
-    glm::vec3 boundingBox;
-    glm::dvec3 closestPoint;
+    f32v3 boundingBox;
+    f64v3 closestPoint;
 };

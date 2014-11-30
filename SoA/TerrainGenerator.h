@@ -4,9 +4,6 @@
 #include "Vorb.h"
 #include "IVoxelMapper.h"
 
-// TODO: Remove This
-using namespace std;
-
 const int FREEZETEMP = 50;
 
 // TODO(Ben): This is absolutely awful
@@ -57,7 +54,7 @@ public:
     double TileFunc(double x, double y, double w, double h, double dt);
     double heightModifier;
     double defaultTemp, defaultRain;
-    vector <NoiseInfo> noiseFunctions;
+    std::vector<NoiseInfo> noiseFunctions;
     NoiseInfo *temperatureNoiseFunction;
     NoiseInfo *rainfallNoiseFunction;
     NoiseInfo *biomeOffsetNoiseFunction;
@@ -70,7 +67,7 @@ public:
 };
 
 const int NumTerrainFunctions = 11;
-const string TerrainFunctionNames[NumTerrainFunctions] = { "Default", "Small Mts.", "Large Mts.+Lakes", "Hills+Plateaus", "Seaside Cliffs",
+const nString TerrainFunctionNames[NumTerrainFunctions] = { "Default", "Small Mts.", "Large Mts.+Lakes", "Hills+Plateaus", "Seaside Cliffs",
     "Ridged", "Billowy Hills", "Jagged Cliffs", "Huge Mts.", "Volcano", "Canyons" };
 
-extern string TerrainFunctionHelps[NumTerrainFunctions];
+extern nString TerrainFunctionHelps[NumTerrainFunctions];
