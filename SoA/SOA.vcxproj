@@ -117,6 +117,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
+    <ClInclude Include="Atmosphere.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockTextureMethods.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="OrbitalBody.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="PauseMenuAwesomiumAPI.h" />
     <ClInclude Include="PauseMenuRenderStage.h" />
@@ -301,6 +303,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ARProcessor.cpp" />
+    <ClCompile Include="Atmosphere.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
@@ -340,6 +343,7 @@
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
+    <ClCompile Include="IOrbitalBody.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
     <ClCompile Include="PauseMenuRenderStage.cpp" />

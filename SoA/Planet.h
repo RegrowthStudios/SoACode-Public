@@ -6,6 +6,7 @@
 
 #include "Biome.h"
 #include "OpenGLStructs.h"
+#include "IOrbitalBody.h"
 #include "Texture2d.h"
 #include "WorldStructs.h"
 
@@ -20,35 +21,17 @@ class TreeType;
 class PlantType;
 class Camera;
 
-class Atmosphere {
-public:
-    Atmosphere();
-
-    void initialize(nString filePath, f32 PlanetRadius);
-    void draw(f32 theta, const f32m4& MVP, f32v3 lightPos, const f64v3& ppos);
-
-    std::vector<ColorVertex> vertices;
-    std::vector<ui16> indices;
-    ui32 vboID, vbo2ID, vboIndexID, vboIndexID2;
-    ui32 indexSize;
-    f64 radius;
-    f64 planetRadius;
-
-    f32 m_fWavelength[3], m_fWavelength4[3];
-    f32 m_Kr;        // Rayleigh scattering constant
-    f32 m_Km;        // Mie scattering constant
-    f32 m_ESun;        // Sun brightness constant
-    f32 m_g;        // The Mie phase asymmetry factor
-    f32 m_fExposure;
-    f32 m_fRayleighScaleDepth;
-    f32 fSamples;
-    i32 nSamples;
-    i32 debugIndex;
-};
-
-class Planet {
+class Planet : public IOrbitalBody {
 public:
     Planet();
     ~Planet();
 
+    void update(double time) override;
+
+    virtual void draw() override;
+
+private:
+    f64q poleAxis_; ///< Axis of rotation
+    f64 rotationalSpeed_MS_ = 0.0; ///< Rotational speed about _poleAxis in radians
+    f64 currentRotation_ = 0.0; ///< Current rotation about _poleAxis in radians
 };
