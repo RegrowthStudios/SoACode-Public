@@ -8,39 +8,55 @@ extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
 class GraphicsOptions {
 public:
-    i32 cloudDetail, lodDistance, lodDetail, isFancyTrees, enableParticles, chunkLoadTime;
-    i32 voxelRenderDistance, hudMode;
+    i32 lodDistance;
+    i32 lodDetail = 1;
+    i32 voxelRenderDistance = 144;
+    i32 hudMode = 0;
     i32 currTextureRes, defaultTextureRes;
-    i32 motionBlur;
-    i32 msaa, maxMsaa;
-    f32 specularExponent, specularIntensity, lookSensitivity;
-    f32 hdrExposure, gamma;
-    f32 secColorMult, fov;
-    i32 maxFPS;
-    f32 voxelLODThreshold, voxelLODThreshold2;
-    bool isVsync, needsWindowReload, needsFboReload, needsFullscreenToggle;
-    nString texturePackString, currTexturePack, defaultTexturePack;
+    i32 msaa = 0;
+    i32 maxMsaa = 32;
+
+    f32 specularExponent = 8.0f;
+    f32 specularIntensity = 0.3f;
+    f32 hdrExposure = 3.0f;
+    f32 gamma = 1.0f;
+    f32 secColorMult = 0.1f;
+    f32 fov = 70.0f;
+    f32 maxFPS = 60.0f;
+    f32 voxelLODThreshold = 128.0f;
+    f32 voxelLODThreshold2 = voxelLODThreshold * voxelLODThreshold;
+    f32 motionBlur = 1.0f;
+
+    bool needsWindowReload;
+    bool needsFboReload = false;
+    bool needsFullscreenToggle = false;
+    bool enableParticles = true;
+
+    nString texturePackString = "Default";
+    nString currTexturePack = texturePackString;
+    nString defaultTexturePack = texturePackString;
 };
 extern GraphicsOptions graphicsOptions;
 
 class SoundOptions {
 public:
-    i32 musicVolume, effectVolume;
+    f32 musicVolume = 1.0f;
+    f32 effectVolume = 1.0f;
 };
 extern SoundOptions soundOptions;
 
 class GameOptions {
 public:
-    f32 mouseSensitivity;
-    bool invertMouse;
+    f32 mouseSensitivity = 30.0f;
+    bool invertMouse = false;
 };
 extern GameOptions gameOptions;
 
 class MenuOptions {
 public:
-    nString newGameString, loadGameString, selectPlanetName, markerName;
-    i32 markerR, markerG, markerB;
+    nString newGameString = "", loadGameString = "", selectPlanetName = "", markerName = "";
+    i32 markerR = 0, markerG = 0, markerB = 0;
 };
 extern MenuOptions menuOptions;
 
-extern void initializeOptions();
+extern bool loadOptions(const cString filePath);

@@ -7,49 +7,59 @@
 #include "GameManager.h"
 #include "InputManager.h"
 
-std::vector<ui32v2> SCREEN_RESOLUTIONS = std::vector<ui32v2>();
+KEG_TYPE_INIT_BEGIN_DEF_VAR(GraphicsOptions)
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("enableParticles", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(GraphicsOptions, enableParticles)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("fov", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, fov)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("gamma", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, gamma)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("voxelRenderDistance", Keg::Value::basic(Keg::BasicType::I32, offsetof(GraphicsOptions, voxelRenderDistance)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("terrainQuality", Keg::Value::basic(Keg::BasicType::I32, offsetof(GraphicsOptions, lodDetail)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("texturePack", Keg::Value::basic(Keg::BasicType::STRING, offsetof(GraphicsOptions, texturePackString)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("maxFps", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, maxFPS)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("motionBlur", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, motionBlur)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("msaa", Keg::Value::basic(Keg::BasicType::I32, offsetof(GraphicsOptions, msaa)));
+KEG_TYPE_INIT_END
+
+KEG_TYPE_INIT_BEGIN_DEF_VAR(GameOptions)
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("mouseSensitivity", Keg::Value::basic(Keg::BasicType::F32, offsetof(GameOptions, mouseSensitivity)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("invertMouse", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(GameOptions, invertMouse)));
+KEG_TYPE_INIT_END
+
+KEG_TYPE_INIT_BEGIN_DEF_VAR(SoundOptions)
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("musicVolume", Keg::Value::basic(Keg::BasicType::F32, offsetof(SoundOptions, musicVolume)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("effectVolume", Keg::Value::basic(Keg::BasicType::F32, offsetof(SoundOptions, effectVolume)));
+KEG_TYPE_INIT_END
+
+std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
 GraphicsOptions graphicsOptions;
 SoundOptions soundOptions;
 GameOptions gameOptions;
 MenuOptions menuOptions;
 
-void initializeOptions() {
-    graphicsOptions.cloudDetail = 1;
-    graphicsOptions.lookSensitivity = 0.0026;
-    graphicsOptions.voxelRenderDistance = 144;
-    graphicsOptions.lodDetail = 1;
-    graphicsOptions.isFancyTrees = 1;
-    graphicsOptions.enableParticles = 1;
-    graphicsOptions.chunkLoadTime = 1;
-    graphicsOptions.hdrExposure = 3.0f;
-    graphicsOptions.gamma = 1.0f;
-    graphicsOptions.secColorMult = 0.1f;
-    graphicsOptions.isVsync = 0;
-    graphicsOptions.needsWindowReload = 0;
-    graphicsOptions.fov = 70;
-    graphicsOptions.hudMode = 0;
-    graphicsOptions.texturePackString = "Default";
-    graphicsOptions.defaultTexturePack = "Default.zip";
-    graphicsOptions.currTexturePack = graphicsOptions.texturePackString;
-    graphicsOptions.needsFboReload = 0;
-    graphicsOptions.needsFullscreenToggle = 0;
-    graphicsOptions.maxFPS = 60.0f;
-    graphicsOptions.motionBlur = 8;
-    graphicsOptions.msaa = 0;
-    graphicsOptions.maxMsaa = 32;
-    graphicsOptions.voxelLODThreshold = 128.0f;
-    graphicsOptions.voxelLODThreshold2 = graphicsOptions.voxelLODThreshold * graphicsOptions.voxelLODThreshold;
+bool loadOptions(const cString filePath) {
+    IOManager ioManager; // TODO: Pass in a real boy
+    const cString data = ioManager.readFileToString(filePath);
 
-    gameOptions.invertMouse = 0;
-    gameOptions.mouseSensitivity = 30.0;
+    YAML::Node node = YAML::Load(data);
+    if (node.IsNull() || !node.IsMap()) {
+        delete[] data;
+        perror(filePath);
+        return false;
+    }
 
-    graphicsOptions.specularExponent = 8.0f;
-    graphicsOptions.specularIntensity = 0.3f;
+    // Manually parse yml file
+    Keg::Value v = Keg::Value::custom("Axis", 0);
+    for (auto& kvp : node) {
+        nString structName = kvp.first.as<nString>();
+        if (structName == "GraphicsOptions") {
+            Keg::parse((ui8*)&graphicsOptions, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GraphicsOptions));
+        } else if (structName == "GameOptions") {
+            Keg::parse((ui8*)&gameOptions, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GameOptions));
+        } else if (structName == "SoundOptions") {
+            Keg::parse((ui8*)&soundOptions, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SoundOptions));
+        }
+    }
 
-    soundOptions.effectVolume = 100;
-    soundOptions.musicVolume = 100;
-
-    menuOptions.markerR = menuOptions.markerG = menuOptions.markerB = 0;
-    menuOptions.loadGameString = menuOptions.newGameString = menuOptions.selectPlanetName = menuOptions.markerName = "";
+    delete[] data;
+    return true;
 }
