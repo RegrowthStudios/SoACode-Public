@@ -671,6 +671,12 @@
     <ClInclude Include="FloraTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
+    <ClInclude Include="PauseMenu.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseMenuAwesomiumAPI.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1084,6 +1090,8 @@
     <ClCompile Include="CellularAutomataTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
+    <ClCompile Include="PauseMenu.cpp" />
+    <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
