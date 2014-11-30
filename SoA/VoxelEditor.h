@@ -3,7 +3,7 @@
 
 class Item;
 
-struct EditorNode {
+class EditorNode {
     i32v3 position;
 };
 

@@ -22,7 +22,7 @@ namespace vorb {
 
         class IThreadPoolTask {
         public:
-            /// Constructor
+            /// Conclassor
             /// @param taskId: Optional unique identifier for task type.
             IThreadPoolTask(bool shouldAddToFinishedTasks = false, i32 taskId = -1) :
                 _shouldAddToFinishedTasks(shouldAddToFinishedTasks),

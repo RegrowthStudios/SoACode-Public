@@ -34,11 +34,11 @@ public:
 template<typename F, typename... Params>
 class Delegate : public IDelegate<Params...> {
 public:
-    /// Empty constructor
+    /// Empty conclassor
     Delegate() {
         // Empty
     }
-    /// Copy constructor
+    /// Copy conclassor
     /// @param f: Lambda functor
     Delegate(F& f):
         _f(f) {

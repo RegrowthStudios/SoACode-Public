@@ -19,8 +19,9 @@ namespace vorb {
 namespace core {
 namespace graphics {
 
-// Wrapper struct for a texture
-struct Texture {
+// Wrapper class for a texture
+class Texture {
+public:
     Texture() : ID(0), width(0), height(0) {}
     Texture(ui32 TextureID, ui32 Width, ui32 Height) :
         ID(TextureID),

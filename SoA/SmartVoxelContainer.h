@@ -34,7 +34,7 @@ namespace vorb {
             friend class Chunk;
             friend class ChunkGenerator;
 
-            /// Constructor
+            /// Conclassor
             /// @param arrayRecycler: Pointer to a recycler. Template parameters must be
             /// <CHUNK_SIZE, T>
             SmartVoxelContainer(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* arrayRecycler) :
@@ -200,7 +200,7 @@ namespace vorb {
             int _accessCount; ///< Number of times the container was accessed this frame
             int _quietFrames; ///< Number of frames since we have had heavy updates
 
-            VoxelStorageState _state; ///< Current data structure state
+            VoxelStorageState _state; ///< Current data classure state
 
             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* _arrayRecycler; ///< For recycling the voxel arrays
         };

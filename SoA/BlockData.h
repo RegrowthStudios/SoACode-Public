@@ -62,7 +62,7 @@ KEG_ENUM_DECL(BlockOcclusion);
 
 class BlockTextureLayer {
 public:
-    // Set defaults in constructor for no .tex file
+    // Set defaults in conclassor for no .tex file
     BlockTextureLayer() : 
         method(ConnectedTextureMethods::NONE),
         size(1),
@@ -140,7 +140,8 @@ public:
 };
 KEG_TYPE_DECL(BlockTextureLayer);
 
-struct BlockTexture {
+class BlockTexture {
+public:
     BlockTexture() : blendMode(BlendType::ALPHA){};
     BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
         base(b), overlay(o), blendMode(bt){
@@ -203,7 +204,7 @@ extern int grassTextureOffsets[32];
 
 void initConnectedTextures();
 
-struct BlockVariable
+class BlockVariable
 {
     //VarType 0 = int, 1 = float
     BlockVariable(){}
@@ -219,7 +220,7 @@ struct BlockVariable
 
 extern map <string, BlockVariable> blockVariableMap;
 
-struct ItemDrop
+class ItemDrop
 {
     ItemDrop(Item *itm, int Num){
         item = itm;
@@ -229,11 +230,12 @@ struct ItemDrop
     int num;
 };
 
-struct BlockTextureFaces {
+class BlockTextureFaces {
 public:
     union {
         ui32 array[6];       ///  Access 6-sided block textures as an array
-        struct {
+        class {
+        public:
             ui32 px;  /// Positive x-axis texture
             ui32 py;  /// Positive y-axis texture
             ui32 pz;  /// Positive z-axis texture

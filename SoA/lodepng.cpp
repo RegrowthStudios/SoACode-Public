@@ -115,7 +115,7 @@ About uivector, ucvector and string:
 -LodePNG was originally written in C++. The vectors replace the std::vectors that were used in the C++ version.
 -The string tools are made to avoid problems with compilers that declare things like strncat as deprecated.
 -They're not used in the interface, only internally in this file as static functions.
--As with many other structs in this file, the init and cleanup functions serve as ctor and dtor.
+-As with many other classs in this file, the init and cleanup functions serve as ctor and dtor.
 */
 
 #ifdef LODEPNG_COMPILE_ZLIB
@@ -476,7 +476,7 @@ static const unsigned CLCL_ORDER[NUM_CODE_LENGTH_CODES]
 /* ////////////////////////////////////////////////////////////////////////// */
 
 /*
-Huffman tree struct, containing multiple representations of the tree
+Huffman tree class, containing multiple representations of the tree
 */
 typedef struct HuffmanTree
 {
@@ -2901,11 +2901,11 @@ static void addColorBits(unsigned char* out, size_t index, unsigned bits, unsign
     else out[index * bits / 8] |= in;
 }
 
-typedef struct ColorTree ColorTree;
+typedef class ColorTree ColorTree;
 
 /*
 One node of a color tree
-This is the data structure used to count the number of unique colors and to get a palette
+This is the data classure used to count the number of unique colors and to get a palette
 index for a color. It's like an octree, but because the alpha channel is used too, each
 node has 16 instead of 8 children.
 */

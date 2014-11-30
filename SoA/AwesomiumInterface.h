@@ -124,8 +124,9 @@ private:
 
     CustomJSMethodHandler<C> _methodHandler; ///< the method handler for the function calls
 
-    /// the vertex struct for rendering
-    struct Vertex2D {
+    /// the vertex class for rendering
+    class Vertex2D {
+    public:
         f32v2 pos;
         ui8 uv[2];
         ui8 pad[2];

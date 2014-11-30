@@ -10,7 +10,8 @@
 
 #define BYTES_PER_PIXEL 4
 
-struct BlockAtlasPage {
+class BlockAtlasPage {
+public:
     bool slots[BLOCK_TEXTURE_ATLAS_SIZE];
 };
 

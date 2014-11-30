@@ -4,6 +4,7 @@
 #include <deque>
 #include <queue>
 
+#include "Biome.h"
 #include "OpenGLStructs.h"
 #include "Texture2d.h"
 #include "WorldStructs.h"
@@ -15,8 +16,8 @@
 #define P_BACK 4
 #define P_BOTTOM 5
 
-struct TreeType;
-struct PlantType;
+class TreeType;
+class PlantType;
 class Camera;
 
 class Atmosphere {

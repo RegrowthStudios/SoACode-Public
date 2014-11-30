@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 
-struct LiquidData {
+class LiquidData {
     i32 startBlockID;
     i32 numLevels;
 };

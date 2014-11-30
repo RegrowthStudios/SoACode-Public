@@ -24,7 +24,7 @@ class MeshManager;
 
 class TransparentVoxelRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
+    /// Conclassor which injects dependencies
     /// @param camera: The camera handle
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param meshManager: Handle to the class that holds meshes

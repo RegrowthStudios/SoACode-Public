@@ -22,8 +22,8 @@ class ChunkMeshData;
 class ParticleMeshMessage;
 class PhysicsBlockMeshMessage;
 
-struct ChunkMesh;
-struct ParticleMesh;
+class ChunkMesh;
+class ParticleMesh;
 class PhysicsBlockMesh;
 
 class MeshManager

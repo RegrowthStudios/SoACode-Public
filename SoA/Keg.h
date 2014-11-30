@@ -45,8 +45,8 @@ namespace Keg {
         EARLY_EOF
     };
 
-    // A Value Type Bound To An Offset In A Struct Of Data
-    struct Value {
+    // A Value Type Bound To An Offset In A class Of Data
+    class Value {
     public:
         // Set This As A Basic Parseable Value Type
         static Value basic(BasicType t, i32 off);
@@ -68,7 +68,7 @@ namespace Keg {
         // If It's An Array Or Pointer Type
         Value* interiorValue;
 
-        // Bytes Of Offset Into The Struct To Find The Data
+        // Bytes Of Offset Into The class To Find The Data
         i32 offset;
     };
 
@@ -248,21 +248,21 @@ namespace Keg {
 #define KEG_ENUM_DECL(TYPENAME) extern Keg::Enum KEG_GLOBAL_ENUM(TYPENAME); extern bool KEG_GLOBAL_ENUM_INIT(TYPENAME)
 
 // For Use In Source Files:
-#define KEG_TYPE_INIT_BEGIN(TYPENAME, STRUCT_TYPE, VAR_NAME) bool kt_init_##TYPENAME##(); \
-    Keg::Type KEG_GLOBAL_TYPE(TYPENAME)(sizeof(STRUCT_TYPE), #TYPENAME, nullptr); \
+#define KEG_TYPE_INIT_BEGIN(TYPENAME, class_TYPE, VAR_NAME) bool kt_init_##TYPENAME##(); \
+    Keg::Type KEG_GLOBAL_TYPE(TYPENAME)(sizeof(class_TYPE), #TYPENAME, nullptr); \
     bool KEG_GLOBAL_TYPE_INIT(TYPENAME) = kt_init_##TYPENAME##(); \
     bool kt_init_##TYPENAME##() MACRO_PARAN_L \
     Keg::Type* VAR_NAME = &KEG_GLOBAL_TYPE(TYPENAME);
-#define KEG_ENUM_INIT_BEGIN(TYPENAME, STRUCT_TYPE, VAR_NAME) bool ke_init_##TYPENAME##(); \
-    Keg::Enum KEG_GLOBAL_ENUM(TYPENAME)(sizeof(STRUCT_TYPE), #TYPENAME, nullptr); \
+#define KEG_ENUM_INIT_BEGIN(TYPENAME, class_TYPE, VAR_NAME) bool ke_init_##TYPENAME##(); \
+    Keg::Enum KEG_GLOBAL_ENUM(TYPENAME)(sizeof(class_TYPE), #TYPENAME, nullptr); \
     bool KEG_GLOBAL_ENUM_INIT(TYPENAME) = ke_init_##TYPENAME##(); \
     bool ke_init_##TYPENAME##() MACRO_PARAN_L \
     Keg::Enum* VAR_NAME = &KEG_GLOBAL_ENUM(TYPENAME);
 
 // For Less Verbose Type Initializations
 #define KEG_TYPE_INIT_DEF_VAR_NAME __keg_t
-#define KEG_TYPE_INIT_BEGIN_DEF_VAR(STRUCT_TYPE) KEG_TYPE_INIT_BEGIN(STRUCT_TYPE, STRUCT_TYPE, KEG_TYPE_INIT_DEF_VAR_NAME)
-#define KEG_TYPE_INIT_BEGIN_DEF_VAR2(TYPENAME, STRUCT_TYPE) KEG_TYPE_INIT_BEGIN(TYPENAME, STRUCT_TYPE, KEG_TYPE_INIT_DEF_VAR_NAME)
+#define KEG_TYPE_INIT_BEGIN_DEF_VAR(class_TYPE) KEG_TYPE_INIT_BEGIN(class_TYPE, class_TYPE, KEG_TYPE_INIT_DEF_VAR_NAME)
+#define KEG_TYPE_INIT_BEGIN_DEF_VAR2(TYPENAME, class_TYPE) KEG_TYPE_INIT_BEGIN(TYPENAME, class_TYPE, KEG_TYPE_INIT_DEF_VAR_NAME)
 #define KEG_TYPE_INIT_ADD_MEMBER(TYPENAME, TYPE_ENUM, MEMBER) KEG_TYPE_INIT_DEF_VAR_NAME->addValue(#MEMBER, Keg::Value::basic(Keg::BasicType::TYPE_ENUM, offsetof(TYPENAME, MEMBER)))
 
 #define KEG_TYPE_INIT_END \

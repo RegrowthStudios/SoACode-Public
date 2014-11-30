@@ -29,7 +29,8 @@ public:
     void setDesiredSamples(int desiredSamples) { _desiredSamples = desiredSamples; }
 
 private:
-    struct Interval {
+    class Interval {
+    public:
         Interval(std::string Tag) : tag(Tag), time(0.0f) {};
         std::string tag;
         float time;

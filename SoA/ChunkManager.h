@@ -23,14 +23,14 @@ const i32 lodStep = 1;
 extern ui32 strtTimer;
 
 // Message used when placing blocks
-struct PlaceBlocksMessage {
+class PlaceBlocksMessage {
 
     PlaceBlocksMessage(Item *equipped) : equippedItem(equipped) {}
 
     Item* equippedItem;
 };
 
-struct ChunkDiagnostics {
+class ChunkDiagnostics {
 public:
     // Number Of Chunks That Have Been Allocated During The Program's Life
     i32 totalAllocated;

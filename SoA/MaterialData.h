@@ -1,6 +1,6 @@
 #pragma once
 
-struct MaterialData {
+class MaterialData {
 public:
     f32 weight;
     f32 volume;

@@ -21,7 +21,7 @@
 
 class HdrRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
+    /// Conclassor which injects dependencies
     /// @param glProgram: The program used to render HDR
     /// @param quad: Quad used for rendering to screen
     HdrRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad);

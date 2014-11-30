@@ -17,14 +17,16 @@ public:
 #define START_MASK 0x7FFF
 
     //Node for createFromArray
-    struct LightweightNode {
+    class LightweightNode {
+    public:
         LightweightNode(ui16 Start, ui16 Length, T Data) : start(Start), length(Length), data(Data) {}
         ui16 start;
         ui16 length;
         T data;
     };
 
-    struct Node {
+    class Node {
+    public:
         Node() {}
         Node(T Data, ui16 start, ui16 Length) : data(Data), _start(start | COLOR_BIT), length(Length), left(-1), right(-1), parent(-1) {}
 
@@ -170,7 +172,8 @@ private:
     int _root;
     std::vector <Node> _tree;
 
-    struct NodeToAdd {
+    class NodeToAdd {
+    public:
         NodeToAdd(i16 Parent, ui16 Length, T Data) : start(Parent), length(Length), data(Data) {}
         i16 start;
         ui16 length;

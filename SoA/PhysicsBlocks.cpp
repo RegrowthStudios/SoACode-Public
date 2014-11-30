@@ -124,7 +124,7 @@ const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 
 
 bool PhysicsBlock::update(Chunk*& lockedChunk)
 {
-    if (done == 2) return true; //defer destruction by two frames for good measure
+    if (done == 2) return true; //defer declassion by two frames for good measure
     if (done != 0) {
         done++;
         return false;

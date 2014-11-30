@@ -9,7 +9,7 @@ class ScreenList;
 
 
 // Provides Temporal Information Since The Start Of The Application
-struct GameTime {
+class GameTime {
 public:
     // Total Time Since The Main Loop Started
     f64 total;

@@ -4,7 +4,7 @@
 const i32 BLOCK_TEXTURE_ATLAS_TILES_PER_SIDE = 16;
 const i32 BLOCK_TEXTURE_ATLAS_TILES_PER_PAGE = BLOCK_TEXTURE_ATLAS_TILES_PER_SIDE * BLOCK_TEXTURE_ATLAS_TILES_PER_SIDE;
 
-struct BlockTextureIndex {
+class BlockTextureIndex {
 public:
     BlockTextureIndex(ui16 blockID, i32 tileWidth, i32 tileHeight);
     BlockTextureIndex() : BlockTextureIndex(0, 0, 0) {}
@@ -26,7 +26,7 @@ public:
     ui8 textureMethod;
 };
 
-struct BlockAtlasPage;
+class BlockAtlasPage;
 
 class BlockTextureAtlas {
 public:

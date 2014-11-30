@@ -8,10 +8,11 @@
 // TODO: Remove This
 using namespace std;
 
-vg::Texture getTexture(string source, struct Animation **anim = NULL);
+vg::Texture getTexture(string source, class Animation **anim = NULL);
 
-struct BlockPack
+class BlockPack
 {
+public:
     void initialize(vg::Texture texInfo);
     vg::Texture textureInfo;
     vector <GLubyte[256][3]> avgColors;

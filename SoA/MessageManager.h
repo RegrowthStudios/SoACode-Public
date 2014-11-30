@@ -15,8 +15,9 @@ enum class MessageID {
     PHYSICS_BLOCK_MESH
 };
 
-struct Message
+class Message
 {
+public:
     Message() : id(MessageID::NONE), data(NULL){}
     Message(MessageID i, void *d) : id(i), data(d) {}
     MessageID id;

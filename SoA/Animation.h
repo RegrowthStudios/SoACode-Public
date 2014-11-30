@@ -5,7 +5,8 @@
 
 #include "Texture.h"
 
-struct Animation {
+class Animation {
+public:
     Animation() : fadeOutBegin(INT_MAX) {}
     int duration;
     int fadeOutBegin;

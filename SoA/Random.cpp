@@ -3,13 +3,13 @@
 
 #include <time.h>
 
-// Constructors
+// Conclassors
 Random::Random(i32 s) {
     _mtArr = new i32[MERSENNE_ARRAY_SIZE];
     seed(s);
 }
 Random::Random() : Random(clock()) {
-    // Just Use The Regular Constructor
+    // Just Use The Regular Conclassor
 }
 Random::~Random() {
     if (_mtArr) {

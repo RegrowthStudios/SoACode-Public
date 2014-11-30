@@ -51,7 +51,7 @@ vg::Texture getTexture(string source, Animation **anim)
                     if (s.substr(s.size() - 4) == ".png"){
                         s.erase(s.size() - 4);
                         s += ".anim";
-                        *anim = fileManager.loadAnimation(s, &zipFile);
+           //             *anim = fileManager.loadAnimation(s, &zipFile);
                     }
                 }
 
@@ -65,7 +65,7 @@ vg::Texture getTexture(string source, Animation **anim)
                     if (s.substr(s.size() - 4) == ".png"){
                         s.erase(s.size() - 4);
                         s += ".anim";
-                        *anim = fileManager.loadAnimation(fileName + s);
+           //             *anim = fileManager.loadAnimation(fileName + s);
                     }
                 }
             }

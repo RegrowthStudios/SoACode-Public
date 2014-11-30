@@ -388,168 +388,168 @@ void TerrainGenerator::SetLODFace(int Ipos, int Jpos, int Rpos, int Radius, int 
 
 void TerrainGenerator::GenerateHeightMap(HeightData *lodMap, int icoord, int jcoord, int size, int iend, int jend, int step, int iskip, bool *hasWater)
 {
-    double random = 0;
-    double noiseHeight = 0;
-    double probheight = 0;
-    double rh, rh2;
-    double lattitude;
-    double tempMod;
-    glm::dvec3 pos;
-    int biomeColor;
-    double temperature;
-    double rainfall;
-    Biome *mainBiome;
-    int depth;
-
-    double ic, jc;
-    
-    map <int, Biome *>::iterator biomeit;
-    
-    for (int i = 0; i < iend; i++){
-        for (int j = 0; j < jend; j++){
-            if (iskip && (j%iskip == 0) && (i%iskip == 0)) continue;
-
-            ic = (double)(icoord+(i*step)) * scale * iDir;
-            jc = (double)(jcoord+(j*step)) * scale * jDir;
-
-            pos[iPos] = ic + scaled_octave_noise_2d(4, 0.6, 0.019, -7.0, 7.0, ic, jc);
-            pos[jPos] = jc + scaled_octave_noise_2d(4, 0.6, 0.02, -7.0, 7.0, jc, ic);
-            pos[rPos] = radius;
-
-            lattitude = glm::normalize(pos).y;
-            if (lattitude < 0.0) lattitude = -lattitude;
-            
-            tempMod = 110.0 - (lattitude*200.0);
-
-            //BASE NOISE
-            noiseHeight = heightModifier;
-            probheight = 0;
-            GLuint flags = 0;
-            for (unsigned int n = 0; n < noiseFunctions.size(); n++){
-                GetNoiseHeight(noiseHeight, &noiseFunctions[n], pos.x, pos.y, pos.z, flags);
-            }
-
-            temperature = GetTemperature(pos.x, pos.y, pos.z) - MAX((int)noiseHeight - 500.0, 0)*0.01 + scaled_octave_noise_3d(3, 0.45, 0.013, 0.0, 2.0, pos.x, pos.y, pos.z) + tempMod;
-            rainfall = GetRainfall(pos.x, pos.y, pos.z) - MAX((int)noiseHeight - 500,0)*0.006667 + scaled_octave_noise_3d(3, 0.5, 0.01, 0.0, 2.0, pos.z, pos.y, pos.x);
-        
-            if (biomeOffsetNoiseFunction) GetNoiseHeight(probheight, biomeOffsetNoiseFunction, pos.x, pos.y, pos.z, flags);
-
-            if (temperature < 0.0) temperature = 0.0;
-            if (temperature > 255.0) temperature = 255.0;
-            if (rainfall < 0.0) rainfall = 0;
-            if (rainfall > 255.0) rainfall = 255.0;
-            biomeColor = BiomeMap[(int)rainfall][(int)temperature];
-            biomeit = GameManager::planet->baseBiomesLookupMap.find(biomeColor);
-            if (biomeit == GameManager::planet->baseBiomesLookupMap.end()){
-                lodMap[i*size + j].biome = &blankBiome;
-            }
-            else{
-                lodMap[i*size + j].biome = biomeit->second;
-            }
-
-            double sandDepth = 0.0;
-            for (unsigned int n = 0; n < GameManager::planet->mainBiomesVector.size(); n++){
-                mainBiome = GameManager::planet->mainBiomesVector[n];
-                if (rainfall >= mainBiome->lowRain && rainfall <= mainBiome->highRain && 
-                    temperature >= mainBiome->lowTemp && temperature <= mainBiome->highTemp){
-
-                    rh = (octave_noise_3d(mainBiome->distributionNoise.octaves, mainBiome->distributionNoise.persistence, mainBiome->distributionNoise.frequency, pos.x, pos.y, pos.z) + 1.0)*0.5;
-                    if (rh >= mainBiome->distributionNoise.lowBound){
-                        rh = (rh - mainBiome->distributionNoise.lowBound)/mainBiome->distributionNoise.upBound;
-                        rh2 = ((mainBiome->maxHeight - noiseHeight))/mainBiome->maxHeightSlopeLength;
-                        if (rh2 >= 0.0){
-                            if (rh2 < rh) rh = rh2;
-                            InfluenceTerrainWithBiome(mainBiome, &(lodMap[i*size+j]), pos.x, pos.y, pos.z, temperature, rainfall, noiseHeight, sandDepth, flags, rh);
-                        }
-                    }
-                }
-            }
-
-            //rivers
-            if (riverNoiseFunction){
-                rh = GetRiverNoiseHeight(noiseHeight, riverNoiseFunction, pos.x, pos.y, pos.z, flags);
-                if (rh > 0.4 && rh < 0.605){
-                    GetTributaryNoiseHeight(noiseHeight, tributaryNoiseFunction, pos.x, pos.y, pos.z, flags, rh);
-                }
-            }
-            if (preturbNoiseFunction) GetNoiseHeight(noiseHeight, preturbNoiseFunction, pos.x, pos.y, pos.z, flags);
-
-            lodMap[i*size+j].height = (int)(noiseHeight + sandDepth);
-            if (hasWater != NULL && lodMap[i*size+j].height < 0) *hasWater = 1;
-            lodMap[i*size+j].sandDepth = MAX((int)sandDepth, 0);
-            lodMap[i*size+j].snowDepth = MAX((FREEZETEMP - temperature), 0)*MAX((rainfall-60)/2, 0)/170;
-            lodMap[i*size + j].flags = 0;
-            if (temperature < 0) temperature = 0;
-            if (temperature > 255.0) temperature = 255.0;
-            if (rainfall < 0.0) rainfall = 0;
-            if (rainfall > 255.0) rainfall = 255.0;
-            lodMap[i*size+j].temperature = (int)temperature;
-            lodMap[i*size+j].rainfall = (int)rainfall;
-
-            //water depth
-            depth = -lodMap[i*size + j].height / 5;
-            if (depth > 255) {
-                depth = 255;
-            } else if (depth < 0) {
-                depth = 0;
-            }
-            lodMap[i*size + j].depth = (ui8)(255 - depth);
-        }
-    }
-}
-
-void TerrainGenerator::InfluenceTerrainWithBiome(Biome *b, HeightData *hv, double x, double y, double z, double &temp, double &rain, double &height, double &sandDepth, GLuint &flags, double terrainMult)
-{
-    NoiseInfo *noisef;
-    double tmp = 1.0, mult = 1.0;
-    double newHeight = 0.0;
-    Biome *b2;
-    if (temp < b->lowTemp + b->tempSlopeLength){
-        mult = (temp - b->lowTemp)/b->tempSlopeLength;
-    }else if (temp > b->highTemp - b->tempSlopeLength){
-        mult = (b->highTemp - temp)/b->tempSlopeLength;
-    }
-    if (rain < b->lowRain + b->rainSlopeLength){
-        tmp = (rain - b->lowRain)/b->rainSlopeLength;
-    }else if (rain > b->highRain - b->rainSlopeLength){
-        tmp = (b->highRain - rain)/b->rainSlopeLength;
-    }
-    if (tmp < mult) mult = tmp;
-    if (terrainMult < mult) mult = terrainMult;
-    if (mult >= b->applyBiomeAt) hv->biome = b;
-    tmp = (1.0-(mult)*(1.0-b->minTerrainMult));
-    if (height < 0) tmp = 1.0; // TEMP: ************************************************************* NO BIOME CAN DESTROY OCEAN
-    height *= tmp; //bring down the existing terrain influence
-    sandDepth *= tmp;
-    
-    for (unsigned int n = 0; n < b->terrainNoiseList.size(); n++){
-        noisef = &(b->terrainNoiseList[n]);
-        if (noisef->composition == 1){ //sand
-            tmp = 0.0;
-            GetNoiseHeight(tmp, noisef, x, y, z, flags);
-            sandDepth += tmp*mult;
-        }else{ //other
-            GetNoiseHeight(newHeight, noisef, x, y, z, flags);
-        }
-    }
-    height += newHeight*mult;
-
-    //temp = (MAX(GetTemperature(x, y, z) - MAX(height - 500.0, 0)/50.0, 0) + scaled_octave_noise_3d(3, 0.45, 0.013, 0.0, 2.0, x, y, z));
-    //rain = (MAX(GetRainfall(x, y, z) - MAX(height - 500,0)/150, 0) + scaled_octave_noise_3d(3, 0.5, 0.01, 0.0, 2.0, z, y, x));
-
-    for (unsigned int n = 0; n < b->childBiomes.size(); n++){
-        b2 = b->childBiomes[n];
-        if (rain >= b2->lowRain && rain <= b2->highRain && 
-            temp >= b2->lowTemp && temp <= b2->highTemp){
-
-            tmp = (octave_noise_3d(b2->distributionNoise.octaves, b2->distributionNoise.persistence, b2->distributionNoise.frequency, x, y, z) + 1.0)*0.5;
-            if (tmp >= b2->distributionNoise.lowBound){
-                tmp = (tmp - b2->distributionNoise.lowBound)/b2->distributionNoise.upBound;        
-                if (mult < tmp) tmp = mult;
-                InfluenceTerrainWithBiome(b2, hv, x, y, z, temp, rain, height, sandDepth, flags, tmp); //recursive
-            }
-        }
-    }
+//    double random = 0;
+//    double noiseHeight = 0;
+//    double probheight = 0;
+//    double rh, rh2;
+//    double lattitude;
+//    double tempMod;
+//    glm::dvec3 pos;
+//    int biomeColor;
+//    double temperature;
+//    double rainfall;
+//    Biome *mainBiome;
+//    int depth;
+//
+//    double ic, jc;
+//    
+//    map <int, Biome *>::iterator biomeit;
+//    
+//    for (int i = 0; i < iend; i++){
+//        for (int j = 0; j < jend; j++){
+//            if (iskip && (j%iskip == 0) && (i%iskip == 0)) continue;
+//
+//            ic = (double)(icoord+(i*step)) * scale * iDir;
+//            jc = (double)(jcoord+(j*step)) * scale * jDir;
+//
+//            pos[iPos] = ic + scaled_octave_noise_2d(4, 0.6, 0.019, -7.0, 7.0, ic, jc);
+//            pos[jPos] = jc + scaled_octave_noise_2d(4, 0.6, 0.02, -7.0, 7.0, jc, ic);
+//            pos[rPos] = radius;
+//
+//            lattitude = glm::normalize(pos).y;
+//            if (lattitude < 0.0) lattitude = -lattitude;
+//            
+//            tempMod = 110.0 - (lattitude*200.0);
+//
+//            //BASE NOISE
+//            noiseHeight = heightModifier;
+//            probheight = 0;
+//            GLuint flags = 0;
+//            for (unsigned int n = 0; n < noiseFunctions.size(); n++){
+//                GetNoiseHeight(noiseHeight, &noiseFunctions[n], pos.x, pos.y, pos.z, flags);
+//            }
+//
+//            temperature = GetTemperature(pos.x, pos.y, pos.z) - MAX((int)noiseHeight - 500.0, 0)*0.01 + scaled_octave_noise_3d(3, 0.45, 0.013, 0.0, 2.0, pos.x, pos.y, pos.z) + tempMod;
+//            rainfall = GetRainfall(pos.x, pos.y, pos.z) - MAX((int)noiseHeight - 500,0)*0.006667 + scaled_octave_noise_3d(3, 0.5, 0.01, 0.0, 2.0, pos.z, pos.y, pos.x);
+//        
+//            if (biomeOffsetNoiseFunction) GetNoiseHeight(probheight, biomeOffsetNoiseFunction, pos.x, pos.y, pos.z, flags);
+//
+//            if (temperature < 0.0) temperature = 0.0;
+//            if (temperature > 255.0) temperature = 255.0;
+//            if (rainfall < 0.0) rainfall = 0;
+//            if (rainfall > 255.0) rainfall = 255.0;
+//            biomeColor = BiomeMap[(int)rainfall][(int)temperature];
+//            biomeit = GameManager::planet->baseBiomesLookupMap.find(biomeColor);
+//            if (biomeit == GameManager::planet->baseBiomesLookupMap.end()){
+//                lodMap[i*size + j].biome = &blankBiome;
+//            }
+//            else{
+//                lodMap[i*size + j].biome = biomeit->second;
+//            }
+//
+//            double sandDepth = 0.0;
+//            for (unsigned int n = 0; n < GameManager::planet->mainBiomesVector.size(); n++){
+//                mainBiome = GameManager::planet->mainBiomesVector[n];
+//                if (rainfall >= mainBiome->lowRain && rainfall <= mainBiome->highRain && 
+//                    temperature >= mainBiome->lowTemp && temperature <= mainBiome->highTemp){
+//
+//                    rh = (octave_noise_3d(mainBiome->distributionNoise.octaves, mainBiome->distributionNoise.persistence, mainBiome->distributionNoise.frequency, pos.x, pos.y, pos.z) + 1.0)*0.5;
+//                    if (rh >= mainBiome->distributionNoise.lowBound){
+//                        rh = (rh - mainBiome->distributionNoise.lowBound)/mainBiome->distributionNoise.upBound;
+//                        rh2 = ((mainBiome->maxHeight - noiseHeight))/mainBiome->maxHeightSlopeLength;
+//                        if (rh2 >= 0.0){
+//                            if (rh2 < rh) rh = rh2;
+//                            InfluenceTerrainWithBiome(mainBiome, &(lodMap[i*size+j]), pos.x, pos.y, pos.z, temperature, rainfall, noiseHeight, sandDepth, flags, rh);
+//                        }
+//                    }
+//                }
+//            }
+//
+//            //rivers
+//            if (riverNoiseFunction){
+//                rh = GetRiverNoiseHeight(noiseHeight, riverNoiseFunction, pos.x, pos.y, pos.z, flags);
+//                if (rh > 0.4 && rh < 0.605){
+//                    GetTributaryNoiseHeight(noiseHeight, tributaryNoiseFunction, pos.x, pos.y, pos.z, flags, rh);
+//                }
+//            }
+//            if (preturbNoiseFunction) GetNoiseHeight(noiseHeight, preturbNoiseFunction, pos.x, pos.y, pos.z, flags);
+//
+//            lodMap[i*size+j].height = (int)(noiseHeight + sandDepth);
+//            if (hasWater != NULL && lodMap[i*size+j].height < 0) *hasWater = 1;
+//            lodMap[i*size+j].sandDepth = MAX((int)sandDepth, 0);
+//            lodMap[i*size+j].snowDepth = MAX((FREEZETEMP - temperature), 0)*MAX((rainfall-60)/2, 0)/170;
+//            lodMap[i*size + j].flags = 0;
+//            if (temperature < 0) temperature = 0;
+//            if (temperature > 255.0) temperature = 255.0;
+//            if (rainfall < 0.0) rainfall = 0;
+//            if (rainfall > 255.0) rainfall = 255.0;
+//            lodMap[i*size+j].temperature = (int)temperature;
+//            lodMap[i*size+j].rainfall = (int)rainfall;
+//
+//            //water depth
+//            depth = -lodMap[i*size + j].height / 5;
+//            if (depth > 255) {
+//                depth = 255;
+//            } else if (depth < 0) {
+//                depth = 0;
+//            }
+//            lodMap[i*size + j].depth = (ui8)(255 - depth);
+//        }
+//    }
+//}
+//
+//void TerrainGenerator::InfluenceTerrainWithBiome(Biome *b, HeightData *hv, double x, double y, double z, double &temp, double &rain, double &height, double &sandDepth, GLuint &flags, double terrainMult)
+//{
+//    NoiseInfo *noisef;
+//    double tmp = 1.0, mult = 1.0;
+//    double newHeight = 0.0;
+//    Biome *b2;
+//    if (temp < b->lowTemp + b->tempSlopeLength){
+//        mult = (temp - b->lowTemp)/b->tempSlopeLength;
+//    }else if (temp > b->highTemp - b->tempSlopeLength){
+//        mult = (b->highTemp - temp)/b->tempSlopeLength;
+//    }
+//    if (rain < b->lowRain + b->rainSlopeLength){
+//        tmp = (rain - b->lowRain)/b->rainSlopeLength;
+//    }else if (rain > b->highRain - b->rainSlopeLength){
+//        tmp = (b->highRain - rain)/b->rainSlopeLength;
+//    }
+//    if (tmp < mult) mult = tmp;
+//    if (terrainMult < mult) mult = terrainMult;
+//    if (mult >= b->applyBiomeAt) hv->biome = b;
+//    tmp = (1.0-(mult)*(1.0-b->minTerrainMult));
+//    if (height < 0) tmp = 1.0; // TEMP: ************************************************************* NO BIOME CAN DESTROY OCEAN
+//    height *= tmp; //bring down the existing terrain influence
+//    sandDepth *= tmp;
+//    
+//    for (unsigned int n = 0; n < b->terrainNoiseList.size(); n++){
+//        noisef = &(b->terrainNoiseList[n]);
+//        if (noisef->composition == 1){ //sand
+//            tmp = 0.0;
+//            GetNoiseHeight(tmp, noisef, x, y, z, flags);
+//            sandDepth += tmp*mult;
+//        }else{ //other
+//            GetNoiseHeight(newHeight, noisef, x, y, z, flags);
+//        }
+//    }
+//    height += newHeight*mult;
+//
+//    //temp = (MAX(GetTemperature(x, y, z) - MAX(height - 500.0, 0)/50.0, 0) + scaled_octave_noise_3d(3, 0.45, 0.013, 0.0, 2.0, x, y, z));
+//    //rain = (MAX(GetRainfall(x, y, z) - MAX(height - 500,0)/150, 0) + scaled_octave_noise_3d(3, 0.5, 0.01, 0.0, 2.0, z, y, x));
+//
+//    for (unsigned int n = 0; n < b->childBiomes.size(); n++){
+//        b2 = b->childBiomes[n];
+//        if (rain >= b2->lowRain && rain <= b2->highRain && 
+//            temp >= b2->lowTemp && temp <= b2->highTemp){
+//
+//            tmp = (octave_noise_3d(b2->distributionNoise.octaves, b2->distributionNoise.persistence, b2->distributionNoise.frequency, x, y, z) + 1.0)*0.5;
+//            if (tmp >= b2->distributionNoise.lowBound){
+//                tmp = (tmp - b2->distributionNoise.lowBound)/b2->distributionNoise.upBound;        
+//                if (mult < tmp) tmp = mult;
+//                InfluenceTerrainWithBiome(b2, hv, x, y, z, temp, rain, height, sandDepth, flags, tmp); //recursive
+//            }
+//        }
+//    }
 }
 
 double TerrainGenerator::GenerateSingleHeight(int x, int y, int z)
@@ -667,7 +667,7 @@ void TerrainGenerator::AddNoiseFunction(double persistence, double frequency, in
     noisef.scale = Scale;
     if (isModifier){
         if (noiseFunctions.size()){
-            noiseFunctions.back().modifier = new NoiseInfo; //freed in NoiseInfo destructor
+            noiseFunctions.back().modifier = new NoiseInfo; //freed in NoiseInfo declassor
             (*(noiseFunctions.back().modifier)) = noisef;
         }
     }else{

@@ -35,13 +35,6 @@ KEG_TYPE_INIT_END
 
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
-    _iniKeys["type"] = 0;
-    _iniKeys["defaultPositiveKey"] = 1;
-    _iniKeys["defaultNegativeKey"] = 2;
-    _iniKeys["positiveKey"] = 3;
-    _iniKeys["negativeKey"] = 4;
-    _iniKeys["joystickButton"] = 5;
-    _iniKeys["joystickAxis"] = 6;
     for (unsigned int i = 0; i < 256; i++) {
         _currentKeyStates[i] = false;
         _previousKeyStates[i] = false;
@@ -256,27 +249,7 @@ void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<
 }
 
 void InputManager::saveAxes(const string &filePath) {
-    std::vector<string> iniSections;
-    std::vector< std::vector<IniValue> > iniValues;
 
-    iniSections.push_back("");
-    iniValues.push_back(vector<IniValue>());
-    for (unsigned int i = 0; i < _axes.size(); i++) {
-        Axis* axis = _axes[i];
-        iniSections.push_back(axis->name);
-        std::vector<IniValue> values;
-
-        values.push_back(IniValue("type", std::to_string(axis->type)));
-        values.push_back(IniValue("defaultPositiveKey", std::to_string(axis->defaultPositiveKey)));
-        values.push_back(IniValue("defaultNegativeKey", std::to_string(axis->defaultNegativeKey)));
-        values.push_back(IniValue("positiveKey", std::to_string(axis->positiveKey)));
-        values.push_back(IniValue("negativeKey", std::to_string(axis->negativeKey)));
-        values.push_back(IniValue("joystickButton", std::to_string(axis->joystickAxis)));
-        values.push_back(IniValue("joystickAxis", std::to_string(axis->joystickButton)));
-
-        iniValues.push_back(values);
-    }
-    fileManager.saveIniFile(filePath, iniValues, iniSections);
 }
 
 void InputManager::saveAxes() {

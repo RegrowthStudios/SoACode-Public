@@ -24,7 +24,7 @@ namespace vorb {
         template<int N, typename T>
         class FixedSizeArrayRecycler {
         public:
-            /// Constructor
+            /// Conclassor
             /// @param maxSize: The maximum number of arrays to hold at any time.
             FixedSizeArrayRecycler(ui32 maxSize) : _maxSize(maxSize) { /* Empty */ }
             ~FixedSizeArrayRecycler() { destroy(); }

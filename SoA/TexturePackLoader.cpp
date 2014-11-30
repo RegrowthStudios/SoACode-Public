@@ -263,7 +263,7 @@ void TexturePackLoader::loadAllBlockTextures() {
     // Loop through all textures to load
     for (const nString& texturePath : _blockTexturesToLoad) {
 
-        // The struct we need to populate
+        // The class we need to populate
         BlockTextureData blockTextureLoadData = {};
         BlockTexture blockTexture;
 

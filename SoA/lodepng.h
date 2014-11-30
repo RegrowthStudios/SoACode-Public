@@ -329,7 +329,7 @@ typedef struct LodePNGColorMode
     /*
     transparent color key (tRNS)
 
-    This color uses the same bit depth as the bitdepth value in this struct, which can be 1-bit to 16-bit.
+    This color uses the same bit depth as the bitdepth value in this class, which can be 1-bit to 16-bit.
     For greyscale PNGs, r, g and b will all 3 be set to the same.
 
     When decoding, by default you can ignore this information, since LodePNG sets
@@ -343,7 +343,7 @@ typedef struct LodePNGColorMode
     unsigned key_b;       /*blue component of color key*/
 } LodePNGColorMode;
 
-/*init, cleanup and copy functions to use with this struct*/
+/*init, cleanup and copy functions to use with this class*/
 void lodepng_color_mode_init(LodePNGColorMode* info);
 void lodepng_color_mode_cleanup(LodePNGColorMode* info);
 /*return value is error code (0 means no error)*/
@@ -354,9 +354,9 @@ void lodepng_palette_clear(LodePNGColorMode* info);
 unsigned lodepng_palette_add(LodePNGColorMode* info,
     unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
-/*get the total amount of bits per pixel, based on colortype and bitdepth in the struct*/
+/*get the total amount of bits per pixel, based on colortype and bitdepth in the class*/
 unsigned lodepng_get_bpp(const LodePNGColorMode* info);
-/*get the amount of color channels used, based on colortype in the struct.
+/*get the amount of color channels used, based on colortype in the class.
 If a palette is used, it counts as 1 channel.*/
 unsigned lodepng_get_channels(const LodePNGColorMode* info);
 /*is it a greyscale type? (only colortype 0 or 4)*/
@@ -463,14 +463,14 @@ typedef struct LodePNGInfo
     The 3 buffers are the unknown chunks between certain critical chunks:
     0: IHDR-PLTE, 1: PLTE-IDAT, 2: IDAT-IEND
     Do not allocate or traverse this data yourself. Use the chunk traversing functions declared
-    later, such as lodepng_chunk_next and lodepng_chunk_append, to read/write this struct.
+    later, such as lodepng_chunk_next and lodepng_chunk_append, to read/write this class.
     */
     unsigned char* unknown_chunks_data[3];
     size_t unknown_chunks_size[3]; /*size in bytes of the unknown chunks, given for protection*/
 #endif /*LODEPNG_COMPILE_ANCILLARY_CHUNKS*/
 } LodePNGInfo;
 
-/*init, cleanup and copy functions to use with this struct*/
+/*init, cleanup and copy functions to use with this class*/
 void lodepng_info_init(LodePNGInfo* info);
 void lodepng_info_cleanup(LodePNGInfo* info);
 /*return value is error code (0 means no error)*/
@@ -487,12 +487,12 @@ unsigned lodepng_add_itext(LodePNGInfo* info, const char* key, const char* langt
 
 /*
 Converts raw buffer from one color type to another color type, based on
-LodePNGColorMode structs to describe the input and output color type.
+LodePNGColorMode classs to describe the input and output color type.
 See the reference manual at the end of this header file to see which color conversions are supported.
 return value = LodePNG error code (0 if all went ok, an error if the conversion isn't supported)
 The out buffer must have size (w * h * bpp + 7) / 8, where bpp is the bits per pixel
 of the output color type (lodepng_get_bpp)
-The fix_png value works as described in struct LodePNGDecoderSettings.
+The fix_png value works as described in class LodePNGDecoderSettings.
 Note: for 16-bit per channel colors, uses big endian format like PNG does.
 */
 unsigned lodepng_convert(unsigned char* out, const unsigned char* in,
@@ -502,7 +502,7 @@ unsigned lodepng_convert(unsigned char* out, const unsigned char* in,
 #ifdef LODEPNG_COMPILE_DECODER
 /*
 Settings for the decoder. This contains settings for the PNG and the Zlib
-decoder, but not the Info settings from the Info structs.
+decoder, but not the Info settings from the Info classs.
 */
 typedef struct LodePNGDecoderSettings
 {
@@ -640,7 +640,7 @@ typedef struct LodePNGState
 #endif
 } LodePNGState;
 
-/*init, cleanup and copy functions to use with this struct*/
+/*init, cleanup and copy functions to use with this class*/
 void lodepng_state_init(LodePNGState* state);
 void lodepng_state_cleanup(LodePNGState* state);
 void lodepng_state_copy(LodePNGState* dest, const LodePNGState* source);
@@ -675,7 +675,7 @@ unsigned lodepng_encode(unsigned char** out, size_t* outsize,
 
 /*
 The lodepng_chunk functions are normally not needed, except to traverse the
-unknown chunks stored in the LodePNGInfo struct, or add new ones to it.
+unknown chunks stored in the LodePNGInfo class, or add new ones to it.
 It also allows traversing the chunks of an encoded PNG file yourself.
 
 PNG standard chunk naming conventions:

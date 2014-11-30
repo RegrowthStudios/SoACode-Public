@@ -12,7 +12,7 @@
 
 #include "Timing.h"
 
-bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
+bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 {
     PreciseTimer timer;
     timer.start();
@@ -85,7 +85,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
                 if ((h <= maph - 1) && (!tooSteep || maph - h > (biome->looseSoilDepth - 1))){ //ROCK LAYERS check for loose soil too
                     if ((h - (maph - 1)) > -SURFACE_DEPTH){ //SURFACE LAYERS
                         if (nh >= SURFACE_DEPTH) exit(1);
-                        data = biome->surfaceLayers[nh];
+                        data = STONE;// biome->surfaceLayers[nh];
                         chunk->numBlocks++;
                     } else{ //VERY LOW
                         data = STONE;

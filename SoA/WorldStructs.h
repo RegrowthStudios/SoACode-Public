@@ -12,7 +12,8 @@ extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
 const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.
 
-struct FixedSizeBillboardVertex{
+class FixedSizeBillboardVertex{
+public:
     glm::vec3 pos;
     GLubyte uv[2];
 };
@@ -33,8 +34,9 @@ public:
     void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);
 };
 
-struct NoiseInfo
+class NoiseInfo
 {
+public:
     NoiseInfo(){
         memset(this, 0, sizeof(NoiseInfo));
         modifier = NULL;
@@ -62,8 +64,9 @@ const int VOLCANO = 0x2;
 const int TOOSTEEP = 0x4;
 
 
-struct LoadData
+class LoadData
 {
+public:
     LoadData()
     {
     }
@@ -82,8 +85,9 @@ struct LoadData
     TerrainGenerator *generator;
 };
 
-struct MineralData
+class MineralData
 {
+public:
     MineralData(GLint btype, GLint startheight, float startchance, GLint centerheight, float centerchance, GLint endheight, float endchance, GLint minsize, GLint maxsize)
     {
         blockType = btype;
@@ -100,8 +104,9 @@ struct MineralData
     GLfloat startChance, centerChance, endChance;
 };
 
-struct BillboardVertex
+class BillboardVertex
 {
+public:
     glm::vec3 pos;
     glm::vec2 uvMult;
     GLubyte texUnit;
@@ -113,8 +118,9 @@ struct BillboardVertex
     GLubyte padding[2]; //needs to be 4 byte aligned
 };
 
-struct PhysicsBlockPosLight
+class PhysicsBlockPosLight
 {
+public:
     f32v3 pos; //12
     ColorRGB8 color; //15
     GLubyte pad1; //16
@@ -124,8 +130,9 @@ struct PhysicsBlockPosLight
     GLubyte pad3[2]; //24
 };
 
-struct TreeVertex
+class TreeVertex
 {
+public:
     glm::vec2 pos; //8
     glm::vec3 center; //20
     GLubyte lr, lg, lb, size; //24

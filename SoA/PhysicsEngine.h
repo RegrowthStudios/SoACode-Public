@@ -6,7 +6,7 @@
 class Chunk;
 class PhysicsBlockBatch;
 
-struct ExplosionNode {
+class ExplosionNode {
 public:
     ExplosionNode(f64v3& pos, i32 blocktype) : ppos(pos), val(blocktype) {}
 
@@ -14,7 +14,7 @@ public:
     i32 val;
 };
 
-struct ExplosionInfo {
+class ExplosionInfo {
 public:
     ExplosionInfo(f64v3& Pos, f32 Force) : pos(Pos), force(Force) {}
 
@@ -22,7 +22,7 @@ public:
     f32 force;
 };
 
-struct PressureNode {
+class PressureNode {
 public:
     PressureNode(Chunk* Ch, ui16 C, f32 Force, ExplosionInfo* en) : ch(Ch), c(C), force(Force), explosionInfo(en) {}
 
@@ -32,7 +32,7 @@ public:
     f32 force; //todo: make into a ui16 to save 2 bytes
 };
 
-struct VisitedNode {
+class VisitedNode {
 public:
     VisitedNode(Chunk* Ch, ui16 C) : ch(Ch), c(C) {}
 
@@ -40,7 +40,7 @@ public:
     ui16 c;
 };
 
-struct FallingCheckNode {
+class FallingCheckNode {
 public:
     FallingCheckNode(Chunk* chk, ui16 C, i8 expNx = 0, i8 expNy = 0, i8 expNz = 0, ui8 expDist = 0);
 
@@ -50,7 +50,7 @@ public:
     ui8 explosionDist; //distance in meters from explosion
 };
 
-struct FallingNode {
+class FallingNode {
 public:
     inline void setValues(ui16 C, Chunk* Ch, i32 nsw);
 

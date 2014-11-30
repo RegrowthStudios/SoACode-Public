@@ -31,7 +31,8 @@ namespace vorb {
                 void draw();
             private:
                 union {
-                    struct {
+                    class {
+                    public:
                         ui32 _vb; ///< Vertex buffer ID
                         ui32 _ib; ///< Index buffer ID
                     };

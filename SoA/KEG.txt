@@ -43,7 +43,7 @@ Strings:
 
 Custom Types:
  - The value must exist as a KegType
- - Constructors will not be called for custom data types
+ - Conclassors will not be called for custom data types
  - If the type is to be sent as a pointer, the data can be initialized via a separate
    type. Directly following the '[', the type may be specified inside of angled brackets,
    and it will be parsed as a String value:

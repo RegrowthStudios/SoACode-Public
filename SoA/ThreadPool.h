@@ -28,7 +28,7 @@ class Chunk;
 class ChunkMesher;
 class FloraGenerator;
 class VoxelLightEngine;
-struct LoadData;
+class LoadData;
 
 enum class RenderTaskType;
 

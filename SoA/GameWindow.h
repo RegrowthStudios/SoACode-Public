@@ -26,7 +26,7 @@ enum class GameSwapInterval : i32 {
 KEG_ENUM_DECL(GameSwapInterval);
 
 // The Current Displaying Mode
-struct GameDisplayMode {
+class GameDisplayMode {
 public:
     // Screen Buffer Parameters
     i32 screenWidth;

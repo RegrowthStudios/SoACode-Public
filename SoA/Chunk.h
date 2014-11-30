@@ -23,7 +23,7 @@
 const int MAXLIGHT = 31;
 
 class Block;
-struct PlantData;
+class PlantData;
 namespace vorb {
     namespace core {
         class IThreadPoolTask;
@@ -34,7 +34,7 @@ enum LightTypes {LIGHT, SUNLIGHT};
 
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
-struct LightMessage;
+class LightMessage;
 class RenderTask;
 class CaPhysicsType;
 class ChunkMesher;
@@ -100,7 +100,7 @@ public:
 
     bool hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate);
 
-    /// Constructor
+    /// Conclassor
     /// @param shortRecycler: Recycler for ui16 data arrays
     /// @param byteRecycler: Recycler for ui8 data arrays
     Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 

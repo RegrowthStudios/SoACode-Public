@@ -99,7 +99,7 @@ void RegionFileManager::clear() {
 bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxelMapData, bool create) {
 
     nString filePath;
-    struct stat statbuf;
+    class stat statbuf;
     RegionFile* rf;
 
     if (_regionFile && _regionFile->file && region == _regionFile->region) {
@@ -177,7 +177,7 @@ bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxel
 
         _regionFile->totalSectors = 0;
         fflush(_regionFile->file);
-    } else{ //load header data into the header struct 
+    } else{ //load header data into the header class 
 
         if (loadRegionHeader() == false) return false;
 
@@ -585,7 +585,7 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
     sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
     tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
 
-    //Construct the node vectors
+    //Conclass the node vectors
     for (int i = 1; i < CHUNK_SIZE; i++) {
         blockID = _blockIDBuffer[i];
         lampLight = _lampLightBuffer[i];
@@ -646,7 +646,7 @@ bool RegionFileManager::saveRegionHeader() {
     return true;
 }
 
-//Loads the header for the region file and stores it in the region file struct
+//Loads the header for the region file and stores it in the region file class
 bool RegionFileManager::loadRegionHeader() {
 
     if (!seek(0)){

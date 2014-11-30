@@ -47,7 +47,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
         pError("Reinitializing GamePlayRenderPipeline without first calling destroy()!");
     }
 
-    // Construct framebuffer
+    // Conclass framebuffer
     _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
     _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa, vg::TextureFormat::RGBA, vg::TexturePixelType::HALF_FLOAT).initDepth();
     if (graphicsOptions.msaa > 0) {

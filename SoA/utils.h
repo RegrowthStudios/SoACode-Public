@@ -193,17 +193,17 @@ void radixSort(TData* data, i32 n, i32(*converter)(TData*), i32 maxBits) {
 }
 
 // Ranges Of Different Types
-#define RANGE_STRUCT(NAME, TYPE) struct NAME##Range { TYPE min; TYPE max; }
-RANGE_STRUCT(I8, i8);
-RANGE_STRUCT(I16, i16);
-RANGE_STRUCT(I32, i32);
-RANGE_STRUCT(I64, i64);
-RANGE_STRUCT(UI8, ui8);
-RANGE_STRUCT(UI16, ui16);
-RANGE_STRUCT(UI32, ui32);
-RANGE_STRUCT(UI64, ui64);
-RANGE_STRUCT(F32, f32);
-RANGE_STRUCT(F64, f64);
+#define RANGE_class(NAME, TYPE) class NAME##Range { public: TYPE min; TYPE max; }
+RANGE_class(I8, i8);
+RANGE_class(I16, i16);
+RANGE_class(I32, i32);
+RANGE_class(I64, i64);
+RANGE_class(UI8, ui8);
+RANGE_class(UI16, ui16);
+RANGE_class(UI32, ui32);
+RANGE_class(UI64, ui64);
+RANGE_class(F32, f32);
+RANGE_class(F64, f64);
 
 // /////////////////////////////////////////////////////////////////////
 //    String Utilities
@@ -398,7 +398,8 @@ namespace BufferUtils {
 namespace std {
     // Hash function for i32v3
     template <>
-    struct hash<i32v3> {
+    class hash<i32v3> {
+    public:
         std::size_t operator()(const i32v3& k) const {
             using std::size_t;
             using std::hash;
@@ -416,7 +417,8 @@ namespace std {
 
     // Hash function for i32v2
     template <>
-    struct hash<i32v2> {
+    class hash<i32v2> {
+    public:
         std::size_t operator()(const i32v2& k) const {
             using std::size_t;
             using std::hash;

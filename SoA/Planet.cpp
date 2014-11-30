@@ -269,8 +269,8 @@ void Planet::initializeTerrain(const glm::dvec3 &startPosition)
 void Planet::loadData(string filePath, bool ignoreBiomes)
 {    
 
-    loadProperties(filePath + "properties.ini");
-    saveProperties(filePath + "properties.ini"); //save em to update them
+//    loadProperties(filePath + "properties.ini");
+   // saveProperties(filePath + "properties.ini"); //save em to update them
 
 
     TerrainGenerator* generator = GameManager::terrainGenerator;
@@ -329,8 +329,8 @@ void Planet::loadData(string filePath, bool ignoreBiomes)
 
 void Planet::saveData()
 {
-    fileManager.saveBiomeData(this, "World/");
-    fileManager.saveAllBiomes(this);
+   // fileManager.saveBiomeData(this, "World/");
+   // fileManager.saveAllBiomes(this);
 }
 
 void Planet::rotationUpdate()
@@ -736,11 +736,11 @@ void Planet::clearBiomes() //MEMORY LEAKS ARE ON PURPOSE. NOT MEANT FOR FINAL GA
 
 void Planet::addBaseBiome(Biome *baseBiome, int mapColor)
 {
-    baseBiome->vecIndex = bindex++;
+//    baseBiome->vecIndex = bindex++;
     baseBiomesLookupMap.insert(make_pair(mapColor, baseBiome));
     allBiomesLookupVector.push_back(baseBiome);
 
-    //biome = new Biome; //freed in chunkmanager destructor
+    //biome = new Biome; //freed in chunkmanager declassor
     //biome->name = name;
     //biome->r = color.r;
     //biome->g = color.g;
@@ -758,14 +758,14 @@ void Planet::addBaseBiome(Biome *baseBiome, int mapColor)
 
 void Planet::addMainBiome(Biome *mainBiome)
 {
-    mainBiome->vecIndex = bindex++;
+ //   mainBiome->vecIndex = bindex++;
     allBiomesLookupVector.push_back(mainBiome);
     mainBiomesVector.push_back(mainBiome);
 }
 
 void Planet::addChildBiome(Biome *childBiome)
 {
-    childBiome->vecIndex = bindex++;
+//    childBiome->vecIndex = bindex++;
     allBiomesLookupVector.push_back(childBiome);
     childBiomesVector.push_back(childBiome);
 }
@@ -837,7 +837,7 @@ void Atmosphere::initialize(string filePath, float PlanetRadius)
         m_fWavelength4[2] = powf(m_fWavelength[2], 4.0f);
     }
     else{
-        loadProperties(filePath);
+    //    loadProperties(filePath);
     }
 
     radius = PlanetRadius*(1.025);

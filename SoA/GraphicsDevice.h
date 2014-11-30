@@ -1,7 +1,7 @@
 #pragma once
-struct SDL_Window;
+class SDL_Window;
 
-struct GraphicsDeviceProperties {
+class GraphicsDeviceProperties {
 public:
     i32 maxColorSamples;
     i32 maxDepthSamples;

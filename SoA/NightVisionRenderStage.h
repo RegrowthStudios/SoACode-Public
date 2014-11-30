@@ -32,7 +32,7 @@
 #include "Keg.h"
 #include "Texture.h"
 
-struct NightVisionRenderParams {
+class NightVisionRenderParams {
 public:
     static NightVisionRenderParams createDefault();
 
@@ -48,7 +48,7 @@ KEG_TYPE_DECL(NightVisionRenderParams);
 /// Renders a night vision post-process effect
 class NightVisionRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
+    /// Conclassor which injects dependencies
     /// @param glProgram: The program used to render HDR
     /// @param quad: Quad used for rendering to screen
     NightVisionRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad);

@@ -173,7 +173,7 @@ void AwesomiumInterface<C>::handleEvent(const SDL_Event& evnt) {
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             
-            //Have to construct a webKeyboardEvent from the SDL Event     
+            //Have to conclass a webKeyboardEvent from the SDL Event     
             keyIdentifier = keyEvent.key_identifier;
             keyEvent.virtual_key_code = getWebKeyFromSDLKey(evnt.key.keysym.scancode);
             Awesomium::GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code,

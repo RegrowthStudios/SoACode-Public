@@ -103,7 +103,7 @@ typedef glm::highp_mat4 f64m4;
 #endif
 
 /// RGBA color using 8-bit elements
-struct ColorRGBA8 {
+class ColorRGBA8 {
 public:
     /// Create a color specifying all elements
     /// @param r: Red value
@@ -153,7 +153,8 @@ public:
     }
 
     union {
-        struct {
+        class {
+        public:
             ui8 r; ///< Red value
             ui8 g; ///< Green value
             ui8 b; ///< Blue value
@@ -165,7 +166,7 @@ public:
 typedef ColorRGBA8 color4; ///< Simple name for ColorRGBA8
 
 /// RGB color using 8-bit elements
-struct ColorRGB8 {
+class ColorRGB8 {
 public:
     /// Create a color specifying all elements
     /// @param r: Red value
@@ -211,7 +212,8 @@ public:
     }
 
     union {
-        struct {
+        class {
+        public:
             ui8 r; ///< Red value
             ui8 g; ///< Green value
             ui8 b; ///< Blue value

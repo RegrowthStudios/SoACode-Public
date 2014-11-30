@@ -143,12 +143,12 @@ void GameManager::initializeSound() {
 
 void GameManager::saveState() {
     savePlayerState();
-    saveOptions();
+  //  saveOptions();
     voxelWorld->getChunkManager().saveAllChunks();
 }
 
 void GameManager::savePlayerState() {
-    fileManager.savePlayerFile(player);
+   // fileManager.savePlayerFile(player);
 }
 
 int GameManager::newGame(string saveName) {
@@ -259,9 +259,9 @@ void GameManager::initializeVoxelWorld(Player *playr) {
     player = playr;
 
     if (player) {
-        if (fileManager.loadPlayerFile(player)) {
-            atSurface = 0; //dont need to set height
-        }
+ //       if (fileManager.loadPlayerFile(player)) {
+  //          atSurface = 0; //dont need to set height
+  //      }
     }
 
     voxelWorld->initialize(player->facePosition, &player->voxelMapData, planet, 0);

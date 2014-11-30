@@ -70,8 +70,8 @@ namespace PADDED_OFFSETS {
 
 const int BILLBOARD_VERTS_SIZE = 200000;
 const int TREE_VERTS_SIZE = 200000;
-extern struct BillboardVertex billVerts[BILLBOARD_VERTS_SIZE];
-extern struct TreeVertex treeVerts[TREE_VERTS_SIZE];
+extern class BillboardVertex billVerts[BILLBOARD_VERTS_SIZE];
+extern class TreeVertex treeVerts[TREE_VERTS_SIZE];
 
 const bool sepVBO = 1;
 

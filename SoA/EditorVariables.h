@@ -10,7 +10,7 @@ enum TreeVariableControlType {
     TREE_VARIABLE_CONTROL_TYPE_SLIDER = 0,
     TREE_VARIABLE_CONTROL_TYPE_LIST_BOX = 1
 };
-struct TreeVariable {
+class TreeVariable {
 public:
     TreeVariable() {}
     TreeVariable(f32 min, f32 max, f32 step, i32 byteOffset, i32 varType) :
@@ -78,7 +78,7 @@ enum NoiseVariableControlType {
     NOISE_VARIABLE_CONTROL_TYPE_SLIDER = 0,
     NOISE_VARIABLE_CONTROL_TYPE_LIST_BOX = 1
 };
-struct NoiseVariable {
+class NoiseVariable {
 public:
     NoiseVariable() {}
     NoiseVariable(f32 min, f32 max, f32 step, i32 byteOffset, i32 varType) :

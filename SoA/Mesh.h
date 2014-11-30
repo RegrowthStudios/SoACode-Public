@@ -34,7 +34,8 @@ enum class MeshUsage {
     STREAM = GL_STREAM_DRAW
 };
 
-struct MeshVertex {
+class MeshVertex {
+public:
     f32v3 position;
     f32v2 uv;
     ColorRGBA8 color;

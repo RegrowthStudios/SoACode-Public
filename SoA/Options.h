@@ -6,7 +6,8 @@
 
 extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
-struct GraphicsOptions {
+class GraphicsOptions {
+public:
     i32 cloudDetail, lodDistance, lodDetail, isFancyTrees, enableParticles, chunkLoadTime;
     i32 voxelRenderDistance, hudMode;
     i32 currTextureRes, defaultTextureRes;
@@ -22,18 +23,21 @@ struct GraphicsOptions {
 };
 extern GraphicsOptions graphicsOptions;
 
-struct SoundOptions {
+class SoundOptions {
+public:
     i32 musicVolume, effectVolume;
 };
 extern SoundOptions soundOptions;
 
-struct GameOptions {
+class GameOptions {
+public:
     f32 mouseSensitivity;
     bool invertMouse;
 };
 extern GameOptions gameOptions;
 
-struct MenuOptions {
+class MenuOptions {
+public:
     nString newGameString, loadGameString, selectPlanetName, markerName;
     i32 markerR, markerG, markerB;
 };

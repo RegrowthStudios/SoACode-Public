@@ -53,7 +53,7 @@ public:
         }
     }
 private:
-    struct PtrBind {
+    class PtrBind {
     public:
         PtrBind() : data(T()), recycleCheck(0) {}
 

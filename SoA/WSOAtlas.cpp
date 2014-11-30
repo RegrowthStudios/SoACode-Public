@@ -5,7 +5,7 @@
 #include "WSOData.h"
 
 // This Information Is Found At The Beginning Of The WSO File
-struct WSOFileHeader {
+class WSOFileHeader {
 public:
     // The Size Of DATA Segment
     i32 dataSegmentSize;
@@ -13,7 +13,7 @@ public:
     i32 wsoCount;
 };
 // This Is Information About A WSO
-struct WSOIndexInformation {
+class WSOIndexInformation {
 public:
     // Location In The File
     i32 fileOffset;

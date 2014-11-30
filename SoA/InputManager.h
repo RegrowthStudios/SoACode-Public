@@ -44,10 +44,10 @@ public:
         DOWN ///< Event when a button is pressed.
     };
 
-    /// Constructor.
+    /// Conclassor.
     InputManager();
 
-    /// Destructor.
+    /// Declassor.
     ~InputManager();
 
     /// Get the value of the current axis.

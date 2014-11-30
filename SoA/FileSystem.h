@@ -1,9 +1,11 @@
 #pragma once
 #include "EditorVariables.h"
 
+class Animation;
 class ZipFile;
-struct TreeType;
+class TreeType;
 class Biome;
+class ParticleEmitter;
 
 class FileManager {
 public:

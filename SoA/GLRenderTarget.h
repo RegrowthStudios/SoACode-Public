@@ -33,7 +33,7 @@ namespace vorb {
                     // Empty
                 }
 
-                /// Destructor
+                /// Declassor
                 ~GLRenderTarget() { dispose(); }
 
                 /// Initialize the framebuffer on the GPU

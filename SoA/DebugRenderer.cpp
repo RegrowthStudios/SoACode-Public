@@ -13,7 +13,8 @@
 
 glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2);
 
-struct Vec3KeyFuncs {
+class Vec3KeyFuncs {
+public:
     size_t operator()(const glm::vec3& k)const {
         return std::hash<float>()(k.x) ^ std::hash<float>()(k.y) ^ std::hash<float>()(k.z);
     }

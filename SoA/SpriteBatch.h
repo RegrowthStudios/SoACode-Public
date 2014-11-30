@@ -7,7 +7,7 @@ class RasterizerState;
 class SamplerState;
 class SpriteFont;
 
-struct VertexSpriteBatch {
+class VertexSpriteBatch {
 public:
     VertexSpriteBatch();
     VertexSpriteBatch(const f32v3& pos, const f32v2& uv, const f32v4& uvr, const ColorRGBA8& color);

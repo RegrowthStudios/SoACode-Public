@@ -14,8 +14,7 @@
 #ifndef Biome_h__
 #define Biome_h__
 
-#include "stdafx.h"
-
+#include <vector>
 
 class BiomeTree {
 public:
@@ -39,10 +38,10 @@ class Biome {
 public:
     ui32 looseSoilDepth = 4;
 
-    ui16 surfaceBlock = DIRTGRASS;
-    ui16 underwaterBlock = SAND;
-    ui16 beachBlock = SAND;
-   
+    ui16 surfaceBlock = 0;
+    ui16 underwaterBlock = 0;
+    ui16 beachBlock = 0;
+
     f32 treeChance = 0.0f;
 
     nString name = "NO BIOME";

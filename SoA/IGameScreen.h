@@ -83,7 +83,7 @@ protected:
     const T* const _app;
 };
 
-// Shorten Super-Constructors
+// Shorten Super-Conclassors
 #define CTOR_APP_SCREEN_INL(SCR_CLASS, APP_CLASS) SCR_CLASS(const APP_CLASS* app) : IAppScreen<APP_CLASS>(app)
 #define CTOR_APP_SCREEN_DECL(SCR_CLASS, APP_CLASS) SCR_CLASS(const APP_CLASS* app)
 #define CTOR_APP_SCREEN_DEF(SCR_CLASS, APP_CLASS) SCR_CLASS::SCR_CLASS(const APP_CLASS* app) : IAppScreen<APP_CLASS>(app)

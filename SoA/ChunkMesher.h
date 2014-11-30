@@ -5,8 +5,8 @@
 
 class RenderTask;
 class Chunk;
-struct ChunkMeshData;
-struct BlockTexture;
+class ChunkMeshData;
+class BlockTexture;
 class BlockTextureLayer;
 
 // Sizes For A Padded Chunk

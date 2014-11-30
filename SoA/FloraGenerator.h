@@ -3,8 +3,8 @@
 #include "Keg.h"
 
 class Chunk;
-struct TreeType;
-struct TreeData;
+class TreeType;
+class TreeData;
 class Biome;
 
 //This node is used in tree generation
@@ -62,7 +62,8 @@ enum class TreeLeafShape {
 };
 KEG_ENUM_DECL(TreeLeafShape);
 
-struct TreeBranchingProps {
+class TreeBranchingProps {
+public:
     I32Range width;
     I32Range length;
     F32Range chance;
@@ -73,7 +74,8 @@ KEG_TYPE_DECL(TreeBranchingProps);
 
 
 //This is data specific to a breed of tree
-struct TreeType {
+class TreeType {
+public:
     TreeType() {
         memset(this, 0, sizeof(TreeType)); //zero the memory
         name = "MISSING NAME";
@@ -127,7 +129,8 @@ struct TreeType {
 KEG_TYPE_DECL(TreeType);
 
 //This is data specific to an instance of a tree
-struct TreeData {
+class TreeData {
+public:
     i32 type, startc;
     i32 trunkBaseWidth, trunkMidWidth, trunkTopWidth;
     i32 trunkStartSlope, trunkEndSlope;
@@ -150,13 +153,15 @@ typedef void(*TreeBranchInterpolator)(const TreeBranchingProps& top, const TreeB
 void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
 
 //This is data specific to a breed of plant
-struct PlantType {
+class PlantType {
+public:
     nString name;
     i32 baseBlock;
 };
 
 //This is data specific to an instance of a plant
-struct PlantData {
+class PlantData {
+public:
     PlantData(PlantType *plantType, i32 C) : ft(plantType), startc(C) {}
     PlantType *ft;
     i32 startc;

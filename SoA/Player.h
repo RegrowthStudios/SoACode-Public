@@ -10,7 +10,7 @@
 
 class Chunk;
 
-struct CollisionData {
+class CollisionData {
 public:
     CollisionData() :
     xPush(0), yPush(0), zPush(0),

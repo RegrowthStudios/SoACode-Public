@@ -122,7 +122,7 @@ i32 FileManager::makeSaveDirectories(nString filePath) {
     return 0;
 }
 i32 FileManager::createSaveFile(nString filePath) {
-    struct stat statbuf;
+    class stat statbuf;
 
     if (boost::filesystem::exists(filePath)) {
         return 2;
@@ -186,7 +186,7 @@ nString FileManager::getWorldString(nString filePath) {
 }
 
 i32 FileManager::setSaveFile(nString filePath) {
-    struct stat statbuf;
+    class stat statbuf;
 
     if (stat(filePath.c_str(), &statbuf) != 0) {
         pError("Save file does not exist.");

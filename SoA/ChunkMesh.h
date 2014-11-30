@@ -65,7 +65,8 @@ public:
     i32v3 position;
 };
 
-struct ChunkMeshRenderData {
+class ChunkMeshRenderData {
+public:
     ChunkMeshRenderData() : indexSize(0), waterIndexSize(0) {}
     i32 pxVboOff, pxVboSize, nxVboOff, nxVboSize, pzVboOff, pzVboSize, nzVboOff, nzVboSize;
     i32 pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize, cutoutVboSize;
@@ -89,7 +90,7 @@ public:
     std::vector <BlockVertex> cutoutVertices;
     std::vector <LiquidVertex> waterVertices;
     Chunk *chunk;
-    struct ChunkMesh *chunkMesh = nullptr;
+    class ChunkMesh *chunkMesh = nullptr;
     RenderTaskType type;
 
     //*** Transparency info for sorting ***
@@ -98,8 +99,9 @@ public:
     std::vector <ui32> transQuadIndices;
 };
 
-struct ChunkMesh
+class ChunkMesh
 {
+public:
     ChunkMesh(Chunk *ch);
 
     ChunkMeshRenderData meshInfo;

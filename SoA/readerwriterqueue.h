@@ -42,7 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifdef AE_VCPP
 #pragma warning(push)
-#pragma warning(disable: 4324) // structure was padded due to __declspec(align())
+#pragma warning(disable: 4324) // classure was padded due to __declspec(align())
 #pragma warning(disable: 4820) // padding was added
 #pragma warning(disable: 4127) // conditional expression is constant
 #endif
@@ -71,7 +71,7 @@ namespace moodycamel {
         // greater size than the last block) is added. Blocks are never removed.
 
     public:
-        // Constructs a queue that can hold maxSize elements without further
+        // Conclasss a queue that can hold maxSize elements without further
         // allocations. Allocates maxSize + 1, rounded up to the nearest power
         // of 2, elements.
         explicit ReaderWriterQueue(size_t maxSize = 15)
@@ -362,7 +362,7 @@ namespace moodycamel {
         }
     private:
 #ifndef NDEBUG
-        struct ReentrantGuard {
+        class ReentrantGuard {
             ReentrantGuard(bool& _inSection)
             : inSection(_inSection) {
                 assert(!inSection);

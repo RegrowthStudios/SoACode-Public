@@ -34,7 +34,7 @@ enum class CA_ALGORITHM {
 class CellularAutomataTask : public vcore::IThreadPoolTask {
 public:
     friend class ChunkManager;
-    /// Constructs the task
+    /// Conclasss the task
     /// @param chunk: The the chunk to update
     /// @param flags: Combination of CA_FLAG
     CellularAutomataTask(Chunk* chunk, bool makeMesh);

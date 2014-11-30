@@ -3,7 +3,7 @@
 #include "Particle.h"
 
 class ParticleEmitter;
-struct ParticleMesh;
+class ParticleMesh;
 class ParticleEngine;
 
 class ParticleBatch {

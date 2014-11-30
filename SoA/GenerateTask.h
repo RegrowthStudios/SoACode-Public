@@ -18,12 +18,12 @@
 #include "IThreadPoolTask.h"
 
 class Chunk;
-struct LoadData;
+class LoadData;
 
 #define GENERATE_TASK_ID 1
 
 // Represents A Chunk Load Task
-struct GenerateTask : public vcore::IThreadPoolTask {
+class GenerateTask : public vcore::IThreadPoolTask {
 public:
     GenerateTask() : vcore::IThreadPoolTask(true, GENERATE_TASK_ID) {}
 

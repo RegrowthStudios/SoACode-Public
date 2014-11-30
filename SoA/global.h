@@ -12,8 +12,6 @@ void printVec(string desc, glm::dvec3 vec);
 
 extern glm::mat4 GlobalModelMatrix;
 
-extern Biome blankBiome;
-
 using namespace std;
 
 #if defined(WIN32) || defined(WIN64)

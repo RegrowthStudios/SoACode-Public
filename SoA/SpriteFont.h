@@ -4,7 +4,7 @@
 class GLTexture;
 class SpriteBatch;
 
-struct CharGlyph {
+class CharGlyph {
 public:
     char character;
     f32v4 uvRect;

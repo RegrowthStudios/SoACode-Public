@@ -23,7 +23,7 @@ class ChunkSlot;
 
 class ChunkGridRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
+    /// Conclassor which injects dependencies
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param chunkSlots: The chunk slots that we need to render boxes for
     ChunkGridRenderStage(const GameRenderParams* gameRenderParams, 

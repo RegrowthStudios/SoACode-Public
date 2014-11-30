@@ -3,7 +3,8 @@
 
 static const GLubyte particleUVs[12] = {255, 255, 0, 255, 0, 0, 0, 0, 255, 0, 255, 255};
 
-struct ParticleMesh {
+class ParticleMesh {
+public:
     ParticleMesh(): uvBufferID(0), billboardVertexBufferID(0), vecIndex(-1), size(0), animated(0) {}
 
     GLuint uvBufferID, billboardVertexBufferID;
@@ -12,7 +13,8 @@ struct ParticleMesh {
     bool animated;
 };
 
-struct ParticleMeshMessage {
+class ParticleMeshMessage {
+public:
     ParticleMeshMessage(): mesh(NULL) {}
 
     ParticleMesh *mesh;

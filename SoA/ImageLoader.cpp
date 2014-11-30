@@ -21,7 +21,7 @@ bool ImageLoader::loadPng(const cString imagepath, std::vector<ui8>& pixelStore,
         return false;
     }
 
-    struct stat filestatus;
+    class stat filestatus;
     stat(imagepath, &filestatus);
 
     fileSize = filestatus.st_size;

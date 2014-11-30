@@ -86,14 +86,16 @@ const static GLuint CUBE_INDICES[36] = {
     6, 2, 1,
 };
 
-struct SimpleMesh {
+class SimpleMesh {
+public:
     GLuint vertexBufferID;
     GLuint indexBufferID;
     int numVertices;
     int numIndices;
 };
 
-struct Icosphere {
+class Icosphere {
+public:
     glm::vec3 position;
     float radius;
     glm::vec4 color;
@@ -101,14 +103,16 @@ struct Icosphere {
     double timeTillDeletion; //ms
 };
 
-struct Cube {
+class Cube {
+public:
     glm::vec3 position;
     glm::vec3 size;
     glm::vec4 color;
     double timeTillDeletion; //ms
 };
 
-struct Line {
+class Line {
+public:
     glm::vec3 position1;
     glm::vec3 position2;
     glm::vec4 color;

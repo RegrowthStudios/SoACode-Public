@@ -65,7 +65,7 @@ void GamePlayScreen::build() {
 }
 
 void GamePlayScreen::destroy(const GameTime& gameTime) {
-    // Destruction happens in onExit
+    // Declassion happens in onExit
 }
 
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
