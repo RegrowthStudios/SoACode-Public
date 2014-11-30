@@ -3,6 +3,7 @@
 
 #include <boost\filesystem.hpp>
 
+#include "GraphicsDevice.h"
 #include "ImageSaver.h"
 #include "SpriteBatch.h"
 
@@ -47,7 +48,8 @@ SpriteFont::SpriteFont(const cString font, int size, char cs, char ce) {
         h = closestPow2(h);
 
         // A Texture Must Be Feasible
-        if (w > 4096 || h > 4096) {
+        ui32 maxTextureSize = GraphicsDevice::getCurrent()->getProperties().maxTextureSize;
+        if (w > maxTextureSize || h > maxTextureSize) {
             rows++;
             delete[] gr;
             continue;
@@ -256,7 +258,7 @@ f32v2 SpriteFont::measure(const cString s) {
     return size;
 }
 
-void SpriteFont::draw(SpriteBatch* batch, const cString s, f32v2 position, f32v2 scaling, ColorRGBA8 tint, f32 depth) {
+void SpriteFont::draw(SpriteBatch* batch, const cString s, f32v2 position, f32v2 scaling, color4 tint, f32 depth) {
     f32v2 tp = position;
     for (int si = 0; s[si] != 0; si++) {
         char c = s[si];
