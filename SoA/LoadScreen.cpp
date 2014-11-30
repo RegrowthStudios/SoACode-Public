@@ -139,13 +139,13 @@ void LoadScreen::update(const GameTime& gameTime) {
         for (int i = 0; i < 4096; i++) {
             if (Blocks[i].active) {
                 if (Blocks[i].emitterName.size()) {
-                    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
+                //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
                 }
                 if (Blocks[i].emitterOnBreakName.size()) {
-                    Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
+               //     Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
                 }
                 if (Blocks[i].emitterRandomName.size()) {
-                    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
+                //    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
                 }
             }
         }

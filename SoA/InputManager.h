@@ -206,10 +206,10 @@ public:
     /// @param axisID: The id of the axis to remove the delegate from
     /// @param eventType: The event to remove the delegate from
     void unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f);
-private:
 
     /// The data for a single Axis.
-    struct Axis {
+    class Axis {
+    public:
         nString name; ///< The name of the axis.
         AxisType type; ///< The type of axis.
         ui32 defaultPositiveKey; ///< The default positive key.
@@ -221,20 +221,13 @@ private:
         i32 joystickButton; ///< The button number on the joystick.
         Event<ui32> upEvent; ///< The event for when the positive key is released on a SINGLE_KEY axis.
         Event<ui32> downEvent; ///< The event for when the positive key is pressed on a SINGLE_KEY axis.
-
     };
-
-    ///For use with ini file loading.
-
-    ///@param val: The value to find the ini id of.
-    ///@return The id for quick comparison with switch.
-    i32 getIniKey(const nString& val); 
+private:
 
     const nString _defaultConfigLocation; //"Data/KeyConfig.ini"
     
     std::vector<Axis*> _axes; ///< All the stored axes.
     std::unordered_map<nString, i32> _axisLookup; ///< A map of axis names to axis IDs for quick look up.
-    std::unordered_map<nString, i32> _iniKeys; ///< For use with ini file loading.
     std::map<ui32, bool> _currentKeyStates; ///< The state of the keys and mouse buttons this frame.
     std::map<ui32, bool> _previousKeyStates; ///< The state of the keys and mouse buttons last frame.
 };
