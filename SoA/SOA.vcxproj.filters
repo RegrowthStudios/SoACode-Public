@@ -683,6 +683,9 @@
     <ClInclude Include="Texture.h">
       <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="GBuffer.h">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1095,6 +1098,9 @@
     </ClCompile>
     <ClCompile Include="CellularAutomataTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="GBuffer.cpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
