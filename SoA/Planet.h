@@ -26,11 +26,18 @@ public:
     Planet();
     ~Planet();
 
-    void update(double time) override;
+    /// Initializes the planet
+    /// @param filePath: The path to the planet description
+    void init(const cString filePath);
+
+    void update(f64 time) override;
 
     virtual void draw() override;
 
 private:
+    /// Loads the properties of the planet
+    bool loadProperties();
+
     f64q poleAxis_; ///< Axis of rotation
     f64 rotationalSpeed_MS_ = 0.0; ///< Rotational speed about _poleAxis in radians
     f64 currentRotation_ = 0.0; ///< Current rotation about _poleAxis in radians

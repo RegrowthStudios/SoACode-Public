@@ -6,7 +6,6 @@ IOrbitalBody::IOrbitalBody() {
     // Empty
 }
 
-
 IOrbitalBody::~IOrbitalBody() {
     // Empty
 }
