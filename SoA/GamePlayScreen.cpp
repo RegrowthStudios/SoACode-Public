@@ -179,9 +179,9 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
             break;
         case SDL_WINDOWEVENT:
             if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                 SDL_SetRelativeMouseMode(SDL_FALSE);
-                 _inFocus = false;
-                 SDL_StopTextInput();
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+                _inFocus = false;
+                SDL_StopTextInput();
             } else if (e.window.type == SDL_WINDOWEVENT_ENTER) {
                 SDL_SetRelativeMouseMode(SDL_TRUE);
                 _inFocus = true;
@@ -226,6 +226,13 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     updateWorldCameraClip();
 
     _renderPipeline.render();
+}
+
+void GamePlayScreen::unPause() { 
+    _pauseMenu.close(); 
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    _inFocus = true;
+    SDL_StartTextInput();
 }
 
 i32 GamePlayScreen::getWindowWidth() const {

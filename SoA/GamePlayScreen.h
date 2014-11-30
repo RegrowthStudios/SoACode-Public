@@ -79,7 +79,7 @@ public:
     virtual void update(const GameTime& gameTime) override;
     virtual void draw(const GameTime& gameTime) override;
 
-    void unPause() { _pauseMenu.close(); }
+    void unPause();
 
     // Getters
     i32 getWindowWidth() const;

@@ -15,6 +15,11 @@ void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScre
 
     // Set up our screen handle so we can talk to the game
     setOwnerScreen(ownerScreen);
+
+    // Register functions here
+    ADDFUNC(continueGame);
+    ADDFUNC(exitGame);
+    ADDFUNC(print);
 }
 
 void PauseMenuAwesomiumAPI::setOwnerScreen(IGameScreen* ownerScreen) {
