@@ -42,7 +42,7 @@ inline i32 sectorsFromBytes(ui32 bytes) {
 }
 
 //returns true on error
-bool checkZlibError(string message, int zerror) {
+bool checkZlibError(nString message, int zerror) {
     switch (zerror) {
     case Z_OK:
         return false;
@@ -224,7 +224,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
 
     //Seek to the chunk header
     if (!seekToChunk(chunkSectorOffset)){
-        pError("Region: Chunk data fseek C error! " + to_string(sizeof(RegionFileHeader)+chunkSectorOffset * SECTOR_SIZE) + " size: " + to_string(_regionFile->totalSectors));
+        pError("Region: Chunk data fseek C error! " + std::to_string(sizeof(RegionFileHeader)+chunkSectorOffset * SECTOR_SIZE) + " size: " + std::to_string(_regionFile->totalSectors));
         return false;
     }
 
@@ -288,7 +288,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
         chunkSectorOffset--;
         //seek to the chunk
         if (!seekToChunk(chunkSectorOffset)){
-            pError("Region: Chunk data fseek save error BB! " + to_string(chunkSectorOffset));
+            pError("Region: Chunk data fseek save error BB! " + std::to_string(chunkSectorOffset));
             return false;
         }
 
@@ -298,7 +298,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
         numOldSectors = sectorsFromBytes(oldDataLength + sizeof(ChunkHeader));
 
         if (numOldSectors > _regionFile->totalSectors) {
-            cout << (to_string(chunkSectorOffset) + " " + to_string(tableOffset) + "Chunk Header Corrupted\n");
+            std::cout << (std::to_string(chunkSectorOffset) + " " + std::to_string(tableOffset) + "Chunk Header Corrupted\n");
             return false;
         }
     }
@@ -315,7 +315,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
     //fairly rare.
     if ((sectorDiff != 0) && ((chunkSectorOffset + numOldSectors) != _regionFile->totalSectors)) {
         if (!seekToChunk(chunkSectorOffset + numOldSectors)){
-            pError("Region: Failed to seek for sectorCopy " + to_string(chunkSectorOffset) + " " + to_string(numOldSectors) + " " + to_string(_regionFile->totalSectors));
+            pError("Region: Failed to seek for sectorCopy " + std::to_string(chunkSectorOffset) + " " + std::to_string(numOldSectors) + " " + std::to_string(_regionFile->totalSectors));
             return false;
         }
 
@@ -335,7 +335,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     //seek to the chunk
     if (!seekToChunk(chunkSectorOffset)){
-        pError("Region: Chunk data fseek save error GG! " + to_string(chunkSectorOffset));
+        pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
         return false;
     }
 
@@ -349,7 +349,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
     if (_copySectorsBuffer) {
    
         if (!seekToChunk(chunkSectorOffset + numSectors)){
-            pError("Region: Chunk data fseek save error GG! " + to_string(chunkSectorOffset));
+            pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
             return false;
         }
         //Write the buffer of sectors
@@ -442,7 +442,7 @@ bool RegionFileManager::readChunkData_v0() {
     }
 
     if (fread(_compressedByteBuffer, 1, dataLength, _regionFile->file) != dataLength) {
-        cout << "Did not read enough bytes at Z\n";
+        std::cout << "Did not read enough bytes at Z\n";
         return false;
     }
 
@@ -474,7 +474,7 @@ int RegionFileManager::rleUncompressArray(ui8* data, ui32& byteIndex, int jStart
             index = i * CHUNK_LAYER + j * jMult + k * kMult;
 
             if (index >= CHUNK_SIZE){
-                pError("Chunk File Corrupted! Index >= 32768. (" + to_string(index) + ") " + to_string(q) + " " + to_string(runSize) + " " + to_string(blockCounter) );
+                pError("Chunk File Corrupted! Index >= 32768. (" + std::to_string(index) + ") " + std::to_string(q) + " " + std::to_string(runSize) + " " + std::to_string(blockCounter));
                 return 1;
             }
 
@@ -517,7 +517,7 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
             index = i * CHUNK_LAYER + j * jMult + k * kMult;
 
             if (index >= CHUNK_SIZE){
-                pError("Chunk File Corrupted! Index >= 32768. (" + to_string(index) + ") " + to_string(q) + " " + to_string(runSize) + " " + to_string(blockCounter));
+                pError("Chunk File Corrupted! Index >= 32768. (" + std::to_string(index) + ") " + std::to_string(q) + " " + std::to_string(runSize) + " " + std::to_string(blockCounter));
                 return 1;
             }
 
@@ -562,10 +562,10 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
 
 
     //Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
-    static vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    static vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    static vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
-    static vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    static std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
+    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
 
     //Make the size 0
     blockIDNodes.clear();
@@ -812,7 +812,7 @@ bool RegionFileManager::writeSectors(ui8* srcBuffer, ui32 size) {
     }
 
     if (fwrite(srcBuffer, 1, size, _regionFile->file) != size) {
-        pError("Chunk Saving: Did not write enough bytes at A " + to_string(size));
+        pError("Chunk Saving: Did not write enough bytes at A " + std::to_string(size));
         return false;
     }
     
@@ -821,7 +821,7 @@ bool RegionFileManager::writeSectors(ui8* srcBuffer, ui32 size) {
 //Read sector data, be sure to fseek to the correct position first
 bool RegionFileManager::readSectors(ui8* dstBuffer, ui32 size) {
     if (fread(dstBuffer, 1, size, _regionFile->file) != size) {
-        pError("Chunk Loading: Did not read enough bytes at A " + to_string(size) + " " + to_string(_regionFile->totalSectors));
+        pError("Chunk Loading: Did not read enough bytes at A " + std::to_string(size) + " " + std::to_string(_regionFile->totalSectors));
         return false;
     }
 }
@@ -860,10 +860,10 @@ nString RegionFileManager::getRegionString(Chunk *ch)
     int ip, jp;
 
     if (ch->voxelMapData == nullptr) {
-        cout << "LOL";
+        std::cout << "LOL";
     }
 
     ch->voxelMapData->getChunkGridPos(ip, jp);
 
-    return "r." + to_string(jp >> RSHIFT) + "." + to_string(fastFloor(ch->gridPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + to_string(ip >> RSHIFT);
+    return "r." + std::to_string(jp >> RSHIFT) + "." + std::to_string(fastFloor(ch->gridPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + std::to_string(ip >> RSHIFT);
 }

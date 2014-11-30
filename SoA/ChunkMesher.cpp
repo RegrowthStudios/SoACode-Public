@@ -31,11 +31,11 @@ ChunkMesher::~ChunkMesher()
 
 void ChunkMesher::bindVBOIndicesID()
 {
-    vector<GLuint> indices;
+    std::vector<ui32> indices;
     indices.resize(589824);
 
     int j = 0;
-    for (Uint32 i = 0; i < indices.size()-12; i += 6){
+    for (size_t i = 0; i < indices.size()-12; i += 6){
         indices[i] = j;
         indices[i+1] = j+1;
         indices[i+2] = j+2;
@@ -438,7 +438,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             break;
         case MeshType::CROSSFLORA:
             //Generate a random number between 0 and 3 inclusive
-            r = std::bind(std::uniform_int_distribution<int>(0, 1), mt19937(getPositionSeed(mi.nx, mi.nz)))();
+            r = std::bind(std::uniform_int_distribution<int>(0, 1), std::mt19937(getPositionSeed(mi.nx, mi.nz)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 8);
             VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
@@ -448,7 +448,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             break;
         case MeshType::FLORA:
             //Generate a random number between 0 and 3 inclusive
-            r = std::bind(std::uniform_int_distribution<int>(0, 3), mt19937(getPositionSeed(mi.nx, mi.nz)))();
+            r = std::bind(std::uniform_int_distribution<int>(0, 3), std::mt19937(getPositionSeed(mi.nx, mi.nz)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 12);
             VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
@@ -1559,7 +1559,7 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
 void ChunkMesher::freeBuffers()
 {
     //free memory
-    vector <BlockVertex>().swap(_vboVerts);
+    std::vector <BlockVertex>().swap(_vboVerts);
 
     //These dont get too big so it might be ok to not free them?
     /*vector <Vertex>().swap(waterVboVerts);
@@ -1632,7 +1632,7 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                         for (int lx = 0; lx < lodStep; lx++) {
                             blockIndex = startIndex + ly * PADDED_CHUNK_LAYER + lz * PADDED_CHUNK_WIDTH + lx;
                             if (blockIndex > PADDED_CHUNK_SIZE) {
-                                pError("SIZE IS " + to_string(blockIndex));
+                                pError("SIZE IS " + std::to_string(blockIndex));
                             }
                             // If its in the minimum box, set it to the surface block
                             if (lx < minX || lx > maxX || ly < minY || ly > maxY || lz < minZ || lz > maxZ) {

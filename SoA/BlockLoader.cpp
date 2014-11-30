@@ -100,7 +100,7 @@ i32 BlockLoader::SetWaterBlocks(int startID) {
             return 0;
         }
         Blocks[i] = Blocks[startID];
-        Blocks[i].name = "Water (" + to_string(i - startID + 1) + ")";
+        Blocks[i].name = "Water (" + std::to_string(i - startID + 1) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
     }
     for (int i = startID + 100; i < startID + 150; i++) {
@@ -111,7 +111,7 @@ i32 BlockLoader::SetWaterBlocks(int startID) {
             return 0;
         }
         Blocks[i] = Blocks[startID];
-        Blocks[i].name = "Water Pressurized (" + to_string(i - (startID + 99)) + ")";
+        Blocks[i].name = "Water Pressurized (" + std::to_string(i - (startID + 99)) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
     }
 }

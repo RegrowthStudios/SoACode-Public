@@ -24,12 +24,12 @@ public:
     ColorRGBA8 color;
     int num;
     double dist;
-    string name;
+    nString name;
 
     vg::Texture distText;
     vg::Texture nameTex;
 
-    Marker(const glm::dvec3 &Pos, string Name, const glm::vec3 Color);
+    Marker(const glm::dvec3 &Pos, nString Name, const glm::vec3 Color);
     void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);
 };
 
@@ -52,7 +52,7 @@ struct NoiseInfo
     GLint octaves;
     GLint composition;
     NoiseInfo *modifier;
-    string name;
+    nString name;
     GLint type;
 };
 
@@ -95,15 +95,15 @@ struct Biome
     GLfloat lowRain, highRain, rainSlopeLength;
     GLfloat maxHeight, maxHeightSlopeLength;
     GLfloat minTerrainMult; //MINTERRAINMULT MUST BE LAST GLfloat
-    string name;
-    string filename;
+    nString name;
+    nString filename;
 
     GLushort surfaceLayers[SURFACE_DEPTH]; //stores the top 50 layers corresponding to this biome
     NoiseInfo distributionNoise;
-    vector <NoiseInfo> terrainNoiseList;
-    vector <Biome*> childBiomes;
-    vector <BiomeTree> possibleTrees;
-    vector <BiomeFlora> possibleFlora;
+    std::vector<NoiseInfo> terrainNoiseList;
+    std::vector<Biome*> childBiomes;
+    std::vector<BiomeTree> possibleTrees;
+    std::vector<BiomeFlora> possibleFlora;
 };
 
 //flags

@@ -31,15 +31,15 @@ void ChunkGridRenderStage::draw() {
     static vg::GLProgram* chunkLineProgram = nullptr;
     // The mesh that is built from the chunks
     vcore::Mesh mesh;
-    mesh.init(vcore::PrimitiveType::LINES, true);
+    mesh.init(vg::PrimitiveType::LINES, true);
     // Reserve the number of vertices and indices we think we will need
     mesh.reserve(_chunkSlots.size() * 8, _chunkSlots.size() * 24);
     // Build the mesh
     Chunk* chunk;
     ColorRGBA8 color;
     // Used to build each grid
-    vector <vcore::MeshVertex> vertices(8);
-    vector <ui32> indices(24);
+    std::vector<vcore::MeshVertex> vertices(8);
+    std::vector<ui32> indices(24);
     int numVertices = 0;
 
     f32v3 posOffset;
@@ -122,7 +122,7 @@ void ChunkGridRenderStage::draw() {
         // Set Texture
         glUniform1i(chunkLineProgram->getUniform("tex"), 0);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, BlankTextureID.ID);
+        glBindTexture(GL_TEXTURE_2D, BlankTextureID.id);
         // Draw the grid
         mesh.draw();
         // Unuse the program

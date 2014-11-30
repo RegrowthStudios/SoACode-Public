@@ -85,7 +85,7 @@ public:
 
     virtual void invoke(void* sender, ui32 key) {
         // Free atlas
-        vg::GpuMemory::freeTexture(blockPack.textureInfo.ID);
+        vg::GpuMemory::freeTexture(blockPack.textureInfo.id);
         // Free all textures
         GameManager::textureCache->destroy();
         // Reload textures

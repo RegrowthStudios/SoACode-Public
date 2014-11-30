@@ -15,7 +15,9 @@
 #ifndef GLRenderTarget_h__
 #define GLRenderTarget_h__
 
+
 #include "GLEnums.h"
+#include "gtypes.h"
 
 namespace vorb {
     namespace core {

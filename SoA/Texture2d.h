@@ -6,19 +6,19 @@
 #include "TextureCache.h"
 
 // TODO: Remove This
-using namespace std;
+vg::Texture getTexture(nString source, struct Animation **anim = NULL);
 
-vg::Texture getTexture(string source, struct Animation **anim = NULL);
-
-struct BlockPack
-{
+struct BlockPack {
+public:
     void initialize(vg::Texture texInfo);
+
     vg::Texture textureInfo;
-    vector <GLubyte[256][3]> avgColors;
+    std::vector<ui8[256][3]> avgColors;
 };
 
 extern BlockPack blockPack; //TODO: Not global
 
+// TODO: Get rid of these crap global textures
 extern vg::Texture markerTexture;
 extern vg::Texture terrainTexture;
 extern vg::Texture logoTexture;

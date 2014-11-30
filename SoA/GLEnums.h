@@ -1,6 +1,5 @@
 #pragma once
 
-typedef GLenum VGEnum;
 namespace vorb {
     namespace core {
         namespace graphics {
