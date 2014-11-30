@@ -72,8 +72,9 @@ public:
     void clearAll();
     void update(const f64v3& viewDir);
 
+    // TODO: This is not threadsafe
     void addFallingCheckNode(FallingCheckNode& fallingCheckNode) {
-        _fallingCheckNodes.push_back(fallingCheckNode);
+        //_fallingCheckNodes.push_back(fallingCheckNode);
     }
     void addExplosion(ExplosionNode& explosionNode) {
         _deferredExplosions.push(explosionNode);

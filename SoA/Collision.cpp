@@ -5,118 +5,13 @@
 #include "Chunkmanager.h"
 #include "Player.h"
 #include "utils.h"
+#include "VoxelNavigation.inl"
 
-//bool RaySphere(float xc, float yc, float zc, float xd, float yd, float zd, float xs, float ys, float zs, float r, float *dist, coordinate3lf *point)
-//{
-//    float b = 2*(xd*(xs-xc)+yd*(ys-yc)+zd*(zs-zc));
-//    float c = xs*xs-2*xs*xc+xc*xc+ys*ys-2*ys*yc+yc*yc+zs*zs-2*zs*zc+zc*zc-r*r;
-//    float disc=(b*b-4*c);
-//    if (disc<0)
-//        return false;
-//    if (dist!=NULL)
-//    {
-//        //-b+sqrt(b*b - 4*a*c)/2a (a==1)
-//        (*dist)=(-b+sqrt(disc))/2;
-//        if (point!=NULL)
-//        {
-//            //xs+t*xd
-//            point->x = xs + (*dist)*xd;
-//            point->y = ys + (*dist)*yd;
-//            point->z = zs + (*dist)*zd;
-//        }
-//    }
-//    return true;
-//}
-//
-//bool RayPlane(float nx, float ny, float nz, float xs, float ys, float zs, float xd, float yd, float zd, coordinate3lf &p1, coordinate3lf &p2, coordinate3lf &p3, coordinate3lf &p4, float *dist, coordinate3lf *point)
-//{
-//        float a=xd*nx+yd*ny+zd*nz;
-//        if(a==0)
-//                return false;
-//        float t = (float)((p1.x*nx+p1.y*ny+p1.z*nz-nx*xs-ny*ys-nz*zs)/a);
-//        if(t<0)
-//                return false;
-//        float x=xs+t*xd;
-//        float y=ys+t*yd;
-//        float z=zs+t*zd;
-//        coordinate3lf cp(x,y,z);
-//        if(abs(TriangleArea(p1,p3,p4)-TriangleArea(p1,p4,cp)-TriangleArea(p1,p3,cp)-
-//            TriangleArea(p3,p4,cp))<0.05 || abs(TriangleArea(p1,p2,p3)-TriangleArea(p1,p2,cp)-TriangleArea(p2,p3,cp)-TriangleArea(p1,p3,cp))<0.05){
-//            if(dist!=NULL)
-//            {
-//                (*dist)=t;
-//                if(point!=NULL)
-//                {
-//                    point->x=x;
-//                    point->y=y;
-//                    point->z=z;
-//                }
-//            }
-//            return true;
-//        }
-//        return false;
-//}
-//
-//bool SphereSphere(coordinate3lf &p1, coordinate3lf p2, float radius1, float radius2)
-//{
-//    float dx = (float)(p2.x-p1.x);
-//    float dy = (float)(p2.y-p1.y);
-//    float dz = (float)(p2.z-p1.z);
-//    float d = dx*dx+dy*dy+dz*dz;
-//    if (d < (radius1 + 4.0f)*(radius1 + radius2)){
-//        d = sqrt(d);
-//        float df = radius1+radius2-d;
-//        p1.x -= dx/d*df;
-//        p1.y -= dy/d*df;
-//        p1.z -= dz/d*df;
-//        return true;
-//    }
-//    return false;
-//}
-//
-//bool SpherePlane(coordinate3lf &sp, coordinate3lf &vn, coordinate3lf &p1, coordinate3lf &p2, coordinate3lf &p3, coordinate3lf &p4, float r)
-//{
-//    /*float dist1=0, dist2=0;
-//    if(RayPlane(-vn.x,-vn.y,-vn.z,sp.x,sp.y,sp.z,vn.x,vn.y,vn.z,p1,p2,p3,p4,&dist1) ||
-//        RayPlane(vn.x,vn.y,vn.z,sp.x,sp.y,sp.z,-vn.x,-vn.y,-vn.z,p1,p2,p3,p4,&dist2))
-//    {
-//        if(dist1>r || dist2>r){
-//            return false;
-//        }
-//        if (dist1>0){
-//            sp.x=sp.x-vn.x*(r-dist1);
-//            sp.y=sp.y-vn.y*(r-dist1);
-//            sp.z=sp.z-vn.z*(r-dist1);
-//        }else{
-//            sp.x=sp.x+vn.x*(r-dist2);
-//            sp.y=sp.y+vn.y*(r-dist2);
-//            sp.z=sp.z+vn.z*(r-dist2);
-//        }
-//        return true;
-//    }*/
-//    return false;
-//}
-//
-//float TriangleArea(coordinate3lf &p1, coordinate3lf &p2, coordinate3lf &p3)
-//{
-//    //area of the triangle with the heron fomula
-//    double a=sqrt((p2.x-p1.x)*(p2.x-p1.x)+(p2.y-p1.y)*(p2.y-p1.y)+(p2.z-p1.z)*(p2.z-p1.z));
-//    double b=sqrt((p3.x-p2.x)*(p3.x-p2.x)+(p3.y-p2.y)*(p3.y-p2.y)+(p3.z-p2.z)*(p3.z-p2.z));
-//    double c=sqrt((p1.x-p3.x)*(p1.x-p3.x)+(p1.y-p3.y)*(p1.y-p3.y)+(p1.z-p3.z)*(p1.z-p3.z));
-//    double s=(a+b+c)/2.0f;
-//    return (float)(sqrt(s*((s-a)*(s-b)*(s-c))));
-//}
-//
-//bool AABBCollision(coordinate3lf &b1, coordinate3lf &b2, coordinate3lf &r1, coordinate3lf &r2, coordinate3lf &vn)
-//{
-//    if (ABS(r1.x - r2.x) > (b1.x + b2.x)) return 0;
-//    if (ABS(r1.y - r2.y) > (b1.y + b2.y)) return 0;
-//    if (ABS(r1.z - r2.z) > (b1.z + b2.z)) return 0;
-//    return 1;
-//}
+void blockCollision(Player* player, Chunk* chunk, Chunk* lockedChunk, ui16 blockType, i32 c, f64 bdx, f64 bdy, f64 bdz, f64 dx, f64 dy, f64 dz);
 
-//This method could be easily implimented as a recursive function, but is more efficient if unfolded
 
+//This method could be easily implemented as a recursive function, but is more efficient if unfolded
+//TODO(Ben) This is laughable. 
 void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 size)
 {
     int x, y, z, x1, y1, z1 ,x2, y2, z2, x3, y3, z3, x4, y4, z4, c; //midpoints
@@ -133,12 +28,11 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 si
     boxZ = playerBox->z;
     yPosOffset = boxY; //since we are using a center point, we use yPosOffset to move the midpoint from the feet to the center
 
-    for (unsigned char i = 0; i < size; i++){ //loops through chunks
+    Chunk* lockedChunk = nullptr;
+
+    for (unsigned char i = 0; i < size; i++) { //loops through chunks
 
         if (!(chunks[i]) || chunks[i]->isAccessible == false) continue; //avoid errors
-
-        // Lock the chunk for thread safety
-        std::lock_guard<std::mutex>(chunks[i]->getDataLock());
 
         //find the midpoint so that we can subdivide the chunk into 8 sections
         x = chunks[i]->gridPosition.x + CHUNK_WIDTH / 2;
@@ -301,10 +195,10 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 si
                                                 chunk = chunks[i];
                                                 if (chunk->isAccessible == false) continue;
 
-                                                blockID = chunk->getBlockID(c);
+                                                blockID = chunk->getBlockIDSafe(lockedChunk, c);
 
                                                 if (blockID){
-                                                    blockCollision(player, chunks[i], blockID, c, bdx, bdy, bdz, dx, dy, dz);
+                                                    blockCollision(player, lockedChunk, chunks[i], blockID, c, bdx, bdy, bdz, dx, dy, dz);
                                                 }
                                             }
                                         }
@@ -317,9 +211,11 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 si
             }
         }
     }
+    if (lockedChunk) lockedChunk->unlock();
 }
 
-void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, double bdx, double bdy, double bdz, double dx, double dy, double dz)
+// TODO(Ben): What the FUCK is this?!?! This code is rated XXX.
+void blockCollision(Player *player, Chunk *chunk, Chunk* lockedChunk, GLushort blockType, int c, double bdx, double bdy, double bdz, double dx, double dy, double dz)
 {
 //    if (chunks[i]->data[blx + bly + blz] == WATER) continue; //no clip water
 
@@ -356,8 +252,8 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
     if (dy >= 1.0) { //if the player is more than 1.0 block above a block
         Chunk *own;
         int nc;
-        int topc = chunk->getTopBlockData(c, &nc, &own);
-        if (GETBLOCK(topc).collide == 0 && GETBLOCK(own->getTopBlockData(nc)).collide == 0){ // if there is at least 2 free spaces above
+        int topc = vvox::getTopBlockData(chunk, lockedChunk, c, nc, own);
+        if (GETBLOCK(topc).collide == 0 && GETBLOCK(vvox::getTopBlockData(own, lockedChunk, nc)).collide == 0) { // if there is at least 2 free spaces above
     //        cout << "TOP: " << chunk->GetTopBlock(c) << " " << (int)GETBLOCK(chunk->GetTopBlock(c)).collide << " ";
             moveUp = 1;
             push = 0.1 * stepMod; //if its a low climb, we can sorta clip into it
@@ -365,7 +261,7 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
     }else if (dy > -2.0 && dy < 1.0){
         player->canCling = 1;
         if (player->isSprinting) { //climbing happens when sprinting or holding jump
-            if (GETBLOCK(chunk->getTopBlockData(c)).collide == 0){
+            if (GETBLOCK(vvox::getTopBlockData(chunk, lockedChunk, c)).collide == 0) {
                 moveUp = 1;
                 player->isClinging = 1;
             }
@@ -396,18 +292,18 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
         }
     }
 
-    if (bdy < bdz && bdy < bdx && dy < -0.5 && Blocks[GETBLOCKTYPE(chunk->getBottomBlockData(c))].collide == 0){ //head y collision
+    if (bdy < bdz && bdy < bdx && dy < -0.5 && Blocks[GETBLOCKID(vvox::getBottomBlockData(chunk, lockedChunk, c))].collide == 0) { //head y collision
          //TODO PREVENT A FAST MOVING PERSON FROM GOING THROUGH BOTTOM BY TESTING HOW MUCH WE CAN CROUCH BEFORE WE BOUNCE OFF
     //    cout << "A";
         if (bdy > cData->headSquish) cData->headSquish = bdy; 
         if (player->velocity.y > 0.0f) player->velocity.y = 0.0; //maybe not do this? let people hit their heads and feet scrunch up
     }
     if (bdx < bdz && bdy > 0.2){ //x collision BDY is different when crouching. Look into this
-        if (!player->isSprinting  && GETBLOCK(chunk->getBottomBlockData(c)).collide == 0){ //auto crouch
+        if (!player->isSprinting  && GETBLOCK(vvox::getBottomBlockData(chunk, lockedChunk, c)).collide == 0) { //auto crouch
             if (player->getCrouch() != 1.0){
-                if (dx < 0 && GETBLOCK(chunk->getLeftBlockData(c)).collide == 0){
+                if (dx < 0 && GETBLOCK(vvox::getLeftBlockData(chunk, lockedChunk, c)).collide == 0) {
                     pushedDown = 1;
-                }else if (dx > 0 && GETBLOCK(chunk->getRightBlockData(c)).collide == 0){
+                } else if (dx > 0 && GETBLOCK(vvox::getRightBlockData(chunk, lockedChunk, c)).collide == 0) {
                     pushedDown = 1;
                 }
             }
@@ -421,12 +317,12 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
             //if (player->velocity.y > 0.0f) player->velocity.y = 0.0; 
         }
         if (!pushedDown || dy > -0.2){
-            if (dx > 0 && GETBLOCK(chunk->getRightBlockData(c)).collide == 0){
+            if (dx > 0 && GETBLOCK(vvox::getRightBlockData(chunk, lockedChunk, c)).collide == 0) {
                 mov = bdx*push;
                 if (mov > ABS(cData->xMove)) cData->xMove = mov;
                 collided = 1;
     //            cout << "C";
-            }else if (GETBLOCK(chunk->getLeftBlockData(c)).collide == 0){
+            } else if (GETBLOCK(vvox::getLeftBlockData(chunk, lockedChunk, c)).collide == 0) {
                 mov = bdx*push;
                 if (mov > ABS(cData->xMove)) cData->xMove = -mov;
                 collided = 1;
@@ -436,11 +332,11 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
         if ((1.0 - push) < cData->xPush) cData->xPush = 1.0 - push;
     }
     if (bdy > 0.2 && !collided){ //z collision
-        if (!player->isSprinting && dy < -0.0 && GETBLOCK(chunk->getBottomBlockData(c)).collide == 0){ //auto crouch
+        if (!player->isSprinting && dy < -0.0 && GETBLOCK(vvox::getBottomBlockData(chunk, lockedChunk, c)).collide == 0) { //auto crouch
             if (player->getCrouch() != 1.0){
-                if (dz < 0 && GETBLOCK(chunk->getBackBlockData(c)).collide == 0){
+                if (dz < 0 && GETBLOCK(vvox::getBackBlockData(chunk, lockedChunk, c)).collide == 0) {
                     pushedDown = 1;
-                }else if (dz > 0 && GETBLOCK(chunk->getFrontBlockData(c)).collide == 0){
+                } else if (dz > 0 && GETBLOCK(vvox::getFrontBlockData(chunk, lockedChunk, c)).collide == 0) {
                     pushedDown = 1;
                 }
             }
@@ -453,11 +349,11 @@ void blockCollision(Player *player, Chunk *chunk, GLushort blockType, int c, dou
             //if (player->velocity.y > 0.0f) player->velocity.y = 0.0; 
         }
         if (!pushedDown || dy > -0.2){
-            if (dz > 0 && GETBLOCK(chunk->getFrontBlockData(c)).collide == 0){
+            if (dz > 0 && GETBLOCK(vvox::getFrontBlockData(chunk, lockedChunk, c)).collide == 0) {
                 mov = bdz*push;
                 if (mov > ABS(cData->zMove)) cData->zMove = mov;
     //            cout << "B";
-            }else if (GETBLOCK(chunk->getBackBlockData(c)).collide == 0){
+            } else if (GETBLOCK(vvox::getBackBlockData(chunk, lockedChunk, c)).collide == 0) {
                 mov = bdz*push;
                 if (mov > ABS(cData->zMove)) cData->zMove = -mov;
     //            cout << "B";

@@ -4,6 +4,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "BlockData.h"
+#include "CAEngine.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
@@ -21,15 +22,19 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
         return false;
     }
 
-    Block b;
+    // Clear CA physics cache
+    CaPhysicsType::clearTypes();
+
+    
     Blocks.resize(numBlocks);
     Keg::Value v = Keg::Value::custom("Block", 0);
     for (auto& kvp : node) {
+        Block b;
         b.name = kvp.first.as<nString>();
         Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
 
         // Bit of post-processing on the block
-        postProcessBlockLoad(&b);
+        postProcessBlockLoad(&b, &ioManager);
 
         Blocks[b.ID] = b;
     }
@@ -73,7 +78,7 @@ bool BlockLoader::saveBlocks(const nString& filePath) {
 }
 
 
-void BlockLoader::postProcessBlockLoad(Block* block) {
+void BlockLoader::postProcessBlockLoad(Block* block, IOManager* ioManager) {
     block->active = true;
     GameManager::texturePackLoader->registerBlockTexture(block->topTexName);
     GameManager::texturePackLoader->registerBlockTexture(block->leftTexName);
@@ -86,6 +91,24 @@ void BlockLoader::postProcessBlockLoad(Block* block) {
     block->lightColorPacked = ((ui16)block->lightColor.r << LAMP_RED_SHIFT) |
         ((ui16)block->lightColor.g << LAMP_GREEN_SHIFT) |
         (ui16)block->lightColor.b;
+    // Ca Physics
+    if (block->caFilePath.length()) {
+        // Check if this physics type was already loaded
+        auto it = CaPhysicsType::typesCache.find(block->caFilePath);
+        if (it == CaPhysicsType::typesCache.end()) {
+            CaPhysicsType* newType = new CaPhysicsType();
+            // Load in the data
+            if (newType->loadFromYml(block->caFilePath, ioManager)) {
+                block->caIndex = newType->getCaIndex();
+                block->caAlg = newType->getCaAlg();
+            } else {
+                delete newType;
+            }
+        } else {
+            block->caIndex = it->second->getCaIndex();
+            block->caAlg = it->second->getCaAlg();
+        }
+    }
 }
 
 
@@ -102,6 +125,7 @@ i32 BlockLoader::SetWaterBlocks(int startID) {
         Blocks[i] = Blocks[startID];
         Blocks[i].name = "Water (" + std::to_string(i - startID + 1) + ")";
         Blocks[i].waterMeshLevel = i - startID + 1;
+        Blocks[i].meshType = MeshType::LIQUID;
     }
     for (int i = startID + 100; i < startID + 150; i++) {
         if (Blocks[i].active) {

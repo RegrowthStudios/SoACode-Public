@@ -531,30 +531,30 @@ void Player::checkFaceTransition()
     if (facePosition.x/32 > planetRowSize*0.5){
         facePosition.x -= planetRowSize*32;
         i = voxelMapData.rotation;
-        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
-        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        newFace = vvox::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvox::FaceTransitions[voxelMapData.face][newFace];
         if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
         voxelMapData.face = newFace;
     }else if (facePosition.x/32 < -planetRowSize*0.5){
         facePosition.x += planetRowSize*32;
         i = (2 + voxelMapData.rotation)%4;
-        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
-        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        newFace = vvox::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvox::FaceTransitions[voxelMapData.face][newFace];
         if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
         voxelMapData.face = newFace;
     }
     if (facePosition.z/32 > planetRowSize*0.5){
         facePosition.z -= planetRowSize*32;
         i = (3 + voxelMapData.rotation)%4;
-        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
-        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        newFace = vvox::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvox::FaceTransitions[voxelMapData.face][newFace];
         if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
         voxelMapData.face = newFace;
     }else if (facePosition.z/32 < -planetRowSize*0.5){
         facePosition.z += planetRowSize*32;
         i = (1 + voxelMapData.rotation)%4;
-        newFace = vvoxel::FaceNeighbors[voxelMapData.face][i];
-        voxelMapData.rotation += vvoxel::FaceTransitions[voxelMapData.face][newFace];
+        newFace = vvox::FaceNeighbors[voxelMapData.face][i];
+        voxelMapData.rotation += vvox::FaceTransitions[voxelMapData.face][newFace];
         if (voxelMapData.rotation < 0){ voxelMapData.rotation += 4; }else{ voxelMapData.rotation %= 4; }
         voxelMapData.face = newFace;
     }
@@ -575,14 +575,14 @@ void Player::calculateWorldPosition()
     // |     |i    |
     // |_____V_____|
 
-    ipos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][0];
-    jpos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][1];
-    rpos = vvoxel::FaceCoords[voxelMapData.face][voxelMapData.rotation][2];
-    incI = vvoxel::FaceSigns[voxelMapData.face][voxelMapData.rotation][0];
-    incJ = vvoxel::FaceSigns[voxelMapData.face][voxelMapData.rotation][1];
+    ipos = vvox::FaceCoords[voxelMapData.face][voxelMapData.rotation][0];
+    jpos = vvox::FaceCoords[voxelMapData.face][voxelMapData.rotation][1];
+    rpos = vvox::FaceCoords[voxelMapData.face][voxelMapData.rotation][2];
+    incI = vvox::FaceSigns[voxelMapData.face][voxelMapData.rotation][0];
+    incJ = vvox::FaceSigns[voxelMapData.face][voxelMapData.rotation][1];
     v1[ipos] = incI * facePosition.z;
     v1[jpos] = incJ * facePosition.x;
-    v1[rpos] = vvoxel::FaceRadialSign[voxelMapData.face] * _worldRadius * planetScale;
+    v1[rpos] = vvox::FaceRadialSign[voxelMapData.face] * _worldRadius * planetScale;
 
     worldPosition = (headPosition.y*invPlanetScale + (double)_worldRadius)*glm::normalize(v1);
     incI *= 100;

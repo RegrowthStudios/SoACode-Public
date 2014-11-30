@@ -207,6 +207,6 @@ namespace vorb {
     }
 }
 // Namespace Alias
-namespace vvoxel = vorb::voxel;
+namespace vvox = vorb::voxel;
 
 #endif // SmartVoxelContainer_h__

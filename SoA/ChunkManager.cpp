@@ -72,7 +72,7 @@ ChunkManager::~ChunkManager() {
     delete _voxelLightEngine;
 }
 
-void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags) {
+void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper, vvox::VoxelMapData* startingMapData, ui32 flags) {
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
@@ -101,10 +101,10 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     _csGridSize = csGridWidth * csGridWidth * csGridWidth;
     _chunkSlotMap.reserve(_csGridSize);
 
-    // Set initial capacity of circular buffers
-    _setupList.set_capacity(_csGridSize * 2);
-    _meshList.set_capacity(_csGridSize * 2);
-    _loadList.set_capacity(_csGridSize * 2);
+    // Set initial capacity of stacks for efficiency
+    _setupList.reserve(_csGridSize / 2);
+    _meshList.reserve(_csGridSize / 2);
+    _loadList.reserve(_csGridSize / 2);
 
     // Reserve capacity for chunkslots. If this capacity is not enough, we will get a 
     // crash. We use * 4 just in case. It should be plenty
@@ -151,6 +151,7 @@ void ChunkManager::update(const Camera* camera) {
     if (gridPosition != oldGridPosition) {
         _voxelMapper->offsetPosition(_cameraVoxelMapData, i32v2(gridPosition.y - oldGridPosition.y, gridPosition.x - oldGridPosition.x));
     }
+
     oldGridPosition = gridPosition;
 
     if (getChunk(chunkPosition) == nullptr) {
@@ -166,7 +167,7 @@ void ChunkManager::update(const Camera* camera) {
 
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
-
+        
     globalMultiplePreciseTimer.start("Sort");
 
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
@@ -176,10 +177,9 @@ void ChunkManager::update(const Camera* camera) {
         k = 0;
     }
     k++;
-
+   // std::cout << "TASKS " << _threadPool.getFinishedTasksSizeApprox() << std::endl;
     globalMultiplePreciseTimer.start("Loaded Chunks");
     updateLoadedChunks(4);
-
     globalMultiplePreciseTimer.start("Trees To Place List");
     updateTreesToPlace(3);
     globalMultiplePreciseTimer.start("Mesh List");
@@ -441,11 +441,12 @@ void ChunkManager::processFinishedTasks() {
     size_t numTasks = _threadPool.getFinishedTasks(taskBuffer, MAX_TASKS);
 
     vcore::IThreadPoolTask* task;
+    Chunk* chunk;
 
     for (size_t i = 0; i < numTasks; i++) {
         task = taskBuffer[i];
 
-        // Postprocessing based on task type
+        // Post processing based on task type
         switch (task->getTaskId()) {
             case RENDER_TASK_ID:
                 processFinishedRenderTask(static_cast<RenderTask*>(task));
@@ -468,8 +469,22 @@ void ChunkManager::processFinishedTasks() {
             case FLORA_TASK_ID:
                 processFinishedFloraTask(static_cast<FloraTask*>(task));
                 break;
+            case CA_TASK_ID:
+                chunk = static_cast<CellularAutomataTask*>(task)->_chunk;
+                if (task == chunk->lastOwnerTask) {
+                    chunk->lastOwnerTask = nullptr;
+                }
+                processFinishedRenderTask(static_cast<CellularAutomataTask*>(task)->renderTask);
+                if (_freeRenderTasks.size() < MAX_CACHED_TASKS) {
+                    // Store the render task so we don't have to call new
+                    _freeRenderTasks.push_back(static_cast<CellularAutomataTask*>(task)->renderTask);
+                } else {
+                    delete static_cast<CellularAutomataTask*>(task)->renderTask;
+                }
+                _numCaTasks--;
+                delete task;
+                break;
             default:
-                pError("Unknown thread pool Task! ID = " + std::to_string(task->getTaskId()));
                 delete task;
                 break;
         }
@@ -616,10 +631,10 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
             }
 
             // Init the containers
-            ch->_blockIDContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-            ch->_lampLightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-            ch->_sunlightContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
-            ch->_tertiaryDataContainer.init(vvoxel::VoxelStorageState::FLAT_ARRAY);
+            ch->_blockIDContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
+            ch->_lampLightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
+            ch->_sunlightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
+            ch->_tertiaryDataContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
 
             // Initialize the task
             generateTask->init(ch, new LoadData(ch->chunkGridData->heightData, GameManager::terrainGenerator));
@@ -638,7 +653,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
     }
 }
 
-void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
+void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
 
     // Get the voxel grid position
     i32v2 gridPos(chunkPosition.x, chunkPosition.z);
@@ -805,8 +820,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
 
         if (chunk->numNeighbors == 6 && chunk->owner->inFrustum) {     
             
-            //TODO: BEN, Need to make sure chunk->numBlocks is always correct
-            if (chunk->numBlocks) { 
+            if (chunk->numBlocks) {
 
                 chunk->occlude = 0;
 
@@ -902,11 +916,11 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     // Decompress all chunks to arrays for efficiency
     for (auto& it : nodes->allChunkPositions) {
         Chunk* chunk = getChunk(it);
-        if (chunk->_blockIDContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            chunk->_blockIDContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+        if (chunk->_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+            chunk->_blockIDContainer.changeState(vvox::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
-        if (chunk->_sunlightContainer.getState() == vvoxel::VoxelStorageState::INTERVAL_TREE) {
-            chunk->_sunlightContainer.changeState(vvoxel::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
+        if (chunk->_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+            chunk->_sunlightContainer.changeState(vvox::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
     }
 
@@ -915,27 +929,19 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
     Chunk* lockedChunk = nullptr;
     const i32v3& startPos = nodes->startChunkGridPos;
 
+    int a = 0;
     for (auto& node : nodes->wnodes) { //wood nodes
         blockIndex = node.blockIndex;
        
         owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
         // Lock the chunk
-        if (lockedChunk) lockedChunk->unlock();
-        lockedChunk = owner;
-        lockedChunk->lock();
+        vvox::swapLockedChunk(owner, lockedChunk);
 
         ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
-
-        // TODO(Ben): Use a smother property for block instead of this hard coded garbage
-        if (blockIndex >= CHUNK_LAYER) {
-            if (owner->getBlockID(blockIndex - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->setBlockID(blockIndex - CHUNK_LAYER, (ui16)Blocks::DIRT); //replace grass with dirt
-        } else if (owner->bottom && owner->bottom->isAccessible) {
-            // Lock the chunk
-            if (lockedChunk) lockedChunk->unlock();
-            lockedChunk = owner->bottom;
-            lockedChunk->lock();
-
-            if (owner->bottom->getBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER) == (ui16)Blocks::DIRTGRASS) owner->bottom->setBlockID(blockIndex + CHUNK_SIZE - CHUNK_LAYER, (ui16)Blocks::DIRT);
+        // TODO(Ben): Use a smother transform property for block instead of this hard coded garbage
+        int blockID = GETBLOCKID(vvox::getBottomBlockData(owner, lockedChunk, blockIndex, blockIndex, owner));
+        if (blockID == Blocks::DIRTGRASS) {
+            owner->setBlockData(blockIndex, Blocks::DIRT);
         }
     }
 
@@ -943,9 +949,7 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
         blockIndex = node.blockIndex;
         owner = getChunk(startPos + FloraTask::getChunkOffset(node.chunkOffset));
         // Lock the chunk
-        if (lockedChunk) lockedChunk->unlock();
-        lockedChunk = owner;
-        lockedChunk->lock();
+        vvox::swapLockedChunk(owner, lockedChunk);
 
         int blockID = owner->getBlockData(blockIndex);
 
@@ -1040,59 +1044,37 @@ void ChunkManager::setupNeighbors(Chunk* chunk) {
 }
 
 void ChunkManager::updateCaPhysics() {
-    static unsigned int frameCounter = 0;
-    static unsigned int powderCounter = 0;
-    static unsigned int waterCounter = 0;
 
-    bool updatePowders = false;
-    bool updateWater = false;
-
-    if (powderCounter >= 4 || (powderCounter == 2 && physSpeedFactor >= 2.0)) {
-        if (isWaterUpdating) updatePowders = true;
-        powderCounter = 0;
-    }
-
-    if (waterCounter >= 2 || (waterCounter == 1 && physSpeedFactor >= 2.0)) {
-        if (isWaterUpdating) updateWater = true;
-        waterCounter = 0;
-    }
-
-    const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
-    CellularAutomataTask* caTask;
-    Chunk* chunk;
-    if (updateWater && updatePowders) {
-        for (int i = 0; i < chunkSlots.size(); i++) {
-            chunk = chunkSlots[i].chunk;
-            if (chunk && (chunk->hasCaUpdates(0) || chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
-                caTask = new CellularAutomataTask(chunk, CA_FLAG_POWDER | CA_FLAG_LIQUID);
-                chunk->lastOwnerTask = caTask;
-                _threadPool.addTask(caTask);
+    // TODO(Ben): Semi-fixed timestep
+    if (_numCaTasks == 0) {
+        std::vector <CaPhysicsType*> typesToUpdate;
+        // Check which types need to update
+        for (auto& type : CaPhysicsType::typesArray) {
+            if (type->update()) {
+                typesToUpdate.push_back(type);
             }
         }
-    } else if (updateWater) {
-        for (int i = 0; i < chunkSlots.size(); i++) {
-            chunk = chunkSlots[i].chunk;
-            if (chunk && chunk->hasCaUpdates(0)) {
-                caTask = new CellularAutomataTask(chunk, CA_FLAG_LIQUID);
-                chunk->lastOwnerTask = caTask;
-                _threadPool.addTask(caTask);
-            }
-        }
-    } else if (updatePowders) {
-        for (int i = 0; i < chunkSlots.size(); i++) {
-            chunk = chunkSlots[i].chunk;
-            if (chunk && (chunk->hasCaUpdates(1) || chunk->hasCaUpdates(2))) {
-                caTask = new CellularAutomataTask(chunk, CA_FLAG_POWDER);
-                chunk->lastOwnerTask = caTask;
-                _threadPool.addTask(caTask);
+
+        if (typesToUpdate.size()) {
+            const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
+            CellularAutomataTask* caTask;
+            Chunk* chunk;
+            
+            // Loop through all chunk slots and update chunks that have updates
+            for (int i = 0; i < chunkSlots.size(); i++) {
+                chunk = chunkSlots[i].chunk;
+                if (chunk && chunk->numNeighbors == 6 && chunk->hasCaUpdates(typesToUpdate)) {
+                    caTask = new CellularAutomataTask(chunk, chunk->owner->inFrustum);
+                    for (auto& type : typesToUpdate) {
+                        caTask->addCaTypeToUpdate(type);
+                    }
+                    chunk->lastOwnerTask = caTask;
+                    _threadPool.addTask(caTask);
+                    _numCaTasks++;
+                }
             }
         }
     }
-
-    frameCounter++;
-    powderCounter++;
-    waterCounter++;
-    if (frameCounter == 3) frameCounter = 0;
 }
 
 void ChunkManager::freeChunk(Chunk* chunk) {
@@ -1140,7 +1122,10 @@ void ChunkManager::addToLoadList(Chunk* chunk) {
 }
 
 void ChunkManager::addToMeshList(Chunk* chunk) {
-    chunk->addToChunkList(&_meshList);
+    if (!chunk->queuedForMesh) {
+        chunk->addToChunkList(&_meshList);
+        chunk->queuedForMesh = true;
+    }
 }
 
 void ChunkManager::recycleChunk(Chunk* chunk) {
@@ -1157,7 +1142,7 @@ inline Chunk* ChunkManager::produceChunk() {
     }
     _chunkDiagnostics.numCurrentlyAllocated++;
     _chunkDiagnostics.totalAllocated++;
-    return new Chunk(&_shortFixedSizeArrayRecycler, &_byteFixedSizeArrayRecycler);
+    return new Chunk(&_shortFixedSizeArrayRecycler, &_byteFixedSizeArrayRecycler, CaPhysicsType::getNumCaTypes());
 }
 
 void ChunkManager::deleteAllChunks() {

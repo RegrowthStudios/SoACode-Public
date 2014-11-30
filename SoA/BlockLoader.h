@@ -1,6 +1,7 @@
 #pragma once
 
 class Block;
+class IOManager;
 
 class BlockLoader
 {
@@ -18,7 +19,7 @@ private:
 
     /// Does some needed postprocessing on a block after load
     /// @param block: the block to process
-    static void postProcessBlockLoad(Block* block);
+    static void postProcessBlockLoad(Block* block, IOManager* ioManager);
 
     /// Sets up the water blocks. This is temporary
     /// @param startID: ID of first water block

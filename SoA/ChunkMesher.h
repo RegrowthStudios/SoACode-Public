@@ -42,6 +42,8 @@ private:
     void addFloraToMesh(MesherInfo& mi);
     void addLiquidToMesh(MesherInfo& mi);
 
+    int getLiquidLevel(int blockIndex, const Block& block);
+
     void bindVBOIndicesID();
 
     bool checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);

@@ -16,7 +16,7 @@ class VoxelWorld
 public:
     VoxelWorld();
     ~VoxelWorld();
-    void initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* startingMapData, Planet *planet, GLuint flags);
+    void initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, Planet *planet, GLuint flags);
     void update(const Camera* camera);
     void getClosestChunks(glm::dvec3 &coord, class Chunk **chunks);
     void endSession();

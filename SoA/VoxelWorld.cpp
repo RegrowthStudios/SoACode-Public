@@ -28,7 +28,7 @@ VoxelWorld::~VoxelWorld()
 }
 
 
-void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* startingMapData, Planet *planet, GLuint flags)
+void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, Planet *planet, GLuint flags)
 {
     if (_chunkManager) {
         pError("VoxelWorld::initialize() called twice before end session!");
@@ -41,7 +41,7 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvoxel::VoxelMapData* starti
 
     _chunkManager->planet = planet;
 
-    vvoxel::VoxelPlanetMapper* voxelPlanetMapper = new vvoxel::VoxelPlanetMapper(planet->facecsGridWidth);
+    vvox::VoxelPlanetMapper* voxelPlanetMapper = new vvox::VoxelPlanetMapper(planet->facecsGridWidth);
     _chunkManager->initialize(gpos, voxelPlanetMapper, startingMapData, flags);
 
     setPlanet(planet);
@@ -77,7 +77,7 @@ void VoxelWorld::endSession()
 
 void VoxelWorld::updatePhysics(const Camera* camera) {
 
-  //  GameManager::chunkManager->updateCaPhysics();
+    GameManager::chunkManager->updateCaPhysics();
 
     // Update physics engine
     globalMultiplePreciseTimer.start("Physics Engine");

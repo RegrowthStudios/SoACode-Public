@@ -656,6 +656,9 @@
     <ClInclude Include="FixedSizeArrayRecycler.hpp">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelNavigation.inl">
+      <Filter>SOA Files\Voxel\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="GLProgram.h">
       <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
@@ -672,6 +675,9 @@
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="CellularAutomataTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
+    <ClInclude Include="FloraTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
@@ -1116,6 +1122,9 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
+    </None>
+    <None Include="ChunkMesher.inl">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </None>
   </ItemGroup>
 </Project>

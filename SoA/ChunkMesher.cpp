@@ -462,7 +462,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 }
 
 //Gets the liquid level from a block index
-#define LEVEL(i) ((_blockIDData[i] == 0) ? 0 : (((nextBlock = &GETBLOCK(_blockIDData[i]))->physicsProperty == block.physicsProperty) ? nextBlock->waterMeshLevel : 0))
+#define LEVEL(i) ((_blockIDData[i] == 0) ? 0 : (((nextBlock = &GETBLOCK(_blockIDData[i]))->caIndex == block.caIndex) ? nextBlock->waterMeshLevel : 0))
 
 #define CALCULATE_LIQUID_VERTEX_HEIGHT(height, heightA, heightB, cornerIndex) \
     div = 0; \
@@ -490,7 +490,6 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 //END CALCULATE_LIQUID_VERTEX_HEIGHT
 
 void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
-    return;
     const Block &block = Blocks[mi.btype];
     Block* nextBlock;
     i32 nextBlockID;
@@ -547,7 +546,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     nextBlockID = _blockIDData[wc + PADDED_OFFSETS::BOTTOM];
     nextBlock = &GETBLOCK(nextBlockID);
     //Check if the block is falling
-    if (nextBlockID == 0 || nextBlock->waterBreak || (nextBlock->physicsProperty == block.physicsProperty && nextBlock->waterMeshLevel != maxLevel)) {
+    if (nextBlockID == 0 || nextBlock->waterBreak || (nextBlock->caIndex == block.caIndex && nextBlock->waterMeshLevel != maxLevel)) {
         memset(faces, 1, 6); //all faces are active
   //      backLeftHeight = backRightHeight = frontLeftHeight = frontRightHeight 
         fallingReduction = 1.0f;
@@ -555,19 +554,19 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
         //Get occlusion
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::LEFT]);
-        faces[XNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[XNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BACK]);
-        faces[ZNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[ZNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::RIGHT]);
-        faces[XPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[XPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::FRONT]);
-        faces[ZPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[ZPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BOTTOM]);
-        faces[YNEG] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[YNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
     }
 
     left = LEVEL(wc + PADDED_OFFSETS::LEFT);
@@ -593,7 +592,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     //only occlude top if we are a full water block and our sides arent down at all
     if (liquidLevel == 1.0f && backRightHeight == 1.0f && backLeftHeight == 1.0f && frontLeftHeight == 1.0f && frontRightHeight == 1.0f) {
         nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::TOP]);
-        faces[YPOS] = ((nextBlock->physicsProperty != block.physicsProperty) && (nextBlock->occlude == BlockOcclusion::NONE));
+        faces[YPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
     } else {
         faces[YPOS] = true;
     }
@@ -758,6 +757,14 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 
         mi.liquidIndex += 4;
     }
+}
+
+int ChunkMesher::getLiquidLevel(int blockIndex, const Block& block) {
+    int val = GETBLOCKID(_blockIDData[blockIndex]); // Get block ID
+    val = val - block.liquidStartID;
+    if (val < 0) return 0;
+    if (val > block.liquidLevels) return 0;
+    return val;
 }
 
 void ChunkMesher::mergeTopVerts(MesherInfo &mi)
@@ -1387,7 +1394,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
                 //We use wc instead of c, because the array is sentinalized at all edges so we dont have to access neighbor chunks with mutexes
                 mi.wc = (mi.y + 1)*(dataLayer)+(mi.z + 1)*(dataWidth)+(mi.x + 1); //get the expanded c for our sentinelized array
                 //get the block properties
-                mi.btype = GETBLOCKTYPE(_blockIDData[mi.wc]);
+                mi.btype = GETBLOCKID(_blockIDData[mi.wc]);
                 block = &(Blocks[mi.btype]);
 
 
@@ -1539,7 +1546,7 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
 
     for (int i = 0; i < wSize; i++) {
         mi.wc = _wvec[i];
-        mi.btype = GETBLOCKTYPE(_blockIDData[mi.wc]);
+        mi.btype = GETBLOCKID(_blockIDData[mi.wc]);
         mi.x = (mi.wc % PADDED_CHUNK_WIDTH) - 1;
         mi.y = (mi.wc / PADDED_CHUNK_LAYER) - 1;
         mi.z = ((mi.wc % PADDED_CHUNK_LAYER) / PADDED_CHUNK_WIDTH) - 1;
@@ -1604,7 +1611,8 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                     for (int lz = 0; lz < lodStep; lz++) {
                         for (int lx = 0; lx < lodStep; lx++) {
                             blockIndex = startIndex + ly * PADDED_CHUNK_LAYER + lz * PADDED_CHUNK_WIDTH + lx;
-                            if (GETBLOCK(_blockIDData[blockIndex]).occlude != BlockOcclusion::NONE) {
+                            const Block& block = GETBLOCK(_blockIDData[blockIndex]);
+                            if (block.occlude != BlockOcclusion::NONE || block.meshType == MeshType::LIQUID) {
                                 // Check for surface block
                                 if (GETBLOCK(_blockIDData[blockIndex + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE || surfaceBlockID == 0) {
                                     // TODO(Ben): Do better than just picking a random surfaceBlock

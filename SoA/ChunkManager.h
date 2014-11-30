@@ -7,8 +7,6 @@
 #include <set>
 #include <thread>
 
-#include <boost/circular_buffer.hpp>
-
 #include "Vorb.h"
 
 #include "BlockData.h"
@@ -70,7 +68,7 @@ public:
     /// @param gridPosition: the floating point starting grid position.
     /// @param voxelMapper: The chosen voxel mapping scheme
     /// @param flags: bitwise combination of ChunkManager::InitFlags
-    void initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* voxelMapper, vvoxel::VoxelMapData* startingMapData, ui32 flags);
+    void initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper, vvox::VoxelMapData* startingMapData, ui32 flags);
 
     /// Updates the chunks
     /// @param camera: The camera that is rendering the voxels
@@ -206,7 +204,7 @@ private:
     /// @param chunkPosition: position to create the chunk at
     /// @param relativeMapData: the voxelMapData that this chunk is relative to.
     /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
-    void makeChunkAt(const i32v3& chunkPosition, const vvoxel::VoxelMapData* relativeMapData, const i32v2& ijOffset = i32v2(0));
+    void makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset = i32v2(0));
 
     /// Initializes minerals. This function is temporary.
     void initializeMinerals();
@@ -303,12 +301,12 @@ private:
     /// Chunk Lists
     /// Stack of free chunks that have been recycled and can be used
     std::vector<Chunk*> _freeList;
-    /// List of chunks needing setup
-    boost::circular_buffer<Chunk*> _setupList;
-    /// List of chunks that need to be meshed on the threadPool
-    boost::circular_buffer<Chunk*> _meshList;
-    /// List of chunks that need to be sent to the IO thread
-    boost::circular_buffer<Chunk*> _loadList;
+    /// Stack of chunks needing setup
+    std::vector<Chunk*> _setupList;
+    /// Stack of chunks that need to be meshed on the threadPool
+    std::vector<Chunk*> _meshList;
+    /// Stack of chunks that need to be sent to the IO thread
+    std::vector<Chunk*> _loadList;
 
     /// Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
@@ -330,13 +328,15 @@ private:
     ChunkDiagnostics _chunkDiagnostics;
 
     /// The current voxel mapping scheme
-    vvoxel::IVoxelMapper* _voxelMapper;
+    vvox::IVoxelMapper* _voxelMapper;
 
     /// Voxel mapping data at the camera
-    vvoxel::VoxelMapData* _cameraVoxelMapData;
+    vvox::VoxelMapData* _cameraVoxelMapData;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool _threadPool;
+
+    int _numCaTasks = 0; ///< The number of CA tasks currently being processed
 
     VoxelLightEngine* _voxelLightEngine; ///< Used for checking top chunks for sunlight
 

@@ -241,6 +241,7 @@
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="WSO.h" />
@@ -450,6 +451,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Chunk.inl" />
+    <None Include="ChunkMesher.inl" />
     <None Include="VoxelIntervalTree.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
