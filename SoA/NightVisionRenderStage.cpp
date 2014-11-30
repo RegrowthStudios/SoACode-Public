@@ -45,8 +45,8 @@ NightVisionRenderStage::NightVisionRenderStage(vg::GLProgram* glProgram, vg::Ful
     }
 
     // Build noise texture
-    glGenTextures(1, &_texNoise.ID);
-    glBindTexture(GL_TEXTURE_2D, _texNoise.ID);
+    glGenTextures(1, &_texNoise.id);
+    glBindTexture(GL_TEXTURE_2D, _texNoise.id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _texNoise.width, _texNoise.height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
     SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -60,7 +60,7 @@ NightVisionRenderStage::NightVisionRenderStage(vg::GLProgram* glProgram, vg::Ful
     setParams(&params);
 }
 NightVisionRenderStage::~NightVisionRenderStage() {
-    glDeleteTextures(1, &_texNoise.ID);
+    glDeleteTextures(1, &_texNoise.id);
 }
 
 void NightVisionRenderStage::draw() {
@@ -69,7 +69,7 @@ void NightVisionRenderStage::draw() {
     //_visionColorHSL.r = fmod(_visionColorHSL.r = 0.005f, 6.28f);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, _texNoise.ID);
+    glBindTexture(GL_TEXTURE_2D, _texNoise.id);
 
     _glProgram->use();
     _glProgram->enableVertexAttribArrays();

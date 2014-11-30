@@ -118,7 +118,7 @@ int saveOptions() {
     iniValues.push_back(std::vector<IniValue>());
 
     iniValues.back().push_back(IniValue("atmosphereSecColorExposure", graphicsOptions.secColorMult));
-    iniValues.back().push_back(IniValue("enableParticles", to_string(graphicsOptions.enableParticles)));
+    iniValues.back().push_back(IniValue("enableParticles", std::to_string(graphicsOptions.enableParticles)));
     iniValues.back().push_back(IniValue("fov", graphicsOptions.fov));
     iniValues.back().push_back(IniValue("gamma", graphicsOptions.gamma));
     iniValues.back().push_back(IniValue("renderDistance", graphicsOptions.voxelRenderDistance));
@@ -127,17 +127,17 @@ int saveOptions() {
     iniValues.back().push_back(IniValue("maxFps", graphicsOptions.maxFPS));
     iniValues.back().push_back(IniValue("motionBlur", graphicsOptions.motionBlur));
     iniValues.back().push_back(IniValue("msaa", graphicsOptions.msaa));
-    iniValues.back().push_back(IniValue("vSync", to_string(graphicsOptions.isVsync)));
+    iniValues.back().push_back(IniValue("vSync", std::to_string(graphicsOptions.isVsync)));
 
     iniSections.push_back("GameOptions");
     iniValues.push_back(std::vector<IniValue>());
-    iniValues.back().push_back(IniValue("invertMouse", to_string(gameOptions.invertMouse)));
+    iniValues.back().push_back(IniValue("invertMouse", std::to_string(gameOptions.invertMouse)));
     iniValues.back().push_back(IniValue("mouseSensitivity", gameOptions.mouseSensitivity));
 
     iniSections.push_back("SoundOptions");
     iniValues.push_back(std::vector<IniValue>());
-    iniValues.back().push_back(IniValue("effectVolume", to_string(soundOptions.effectVolume)));
-    iniValues.back().push_back(IniValue("musicVolume", to_string(soundOptions.musicVolume)));
+    iniValues.back().push_back(IniValue("effectVolume", std::to_string(soundOptions.effectVolume)));
+    iniValues.back().push_back(IniValue("musicVolume", std::to_string(soundOptions.musicVolume)));
 
     if (fileManager.saveIniFile("Data/options.ini", iniValues, iniSections)) return 1;
     return 0;

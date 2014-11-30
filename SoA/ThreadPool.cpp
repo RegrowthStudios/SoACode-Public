@@ -31,7 +31,7 @@ void vcore::ThreadPool::init(ui32 size) {
     if (_isInitialized) return;
     _isInitialized = true;
 
-    cout << "THREADPOOL SIZE: " << size << endl;
+    std::cout << "THREADPOOL SIZE: " << size << std::endl;
 
     /// Allocate all threads
     _workers.resize(size);

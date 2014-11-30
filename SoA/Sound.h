@@ -4,9 +4,6 @@
 
 #include "Constants.h"
 
-// TODO: Remove This
-using namespace std;
-
 enum SOUND_TYPE {S_DEFAULT, S_MUSIC_CAVE, S_MUSIC_WIND, S_MUSIC_RANDOM, S_RANDOM_NIGHT, S_RANDOM_DAY, S_LAST};
 
 class FmodSound {
@@ -73,8 +70,8 @@ private:
     unsigned int _songFrequency;
     unsigned int _randomFrequency;
 
-    vector <string> _soundTypes[S_LAST];
+    std::vector<nString> _soundTypes[S_LAST];
 
-    map <string, FmodSound> _soundMap;
+    std::map<nString, FmodSound> _soundMap;
     FMOD::ChannelGroup *_songGroup, *_effectGroup;
 };

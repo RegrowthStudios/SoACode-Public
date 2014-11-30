@@ -66,7 +66,7 @@ void SkyboxRenderer::drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Tex
 
     // Draw each of the 6 sides
     for (int i = 0; i < SKYBOX_FACES; i++) {
-        glBindTexture(GL_TEXTURE_2D, textures[i].ID);
+        glBindTexture(GL_TEXTURE_2D, textures[i].id);
         glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD, GL_UNSIGNED_SHORT, (void*)(i * sizeof(ui16)* INDICES_PER_QUAD)); //offset
     }
 

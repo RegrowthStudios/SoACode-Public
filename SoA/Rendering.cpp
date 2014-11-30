@@ -64,7 +64,7 @@ void WorldRenderer::DrawLine(glm::vec3 a, glm::vec3 b)
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    vector <GLfloat> lineVertices(6);
+    std::vector <f32> lineVertices(6);
 
     lineVertices[0] = a[0];
     lineVertices[1] = a[1];
@@ -171,7 +171,7 @@ GLuint MakeBlockVbo(Block *block){
     static GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     ColorRGB8 lampColor(100, 100, 100);
     ui8 sunlight = 80;
-    vector <BlockVertex> vertices;
+    std::vector <BlockVertex> vertices;
     vertices.resize(24);
     int btype = block->ID;
 
@@ -312,7 +312,7 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
 
     GLuint vboID = MakeBlockVbo(block);
 

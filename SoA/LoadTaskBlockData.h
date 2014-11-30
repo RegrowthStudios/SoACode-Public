@@ -30,7 +30,7 @@ class LoadTaskBlockData : public ILoadTask {
                 if (ObjectList[i] != NULL){
                     printf("Object ID %d already taken by %s. Requested by %s.\n", i, ObjectList[i]->name.c_str(), Blocks[i].name.c_str());
                     int a;
-                    cin >> a;
+                    std::cin >> a;
                     exit(198);
                 }
                 ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, 0, 0, 0);

@@ -99,7 +99,7 @@ void TexturePackLoader::uploadTextures() {
     vg::Texture atlasTex;
     atlasTex.width = atlasTex.height = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
 
-    atlasTex.ID = _textureAtlasStitcher.buildTextureArray();
+    atlasTex.id = _textureAtlasStitcher.buildTextureArray();
 
     blockPack.initialize(atlasTex);
 
@@ -176,11 +176,11 @@ ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
 
         // Error checking
         if (width != MAP_WIDTH) {
-            pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));
+            pError("Error color map " + name + " must have a width of " + std::to_string(MAP_WIDTH));
             return _blockColorMaps.size() - 1;
         }
         if (height != MAP_WIDTH) {
-            pError("Error color map " + name + " must have a height of " + to_string(MAP_WIDTH));
+            pError("Error color map " + name + " must have a height of " + std::to_string(MAP_WIDTH));
             return _blockColorMaps.size() - 1;
         }
 
@@ -237,13 +237,13 @@ void TexturePackLoader::writeDebugAtlases() {
     int pixelsPerPage = width * height * 4;
     ui8 *pixels = new ui8[width * height * 4 * _numAtlasPages];
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
     glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     for (int i = 0; i < _numAtlasPages; i++) {
 
         SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, _packInfo.resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
-        SDL_SaveBMP(surface, ("atlas" + to_string(i) + ".bmp").c_str());
+        SDL_SaveBMP(surface, ("atlas" + std::to_string(i) + ".bmp").c_str());
 
     }
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -345,11 +345,11 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
     // Helper for checking dimensions
 #define DIM_CHECK(w, cw, h, ch, method) \
     if (width != _packInfo.resolution * cw) { \
-        pError("Texture " + layer.path + " is " #method " but width is not " + to_string(cw)); \
+        pError("Texture " + layer.path + " is " #method " but width is not " + std::to_string(cw)); \
         return nullptr; \
     } \
     if (height != _packInfo.resolution * ch) {  \
-        pError("Texture " + layer.path + " is " #method " but height is not " + to_string(ch)); \
+        pError("Texture " + layer.path + " is " #method " but height is not " + std::to_string(ch)); \
         return nullptr; \
     }
 
@@ -358,11 +358,11 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
 
     // Check that the texture is sized in units of _packInfo.resolution
     if (width % _packInfo.resolution) {
-        pError("Texture " + layer.path + " width must be a multiple of " + to_string(_packInfo.resolution));
+        pError("Texture " + layer.path + " width must be a multiple of " + std::to_string(_packInfo.resolution));
         return nullptr;
     }
     if (height % _packInfo.resolution) {
-        pError("Texture " + layer.path + " height must be a multiple of " + to_string(_packInfo.resolution));
+        pError("Texture " + layer.path + " height must be a multiple of " + std::to_string(_packInfo.resolution));
         return nullptr;
     }
 
@@ -379,7 +379,7 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             } else { // Need to check if there is the right number of weights
                 if (layer.weights.getLength() * _packInfo.resolution != width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " + 
-                        to_string(layer.weights.getLength()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                        std::to_string(layer.weights.getLength()) + " but there are " + std::to_string(width / _packInfo.resolution) + " columns.");
                     return nullptr;
                 }
             }
@@ -400,7 +400,7 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             floraRows = BlockTextureLayer::getFloraRows(layer.floraHeight);
             if (height != _packInfo.resolution * floraRows) {
                 pError("Texture " + layer.path + " texture height must be equal to (maxFloraHeight^2 + maxFloraHeight) / 2 * resolution = " +
-                       to_string(height) + " but it is " + to_string(_packInfo.resolution * floraRows));
+                    std::to_string(height) + " but it is " + std::to_string(_packInfo.resolution * floraRows));
                 return nullptr;
             }
             // If no weights, they are all equal
@@ -409,7 +409,7 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
             } else { // Need to check if there is the right number of weights
                 if (layer.weights.getLength() * _packInfo.resolution != width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
-                           to_string(layer.weights.getLength()) + " but there are " + to_string(width / _packInfo.resolution) + " columns.");
+                        std::to_string(layer.weights.getLength()) + " but there are " + std::to_string(width / _packInfo.resolution) + " columns.");
                     return nullptr;
                 }
             }

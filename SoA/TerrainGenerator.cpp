@@ -14,7 +14,7 @@
 
 float mountainBase = 600.0f;
 
-string TerrainFunctionHelps[NumTerrainFunctions];
+nString TerrainFunctionHelps[NumTerrainFunctions];
 
 #ifndef ABS
 #define ABS(a) (((a) < 0) ?(-(a)):(a))
@@ -182,9 +182,9 @@ void TerrainGenerator::GetNoiseHeight(double &noiseHeight, NoiseInfo *noisef, do
     double md = 1.0, off;
 
     if (noisef == NULL){
-        cout << "ERROR NULL NULL NULL";
+        std::cout << "ERROR NULL NULL NULL";
         int a;
-        cin >> a;
+        std::cin >> a;
     }
     
     NoiseInfo *nf2 = noisef->modifier;
@@ -403,7 +403,7 @@ void TerrainGenerator::GenerateHeightMap(HeightData *lodMap, int icoord, int jco
 
     double ic, jc;
     
-    map <int, Biome *>::iterator biomeit;
+    std::map <int, Biome *>::iterator biomeit;
     
     for (int i = 0; i < iend; i++){
         for (int j = 0; j < jend; j++){

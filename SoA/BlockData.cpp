@@ -117,14 +117,14 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureTop", Keg::Value::basic(Keg::BasicT
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureBottom", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, bottomTexName)));
 KEG_TYPE_INIT_END
 
-vector <Block> Blocks;
+std::vector <Block> Blocks;
 
-vector <int> TextureUnitIndices;
+std::vector <int> TextureUnitIndices;
 
 int connectedTextureOffsets[256];
 int grassTextureOffsets[32];
 
-map <string, BlockVariable> blockVariableMap;
+std::map <nString, BlockVariable> blockVariableMap;
 
 /// "less than" operator for inserting into sets in TexturePackLoader
 bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {

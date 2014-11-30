@@ -625,7 +625,7 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
     verts[index + 3].textureUnit = (GLubyte)textureUnit;
 }
 
-void VoxelMesher::makePhysicsBlockFace(vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
+void VoxelMesher::makePhysicsBlockFace(std::vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
 {
     ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / ATLAS_SIZE);
     ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % ATLAS_SIZE);

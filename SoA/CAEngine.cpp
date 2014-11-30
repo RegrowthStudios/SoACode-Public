@@ -78,7 +78,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
     int sinkVal;
     int c;
     glm::dvec3 physicsBlockPos;
-    vector <GLushort> &activeBlocks = _chunk->spawnerBlocks;
+    std::vector <GLushort> &activeBlocks = _chunk->spawnerBlocks;
 
     Chunk *bottom = _chunk->bottom;
 
@@ -143,7 +143,7 @@ void CAEngine::updateLiquidBlocks(int caIndex)
     _lockedChunk = nullptr;
     vvox::swapLockedChunk(_chunk, _lockedChunk);
     std::vector<bool>& activeUpdateList = _chunk->activeUpdateList;
-    vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
+    std::vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
     int actv = activeUpdateList[caIndex];
     int size = blockUpdateList[actv].size(); 
     if (size == 0) {
@@ -180,7 +180,7 @@ void CAEngine::updatePowderBlocks(int caIndex)
 {
     _lockedChunk = nullptr;
     std::vector<bool>& activeUpdateList = _chunk->activeUpdateList;
-    vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
+    std::vector <ui16> *blockUpdateList = &_chunk->blockUpdateList[caIndex << 1];
     int actv = activeUpdateList[caIndex];
 
     Uint32 size = blockUpdateList[actv].size();

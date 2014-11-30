@@ -226,7 +226,7 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     physicsBlocks.reserve(512);
 
     PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
-    vector <PhysicsBlockVertex> &verts = pbmm->verts;
+    std::vector <PhysicsBlockVertex> &verts = pbmm->verts;
     verts.resize(36);
 
     _gravity = GRAVITY;
@@ -309,7 +309,7 @@ bool PhysicsBlockBatch::update()
     size_t i = 0;
 
     PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
-    vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
+    std::vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
     verts.resize(physicsBlocks.size());
     
     ColorRGB8 color, overlayColor;
