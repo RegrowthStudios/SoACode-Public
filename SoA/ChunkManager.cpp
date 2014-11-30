@@ -84,7 +84,7 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
     // Sun Color Map
     GLubyte sbuffer[64][3];
 
-    glBindTexture(GL_TEXTURE_2D, GameManager::planet->sunColorMapTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, GameManager::planet->sunColorMapTexture.id);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, sbuffer);
     for (i32 i = 0; i < 64; i++) {
         sunColor[i][0] = (i32)sbuffer[i][2]; //converts bgr to rgb
@@ -97,7 +97,7 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvoxel::IVoxelMapper* v
 
     // Initialize grid
     csGridWidth = 1 + (graphicsOptions.voxelRenderDistance / 32) * 2;
-    cout << "GRID WIDTH: " << csGridWidth << endl;
+    std::cout << "GRID WIDTH: " << csGridWidth << std::endl;
     _csGridSize = csGridWidth * csGridWidth * csGridWidth;
     _chunkSlotMap.reserve(_csGridSize);
 
@@ -220,7 +220,7 @@ void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     Chunk* chunk;
 
     std::unordered_map<i32v3, ChunkSlot*>::iterator it;
-    vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
+    std::vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
 
     //Get the chunk coordinates (assume its always positive)
     i32v3 chPos = getChunkPosition(coords);
@@ -338,7 +338,7 @@ void ChunkManager::destroy() {
 
     deleteAllChunks();
 
-    vector<ChunkSlot>().swap(_chunkSlots[0]);
+    std::vector<ChunkSlot>().swap(_chunkSlots[0]);
 
     std::vector<RenderTask*>().swap(_freeRenderTasks);
     std::vector<GenerateTask*>().swap(_freeGenerateTasks);
@@ -420,7 +420,7 @@ const i16* ChunkManager::getIDQuery(const i32v3& start, const i32v3& end) const 
 
 void ChunkManager::initializeThreadPool() {
     // Check the hardware concurrency
-    size_t hc = thread::hardware_concurrency();
+    size_t hc = std::thread::hardware_concurrency();
     // Remove two threads for the render thread and main thread
     if (hc > 1) hc--;
     if (hc > 1) hc--;
@@ -469,7 +469,7 @@ void ChunkManager::processFinishedTasks() {
                 processFinishedFloraTask(static_cast<FloraTask*>(task));
                 break;
             default:
-                pError("Unknown thread pool Task! ID = " + to_string(task->getTaskId()));
+                pError("Unknown thread pool Task! ID = " + std::to_string(task->getTaskId()));
                 delete task;
                 break;
         }
@@ -710,7 +710,7 @@ void ChunkManager::initializeMinerals() {
 void ChunkManager::updateLoadList(ui32 maxTicks) {
 
     Chunk* chunk;
-    vector<Chunk* > chunksToLoad;
+    std::vector<Chunk* > chunksToLoad;
 
     ui32 sticks = SDL_GetTicks();
 
@@ -772,7 +772,7 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
             }
             break;
         default: // chunks that should not be here should be removed
-            cout << "ERROR: Chunk with state " << (int)state << " in setup list.\n";
+            std::cout << "ERROR: Chunk with state " << (int)state << " in setup list.\n";
             break;
         }
 
@@ -1189,7 +1189,7 @@ void ChunkManager::updateChunks(const Camera* camera) {
 
     if (SDL_GetTicks() - saveTicks >= MS_PER_MINUTE) { //save once per minute
         save = 1;
-        cout << "SAVING\n";
+        std::cout << "SAVING\n";
         saveTicks = SDL_GetTicks();
     }
 

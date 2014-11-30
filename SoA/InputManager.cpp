@@ -137,8 +137,8 @@ i32 InputManager::getAxisID(const nString& axisName) const {
 }
 
 void InputManager::loadAxes(const std::string &location) {
-    vector <vector <IniValue> > iniValues;
-    vector <string> iniSections;
+    std::vector<std::vector<IniValue>> iniValues;
+    std::vector<nString> iniSections;
     if (fileManager.loadIniFile(location, iniValues, iniSections))  return;
 
     IniValue* iniVal;
@@ -257,12 +257,12 @@ void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<
     }
 }
 
-void InputManager::saveAxes(const string &filePath) {
-    std::vector<string> iniSections;
-    std::vector< std::vector<IniValue> > iniValues;
+void InputManager::saveAxes(const nString &filePath) {
+    std::vector<nString> iniSections;
+    std::vector<std::vector<IniValue>> iniValues;
 
     iniSections.push_back("");
-    iniValues.push_back(vector<IniValue>());
+    iniValues.push_back(std::vector<IniValue>());
     for (unsigned int i = 0; i < _axes.size(); i++) {
         Axis* axis = _axes[i];
         iniSections.push_back(axis->name);
@@ -285,7 +285,7 @@ void InputManager::saveAxes() {
     saveAxes(_defaultConfigLocation);
 }
 
-int InputManager::getIniKey(const std::string &val) {
+int InputManager::getIniKey(const nString &val) {
     auto iter = _iniKeys.find(val);
     if (iter != _iniKeys.end()) {
         return iter->second;

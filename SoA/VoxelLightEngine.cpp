@@ -76,7 +76,7 @@ void VoxelLightEngine::calculateSunlightExtend(Chunk* chunk)
             extendSunRay(chunk, blockIndex - y * CHUNK_LAYER, y);
         }
     }
-    vector<GLushort>().swap(chunk->sunExtendList); //forces memory to be freed
+    std::vector<GLushort>().swap(chunk->sunExtendList); //forces memory to be freed
     if (_lockedChunk) {
         _lockedChunk->unlock();
         _lockedChunk = nullptr;
@@ -98,7 +98,7 @@ void VoxelLightEngine::calculateSunlightRemoval(Chunk* chunk)
             blockSunRay(chunk, blockIndex - y * CHUNK_LAYER, y - 1);
         }
     }
-    vector<GLushort>().swap(chunk->sunRemovalList); //forces memory to be freed
+    std::vector<GLushort>().swap(chunk->sunRemovalList); //forces memory to be freed
     if (_lockedChunk) {
         _lockedChunk->unlock();
         _lockedChunk = nullptr;

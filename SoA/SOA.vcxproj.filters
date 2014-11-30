@@ -530,9 +530,6 @@
     <ClInclude Include="GpuMemory.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -676,6 +673,9 @@
     </ClInclude>
     <ClInclude Include="CellularAutomataTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

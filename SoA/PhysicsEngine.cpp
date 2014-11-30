@@ -41,7 +41,7 @@ PhysicsEngine::~PhysicsEngine() {
 }
 
 void PhysicsEngine::clearAll() {
-    queue <ExplosionNode>().swap(_deferredExplosions);
+    std::queue <ExplosionNode>().swap(_deferredExplosions);
 
     for (Uint32 i = 0; i < _activePhysicsBlockBatches.size(); i++){
         _physicsBlockBatches[_activePhysicsBlockBatches[i]->blockType] = NULL;

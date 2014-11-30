@@ -161,16 +161,13 @@ struct BlockTexture {
 };
 KEG_TYPE_DECL(BlockTexture);
 
-using namespace std;
-
-
-extern vector <int> TextureUnitIndices;
+extern std::vector <int> TextureUnitIndices;
 
 const int numBlocks = 4096;
 
-extern vector <class Block> Blocks;
+extern std::vector <class Block> Blocks;
 
-extern vector <int> TextureUnitIndices;
+extern std::vector <int> TextureUnitIndices;
 
 //TODO: KILL ALL OF THIS CRAP
 
@@ -224,10 +221,10 @@ struct BlockVariable
     int varType; //0 = int, 1 = float, 2 = byte
     int controlType; //0 = slider, 1 = list box
     bool editorAccessible;
-    vector <string> listNames;
+    std::vector<nString> listNames;
 };
 
-extern map <string, BlockVariable> blockVariableMap;
+extern std::map<nString, BlockVariable> blockVariableMap;
 
 struct ItemDrop
 {

@@ -299,7 +299,7 @@ void ChunkUpdater::removeBlock(Chunk* chunk, int blockIndex, bool isBreak, doubl
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
     if (chunk->getBlockID(blockIndex) == 0) {
-        cout << "ALREADY REMOVED\n";
+        std::cout << "ALREADY REMOVED\n";
     }
 
     GLbyte da, db, dc;

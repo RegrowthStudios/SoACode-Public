@@ -59,7 +59,7 @@ void ChunkIOManager::addToSaveList(Chunk *ch)
     }
 }
 
-void ChunkIOManager::addToSaveList(vector <Chunk *> &chunks)
+void ChunkIOManager::addToSaveList(std::vector <Chunk *> &chunks)
 {
     Chunk *ch;
     for (size_t i = 0; i < chunks.size(); i++){
@@ -83,7 +83,7 @@ void ChunkIOManager::addToLoadList(Chunk *ch)
     }
 }
 
-void ChunkIOManager::addToLoadList(vector <Chunk *> &chunks)
+void ChunkIOManager::addToLoadList(std::vector <Chunk *> &chunks)
 {
     Chunk *ch;
 
@@ -103,7 +103,7 @@ void ChunkIOManager::addToLoadList(vector <Chunk *> &chunks)
             chunksToLoad.enqueue(ch);
         }
         else{
-            cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << ch->gridPosition.x << " " << ch->gridPosition.y << " " << ch->gridPosition.z << endl;
+            std::cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << ch->gridPosition.x << " " << ch->gridPosition.y << " " << ch->gridPosition.z << std::endl;
         }
     }
     _cond.notify_one();
@@ -111,10 +111,10 @@ void ChunkIOManager::addToLoadList(vector <Chunk *> &chunks)
 
 void ChunkIOManager::readWriteChunks()
 {
-    unique_lock<mutex> queueLock(_queueLock);
+    std::unique_lock<std::mutex> queueLock(_queueLock);
     Chunk *ch;
 
-    string reg;
+    nString reg;
 
     while (!_isDone){
         if (_isDone){

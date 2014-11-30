@@ -56,7 +56,7 @@ void SkyboxRenderStage::drawSun(float theta, glm::mat4 &MVP) {
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sunTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, sunTexture.id);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
     glUniform1i(_glProgram->getUniform("unTex"), 0);
 

@@ -246,7 +246,7 @@ int ParticleBatch::updateAnimated() {
     int textureCounter = 0;
     Animation *animation;
     if(size == 0) return 0;
-    vector <int> usedTexUnits;
+    std::vector <int> usedTexUnits;
 
     for(int i = 0; i < maxParticles; i++) {
         if(lifes[i] > 0) {
@@ -333,7 +333,7 @@ int ParticleBatch::updateAnimated() {
 void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
  
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
 
@@ -374,14 +374,14 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
 void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
     glDepthMask(GL_FALSE);
 
     for(size_t i = 0; i < pm->usedParticles.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         if(particleTypes[pm->usedParticles[i]].animation) {
-            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->texture.ID);
+            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->texture.id);
         }
     }
 
