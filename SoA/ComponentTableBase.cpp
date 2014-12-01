@@ -1,67 +1,45 @@
 #include "stdafx.h"
 #include "ComponentTableBase.h"
 
-template<typename SortedSet1, typename SortedSet2>
-void vorb::core::commonEntities(std::vector<ui64>& rv, SortedSet1* c1, SortedSet2* c2) {
-    auto& end = std::set_intersection(c1->begin(), c1->end(), c2->begin(), c2->end(), rv.begin());
-    rv.resize(end - rv.begin());
+vcore::ComponentTableBase::ComponentTableBase() :
+    onEntityAdded(this), 
+    onEntityRemoved(this) {
+    // Empty
 }
 
-void vorb::core::commonEntities(std::vector<ui64>& rv, i32 count, ...) {
-    std::vector<ui64> tmp1;
+void vcore::ComponentTableBase::add(EntityID eID) {
+    // Check that this entity does not exist
+    auto cBind = _components.find(eID);
+    if (cBind != _components.end()) {
+        char buf[256];
+        sprintf(buf, "Entity <%llX> already contains component <%llX>", eID, cBind->second);
+        throw std::exception(buf);
+    }
 
-    std::vector<ui64>* v1;
-    std::vector<ui64>* v2;
-    std::vector<ui64>* buf = nullptr;
-    if (count % 2 == 0) {
-        v1 = &rv;
-        v2 = &tmp1;
+    // Generate a new component
+    bool shouldPush = false;
+    ComponentID id = _genComponent.generate(&shouldPush);
+    _components[eID] = id;
+
+    if (shouldPush) {
+        // Add a new component
+        addComponent(id, eID);
     } else {
-        v1 = &tmp1;
-        v2 = &rv;
+        // Recycle an old component
+        setComponent(id, eID);
     }
-
-    va_list args;
-    va_start(args, count);
-
-    // Get the first table and resize elements to fit inside
-    ComponentTableBase* tFirst = va_arg(args, ComponentTableBase*);
-    rv.resize(tFirst->getEntityCount());
-    tmp1.resize(tFirst->getEntityCount());
-
-    // Grab intersection of first two tables
-    ComponentTableBase* t = va_arg(args, ComponentTableBase*);
-    commonEntities(*v1, tFirst, t);
-
-    // Intersect on remaining tables
-    for (i32 i = 2; i < count; i++) {
-        buf = v1; v1 = v2; v2 = buf;
-        t = va_arg(args, ComponentTableBase*);
-        commonEntities(*v1, v2, t);
-    }
-    va_end(args);
+    onEntityAdded(eID);
 }
+bool vcore::ComponentTableBase::remove(EntityID eID) {
+    // Find the entity
+    auto cBind = _components.find(eID);
+    if (cBind == _components.end()) return false;
 
-void vorb::core::ComponentTableBase::add(ui64 eID) {
-    EntityIndexSet::iterator it = _entities.begin();
-    while (it != _entities.end()) {
-        if (*it > eID) break;
-        it++;
-    }
-    _entities.insert(it, eID);
-    addComponent(eID);
-}
-bool vorb::core::ComponentTableBase::remove(ui64 eID) {
-    EntityIndexSet::iterator it = _entities.begin();
-    while (it != _entities.end()) {
-        if (*it == eID) break;
-        it++;
-    }
-    if (it == _entities.end()) return false;
+    // Component is cleared
+    _genComponent.recycle(cBind->second);
+    setComponent(cBind->second, ID_GENERATOR_NULL_ID);
+    _components.erase(cBind);
+    onEntityRemoved(eID);
 
-    _entities.erase(it);
-    removeComponent(eID);
     return true;
 }
-
-

@@ -18,7 +18,7 @@
 #include <SDL\SDL_events.h>
 #include <SDL\SDL_joystick.h>
 
-#include "Event.hpp"
+#include "Events.hpp"
 
 enum SDLKey;
 

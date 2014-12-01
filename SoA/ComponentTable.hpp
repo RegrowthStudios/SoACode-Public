@@ -22,24 +22,44 @@ namespace vorb {
         template<typename T>
         class ComponentTable : public ComponentTableBase {
         public:
-            ComponentTable(T defaultData) : ComponentTableBase(),
-                _defaultData(defaultData) {
-                // Empty
+            typedef std::vector<std::pair<EntityID, T>> ComponentList; ///< List of components accessed by component IDs
+
+            ComponentTable(T defaultData) : ComponentTableBase() {
+                // Default data goes in the first slot
+                _components.emplace_back(ID_GENERATOR_NULL_ID, defaultData);
             }
         
-            virtual void addComponent(ui64 eID) override {
-                _components.insert(std::pair<ui64, T>(eID, _defaultData));
+            virtual void addComponent(ComponentID cID, EntityID eID) override {
+                T val = getDefaultData();
+                _components.emplace_back(eID, val);
             }
-            virtual void removeComponent(ui64 eID) override {
-                _components.erase(_components.find(eID));
+            virtual void setComponent(ComponentID cID, EntityID eID) override {
+                _components[cID].first = eID;
+                _components[cID].second = getDefaultData();
             }
-        
-            T& get(ui64 eID) {
-                return _defaultData.at(eID);
+            
+            const T& get(const ComponentID& cID) const {
+                return _components[cID];
+            }
+            T& get(const ComponentID& cID) {
+                return _components[cID];
+            }
+            const T& getFromEntity(const EntityID& eID) const {
+                return get(getComponentID(eID));
+            }
+            T& getFromEntity(const EntityID& eID) {
+                return get(getComponentID(eID));
+            }
+
+            const T& getDefaultData() const {
+                return _components[0].second;
+            }
+
+            operator const ComponentList& () const {
+                return _components;
             }
         protected:
-            std::map<ui64, T> _components;
-            T _defaultData;
+            ComponentList _components;
         };
     }
 }

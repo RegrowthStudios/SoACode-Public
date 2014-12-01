@@ -17,7 +17,7 @@
 
 #include "Entity.h"
 #include "Events.hpp"
-
+#include "IDGenerator.h"
 
 namespace vorb {
     namespace core {
@@ -27,29 +27,26 @@ namespace vorb {
         public:
             ECS();
 
-            const std::vector<Entity>& getEntities() const {
+            const EntitySet& getEntities() const {
                 return _entities;
             }
-
-            const i32& getEntityCount() const {
-                return _entityCount;
+            const size_t& getActiveEntityCount() const {
+                return _genEntity.getActiveCount();
             }
 
-            ui64 addEntity();
-            bool deleteEntity(ui64 id);
+            EntityID addEntity();
+            bool deleteEntity(EntityID id);
 
             void addComponent(nString name, ComponentTableBase* table);
             ComponentTableBase* get(nString name);
 
-            Event<ui64> evtEntityAddition;
-            Event<ui64> evtEntityRemoval;
+            Event<EntityID> onEntityAddition;
+            Event<EntityID> onEntityRemoval;
         private:
-            std::vector<Entity> _entities;
-            i32 _entityCount = 0;
-            std::queue<ui64> _usedIDs;
-            ui64 _eid = ENTITY_ID_NULL;
+            EntitySet _entities;
+            IDGenerator<EntityID> _genEntity;
 
-            typedef std::pair<ComponentTableBase*, IDelegate<ui64>*> ComponentBinding;
+            typedef std::pair<ComponentTableBase*, IDelegate<EntityID>*> ComponentBinding;
             std::unordered_map<nString, ComponentBinding> _componentTables;
         };
     }

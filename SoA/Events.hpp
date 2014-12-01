@@ -53,7 +53,7 @@ private:
 /// Use the compiler to generate a delegate
 /// @param f: Lambda functor
 /// @return Pointer to delegate created on the heap (CALLER DELETE)
-template<typename F, typename... Params>
+template<typename... Params, typename F>
 inline IDelegate<Params...>* createDelegate(F f) {
     return new Delegate<F, Params...>(f);
 }
@@ -95,7 +95,7 @@ public:
     /// @return The newly made delegate (CALLER DELETE)
     template<typename F>
     IDelegate<Params...>* addFunctor(F f) {
-        IDelegate<Params...>* d = createDelegate<F, Params...>(f);
+        IDelegate<Params...>* d = new Delegate<F, Params...>(f);
         return this->add(d);
     }
     
@@ -103,7 +103,9 @@ public:
     /// @param f: A subscriber
     void remove(IDelegate<Params...>* f) {
         if (f == nullptr) return;
-        _funcs.erase(_funcs.find(f));
+        auto fLoc = std::find(_funcs.begin(), _funcs.end(), f);
+        if (fLoc == _funcs.end()) return;
+        _funcs.erase(fLoc);
     }
 private:
     void* _sender; ///< Event owner

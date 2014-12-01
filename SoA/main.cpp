@@ -11,6 +11,9 @@
 #endif
 
 #include "App.h"
+#include "ECS.h"
+#include "ComponentTable.hpp"
+#include "MultipleComponentSet.h"
 
 // Just a precaution to make sure our types have the right size
 void checkTypes();
@@ -30,6 +33,38 @@ int main(int argc, char **argv) {
     // Tell windows that our priority class should be real time
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 #endif
+    {
+        // Make ECS
+        vcore::ECS ecs;
+
+        // Add component tables
+        vcore::ComponentTable<ui64> t1(0);
+        ecs.addComponent("Health", &t1);
+        vcore::ComponentTable<f32v3> t2(f32v3(0, 0, 0));
+        ecs.addComponent("Position", &t2);
+
+        // Add multi-component listeners
+        vcore::MultipleComponentSet mt;
+        mt.addRequirement(&t1);
+        mt.addRequirement(&t2);
+
+        // Use ECS
+        auto e1 = ecs.addEntity();
+        auto e2 = ecs.addEntity();
+        auto e3 = ecs.addEntity();
+        t1.add(e1);
+        t1.add(e2);
+        t1.add(e3);
+        // mt has ()
+        t2.add(e3);
+        t2.add(e2);
+        // mt has (3, 2)
+        t2.remove(e3);
+        t2.remove(e2);
+        // mt has ()
+        t2.add(e1);
+        // mt has (1)
+    }
 
     // Run the game
     MainGame* mg = new App;
