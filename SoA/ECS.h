@@ -44,6 +44,9 @@ namespace vorb {
 
             EntityID addEntity();
             bool deleteEntity(EntityID id);
+            void genEntities(const size_t& n, EntityID* ids) {
+                for (size_t i = 0; i < n; i++) ids[i] = addEntity();
+            }
 
             ComponentID addComponent(nString name, EntityID id);
             bool deleteComponent(nString name, EntityID id);
