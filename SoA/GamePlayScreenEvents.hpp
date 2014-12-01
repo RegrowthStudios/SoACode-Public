@@ -15,7 +15,7 @@
 #ifndef GAME_PLAY_SCREEN_EVENTS_HPP
 #define GAME_PLAY_SCREEN_EVENTS_HPP
 
-#include "Event.hpp"
+#include "Events.hpp"
 #include "GamePlayScreen.h"
 #include "global.h"
 #include "GameManager.h"
