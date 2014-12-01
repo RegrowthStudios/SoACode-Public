@@ -311,6 +311,20 @@ inline i32 fastCeil(f32 x) {
     return raised;
 }
 
+/// Finds the shortest arc rotation quat from v1 to v2
+/// Make sure inputs are normalized
+inline f64q quatBetweenVectors(const f64v3& v1, const f64v3& v2) {
+    f64q q;
+    f64v3 a = glm::cross(v1, v2);
+    q.x = a.x;
+    q.y = a.y;
+    q.z = a.z;
+    f64 l1 = glm::length(v1);
+    f64 l2 = glm::length(v2);
+    q.w = sqrt((l1 * l1) * (l2 * l2)) + glm::dot(v1, v2);
+    return glm::normalize(q);
+}
+
 
 // /////////////////////////////////////////////////////////////////////
 //    Buffer Utilities

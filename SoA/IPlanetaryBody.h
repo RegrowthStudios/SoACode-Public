@@ -29,8 +29,10 @@ public:
     /// Draws the Orbital Body
     virtual void draw() = 0;
 protected:
-    f64q poleAxis_; ///< Axis of rotation
-    f64 rotationalSpeed_MS_ = 0.0; ///< Rotational speed about _poleAxis in radians
+    f64 radius_ = 0.0;
+    f64q axisOrientation_; ///< Axis of rotation
+    f64q currentOrientation_; ///< Current orientation of the body taking in to acount axis and rotation
+    f64 angularSpeed_RS_ = 0.0; ///< Rotational speed about _poleAxis in radians per second
     f64 currentRotation_ = 0.0; ///< Current rotation about _poleAxis in radians
 };
 
