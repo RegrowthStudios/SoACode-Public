@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Planet.h"
 
+#include "Camera.h"
+#include "DebugRenderer.h"
 #include "IOManager.h"
 #include "utils.h"
 
@@ -34,7 +36,18 @@ void Planet::update(f64 time) {
     IPlanetaryBody::update(time);
 }
 
-void Planet::draw() {
+void Planet::draw(Camera* camera) {
+
+    static DebugRenderer debugRenderer;
+
+    debugRenderer.drawIcosphere(f32v3(0), radius_, f32v4(1.0), 6);
+
+    f32m4 rotationMatrix = f32m4(glm::toMat4(currentOrientation_));
+
+    f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix() * rotationMatrix;
+
+    debugRenderer.render(WVP, camera->getPosition());
+
     throw std::logic_error("The method or operation is not implemented.");
 }
 

@@ -31,7 +31,6 @@ public:
     static int newGame(string saveName);
     static int loadGame(string saveName);
     static void loadPlanet(string filePath);
-    static void initializePlanet(const glm::dvec3 cameraPos);
     static void initializeVoxelWorld(Player *plyr = nullptr);
     static void update();
     static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);

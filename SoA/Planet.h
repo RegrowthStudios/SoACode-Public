@@ -33,7 +33,7 @@ public:
     void update(f64 time) override;
 
     /// Draws the planet
-    virtual void draw() override;
+    virtual void draw(Camera* camera) override;
 
 private:
     /// Loads the properties of the planet

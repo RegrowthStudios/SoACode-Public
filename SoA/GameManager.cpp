@@ -244,14 +244,6 @@ void GameManager::loadPlanet(string filePath) {
 
 }
 
-void GameManager::initializePlanet(const glm::dvec3 cameraPos) {
-    if (!planet) {
-        showMessage("Tried to initialize planet before loading!");
-        exit(334);
-    }
-    planet->initializeTerrain(cameraPos);
-}
-
 void GameManager::initializeVoxelWorld(Player *playr) {
     gameInitialized = 1;
 
@@ -270,10 +262,10 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 
     player->gridPosition = player->facePosition;
 
-    player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
+ //   player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
 
     double dist = player->facePosition.y + planet->radius;
-    player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
+  //  player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
 }
 
 int ticksArray2[10];

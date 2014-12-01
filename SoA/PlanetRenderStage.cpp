@@ -31,18 +31,18 @@ void PlanetRenderStage::draw() {
     DepthState::FULL.set();
     GameManager::planet->draw(0, _camera, f32v3(1.0f, 0.0f, 0.0f), 0.1 /*_ambientLight + 0.1*/, _camera->getNearClip() / planetScale, true /*connectedToPlanet*/);
 
-    DepthState::READ.set();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    RasterizerState::CULL_CLOCKWISE.set();
-    if (true /*connectedToPlanet*/) {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 1.0)), _camera->getPosition());
-    } else {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, f32v3(1.0f, 0.0f, 0.0f), _camera->getPosition());
-    }
+    //DepthState::READ.set();
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    //RasterizerState::CULL_CLOCKWISE.set();
+    //if (true /*connectedToPlanet*/) {
+    //    if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 1.0)), _camera->getPosition());
+    //} else {
+    //    if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, f32v3(1.0f, 0.0f, 0.0f), _camera->getPosition());
+    //}
 
 
-    DepthState::FULL.set();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-    GameManager::planet->drawTrees(VP, _camera->getPosition(), 0.1f /*ambVal*/);
+    //DepthState::FULL.set();
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    //GameManager::planet->drawTrees(VP, _camera->getPosition(), 0.1f /*ambVal*/);
 }

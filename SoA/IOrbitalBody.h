@@ -20,6 +20,8 @@
 /// One space unit in meters
 #define METERS_PER_SU 1024
 
+class Camera;
+
 // TODO(Ben) ECS
 class IOrbitalBody {
 public:
@@ -31,7 +33,7 @@ public:
     virtual void update(f64 time);
 
     /// Draws the Orbital Body
-    virtual void draw() = 0;
+    virtual void draw(Camera* camera) = 0;
 
 protected:
     IOrbitalBody* _parentBody = nullptr; ///< The parent object. If it is nullptr, then the parent is the system center
