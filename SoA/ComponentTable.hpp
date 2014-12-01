@@ -32,15 +32,6 @@ namespace vorb {
                 // Empty
             }
         
-            virtual void addComponent(ComponentID cID, EntityID eID) override {
-                T val = getDefaultData();
-                _components.emplace_back(eID, val);
-            }
-            virtual void setComponent(ComponentID cID, EntityID eID) override {
-                _components[cID].first = eID;
-                _components[cID].second = getDefaultData();
-            }
-
             virtual void update(ComponentID cID) override {
                 update(_components[cID].first, cID, get(cID));
             }
@@ -67,6 +58,15 @@ namespace vorb {
                 return _components;
             }
         protected:
+            virtual void addComponent(ComponentID cID, EntityID eID) override {
+                T val = getDefaultData();
+                _components.emplace_back(eID, val);
+            }
+            virtual void setComponent(ComponentID cID, EntityID eID) override {
+                _components[cID].first = eID;
+                _components[cID].second = getDefaultData();
+            }
+
             ComponentList _components;
         };
     }

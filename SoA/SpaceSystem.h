@@ -22,15 +22,19 @@
 class CTableSpaceObject : public vcore::ComponentTable<SpaceObject> {
 public:
     virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceObject& component) override {
-        printf("For entity <0x%016llX> - updating <0x%016llX> at SpaceObject\n", eID, cID);
+        updates++;
     }
+
+    ui64 updates = 0;
 };
 
 class CTableSpaceQuadrant : public vcore::ComponentTable<SpaceQuadrant> {
 public:
     virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceQuadrant& component) override {
-        printf("For entity <0x%016llX> - updating <0x%016llX> at SpaceQuadrant\n", eID, cID);
+        updates++;
     }
+
+    ui64 updates = 0;
 };
 
 #define SPACE_SYSTEM_CT_OBJECT_NAME "Object"

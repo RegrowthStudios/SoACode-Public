@@ -22,18 +22,12 @@
 namespace vorb {
     namespace core {
         class ComponentTableBase {
+            friend class ECS;
         public:
             ComponentTableBase();
 
-            void onEntityRemoval(void* sender, EntityID id) {
-                remove(id);
-            }
-
             ComponentID add(EntityID eID);
             bool remove(EntityID eID);
-
-            virtual void addComponent(ComponentID cID, EntityID eID) = 0;
-            virtual void setComponent(ComponentID cID, EntityID eID) = 0;
 
             virtual void update(ComponentID cID) = 0;
 
@@ -62,7 +56,14 @@ namespace vorb {
 
             Event<EntityID> onEntityAdded;
             Event<EntityID> onEntityRemoved;
+        protected:
+            virtual void addComponent(ComponentID cID, EntityID eID) = 0;
+            virtual void setComponent(ComponentID cID, EntityID eID) = 0;
         private:
+            void onEntityRemoval(void* sender, EntityID id) {
+                remove(id);
+            }
+
             static const ComponentID BAD_ID = ID_GENERATOR_NULL_ID;
             ComponentBindingSet _components;
             IDGenerator<ComponentID> _genComponent;

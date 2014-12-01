@@ -33,36 +33,52 @@ int main(int argc, char **argv) {
     // Tell windows that our priority class should be real time
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 #endif
-    {
-        // Make ECS
-        SpaceSystem space;
+    size_t entityCount, updateCount;
+    std::cin >> entityCount;
+    std::cin >> updateCount;
+    while (entityCount != 0) {
+        ui32 ts = SDL_GetTicks();
+        {
 
-        // Add multi-component listeners
-        vcore::MultipleComponentSet mt;
-        mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME));
-        mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME));
+            // Make ECS
+            SpaceSystem space;
+            vcore::ECSSimpleUpdater updater;
 
-        // Use ECS
-        vcore::EntityID e1 = space.addEntity();
-        vcore::EntityID e2 = space.addEntity();
-        vcore::EntityID e3 = space.addEntity();
-        space.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e1);
-        space.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e2);
-        space.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e3);
-        // mt has ()
-        space.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
-        space.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
-        // mt has (3, 2)
-        space.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
-        space.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
-        // mt has ()
-        space.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e1);
-        // mt has (1)
+            // Add multi-component listeners
+            vcore::MultipleComponentSet mt;
+            mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME));
+            mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME));
 
-        vcore::ECSSimpleUpdater updater;
-        updater.update(&space);
+            // Build ECS
+            vcore::EntityID* entities = new vcore::EntityID[entityCount];
+            space.genEntities(entityCount, entities);
+            auto tblObject = space.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME);
+            auto tblQuadrant = space.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME);
+            for (size_t i = 0; i < entityCount; i++) {
+                tblObject->add(entities[i]);
+                tblQuadrant->add(entities[i]);
+            }
+
+            ts = SDL_GetTicks() - ts;
+            printf("Ticks elapsed - Setup    - %d\n", ts);
+            ts = SDL_GetTicks();
+
+            // Update ECS
+            for (size_t i = 0; i < updateCount;i++) updater.update(&space);
+
+            ts = SDL_GetTicks() - ts;
+            printf("Ticks elapsed - Updates  - %d\n", ts);
+            printf("Updates: %d\n", space.tblObject.updates + space.tblQuadrants.updates);
+            ts = SDL_GetTicks();
+
+            delete[] entities;
+        }
+        ts = SDL_GetTicks() - ts;
+        printf("Ticks elapsed - Teardown - %d\n", ts);
+
+        std::cin >> entityCount;
+        std::cin >> updateCount;
     }
-
     // Run the game
     MainGame* mg = new App;
     mg->run();
