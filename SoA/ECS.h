@@ -23,6 +23,11 @@ namespace vorb {
     namespace core {
         class ComponentTableBase;
         
+        typedef std::pair<ComponentTableBase*, IDelegate<EntityID>*> ComponentSubscriber;
+        typedef std::unordered_map<nString, ComponentSubscriber> ComponentSubscriberSet;
+        typedef std::pair<nString, ComponentTableBase*> NamedComponent;
+        typedef std::unordered_map<nString, ComponentTableBase*> ComponentSet;
+
         class ECS {
         public:
             ECS();
@@ -30,24 +35,31 @@ namespace vorb {
             const EntitySet& getEntities() const {
                 return _entities;
             }
-            const size_t& getActiveEntityCount() const {
+            size_t getActiveEntityCount() const {
                 return _genEntity.getActiveCount();
+            }
+            const ComponentSet& getComponents() const {
+                return _components;
             }
 
             EntityID addEntity();
             bool deleteEntity(EntityID id);
 
-            void addComponent(nString name, ComponentTableBase* table);
-            ComponentTableBase* get(nString name);
+            ComponentID addComponent(nString name, EntityID id);
+            bool deleteComponent(nString name, EntityID id);
 
-            Event<EntityID> onEntityAddition;
-            Event<EntityID> onEntityRemoval;
+            void addComponentTable(nString name, ComponentTableBase* table);
+            ComponentTableBase* getComponentTable(nString name);
+
+            Event<EntityID> onEntityAdded;
+            Event<EntityID> onEntityRemoved;
+            Event<NamedComponent> onComponentAdded;
         private:
             EntitySet _entities;
             IDGenerator<EntityID> _genEntity;
 
-            typedef std::pair<ComponentTableBase*, IDelegate<EntityID>*> ComponentBinding;
-            std::unordered_map<nString, ComponentBinding> _componentTables;
+            ComponentSubscriberSet _componentTableBinds;
+            ComponentSet _components;
         };
     }
 }

@@ -20,6 +20,7 @@ namespace vorb {
         typedef ui64 EntityID; ///< Numeric ID type for entities
         typedef ui64 ComponentID; ///< Numeric ID type for components
         typedef std::pair<EntityID, ComponentID> ComponentBinding;  ///< Pairing of entities and components
+        typedef std::unordered_map<EntityID, ComponentID> ComponentBindingSet;
 
         /// Basically an ID in an ECS
         class Entity {

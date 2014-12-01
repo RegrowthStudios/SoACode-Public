@@ -21,8 +21,6 @@
 
 namespace vorb {
     namespace core {
-        typedef std::unordered_map<EntityID, ComponentID> ComponentBindingSet;
-
         class ComponentTableBase {
         public:
             ComponentTableBase();
@@ -31,7 +29,7 @@ namespace vorb {
                 remove(id);
             }
 
-            void add(EntityID eID);
+            ComponentID add(EntityID eID);
             bool remove(EntityID eID);
 
             virtual void addComponent(ComponentID cID, EntityID eID) = 0;

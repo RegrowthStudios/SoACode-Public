@@ -28,6 +28,9 @@ namespace vorb {
                 // Default data goes in the first slot
                 _components.emplace_back(ID_GENERATOR_NULL_ID, defaultData);
             }
+            ComponentTable() : ComponentTable(T::createDefault()) {
+                // Empty
+            }
         
             virtual void addComponent(ComponentID cID, EntityID eID) override {
                 T val = getDefaultData();
@@ -41,13 +44,13 @@ namespace vorb {
             virtual void update(ComponentID cID) override {
                 update(_components[cID].first, cID, get(cID));
             }
-            virtual void update(const EntityID& eID, const ComponentID& cID, T& cID) = 0;
+            virtual void update(const EntityID& eID, const ComponentID& cID, T& component) = 0;
 
             const T& get(const ComponentID& cID) const {
-                return _components[cID];
+                return _components[cID].second;
             }
             T& get(const ComponentID& cID) {
-                return _components[cID];
+                return _components[cID].second;
             }
             const T& getFromEntity(const EntityID& eID) const {
                 return get(getComponentID(eID));
@@ -65,18 +68,6 @@ namespace vorb {
             }
         protected:
             ComponentList _components;
-        };
-
-        template<typename T>
-        class ComponentTableNoUpdate : public ComponentTable<T> {
-        public:
-            ComponentTableNoUpdate(T defaultData) : ComponentTable(defaultData) {
-                // Empty
-            }
-
-            virtual void update(const EntityID& eID, const ComponentID& cID, T& cID) override {
-                // Empty
-            }
         };
     }
 }

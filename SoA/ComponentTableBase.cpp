@@ -7,12 +7,12 @@ vcore::ComponentTableBase::ComponentTableBase() :
     // Empty
 }
 
-void vcore::ComponentTableBase::add(EntityID eID) {
+vcore::ComponentID vcore::ComponentTableBase::add(EntityID eID) {
     // Check that this entity does not exist
     auto cBind = _components.find(eID);
     if (cBind != _components.end()) {
         char buf[256];
-        sprintf(buf, "Entity <%llX> already contains component <%llX>", eID, cBind->second);
+        sprintf(buf, "Entity <0x%016llX> already contains component <0x%016llX>", eID, cBind->second);
         throw std::exception(buf);
     }
 
@@ -29,6 +29,7 @@ void vcore::ComponentTableBase::add(EntityID eID) {
         setComponent(id, eID);
     }
     onEntityAdded(eID);
+    return id;
 }
 bool vcore::ComponentTableBase::remove(EntityID eID) {
     // Find the entity
