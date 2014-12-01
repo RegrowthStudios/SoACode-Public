@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// 
+/// Base class for storing entity-component mappings
 ///
 
 #pragma once
@@ -36,7 +36,6 @@ namespace vorb {
             /// @param eID: Entity ID
             /// @return True if a component was removed
             bool remove(EntityID eID);
-
 
             /// Performs an update step on the specified component
             /// @param cID: ID of component that must be updated

@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// 
+/// Simplest implementation for an ECS updater
 ///
 
 #pragma once

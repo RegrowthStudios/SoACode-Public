@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// 
+/// Unique ID generator and recycler
 ///
 
 #pragma once
