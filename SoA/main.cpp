@@ -39,28 +39,28 @@ int main(int argc, char **argv) {
 
         // Add multi-component listeners
         vcore::MultipleComponentSet mt;
-        mt.addRequirement(space.ecs.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME));
-        mt.addRequirement(space.ecs.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME));
+        mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME));
+        mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME));
 
         // Use ECS
-        auto e1 = space.ecs.addEntity();
-        auto e2 = space.ecs.addEntity();
-        auto e3 = space.ecs.addEntity();
-        space.ecs.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e1);
-        space.ecs.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e2);
-        space.ecs.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e3);
+        vcore::EntityID e1 = space.addEntity();
+        vcore::EntityID e2 = space.addEntity();
+        vcore::EntityID e3 = space.addEntity();
+        space.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e1);
+        space.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e2);
+        space.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e3);
         // mt has ()
-        space.ecs.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
-        space.ecs.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
+        space.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
+        space.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
         // mt has (3, 2)
-        space.ecs.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
-        space.ecs.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
+        space.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
+        space.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
         // mt has ()
-        space.ecs.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e1);
+        space.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e1);
         // mt has (1)
 
         vcore::ECSSimpleUpdater updater;
-        updater.update(&space.ecs);
+        updater.update(&space);
     }
 
     // Run the game

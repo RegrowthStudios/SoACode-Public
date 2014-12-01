@@ -36,11 +36,10 @@ public:
 #define SPACE_SYSTEM_CT_OBJECT_NAME "Object"
 #define SPACE_SYSTEM_CT_QUADRANT_NAME "Quadrant"
 
-class SpaceSystem {
+class SpaceSystem : public vcore::ECS {
 public:
     SpaceSystem();
 
-    vcore::ECS ecs;
     CTableSpaceObject tblObject;
     CTableSpaceQuadrant tblQuadrants;
 };

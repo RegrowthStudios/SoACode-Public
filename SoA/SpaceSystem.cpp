@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "SpaceSystem.h"
 
-SpaceSystem::SpaceSystem() {
+SpaceSystem::SpaceSystem() : vcore::ECS() {
     // Add in component tables
-    ecs.addComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME, &tblObject);
-    ecs.addComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME, &tblQuadrants);
+    addComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME, &tblObject);
+    addComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME, &tblQuadrants);
 }
