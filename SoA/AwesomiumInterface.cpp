@@ -34,7 +34,7 @@ AwesomiumInterface<C>::~AwesomiumInterface(void) {
 
 //Initializes the interface. Returns false on failure
 template <class C>
-bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, C* api, IGameScreen* ownerScreen)
+bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, IGameScreen* ownerScreen)
 {
     if (_isInitialized) {
         pError("Awesomium Error: Tried to call AwesomiumInterface::init twice without destroying.");
@@ -43,9 +43,6 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     // Set dimensions
     _width = width;
     _height = height;
-
-    // Set the API
-    _awesomiumAPI = api;
 
     // Set default draw rectangle
     i32v4 destRect(0, 0, _width, _height);
@@ -94,7 +91,7 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
         _methodHandler.gameInterface = &_gameInterface.ToObject();
 
         //Initialize the callback API
-        _awesomiumAPI->init(_methodHandler.gameInterface, ownerScreen);
+        _awesomiumAPI.init(_methodHandler.gameInterface, ownerScreen);
     } else {
         pError("Awesomium Error: Failed to create app object.");
     }
@@ -115,7 +112,7 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     _webView->set_js_method_handler(&_methodHandler);
 
     // Set the callback API
-    _methodHandler.setAPI(_awesomiumAPI);
+    _methodHandler.setAPI(&_awesomiumAPI);
 
     Awesomium::Error error = _webView->last_error();
     if (error) {

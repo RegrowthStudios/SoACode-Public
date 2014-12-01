@@ -19,12 +19,13 @@
 #include "IGameScreen.h"
 
 #include "AwesomiumInterface.h"
+#include "GamePlayRenderPipeline.h"
+#include "LoadMonitor.h"
 #include "MainMenuAPI.h"
 #include "MessageManager.h"
-#include "Random.h"
-#include "LoadMonitor.h"
 #include "PDA.h"
-#include "GamePlayRenderPipeline.h"
+#include "PauseMenu.h"
+#include "Random.h"
 
 class App;
 class SpriteBatch;
@@ -61,6 +62,7 @@ class GamePlayScreen : public IAppScreen<App> {
     friend class OnReloadShadersKeyDown;
     friend class OnHUDKeyDown;
     friend class OnGridKeyDown;
+    friend class PauseMenuAwesomiumAPI;
 public:
     CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
 
@@ -77,9 +79,16 @@ public:
     virtual void update(const GameTime& gameTime) override;
     virtual void draw(const GameTime& gameTime) override;
 
+    void unPause();
+
     // Getters
     i32 getWindowWidth() const;
     i32 getWindowHeight() const;
+
+    bool isInGame() const {
+        return (!_pda.isOpen() && !_pauseMenu.isOpen());
+    }
+
 
 private:
 
@@ -111,6 +120,8 @@ private:
     Player* _player; ///< The current player
 
     PDA _pda; ///< The PDA
+
+    PauseMenu _pauseMenu; ///< The Pause Menu
 
     bool _inFocus; ///< true when the window is in focus
 

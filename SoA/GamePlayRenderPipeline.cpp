@@ -10,9 +10,11 @@
 #include "HdrRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
 #include "MeshManager.h"
+#include "NightVisionRenderStage.h"
 #include "OpaqueVoxelRenderStage.h"
 #include "Options.h"
-#include "NightVisionRenderStage.h"
+#include "PauseMenu.h"
+#include "PauseMenuRenderStage.h"
 #include "PdaRenderStage.h"
 #include "PhysicsBlockRenderStage.h"
 #include "PlanetRenderStage.h"
@@ -29,7 +31,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
                                   const Camera* worldCamera, const App* app,
                                   const Player* player, const MeshManager* meshManager,
                                   const PDA* pda, const vg::GLProgramManager* glProgramManager,
-                                  const std::vector<ChunkSlot>& chunkSlots) {
+                                  const PauseMenu* pauseMenu, const std::vector<ChunkSlot>& chunkSlots) {
     // Set the viewport
     _viewport = viewport;
 
@@ -73,6 +75,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _liquidVoxelRenderStage = new LiquidVoxelRenderStage(&_gameRenderParams);
     _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
     _pdaRenderStage = new PdaRenderStage(pda);
+    _pauseMenuRenderStage = new PauseMenuRenderStage(pauseMenu);
     _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
 
@@ -116,6 +119,9 @@ void GamePlayRenderPipeline::render() {
 
     // PDA
     _pdaRenderStage->draw();
+
+    // Pause Menu
+    _pauseMenuRenderStage->draw();
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -165,6 +171,9 @@ void GamePlayRenderPipeline::destroy() {
 
     delete _pdaRenderStage;
     _pdaRenderStage = nullptr;
+
+    delete _pauseMenuRenderStage;
+    _pauseMenuRenderStage = nullptr;
 
     delete _nightVisionRenderStage;
     _nightVisionRenderStage = nullptr;

@@ -677,6 +677,15 @@
     <ClInclude Include="FloraTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
+    <ClInclude Include="PauseMenu.h">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseMenuAwesomiumAPI.h">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseMenuRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
@@ -1110,6 +1119,15 @@
     </ClCompile>
     <ClCompile Include="Tests.cpp">
       <Filter>SOA Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenuAwesomiumAPI.cpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenu.cpp">
+      <Filter>SOA Files\Screens\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenuRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
