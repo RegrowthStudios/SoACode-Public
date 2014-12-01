@@ -171,6 +171,7 @@
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="RTSwapChain.hpp" />
+    <ClInclude Include="ECSSimpleUpdater.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />

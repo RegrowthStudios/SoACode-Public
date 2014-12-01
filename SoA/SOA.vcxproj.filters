@@ -683,6 +683,9 @@
     <ClInclude Include="MultipleComponentSet.h">
       <Filter>SOA Files\ECS</Filter>
     </ClInclude>
+    <ClInclude Include="ECSSimpleUpdater.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

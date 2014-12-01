@@ -11,9 +11,9 @@
 #endif
 
 #include "App.h"
-#include "ECS.h"
-#include "ComponentTable.hpp"
+#include "ECSSimpleUpdater.h"
 #include "MultipleComponentSet.h"
+#include "SpaceSystem.h"
 
 // Just a precaution to make sure our types have the right size
 void checkTypes();
@@ -35,35 +35,32 @@ int main(int argc, char **argv) {
 #endif
     {
         // Make ECS
-        vcore::ECS ecs;
-
-        // Add component tables
-        vcore::ComponentTableNoUpdate<ui64> t1(0);
-        ecs.addComponent("Health", &t1);
-        vcore::ComponentTableNoUpdate<f32v3> t2(f32v3(0, 0, 0));
-        ecs.addComponent("Position", &t2);
+        SpaceSystem space;
 
         // Add multi-component listeners
         vcore::MultipleComponentSet mt;
-        mt.addRequirement(&t1);
-        mt.addRequirement(&t2);
+        mt.addRequirement(space.ecs.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME));
+        mt.addRequirement(space.ecs.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME));
 
         // Use ECS
-        auto e1 = ecs.addEntity();
-        auto e2 = ecs.addEntity();
-        auto e3 = ecs.addEntity();
-        t1.add(e1);
-        t1.add(e2);
-        t1.add(e3);
+        auto e1 = space.ecs.addEntity();
+        auto e2 = space.ecs.addEntity();
+        auto e3 = space.ecs.addEntity();
+        space.ecs.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e1);
+        space.ecs.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e2);
+        space.ecs.addComponent(SPACE_SYSTEM_CT_OBJECT_NAME, e3);
         // mt has ()
-        t2.add(e3);
-        t2.add(e2);
+        space.ecs.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
+        space.ecs.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
         // mt has (3, 2)
-        t2.remove(e3);
-        t2.remove(e2);
+        space.ecs.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e3);
+        space.ecs.deleteComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e2);
         // mt has ()
-        t2.add(e1);
+        space.ecs.addComponent(SPACE_SYSTEM_CT_QUADRANT_NAME, e1);
         // mt has (1)
+
+        vcore::ECSSimpleUpdater updater;
+        updater.update(&space.ecs);
     }
 
     // Run the game
