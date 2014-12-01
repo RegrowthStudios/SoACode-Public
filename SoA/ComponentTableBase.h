@@ -37,6 +37,8 @@ namespace vorb {
             virtual void addComponent(ComponentID cID, EntityID eID) = 0;
             virtual void setComponent(ComponentID cID, EntityID eID) = 0;
 
+            virtual void update(ComponentID cID) = 0;
+
             ComponentBindingSet::iterator begin() {
                 return _components.begin();
             }

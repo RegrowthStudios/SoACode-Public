@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
         vcore::ECS ecs;
 
         // Add component tables
-        vcore::ComponentTable<ui64> t1(0);
+        vcore::ComponentTableNoUpdate<ui64> t1(0);
         ecs.addComponent("Health", &t1);
-        vcore::ComponentTable<f32v3> t2(f32v3(0, 0, 0));
+        vcore::ComponentTableNoUpdate<f32v3> t2(f32v3(0, 0, 0));
         ecs.addComponent("Position", &t2);
 
         // Add multi-component listeners

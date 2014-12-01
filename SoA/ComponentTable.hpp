@@ -37,7 +37,12 @@ namespace vorb {
                 _components[cID].first = eID;
                 _components[cID].second = getDefaultData();
             }
-            
+
+            virtual void update(ComponentID cID) override {
+                update(_components[cID].first, cID, get(cID));
+            }
+            virtual void update(const EntityID& eID, const ComponentID& cID, T& cID) = 0;
+
             const T& get(const ComponentID& cID) const {
                 return _components[cID];
             }
@@ -60,6 +65,18 @@ namespace vorb {
             }
         protected:
             ComponentList _components;
+        };
+
+        template<typename T>
+        class ComponentTableNoUpdate : public ComponentTable<T> {
+        public:
+            ComponentTableNoUpdate(T defaultData) : ComponentTable(defaultData) {
+                // Empty
+            }
+
+            virtual void update(const EntityID& eID, const ComponentID& cID, T& cID) override {
+                // Empty
+            }
         };
     }
 }
