@@ -14,13 +14,17 @@ vcore::MultipleComponentSet::MultipleComponentSet() :
             if (table->getComponentID(eID) == ID_GENERATOR_NULL_ID) return;
         }
         this->_entities.insert(eID);
+        onEntityAdded(eID);
     }));
 
     // Entity removed handler
     _fEntityRemoved.reset(createDelegate<EntityID>([=] (void* sender, EntityID eID) -> void {
         // Always remove the entity from this list
         auto entity = this->_entities.find(eID);
-        if (entity != _entities.end()) _entities.erase(entity);
+        if (entity != _entities.end()) {
+            _entities.erase(entity);
+            onEntityRemoved(eID);
+        }
     }));
 }
 vcore::MultipleComponentSet::~MultipleComponentSet() {

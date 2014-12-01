@@ -13,7 +13,7 @@ vcore::ECS::ECS() :
 vcore::EntityID vcore::ECS::addEntity() {
     // Generate a new entity
     EntityID id = _genEntity.generate();
-    if (id > _entities.size()) _entities.emplace_back(id);
+    _entities.emplace(id);
 
     // Signal a newly created entity
     onEntityAdded(id);
@@ -26,6 +26,7 @@ bool vcore::ECS::deleteEntity(EntityID id) {
     if (id >= _entities.size()) return false;
     
     // Recycle the ID
+    _entities.erase(id);
     _genEntity.recycle(id);
 
     // Signal an entity must be destroyed

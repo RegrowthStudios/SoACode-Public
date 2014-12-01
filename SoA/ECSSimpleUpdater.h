@@ -20,8 +20,11 @@
 
 namespace vorb {
     namespace core {
+        /// The simplest component updater implementation
         class ECSSimpleUpdater {
         public:
+            /// Update all the components in the ECS in a linear fashion
+            /// @param ecs: The ECS
             void update(vcore::ECS* ecs) {
                 // Update all the components
                 for (const NamedComponent namedComp : ecs->getComponents()) {

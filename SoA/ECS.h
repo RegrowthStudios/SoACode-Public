@@ -23,15 +23,15 @@ namespace vorb {
     namespace core {
         class ComponentTableBase;
         
-        typedef std::pair<ComponentTableBase*, IDelegate<EntityID>*> ComponentSubscriber;
-        typedef std::unordered_map<nString, ComponentSubscriber> ComponentSubscriberSet;
-        typedef std::pair<nString, ComponentTableBase*> NamedComponent;
-        typedef std::unordered_map<nString, ComponentTableBase*> ComponentSet;
+        typedef std::pair<nString, ComponentTableBase*> NamedComponent; ///< A component table paired with its name
+        typedef std::unordered_map<nString, ComponentTableBase*> ComponentSet; ///< Dictionary of NamedComponents
 
         class ECS {
         public:
+            /// Default constructor which initializes events
             ECS();
 
+            /// @return Set of entities for iteration
             const EntitySet& getEntities() const {
                 return _entities;
             }
@@ -58,6 +58,9 @@ namespace vorb {
             Event<EntityID> onEntityRemoved;
             Event<NamedComponent> onComponentAdded;
         private:
+            typedef std::pair<ComponentTableBase*, IDelegate<EntityID>*> ComponentSubscriber;
+            typedef std::unordered_map<nString, ComponentSubscriber> ComponentSubscriberSet;
+
             EntitySet _entities;
             IDGenerator<EntityID> _genEntity;
 

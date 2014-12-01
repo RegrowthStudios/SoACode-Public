@@ -26,8 +26,6 @@ namespace vorb {
 
         class MultipleComponentSet {
         public:
-            typedef std::unordered_set<EntityID> EntityIDSet;
-
             MultipleComponentSet();
             ~MultipleComponentSet();
 
@@ -48,9 +46,10 @@ namespace vorb {
 
             Event<EntityID> onEntityAdded;
             Event<EntityID> onEntityRemoved;
-        private:
+        protected:
             EntityIDSet _entities;
             std::vector<ComponentTableBase*> _tables;
+        private:
             std::shared_ptr<IDelegate<EntityID>> _fEntityAdded;
             std::shared_ptr<IDelegate<EntityID>> _fEntityRemoved;
         };

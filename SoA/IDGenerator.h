@@ -20,7 +20,7 @@ namespace vorb {
 #define ID_GENERATOR_NULL_ID 0
 
         /// Generates and recycles unique IDs of a certain type
-        /// @type T: must support operator size_t() and operator++()
+        /// @template T: must support operator size_t() and operator++()
         template<typename T>
         class IDGenerator {
         public:
@@ -34,7 +34,8 @@ namespace vorb {
                     _recycled.pop();
                     if (wasNew) *wasNew = false;
                 } else {
-                    v = ++_currentID;
+                    _currentID++;
+                    v = _currentID;
                     if (wasNew) *wasNew = true;
                 }
                 return v;
@@ -44,6 +45,7 @@ namespace vorb {
             void recycle(T& v) {
                 _recycled.push(v);
             }
+
             /// @return Number of active IDs
             size_t getActiveCount() const {
                 return static_cast<size_t>(_currentID) - _recycled.size();

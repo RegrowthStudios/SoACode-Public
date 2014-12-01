@@ -12,7 +12,7 @@ vcore::ComponentID vcore::ComponentTableBase::add(EntityID eID) {
     auto cBind = _components.find(eID);
     if (cBind != _components.end()) {
         char buf[256];
-        sprintf(buf, "Entity <0x%016llX> already contains component <0x%016llX>", eID, cBind->second);
+        sprintf(buf, "Entity <0x%08lX> already contains component <0x%08lX>", eID, cBind->second);
         throw std::exception(buf);
     }
 

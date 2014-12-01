@@ -11,14 +11,11 @@
 #endif
 
 #include "App.h"
-#include "ECSSimpleUpdater.h"
-#include "MultipleComponentSet.h"
-#include "SpaceSystem.h"
 
-// Just a precaution to make sure our types have the right size
+/// Just a precaution to make sure our types have the right size
 void checkTypes();
-
-// Creates The Environment For IO Managers
+/// Creates the environment for IOManagers
+/// @param argv: Process arguments
 void initIOEnvironment(char** argv);
 
 // Entry
@@ -33,52 +30,6 @@ int main(int argc, char **argv) {
     // Tell windows that our priority class should be real time
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 #endif
-    size_t entityCount, updateCount;
-    std::cin >> entityCount;
-    std::cin >> updateCount;
-    while (entityCount != 0) {
-        ui32 ts = SDL_GetTicks();
-        {
-
-            // Make ECS
-            SpaceSystem space;
-            vcore::ECSSimpleUpdater updater;
-
-            // Add multi-component listeners
-            vcore::MultipleComponentSet mt;
-            mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME));
-            mt.addRequirement(space.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME));
-
-            // Build ECS
-            vcore::EntityID* entities = new vcore::EntityID[entityCount];
-            space.genEntities(entityCount, entities);
-            auto tblObject = space.getComponentTable(SPACE_SYSTEM_CT_OBJECT_NAME);
-            auto tblQuadrant = space.getComponentTable(SPACE_SYSTEM_CT_QUADRANT_NAME);
-            for (size_t i = 0; i < entityCount; i++) {
-                tblObject->add(entities[i]);
-                tblQuadrant->add(entities[i]);
-            }
-
-            ts = SDL_GetTicks() - ts;
-            printf("Ticks elapsed - Setup    - %d\n", ts);
-            ts = SDL_GetTicks();
-
-            // Update ECS
-            for (size_t i = 0; i < updateCount;i++) updater.update(&space);
-
-            ts = SDL_GetTicks() - ts;
-            printf("Ticks elapsed - Updates  - %d\n", ts);
-            printf("Updates: %d\n", space.tblObject.updates + space.tblQuadrants.updates);
-            ts = SDL_GetTicks();
-
-            delete[] entities;
-        }
-        ts = SDL_GetTicks() - ts;
-        printf("Ticks elapsed - Teardown - %d\n", ts);
-
-        std::cin >> entityCount;
-        std::cin >> updateCount;
-    }
     // Run the game
     MainGame* mg = new App;
     mg->run();
@@ -115,7 +66,6 @@ void initIOEnvironment(char** argv) {
         : "None Specified");
 #endif // DEBUG
 }
-
 void checkTypes() {
     if (sizeof(float) != 4) {
         pError("Size of float is not 4. It is " + std::to_string(sizeof(float)));
