@@ -41,6 +41,9 @@
     <ClCompile Include="Types.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="Lua.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
