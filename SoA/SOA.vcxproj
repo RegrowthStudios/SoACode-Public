@@ -123,7 +123,6 @@
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="concurrentqueue.h" />
-    <ClInclude Include="ECSTest.h" />
     <ClInclude Include="FloraTask.h" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
@@ -357,7 +356,6 @@
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceComponents.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
-    <ClCompile Include="Tests.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

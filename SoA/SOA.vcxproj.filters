@@ -135,9 +135,6 @@
     <Filter Include="SOA Files\Vorb\Graphics">
       <UniqueIdentifier>{189dfa46-b2e3-47b4-9730-ee9edb16c0f5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Tests">
-      <UniqueIdentifier>{25a27756-36fb-4259-97cb-d6875e94ade7}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -701,9 +698,6 @@
     <ClInclude Include="MultiComponentTracker.hpp">
       <Filter>SOA Files\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="ECSTest.h">
-      <Filter>SOA Files\Tests</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1116,9 +1110,6 @@
     </ClCompile>
     <ClCompile Include="MultipleComponentSet.cpp">
       <Filter>SOA Files\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests.cpp">
-      <Filter>SOA Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
