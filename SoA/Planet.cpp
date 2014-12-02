@@ -36,7 +36,7 @@ void Planet::update(f64 time) {
     IPlanetaryBody::update(time);
 }
 
-void Planet::draw(Camera* camera) {
+void Planet::draw(const Camera* camera) {
 
     static DebugRenderer debugRenderer;
 
@@ -46,7 +46,7 @@ void Planet::draw(Camera* camera) {
 
     f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix() * rotationMatrix;
 
-    debugRenderer.render(WVP, camera->getPosition());
+    debugRenderer.render(WVP, f32v3(camera->getPosition()));
 
     throw std::logic_error("The method or operation is not implemented.");
 }

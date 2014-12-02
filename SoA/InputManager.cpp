@@ -150,13 +150,18 @@ i32 InputManager::getAxisID(const nString& axisName) const {
 
 void InputManager::loadAxes(const std::string &location) {
     IOManager ioManager; // TODO: Pass in a real boy
-    const cString data = ioManager.readFileToString(location.c_str());
+    nString data;
+    ioManager.readFileToString(location.c_str(), data);
    
-    YAML::Node node = YAML::Load(data);
+    if (data.length() == 0) {
+        fprintf(stderr, "Failed to load %s", location.c_str());
+        throw 33;
+    }
+
+    YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
-        delete[] data;
         perror(location.c_str());
-        return;
+        throw 34;
     }
 
     // Manually parse yml file
@@ -173,8 +178,6 @@ void InputManager::loadAxes(const std::string &location) {
         _axisLookup[curAxis->name] = _axes.size();
         _axes.push_back(curAxis);
     }
-  
-    delete[] data;
 }
 
 void InputManager::loadAxes() {

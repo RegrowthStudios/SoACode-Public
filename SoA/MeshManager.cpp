@@ -34,81 +34,81 @@ MeshManager::MeshManager() {
 }
 
 void MeshManager::updateTerrainMesh(TerrainMeshMessage* tmm) {
-    TerrainMesh *tb = tmm->terrainBuffers;
+    //TerrainMesh *tb = tmm->terrainBuffers;
 
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
+    //vg::GLProgram* program = GameManager::glProgramManager->getProgram("GroundFromAtmosphere");
 
-    if (tmm->indexSize){
-        if (tb->vaoID == 0) glGenVertexArrays(1, &(tb->vaoID));
-        glBindVertexArray(tb->vaoID);
+    //if (tmm->indexSize){
+    //    if (tb->vaoID == 0) glGenVertexArrays(1, &(tb->vaoID));
+    //    glBindVertexArray(tb->vaoID);
 
-        if (tb->vboID == 0) glGenBuffers(1, &(tb->vboID));
-        glBindBuffer(GL_ARRAY_BUFFER, tb->vboID); // Bind the buffer (vertex array data)
-        glBufferData(GL_ARRAY_BUFFER, tmm->index * sizeof(TerrainVertex), NULL, GL_STATIC_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, tmm->index * sizeof(TerrainVertex), &(tmm->verts[0]));
+    //    if (tb->vboID == 0) glGenBuffers(1, &(tb->vboID));
+    //    glBindBuffer(GL_ARRAY_BUFFER, tb->vboID); // Bind the buffer (vertex array data)
+    //    glBufferData(GL_ARRAY_BUFFER, tmm->index * sizeof(TerrainVertex), NULL, GL_STATIC_DRAW);
+    //    glBufferSubData(GL_ARRAY_BUFFER, 0, tmm->index * sizeof(TerrainVertex), &(tmm->verts[0]));
 
-        if (tb->vboIndexID == 0) glGenBuffers(1, &(tb->vboIndexID));
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tb->vboIndexID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, tmm->indexSize * sizeof(GLushort), NULL, GL_STATIC_DRAW);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, tmm->indexSize * sizeof(GLushort), &(tmm->indices[0]));
+    //    if (tb->vboIndexID == 0) glGenBuffers(1, &(tb->vboIndexID));
+    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tb->vboIndexID);
+    //    glBufferData(GL_ELEMENT_ARRAY_BUFFER, tmm->indexSize * sizeof(GLushort), NULL, GL_STATIC_DRAW);
+    //    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, tmm->indexSize * sizeof(GLushort), &(tmm->indices[0]));
 
-        //vertices
-        glVertexAttribPointer(program->getAttribute("vertexPosition_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), 0);
-        //UVs
-        glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (12)));
-        //normals
-        glVertexAttribPointer(program->getAttribute("vertexNormal_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (20)));
-        //colors
-        glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (32)));
-        //slope color
-        glVertexAttribPointer(program->getAttribute("vertexSlopeColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (36)));
-        //beach color
-        //glVertexAttribPointer(program->getAttribute("vertexBeachColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (40)));
-        //texureUnit, temperature, rainfall, specular
-        glVertexAttribPointer(program->getAttribute("texTempRainSpec"), 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (44)));
+    //    //vertices
+    //    glVertexAttribPointer(program->getAttribute("vertexPosition_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), 0);
+    //    //UVs
+    //    glVertexAttribPointer(program->getAttribute("vertexUV"), 2, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (12)));
+    //    //normals
+    //    glVertexAttribPointer(program->getAttribute("vertexNormal_modelspace"), 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (20)));
+    //    //colors
+    //    glVertexAttribPointer(program->getAttribute("vertexColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (32)));
+    //    //slope color
+    //    glVertexAttribPointer(program->getAttribute("vertexSlopeColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (36)));
+    //    //beach color
+    //    //glVertexAttribPointer(program->getAttribute("vertexBeachColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(TerrainVertex), ((char *)NULL + (40)));
+    //    //texureUnit, temperature, rainfall, specular
+    //    glVertexAttribPointer(program->getAttribute("texTempRainSpec"), 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(TerrainVertex), ((char *)NULL + (44)));
 
-        program->enableVertexAttribArrays();
-        glBindVertexArray(0); // Disable our Vertex Buffer Object  
+    //    program->enableVertexAttribArrays();
+    //    glBindVertexArray(0); // Disable our Vertex Buffer Object  
 
-        if (tmm->treeIndexSize){
-            int treeIndex = (tmm->treeIndexSize * 4) / 6;
-            glGenBuffers(1, &(tb->treeVboID));
-            glBindBuffer(GL_ARRAY_BUFFER, tb->treeVboID); // Bind the buffer (vertex array data)
-            glBufferData(GL_ARRAY_BUFFER, treeIndex * sizeof(TreeVertex), NULL, GL_STATIC_DRAW);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, treeIndex * sizeof(TreeVertex), tmm->treeVerts);
-            delete[] tmm->treeVerts;
-        } else{
-            if (tb->treeVboID != 0) glDeleteBuffers(1, &(tb->treeVboID));
-            tb->treeVboID = 0;
-        }
-        tb->boundingBox = tmm->boundingBox;
-        tb->drawX = tmm->drawX;
-        tb->drawY = tmm->drawY;
-        tb->drawZ = tmm->drawZ;
-        tb->worldX = tmm->worldX;
-        tb->worldY = tmm->worldY;
-        tb->worldZ = tmm->worldZ;
-        tb->cullRadius = tmm->cullRadius;
-        tb->indexSize = tmm->indexSize;
-        tb->treeIndexSize = tmm->treeIndexSize;
-        delete[] tmm->verts;
-        delete[] tmm->indices;
-        if (tb->vecIndex == UNINITIALIZED_INDEX){
-            tb->vecIndex = GameManager::planet->drawList[tmm->face].size();
-            GameManager::planet->drawList[tmm->face].push_back(tb);
-        }
-    } else{
-        if (tb->vecIndex != UNINITIALIZED_INDEX){
-            GameManager::planet->drawList[tmm->face][tb->vecIndex] = GameManager::planet->drawList[tmm->face].back();
-            GameManager::planet->drawList[tmm->face][tb->vecIndex]->vecIndex = tb->vecIndex;
-            GameManager::planet->drawList[tmm->face].pop_back();
-        }
-        if (tb->vaoID != 0) glDeleteVertexArrays(1, &(tb->vaoID));
-        if (tb->vboID != 0) glDeleteBuffers(1, &(tb->vboID));
-        if (tb->treeVboID != 0) glDeleteBuffers(1, &(tb->treeVboID));
-        if (tb->vboIndexID != 0) glDeleteBuffers(1, &(tb->vboIndexID));
-        delete tb; //possible race condition
-    }
+    //    if (tmm->treeIndexSize){
+    //        int treeIndex = (tmm->treeIndexSize * 4) / 6;
+    //        glGenBuffers(1, &(tb->treeVboID));
+    //        glBindBuffer(GL_ARRAY_BUFFER, tb->treeVboID); // Bind the buffer (vertex array data)
+    //        glBufferData(GL_ARRAY_BUFFER, treeIndex * sizeof(TreeVertex), NULL, GL_STATIC_DRAW);
+    //        glBufferSubData(GL_ARRAY_BUFFER, 0, treeIndex * sizeof(TreeVertex), tmm->treeVerts);
+    //        delete[] tmm->treeVerts;
+    //    } else{
+    //        if (tb->treeVboID != 0) glDeleteBuffers(1, &(tb->treeVboID));
+    //        tb->treeVboID = 0;
+    //    }
+    //    tb->boundingBox = tmm->boundingBox;
+    //    tb->drawX = tmm->drawX;
+    //    tb->drawY = tmm->drawY;
+    //    tb->drawZ = tmm->drawZ;
+    //    tb->worldX = tmm->worldX;
+    //    tb->worldY = tmm->worldY;
+    //    tb->worldZ = tmm->worldZ;
+    //    tb->cullRadius = tmm->cullRadius;
+    //    tb->indexSize = tmm->indexSize;
+    //    tb->treeIndexSize = tmm->treeIndexSize;
+    //    delete[] tmm->verts;
+    //    delete[] tmm->indices;
+    //    if (tb->vecIndex == UNINITIALIZED_INDEX){
+    //        tb->vecIndex = GameManager::planet->drawList[tmm->face].size();
+    //        GameManager::planet->drawList[tmm->face].push_back(tb);
+    //    }
+    //} else{
+    //    if (tb->vecIndex != UNINITIALIZED_INDEX){
+    //        GameManager::planet->drawList[tmm->face][tb->vecIndex] = GameManager::planet->drawList[tmm->face].back();
+    //        GameManager::planet->drawList[tmm->face][tb->vecIndex]->vecIndex = tb->vecIndex;
+    //        GameManager::planet->drawList[tmm->face].pop_back();
+    //    }
+    //    if (tb->vaoID != 0) glDeleteVertexArrays(1, &(tb->vaoID));
+    //    if (tb->vboID != 0) glDeleteBuffers(1, &(tb->vboID));
+    //    if (tb->treeVboID != 0) glDeleteBuffers(1, &(tb->treeVboID));
+    //    if (tb->vboIndexID != 0) glDeleteBuffers(1, &(tb->vboIndexID));
+    //    delete tb; //possible race condition
+    //}
     delete tmm;
 }
 

@@ -165,7 +165,7 @@ void Chunk::clearNeighbors() {
 
 int Chunk::GetPlantType(int x, int z, Biome *biome)
 {
-    double typer;
+ /*   double typer;
     NoiseInfo *nf;
     for (Uint32 i = 0; i < biome->possibleFlora.size(); i++){
         typer = PseudoRand(x + i*(z + 555) + gridPosition.x, z - i*(x + 666) + gridPosition.z) + 1.0;
@@ -180,7 +180,7 @@ int Chunk::GetPlantType(int x, int z, Biome *biome)
                 return biome->possibleFlora[i].floraIndex;
             }
         }
-    }
+    }*/
     return NONE; //default
 }
 

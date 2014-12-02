@@ -33,7 +33,7 @@ public:
     virtual void update(f64 time);
 
     /// Draws the Orbital Body
-    virtual void draw(Camera* camera) = 0;
+    virtual void draw(const Camera* camera) = 0;
 
 protected:
     IOrbitalBody* _parentBody = nullptr; ///< The parent object. If it is nullptr, then the parent is the system center

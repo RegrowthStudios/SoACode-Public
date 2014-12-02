@@ -22,7 +22,7 @@
 
 enum SDLKey;
 
-#define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.ini"
+#define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.yml"
 
 /// Handles all the user input through the mouse, keyboard and gamepad.
 

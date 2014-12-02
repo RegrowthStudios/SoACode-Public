@@ -14,6 +14,6 @@ void Star::update(f64 time) {
     IOrbitalBody::update(time);
 }
 
-void Star::draw() {
+void Star::draw(const Camera* camera) {
     throw std::logic_error("The method or operation is not implemented.");
 }

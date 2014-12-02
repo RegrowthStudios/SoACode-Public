@@ -24,7 +24,7 @@ public:
 
     virtual void update(f64 time) override;
 
-    virtual void draw() override;
+    virtual void draw(const Camera* camera) override;
 private:
     f64 surfaceTemperature_K_ = 0.0f; ///< Surface temperature in kelvin
 };

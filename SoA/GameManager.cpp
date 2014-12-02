@@ -231,14 +231,9 @@ void GameManager::loadPlanet(string filePath) {
     }
     Planet *newPlanet = new Planet;
 
-    newPlanet->initialize(filePath);
+    newPlanet->init(filePath.c_str());
 
     planet = newPlanet;
-
-    GLuint startTimer = SDL_GetTicks();
-
-    debugTicksDone = 0;
-    debugTicks = SDL_GetTicks();
 
     BindVBOIndicesID();
 
@@ -264,7 +259,7 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 
  //   player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
 
-    double dist = player->facePosition.y + planet->radius;
+ //   double dist = player->facePosition.y + planet->radius;
   //  player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
 }
 
@@ -319,7 +314,7 @@ void GameManager::update() {
         }
     }
 
-    voxelWorld->getPlanet()->rotationUpdate();
+   // voxelWorld->getPlanet()->rotationUpdate();
 
     updatePlanet(player->worldPosition, maxLodTicks);   //SOMETIMES TAKING A LONG TIME!
 
@@ -335,7 +330,7 @@ void GameManager::update() {
 }
 
 void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
-    planet->updateLODs(worldPosition, maxTicks);
+  //  planet->updateLODs(worldPosition, maxTicks);
 }
 
 void GameManager::addMarker(glm::dvec3 pos, string name, glm::vec3 color) {

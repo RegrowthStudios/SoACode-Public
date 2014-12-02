@@ -299,8 +299,8 @@ void GamePlayScreen::onMouseUp(const SDL_Event& e) {
 }
 
 void GamePlayScreen::updatePlayer() {
-    double dist = _player->facePosition.y + GameManager::planet->radius;
-    _player->update(_inFocus, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(_player->velocity)));
+    double dist = _player->facePosition.y + GameManager::planet->getRadius();
+  //  _player->update(_inFocus, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(_player->velocity)));
 
     Chunk **chunks = new Chunk*[8];
     _player->isGrounded = 0;
@@ -344,8 +344,6 @@ void GamePlayScreen::updateThreadFunc() {
                 
             }
         }
-
-        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_player->getWorldCamera().getPosition(), 1.0));
 
         GameManager::update();
 

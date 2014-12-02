@@ -30,7 +30,7 @@ VoxelWorld::~VoxelWorld()
 
 void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, Planet *planet, GLuint flags)
 {
-    if (_chunkManager) {
+  /*  if (_chunkManager) {
         pError("VoxelWorld::initialize() called twice before end session!");
         delete _chunkManager;
     }
@@ -44,7 +44,7 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* starting
     vvox::VoxelPlanetMapper* voxelPlanetMapper = new vvox::VoxelPlanetMapper(planet->facecsGridWidth);
     _chunkManager->initialize(gpos, voxelPlanetMapper, startingMapData, flags);
 
-    setPlanet(planet);
+    setPlanet(planet);*/
 }
 
 void VoxelWorld::update(const Camera* camera)

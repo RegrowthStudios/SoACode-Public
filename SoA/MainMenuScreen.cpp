@@ -54,7 +54,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(1000000.0f, 30000000.0f);
-    _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->getRadius() * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
+    _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->getRadius() * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(1, 0, 0.0), glm::dvec3(0.0), GameManager::planet->getRadius(), 0.0);
 
     // Initialize the user interface
     _awesomiumInterface.init("UI/MainMenu/",
@@ -231,10 +231,11 @@ void MainMenuScreen::updateThreadFunc() {
             }
         }
 
-        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
-
-        GameManager::planet->rotationUpdate();
-        GameManager::updatePlanet(camPos, 10);
+      //  f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
+        static double time = 0.0;
+        time += 0.01;
+        GameManager::planet->update(time);
+      //  GameManager::updatePlanet(camPos, 10);
         
         physicsFps = fpsLimiter.endFrame();
     }

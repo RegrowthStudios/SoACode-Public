@@ -532,7 +532,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     ui8 temperature = chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
     ui8 depth = chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
 
-    ColorRGB8 color = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
+    ColorRGB8 color;// = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
 
     ui8 sunlight = _sunlightData[wc];
     ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,

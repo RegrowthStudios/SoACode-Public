@@ -14,6 +14,6 @@ void GasGiant::update(f64 time) {
     IOrbitalBody::update(time);
 }
 
-void GasGiant::draw() {
+void GasGiant::draw(const Camera* camera) {
     throw std::logic_error("The method or operation is not implemented.");
 }

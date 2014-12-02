@@ -1,5 +1,5 @@
 #pragma once
-class SDL_Window;
+struct SDL_Window;
 
 class GraphicsDeviceProperties {
 public:

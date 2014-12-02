@@ -21,8 +21,6 @@ class Camera;
 
 class Planet : public IPlanetaryBody {
 public:
-    Planet();
-    ~Planet();
 
     /// Initializes the planet
     /// @param filePath: The path to the planet properties
@@ -33,7 +31,7 @@ public:
     void update(f64 time) override;
 
     /// Draws the planet
-    virtual void draw(Camera* camera) override;
+    virtual void draw(const Camera* camera) override;
 
 private:
     /// Loads the properties of the planet

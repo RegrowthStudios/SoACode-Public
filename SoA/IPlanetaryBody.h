@@ -27,7 +27,7 @@ public:
     virtual void update(f64 time);
 
     /// Draws the Orbital Body
-    virtual void draw(Camera* camera) override = 0;
+    virtual void draw(const Camera* camera) override = 0;
 
     // Getters
     const f64& getRadius() const { return radius_; }

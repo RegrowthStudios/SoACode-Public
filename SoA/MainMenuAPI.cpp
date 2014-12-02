@@ -46,7 +46,7 @@ Awesomium::JSValue MainMenuAPI::getCameraPosition(const Awesomium::JSArray& args
 }
 
 Awesomium::JSValue MainMenuAPI::getPlanetRadius(const Awesomium::JSArray& args) {
-    return Awesomium::JSValue(GameManager::planet->radius);
+    return Awesomium::JSValue(GameManager::planet->getRadius());
 }
 
 Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
@@ -97,7 +97,7 @@ void MainMenuAPI::setCameraTarget(const Awesomium::JSArray& args) {
     float focalLength = args[4].ToDouble();
     f64v3 targetDir(args[5].ToDouble(), args[6].ToDouble(), args[7].ToDouble());
     f64v3 targetRight(args[8].ToDouble(), args[9].ToDouble(), args[10].ToDouble());
-    _ownerScreen->getCamera().zoomTo(targetPos, time, glm::normalize(targetDir), glm::normalize(targetRight), glm::dvec3(0.0), GameManager::planet->radius, focalLength);
+    _ownerScreen->getCamera().zoomTo(targetPos, time, glm::normalize(targetDir), glm::normalize(targetRight), glm::dvec3(0.0), GameManager::planet->getRadius(), focalLength);
 }
 
 void MainMenuAPI::loadSaveGame(const Awesomium::JSArray& args) {

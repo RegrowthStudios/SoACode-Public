@@ -136,7 +136,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
                     if (biome->possibleFlora.size()){
                         r = chunk->GetPlantType(x + wx, z + wz, biome);
-                        if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[r], c);
+               //         if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[r], c);
 
                          sunlightData = MAXLIGHT;
                          data = NONE;
@@ -173,13 +173,13 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                 if (data != NONE && (GETBLOCKID(data) < LOWWATER) && nh <= 1){
 
                     if (needsCave == 3){
-                        generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity1, 9, 0, 5, 0.6, 0.0004);
+          //              generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity1, 9, 0, 5, 0.6, 0.0004);
                         needsCave = 2;
                     }
                     ti = trilinearInterpolation_4_8_4(x, y, z, CaveDensity1);
                     if (ti > 0.905 && ti < 0.925){
                         if (needsCave == 2){
-                            generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity2, 9, 8000, 4, 0.67, 0.0004);
+         //                   generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity2, 9, 8000, 4, 0.67, 0.0004);
                             needsCave = 1;
                         }
                         tj = trilinearInterpolation_4_8_4(x, y, z, CaveDensity2);
@@ -229,11 +229,11 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 void ChunkGenerator::TryEnqueueTree(Chunk* chunk, Biome *biome, int x, int z, int c)
 {
  
-    int index = FloraGenerator::getTreeIndex(biome, x, z);
+    /*int index = FloraGenerator::getTreeIndex(biome, x, z);
     if (index == -1) return;
     chunk->treesToLoad.emplace_back();
     chunk->treesToLoad.back().startc = c;
-    FloraGenerator::makeTreeData(chunk, chunk->treesToLoad.back(), GameManager::planet->treeTypeVec[index]);
+    FloraGenerator::makeTreeData(chunk, chunk->treesToLoad.back(), GameManager::planet->treeTypeVec[index]);*/
 }
 
 void ChunkGenerator::LoadMinerals(Chunk* chunk)
