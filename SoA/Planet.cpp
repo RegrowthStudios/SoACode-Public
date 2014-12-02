@@ -5,6 +5,7 @@
 #include "DebugRenderer.h"
 #include "IOManager.h"
 #include "utils.h"
+#include "Errors.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>
@@ -38,6 +39,8 @@ void Planet::update(f64 time) {
 
 void Planet::draw(const Camera* camera) {
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     static DebugRenderer debugRenderer;
 
     debugRenderer.drawIcosphere(f32v3(0), radius_, f32v4(1.0), 6);
@@ -48,7 +51,7 @@ void Planet::draw(const Camera* camera) {
 
     debugRenderer.render(WVP, f32v3(camera->getPosition()));
 
-    throw std::logic_error("The method or operation is not implemented.");
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 bool Planet::loadProperties(const cString filePath) {
@@ -57,7 +60,8 @@ bool Planet::loadProperties(const cString filePath) {
     nString data;
     ioManager.readFileToString(filePath, data);
     if (data.length()) {
-        if (Keg::parse(&properties, data.c_str(), "BlockTexture") == Keg::Error::NONE) {
+        Keg::Error error = Keg::parse(&properties, data.c_str(), "PlanetKegProperties");
+        if (error == Keg::Error::NONE) {
             radius_ = properties.radius;
             // Calculate mass
             f64 volume = (4.0 / 3.0) * (M_PI)* pow(radius_, 3.0);
@@ -69,9 +73,11 @@ bool Planet::loadProperties(const cString filePath) {
             f64v3 up(0.0, 1.0, 0.0);
             axisOrientation_ = quatBetweenVectors(up, properties.axis);
         } else {
+            fprintf(stderr, "Keg error %d for %s\n", (int)error, filePath);
             return false;
         }
     } else {
+        pError("Failed to load planet " + nString(filePath));
         return false;
     }
     return true;

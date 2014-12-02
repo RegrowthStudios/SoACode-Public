@@ -174,24 +174,24 @@ ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
         ui32 width, height;
         vg::ImageLoader::loadPng(name.c_str(), buffer, width, height, true);
 
-        // Error checking
-        if (width != MAP_WIDTH) {
-            pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));
-            return _blockColorMaps.size() - 1;
-        }
-        if (height != MAP_WIDTH) {
-            pError("Error color map " + name + " must have a height of " + to_string(MAP_WIDTH));
-            return _blockColorMaps.size() - 1;
-        }
+        //// Error checking
+        //if (width != MAP_WIDTH) {
+        //    pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));
+        //    return _blockColorMaps.size() - 1;
+        //}
+        //if (height != MAP_WIDTH) {
+        //    pError("Error color map " + name + " must have a height of " + to_string(MAP_WIDTH));
+        //    return _blockColorMaps.size() - 1;
+        //}
 
-        // Set the data
-        for (int y = 0; y < MAP_WIDTH; y++){
-            for (int x = 0; x < MAP_WIDTH; x++) {
-                colorMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[(y * MAP_WIDTH + x) * 3],
-                                                                          buffer[(y * MAP_WIDTH + x) * 3 + 1],
-                                                                          buffer[(y * MAP_WIDTH + x) * 3 + 2]);
-            }
-        }
+        //// Set the data
+        //for (int y = 0; y < MAP_WIDTH; y++){
+        //    for (int x = 0; x < MAP_WIDTH; x++) {
+        //        colorMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[(y * MAP_WIDTH + x) * 3],
+        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 1],
+        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 2]);
+        //    }
+        //}
 
         return _blockColorMaps.size() - 1;
     }

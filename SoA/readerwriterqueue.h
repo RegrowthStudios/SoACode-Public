@@ -362,7 +362,7 @@ namespace moodycamel {
         }
     private:
 #ifndef NDEBUG
-        class ReentrantGuard {
+        struct ReentrantGuard {
             ReentrantGuard(bool& _inSection)
             : inSection(_inSection) {
                 assert(!inSection);

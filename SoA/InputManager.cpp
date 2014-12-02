@@ -165,11 +165,10 @@ void InputManager::loadAxes(const std::string &location) {
     }
 
     // Manually parse yml file
-    Keg::Value v = Keg::Value::custom("Axis", 0);
     for (auto& kvp : node) {
         Axis* curAxis = new Axis();
         curAxis->name = kvp.first.as<nString>();
-        Keg::parse((ui8*)&curAxis, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Axis));
+        Keg::parse((ui8*)curAxis, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Axis));
      
         if (curAxis->type == AxisType::SINGLE_KEY) {
             curAxis->upEvent = Event<ui32>();

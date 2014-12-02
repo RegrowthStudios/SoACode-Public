@@ -7,6 +7,6 @@
 class LoadTaskPlanet : public ILoadTask {
     friend class LoadScreen;
     virtual void load() {
-        GameManager::loadPlanet("Worlds/Aldrin/");
+        GameManager::loadPlanet("SolarSystems/Hyperion/Planets/Aldrin.yml");
     }
 };
