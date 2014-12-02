@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Tests.h"
 
+typedef bool(*TestFunc)();
+
 bool UnitTests::Adder::TestsAdder::addTest(String^ name, IntPtr f) {
     UnitTests::Tests::m_tests->Add(name, f);
     return true;
@@ -23,5 +25,3 @@ array<String^>^ UnitTests::Tests::getBatches(String^ name) {
     array<String^>^ a = { "_" };
     return name->Split(a, System::StringSplitOptions::RemoveEmptyEntries);
 }
-
-#include "Example.inl"

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "macros.h"
+#ifndef Tests_h__
+#define Tests_h__
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -33,3 +34,5 @@ namespace UnitTests {
         static TestLibrary^ m_tests = gcnew TestLibrary(); ///< Member variable that stores tests
     };
 }
+
+#endif // Tests_h__
