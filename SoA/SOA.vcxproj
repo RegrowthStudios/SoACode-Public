@@ -123,7 +123,7 @@
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="concurrentqueue.h" />
-    <ClInclude Include="Event.hpp" />
+    <ClInclude Include="ECSTest.h" />
     <ClInclude Include="FloraTask.h" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
@@ -144,6 +144,7 @@
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GLProgramManager.h" />
     <ClInclude Include="IAwesomiumInterface.h" />
+    <ClInclude Include="IDGenerator.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="IRenderPipeline.h" />
@@ -161,6 +162,8 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="MultiComponentTracker.hpp" />
+    <ClInclude Include="MultipleComponentSet.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
@@ -173,6 +176,7 @@
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="RTSwapChain.hpp" />
+    <ClInclude Include="ECSSimpleUpdater.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
@@ -309,7 +313,6 @@
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="ECS.cpp" />
-    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FullQuadVBO.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
@@ -337,6 +340,7 @@
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="MultipleComponentSet.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
@@ -353,6 +357,7 @@
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceComponents.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="Tests.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

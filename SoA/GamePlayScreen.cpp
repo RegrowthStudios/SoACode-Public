@@ -30,7 +30,7 @@
 #include "colors.h"
 #include "Options.h"
 #include "GamePlayScreenEvents.hpp"
-#include "Event.hpp"
+#include "Events.hpp"
 
 #define THREAD ThreadId::UPDATE
 

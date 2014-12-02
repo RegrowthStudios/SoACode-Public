@@ -4,49 +4,59 @@
 #include "ComponentTableBase.h"
 
 vcore::ECS::ECS() : 
-    evtEntityAddition(this),
-    evtEntityRemoval(this) {
+    onEntityAdded(this),
+    onEntityRemoved(this),
+    onComponentAdded(this) {
     // Empty
 }
 
-ui64 vcore::ECS::addEntity() {
-    ui64 id;
-    if (_usedIDs.size() > 0) { 
-        // Add with a recycled ID
-        id = _usedIDs.front();
-        _usedIDs.pop();
-    } else {
-        // Add with a unique ID
-        id = ++_eid;
-        _entities.emplace_back(id);
-    }
+vcore::EntityID vcore::ECS::addEntity() {
+    // Generate a new entity
+    EntityID id = _genEntity.generate();
+    _entities.emplace(id);
 
     // Signal a newly created entity
-    _entityCount++;
-    evtEntityAddition(id);
+    onEntityAdded(id);
 
     // Return the ID of the newly created entity
     return id;
 }
-bool vcore::ECS::deleteEntity(ui64 id) {
+bool vcore::ECS::deleteEntity(EntityID id) {
+    // Check for a correct ID
     if (id >= _entities.size()) return false;
     
-    // Signal an entity must be destroyed
-    _entityCount--;
-    evtEntityRemoval(id);
-
     // Recycle the ID
-    _usedIDs.push(id);
+    _entities.erase(id);
+    _genEntity.recycle(id);
+
+    // Signal an entity must be destroyed
+    onEntityRemoved(id);
 
     return true;
 }
 
-void vcore::ECS::addComponent(nString name, vcore::ComponentTableBase* table) {
-    ComponentBinding binding(table, evtEntityRemoval.addFunctor([=] (void* sender, ui64 id) {
+void vcore::ECS::addComponentTable(nString name, vcore::ComponentTableBase* table) {
+    std::shared_ptr<IDelegate<EntityID>> f(onEntityRemoved.addFunctor([=] (void* sender, EntityID id) {
         table->remove(id);
     }));
-    _componentTables.insert(std::pair<nString, ComponentBinding>(name, binding));
+    ComponentSubscriber binding(table, f);
+    _componentTableBinds.insert(std::make_pair(name, binding));
+
+    NamedComponent nc = std::make_pair(name, table);
+    _components.insert(nc);
+    onComponentAdded(nc);
 }
-vcore::ComponentTableBase* vcore::ECS::get(nString name) {
-    return _componentTables.at(name).first;
+vcore::ComponentTableBase* vcore::ECS::getComponentTable(nString name) {
+    return _components.at(name);
+}
+
+vcore::ComponentID vcore::ECS::addComponent(nString name, EntityID id) {
+    ComponentTableBase* table = getComponentTable(name);
+    if (!table) return ID_GENERATOR_NULL_ID;
+    return table->add(id);
+}
+bool vcore::ECS::deleteComponent(nString name, EntityID id) {
+    ComponentTableBase* table = getComponentTable(name);
+    if (!table) return false;
+    return table->remove(id);
 }

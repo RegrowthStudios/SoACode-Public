@@ -12,10 +12,10 @@
 
 #include "App.h"
 
-// Just a precaution to make sure our types have the right size
+/// Just a precaution to make sure our types have the right size
 void checkTypes();
-
-// Creates The Environment For IO Managers
+/// Creates the environment for IOManagers
+/// @param argv: Process arguments
 void initIOEnvironment(char** argv);
 
 // Entry
@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
     // Tell windows that our priority class should be real time
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 #endif
-
     // Run the game
     MainGame* mg = new App;
     mg->run();
@@ -67,7 +66,6 @@ void initIOEnvironment(char** argv) {
         : "None Specified");
 #endif // DEBUG
 }
-
 void checkTypes() {
     if (sizeof(float) != 4) {
         pError("Size of float is not 4. It is " + std::to_string(sizeof(float)));

@@ -53,7 +53,7 @@ private:
 /// Use the compiler to generate a delegate
 /// @param f: Lambda functor
 /// @return Pointer to delegate created on the heap (CALLER DELETE)
-template<typename F, typename... Params>
+template<typename... Params, typename F>
 inline IDelegate<Params...>* createDelegate(F f) {
     return new Delegate<F, Params...>(f);
 }
@@ -62,6 +62,8 @@ inline IDelegate<Params...>* createDelegate(F f) {
 template<typename... Params>
 class Event {
 public:
+    typedef IDelegate<Params...>* Listener; ///< Callback delegate type
+
     /// Create an event with a sender attached to it
     /// @param sender: Owner object sent with each invokation
     Event(void* sender = nullptr) :
@@ -85,7 +87,7 @@ public:
     /// Add a function to this event
     /// @param f: A subscriber
     /// @return The delegate passed in
-    IDelegate<Params...>* add(IDelegate<Params...>* f) {
+    Listener add(Listener f) {
         if (f == nullptr) return nullptr;
         _funcs.push_back(f);
         return f;
@@ -94,20 +96,36 @@ public:
     /// @param f: A unknown-type subscriber
     /// @return The newly made delegate (CALLER DELETE)
     template<typename F>
-    IDelegate<Params...>* addFunctor(F f) {
-        IDelegate<Params...>* d = createDelegate<F, Params...>(f);
+    Listener addFunctor(F f) {
+        Listener d = new Delegate<F, Params...>(f);
         return this->add(d);
+    }
+    /// Add a function to this event whilst allowing chaining
+    /// @param f: A subscriber
+    /// @return Self
+    Event& operator +=(Listener f) {
+        add(f);
+        return *this;
     }
     
     /// Remove a function (just one) from this event
     /// @param f: A subscriber
-    void remove(IDelegate<Params...>* f) {
+    void remove(Listener f) {
         if (f == nullptr) return;
-        _funcs.erase(_funcs.find(f));
+        auto fLoc = std::find(_funcs.begin(), _funcs.end(), f);
+        if (fLoc == _funcs.end()) return;
+        _funcs.erase(fLoc);
+    }
+    /// Remove a function (just one) from this event whilst allowing chaining
+    /// @param f: A subscriber
+    /// @return Self
+    Event& operator -=(Listener f) {
+        remove(f);
+        return *this;
     }
 private:
     void* _sender; ///< Event owner
-    std::vector< IDelegate<Params...>* > _funcs; ///< List of bound functions (subscribers)
+    std::vector<Listener> _funcs; ///< List of bound functions (subscribers)
 };
 
 #endif // Events_h__
