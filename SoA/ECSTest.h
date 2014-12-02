@@ -22,6 +22,7 @@
 #include "SpaceSystem.h"
 
 namespace test {
+    /// Tests ECS features
     void ecs() {
         size_t entityCount, updateCount;
         std::cin >> entityCount;
