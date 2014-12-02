@@ -463,6 +463,11 @@
     <None Include="ChunkMesher.inl" />
     <None Include="VoxelIntervalTree.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OOLua\OOLua.vcxproj">
+      <Project>{fb1ab70e-4d03-434e-a127-650f8d777b13}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
