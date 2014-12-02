@@ -26,7 +26,7 @@ namespace UnitTester {
                 bool result = Tests.runTest(test);
                 timer.Stop();
                 Console.WriteLine("Result:  {0}", result ? "Pass" : "Fail");
-                Console.WriteLine("Time:    {0} ms\n", timer.ElapsedMilliseconds);
+                Console.WriteLine("Time:    {0} ms\n", timer.Elapsed.Milliseconds);
             }
 
             Console.WriteLine("\n===========\nTests Ended");

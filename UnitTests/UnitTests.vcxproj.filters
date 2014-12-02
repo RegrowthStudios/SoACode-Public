@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Stdafx.h">
-      <Filter>Required Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Required Files</Filter>
     </ClInclude>
