@@ -16,27 +16,29 @@ TEST(Create) {
     return true;
 }
 
+int printer(int i);
+OOLUA_CFUNC(printer, lua_printer);
 int printer(int i) {
-    return i;
+    static int r = 0;
+    r += i;
+    return r;
 }
 
-OOLUA_CFUNC(printer, lua_printer);
 
 TEST(Use) {
     using namespace OOLUA;
     Script vm;
     set_global(vm, "printer", lua_printer);
-    vm.load_chunk(R"(
-local a = 0
-for i = 1, 100 do
-    a = a + printer(i)
+
+    vm.run_chunk(R"(
+function test()
+    for i = 1,100000 do
+        printer(1)
+    end
 end
-print(a)
 )");
-    lua_State* ls = vm;
-    for (int i = 0; i < 100;i++) {
-        lua_call(vm, 0, LUA_MULTRET);
-    }
+    vm.call("test");
+    printf("VALUE: %d\n", printer(0));
 
     return true;
 }
