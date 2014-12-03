@@ -16,12 +16,15 @@
 #define AWESOMIUMINTERFACE_H_
 
 #include "SDL/SDL.h"
-#include "IAwesomiumAPI.h"
 #include "IAwesomiumInterface.h"
 
 #include "OpenglSurfaceFactory.h"
 
 #include "GLProgram.h"
+
+class IGameScreen;
+
+
 
 namespace vorb {
 namespace ui {
@@ -137,7 +140,7 @@ private:
 }
 
 // Need to include the cpp file in the header for templates
-#include "AwesomiumInterface.cpp"
+#include "AwesomiumInterface.inl"
 
 namespace vui = vorb::ui;
 

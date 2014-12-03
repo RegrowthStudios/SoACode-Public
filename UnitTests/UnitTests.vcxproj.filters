@@ -44,6 +44,7 @@
     <ClCompile Include="Lua.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="VorbCoreECS.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

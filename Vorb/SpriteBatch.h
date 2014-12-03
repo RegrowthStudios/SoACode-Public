@@ -1,11 +1,13 @@
 #pragma once
+
 #include "PtrRecycler.h"
-#include "GLProgramManager.h"
+#include "Vorb.h"
 
 class DepthState;
 class RasterizerState;
 class SamplerState;
 class SpriteFont;
+DECL_VG(class, GLProgram)
 
 struct VertexSpriteBatch {
 public:

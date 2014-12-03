@@ -1,11 +1,6 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
 
-#include "Errors.h"
-#include "GenerateTask.h"
-#include "RenderTask.h"
-#include "WorldStructs.h"
-
 vcore::ThreadPool::ThreadPool() {
     // Empty
 }

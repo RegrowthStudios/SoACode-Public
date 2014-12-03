@@ -1,14 +1,4 @@
 
-
-#include "stdafx.h"
-
-#include "AwesomiumInterface.h"
-
-#include "Errors.h"
-
-#ifndef AWESOMIUMINTERFACE_CPP_
-#define AWESOMIUMINTERFACE_CPP_
-
 namespace vorb {
 namespace ui {
 
@@ -37,7 +27,7 @@ template <class C>
 bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, IGameScreen* ownerScreen)
 {
     if (_isInitialized) {
-        pError("Awesomium Error: Tried to call AwesomiumInterface::init twice without destroying.");
+        puts("Awesomium Error: Tried to call AwesomiumInterface::init twice without destroying.");
         return false;
     }
     // Set dimensions
@@ -63,14 +53,14 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     _webView = _webCore->CreateWebView((i32)_width, (i32)_height, _webSession, Awesomium::kWebViewType_Offscreen);
 
     if (!_webView){
-        pError("Awesomium WebView could not be created!\n");
+        puts("Awesomium WebView could not be created!\n");
         return false;
     }
 
     nString pakName = nString(sessionName) + ".pak";
 
     if (!Awesomium::WriteDataPak(Awesomium::WSLit(pakName.c_str()), Awesomium::WSLit(inputDir), Awesomium::WSLit(""), _numFiles)){
-        pError("UI Initialization Error: Failed to write " + pakName);
+        puts(("UI Initialization Error: Failed to write " + pakName).c_str());
         return false;
     }
     _data_source = new Awesomium::DataPakSource(Awesomium::WSLit(pakName.c_str()));
@@ -80,7 +70,7 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     Awesomium::WebURL url(Awesomium::WSLit((DEFAULT_WEB_URL + nString(indexName)).c_str()));
 
     if (!url.IsValid()){
-        pError("UI Initialization Error: URL was unable to be parsed.");
+        puts("UI Initialization Error: URL was unable to be parsed.");
         return false;
     }
     // Sleep a bit to give time for initialization
@@ -93,7 +83,7 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
         //Initialize the callback API
         _awesomiumAPI.init(_methodHandler.gameInterface, ownerScreen);
     } else {
-        pError("Awesomium Error: Failed to create app object.");
+        puts("Awesomium Error: Failed to create app object.");
     }
 
     _webView->LoadURL(url);
@@ -116,13 +106,13 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
 
     Awesomium::Error error = _webView->last_error();
     if (error) {
-        pError("Awesomium Error: " + std::to_string(error));
+        puts(("Awesomium Error: " + std::to_string(error)).c_str());
     }
 
     // Retrieve the global 'window' object from the page
     _window = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("window"), Awesomium::WSLit(""));
     if (!_window.IsObject()) {
-        pError("Awesomium Error: No window object.");
+        puts("Awesomium Error: No window object.");
     }
 
     _isInitialized = true;
@@ -223,7 +213,7 @@ void AwesomiumInterface<C>::update()
     _renderedTexture = surface->getTextureID();
 
     if (!surface){
-        pError("User Interface Error: webView->surface() returned null! Most likely due to erroneous code in the javascript or HTML5.\n");
+        puts("User Interface Error: webView->surface() returned null! Most likely due to erroneous code in the javascript or HTML5.\n");
     }
 }
 
@@ -494,5 +484,3 @@ int AwesomiumInterface<CC>::getWebKeyFromSDLKey(SDL_Scancode key) {
 
 }
 }
-
-#endif // AWESOMIUMINTERFACE_CPP_

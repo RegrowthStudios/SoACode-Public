@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="colors.cpp" />
+    <ClCompile Include="lodepng.cpp" />
+    <ClCompile Include="Random.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Timing.cpp" />
+    <ClCompile Include="DepthState.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderTarget.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgram.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="FullQuadVBO.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsDevice.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuMemory.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="MainGame.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenList.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSaver.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLoader.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentTableBase.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GameWindow.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="MultipleComponentSet.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenglSurfaceFactory.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteFont.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteBatch.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SamplerState.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizerState.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderStage.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderPipeline.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadPool.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="IOManager.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Keg.cpp">
+      <Filter>IO\Keg</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="colors.h" />
+    <ClInclude Include="compat.h" />
+    <ClInclude Include="Events.hpp" />
+    <ClInclude Include="lodepng.h" />
+    <ClInclude Include="PtrRecycler.h" />
+    <ClInclude Include="Random.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="types.h" />
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="Vorb.h" />
+    <ClInclude Include="FastConversion.h" />
+    <ClInclude Include="Timing.h" />
+    <ClInclude Include="AwesomiumInterface.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthState.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLStates.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderTarget.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLProgram.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLEnums.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="FullQuadVBO.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsDevice.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuMemory.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gtypes.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameScreen.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MainGame.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenList.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSaver.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLoader.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="IDGenerator.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTable.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTableBase.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ECSSimpleUpdater.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedSizeArrayRecycler.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GameWindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="MultipleComponentSet.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiComponentTracker.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenglSurfaceFactory.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteFont.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteBatch.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SamplerState.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="RTSwapChain.hpp">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerState.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderStage.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderPipeline.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumInterface.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="IThreadPoolTask.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="IOManager.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Keg.h">
+      <Filter>IO\Keg</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{47c671d5-c6af-4c7a-8afa-eaec9e3f31cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Graphics">
+      <UniqueIdentifier>{06e6f9cb-eca8-461c-94ac-9705e422f46a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{77f93b98-ec01-4628-bed2-7efb90da8d7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Voxel">
+      <UniqueIdentifier>{be6a6da2-e8cd-4dad-adaa-7a705921f506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO">
+      <UniqueIdentifier>{9ef32450-4388-4e0b-bcfa-7afa4faf7ea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO\Keg">
+      <UniqueIdentifier>{279a572d-8160-4392-a3d2-988fdb513d66}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AwesomiumInterface.inl">
+      <Filter>UI</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="KEG.txt">
+      <Filter>IO\Keg</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

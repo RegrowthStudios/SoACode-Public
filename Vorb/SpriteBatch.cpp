@@ -5,6 +5,7 @@
 
 #include "DepthState.h"
 #include "GLEnums.h"
+#include "GLProgram.h"
 #include "RasterizerState.h"
 #include "SamplerState.h"
 #include "SpriteFont.h"

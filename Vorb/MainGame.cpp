@@ -13,7 +13,6 @@
 #include "ScreenList.h"
 #include "utils.h"
 #include "Timing.h"
-#include "Options.h"
 
 
 MainGame::MainGame() : _fps(0) {

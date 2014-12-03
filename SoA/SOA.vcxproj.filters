@@ -146,9 +146,6 @@
     <ClInclude Include="atomicops.h">
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>
-    <ClInclude Include="AwesomiumInterface.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
     <ClInclude Include="BlockData.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
@@ -185,20 +182,11 @@
     <ClInclude Include="Collision.h">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentTable.hpp">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="ComponentTableBase.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
     <ClInclude Include="Constants.h">
       <Filter>SOA Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="DebugRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthState.h">
-      <Filter>SOA Files\Rendering\Wrappers\States</Filter>
     </ClInclude>
     <ClInclude Include="DevConsole.h">
       <Filter>SOA Files\Game\Dev</Filter>
@@ -208,9 +196,6 @@
     </ClInclude>
     <ClInclude Include="EditorVariables.h">
       <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>SOA Files\ECS</Filter>
     </ClInclude>
     <ClInclude Include="Errors.h">
       <Filter>SOA Files\Ext</Filter>
@@ -236,32 +221,14 @@
     <ClInclude Include="global.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="GLStates.h">
-      <Filter>SOA Files\Rendering\Wrappers\States</Filter>
-    </ClInclude>
-    <ClInclude Include="GLTexture.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsDevice.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="IGameScreen.h">
-      <Filter>SOA Files\Screens\Base</Filter>
-    </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClInclude>
     <ClInclude Include="Inputs.h">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClInclude>
-    <ClInclude Include="IOManager.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Item.h">
       <Filter>SOA Files\Game\Objects\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Keg.h">
-      <Filter>SOA Files\Data\Keg</Filter>
     </ClInclude>
     <ClInclude Include="LiquidData.h">
       <Filter>SOA Files\Voxel</Filter>
@@ -271,12 +238,6 @@
     </ClInclude>
     <ClInclude Include="LoadScreen.h">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="lodepng.h">
-      <Filter>SOA Files\Rendering\Images</Filter>
-    </ClInclude>
-    <ClInclude Include="MainGame.h">
-      <Filter>SOA Files\Screens\Base</Filter>
     </ClInclude>
     <ClInclude Include="MaterialAtlas.h">
       <Filter>SOA Files\Game\Objects\Materials</Filter>
@@ -326,15 +287,6 @@
     <ClInclude Include="Player.h">
       <Filter>SOA Files\Game\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="PtrRecycler.h">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="RasterizerState.h">
-      <Filter>SOA Files\Rendering\Wrappers\States</Filter>
-    </ClInclude>
     <ClInclude Include="readerwriterqueue.h">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
@@ -350,23 +302,11 @@
     <ClInclude Include="RenderUtils.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="SamplerState.h">
-      <Filter>SOA Files\Rendering\Wrappers\States</Filter>
-    </ClInclude>
-    <ClInclude Include="ScreenList.h">
-      <Filter>SOA Files\Screens\Base</Filter>
-    </ClInclude>
     <ClInclude Include="SimplexNoise.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
     <ClInclude Include="Sound.h">
       <Filter>SOA Files\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteBatch.h">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteFont.h">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
@@ -382,21 +322,6 @@
     </ClInclude>
     <ClInclude Include="TextureAtlasStitcher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="Thread.h">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
-    <ClInclude Include="Timing.h">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="types.h">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>SOA Files\Ext</Filter>
     </ClInclude>
     <ClInclude Include="VoxDefs.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
@@ -449,12 +374,6 @@
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="Vorb.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelPlanetMapper.h">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClInclude>
@@ -470,17 +389,11 @@
     <ClInclude Include="LoadTaskGameManager.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="colors.h">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
     <ClInclude Include="LoadTaskShaders.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="GameWindow.h">
-      <Filter>SOA Files\Screens\Base</Filter>
     </ClInclude>
     <ClInclude Include="LoadTaskBlockData.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
@@ -500,13 +413,7 @@
     <ClInclude Include="GLProgramManager.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="OpenglSurfaceFactory.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuAPI.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
     <ClInclude Include="GamePlayScreen.h">
@@ -517,15 +424,6 @@
     </ClInclude>
     <ClInclude Include="TextureCache.h">
       <Filter>SOA Files\Rendering\Images</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageLoader.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageSaver.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="GpuMemory.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
@@ -544,12 +442,6 @@
     </ClInclude>
     <ClInclude Include="GamePlayScreenEvents.hpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
-    </ClInclude>
-    <ClInclude Include="IRenderPipeline.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="IRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="SkyboxRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
@@ -584,9 +476,6 @@
     <ClInclude Include="AwesomiumRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="IAwesomiumInterface.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
     <ClInclude Include="SkyboxRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -605,12 +494,6 @@
     <ClInclude Include="BlockTextureMethods.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="RTSwapChain.hpp">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="FullQuadVBO.h">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
-    </ClInclude>
     <ClInclude Include="NightVisionRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -623,23 +506,11 @@
     <ClInclude Include="SpaceSystem.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="ECS.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="Events.hpp">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
     <ClInclude Include="SpaceComponents.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsBlockRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="concurrentqueue.h">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
-    <ClInclude Include="IThreadPoolTask.h">
-      <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
     <ClInclude Include="GenerateTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
@@ -647,23 +518,8 @@
     <ClInclude Include="ChunkGridRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="FixedSizeArrayRecycler.hpp">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelNavigation.inl">
       <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="GLProgram.h">
-      <Filter>SOA Files\Vorb\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="GLEnums.h">
-      <Filter>SOA Files\Vorb\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="GLRenderTarget.h">
-      <Filter>SOA Files\Vorb\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="gtypes.h">
-      <Filter>SOA Files\Vorb\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="FloraTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
@@ -683,21 +539,6 @@
     <ClInclude Include="PauseMenuRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>SOA Files\Vorb\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="IDGenerator.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="MultipleComponentSet.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="ECSSimpleUpdater.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="MultiComponentTracker.hpp">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -705,9 +546,6 @@
     </ClCompile>
     <ClCompile Include="App.cpp">
       <Filter>SOA Files\Screens</Filter>
-    </ClCompile>
-    <ClCompile Include="AwesomiumInterface.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
     <ClCompile Include="BlockData.cpp">
       <Filter>SOA Files\Voxel</Filter>
@@ -748,14 +586,8 @@
     <ClCompile Include="Collision.cpp">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentTableBase.cpp">
-      <Filter>SOA Files\ECS</Filter>
-    </ClCompile>
     <ClCompile Include="DebugRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="DepthState.cpp">
-      <Filter>SOA Files\Rendering\Wrappers\States</Filter>
     </ClCompile>
     <ClCompile Include="DevConsole.cpp">
       <Filter>SOA Files\Game\Dev</Filter>
@@ -787,23 +619,11 @@
     <ClCompile Include="global.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLTexture.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsDevice.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClCompile>
     <ClCompile Include="Inputs.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="IOManager.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Keg.cpp">
-      <Filter>SOA Files\Data\Keg</Filter>
     </ClCompile>
     <ClCompile Include="LoadBar.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
@@ -811,14 +631,8 @@
     <ClCompile Include="LoadScreen.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
-    <ClCompile Include="lodepng.cpp">
-      <Filter>SOA Files\Rendering\Images</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MainGame.cpp">
-      <Filter>SOA Files\Screens\Base</Filter>
     </ClCompile>
     <ClCompile Include="ObjectLoader.cpp">
       <Filter>SOA Files\Data</Filter>
@@ -850,12 +664,6 @@
     <ClCompile Include="Player.cpp">
       <Filter>SOA Files\Game\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Random.cpp">
-      <Filter>SOA Files\Ext</Filter>
-    </ClCompile>
-    <ClCompile Include="RasterizerState.cpp">
-      <Filter>SOA Files\Rendering\Wrappers\States</Filter>
-    </ClCompile>
     <ClCompile Include="RegionFileManager.cpp">
       <Filter>SOA Files\Data</Filter>
     </ClCompile>
@@ -865,23 +673,11 @@
     <ClCompile Include="RenderUtils.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="SamplerState.cpp">
-      <Filter>SOA Files\Rendering\Wrappers\States</Filter>
-    </ClCompile>
-    <ClCompile Include="ScreenList.cpp">
-      <Filter>SOA Files\Screens\Base</Filter>
-    </ClCompile>
     <ClCompile Include="SimplexNoise.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
     <ClCompile Include="Sound.cpp">
       <Filter>SOA Files\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteBatch.cpp">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteFont.cpp">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
@@ -897,12 +693,6 @@
     </ClCompile>
     <ClCompile Include="TextureAtlasStitcher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadPool.cpp">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClCompile>
-    <ClCompile Include="Timing.cpp">
-      <Filter>SOA Files\Ext</Filter>
     </ClCompile>
     <ClCompile Include="VoxelEditor.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
@@ -946,9 +736,6 @@
     <ClCompile Include="VoxelMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="VoxelPlanetMapper.cpp">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
@@ -958,14 +745,8 @@
     <ClCompile Include="LoadMonitor.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
-    <ClCompile Include="colors.cpp">
-      <Filter>SOA Files\Ext</Filter>
-    </ClCompile>
     <ClCompile Include="MainMenuScreen.cpp">
       <Filter>SOA Files\Screens\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="GameWindow.cpp">
-      <Filter>SOA Files\Screens\Base</Filter>
     </ClCompile>
     <ClCompile Include="TexturePackLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
@@ -976,13 +757,7 @@
     <ClCompile Include="GLProgramManager.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
-    <ClCompile Include="OpenglSurfaceFactory.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
     <ClCompile Include="MainMenuAPI.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="IAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
     <ClCompile Include="GamePlayScreen.cpp">
@@ -994,15 +769,6 @@
     <ClCompile Include="TextureCache.cpp">
       <Filter>SOA Files\Rendering\Images</Filter>
     </ClCompile>
-    <ClCompile Include="ImageLoader.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageSaver.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="GpuMemory.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="PDA.cpp">
       <Filter>SOA Files\Game\Tools</Filter>
     </ClCompile>
@@ -1011,12 +777,6 @@
     </ClCompile>
     <ClCompile Include="PdaAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="IRenderPipeline.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="IRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="SkyboxRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
@@ -1069,17 +829,11 @@
     <ClCompile Include="BlockTextureMethods.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="FullQuadVBO.cpp">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="NightVisionRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="ARProcessor.cpp">
       <Filter>SOA Files\Game\Tools\AR</Filter>
-    </ClCompile>
-    <ClCompile Include="ECS.cpp">
-      <Filter>SOA Files\ECS</Filter>
     </ClCompile>
     <ClCompile Include="SpaceSystem.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
@@ -1096,20 +850,11 @@
     <ClCompile Include="ChunkGridRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="GLProgram.cpp">
-      <Filter>SOA Files\Vorb\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="GLRenderTarget.cpp">
-      <Filter>SOA Files\Vorb\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="FloraTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
     <ClCompile Include="CellularAutomataTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
-    <ClCompile Include="MultipleComponentSet.cpp">
-      <Filter>SOA Files\ECS</Filter>
     </ClCompile>
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp">
       <Filter>SOA Files\Screens\GamePlay</Filter>
@@ -1132,12 +877,8 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="TODO.txt" />
     <Text Include="docs\FileSpecs\WSO.txt">
       <Filter>SOA Files\Voxel\WSO</Filter>
-    </Text>
-    <Text Include="KEG.txt">
-      <Filter>SOA Files\Data\Keg</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
@@ -1146,9 +887,6 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
-    </None>
-    <None Include="ChunkMesher.inl">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
     </None>
   </ItemGroup>
 </Project>

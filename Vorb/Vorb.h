@@ -25,8 +25,12 @@ namespace vorb{
 
 //Namespace aliases
 namespace vcore = vorb::core;
+#define DECL_VCORE(CONTAINER, TYPE) namespace vorb { namespace core { CONTAINER TYPE; }  }
 namespace vvox = vorb::voxel;
+#define DECL_VVOX(CONTAINER, TYPE) namespace vorb { namespace voxel { CONTAINER TYPE; }  }
 namespace vg = vorb::core::graphics;
+#define DECL_VG(CONTAINER, TYPE) namespace vorb { namespace core { namespace graphics { CONTAINER TYPE; } }  }
 namespace vui = vorb::ui;
+#define DECL_VUI(CONTAINER, TYPE) namespace vorb { namespace ui { CONTAINER TYPE; }  }
 
 #endif // VORB_H_

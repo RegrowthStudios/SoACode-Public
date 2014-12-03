@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BE4855EE-E92C-4688-AE44-E44E3149EAB5}</ProjectGuid>
+    <RootNamespace>Vorb</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmdd.lib;awesomium.lib;fmodexL_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmd.lib;awesomium.lib;fmodex_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="colors.cpp" />
+    <ClCompile Include="ComponentTableBase.cpp" />
+    <ClCompile Include="DepthState.cpp" />
+    <ClCompile Include="ECS.cpp" />
+    <ClCompile Include="FullQuadVBO.cpp" />
+    <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="GLProgram.cpp" />
+    <ClCompile Include="GLRenderTarget.cpp" />
+    <ClCompile Include="GpuMemory.cpp" />
+    <ClCompile Include="GraphicsDevice.cpp" />
+    <ClCompile Include="ImageLoader.cpp" />
+    <ClCompile Include="ImageSaver.cpp" />
+    <ClCompile Include="IOManager.cpp" />
+    <ClCompile Include="IRenderPipeline.cpp" />
+    <ClCompile Include="IRenderStage.cpp" />
+    <ClCompile Include="Keg.cpp" />
+    <ClCompile Include="lodepng.cpp" />
+    <ClCompile Include="MainGame.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MultipleComponentSet.cpp" />
+    <ClCompile Include="OpenglSurfaceFactory.cpp" />
+    <ClCompile Include="Random.cpp" />
+    <ClCompile Include="RasterizerState.cpp" />
+    <ClCompile Include="SamplerState.cpp" />
+    <ClCompile Include="ScreenList.cpp" />
+    <ClCompile Include="SpriteBatch.cpp" />
+    <ClCompile Include="SpriteFont.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThreadPool.cpp" />
+    <ClCompile Include="Timing.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AwesomiumInterface.h" />
+    <ClInclude Include="colors.h" />
+    <ClInclude Include="compat.h" />
+    <ClInclude Include="ComponentTable.hpp" />
+    <ClInclude Include="ComponentTableBase.h" />
+    <ClInclude Include="DepthState.h" />
+    <ClInclude Include="ECS.h" />
+    <ClInclude Include="ECSSimpleUpdater.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Events.hpp" />
+    <ClInclude Include="FastConversion.h" />
+    <ClInclude Include="FixedSizeArrayRecycler.hpp" />
+    <ClInclude Include="FullQuadVBO.h" />
+    <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="GLEnums.h" />
+    <ClInclude Include="GLProgram.h" />
+    <ClInclude Include="GLRenderTarget.h" />
+    <ClInclude Include="GLStates.h" />
+    <ClInclude Include="GpuMemory.h" />
+    <ClInclude Include="GraphicsDevice.h" />
+    <ClInclude Include="gtypes.h" />
+    <ClInclude Include="IAwesomiumInterface.h" />
+    <ClInclude Include="IDGenerator.h" />
+    <ClInclude Include="IGameScreen.h" />
+    <ClInclude Include="ImageLoader.h" />
+    <ClInclude Include="ImageSaver.h" />
+    <ClInclude Include="IOManager.h" />
+    <ClInclude Include="IRenderPipeline.h" />
+    <ClInclude Include="IRenderStage.h" />
+    <ClInclude Include="IThreadPoolTask.h" />
+    <ClInclude Include="Keg.h" />
+    <ClInclude Include="lodepng.h" />
+    <ClInclude Include="MainGame.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MultiComponentTracker.hpp" />
+    <ClInclude Include="MultipleComponentSet.h" />
+    <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="PtrRecycler.h" />
+    <ClInclude Include="Random.h" />
+    <ClInclude Include="RasterizerState.h" />
+    <ClInclude Include="RTSwapChain.hpp" />
+    <ClInclude Include="SamplerState.h" />
+    <ClInclude Include="ScreenList.h" />
+    <ClInclude Include="SpriteBatch.h" />
+    <ClInclude Include="SpriteFont.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="ThreadPool.h" />
+    <ClInclude Include="Timing.h" />
+    <ClInclude Include="types.h" />
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="Vorb.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="KEG.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OOLua\OOLua.vcxproj">
+      <Project>{fb1ab70e-4d03-434e-a127-650f8d777b13}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AwesomiumInterface.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
