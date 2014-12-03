@@ -14,7 +14,7 @@
 
 float mountainBase = 600.0f;
 
-string TerrainFunctionHelps[NumTerrainFunctions];
+nString TerrainFunctionHelps[NumTerrainFunctions];
 
 #ifndef ABS
 #define ABS(a) (((a) < 0) ?(-(a)):(a))

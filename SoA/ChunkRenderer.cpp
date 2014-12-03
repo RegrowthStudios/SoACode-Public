@@ -28,7 +28,7 @@ void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
@@ -81,7 +81,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
@@ -177,7 +177,7 @@ void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
@@ -257,7 +257,7 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.ID);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
@@ -366,7 +366,7 @@ void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
 
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
     glUniform1i(program->getUniform("normalMap"), 6);
 
     if (gameRenderParams->isUnderwater) glDisable(GL_CULL_FACE);

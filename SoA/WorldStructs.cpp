@@ -16,7 +16,7 @@ MultiplePreciseTimer globalMultiplePreciseTimer; ///< for easy global benchmarki
 
 class Item *ObjectList[OBJECT_LIST_SIZE];
 
-Marker::Marker(const glm::dvec3 &Pos, string Name, glm::vec3 Color) : pos(Pos), name(Name), dist(0.0)
+Marker::Marker(const glm::dvec3 &Pos, nString Name, glm::vec3 Color) : pos(Pos), name(Name), dist(0.0)
 {
     // TODO(Ben): implement
 }

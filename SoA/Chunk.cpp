@@ -26,7 +26,7 @@
 
 GLuint Chunk::vboIndicesID = 0;
 
-vector <MineralData*> Chunk::possibleMinerals;
+std::vector<MineralData*> Chunk::possibleMinerals;
 
 
 //1735
@@ -82,7 +82,7 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
     voxelMapData = chunkGridData->voxelMapData;
 }
 
-vector <Chunk*> *dbgst;
+std::vector<Chunk*> *dbgst;
 
 void Chunk::clear(bool clearDraw)
 {
@@ -100,14 +100,14 @@ void Chunk::clear(bool clearDraw)
     _chunkListPtr = nullptr;
     treeTryTicks = 0;
 
-    vector<ui16>().swap(spawnerBlocks);
-    vector<TreeData>().swap(treesToLoad);
-    vector<PlantData>().swap(plantsToLoad);
-    vector<ui16>().swap(sunRemovalList);
-    vector<ui16>().swap(sunExtendList); 
+    std::vector<ui16>().swap(spawnerBlocks);
+    std::vector<TreeData>().swap(treesToLoad);
+    std::vector<PlantData>().swap(plantsToLoad);
+    std::vector<ui16>().swap(sunRemovalList);
+    std::vector<ui16>().swap(sunExtendList);
 
     for (int i = 0; i < blockUpdateList.size(); i++) {
-        vector <ui16>().swap(blockUpdateList[i]); //release the memory manually
+        std::vector <ui16>().swap(blockUpdateList[i]); //release the memory manually
     }
     std::queue<LampLightRemovalNode>().swap(lampLightRemovalQueue);
     std::queue<LampLightUpdateNode>().swap(lampLightUpdateQueue);

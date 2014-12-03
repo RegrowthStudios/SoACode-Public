@@ -25,12 +25,12 @@ public:
     ColorRGBA8 color;
     int num;
     double dist;
-    string name;
+    nString name;
 
     vg::Texture distText;
     vg::Texture nameTex;
 
-    Marker(const glm::dvec3 &Pos, string Name, const glm::vec3 Color);
+    Marker(const glm::dvec3 &Pos, nString Name, const glm::vec3 Color);
     void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);
 };
 
@@ -54,7 +54,7 @@ public:
     GLint octaves;
     GLint composition;
     NoiseInfo *modifier;
-    string name;
+    nString name;
     GLint type;
 };
 

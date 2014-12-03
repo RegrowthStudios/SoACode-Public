@@ -31,7 +31,7 @@ public:
     int cullRadius;
     double distance = 0.0;
     bool inFrustum = false;
-    glm::vec3 boundingBox;
+    f32v3 boundingBox;
 };
 
 class TerrainMeshMessage{
@@ -48,7 +48,7 @@ public:
     int worldX, worldY, worldZ;
     int drawX, drawY, drawZ, vecIndex;
     int cullRadius;
-    glm::vec3 boundingBox;
+    f32v3 boundingBox;
 };
 
 class TerrainPatch{

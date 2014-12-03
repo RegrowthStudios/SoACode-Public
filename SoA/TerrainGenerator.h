@@ -5,9 +5,6 @@
 #include "Vorb.h"
 #include "IVoxelMapper.h"
 
-// TODO: Remove This
-using namespace std;
-
 const int FREEZETEMP = 50;
 
 class HeightData {
@@ -31,7 +28,7 @@ public:
 };
 
 const int NumTerrainFunctions = 11;
-const string TerrainFunctionNames[NumTerrainFunctions] = { "Default", "Small Mts.", "Large Mts.+Lakes", "Hills+Plateaus", "Seaside Cliffs",
+const nString TerrainFunctionNames[NumTerrainFunctions] = { "Default", "Small Mts.", "Large Mts.+Lakes", "Hills+Plateaus", "Seaside Cliffs",
     "Ridged", "Billowy Hills", "Jagged Cliffs", "Huge Mts.", "Volcano", "Canyons" };
 
-extern string TerrainFunctionHelps[NumTerrainFunctions];
+extern nString TerrainFunctionHelps[NumTerrainFunctions];

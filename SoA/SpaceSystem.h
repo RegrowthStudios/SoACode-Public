@@ -19,17 +19,31 @@
 #include "ECS.h"
 #include "SpaceComponents.h"
 
-typedef vcore::ComponentTable<SpaceObject> CTableSpaceObject;
-typedef vcore::ComponentTable<SpaceQuadrant> CTableSpaceQuadrant;
+class CTableSpaceObject : public vcore::ComponentTable<SpaceObject> {
+public:
+    virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceObject& component) override {
+        updates++;
+    }
+
+    ui64 updates = 0;
+};
+
+class CTableSpaceQuadrant : public vcore::ComponentTable<SpaceQuadrant> {
+public:
+    virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceQuadrant& component) override {
+        updates++;
+    }
+
+    ui64 updates = 0;
+};
 
 #define SPACE_SYSTEM_CT_OBJECT_NAME "Object"
 #define SPACE_SYSTEM_CT_QUADRANT_NAME "Quadrant"
 
-class SpaceSystem {
+class SpaceSystem : public vcore::ECS {
 public:
     SpaceSystem();
 
-    vcore::ECS ecs;
     CTableSpaceObject tblObject;
     CTableSpaceQuadrant tblQuadrants;
 };

@@ -12,17 +12,12 @@
 
 #include "App.h"
 
-// Just a precaution to make sure our types have the right size
-void checkTypes();
-
-// Creates The Environment For IO Managers
+/// Creates the environment for IOManagers
+/// @param argv: Process arguments
 void initIOEnvironment(char** argv);
 
 // Entry
 int main(int argc, char **argv) {
-    // Check that the types are right
-    checkTypes();
-
     // Set up the IO environment
     initIOEnvironment(argv);
 
@@ -30,7 +25,6 @@ int main(int argc, char **argv) {
     // Tell windows that our priority class should be real time
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 #endif
-
     // Run the game
     MainGame* mg = new App;
     mg->run();
@@ -66,59 +60,4 @@ void initIOEnvironment(char** argv) {
         ? IOManager::getCurrentWorkingDirectory()
         : "None Specified");
 #endif // DEBUG
-}
-
-void checkTypes() {
-    if (sizeof(float) != 4) {
-        pError("Size of float is not 4. It is " + std::to_string(sizeof(float)));
-        exit(33);
-    }
-    if (sizeof(double) != 8) {
-        pError("Size of double is not 8. It is " + std::to_string(sizeof(double)));
-        exit(33);
-    }
-    if (sizeof(f32) != 4) {
-        pError("Size of f32 is not 4. It is " + std::to_string(sizeof(f32)));
-        exit(33);
-    }
-    if (sizeof(f64) != 8) {
-        pError("Size of f64 is not 8. It is " + std::to_string(sizeof(f64)));
-        exit(33);
-    }
-    if (sizeof(i32) != 4) {
-        pError("Size of i32 is not 4. It is " + std::to_string(sizeof(i32)));
-        exit(33);
-    }
-    if (sizeof(i64) != 8) {
-        pError("Size of i64 is not 8. It is " + std::to_string(sizeof(i64)));
-        exit(33);
-    }
-    if (sizeof(f32) != 4) {
-        pError("Size of f32 is not 4. It is " + std::to_string(sizeof(f32)));
-        exit(33);
-    }
-    if (sizeof(i32v3) != 12) {
-        pError("Size of i32v3 is not 12. It is " + std::to_string(sizeof(i32v3)));
-        exit(33);
-    }
-    if (sizeof(f32v3) != 12) {
-        pError("Size of f32v3 is not 12. It is " + std::to_string(sizeof(f32v3)));
-        exit(33);
-    }
-    if (sizeof(i64v3) != 24) {
-        pError("Size of i64v3 is not 24. It is " + std::to_string(sizeof(i64v3)));
-        exit(33);
-    }
-    if (sizeof(f64v3) != 24) {
-        pError("Size of f64v3 is not 24. It is " + std::to_string(sizeof(f64v3)));
-        exit(33);
-    }
-    if (sizeof(i16v3) != 6) {
-        pError("Size of i16v3 is not 6. It is " + std::to_string(sizeof(i16v3)));
-        exit(33);
-    }
-    if (sizeof(i8v3) != 3) {
-        pError("Size of i8v3 is not 3. It is " + std::to_string(sizeof(i8v3)));
-        exit(33);
-    }
 }

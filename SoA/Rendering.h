@@ -3,9 +3,6 @@
 
 #include "Constants.h"
 
-// TODO: Remove This
-using namespace std;
-
 extern int renderMode;
 
 enum renderModes {RENDER_2D, RENDER_3D};

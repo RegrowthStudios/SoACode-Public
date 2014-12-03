@@ -25,6 +25,7 @@
 #include "Planet.h"
 #include "Player.h"
 #include "TerrainGenerator.h"
+#include "Texture2d.h"
 #include "TextureCache.h"
 #include "TexturePackLoader.h"
 #include "WorldStructs.h"
@@ -59,9 +60,9 @@ nString FileManager::getSaveFileNameDialog(const nString &prompt, const char *in
     GetSaveFileName(&ofns);
     return buffer;
 #elif
-    cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
+    std::cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
-    cin >> a;
+    std::cin >> a;
 #endif
     return "";
 }
@@ -89,7 +90,7 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
         if (rv.size() == 0) return "No description.";
         return rv;
     } else {
-        ifstream descFile(fileName + "description.txt");
+        std::ifstream descFile(fileName + "description.txt");
         if (descFile.fail()) {
             perror((fileName + "description.txt").c_str());
             descFile.close();
@@ -165,17 +166,17 @@ i32 FileManager::createSaveFile(nString filePath) {
     return setSaveFile(filePath);
 }
 i32 FileManager::createWorldFile(nString filePath) {
-    ofstream file(filePath + "world.txt");
+    std::ofstream file(filePath + "world.txt");
     if (file.fail()) {
         perror((filePath + "world.txt").c_str());
         return 1;
     }
-    file << menuOptions.selectPlanetName << endl;
+    file << menuOptions.selectPlanetName << std::endl;
     file.close();
     return 0;
 }
 nString FileManager::getWorldString(nString filePath) {
-    ifstream file(filePath + "world.txt");
+    std::ifstream file(filePath + "world.txt");
     if (file.fail()) {
         return "";
     }
@@ -219,28 +220,28 @@ inline void readLine(ui8* buffer, cString dest, i32& size) {
 }
 
 i32 FileManager::getParticleType(nString fileName) {
-    auto it = _particleTypeMap.find(fileName);
-    if (it != _particleTypeMap.end()) {
-        return it->second;
-    } else {
-        Animation *anim = NULL;
-        vg::Texture ti = getTexture(fileName, &anim);
-        particleTypes.push_back(ParticleType());
-        particleTypes.back().texture = ti;
-        if (anim == NULL) {
-            particleTypes.back().animation = new Animation();
-            particleTypes.back().animation->texture = ti;
-            particleTypes.back().animation->duration = 100;
-            particleTypes.back().animation->xFrames = 1;
-            particleTypes.back().animation->yFrames = 1;
-            particleTypes.back().animation->repetitions = 1;
-            particleTypes.back().animation->fadeOutBegin = INT_MAX;
-        } else {
-            particleTypes.back().animation = anim;
-            particleTypes.back().animation->texture = ti;
-        }
-        _particleTypeMap.insert(make_pair(fileName, particleTypes.size() - 1));
-        return particleTypes.size() - 1;
-    }
+    /* auto it = _particleTypeMap.find(fileName);
+     if (it != _particleTypeMap.end()) {
+     return it->second;
+     } else {
+     Animation *anim = NULL;
+     vg::Texture ti = getTexture(fileName, &anim);
+     particleTypes.push_back(ParticleType());
+     particleTypes.back().texture = ti;
+     if (anim == NULL) {
+     particleTypes.back().animation = new Animation();
+     particleTypes.back().animation->texture = ti;
+     particleTypes.back().animation->duration = 100;
+     particleTypes.back().animation->xFrames = 1;
+     particleTypes.back().animation->yFrames = 1;
+     particleTypes.back().animation->repetitions = 1;
+     particleTypes.back().animation->fadeOutBegin = INT_MAX;
+     } else {
+     particleTypes.back().animation = anim;
+     particleTypes.back().animation->texture = ti;
+     }
+     _particleTypeMap.insert(make_pair(fileName, particleTypes.size() - 1));
+     return particleTypes.size() - 1;
+     }*/
     return -1;
 }

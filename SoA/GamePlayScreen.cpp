@@ -25,12 +25,12 @@
 #include "TexturePackLoader.h"
 #include "LoadTaskShaders.h"
 #include "GpuMemory.h"
-#include "SpriteFont.h"
-#include "SpriteBatch.h"
+#include <Vorb/SpriteFont.h>
+#include <Vorb/SpriteBatch.h>
 #include "colors.h"
 #include "Options.h"
 #include "GamePlayScreenEvents.hpp"
-#include "Event.hpp"
+#include "Events.hpp"
 
 #define THREAD ThreadId::UPDATE
 

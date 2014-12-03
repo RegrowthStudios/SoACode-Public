@@ -398,8 +398,8 @@ void FloraGenerator::directionalMove(int& blockIndex, ui16& chunkOffset, TreeDir
 bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes) {
     int c;
    
-    vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
-    vector <TreeData> &treesToLoad = chunk->treesToLoad;
+    std::vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
+    std::vector <TreeData> &treesToLoad = chunk->treesToLoad;
 
     _wnodes = &wnodes;
     _lnodes = &lnodes;

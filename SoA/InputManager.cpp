@@ -149,7 +149,7 @@ i32 InputManager::getAxisID(const nString& axisName) const {
 }
 
 void InputManager::loadAxes(const std::string &location) {
-    IOManager ioManager; // TODO: Pass in a real boy
+    IOManager ioManager; //TODO PASS IN
     nString data;
     ioManager.readFileToString(location.c_str(), data);
    
@@ -250,7 +250,7 @@ void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<
     }
 }
 
-void InputManager::saveAxes(const string &filePath) {
+void InputManager::saveAxes(const nString &filePath) {
 
 }
 
