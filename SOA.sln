@@ -4,13 +4,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoA", "SoA\SOA.vcxproj", "{588491F3-69BA-40E7-8CE8-2382A64D86E3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FB1AB70E-4D03-434E-A127-650F8D777B13} = {FB1AB70E-4D03-434E-A127-650F8D777B13}
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5} = {BE4855EE-E92C-4688-AE44-E44E3149EAB5}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\UnitTests.vcxproj", "{733D769E-A94A-40EC-85AE-E4E355DCF784}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5} = {BE4855EE-E92C-4688-AE44-E44E3149EAB5}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTester", "UnitTester\UnitTester.csproj", "{013D534A-A522-48D6-B79C-BC552A8C30D4}"
 	ProjectSection(ProjectDependencies) = postProject
+		{FB1AB70E-4D03-434E-A127-650F8D777B13} = {FB1AB70E-4D03-434E-A127-650F8D777B13}
 		{733D769E-A94A-40EC-85AE-E4E355DCF784} = {733D769E-A94A-40EC-85AE-E4E355DCF784}
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5} = {BE4855EE-E92C-4688-AE44-E44E3149EAB5}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OOLua", "OOLua\OOLua.vcxproj", "{FB1AB70E-4D03-434E-A127-650F8D777B13}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vorb", "Vorb\Vorb.vcxproj", "{BE4855EE-E92C-4688-AE44-E44E3149EAB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +65,26 @@ Global
 		{013D534A-A522-48D6-B79C-BC552A8C30D4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{013D534A-A522-48D6-B79C-BC552A8C30D4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{013D534A-A522-48D6-B79C-BC552A8C30D4}.Release|Win32.ActiveCfg = Release|Any CPU
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Debug|Win32.Build.0 = Debug|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Any CPU.ActiveCfg = Release|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Win32.ActiveCfg = Release|Win32
+		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Win32.Build.0 = Release|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Debug|Win32.Build.0 = Debug|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Release|Any CPU.ActiveCfg = Release|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Release|Win32.ActiveCfg = Release|Win32
+		{BE4855EE-E92C-4688-AE44-E44E3149EAB5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
