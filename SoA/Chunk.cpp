@@ -28,8 +28,6 @@ GLuint Chunk::vboIndicesID = 0;
 
 vector <MineralData*> Chunk::possibleMinerals;
 
-glm::mat4 MVP;
-glm::mat4 GlobalModelMatrix;
 
 //1735
 //1500

@@ -10,8 +10,6 @@ void printVec(string desc, glm::vec3 vec);
 void printVec(string desc, glm::vec4 vec);
 void printVec(string desc, glm::dvec3 vec);
 
-extern glm::mat4 GlobalModelMatrix;
-
 using namespace std;
 
 #if defined(WIN32) || defined(WIN64)

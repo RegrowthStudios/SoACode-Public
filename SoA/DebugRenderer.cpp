@@ -11,6 +11,8 @@
 #include "RasterizerState.h"
 
 
+f32m4 DebugRenderer::_modelMatrix(1.0);
+
 glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2);
 
 class Vec3KeyFuncs {
@@ -119,9 +121,9 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playe
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBufferID);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
 
-        setModelMatrixTranslation(i->position, playerPos);
-        setModelMatrixScale(i->radius, i->radius, i->radius);
-        glm::mat4 mvp = vp * GlobalModelMatrix;
+        setMatrixTranslation(_modelMatrix, i->position, playerPos);
+        setMatrixScale(_modelMatrix, i->radius, i->radius, i->radius);
+        glm::mat4 mvp = vp * _modelMatrix;
 
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
@@ -129,7 +131,7 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playe
 
         i->timeTillDeletion -= deltaT;
     }
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
+
     _icospheresToRender.erase(std::remove_if(_icospheresToRender.begin(), _icospheresToRender.end(), [](const Icosphere& sphere) { return sphere.timeTillDeletion <= 0; }), _icospheresToRender.end());
 }
 
@@ -138,9 +140,9 @@ void DebugRenderer::renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos,
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
     for(auto i = _cubesToRender.begin(); i != _cubesToRender.end(); i++) {
-        setModelMatrixTranslation(i->position, playerPos);
-        setModelMatrixScale(i->size);
-        glm::mat4 mvp = vp * GlobalModelMatrix;
+        setMatrixTranslation(_modelMatrix, i->position, playerPos);
+        setMatrixScale(_modelMatrix, i->size);
+        glm::mat4 mvp = vp * _modelMatrix;
 
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
@@ -150,26 +152,24 @@ void DebugRenderer::renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos,
         i->timeTillDeletion -= deltaT;
     }
     _cubesToRender.erase(std::remove_if(_cubesToRender.begin(), _cubesToRender.end(), [](const Cube& cube) { return cube.timeTillDeletion <= 0; }), _cubesToRender.end());
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
 }
 
 void DebugRenderer::renderLines(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT) {
     glBindBuffer(GL_ARRAY_BUFFER, _lineMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _lineMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
+    setMatrixScale(_modelMatrix, 1.0f, 1.0f, 1.0f);
     for(auto i = _linesToRender.begin(); i != _linesToRender.end(); i++) {
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
-        setModelMatrixTranslation(i->position1, playerPos);
+        setMatrixTranslation(_modelMatrix, i->position1, playerPos);
         
-        glm::mat4 mvp = vp * GlobalModelMatrix;
+        glm::mat4 mvp = vp * _modelMatrix;
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
         glm::vec3 secondVertex = i->position2 - i->position1;
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(glm::vec3), sizeof(glm::vec3), &secondVertex);
         glDrawElements(GL_LINES, _lineMesh->numIndices, GL_UNSIGNED_INT, 0);
         i->timeTillDeletion -= deltaT;
     }
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
     _linesToRender.erase(std::remove_if(_linesToRender.begin(), _linesToRender.end(), [](const Line& line) { return line.timeTillDeletion <= 0; }), _linesToRender.end());
 }
 

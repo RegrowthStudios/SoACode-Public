@@ -19,8 +19,8 @@ void IPlanetaryBody::update(f64 time) {
     f64q rotationQuat = f64q(eulerAngles);
 
     // Calculate total orientation
-    currentOrientation_ = axisOrientation_ * rotationQuat;
+    currentOrientation_ = rotationQuat;
 
     // Updates the base class
-    IPlanetaryBody::update(time);
+    IOrbitalBody::update(time);
 }

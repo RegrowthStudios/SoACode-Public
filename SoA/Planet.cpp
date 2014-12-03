@@ -43,11 +43,11 @@ void Planet::draw(const Camera* camera) {
 
     static DebugRenderer debugRenderer;
 
-    debugRenderer.drawIcosphere(f32v3(0), radius_, f32v4(1.0), 6);
+    debugRenderer.drawIcosphere(f32v3(0), radius_, f32v4(1.0), 5);
 
     f32m4 rotationMatrix = f32m4(glm::toMat4(currentOrientation_));
 
-    f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix() * rotationMatrix;
+    f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
     debugRenderer.render(WVP, f32v3(camera->getPosition()));
 

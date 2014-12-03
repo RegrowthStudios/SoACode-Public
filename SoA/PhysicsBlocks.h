@@ -67,4 +67,6 @@ private:
     i32 _blockID;
     float _gravity;
     float _friction;
+
+    static f32m4 worldMatrix; ///< reusable world matrix
 };

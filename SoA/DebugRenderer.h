@@ -152,6 +152,8 @@ private:
     // Program that is currently in use
     vg::GLProgram* _program;
 
+    static f32m4 _modelMatrix; ///< Reusable model matrix
+
     std::chrono::time_point<std::chrono::system_clock> _previousTimePoint;
     std::chrono::time_point<std::chrono::system_clock> _currentTimePoint;
 };

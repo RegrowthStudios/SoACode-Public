@@ -865,9 +865,6 @@
     <ClCompile Include="Rendering.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="RenderUtils.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="SamplerState.cpp">
       <Filter>SOA Files\Rendering\Wrappers\States</Filter>
     </ClCompile>

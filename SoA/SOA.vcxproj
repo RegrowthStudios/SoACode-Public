@@ -408,7 +408,6 @@
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
     <ClCompile Include="RenderTask.cpp" />
-    <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="SamplerState.cpp" />
     <ClCompile Include="ScreenList.cpp" />
     <ClCompile Include="SpriteBatch.cpp" />

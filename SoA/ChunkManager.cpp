@@ -63,8 +63,6 @@ ChunkManager::ChunkManager() :
 
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
-
-    GlobalModelMatrix = glm::mat4(1.0);
 }
 
 ChunkManager::~ChunkManager() {

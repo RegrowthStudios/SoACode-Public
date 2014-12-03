@@ -30,6 +30,7 @@ private:
     static void drawChunkCutoutBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
     static void drawChunkWater(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
 
+    static f32m4 worldMatrix; ///< Reusable world matrix for chunks
 };
 
 #endif // ChunkRenderer_h__

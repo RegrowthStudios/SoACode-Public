@@ -3,18 +3,21 @@
 
 #include "Actor.h"
 #include "BlockData.h"
-#include "VoxelMesher.h"
 #include "Chunk.h"
-#include "ChunkUpdater.h"
 #include "ChunkManager.h"
+#include "ChunkUpdater.h"
 #include "Frustum.h"
 #include "GameManager.h"
+#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
+#include "RenderUtils.h"
 #include "TerrainGenerator.h"
 #include "Texture2d.h"
-#include "MessageManager.h"
+#include "VoxelMesher.h"
+
+f32m4 PhysicsBlockBatch::worldMatrix(1.0);
 
 #include "utils.h"
 
@@ -287,14 +290,15 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program
 {
     if (pbm == NULL) return;
     if (pbm->numBlocks == 0) return;
-    GlobalModelMatrix[3][0] = ((float)((double)pbm->bX - PlayerPos.x));
-    GlobalModelMatrix[3][1] = ((float)((double)pbm->bY - PlayerPos.y + 0.5));
-    GlobalModelMatrix[3][2] = ((float)((double)pbm->bZ - PlayerPos.z));
 
-    glm::mat4 MVP = VP * GlobalModelMatrix;
+    setMatrixTranslation(worldMatrix, (double)pbm->bX - PlayerPos.x,
+                         (double)pbm->bY - PlayerPos.y + 0.5,
+                         (double)pbm->bZ - PlayerPos.z);
+
+    glm::mat4 MVP = VP * worldMatrix;
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(pbm->vaoID);
 

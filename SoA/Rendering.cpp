@@ -4,15 +4,16 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "BlockData.h"
-#include "VoxelMesher.h"
 #include "Chunk.h"
 #include "GLProgramManager.h"
 #include "GameManager.h"
 #include "ObjectLoader.h"
 #include "OpenGLStructs.h"
 #include "Options.h"
+#include "RenderUtils.h"
 #include "Texture2d.h"
 #include "Texture2d.h"
+#include "VoxelMesher.h"
 #include "WorldStructs.h"
 
 
@@ -89,15 +90,11 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
     #define TOP_BACK_RIGHT 5
     #define TOP_FRONT_LEFT 6
     #define TOP_FRONT_RIGHT 7
+    f32m4 worldMatrix(1.0);
+    setMatrixTranslation(worldMatrix, xw, yh, zw);
+    setMatrixScale(worldMatrix, x - playerPos.x, y - playerPos.y, z - playerPos.z);
 
-    GlobalModelMatrix[0][0] = xw;
-    GlobalModelMatrix[1][1] = yh;
-    GlobalModelMatrix[2][2] = zw;
-    GlobalModelMatrix[3][0] = (float)((double)x - playerPos.x);
-    GlobalModelMatrix[3][1] = (float)((double)y - playerPos.y);
-    GlobalModelMatrix[3][2] = (float)((double)z - playerPos.z);
-
-    glm::mat4 MVP = VP * GlobalModelMatrix;
+    glm::mat4 MVP = VP * worldMatrix;
 
     vg::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
 
@@ -160,10 +157,6 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     program->disableVertexAttribArrays();
     program->unuse();
-
-    GlobalModelMatrix[0][0] = 1.0;
-    GlobalModelMatrix[1][1] = 1.0;
-    GlobalModelMatrix[2][2] = 1.0;
 }
 
 GLuint MakeBlockVbo(Block *block){
@@ -264,16 +257,13 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     const float blockAmbient = 0.000f;
     const glm::vec3 light = glm::vec3(glm::inverse(rotation) * glm::vec4(glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)), 1.0));
 
-    GlobalModelMatrix[3][0] = (x);
-    GlobalModelMatrix[3][1] = (y);
-    GlobalModelMatrix[3][2] = (z);
+    f32m4 worldMatrix(1.0);
+    setMatrixTranslation(worldMatrix, x, y, z);
 
     glm::mat4 translation(1.0);
-    translation[3][0] = -0.5;
-    translation[3][1] = -0.5;
-    translation[3][2] = -0.5;
+    setMatrixTranslation(translation, -0.5, -0.5, -0.5);
 
-    glm::mat4 M = GlobalModelMatrix * rotation * translation;
+    glm::mat4 M = worldMatrix * rotation * translation;
     glm::mat4 MVP = VP * M;
 
     vg::GLProgram* program = nullptr;

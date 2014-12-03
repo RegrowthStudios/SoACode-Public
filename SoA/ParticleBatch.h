@@ -35,4 +35,6 @@ public:
 
 protected:
     ParticleMesh *mesh;
+
+    static f32m4 worldMatrix;
 };

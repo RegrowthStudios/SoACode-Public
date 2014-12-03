@@ -233,7 +233,8 @@ void MainMenuScreen::updateThreadFunc() {
 
       //  f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
         static double time = 0.0;
-        time += 0.01;
+        time += 10.0;
+
         GameManager::planet->update(time);
       //  GameManager::updatePlanet(camPos, 10);
         

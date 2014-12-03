@@ -4,12 +4,14 @@
 #include "Animation.h"
 #include "ChunkManager.h"
 #include "GameManager.h"
+#include "MessageManager.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
 #include "ParticleMesh.h"
-#include "MessageManager.h"
+#include "RenderUtils.h"
 
+f32m4 ParticleBatch::worldMatrix(1.0);
 
 BillboardVertex vboBVerts[maxParticles];
 
@@ -341,13 +343,13 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
-        GlobalModelMatrix[3][0] = (float)((double)(pm->X - PlayerPos.x));
-        GlobalModelMatrix[3][1] = (float)((double)(pm->Y + 0.175 - PlayerPos.y));
-        GlobalModelMatrix[3][2] = (float)((double)(pm->Z - PlayerPos.z));
+        setMatrixTranslation(worldMatrix, pm->X - PlayerPos.x,
+                             pm->Y + 0.175 - PlayerPos.y,
+                             pm->Z - PlayerPos.z);
 
-        glm::mat4 MVP = VP * GlobalModelMatrix;
+        glm::mat4 MVP = VP * worldMatrix;
 
-        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &worldMatrix[0][0]);
         glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
@@ -391,13 +393,16 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
-        GlobalModelMatrix[3][0] = (float)((double)(pm->X - PlayerPos.x));
-        GlobalModelMatrix[3][1] = (float)((double)(pm->Y + 0.175 - PlayerPos.y));
-        GlobalModelMatrix[3][2] = (float)((double)(pm->Z - PlayerPos.z));
+        setMatrixTranslation(worldMatrix, pm->X - PlayerPos.x,
+                             pm->Y + 0.175 - PlayerPos.y,
+                             pm->Z - PlayerPos.z);
+        worldMatrix[3][0] = (float)((double)(pm->X - PlayerPos.x));
+        worldMatrix[3][1] = (float)((double)(pm->Y + 0.175 - PlayerPos.y));
+        worldMatrix[3][2] = (float)((double)(pm->Z - PlayerPos.z));
 
-        glm::mat4 MVP = VP * GlobalModelMatrix;
+        glm::mat4 MVP = VP * worldMatrix;
 
-        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &worldMatrix[0][0]);
         glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
