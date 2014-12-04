@@ -28,9 +28,9 @@
 #define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 
-class PlanetKegProperties;
-class SystemKegProperties;
 class Camera;
+class PlanetKegProperties;
+class StarKegProperties;
 
 class SystemBody {
 public:
@@ -42,8 +42,6 @@ public:
 class SpaceSystem : public vcore::ECS {
 public:
     SpaceSystem();
-
-    void addPlanet(const nString& filePath);
 
     /// Updates the space system
     /// @param time: The time in seconds
@@ -58,10 +56,13 @@ public:
     void addSolarSystem(const nString& filePath);
 
 protected:
+    bool loadBodyProperties(const nString& filePath, SystemBody* body);
 
-    bool loadSystemProperties(const cString filePath, SystemKegProperties& result);
+    void addPlanet(const PlanetKegProperties* properties, SystemBody* body);
 
-    bool loadPlanetProperties(const cString filePath, PlanetKegProperties& result);
+    void addStar(const StarKegProperties* properties, SystemBody* body);
+
+    bool loadSystemProperties(const cString filePath);
 
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
@@ -70,7 +71,9 @@ protected:
 
     IOManager m_ioManager;
 
-    std::map<nString, SystemBody*> m_systemBodies;
+    std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies
+
+    nString m_systemDescription; ///< textual description of the system
 };
 
 #endif // SpaceSystem_h__
