@@ -73,14 +73,12 @@ class CinematicCamera : public Camera
 {
 public:
     void update();
-    void zoomTo(glm::dvec3 targetPos, double time_s, glm::dvec3 endDirection, glm::dvec3 endRight, glm::dvec3 midDisplace, double pushRadius, double endFocalLength);
+    void zoomTo(glm::dvec3 targetPos, double time_s, glm::dvec3 endDirection, glm::dvec3 endRight, double endFocalLength);
 
     bool getIsZooming() const { return _isZooming; }
 
 private:
     bool _isZooming;
-    double _pushRadius;
-    double _pushStart;
     double _mouseSpeed;
     double _zoomDuration;
     double _startTime;
@@ -94,5 +92,4 @@ private:
     glm::vec3 _zoomStartDir;
     glm::vec3 _zoomTargetRight;
     glm::vec3 _zoomStartRight;
-    glm::dvec3 _zoomMidDisplace;
 };

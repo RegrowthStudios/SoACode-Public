@@ -16,7 +16,6 @@
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
-#include "Planet.h"
 #include "utils.h"
 
 // Section tags

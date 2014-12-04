@@ -19,7 +19,6 @@
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "Options.h"
-#include "Planet.h"
 #include "Player.h"
 
 ChunkIOManager::ChunkIOManager()

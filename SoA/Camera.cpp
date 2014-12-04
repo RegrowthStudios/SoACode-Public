@@ -142,11 +142,9 @@ void CinematicCamera::update()
         }else{
             t /= _zoomDuration;
             double hermite_t = (3.0f * t * t) - (2.0f * t * t * t);
-            double push = INTERPOLATE(hermite_t, _pushStart, _pushRadius);
-            _focalPoint = INTERPOLATE(hermite_t, _zoomStartPos, _zoomTargetPos) + _zoomMidDisplace * (1.0 - (1.0 + cos(t*2.0*M_PI)) * 0.5);
-            if (glm::length(_focalPoint) < push){
-                _focalPoint = glm::normalize(_focalPoint)*push;
-            }
+           
+            _focalPoint = INTERPOLATE(hermite_t, _zoomStartPos, _zoomTargetPos);
+
             _focalLength = INTERPOLATE(hermite_t, _startFocalLength, _targetFocalLength);
             _direction = glm::normalize(INTERPOLATE((float)hermite_t, _zoomStartDir, _zoomTargetDir));
             _right = glm::normalize(INTERPOLATE((float)hermite_t, _zoomStartRight, _zoomTargetRight));
@@ -160,10 +158,10 @@ void CinematicCamera::update()
     Camera::update();
 }
 
-void CinematicCamera::zoomTo(glm::dvec3 targetPos, double time_s, glm::dvec3 endDirection, glm::dvec3 endRight, glm::dvec3 midDisplace, double pushRadius, double endFocalLength)
+void CinematicCamera::zoomTo(glm::dvec3 targetPos, double time_s, glm::dvec3 endDirection, glm::dvec3 endRight, double endFocalLength)
 {
         //the integral of sin(x) from 0 to pi is 2
-        _useAngles = 0; //dont want to use original angles
+        _useAngles = 0; //don't want to use original angles
         _isZooming = 1;
         _zoomStartPos = _position;
         _zoomTargetPos = targetPos;
@@ -173,13 +171,14 @@ void CinematicCamera::zoomTo(glm::dvec3 targetPos, double time_s, glm::dvec3 end
         _endTime = SDL_GetTicks() + time_s*1000.0;
         _zoomDuration = _endTime - _startTime;
         if (_zoomDuration == 0) _isZooming = 0;
+        // Make sure the vectors are orthogonal
+        f64v3 up = glm::normalize(glm::cross(endDirection, endRight));
+        endRight = glm::normalize(glm::cross(endDirection, up));
+
         _zoomTargetDir = endDirection;
         _zoomStartDir = _direction;
         _zoomTargetRight = endRight;
         _zoomStartRight = _right;
-        _zoomMidDisplace = midDisplace;
-        _pushRadius = glm::length(targetPos);//pushRadius;
-        _pushStart = glm::length(_position);
         /*float t = time / duration;
         float hermite_t = (3.0f * t * t) - (2.0f * t * t * t);
         positionNow = interpolate(hermite_t, positionA, positionB);*/

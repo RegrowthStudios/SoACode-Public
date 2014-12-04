@@ -4,25 +4,25 @@
 #include <glm\glm.hpp>
 
 #include "App.h"
-#include "GamePlayScreen.h"
-#include "MainMenuScreen.h"
-#include "IAwesomiumAPI.h"
 #include "ChunkManager.h"
 #include "Errors.h"
-#include "Player.h"
-#include "Planet.h"
+#include "FileSystem.h"
+#include "Frustum.h"
+#include "GameManager.h"
+#include "GamePlayScreen.h"
+#include "IAwesomiumAPI.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "GameManager.h"
-#include "Sound.h"
-#include "Options.h"
-#include "MessageManager.h"
-#include "VoxelEditor.h"
-#include "Frustum.h"
-#include "TerrainPatch.h"
 #include "LoadTaskShaders.h"
-#include "FileSystem.h"
+#include "MainMenuScreen.h"
 #include "MeshManager.h"
+#include "MessageManager.h"
+#include "Options.h"
+#include "Player.h"
+#include "Sound.h"
+#include "SpaceSystem.h"
+#include "TerrainPatch.h"
+#include "VoxelEditor.h"
 
 #define THREAD ThreadId::UPDATE
 
@@ -54,7 +54,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(1000000.0f, 30000000.0f);
-    _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->getRadius() * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(1, 0, 0.0), glm::dvec3(0.0), GameManager::planet->getRadius(), 0.0);
+    _camera.zoomTo(glm::dvec3(0.0, 0.0, 1000000 * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(1, 0, 0.0), 0.0);
 
     // Initialize the user interface
     _awesomiumInterface.init("UI/MainMenu/",
@@ -235,8 +235,7 @@ void MainMenuScreen::updateThreadFunc() {
         static double time = 0.0;
         time += 10.0;
 
-        GameManager::planet->update(time);
-      //  GameManager::updatePlanet(camPos, 10);
+        _app->spaceSystem->update(time);
         
         physicsFps = fpsLimiter.endFrame();
     }

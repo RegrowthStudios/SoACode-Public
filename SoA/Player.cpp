@@ -10,7 +10,6 @@
 #include "Inputs.h"
 #include "Item.h"
 #include "Options.h"
-#include "Planet.h"
 #include "Rendering.h"
 #include "Rendering.h"
 #include "Texture2d.h"

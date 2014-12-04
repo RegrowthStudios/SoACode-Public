@@ -3,7 +3,6 @@
 
 #include "Camera.h"
 #include "GameManager.h"
-#include "Planet.h"
 #include "Player.h"
 #include "Rendering.h"
 #include "utils.h"

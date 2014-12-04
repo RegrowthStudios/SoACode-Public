@@ -8,7 +8,6 @@
 #include "GameManager.h"
 #include "MessageManager.h"
 #include "Options.h"
-#include "Planet.h"
 #include "WorldStructs.h"
 
 #include "utils.h"

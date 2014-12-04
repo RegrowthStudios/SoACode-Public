@@ -7,7 +7,6 @@
 #include "WorldStructs.h"
 #include "VoxelIntervalTree.h"
 #include "TerrainGenerator.h"
-#include "Planet.h"
 #include "GameManager.h"
 
 #include "Timing.h"

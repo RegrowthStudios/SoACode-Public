@@ -11,6 +11,7 @@ class MainMenuScreen;
 class GamePlayScreen;
 class MeshManager;
 class TexturePackLoader;
+class SpaceSystem;
 
 class App : public MainGame {
 public:
@@ -26,6 +27,7 @@ public:
     MainMenuScreen* scrMainMenu;
     GamePlayScreen* scrGamePlay;
 
+    SpaceSystem* spaceSystem; ///< Space ECS
     MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
 };
 

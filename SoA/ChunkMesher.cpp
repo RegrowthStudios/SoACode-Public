@@ -9,7 +9,6 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "Options.h"
-#include "Planet.h"
 #include "RenderTask.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"

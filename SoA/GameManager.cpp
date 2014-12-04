@@ -17,7 +17,6 @@
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
-#include "Planet.h"
 #include "Player.h"
 #include "Rendering.h"
 #include "Sound.h"
@@ -223,22 +222,6 @@ void BindVBOIndicesID() {
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-void GameManager::loadPlanet(nString filePath) {
-    //DrawLoadingScreen("Initializing planet...");
-    if (planet) {
-        delete planet;
-        planet = NULL;
-    }
-    Planet *newPlanet = new Planet;
-
-    newPlanet->init(filePath.c_str());
-
-    planet = newPlanet;
-
-    BindVBOIndicesID();
-
-}
-
 void GameManager::initializeVoxelWorld(Player *playr) {
     gameInitialized = 1;
 
@@ -251,7 +234,7 @@ void GameManager::initializeVoxelWorld(Player *playr) {
   //      }
     }
 
-    voxelWorld->initialize(player->facePosition, &player->voxelMapData, planet, 0);
+    voxelWorld->initialize(player->facePosition, &player->voxelMapData, 0);
 
     if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
 

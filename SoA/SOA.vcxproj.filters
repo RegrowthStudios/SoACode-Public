@@ -395,9 +395,6 @@
     <ClInclude Include="LoadTaskBlockData.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskPlanet.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskSound.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -542,15 +539,6 @@
     <ClInclude Include="Atmosphere.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="IPlanetaryBody.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GasGiant.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Star.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="SolarSystem.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
@@ -585,6 +573,9 @@
       <Filter>SOA Files</Filter>
     </ClInclude>
     <ClInclude Include="SphericalTerrainComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskSolarSystem.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -902,10 +893,6 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="Atmosphere.cpp" />
-    <ClCompile Include="IOrbitalBody.cpp" />
-    <ClCompile Include="IPlanetaryBody.cpp" />
-    <ClCompile Include="GasGiant.cpp" />
-    <ClCompile Include="Star.cpp" />
     <ClCompile Include="SolarSystem.cpp" />
   </ItemGroup>
   <ItemGroup>

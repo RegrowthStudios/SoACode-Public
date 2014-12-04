@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "App.h"
 
+#include "GamePlayScreen.h"
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "MainMenuScreen.h"
-#include "GamePlayScreen.h"
-#include "ScreenList.h"
-#include "SpriteBatch.h"
 #include "MeshManager.h"
 #include "Options.h"
+#include "ScreenList.h"
+#include "SpaceSystem.h"
+#include "SpriteBatch.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -32,6 +33,7 @@ void App::onInit() {
     SamplerState::initPredefined();
 
     // Allocate resources
+    spaceSystem = new SpaceSystem;
     meshManager = new MeshManager;
 }
 

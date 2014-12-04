@@ -9,7 +9,6 @@
 #include "Errors.h"
 #include "ChunkRenderer.h"
 #include "GameManager.h"
-#include "Planet.h"
 
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
     // Block Vertices

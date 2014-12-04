@@ -12,7 +12,6 @@
 #include "LoadTaskShaders.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskBlockData.h"
-#include "LoadTaskPlanet.h"
 #include "LoadTaskSound.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"

@@ -28,7 +28,6 @@
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
-#include "Planet.h"
 #include "RenderTask.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"

@@ -30,7 +30,6 @@ public:
     static void savePlayerState();
     static int newGame(nString saveName);
     static int loadGame(nString saveName);
-    static void loadPlanet(nString filePath);
     static void initializeVoxelWorld(Player *plyr = nullptr);
     static void update();
     static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);

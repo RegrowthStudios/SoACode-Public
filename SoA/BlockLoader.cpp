@@ -14,11 +14,11 @@
 
 bool BlockLoader::loadBlocks(const nString& filePath) {
     IOManager ioManager; // TODO: Pass in a real boy
-    const cString data = ioManager.readFileToString(filePath.c_str());
+    nString data;
+    ioManager.readFileToString(filePath.c_str(), data);
 
-    YAML::Node node = YAML::Load(data);
+    YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
-        delete[] data;
         return false;
     }
 
@@ -37,7 +37,6 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
 
         Blocks[b.ID] = b;
     }
-    delete[] data;
 
     // Set up the water blocks
     if (!(SetWaterBlocks(LOWWATER))) return 0;

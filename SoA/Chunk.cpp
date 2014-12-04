@@ -12,7 +12,6 @@
 #include "GameManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
-#include "Planet.h"
 #include "readerwriterqueue.h"
 #include "RenderTask.h"
 #include "Rendering.h"

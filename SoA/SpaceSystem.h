@@ -15,9 +15,10 @@
 #ifndef SpaceSystem_h__
 #define SpaceSystem_h__
 
-#include "ComponentTable.hpp"
 #include "AxisRotationComponent.h"
+#include "ComponentTable.hpp"
 #include "ECS.h"
+#include "IOManager.h"
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
 #include "SphericalTerrainComponent.h"
@@ -28,10 +29,20 @@
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 
 class PlanetKegProperties;
+class SystemKegProperties;
 class Camera;
+
+class SystemBody {
+public:
+    nString name = "";
+    SystemBody* parent = nullptr;
+    vcore::Entity entity;
+};
 
 class SpaceSystem : public vcore::ECS {
 public:
+    SpaceSystem();
+
     void addPlanet(const nString& filePath);
 
     /// Updates the space system
@@ -42,7 +53,13 @@ public:
     /// @param camera: Camera for rendering
     void draw(const Camera* camera);
 
+    /// Adds a solar system and all its bodies to the system
+    /// @param filePath: Path to the solar system directory
+    void addSolarSystem(const nString& filePath);
+
 protected:
+
+    bool loadSystemProperties(const cString filePath, SystemKegProperties& result);
 
     bool loadPlanetProperties(const cString filePath, PlanetKegProperties& result);
 
@@ -50,6 +67,10 @@ protected:
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+
+    IOManager m_ioManager;
+
+    std::map<nString, SystemBody*> m_systemBodies;
 };
 
 #endif // SpaceSystem_h__

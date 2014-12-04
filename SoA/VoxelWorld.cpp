@@ -12,13 +12,12 @@
 #include "GameManager.h"
 #include "Item.h"
 #include "PhysicsEngine.h"
-#include "Planet.h"
 #include "Sound.h"
 #include "VoxelEditor.h"
 #include "global.h"
 #include "utils.h"
 
-VoxelWorld::VoxelWorld() : _planet(NULL), _chunkManager(NULL) {
+VoxelWorld::VoxelWorld() : _chunkManager(NULL) {
 
 }
 
@@ -28,7 +27,7 @@ VoxelWorld::~VoxelWorld()
 }
 
 
-void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, Planet *planet, GLuint flags)
+void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, GLuint flags)
 {
   /*  if (_chunkManager) {
         pError("VoxelWorld::initialize() called twice before end session!");
@@ -53,12 +52,6 @@ void VoxelWorld::update(const Camera* camera)
     _chunkManager->update(camera);
     // Update the physics
     updatePhysics(camera);
-}
-
-void VoxelWorld::setPlanet(Planet *planet)
-{
-    _planet = planet;
-    GameManager::planet = planet;
 }
 
 void VoxelWorld::getClosestChunks(glm::dvec3 &coord, class Chunk **chunks)

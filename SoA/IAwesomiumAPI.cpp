@@ -5,7 +5,6 @@
 #include <Awesomium/STLHelpers.h>
 #include "Camera.h"
 #include "GameManager.h"
-#include "Planet.h"
 
 #ifndef IAWESOMIUMAPI_CPP_
 #define IAWESOMIUMAPI_CPP_

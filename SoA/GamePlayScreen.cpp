@@ -7,7 +7,6 @@
 #include "InputManager.h"
 #include "Sound.h"
 #include "MessageManager.h"
-#include "Planet.h"
 #include "TerrainPatch.h"
 #include "MeshManager.h"
 #include "ChunkMesh.h"
@@ -299,26 +298,26 @@ void GamePlayScreen::onMouseUp(const SDL_Event& e) {
 }
 
 void GamePlayScreen::updatePlayer() {
-    double dist = _player->facePosition.y + GameManager::planet->getRadius();
-  //  _player->update(_inFocus, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(_player->velocity)));
+  //  double dist = _player->facePosition.y + GameManager::planet->getRadius();
+  ////  _player->update(_inFocus, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(_player->velocity)));
 
-    Chunk **chunks = new Chunk*[8];
-    _player->isGrounded = 0;
-    _player->setMoveMod(1.0f);
-    _player->canCling = 0;
-    _player->collisionData.yDecel = 0.0f;
+  //  Chunk **chunks = new Chunk*[8];
+  //  _player->isGrounded = 0;
+  //  _player->setMoveMod(1.0f);
+  //  _player->canCling = 0;
+  //  _player->collisionData.yDecel = 0.0f;
 
-    // Number of steps to integrate the collision over
-    for (int i = 0; i < PLAYER_COLLISION_STEPS; i++){
-        _player->gridPosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
-        _player->facePosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
-        _player->collisionData.clear();
-        GameManager::voxelWorld->getClosestChunks(_player->gridPosition, chunks); //DANGER HERE!
-        aabbChunkCollision(_player, &(_player->gridPosition), chunks, 8);
-        _player->applyCollisionData();
-    }
+  //  // Number of steps to integrate the collision over
+  //  for (int i = 0; i < PLAYER_COLLISION_STEPS; i++){
+  //      _player->gridPosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
+  //      _player->facePosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
+  //      _player->collisionData.clear();
+  //      GameManager::voxelWorld->getClosestChunks(_player->gridPosition, chunks); //DANGER HERE!
+  //      aabbChunkCollision(_player, &(_player->gridPosition), chunks, 8);
+  //      _player->applyCollisionData();
+  //  }
 
-    delete[] chunks;
+  //  delete[] chunks;
 }
 
 void GamePlayScreen::updateThreadFunc() {

@@ -2,7 +2,6 @@
 #include "TerrainGenerator.h"
 
 #include "GameManager.h"
-#include "Planet.h"
 #include "SimplexNoise.h"
 #include "BlockData.h"
 #include "Errors.h"

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PlanetRenderStage.h"
 
+#include "Camera.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "ChunkIOManager.h"
@@ -11,8 +12,6 @@
 #include "GameWindow.h"
 #include "MeshManager.h"
 #include "Options.h"
-#include "Player.h"
-#include "Planet.h"
 #include "RasterizerState.h"
 #include "SkyboxRenderer.h"
 #include "Texture2d.h"
@@ -29,7 +28,7 @@ void PlanetRenderStage::draw() {
     f32m4 VP = _camera->getProjectionMatrix() * _camera->getViewMatrix();
 
     DepthState::FULL.set();
-    GameManager::planet->draw(_camera);
+  //  GameManager::planet->draw(_camera);
 
     //DepthState::READ.set();
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE);

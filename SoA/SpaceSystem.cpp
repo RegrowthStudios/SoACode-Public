@@ -12,6 +12,32 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+class SystemBodyKegProperties {
+public:
+    nString name = "";
+    nString parent = "";
+    nString path = "";
+    f64 semiMajor = 0.0;
+    f32v3 semiMajorDir;
+    f64 semiMinor = 0.0;
+    f32v3 semiMinorDir;
+};
+
+KEG_TYPE_INIT_BEGIN_DEF_VAR(SystemBodyKegProperties)
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, parent);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, path);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F32_V3, semiMajorDir);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, semiMajor);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F32_V3, semiMinorDir);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, semiMinor);
+KEG_TYPE_INIT_END
+
+class SystemProperties {
+public:
+    nString description = "";
+
+};
+
 class PlanetKegProperties {
 public:
     f64 radius;
@@ -88,11 +114,28 @@ void SpaceSystem::draw(const Camera* camera) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
+
+void SpaceSystem::addSolarSystem(const nString& filePath) {
+    SystemKegProperties properties;
+    loadSystemProperties(filePath.c_str(), properties);
+}
+
+bool SpaceSystem::loadSystemProperties(const cString filePath, SystemKegProperties& result) {
+    nString data;
+    m_ioManager.readFileToString(filePath, data);
+    
+    YAML::Node node = YAML::Load(data.c_str());
+    if (node.IsNull() || !node.IsMap()) {
+        return false;
+    }
+
+    return true;
+}
+
 bool SpaceSystem::loadPlanetProperties(const cString filePath, PlanetKegProperties& result) {
-    IOManager ioManager; // TODO: Pass in
 
     nString data;
-    ioManager.readFileToString(filePath, data);
+    m_ioManager.readFileToString(filePath, data);
     if (data.length()) {
         Keg::Error error = Keg::parse(&result, data.c_str(), "PlanetKegProperties");
         if (error != Keg::Error::NONE) {
@@ -100,7 +143,7 @@ bool SpaceSystem::loadPlanetProperties(const cString filePath, PlanetKegProperti
             return false;
         }
     } else {
-        fprintf(stderr, "Failed to load planet %s" ,filePath);
+        fprintf(stderr, "Failed to load planet %s\n", filePath);
         return false;
     }
     return true;
