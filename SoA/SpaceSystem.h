@@ -16,36 +16,40 @@
 #define SpaceSystem_h__
 
 #include "ComponentTable.hpp"
+#include "AxisRotationComponent.h"
 #include "ECS.h"
-#include "SpaceComponents.h"
+#include "NamePositionComponent.h"
+#include "OrbitComponent.h"
+#include "SphericalTerrainComponent.h"
 
-class CTableSpaceObject : public vcore::ComponentTable<SpaceObject> {
-public:
-    virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceObject& component) override {
-        updates++;
-    }
+#define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
+#define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
+#define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
+#define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 
-    ui64 updates = 0;
-};
-
-class CTableSpaceQuadrant : public vcore::ComponentTable<SpaceQuadrant> {
-public:
-    virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceQuadrant& component) override {
-        updates++;
-    }
-
-    ui64 updates = 0;
-};
-
-#define SPACE_SYSTEM_CT_OBJECT_NAME "Object"
-#define SPACE_SYSTEM_CT_QUADRANT_NAME "Quadrant"
+class PlanetKegProperties;
+class Camera;
 
 class SpaceSystem : public vcore::ECS {
 public:
-    SpaceSystem();
+    void addPlanet(const nString& filePath);
 
-    CTableSpaceObject tblObject;
-    CTableSpaceQuadrant tblQuadrants;
+    /// Updates the space system
+    /// @param time: The time in seconds
+    void update(double time);
+    
+    /// Renders the space system
+    /// @param camera: Camera for rendering
+    void draw(const Camera* camera);
+
+protected:
+
+    bool loadPlanetProperties(const cString filePath, PlanetKegProperties& result);
+
+    vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
+    vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
+    vcore::ComponentTable<OrbitComponent> m_orbitCT;
+    vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
 };
 
 #endif // SpaceSystem_h__

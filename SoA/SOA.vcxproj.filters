@@ -281,9 +281,6 @@
     <ClInclude Include="PhysicsEngine.h">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Planet.h">
-      <Filter>SOA Files\Game\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>SOA Files\Game\Objects</Filter>
     </ClInclude>
@@ -506,9 +503,6 @@
     <ClInclude Include="SpaceSystem.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="SpaceComponents.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="PhysicsBlockRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -575,16 +569,22 @@
     <ClInclude Include="ImageSaver.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="IRenderPipeline.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="IRenderStage.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="OpenglSurfaceFactory.h">
+    <ClInclude Include="Texture.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="NamePositionComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AxisRotationComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponent.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -702,9 +702,6 @@
     </ClCompile>
     <ClCompile Include="PhysicsEngine.cpp">
       <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Planet.cpp">
-      <Filter>SOA Files\Game\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>SOA Files\Game\Objects</Filter>
@@ -880,9 +877,6 @@
     <ClCompile Include="SpaceSystem.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="SpaceComponents.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="PhysicsBlockRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
@@ -913,16 +907,6 @@
     <ClCompile Include="GasGiant.cpp" />
     <ClCompile Include="Star.cpp" />
     <ClCompile Include="SolarSystem.cpp" />
-    <ClCompile Include="ImageLoader.cpp" />
-    <ClCompile Include="ImageSaver.cpp" />
-    <ClCompile Include="IRenderPipeline.cpp" />
-    <ClCompile Include="IRenderStage.cpp" />
-    <ClCompile Include="OpenglSurfaceFactory.cpp" />
-    <ClCompile Include="SamplerState.cpp" />
-    <ClCompile Include="ScreenList.cpp" />
-    <ClCompile Include="SpriteBatch.cpp" />
-    <ClCompile Include="SpriteFont.cpp" />
-    <ClCompile Include="RenderUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

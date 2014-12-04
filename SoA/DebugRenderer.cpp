@@ -49,7 +49,7 @@ DebugRenderer::~DebugRenderer() {
     }
 }
 
-void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos) {
+void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w /* = f32m4(1.0) */) {
     RasterizerState::CULL_NONE.set();
 
     _previousTimePoint = _currentTimePoint;
@@ -62,9 +62,9 @@ void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos) {
     _program->use();
     _program->enableVertexAttribArrays();
     
-    if(_icospheresToRender.size() > 0) renderIcospheres(vp, playerPos, deltaT);
-    if(_cubesToRender.size() > 0) renderCubes(vp, playerPos, deltaT);
-    if(_linesToRender.size() > 0) renderLines(vp, playerPos, deltaT);
+    if(_icospheresToRender.size() > 0) renderIcospheres(vp, w, playerPos, deltaT);
+    if(_cubesToRender.size() > 0) renderCubes(vp, w, playerPos, deltaT);
+    if(_linesToRender.size() > 0) renderLines(vp, w, playerPos, deltaT);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -114,7 +114,7 @@ void DebugRenderer::drawLine(const glm::vec3 &startPoint, const glm::vec3 &endPo
     _linesToRender.push_back(line);
 }
 
-void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     for(auto i = _icospheresToRender.begin(); i != _icospheresToRender.end(); i++) {
         SimpleMesh* mesh = _icosphereMeshes.at(i->lod);
         glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBufferID);
@@ -123,7 +123,7 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playe
 
         setMatrixTranslation(_modelMatrix, i->position, playerPos);
         setMatrixScale(_modelMatrix, i->radius, i->radius, i->radius);
-        glm::mat4 mvp = vp * _modelMatrix;
+        glm::mat4 mvp = vp * _modelMatrix * w;
 
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
@@ -135,14 +135,14 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playe
     _icospheresToRender.erase(std::remove_if(_icospheresToRender.begin(), _icospheresToRender.end(), [](const Icosphere& sphere) { return sphere.timeTillDeletion <= 0; }), _icospheresToRender.end());
 }
 
-void DebugRenderer::renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     glBindBuffer(GL_ARRAY_BUFFER, _cubeMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
     for(auto i = _cubesToRender.begin(); i != _cubesToRender.end(); i++) {
         setMatrixTranslation(_modelMatrix, i->position, playerPos);
         setMatrixScale(_modelMatrix, i->size);
-        glm::mat4 mvp = vp * _modelMatrix;
+        glm::mat4 mvp = vp * _modelMatrix * w;
 
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
@@ -154,7 +154,7 @@ void DebugRenderer::renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos,
     _cubesToRender.erase(std::remove_if(_cubesToRender.begin(), _cubesToRender.end(), [](const Cube& cube) { return cube.timeTillDeletion <= 0; }), _cubesToRender.end());
 }
 
-void DebugRenderer::renderLines(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderLines(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     glBindBuffer(GL_ARRAY_BUFFER, _lineMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _lineMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
@@ -163,7 +163,7 @@ void DebugRenderer::renderLines(const glm::mat4 &vp, const glm::vec3& playerPos,
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         setMatrixTranslation(_modelMatrix, i->position1, playerPos);
         
-        glm::mat4 mvp = vp * _modelMatrix;
+        glm::mat4 mvp = vp * _modelMatrix * w;
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
         glm::vec3 secondVertex = i->position2 - i->position1;
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(glm::vec3), sizeof(glm::vec3), &secondVertex);

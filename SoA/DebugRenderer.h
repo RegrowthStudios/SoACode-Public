@@ -124,16 +124,16 @@ public:
     DebugRenderer();
     ~DebugRenderer();
 
-    void render(const glm::mat4 &vp, const glm::vec3& playerPos);
+    void render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w = f32m4(1.0));
 
     void drawIcosphere(const glm::vec3 &position, const float radius, const glm::vec4 &color, const int lod, const double duration = -1.0f);
     void drawCube(const glm::vec3 &position, const glm::vec3 &size, const glm::vec4 &color, const double duration = -1.0f);
     void drawLine(const glm::vec3 &startPoint, const glm::vec3 &endPoint, const glm::vec4 &color, const double duration = -1.0f);
 
 private:
-    void renderIcospheres(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT);
-    void renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT);
-    void renderLines(const glm::mat4 &v, const glm::vec3& playerPosp, const double deltaT);
+    void renderIcospheres(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
+    void renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
+    void renderLines(const glm::mat4 &v, const f32m4& w, const glm::vec3& playerPosp, const double deltaT);
 
     void createIcosphere(const int lod);
 
