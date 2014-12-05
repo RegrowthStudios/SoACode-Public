@@ -12,13 +12,6 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
-enum class BodyType {
-    NONE,
-    PLANET,
-    STAR,
-    GAS_GIANT
-};
-
 KEG_ENUM_INIT_BEGIN(BodyType, BodyType, e);
 e->addValue("planet", BodyType::PLANET);
 e->addValue("star", BodyType::STAR);
@@ -31,48 +24,60 @@ public:
     nString parent = "";
     nString path = "";
     f64 semiMajor = 0.0;
-    f32v3 semiMajorDir;
-    f64 semiMinor = 0.0;
-    f32v3 semiMinorDir;
+    f64 period = 0.0;
+    f64 startOrbit = 0.0;
 };
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(SystemBodyKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, parent);
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, path);
-KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F32_V3, semiMajorDir);
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, semiMajor);
-KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F32_V3, semiMinorDir);
-KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, semiMinor);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, period);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, startOrbit);
 KEG_TYPE_INIT_END
 
 class PlanetKegProperties {
 public:
-    f64 radius;
+    f64 diameter;
     f64 density;
+    f64 mass;
     f64v3 axis;
     f64 angularSpeed;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(PlanetKegProperties)
-KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, radius);
+KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, diameter);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, density);
+KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, mass);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64_V3, axis);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, angularSpeed);
 KEG_TYPE_INIT_END
 
 class StarKegProperties {
 public:
-    f64 surfaceTemperature;
-    f64 radius;
+    f64 surfaceTemperature; ///< temperature in kelvin
+    f64 diameter;
     f64 density;
+    f64 mass;
     f64v3 axis;
     f64 angularSpeed;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(StarKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, surfaceTemperature);
-KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, radius);
+KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, diameter);
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, density);
+KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, mass);
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F32_V3, axis);
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, angularSpeed);
+KEG_TYPE_INIT_END
+
+class Binary {
+public:
+    nString name;
+    nString bodies[2];
+};
+KEG_TYPE_INIT_BEGIN_DEF_VAR(Binary)
+KEG_TYPE_INIT_ADD_MEMBER(Binary, STRING, name);
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("bodies", Keg::Value::array(offsetof(Binary, bodies), Keg::BasicType::STRING));
 KEG_TYPE_INIT_END
 
 class GasGiantKegProperties {
@@ -135,7 +140,7 @@ void SpaceSystem::addSolarSystem(const nString& filePath) {
     }
 }
 
-bool SpaceSystem::loadBodyProperties(const nString& filePath, SystemBody* body) {
+bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body) {
     
     #define KEG_CHECK if (error != Keg::Error::NONE) { \
        fprintf(stderr, "Keg error %d for %s\n", (int)error, filePath); \
@@ -158,11 +163,11 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, SystemBody* body) 
             PlanetKegProperties properties;
             error = Keg::parse(&properties, data.c_str(), "PlanetKegProperties");
             KEG_CHECK;
-            addPlanet(&properties, body);
+            addPlanet(sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;
             error = Keg::parse(&properties, data.c_str(), "StarKegProperties");
-            addStar(&properties, body);
+            addStar(sysProps, &properties, body);
             KEG_CHECK;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
@@ -176,40 +181,45 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, SystemBody* body) 
 
 }
 
-void SpaceSystem::addPlanet(const PlanetKegProperties* properties, SystemBody* body) {
+void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body) {
 
-    vcore::Entity newEntity = addEntity();
-    body->entity = newEntity;
+    body->entity = new vcore::Entity(addEntity());
+    const vcore::EntityID& id = body->entity->id;
 
-    vcore::ComponentID npCmp = m_namePositionCT.add(newEntity.id);
-    vcore::ComponentID arCmp = m_axisRotationCT.add(newEntity.id);
-    vcore::ComponentID oCmp = m_orbitCT.add(newEntity.id);
-    vcore::ComponentID stCmp = m_sphericalTerrainCT.add(newEntity.id);
+    vcore::ComponentID npCmp = m_namePositionCT.add(id);
+    vcore::ComponentID arCmp = m_axisRotationCT.add(id);
+    vcore::ComponentID oCmp = m_orbitCT.add(id);
+    vcore::ComponentID stCmp = m_sphericalTerrainCT.add(id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
                                      0.0,
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
-    m_sphericalTerrainCT.get(stCmp).init(properties->radius);
+    m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0);
 
     //// Calculate mass
     //f64 volume = (4.0 / 3.0) * (M_PI)* pow(radius_, 3.0);
     //mass_ = properties.density * volume;
 }
 
-void SpaceSystem::addStar(const StarKegProperties* properties, SystemBody* body) {
-    vcore::Entity newEntity = addEntity();
-    body->entity = newEntity;
+void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body) {
+    body->entity = new vcore::Entity(addEntity());
+    const vcore::EntityID& id = body->entity->id;
 
-    vcore::ComponentID npCmp = m_namePositionCT.add(newEntity.id);
-    vcore::ComponentID arCmp = m_axisRotationCT.add(newEntity.id);
-    vcore::ComponentID oCmp = m_orbitCT.add(newEntity.id);
+    vcore::ComponentID npCmp = m_namePositionCT.add(id);
+    vcore::ComponentID arCmp = m_axisRotationCT.add(id);
+    vcore::ComponentID oCmp = m_orbitCT.add(id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
                                      0.0,
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
+
+    auto& orbitCmp = m_orbitCT.get(oCmp);
+    orbitCmp.semiMajor = sysProps->semiMajor;
+    orbitCmp.orbitalPeriod = sysProps->period;
+    orbitCmp.currentOrbit = sysProps->startOrbit;
 }
 
 bool SpaceSystem::loadSystemProperties(const cString filePath) {
@@ -223,9 +233,21 @@ bool SpaceSystem::loadSystemProperties(const cString filePath) {
 
     for (auto& kvp : node) {
         nString name = kvp.first.as<nString>();
+        // Parse based on the name
         if (name == "description") {
             m_systemDescription = name;
+        } else if (name == "Binary") {
+            // Binary systems
+            Binary* newBinary = new Binary;
+            Keg::Error err = Keg::parse((ui8*)&newBinary, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
+            if (err != Keg::Error::NONE) {
+                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), filePath);
+                return false;
+            }
+
+            m_binaries[name] = newBinary;
         } else {
+            // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
             Keg::Error err = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != Keg::Error::NONE) {
@@ -241,7 +263,7 @@ bool SpaceSystem::loadSystemProperties(const cString filePath) {
             SystemBody* body = new SystemBody;
             body->name = name;
             body->parentName = properties.parent;
-            loadBodyProperties(properties.path.c_str(), body);
+            loadBodyProperties(properties.path.c_str(), &properties, body);
             m_systemBodies[name] = body;
         }
     }

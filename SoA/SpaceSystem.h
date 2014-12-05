@@ -28,16 +28,28 @@
 #define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 
+class Binary;
 class Camera;
 class PlanetKegProperties;
 class StarKegProperties;
+class SystemBodyKegProperties;
+
+enum class BodyType {
+    NONE,
+    PLANET,
+    STAR,
+    GAS_GIANT
+};
 
 class SystemBody {
 public:
+    ~SystemBody() { delete entity; }
+
     nString name = "";
     nString parentName = "";
     SystemBody* parent = nullptr;
-    vcore::Entity entity;
+    vcore::Entity* entity = nullptr;
+    BodyType type = BodyType::NONE;
 };
 
 class SpaceSystem : public vcore::ECS {
@@ -57,11 +69,11 @@ public:
     void addSolarSystem(const nString& filePath);
 
 protected:
-    bool loadBodyProperties(const nString& filePath, SystemBody* body);
+    bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
 
-    void addPlanet(const PlanetKegProperties* properties, SystemBody* body);
+    void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);
 
-    void addStar(const StarKegProperties* properties, SystemBody* body);
+    void addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body);
 
     bool loadSystemProperties(const cString filePath);
 
@@ -72,6 +84,7 @@ protected:
 
     IOManager m_ioManager;
 
+    std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies
 
     nString m_systemDescription; ///< textual description of the system

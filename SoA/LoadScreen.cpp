@@ -9,9 +9,10 @@
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "LoadTaskShaders.h"
-#include "LoadTaskGameManager.h"
 #include "LoadTaskBlockData.h"
+#include "LoadTaskGameManager.h"
+#include "LoadTaskShaders.h"
+#include "LoadTaskSolarSystem.h"
 #include "LoadTaskSound.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
@@ -152,8 +153,8 @@ void LoadScreen::update(const GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
-        LoadTaskPlanet loadTaskPlanet;
-        loadTaskPlanet.load();
+        LoadTaskSolarSystem loadTaskSolarSystem("SolarSystems/Trinity", _app->spaceSystem);
+        loadTaskSolarSystem.load();
 
         _state = ScreenState::CHANGE_NEXT;
         loadedTextures = true;

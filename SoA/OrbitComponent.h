@@ -17,7 +17,10 @@
 
 class OrbitComponent {
 public:
-    
+    f64 semiMajor = 0.0;
+    f64 semiMinor = 0.0;
+    f64 orbitalPeriod = 0.0;
+    f64 currentOrbit = 0.0;
 };
 
 #endif // OrbitComponent_h__
