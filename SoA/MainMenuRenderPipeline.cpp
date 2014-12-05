@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "MainMenuRenderPipeline.h"
 
-#include "Errors.h"
-#include "SkyboxRenderStage.h"
-#include "PlanetRenderStage.h"
 #include "AwesomiumRenderStage.h"
+#include "Errors.h"
 #include "HdrRenderStage.h"
 #include "Options.h"
+#include "PlanetRenderStage.h"
+#include "SkyboxRenderStage.h"
+#include "SpaceSystemRenderStage.h"
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() {
     // Empty
@@ -17,7 +18,10 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
     destroy();
 }
 
-void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera, IAwesomiumInterface* awesomiumInterface, vg::GLProgramManager* glProgramManager) {
+void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
+                                  IAwesomiumInterface* awesomiumInterface,
+                                  const SpaceSystem* spaceSystem,
+                                  const vg::GLProgramManager* glProgramManager) {
     // Set the viewport
     _viewport = viewport;
 
@@ -45,6 +49,7 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera, IAweso
     _planetRenderStage = new PlanetRenderStage(camera);
     _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(spaceSystem, camera, glProgramManager->getProgram("BasicColor"));
 }
 
 void MainMenuRenderPipeline::render() {
@@ -57,7 +62,8 @@ void MainMenuRenderPipeline::render() {
     // Main render passes
     _skyboxRenderStage->draw();
     _planetRenderStage->draw();
-    _awesomiumRenderStage->draw();
+    m_spaceSystemRenderStage->draw();
+    //_awesomiumRenderStage->draw();
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -86,6 +92,9 @@ void MainMenuRenderPipeline::destroy() {
 
     delete _hdrRenderStage;
     _hdrRenderStage = nullptr;
+
+    delete m_spaceSystemRenderStage;
+    m_spaceSystemRenderStage = nullptr;
 
     _hdrFrameBuffer->dispose();
     delete _hdrFrameBuffer;

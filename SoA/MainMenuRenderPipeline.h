@@ -21,12 +21,14 @@
 #include "RTSwapChain.hpp"
 
 /// Forward declarations
-class SkyboxRenderStage;
-class PlanetRenderStage;
 class AwesomiumRenderStage;
-class HdrRenderStage;
 class Camera;
+class HdrRenderStage;
 class IAwesomiumInterface;
+class PlanetRenderStage;
+class SkyboxRenderStage;
+class SpaceSystem;
+class SpaceSystemRenderStage;
 
 class MainMenuRenderPipeline : public vg::IRenderPipeline 
 {
@@ -38,9 +40,13 @@ public:
     /// @param viewport: The viewport to draw to.
     /// @param camera: The camera used for rendering.
     /// @param awesomiumInterface: The user interface
+    /// @param spaceSystem: The space system for rendering
     /// @param glProgramManager: The program cache that contains all needed
     /// GLPrograms
-    void init(const ui32v4& viewport, Camera* camera, IAwesomiumInterface* awesomiumInterface, vg::GLProgramManager* glProgramManager);
+    void init(const ui32v4& viewport, Camera* camera,
+              IAwesomiumInterface* awesomiumInterface,
+              const SpaceSystem* spaceSystem,
+              const vg::GLProgramManager* glProgramManager);
 
     /// Renders the pipeline
     virtual void render() override;
@@ -52,6 +58,7 @@ private:
     PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     AwesomiumRenderStage* _awesomiumRenderStage = nullptr; ///< Renders the UI
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
+    SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Renders space system
 
     vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing

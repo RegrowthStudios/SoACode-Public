@@ -112,7 +112,7 @@ void SpaceSystem::update(double time) {
     }
 }
 
-void SpaceSystem::draw(const Camera* camera) {
+void SpaceSystem::drawBodies(const Camera* camera) const {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     static DebugRenderer debugRenderer;
@@ -123,7 +123,7 @@ void SpaceSystem::draw(const Camera* camera) {
 
         debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 5);
 
-        AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(entity.id);
+        const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(entity.id);
 
         f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
 
@@ -133,6 +133,25 @@ void SpaceSystem::draw(const Camera* camera) {
     }
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) const {
+    // Draw paths
+    colorProgram->use();
+    colorProgram->enableVertexAttribArrays();
+    glLineWidth(5.0f);
+
+    f32m4 wvp(1.0f);
+    f32v4 color(1.0f, 1.0f, 1.0f, 1.0f);
+    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, color.a);
+    glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &wvp[0][0]);
+
+    for (auto& entity : getEntities()) {
+
+        m_orbitCT.getFromEntity(entity.id).draw();
+    }
+    colorProgram->disableVertexAttribArrays();
+    colorProgram->unuse();
 }
 
 void SpaceSystem::addSolarSystem(const nString& dirPath) {

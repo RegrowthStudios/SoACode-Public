@@ -18,6 +18,7 @@
 #include "AxisRotationComponent.h"
 #include "ComponentTable.hpp"
 #include "ECS.h"
+#include "GLProgram.h"
 #include "IOManager.h"
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
@@ -61,13 +62,18 @@ public:
     /// @param time: The time in seconds
     void update(double time);
     
-    /// Renders the space system
+    /// Renders the space bodies
     /// @param camera: Camera for rendering
-    void draw(const Camera* camera);
+    void drawBodies(const Camera* camera) const;
+
+    /// Renders the space paths
+    /// @param camera: Camera for rendering
+    /// @param colorProgram: glProgram for basic color
+    void drawPaths(const Camera* camera, vg::GLProgram* colorProgram) const;
 
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
-    void addSolarSystem(const nString& dirPath);
+    void addSolarSystem(const nString& filePath);
 
 protected:
     bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);

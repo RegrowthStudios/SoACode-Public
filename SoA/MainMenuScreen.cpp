@@ -146,7 +146,8 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_camera, &_awesomiumInterface, GameManager::glProgramManager);
+    _renderPipeline.init(viewport, &_camera, &_awesomiumInterface,
+                         _app->spaceSystem, GameManager::glProgramManager);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {

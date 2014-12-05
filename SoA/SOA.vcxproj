@@ -170,6 +170,7 @@
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SphericalGravityComponent.h" />
     <ClInclude Include="SphericalTerrainComponent.h" />
     <ClInclude Include="Texture.h" />
@@ -302,6 +303,7 @@
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
