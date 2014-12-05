@@ -21,6 +21,7 @@
 #include "IOManager.h"
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
+#include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
 
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
@@ -77,9 +78,12 @@ protected:
 
     bool loadSystemProperties(const cString filePath);
 
+    void calculateOrbit(vcore::EntityID entity, f64 parentMass);
+
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
+    vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
 
     IOManager m_ioManager;

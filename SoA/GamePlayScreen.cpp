@@ -24,8 +24,8 @@
 #include "TexturePackLoader.h"
 #include "LoadTaskShaders.h"
 #include "GpuMemory.h"
-#include <Vorb/SpriteFont.h>
-#include <Vorb/SpriteBatch.h>
+#include "SpriteFont.h"
+#include "SpriteBatch.h"
 #include "colors.h"
 #include "Options.h"
 #include "GamePlayScreenEvents.hpp"

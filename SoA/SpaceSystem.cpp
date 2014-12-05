@@ -18,6 +18,8 @@ e->addValue("star", BodyType::STAR);
 e->addValue("gasGiant", BodyType::GAS_GIANT);
 KEG_ENUM_INIT_END
 
+#define M_PER_KM 1000.0
+
 class SystemBodyKegProperties {
 public:
     nString name = "";
@@ -72,12 +74,21 @@ KEG_TYPE_INIT_END
 
 class Binary {
 public:
+
+    bool containsBody(const SystemBody* body) {
+        for (int i = 0; i < bodies.getLength(); i++) {
+            if (bodies[i] == body->name) return true;
+        }
+        return false;
+    }
+
     nString name;
-    nString bodies[2];
+    Array<const char*> bodies; ///< Temporary due to bug
+    f64 mass = 0.0;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(Binary)
 KEG_TYPE_INIT_ADD_MEMBER(Binary, STRING, name);
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("bodies", Keg::Value::array(offsetof(Binary, bodies), Keg::BasicType::STRING));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("bodies", Keg::Value::array(offsetof(Binary, bodies), Keg::BasicType::C_STRING));
 KEG_TYPE_INIT_END
 
 class GasGiantKegProperties {
@@ -126,15 +137,50 @@ void SpaceSystem::draw(const Camera* camera) {
 
 void SpaceSystem::addSolarSystem(const nString& filePath) {
     // Load the properties file
-    loadSystemProperties(filePath.c_str());
+    nString propFile = filePath + "/SystemProperties.yml";
+    loadSystemProperties(propFile.c_str());
 
-    // Set up parent connections
+    // Set up binary masses
+    for (auto& it : m_binaries) {
+        f64 mass = 0.0;
+        Binary* bin = it.second;
+
+        // Loop through all children
+        for (int i = 0; i < bin->bodies.getLength(); i++) {
+            // Find the body
+            auto& body = m_systemBodies.find(std::string(bin->bodies[i]));
+            if (body != m_systemBodies.end()) {
+                // Get the mass
+                mass += m_sphericalGravityCT.getFromEntity(body->second->entity->id).mass;
+            }
+        }
+        it.second->mass = mass;
+    }
+
+    // Set up parent connections and orbits
     for (auto& it : m_systemBodies) {
-        const nString& parent = it.second->parentName;
+        SystemBody* body = it.second;
+        const nString& parent = body->parentName;
         if (parent.length()) {
+            // Check for parent
             auto& p = m_systemBodies.find(parent);
             if (p != m_systemBodies.end()) {
-                it.second->parent = p->second;
+                body->parent = p->second;
+                
+                // Calculate the orbit using parent mass
+                calculateOrbit(body->entity->id,
+                               m_sphericalGravityCT.getFromEntity(p->second->entity->id).mass);
+            } else {
+                auto& b = m_binaries.find(parent);
+                if (b != m_binaries.end()) {
+                    f64 mass = b->second->mass;
+                    // If this body is part of the system, subtract it's mass
+                    if (b->second->containsBody(it.second)) {
+                        mass -= m_sphericalGravityCT.getFromEntity(body->entity->id).mass;
+                    }
+                    // Calculate the orbit using parent mass
+                    calculateOrbit(body->entity->id, mass);
+                }
             }
         }
     }
@@ -190,6 +236,7 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
     vcore::ComponentID arCmp = m_axisRotationCT.add(id);
     vcore::ComponentID oCmp = m_orbitCT.add(id);
     vcore::ComponentID stCmp = m_sphericalTerrainCT.add(id);
+    vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
@@ -197,6 +244,9 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
     m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0);
+
+    m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
+                                         properties->mass);
 
     //// Calculate mass
     //f64 volume = (4.0 / 3.0) * (M_PI)* pow(radius_, 3.0);
@@ -210,11 +260,15 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
     vcore::ComponentID npCmp = m_namePositionCT.add(id);
     vcore::ComponentID arCmp = m_axisRotationCT.add(id);
     vcore::ComponentID oCmp = m_orbitCT.add(id);
+    vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
                                      0.0,
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
+
+    m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
+                                         properties->mass);
 
     auto& orbitCmp = m_orbitCT.get(oCmp);
     orbitCmp.semiMajor = sysProps->semiMajor;
@@ -239,13 +293,13 @@ bool SpaceSystem::loadSystemProperties(const cString filePath) {
         } else if (name == "Binary") {
             // Binary systems
             Binary* newBinary = new Binary;
-            Keg::Error err = Keg::parse((ui8*)&newBinary, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
+            Keg::Error err = Keg::parse((ui8*)newBinary, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
             if (err != Keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), filePath);
                 return false;
             }
 
-            m_binaries[name] = newBinary;
+            m_binaries[newBinary->name] = newBinary;
         } else {
             // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
@@ -269,4 +323,14 @@ bool SpaceSystem::loadSystemProperties(const cString filePath) {
     }
 
     return true;
+}
+
+void SpaceSystem::calculateOrbit(vcore::EntityID entity, f64 parentMass) {
+    OrbitComponent& orbitC = m_orbitCT.getFromEntity(entity);
+    f64 per = orbitC.orbitalPeriod;
+    f64 mass = m_sphericalGravityCT.getFromEntity(entity).mass;
+    orbitC.semiMinor = pow((per * per) / (4.0 / (M_PI * M_PI)) * M_G *
+                        (mass + parentMass), 1.0 / 3.0) / M_PER_KM;
+    // Generate the ellipse shape for rendering
+    orbitC.generateOrbitEllipse();
 }

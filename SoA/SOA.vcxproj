@@ -46,7 +46,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)deps\win32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)deps\win32\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)deps\win32\lib;$(SolutionDir)bin\lib\$(PlatformName)\$(PlatformTarget)\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <IntDir>$(Configuration)</IntDir>
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
   </PropertyGroup>
@@ -170,6 +170,7 @@
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SphericalGravityComponent.h" />
     <ClInclude Include="SphericalTerrainComponent.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
