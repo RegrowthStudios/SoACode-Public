@@ -35,6 +35,7 @@ class StarKegProperties;
 class SystemBody {
 public:
     nString name = "";
+    nString parentName = "";
     SystemBody* parent = nullptr;
     vcore::Entity entity;
 };

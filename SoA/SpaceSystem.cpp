@@ -49,13 +49,13 @@ class PlanetKegProperties {
 public:
     f64 radius;
     f64 density;
-    f32v3 axis;
+    f64v3 axis;
     f64 angularSpeed;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(PlanetKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, radius);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, density);
-KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F32_V3, axis);
+KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64_V3, axis);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, angularSpeed);
 KEG_TYPE_INIT_END
 
@@ -119,11 +119,20 @@ void SpaceSystem::draw(const Camera* camera) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-
 void SpaceSystem::addSolarSystem(const nString& filePath) {
+    // Load the properties file
     loadSystemProperties(filePath.c_str());
 
-    // Set up parents here
+    // Set up parent connections
+    for (auto& it : m_systemBodies) {
+        const nString& parent = it.second->parentName;
+        if (parent.length()) {
+            auto& p = m_systemBodies.find(parent);
+            if (p != m_systemBodies.end()) {
+                it.second->parent = p->second;
+            }
+        }
+    }
 }
 
 bool SpaceSystem::loadBodyProperties(const nString& filePath, SystemBody* body) {
@@ -180,7 +189,7 @@ void SpaceSystem::addPlanet(const PlanetKegProperties* properties, SystemBody* b
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
                                      0.0,
-                                     quatBetweenVectors(up, properties->axis));
+                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
 
     m_sphericalTerrainCT.get(stCmp).init(properties->radius);
 
@@ -200,10 +209,10 @@ void SpaceSystem::addStar(const StarKegProperties* properties, SystemBody* body)
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
                                      0.0,
-                                     quatBetweenVectors(up, properties->axis));
+                                     quatBetweenVectors(up, glm::normalize(properties->axis));
 }
 
-bool SpaceSystem::loadSystemProperties(const cString filePath, SystemKegProperties& result) {
+bool SpaceSystem::loadSystemProperties(const cString filePath) {
     nString data;
     m_ioManager.readFileToString(filePath, data);
     
@@ -231,7 +240,8 @@ bool SpaceSystem::loadSystemProperties(const cString filePath, SystemKegProperti
             // Allocate the body
             SystemBody* body = new SystemBody;
             body->name = name;
-            addPlanet(properties.path.c_str(), body);
+            body->parentName = properties.parent;
+            loadBodyProperties(properties.path.c_str(), body);
             m_systemBodies[name] = body;
         }
     }
