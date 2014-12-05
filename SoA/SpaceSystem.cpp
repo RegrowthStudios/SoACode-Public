@@ -144,7 +144,7 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, SystemBody* body) 
     
     Keg::Error error;
     nString data;
-    m_ioManager.readFileToString(filePath, data);
+    m_ioManager.readFileToString(filePath.c_str(), data);
 
     YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
@@ -209,7 +209,7 @@ void SpaceSystem::addStar(const StarKegProperties* properties, SystemBody* body)
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
                                      0.0,
-                                     quatBetweenVectors(up, glm::normalize(properties->axis));
+                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
 }
 
 bool SpaceSystem::loadSystemProperties(const cString filePath) {
