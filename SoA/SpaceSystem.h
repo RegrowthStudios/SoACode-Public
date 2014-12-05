@@ -67,7 +67,7 @@ public:
 
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
-    void addSolarSystem(const nString& filePath);
+    void addSolarSystem(const nString& dirPath);
 
 protected:
     bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
@@ -76,7 +76,7 @@ protected:
 
     void addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body);
 
-    bool loadSystemProperties(const cString filePath);
+    bool loadSystemProperties(const nString& dirPath);
 
     void calculateOrbit(vcore::EntityID entity, f64 parentMass);
 

@@ -135,10 +135,9 @@ void SpaceSystem::draw(const Camera* camera) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void SpaceSystem::addSolarSystem(const nString& filePath) {
-    // Load the properties file
-    nString propFile = filePath + "/SystemProperties.yml";
-    loadSystemProperties(propFile.c_str());
+void SpaceSystem::addSolarSystem(const nString& dirPath) {
+    // Load the system
+    loadSystemProperties(dirPath);
 
     // Set up binary masses
     for (auto& it : m_binaries) {
@@ -276,9 +275,9 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
     orbitCmp.currentOrbit = sysProps->startOrbit;
 }
 
-bool SpaceSystem::loadSystemProperties(const cString filePath) {
+bool SpaceSystem::loadSystemProperties(const nString& dirPath) {
     nString data;
-    m_ioManager.readFileToString(filePath, data);
+    m_ioManager.readFileToString(dirPath + "/SystemProperties.yml", data);
     
     YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
@@ -295,7 +294,7 @@ bool SpaceSystem::loadSystemProperties(const cString filePath) {
             Binary* newBinary = new Binary;
             Keg::Error err = Keg::parse((ui8*)newBinary, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
             if (err != Keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), filePath);
+                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), dirPath.c_str());
                 return false;
             }
 
@@ -305,19 +304,19 @@ bool SpaceSystem::loadSystemProperties(const cString filePath) {
             SystemBodyKegProperties properties;
             Keg::Error err = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != Keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), filePath);
+                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), dirPath.c_str());
                 return false;
             }
 
             if (properties.path.empty()) {
-                fprintf(stderr, "Missing path: for node %s in %s\n", name.c_str(), filePath);
+                fprintf(stderr, "Missing path: for node %s in %s\n", name.c_str(), dirPath.c_str());
                 return false;
             }
             // Allocate the body
             SystemBody* body = new SystemBody;
             body->name = name;
             body->parentName = properties.parent;
-            loadBodyProperties(properties.path.c_str(), &properties, body);
+            loadBodyProperties(dirPath + "/" + properties.path.c_str(), &properties, body);
             m_systemBodies[name] = body;
         }
     }

@@ -15,7 +15,7 @@
 #ifndef OrbitComponent_h__
 #define OrbitComponent_h__
 
-#include "gtypes.h"
+#include <SDL/SDL_stdinc.h>
 #include "GpuMemory.h"
 
 class OrbitComponent {
