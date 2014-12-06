@@ -30,7 +30,7 @@ public:
     f64 period = 0.0;
     f64 startOrbit = 0.0;
     f64v3 orbitNormal = f64v3(1.0, 0.0, 0.0);
-    ui8v4 pathColor = ui8v4(255, 255, 255, 255);
+    ui8v4 pathColor = ui8v4(255);
 };
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(SystemBodyKegProperties)
@@ -297,6 +297,14 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
     orbitCmp.eccentricity = sysProps->eccentricity;
     orbitCmp.orbitalPeriod = sysProps->period;
     orbitCmp.currentOrbit = sysProps->startOrbit;
+    orbitCmp.pathColor = sysProps->pathColor;
+    f64v3 right(1.0, 0.0, 0.0);
+    right = glm::normalize(right);
+    if (right == sysProps->orbitNormal) {
+        orbitCmp.orientation = f64q(f64v3(0.0, M_PI, 0.0));
+    } else {
+        orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
+    }
 }
 
 bool SpaceSystem::loadSystemProperties(const nString& dirPath) {

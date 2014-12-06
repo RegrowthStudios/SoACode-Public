@@ -76,10 +76,10 @@ public:
     /// Draws the ellipse and a point for the body
     void drawPath(vg::GLProgram* colorProgram, const f32m4& wvp) {
 
-        f32v4 color(1.0f, 1.0f, 1.0f, 1.0f);
+        f32v4 color(f32v4(pathColor) / 255.0f);
         f32m4 matrix = wvp * glm::mat4(glm::toMat4(orientation));
         glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, color.a);
-        glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &wvp[0][0]);
+        glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
 
         if (m_vbo == 0) generateOrbitEllipse();
         // Draw the ellipse
@@ -107,6 +107,7 @@ public:
     f64 eccentricity = 0.0;
     f64 r1 = 0.0;
     f64q orientation;
+    ui8v4 pathColor = ui8v4(255);
 
 private:
     /// Creates the ellipsoid mesh
