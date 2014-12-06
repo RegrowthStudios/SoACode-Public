@@ -52,6 +52,13 @@ inline void setMatrixTranslation(f32m4& matrix, const double x, const double y, 
     matrix[3][2] = (float)z;
 }
 
+/// Sets translation for a matrix. Will overwrite existing translation
+inline void setMatrixTranslation(f32m4& matrix, const f64v3& trans) {
+    matrix[3][0] = (float)trans.x;
+    matrix[3][1] = (float)trans.y;
+    matrix[3][2] = (float)trans.z;
+}
+
 /// Sets scale for a matrix. Will overwrite existing scale
 inline void setMatrixScale(f32m4& matrix, const f32v3 &scale) {
     matrix[0][0] = scale.x;

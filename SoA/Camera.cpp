@@ -129,6 +129,13 @@ void Camera::updateProjection()
     _projectionMatrix = glm::perspective(_fieldOfView, _aspectRatio, _zNear, _zFar);
 }
 
+void Camera::applyRotation(const f32q& rot) {
+    _direction = rot * _direction;
+    _right = rot * _right;
+    _up = glm::normalize(glm::cross(_right, _direction));
+    _viewChanged = true;
+}
+
 void CinematicCamera::update()
 {
     if (_isZooming){ //manual movement

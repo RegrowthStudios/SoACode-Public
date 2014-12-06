@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "Camera.h"
 #include "DebugRenderer.h"
+#include "RenderUtils.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>
@@ -25,26 +26,30 @@ public:
     nString name = "";
     nString parent = "";
     nString path = "";
-    f64 semiMajor = 0.0;
+    f64 eccentricity = 0.0;
     f64 period = 0.0;
     f64 startOrbit = 0.0;
+    f64v3 orbitNormal = f64v3(1.0, 0.0, 0.0);
+    ui8v4 pathColor = ui8v4(255, 255, 255, 255);
 };
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(SystemBodyKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, parent);
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, path);
-KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, semiMajor);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, eccentricity);
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, period);
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64, startOrbit);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, F64_V3, orbitNormal);
+KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, UI8_V4, pathColor);
 KEG_TYPE_INIT_END
 
 class PlanetKegProperties {
 public:
-    f64 diameter;
-    f64 density;
-    f64 mass;
+    f64 diameter = 0.0;
+    f64 density = 0.0;
+    f64 mass = 0.0;
     f64v3 axis;
-    f64 angularSpeed;
+    f64 angularSpeed = 0.0;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(PlanetKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, diameter);
@@ -56,12 +61,12 @@ KEG_TYPE_INIT_END
 
 class StarKegProperties {
 public:
-    f64 surfaceTemperature; ///< temperature in kelvin
-    f64 diameter;
-    f64 density;
-    f64 mass;
+    f64 surfaceTemperature = 0.0; ///< temperature in kelvin
+    f64 diameter = 0.0;
+    f64 density = 0.0;
+    f64 mass = 0.0;
     f64v3 axis;
-    f64 angularSpeed;
+    f64 angularSpeed = 0.0;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(StarKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, surfaceTemperature);
@@ -135,20 +140,17 @@ void SpaceSystem::drawBodies(const Camera* camera) const {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) const {
+void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
     // Draw paths
     colorProgram->use();
     colorProgram->enableVertexAttribArrays();
-    glLineWidth(5.0f);
-
-    f32m4 wvp(1.0f);
-    f32v4 color(1.0f, 1.0f, 1.0f, 1.0f);
-    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, color.a);
-    glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &wvp[0][0]);
+    glLineWidth(3.0f);
+    f32m4 w(1.0);
+    setMatrixTranslation(w, -camera->getPosition());
+    f32m4 wvp = camera->getProjectionMatrix() * camera->getViewMatrix() * w;
 
     for (auto& entity : getEntities()) {
-
-        m_orbitCT.getFromEntity(entity.id).draw();
+        m_orbitCT.getFromEntity(entity.id).drawPath(colorProgram, wvp);
     }
     colorProgram->disableVertexAttribArrays();
     colorProgram->unuse();
@@ -225,17 +227,17 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
         // Parse based on type
         if (type == "planet") {
             PlanetKegProperties properties;
-            error = Keg::parse(&properties, data.c_str(), "PlanetKegProperties");
+            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
             KEG_CHECK;
             addPlanet(sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;
-            error = Keg::parse(&properties, data.c_str(), "StarKegProperties");
+            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
             addStar(sysProps, &properties, body);
             KEG_CHECK;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
-            error = Keg::parse(&properties, data.c_str(), "GasGiantKegProperties");
+            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             KEG_CHECK;
         }
 
@@ -266,9 +268,12 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
 
-    //// Calculate mass
-    //f64 volume = (4.0 / 3.0) * (M_PI)* pow(radius_, 3.0);
-    //mass_ = properties.density * volume;
+    auto& orbitCmp = m_orbitCT.get(oCmp);
+    orbitCmp.eccentricity = sysProps->eccentricity;
+    orbitCmp.orbitalPeriod = sysProps->period;
+    orbitCmp.currentOrbit = sysProps->startOrbit;
+    f64v3 right(1.0, 0.0, 0.0);
+    orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
 }
 
 void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body) {
@@ -289,7 +294,7 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
                                          properties->mass);
 
     auto& orbitCmp = m_orbitCT.get(oCmp);
-    orbitCmp.semiMajor = sysProps->semiMajor;
+    orbitCmp.eccentricity = sysProps->eccentricity;
     orbitCmp.orbitalPeriod = sysProps->period;
     orbitCmp.currentOrbit = sysProps->startOrbit;
 }
@@ -347,8 +352,12 @@ void SpaceSystem::calculateOrbit(vcore::EntityID entity, f64 parentMass) {
     OrbitComponent& orbitC = m_orbitCT.getFromEntity(entity);
     f64 per = orbitC.orbitalPeriod;
     f64 mass = m_sphericalGravityCT.getFromEntity(entity).mass;
-    orbitC.semiMinor = pow((per * per) / (4.0 / (M_PI * M_PI)) * M_G *
+
+    orbitC.semiMajor = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
                         (mass + parentMass), 1.0 / 3.0) / M_PER_KM;
-    // Generate the ellipse shape for rendering
-    orbitC.generateOrbitEllipse();
+    orbitC.semiMinor = orbitC.semiMajor *
+        sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
+    orbitC.totalMass = mass + parentMass;
+    orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
+        mass / (orbitC.totalMass);
 }

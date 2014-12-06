@@ -50,11 +50,11 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
     // Initialize the camera
     _camera.init(_app->getWindow().getAspectRatio());
-    _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
-    _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
+    _camera.setPosition(glm::dvec3(0.0, 20000000000.0, 0.0));
+    _camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
-    _camera.setClippingPlane(1000000.0f, 30000000.0f);
-    _camera.zoomTo(glm::dvec3(0.0, 0.0, 1000000 * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(1, 0, 0.0), 0.0);
+    _camera.setClippingPlane(10000.0f, 3000000000000.0f);
+    _camera.zoomTo(glm::dvec3(0.0, 80000000000.0, 0.0), 3.0, glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(-1.0, 0, 0.0), 0.0);
 
     // Initialize the user interface
     _awesomiumInterface.init("UI/MainMenu/",
@@ -94,10 +94,23 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
                                  _app->getWindow().getHeight(),
                                  this);
     }
+
+    
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {
 
+
+    if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)) {
+        f32v3 eulerAngles(0.0, 0.01, 0.0);
+        f32q rot(eulerAngles);
+        _camera.applyRotation(rot);
+    }
+    if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)) {
+        f32v3 eulerAngles(0.01, 0.0, 0.0);
+        f32q rot(eulerAngles);
+        _camera.applyRotation(rot);
+    }
 
     _awesomiumInterface.update();
 
@@ -255,6 +268,7 @@ void MainMenuScreen::updateWorldCameraClip() {
     //double clip = MAX(nearClip / planetScale * 0.5, a);
     double clip = 10000.0;
     // The world camera has a dynamic clipping plane
-    _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+//    _camera.setClippingPlane(1.0f, 200.0f);
+ //   _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     _camera.updateProjection();
 }

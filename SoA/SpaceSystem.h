@@ -69,7 +69,7 @@ public:
     /// Renders the space paths
     /// @param camera: Camera for rendering
     /// @param colorProgram: glProgram for basic color
-    void drawPaths(const Camera* camera, vg::GLProgram* colorProgram) const;
+    void drawPaths(const Camera* camera, vg::GLProgram* colorProgram);
 
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory

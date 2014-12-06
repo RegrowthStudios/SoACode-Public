@@ -12,6 +12,7 @@ public:
     void offsetAngles(float pitchAngle, float yawAngle);
     void update();
     void updateProjection();
+    void applyRotation(const f32q& rot);
 
     // Frustum wrappers
     bool pointInFrustum(const f32v3& pos) const { return _frustum.pointInFrustum(pos); }
