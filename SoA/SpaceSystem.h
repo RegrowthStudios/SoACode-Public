@@ -84,7 +84,7 @@ protected:
 
     bool loadSystemProperties(const nString& dirPath);
 
-    void calculateOrbit(vcore::EntityID entity, f64 parentMass);
+    void calculateOrbit(vcore::EntityID entity, f64 parentMass, bool isBinary);
 
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;

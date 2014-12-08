@@ -112,7 +112,10 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
 }
 
 void SpaceSystem::update(double time) {
-    for (auto& cmp : m_axisRotationCT.getComponentList()) {
+    for (auto& cmp : m_axisRotationCT) {
+        cmp.second.update(time);
+    }
+    for (auto& cmp : m_orbitCT) {
         cmp.second.update(time);
     }
 }
@@ -122,20 +125,20 @@ void SpaceSystem::drawBodies(const Camera* camera) const {
 
     static DebugRenderer debugRenderer;
 
-    for (auto& entity : getEntities()) {
+    /* for (auto& entity : getEntities()) {
 
-        float radius = m_sphericalTerrainCT.getFromEntity(entity.id).radius;
+         float radius = m_sphericalTerrainCT.getFromEntity(entity.id).radius;
 
-        debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 5);
+         debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 5);
 
-        const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(entity.id);
+         const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(entity.id);
 
-        f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
+         f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
 
-        f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
+         f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
-        debugRenderer.render(WVP, f32v3(camera->getPosition()), rotationMatrix);
-    }
+         debugRenderer.render(WVP, f32v3(camera->getPosition()), rotationMatrix);
+         }*/
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -144,16 +147,18 @@ void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
     // Draw paths
     colorProgram->use();
     colorProgram->enableVertexAttribArrays();
+    glDepthMask(GL_FALSE);
     glLineWidth(3.0f);
     f32m4 w(1.0);
     setMatrixTranslation(w, -camera->getPosition());
     f32m4 wvp = camera->getProjectionMatrix() * camera->getViewMatrix() * w;
 
-    for (auto& entity : getEntities()) {
-        m_orbitCT.getFromEntity(entity.id).drawPath(colorProgram, wvp);
+    for (auto& cmp : m_orbitCT) {
+        cmp.second.drawPath(colorProgram, wvp);
     }
     colorProgram->disableVertexAttribArrays();
     colorProgram->unuse();
+    glDepthMask(GL_TRUE);
 }
 
 void SpaceSystem::addSolarSystem(const nString& dirPath) {
@@ -187,19 +192,25 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
             if (p != m_systemBodies.end()) {
                 body->parent = p->second;
                 
+                // Provide the orbit component with it's parent
+                m_orbitCT.getFromEntity(body->entity->id).parent =
+                    &m_namePositionCT.getFromEntity(body->parent->entity->id);
+
                 // Calculate the orbit using parent mass
                 calculateOrbit(body->entity->id,
-                               m_sphericalGravityCT.getFromEntity(p->second->entity->id).mass);
+                               m_sphericalGravityCT.getFromEntity(p->second->entity->id).mass, false);
             } else {
                 auto& b = m_binaries.find(parent);
                 if (b != m_binaries.end()) {
                     f64 mass = b->second->mass;
                     // If this body is part of the system, subtract it's mass
                     if (b->second->containsBody(it.second)) {
-                        mass -= m_sphericalGravityCT.getFromEntity(body->entity->id).mass;
+                        // Calculate the orbit using parent mass
+                        calculateOrbit(body->entity->id, mass, true);
+                    } else {
+                        // Calculate the orbit using parent mass
+                        calculateOrbit(body->entity->id, mass, false);
                     }
-                    // Calculate the orbit using parent mass
-                    calculateOrbit(body->entity->id, mass);
                 }
             }
         }
@@ -298,11 +309,15 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
     orbitCmp.orbitalPeriod = sysProps->period;
     orbitCmp.currentOrbit = sysProps->startOrbit;
     orbitCmp.pathColor = sysProps->pathColor;
+    orbitCmp.namePositionComponent = &m_namePositionCT.get(npCmp);
+
+    // Calculate orbit orientation
     f64v3 right(1.0, 0.0, 0.0);
     right = glm::normalize(right);
-    if (right == sysProps->orbitNormal) {
-        orbitCmp.orientation = f64q(f64v3(0.0, M_PI, 0.0));
-    } else {
+    if (right == -sysProps->orbitNormal) {
+        f64v3 eulers(0.0, M_PI, 0.0);
+        orbitCmp.orientation = f64q(eulers);
+    } else if (right != sysProps->orbitNormal) {
         orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
     }
 }
@@ -356,16 +371,21 @@ bool SpaceSystem::loadSystemProperties(const nString& dirPath) {
     return true;
 }
 
-void SpaceSystem::calculateOrbit(vcore::EntityID entity, f64 parentMass) {
+void SpaceSystem::calculateOrbit(vcore::EntityID entity, f64 parentMass, bool isBinary) {
     OrbitComponent& orbitC = m_orbitCT.getFromEntity(entity);
+
     f64 per = orbitC.orbitalPeriod;
     f64 mass = m_sphericalGravityCT.getFromEntity(entity).mass;
-
+    if (isBinary) parentMass -= mass;
     orbitC.semiMajor = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
                         (mass + parentMass), 1.0 / 3.0) / M_PER_KM;
     orbitC.semiMinor = orbitC.semiMajor *
         sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
     orbitC.totalMass = mass + parentMass;
-    orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
-        mass / (orbitC.totalMass);
+    if (isBinary) {
+        orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
+            mass / (orbitC.totalMass);
+    } else {
+        orbitC.r1 = orbitC.semiMajor * (1.0 - orbitC.eccentricity);
+    }
 }

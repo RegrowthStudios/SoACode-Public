@@ -24,33 +24,24 @@
 
 #include "GpuMemory.h"
 #include "Constants.h"
+#include "NamePositionComponent.h"
 
 class OrbitComponent {
 public:
     #define DEGREES 360
 
-
     ~OrbitComponent() {
         destroy();
     }
 
-    /// Frees resources
-    void destroy() {
-        if (m_vbo != 0) {
-            vg::GpuMemory::freeBuffer(m_vbo);
-        }
-    }
+    void update(f64 time) {
 
-    /// Calculates position as a function of time
-    /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
-    f32v3 calculateCurrentPosition() {
-        // Calculate the mean anomaly
-        static f64 time = 100.0;
-        time += 500.0;
+        /// Calculates position as a function of time
+        /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
         f64 semiMajor3 = semiMajor * semiMajor * semiMajor;
         f64 meanAnomaly = sqrt((M_G * totalMass) / semiMajor3) * time;
 
-        // Solve kepler's equation to compute eccentric anomaly 
+        // Solve Kepler's equation to compute eccentric anomaly 
         // using Newton's method
         // http://www.jgiesen.de/kepler/kepler.html
         #define ITERATIONS 5
@@ -58,19 +49,30 @@ public:
         eccentricAnomaly = meanAnomaly;
         F = eccentricAnomaly - eccentricity * sin(meanAnomaly) - meanAnomaly;
         for (int i = 0; i < ITERATIONS; i++) {
-            eccentricAnomaly = eccentricAnomaly - 
+            eccentricAnomaly = eccentricAnomaly -
                 F / (1.0 - eccentricity * cos(eccentricAnomaly));
             F = eccentricAnomaly -
                 eccentricity * sin(eccentricAnomaly) - meanAnomaly;
         }
-           
+
         // Finally calculate position
-        f32v3 position;
+        f64v3 position;
         position.x = semiMajor * (cos(eccentricAnomaly) - eccentricity);
         position.y = 0.0;
         position.z = semiMajor * sqrt(1.0 - eccentricity * eccentricity) *
             sin(eccentricAnomaly);
-        return position;
+        if (parent) {
+            namePositionComponent->position = orientation * position + parent->position;
+        } else {
+            namePositionComponent->position = orientation * position;
+        }
+    }
+
+    /// Frees resources
+    void destroy() {
+        if (m_vbo != 0) {
+            vg::GpuMemory::freeBuffer(m_vbo);
+        }
     }
 
     /// Draws the ellipse and a point for the body
@@ -89,9 +91,11 @@ public:
         glDrawArrays(GL_LINE_STRIP, 0, DEGREES + 1);
 
         glPointSize(20.0);
+        // Point already has orientation encoded
+        glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &wvp[0][0]);
         // Draw the point
         vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ARRAY_BUFFER);
-        f32v3 pos(calculateCurrentPosition());
+        f32v3 pos(namePositionComponent->position);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), &pos);
         glDrawArrays(GL_POINTS, 0, 1);
     }
@@ -106,8 +110,10 @@ public:
     f64 totalMass = 0.0; ///< Mass of this body + parent
     f64 eccentricity = 0.0;
     f64 r1 = 0.0;
-    f64q orientation;
+    f64q orientation = f64q(0.0, 0.0, 0.0, 0.0);
     ui8v4 pathColor = ui8v4(255);
+    NamePositionComponent* namePositionComponent = nullptr;
+    NamePositionComponent* parent = nullptr;
 
 private:
     /// Creates the ellipsoid mesh
@@ -115,12 +121,12 @@ private:
         #define DEGTORAD (M_PI / 180.0)
 
       
-        float xOffset = semiMajor - r1;
+        f64 xOffset = semiMajor - r1;
         std::vector<f32v3> verts;
         verts.reserve(DEGREES + 1);
 
         for (int i = 0; i < DEGREES; i++) {
-            float rad = i * DEGTORAD;
+            f64 rad = i * DEGTORAD;
             verts.emplace_back(cos(rad)*semiMajor - xOffset,
                                0.0,
                                sin(rad)*semiMinor);
