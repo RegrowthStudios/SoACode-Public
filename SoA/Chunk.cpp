@@ -69,7 +69,7 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	blockUpdateIndex = 0;
     _levelOfDetail = 1;
     
-    for (int i = 0; i < blockUpdateList.size(); i++) {
+    for (size_t i = 0; i < blockUpdateList.size(); i++) {
 		blockUpdateList[i].clear();
 	}
 
@@ -107,7 +107,7 @@ void Chunk::clear(bool clearDraw)
     std::vector<ui16>().swap(sunRemovalList);
     std::vector<ui16>().swap(sunExtendList);
 
-    for (int i = 0; i < blockUpdateList.size(); i++) {
+    for (size_t i = 0; i < blockUpdateList.size(); i++) {
         std::vector <ui16>().swap(blockUpdateList[i]); //release the memory manually
     }
     std::queue<LampLightRemovalNode>().swap(lampLightRemovalQueue);

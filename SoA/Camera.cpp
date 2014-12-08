@@ -132,17 +132,17 @@ void Camera::updateProjection()
 void CinematicCamera::update()
 {
     if (_isZooming){ //manual movement
-        float t = (SDL_GetTicks() - _startTime);
+        f64 t = (f64)(SDL_GetTicks() - _startTime);
         if (t >= _zoomDuration){
             _focalPoint = _zoomTargetPos;
-            _focalLength = _targetFocalLength;
+            _focalLength = (f32)_targetFocalLength;
             _direction = _zoomTargetDir;
             _right = _zoomTargetRight;
             _isZooming = 0;
         }else{
             t /= _zoomDuration;
-            double hermite_t = (3.0f * t * t) - (2.0f * t * t * t);
-            double push = INTERPOLATE(hermite_t, _pushStart, _pushRadius);
+            f64 hermite_t = (3.0 * t * t) - (2.0 * t * t * t);
+            f64 push = INTERPOLATE(hermite_t, _pushStart, _pushRadius);
             _focalPoint = INTERPOLATE(hermite_t, _zoomStartPos, _zoomTargetPos) + _zoomMidDisplace * (1.0 - (1.0 + cos(t*2.0*M_PI)) * 0.5);
             if (glm::length(_focalPoint) < push){
                 _focalPoint = glm::normalize(_focalPoint)*push;

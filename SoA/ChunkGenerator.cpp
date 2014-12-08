@@ -135,7 +135,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 
                     if (biome->possibleFlora.size()){
                         r = chunk->GetPlantType(x + wx, z + wz, biome);
-                        if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[r], c);
+                        if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[(size_t)r], c);
 
                          sunlightData = MAXLIGHT;
                          data = NONE;
