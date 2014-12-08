@@ -2,6 +2,7 @@
 #include "BlockTextureMethods.h"
 
 #include "BlockData.h"
+#include "Chunk.h"
 #include "ChunkMesh.h"
 #include "RenderTask.h"
 #include "VoxelBits.h"
