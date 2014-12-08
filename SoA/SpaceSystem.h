@@ -21,19 +21,11 @@
 
 class CTableSpaceObject : public vcore::ComponentTable<SpaceObject> {
 public:
-    virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceObject& component) override {
-        updates++;
-    }
-
     ui64 updates = 0;
 };
 
 class CTableSpaceQuadrant : public vcore::ComponentTable<SpaceQuadrant> {
 public:
-    virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, SpaceQuadrant& component) override {
-        updates++;
-    }
-
     ui64 updates = 0;
 };
 
