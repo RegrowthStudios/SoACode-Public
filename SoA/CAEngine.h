@@ -42,7 +42,7 @@ public:
 
     // Static functions
     /// Gets the number of CA types currently cached
-    static const int& getNumCaTypes() { return typesArray.size(); }
+    static int getNumCaTypes() { return typesArray.size(); }
     /// Clears all the cached types
     static void clearTypes();
 

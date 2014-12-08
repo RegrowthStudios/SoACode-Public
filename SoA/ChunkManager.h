@@ -15,7 +15,7 @@
 #include "FixedSizeArrayRecycler.hpp"
 #include "GameManager.h"
 #include "IVoxelMapper.h"
-#include "ThreadPool.h"
+#include "VoxPool.h"
 #include "WorldStructs.h"
 
 const i32 lodStep = 1;
@@ -334,7 +334,7 @@ private:
     vvox::VoxelMapData* _cameraVoxelMapData;
 
     /// The threadpool for generating chunks and meshes
-    vcore::ThreadPool _threadPool;
+    vcore::ThreadPool<WorkerData> _threadPool;
 
     int _numCaTasks = 0; ///< The number of CA tasks currently being processed
 
