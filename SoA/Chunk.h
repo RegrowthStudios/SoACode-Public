@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "Vorb.h"
+#include <IThreadPoolTask.h>
 #include "IVoxelMapper.h"
 
 #include "ChunkRenderer.h"
@@ -15,6 +16,7 @@
 #include "Vorb.h"
 #include "VoxelBits.h"
 #include "VoxelLightEngine.h"
+#include "VoxPool.h"
 
 //used by threadpool
 
@@ -22,11 +24,6 @@ const int MAXLIGHT = 31;
 
 class Block;
 struct PlantData;
-namespace vorb {
-    namespace core {
-        class IThreadPoolTask;
-    }
-}
 
 enum LightTypes {LIGHT, SUNLIGHT};
 
@@ -174,7 +171,7 @@ public:
 
     bool queuedForPhysics;
 
-    vcore::IThreadPoolTask* lastOwnerTask; ///< Pointer to task that is working on us
+    vorb::core::IThreadPoolTask<WorkerData>* lastOwnerTask; ///< Pointer to task that is working on us
 
     ChunkMesh *mesh;
 

@@ -539,6 +539,9 @@
     <ClInclude Include="PauseMenuRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="VoxPool.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

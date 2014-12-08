@@ -15,8 +15,10 @@
 #ifndef RenderTask_h__
 #define RenderTask_h__
 
+#include <IThreadPoolTask.h>
+
 #include "Constants.h"
-#include "IThreadPoolTask.h"
+#include "VoxPool.h"
 
 class Chunk;
 class ChunkGridData;
@@ -28,12 +30,12 @@ enum class RenderTaskType { DEFAULT, LIQUID };
 #define RENDER_TASK_ID 0
 
 // Represents A Mesh Creation Task
-class RenderTask : public vcore::IThreadPoolTask {
+class RenderTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
-    RenderTask() : vcore::IThreadPoolTask(true, RENDER_TASK_ID) {}
+    RenderTask() : vcore::IThreadPoolTask<WorkerData>(true, RENDER_TASK_ID) {}
 
     // Executes the task
-    void execute(vcore::WorkerData* workerData) override;
+    void execute(WorkerData* workerData) override;
 
     // Initializes the task
     void init(Chunk* ch, RenderTaskType cType);

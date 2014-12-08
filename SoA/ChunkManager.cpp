@@ -436,11 +436,11 @@ void ChunkManager::processFinishedTasks() {
     #define MAX_TASKS 100
 
     // Stores tasks for bulk deque
-    vcore::IThreadPoolTask* taskBuffer[MAX_TASKS];
+    vcore::IThreadPoolTask<WorkerData>* taskBuffer[MAX_TASKS];
 
     size_t numTasks = _threadPool.getFinishedTasks(taskBuffer, MAX_TASKS);
 
-    vcore::IThreadPoolTask* task;
+    vcore::IThreadPoolTask<WorkerData>* task;
     Chunk* chunk;
 
     for (size_t i = 0; i < numTasks; i++) {

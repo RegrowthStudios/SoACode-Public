@@ -4,7 +4,7 @@
 #include "CAEngine.h"
 #include "Chunk.h"
 #include "RenderTask.h"
-#include "ThreadPool.h"
+#include "VoxPool.h"
 
 CellularAutomataTask::CellularAutomataTask(Chunk* chunk, bool makeMesh) : 
     IThreadPoolTask(true, CA_TASK_ID),
@@ -19,7 +19,7 @@ CellularAutomataTask::CellularAutomataTask(Chunk* chunk, bool makeMesh) :
     }
 }
 
-void CellularAutomataTask::execute(vcore::WorkerData* workerData) {
+void CellularAutomataTask::execute(WorkerData* workerData) {
     if (workerData->caEngine == nullptr) {
         workerData->caEngine = new CAEngine;
     }
