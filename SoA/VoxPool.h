@@ -20,12 +20,7 @@
 // Worker data for a threadPool
 class WorkerData {
 public:
-    ~WorkerData() {
-        delete chunkMesher;
-        delete floraGenerator;
-        delete voxelLightEngine;
-        delete caEngine;
-    }
+    ~WorkerData();
     volatile bool waiting;
     volatile bool stop;
 
@@ -36,9 +31,7 @@ public:
     class CAEngine* caEngine = nullptr;
 };
 
-class VoxPool : public vcore::ThreadPool<WorkerData> {
-    // Empty
-};
+typedef vcore::ThreadPool<WorkerData> VoxPool;
 
 #endif // VoxPool_h__
 

@@ -868,6 +868,9 @@
     <ClCompile Include="PauseMenuRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
+    <ClCompile Include="VoxPool.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
