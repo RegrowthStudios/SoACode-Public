@@ -288,3 +288,13 @@ public:
 private:
     static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 };
+
+inline i32 getPositionSeed(i32 x, i32 y, i32 z) {
+    return ((x & 0x7FF) << 10) |
+        ((y & 0x3FF)) |
+        ((z & 0x7FF) << 21);
+}
+inline i32 getPositionSeed(i32 x, i32 z) {
+    return ((x & 0xFFFF) << 16) |
+        (z & 0xFFFF);
+}
