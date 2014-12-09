@@ -289,12 +289,10 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
 
-    auto& orbitCmp = m_orbitCT.get(oCmp);
-    orbitCmp.eccentricity = sysProps->eccentricity;
-    orbitCmp.orbitalPeriod = sysProps->period;
-    orbitCmp.currentOrbit = sysProps->startOrbit;
-    f64v3 right(1.0, 0.0, 0.0);
-    orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
+    // Set the name
+    m_namePositionCT.get(npCmp).name = body->name;
+
+    setOrbitProperties(oCmp, sysProps);
 }
 
 void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body) {
@@ -314,24 +312,11 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
 
-    auto& namePositionCmp = m_namePositionCT.get(npCmp);
-    namePositionCmp.name = body->name;
+    // Set the name
+    m_namePositionCT.get(npCmp).name = body->name;
 
-    auto& orbitCmp = m_orbitCT.get(oCmp);
-    orbitCmp.eccentricity = sysProps->eccentricity;
-    orbitCmp.orbitalPeriod = sysProps->period;
-    orbitCmp.currentOrbit = sysProps->startOrbit;
-    orbitCmp.pathColor = sysProps->pathColor;
 
-    // Calculate orbit orientation
-    f64v3 right(1.0, 0.0, 0.0);
-    right = glm::normalize(right);
-    if (right == -sysProps->orbitNormal) {
-        f64v3 eulers(0.0, M_PI, 0.0);
-        orbitCmp.orientation = f64q(eulers);
-    } else if (right != sysProps->orbitNormal) {
-        orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
-    }
+    setOrbitProperties(oCmp, sysProps);
 }
 
 bool SpaceSystem::loadSystemProperties(const nString& dirPath) {
@@ -399,5 +384,23 @@ void SpaceSystem::calculateOrbit(vcore::EntityID entity, f64 parentMass, bool is
             mass / (orbitC.totalMass);
     } else {
         orbitC.r1 = orbitC.semiMajor * (1.0 - orbitC.eccentricity);
+    }
+}
+
+void SpaceSystem::setOrbitProperties(vcore::ComponentID cmp, const SystemBodyKegProperties* sysProps) {
+    // Set basic properties
+    auto& orbitCmp = m_orbitCT.get(cmp);
+    orbitCmp.eccentricity = sysProps->eccentricity;
+    orbitCmp.orbitalPeriod = sysProps->period;
+    orbitCmp.currentOrbit = sysProps->startOrbit;
+    orbitCmp.pathColor = sysProps->pathColor;
+
+    // Calculate orbit orientation from normal
+    const f64v3 right(1.0, 0.0, 0.0);
+    if (right == -sysProps->orbitNormal) {
+        f64v3 eulers(0.0, M_PI, 0.0);
+        orbitCmp.orientation = f64q(eulers);
+    } else if (right != sysProps->orbitNormal) {
+        orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
     }
 }

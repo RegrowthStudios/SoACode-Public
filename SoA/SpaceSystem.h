@@ -86,6 +86,9 @@ protected:
 
     void calculateOrbit(vcore::EntityID entity, f64 parentMass, bool isBinary);
 
+    void setOrbitProperties(vcore::ComponentID cmp, 
+                            const SystemBodyKegProperties* sysProps);
+
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
