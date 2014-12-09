@@ -1,7 +1,9 @@
 #pragma once
-#include "IGameScreen.h"
 
-#include "Random.h"
+#include <GLRPC.h>
+#include <IGameScreen.h>
+#include <Random.h>
+
 #include "LoadMonitor.h"
 #include "LoadBar.h"
 
@@ -26,7 +28,6 @@ public:
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
 private:
-
     void addLoadTask(const nString& name, const cString loadText, ILoadTask* task);
 
     // Visualization Of Loading Tasks
@@ -37,4 +38,6 @@ private:
     // Loading Tasks
     LoadMonitor _monitor;
     std::vector<ILoadTask*> _loadTasks;
+
+    vg::GLRPCManager m_glrpc; ///< Handles cross-thread OpenGL calls
 };

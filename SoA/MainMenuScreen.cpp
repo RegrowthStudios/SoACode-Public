@@ -127,7 +127,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     // Check for shader reload
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
         GameManager::glProgramManager->destroy();
-        LoadTaskShaders shaderTask;
+        LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
         // Reload the pipeline with new shaders
         _renderPipeline.destroy();

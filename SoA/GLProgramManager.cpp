@@ -54,7 +54,7 @@ void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cS
         srcFrag.stage = vg::ShaderType::FRAGMENT_SHADER;
         if (defines) srcFrag.sources.push_back(defines);
         code = iom.readFileToString(fragmentPath);
-        srcFrag.sources.push_back(iom.readFileToString(fragmentPath));
+        srcFrag.sources.push_back(code);
         if (!newProgram->addShader(srcFrag)) {
             showMessage("Fragment shader for " + shaderName + " failed to compile. Check command prompt for errors. After you fix errors, press OK to try again.");
             delete[] code;
@@ -112,7 +112,7 @@ vg::GLProgram* vg::GLProgramManager::getProgram(nString shaderName) const {
 void vg::GLProgramManager::destroy() {
 
     for (auto prog : _programs) {
-        prog.second->destroy();
+        prog.second->dispose();
         delete prog.second;
     }
 
