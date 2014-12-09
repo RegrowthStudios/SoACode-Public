@@ -897,6 +897,7 @@
     </ClCompile>
     <ClCompile Include="Atmosphere.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
+    <ClCompile Include="OrbitComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
