@@ -23,7 +23,6 @@ KEG_ENUM_INIT_END
 
 class SystemBodyKegProperties {
 public:
-    nString name = "";
     nString parent = "";
     nString path = "";
     f64 eccentricity = 0.0;
@@ -50,6 +49,7 @@ public:
     f64 mass = 0.0;
     f64v3 axis;
     f64 angularSpeed = 0.0;
+    nString displayName = "";
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(PlanetKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, diameter);
@@ -57,6 +57,7 @@ KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, density);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, mass);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64_V3, axis);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, angularSpeed);
+KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, STRING, displayName);
 KEG_TYPE_INIT_END
 
 class StarKegProperties {
@@ -67,6 +68,7 @@ public:
     f64 mass = 0.0;
     f64v3 axis;
     f64 angularSpeed = 0.0;
+    nString displayName = "";
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(StarKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, surfaceTemperature);
@@ -75,6 +77,7 @@ KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, density);
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, mass);
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F32_V3, axis);
 KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, F64, angularSpeed);
+KEG_TYPE_INIT_ADD_MEMBER(StarKegProperties, STRING, displayName);
 KEG_TYPE_INIT_END
 
 class Binary {
@@ -112,11 +115,17 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
 }
 
 void SpaceSystem::update(double time) {
-    for (auto& cmp : m_axisRotationCT) {
-        cmp.second.update(time);
+    for (auto& it : m_axisRotationCT) {
+        it.second.update(time);
     }
-    for (auto& cmp : m_orbitCT) {
-        cmp.second.update(time);
+    for (auto& it : m_orbitCT) {
+        auto& cmp = it.second; 
+        if (cmp.parentID) {
+            cmp.update(time, &m_namePositionCT.getFromEntity(it.first), 
+                       &m_namePositionCT.get(cmp.parentID));
+        } else {
+            cmp.update(time, &m_namePositionCT.getFromEntity(it.first));
+        }
     }
 }
 
@@ -153,8 +162,8 @@ void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
     setMatrixTranslation(w, -camera->getPosition());
     f32m4 wvp = camera->getProjectionMatrix() * camera->getViewMatrix() * w;
 
-    for (auto& cmp : m_orbitCT) {
-        cmp.second.drawPath(colorProgram, wvp);
+    for (auto& it : m_orbitCT) {
+        it.second.drawPath(colorProgram, wvp, &m_namePositionCT.getFromEntity(it.first));
     }
     colorProgram->disableVertexAttribArrays();
     colorProgram->unuse();
@@ -193,12 +202,13 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
                 body->parent = p->second;
                 
                 // Provide the orbit component with it's parent
-                m_orbitCT.getFromEntity(body->entity->id).parent =
-                    &m_namePositionCT.getFromEntity(body->parent->entity->id);
+                m_orbitCT.getFromEntity(body->entity->id).parentID =
+                    m_namePositionCT.getComponentID(body->parent->entity->id);
+
 
                 // Calculate the orbit using parent mass
                 calculateOrbit(body->entity->id,
-                               m_sphericalGravityCT.getFromEntity(p->second->entity->id).mass, false);
+                               m_sphericalGravityCT.getFromEntity(body->parent->entity->id).mass, false);
             } else {
                 auto& b = m_binaries.find(parent);
                 if (b != m_binaries.end()) {
@@ -304,12 +314,14 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
 
+    auto& namePositionCmp = m_namePositionCT.get(npCmp);
+    namePositionCmp.name = body->name;
+
     auto& orbitCmp = m_orbitCT.get(oCmp);
     orbitCmp.eccentricity = sysProps->eccentricity;
     orbitCmp.orbitalPeriod = sysProps->period;
     orbitCmp.currentOrbit = sysProps->startOrbit;
     orbitCmp.pathColor = sysProps->pathColor;
-    orbitCmp.namePositionComponent = &m_namePositionCT.get(npCmp);
 
     // Calculate orbit orientation
     f64v3 right(1.0, 0.0, 0.0);

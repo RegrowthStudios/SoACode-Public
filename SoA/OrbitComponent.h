@@ -34,7 +34,8 @@ public:
         destroy();
     }
 
-    void update(f64 time) {
+    void update(f64 time, NamePositionComponent* npComponent,
+                NamePositionComponent* parentNpComponent = nullptr) {
 
         /// Calculates position as a function of time
         /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
@@ -61,10 +62,10 @@ public:
         position.y = 0.0;
         position.z = semiMajor * sqrt(1.0 - eccentricity * eccentricity) *
             sin(eccentricAnomaly);
-        if (parent) {
-            namePositionComponent->position = orientation * position + parent->position;
+        if (parentNpComponent) {
+            npComponent->position = orientation * position + parentNpComponent->position;
         } else {
-            namePositionComponent->position = orientation * position;
+            npComponent->position = orientation * position;
         }
     }
 
@@ -73,10 +74,13 @@ public:
         if (m_vbo != 0) {
             vg::GpuMemory::freeBuffer(m_vbo);
         }
+        if (m_pvbo != 0) {
+            vg::GpuMemory::freeBuffer(m_pvbo);
+        }
     }
 
     /// Draws the ellipse and a point for the body
-    void drawPath(vg::GLProgram* colorProgram, const f32m4& wvp) {
+    void drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent) {
 
         f32v4 color(f32v4(pathColor) / 255.0f);
         f32m4 matrix = wvp * glm::mat4(glm::toMat4(orientation));
@@ -90,13 +94,21 @@ public:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
         glDrawArrays(GL_LINE_STRIP, 0, DEGREES + 1);
 
-        glPointSize(20.0);
+        glPointSize(10.0);
+        // Point position
+        f32v3 pos(npComponent->position);
+        vg::GpuMemory::bindBuffer(m_pvbo, vg::BufferTarget::ARRAY_BUFFER);
+        vg::GpuMemory::uploadBufferData(m_pvbo,
+                                        vg::BufferTarget::ARRAY_BUFFER,
+                                        1 * sizeof(f32v3),
+                                        &pos,
+                                        vg::BufferUsageHint::STREAM_DRAW);
+
+
         // Point already has orientation encoded
         glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &wvp[0][0]);
         // Draw the point
-        vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ARRAY_BUFFER);
-        f32v3 pos(namePositionComponent->position);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), &pos);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
         glDrawArrays(GL_POINTS, 0, 1);
     }
 
@@ -112,8 +124,7 @@ public:
     f64 r1 = 0.0;
     f64q orientation = f64q(0.0, 0.0, 0.0, 0.0);
     ui8v4 pathColor = ui8v4(255);
-    NamePositionComponent* namePositionComponent = nullptr;
-    NamePositionComponent* parent = nullptr;
+    vcore::ComponentID parentID = 0;
 
 private:
     /// Creates the ellipsoid mesh
@@ -141,9 +152,12 @@ private:
                                         verts.size() * sizeof(f32v3),
                                         verts.data(),
                                         vg::BufferUsageHint::STATIC_DRAW);
+
+        vg::GpuMemory::createBuffer(m_pvbo);
     }
 
     VGBuffer m_vbo = 0; ///< vbo for the ellipse
+    VGBuffer m_pvbo = 0; ///< vbo for the imposter
 };
 
 #endif // OrbitComponent_h__
