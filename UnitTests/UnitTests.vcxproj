@@ -94,6 +94,7 @@
     </ClCompile>
     <ClCompile Include="Tests.cpp" />
     <ClCompile Include="Types.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="VorbCoreECS.cpp" />
   </ItemGroup>
   <ItemGroup>
