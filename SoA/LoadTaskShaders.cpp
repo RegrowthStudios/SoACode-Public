@@ -36,6 +36,7 @@ vg::ShaderSource LoadTaskShaders::createShaderCode(const vg::ShaderType& stage, 
     if (defines) src.sources.push_back(defines);
     const cString code = iom.readFileToString(path);
     src.sources.push_back(code);
+    m_filesToDelete.push_back(code);
     return src;
 }
 
