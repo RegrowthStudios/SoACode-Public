@@ -21,13 +21,7 @@ TEST(MakeEntity) {
 
 struct Component {
 public:
-    static Component createDefault() {
-        Component c;
-        c.x = 10;
-        return c;
-    }
-
-    int x = 5;
+    int x = 10;
 };
 class CTTest : public vcore::ComponentTable<Component> {
     virtual void update(const vcore::EntityID& eID, const vcore::ComponentID& cID, Component& component) {
