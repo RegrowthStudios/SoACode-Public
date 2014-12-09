@@ -120,9 +120,9 @@ void SpaceSystem::update(double time) {
     }
     for (auto& it : m_orbitCT) {
         auto& cmp = it.second; 
-        if (cmp.parentID) {
+        if (cmp.parentNpId) {
             cmp.update(time, &m_namePositionCT.getFromEntity(it.first), 
-                       &m_namePositionCT.get(cmp.parentID));
+                       &m_namePositionCT.get(cmp.parentNpId));
         } else {
             cmp.update(time, &m_namePositionCT.getFromEntity(it.first));
         }
@@ -202,7 +202,7 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
                 body->parent = p->second;
                 
                 // Provide the orbit component with it's parent
-                m_orbitCT.getFromEntity(body->entity->id).parentID =
+                m_orbitCT.getFromEntity(body->entity->id).parentNpId =
                     m_namePositionCT.getComponentID(body->parent->entity->id);
 
 
@@ -392,7 +392,6 @@ void SpaceSystem::setOrbitProperties(vcore::ComponentID cmp, const SystemBodyKeg
     auto& orbitCmp = m_orbitCT.get(cmp);
     orbitCmp.eccentricity = sysProps->eccentricity;
     orbitCmp.orbitalPeriod = sysProps->period;
-    orbitCmp.currentOrbit = sysProps->startOrbit;
     orbitCmp.pathColor = sysProps->pathColor;
 
     // Calculate orbit orientation from normal

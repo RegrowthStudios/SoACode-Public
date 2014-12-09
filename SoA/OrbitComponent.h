@@ -20,6 +20,14 @@
 #include "GpuMemory.h"
 #include "Entity.h"
 
+namespace vorb {
+    namespace core {
+        namespace graphics {
+            class GLProgram;
+        }
+    }
+}
+
 class NamePositionComponent;
 
 class OrbitComponent {
@@ -30,6 +38,10 @@ public:
         destroy();
     }
 
+    /// Updates the position based on time and parent position
+    /// @param time: Time in seconds
+    /// @param npComponent: The positional component of this component
+    /// @param parentNpComponent: The parents positional component
     void update(f64 time, NamePositionComponent* npComponent,
                 NamePositionComponent* parentNpComponent = nullptr);
 
@@ -42,16 +54,15 @@ public:
     /// Gets the vertex buffer ID for ellipse
     const VGBuffer& getVbo() const { return m_vbo; }
 
-    f64 semiMajor = 0.0;
-    f64 semiMinor = 0.0;
-    f64 orbitalPeriod = 0.0;
-    f64 currentOrbit = 0.0;
+    f64 semiMajor = 0.0; ///< Semi-major of the ellipse
+    f64 semiMinor = 0.0; ///< Semi-minor of the ellipse
+    f64 orbitalPeriod = 0.0; ///< Period in seconds of a full orbit
     f64 totalMass = 0.0; ///< Mass of this body + parent
-    f64 eccentricity = 0.0;
-    f64 r1 = 0.0;
-    f64q orientation = f64q(0.0, 0.0, 0.0, 0.0);
-    ui8v4 pathColor = ui8v4(255);
-    vcore::ComponentID parentID = 0;
+    f64 eccentricity = 0.0; ///< Shape of orbit, 0-1
+    f64 r1 = 0.0; ///< Closest distance to focal point
+    f64q orientation = f64q(0.0, 0.0, 0.0, 0.0); ///< Orientation of the orbit path
+    ui8v4 pathColor = ui8v4(255); ///< Color of the path
+    vcore::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
 
 private:
     /// Creates the ellipsoid mesh

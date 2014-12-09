@@ -11,7 +11,7 @@
 #include "NamePositionComponent.h"
 
 void OrbitComponent::update(f64 time, NamePositionComponent* npComponent,
-            NamePositionComponent* parentNpComponent = nullptr) {
+            NamePositionComponent* parentNpComponent /* = nullptr */) {
 
     /// Calculates position as a function of time
     /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
@@ -61,7 +61,9 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
     glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, color.a);
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
 
+    // Lazily generate mesh
     if (m_vbo == 0) generateOrbitEllipse();
+
     // Draw the ellipse
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
@@ -89,17 +91,19 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
 void OrbitComponent::generateOrbitEllipse() {
     #define DEGTORAD (M_PI / 180.0)
 
-
+    // Need to offset the ellipse mesh based on eccentricity
     f64 xOffset = semiMajor - r1;
     std::vector<f32v3> verts;
     verts.reserve(DEGREES + 1);
 
+    // Generate all the verts
     for (int i = 0; i < DEGREES; i++) {
         f64 rad = i * DEGTORAD;
         verts.emplace_back(cos(rad)*semiMajor - xOffset,
                            0.0,
                            sin(rad)*semiMinor);
     }
+    // First vertex is duplicated
     verts.push_back(verts.front());
 
     // Upload the buffer data
