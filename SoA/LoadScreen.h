@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLRPC.h>
+#include <RPC.h>
 #include <IGameScreen.h>
 #include <Random.h>
 
@@ -39,5 +39,5 @@ private:
     LoadMonitor _monitor;
     std::vector<ILoadTask*> _loadTasks;
 
-    vg::GLRPCManager m_glrpc; ///< Handles cross-thread OpenGL calls
+    vcore::RPCManager m_glrpc; ///< Handles cross-thread OpenGL calls
 };

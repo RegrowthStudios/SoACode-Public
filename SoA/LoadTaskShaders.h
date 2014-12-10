@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL/SDL.h>
 
-#include <GLRPC.h>
+#include <RPC.h>
 #include <SpriteBatch.h>
 
 #include "Errors.h"
@@ -19,7 +19,7 @@ public:
     vg::ShaderSource fs;
     std::vector<nString>* attr = nullptr;
 
-    vg::GLRPC rpc;
+    vcore::RPC rpc;
 
     vg::GLProgram* program = nullptr;
     nString errorMessage;
@@ -35,7 +35,7 @@ class LoadTaskShaders : public ILoadTask {
     friend class OnReloadShadersKeyDown;
     friend class MainMenuScreen;
 public:
-    LoadTaskShaders(vg::GLRPCManager* glrpc) :
+    LoadTaskShaders(vcore::RPCManager* glrpc) :
         m_glrpc(glrpc) {
         // Empty
     }
@@ -45,7 +45,7 @@ private:
     vg::ShaderSource createShaderCode(const vg::ShaderType& stage, const IOManager& iom, const cString path, const cString defines = nullptr);
     ProgramGenDelegate* createProgram(nString name, const vg::ShaderSource& vs, const vg::ShaderSource& fs, std::vector<nString>* attr = nullptr);
 
-    vg::GLRPCManager* m_glrpc = nullptr;
+    vcore::RPCManager* m_glrpc = nullptr;
     ProgramGenDelegate m_generators[APPROXIMATE_NUM_SHADERS_LOADING];
     size_t m_numGenerators = 0;
     std::vector<const cString> m_filesToDelete;
