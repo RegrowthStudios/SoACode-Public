@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "App.h"
 
+#include <InputDispatcher.h>
+
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "MainMenuScreen.h"
@@ -34,6 +36,22 @@ void App::onInit() {
 
     // Allocate resources
     meshManager = new MeshManager;
+
+    vui::InputDispatcher::key.onEvent += createDelegate<const vui::KeyEvent&>([=] (void* sender, const vui::KeyEvent& e) {
+        std::cout << "Received keyboard event" << std::endl;
+    });
+    vui::InputDispatcher::mouse.onEvent += createDelegate<const vui::MouseEvent&>([=] (void* sender, const vui::MouseEvent& e) {
+        std::cout << "Received mouse event" << std::endl;
+    });
+    vui::InputDispatcher::mouse.onButtonDown += createDelegate<const vui::MouseButtonEvent&>([=] (void* sender, const vui::MouseButtonEvent& e) {
+        if (e.clicks > 1) std::cout << "Received double-click mouse event" << std::endl;
+    });
+    vui::InputDispatcher::window.onFile += createDelegate<const vui::WindowFileEvent&>([=] (void* sender, const vui::WindowFileEvent& e) {
+        std::cout << "Received file: " << e.file << std::endl;
+    });
+    vui::InputDispatcher::window.onResize += createDelegate<const vui::WindowResizeEvent&>([=] (void* sender, const vui::WindowResizeEvent& e) {
+        std::cout << "Window resized: " << e.w << " x " << e.h <<std::endl;
+    });
 }
 
 void App::onExit() {
