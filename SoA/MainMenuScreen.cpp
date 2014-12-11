@@ -80,8 +80,20 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
-    _awesomiumInterface.handleEvent(e);
+   // _awesomiumInterface.handleEvent(e);
     GameManager::inputManager->pushEvent(e);
+
+#define MOUSE_SPEED 0.1f
+    switch (e.type) {
+        case SDL_MOUSEMOTION:
+            if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)) {
+                _camera.rotateFromMouse((float)-e.motion.xrel, (float)-e.motion.yrel, MOUSE_SPEED);
+            }
+            if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)) {
+                _camera.yawFromMouse((float)-e.motion.xrel, MOUSE_SPEED);
+            }
+            break;
+    }
 
     // Check for reloading the UI
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
@@ -99,18 +111,6 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {
-
-
-    if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)) {
-        f32v3 eulerAngles(0.0, 0.01, 0.0);
-        f32q rot(eulerAngles);
-        _camera.applyRotation(rot);
-    }
-    if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)) {
-        f32v3 eulerAngles(0.01, 0.0, 0.0);
-        f32q rot(eulerAngles);
-        _camera.applyRotation(rot);
-    }
 
     _awesomiumInterface.update();
 

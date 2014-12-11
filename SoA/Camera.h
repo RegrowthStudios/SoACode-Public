@@ -13,6 +13,8 @@ public:
     void update();
     void updateProjection();
     void applyRotation(const f32q& rot);
+    void rotateFromMouse(float dx, float dy, float speed);
+    void yawFromMouse(float dx, float speed);
 
     // Frustum wrappers
     bool pointInFrustum(const f32v3& pos) const { return _frustum.pointInFrustum(pos); }

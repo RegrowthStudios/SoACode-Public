@@ -136,6 +136,19 @@ void Camera::applyRotation(const f32q& rot) {
     _viewChanged = true;
 }
 
+void Camera::rotateFromMouse(float dx, float dy, float speed) {
+    f32q upQuat = glm::angleAxis(dy * speed, _right);
+    f32q rightQuat = glm::angleAxis(dx * speed, _up);
+ 
+    applyRotation(upQuat * rightQuat);
+}
+
+void Camera::yawFromMouse(float dx, float speed) {
+    f32q frontQuat = glm::angleAxis(dx * speed, _direction);
+
+    applyRotation(frontQuat);
+}
+
 void CinematicCamera::update()
 {
     if (_isZooming){ //manual movement
