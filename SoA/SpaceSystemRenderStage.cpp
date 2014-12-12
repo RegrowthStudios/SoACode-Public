@@ -18,12 +18,8 @@ SpaceSystemRenderStage::~SpaceSystemRenderStage() {
 }
 
 void SpaceSystemRenderStage::draw() {
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    m_spaceSystem->drawBodies(m_camera);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
 
-    // drawPaths isn't const so we have to cast it
+    //isn't const so we have to cast it
+    const_cast<SpaceSystem*>(m_spaceSystem)->drawBodies(m_camera);
     const_cast<SpaceSystem*>(m_spaceSystem)->drawPaths(m_camera, m_colorProgram);
 }

@@ -33,7 +33,6 @@ class NamePositionComponent;
 
 class OrbitComponent {
 public:
-    #define DEGREES 360
 
     ~OrbitComponent() {
         destroy();

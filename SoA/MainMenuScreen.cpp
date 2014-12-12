@@ -86,6 +86,12 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 #define MOUSE_SPEED 0.1f
 #define SCROLL_SPEED 0.1f
     switch (e.type) {
+        case SDL_KEYDOWN:
+            if (e.key.keysym.sym == SDLK_LEFT) {
+                _app->spaceSystem->offsetTarget(-1);
+            } else if (e.key.keysym.sym == SDLK_RIGHT) {
+                _app->spaceSystem->offsetTarget(1);
+            }
         case SDL_MOUSEMOTION:
             if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)) {
                 _camera.rotateFromMouse((float)-e.motion.xrel, (float)-e.motion.yrel, MOUSE_SPEED);
@@ -111,14 +117,21 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
                                  this);
     }
 
-    
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {
 
     _awesomiumInterface.update();
     
+    static double time = 0.0;
+    time += 0.001;
+
+    _app->spaceSystem->update(time);
+
     // Connect camera to target planet
+    float length = _camera.getFocalLength() / 10.0;
+    if (length == 0) length = 0.1;
+    _camera.setClippingPlane(length, _camera.getFarClip());
     _camera.setTargetFocalPoint(_app->spaceSystem->getTargetPosition());
 
     _camera.update();
@@ -253,10 +266,7 @@ void MainMenuScreen::updateThreadFunc() {
         }
 
       //  f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
-        static double time = 0.0;
-        time += 1000.0;
-
-        _app->spaceSystem->update(time);
+     
         
         physicsFps = fpsLimiter.endFrame();
     }

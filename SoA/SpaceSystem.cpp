@@ -101,9 +101,20 @@ KEG_TYPE_INIT_END
 
 class GasGiantKegProperties {
 public:
-
+    f64 diameter = 0.0;
+    f64 density = 0.0;
+    f64 mass = 0.0;
+    f64v3 axis;
+    f64 angularSpeed = 0.0;
+    nString displayName = "";
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(GasGiantKegProperties)
+KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, diameter);
+KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, density);
+KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, mass);
+KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F32_V3, axis);
+KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, angularSpeed);
+KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, STRING, displayName);
 KEG_TYPE_INIT_END
 
 SpaceSystem::SpaceSystem() : vcore::ECS() {
@@ -131,25 +142,27 @@ void SpaceSystem::update(double time) {
     m_mutex.unlock();
 }
 
-void SpaceSystem::drawBodies(const Camera* camera) const {
+void SpaceSystem::drawBodies(const Camera* camera) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     static DebugRenderer debugRenderer;
+    m_mutex.lock();
+    for (auto& it : m_sphericalGravityCT) {
+        auto& sgcmp = it.second;
+        float radius = sgcmp.radius;
+        const f64v3& position = m_namePositionCT.getFromEntity(it.first).position;
 
-    /* for (auto& entity : getEntities()) {
+        debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 5);
 
-         float radius = m_sphericalTerrainCT.getFromEntity(entity.id).radius;
+        const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(it.first);
 
-         debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 5);
+        f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
 
-         const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(entity.id);
+        f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
-         f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
-
-         f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
-
-         debugRenderer.render(WVP, f32v3(camera->getPosition()), rotationMatrix);
-         }*/
+        debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);
+    }
+    m_mutex.unlock();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -268,6 +281,7 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
             error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
+            addGasGiant(sysProps, &properties, body);
             KEG_CHECK;
         }
 
@@ -319,11 +333,33 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
-                                         properties->mass/ 100000000.0);
+                                         properties->mass);
 
     // Set the name
     m_namePositionCT.get(npCmp).name = body->name;
 
+    setOrbitProperties(oCmp, sysProps);
+}
+
+void SpaceSystem::addGasGiant(const SystemBodyKegProperties* sysProps, const GasGiantKegProperties* properties, SystemBody* body) {
+    body->entity = new vcore::Entity(addEntity());
+    const vcore::EntityID& id = body->entity->id;
+
+    vcore::ComponentID npCmp = m_namePositionCT.add(id);
+    vcore::ComponentID arCmp = m_axisRotationCT.add(id);
+    vcore::ComponentID oCmp = m_orbitCT.add(id);
+    vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
+
+    f64v3 up(0.0, 1.0, 0.0);
+    m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
+                                     0.0,
+                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
+
+    m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
+                                         properties->mass);
+
+    // Set the name
+    m_namePositionCT.get(npCmp).name = body->name;
 
     setOrbitProperties(oCmp, sysProps);
 }
@@ -389,8 +425,9 @@ void SpaceSystem::calculateOrbit(vcore::EntityID entity, f64 parentMass, bool is
         sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
     orbitC.totalMass = mass + parentMass;
     if (isBinary) {
-        orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
-            mass / (orbitC.totalMass);
+      //  orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
+      //      mass / (orbitC.totalMass);
+        orbitC.r1 = orbitC.semiMajor;
     } else {
         orbitC.r1 = orbitC.semiMajor * (1.0 - orbitC.eccentricity);
     }

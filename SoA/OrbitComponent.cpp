@@ -11,6 +11,9 @@
 #include "NamePositionComponent.h"
 #include "RenderUtils.h"
 
+#define DEGREES 360
+#define VERTS_PER_DEGREE 8
+
 void OrbitComponent::update(f64 time, NamePositionComponent* npComponent,
             NamePositionComponent* parentNpComponent /* = nullptr */) {
 
@@ -77,7 +80,7 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
-    glDrawArrays(GL_LINE_STRIP, 0, DEGREES + 1);
+    glDrawArrays(GL_LINE_STRIP, 0, DEGREES * VERTS_PER_DEGREE + 1);
 
     glPointSize(10.0);
     // Point position
@@ -103,11 +106,11 @@ void OrbitComponent::generateOrbitEllipse() {
     // Need to offset the ellipse mesh based on eccentricity
     f64 xOffset = semiMajor - r1;
     std::vector<f32v3> verts;
-    verts.reserve(DEGREES + 1);
+    verts.reserve(DEGREES * VERTS_PER_DEGREE + 1);
 
     // Generate all the verts
-    for (int i = 0; i < DEGREES; i++) {
-        f64 rad = i * DEGTORAD;
+    for (int i = 0; i < DEGREES * VERTS_PER_DEGREE; i++) {
+        f64 rad = ((double)i / VERTS_PER_DEGREE) * DEGTORAD;
         verts.emplace_back(cos(rad)*semiMajor - xOffset,
                            0.0,
                            sin(rad)*semiMinor);

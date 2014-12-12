@@ -97,5 +97,5 @@ private:
     f32v3 m_targetRight = m_right; ///< Desired right
     f64v3 m_targetFocalPoint = m_focalPoint; ///< Target focal position
     double m_targetFocalLength = m_focalLength; ///< Desired focal length
-    double m_speed = 0.3; ///< The speed of the camera. 1.0 is the highest
+    double m_speed = 1.0; ///< The speed of the camera. 1.0 is the highest
 };

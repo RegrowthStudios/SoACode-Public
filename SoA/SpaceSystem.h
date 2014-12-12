@@ -32,6 +32,7 @@
 
 class Binary;
 class Camera;
+class GasGiantKegProperties;
 class PlanetKegProperties;
 class StarKegProperties;
 class SystemBodyKegProperties;
@@ -64,7 +65,7 @@ public:
     
     /// Renders the space bodies
     /// @param camera: Camera for rendering
-    void drawBodies(const Camera* camera) const;
+    void drawBodies(const Camera* camera);
 
     /// Renders the space paths
     /// @param camera: Camera for rendering
@@ -74,6 +75,17 @@ public:
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
+
+    /// Changes target by offset
+    /// @param offset: Integer offset by which to change target
+    void offsetTarget(int offset) {
+        targetComponent += offset;
+        if (targetComponent > m_namePositionCT.getComponentListSize()) {
+            targetComponent = 1;
+        } else if (targetComponent < 0) {
+            targetComponent = m_namePositionCT.getComponentListSize() - 1;
+        }
+    }
 
     /// Gets the position of the targeted component
     /// @return position
@@ -96,6 +108,8 @@ protected:
     void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);
 
     void addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body);
+
+    void addGasGiant(const SystemBodyKegProperties* sysProps, const GasGiantKegProperties* properties, SystemBody* body);
 
     bool loadSystemProperties(const nString& dirPath);
 
