@@ -95,9 +95,9 @@ void MainMenuAPI::setCameraTarget(const Awesomium::JSArray& args) {
     f64v3 targetPos(args[0].ToDouble(), args[1].ToDouble(), args[2].ToDouble());
     float time = args[3].ToDouble();
     float focalLength = args[4].ToDouble();
-    f64v3 targetDir(args[5].ToDouble(), args[6].ToDouble(), args[7].ToDouble());
-    f64v3 targetRight(args[8].ToDouble(), args[9].ToDouble(), args[10].ToDouble());
-    _ownerScreen->getCamera().zoomTo(targetPos, time, glm::normalize(targetDir), glm::normalize(targetRight), focalLength);
+    f32v3 targetDir(args[5].ToDouble(), args[6].ToDouble(), args[7].ToDouble());
+    f32v3 targetRight(args[8].ToDouble(), args[9].ToDouble(), args[10].ToDouble());
+    _ownerScreen->getCamera().setTarget(targetPos, glm::normalize(targetDir), glm::normalize(targetRight), focalLength);
 }
 
 void MainMenuAPI::loadSaveGame(const Awesomium::JSArray& args) {

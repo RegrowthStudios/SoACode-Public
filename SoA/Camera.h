@@ -9,90 +9,93 @@ public:
     void init(float aspectRatio);
     void offsetPosition(glm::dvec3 offset);
     void offsetPosition(glm::vec3 offset);
-    void offsetAngles(float pitchAngle, float yawAngle);
     void update();
     void updateProjection();
-    void applyRotation(const f32q& rot);
-    void rotateFromMouse(float dx, float dy, float speed);
-    void yawFromMouse(float dx, float speed);
+    virtual void applyRotation(const f32q& rot);
+    virtual void rotateFromMouse(float dx, float dy, float speed);
+    virtual void yawFromMouse(float dx, float speed);
 
     // Frustum wrappers
-    bool pointInFrustum(const f32v3& pos) const { return _frustum.pointInFrustum(pos); }
-    bool sphereInFrustum(const f32v3& pos, float radius) const { return _frustum.sphereInFrustum(pos, radius); }
+    bool pointInFrustum(const f32v3& pos) const { return m_frustum.pointInFrustum(pos); }
+    bool sphereInFrustum(const f32v3& pos, float radius) const { return m_frustum.sphereInFrustum(pos, radius); }
 
     //setters
-    void setFocalPoint(glm::dvec3 focalPoint) { _focalPoint = focalPoint; _viewChanged = 1; }
-    void setPosition(glm::dvec3 position){ _focalPoint = position; _position = position; _focalLength = 0;  _viewChanged = 1; }
-    void setDirection(glm::vec3 direction){ _direction = direction; _viewChanged = 1; }
-    void setRight(glm::vec3 right){ _right = right; _viewChanged = 1; }
-    void setUp(glm::vec3 up){ _up = up; _viewChanged = 1; }
-    void setClippingPlane(float zNear, float zFar){ _zNear = zNear; _zFar = zFar; _projectionChanged = 1; }
-    void setFieldOfView(float fieldOfView){ _fieldOfView = fieldOfView; _projectionChanged = 1; }
-    void setFocalLength(float focalLength) { _focalLength = focalLength; _viewChanged = 1; }
-    void setPitchAngle(float pitchAngle) { _pitchAngle = pitchAngle; _viewChanged = 1; }
-    void setYawAngle(float yawAngle) { _yawAngle = yawAngle; _viewChanged = 1; }
-    void setAspectRatio(float aspectRatio) { _aspectRatio = aspectRatio; _projectionChanged = 1; }
-    void setUseAngles(bool useAngles){ _useAngles = useAngles; }
+    void setFocalPoint(glm::dvec3 focalPoint) { m_focalPoint = focalPoint; m_viewChanged = 1; }
+    void setPosition(glm::dvec3 position){ m_focalPoint = position; m_position = position; m_focalLength = 0;  m_viewChanged = 1; }
+    void setDirection(glm::vec3 direction){ m_direction = direction; m_viewChanged = 1; }
+    void setRight(glm::vec3 right){ m_right = right; m_viewChanged = 1; }
+    void setUp(glm::vec3 up){ m_up = up; m_viewChanged = 1; }
+    void setClippingPlane(float zNear, float zFar){ m_zNear = zNear; m_zFar = zFar; m_projectionChanged = 1; }
+    void setFieldOfView(float fieldOfView){ m_fieldOfView = fieldOfView; m_projectionChanged = 1; }
+    void setFocalLength(float focalLength) { m_focalLength = focalLength; m_viewChanged = 1; }
+    void setAspectRatio(float aspectRatio) { m_aspectRatio = aspectRatio; m_projectionChanged = 1; }
 
     //getters
-    const glm::dvec3& getPosition() const { return _position; }
-    const glm::vec3& getDirection() const { return _direction; }
-    const glm::vec3& getRight() const { return _right; }
-    const glm::vec3& getUp() const { return _up; }
+    const glm::dvec3& getPosition() const { return m_position; }
+    const glm::vec3& getDirection() const { return m_direction; }
+    const glm::vec3& getRight() const { return m_right; }
+    const glm::vec3& getUp() const { return m_up; }
 
-    const glm::mat4& getProjectionMatrix() const { return _projectionMatrix; }
-    const glm::mat4& getViewMatrix() const { return _viewMatrix; }
+    const glm::mat4& getProjectionMatrix() const { return m_projectionMatrix; }
+    const glm::mat4& getViewMatrix() const { return m_viewMatrix; }
 
-    const float& getNearClip() const { return _zNear; }
-    const float& getFarClip() const { return _zFar; }
-    const float& getFieldOfView() const { return _fieldOfView; }
-    const float& getAspectRatio() const { return _aspectRatio; }
-    const float& getFocalLength() const { return _focalLength; }
-    const float& getPitchAngle() const { return _pitchAngle; }
-    const float& getYawAngle() const { return _yawAngle; }
+    const float& getNearClip() const { return m_zNear; }
+    const float& getFarClip() const { return m_zFar; }
+    const float& getFieldOfView() const { return m_fieldOfView; }
+    const float& getAspectRatio() const { return m_aspectRatio; }
+    const float& getFocalLength() const { return m_focalLength; }
 
 protected:
     void normalizeAngles();
     void updateView();
 
-    float _zNear, _zFar, _fieldOfView, _focalLength;
-    float _pitchAngle, _yawAngle, _aspectRatio;
-    bool _viewChanged, _projectionChanged;
-    bool _useAngles;
+    float m_zNear = 0.1f;
+    float m_zFar = 100000.0f;
+    float m_fieldOfView = 75.0f;
+    float m_aspectRatio = 4.0f / 3.0f;
+    double m_focalLength = 0.0;
+    double m_maxFocalLength = 10000000000000000000000.0;
+    bool m_viewChanged = true;
+    bool m_projectionChanged = true;
 
-    glm::dvec3 _focalPoint;
-    glm::dvec3 _position;
-    glm::vec3 _direction;
-    glm::vec3 _right;
-    glm::vec3 _up;
+    f64v3 m_focalPoint = f64v3(0.0);
+    f64v3 m_position = f64v3(0.0);
+    f32v3 m_direction = f32v3(1.0f, 0.0f, 0.0f);
+    f32v3 m_right = f32v3(0.0f, 0.0f, 1.0f);
+    f32v3 m_up = f32v3(0.0f, 1.0f, 0.0f);
 
-    glm::mat4 _projectionMatrix;
-    glm::mat4 _viewMatrix;
+    f32m4 m_projectionMatrix;
+    f32m4 m_viewMatrix;
 
-    Frustum _frustum; ///< For frustum culling
+    Frustum m_frustum; ///< For frustum culling
 };
 
 class CinematicCamera : public Camera
 {
 public:
     void update();
-    void zoomTo(glm::dvec3 targetPos, double time_s, glm::dvec3 endDirection, glm::dvec3 endRight, double endFocalLength);
 
-    bool getIsZooming() const { return _isZooming; }
+    virtual void applyRotation(const f32q& rot) override;
+    virtual void rotateFromMouse(float dx, float dy, float speed) override;
+    virtual void yawFromMouse(float dx, float speed) override;
+
+    void offsetFocalLength(float offset);
+
+    // Getters
+    const double& getTargetFocalLength() const { return m_targetFocalLength; }
+
+    // Setters
+    void setTarget(const f64v3& targetFocalPoint, const f32v3& targetDirection,
+                   const f32v3& targetRight, double targetFocalLength);
+    void setTargetDirection(const f32v3& targetDirection) { m_targetDirection = targetDirection; }
+    void setTargetRight(const f32v3& targetRight) { m_targetRight = targetRight; }
+    void setTargetFocalPoint(const f64v3& targetFocalPoint) { m_targetFocalPoint = targetFocalPoint; }
+    void setTargetFocalLength(const float& targetFocalLength) { m_targetFocalLength = targetFocalLength; }
 
 private:
-    bool _isZooming;
-    double _mouseSpeed;
-    double _zoomDuration;
-    double _startTime;
-    double _endTime;
-    double _startFocalLength;
-    double _targetFocalLength;
-    
-    glm::dvec3 _zoomTargetPos;
-    glm::dvec3 _zoomStartPos;
-    glm::vec3 _zoomTargetDir;
-    glm::vec3 _zoomStartDir;
-    glm::vec3 _zoomTargetRight;
-    glm::vec3 _zoomStartRight;
+    f32v3 m_targetDirection = m_direction; ///< Desired direction
+    f32v3 m_targetRight = m_right; ///< Desired right
+    f64v3 m_targetFocalPoint = m_focalPoint; ///< Target focal position
+    double m_targetFocalLength = m_focalLength; ///< Desired focal length
+    double m_speed = 0.3; ///< The speed of the camera. 1.0 is the highest
 };

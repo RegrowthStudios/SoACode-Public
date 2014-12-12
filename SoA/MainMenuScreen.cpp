@@ -54,7 +54,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     _camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(10000.0f, 3000000000000.0f);
-    _camera.zoomTo(glm::dvec3(0.0, 80000000000.0, 0.0), 3.0, glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(-1.0, 0, 0.0), 0.0);
+    _camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(-1.0f, 0.0f, 0.0f), 80000000000.0);
 
     // Initialize the user interface
     _awesomiumInterface.init("UI/MainMenu/",
@@ -84,14 +84,18 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
     GameManager::inputManager->pushEvent(e);
 
 #define MOUSE_SPEED 0.1f
+#define SCROLL_SPEED 0.1f
     switch (e.type) {
         case SDL_MOUSEMOTION:
             if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)) {
                 _camera.rotateFromMouse((float)-e.motion.xrel, (float)-e.motion.yrel, MOUSE_SPEED);
             }
             if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)) {
-                _camera.yawFromMouse((float)-e.motion.xrel, MOUSE_SPEED);
+                _camera.yawFromMouse((float)e.motion.xrel, MOUSE_SPEED);
             }
+            break;
+        case SDL_MOUSEWHEEL:
+            _camera.offsetFocalLength(_camera.getTargetFocalLength() * SCROLL_SPEED * e.motion.y);
             break;
     }
 

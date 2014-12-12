@@ -77,8 +77,6 @@ Player::Player() : scannedBlock(0),
 
     velocity.y = 0.0f;
 
-    _worldCamera.setUseAngles(0);
-
     _chunkCamera.setClippingPlane(0.2, 10000);
 
     boundingBox.x = 0.6f; //x radius
@@ -326,7 +324,7 @@ void Player::mouseMove(int relx, int rely)
     float senstivityMult = (gameOptions.mouseSensitivity / 100.0f * 2.75 + 0.25);
     const float mouseSpeed = 0.1;
 
-    _chunkCamera.offsetAngles(-mouseSpeed / _zoomPercent* double(-rely) * senstivityMult, -mouseSpeed / _zoomPercent* double(-relx) * senstivityMult);
+    //_chunkCamera.offsetAngles(-mouseSpeed / _zoomPercent* double(-rely) * senstivityMult, -mouseSpeed / _zoomPercent* double(-relx) * senstivityMult);
     updateCameras();
 }
 
