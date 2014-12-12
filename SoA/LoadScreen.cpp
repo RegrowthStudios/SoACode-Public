@@ -153,7 +153,7 @@ void LoadScreen::update(const GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
-        LoadTaskSolarSystem loadTaskSolarSystem("SolarSystems/Trinity", _app->spaceSystem);
+        LoadTaskSolarSystem loadTaskSolarSystem("StarSystems/Trinity", _app->spaceSystem);
         loadTaskSolarSystem.load();
 
         _state = ScreenState::CHANGE_NEXT;
