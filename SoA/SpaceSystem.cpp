@@ -115,6 +115,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
 }
 
 void SpaceSystem::update(double time) {
+    m_mutex.lock();
     for (auto& it : m_axisRotationCT) {
         it.second.update(time);
     }
@@ -127,6 +128,7 @@ void SpaceSystem::update(double time) {
             cmp.update(time, &m_namePositionCT.getFromEntity(it.first));
         }
     }
+    m_mutex.unlock();
 }
 
 void SpaceSystem::drawBodies(const Camera* camera) const {
@@ -158,13 +160,20 @@ void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
     colorProgram->enableVertexAttribArrays();
     glDepthMask(GL_FALSE);
     glLineWidth(3.0f);
-    f32m4 w(1.0);
-    setMatrixTranslation(w, -camera->getPosition());
-    f32m4 wvp = camera->getProjectionMatrix() * camera->getViewMatrix() * w;
-
+ 
+    f32m4 wvp = camera->getProjectionMatrix() * camera->getViewMatrix();
+    m_mutex.lock();
     for (auto& it : m_orbitCT) {
-        it.second.drawPath(colorProgram, wvp, &m_namePositionCT.getFromEntity(it.first));
+        auto& cmp = it.second;
+        if (cmp.parentNpId) {
+            cmp.drawPath(colorProgram, wvp, &m_namePositionCT.getFromEntity(it.first),
+                         camera->getPosition(), &m_namePositionCT.get(cmp.parentNpId));
+        } else {
+            cmp.drawPath(colorProgram, wvp, &m_namePositionCT.getFromEntity(it.first),
+                         camera->getPosition());
+        }
     }
+    m_mutex.unlock();
     colorProgram->disableVertexAttribArrays();
     colorProgram->unuse();
     glDepthMask(GL_TRUE);
@@ -310,7 +319,7 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
-                                         properties->mass);
+                                         properties->mass/ 100000000.0);
 
     // Set the name
     m_namePositionCT.get(npCmp).name = body->name;

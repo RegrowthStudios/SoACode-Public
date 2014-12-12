@@ -9,6 +9,7 @@
 #include "Constants.h"
 #include "GLProgram.h"
 #include "NamePositionComponent.h"
+#include "RenderUtils.h"
 
 void OrbitComponent::update(f64 time, NamePositionComponent* npComponent,
             NamePositionComponent* parentNpComponent /* = nullptr */) {
@@ -54,12 +55,20 @@ void OrbitComponent::destroy() {
     }
 }
 
-void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent) {
+void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent,
+                              const f64v3& camPos, NamePositionComponent* parentNpComponent /* = nullptr */) {
 
     f32v4 color(f32v4(pathColor) / 255.0f);
-    f32m4 matrix = wvp * glm::mat4(glm::toMat4(orientation));
+    f32m4 pathMatrix = wvp;
+    f32m4 transMatrix(1.0f);
+    if (parentNpComponent) { 
+        setMatrixTranslation(transMatrix, parentNpComponent->position - camPos);
+    } else {
+        setMatrixTranslation(transMatrix, -camPos);
+    }
+    pathMatrix = pathMatrix * transMatrix * glm::mat4(glm::toMat4(orientation));
     glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, color.a);
-    glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
+    glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
     // Lazily generate mesh
     if (m_vbo == 0) generateOrbitEllipse();
@@ -72,7 +81,7 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
 
     glPointSize(10.0);
     // Point position
-    f32v3 pos(npComponent->position);
+    f32v3 pos(npComponent->position - camPos);
     vg::GpuMemory::bindBuffer(m_pvbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(m_pvbo,
                                     vg::BufferTarget::ARRAY_BUFFER,

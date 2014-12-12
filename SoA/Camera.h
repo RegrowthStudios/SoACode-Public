@@ -79,7 +79,7 @@ public:
     virtual void rotateFromMouse(float dx, float dy, float speed) override;
     virtual void yawFromMouse(float dx, float speed) override;
 
-    void offsetFocalLength(float offset);
+    void offsetTargetFocalLength(float offset);
 
     // Getters
     const double& getTargetFocalLength() const { return m_targetFocalLength; }

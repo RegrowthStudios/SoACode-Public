@@ -95,7 +95,7 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
             }
             break;
         case SDL_MOUSEWHEEL:
-            _camera.offsetFocalLength(_camera.getTargetFocalLength() * SCROLL_SPEED * e.motion.y);
+            _camera.offsetTargetFocalLength(_camera.getTargetFocalLength() * SCROLL_SPEED * -e.motion.x);
             break;
     }
 
@@ -117,6 +117,9 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 void MainMenuScreen::update(const GameTime& gameTime) {
 
     _awesomiumInterface.update();
+    
+    // Connect camera to target planet
+    _camera.setTargetFocalPoint(_app->spaceSystem->getTargetPosition());
 
     _camera.update();
     GameManager::inputManager->update();

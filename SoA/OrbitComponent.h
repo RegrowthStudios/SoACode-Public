@@ -16,6 +16,7 @@
 #define OrbitComponent_h__
 
 #include <SDL/SDL_stdinc.h>
+#include <mutex>
 
 #include "GpuMemory.h"
 #include "Entity.h"
@@ -49,7 +50,8 @@ public:
     void destroy();
 
     /// Draws the ellipse and a point for the body
-    void drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent);
+    void drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent,
+                 const f64v3& camPos, NamePositionComponent* parentNpComponent = nullptr);
 
     /// Gets the vertex buffer ID for ellipse
     const VGBuffer& getVbo() const { return m_vbo; }

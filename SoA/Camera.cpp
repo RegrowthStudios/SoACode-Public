@@ -120,12 +120,12 @@ void CinematicCamera::yawFromMouse(float dx, float speed) {
     applyRotation(frontQuat);
 }
 
-void CinematicCamera::offsetFocalLength(float offset) {
-    m_focalLength += offset;
-    if (m_focalLength < 0.0) {
-        m_focalLength = 0.0;
-    } else if (m_focalLength > m_maxFocalLength) {
-        m_focalLength = m_maxFocalLength;
+void CinematicCamera::offsetTargetFocalLength(float offset) {
+    m_targetFocalLength += offset;
+    if (m_targetFocalLength < 0.0) {
+        m_targetFocalLength = 0.0;
+    } else if (m_targetFocalLength > m_maxFocalLength) {
+        m_targetFocalLength = m_maxFocalLength;
     }
 }
 

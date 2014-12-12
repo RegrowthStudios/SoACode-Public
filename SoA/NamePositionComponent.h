@@ -17,6 +17,7 @@
 
 class NamePositionComponent {
 public:
+
     f64v3 position;
     nString name;
 };

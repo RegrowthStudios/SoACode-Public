@@ -75,6 +75,21 @@ public:
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
 
+    /// Gets the position of the targeted component
+    /// @return position
+    f64v3 getTargetPosition() {
+        m_mutex.lock();
+        f64v3 pos = m_namePositionCT.get(targetComponent).position;
+        m_mutex.unlock();
+        return pos;
+    }
+
+    /// Gets the name of the targeted component
+    /// @return position
+    nString getTargetName() {
+        return m_namePositionCT.get(targetComponent).name;
+    }
+
 protected:
     bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
 
@@ -89,6 +104,8 @@ protected:
     void setOrbitProperties(vcore::ComponentID cmp, 
                             const SystemBodyKegProperties* sysProps);
 
+    vcore::ComponentID targetComponent = 1; ///< Current namePositionComponent we are focusing on
+
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
@@ -96,6 +113,8 @@ protected:
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
 
     IOManager m_ioManager;
+
+    std::mutex m_mutex;
 
     std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies
