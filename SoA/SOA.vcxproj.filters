@@ -129,12 +129,6 @@
     <Filter Include="SOA Files\Game\Universe">
       <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Vorb">
-      <UniqueIdentifier>{55891d5b-0543-4390-acad-b4d0a80b3f71}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Vorb\Graphics">
-      <UniqueIdentifier>{189dfa46-b2e3-47b4-9730-ee9edb16c0f5}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
