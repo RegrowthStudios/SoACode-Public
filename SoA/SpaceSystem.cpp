@@ -262,6 +262,7 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
 
     YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
+        std::cout << "Failed to load " + filePath;
         return false;
     }
 
@@ -391,6 +392,7 @@ bool SpaceSystem::loadSystemProperties(const nString& dirPath) {
         } else {
             // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
+            properties.pathColor = ui8v4(rand() % 255, rand() % 255, rand() % 255, 255);
             Keg::Error err = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != Keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), dirPath.c_str());
