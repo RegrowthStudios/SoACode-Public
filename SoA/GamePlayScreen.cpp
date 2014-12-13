@@ -108,9 +108,13 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
         _renderPipeline.loadNightVision();
     });
+
+    GameManager::inputManager->startInput();
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
+    GameManager::inputManager->stopInput();
+
     InputManager* inputManager = GameManager::inputManager;
     inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
     delete _onPauseKeyDown;

@@ -208,12 +208,39 @@ void InputManager::update() {
 
 void InputManager::startInput() {
     m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=] (void* sender, const vui::MouseButtonEvent& e) {
-
+        switch (e.button) {
+        case vui::MouseButton::LEFT:
+            _currentKeyStates[SDL_BUTTON_LEFT] = true;
+            break;
+        case vui::MouseButton::RIGHT:
+            _currentKeyStates[SDL_BUTTON_RIGHT] = true;
+            break;
+        default:
+            break;
+        }
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=] (void* sender, const vui::MouseButtonEvent& e) {
+        switch (e.button) {
+        case vui::MouseButton::LEFT:
+            _currentKeyStates[SDL_BUTTON_LEFT] = false;
+            break;
+        case vui::MouseButton::RIGHT:
+            _currentKeyStates[SDL_BUTTON_RIGHT] = false;
+            break;
+        default:
+            break;
+        }
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [=] (void* sender, const vui::KeyEvent& e) {
+        _currentKeyStates[e.keyCode] = true;
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyUp, [=] (void* sender, const vui::KeyEvent& e) {
+        _currentKeyStates[e.keyCode] = false;
     });
 }
 
 void InputManager::stopInput() {
-
+    m_inputHooks.dispose();
 }
 
 void InputManager::pushEvent(const SDL_Event& inputEvent) {

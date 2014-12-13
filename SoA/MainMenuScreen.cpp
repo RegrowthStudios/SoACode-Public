@@ -70,9 +70,13 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     // Run the update thread for updating the planet
     _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
+
+    GameManager::inputManager->startInput();
 }
 
 void MainMenuScreen::onExit(const GameTime& gameTime) {
+    GameManager::inputManager->stopInput();
+
     _threadRunning = false;
     _updateThread->join();
     delete _updateThread;
