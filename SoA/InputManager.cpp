@@ -1,18 +1,16 @@
 #include "stdafx.h"
 #include "InputManager.h"
 
+#include <sstream>
+
 #include <SDL\SDL_keyboard.h>
 #include <SDL\SDL_mouse.h>
+#include <InputDispatcher.h>
 
 #include "global.h"
 #include "FileSystem.h"
-
 #include "GameManager.h"
 #include "Inputs.h"
-
-#include <string>
-#include <sstream>
-#include <stdio.h>
 
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
@@ -208,6 +206,16 @@ void InputManager::update() {
     }
 }
 
+void InputManager::startInput() {
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=] (void* sender, const vui::MouseButtonEvent& e) {
+
+    });
+}
+
+void InputManager::stopInput() {
+
+}
+
 void InputManager::pushEvent(const SDL_Event& inputEvent) {
     switch (inputEvent.type) {
     case SDL_MOUSEBUTTONDOWN:
@@ -329,3 +337,4 @@ InputManager::AxisType InputManager::getAxisType(const int axisID) {
     if(axisID < 0 || axisID >= _axes.size()) return AxisType::NONE;
     return _axes.at(axisID)->type;
 }
+

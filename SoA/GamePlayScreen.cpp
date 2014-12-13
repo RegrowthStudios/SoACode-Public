@@ -156,13 +156,6 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
     // Push the event to the input manager
     GameManager::inputManager->pushEvent(e);
 
-    // Pause menu steals events from PDA
-    if (_pauseMenu.isOpen()) { 
-        _pauseMenu.onEvent(e);
-    } else if (_pda.isOpen()) {
-        _pda.onEvent(e);
-    }
-
     // Handle custom input
     switch (e.type) {
         case SDL_MOUSEMOTION:

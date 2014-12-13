@@ -81,7 +81,6 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
-    _awesomiumInterface.handleEvent(e);
     GameManager::inputManager->pushEvent(e);
 
     // Check for reloading the UI

@@ -62,6 +62,9 @@ void App::onInit() {
     vui::InputDispatcher::mouse.onFocusLost += createDelegate<const vui::MouseEvent&>([=] (void* sender, const vui::MouseEvent& e) {
         std::cout << "Mouse lost focus at:" << e.x << "," << e.y << std::endl;
     });
+    vui::InputDispatcher::key.onKeyDown += createDelegate<const vui::KeyEvent&>([=](void* sender, const vui::KeyEvent& e) {
+        std::cout << "Key Event: RC=" << e.repeatCount << " Num:" << e.mod.num << std::endl;
+    });
 }
 
 void App::onExit() {
