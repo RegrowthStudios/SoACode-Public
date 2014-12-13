@@ -178,11 +178,9 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
             if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
                 SDL_SetRelativeMouseMode(SDL_FALSE);
                 _inFocus = false;
-                SDL_StopTextInput();
             } else if (e.window.type == SDL_WINDOWEVENT_ENTER) {
                 SDL_SetRelativeMouseMode(SDL_TRUE);
                 _inFocus = true;
-                SDL_StartTextInput();
             }
         default:
             break;
@@ -229,7 +227,6 @@ void GamePlayScreen::unPause() {
     _pauseMenu.close(); 
     SDL_SetRelativeMouseMode(SDL_TRUE);
     _inFocus = true;
-    SDL_StartTextInput();
 }
 
 i32 GamePlayScreen::getWindowWidth() const {
@@ -276,7 +273,6 @@ void GamePlayScreen::handleInput() {
 }
 
 void GamePlayScreen::onMouseDown(const SDL_Event& e) {
-    SDL_StartTextInput();
     if (isInGame()) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         _inFocus = true;
