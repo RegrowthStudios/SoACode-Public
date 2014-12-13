@@ -31,7 +31,7 @@
 #include "RenderTask.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
-#include "TerrainPatch.h"
+#include "SphericalTerrainPatch.h"
 #include "ThreadPool.h"
 #include "VRayHelper.h"
 #include "Vorb.h"

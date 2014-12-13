@@ -7,7 +7,7 @@
 #include "InputManager.h"
 #include "Sound.h"
 #include "MessageManager.h"
-#include "TerrainPatch.h"
+#include "SphericalTerrainPatch.h"
 #include "MeshManager.h"
 #include "ChunkMesh.h"
 #include "ParticleMesh.h"

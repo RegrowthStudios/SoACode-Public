@@ -72,18 +72,9 @@ public:
 
 class TerrainVertex {
 public:
-    f32v3 location; //12
-    f32v2 tex; //20
-    f32v3 normal; //32
-    ui8 color[4]; //36
-    ColorRGB8 slopeColor; //39
-    ui8 pad1; //40
-    ColorRGB8 beachColor; //43
-    ui8 pad2; //44
-    ui8 textureUnit;
-    ui8 temperature;
-    ui8 rainfall;
-    ui8 specular; //48
+    f32v3 position; //12
+    ColorRGB8 color; //15
+    ui8 padding;
 };
 
 class PhysicsBlockVertex {

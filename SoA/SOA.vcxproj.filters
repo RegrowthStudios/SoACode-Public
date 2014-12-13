@@ -311,9 +311,6 @@
     <ClInclude Include="TerrainGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainPatch.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Texture2d.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
@@ -581,6 +578,9 @@
     <ClInclude Include="SpaceSystemRenderStage.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="SphericalTerrainPatch.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -717,9 +717,6 @@
     </ClCompile>
     <ClCompile Include="TerrainGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainPatch.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Texture2d.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -898,6 +895,9 @@
     <ClCompile Include="Atmosphere.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="OrbitComponent.cpp" />
+    <ClCompile Include="SphericalTerrainPatch.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

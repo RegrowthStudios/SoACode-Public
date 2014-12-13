@@ -21,7 +21,7 @@
 #include "Player.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
-#include "TerrainPatch.h"
+#include "SphericalTerrainPatch.h"
 #include "VoxelEditor.h"
 
 #define THREAD ThreadId::UPDATE

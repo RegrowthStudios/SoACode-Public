@@ -241,7 +241,7 @@
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
-    <ClInclude Include="TerrainPatch.h" />
+    <ClInclude Include="SphericalTerrainPatch.h" />
     <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="OpenGLStructs.h" />
     <ClInclude Include="Options.h" />
@@ -358,7 +358,7 @@
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="global.cpp" />
-    <ClCompile Include="TerrainPatch.cpp" />
+    <ClCompile Include="SphericalTerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="Options.cpp" />

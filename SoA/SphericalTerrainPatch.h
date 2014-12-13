@@ -51,7 +51,39 @@ public:
     f32v3 boundingBox;
 };
 
-class TerrainPatch{
+
+#define PATCH_WIDTH 32
+
+class SphericalTerrainData {
 public:
- 
+    const f64& getRadius() const { return m_radius; }
+    const f64v2& getGridCenter() const { return m_gridCenter; }
+    const f64v3& getGridCenterWorld() const { return m_gridCenter; }
+private:
+    f64 m_radius;
+    f64v2 m_gridCenter; ///< Center of the grid
+    f64v3 m_gridCenterWorld; ///< Center of the grid in world coordinates
+};
+
+class SphericalTerrainPatch {
+public:
+    SphericalTerrainPatch(const f64v2& gridPosition,
+                          const SphericalTerrainData* sphericalTerrainData);
+    
+    void update(const f64v3& cameraPos);
+
+
+private:
+    void generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]);
+
+    f64v2 m_gridPosition;
+    f64v3 m_worldPosition;
+    f64 m_distance = 1000000000.0;
+    int m_lod = 0;
+    bool m_hasMesh = false;
+
+    ui32 m_vbo = 0;
+    ui32 m_ibo = 0;
+
+    const SphericalTerrainData* m_sphericalTerrainData;
 };
