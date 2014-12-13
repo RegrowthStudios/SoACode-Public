@@ -15,20 +15,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>Required Files</Filter>
-    </ClInclude>
     <ClInclude Include="macros.h">
       <Filter>Required Files</Filter>
     </ClInclude>
     <ClInclude Include="Tests.h">
       <Filter>Required Files</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Required Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AssemblyInfo.cpp">
-      <Filter>Required Files</Filter>
-    </ClCompile>
     <ClCompile Include="Stdafx.cpp">
       <Filter>Required Files</Filter>
     </ClCompile>
@@ -42,6 +39,9 @@
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Lua.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="OS.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
