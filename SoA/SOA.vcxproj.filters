@@ -871,6 +871,9 @@
     <ClCompile Include="VoxPool.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
+    <ClCompile Include="LoadTaskShaders.cpp">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
