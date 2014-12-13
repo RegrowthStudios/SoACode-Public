@@ -305,6 +305,7 @@
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
+    <ClCompile Include="SphericalTerrainComponent.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

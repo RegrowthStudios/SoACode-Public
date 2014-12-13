@@ -56,9 +56,19 @@ public:
 
 class SphericalTerrainData {
 public:
+    friend class SphericalTerrainComponent;
+
+    SphericalTerrainData(f64 radius, const f64v2& gridCenter,
+                         const f64v3& gridCenterWorld) :
+        m_radius(radius),
+        m_gridCenter(gridCenter),
+        m_gridCenterWorld(gridCenterWorld) {
+        // Empty
+    }
+
     const f64& getRadius() const { return m_radius; }
     const f64v2& getGridCenter() const { return m_gridCenter; }
-    const f64v3& getGridCenterWorld() const { return m_gridCenter; }
+    const f64v3& getGridCenterWorld() const { return m_gridCenterWorld; }
 private:
     f64 m_radius;
     f64v2 m_gridCenter; ///< Center of the grid
@@ -67,23 +77,29 @@ private:
 
 class SphericalTerrainPatch {
 public:
+    SphericalTerrainPatch() {};
     SphericalTerrainPatch(const f64v2& gridPosition,
                           const SphericalTerrainData* sphericalTerrainData);
     
+    void init(const f64v2& gridPosition,
+              const SphericalTerrainData* sphericalTerrainData);
+
     void update(const f64v3& cameraPos);
 
-
+    // Temporary
+    void draw(const f64v3& cameraPos, const f64m4& VP);
 private:
     void generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]);
 
-    f64v2 m_gridPosition;
-    f64v3 m_worldPosition;
+    f64v2 m_gridPosition = f64v2(0.0);
+    f64v3 m_worldPosition = f64v3(0.0);
     f64 m_distance = 1000000000.0;
     int m_lod = 0;
     bool m_hasMesh = false;
 
+    ui32 m_vao = 0;
     ui32 m_vbo = 0;
     ui32 m_ibo = 0;
 
-    const SphericalTerrainData* m_sphericalTerrainData;
+    const SphericalTerrainData* m_sphericalTerrainData = nullptr;
 };

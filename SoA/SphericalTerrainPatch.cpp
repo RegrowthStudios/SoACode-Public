@@ -19,6 +19,9 @@ int lodDistanceLevels[DetailLevels] = {500/scale, 1000/scale, 2000/scale, 4000/s
 int WaterIndexMap[(maxVertexWidth+3)*(maxVertexWidth+3)*2];
 int MakeWaterQuadMap[(maxVertexWidth+3)*(maxVertexWidth+3)];
 
+#define INDICES_PER_QUAD 6
+const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD;
+
 //a   b
 //c   d
 inline double BilinearInterpolation(int &a, int &b, int &c, int &d, int &step, float &x, float &z)
@@ -40,6 +43,12 @@ SphericalTerrainPatch::SphericalTerrainPatch(const f64v2& gridPosition,
 
 }
 
+void SphericalTerrainPatch::init(const f64v2& gridPosition,
+          const SphericalTerrainData* sphericalTerrainData) {
+    m_gridPosition = gridPosition;
+    m_sphericalTerrainData = sphericalTerrainData;
+}
+
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     m_distance = glm::length(m_worldPosition - cameraPos);
 
@@ -50,8 +59,18 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     }
 }
 
+void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f64m4& VP) {
+
+    glBindVertexArray(m_vao);
+
+    glDrawElements(GL_TRIANGLES,
+                   INDICES_PER_PATCH,
+                   GL_UNSIGNED_SHORT, 0);
+
+    glBindVertexArray(0);
+}
+
 void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]) {
-#define INDICES_PER_QUAD 6
 
     static const ColorRGB8 tcolor(0, 128, 0);
 
@@ -68,7 +87,7 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
     }
 
     std::vector <ui16> indices;
-    indices.resize((PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD);
+    indices.resize(INDICES_PER_PATCH);
 
     // Loop through each quad and set indices
     int vertIndex;
@@ -87,9 +106,12 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
         }
     }
     if (m_vbo == 0) {
+        glGenVertexArrays(1, &m_vao);
         vg::GpuMemory::createBuffer(m_vbo);
         vg::GpuMemory::createBuffer(m_ibo);
     }
+
+    glBindVertexArray(m_vao);
 
     // Upload buffer data
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
@@ -100,6 +122,15 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
     vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
                                     indices.size() * sizeof(ui16),
                                     indices.data());
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, position));
+    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, color));
+
+    glBindVertexArray(0);
 
     m_hasMesh = true;
 }

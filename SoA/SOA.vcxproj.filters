@@ -898,6 +898,7 @@
     <ClCompile Include="SphericalTerrainPatch.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="SphericalTerrainComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

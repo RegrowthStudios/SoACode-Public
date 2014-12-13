@@ -17,14 +17,24 @@
 #define SphericalTerrainComponent_h__
 
 #include "stdafx.h"
+#include "SphericalTerrainPatch.h"
+
+#include <deque>
+
+class NamePositionComponent;
 
 class SphericalTerrainComponent {
 public:
-    void init(f64 Radius) {
-        radius = Radius;
-    }
+    void init(f64 radius);
 
-    f64 radius = 0.0;
+    void update(const f64v3& cameraPos,
+                const NamePositionComponent* npComponent);
+
+private:
+    f64 m_circumference = 0.0;
+    SphericalTerrainPatch* m_patches; ///< Buffer for top level patches
+    std::deque< std::deque <SphericalTerrainPatch*> > m_patchesGrid;
+    SphericalTerrainData* m_sphericalTerrainData = nullptr;
 };
 
 #endif // SphericalTerrainComponent_h__
