@@ -2,13 +2,14 @@
 #include "App.h"
 
 #include <InputDispatcher.h>
+#include <ScreenList.h>
+#include <SpriteBatch.h>
 
+#include "DevScreen.h"
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "MainMenuScreen.h"
 #include "GamePlayScreen.h"
-#include "ScreenList.h"
-#include "SpriteBatch.h"
 #include "MeshManager.h"
 #include "Options.h"
 
@@ -23,7 +24,13 @@ void App::addScreens() {
     _screenList->addScreen(scrMainMenu);
     _screenList->addScreen(scrGamePlay);
 
-    _screenList->setScreen(scrInit->getIndex());
+    // Add development screen
+    scrDev = new DevScreen;
+    scrDev->addScreen(SDLK_RETURN, scrInit);
+    scrDev->addScreen(SDLK_SPACE, scrInit);
+    _screenList->addScreen(scrDev);
+
+    _screenList->setScreen(scrDev->getIndex());
 }
 
 void App::onInit() {
@@ -74,15 +81,14 @@ void App::onExit() {
 }
 
 App::~App() {
-    if (scrInit) {
-        delete scrInit;
-        scrInit = nullptr;
-    }
+#define COND_DEL(SCR) if (SCR) { delete SCR; SCR = nullptr; }
 
-    if (scrLoad) {
-        delete scrLoad;
-        scrLoad = nullptr;
-    }
+    COND_DEL(scrInit)
+    COND_DEL(scrLoad)
+    // TODO: Why do these break
+    //COND_DEL(scrMainMenu)
+    //COND_DEL(scrGamePlay)
+    COND_DEL(scrDev)
 
     delete meshManager;
 }

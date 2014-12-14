@@ -75,9 +75,6 @@
     <Filter Include="SOA Files\Screens">
       <UniqueIdentifier>{f1c18989-f573-4fa6-ba8b-ebcaa46f53d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Screens\Base">
-      <UniqueIdentifier>{877c328b-8bd7-4523-952d-f4bbb6408408}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\Rendering\Wrappers\States">
       <UniqueIdentifier>{5de02c64-70fe-494b-816d-3758baefff39}</UniqueIdentifier>
     </Filter>
@@ -128,6 +125,9 @@
     </Filter>
     <Filter Include="SOA Files\Game\Universe">
       <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\Dev">
+      <UniqueIdentifier>{877c328b-8bd7-4523-952d-f4bbb6408408}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -536,6 +536,9 @@
     <ClInclude Include="VoxPool.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
+    <ClInclude Include="DevScreen.h">
+      <Filter>SOA Files\Screens\Dev</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -867,6 +870,9 @@
     </ClCompile>
     <ClCompile Include="LoadTaskShaders.cpp">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="DevScreen.cpp">
+      <Filter>SOA Files\Screens\Dev</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

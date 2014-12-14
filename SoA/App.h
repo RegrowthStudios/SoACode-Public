@@ -5,6 +5,7 @@
 
 #include "MainGame.h"
 
+class DevScreen;
 class InitScreen;
 class LoadScreen;
 class MainMenuScreen;
@@ -25,6 +26,7 @@ public:
     LoadScreen* scrLoad;
     MainMenuScreen* scrMainMenu;
     GamePlayScreen* scrGamePlay;
+    DevScreen* scrDev;
 
     MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
 };
