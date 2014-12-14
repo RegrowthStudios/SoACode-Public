@@ -38,48 +38,68 @@ inline double BilinearInterpolation(int &a, int &b, int &c, int &d, int &step, f
 }
 
 SphericalTerrainPatch::SphericalTerrainPatch(const f64v2& gridPosition,
-                                             const SphericalTerrainData* sphericalTerrainData) :
+                                             const SphericalTerrainData* sphericalTerrainData,
+                                             f64 width) :
     m_gridPosition(gridPosition),
-    m_sphericalTerrainData(sphericalTerrainData) {
+    m_sphericalTerrainData(sphericalTerrainData),
+    m_width(width) {
 
 }
 
 void SphericalTerrainPatch::init(const f64v2& gridPosition,
-          const SphericalTerrainData* sphericalTerrainData) {
+          const SphericalTerrainData* sphericalTerrainData,
+          f64 width) {
     m_gridPosition = gridPosition;
     m_sphericalTerrainData = sphericalTerrainData;
+    m_width = width;
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     m_distance = glm::length(m_worldPosition - cameraPos);
 
+    m_worldPosition = f32v3(0, 0, 0);
+}
+
+void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
     if (!m_hasMesh) {
+        update(cameraPos);
         float heightData[PATCH_WIDTH][PATCH_WIDTH];
         memset(heightData, 0, sizeof(heightData));
         generateMesh(heightData);
     }
-}
 
-void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
-    if (!m_hasMesh) return;
-    std::cout << (int)m_hasMesh << std::endl;
-    f32m4 matrix = VP;
-    setMatrixTranslation(matrix, m_worldPosition - cameraPos);
+    f32m4 matrix(1.0);
+    setMatrixTranslation(matrix, cameraPos);
+    matrix = VP * matrix;
+
+  //  printVec("POS: ", m_worldPosition - cameraPos);
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
 
-    glBindVertexArray(m_vao);
+  //  glBindVertexArray(m_vao);
+    checkGlError("WEE");
+    glVertexAttribPointer(program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, position));
+    checkGlError("HELLO");
+    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
+    glVertexAttribPointer(program->getAttribute("vColor"), 3, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, color));
+    checkGlError("GOODBURE");
 
-    glDrawElements(GL_TRIANGLES,
-                   INDICES_PER_PATCH,
+    glPointSize(10.0);
+    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    glDrawElements(GL_POINTS,
+                   1,
                    GL_UNSIGNED_SHORT, 0);
 
-    glBindVertexArray(0);
+  //  glBindVertexArray(0);
 }
 
 void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]) {
 
-    static const ColorRGB8 tcolor(0, 128, 0);
+    static const ColorRGB8 tcolor(0, 0, 128);
 
     std::vector <TerrainVertex> verts;
     verts.resize(PATCH_WIDTH * PATCH_WIDTH);
@@ -87,8 +107,11 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
     int index = 0;
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {
-            verts[index].position = f32v3(x, 0, z);
-            verts[index].color = tcolor;
+            verts[index].position = f32v3(100000.0, 0, z * m_width);
+            verts[index].color.r = tcolor.r;
+            verts[index].color.g = tcolor.g;
+            verts[index].color.b = tcolor.b;
+            memset(&(verts[index]), 0, sizeof(TerrainVertex));
             index++;
         }
     }
@@ -118,7 +141,7 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
         vg::GpuMemory::createBuffer(m_ibo);
     }
 
-    glBindVertexArray(m_vao);
+ //   glBindVertexArray(m_vao);
 
     // Upload buffer data
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
@@ -137,7 +160,7 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, color));
 
-    glBindVertexArray(0);
+  //  glBindVertexArray(0);
 
     m_hasMesh = true;
 }

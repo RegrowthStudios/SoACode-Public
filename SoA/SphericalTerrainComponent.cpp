@@ -10,7 +10,7 @@ void SphericalTerrainComponent::init(f64 radius) {
     m_circumference = 2.0 * M_PI * radius;
 }
 
-#define LOAD_DIST 10000.0
+#define LOAD_DIST 20000.0
 // Should be even
 #define PATCH_ROW 16  
 #define NUM_PATCHES (PATCH_ROW * PATCH_ROW)
@@ -44,7 +44,7 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
                     v[x] = &m_patches[index++];
                     gridPos.x = (x - center) * patchWidth;
                     gridPos.y = (z - center) * patchWidth;
-                    v[x]->init(gridPos, m_sphericalTerrainData);
+                    v[x]->init(gridPos, m_sphericalTerrainData, patchWidth);
                 }
             }
         }
@@ -66,18 +66,15 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
 void SphericalTerrainComponent::draw(const Camera* camera, vg::GLProgram* terrainProgram,
                                      const NamePositionComponent* npComponent) {
     if (!m_patches) return;
-    terrainProgram->use();
-    terrainProgram->enableVertexAttribArrays();
 
     f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
+    printVec("POS: ", relativeCameraPos);
+
     // Draw patches
     for (int i = 0; i < NUM_PATCHES; i++) {
         m_patches[i].draw(relativeCameraPos, VP, terrainProgram);
     }
-
-    terrainProgram->disableVertexAttribArrays();
-    terrainProgram->unuse();
 }

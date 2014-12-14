@@ -125,11 +125,12 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
 }
 
-void SpaceSystem::update(double time) {
+void SpaceSystem::update(double time, const f64v3& cameraPos) {
     m_mutex.lock();
     for (auto& it : m_axisRotationCT) {
         it.second.update(time);
     }
+    // Update Orbits
     for (auto& it : m_orbitCT) {
         auto& cmp = it.second; 
         if (cmp.parentNpId) {
@@ -139,6 +140,12 @@ void SpaceSystem::update(double time) {
             cmp.update(time, &m_namePositionCT.getFromEntity(it.first));
         }
     }
+
+    // Update Spherical Terrain
+    for (auto& it : m_sphericalTerrainCT) {
+        it.second.update(cameraPos, &m_namePositionCT.getFromEntity(it.first));
+    }
+
     m_mutex.unlock();
 }
 
@@ -147,12 +154,12 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
 
     static DebugRenderer debugRenderer;
     m_mutex.lock();
-    /*for (auto& it : m_sphericalGravityCT) {
+    for (auto& it : m_sphericalGravityCT) {
         auto& sgcmp = it.second;
         float radius = sgcmp.radius;
         const f64v3& position = m_namePositionCT.getFromEntity(it.first).position;
 
-        debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 5);
+        debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 4);
 
         const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(it.first);
 
@@ -161,11 +168,21 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
         f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
         debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);
-        }*/
+    }
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    terrainProgram->use();
+    terrainProgram->enableVertexAttribArrays();
     for (auto& it : m_sphericalTerrainCT) {
         auto& cmp = it.second;
         cmp.draw(camera, terrainProgram, &m_namePositionCT.getFromEntity(it.first));
     }
+    terrainProgram->disableVertexAttribArrays();
+    terrainProgram->unuse();
+
     m_mutex.unlock();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

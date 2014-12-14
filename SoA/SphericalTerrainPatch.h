@@ -81,10 +81,12 @@ public:
     
     };
     SphericalTerrainPatch(const f64v2& gridPosition,
-                          const SphericalTerrainData* sphericalTerrainData);
+                          const SphericalTerrainData* sphericalTerrainData,
+                          f64 width);
     
     void init(const f64v2& gridPosition,
-              const SphericalTerrainData* sphericalTerrainData);
+              const SphericalTerrainData* sphericalTerrainData,
+              f64 width);
 
     void update(const f64v3& cameraPos);
 
@@ -98,6 +100,7 @@ private:
     f64 m_distance = 1000000000.0;
     int m_lod = 0;
     bool m_hasMesh = false;
+    f64 m_width = 0.0;
 
     ui32 m_vao = 0;
     ui32 m_vbo = 0;

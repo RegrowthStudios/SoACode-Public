@@ -126,7 +126,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     static double time = 0.0;
     time += 0.001;
 
-    _app->spaceSystem->update(time);
+    _app->spaceSystem->update(time, _camera.getPosition());
 
     // Connect camera to target planet
     float length = _camera.getFocalLength() / 10.0;

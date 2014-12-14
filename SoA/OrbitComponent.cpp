@@ -62,14 +62,13 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
                               const f64v3& camPos, NamePositionComponent* parentNpComponent /* = nullptr */) {
 
     f32v4 color(f32v4(pathColor) / 255.0f);
-    f32m4 pathMatrix = wvp;
     f32m4 transMatrix(1.0f);
     if (parentNpComponent) { 
         setMatrixTranslation(transMatrix, parentNpComponent->position - camPos);
     } else {
         setMatrixTranslation(transMatrix, -camPos);
     }
-    pathMatrix = pathMatrix * transMatrix * glm::mat4(glm::toMat4(orientation));
+    f32m4 pathMatrix = wvp * transMatrix * glm::mat4(glm::toMat4(orientation));
     glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, color.a);
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
@@ -97,7 +96,7 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &wvp[0][0]);
     // Draw the point
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
-    glDrawArrays(GL_POINTS, 0, 1);
+  //  glDrawArrays(GL_POINTS, 0, 1);
 }
 
 void OrbitComponent::generateOrbitEllipse() {

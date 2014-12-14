@@ -61,7 +61,8 @@ public:
 
     /// Updates the space system
     /// @param time: The time in seconds
-    void update(double time);
+    /// @param cameraPos: Position of the camera
+    void update(double time, const f64v3& cameraPos);
     
     /// Renders the space bodies
     /// @param camera: Camera for rendering
