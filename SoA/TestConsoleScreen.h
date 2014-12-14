@@ -18,7 +18,7 @@
 #include <Events.hpp>
 #include <IGameScreen.h>
 #include <LuaDevConsole.h>
-#include <TextInputListener.h>
+#include <TextInputListener.hpp>
 
 class TestConsoleScreen : public IGameScreen {
 public:
