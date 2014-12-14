@@ -22,6 +22,7 @@
 #include <deque>
 
 class NamePositionComponent;
+class Camera;
 
 class SphericalTerrainComponent {
 public:
@@ -30,9 +31,11 @@ public:
     void update(const f64v3& cameraPos,
                 const NamePositionComponent* npComponent);
 
+    void draw(const Camera* camera, vg::GLProgram* terrainProgram,
+              const NamePositionComponent* npComponent);
 private:
     f64 m_circumference = 0.0;
-    SphericalTerrainPatch* m_patches; ///< Buffer for top level patches
+    SphericalTerrainPatch* m_patches = nullptr; ///< Buffer for top level patches
     std::deque< std::deque <SphericalTerrainPatch*> > m_patchesGrid;
     SphericalTerrainData* m_sphericalTerrainData = nullptr;
 };

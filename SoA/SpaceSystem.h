@@ -65,7 +65,7 @@ public:
     
     /// Renders the space bodies
     /// @param camera: Camera for rendering
-    void drawBodies(const Camera* camera);
+    void drawBodies(const Camera* camera, vg::GLProgram* terrainProgram);
 
     /// Renders the space paths
     /// @param camera: Camera for rendering

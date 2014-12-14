@@ -24,7 +24,8 @@ class SpaceSystemRenderStage : public vg::IRenderStage {
 public:
     SpaceSystemRenderStage(const SpaceSystem* spaceSystem,
                            const Camera* camera,
-                           vg::GLProgram* colorProgram);
+                           vg::GLProgram* colorProgram,
+                           vg::GLProgram* terrainProgram);
     ~SpaceSystemRenderStage();
 
     /// Draws the render stage
@@ -33,6 +34,7 @@ private:
     const SpaceSystem* m_spaceSystem;
     const Camera* m_camera;
     vg::GLProgram* m_colorProgram;
+    vg::GLProgram* m_terrainProgram;
 };
 
 #endif // SpaceSystemRenderStage_h__

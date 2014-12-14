@@ -77,7 +77,9 @@ private:
 
 class SphericalTerrainPatch {
 public:
-    SphericalTerrainPatch() {};
+    SphericalTerrainPatch() {
+    
+    };
     SphericalTerrainPatch(const f64v2& gridPosition,
                           const SphericalTerrainData* sphericalTerrainData);
     
@@ -87,7 +89,7 @@ public:
     void update(const f64v3& cameraPos);
 
     // Temporary
-    void draw(const f64v3& cameraPos, const f64m4& VP);
+    void draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program);
 private:
     void generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]);
 

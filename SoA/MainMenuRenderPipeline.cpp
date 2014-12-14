@@ -49,7 +49,7 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
     _planetRenderStage = new PlanetRenderStage(camera);
     _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
     _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
-    m_spaceSystemRenderStage = new SpaceSystemRenderStage(spaceSystem, camera, glProgramManager->getProgram("BasicColor"));
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(spaceSystem, camera, glProgramManager->getProgram("BasicColor"), glProgramManager->getProgram("SphericalTerrain"));
 }
 
 void MainMenuRenderPipeline::render() {

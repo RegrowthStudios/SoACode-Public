@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponent.h"
+#include "Camera.h"
 
 #include "NamePositionComponent.h"
 
@@ -47,6 +48,11 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
                 }
             }
         }
+
+        // Update patches
+        for (int i = 0; i < NUM_PATCHES; i++) {
+            m_patches[i].update(cameraPos);
+        }
     } else { 
         // Out of range, delete everything
         if (m_patchesGrid.size()) {
@@ -55,4 +61,23 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
             m_patchesGrid.clear();
         }
     }
+}
+
+void SphericalTerrainComponent::draw(const Camera* camera, vg::GLProgram* terrainProgram,
+                                     const NamePositionComponent* npComponent) {
+    if (!m_patches) return;
+    terrainProgram->use();
+    terrainProgram->enableVertexAttribArrays();
+
+    f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
+
+    f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
+
+    // Draw patches
+    for (int i = 0; i < NUM_PATCHES; i++) {
+        m_patches[i].draw(relativeCameraPos, VP, terrainProgram);
+    }
+
+    terrainProgram->disableVertexAttribArrays();
+    terrainProgram->unuse();
 }

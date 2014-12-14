@@ -82,6 +82,9 @@ void CinematicCamera::update()
 {
     m_viewChanged = true;
     /// Smooth movement towards target
+
+    //TODO: Tweening with velocity vs distance
+
     if (ABS(m_focalLength - m_targetFocalLength) < 0.1) {
         m_focalLength = m_targetFocalLength;
     } else {

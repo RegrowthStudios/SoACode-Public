@@ -10,6 +10,7 @@
 #include "Options.h"
 #include "WorldStructs.h"
 #include "GpuMemory.h"
+#include "RenderUtils.h"
 
 #include "utils.h"
 
@@ -52,14 +53,20 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     m_distance = glm::length(m_worldPosition - cameraPos);
 
-    if (m_hasMesh == false) {
+    if (!m_hasMesh) {
         float heightData[PATCH_WIDTH][PATCH_WIDTH];
         memset(heightData, 0, sizeof(heightData));
         generateMesh(heightData);
     }
 }
 
-void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f64m4& VP) {
+void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
+    if (!m_hasMesh) return;
+    std::cout << (int)m_hasMesh << std::endl;
+    f32m4 matrix = VP;
+    setMatrixTranslation(matrix, m_worldPosition - cameraPos);
+
+    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
 
     glBindVertexArray(m_vao);
 

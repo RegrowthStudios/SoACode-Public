@@ -142,12 +142,12 @@ void SpaceSystem::update(double time) {
     m_mutex.unlock();
 }
 
-void SpaceSystem::drawBodies(const Camera* camera) {
+void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     static DebugRenderer debugRenderer;
     m_mutex.lock();
-    for (auto& it : m_sphericalGravityCT) {
+    /*for (auto& it : m_sphericalGravityCT) {
         auto& sgcmp = it.second;
         float radius = sgcmp.radius;
         const f64v3& position = m_namePositionCT.getFromEntity(it.first).position;
@@ -161,6 +161,10 @@ void SpaceSystem::drawBodies(const Camera* camera) {
         f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
         debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);
+        }*/
+    for (auto& it : m_sphericalTerrainCT) {
+        auto& cmp = it.second;
+        cmp.draw(camera, terrainProgram, &m_namePositionCT.getFromEntity(it.first));
     }
     m_mutex.unlock();
 

@@ -70,12 +70,12 @@ private:
                                      "Shaders/AtmosphereShading/Sky.vert",
                                      "Shaders/AtmosphereShading/Sky.frag");
         /***** Texture *****/
-        std::vector<nString> dd;
-        dd.push_back("vPosition");
-        dd.push_back("vUV");
+        std::vector<nString> textureAttribs;
+        textureAttribs.push_back("vPosition");
+        textureAttribs.push_back("vUV");
         glProgramManager->addProgram("Texture",
                                      "Shaders/TextureShading/TextureShading.vert",
-                                     "Shaders/TextureShading/TextureShading.frag", &dd);
+                                     "Shaders/TextureShading/TextureShading.frag", &textureAttribs);
         /***** BasicColor *****/
         glProgramManager->addProgram("BasicColor",
                                      "Shaders/BasicShading/BasicColorShading.vert",
@@ -132,6 +132,14 @@ private:
         glProgramManager->addProgram("TreeBillboard",
                                      "Shaders/TreeBillboardShading/TreeBillboardShading.vert",
                                      "Shaders/TreeBillboardShading/TreeBillboardShading.frag");
+        
+        /***** SphericalTerrain *****/
+        std::vector<nString> sphericalAttribs;
+        sphericalAttribs.push_back("vPosition");
+        sphericalAttribs.push_back("vColor");
+        glProgramManager->addProgram("SphericalTerrain",
+                                     "Shaders/SphericalTerrain/SphericalTerrain.vert",
+                                     "Shaders/SphericalTerrain/SphericalTerrain.frag", &sphericalAttribs);
 
         checkGlError("InitializeShaders()");
 
