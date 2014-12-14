@@ -160,6 +160,7 @@
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceComponents.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
@@ -293,6 +294,7 @@
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceComponents.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

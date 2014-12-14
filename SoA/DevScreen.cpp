@@ -12,8 +12,10 @@ i32 DevScreen::getPreviousScreen() const {
 }
 
 void DevScreen::build() {
+    // Empty
 }
 void DevScreen::destroy(const GameTime& gameTime) {
+    // Empty
 }
 
 void DevScreen::onEntry(const GameTime& gameTime) {
@@ -33,6 +35,7 @@ void DevScreen::onExit(const GameTime& gameTime) {
 }
 
 void DevScreen::onEvent(const SDL_Event& e) {
+    // Empty
 }
 void DevScreen::update(const GameTime& gameTime) {
     if (m_nextScreen) _state = ScreenState::CHANGE_NEXT;

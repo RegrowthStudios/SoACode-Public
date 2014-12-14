@@ -26,7 +26,9 @@ public:
     LoadScreen* scrLoad;
     MainMenuScreen* scrMainMenu;
     GamePlayScreen* scrGamePlay;
+
     DevScreen* scrDev;
+    std::vector<IGameScreen*> scrTests;
 
     MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
 };

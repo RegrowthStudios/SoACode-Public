@@ -129,6 +129,9 @@
     <Filter Include="SOA Files\Screens\Dev">
       <UniqueIdentifier>{877c328b-8bd7-4523-952d-f4bbb6408408}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Screens\Test">
+      <UniqueIdentifier>{07d56bf0-8858-45a6-bcf5-6fe4f58dc323}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -539,6 +542,9 @@
     <ClInclude Include="DevScreen.h">
       <Filter>SOA Files\Screens\Dev</Filter>
     </ClInclude>
+    <ClInclude Include="TestConsoleScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -873,6 +879,9 @@
     </ClCompile>
     <ClCompile Include="DevScreen.cpp">
       <Filter>SOA Files\Screens\Dev</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConsoleScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
