@@ -18,6 +18,7 @@
 #include <Events.hpp>
 #include <IGameScreen.h>
 #include <LuaDevConsole.h>
+#include <TextInputListener.h>
 
 class TestConsoleScreen : public IGameScreen {
 public:
@@ -35,8 +36,8 @@ public:
     virtual void draw(const GameTime& gameTime) override;
 private:
     vui::LuaDevConsole m_console; ///< Console used for testing
+    vui::TextInputListener<char> m_text; ///< Text input
     AutoDelegatePool m_delegatePool; ///< Input hooks reservoir
-    nString m_command; ///< Current command string
 };
 
 #endif // TestConsoleScreen_h__
