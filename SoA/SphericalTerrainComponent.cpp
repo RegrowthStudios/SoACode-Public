@@ -23,7 +23,7 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
     if (distance <= LOAD_DIST) {
         // In range, allocate if needed
         if (m_patchesGrid.empty()) {
-            float patchWidth = m_circumference / 4.0 / PATCH_ROW / 2.0;
+            float patchWidth = m_circumference / 4.0 / (PATCH_ROW / 2.0);
             // Set up origin
             m_sphericalTerrainData->m_gridCenter = f64v2(0.0);
             m_sphericalTerrainData->m_gridCenterWorld =
@@ -69,9 +69,9 @@ void SphericalTerrainComponent::draw(const Camera* camera, vg::GLProgram* terrai
 
     f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
-    f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
+    f64v3 relativeCameraPos = npComponent->position - camera->getPosition();
 
-    printVec("POS: ", relativeCameraPos);
+    //printVec("POS: ", relativeCameraPos);
 
     // Draw patches
     for (int i = 0; i < NUM_PATCHES; i++) {

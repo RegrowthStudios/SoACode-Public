@@ -96,7 +96,7 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &wvp[0][0]);
     // Draw the point
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
-  //  glDrawArrays(GL_POINTS, 0, 1);
+   // glDrawArrays(GL_POINTS, 0, 1);
 }
 
 void OrbitComponent::generateOrbitEllipse() {

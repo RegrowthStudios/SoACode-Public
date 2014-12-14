@@ -50,7 +50,7 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
     // Initialize the camera
     _camera.init(_app->getWindow().getAspectRatio());
-    _camera.setPosition(glm::dvec3(0.0, 20000000000.0, 0.0));
+    _camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
     _camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(10000.0f, 3000000000000.0f);
