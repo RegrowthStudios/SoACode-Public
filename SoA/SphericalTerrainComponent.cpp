@@ -12,7 +12,7 @@ void SphericalTerrainComponent::init(f64 radius) {
 
 #define LOAD_DIST 20000.0
 // Should be even
-#define PATCH_ROW 16  
+#define PATCH_ROW 4  
 #define NUM_PATCHES (PATCH_ROW * PATCH_ROW)
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
@@ -22,12 +22,12 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
 
     if (distance <= LOAD_DIST) {
         // In range, allocate if needed
-        if (m_patchesGrid.empty()) {
+        if (!m_patches) {
             float patchWidth = m_circumference / 4.0 / (PATCH_ROW / 2.0);
             // Set up origin
             m_sphericalTerrainData->m_gridCenter = f64v2(0.0);
             m_sphericalTerrainData->m_gridCenterWorld =
-                glm::normalize(cameraVec) * m_sphericalTerrainData->m_radius;
+                glm::dvec3(0.0, 1.0, 0.0 /* cameraVec */) * m_sphericalTerrainData->m_radius;
 
             // Allocate top level patches
             m_patches = new SphericalTerrainPatch[NUM_PATCHES];
@@ -55,7 +55,7 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
         }
     } else { 
         // Out of range, delete everything
-        if (m_patchesGrid.size()) {
+        if (m_patches) {
             delete[] m_patches;
             m_patches = nullptr;
             m_patchesGrid.clear();

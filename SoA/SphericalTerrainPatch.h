@@ -77,12 +77,11 @@ private:
 
 class SphericalTerrainPatch {
 public:
-    SphericalTerrainPatch() {
-    
-    };
+    SphericalTerrainPatch() { };
     SphericalTerrainPatch(const f64v2& gridPosition,
                           const SphericalTerrainData* sphericalTerrainData,
                           f64 width);
+    ~SphericalTerrainPatch();
     
     void init(const f64v2& gridPosition,
               const SphericalTerrainData* sphericalTerrainData,

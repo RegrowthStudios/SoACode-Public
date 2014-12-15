@@ -43,6 +43,18 @@ SphericalTerrainPatch::SphericalTerrainPatch(const f64v2& gridPosition,
     init(gridPosition, sphericalTerrainData, width);
 }
 
+SphericalTerrainPatch::~SphericalTerrainPatch() {
+    if (m_vbo) {
+        vg::GpuMemory::freeBuffer(m_vbo);
+    }
+    if (m_ibo) {
+        vg::GpuMemory::freeBuffer(m_ibo);
+    }
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+    }
+}
+
 void SphericalTerrainPatch::init(const f64v2& gridPosition,
           const SphericalTerrainData* sphericalTerrainData,
           f64 width) {
@@ -70,7 +82,7 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
     }
   
     f32m4 matrix(1.0);
-    setMatrixTranslation(matrix, m_worldPosition + cameraPos);
+    setMatrixTranslation(matrix, cameraPos);
     matrix = VP * matrix;
 
   //  printVec("POS: ", m_worldPosition - cameraPos);
