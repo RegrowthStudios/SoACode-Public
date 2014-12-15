@@ -28,17 +28,17 @@ void App::addScreens() {
 
     // Add development screen
     scrDev = new DevScreen;
-    scrDev->addScreen(SDLK_RETURN, scrInit);
-    scrDev->addScreen(SDLK_SPACE, scrInit);
+    scrDev->addScreen(VKEY_RETURN, scrInit);
+    scrDev->addScreen(VKEY_SPACE, scrInit);
     _screenList->addScreen(scrDev);
 
     // Add test screens
     scrTests.push_back(new TestConsoleScreen);
     _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(SDLK_c, scrTests.back());
+    scrDev->addScreen(VKEY_C, scrTests.back());
     scrTests.push_back(new TestMappingScreen);
     _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(SDLK_m, scrTests.back());
+    scrDev->addScreen(VKEY_M, scrTests.back());
 
     // Start from dev screen for convenience
     _screenList->setScreen(scrDev->getIndex());
