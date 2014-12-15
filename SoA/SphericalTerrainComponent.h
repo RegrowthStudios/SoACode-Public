@@ -35,6 +35,12 @@ public:
               vg::GLProgram* terrainProgram,
               const NamePositionComponent* npComponent);
 private:
+
+    void updateGrid(const f64v3& cameraPos,
+                    const NamePositionComponent* npComponent);
+    void calculateCameraGridPos(const f64v3& cameraPos,
+                                const NamePositionComponent* npComponent);
+
     f64 m_circumference = 0.0;
     SphericalTerrainPatch* m_patches = nullptr; ///< Buffer for top level patches
     std::deque< std::deque <SphericalTerrainPatch*> > m_patchesGrid;

@@ -10,16 +10,28 @@
 
 #include "NamePositionComponent.h"
 
-void SphericalTerrainComponent::init(f64 radius) {
-    m_sphericalTerrainData = new SphericalTerrainData(radius, f64v2(0.0),
-                                                    f64v3(0.0));
-    m_circumference = 2.0 * M_PI * radius;
-}
-
 #define LOAD_DIST 20000.0
 // Should be even
-#define PATCH_ROW 4  
+#define PATCH_ROW 16  
 #define NUM_PATCHES (PATCH_ROW * PATCH_ROW)
+
+#define FACE_TOP 0
+#define FACE_LEFT 1
+#define FACE_RIGHT 2
+#define FACE_FRONT 3
+#define FACE_BACK 4
+#define FACE_BOTOM 5
+
+#define NUM_FACES 6
+
+void SphericalTerrainComponent::init(f64 radius) {
+    m_circumference = 2.0 * M_PI * radius;
+    f64 patchWidth = m_circumference / 4.0 / (PATCH_ROW / 2.0);
+
+    m_sphericalTerrainData = new SphericalTerrainData(radius, f64v2(0.0),
+                                                      f64v3(0.0), patchWidth);
+    m_circumference = 2.0 * M_PI * radius;
+}
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
                                        const NamePositionComponent* npComponent) {
@@ -29,14 +41,10 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
     if (distance <= LOAD_DIST) {
         // In range, allocate if needed
         if (!m_patches) {
-            float patchWidth = m_circumference / 4.0 / (PATCH_ROW / 2.0);
-            // Set up origin
-            m_sphericalTerrainData->m_gridCenter = f64v2(0.0);
-            m_sphericalTerrainData->m_gridCenterWorld =
-                cameraVec * m_sphericalTerrainData->m_radius;
+            f64 patchWidth = m_sphericalTerrainData->m_patchWidth;
 
             // Allocate top level patches
-            m_patches = new SphericalTerrainPatch[NUM_PATCHES];
+            m_patches = new SphericalTerrainPatch[NUM_PATCHES * NUM_FACES];
 
             int center = PATCH_ROW / 2;
             f64v2 gridPos;
@@ -54,6 +62,8 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
                 }
             }
         }
+
+        updateGrid(cameraPos, npComponent);
 
         // Update patches
         for (int i = 0; i < NUM_PATCHES; i++) {
@@ -79,30 +89,6 @@ void SphericalTerrainComponent::draw(const Camera* camera,
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
     f32v3 cameraNormal = glm::normalize(f32v3(relativeCameraPos));
-
-    f32v2 normal(0.0f, 1.0f);
-    f32v2 xvec(cameraNormal.x, cameraNormal.y);
-    xvec = glm::normalize(xvec);
-    f32v2 zvec(cameraNormal.z, cameraNormal.y);
-    zvec = glm::normalize(zvec);
-
-    float xTheta = acos(glm::dot(xvec, normal));
-    if (xTheta > M_PI / 2) xTheta = M_PI / 2;
-
-    if (cameraNormal.x > 0) xTheta = -xTheta;
-
-    float zTheta = acos(glm::dot(zvec, normal));
-    if (zTheta > M_PI / 2) zTheta = M_PI / 2;
-
-    if (cameraNormal.y > 0) zTheta = -zTheta;
-
-    f64v2 off;
-    off.x = m_sphericalTerrainData->getRadius() * xTheta;
-    off.y = m_sphericalTerrainData->getRadius() * zTheta;
-
-    m_sphericalTerrainData->m_gridCameraPos = m_sphericalTerrainData->m_gridCenter + off;
-
-    f32v3 cameraLeft(1.0f, 0.0f, 0.0f);
 
     f32q rotQuat = quatBetweenVectors(f32v3(0.0f, 1.0f, 0.0f), cameraNormal);
     f32m4 rotMat = glm::toMat4(rotQuat);

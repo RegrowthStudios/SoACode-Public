@@ -44,15 +44,7 @@ SphericalTerrainPatch::SphericalTerrainPatch(const f64v2& gridPosition,
 }
 
 SphericalTerrainPatch::~SphericalTerrainPatch() {
-    if (m_vbo) {
-        vg::GpuMemory::freeBuffer(m_vbo);
-    }
-    if (m_ibo) {
-        vg::GpuMemory::freeBuffer(m_ibo);
-    }
-    if (m_vao) {
-        glDeleteVertexArrays(1, &m_vao);
-    }
+    destroy();
 }
 
 void SphericalTerrainPatch::init(const f64v2& gridPosition,
@@ -62,15 +54,26 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     m_sphericalTerrainData = sphericalTerrainData;
     m_width = width;
 
-    // Calculate world position
-    const f64v3& centerWorld = sphericalTerrainData->getGridCenterWorld();
-    const f64v2& gridOffset = m_gridPosition - sphericalTerrainData->getGridCenter();
 
-    m_worldPosition = centerWorld + f64v3(gridOffset.x, 0.0, gridOffset.y);
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     m_distance = glm::length(m_worldPosition - cameraPos);
+}
+
+void SphericalTerrainPatch::destroy() {
+    if (m_vbo) {
+        vg::GpuMemory::freeBuffer(m_vbo);
+        m_vbo = 0;
+    }
+    if (m_ibo) {
+        vg::GpuMemory::freeBuffer(m_ibo);
+        m_ibo = 0;
+    }
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+        m_vao = 0;
+    }
 }
 
 void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {

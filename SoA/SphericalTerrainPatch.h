@@ -52,29 +52,23 @@ public:
 };
 
 
-#define PATCH_WIDTH 33
+#define PATCH_WIDTH 5
 
 class SphericalTerrainData {
 public:
     friend class SphericalTerrainComponent;
 
-    SphericalTerrainData(f64 radius, const f64v2& gridCenter,
-                         const f64v3& gridCenterWorld) :
+    SphericalTerrainData(f64 radius,
+                         f64 patchWidth) :
         m_radius(radius),
-        m_gridCenter(gridCenter),
-        m_gridCenterWorld(gridCenterWorld) {
+        m_patchWidth(patchWidth) {
         // Empty
     }
 
     const f64& getRadius() const { return m_radius; }
-    const f64v2& getGridCenter() const { return m_gridCenter; }
-    const f64v2& getGridCameraPos() const { return m_gridCameraPos; }
-    const f64v3& getGridCenterWorld() const { return m_gridCenterWorld; }
 private:
     f64 m_radius;
-    f64v2 m_gridCenter; ///< Center of the grid
-    f64v2 m_gridCameraPos; ///< Intersection of camera normal with grid
-    f64v3 m_gridCenterWorld; ///< Center of the grid in world coordinates
+    f64 m_patchWidth; ///< Width of a patch in KM
 };
 
 class SphericalTerrainPatch {
@@ -91,16 +85,20 @@ public:
 
     void update(const f64v3& cameraPos);
 
+    void destroy();
+
     // Temporary
     void draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program);
+
 private:
     void generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]);
 
     f64v2 m_gridPosition = f64v2(0.0);
     f64v3 m_worldPosition = f64v3(0.0);
+    f32v3 m_boundingBox;
     f64 m_distance = 1000000000.0;
     int m_lod = 0;
-    bool m_hasMesh = false;
+
     f64 m_width = 0.0;
 
     ui32 m_vao = 0;
