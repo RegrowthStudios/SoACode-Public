@@ -75,12 +75,6 @@
     <Filter Include="SOA Files\Screens">
       <UniqueIdentifier>{f1c18989-f573-4fa6-ba8b-ebcaa46f53d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Rendering\Wrappers\States">
-      <UniqueIdentifier>{5de02c64-70fe-494b-816d-3758baefff39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Wrappers\Extensions">
-      <UniqueIdentifier>{c704d36c-927e-48c2-b4d8-6d6c0d55767a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\Screens\Load">
       <UniqueIdentifier>{6da0d3a4-a60f-4ed2-804e-c655cc23292d}</UniqueIdentifier>
     </Filter>
@@ -92,9 +86,6 @@
     </Filter>
     <Filter Include="SOA Files\Rendering\Dev">
       <UniqueIdentifier>{a8613ee5-a6ad-4b60-8567-0a15bb9ae82c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Data\Keg">
-      <UniqueIdentifier>{ac47e175-d93f-4b05-bb81-caa1090f397f}</UniqueIdentifier>
     </Filter>
     <Filter Include="SOA Files\Voxel\Mapping">
       <UniqueIdentifier>{f10c4941-dfe2-4bfb-a029-a82ec2a097dd}</UniqueIdentifier>
@@ -548,9 +539,6 @@
     <ClInclude Include="TestMappingScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
-    <ClInclude Include="GBuffer.h">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -891,9 +879,6 @@
     </ClCompile>
     <ClCompile Include="TestMappingScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="GBuffer.cpp">
-      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
