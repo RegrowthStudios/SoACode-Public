@@ -1,5 +1,5 @@
 ///
-/// TestConsoleScreen.h
+/// TestMappingScreen.h
 /// Seed of Andromeda
 ///
 /// Created by Cristian Zaloj on 14 Dec 2014
@@ -7,20 +7,19 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Tests out the Lua dev console
+/// Render test of grid-mapped sphere
 ///
 
 #pragma once
 
-#ifndef TestConsoleScreen_h__
-#define TestConsoleScreen_h__
+#ifndef TestMappingScreen_h__
+#define TestMappingScreen_h__
 
-#include <Events.hpp>
 #include <IGameScreen.h>
-#include <LuaDevConsole.h>
-#include <TextInputListener.hpp>
+#include <GLProgram.h>
+#include <gtypes.h>
 
-class TestConsoleScreen : public IGameScreen {
+class TestMappingScreen : public IGameScreen {
 public:
     /************************************************************************/
     /* IGameScreen functionality                                            */
@@ -35,9 +34,10 @@ public:
     virtual void update(const GameTime& gameTime) override;
     virtual void draw(const GameTime& gameTime) override;
 private:
-    vui::LuaDevConsole m_console; ///< Console used for testing
-    vui::TextInputListener<char> m_text; ///< Text input
-    AutoDelegatePool m_delegatePool; ///< Input hooks reservoir
+    VGVertexBuffer m_verts; ///< Sphere's vertex buffer (of positions)
+    VGIndexBuffer m_inds; ///< Sphere's index buffer
+    ui32 m_indexCount; ///< Number of indices for sphere
+    vg::GLProgram m_program; ///< Basic rendering program
 };
 
-#endif // TestConsoleScreen_h__
+#endif // TestMappingScreen_h__

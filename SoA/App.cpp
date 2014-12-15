@@ -13,6 +13,7 @@
 #include "MeshManager.h"
 #include "Options.h"
 #include "TestConsoleScreen.h"
+#include "TestMappingScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -35,6 +36,9 @@ void App::addScreens() {
     scrTests.push_back(new TestConsoleScreen);
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(SDLK_c, scrTests.back());
+    scrTests.push_back(new TestMappingScreen);
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(SDLK_m, scrTests.back());
 
     // Start from dev screen for convenience
     _screenList->setScreen(scrDev->getIndex());
