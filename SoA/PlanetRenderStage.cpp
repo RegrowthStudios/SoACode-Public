@@ -29,6 +29,7 @@ void PlanetRenderStage::draw() {
     f32m4 VP = _camera->getProjectionMatrix() * _camera->getViewMatrix();
 
     DepthState::FULL.set();
+    glBlendFunc(GL_ONE, GL_ZERO);
     GameManager::planet->draw(0, _camera, f32v3(1.0f, 0.0f, 0.0f), 0.1 /*_ambientLight + 0.1*/, _camera->getNearClip() / planetScale, true /*connectedToPlanet*/);
 
     DepthState::READ.set();

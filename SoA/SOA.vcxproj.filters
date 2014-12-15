@@ -548,6 +548,9 @@
     <ClInclude Include="TestMappingScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
+    <ClInclude Include="GBuffer.h">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -888,6 +891,9 @@
     </ClCompile>
     <ClCompile Include="TestMappingScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="GBuffer.cpp">
+      <Filter>SOA Files\Rendering\Wrappers\Extensions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

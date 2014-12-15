@@ -44,7 +44,7 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera, IAweso
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), camera);
     _planetRenderStage = new PlanetRenderStage(camera);
     _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
-    _hdrRenderStage = new HdrRenderStage(glProgramManager->getProgram("HDR"), &_quad);
+    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, camera);
 }
 
 void MainMenuRenderPipeline::render() {
@@ -68,6 +68,8 @@ void MainMenuRenderPipeline::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
     _hdrRenderStage->draw();
 
     // Check for errors, just in case
