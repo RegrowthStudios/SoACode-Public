@@ -68,10 +68,12 @@ public:
 
     const f64& getRadius() const { return m_radius; }
     const f64v2& getGridCenter() const { return m_gridCenter; }
+    const f64v2& getGridCameraPos() const { return m_gridCameraPos; }
     const f64v3& getGridCenterWorld() const { return m_gridCenterWorld; }
 private:
     f64 m_radius;
     f64v2 m_gridCenter; ///< Center of the grid
+    f64v2 m_gridCameraPos; ///< Intersection of camera normal with grid
     f64v3 m_gridCenterWorld; ///< Center of the grid in world coordinates
 };
 

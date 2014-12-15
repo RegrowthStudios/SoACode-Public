@@ -82,7 +82,7 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
     }
   
     f32m4 matrix(1.0);
-    setMatrixTranslation(matrix, cameraPos);
+    setMatrixTranslation(matrix, -cameraPos);
     matrix = VP * matrix;
 
   //  printVec("POS: ", m_worldPosition - cameraPos);
@@ -91,7 +91,7 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
 
     glPointSize(10.0);
 
-    const f32v2& gridOffset = f32v2(m_gridPosition - m_sphericalTerrainData->getGridCenter());
+    const f32v2& gridOffset = f32v2(m_gridPosition - m_sphericalTerrainData->getGridCameraPos());
     glUniform2fv(program->getUniform("unGridOffset"), 1, &gridOffset[0]);
 
     // Point already has orientation encoded

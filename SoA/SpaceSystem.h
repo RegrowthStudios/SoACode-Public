@@ -88,13 +88,19 @@ public:
         }
     }
 
-    /// Gets the position of the targeted component
+    /// Gets the position of the targeted entity
     /// @return position
     f64v3 getTargetPosition() {
         m_mutex.lock();
         f64v3 pos = m_namePositionCT.get(targetComponent).position;
         m_mutex.unlock();
         return pos;
+    }
+
+    /// Gets the position of the targeted entity
+    /// @return radius
+    f64 getTargetRadius() {
+        return m_sphericalGravityCT.get(targetComponent).radius;
     }
 
     /// Gets the name of the targeted component

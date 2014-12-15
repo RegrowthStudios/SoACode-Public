@@ -51,11 +51,11 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
     // Initialize the camera
     _camera.init(_app->getWindow().getAspectRatio());
-    _camera.setPosition(glm::dvec3(0.0, 20000.0, 0.0));
+    _camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
     _camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(10000.0f, 3000000000000.0f);
-    _camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(-1.0f, 0.0f, 0.0f), 80000000000.0);
+    _camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(-1.0f, 0.0f, 0.0f), 200000.0);
 
     // Initialize the user interface
     _awesomiumInterface.init("UI/MainMenu/",
@@ -139,7 +139,9 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     float length = _camera.getFocalLength() / 10.0;
     if (length == 0) length = 0.1;
     _camera.setClippingPlane(length, _camera.getFarClip());
-    _camera.setTargetFocalPoint(_app->spaceSystem->getTargetPosition());
+    // Target closest point on sphere
+    _camera.setTargetFocalPoint(_app->spaceSystem->getTargetPosition() -
+                                f64v3(glm::normalize(_camera.getDirection())) * _app->spaceSystem->getTargetRadius());
 
     _camera.update();
     GameManager::inputManager->update();
