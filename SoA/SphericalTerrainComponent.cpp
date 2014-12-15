@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponent.h"
 #include "Camera.h"
+#include "utils.h"
+
+#include <glm\gtc\type_ptr.hpp>
+#include <glm\gtc\quaternion.hpp>
+#include <glm\gtx\quaternion.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 
 #include "NamePositionComponent.h"
 
@@ -97,6 +103,11 @@ void SphericalTerrainComponent::draw(const Camera* camera,
     m_sphericalTerrainData->m_gridCameraPos = m_sphericalTerrainData->m_gridCenter + off;
 
     f32v3 cameraLeft(1.0f, 0.0f, 0.0f);
+
+    f32q rotQuat = quatBetweenVectors(f32v3(0.0f, 1.0f, 0.0f), cameraNormal);
+    f32m4 rotMat = glm::toMat4(rotQuat);
+
+    glUniformMatrix4fv(terrainProgram->getUniform("unRot"), 1, GL_FALSE, &rotMat[0][0]);
 
   //  glUniform3fv(terrainProgram->getUniform("unCameraNormal"), 1, &cameraNormal[0]);
   //  glUniform3fv(terrainProgram->getUniform("unCameraLeft"), 1, &cameraLeft[0]);
