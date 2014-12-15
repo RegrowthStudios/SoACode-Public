@@ -15,6 +15,7 @@ class LoadTaskShaders : public ILoadTask {
     friend class LoadScreen;
     friend class GamePlayScreen;
     friend class OnReloadShadersKeyDown;
+    friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuScreen;
 
 public:

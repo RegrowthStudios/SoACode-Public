@@ -79,10 +79,12 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
 
     glPointSize(10.0);
 
+    const f32v2& gridOffset = f32v2(m_gridPosition - m_sphericalTerrainData->getGridCenter());
+    glUniform2fv(program->getUniform("unGridOffset"), 1, &gridOffset[0]);
+
     // Point already has orientation encoded
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
-
-    // Draw the point
+    glUniform1f(program->getUniform("unRadius"), m_sphericalTerrainData->getRadius());
 
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
@@ -104,7 +106,7 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
     std::vector <TerrainVertex> verts;
     verts.resize(PATCH_WIDTH * PATCH_WIDTH);
     // Loop through each vertex
-    float vertWidth = m_width / PATCH_WIDTH;
+    float vertWidth = m_width / (PATCH_WIDTH - 1);
     int index = 0;
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {

@@ -105,7 +105,7 @@ public:
     }
 };
 
-/// Delegate to handle when the Reload Shdaers key down event
+/// Delegate to handle when the Reload Shaders key down event
 class OnReloadShadersKeyDown: GamePlayScreenDelegate {
 public:
     OnReloadShadersKeyDown() {}

@@ -151,6 +151,7 @@
     <ClInclude Include="MainMenuAPI.h" />
     <ClInclude Include="MainMenuRenderPipeline.h" />
     <ClInclude Include="MainMenuScreen.h" />
+    <ClInclude Include="MainMenuScreenEvents.hpp" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="NamePositionComponent.h" />

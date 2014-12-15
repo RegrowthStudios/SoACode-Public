@@ -23,6 +23,7 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
 #include "VoxelEditor.h"
+#include "MainMenuScreenEvents.hpp"
 
 #define THREAD ThreadId::UPDATE
 
@@ -50,7 +51,7 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
     // Initialize the camera
     _camera.init(_app->getWindow().getAspectRatio());
-    _camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
+    _camera.setPosition(glm::dvec3(0.0, 20000.0, 0.0));
     _camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(10000.0f, 3000000000000.0f);
@@ -66,6 +67,8 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     // Init rendering
     initRenderPipeline();
+    InputManager* inputManager = GameManager::inputManager;
+    _onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnMainMenuReloadShadersKeyDown(this));
 
     // Run the update thread for updating the planet
     _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
@@ -77,6 +80,10 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     delete _updateThread;
     _awesomiumInterface.destroy();
     _renderPipeline.destroy();
+
+    InputManager* inputManager = GameManager::inputManager;
+    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, _onReloadShadersKeyDown);
+    delete _onReloadShadersKeyDown;
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {

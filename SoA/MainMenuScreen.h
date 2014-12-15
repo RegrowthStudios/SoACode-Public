@@ -30,6 +30,7 @@ class TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
 {
+    friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
     CTOR_APP_SCREEN_DECL(MainMenuScreen, App);
@@ -79,6 +80,8 @@ private:
 
     std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running
+
+    IDelegate<ui32>* _onReloadShadersKeyDown = nullptr;
 
     MainMenuRenderPipeline _renderPipeline; ///< This handles all rendering for the main menu
 };

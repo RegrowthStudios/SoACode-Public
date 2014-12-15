@@ -171,7 +171,6 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     }
 
     glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
     terrainProgram->use();
     terrainProgram->enableVertexAttribArrays();
     for (auto& it : m_sphericalTerrainCT) {

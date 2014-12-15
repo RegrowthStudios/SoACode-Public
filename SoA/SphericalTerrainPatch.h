@@ -52,7 +52,7 @@ public:
 };
 
 
-#define PATCH_WIDTH 32
+#define PATCH_WIDTH 33
 
 class SphericalTerrainData {
 public:
