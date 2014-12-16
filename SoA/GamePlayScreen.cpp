@@ -383,14 +383,14 @@ void GamePlayScreen::processMessages() {
         Message& message = messageBuffer[i];
         switch (message.id) {
             case MessageID::TERRAIN_MESH:
-                tmm = static_cast<TerrainMeshMessage*>(message.data);
-                meshManager->updateTerrainMesh(tmm);
+          /*      tmm = static_cast<TerrainMeshMessage*>(message.data);
+                meshManager->updateTerrainMesh(tmm);*/
                 break;
             case MessageID::REMOVE_TREES:
-                tmm = static_cast<TerrainMeshMessage*>(message.data);
+  /*              tmm = static_cast<TerrainMeshMessage*>(message.data);
                 if (tmm->terrainBuffers->treeVboID != 0) glDeleteBuffers(1, &(tmm->terrainBuffers->treeVboID));
                 tmm->terrainBuffers->treeVboID = 0;
-                delete tmm;
+                delete tmm;*/
                 break;
             case MessageID::PARTICLE_MESH:
                 meshManager->updateParticleMesh((ParticleMeshMessage *)(message.data));
