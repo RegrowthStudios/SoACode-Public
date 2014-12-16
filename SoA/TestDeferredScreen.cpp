@@ -1,12 +1,14 @@
 #include "stdafx.h"
-#include "TestMappingScreen.h"
+#include "TestDeferredScreen.h"
 
+#include <colors.h>
 #include <DepthState.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <GLRenderTarget.h>
 #include <RasterizerState.h>
 
 #pragma region Simple shader code
-const cString SRC_VERT = R"(
+const cString DEFERRED_SRC_VERT = R"(
 uniform mat4 unWVP;
 
 in vec4 vPosition;
@@ -15,38 +17,51 @@ void main() {
     gl_Position = unWVP * vPosition;
 }
 )";
-const cString SRC_FRAG = R"(
-out vec4 pColor;
+const cString DEFERRED_SRC_FRAG = R"(
+out vec4 pColor[3];
 
 void main() {
-    pColor = vec4(1, 0, 0, 1);
+    pColor[0] = vec4(1, 0, 0, 1);
+    pColor[1] = vec4(0, 1, 0, 1);
+    pColor[2] = vec4(0, 0, 1, 1);
 }
 )";
 #pragma endregion
 
 // Number cells per row/column in a single grid
-const ui32 CELLS = 30;
+const ui32 CELLS = 10;
 
-i32 TestMappingScreen::getNextScreen() const {
-    return SCREEN_INDEX_NO_SCREEN;
-}
-i32 TestMappingScreen::getPreviousScreen() const {
-    return SCREEN_INDEX_NO_SCREEN;
-}
-
-void TestMappingScreen::build() {
-    // Empty
-}
-void TestMappingScreen::destroy(const GameTime& gameTime) {
+TestDeferredScreen::TestDeferredScreen() :
+m_sb(true, false) {
     // Empty
 }
 
-void TestMappingScreen::onEntry(const GameTime& gameTime) {
+i32 TestDeferredScreen::getNextScreen() const {
+    return SCREEN_INDEX_NO_SCREEN;
+}
+i32 TestDeferredScreen::getPreviousScreen() const {
+    return SCREEN_INDEX_NO_SCREEN;
+}
+
+void TestDeferredScreen::build() {
+    // Empty
+}
+void TestDeferredScreen::destroy(const GameTime& gameTime) {
+    // Empty
+}
+
+void TestDeferredScreen::onEntry(const GameTime& gameTime) {
     buildGeometry();
 
+    m_gbuffer = vg::GBuffer(_game->getWindow().getWidth(), _game->getWindow().getHeight());
+    m_gbuffer.init();
+    m_gbuffer.initDepth();
+
+    m_sb.init();
+
     m_program.init();
-    m_program.addShader(vg::ShaderType::VERTEX_SHADER, SRC_VERT);
-    m_program.addShader(vg::ShaderType::FRAGMENT_SHADER, SRC_FRAG);
+    m_program.addShader(vg::ShaderType::VERTEX_SHADER, DEFERRED_SRC_VERT);
+    m_program.addShader(vg::ShaderType::FRAGMENT_SHADER, DEFERRED_SRC_FRAG);
     m_program.link();
     m_program.initAttributes();
     m_program.initUniforms();
@@ -54,22 +69,28 @@ void TestMappingScreen::onEntry(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void TestMappingScreen::onExit(const GameTime& gameTime) {
+void TestDeferredScreen::onExit(const GameTime& gameTime) {
     glDeleteBuffers(1, &m_verts);
     glDeleteBuffers(1, &m_inds);
     m_program.dispose();
+    m_sb.dispose();
+    m_gbuffer.dispose();
 }
 
-void TestMappingScreen::onEvent(const SDL_Event& e) {
+void TestDeferredScreen::onEvent(const SDL_Event& e) {
     // Empty
 }
-void TestMappingScreen::update(const GameTime& gameTime) {
+void TestDeferredScreen::update(const GameTime& gameTime) {
     // Empty
 }
-void TestMappingScreen::draw(const GameTime& gameTime) {
+void TestDeferredScreen::draw(const GameTime& gameTime) {
+    /************************************************************************/
+    /* Deferred pass                                                        */
+    /************************************************************************/
+    m_gbuffer.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 100.0f) * glm::lookAt(f32v3(0, 0, 10), f32v3(0, 0, 0), f32v3(0, 1, 0)) ;
+    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 100.0f) * glm::lookAt(f32v3(0, 0, 10), f32v3(0, 0, 0), f32v3(0, 1, 0));
 
     DepthState::FULL.set();
     RasterizerState::CULL_CLOCKWISE.set();
@@ -89,9 +110,23 @@ void TestMappingScreen::draw(const GameTime& gameTime) {
 
     m_program.disableVertexAttribArrays();
     vg::GLProgram::unuse();
+    vg::GLRenderTarget::unuse(_game->getWindow().getWidth(), _game->getWindow().getHeight());
+
+    /************************************************************************/
+    /* Debug                                                                */
+    /************************************************************************/
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_sb.begin();
+    m_sb.draw(m_gbuffer.getTextureIDs().color, f32v2(0, 0), f32v2(100, 80), color::White);
+    m_sb.draw(m_gbuffer.getTextureIDs().normal, f32v2(100, 0), f32v2(100, 80), color::White);
+    m_sb.draw(m_gbuffer.getTextureIDs().depth, f32v2(200, 0), f32v2(100, 80), color::White);
+    m_sb.end();
+    m_sb.renderBatch(f32v2(_game->getWindow().getWidth(), _game->getWindow().getHeight()));
+
 }
 
-void TestMappingScreen::buildGeometry() {
+void TestDeferredScreen::buildGeometry() {
     // Make vertices
     ui32 cellPoints = CELLS + 1;
     ui32 gridPoints = cellPoints * cellPoints;

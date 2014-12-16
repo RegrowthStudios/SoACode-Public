@@ -1,26 +1,31 @@
 ///
-/// TestMappingScreen.h
+/// TestDeferredScreen.h
 /// Seed of Andromeda
 ///
-/// Created by Cristian Zaloj on 14 Dec 2014
+/// Created by Cristian Zaloj on 16 Dec 2014
 /// Copyright 2014 Regrowth Studios
 /// All Rights Reserved
 ///
 /// Summary:
-/// Render test of grid-mapped sphere
+/// Development test for deferred rendering
 ///
 
 #pragma once
 
-#ifndef TestMappingScreen_h__
-#define TestMappingScreen_h__
+#ifndef TestDeferredScreen_h__
+#define TestDeferredScreen_h__
 
-#include <IGameScreen.h>
+#include <GBuffer.h>
 #include <GLProgram.h>
 #include <gtypes.h>
+#include <IGameScreen.h>
+#include <SpriteBatch.h>
 
-class TestMappingScreen : public IGameScreen {
+class TestDeferredScreen : public IGameScreen {
 public:
+    /// 
+    TestDeferredScreen();
+
     /************************************************************************/
     /* IGameScreen functionality                                            */
     /************************************************************************/
@@ -40,6 +45,8 @@ private:
     VGIndexBuffer m_inds; ///< Sphere's index buffer
     ui32 m_indexCount; ///< Number of indices for sphere
     vg::GLProgram m_program; ///< Basic rendering program
+    vg::GBuffer m_gbuffer; ///< Geometry buffer of deferred rendering
+    SpriteBatch m_sb; ///< Debug SpriteBatch
 };
 
-#endif // TestMappingScreen_h__
+#endif // TestDeferredScreen_h__
