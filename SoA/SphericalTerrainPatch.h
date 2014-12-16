@@ -89,7 +89,11 @@ public:
     // Temporary
     void draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program);
 
+    bool hasMesh() const { return (m_vbo != 0); }
+    bool isRenderable() const;
+
 private:
+    void destroyMesh();
     void generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]);
 
     f64v2 m_gridPosition = f64v2(0.0);
@@ -106,5 +110,5 @@ private:
     ui32 m_ibo = 0;
 
     const SphericalTerrainData* m_sphericalTerrainData = nullptr;
-    SphericalTerrainPatch* children = nullptr;
+    SphericalTerrainPatch* m_children = nullptr;
 };

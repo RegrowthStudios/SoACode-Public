@@ -27,10 +27,11 @@ void SphericalTerrainComponent::init(f64 radius) {
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
                                        const NamePositionComponent* npComponent) {
-    f64v3 cameraVec = cameraPos - npComponent->position;
-    double distance = glm::length(cameraVec);
+    f64v3 relativeCameraPos = cameraPos - npComponent->position;
+    f64 distance = glm::length(relativeCameraPos);
 
     if (distance <= LOAD_DIST) {
+        printVec("DIST ", relativeCameraPos);
         // In range, allocate if needed
         if (!m_patches) {
             initPatches();
@@ -38,7 +39,7 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
 
         // Update patches
         for (int i = 0; i < TOTAL_PATCHES; i++) {
-            m_patches[i].update(cameraPos);
+            m_patches[i].update(relativeCameraPos);
         }
     } else { 
         // Out of range, delete everything
@@ -57,6 +58,8 @@ void SphericalTerrainComponent::draw(const Camera* camera,
     f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
+
+    printVec("DIST2 ", relativeCameraPos);
 
     // Draw patches
     for (int i = 0; i < TOTAL_PATCHES; i++) {

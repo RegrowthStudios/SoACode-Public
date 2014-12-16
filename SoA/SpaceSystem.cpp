@@ -130,20 +130,21 @@ void SpaceSystem::update(double time, const f64v3& cameraPos) {
     for (auto& it : m_axisRotationCT) {
         it.second.update(time);
     }
-    // Update Orbits
-    for (auto& it : m_orbitCT) {
-        auto& cmp = it.second; 
-        if (cmp.parentNpId) {
-            cmp.update(time, &m_namePositionCT.getFromEntity(it.first), 
-                       &m_namePositionCT.get(cmp.parentNpId));
-        } else {
-            cmp.update(time, &m_namePositionCT.getFromEntity(it.first));
-        }
-    }
 
     // Update Spherical Terrain
     for (auto& it : m_sphericalTerrainCT) {
         it.second.update(cameraPos, &m_namePositionCT.getFromEntity(it.first));
+    }
+
+    // Update Orbits
+    for (auto& it : m_orbitCT) {
+        auto& cmp = it.second;
+        if (cmp.parentNpId) {
+            cmp.update(time, &m_namePositionCT.getFromEntity(it.first),
+                       &m_namePositionCT.get(cmp.parentNpId));
+        } else {
+            cmp.update(time, &m_namePositionCT.getFromEntity(it.first));
+        }
     }
 
     m_mutex.unlock();

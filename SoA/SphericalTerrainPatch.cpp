@@ -24,6 +24,36 @@ int MakeWaterQuadMap[(maxVertexWidth+3)*(maxVertexWidth+3)];
 #define INDICES_PER_QUAD 6
 const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD;
 
+// Coordinate mapping for rotating 2d grid to quadcube positions
+// Pain of i32v3, first is coordinates
+const i32v3 CubeCoordinateMappings[6] = {
+    i32v3(0, 1, 2), //TOP
+    i32v3(1, 0, 2), //LEFT
+    i32v3(1, 0, 2), //RIGHT
+    i32v3(0, 2, 1), //FRONT
+    i32v3(0, 2, 1), //BACK
+    i32v3(0, 1, 2) //BOTTOM
+};
+
+// Multipliers for coordinate mappings
+const f32v3 CubeCoordinateMults[6] = {
+    f32v3(1.0f, 1.0f, 1.0f), //TOP
+    f32v3(1.0f, -1.0f, 1.0f), //LEFT
+    f32v3(1.0f, 1.0f, 1.0f), //RIGHT
+    f32v3(1.0f, 1.0f, 1.0f), //FRONT
+    f32v3(1.0f, -1.0f, 1.0f), //BACK
+    f32v3(1.0f, -1.0f, 1.0f) //BOTTOM
+};
+
+const ColorRGB8 DebugColors[6] {
+    ColorRGB8(255, 0, 0), //TOP
+        ColorRGB8(0, 255, 0), //LEFT
+        ColorRGB8(0, 0, 255), //RIGHT
+        ColorRGB8(255, 255, 0), //FRONT
+        ColorRGB8(0, 255, 255), //BACK
+        ColorRGB8(255, 255, 255) //BOTTOM
+};
+
 //a   b
 //c   d
 inline double BilinearInterpolation(int &a, int &b, int &c, int &d, int &step, float &x, float &z)
@@ -51,30 +81,70 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     m_sphericalTerrainData = sphericalTerrainData;
     m_width = width;
 
+    // Approximate the world position for now
+    f64v2 centerGridPos = gridPosition + f64v2(width);
 
+    const i32v3& coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
+    const f32v3& coordMults = CubeCoordinateMults[(int)m_cubeFace];
+
+    m_worldPosition[coordMapping.x] = centerGridPos.x;
+    m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * coordMults.y;
+    m_worldPosition[coordMapping.z] = centerGridPos.y;
+
+    m_worldPosition = glm::normalize(m_worldPosition);
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     m_distance = glm::length(m_worldPosition - cameraPos);
+    
+    if (m_children) {
+        if (m_distance > m_width * 4.1) {
+            delete[] m_children;
+            m_children = nullptr;
+        } else if (hasMesh()) {
+            bool deleteMesh = true;
+            for (int i = 0; i < 4; i++) {
+                if (!m_children[i].isRenderable()) {
+                    deleteMesh = true;
+                    break;
+                }
+            }
+            if (deleteMesh) {
+                destroyMesh();
+            }
+        }
+    } else if (m_distance < m_width * 4.0) {
+        m_children = new SphericalTerrainPatch[4];
+        // Segment in to 4 children
+        for (int z = 0; z < 2; z++) {
+            for (int x = 0; x < 2; x++) {
+                m_children[(z << 1) + x].init(m_gridPosition + f64v2(m_width / 2.0 * x, m_width / 2.0 * z),
+                                       m_cubeFace, m_sphericalTerrainData, m_width / 2.0);
+            }
+        }
+    }
+    
+    if (m_children) {
+        for (int i = 0; i < 4; i++) {
+            m_children[i].update(cameraPos);
+        }
+    }
 }
 
 void SphericalTerrainPatch::destroy() {
-    if (m_vbo) {
-        vg::GpuMemory::freeBuffer(m_vbo);
-        m_vbo = 0;
-    }
-    if (m_ibo) {
-        vg::GpuMemory::freeBuffer(m_ibo);
-        m_ibo = 0;
-    }
-    if (m_vao) {
-        glDeleteVertexArrays(1, &m_vao);
-        m_vao = 0;
-    }
+    destroyMesh();
+    delete[] m_children;
 }
 
 void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
-    if (m_vbo == 0) {
+    if (m_children) {
+        for (int i = 0; i < 4; i++) {
+            m_children[i].draw(cameraPos, VP, program);
+        }
+        if (!hasMesh()) return;
+    }
+
+    if (!(hasMesh())) {
         update(cameraPos);
         float heightData[PATCH_WIDTH][PATCH_WIDTH];
         memset(heightData, 0, sizeof(heightData));
@@ -102,35 +172,31 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
   //  glBindVertexArray(0);
 }
 
-// Coordinate mapping for rotating 2d grid to quadcube positions
-// Pain of i32v3, first is coordinates
-const i32v3 CubeCoordinateMappings[6] = {
-    i32v3(0, 1, 2), //TOP
-    i32v3(1, 0, 2), //LEFT
-    i32v3(1, 0, 2), //RIGHT
-    i32v3(0, 2, 1), //FRONT
-    i32v3(0, 2, 1), //BACK
-    i32v3(0, 1, 2) //BOTTOM
-};
+bool SphericalTerrainPatch::isRenderable() const {
+    if (hasMesh()) return true;
+    if (m_children) {
+        for (int i = 0; i < 4; i++) {
+            if (!m_children[i].isRenderable()) return false;
+        }
+        return true;
+    }
+    return false;
+}
 
-// Multipliers for coordinate mappings
-const f32v3 CubeCoordinateMults[6] = {
-    f32v3(1.0f, 1.0f, 1.0f), //TOP
-    f32v3(1.0f, -1.0f, 1.0f), //LEFT
-    f32v3(1.0f, 1.0f, 1.0f), //RIGHT
-    f32v3(1.0f, 1.0f, 1.0f), //FRONT
-    f32v3(1.0f, -1.0f, 1.0f), //BACK
-    f32v3(1.0f, -1.0f, 1.0f) //BOTTOM
-};
-
-const ColorRGB8 DebugColors[6] {
-    ColorRGB8(255, 0, 0), //TOP
-    ColorRGB8(0, 255, 0), //LEFT
-    ColorRGB8(0, 0, 255), //RIGHT
-    ColorRGB8(255, 255, 0), //FRONT
-    ColorRGB8(0, 255, 255), //BACK
-    ColorRGB8(255, 255, 255) //BOTTOM
-};
+void SphericalTerrainPatch::destroyMesh() {
+    if (m_vbo) {
+        vg::GpuMemory::freeBuffer(m_vbo);
+        m_vbo = 0;
+    }
+    if (m_ibo) {
+        vg::GpuMemory::freeBuffer(m_ibo);
+        m_ibo = 0;
+    }
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+        m_vao = 0;
+    }
+}
 
 void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]) {
 
@@ -155,6 +221,9 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
             
             // Spherify it!
             v.position = glm::normalize(v.position) * radius;
+            if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
+                m_worldPosition = v.position;
+            }
 
             v.color.r = tcolor.r;
             v.color.g = tcolor.g;
