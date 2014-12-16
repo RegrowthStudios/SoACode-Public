@@ -28,6 +28,7 @@ void PlanetRenderStage::draw() {
     f32m4 VP = _camera->getProjectionMatrix() * _camera->getViewMatrix();
 
     DepthState::FULL.set();
+
   //  GameManager::planet->draw(_camera);
 
     //DepthState::READ.set();
@@ -44,4 +45,5 @@ void PlanetRenderStage::draw() {
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
     //GameManager::planet->drawTrees(VP, _camera->getPosition(), 0.1f /*ambVal*/);
+
 }

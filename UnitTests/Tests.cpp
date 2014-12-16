@@ -3,17 +3,24 @@
 
 typedef bool(*TestFunc)();
 
-bool UnitTests::Adder::TestsAdder::addTest(String^ name, IntPtr f) {
-    UnitTests::Tests::m_tests->Add(name, f);
+bool isInit = false;
+TestLibrary* m_tests;
+TestLibrary& getLibrary() {
+    if (!isInit) {
+        m_tests = new TestLibrary();
+        isInit = true;
+    }
+    return *m_tests;
+}
+
+bool UnitTests::Adder::TestsAdder::addTest(const nString& name, void* f) {
+    getLibrary()[name] = f;
     return true;
 }
 
-UnitTests::Tests::TestLibrary::KeyCollection^ UnitTests::Tests::getTests() {
-    return m_tests->Keys;
-}
-bool UnitTests::Tests::runTest(String^ name) {
-    IntPtr ptrFunc = m_tests[name];
-    TestFunc f = (TestFunc)(void*)ptrFunc;
+bool UnitTests::Tests::runTest(const nString& name) {
+    void* ptrFunc = getLibrary()[name];
+    TestFunc f = (TestFunc)ptrFunc;
     try {
         return f();
     } catch (...) {
@@ -21,7 +28,19 @@ bool UnitTests::Tests::runTest(String^ name) {
     }
 }
 
+TestLibrary::iterator UnitTests::Tests::begin() {
+    return getLibrary().begin();
+}
+TestLibrary::iterator UnitTests::Tests::end() {
+    return getLibrary().end();
+}
+
+#ifdef OLD_CLR
+UnitTests::Tests::TestLibrary::KeyCollection^ UnitTests::Tests::getTests() {
+    return m_tests->Keys;
+}
 array<String^>^ UnitTests::Tests::getBatches(String^ name) {
     array<String^>^ a = { "_" };
     return name->Split(a, System::StringSplitOptions::RemoveEmptyEntries);
 }
+#endif // OLD_CLR

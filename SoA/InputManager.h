@@ -154,7 +154,6 @@ public:
     i32 getAxisID(const nString& axisName) const;
 
     /// Reads all the axes stored in a given ini file.
-
     /// @param filePath: The local path to the file to load axes from.
     void loadAxes(const nString& filePath);
 
@@ -172,13 +171,16 @@ public:
     /// Updates the internal state of all the keys and sends out key pressed and released events.
     void update();
 
-    /// Makes the internal map aware that some input event has occurred.
+    /// Begins receiving input events from dispatcher
+    void startInput();
+    /// Stops receiving input events from dispatcher
+    void stopInput();
 
+    /// Makes the internal map aware that some input event has occurred.
     /// @param inputEvent: An input event created by sdl
     void pushEvent(const SDL_Event& inputEvent);
 
     /// Subscribes a delegate to one of the axes' events.
-
     /// Returns nullptr if axisID is invalid or eventType is invalid.
     /// @see Event::add
     /// @param axisID: The axis to subscribe the functor to.
@@ -188,7 +190,6 @@ public:
     IDelegate<ui32>* subscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f);
 
     /// Subscribes a functor to one of the axes' events.
-
     /// Returns nullptr if axisID is invalid or eventType is invalid.
     /// @see Event::addFunctor
     /// @param axisID: The axis to subscribe the functor to.
@@ -201,7 +202,6 @@ public:
     }
 
     /// Unsubscribes a delegate from a Axes' event.
-
     /// @see Event::remove
     /// @param axisID: The id of the axis to remove the delegate from
     /// @param eventType: The event to remove the delegate from
@@ -222,6 +222,7 @@ public:
         Event<ui32> upEvent; ///< The event for when the positive key is released on a SINGLE_KEY axis.
         Event<ui32> downEvent; ///< The event for when the positive key is pressed on a SINGLE_KEY axis.
     };
+
 private:
 
     const nString _defaultConfigLocation; //"Data/KeyConfig.ini"
@@ -230,6 +231,9 @@ private:
     std::unordered_map<nString, i32> _axisLookup; ///< A map of axis names to axis IDs for quick look up.
     std::map<ui32, bool> _currentKeyStates; ///< The state of the keys and mouse buttons this frame.
     std::map<ui32, bool> _previousKeyStates; ///< The state of the keys and mouse buttons last frame.
+
+    bool m_receivingInput = false; ///< Tracks input reception state
+    AutoDelegatePool m_inputHooks; ///< Stores input reception function hooks for deallocation
 };
 
 #endif //INPUT_MANAGER_H

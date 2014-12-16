@@ -125,6 +125,7 @@
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="DevScreen.h" />
     <ClInclude Include="FloraTask.h" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
@@ -174,7 +175,11 @@
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SphericalGravityComponent.h" />
     <ClInclude Include="SphericalTerrainComponent.h" />
+    <ClInclude Include="StarSystemScreen.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TestConsoleScreen.h" />
+    <ClInclude Include="TestDeferredScreen.h" />
+    <ClInclude Include="TestMappingScreen.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
@@ -275,6 +280,7 @@
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
+    <ClCompile Include="DevScreen.cpp" />
     <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
@@ -309,6 +315,10 @@
     <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="SphericalTerrainComponent.cpp" />
+    <ClCompile Include="StarSystemScreen.cpp" />
+    <ClCompile Include="TestConsoleScreen.cpp" />
+    <ClCompile Include="TestDeferredScreen.cpp" />
+    <ClCompile Include="TestMappingScreen.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

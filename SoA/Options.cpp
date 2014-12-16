@@ -15,7 +15,7 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("voxelRenderDistance", Keg::Value::basic(Ke
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("terrainQuality", Keg::Value::basic(Keg::BasicType::I32, offsetof(GraphicsOptions, lodDetail)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("texturePack", Keg::Value::basic(Keg::BasicType::STRING, offsetof(GraphicsOptions, texturePackString)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("maxFps", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, maxFPS)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("motionBlur", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, motionBlur)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("motionBlur", Keg::Value::basic(Keg::BasicType::I32, offsetof(GraphicsOptions, motionBlur)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("msaa", Keg::Value::basic(Keg::BasicType::I32, offsetof(GraphicsOptions, msaa)));
 KEG_TYPE_INIT_END
 

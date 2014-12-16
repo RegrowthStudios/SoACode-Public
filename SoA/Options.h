@@ -13,6 +13,9 @@ public:
     i32 voxelRenderDistance = 144;
     i32 hudMode = 0;
     i32 currTextureRes, defaultTextureRes;
+
+    i32 motionBlur = 8;
+    i32 depthOfField = 0;
     i32 msaa = 0;
     i32 maxMsaa = 32;
 
@@ -25,7 +28,6 @@ public:
     f32 maxFPS = 60.0f;
     f32 voxelLODThreshold = 128.0f;
     f32 voxelLODThreshold2 = voxelLODThreshold * voxelLODThreshold;
-    f32 motionBlur = 1.0f;
 
     bool needsWindowReload;
     bool needsFboReload = false;

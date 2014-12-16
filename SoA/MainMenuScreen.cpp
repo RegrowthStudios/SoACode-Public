@@ -72,9 +72,13 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     // Run the update thread for updating the planet
     _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
+
+    GameManager::inputManager->startInput();
 }
 
 void MainMenuScreen::onExit(const GameTime& gameTime) {
+    GameManager::inputManager->stopInput();
+
     _threadRunning = false;
     _updateThread->join();
     delete _updateThread;
@@ -87,30 +91,8 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
-   // _awesomiumInterface.handleEvent(e);
-    GameManager::inputManager->pushEvent(e);
 
-#define MOUSE_SPEED 0.1f
-#define SCROLL_SPEED 0.1f
-    switch (e.type) {
-        case SDL_KEYDOWN:
-            if (e.key.keysym.sym == SDLK_LEFT) {
-                _app->spaceSystem->offsetTarget(-1);
-            } else if (e.key.keysym.sym == SDLK_RIGHT) {
-                _app->spaceSystem->offsetTarget(1);
-            }
-        case SDL_MOUSEMOTION:
-            if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)) {
-                _camera.rotateFromMouse((float)-e.motion.xrel, (float)-e.motion.yrel, MOUSE_SPEED);
-            }
-            if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)) {
-                _camera.yawFromMouse((float)e.motion.xrel, MOUSE_SPEED);
-            }
-            break;
-        case SDL_MOUSEWHEEL:
-            _camera.offsetTargetFocalLength(_camera.getTargetFocalLength() * SCROLL_SPEED * -e.motion.x);
-            break;
-    }
+    GameManager::inputManager->pushEvent(e);
 
     // Check for reloading the UI
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {

@@ -12,6 +12,6 @@ TEST(MyTestGood) {
 
 TEST(MyTestBad) {
     int* m = nullptr;
-    *m = 0;
+    //*m = 0;
     return true;
 }
