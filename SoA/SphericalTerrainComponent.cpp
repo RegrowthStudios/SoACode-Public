@@ -10,9 +10,9 @@
 
 #include "NamePositionComponent.h"
 
-#define LOAD_DIST 20000.0
+#define LOAD_DIST 40000.0
 // Should be even
-#define PATCH_ROW 16  
+#define PATCH_ROW 4  
 #define NUM_FACES 6
 const int PATCHES_PER_FACE = (PATCH_ROW * PATCH_ROW);
 const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;
@@ -32,7 +32,6 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
     f64 distance = glm::length(relativeCameraPos);
 
     if (distance <= LOAD_DIST) {
-        printVec("DIST ", relativeCameraPos);
         // In range, allocate if needed
         if (!m_patches) {
             initPatches();
@@ -59,8 +58,6 @@ void SphericalTerrainComponent::draw(const Camera* camera,
     f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
-
-    printVec("DIST2 ", relativeCameraPos);
 
     // Draw patches
     for (int i = 0; i < TOTAL_PATCHES; i++) {

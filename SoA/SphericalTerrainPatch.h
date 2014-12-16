@@ -24,7 +24,7 @@ enum class CubeFace { TOP, LEFT, RIGHT, FRONT, BACK, BOTTOM };
 
 class Camera;
 
-#define PATCH_WIDTH 5
+#define PATCH_WIDTH 33
 
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {
