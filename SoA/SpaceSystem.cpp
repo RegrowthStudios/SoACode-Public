@@ -136,7 +136,7 @@ void SpaceSystem::update(double time, const f64v3& cameraPos) {
         it.second.update(cameraPos, &m_namePositionCT.getFromEntity(it.first));
     }
 
-    // Update Orbits
+    // Update Orbits ( Do this last)
     for (auto& it : m_orbitCT) {
         auto& cmp = it.second;
         if (cmp.parentNpId) {

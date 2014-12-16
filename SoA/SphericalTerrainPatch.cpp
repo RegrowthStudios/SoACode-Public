@@ -81,7 +81,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     m_sphericalTerrainData = sphericalTerrainData;
     m_width = width;
 
-    // Approximate the world position for now
+    // Approximate the world position for now //TODO(Ben): Better
     f64v2 centerGridPos = gridPosition + f64v2(width);
 
     const i32v3& coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
@@ -95,13 +95,18 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
+    // Calculate distance from camera
     m_distance = glm::length(m_worldPosition - cameraPos);
     
     if (m_children) {
+   
         if (m_distance > m_width * 4.1) {
+            // Out of range, kill children
             delete[] m_children;
             m_children = nullptr;
         } else if (hasMesh()) {
+            // In range, but we need to remove our mesh.
+            // Check to see if all children are renderable
             bool deleteMesh = true;
             for (int i = 0; i < 4; i++) {
                 if (!m_children[i].isRenderable()) {
@@ -109,13 +114,15 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
                     break;
                 }
             }
+            
             if (deleteMesh) {
+                // Children are renderable, free mesh
                 destroyMesh();
             }
         }
     } else if (m_distance < m_width * 4.0) {
         m_children = new SphericalTerrainPatch[4];
-        // Segment in to 4 children
+        // Segment into 4 children
         for (int z = 0; z < 2; z++) {
             for (int x = 0; x < 2; x++) {
                 m_children[(z << 1) + x].init(m_gridPosition + f64v2(m_width / 2.0 * x, m_width / 2.0 * z),
@@ -124,6 +131,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
         }
     }
     
+    // Recursively update children if they exist
     if (m_children) {
         for (int i = 0; i < 4; i++) {
             m_children[i].update(cameraPos);
@@ -134,16 +142,20 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
 void SphericalTerrainPatch::destroy() {
     destroyMesh();
     delete[] m_children;
+    m_children = nullptr;
 }
 
 void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
     if (m_children) {
+        // Draw the children
         for (int i = 0; i < 4; i++) {
             m_children[i].draw(cameraPos, VP, program);
         }
+        // If we have a mesh, we should still render it for now
         if (!hasMesh()) return;
     }
 
+    // If we don't have a mesh, generate one
     if (!(hasMesh())) {
         update(cameraPos);
         float heightData[PATCH_WIDTH][PATCH_WIDTH];
@@ -151,12 +163,12 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
         generateMesh(heightData);
     }
   
+    // Set up matrix
     f32m4 matrix(1.0);
     setMatrixTranslation(matrix, -cameraPos);
     matrix = VP * matrix;
 
 
-    // Point already has orientation encoded
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
     
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
@@ -169,7 +181,6 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
 
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glDrawElements(GL_TRIANGLES, INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
-  //  glBindVertexArray(0);
 }
 
 bool SphericalTerrainPatch::isRenderable() const {
@@ -200,14 +211,18 @@ void SphericalTerrainPatch::destroyMesh() {
 
 void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]) {
 
+    // Get debug face color
     const ColorRGB8 tcolor = DebugColors[(int)m_cubeFace];
 
+    // Grab mappings so we can rotate the 2D grid appropriately
     i32v3 coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
     f32v3 coordMults = CubeCoordinateMults[(int)m_cubeFace];
     float radius = m_sphericalTerrainData->getRadius();
+    
+    // TODO(Ben): Stack array instead?
+    // Preallocate the verts for speed
+    std::vector <TerrainVertex> verts(PATCH_WIDTH * PATCH_WIDTH);
 
-    std::vector <TerrainVertex> verts;
-    verts.resize(PATCH_WIDTH * PATCH_WIDTH);
     // Loop through and set all vertex attributes
     float vertWidth = m_width / (PATCH_WIDTH - 1);
     int index = 0;
@@ -232,8 +247,8 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
         }
     }
 
-    std::vector <ui16> indices;
-    indices.resize(INDICES_PER_PATCH);
+    // Preallocate indices for speed
+    std::vector <ui16> indices(INDICES_PER_PATCH);
 
     // Loop through each quad and set indices
     int vertIndex;
@@ -261,6 +276,7 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
             index += INDICES_PER_QUAD;
         }
     }
+    // If the buffers haven't been generated, generate them
     if (m_vbo == 0) {
    //     glGenVertexArrays(1, &m_vao);
         vg::GpuMemory::createBuffer(m_vbo);

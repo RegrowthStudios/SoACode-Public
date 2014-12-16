@@ -27,6 +27,7 @@ void SphericalTerrainComponent::init(f64 radius) {
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
                                        const NamePositionComponent* npComponent) {
+    /// Calculate camera distance
     f64v3 relativeCameraPos = cameraPos - npComponent->position;
     f64 distance = glm::length(relativeCameraPos);
 
