@@ -56,10 +56,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
     ui8 sunlightData;
     ui16 tertiaryData;
 
-    for (int y = 0; y < CHUNK_WIDTH; y++){
+    for (size_t y = 0; y < CHUNK_WIDTH; y++){
         pnum = chunk->numBlocks;
-        for (int z = 0; z < CHUNK_WIDTH; z++){
-            for (int x = 0; x < CHUNK_WIDTH; x++, c++){
+        for (size_t z = 0; z < CHUNK_WIDTH; z++) {
+            for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {
 
                 hindex = (c%CHUNK_LAYER);
 
@@ -135,7 +135,9 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
                     if (biome->possibleFlora.size()){
                         r = chunk->GetPlantType(x + wx, z + wz, biome);
+
                //         if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[r], c);
+
 
                          sunlightData = MAXLIGHT;
                          data = NONE;
@@ -175,13 +177,13 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
           //              generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity1, 9, 0, 5, 0.6, 0.0004);
                         needsCave = 2;
                     }
-                    ti = trilinearInterpolation_4_8_4(x, y, z, CaveDensity1);
+                    ti = upSampleArray<4, 8, 8>(y, z, x, CaveDensity1);
                     if (ti > 0.905 && ti < 0.925){
                         if (needsCave == 2){
          //                   generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity2, 9, 8000, 4, 0.67, 0.0004);
                             needsCave = 1;
                         }
-                        tj = trilinearInterpolation_4_8_4(x, y, z, CaveDensity2);
+                        tj = upSampleArray<4, 8, 8>(y, z, x, CaveDensity2);
 
                         if (tj > 0.9 && tj < 0.941){
 

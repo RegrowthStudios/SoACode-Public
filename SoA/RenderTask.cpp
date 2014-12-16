@@ -6,7 +6,7 @@
 #include "ThreadPool.h"
 #include "VoxelLightEngine.h"
 
-void RenderTask::execute(vcore::WorkerData* workerData) {
+void RenderTask::execute(WorkerData* workerData) {
     // Mesh updates are accompanied by light updates
     if (workerData->voxelLightEngine == nullptr) {
         workerData->voxelLightEngine = new VoxelLightEngine();

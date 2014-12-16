@@ -106,7 +106,7 @@ public:
 
     void createFromSortedArray(const std::vector <LightweightNode>& data) {
         _tree.resize(data.size());
-        for (int i = 0; i < _tree.size(); i++) {
+        for (size_t i = 0; i < _tree.size(); i++) {
             _tree[i].setStart(data[i].start);
             _tree[i].length = data[i].length;
             _tree[i].data = data[i].data;

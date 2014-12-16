@@ -15,7 +15,9 @@
 #ifndef LoadTask_h__
 #define LoadTask_h__
 
-#include "IThreadPoolTask.h"
+#include <IThreadPoolTask.h>
+
+#include "VoxPool.h"
 
 class Chunk;
 class LoadData;
@@ -23,16 +25,18 @@ class LoadData;
 #define GENERATE_TASK_ID 1
 
 // Represents A Chunk Load Task
-class GenerateTask : public vcore::IThreadPoolTask {
+
+class GenerateTask : public vcore::IThreadPoolTask<WorkerData> {
+
 public:
-    GenerateTask() : vcore::IThreadPoolTask(true, GENERATE_TASK_ID) {}
+    GenerateTask() : vcore::IThreadPoolTask<WorkerData>(true, GENERATE_TASK_ID) {}
 
     void init(Chunk *ch = 0, LoadData *ld = 0) {
         chunk = ch;
         loadData = ld;
     }
 
-    void execute(vcore::WorkerData* workerData) override;
+    void execute(WorkerData* workerData) override;
 
     // Chunk To Be Loaded
     Chunk* chunk;

@@ -55,7 +55,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)Vorb;$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINDOWS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -66,7 +66,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Vorb.lib;opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmdd.lib;awesomium.lib;fmodexL_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;fmodexL_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -88,7 +88,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WINDOWS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -102,7 +102,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;libyaml-cppmd.lib;awesomium.lib;fmodex_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;fmodex_vc.lib;zdll.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
@@ -218,6 +218,7 @@
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelUtils.h" />
+    <ClInclude Include="VoxPool.h" />
     <ClInclude Include="WSO.h" />
     <ClInclude Include="WSOAtlas.h" />
     <ClInclude Include="WSOScanner.h" />
@@ -283,6 +284,7 @@
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GLProgramManager.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
+    <ClCompile Include="LoadTaskShaders.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
     <ClCompile Include="MainMenuRenderPipeline.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
@@ -350,6 +352,7 @@
     <ClCompile Include="VoxelLightEngine.cpp" />
     <ClCompile Include="VoxelPlanetMapper.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
+    <ClCompile Include="VoxPool.cpp" />
     <ClCompile Include="VRayHelper.cpp" />
     <ClCompile Include="ChunkIOManager.cpp" />
     <ClCompile Include="ChunkManager.cpp" />

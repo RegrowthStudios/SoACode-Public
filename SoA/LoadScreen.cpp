@@ -22,18 +22,19 @@
 #include "TexturePackLoader.h"
 
 #include "SpriteFont.h"
-#include "SpriteBatch.h";
+#include "SpriteBatch.h"
 #include "RasterizerState.h"
 #include "DepthState.h"
 
-const ColorRGBA8 LOAD_COLOR_TEXT(205, 205, 205, 255);
-const ColorRGBA8 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
-const ColorRGBA8 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
+const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
+const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
+const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 
 CTOR_APP_SCREEN_DEF(LoadScreen, App),
 _sf(nullptr),
 _sb(nullptr),
-_monitor() {
+_monitor(),
+m_glrpc() {
     // Empty
 }
 
@@ -60,6 +61,9 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
   
+    addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc));
+    _monitor.setDep("Shaders", "GameManager");
+
     addLoadTask("Sound", "Sound", new LoadTaskSound);
     _monitor.setDep("Sound", "GameManager");
 
@@ -103,6 +107,8 @@ void LoadScreen::onEvent(const SDL_Event& e) {
     // Empty
 }
 void LoadScreen::update(const GameTime& gameTime) {
+    static ui64 fCounter = 0;
+
     for (ui32 i = 0; i < _loadTasks.size(); i++) {
         if (_loadTasks[i] != nullptr && _loadTasks[i]->isFinished()) {
             // Make The Task Visuals Disappear
@@ -114,19 +120,13 @@ void LoadScreen::update(const GameTime& gameTime) {
         _loadBars[i].update((f32)gameTime.elapsed);
     }
 
-    // Defer shader loading
-    static bool loadedShaders = false;
-    if (!loadedShaders && _monitor.isTaskFinished("GameManager")) {
-        // Do this synchronously for now
-        LoadTaskShaders loadTaskShader;
-        loadTaskShader.load();
-        loadedShaders = true;
-    }
+    // Perform OpenGL calls
+    fCounter++;
+    m_glrpc.processRequests(1);
 
     // Defer texture loading
     static bool loadedTextures = false;
     if (!loadedTextures && _monitor.isTaskFinished("Textures")) {
-      
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
         GameManager::texturePackLoader->setBlockTextures(Blocks);

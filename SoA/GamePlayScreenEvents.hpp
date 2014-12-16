@@ -113,7 +113,7 @@ public:
 
     virtual void invoke(void* sender, ui32 key) {
         GameManager::glProgramManager->destroy();
-        LoadTaskShaders shaderTask;
+        LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
         _screen->_renderPipeline.destroy();
         _screen->initRenderPipeline();

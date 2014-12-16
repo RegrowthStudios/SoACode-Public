@@ -15,12 +15,12 @@
 #ifndef CellularAutomataTask_h__
 #define CellularAutomataTask_h__
 
-#include "IThreadPoolTask.h"
+#include <IThreadPoolTask.h>
+
+#include "VoxPool.h"
 
 class Chunk;
-class WorkerData;
 class RenderTask;
-
 class CaPhysicsType;
 
 #define CA_TASK_ID 3
@@ -31,7 +31,7 @@ enum class CA_ALGORITHM {
     POWDER = 2 
 };
 
-class CellularAutomataTask : public vcore::IThreadPoolTask {
+class CellularAutomataTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
     friend class ChunkManager;
     /// Conclasss the task
@@ -45,7 +45,7 @@ public:
     }
 
     /// Executes the task
-    void execute(vcore::WorkerData* workerData) override;
+    void execute(WorkerData* workerData) override;
 
     RenderTask* renderTask = nullptr; ///< A nested to force re-mesh
 

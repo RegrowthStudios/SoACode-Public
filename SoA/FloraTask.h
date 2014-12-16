@@ -15,8 +15,10 @@
 #ifndef FloraTask_h__
 #define FloraTask_h__
 
-#include "IThreadPoolTask.h"
+#include <IThreadPoolTask.h>
+
 #include "FloraGenerator.h"
+#include "VoxPool.h"
 
 class Chunk;
 class WorkerData;
@@ -35,12 +37,12 @@ public:
     std::vector <i32v3> allChunkPositions; ///< Stores positions of all chunks
 };
 
-class FloraTask : public vcore::IThreadPoolTask {
+class FloraTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
-    FloraTask() : vcore::IThreadPoolTask(true, FLORA_TASK_ID) {}
+    FloraTask() : vcore::IThreadPoolTask<WorkerData>(true, FLORA_TASK_ID) {}
 
     /// Executes the task
-    void execute(vcore::WorkerData* workerData) override;
+    void execute(WorkerData* workerData) override;
 
     /// Initializes the task
     void init(Chunk* ch) { chunk = ch; }

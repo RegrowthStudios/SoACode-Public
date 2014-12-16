@@ -18,11 +18,11 @@ inline T VoxelIntervalTree<typename T>::getData(ui16 index) const {
 //Get the enclosing interval for a given point
 template <typename T>
 i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
-    int interval = _root;
+    i32 interval = _root;
     while (true) {
         
         //Error checking. Ideally we can remove this when we are certain this condition can never happen
-        if (interval < 0 || interval >= _tree.size()) {
+        if (interval < 0 || interval >= (i32)_tree.size()) {
             std::cout << "getInterval failed! Looking for index: " << index << " Interval is " << interval << std::endl;
             checkTreeValidity();
             pError("getInterval error! Check the command prompt!\n");

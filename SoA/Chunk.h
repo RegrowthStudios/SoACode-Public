@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "Vorb.h"
+#include <IThreadPoolTask.h>
 #include "IVoxelMapper.h"
 
 #include "Biome.h"
@@ -17,18 +18,15 @@
 #include "Vorb.h"
 #include "VoxelBits.h"
 #include "VoxelLightEngine.h"
+#include "VoxPool.h"
 
 //used by threadpool
 
 const int MAXLIGHT = 31;
 
 class Block;
+
 class PlantData;
-namespace vorb {
-    namespace core {
-        class IThreadPoolTask;
-    }
-}
 
 enum LightTypes {LIGHT, SUNLIGHT};
 
@@ -176,7 +174,7 @@ public:
 
     bool queuedForPhysics;
 
-    vcore::IThreadPoolTask* lastOwnerTask; ///< Pointer to task that is working on us
+    vorb::core::IThreadPoolTask<WorkerData>* lastOwnerTask; ///< Pointer to task that is working on us
 
     ChunkMesh *mesh;
 
@@ -293,3 +291,13 @@ public:
 private:
     static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 };
+
+inline i32 getPositionSeed(i32 x, i32 y, i32 z) {
+    return ((x & 0x7FF) << 10) |
+        ((y & 0x3FF)) |
+        ((z & 0x7FF) << 21);
+}
+inline i32 getPositionSeed(i32 x, i32 z) {
+    return ((x & 0xFFFF) << 16) |
+        (z & 0xFFFF);
+}

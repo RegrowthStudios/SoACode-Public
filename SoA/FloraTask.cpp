@@ -31,7 +31,7 @@ i32v3 FloraTask::getChunkOffset(ui16 offset) {
     return i32v3(getXOffset(offset), getYOffset(offset), getZOffset(offset));
 }
 
-void FloraTask::execute(vcore::WorkerData* workerData) {
+void FloraTask::execute(WorkerData* workerData) {
 
     generatedTreeNodes = new GeneratedTreeNodes();
     generatedTreeNodes->startChunkGridPos = chunk->chunkPosition;
