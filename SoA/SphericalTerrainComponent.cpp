@@ -13,24 +13,16 @@
 #define LOAD_DIST 20000.0
 // Should be even
 #define PATCH_ROW 16  
-#define NUM_PATCHES (PATCH_ROW * PATCH_ROW)
-
-#define FACE_TOP 0
-#define FACE_LEFT 1
-#define FACE_RIGHT 2
-#define FACE_FRONT 3
-#define FACE_BACK 4
-#define FACE_BOTOM 5
-
 #define NUM_FACES 6
+const int PATCHES_PER_FACE = (PATCH_ROW * PATCH_ROW);
+const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;
+
 
 void SphericalTerrainComponent::init(f64 radius) {
-    m_circumference = 2.0 * M_PI * radius;
-    f64 patchWidth = m_circumference / 4.0 / (PATCH_ROW / 2.0);
 
-    m_sphericalTerrainData = new SphericalTerrainData(radius, f64v2(0.0),
-                                                      f64v3(0.0), patchWidth);
-    m_circumference = 2.0 * M_PI * radius;
+    f64 patchWidth = (radius * 2) / PATCH_ROW;
+
+    m_sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
 }
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
@@ -41,32 +33,11 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
     if (distance <= LOAD_DIST) {
         // In range, allocate if needed
         if (!m_patches) {
-            f64 patchWidth = m_sphericalTerrainData->m_patchWidth;
-
-            // Allocate top level patches
-            m_patches = new SphericalTerrainPatch[NUM_PATCHES * NUM_FACES];
-
-            int center = PATCH_ROW / 2;
-            f64v2 gridPos;
-            int index = 0;
-            // Set up shiftable patch grid
-            m_patchesGrid.resize(PATCH_ROW);
-            for (int z = 0; z < m_patchesGrid.size(); z++) {
-                auto& v = m_patchesGrid[z];
-                v.resize(PATCH_ROW);
-                for (int x = 0; x < v.size(); x++) {
-                    v[x] = &m_patches[index++];
-                    gridPos.x = (x - center) * patchWidth;
-                    gridPos.y = (z - center) * patchWidth;
-                    v[x]->init(gridPos, m_sphericalTerrainData, patchWidth);
-                }
-            }
+            initPatches();
         }
 
-        updateGrid(cameraPos, npComponent);
-
         // Update patches
-        for (int i = 0; i < NUM_PATCHES; i++) {
+        for (int i = 0; i < TOTAL_PATCHES; i++) {
             m_patches[i].update(cameraPos);
         }
     } else { 
@@ -74,7 +45,6 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
         if (m_patches) {
             delete[] m_patches;
             m_patches = nullptr;
-            m_patchesGrid.clear();
         }
     }
 }
@@ -88,20 +58,32 @@ void SphericalTerrainComponent::draw(const Camera* camera,
 
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
-    f32v3 cameraNormal = glm::normalize(f32v3(relativeCameraPos));
-
-    f32q rotQuat = quatBetweenVectors(f32v3(0.0f, 1.0f, 0.0f), cameraNormal);
-    f32m4 rotMat = glm::toMat4(rotQuat);
-
-    glUniformMatrix4fv(terrainProgram->getUniform("unRot"), 1, GL_FALSE, &rotMat[0][0]);
-
-  //  glUniform3fv(terrainProgram->getUniform("unCameraNormal"), 1, &cameraNormal[0]);
-  //  glUniform3fv(terrainProgram->getUniform("unCameraLeft"), 1, &cameraLeft[0]);
-
-    //printVec("POS: ", relativeCameraPos);
-
     // Draw patches
-    for (int i = 0; i < NUM_PATCHES; i++) {
+    for (int i = 0; i < TOTAL_PATCHES; i++) {
         m_patches[i].draw(relativeCameraPos, VP, terrainProgram);
+    }
+}
+
+void SphericalTerrainComponent::initPatches() {
+    f64 patchWidth = m_sphericalTerrainData->m_patchWidth;
+
+    // Allocate top level patches
+    m_patches = new SphericalTerrainPatch[TOTAL_PATCHES];
+
+    int center = PATCH_ROW / 2;
+    f64v2 gridPos;
+    int index = 0;
+
+    // Init all the top level patches for each of the 6 grids
+    for (int face = 0; face < NUM_FACES; face++) {
+        for (int z = 0; z < PATCH_ROW; z++) {
+            for (int x = 0; x < PATCH_ROW; x++) {
+                auto& p = m_patches[index++];
+                gridPos.x = (x - center) * patchWidth;
+                gridPos.y = (z - center) * patchWidth;
+                p.init(gridPos, static_cast<CubeFace>(face),
+                       m_sphericalTerrainData, patchWidth);
+            }
+        }
     }
 }

@@ -20,7 +20,6 @@ public:
     void getClosestChunks(glm::dvec3 &coord, class Chunk **chunks);
     void endSession();
 
- 
     inline ChunkManager &getChunkManager() { return *_chunkManager; }
 
 private:

@@ -26,6 +26,8 @@ class Camera;
 
 class SphericalTerrainComponent {
 public:
+    /// Initialize the spherical terrain
+    /// @param radius: Radius of the planet, must be multiple of 32.
     void init(f64 radius);
 
     void update(const f64v3& cameraPos,
@@ -35,15 +37,9 @@ public:
               vg::GLProgram* terrainProgram,
               const NamePositionComponent* npComponent);
 private:
+    void initPatches();
 
-    void updateGrid(const f64v3& cameraPos,
-                    const NamePositionComponent* npComponent);
-    void calculateCameraGridPos(const f64v3& cameraPos,
-                                const NamePositionComponent* npComponent);
-
-    f64 m_circumference = 0.0;
     SphericalTerrainPatch* m_patches = nullptr; ///< Buffer for top level patches
-    std::deque< std::deque <SphericalTerrainPatch*> > m_patchesGrid;
     SphericalTerrainData* m_sphericalTerrainData = nullptr;
 };
 

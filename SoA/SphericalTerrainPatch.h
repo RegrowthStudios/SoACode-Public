@@ -15,6 +15,7 @@ extern int lodDistanceLevels[DetailLevels];
 extern int WaterIndexMap[(maxVertexWidth + 3)*(maxVertexWidth + 3) * 2];
 extern int MakeWaterQuadMap[(maxVertexWidth + 3)*(maxVertexWidth + 3)];
 
+enum class CubeFace { TOP, LEFT, RIGHT, FRONT, BACK, BOTTOM };
 
 class Camera;
 
@@ -74,12 +75,10 @@ private:
 class SphericalTerrainPatch {
 public:
     SphericalTerrainPatch() { };
-    SphericalTerrainPatch(const f64v2& gridPosition,
-                          const SphericalTerrainData* sphericalTerrainData,
-                          f64 width);
     ~SphericalTerrainPatch();
     
     void init(const f64v2& gridPosition,
+              CubeFace cubeFace,
               const SphericalTerrainData* sphericalTerrainData,
               f64 width);
 
@@ -98,6 +97,7 @@ private:
     f32v3 m_boundingBox;
     f64 m_distance = 1000000000.0;
     int m_lod = 0;
+    CubeFace m_cubeFace;
 
     f64 m_width = 0.0;
 
@@ -106,4 +106,5 @@ private:
     ui32 m_ibo = 0;
 
     const SphericalTerrainData* m_sphericalTerrainData = nullptr;
+    SphericalTerrainPatch* children = nullptr;
 };

@@ -11,6 +11,7 @@
 #include "WorldStructs.h"
 #include "GpuMemory.h"
 #include "RenderUtils.h"
+#include "VoxelPlanetMapper.h"
 
 #include "utils.h"
 
@@ -37,20 +38,16 @@ inline double BilinearInterpolation(int &a, int &b, int &c, int &d, int &step, f
             (d)*px*pz;
 }
 
-SphericalTerrainPatch::SphericalTerrainPatch(const f64v2& gridPosition,
-                                             const SphericalTerrainData* sphericalTerrainData,
-                                             f64 width) {
-    init(gridPosition, sphericalTerrainData, width);
-}
-
 SphericalTerrainPatch::~SphericalTerrainPatch() {
     destroy();
 }
 
 void SphericalTerrainPatch::init(const f64v2& gridPosition,
-          const SphericalTerrainData* sphericalTerrainData,
-          f64 width) {
+                                 CubeFace cubeFace,
+                                 const SphericalTerrainData* sphericalTerrainData,
+                                 f64 width) {
     m_gridPosition = gridPosition;
+    m_cubeFace = cubeFace;
     m_sphericalTerrainData = sphericalTerrainData;
     m_width = width;
 
@@ -88,19 +85,10 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
     setMatrixTranslation(matrix, -cameraPos);
     matrix = VP * matrix;
 
-  //  printVec("POS: ", m_worldPosition - cameraPos);
-
-   // glBindVertexArray(m_vao);
-
-    glPointSize(10.0);
-
-    const f32v2& gridOffset = f32v2(m_gridPosition - m_sphericalTerrainData->getGridCameraPos());
-    glUniform2fv(program->getUniform("unGridOffset"), 1, &gridOffset[0]);
 
     // Point already has orientation encoded
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
-    glUniform1f(program->getUniform("unRadius"), m_sphericalTerrainData->getRadius());
-
+    
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
@@ -114,21 +102,63 @@ void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GL
   //  glBindVertexArray(0);
 }
 
+// Coordinate mapping for rotating 2d grid to quadcube positions
+// Pain of i32v3, first is coordinates
+const i32v3 CubeCoordinateMappings[6] = {
+    i32v3(0, 1, 2), //TOP
+    i32v3(1, 0, 2), //LEFT
+    i32v3(1, 0, 2), //RIGHT
+    i32v3(0, 2, 1), //FRONT
+    i32v3(0, 2, 1), //BACK
+    i32v3(0, 1, 2) //BOTTOM
+};
+
+// Multipliers for coordinate mappings
+const f32v3 CubeCoordinateMults[6] = {
+    f32v3(1.0f, 1.0f, 1.0f), //TOP
+    f32v3(1.0f, -1.0f, 1.0f), //LEFT
+    f32v3(1.0f, 1.0f, 1.0f), //RIGHT
+    f32v3(1.0f, 1.0f, 1.0f), //FRONT
+    f32v3(1.0f, -1.0f, 1.0f), //BACK
+    f32v3(1.0f, -1.0f, 1.0f) //BOTTOM
+};
+
+const ColorRGB8 DebugColors[6] {
+    ColorRGB8(255, 0, 0), //TOP
+    ColorRGB8(0, 255, 0), //LEFT
+    ColorRGB8(0, 0, 255), //RIGHT
+    ColorRGB8(255, 255, 0), //FRONT
+    ColorRGB8(0, 255, 255), //BACK
+    ColorRGB8(255, 255, 255) //BOTTOM
+};
+
 void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]) {
 
-    static const ColorRGB8 tcolor(0, 255, 0);
+    const ColorRGB8 tcolor = DebugColors[(int)m_cubeFace];
+
+    i32v3 coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
+    f32v3 coordMults = CubeCoordinateMults[(int)m_cubeFace];
+    float radius = m_sphericalTerrainData->getRadius();
 
     std::vector <TerrainVertex> verts;
     verts.resize(PATCH_WIDTH * PATCH_WIDTH);
-    // Loop through each vertex
+    // Loop through and set all vertex attributes
     float vertWidth = m_width / (PATCH_WIDTH - 1);
     int index = 0;
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {
-            verts[index].position = f32v3(x * vertWidth, 0, z * vertWidth);
-            verts[index].color.r = tcolor.r;
-            verts[index].color.g = tcolor.g;
-            verts[index].color.b = tcolor.b;
+            auto& v = verts[index];
+            // Set the position based on which face we are on
+            v.position[coordMapping.x] = x * vertWidth + m_gridPosition.x * coordMults.x;
+            v.position[coordMapping.y] = radius * coordMults.y;
+            v.position[coordMapping.z] = z * vertWidth + m_gridPosition.y * coordMults.z;
+            
+            // Spherify it!
+            v.position = glm::normalize(v.position) * radius;
+
+            v.color.r = tcolor.r;
+            v.color.g = tcolor.g;
+            v.color.b = tcolor.b;
             index++;
         }
     }
@@ -143,12 +173,22 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
         for (int x = 0; x < PATCH_WIDTH - 1; x++) {
             // Compute index of back left vertex
             vertIndex = z * PATCH_WIDTH + x;
-            indices[index] = vertIndex;
-            indices[index + 1] = vertIndex + PATCH_WIDTH;
-            indices[index + 2] = vertIndex + PATCH_WIDTH + 1;
-            indices[index + 3] = vertIndex + PATCH_WIDTH + 1;
-            indices[index + 4] = vertIndex + 1;
-            indices[index + 5] = vertIndex;
+            // Change triangle orientation based on odd or even
+            if ((x + z) % 2) {
+                indices[index] = vertIndex;
+                indices[index + 1] = vertIndex + PATCH_WIDTH;
+                indices[index + 2] = vertIndex + PATCH_WIDTH + 1;
+                indices[index + 3] = vertIndex + PATCH_WIDTH + 1;
+                indices[index + 4] = vertIndex + 1;
+                indices[index + 5] = vertIndex;
+            } else {
+                indices[index] = vertIndex + 1;
+                indices[index + 1] = vertIndex;
+                indices[index + 2] = vertIndex + PATCH_WIDTH;
+                indices[index + 3] = vertIndex + PATCH_WIDTH;
+                indices[index + 4] = vertIndex + PATCH_WIDTH + 1;
+                indices[index + 5] = vertIndex + 1;
+            }
             index += INDICES_PER_QUAD;
         }
     }
@@ -178,6 +218,4 @@ void SphericalTerrainPatch::generateMesh(float heightData[PATCH_WIDTH][PATCH_WID
                           offsetptr(TerrainVertex, color));
 
  //   glBindVertexArray(0);
-
-    m_hasMesh = true;
 }
