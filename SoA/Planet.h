@@ -19,6 +19,16 @@ struct TreeType;
 struct PlantType;
 class Camera;
 
+struct AtmosphereProperties {
+public:
+    f32 rayleighConstant;
+    f32 rayleighScaleDepth;
+    f32 mieConstant;
+    f32 sunIntensity;
+    f32 mieAsymmetry;
+    f32v3 lightWavelengths;
+};
+
 class Atmosphere {
 public:
     Atmosphere();
@@ -61,8 +71,7 @@ public:
 
     void draw(f32 theta, const Camera* camera, f32v3 lightPos, f32 sunVal, f32 fadeDistance, bool connectedToPlanet);
     void drawTrees(const f32m4& VP, const f64v3& PlayerPos, f32 sunVal);
-    void drawGroundFromAtmosphere(f32 theta, const Camera* camera, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, f32 fadeDistance, bool onPlanet);
-    void drawGroundFromSpace(f32 theta, const Camera* camera, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, bool onPlanet);
+    void drawGround(f32 theta, const Camera* camera, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, float fadeDistance, bool onPlanet);
 
     void updateLODs(f64v3& worldPosition, ui32 maxTicks);
     void rotationUpdate();

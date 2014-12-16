@@ -41,10 +41,6 @@ void PauseMenu::draw() const {
     _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
 }
 
-void PauseMenu::onEvent(const SDL_Event& e) {
-    _awesomiumInterface.handleEvent(e);
-}
-
 void PauseMenu::destroy() {
     _awesomiumInterface.destroy();
 }

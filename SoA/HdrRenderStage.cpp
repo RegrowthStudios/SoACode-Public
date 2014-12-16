@@ -1,57 +1,46 @@
 #include "stdafx.h"
 #include "HdrRenderStage.h"
+
+#include "Camera.h"
 #include "GLProgram.h"
 #include "Options.h"
 
-
-HdrRenderStage::HdrRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad) :
-    _glProgram(glProgram),
-    _quad(quad) {
+HdrRenderStage::HdrRenderStage(const vg::GLProgramManager* glPM, vg::FullQuadVBO* quad, const Camera* camera) :
+    _glProgramDefault(glPM->getProgram("HDR")),
+    _glProgramBlur(glPM->getProgram("MotionBlur")),
+    _glProgramDoFBlur(glPM->getProgram("DoFMotionBlur")),
+    _quad(quad),
+    _oldVP(1.0f),
+    _camera(camera) {
     // Empty
 }
 
 void HdrRenderStage::draw() {
-    /// Used for screen space motion blur
-   // static bool start = 1;
+    f32m4 oldVP = _oldVP;
+    f32m4 vp = _camera->getProjectionMatrix() * _camera->getViewMatrix();
+    _oldVP = vp;
 
-    /*if (graphicsOptions.motionBlur > 0) {
-        program = GameManager::glProgramManager->getProgram("MotionBlur");
-        program->use();
-        program->enableVertexAttribArrays();
-
-        static f32m4 currMat;
-        static f32m4 oldVP;
-        static f32m4 newInverseVP;
-
-        if (start) {
-            oldVP = VP;
-            start = 0;
-        } else {
-            oldVP = currMat;
-        }
-        currMat = VP;
-        newInverseVP = glm::inverse(currMat);
-
-        glUniform1i(program->getUniform("renderedTexture"), 0);
-        glUniform1i(program->getUniform("depthTexture"), 1);
-        glUniform1f(program->getUniform("gamma"), 1.0f / graphicsOptions.gamma);
-        glUniform1f(program->getUniform("fExposure"), graphicsOptions.hdrExposure);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, frameBuffer->depthTextureIDs[FB_DRAW]);
-
-        glUniformMatrix4fv(program->getUniform("prevVP"), 1, GL_FALSE, &oldVP[0][0]);
-        glUniformMatrix4fv(program->getUniform("inverseVP"), 1, GL_FALSE, &newInverseVP[0][0]);
-        glUniform1i(program->getUniform("numSamples"), (int)graphicsOptions.motionBlur);
-    } else {
-        start = 0;*/
+    vg::GLProgram* _glProgram = graphicsOptions.motionBlur > 0 ? _glProgramBlur : _glProgramDefault;
+    _glProgram = graphicsOptions.depthOfField == 1 ? _glProgramDoFBlur : _glProgram;
 
     _glProgram->use();
     _glProgram->enableVertexAttribArrays();
+
     glUniform1i(_glProgram->getUniform("unTex"), 0);
     glUniform1f(_glProgram->getUniform("unGamma"), 1.0f / graphicsOptions.gamma);
     glUniform1f(_glProgram->getUniform("unExposure"), graphicsOptions.hdrExposure);
-    //}
+    if (graphicsOptions.motionBlur > 0) {
+        f32m4 newInverseVP = glm::inverse(vp);
+        glUniform1i(_glProgram->getUniform("unTexDepth"), 1);
+        glUniformMatrix4fv(_glProgram->getUniform("unVPPrev"), 1, GL_FALSE, &oldVP[0][0]);
+        glUniformMatrix4fv(_glProgram->getUniform("unVPInv"), 1, GL_FALSE, &newInverseVP[0][0]);
+        glUniform1i(_glProgram->getUniform("unNumSamples"), (int)graphicsOptions.motionBlur);
+        glUniform1f(_glProgram->getUniform("unBlurIntensity"), 0.5f);
+    }
+    if (graphicsOptions.depthOfField > 0) {
+        glUniform1f(_glProgram->getUniform("unFocalLen"), 70.0f);
+        glUniform1f(_glProgram->getUniform("unZfocus"), 0.96f); // [0, 1]
+    }
 
     glDisable(GL_DEPTH_TEST);
     _quad->draw();

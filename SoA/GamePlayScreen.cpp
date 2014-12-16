@@ -108,9 +108,13 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
         _renderPipeline.loadNightVision();
     });
+
+    GameManager::inputManager->startInput();
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
+    GameManager::inputManager->stopInput();
+
     InputManager* inputManager = GameManager::inputManager;
     inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
     delete _onPauseKeyDown;
@@ -156,13 +160,6 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
     // Push the event to the input manager
     GameManager::inputManager->pushEvent(e);
 
-    // Pause menu steals events from PDA
-    if (_pauseMenu.isOpen()) { 
-        _pauseMenu.onEvent(e);
-    } else if (_pda.isOpen()) {
-        _pda.onEvent(e);
-    }
-
     // Handle custom input
     switch (e.type) {
         case SDL_MOUSEMOTION:
@@ -181,11 +178,9 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
             if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
                 SDL_SetRelativeMouseMode(SDL_FALSE);
                 _inFocus = false;
-                SDL_StopTextInput();
             } else if (e.window.type == SDL_WINDOWEVENT_ENTER) {
                 SDL_SetRelativeMouseMode(SDL_TRUE);
                 _inFocus = true;
-                SDL_StartTextInput();
             }
         default:
             break;
@@ -232,7 +227,6 @@ void GamePlayScreen::unPause() {
     _pauseMenu.close(); 
     SDL_SetRelativeMouseMode(SDL_TRUE);
     _inFocus = true;
-    SDL_StartTextInput();
 }
 
 i32 GamePlayScreen::getWindowWidth() const {
@@ -279,7 +273,6 @@ void GamePlayScreen::handleInput() {
 }
 
 void GamePlayScreen::onMouseDown(const SDL_Event& e) {
-    SDL_StartTextInput();
     if (isInGame()) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         _inFocus = true;

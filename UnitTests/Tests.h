@@ -3,35 +3,41 @@
 #ifndef Tests_h__
 #define Tests_h__
 
-using namespace System;
-using namespace System::Collections::Generic;
+typedef std::map<nString, void*> TestLibrary; ///< Container type for tests
+__declspec(dllexport) TestLibrary& getLibrary(); ///< Member variable that stores tests
 
 namespace UnitTests {
     /// Implementation hiding
     namespace Adder {
-        private ref class TestsAdder {
+        class TestsAdder {
         public:
-            static bool addTest(String^ name, IntPtr f);
+            static bool addTest(const nString& name, void* f);
         };
     }
 
     /// Unit test manager
-    public ref class Tests {
+    class __declspec(dllexport) Tests {
     public:
-        typedef System::Collections::Generic::Dictionary<String^, IntPtr> TestLibrary; ///< Container type for tests
 
         /// Runs a unit test
         /// @param name: Name of test to run
         /// @return Success of the test
-        static bool runTest(String^ name);
+        static bool runTest(const nString& name);
+
+        /// @return Iteration start of tests
+        static TestLibrary::iterator begin();
+        /// @return Iteration end of tests
+        static TestLibrary::iterator end();
+
+#ifdef OLD_CLR
         /// @return List of all unit test names
         static TestLibrary::KeyCollection^ getTests();
 
         /// Convert a unit test name into a friendly representation
         /// @return Array of batch strings (l[l.Length - 1] = friendly name of test)
         static array<String^>^ getBatches(String^ name);
+#endif // OLD_CLR
 
-        static TestLibrary^ m_tests = gcnew TestLibrary(); ///< Member variable that stores tests
     };
 }
 

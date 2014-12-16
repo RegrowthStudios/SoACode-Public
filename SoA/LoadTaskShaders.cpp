@@ -64,13 +64,22 @@ void LoadTaskShaders::load() {
     // be set automatically.
 
     // Attributes for terrain shaders
+    std::vector<nString> terrainAttribsOld;
+    terrainAttribsOld.push_back("vertexPosition_modelspace");
+    terrainAttribsOld.push_back("vertexUV");
+    terrainAttribsOld.push_back("vertexNormal_modelspace");
+    terrainAttribsOld.push_back("vertexColor");
+    terrainAttribsOld.push_back("vertexSlopeColor");
+    terrainAttribsOld.push_back("texTempRainSpec");
     std::vector<nString> terrainAttribs;
-    terrainAttribs.push_back("vertexPosition_modelspace");
-    terrainAttribs.push_back("vertexUV");
-    terrainAttribs.push_back("vertexNormal_modelspace");
-    terrainAttribs.push_back("vertexColor");
-    terrainAttribs.push_back("vertexSlopeColor");
-    terrainAttribs.push_back("texTempRainSpec");
+    terrainAttribs.push_back("vPosition");
+    terrainAttribs.push_back("vUV");
+    terrainAttribs.push_back("vNormal");
+    terrainAttribs.push_back("vColor");
+    terrainAttribs.push_back("vColorSlope");
+    terrainAttribs.push_back("vTexTempRainSpec");
+
+
 
     // Attributes for block shaders
     std::vector<nString> blockAttribs;
@@ -107,7 +116,7 @@ void LoadTaskShaders::load() {
     m_glrpc->invoke(&createProgram("GroundFromAtmosphere",
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/TerrainShading/GroundFromAtmosphere.vert"),
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/TerrainShading/GroundFromAtmosphere.frag"),
-        &terrainAttribs
+        &terrainAttribsOld
         )->rpc, false);
     m_glrpc->invoke(&createProgram("GroundFromSpace",
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/TerrainShading/GroundFromSpace.vert"),
@@ -131,6 +140,10 @@ void LoadTaskShaders::load() {
     m_glrpc->invoke(&createProgram("MotionBlur",
         vsPostProcess,
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/PostProcessing/MotionBlur.frag", "#define MOTION_BLUR\n")
+        )->rpc, false);
+    m_glrpc->invoke(&createProgram("DoFMotionBlur",
+        vsPostProcess,
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/PostProcessing/MotionBlur.frag", "#define MOTION_BLUR\n#define DEPTH_OF_FIELD\n")
         )->rpc, false);
 
     vg::ShaderSource vsBlock = createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/BlockShading/standardShading.vert");

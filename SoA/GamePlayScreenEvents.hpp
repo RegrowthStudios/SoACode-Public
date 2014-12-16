@@ -131,12 +131,10 @@ public:
             _screen->_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
             _screen->_inFocus = true;
-            SDL_StartTextInput();
         } else {
             _screen->_pda.open();
             SDL_SetRelativeMouseMode(SDL_FALSE);
             _screen->_inFocus = false;
-            SDL_StopTextInput();
         }
     }
 };

@@ -5,8 +5,6 @@
 
 #include "Tests.h"
 
-using namespace System;
-
 #define XSTR(s) STR(s)
 #define STR(s) #s
 
@@ -16,7 +14,7 @@ using namespace System;
 #define IMPL_TEST_ABS_HIDDEN(B, N) \
 namespace UnitTestsFuncs { \
     bool UT_##B##N(); \
-    bool UT_##B##N##_init = UnitTests::Adder::TestsAdder::addTest(gcnew String(XSTR(PPCAT(B, N))), IntPtr(UT_##B##N)); \
+    bool UT_##B##N##_init = UnitTests::Adder::TestsAdder::addTest((XSTR(PPCAT(B, N))), UT_##B##N); \
 } \
 bool UnitTestsFuncs::UT_##B##N()
 

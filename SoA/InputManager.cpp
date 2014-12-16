@@ -1,18 +1,16 @@
 #include "stdafx.h"
 #include "InputManager.h"
 
+#include <sstream>
+
 #include <SDL\SDL_keyboard.h>
 #include <SDL\SDL_mouse.h>
+#include <InputDispatcher.h>
 
 #include "global.h"
 #include "FileSystem.h"
-
 #include "GameManager.h"
 #include "Inputs.h"
-
-#include <string>
-#include <sstream>
-#include <stdio.h>
 
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
@@ -208,6 +206,43 @@ void InputManager::update() {
     }
 }
 
+void InputManager::startInput() {
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=] (void* sender, const vui::MouseButtonEvent& e) {
+        switch (e.button) {
+        case vui::MouseButton::LEFT:
+            _currentKeyStates[SDL_BUTTON_LEFT] = true;
+            break;
+        case vui::MouseButton::RIGHT:
+            _currentKeyStates[SDL_BUTTON_RIGHT] = true;
+            break;
+        default:
+            break;
+        }
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=] (void* sender, const vui::MouseButtonEvent& e) {
+        switch (e.button) {
+        case vui::MouseButton::LEFT:
+            _currentKeyStates[SDL_BUTTON_LEFT] = false;
+            break;
+        case vui::MouseButton::RIGHT:
+            _currentKeyStates[SDL_BUTTON_RIGHT] = false;
+            break;
+        default:
+            break;
+        }
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [=] (void* sender, const vui::KeyEvent& e) {
+        _currentKeyStates[e.keyCode] = true;
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyUp, [=] (void* sender, const vui::KeyEvent& e) {
+        _currentKeyStates[e.keyCode] = false;
+    });
+}
+
+void InputManager::stopInput() {
+    m_inputHooks.dispose();
+}
+
 void InputManager::pushEvent(const SDL_Event& inputEvent) {
     switch (inputEvent.type) {
     case SDL_MOUSEBUTTONDOWN:
@@ -329,3 +364,4 @@ InputManager::AxisType InputManager::getAxisType(const int axisID) {
     if(axisID < 0 || axisID >= _axes.size()) return AxisType::NONE;
     return _axes.at(axisID)->type;
 }
+

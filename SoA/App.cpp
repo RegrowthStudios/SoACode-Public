@@ -2,15 +2,19 @@
 #include "App.h"
 
 #include <InputDispatcher.h>
+#include <ScreenList.h>
+#include <SpriteBatch.h>
 
+#include "DevScreen.h"
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "MainMenuScreen.h"
 #include "GamePlayScreen.h"
-#include "ScreenList.h"
-#include "SpriteBatch.h"
 #include "MeshManager.h"
 #include "Options.h"
+#include "TestConsoleScreen.h"
+#include "TestDeferredScreen.h"
+#include "TestMappingScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -23,7 +27,25 @@ void App::addScreens() {
     _screenList->addScreen(scrMainMenu);
     _screenList->addScreen(scrGamePlay);
 
-    _screenList->setScreen(scrInit->getIndex());
+    // Add development screen
+    scrDev = new DevScreen;
+    scrDev->addScreen(VKEY_RETURN, scrInit);
+    scrDev->addScreen(VKEY_SPACE, scrInit);
+    _screenList->addScreen(scrDev);
+
+    // Add test screens
+    scrTests.push_back(new TestConsoleScreen);
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_C, scrTests.back());
+    scrTests.push_back(new TestMappingScreen);
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_M, scrTests.back());
+    scrTests.push_back(new TestDeferredScreen);
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_D, scrTests.back());
+
+    // Start from dev screen for convenience
+    _screenList->setScreen(scrDev->getIndex());
 }
 
 void App::onInit() {
@@ -36,32 +58,6 @@ void App::onInit() {
 
     // Allocate resources
     meshManager = new MeshManager;
-
-    // Showcase various information
-    vui::InputDispatcher::window.onFile += createDelegate<const vui::WindowFileEvent&>([=] (void* sender, const vui::WindowFileEvent& e) {
-        std::cout << "Received file: " << e.file << std::endl;
-    });
-    vui::InputDispatcher::window.onResize += createDelegate<const vui::WindowResizeEvent&>([=] (void* sender, const vui::WindowResizeEvent& e) {
-        std::cout << "Window resized: " << e.w << " x " << e.h <<std::endl;
-    });
-    vui::InputDispatcher::window.onClose += createDelegate<>([=] (void* sender) {
-        std::cout << "Window requested close" << std::endl;
-    });
-    vui::InputDispatcher::onQuit += createDelegate<>([=] (void* sender) {
-        std::cout << "App requested quit" << std::endl;
-    });
-    vui::InputDispatcher::key.onFocusGained += createDelegate<>([=] (void* sender) {
-        std::cout << "Keyboard gained focus" << std::endl;
-    });
-    vui::InputDispatcher::key.onFocusLost += createDelegate<>([=] (void* sender) {
-        std::cout << "Keyboard lost focus" << std::endl;
-    });
-    vui::InputDispatcher::mouse.onFocusGained += createDelegate<const vui::MouseEvent&>([=] (void* sender, const vui::MouseEvent& e) {
-        std::cout << "Mouse gained focus at:" << e.x << "," << e.y << std::endl;
-    });
-    vui::InputDispatcher::mouse.onFocusLost += createDelegate<const vui::MouseEvent&>([=] (void* sender, const vui::MouseEvent& e) {
-        std::cout << "Mouse lost focus at:" << e.x << "," << e.y << std::endl;
-    });
 }
 
 void App::onExit() {
@@ -71,15 +67,14 @@ void App::onExit() {
 }
 
 App::~App() {
-    if (scrInit) {
-        delete scrInit;
-        scrInit = nullptr;
-    }
+#define COND_DEL(SCR) if (SCR) { delete SCR; SCR = nullptr; }
 
-    if (scrLoad) {
-        delete scrLoad;
-        scrLoad = nullptr;
-    }
+    COND_DEL(scrInit)
+    COND_DEL(scrLoad)
+    // TODO: Why do these break
+    //COND_DEL(scrMainMenu)
+    //COND_DEL(scrGamePlay)
+    COND_DEL(scrDev)
 
     delete meshManager;
 }

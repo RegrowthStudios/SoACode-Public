@@ -75,15 +75,6 @@
     <Filter Include="SOA Files\Screens">
       <UniqueIdentifier>{f1c18989-f573-4fa6-ba8b-ebcaa46f53d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Screens\Base">
-      <UniqueIdentifier>{877c328b-8bd7-4523-952d-f4bbb6408408}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Wrappers\States">
-      <UniqueIdentifier>{5de02c64-70fe-494b-816d-3758baefff39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Wrappers\Extensions">
-      <UniqueIdentifier>{c704d36c-927e-48c2-b4d8-6d6c0d55767a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\Screens\Load">
       <UniqueIdentifier>{6da0d3a4-a60f-4ed2-804e-c655cc23292d}</UniqueIdentifier>
     </Filter>
@@ -95,9 +86,6 @@
     </Filter>
     <Filter Include="SOA Files\Rendering\Dev">
       <UniqueIdentifier>{a8613ee5-a6ad-4b60-8567-0a15bb9ae82c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Data\Keg">
-      <UniqueIdentifier>{ac47e175-d93f-4b05-bb81-caa1090f397f}</UniqueIdentifier>
     </Filter>
     <Filter Include="SOA Files\Voxel\Mapping">
       <UniqueIdentifier>{f10c4941-dfe2-4bfb-a029-a82ec2a097dd}</UniqueIdentifier>
@@ -129,11 +117,11 @@
     <Filter Include="SOA Files\Game\Universe">
       <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Vorb">
-      <UniqueIdentifier>{55891d5b-0543-4390-acad-b4d0a80b3f71}</UniqueIdentifier>
+    <Filter Include="SOA Files\Screens\Dev">
+      <UniqueIdentifier>{877c328b-8bd7-4523-952d-f4bbb6408408}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Vorb\Graphics">
-      <UniqueIdentifier>{189dfa46-b2e3-47b4-9730-ee9edb16c0f5}</UniqueIdentifier>
+    <Filter Include="SOA Files\Screens\Test">
+      <UniqueIdentifier>{07d56bf0-8858-45a6-bcf5-6fe4f58dc323}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -542,6 +530,18 @@
     <ClInclude Include="VoxPool.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
+    <ClInclude Include="DevScreen.h">
+      <Filter>SOA Files\Screens\Dev</Filter>
+    </ClInclude>
+    <ClInclude Include="TestConsoleScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="TestMappingScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="TestDeferredScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -873,6 +873,18 @@
     </ClCompile>
     <ClCompile Include="LoadTaskShaders.cpp">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="DevScreen.cpp">
+      <Filter>SOA Files\Screens\Dev</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConsoleScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="TestMappingScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDeferredScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

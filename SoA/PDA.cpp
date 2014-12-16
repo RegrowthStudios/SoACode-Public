@@ -42,10 +42,6 @@ void PDA::draw() const {
     _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
 }
 
-void PDA::onEvent(const SDL_Event& e) {
-    _awesomiumInterface.handleEvent(e);
-}
-
 void PDA::destroy() {
     _awesomiumInterface.destroy();
 }

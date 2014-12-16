@@ -207,13 +207,13 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const Camera* camera, const glm::dve
             GlobalModelMatrix[3][0] = ((float)((double)tb->drawX - PlayerPos.x));
             GlobalModelMatrix[3][1] = ((float)((double)tb->drawY - PlayerPos.y));
             GlobalModelMatrix[3][2] = ((float)((double)tb->drawZ - PlayerPos.z));
-            MVP = VP  * GlobalModelMatrix;
+            MVP = GlobalModelMatrix;
         }
         else{
             GlobalModelMatrix[3][0] = ((float)((double)-PlayerPos.x));
             GlobalModelMatrix[3][1] = ((float)((double)-PlayerPos.y));
             GlobalModelMatrix[3][2] = ((float)((double)-PlayerPos.z));
-            MVP = VP  * GlobalModelMatrix * GameManager::planet->rotationMatrix;
+            MVP = GlobalModelMatrix * GameManager::planet->rotationMatrix;
 
             GlobalModelMatrix[3][0] = ((float)((double)tb->drawX));
             GlobalModelMatrix[3][1] = ((float)((double)tb->drawY));
@@ -221,9 +221,10 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const Camera* camera, const glm::dve
             MVP *= GlobalModelMatrix;
         }
 
+        glUniformMatrix4fv(worldOffsetID, 1, GL_FALSE, &MVP[0][0]);
+        MVP = VP * MVP;
         glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
 
-        glUniform3f(worldOffsetID, tb->drawX, tb->drawY, tb->drawZ);
 
         glBindVertexArray(tb->vaoID);
         glDrawElements(GL_TRIANGLES, tb->indexSize, GL_UNSIGNED_SHORT, 0);
@@ -233,6 +234,49 @@ void TerrainPatch::Draw(TerrainBuffers *tb, const Camera* camera, const glm::dve
         tb->inFrustum = 0;
     }
 }
+
+/*void TerrainPatch::Draw(const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet)
+{
+    if (hasBuffers && terrainBuffers && terrainBuffers->indexSize){
+        if (distance < closestTerrainPatchDistance) closestTerrainPatchDistance = distance;
+        if (SphereInFrustum((float)(terrainBuffers->worldX + terrainBuffers->boundingBox.x / 2 - rotPlayerPos.x), (float)(terrainBuffers->worldY + terrainBuffers->boundingBox.y / 2 - rotPlayerPos.y), (float)(terrainBuffers->worldZ + terrainBuffers->boundingBox.z / 2 - rotPlayerPos.z), (float)terrainBuffers->cullRadius, worldFrustum)
+            && (CheckHorizon(rotPlayerPos, closestPoint))){
+            
+            glm::mat4 MVP;
+            if (onPlanet){
+                GlobalModelMatrix[3][0] = ((float)((double)terrainBuffers->drawX - PlayerPos.x));
+                GlobalModelMatrix[3][1] = ((float)((double)terrainBuffers->drawY - PlayerPos.y));
+                GlobalModelMatrix[3][2] = ((float)((double)terrainBuffers->drawZ - PlayerPos.z));
+                MVP = GlobalModelMatrix;
+            }else{
+                GlobalModelMatrix[3][0] = ((float)((double)-PlayerPos.x));
+                GlobalModelMatrix[3][1] = ((float)((double)-PlayerPos.y));
+                GlobalModelMatrix[3][2] = ((float)((double)-PlayerPos.z));
+                MVP = GlobalModelMatrix * GameManager::planet->rotationMatrix;
+
+                GlobalModelMatrix[3][0] = ((float)((double)terrainBuffers->drawX));
+                GlobalModelMatrix[3][1] = ((float)((double)terrainBuffers->drawY));
+                GlobalModelMatrix[3][2] = ((float)((double)terrainBuffers->drawZ));
+                MVP *= GlobalModelMatrix;
+            }
+
+            glUniformMatrix4fv(worldOffsetID, 1, GL_FALSE, &MVP[0][0]);
+            MVP = VP * MVP;
+            glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
+
+            glUniform3f(worldOffsetID, terrainBuffers->drawX, terrainBuffers->drawY, terrainBuffers->drawZ);
+
+            glBindVertexArray(terrainBuffers->vaoID);
+            glDrawElements(GL_TRIANGLES, terrainBuffers->indexSize, GL_UNSIGNED_SHORT, 0);
+            glBindVertexArray(0);
+        }
+    }else if (lods[0]){
+        lods[0]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        lods[1]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        lods[2]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+        lods[3]->Draw(PlayerPos, rotPlayerPos, VP, mvpID, worldOffsetID, onPlanet);
+    }
+}*/
 
 void TerrainPatch::DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP)
 {
