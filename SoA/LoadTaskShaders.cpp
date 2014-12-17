@@ -10,12 +10,14 @@ void ProgramGenDelegate::invoke(void* sender, void* userData) {
         errorMessage = "Vertex shader for " + name + " failed to compile.";
         program->dispose();
         delete program;
+        program = nullptr;
         return;
     }
     if (!program->addShader(fs)) {
         errorMessage = "Fragment shader for " + name + " failed to compile.";
         program->dispose();
         delete program;
+        program = nullptr;
         return;
     }
     if (attr) program->setAttributes(*attr);
@@ -24,6 +26,7 @@ void ProgramGenDelegate::invoke(void* sender, void* userData) {
         errorMessage = name + " failed to link.";
         program->dispose();
         delete program;
+        program = nullptr;
         return;
     }
     program->initAttributes();
@@ -194,6 +197,10 @@ void LoadTaskShaders::load() {
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalTerrain.frag"), 
         &sphericalAttribs
         )->rpc, false);
+    m_glrpc->invoke(&createProgram("SimplexNoise",
+        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/Simplex.vert"),
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/Simplex.frag")
+        )->rpc, false);
 
     // Create all shaders until finished
     for (size_t i = 0; i < m_numGenerators; i++) {
@@ -205,10 +212,12 @@ void LoadTaskShaders::load() {
         if (del.program) {
             glProgramManager->addProgram(del.name, del.program);
         } else {
+            i--;
             showMessage(del.errorMessage + " Check command output for more detail. Will attempt to reload.");
             m_glrpc->invoke(&del.rpc, false);
         }
     }
+    
 
     // Delete loaded files
     for (auto& code : m_filesToDelete) delete[] code;

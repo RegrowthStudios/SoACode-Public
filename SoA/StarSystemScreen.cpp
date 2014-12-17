@@ -12,7 +12,9 @@
 #include "Options.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystem.h"
+#include <Timing.h>
 #include "SpaceSystemRenderStage.h"
+#include "MeshManager.h"
 
 i32 StarSystemScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
@@ -29,6 +31,41 @@ void StarSystemScreen::build() {
 void StarSystemScreen::destroy(const GameTime& gameTime) {
     // Empty
 }
+
+// Permutation table.  The same list is repeated twice.
+static const ui8 perm[512] = {
+    151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142,
+    8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117,
+    35, 11, 32, 57, 177, 33, 88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71,
+    134, 139, 48, 27, 166, 77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41,
+    55, 46, 245, 40, 244, 102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89,
+    18, 169, 200, 196, 135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226,
+    250, 124, 123, 5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182,
+    189, 28, 42, 223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43,
+    172, 9, 129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97,
+    228, 251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239,
+    107, 49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
+    138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
+
+    151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142,
+    8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117,
+    35, 11, 32, 57, 177, 33, 88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71,
+    134, 139, 48, 27, 166, 77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41,
+    55, 46, 245, 40, 244, 102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89,
+    18, 169, 200, 196, 135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226,
+    250, 124, 123, 5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182,
+    189, 28, 42, 223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43,
+    172, 9, 129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97,
+    228, 251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239,
+    107, 49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
+    138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
+};
+
+static const ui8 grad3[12][3] = {
+    { 2, 2, 1 }, { 0, 2, 1 }, { 2, 0, 1 }, { 0, 0, 1 },
+    { 2, 1, 2 }, { 0, 1, 2 }, { 2, 1, 0 }, { 0, 1, 0 },
+    { 1, 2, 2 }, { 1, 0, 2 }, { 1, 2, 0 }, { 1, 0, 0 }
+};
 
 void StarSystemScreen::onEntry(const GameTime& gameTime) {
 
@@ -73,7 +110,6 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     vui::InputDispatcher::mouse.onWheel.addFunctor(([=](void* s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); }));
     vui::InputDispatcher::key.onKeyDown.addFunctor(([=](void* s, const vui::KeyEvent& e) { onKeyDown(s, e); }));
 
-    GameManager::inputManager->startInput();
 }
 
 void StarSystemScreen::onExit(const GameTime& gameTime) {
@@ -103,11 +139,15 @@ void StarSystemScreen::update(const GameTime& gameTime) {
 
     m_camera.updateProjection();
 
+    _app->meshManager->update();
+
     GameManager::inputManager->update();
 
 }
 
 void StarSystemScreen::draw(const GameTime& gameTime) {
+    PreciseTimer timer;
+    timer.start();
     // Bind the FBO
     _hdrFrameBuffer->use();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
@@ -117,6 +157,16 @@ void StarSystemScreen::draw(const GameTime& gameTime) {
     _skyboxRenderStage->draw();
     DepthState::FULL.set();
     m_spaceSystemRenderStage->draw();
+
+    DepthState::NONE.set();
+
+    vg::GLProgram* noiseProg = GameManager::glProgramManager->getProgram("SimplexNoise");
+    noiseProg->use();
+    noiseProg->enableVertexAttribArrays();
+
+  //  _quad.draw();
+    noiseProg->disableVertexAttribArrays();
+    noiseProg->unuse();
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -131,6 +181,9 @@ void StarSystemScreen::draw(const GameTime& gameTime) {
 
     // Check for errors, just in case
     checkGlError("MainMenuRenderPipeline::render()");
+    glFlush();
+    glFinish();
+    std::cout << timer.stop() << std::endl;
 }
 
 void StarSystemScreen::onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e) {
@@ -156,21 +209,46 @@ void StarSystemScreen::onMouseWheel(void* sender, const vui::MouseWheelEvent& e)
 
 void StarSystemScreen::onMouseMotion(void* sender, const vui::MouseMotionEvent& e) {
 #define MOUSE_SPEED 0.1f
-    if (GameManager::inputManager->getKey(INPUT_MOUSE_LEFT)) {
+    if (mouseButtons[0]) {
         m_camera.rotateFromMouse((float)-e.dx, (float)-e.dy, MOUSE_SPEED);
     }
-    if (GameManager::inputManager->getKey(INPUT_MOUSE_RIGHT)) {
+    if (mouseButtons[1]) {
         m_camera.yawFromMouse((float)e.dx, MOUSE_SPEED);
     }
 }
 
 void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
-    switch (e.scanCode) {
+    switch (e.keyCode) {
         case VKEY_LEFT:
             _app->spaceSystem->offsetTarget(-1);
             break;
         case VKEY_RIGHT:
             _app->spaceSystem->offsetTarget(1);
+            break;
+        case VKEY_F11:
+            GameManager::glProgramManager->destroy();
+            vcore::RPCManager m_glrpc;
+
+            LoadTaskShaders shaderTask(&m_glrpc);
+            m_glrpc.processRequests(999999);
+
+            shaderTask.load();
+            _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
+            _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
+            if (graphicsOptions.msaa > 0) {
+                glEnable(GL_MULTISAMPLE);
+            } else {
+                glDisable(GL_MULTISAMPLE);
+            }
+
+            // Make swap chain
+            _swapChain = new vg::RTSwapChain<2>(_viewport.z, _viewport.w);
+            _swapChain->init(vg::TextureInternalFormat::RGBA8);
+            _quad.init();
+
+            _skyboxRenderStage = new SkyboxRenderStage(GameManager::glProgramManager->getProgram("Texture"), &m_camera);
+            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera, GameManager::glProgramManager->getProgram("BasicColor"), GameManager::glProgramManager->getProgram("SphericalTerrain"));
+            _hdrRenderStage = new HdrRenderStage(GameManager::glProgramManager, &_quad, &m_camera);
             break;
     }
 }

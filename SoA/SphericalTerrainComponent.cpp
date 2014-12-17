@@ -17,12 +17,33 @@
 const int PATCHES_PER_FACE = (PATCH_ROW * PATCH_ROW);
 const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;
 
+void TerrainGenDelegate::invoke(void* sender, void* userData) {
+    generator->generateTerrain(this);
+    meshManager->addMesh(mesh);
+}
 
-void SphericalTerrainComponent::init(f64 radius) {
+void SphericalTerrainComponent::init(f64 radius, MeshManager* meshManager) {
+    
+    if (rpcDispatcher == nullptr) {
+        rpcDispatcher = new TerrainRpcDispatcher(meshManager)
+    }
 
     f64 patchWidth = (radius * 2) / PATCH_ROW;
 
     m_sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
+    m_meshManager = meshManager;
+}
+
+
+TerrainGenDelegate* TerrainRpcDispatcher::getAvailableDelegate() {
+    int startCounter = counter;
+    do {
+        if (!m_generators[counter].inUse) {
+            m_generators[counter].inUse = true;
+            return &m_generators[counter++];
+        }
+    } while (++counter != startCounter);
+    return nullptr;
 }
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
@@ -83,7 +104,8 @@ void SphericalTerrainComponent::initPatches() {
                 gridPos.x = (x - center) * patchWidth;
                 gridPos.y = (z - center) * patchWidth;
                 p.init(gridPos, static_cast<CubeFace>(face),
-                       m_sphericalTerrainData, patchWidth);
+                       m_sphericalTerrainData, patchWidth,
+                       m_meshManager);
             }
         }
     }

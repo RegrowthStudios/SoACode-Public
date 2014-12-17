@@ -25,12 +25,13 @@ class PhysicsBlockMeshMessage;
 class ChunkMesh;
 class ParticleMesh;
 class PhysicsBlockMesh;
+class SphericalTerrainMesh;
 
 class MeshManager
 {
 public:
     MeshManager();
- 
+
     /// Updates a terrain mesh
     /// @param tmm: the TerrainMeshMessage, sent by the update thread
     void updateTerrainMesh(TerrainMeshMessage* tmm);

@@ -65,8 +65,8 @@ void App::onInit() {
     SamplerState::initPredefined();
 
     // Allocate resources
-    spaceSystem = new SpaceSystem;
     meshManager = new MeshManager;
+    spaceSystem = new SpaceSystem(meshManager);
 }
 
 void App::onExit() {

@@ -57,7 +57,7 @@ public:
 
 class SpaceSystem : public vcore::ECS {
 public:
-    SpaceSystem();
+    SpaceSystem(MeshManager* meshManager);
 
     /// Updates the space system
     /// @param time: The time in seconds
@@ -134,6 +134,8 @@ protected:
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
 
     IOManager m_ioManager;
+
+    MeshManager* m_meshManager;
 
     std::mutex m_mutex;
 

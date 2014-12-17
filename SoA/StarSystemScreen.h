@@ -18,13 +18,14 @@
 #include "IGameScreen.h"
 #include <GLProgram.h>
 
+#include "Camera.h"
 #include "FullQuadVBO.h"
-#include "RTSwapChain.hpp"
 #include "GLRenderTarget.h"
 #include "HdrRenderStage.h"
-#include "Camera.h"
-#include "MouseInputDispatcher.h"
 #include "KeyboardEventDispatcher.h"
+#include "MouseInputDispatcher.h"
+#include "RTSwapChain.hpp"
+#include "TextureCache.h"
 
 class App;
 class SkyboxRenderStage;

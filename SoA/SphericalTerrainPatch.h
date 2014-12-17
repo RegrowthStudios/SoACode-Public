@@ -23,6 +23,9 @@
 enum class CubeFace { TOP, LEFT, RIGHT, FRONT, BACK, BOTTOM };
 
 class Camera;
+class MeshManager;
+class TerrainRpcDispatcher;
+class TerrainGenDelegate;
 
 #define PATCH_WIDTH 33
 
@@ -44,6 +47,15 @@ private:
     f64 m_patchWidth; ///< Width of a patch in KM
 };
 
+class SphericalTerrainMesh {
+public:
+    VGVertexArray m_vao = 0; ///< Vertex array object
+    VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
+    VGIndexBuffer m_ibo = 0; ///< Index buffer object
+    bool shouldDelete = false; ///< True when the mesh should be deleted
+    bool isRenderable = false; ///< True when there is a complete mesh
+};
+
 class SphericalTerrainPatch {
 public:
     SphericalTerrainPatch() { };
@@ -56,7 +68,8 @@ public:
     void init(const f64v2& gridPosition,
               CubeFace cubeFace,
               const SphericalTerrainData* sphericalTerrainData,
-              f64 width);
+              f64 width,
+              TerrainRpcDispatcher* dispatcher);
 
     /// Updates the patch
     /// @param cameraPos: Position of the camera
@@ -72,7 +85,7 @@ public:
     void draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program);
 
     /// @return true if it has a generated mesh
-    bool hasMesh() const { return (m_vbo != 0); }
+    bool hasMesh() const { return (m_mesh && m_mesh->isRenderable); }
 
     /// @return true if it has a mesh, or all of its children are
     /// renderable.
@@ -82,8 +95,7 @@ private:
     /// Frees mesh resources
     void destroyMesh();
 
-    /// Generates mesh from a heightmap
-    void generateMesh(float heightData[PATCH_WIDTH][PATCH_WIDTH]);
+   
 
     f64v2 m_gridPosition = f64v2(0.0); ///< Position on 2D grid
     f64v3 m_worldPosition = f64v3(0.0); ///< Position relative to world
@@ -94,9 +106,8 @@ private:
 
     f64 m_width = 0.0; ///< Width of the patch in KM
 
-    VGVertexArray m_vao = 0; ///< Vertex array object
-    VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
-    VGIndexBuffer m_ibo = 0; ///< Index buffer object
+    TerrainRpcDispatcher* m_dispatcher = nullptr;
+    SphericalTerrainMesh* m_mesh = nullptr;
 
     const SphericalTerrainData* m_sphericalTerrainData = nullptr; ///< Shared data pointer
     SphericalTerrainPatch* m_children = nullptr; ///< Pointer to array of 4 children

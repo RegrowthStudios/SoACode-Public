@@ -175,6 +175,8 @@
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SphericalGravityComponent.h" />
     <ClInclude Include="SphericalTerrainComponent.h" />
+    <ClInclude Include="SphericalTerrainGenerator.h" />
+    <ClInclude Include="SphericalTerrainMeshManager.h" />
     <ClInclude Include="StarSystemScreen.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TestConsoleScreen.h" />
@@ -315,6 +317,8 @@
     <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="SphericalTerrainComponent.cpp" />
+    <ClCompile Include="SphericalTerrainGenerator.cpp" />
+    <ClCompile Include="SphericalTerrainMeshManager.cpp" />
     <ClCompile Include="StarSystemScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />

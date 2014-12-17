@@ -116,6 +116,8 @@
     <ClCompile Include="WSOScanner.cpp" />
     <ClCompile Include="ZipFile.cpp" />
     <ClCompile Include="StarSystemScreen.cpp" />
+    <ClCompile Include="SphericalTerrainMeshManager.cpp" />
+    <ClCompile Include="SphericalTerrainGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -272,6 +274,8 @@
     <ClInclude Include="EditorVariables.h" />
     <ClInclude Include="ZipFile.h" />
     <ClInclude Include="StarSystemScreen.h" />
+    <ClInclude Include="SphericalTerrainMeshManager.h" />
+    <ClInclude Include="SphericalTerrainGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc" />

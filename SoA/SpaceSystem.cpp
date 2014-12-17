@@ -117,7 +117,8 @@ KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, angularSpeed);
 KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, STRING, displayName);
 KEG_TYPE_INIT_END
 
-SpaceSystem::SpaceSystem() : vcore::ECS() {
+SpaceSystem::SpaceSystem(MeshManager* meshManager) : vcore::ECS(),
+    m_meshManager(meshManager) {
     // Add in component tables
     addComponentTable(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, &m_namePositionCT);
     addComponentTable(SPACE_SYSTEM_CT_AXISROTATION_NAME, &m_axisRotationCT);
@@ -327,7 +328,7 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
                                      0.0,
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
-    m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0);
+    m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0, m_meshManager);
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
