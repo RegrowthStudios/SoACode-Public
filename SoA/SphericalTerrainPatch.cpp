@@ -41,7 +41,7 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLP
                           offsetptr(TerrainVertex, color));
 
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glDrawElements(GL_TRIANGLES, INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, SphericalTerrainPatch::INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
 }
 
 

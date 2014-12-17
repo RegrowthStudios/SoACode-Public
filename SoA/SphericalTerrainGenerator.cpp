@@ -21,7 +21,7 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
 }
 
 
-void SphericalTerrainGenerator::generateMesh(TerrainGenDelegate* data) {
+void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     // Get debug face color
     const ColorRGB8 tcolor = DebugColors[0];
@@ -62,7 +62,7 @@ void SphericalTerrainGenerator::generateMesh(TerrainGenDelegate* data) {
     }
 
     // Preallocate indices for speed
-    std::vector <ui16> indices(INDICES_PER_PATCH);
+    std::vector <ui16> indices(SphericalTerrainPatch::INDICES_PER_PATCH);
 
     // Loop through each quad and set indices
     int vertIndex;
@@ -87,7 +87,7 @@ void SphericalTerrainGenerator::generateMesh(TerrainGenDelegate* data) {
                 indices[index + 4] = vertIndex + PATCH_WIDTH + 1;
                 indices[index + 5] = vertIndex + 1;
             }
-            index += INDICES_PER_QUAD;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
         }
     }
     // If the buffers haven't been generated, generate them
