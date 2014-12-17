@@ -46,18 +46,22 @@ public:
 
 class TerrainRpcDispatcher {
 public:
-    TerrainRpcDispatcher(SphericalTerrainMeshManager* meshManager) :
+    TerrainRpcDispatcher(SphericalTerrainGenerator* generator, SphericalTerrainMeshManager* meshManager) :
         m_meshManager(meshManager) {
         // Empty
     }
     /// @return delegate on success, nullptr on failure
-    TerrainGenDelegate* dispatchTerrainGen();
+    TerrainGenDelegate* dispatchTerrainGen(const f32v3& startPos,
+                                           const f32v3& coordMults,
+                                           const i32v3& coordMapping,
+                                           SphericalTerrainMesh* mesh);
 private:
     static const int NUM_GENERATORS = 1000;
     int counter = 0;
 
-    SphericalTerrainMeshManager* m_meshManager;
-
+    SphericalTerrainGenerator* m_generator = nullptr;
+    SphericalTerrainMeshManager* m_meshManager = nullptr;
+   
     TerrainGenDelegate m_generators[NUM_GENERATORS];
 };
 
@@ -65,7 +69,8 @@ class SphericalTerrainComponent {
 public:
     /// Initialize the spherical terrain
     /// @param radius: Radius of the planet, must be multiple of 32.
-    void init(f64 radius, MeshManager* meshManager);
+    void init(f64 radius, SphericalTerrainGenerator* generator,
+              SphericalTerrainMeshManager* meshManager);
 
     void update(const f64v3& cameraPos,
                 const NamePositionComponent* npComponent);

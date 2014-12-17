@@ -2,6 +2,7 @@
 #include "SphericalTerrainComponent.h"
 #include "Camera.h"
 #include "utils.h"
+#include "SphericalTerrainMeshManager.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>
@@ -22,28 +23,41 @@ void TerrainGenDelegate::invoke(void* sender, void* userData) {
     meshManager->addMesh(mesh);
 }
 
-void SphericalTerrainComponent::init(f64 radius, MeshManager* meshManager) {
+void SphericalTerrainComponent::init(f64 radius, SphericalTerrainGenerator* generator,
+                                     SphericalTerrainMeshManager* meshManager) {
     
     if (rpcDispatcher == nullptr) {
-        rpcDispatcher = new TerrainRpcDispatcher(meshManager)
+        rpcDispatcher = new TerrainRpcDispatcher(generator, meshManager);
     }
 
     f64 patchWidth = (radius * 2) / PATCH_ROW;
 
     m_sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
-    m_meshManager = meshManager;
 }
 
 
-TerrainGenDelegate* TerrainRpcDispatcher::getAvailableDelegate() {
-    int startCounter = counter;
-    do {
-        if (!m_generators[counter].inUse) {
-            m_generators[counter].inUse = true;
-            return &m_generators[counter++];
-        }
-    } while (++counter != startCounter);
-    return nullptr;
+TerrainGenDelegate* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
+                                                             const f32v3& coordMults,
+                                                             const i32v3& coordMapping,
+                                                            SphericalTerrainMesh* mesh) {
+    TerrainGenDelegate* rv = nullptr;
+    // Check if there is a free generator
+    if (!m_generators[counter].inUse) {
+        // Mark the generator as in use
+        m_generators[counter].inUse = true;
+        rv = &m_generators[counter];
+        // Set the data
+        rv->startPos = startPos;
+        rv->coordMults = coordMults;
+        rv->coordMapping = coordMapping;
+        rv->mesh = mesh;
+        // Invoke generator
+        m_generator->invokeTerrainGen(&rv->rpc);
+        // Go to next generator
+        counter++;
+        if (counter == NUM_GENERATORS) counter = 0;
+    }
+    return rv;
 }
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
