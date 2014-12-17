@@ -1,25 +1,30 @@
 #include "stdafx.h"
 #include "SphericalTerrainPatch.h"
 
-#include "BlockData.h"
 #include "Camera.h"
 #include "Chunk.h"
-#include "FloraGenerator.h"
-#include "GameManager.h"
 #include "GpuMemory.h"
-#include "MeshManager.h"
-#include "MessageManager.h"
-#include "Options.h"
 #include "RPC.h"
 #include "RenderUtils.h"
+#include "SphericalTerrainComponent.h"
 #include "SphericalTerrainGenerator.h"
 #include "VoxelPlanetMapper.h"
-#include "WorldStructs.h"
-
 #include "utils.h"
 
 #define INDICES_PER_QUAD 6
 const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD;
+
+SphericalTerrainMesh::~SphericalTerrainMesh() {
+    if (m_vbo) {
+        vg::GpuMemory::freeBuffer(m_vbo);
+    }
+    if (m_ibo) {
+        vg::GpuMemory::freeBuffer(m_ibo);
+    }
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+    }
+}
 
 void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
   
@@ -27,7 +32,6 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLP
     f32m4 matrix(1.0);
     setMatrixTranslation(matrix, -cameraPos);
     matrix = VP * matrix;
-
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
 
@@ -94,8 +98,10 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
             }
             
             if (deleteMesh) {
-                // Children are renderable, free mesh
-                destroyMesh();
+                // Children are renderable, free mesh.
+                // Render thread will deallocate.
+                m_mesh->shouldDelete = true;
+                m_mesh = nullptr;
             }
         }
     } else if (m_distance < m_width * 4.0) {
@@ -108,6 +114,9 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
                                        m_dispatcher);
             }
         }
+    } else if (!m_mesh) {
+        // Try to generate a mesh
+        m_mesh = m_dispatcher->dispatchTerrainGen();
     }
     
     // Recursively update children if they exist
@@ -119,7 +128,6 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
 }
 
 void SphericalTerrainPatch::destroy() {
-    destroyMesh();
     delete[] m_children;
     m_children = nullptr;
 }
@@ -133,19 +141,4 @@ bool SphericalTerrainPatch::isRenderable() const {
         return true;
     }
     return false;
-}
-
-void SphericalTerrainPatch::destroyMesh() {
-    if (m_vbo) {
-        vg::GpuMemory::freeBuffer(m_vbo);
-        m_vbo = 0;
-    }
-    if (m_ibo) {
-        vg::GpuMemory::freeBuffer(m_ibo);
-        m_ibo = 0;
-    }
-    if (m_vao) {
-        glDeleteVertexArrays(1, &m_vao);
-        m_vao = 0;
-    }
 }

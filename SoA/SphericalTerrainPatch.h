@@ -49,11 +49,15 @@ private:
 
 class SphericalTerrainMesh {
 public:
+
+    ~SphericalTerrainMesh();
+
     /// Draws the mesh
     /// @param cameraPos: Position of the camera
     /// @param VP: View-Projection matrix
     /// @param program: Shader program for rendering
     void draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program);
+   
 
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
@@ -92,10 +96,6 @@ public:
     bool isRenderable() const;
 
 private:
-    /// Frees mesh resources
-    void destroyMesh();
-
-   
 
     f64v2 m_gridPosition = f64v2(0.0); ///< Position on 2D grid
     f64v3 m_worldPosition = f64v3(0.0); ///< Position relative to world

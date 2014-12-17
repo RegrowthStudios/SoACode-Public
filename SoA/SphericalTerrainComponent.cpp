@@ -36,28 +36,28 @@ void SphericalTerrainComponent::init(f64 radius, SphericalTerrainGenerator* gene
 }
 
 
-TerrainGenDelegate* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
+SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
                                                              const f32v3& coordMults,
-                                                             const i32v3& coordMapping,
-                                                            SphericalTerrainMesh* mesh) {
-    TerrainGenDelegate* rv = nullptr;
+                                                             const i32v3& coordMapping) {
+    SphericalTerrainMesh* mesh = nullptr;
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
+        auto& gen = m_generators[counter];
         // Mark the generator as in use
-        m_generators[counter].inUse = true;
-        rv = &m_generators[counter];
+        gen.inUse = true;
+        mesh = new SphericalTerrainMesh;
         // Set the data
-        rv->startPos = startPos;
-        rv->coordMults = coordMults;
-        rv->coordMapping = coordMapping;
-        rv->mesh = mesh;
+        gen.startPos = startPos;
+        gen.coordMults = coordMults;
+        gen.coordMapping = coordMapping;
+        gen.mesh = mesh;
         // Invoke generator
-        m_generator->invokeTerrainGen(&rv->rpc);
+        m_generator->invokeTerrainGen(&gen.rpc);
         // Go to next generator
         counter++;
         if (counter == NUM_GENERATORS) counter = 0;
     }
-    return rv;
+    return mesh;
 }
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,

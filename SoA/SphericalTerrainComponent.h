@@ -50,11 +50,10 @@ public:
         m_meshManager(meshManager) {
         // Empty
     }
-    /// @return delegate on success, nullptr on failure
-    TerrainGenDelegate* dispatchTerrainGen(const f32v3& startPos,
+    /// @return a new mesh on success, nullptr on failure
+    SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
                                            const f32v3& coordMults,
-                                           const i32v3& coordMapping,
-                                           SphericalTerrainMesh* mesh);
+                                           const i32v3& coordMapping);
 private:
     static const int NUM_GENERATORS = 1000;
     int counter = 0;
