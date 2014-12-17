@@ -126,13 +126,11 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_ORBIT_NAME, &m_orbitCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
 
-    m_meshManager = new SphericalTerrainMeshManager;
-    m_generator = new SphericalTerrainGenerator;
+  
 }
 
 SpaceSystem::~SpaceSystem() {
-    delete m_meshManager;
-    delete m_generator;
+    // Empty 
 }
 
 void SpaceSystem::update(double time, const f64v3& cameraPos) {

@@ -66,7 +66,7 @@ void App::onInit() {
 
     // Allocate resources
     meshManager = new MeshManager;
-    spaceSystem = new SpaceSystem(meshManager);
+    spaceSystem = new SpaceSystem;
 }
 
 void App::onExit() {

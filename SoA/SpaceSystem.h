@@ -36,8 +36,6 @@ class GasGiantKegProperties;
 class PlanetKegProperties;
 class StarKegProperties;
 class SystemBodyKegProperties;
-class SphericalTerrainGenerator;
-class SphericalTerrainMeshManager;
 
 enum class BodyType {
     NONE,
@@ -139,9 +137,6 @@ protected:
     IOManager m_ioManager;
 
     std::mutex m_mutex;
-
-    SphericalTerrainGenerator* m_generator = nullptr;
-    SphericalTerrainMeshManager* m_meshManager = nullptr;
 
     std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies

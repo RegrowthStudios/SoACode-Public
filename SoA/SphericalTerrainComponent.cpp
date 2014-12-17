@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "utils.h"
 #include "SphericalTerrainMeshManager.h"
+#include "Errors.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>
@@ -23,15 +24,17 @@ void TerrainGenDelegate::invoke(void* sender, void* userData) {
     meshManager->addMesh(mesh);
 }
 
-void SphericalTerrainComponent::init(f64 radius, SphericalTerrainGenerator* generator,
-                                     SphericalTerrainMeshManager* meshManager) {
+void SphericalTerrainComponent::init(f64 radius) {
     
-    if (rpcDispatcher == nullptr) {
-        rpcDispatcher = new TerrainRpcDispatcher(generator, meshManager);
+    if (m_meshManager != nullptr) {
+        pError("Tried to initialize SphericalTerrainComponent twice!");
     }
 
+    m_meshManager = new SphericalTerrainMeshManager;
+    m_generator = new SphericalTerrainGenerator;
+    rpcDispatcher = new TerrainRpcDispatcher(m_generator, m_meshManager);
+    
     f64 patchWidth = (radius * 2) / PATCH_ROW;
-
     m_sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
 }
 

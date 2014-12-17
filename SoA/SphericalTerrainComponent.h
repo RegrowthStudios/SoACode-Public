@@ -68,8 +68,7 @@ class SphericalTerrainComponent {
 public:
     /// Initialize the spherical terrain
     /// @param radius: Radius of the planet, must be multiple of 32.
-    void init(f64 radius, SphericalTerrainGenerator* generator,
-              SphericalTerrainMeshManager* meshManager);
+    void init(f64 radius);
 
     void update(const f64v3& cameraPos,
                 const NamePositionComponent* npComponent);
@@ -84,6 +83,9 @@ private:
 
     SphericalTerrainPatch* m_patches = nullptr; ///< Buffer for top level patches
     SphericalTerrainData* m_sphericalTerrainData = nullptr;
+
+    SphericalTerrainMeshManager* m_meshManager = nullptr;
+    SphericalTerrainGenerator* m_generator = nullptr;
 };
 
 #endif // SphericalTerrainComponent_h__
