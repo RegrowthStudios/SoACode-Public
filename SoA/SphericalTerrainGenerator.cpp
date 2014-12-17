@@ -51,7 +51,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             // Spherify it!
             v.position = glm::normalize(v.position) * m_radius;
             if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
-                m_worldPosition = v.position;
+                mesh->worldPosition = v.position;
             }
 
             v.color.r = tcolor.r;

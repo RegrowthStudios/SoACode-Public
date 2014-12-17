@@ -36,6 +36,8 @@ class GasGiantKegProperties;
 class PlanetKegProperties;
 class StarKegProperties;
 class SystemBodyKegProperties;
+class SphericalTerrainGenerator;
+class SphericalTerrainMeshManager;
 
 enum class BodyType {
     NONE,
@@ -57,7 +59,8 @@ public:
 
 class SpaceSystem : public vcore::ECS {
 public:
-    SpaceSystem(MeshManager* meshManager);
+    SpaceSystem();
+    ~SpaceSystem();
 
     /// Updates the space system
     /// @param time: The time in seconds
@@ -135,9 +138,10 @@ protected:
 
     IOManager m_ioManager;
 
-    MeshManager* m_meshManager;
-
     std::mutex m_mutex;
+
+    SphericalTerrainGenerator* m_generator = nullptr;
+    SphericalTerrainMeshManager* m_meshManager = nullptr;
 
     std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies

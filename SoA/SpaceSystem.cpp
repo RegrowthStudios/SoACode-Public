@@ -1,12 +1,14 @@
 #include "stdafx.h"
 
-#include "IOManager.h"
-#include "Keg.h"
-#include "SpaceSystem.h"
-#include "utils.h"
 #include "Camera.h"
 #include "DebugRenderer.h"
+#include "IOManager.h"
+#include "Keg.h"
 #include "RenderUtils.h"
+#include "SpaceSystem.h"
+#include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainMeshManager.h"
+#include "utils.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>
@@ -117,13 +119,20 @@ KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, angularSpeed);
 KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, STRING, displayName);
 KEG_TYPE_INIT_END
 
-SpaceSystem::SpaceSystem(MeshManager* meshManager) : vcore::ECS(),
-    m_meshManager(meshManager) {
+SpaceSystem::SpaceSystem() : vcore::ECS() {
     // Add in component tables
     addComponentTable(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, &m_namePositionCT);
     addComponentTable(SPACE_SYSTEM_CT_AXISROTATION_NAME, &m_axisRotationCT);
     addComponentTable(SPACE_SYSTEM_CT_ORBIT_NAME, &m_orbitCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
+
+    m_meshManager = new SphericalTerrainMeshManager;
+    m_generator = new SphericalTerrainGenerator;
+}
+
+SpaceSystem::~SpaceSystem() {
+    delete m_meshManager;
+    delete m_generator;
 }
 
 void SpaceSystem::update(double time, const f64v3& cameraPos) {
@@ -328,7 +337,7 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
                                      0.0,
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
-    m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0, m_meshManager);
+    m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0,  );
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);

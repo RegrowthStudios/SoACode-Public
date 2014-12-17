@@ -62,6 +62,9 @@ public:
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
     VGIndexBuffer m_ibo = 0; ///< Index buffer object
+
+    f32v3 worldPosition = f32v3(0.0f);
+
     bool shouldDelete = false; ///< True when the mesh should be deleted
     bool isRenderable = false; ///< True when there is a complete mesh
 };
