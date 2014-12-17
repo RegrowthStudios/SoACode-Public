@@ -6,19 +6,42 @@
 #include "Chunk.h"
 #include "FloraGenerator.h"
 #include "GameManager.h"
+#include "GpuMemory.h"
+#include "MeshManager.h"
 #include "MessageManager.h"
 #include "Options.h"
-#include "WorldStructs.h"
-#include "GpuMemory.h"
-#include "RenderUtils.h"
-#include "VoxelPlanetMapper.h"
-#include "MeshManager.h"
 #include "RPC.h"
+#include "RenderUtils.h"
+#include "SphericalTerrainGenerator.h"
+#include "VoxelPlanetMapper.h"
+#include "WorldStructs.h"
 
 #include "utils.h"
 
 #define INDICES_PER_QUAD 6
 const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD;
+
+void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
+  
+    // Set up matrix
+    f32m4 matrix(1.0);
+    setMatrixTranslation(matrix, -cameraPos);
+    matrix = VP * matrix;
+
+
+    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
+
+    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, position));
+    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, color));
+
+    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    glDrawElements(GL_TRIANGLES, INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
+}
 
 
 SphericalTerrainPatch::~SphericalTerrainPatch() {
@@ -82,7 +105,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
             for (int x = 0; x < 2; x++) {
                 m_children[(z << 1) + x].init(m_gridPosition + f64v2(m_width / 2.0 * x, m_width / 2.0 * z),
                                        m_cubeFace, m_sphericalTerrainData, m_width / 2.0,
-                                       m_meshManager);
+                                       m_dispatcher);
             }
         }
     }
@@ -99,44 +122,6 @@ void SphericalTerrainPatch::destroy() {
     destroyMesh();
     delete[] m_children;
     m_children = nullptr;
-}
-
-void SphericalTerrainPatch::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
-    if (m_children) {
-        // Draw the children
-        for (int i = 0; i < 4; i++) {
-            m_children[i].draw(cameraPos, VP, program);
-        }
-        // If we have a mesh, we should still render it for now
-        if (!hasMesh()) return;
-    }
-
-    // If we don't have a mesh, generate one
-    if (!(hasMesh())) {
-        update(cameraPos);
-        float heightData[PATCH_WIDTH][PATCH_WIDTH];
-        memset(heightData, 0, sizeof(heightData));
-        generateMesh(heightData);
-    }
-  
-    // Set up matrix
-    f32m4 matrix(1.0);
-    setMatrixTranslation(matrix, -cameraPos);
-    matrix = VP * matrix;
-
-
-    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
-    
-    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, position));
-    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, color));
-    
-    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glDrawElements(GL_TRIANGLES, INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
 }
 
 bool SphericalTerrainPatch::isRenderable() const {
