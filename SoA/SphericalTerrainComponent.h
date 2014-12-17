@@ -34,8 +34,8 @@ public:
     vcore::RPC rpc;
 
     f32v3 startPos;
-    f32v3 coordMults;
     i32v3 coordMapping;
+    float width;
 
     SphericalTerrainMesh* mesh = nullptr;
     SphericalTerrainGenerator* generator = nullptr;
@@ -52,8 +52,8 @@ public:
     }
     /// @return a new mesh on success, nullptr on failure
     SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
-                                           const f32v3& coordMults,
-                                           const i32v3& coordMapping);
+                                             const i32v3& coordMapping,
+                                             float width);
 private:
     static const int NUM_GENERATORS = 1000;
     int counter = 0;

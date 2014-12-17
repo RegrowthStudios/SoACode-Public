@@ -11,9 +11,6 @@
 #include "VoxelPlanetMapper.h"
 #include "utils.h"
 
-#define INDICES_PER_QUAD 6
-const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD;
-
 SphericalTerrainMesh::~SphericalTerrainMesh() {
     if (m_vbo) {
         vg::GpuMemory::freeBuffer(m_vbo);
@@ -116,7 +113,14 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
         }
     } else if (!m_mesh) {
         // Try to generate a mesh
-        m_mesh = m_dispatcher->dispatchTerrainGen();
+        const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
+        const i32v3& mappings = CubeCoordinateMappings[(int)m_cubeFace];
+        f32v3 startPos(m_gridPosition.x * mults.x,
+                       m_sphericalTerrainData->getRadius() * mults.y,
+                       m_gridPosition.y* mults.z);
+        m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
+                                                  mappings,
+                                                  m_width);
     }
     
     // Recursively update children if they exist

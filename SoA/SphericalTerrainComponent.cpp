@@ -37,8 +37,8 @@ void SphericalTerrainComponent::init(f64 radius, SphericalTerrainGenerator* gene
 
 
 SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
-                                                             const f32v3& coordMults,
-                                                             const i32v3& coordMapping) {
+                                                               const i32v3& coordMapping,
+                                                               float width) {
     SphericalTerrainMesh* mesh = nullptr;
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
@@ -48,9 +48,9 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         mesh = new SphericalTerrainMesh;
         // Set the data
         gen.startPos = startPos;
-        gen.coordMults = coordMults;
         gen.coordMapping = coordMapping;
         gen.mesh = mesh;
+        gen.width = width;
         // Invoke generator
         m_generator->invokeTerrainGen(&gen.rpc);
         // Go to next generator

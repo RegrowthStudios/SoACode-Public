@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainComponent.h"
+
+#include "GpuMemory.h"
 
 const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 0, 0), //TOP
@@ -21,30 +24,32 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
 void SphericalTerrainGenerator::generateMesh(TerrainGenDelegate* data) {
 
     // Get debug face color
-    const ColorRGB8 tcolor = DebugColors[(int)m_cubeFace];
+    const ColorRGB8 tcolor = DebugColors[0];
 
     // Grab mappings so we can rotate the 2D grid appropriately
-    i32v3 coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
-    f32v3 coordMults = CubeCoordinateMults[(int)m_cubeFace];
-    float radius = m_sphericalTerrainData->getRadius();
+    const i32v3& coordMapping = data->coordMapping;
+    const f32v3& startPos = data->startPos;
+    SphericalTerrainMesh* mesh = data->mesh;
+    float width = data->width;
+  
 
     // TODO(Ben): Stack array instead?
     // Preallocate the verts for speed
     std::vector <TerrainVertex> verts(PATCH_WIDTH * PATCH_WIDTH);
 
     // Loop through and set all vertex attributes
-    float vertWidth = m_width / (PATCH_WIDTH - 1);
+    float vertWidth = width / (PATCH_WIDTH - 1);
     int index = 0;
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {
             auto& v = verts[index];
             // Set the position based on which face we are on
-            v.position[coordMapping.x] = x * vertWidth + m_gridPosition.x * coordMults.x;
-            v.position[coordMapping.y] = radius * coordMults.y;
-            v.position[coordMapping.z] = z * vertWidth + m_gridPosition.y * coordMults.z;
+            v.position[coordMapping.x] = x * vertWidth + startPos.x;
+            v.position[coordMapping.y] = startPos.y;
+            v.position[coordMapping.z] = z * vertWidth + startPos.z;
 
             // Spherify it!
-            v.position = glm::normalize(v.position) * radius;
+            v.position = glm::normalize(v.position) * m_radius;
             if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
                 m_worldPosition = v.position;
             }
@@ -86,21 +91,21 @@ void SphericalTerrainGenerator::generateMesh(TerrainGenDelegate* data) {
         }
     }
     // If the buffers haven't been generated, generate them
-    if (m_vbo == 0) {
+    if (mesh->m_vbo == 0) {
         //     glGenVertexArrays(1, &m_vao);
-        vg::GpuMemory::createBuffer(m_vbo);
-        vg::GpuMemory::createBuffer(m_ibo);
+        vg::GpuMemory::createBuffer(mesh->m_vbo);
+        vg::GpuMemory::createBuffer(mesh->m_ibo);
     }
 
     //  glBindVertexArray(m_vao);
 
     // Upload buffer data
-    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
-    vg::GpuMemory::uploadBufferData(m_vbo, vg::BufferTarget::ARRAY_BUFFER,
+    vg::GpuMemory::bindBuffer(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER,
                                     verts.size() * sizeof(TerrainVertex),
                                     verts.data());
-    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
+    vg::GpuMemory::bindBuffer(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
                                     indices.size() * sizeof(ui16),
                                     indices.data());
 

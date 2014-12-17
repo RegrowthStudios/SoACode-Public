@@ -53,6 +53,8 @@ private:
     /// Generates mesh using heightmap
     void buildMesh(TerrainGenDelegate* data);
 
+    float m_radius;
+
     vcore::RPCManager m_rpcManager;
 };
 
