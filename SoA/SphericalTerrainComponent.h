@@ -30,7 +30,7 @@ class TerrainGenDelegate : public IDelegate<void*> {
 public:
     virtual void invoke(void* sender, void* userData);
     volatile bool inUse = false;
-    volatile bool finished = false;
+
     vcore::RPC rpc;
 
     f32v3 startPos;
@@ -79,6 +79,7 @@ public:
 
     /// Updates openGL specific stuff. Call on render thread
     void glUpdate();
+
 
     void draw(const Camera* camera,
               vg::GLProgram* terrainProgram,

@@ -178,6 +178,7 @@
     <ClInclude Include="SphericalTerrainGenerator.h" />
     <ClInclude Include="SphericalTerrainMeshManager.h" />
     <ClInclude Include="StarSystemScreen.h" />
+    <ClInclude Include="TerrainGenTextures.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
@@ -320,6 +321,7 @@
     <ClCompile Include="SphericalTerrainGenerator.cpp" />
     <ClCompile Include="SphericalTerrainMeshManager.cpp" />
     <ClCompile Include="StarSystemScreen.cpp" />
+    <ClCompile Include="TerrainGenTextures.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />

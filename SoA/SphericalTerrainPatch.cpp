@@ -74,21 +74,30 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     // Calculate distance from camera
-    m_distance = glm::length(m_worldPosition - cameraPos);
+    if (hasMesh()) {
+        m_distance = glm::length(m_mesh->worldPosition - cameraPos);
+    } else {
+        m_distance = glm::length(m_worldPosition - cameraPos);
+    }
     
     if (m_children) {
    
         if (m_distance > m_width * 4.1) {
-            // Out of range, kill children
-            delete[] m_children;
-            m_children = nullptr;
-        } else if (hasMesh()) {
+            if (!m_mesh) {
+                requestMesh();
+            }
+            if (hasMesh()) {
+                // Out of range, kill children
+                delete[] m_children;
+                m_children = nullptr;
+            }
+        } else if (m_mesh) {
             // In range, but we need to remove our mesh.
             // Check to see if all children are renderable
             bool deleteMesh = true;
             for (int i = 0; i < 4; i++) {
                 if (!m_children[i].isRenderable()) {
-                    deleteMesh = true;
+                    deleteMesh = false;
                     break;
                 }
             }
@@ -111,15 +120,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
             }
         }
     } else if (!m_mesh) {
-        // Try to generate a mesh
-        const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
-        const i32v3& mappings = CubeCoordinateMappings[(int)m_cubeFace];
-        f32v3 startPos(m_gridPosition.x * mults.x,
-                       m_sphericalTerrainData->getRadius() * mults.y,
-                       m_gridPosition.y* mults.z);
-        m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
-                                                  mappings,
-                                                  m_width);
+        requestMesh();
     }
     
     // Recursively update children if they exist
@@ -148,4 +149,16 @@ bool SphericalTerrainPatch::isRenderable() const {
         return true;
     }
     return false;
+}
+
+void SphericalTerrainPatch::requestMesh() {
+    // Try to generate a mesh
+    const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
+    const i32v3& mappings = CubeCoordinateMappings[(int)m_cubeFace];
+    f32v3 startPos(m_gridPosition.x * mults.x,
+                   m_sphericalTerrainData->getRadius() * mults.y,
+                   m_gridPosition.y* mults.z);
+    m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
+                                              mappings,
+                                              m_width);
 }

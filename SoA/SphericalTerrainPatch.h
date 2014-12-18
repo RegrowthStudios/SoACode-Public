@@ -63,7 +63,7 @@ public:
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
     VGIndexBuffer m_ibo = 0; ///< Index buffer object
 
-    f32v3 worldPosition = f32v3(0.0f);
+    f64v3 worldPosition = f64v3(0.0);
 
     bool shouldDelete = false; ///< True when the mesh should be deleted
     bool isRenderable = false; ///< True when there is a complete mesh
@@ -101,6 +101,7 @@ public:
     static const int INDICES_PER_QUAD = 6;
     static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD;
 private:
+    void requestMesh();
 
     f64v2 m_gridPosition = f64v2(0.0); ///< Position on 2D grid
     f64v3 m_worldPosition = f64v3(0.0); ///< Position relative to world

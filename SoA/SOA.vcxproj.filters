@@ -118,6 +118,7 @@
     <ClCompile Include="StarSystemScreen.cpp" />
     <ClCompile Include="SphericalTerrainMeshManager.cpp" />
     <ClCompile Include="SphericalTerrainGenerator.cpp" />
+    <ClCompile Include="TerrainGenTextures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -276,6 +277,7 @@
     <ClInclude Include="StarSystemScreen.h" />
     <ClInclude Include="SphericalTerrainMeshManager.h" />
     <ClInclude Include="SphericalTerrainGenerator.h" />
+    <ClInclude Include="TerrainGenTextures.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc" />

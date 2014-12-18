@@ -35,7 +35,7 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     // Get debug face color
-    const ColorRGB8 tcolor = DebugColors[0];
+    const ColorRGB8 tcolor = DebugColors[1];
 
     // Grab mappings so we can rotate the 2D grid appropriately
     const i32v3& coordMapping = data->coordMapping;
@@ -55,7 +55,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             auto& v = verts[index];
             // Set the position based on which face we are on
             v.position[coordMapping.x] = x * vertWidth + startPos.x;
-            v.position[coordMapping.y] = startPos.y;
+            v.position[coordMapping.y] = data->heightData[z][x] + startPos.y;
             v.position[coordMapping.z] = z * vertWidth + startPos.z;
 
             // Spherify it!
@@ -107,6 +107,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
         vg::GpuMemory::createBuffer(mesh->m_ibo);
     }
 
+    // TODO: Using a VAO makes it not work??
     //  glBindVertexArray(m_vao);
 
     // Upload buffer data
@@ -119,12 +120,6 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                                     indices.size() * sizeof(ui16),
                                     indices.data());
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, position));
-    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, color));
-
+    // TODO: Using a VAO makes it not work??
     //   glBindVertexArray(0);
 }
