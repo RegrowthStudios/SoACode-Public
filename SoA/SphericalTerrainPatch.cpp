@@ -132,6 +132,10 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
 }
 
 void SphericalTerrainPatch::destroy() {
+    if (m_mesh) {
+        m_mesh->shouldDelete = true;
+        m_mesh = nullptr;
+    }
     delete[] m_children;
     m_children = nullptr;
 }
