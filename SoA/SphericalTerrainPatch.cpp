@@ -160,5 +160,6 @@ void SphericalTerrainPatch::requestMesh() {
                    m_gridPosition.y* mults.z);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               mappings,
-                                              m_width);
+                                              m_width,
+                                              m_cubeFace);
 }

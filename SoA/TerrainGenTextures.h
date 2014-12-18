@@ -15,7 +15,8 @@
 #ifndef TerrainGenTextures_h__
 #define TerrainGenTextures_h__
 
-#include "gtypes.h"
+#include <gtypes.h>
+#include <glenums.h>
 
 #define TERRAINGEN_INTERNAL_FORMAT_HEIGHT vg::TextureInternalFormat::RGBA16F
 
@@ -36,6 +37,8 @@ public:
 
     void destroy();
 private:
+    void initTarget(const ui32v2& _size, const ui32& texID, const vg::TextureInternalFormat& format, const ui32& attachment);
+
     union {
         TextureIDs m_tex; ///< Named texture targets
         VGTexture m_textures[1]; ///< All 1 textures

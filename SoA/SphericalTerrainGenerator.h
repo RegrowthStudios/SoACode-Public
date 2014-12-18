@@ -29,6 +29,17 @@ const i32v3 CubeCoordinateMappings[6] = {
     i32v3(0, 1, 2) //BOTTOM
 };
 
+// Vertex Winding
+// True when CCW
+const bool CubeWindings[6] = {
+    true,
+    true,
+    false,
+    false,
+    true,
+    false
+};
+
 // Multipliers for coordinate mappings
 const f32v3 CubeCoordinateMults[6] = {
     f32v3(1.0f, 1.0f, 1.0f), //TOP
@@ -55,6 +66,9 @@ public:
 private:
     /// Generates mesh using heightmap
     void buildMesh(TerrainGenDelegate* data);
+
+    /// TODO: THIS IS REUSABLE
+    void generateIndices(TerrainGenDelegate* data);
 
     float m_radius;
 

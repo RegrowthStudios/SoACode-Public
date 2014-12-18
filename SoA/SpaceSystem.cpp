@@ -185,7 +185,8 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
            debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);*/
     }
 
-    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     terrainProgram->use();
     terrainProgram->enableVertexAttribArrays();
     for (auto& it : m_sphericalTerrainCT) {
@@ -196,8 +197,6 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     terrainProgram->unuse();
 
     m_mutex.unlock();
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {

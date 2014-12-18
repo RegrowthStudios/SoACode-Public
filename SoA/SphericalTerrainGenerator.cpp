@@ -71,41 +71,14 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
         }
     }
 
-    // Preallocate indices for speed
-    std::vector <ui16> indices(SphericalTerrainPatch::INDICES_PER_PATCH);
-
-    // Loop through each quad and set indices
-    int vertIndex;
-    index = 0;
-    for (int z = 0; z < PATCH_WIDTH - 1; z++) {
-        for (int x = 0; x < PATCH_WIDTH - 1; x++) {
-            // Compute index of back left vertex
-            vertIndex = z * PATCH_WIDTH + x;
-            // Change triangle orientation based on odd or even
-            if ((x + z) % 2) {
-                indices[index] = vertIndex;
-                indices[index + 1] = vertIndex + PATCH_WIDTH;
-                indices[index + 2] = vertIndex + PATCH_WIDTH + 1;
-                indices[index + 3] = vertIndex + PATCH_WIDTH + 1;
-                indices[index + 4] = vertIndex + 1;
-                indices[index + 5] = vertIndex;
-            } else {
-                indices[index] = vertIndex + 1;
-                indices[index + 1] = vertIndex;
-                indices[index + 2] = vertIndex + PATCH_WIDTH;
-                indices[index + 3] = vertIndex + PATCH_WIDTH;
-                indices[index + 4] = vertIndex + PATCH_WIDTH + 1;
-                indices[index + 5] = vertIndex + 1;
-            }
-            index += SphericalTerrainPatch::INDICES_PER_QUAD;
-        }
-    }
     // If the buffers haven't been generated, generate them
     if (mesh->m_vbo == 0) {
         //     glGenVertexArrays(1, &m_vao);
         vg::GpuMemory::createBuffer(mesh->m_vbo);
         vg::GpuMemory::createBuffer(mesh->m_ibo);
     }
+
+    generateIndices(data);
 
     // TODO: Using a VAO makes it not work??
     //  glBindVertexArray(m_vao);
@@ -115,11 +88,71 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     vg::GpuMemory::uploadBufferData(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER,
                                     verts.size() * sizeof(TerrainVertex),
                                     verts.data());
+
+    // TODO: Using a VAO makes it not work??
+    //   glBindVertexArray(0);
+}
+
+void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
+    // Preallocate indices for speed
+    std::vector <ui16> indices(SphericalTerrainPatch::INDICES_PER_PATCH);
+    // Loop through each quad and set indices
+    int vertIndex;
+    int index = 0;
+    if (CubeWindings[(int)(data->cubeFace)]) {
+        // CCW
+        for (int z = 0; z < PATCH_WIDTH - 1; z++) {
+            for (int x = 0; x < PATCH_WIDTH - 1; x++) {
+                // Compute index of back left vertex
+                vertIndex = z * PATCH_WIDTH + x;
+                // Change triangle orientation based on odd or even
+                if ((x + z) % 2) {
+                    indices[index] = vertIndex;
+                    indices[index + 1] = vertIndex + PATCH_WIDTH;
+                    indices[index + 2] = vertIndex + PATCH_WIDTH + 1;
+                    indices[index + 3] = vertIndex + PATCH_WIDTH + 1;
+                    indices[index + 4] = vertIndex + 1;
+                    indices[index + 5] = vertIndex;
+                } else {
+                    indices[index] = vertIndex + 1;
+                    indices[index + 1] = vertIndex;
+                    indices[index + 2] = vertIndex + PATCH_WIDTH;
+                    indices[index + 3] = vertIndex + PATCH_WIDTH;
+                    indices[index + 4] = vertIndex + PATCH_WIDTH + 1;
+                    indices[index + 5] = vertIndex + 1;
+                }
+                index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            }
+        }
+    } else {
+        //CW
+        for (int z = 0; z < PATCH_WIDTH - 1; z++) {
+            for (int x = 0; x < PATCH_WIDTH - 1; x++) {
+                // Compute index of back left vertex
+                vertIndex = z * PATCH_WIDTH + x;
+                // Change triangle orientation based on odd or even
+                if ((x + z) % 2) {
+                    indices[index] = vertIndex;
+                    indices[index + 1] = vertIndex + 1;
+                    indices[index + 2] = vertIndex + PATCH_WIDTH + 1;
+                    indices[index + 3] = vertIndex + PATCH_WIDTH + 1;
+                    indices[index + 4] = vertIndex + PATCH_WIDTH;
+                    indices[index + 5] = vertIndex;
+                } else {
+                    indices[index] = vertIndex + 1;
+                    indices[index + 1] = vertIndex + PATCH_WIDTH + 1;
+                    indices[index + 2] = vertIndex + PATCH_WIDTH;
+                    indices[index + 3] = vertIndex + PATCH_WIDTH;
+                    indices[index + 4] = vertIndex;
+                    indices[index + 5] = vertIndex + 1;
+                }
+                index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            }
+        }
+    }
+    SphericalTerrainMesh* mesh = data->mesh;
     vg::GpuMemory::bindBuffer(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
                                     indices.size() * sizeof(ui16),
                                     indices.data());
-
-    // TODO: Using a VAO makes it not work??
-    //   glBindVertexArray(0);
 }

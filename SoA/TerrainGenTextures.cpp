@@ -8,13 +8,6 @@ TerrainGenTextures::~TerrainGenTextures() {
     destroy();
 }
 
-void initTarget(const ui32v2& _size, const ui32& texID, const vg::TextureInternalFormat& format, const ui32& attachment) {
-    glBindTexture(GL_TEXTURE_2D, texID);
-    glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)format, _size.x, _size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, GL_TEXTURE_2D, texID, 0);
-}
-
 void TerrainGenTextures::init(const ui32v2& dims) {
     m_dims = dims;
     
@@ -56,4 +49,11 @@ void TerrainGenTextures::destroy() {
         glDeleteTextures(1, m_textures);
         m_tex = { 0 };
     }
+}
+
+void TerrainGenTextures::initTarget(const ui32v2& _size, const ui32& texID, const vg::TextureInternalFormat& format, const ui32& attachment) {
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)format, _size.x, _size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, GL_TEXTURE_2D, texID, 0);
 }

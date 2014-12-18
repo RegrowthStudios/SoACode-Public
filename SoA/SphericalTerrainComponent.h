@@ -36,6 +36,7 @@ public:
     f32v3 startPos;
     i32v3 coordMapping;
     float width;
+    CubeFace cubeFace;
 
     SphericalTerrainMesh* mesh = nullptr;
     SphericalTerrainGenerator* generator = nullptr;
@@ -57,7 +58,8 @@ public:
     /// @return a new mesh on success, nullptr on failure
     SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
                                              const i32v3& coordMapping,
-                                             float width);
+                                             float width,
+                                             CubeFace cubeFace);
 private:
     static const int NUM_GENERATORS = 1000;
     int counter = 0;
