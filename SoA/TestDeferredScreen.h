@@ -15,6 +15,8 @@
 #ifndef TestDeferredScreen_h__
 #define TestDeferredScreen_h__
 
+#include <DeferredShaders.h>
+#include <FullQuadVBO.h>
 #include <GBuffer.h>
 #include <GLProgram.h>
 #include <gtypes.h>
@@ -44,7 +46,8 @@ private:
     VGVertexBuffer m_verts; ///< Sphere's vertex buffer (of positions)
     VGIndexBuffer m_inds; ///< Sphere's index buffer
     ui32 m_indexCount; ///< Number of indices for sphere
-    vg::GLProgram m_program; ///< Basic rendering program
+    vg::DeferredShaders m_deferredPrograms; ///< Basic rendering programs
+    vg::FullQuadVBO m_quad; ///< Used for GBuffer clearing operations
     vg::GBuffer m_gbuffer; ///< Geometry buffer of deferred rendering
     SpriteBatch m_sb; ///< Debug SpriteBatch
 };
