@@ -16,6 +16,7 @@
 #define SphericalTerrainMeshManager_h__
 
 #include <RPC.h>
+#include <GLProgram.h>
 
 class SphericalTerrainMesh;
 

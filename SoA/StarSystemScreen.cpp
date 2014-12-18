@@ -139,8 +139,6 @@ void StarSystemScreen::update(const GameTime& gameTime) {
 
     m_camera.updateProjection();
 
-    _app->meshManager->update();
-
     GameManager::inputManager->update();
 
 }

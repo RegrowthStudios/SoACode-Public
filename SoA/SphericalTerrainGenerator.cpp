@@ -6,20 +6,25 @@
 
 const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 0, 0), //TOP
-        ColorRGB8(0, 255, 0), //LEFT
-        ColorRGB8(0, 0, 255), //RIGHT
-        ColorRGB8(255, 255, 0), //FRONT
-        ColorRGB8(0, 255, 255), //BACK
-        ColorRGB8(255, 255, 255) //BOTTOM
+    ColorRGB8(0, 255, 0), //LEFT
+    ColorRGB8(0, 0, 255), //RIGHT
+    ColorRGB8(255, 255, 0), //FRONT
+    ColorRGB8(0, 255, 255), //BACK
+    ColorRGB8(255, 255, 255) //BOTTOM
 };
 
 SphericalTerrainGenerator::SphericalTerrainGenerator() {
+    // Empty
 }
-
 
 SphericalTerrainGenerator::~SphericalTerrainGenerator() {
+    // Empty
 }
 
+void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
+    memset(data->heightData, 0, sizeof(data->heightData));
+    buildMesh(data);
+}
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
@@ -32,7 +37,6 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     SphericalTerrainMesh* mesh = data->mesh;
     float width = data->width;
   
-
     // TODO(Ben): Stack array instead?
     // Preallocate the verts for speed
     std::vector <TerrainVertex> verts(PATCH_WIDTH * PATCH_WIDTH);
