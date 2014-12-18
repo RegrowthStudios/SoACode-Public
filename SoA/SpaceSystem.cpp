@@ -158,6 +158,12 @@ void SpaceSystem::update(double time, const f64v3& cameraPos) {
     m_mutex.unlock();
 }
 
+void SpaceSystem::glUpdate() {
+    for (auto& cmp : m_sphericalTerrainCT) {
+        cmp.second.glUpdate();
+    }
+}
+
 void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 

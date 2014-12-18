@@ -24,7 +24,6 @@ SphericalTerrainMesh::~SphericalTerrainMesh() {
 }
 
 void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
-  
     // Set up matrix
     f32m4 matrix(1.0);
     setMatrixTranslation(matrix, -cameraPos);

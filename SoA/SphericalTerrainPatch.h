@@ -27,7 +27,7 @@ class MeshManager;
 class TerrainRpcDispatcher;
 class TerrainGenDelegate;
 
-#define PATCH_WIDTH 33
+#define PATCH_WIDTH 9
 
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {

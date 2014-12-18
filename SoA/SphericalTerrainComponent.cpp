@@ -31,7 +31,7 @@ void SphericalTerrainComponent::init(f64 radius) {
     }
 
     m_meshManager = new SphericalTerrainMeshManager;
-    m_generator = new SphericalTerrainGenerator;
+    m_generator = new SphericalTerrainGenerator(radius);
     rpcDispatcher = new TerrainRpcDispatcher(m_generator, m_meshManager);
     
     f64 patchWidth = (radius * 2) / PATCH_ROW;
@@ -48,6 +48,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         auto& gen = m_generators[counter];
         // Mark the generator as in use
         gen.inUse = true;
+        gen.rpc.data.f = &gen;
         mesh = new SphericalTerrainMesh;
         // Set the data
         gen.startPos = startPos;
@@ -86,6 +87,11 @@ void SphericalTerrainComponent::update(const f64v3& cameraPos,
             m_patches = nullptr;
         }
     }
+}
+
+void SphericalTerrainComponent::glUpdate() {
+    // Generate meshes and terrain
+    m_generator->update();
 }
 
 void SphericalTerrainComponent::draw(const Camera* camera,

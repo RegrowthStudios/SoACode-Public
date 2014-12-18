@@ -29,7 +29,7 @@ class SphericalTerrainMeshManager;
 class TerrainGenDelegate : public IDelegate<void*> {
 public:
     virtual void invoke(void* sender, void* userData);
-    bool inUse = false;
+    volatile bool inUse = false;
     volatile bool finished = false;
     vcore::RPC rpc;
 
@@ -47,8 +47,12 @@ public:
 class TerrainRpcDispatcher {
 public:
     TerrainRpcDispatcher(SphericalTerrainGenerator* generator, SphericalTerrainMeshManager* meshManager) :
+        m_generator(generator), 
         m_meshManager(meshManager) {
-        // Empty
+        for (int i = 0; i < NUM_GENERATORS; i++) {
+            m_generators[i].meshManager = m_meshManager;
+            m_generators[i].generator = m_generator;
+        }
     }
     /// @return a new mesh on success, nullptr on failure
     SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
@@ -72,6 +76,9 @@ public:
 
     void update(const f64v3& cameraPos,
                 const NamePositionComponent* npComponent);
+
+    /// Updates openGL specific stuff. Call on render thread
+    void glUpdate();
 
     void draw(const Camera* camera,
               vg::GLProgram* terrainProgram,

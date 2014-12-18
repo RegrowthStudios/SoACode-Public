@@ -65,6 +65,9 @@ public:
     /// @param cameraPos: Position of the camera
     void update(double time, const f64v3& cameraPos);
     
+    /// Updates openGL specific stuff, should be called on render thread
+    void glUpdate();
+
     /// Renders the space bodies
     /// @param camera: Camera for rendering
     void drawBodies(const Camera* camera, vg::GLProgram* terrainProgram);

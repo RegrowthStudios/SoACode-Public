@@ -126,6 +126,7 @@ void StarSystemScreen::update(const GameTime& gameTime) {
     time += 0.001;
 
     _app->spaceSystem->update(time, m_camera.getPosition());
+    _app->spaceSystem->glUpdate();
 
     // Connect camera to target planet
     float length = m_camera.getFocalLength() / 10.0;
@@ -145,7 +146,7 @@ void StarSystemScreen::update(const GameTime& gameTime) {
 
 void StarSystemScreen::draw(const GameTime& gameTime) {
     PreciseTimer timer;
-    timer.start();
+ //   timer.start();
     // Bind the FBO
     _hdrFrameBuffer->use();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
@@ -181,7 +182,7 @@ void StarSystemScreen::draw(const GameTime& gameTime) {
     checkGlError("MainMenuRenderPipeline::render()");
     glFlush();
     glFinish();
-    std::cout << timer.stop() << std::endl;
+  //  std::cout << timer.stop() << std::endl;
 }
 
 void StarSystemScreen::onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e) {

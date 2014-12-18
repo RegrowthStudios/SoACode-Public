@@ -13,12 +13,18 @@ const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 255, 255) //BOTTOM
 };
 
-SphericalTerrainGenerator::SphericalTerrainGenerator() {
+SphericalTerrainGenerator::SphericalTerrainGenerator(float radius) :
+    m_radius(radius) {
     // Empty
 }
 
 SphericalTerrainGenerator::~SphericalTerrainGenerator() {
     // Empty
+}
+
+void SphericalTerrainGenerator::update() {
+    #define MAX_REQUESTS 16UL
+    m_rpcManager.processRequests(MAX_REQUESTS);
 }
 
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {

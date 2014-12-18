@@ -41,8 +41,11 @@ const f32v3 CubeCoordinateMults[6] = {
 
 class SphericalTerrainGenerator {
 public:
-    SphericalTerrainGenerator();
+    SphericalTerrainGenerator(float radius);
     ~SphericalTerrainGenerator();
+
+    // Do this on the openGL thread
+    void update();
 
     void generateTerrain(TerrainGenDelegate* data);
 
