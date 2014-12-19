@@ -31,6 +31,11 @@ public:
 
     void init(const ui32v2& dims);
 
+    /// @return OpenGL texture IDs
+    const TerrainGenTextures::TextureIDs& getTextureIDs() const {
+        return m_tex;
+    }
+
     void use();
     
     static void unuse();

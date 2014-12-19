@@ -18,6 +18,10 @@
 
 class TerrainGenDelegate;
 
+#include "TerrainGenTextures.h"
+#include <GLProgram.h>
+#include <FullQuadVBO.h>
+
 // Coordinate mapping for rotating 2d grid to quadcube positions
 // Pain of i32v3, first is coordinates
 const i32v3 CubeCoordinateMappings[6] = {
@@ -52,7 +56,7 @@ const f32v3 CubeCoordinateMults[6] = {
 
 class SphericalTerrainGenerator {
 public:
-    SphericalTerrainGenerator(float radius);
+    SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram);
     ~SphericalTerrainGenerator();
 
     // Do this on the openGL thread
@@ -72,7 +76,13 @@ private:
 
     float m_radius;
 
+    TerrainGenTextures m_textures;
+
     vcore::RPCManager m_rpcManager;
+
+    vg::GLProgram* m_genProgram;
+
+    vg::FullQuadVBO m_quad;
 };
 
 #endif // SphericalTerrainGenerator_h__

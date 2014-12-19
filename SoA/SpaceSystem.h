@@ -2,12 +2,12 @@
 /// SpaceSystem.h
 /// Seed of Andromeda
 ///
-/// Created by Cristian Zaloj on 9 Nov 2014
+/// Created by Benjamin Arnold on 8 Dec 2014
 /// Copyright 2014 Regrowth Studios
 /// All Rights Reserved
 ///
 /// Summary:
-/// Let there be light!
+/// Implementation of a Star System with ECS
 ///
 
 #pragma once
@@ -24,6 +24,8 @@
 #include "OrbitComponent.h"
 #include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
+
+#include "GLProgramManager.h"
 
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
@@ -59,6 +61,8 @@ class SpaceSystem : public vcore::ECS {
 public:
     SpaceSystem();
     ~SpaceSystem();
+
+    void init(vg::GLProgramManager* programManager);
 
     /// Updates the space system
     /// @param time: The time in seconds
@@ -140,6 +144,8 @@ protected:
     IOManager m_ioManager;
 
     std::mutex m_mutex;
+
+    vg::GLProgramManager* m_programManager = nullptr;
 
     std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies

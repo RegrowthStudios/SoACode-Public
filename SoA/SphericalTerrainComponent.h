@@ -74,7 +74,7 @@ class SphericalTerrainComponent {
 public:
     /// Initialize the spherical terrain
     /// @param radius: Radius of the planet, must be multiple of 32.
-    void init(f64 radius);
+    void init(f64 radius, vg::GLProgram* genProgram);
 
     void update(const f64v3& cameraPos,
                 const NamePositionComponent* npComponent);

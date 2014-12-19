@@ -8,6 +8,7 @@
 #include <SpriteBatch.h>
 
 #include "DevScreen.h"
+#include "GameManager.h"
 #include "GamePlayScreen.h"
 #include "InitScreen.h"
 #include "LoadScreen.h"
@@ -67,6 +68,7 @@ void App::onInit() {
     // Allocate resources
     meshManager = new MeshManager;
     spaceSystem = new SpaceSystem;
+    spaceSystem->init(GameManager::glProgramManager);
 }
 
 void App::onExit() {

@@ -3,6 +3,7 @@
 #include "SphericalTerrainComponent.h"
 
 #include "GpuMemory.h"
+#include "Errors.h"
 
 const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 0, 0), //TOP
@@ -13,9 +14,11 @@ const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 255, 255) //BOTTOM
 };
 
-SphericalTerrainGenerator::SphericalTerrainGenerator(float radius) :
-    m_radius(radius) {
-    // Empty
+SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram) :
+    m_radius(radius),
+    m_genProgram(genProgram) {
+    m_textures.init(ui32v2(PATCH_WIDTH));
+    m_quad.init();
 }
 
 SphericalTerrainGenerator::~SphericalTerrainGenerator() {
@@ -23,13 +26,33 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
 }
 
 void SphericalTerrainGenerator::update() {
+    m_genProgram->use();
+    m_genProgram->enableVertexAttribArrays();
+    m_textures.use();
+
     #define MAX_REQUESTS 16UL
     m_rpcManager.processRequests(MAX_REQUESTS);
+
+    m_textures.unuse();
+    m_genProgram->disableVertexAttribArrays();
+    m_genProgram->unuse();
 }
 
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
-    memset(data->heightData, 0, sizeof(data->heightData));
+    
+    m_quad.draw();
+    checkGlError("DRAW");
+    glFlush();
+    glFinish();
+    checkGlError("FINISH");
+    glBindTexture(GL_TEXTURE_2D, m_textures.getTextureIDs().height);
+    checkGlError("BIND");
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data->heightData);
+    checkGlError("GET");
+    std::cout << data->heightData[0][0] << std::endl;
+    
     buildMesh(data);
+    checkGlError("BUILD");
 }
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {

@@ -36,7 +36,7 @@ void TerrainGenTextures::use() {
     glViewport(0, 0, m_dims.x, m_dims.y);
 }
 
-void unuse() {
+void TerrainGenTextures::unuse() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
