@@ -49,6 +49,9 @@ void main() {
 // Number cells per row/column in a single grid
 const ui32 CELLS = 10;
 
+DepthState dsLightPoint(true, DepthFunction::GREATER_EQUAL, false);
+DepthState dsLightDirectional(true, DepthFunction::NOT_EQUAL, false);
+
 struct DefVertex {
 public:
     f32v3 position;
@@ -78,8 +81,7 @@ void TestDeferredScreen::onEntry(const GameTime& gameTime) {
     buildGeometry();
 
     m_gbuffer = vg::GBuffer(_game->getWindow().getWidth(), _game->getWindow().getHeight());
-    m_gbuffer.init();
-    m_gbuffer.initDepth();
+    m_gbuffer.init().initDepthStencil();
 
     m_sb.init();
 
@@ -128,10 +130,10 @@ void TestDeferredScreen::onEntry(const GameTime& gameTime) {
         m_deferredPrograms.light["Directional"] = vg::GLProgram(false);
         vg::GLProgram& p = m_deferredPrograms.light["Directional"];
         p.init();
-        src = iom.readFileToString("Shaders/Deferred/LightDiffuse.vert");
+        src = iom.readFileToString("Shaders/Deferred/LightDirectional.vert");
         p.addShader(vg::ShaderType::VERTEX_SHADER, src);
         delete[] src;
-        src = iom.readFileToString("Shaders/Deferred/LightDiffuse.frag");
+        src = iom.readFileToString("Shaders/Deferred/LightDirectional.frag");
         p.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
         delete[] src;
         p.link();
@@ -218,36 +220,72 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBlendFunc(GL_ONE, GL_ONE);
-    DepthState::READ.set();
 
-    vg::GLProgram& progLight = m_deferredPrograms.light["Directional"];
-    progLight.use();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().normal);
-    glUniform1i(progLight.getUniform("unTexNormal"), 0);
+    {
+        dsLightDirectional.set();
 
-    const size_t NUM_LIGHTS = 5;
-    f32v3 lightDirs[NUM_LIGHTS] = {
+        vg::GLProgram& progLight = m_deferredPrograms.light["Directional"];
+        progLight.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().normal);
+        glUniform1i(progLight.getUniform("unTexNormal"), 0);
+
+        const size_t NUM_LIGHTS = 5;
+        f32v3 lightDirs[NUM_LIGHTS] = {
+            f32v3(0, -2, -1),
+            f32v3(2, -1, 0),
+            f32v3(-1, 1, -1),
+            f32v3(-4, -3, 0),
+            f32v3(6, 3, 2)
+        };
+        f32v3 lightColors[NUM_LIGHTS] = {
+            f32v3(0.6, 0.6, 0.3),
+            f32v3(1.0, 0.0, 0.0),
+            f32v3(0.0, 1.0, 0.0),
+            f32v3(0.0, 1.0, 1.0),
+            f32v3(1.0, 0.0, 1.0)
+        };
+        for (size_t i = 0; i < NUM_LIGHTS; i++) {
+            f32v3 lightDir = glm::normalize(lightDirs[i]);
+            glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
+            f32v3 lightColor = lightColors[i];
+            glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
+            m_quad.draw();
+        }
+    }
+    {
+        dsLightPoint.set();
+
+        /*vg::GLProgram& progLight = m_deferredPrograms.light["Point"];
+        progLight.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().normal);
+        glUniform1i(progLight.getUniform("unTexNormal"), 0);
+
+        const size_t NUM_LIGHTS = 5;
+        f32v3 lightDirs[NUM_LIGHTS] = {
         f32v3(0, -2, -1),
         f32v3(2, -1, 0),
         f32v3(-1, 1, -1),
         f32v3(-4, -3, 0),
         f32v3(6, 3, 2)
-    };
-    f32v3 lightColors[NUM_LIGHTS] = {
+        };
+        f32v3 lightColors[NUM_LIGHTS] = {
         f32v3(0.6, 0.6, 0.3),
         f32v3(1.0, 0.0, 0.0),
         f32v3(0.0, 1.0, 0.0),
         f32v3(0.0, 1.0, 1.0),
         f32v3(1.0, 0.0, 1.0)
-    };
-    for (size_t i = 0; i < NUM_LIGHTS; i++) {
+        };
+        for (size_t i = 0; i < NUM_LIGHTS; i++) {
         f32v3 lightDir = glm::normalize(lightDirs[i]);
         glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
         f32v3 lightColor = lightColors[i];
         glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
         m_quad.draw();
+        }*/
     }
+
 
 
     /************************************************************************/
