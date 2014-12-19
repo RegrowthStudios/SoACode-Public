@@ -29,30 +29,32 @@ void SphericalTerrainGenerator::update() {
     m_genProgram->use();
     m_genProgram->enableVertexAttribArrays();
     m_textures.use();
+    glDisable(GL_DEPTH_TEST);
+
+    glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 
     #define MAX_REQUESTS 16UL
     m_rpcManager.processRequests(MAX_REQUESTS);
 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
     m_textures.unuse();
     m_genProgram->disableVertexAttribArrays();
     m_genProgram->unuse();
 }
 
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
-    
+   
     m_quad.draw();
-    checkGlError("DRAW");
+
     glFlush();
     glFinish();
-    checkGlError("FINISH");
     glBindTexture(GL_TEXTURE_2D, m_textures.getTextureIDs().height);
-    checkGlError("BIND");
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data->heightData);
-    checkGlError("GET");
     std::cout << data->heightData[0][0] << std::endl;
-    
+
     buildMesh(data);
-    checkGlError("BUILD");
+
 }
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
@@ -78,11 +80,11 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             auto& v = verts[index];
             // Set the position based on which face we are on
             v.position[coordMapping.x] = x * vertWidth + startPos.x;
-            v.position[coordMapping.y] = data->heightData[z][x] + startPos.y;
+            v.position[coordMapping.y] = startPos.y;
             v.position[coordMapping.z] = z * vertWidth + startPos.z;
 
             // Spherify it!
-            v.position = glm::normalize(v.position) * m_radius;
+            v.position = glm::normalize(v.position) * (m_radius + data->heightData[z][x]);
             if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
                 mesh->worldPosition = v.position;
             }

@@ -18,13 +18,13 @@
 #include <gtypes.h>
 #include <glenums.h>
 
-#define TERRAINGEN_INTERNAL_FORMAT_HEIGHT vg::TextureInternalFormat::RGBA16F
+#define TERRAINGEN_INTERNAL_FORMAT_HEIGHT vg::TextureInternalFormat::R32F
 
 class TerrainGenTextures {
 public:
     struct TextureIDs {
     public:
-        VGTexture height; ///< R-16f texture
+        VGTexture height; ///< R-32f texture
     };
 
     ~TerrainGenTextures();
@@ -43,11 +43,12 @@ public:
     void destroy();
 private:
     void initTarget(const ui32v2& _size, const ui32& texID, const vg::TextureInternalFormat& format, const ui32& attachment);
-
+   
     union {
         TextureIDs m_tex; ///< Named texture targets
         VGTexture m_textures[1]; ///< All 1 textures
     };
+
     VGFramebuffer m_fbo = 0;
     ui32v2 m_dims = ui32v2(0);
 };

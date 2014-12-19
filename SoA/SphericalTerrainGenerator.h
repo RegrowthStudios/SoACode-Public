@@ -21,6 +21,7 @@ class TerrainGenDelegate;
 #include "TerrainGenTextures.h"
 #include <GLProgram.h>
 #include <FullQuadVBO.h>
+#include <GBuffer.h>
 
 // Coordinate mapping for rotating 2d grid to quadcube positions
 // Pain of i32v3, first is coordinates
@@ -83,6 +84,8 @@ private:
     vg::GLProgram* m_genProgram;
 
     vg::FullQuadVBO m_quad;
+
+    vg::GBuffer gbuffer;
 };
 
 #endif // SphericalTerrainGenerator_h__
