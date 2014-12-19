@@ -170,9 +170,7 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     m_deferredPrograms.clear.use();
     m_quad.draw();
 
-    f32m4 mW = f32m4(1.0);
-    f32m3 mWIT = f32m3(glm::transpose(glm::inverse(mW)));
-    f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 100.0f) * glm::lookAt(f32v3(0, 0, 4), f32v3(0, 0, 0), f32v3(0, 1, 0));
+    f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, 4), f32v3(0, 0, 0), f32v3(0, 1, 0));
     f32m4 mVPInv = glm::inverse(mVP);
 
     DepthState::FULL.set();
@@ -182,8 +180,6 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     progGeo.use();
     progGeo.enableVertexAttribArrays();
 
-    glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
-    glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
     glUniformMatrix4fv(progGeo.getUniform("unVP"), 1, false, (f32*)&mVP[0][0]);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_verts);
@@ -192,7 +188,25 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_inds);
+
+    f32m4 mW = glm::translate(f32m4(1.0f), f32v3(-1.3f, 0, 0));
+    f32m3 mWIT = f32m3(glm::transpose(glm::inverse(mW)));
+    glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
+    glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+
+    mW = glm::translate(f32m4(1.0f), f32v3(1.3f, 0, 0));
+    mWIT = f32m3(glm::transpose(glm::inverse(mW)));
+    glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
+    glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+
+    mW = glm::translate(f32m4(1.0f), f32v3(0, 0, -2));
+    mWIT = f32m3(glm::transpose(glm::inverse(mW)));
+    glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
+    glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     progGeo.disableVertexAttribArrays();
