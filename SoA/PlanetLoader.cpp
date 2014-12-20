@@ -84,6 +84,44 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     return nullptr;
 }
 
+PlanetGenData* PlanetLoader::getDefaultGenData() {
+    // Lazily construct default data
+    if (!m_defaultGenData) {
+        // Allocate data
+        m_defaultGenData = new PlanetGenData;
+
+        // Build string
+        nString fSource = NOISE_SRC_FRAG;
+        fSource.reserve(fSource.size() + 128);
+        fSource += N_HEIGHT + "= 0;";
+        fSource += N_TEMP + "= 0;";
+        fSource += N_HUM + "= 0; }";
+
+        // Create the shader
+        vg::GLProgram* program = new vg::GLProgram;
+        program->init();
+        program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
+        program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
+        program->bindFragDataLocation(0, N_HEIGHT.c_str());
+        program->bindFragDataLocation(1, N_TEMP.c_str());
+        program->bindFragDataLocation(2, N_HUM.c_str());
+        program->link();
+        
+        if (!program->getIsLinked()) {
+            std::cout << fSource << std::endl;
+            showMessage("Failed to generate default program");
+            return nullptr;
+        }
+
+        program->initAttributes();
+        program->initUniforms();
+
+        m_defaultGenData->program = program;
+
+    }
+    return m_defaultGenData;
+}
+
 void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node) {
     if (node.IsNull() || !node.IsMap()) {
         std::cout << "Failed to parse node";
@@ -137,6 +175,9 @@ vg::GLProgram* PlanetLoader::generateProgram(TerrainFuncs& baseTerrainFuncs,
     program->init();
     program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
     program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
+    program->bindFragDataLocation(0, N_HEIGHT.c_str());
+    program->bindFragDataLocation(1, N_TEMP.c_str());
+    program->bindFragDataLocation(2, N_HUM.c_str());
     program->link();
 
     if (!program->getIsLinked()) {

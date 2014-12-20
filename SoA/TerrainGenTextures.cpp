@@ -15,14 +15,18 @@ void TerrainGenTextures::init(const ui32v2& dims) {
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
     // Create texture targets
-    glGenTextures(1, m_textures);
+    glGenTextures(3, m_textures);
     initTarget(m_dims, m_tex.height, TERRAINGEN_INTERNAL_FORMAT_HEIGHT, 0);
+    initTarget(m_dims, m_tex.temp, TERRAINGEN_INTERNAL_FORMAT_TEMP, 1);
+    initTarget(m_dims, m_tex.hum, TERRAINGEN_INTERNAL_FORMAT_HUM, 2);
    
     // Set the output location for pixels
-    VGEnum bufs[1] = {
-        GL_COLOR_ATTACHMENT0
+    VGEnum bufs[3] = {
+        GL_COLOR_ATTACHMENT0,
+        GL_COLOR_ATTACHMENT1,
+        GL_COLOR_ATTACHMENT2
     };
-    glDrawBuffers(1, bufs);
+    glDrawBuffers(3, bufs);
 
     // Unbind used resources
     glBindTexture(GL_TEXTURE_2D, 0);

@@ -19,12 +19,16 @@
 #include <glenums.h>
 
 #define TERRAINGEN_INTERNAL_FORMAT_HEIGHT vg::TextureInternalFormat::R32F
+#define TERRAINGEN_INTERNAL_FORMAT_TEMP vg::TextureInternalFormat::R8
+#define TERRAINGEN_INTERNAL_FORMAT_HUM vg::TextureInternalFormat::R8
 
 class TerrainGenTextures {
 public:
     struct TextureIDs {
     public:
         VGTexture height; ///< R-32f texture
+        VGTexture temp;
+        VGTexture hum;
     };
 
     ~TerrainGenTextures();
@@ -46,7 +50,7 @@ private:
    
     union {
         TextureIDs m_tex; ///< Named texture targets
-        VGTexture m_textures[1]; ///< All 1 textures
+        VGTexture m_textures[3]; ///< All 1 textures
     };
 
     VGFramebuffer m_fbo = 0;

@@ -39,12 +39,15 @@ public:
     ~PlanetLoader();
 
     PlanetGenData* loadPlanet(const nString& filePath);
+    PlanetGenData* getDefaultGenData();
 private:
     void parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node);
     vg::GLProgram* generateProgram(TerrainFuncs& baseTerrainFuncs,
                                    TerrainFuncs& tempTerrainFuncs,
                                    TerrainFuncs& humTerrainFuncs);
     void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);
+
+    PlanetGenData* m_defaultGenData = nullptr;
 
     IOManager* m_iom = nullptr;
 };

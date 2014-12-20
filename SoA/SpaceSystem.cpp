@@ -9,6 +9,7 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainMeshManager.h"
+#include "PlanetLoader.h"
 #include "utils.h"
 
 #include <glm\gtc\type_ptr.hpp>
@@ -319,6 +320,8 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
                 properties.planetGenData = m_planetLoader->loadPlanet(m_dirPath + "/" + properties.generation);
+            } else {
+                properties.planetGenData = m_planetLoader->getDefaultGenData();
             }
 
             addPlanet(sysProps, &properties, body);
@@ -357,7 +360,7 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
     m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0,
-                                         m_programManager->getProgram("SimplexNoise"));
+                                         properties->planetGenData->program);
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
