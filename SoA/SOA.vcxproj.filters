@@ -280,6 +280,7 @@
     <ClInclude Include="SphericalTerrainGenerator.h" />
     <ClInclude Include="TerrainGenTextures.h" />
     <ClInclude Include="PlanetLoader.h" />
+    <ClInclude Include="NoiseShaderCode.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc" />

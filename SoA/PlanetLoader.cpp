@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 
+#include "NoiseShaderCode.hpp"
+
 #include <IOManager.h>
 
 enum class TerrainFunction {
@@ -67,6 +69,8 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
             parseTerrainFuncs(&humTerrainFuncs, kvp.second);
         }
     }
+
+
 }
 
 void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node) {

@@ -157,6 +157,7 @@
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="NamePositionComponent.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
+    <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OrbitalBody.h" />
     <ClInclude Include="OrbitComponent.h" />
