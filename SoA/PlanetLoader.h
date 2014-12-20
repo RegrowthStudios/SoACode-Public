@@ -20,6 +20,8 @@
 
 #include <GLProgram.h>
 
+class IOManager;
+
 class PlanetGenerationData {
 public:
     VGTexture surfaceColorMap;
@@ -30,10 +32,14 @@ public:
 
 class PlanetLoader {
 public:
-    PlanetLoader();
+    PlanetLoader(IOManager* ioManager);
     ~PlanetLoader();
 
     PlanetGenerationData* loadPlanet(const nString& filePath);
+private:
+    void parseTerrainFuncs(TerrainFuncs& terrainFuncs, YAML::Node& node);
+
+    IOManager* m_iom;
 };
 
 #endif // PlanetLoader_h__
