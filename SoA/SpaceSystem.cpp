@@ -4,6 +4,7 @@
 #include "DebugRenderer.h"
 #include "IOManager.h"
 #include "Keg.h"
+#include "PlanetLoader.h"
 #include "RenderUtils.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
@@ -52,6 +53,8 @@ public:
     f64v3 axis;
     f64 angularSpeed = 0.0;
     nString displayName = "";
+    nString generation = "";
+    PlanetGenData* planetGenData = nullptr;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(PlanetKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, diameter);
@@ -126,7 +129,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_ORBIT_NAME, &m_orbitCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
 
-  
+    m_planetLoader = new PlanetLoader(&m_ioManager);
 }
 
 SpaceSystem::~SpaceSystem() {
@@ -309,6 +312,12 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
             PlanetKegProperties properties;
             error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
             KEG_CHECK;
+
+            // Use planet loader to load terrain and biomes
+            if (properties.generation.length()) {
+                properties.planetGenData = m_planetLoader->loadPlanet(properties.generation);
+            }
+
             addPlanet(sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;

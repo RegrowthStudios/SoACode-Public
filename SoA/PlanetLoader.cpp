@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
-#include "Keg.h"
 
 #include <IOManager.h>
 
@@ -43,7 +42,7 @@ PlanetLoader::PlanetLoader(IOManager* ioManager) :
 PlanetLoader::~PlanetLoader() {
 }
 
-PlanetGenerationData* PlanetLoader::loadPlanet(const nString& filePath) {
+PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
@@ -61,16 +60,16 @@ PlanetGenerationData* PlanetLoader::loadPlanet(const nString& filePath) {
         nString type = kvp.first.as<nString>();
         // Parse based on type
         if (type == "baseHeight") {
-            parseTerrainFuncs(baseTerrainFuncs, kvp.second);
+            parseTerrainFuncs(&baseTerrainFuncs, kvp.second);
         } else if (type == "temperature") {
-            parseTerrainFuncs(tempTerrainFuncs, kvp.second);
+            parseTerrainFuncs(&tempTerrainFuncs, kvp.second);
         } else if (type == "humidity") {
-            parseTerrainFuncs(humTerrainFuncs, kvp.second);
+            parseTerrainFuncs(&humTerrainFuncs, kvp.second);
         }
     }
 }
 
-void PlanetLoader::parseTerrainFuncs(TerrainFuncs& terrainFuncs, YAML::Node& node) {
+void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node) {
     if (node.IsNull() || !node.IsMap()) {
         std::cout << "Failed to parse node";
         return;
@@ -86,16 +85,16 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs& terrainFuncs, YAML::Node& nod
     for (auto& kvp : node) {
         nString type = kvp.first.as<nString>();
         if (type == "add") {
-            terrainFuncs.baseHeight += kvp.second.as<float>;
+            terrainFuncs->baseHeight += kvp.second.as<float>();
             continue;
         }
 
-        terrainFuncs.funcs.push_back(TerrainFuncKegProperties());
+        terrainFuncs->funcs.push_back(TerrainFuncKegProperties());
         if (type == "ridgedNoise") {
-            terrainFuncs.funcs.back().func = TerrainFunction::RIDGED_NOISE;
+            terrainFuncs->funcs.back().func = TerrainFunction::RIDGED_NOISE;
         }
 
-        error = Keg::parse((ui8*)&terrainFuncs.funcs.back(), kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
+        error = Keg::parse((ui8*)&terrainFuncs->funcs.back(), kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
         KEG_CHECK;
     }
 }

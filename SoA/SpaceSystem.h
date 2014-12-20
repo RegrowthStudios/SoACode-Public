@@ -36,6 +36,7 @@ class Binary;
 class Camera;
 class GasGiantKegProperties;
 class PlanetKegProperties;
+class PlanetLoader;
 class StarKegProperties;
 class SystemBodyKegProperties;
 
@@ -144,6 +145,8 @@ protected:
     IOManager m_ioManager;
 
     std::mutex m_mutex;
+    
+    PlanetLoader* m_planetLoader = nullptr;
 
     vg::GLProgramManager* m_programManager = nullptr;
 

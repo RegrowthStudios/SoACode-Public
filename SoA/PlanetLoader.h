@@ -19,10 +19,12 @@
 #pragma once
 
 #include <GLProgram.h>
+#include <Keg.h>
 
 class IOManager;
+class TerrainFuncs;
 
-class PlanetGenerationData {
+class PlanetGenData {
 public:
     VGTexture surfaceColorMap;
     VGTexture watercolorMap;
@@ -35,11 +37,11 @@ public:
     PlanetLoader(IOManager* ioManager);
     ~PlanetLoader();
 
-    PlanetGenerationData* loadPlanet(const nString& filePath);
+    PlanetGenData* loadPlanet(const nString& filePath);
 private:
-    void parseTerrainFuncs(TerrainFuncs& terrainFuncs, YAML::Node& node);
+    void parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node);
 
-    IOManager* m_iom;
+    IOManager* m_iom = nullptr;
 };
 
 #endif // PlanetLoader_h__
