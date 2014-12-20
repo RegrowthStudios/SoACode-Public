@@ -153,6 +153,7 @@ protected:
     std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies
 
+    nString m_dirPath; ///< Path to the main directory
     nString m_systemDescription; ///< textual description of the system
 };
 

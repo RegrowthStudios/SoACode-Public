@@ -16,7 +16,7 @@
 #define NoiseShaderCode_h__
 
 
-#pragma region Simple shader code
+#pragma region Shader Code
 const nString NOISE_SRC_VERT = R"(
 // Inputs
 in vec2 vPosition;
@@ -29,7 +29,7 @@ void main() {
     gl_Position = vec4(vPosition, 0, 1);
 }
 )";
-const nString NOISE_SRC_FRAG = R"(
+
 //
 // Description : Array and textureless GLSL 2D/3D/4D simplex 
 //               noise functions.
@@ -41,17 +41,22 @@ const nString NOISE_SRC_FRAG = R"(
 //               https://github.com/ashima/webgl-noise
 // 
 
+const nString N_HEIGHT = "pHeight";
+const nString N_TEMP = "pTemp";
+const nString N_HUM = "pHum";
 
+const nString NOISE_SRC_FRAG = R"(
 // Uniforms
 uniform vec3 cornerPos = vec3(0.0, 0.0, 0.0);
-uniform float scale = 10.0;
-uniform float unPatchWidth;
+uniform float unPatchWidth = 10.0;
 
 // Inputs
 in vec3 fPos;
 
 // Outputs
-out float height;
+out float pHeight;
+out float pTemp;
+out float pHum;
 
 vec3 mod289(vec3 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -131,7 +136,7 @@ float snoise(vec3 v)
   vec3 p2 = vec3(a1.xy,h.z);
   vec3 p3 = vec3(a1.zw,h.w);
 
-//Normalise gradients
+//Normalize gradients
   vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
   p0 *= norm.x;
   p1 *= norm.y;
@@ -145,6 +150,13 @@ float snoise(vec3 v)
                                 dot(p2,x2), dot(p3,x3) ) );
 }
 
+void main() {
+    float total;
+    float amplitude;
+    float maxAmplitude;
+    float frequency;
+
+    vec3 pos = cornerPos + fPos * unPatchWidth;
 )";
 #pragma endregion
 

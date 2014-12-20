@@ -20,6 +20,7 @@
 
 #include <GLProgram.h>
 #include <Keg.h>
+#include <vector>
 
 class IOManager;
 class TerrainFuncs;
@@ -40,6 +41,10 @@ public:
     PlanetGenData* loadPlanet(const nString& filePath);
 private:
     void parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node);
+    vg::GLProgram* generateProgram(TerrainFuncs& baseTerrainFuncs,
+                                   TerrainFuncs& tempTerrainFuncs,
+                                   TerrainFuncs& humTerrainFuncs);
+    void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);
 
     IOManager* m_iom = nullptr;
 };

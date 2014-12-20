@@ -63,6 +63,7 @@ KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, mass);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64_V3, axis);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, angularSpeed);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, STRING, displayName);
+KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, STRING, generation);
 KEG_TYPE_INIT_END
 
 class StarKegProperties {
@@ -232,6 +233,8 @@ void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
 }
 
 void SpaceSystem::addSolarSystem(const nString& dirPath) {
+    m_dirPath = dirPath;
+
     // Load the system
     loadSystemProperties(dirPath);
 
@@ -315,7 +318,7 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
-                properties.planetGenData = m_planetLoader->loadPlanet(properties.generation);
+                properties.planetGenData = m_planetLoader->loadPlanet(m_dirPath + "/" + properties.generation);
             }
 
             addPlanet(sysProps, &properties, body);
