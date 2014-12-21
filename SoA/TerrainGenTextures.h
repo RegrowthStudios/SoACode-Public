@@ -59,26 +59,4 @@ private:
     ui32v2 m_dims = ui32v2(0);
 };
 
-class NormalGenTexture {
-public:
-    ~NormalGenTexture();
-
-    void init(const ui32v2& dims);
-
-    /// @return OpenGL texture ID
-    const VGTexture& getTextureID() const {
-        return m_normal;
-    }
-
-    void use();
-
-    static void unuse();
-
-    void destroy();
-private:
-    VGTexture m_normal = 0;
-    VGFramebuffer m_fbo = 0;
-    ui32v2 m_dims = ui32v2(0);
-};
-
 #endif // TerrainGenTextures_h__

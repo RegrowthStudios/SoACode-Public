@@ -66,6 +66,8 @@ public:
 
     f64v3 worldPosition = f64v3(0.0);
 
+    VGTexture normalMap = 0;
+
     bool shouldDelete = false; ///< True when the mesh should be deleted
     bool isRenderable = false; ///< True when there is a complete mesh
 };

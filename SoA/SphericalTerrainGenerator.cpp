@@ -25,11 +25,21 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
     unWidth(m_normalProgram->getUniform("unWidth")) {
 
+    m_normalMapDims = ui32v2(PATCH_NM_WIDTH);
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        m_textures[i].init(ui32v2(PATCH_WIDTH));
+        m_textures[i].init(m_normalMapDims);
     }
     m_quad.init();
 
+    glGenFramebuffers(1, &m_normalFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_normalFbo);
+
+    // Set the output location for pixels
+    VGEnum att = GL_COLOR_ATTACHMENT0;
+    glDrawBuffers(1, &att);
+
+    // Unbind used resources
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
@@ -60,20 +70,43 @@ void SphericalTerrainGenerator::update() {
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(unHeightMap, 0);
 
+        glBindFramebuffer(GL_FRAMEBUFFER, m_normalFbo);
+        glViewport(0, 0, m_normalMapDims.x, m_normalMapDims.y);
+
         glFlush();
         glFinish();
         // Loop through all textures
         for (int i = 0; i < m_patchCounter; i++) {
             auto& data = m_delegates[i];
+        
+            // Create and bind output normal map
+            if (data->mesh->normalMap == 0) {
+                glGenTextures(1, &data->mesh->normalMap);
+                glBindTexture(GL_TEXTURE_2D, data->mesh->normalMap);
+                glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)NORMALGEN_INTERNAL_FORMAT, m_normalMapDims.x, m_normalMapDims.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
+            } else {
+                glBindTexture(GL_TEXTURE_2D, data->mesh->normalMap);
+            }
+            // Bind texture to fbo
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->normalMap, 0);
+
+            // Bind the heightmap texture
             glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().height);
             glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data->heightData);
-
             glUniform1f(unWidth, data->width / PATCH_NM_WIDTH);
 
             // Generate normal map
+            m_quad.draw();
+            glFlush();
+            glFinish();
+
+
 
             buildMesh(data);
         }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         m_normalProgram->disableVertexAttribArrays();
         m_normalProgram->unuse();

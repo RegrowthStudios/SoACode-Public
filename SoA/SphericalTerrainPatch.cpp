@@ -21,6 +21,9 @@ SphericalTerrainMesh::~SphericalTerrainMesh() {
     if (m_vao) {
         glDeleteVertexArrays(1, &m_vao);
     }
+    if (normalMap) {
+        glDeleteTextures(1, &normalMap);
+    }
 }
 
 void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {

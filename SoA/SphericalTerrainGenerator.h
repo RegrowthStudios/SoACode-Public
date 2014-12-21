@@ -85,6 +85,9 @@ private:
     TerrainGenTextures m_textures[PATCHES_PER_FRAME];
     TerrainGenDelegate* m_delegates[PATCHES_PER_FRAME];
 
+    VGFramebuffer m_normalFbo = 0;
+    ui32v2 m_normalMapDims;
+
     vcore::RPCManager m_rpcManager;
 
     vg::GLProgram* m_genProgram;
