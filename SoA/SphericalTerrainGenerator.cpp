@@ -77,7 +77,7 @@ void SphericalTerrainGenerator::update() {
         glFinish();
         // Loop through all textures
         for (int i = 0; i < m_patchCounter; i++) {
-            auto& data = m_delegates[i];
+            TerrainGenDelegate* data = m_delegates[i];
         
             // Create and bind output normal map
             if (data->mesh->normalMap == 0) {
@@ -159,12 +159,12 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.position[coordMapping.z] = z * vertWidth + startPos.z;
 
             // Spherify it!
-            v.position = glm::normalize(v.position) * (m_radius + data->heightData[z * PATCH_NM_WIDTH][x * PIXELS_PER_PATCH_NM]);
+            v.position = glm::normalize(v.position) * (m_radius + data->heightData[z * PIXELS_PER_PATCH_NM][x * PIXELS_PER_PATCH_NM]);
             if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
                 mesh->worldPosition = v.position;
             }
 
-            v.color.r = glm::clamp((data->heightData[z * PATCH_NM_WIDTH][x * PIXELS_PER_PATCH_NM] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
+            v.color.r = glm::clamp((data->heightData[z * PIXELS_PER_PATCH_NM][x * PIXELS_PER_PATCH_NM] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
             v.color.g = tcolor.g;
             v.color.b = tcolor.b;
             index++;

@@ -93,9 +93,9 @@ public:
     /// @param offset: Integer offset by which to change target
     void offsetTarget(int offset) {
         targetComponent += offset;
-        if (targetComponent > m_namePositionCT.getComponentListSize()) {
+        if (targetComponent >= m_namePositionCT.getComponentListSize()) {
             targetComponent = 1;
-        } else if (targetComponent < 0) {
+        } else if (targetComponent <= 0) {
             targetComponent = m_namePositionCT.getComponentListSize() - 1;
         }
     }

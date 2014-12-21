@@ -42,7 +42,7 @@ public:
     SphericalTerrainGenerator* generator = nullptr;
     SphericalTerrainMeshManager* meshManager = nullptr;
 
-    float heightData[PATCH_WIDTH][PATCH_WIDTH];
+    float heightData[PATCH_NM_WIDTH][PATCH_NM_WIDTH];
 };
 
 class TerrainRpcDispatcher {
