@@ -227,9 +227,10 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             vcore::RPCManager m_glrpc;
 
             LoadTaskShaders shaderTask(&m_glrpc);
-            m_glrpc.processRequests(999999);
 
             shaderTask.load();
+
+            m_glrpc.processRequests(999999);
             _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
             _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
             if (graphicsOptions.msaa > 0) {

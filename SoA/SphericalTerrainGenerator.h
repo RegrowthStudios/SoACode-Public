@@ -18,6 +18,7 @@
 
 class TerrainGenDelegate;
 
+#include "SphericalTerrainPatch.h"
 #include "TerrainGenTextures.h"
 #include <GLProgram.h>
 #include <FullQuadVBO.h>
@@ -101,7 +102,7 @@ private:
 
     vg::FullQuadVBO m_quad;
 
-    vg::GBuffer gbuffer;
+    float m_heightData[PATCH_NM_WIDTH][PATCH_NM_WIDTH];
 };
 
 #endif // SphericalTerrainGenerator_h__

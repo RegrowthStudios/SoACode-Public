@@ -74,7 +74,9 @@ class TerrainVertex {
 public:
     f32v3 position; //12
     ColorRGB8 color; //15
-    ui8 padding;
+    ui8 padding; //16
+    ui8v2 texCoords; //18
+    ui8 padding2[2]; //20
 };
 
 class PhysicsBlockVertex {

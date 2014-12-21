@@ -104,6 +104,7 @@ void LoadTaskShaders::load() {
     std::vector<nString> sphericalAttribs;
     sphericalAttribs.push_back("vPosition");
     sphericalAttribs.push_back("vColor");
+    sphericalAttribs.push_back("vUV");
 
     IOManager iom;
 

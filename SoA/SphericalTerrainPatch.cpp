@@ -34,6 +34,8 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLP
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
 
+    glBindTexture(GL_TEXTURE_2D, normalMap);
+
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
@@ -41,6 +43,9 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLP
     glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, color));
+    glVertexAttribPointer(2, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, texCoords));
 
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glDrawElements(GL_TRIANGLES, SphericalTerrainPatch::INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);

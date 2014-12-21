@@ -201,16 +201,18 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
            debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);*/
     }
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     terrainProgram->use();
     terrainProgram->enableVertexAttribArrays();
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(terrainProgram->getUniform("unNormalMap"), 0);
     for (auto& it : m_sphericalTerrainCT) {
         auto& cmp = it.second;
         cmp.draw(camera, terrainProgram, &m_namePositionCT.getFromEntity(it.first));
     }
     terrainProgram->disableVertexAttribArrays();
     terrainProgram->unuse();
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     m_mutex.unlock();
 
