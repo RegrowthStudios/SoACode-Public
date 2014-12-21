@@ -22,10 +22,10 @@ const nString NOISE_SRC_VERT = R"(
 in vec2 vPosition;
 
 // Outputs
-out vec3 fPos;
+out vec2 fPos;
 
 void main() {
-    fPos = vec3((vPosition.xy + 1.0) / 2.0, 0.0);
+    fPos = (vPosition.xy + 1.0) * 0.5;
     gl_Position = vec4(vPosition, 0, 1);
 }
 )";
@@ -47,11 +47,12 @@ const nString N_HUM = "pHum";
 
 const nString NOISE_SRC_FRAG = R"(
 // Uniforms
-uniform vec3 cornerPos = vec3(0.0, 0.0, 0.0);
+uniform vec3 unCornerPos = vec3(0.0);
+uniform ivec3 unCoordMapping = ivec3(0);
 uniform float unPatchWidth = 10.0;
 
 // Inputs
-in vec3 fPos;
+in vec2 fPos;
 
 // Outputs
 out float pHeight;
@@ -156,7 +157,10 @@ void main() {
     float maxAmplitude;
     float frequency;
 
-    vec3 pos = cornerPos + fPos * unPatchWidth;
+    vec3 pos;
+    pos[unCoordMapping.x] = unCornerPos.x + fPos.x * unPatchWidth;
+    pos[unCoordMapping.y] = unCornerPos.y;
+    pos[unCoordMapping.z] = unCornerPos.z + fPos.y * unPatchWidth;
 )";
 #pragma endregion
 

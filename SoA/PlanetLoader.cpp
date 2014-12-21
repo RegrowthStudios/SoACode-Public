@@ -93,7 +93,8 @@ PlanetGenData* PlanetLoader::getDefaultGenData() {
         // Build string
         nString fSource = NOISE_SRC_FRAG;
         fSource.reserve(fSource.size() + 128);
-        fSource += N_HEIGHT + "= 0;";
+        // Use pos so uniforms don't get optimized out
+        fSource += N_HEIGHT + "= pos.x*0.000001;";
         fSource += N_TEMP + "= 0;";
         fSource += N_HUM + "= 0; }";
 
@@ -106,7 +107,7 @@ PlanetGenData* PlanetLoader::getDefaultGenData() {
         program->bindFragDataLocation(1, N_TEMP.c_str());
         program->bindFragDataLocation(2, N_HUM.c_str());
         program->link();
-        
+
         if (!program->getIsLinked()) {
             std::cout << fSource << std::endl;
             showMessage("Failed to generate default program");
@@ -179,7 +180,7 @@ vg::GLProgram* PlanetLoader::generateProgram(TerrainFuncs& baseTerrainFuncs,
     program->bindFragDataLocation(1, N_TEMP.c_str());
     program->bindFragDataLocation(2, N_HUM.c_str());
     program->link();
-
+    std::cout << fSource << std::endl;
     if (!program->getIsLinked()) {
         std::cout << fSource << std::endl;
         showMessage("Failed to generate shader program");

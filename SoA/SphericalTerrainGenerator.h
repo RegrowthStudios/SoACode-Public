@@ -82,6 +82,9 @@ private:
     vcore::RPCManager m_rpcManager;
 
     vg::GLProgram* m_genProgram;
+    VGUniform unCornerPos;
+    VGUniform unCoordMapping ;
+    VGUniform unPatchWidth;
 
     vg::FullQuadVBO m_quad;
 

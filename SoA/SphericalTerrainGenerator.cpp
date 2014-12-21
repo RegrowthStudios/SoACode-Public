@@ -16,9 +16,14 @@ const ColorRGB8 DebugColors[6] {
 
 SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram) :
     m_radius(radius),
-    m_genProgram(genProgram) {
+    m_genProgram(genProgram),
+    unCornerPos(m_genProgram->getUniform("unCornerPos")),
+    unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
+    unPatchWidth(m_genProgram->getUniform("unPatchWidth")) {
     m_textures.init(ui32v2(PATCH_WIDTH));
     m_quad.init();
+
+
 }
 
 SphericalTerrainGenerator::~SphericalTerrainGenerator() {
@@ -44,14 +49,18 @@ void SphericalTerrainGenerator::update() {
 }
 
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
-   
+  
+    // Send uniforms
+    glUniform3fv(unCornerPos, 1, &data->startPos[0]);
+    glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
+    glUniform1f(unPatchWidth, data->width);
+
     m_quad.draw();
 
     glFlush();
     glFinish();
     glBindTexture(GL_TEXTURE_2D, m_textures.getTextureIDs().height);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data->heightData);
-    std::cout << data->heightData[0][0] << std::endl;
 
     buildMesh(data);
 
@@ -89,7 +98,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                 mesh->worldPosition = v.position;
             }
 
-            v.color.r = tcolor.r;
+            v.color.r = glm::clamp((data->heightData[z][x] - (-100.0f)) / 1100.0f * 500, 0.0f, 255.0f);
             v.color.g = tcolor.g;
             v.color.b = tcolor.b;
             index++;
