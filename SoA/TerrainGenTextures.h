@@ -59,9 +59,9 @@ private:
     ui32v2 m_dims = ui32v2(0);
 };
 
-class NormalMapTexture {
+class NormalGenTexture {
 public:
-    ~NormalMapTexture();
+    ~NormalGenTexture();
 
     void init(const ui32v2& dims);
 

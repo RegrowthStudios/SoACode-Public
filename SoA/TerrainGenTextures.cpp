@@ -62,11 +62,11 @@ void TerrainGenTextures::initTarget(const ui32v2& size, const ui32& texID, const
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, GL_TEXTURE_2D, texID, 0);
 }
 
-NormalMapTexture::~NormalMapTexture() {
+NormalGenTexture::~NormalGenTexture() {
     destroy();
 }
 
-void NormalMapTexture::init(const ui32v2& dims) {
+void NormalGenTexture::init(const ui32v2& dims) {
     m_dims = dims;
 
     glGenFramebuffers(1, &m_fbo);
@@ -91,15 +91,15 @@ void NormalMapTexture::init(const ui32v2& dims) {
     // TODO: Change The Memory Usage Of The GPU
 }
 
-void NormalMapTexture::use() {
+void NormalGenTexture::use() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void NormalMapTexture::unuse() {
+void NormalGenTexture::unuse() {
 
 }
 
-void NormalMapTexture::destroy() {
+void NormalGenTexture::destroy() {
     if (m_fbo != 0) {
         glDeleteFramebuffers(1, &m_fbo);
         m_fbo = 0;
