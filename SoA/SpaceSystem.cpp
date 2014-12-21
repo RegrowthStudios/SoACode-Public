@@ -201,8 +201,6 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
            debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);*/
     }
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
     terrainProgram->use();
     terrainProgram->enableVertexAttribArrays();
     for (auto& it : m_sphericalTerrainCT) {
@@ -211,6 +209,8 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     }
     terrainProgram->disableVertexAttribArrays();
     terrainProgram->unuse();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     m_mutex.unlock();
 
@@ -370,7 +370,8 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
     m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0,
-                                         properties->planetGenData->program);
+                                         properties->planetGenData->program,
+                                         m_programManager->getProgram("NormalMapGen"));
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);

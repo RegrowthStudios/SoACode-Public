@@ -75,7 +75,8 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     // Calculate distance from camera
     if (hasMesh()) {
-        m_distance = glm::length(m_mesh->worldPosition - cameraPos);
+        m_worldPosition = m_mesh->worldPosition;
+        m_distance = glm::length(m_worldPosition - cameraPos);
     } else {
         m_distance = glm::length(m_worldPosition - cameraPos);
     }

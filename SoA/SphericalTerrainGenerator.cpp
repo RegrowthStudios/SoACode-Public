@@ -14,9 +14,11 @@ const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 255, 255) //BOTTOM
 };
 
-SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram) :
+SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram,
+                                                     vg::GLProgram* normalProgram) :
     m_radius(radius),
     m_genProgram(genProgram),
+    m_normalProgram(normalProgram),
     unCornerPos(m_genProgram->getUniform("unCornerPos")),
     unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
     unPatchWidth(m_genProgram->getUniform("unPatchWidth")) {
@@ -63,7 +65,6 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data->heightData);
 
     buildMesh(data);
-
 }
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {

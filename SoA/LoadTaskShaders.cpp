@@ -201,6 +201,10 @@ void LoadTaskShaders::load() {
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/Simplex.vert"),
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/Simplex.frag")
         )->rpc, false);
+    m_glrpc->invoke(&createProgram("NormalMapGen",
+        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag")
+        )->rpc, false);
 
     // Create all shaders until finished
     for (size_t i = 0; i < m_numGenerators; i++) {

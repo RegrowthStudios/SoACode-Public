@@ -57,7 +57,8 @@ const f32v3 CubeCoordinateMults[6] = {
 
 class SphericalTerrainGenerator {
 public:
-    SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram);
+    SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram,
+                              vg::GLProgram* normalProgram);
     ~SphericalTerrainGenerator();
 
     // Do this on the openGL thread
@@ -82,6 +83,8 @@ private:
     vcore::RPCManager m_rpcManager;
 
     vg::GLProgram* m_genProgram;
+    vg::GLProgram* m_normalProgram;
+
     VGUniform unCornerPos;
     VGUniform unCoordMapping ;
     VGUniform unPatchWidth;

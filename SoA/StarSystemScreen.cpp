@@ -70,7 +70,7 @@ static const ui8 grad3[12][3] = {
 void StarSystemScreen::onEntry(const GameTime& gameTime) {
 
     mouseButtons[0] = false;
-    mouseButtons[0] = false;
+    mouseButtons[1] = false;
 
     // Init the camera
     m_camera.init(_app->getWindow().getAspectRatio());
@@ -103,13 +103,11 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera, glProgramManager->getProgram("BasicColor"), glProgramManager->getProgram("SphericalTerrain"));
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, &m_camera);
 
-
     vui::InputDispatcher::mouse.onMotion.addFunctor(([=](void* s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); }));
     vui::InputDispatcher::mouse.onButtonDown.addFunctor(([=](void* s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); }));
     vui::InputDispatcher::mouse.onButtonUp.addFunctor(([=](void* s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); }));
     vui::InputDispatcher::mouse.onWheel.addFunctor(([=](void* s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); }));
     vui::InputDispatcher::key.onKeyDown.addFunctor(([=](void* s, const vui::KeyEvent& e) { onKeyDown(s, e); }));
-
 }
 
 void StarSystemScreen::onExit(const GameTime& gameTime) {
