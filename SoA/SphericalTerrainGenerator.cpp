@@ -21,8 +21,13 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram
     m_normalProgram(normalProgram),
     unCornerPos(m_genProgram->getUniform("unCornerPos")),
     unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
-    unPatchWidth(m_genProgram->getUniform("unPatchWidth")) {
-    m_textures.init(ui32v2(PATCH_WIDTH));
+    unPatchWidth(m_genProgram->getUniform("unPatchWidth")),
+    unHeightMap(m_normalProgram->getUniform("unHeightMap")),
+    unWidth(m_normalProgram->getUniform("unWidth")) {
+
+    for (int i = 0; i < PATCHES_PER_FRAME; i++) {
+        m_textures[i].init(ui32v2(PATCH_WIDTH));
+    }
     m_quad.init();
 
 
@@ -33,25 +38,56 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
 }
 
 void SphericalTerrainGenerator::update() {
+
+    m_patchCounter = 0;
+
+    // Heightmap Generation
     m_genProgram->use();
     m_genProgram->enableVertexAttribArrays();
-    m_textures.use();
     glDisable(GL_DEPTH_TEST);
 
     glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+    m_rpcManager.processRequests(PATCHES_PER_FRAME);
 
-    #define MAX_REQUESTS 16UL
-    m_rpcManager.processRequests(MAX_REQUESTS);
+    m_genProgram->disableVertexAttribArrays();
+    m_genProgram->unuse();
+
+    if (m_patchCounter) {
+        // Normal map generation
+        m_normalProgram->enableVertexAttribArrays();
+        m_normalProgram->use();
+
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(unHeightMap, 0);
+
+        glFlush();
+        glFinish();
+        // Loop through all textures
+        for (int i = 0; i < m_patchCounter; i++) {
+            auto& data = m_delegates[i];
+            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().height);
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data->heightData);
+
+            glUniform1f(unWidth, data->width / PATCH_NM_WIDTH);
+
+            // Generate normal map
+
+            buildMesh(data);
+        }
+
+        m_normalProgram->disableVertexAttribArrays();
+        m_normalProgram->unuse();
+    }
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
-    m_textures.unuse();
-    m_genProgram->disableVertexAttribArrays();
-    m_genProgram->unuse();
+  
 }
 
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
   
+    m_textures[m_patchCounter].use();
+
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &data->startPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
@@ -59,12 +95,9 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 
     m_quad.draw();
 
-    glFlush();
-    glFinish();
-    glBindTexture(GL_TEXTURE_2D, m_textures.getTextureIDs().height);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data->heightData);
+    TerrainGenTextures::unuse();
 
-    buildMesh(data);
+    m_patchCounter++;
 }
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {

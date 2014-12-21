@@ -70,15 +70,20 @@ public:
         m_rpcManager.invoke(so, false);
     }
 private:
+
     /// Generates mesh using heightmap
     void buildMesh(TerrainGenDelegate* data);
 
     /// TODO: THIS IS REUSABLE
     void generateIndices(TerrainGenDelegate* data);
 
+    static const int PATCHES_PER_FRAME = 16;
+
     float m_radius;
 
-    TerrainGenTextures m_textures;
+    int m_patchCounter;
+    TerrainGenTextures m_textures[PATCHES_PER_FRAME];
+    TerrainGenDelegate* m_delegates[PATCHES_PER_FRAME];
 
     vcore::RPCManager m_rpcManager;
 
@@ -86,8 +91,10 @@ private:
     vg::GLProgram* m_normalProgram;
 
     VGUniform unCornerPos;
-    VGUniform unCoordMapping ;
+    VGUniform unCoordMapping;
     VGUniform unPatchWidth;
+    VGUniform unHeightMap;
+    VGUniform unWidth;
 
     vg::FullQuadVBO m_quad;
 
