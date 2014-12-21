@@ -69,7 +69,7 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     // Get debug face color
-    const ColorRGB8 tcolor = DebugColors[1];
+    const ColorRGB8 tcolor = DebugColors[2];
 
     // Grab mappings so we can rotate the 2D grid appropriately
     const i32v3& coordMapping = data->coordMapping;
@@ -98,7 +98,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                 mesh->worldPosition = v.position;
             }
 
-            v.color.r = glm::clamp((data->heightData[z][x] - (-100.0f)) / 1100.0f * 500, 0.0f, 255.0f);
+            v.color.r = glm::clamp((data->heightData[z][x] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
             v.color.g = tcolor.g;
             v.color.b = tcolor.b;
             index++;
