@@ -27,7 +27,7 @@ public:
     /// @param cameraPos: Position of the camera
     /// @param VP: View-Projection matrix
     /// @param program: Shader program for rendering
-    void draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program);
+    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program);
 
     void addMesh(SphericalTerrainMesh* mesh);
 

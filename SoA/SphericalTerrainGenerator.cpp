@@ -176,6 +176,11 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
         }
     }
 
+    // Compute tangent
+    const f32v3& v0 = verts[index - PATCH_SIZE / 2].position;
+    const f32v3& v1 = verts[index - PATCH_SIZE / 2 + 1].position;
+    mesh->tangent = glm::normalize(v1 - v0);
+   
     // If the buffers haven't been generated, generate them
     if (mesh->m_vbo == 0) {
         //     glGenVertexArrays(1, &m_vao);

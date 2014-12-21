@@ -108,7 +108,7 @@ void SphericalTerrainComponent::draw(const Camera* camera,
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
     // Draw patches
-    m_meshManager->draw(relativeCameraPos, VP, terrainProgram);
+    m_meshManager->draw(relativeCameraPos, camera->getViewMatrix(), VP, terrainProgram);
 }
 
 void SphericalTerrainComponent::initPatches() {

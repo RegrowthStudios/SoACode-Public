@@ -26,13 +26,18 @@ SphericalTerrainMesh::~SphericalTerrainMesh() {
     }
 }
 
-void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program) {
+void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program) {
     // Set up matrix
-    f32m4 matrix(1.0);
-    setMatrixTranslation(matrix, -cameraPos);
-    matrix = VP * matrix;
+    f32m4 W(1.0);
+    setMatrixTranslation(W, -cameraPos);
+    f32m3 WV3x3 = glm::mat3(V * W);
 
-    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &matrix[0][0]);
+    f32m4 WVP = VP * W;
+
+
+    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
+    glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
+    glUniform3fv(program->getUniform("unTangent"), 1, &tangent[0]);
 
     glBindTexture(GL_TEXTURE_2D, normalMap);
 

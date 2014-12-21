@@ -59,12 +59,13 @@ public:
     /// @param cameraPos: Position of the camera
     /// @param VP: View-Projection matrix
     /// @param program: Shader program for rendering
-    void draw(const f64v3& cameraPos, const f32m4& VP, vg::GLProgram* program);
+    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program);
    
 
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
     VGIndexBuffer m_ibo = 0; ///< Index buffer object
+    f32v3 tangent = f32v3(0.0);
 
     f64v3 worldPosition = f64v3(0.0);
 
