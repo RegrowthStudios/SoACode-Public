@@ -27,8 +27,10 @@ class MeshManager;
 class TerrainRpcDispatcher;
 class TerrainGenDelegate;
 
-#define PATCH_WIDTH 2
-#define PATCH_NM_WIDTH 65
+const int PIXELS_PER_PATCH_NM = 8;
+const int PATCH_WIDTH = 9;
+const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH;
+const int PATCH_NM_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM + 1;
 
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {

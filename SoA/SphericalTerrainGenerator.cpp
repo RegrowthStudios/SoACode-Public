@@ -98,12 +98,10 @@ void SphericalTerrainGenerator::update() {
 
             // Generate normal map
             m_quad.draw();
-            glFlush();
-            glFinish();
 
-
-
+            // And finally build the mesh
             buildMesh(data);
+            data->inUse = false;
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -120,6 +118,7 @@ void SphericalTerrainGenerator::update() {
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
   
     m_textures[m_patchCounter].use();
+    m_delegates[m_patchCounter] = data;
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &data->startPos[0]);
@@ -146,7 +145,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
   
     // TODO(Ben): Stack array instead?
     // Preallocate the verts for speed
-    std::vector <TerrainVertex> verts(PATCH_WIDTH * PATCH_WIDTH);
+    std::vector <TerrainVertex> verts(PATCH_SIZE);
 
     // Loop through and set all vertex attributes
     float vertWidth = width / (PATCH_WIDTH - 1);
@@ -160,12 +159,12 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.position[coordMapping.z] = z * vertWidth + startPos.z;
 
             // Spherify it!
-            v.position = glm::normalize(v.position) * (m_radius + data->heightData[z][x]);
+            v.position = glm::normalize(v.position) * (m_radius + data->heightData[z * PATCH_NM_WIDTH][x * PIXELS_PER_PATCH_NM]);
             if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
                 mesh->worldPosition = v.position;
             }
 
-            v.color.r = glm::clamp((data->heightData[z][x] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
+            v.color.r = glm::clamp((data->heightData[z * PATCH_NM_WIDTH][x * PIXELS_PER_PATCH_NM] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
             v.color.g = tcolor.g;
             v.color.b = tcolor.b;
             index++;
