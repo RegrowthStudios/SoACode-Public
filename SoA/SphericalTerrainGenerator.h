@@ -87,7 +87,7 @@ private:
     TerrainGenDelegate* m_delegates[PATCHES_PER_FRAME];
 
     VGFramebuffer m_normalFbo = 0;
-    ui32v2 m_normalMapDims;
+    ui32v2 m_heightMapDims;
 
     vcore::RPCManager m_rpcManager;
 
@@ -99,10 +99,11 @@ private:
     VGUniform unPatchWidth;
     VGUniform unHeightMap;
     VGUniform unWidth;
+    VGUniform unTexelWidth;
 
     vg::FullQuadVBO m_quad;
 
-    float m_heightData[PATCH_NM_WIDTH][PATCH_NM_WIDTH];
+    float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
 };
 
 #endif // SphericalTerrainGenerator_h__

@@ -169,9 +169,10 @@ void SphericalTerrainPatch::requestMesh() {
     // Try to generate a mesh
     const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
     const i32v3& mappings = CubeCoordinateMappings[(int)m_cubeFace];
-    f32v3 startPos(m_gridPosition.x * mults.x,
+
+    f32v3 startPos(m_gridPosition.x * mults.x - (1.0f / PATCH_HEIGHTMAP_WIDTH) * m_width,
                    m_sphericalTerrainData->getRadius() * mults.y,
-                   m_gridPosition.y* mults.z);
+                   m_gridPosition.y* mults.z - (1.0f / PATCH_HEIGHTMAP_WIDTH) * m_width);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               mappings,
                                               m_width,

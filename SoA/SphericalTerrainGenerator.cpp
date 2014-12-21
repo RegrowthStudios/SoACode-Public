@@ -23,11 +23,12 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram
     unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
     unPatchWidth(m_genProgram->getUniform("unPatchWidth")),
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
-    unWidth(m_normalProgram->getUniform("unWidth")) {
+    unWidth(m_normalProgram->getUniform("unWidth")),
+    unTexelWidth(m_normalProgram->getUniform("unTexelWidth")) {
 
-    m_normalMapDims = ui32v2(PATCH_NM_WIDTH);
+    m_heightMapDims = ui32v2(PATCH_HEIGHTMAP_WIDTH);
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        m_textures[i].init(m_normalMapDims);
+        m_textures[i].init(m_heightMapDims);
     }
     m_quad.init();
 
@@ -71,7 +72,7 @@ void SphericalTerrainGenerator::update() {
         glUniform1i(unHeightMap, 0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_normalFbo);
-        glViewport(0, 0, m_normalMapDims.x, m_normalMapDims.y);
+        glViewport(0, 0, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH);
 
         glFlush();
         glFinish();
@@ -83,7 +84,7 @@ void SphericalTerrainGenerator::update() {
             if (data->mesh->normalMap == 0) {
                 glGenTextures(1, &data->mesh->normalMap);
                 glBindTexture(GL_TEXTURE_2D, data->mesh->normalMap);
-                glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)NORMALGEN_INTERNAL_FORMAT, m_normalMapDims.x, m_normalMapDims.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)NORMALGEN_INTERNAL_FORMAT, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
                 SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
             } else {
                 glBindTexture(GL_TEXTURE_2D, data->mesh->normalMap);
@@ -95,7 +96,8 @@ void SphericalTerrainGenerator::update() {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().height);
             glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, m_heightData);
-            glUniform1f(unWidth, data->width / PATCH_NM_WIDTH);
+            glUniform1f(unWidth, data->width / PATCH_HEIGHTMAP_WIDTH);
+            glUniform1f(unTexelWidth, (float)PATCH_HEIGHTMAP_WIDTH);
 
             // Generate normal map
             m_quad.draw();
@@ -164,12 +166,12 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.texCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
 
             // Spherify it!
-            v.position = glm::normalize(v.position) * (m_radius + m_heightData[z * PIXELS_PER_PATCH_NM][x * PIXELS_PER_PATCH_NM]);
+            v.position = glm::normalize(v.position) * (m_radius + m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1]);
             if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
                 mesh->worldPosition = v.position;
             }
 
-            v.color.r = glm::clamp((m_heightData[z * PIXELS_PER_PATCH_NM][x * PIXELS_PER_PATCH_NM] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
+            v.color.r = glm::clamp((m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
             v.color.g = tcolor.g;
             v.color.b = tcolor.b;
             index++;

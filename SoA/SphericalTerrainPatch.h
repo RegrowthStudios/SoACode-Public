@@ -30,7 +30,8 @@ class TerrainGenDelegate;
 const int PIXELS_PER_PATCH_NM = 8;
 const int PATCH_WIDTH = 33;
 const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH;
-const int PATCH_NM_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM + 1;
+const int PATCH_NORMALMAP_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM;
+const int PATCH_HEIGHTMAP_WIDTH = PATCH_NORMALMAP_WIDTH + 2; // + 2 for padding
 
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {
