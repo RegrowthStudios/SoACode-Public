@@ -32,11 +32,14 @@
 #define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 
+class App;
 class Binary;
 class Camera;
 class GasGiantKegProperties;
 class PlanetKegProperties;
 class PlanetLoader;
+class SpriteBatch;
+class SpriteFont;
 class StarKegProperties;
 class SystemBodyKegProperties;
 
@@ -60,7 +63,7 @@ public:
 
 class SpaceSystem : public vcore::ECS {
 public:
-    SpaceSystem();
+    SpaceSystem(App* parent);
     ~SpaceSystem();
 
     void init(vg::GLProgramManager* programManager);
@@ -134,6 +137,8 @@ protected:
     void setOrbitProperties(vcore::ComponentID cmp, 
                             const SystemBodyKegProperties* sysProps);
 
+    void drawHud();
+
     vcore::ComponentID targetComponent = 1; ///< Current namePositionComponent we are focusing on
 
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
@@ -152,6 +157,12 @@ protected:
 
     std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies
+
+    SpriteBatch* m_spriteBatch = nullptr;
+    SpriteFont* m_spriteFont = nullptr;
+
+    // Temporary?
+    App* m_app;
 
     nString m_dirPath; ///< Path to the main directory
     nString m_systemDescription; ///< textual description of the system

@@ -67,7 +67,7 @@ void App::onInit() {
 
     // Allocate resources
     meshManager = new MeshManager;
-    spaceSystem = new SpaceSystem;
+    spaceSystem = new SpaceSystem(this);
     spaceSystem->init(GameManager::glProgramManager);
 }
 

@@ -1,15 +1,20 @@
 #include "stdafx.h"
 
+#include "App.h"
 #include "Camera.h"
 #include "DebugRenderer.h"
+#include "DepthState.h"
 #include "IOManager.h"
 #include "Keg.h"
+#include "PlanetLoader.h"
 #include "PlanetLoader.h"
 #include "RenderUtils.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainMeshManager.h"
-#include "PlanetLoader.h"
+#include "SpriteBatch.h"
+#include "SpriteFont.h"
+#include "colors.h"
 #include "utils.h"
 
 #include <glm\gtc\type_ptr.hpp>
@@ -124,18 +129,20 @@ KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, angularSpeed);
 KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, STRING, displayName);
 KEG_TYPE_INIT_END
 
-SpaceSystem::SpaceSystem() : vcore::ECS() {
+SpaceSystem::SpaceSystem(App* parent) : vcore::ECS() {
     // Add in component tables
     addComponentTable(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, &m_namePositionCT);
     addComponentTable(SPACE_SYSTEM_CT_AXISROTATION_NAME, &m_axisRotationCT);
     addComponentTable(SPACE_SYSTEM_CT_ORBIT_NAME, &m_orbitCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
 
+    m_app = parent;
     m_planetLoader = new PlanetLoader(&m_ioManager);
 }
 
 SpaceSystem::~SpaceSystem() {
-    // Empty 
+    delete m_spriteBatch;
+    delete m_spriteFont;
 }
 
 void SpaceSystem::init(vg::GLProgramManager* programManager) {
@@ -206,6 +213,9 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     terrainProgram->unuse();
 
     m_mutex.unlock();
+
+    drawHud();
+    DepthState::FULL.set();
 }
 
 void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
@@ -502,4 +512,34 @@ void SpaceSystem::setOrbitProperties(vcore::ComponentID cmp, const SystemBodyKeg
     } else if (right != sysProps->orbitNormal) {
         orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
     }
+}
+
+void SpaceSystem::drawHud() {
+    // Lazily load spritebatch
+    if (!m_spriteBatch) {
+        m_spriteBatch = new SpriteBatch(true, true);
+        m_spriteFont = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
+    }
+
+    // Reset the yOffset
+    float yOffset = 0.0f;
+    float fontHeight = m_spriteFont->getFontHeight();
+
+    m_spriteBatch->begin();
+
+    m_spriteBatch->drawString(m_spriteFont,
+                             ("Name: " + getTargetName()).c_str(),
+                             f32v2(0.0f, yOffset),
+                             f32v2(1.0f),
+                             color::White);
+    yOffset += fontHeight;
+    m_spriteBatch->drawString(m_spriteFont,
+                              ("Radius: " + std::to_string(getTargetRadius()) + " KM").c_str(),
+                              f32v2(0.0f, yOffset),
+                              f32v2(1.0f),
+                              color::White);
+    yOffset += fontHeight;
+
+    m_spriteBatch->end();
+    m_spriteBatch->renderBatch(f32v2(m_app->getWindow().getViewportDims()));
 }
