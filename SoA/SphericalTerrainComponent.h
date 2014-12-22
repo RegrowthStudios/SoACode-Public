@@ -36,7 +36,6 @@ public:
     f32v3 startPos;
     i32v3 coordMapping;
     float width;
-    float paddedWidth;
     CubeFace cubeFace;
 
     SphericalTerrainMesh* mesh = nullptr;

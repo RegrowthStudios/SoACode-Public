@@ -37,7 +37,6 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
-    glUniform3fv(program->getUniform("unTangent"), 1, &tangent[0]);
 
     glBindTexture(GL_TEXTURE_2D, normalMap);
 
@@ -45,10 +44,13 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, position));
-    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, tangent));
+    glVertexAttribPointer(2, 3, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, color));
-    glVertexAttribPointer(2, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+    glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, texCoords));
 

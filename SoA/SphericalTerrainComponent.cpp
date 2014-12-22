@@ -58,7 +58,6 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         gen.coordMapping = coordMapping;
         gen.mesh = mesh;
         gen.width = width;
-        gen.paddedWidth = width + (2.0f / PATCH_HEIGHTMAP_WIDTH) * width;
         gen.cubeFace = cubeFace;
         // Invoke generator
         m_generator->invokeTerrainGen(&gen.rpc);

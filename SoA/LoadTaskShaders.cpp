@@ -103,6 +103,7 @@ void LoadTaskShaders::load() {
     // Attributes for spherical terrain
     std::vector<nString> sphericalAttribs;
     sphericalAttribs.push_back("vPosition");
+    sphericalAttribs.push_back("vTangent");
     sphericalAttribs.push_back("vColor");
     sphericalAttribs.push_back("vUV");
 
@@ -211,6 +212,10 @@ void LoadTaskShaders::load() {
     for (size_t i = 0; i < m_numGenerators; i++) {
         ProgramGenDelegate& del = m_generators[i];
 
+        if (m_synchronous) {
+           m_glrpc->processRequests(9999999);
+        }
+
         // Wait until RPC has finished
         del.rpc.block();
 
@@ -220,6 +225,9 @@ void LoadTaskShaders::load() {
             i--;
             showMessage(del.errorMessage + " Check command output for more detail. Will attempt to reload.");
             m_glrpc->invoke(&del.rpc, false);
+            if (m_synchronous) {
+                m_glrpc->processRequests(9999999);
+            }
         }
     }
     

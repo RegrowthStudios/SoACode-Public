@@ -73,10 +73,11 @@ public:
 class TerrainVertex {
 public:
     f32v3 position; //12
-    ColorRGB8 color; //15
-    ui8 padding; //16
-    ui8v2 texCoords; //18
-    ui8 padding2[2]; //20
+    f32v3 tangent; //24
+    ColorRGB8 color; //27
+    ui8 padding; //28
+    ui8v2 texCoords; //30
+    ui8 padding2[2]; //32
 };
 
 class PhysicsBlockVertex {

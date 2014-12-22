@@ -138,13 +138,15 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     // Get debug face color
-    const ColorRGB8 tcolor = DebugColors[2];
+    const ColorRGB8 tcolor = DebugColors[(int)data->cubeFace];
 
     // Grab mappings so we can rotate the 2D grid appropriately
     const i32v3& coordMapping = data->coordMapping;
     const f32v3& startPos = data->startPos;
     SphericalTerrainMesh* mesh = data->mesh;
     float width = data->width;
+    float h;
+    f32v3 tmpPos;
   
     // TODO(Ben): Stack array instead?
     // Preallocate the verts for speed
@@ -161,27 +163,50 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.position[coordMapping.y] = startPos.y;
             v.position[coordMapping.z] = z * vertWidth + startPos.z;
 
+            // Get Height 
+            h = m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1];
+
             // Set texture coordinates
             v.texCoords.x = (ui8)(((float)x / (float)PATCH_WIDTH) * 255.0f);
             v.texCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
 
             // Spherify it!
-            v.position = glm::normalize(v.position) * (m_radius + m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1]);
-            if (x == PATCH_WIDTH / 2 && z == PATCH_WIDTH / 2) {
-                mesh->worldPosition = v.position;
+            v.position = glm::normalize(v.position) * (m_radius + h);
+          
+            // Compute tangent
+            if (1 || data->cubeFace == CubeFace::RIGHT || data->cubeFace == CubeFace::LEFT) {
+             
+                    tmpPos[coordMapping.x] = (x + 1) * vertWidth + startPos.x;
+                    tmpPos[coordMapping.y] = startPos.y;
+                    tmpPos[coordMapping.z] = (z + 0) * vertWidth + startPos.z;
+                    tmpPos = glm::normalize(tmpPos) * (m_radius + h);
+                    v.tangent = glm::normalize(tmpPos - v.position);
+
+              
+            } else {
+                if (1 || x == 0) {
+                    tmpPos[coordMapping.x] = (x + 1) * vertWidth + startPos.x;
+                    tmpPos[coordMapping.y] = startPos.y;
+                    tmpPos[coordMapping.z] = (z + 0) * vertWidth + startPos.z;
+                    tmpPos = glm::normalize(tmpPos) * (m_radius + h);
+                    v.tangent = glm::normalize(tmpPos - v.position);
+                } else {
+                    const f32v3& npos = verts[index - 1].position;
+                    v.tangent = glm::normalize(v.position - npos);
+                }
+
             }
 
-            v.color.r = glm::clamp((m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1] - (-300.0f)) / 700.0f * 255.0f, 0.0f, 255.0f);
+            
+
+            v.color.r = tcolor.r;
             v.color.g = tcolor.g;
             v.color.b = tcolor.b;
             index++;
         }
     }
 
-    // Compute tangent
-    const f32v3& v0 = verts[index - PATCH_SIZE / 2].position;
-    const f32v3& v1 = verts[index - PATCH_SIZE / 2 + 1].position;
-    mesh->tangent = glm::normalize(v1 - v0);
+    mesh->worldPosition = verts[index - PATCH_SIZE / 2].position;
    
     // If the buffers haven't been generated, generate them
     if (mesh->m_vbo == 0) {

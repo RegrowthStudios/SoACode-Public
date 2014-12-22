@@ -76,9 +76,10 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     m_camera.init(_app->getWindow().getAspectRatio());
     m_camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
     m_camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
+    m_camera.setRight(f32v3(1.0, 0.0, 0.0));
     m_camera.setUp(glm::cross(m_camera.getRight(), m_camera.getDirection()));
     m_camera.setClippingPlane(10000.0f, 3000000000000.0f);
-    m_camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(-1.0f, 0.0f, 0.0f), 200000.0);
+    m_camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(1.0f, 0.0f, 0.0f), 200000.0);
 
     vg::GLProgramManager* glProgramManager = GameManager::glProgramManager;
 
@@ -226,11 +227,14 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             GameManager::glProgramManager->destroy();
             vcore::RPCManager m_glrpc;
 
-            LoadTaskShaders shaderTask(&m_glrpc);
+            LoadTaskShaders shaderTask(&m_glrpc, true);
 
             shaderTask.load();
 
-            m_glrpc.processRequests(999999);
+            delete _app->spaceSystem;
+            const_cast<App*>(_app)->spaceSystem = new SpaceSystem(const_cast<App*>(_app));
+            const_cast<App*>(_app)->spaceSystem->init(GameManager::glProgramManager);
+            const_cast<App*>(_app)->spaceSystem->addSolarSystem("StarSystems/Trinity");
             _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
             _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
             if (graphicsOptions.msaa > 0) {
