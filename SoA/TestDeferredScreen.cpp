@@ -5,49 +5,13 @@
 #include <DepthState.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLRenderTarget.h>
+#include <ImageLoader.h>
+#include <InputDispatcher.h>
 #include <IOManager.h>
 #include <RasterizerState.h>
 
-#pragma region Simple shader code
-const cString DEFERRED_SRC_CLEAR_VERT = R"(
-in vec4 vPosition;
-
-void main() {
-    gl_Position = vPosition;
-    gl_Position.z = 1.0;
-}
-)";
-const cString DEFERRED_SRC_CLEAR_FRAG = R"(
-out vec4 pColor[3];
-
-void main() {
-    pColor[0] = vec4(0.0, 0.0, 0.0, 0.0);
-    pColor[1] = vec4(0.5, 0.5, 0.5, 0.0);
-    pColor[2] = vec4(1.0, 1.0, 1.0, 1.0);
-}
-)";
-const cString DEFERRED_SRC_VERT = R"(
-uniform mat4 unWVP;
-
-in vec4 vPosition;
-
-void main() {
-    gl_Position = unWVP * vPosition;
-}
-)";
-const cString DEFERRED_SRC_FRAG = R"(
-out vec4 pColor[3];
-
-void main() {
-    pColor[0] = vec4(1, 0, 0, 1);
-    pColor[1] = vec4(0, 1, 0, 1);
-    pColor[2] = vec4(0, 0, 1, 1);
-}
-)";
-#pragma endregion
-
 // Number cells per row/column in a single grid
-const ui32 CELLS = 10;
+const ui32 CELLS = 20;
 
 DepthState dsLightPoint(true, DepthFunction::GREATER_EQUAL, false);
 DepthState dsLightDirectional(true, DepthFunction::NOT_EQUAL, false);
@@ -79,6 +43,7 @@ void TestDeferredScreen::destroy(const GameTime& gameTime) {
 
 void TestDeferredScreen::onEntry(const GameTime& gameTime) {
     buildGeometry();
+    buildLightMaps();
 
     m_gbuffer = vg::GBuffer(_game->getWindow().getWidth(), _game->getWindow().getHeight());
     m_gbuffer.init().initDepthStencil();
@@ -133,14 +98,34 @@ void TestDeferredScreen::onEntry(const GameTime& gameTime) {
         src = iom.readFileToString("Shaders/Deferred/LightDirectional.vert");
         p.addShader(vg::ShaderType::VERTEX_SHADER, src);
         delete[] src;
-        src = iom.readFileToString("Shaders/Deferred/LightDirectional.frag");
-        p.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
-        delete[] src;
+        vg::ShaderSource srcFrag;
+        srcFrag.stage = vg::ShaderType::FRAGMENT_SHADER;
+        srcFrag.sources.push_back(iom.readFileToString("Shaders/Deferred/LightModels.glsl"));
+        srcFrag.sources.push_back(iom.readFileToString("Shaders/Deferred/LightDirectional.frag"));
+        p.addShader(srcFrag);
+        delete[] srcFrag.sources[0];
+        delete[] srcFrag.sources[1];
         p.link();
         p.initAttributes();
         p.initUniforms();
     }
     m_quad.init(0);
+
+    m_hooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [&] (void* s, const vui::KeyEvent& e) {
+        switch (e.keyCode) {
+        case VKEY_I: if(m_roughness < 0.96) m_roughness += 0.05f; break;
+        case VKEY_J: if (m_roughness > 0.04) m_roughness -= 0.05f; break;
+        case VKEY_O: if (m_reflectance < 0.91) m_reflectance += 0.1f; break;
+        case VKEY_K: if (m_reflectance > 0.09) m_reflectance -= 0.1f; break;
+        case VKEY_P: if (m_metalness < 0.5) m_metalness = 1; break;
+        case VKEY_L: if (m_metalness > 0.5) m_metalness = 0; break;
+        default:
+            break;
+        }
+    });
+    m_reflectance = 0.0f;
+    m_roughness = 1.0f;
+    m_metalness = 1.0f;
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
@@ -171,8 +156,9 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     DepthState::WRITE.set();
     m_deferredPrograms.clear.use();
     m_quad.draw();
-
-    f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, 4), f32v3(0, 0, 0), f32v3(0, 1, 0));
+    
+    f32v3 eyePos(0, 0, 4);
+    f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(eyePos, f32v3(0, 0, 0), f32v3(0, 1, 0));
     f32m4 mVPInv = glm::inverse(mVP);
 
     DepthState::FULL.set();
@@ -191,13 +177,13 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_inds);
 
-    f32m4 mW = glm::translate(f32m4(1.0f), f32v3(-1.3f, 0, 0));
+    f32m4 mW = glm::translate(f32m4(1.0f), f32v3(-1.3f, -1, 0));
     f32m3 mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
-    mW = glm::translate(f32m4(1.0f), f32v3(1.3f, 0, 0));
+    mW = glm::translate(f32m4(1.0f), f32v3(1.3f, 1, 0));
     mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
@@ -229,29 +215,40 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().normal);
         glUniform1i(progLight.getUniform("unTexNormal"), 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().depth);
+        glUniform1i(progLight.getUniform("unTexDepth"), 1);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_envMap);
+        glUniform1i(progLight.getUniform("unTexEnvironment"), 2);
+        glUniformMatrix4fv(progLight.getUniform("unVPInv"), 1, false, (f32*)&mVPInv[0][0]);
+        glUniform3f(progLight.getUniform("unEyePosition"), eyePos.x, eyePos.y, eyePos.z);
+        glUniform1f(progLight.getUniform("unRoughness"), m_roughness);
+        glUniform1f(progLight.getUniform("unReflectance"), m_reflectance * 0.96f + 0.04f);
+        glUniform1f(progLight.getUniform("unMetalness"), m_metalness);
 
-        const size_t NUM_LIGHTS = 5;
-        f32v3 lightDirs[NUM_LIGHTS] = {
-            f32v3(0, -2, -1),
-            f32v3(2, -1, 0),
-            f32v3(-1, 1, -1),
-            f32v3(-4, -3, 0),
-            f32v3(6, 3, 2)
-        };
-        f32v3 lightColors[NUM_LIGHTS] = {
-            f32v3(0.6, 0.6, 0.3),
-            f32v3(1.0, 0.0, 0.0),
-            f32v3(0.0, 1.0, 0.0),
-            f32v3(0.0, 1.0, 1.0),
-            f32v3(1.0, 0.0, 1.0)
-        };
-        for (size_t i = 0; i < NUM_LIGHTS; i++) {
-            f32v3 lightDir = glm::normalize(lightDirs[i]);
-            glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
-            f32v3 lightColor = lightColors[i];
-            glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
-            m_quad.draw();
-        }
+        //const size_t NUM_LIGHTS = 3;
+        //f32v3 lightDirs[NUM_LIGHTS] = {
+        //    f32v3(0, 0, -1),
+        //    f32v3(2, -1, 0),
+        //    f32v3(-1, 1, -1)
+        //    //f32v3(-4, -3, 0),
+        //    //f32v3(6, 3, 2)
+        //};
+        //f32v3 lightColors[NUM_LIGHTS] = {
+        //    f32v3(0.6, 0.6, 0.3),
+        //    f32v3(1.0, 0.0, 0.0),
+        //    f32v3(0.0, 1.0, 0.0)
+        //    //f32v3(0.0, 1.0, 1.0),
+        //    //f32v3(1.0, 0.0, 1.0)
+        //};
+        //for (size_t i = 0; i < NUM_LIGHTS; i++) {
+        //    f32v3 lightDir = glm::normalize(lightDirs[i]);
+        //    glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
+        //    f32v3 lightColor = lightColors[i];
+        //    glUniform3f(progLight.getUniform("unLightIntensity"), lightColor.x, lightColor.y, lightColor.z);
+        //}
+        m_quad.draw();
     }
     {
         dsLightPoint.set();
@@ -395,4 +392,41 @@ void TestDeferredScreen::buildGeometry() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexCount * sizeof(ui32), inds, GL_STATIC_DRAW);
     delete[] inds;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+void TestDeferredScreen::buildLightMaps() {
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glGenTextures(1, &m_envMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_envMap);
+
+    std::vector<ui8> pixels;
+    ui32v2 size;
+    
+    vg::ImageLoader::loadPng("Textures/Test/nx.png", pixels, size.x, size.y, false);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    pixels.swap(std::vector<ui8>());
+    vg::ImageLoader::loadPng("Textures/Test/px.png", pixels, size.x, size.y, false);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    pixels.swap(std::vector<ui8>());
+    vg::ImageLoader::loadPng("Textures/Test/ny.png", pixels, size.x, size.y, false);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    pixels.swap(std::vector<ui8>());
+    vg::ImageLoader::loadPng("Textures/Test/py.png", pixels, size.x, size.y, false);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    pixels.swap(std::vector<ui8>());
+    vg::ImageLoader::loadPng("Textures/Test/nz.png", pixels, size.x, size.y, false);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    pixels.swap(std::vector<ui8>());
+    vg::ImageLoader::loadPng("Textures/Test/pz.png", pixels, size.x, size.y, false);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    pixels.swap(std::vector<ui8>());
+
+    SamplerState ss(
+        (VGEnum)vg::TextureMinFilter::LINEAR_MIPMAP_LINEAR,
+        (VGEnum)vg::TextureMagFilter::LINEAR,
+        (VGEnum)vg::TextureWrapMode::REPEAT,
+        (VGEnum)vg::TextureWrapMode::REPEAT,
+        (VGEnum)vg::TextureWrapMode::REPEAT
+        );
+    ss.set(GL_TEXTURE_CUBE_MAP);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }

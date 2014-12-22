@@ -16,6 +16,7 @@
 #define TestDeferredScreen_h__
 
 #include <DeferredShaders.h>
+#include <Events.hpp>
 #include <FullQuadVBO.h>
 #include <GBuffer.h>
 #include <GLProgram.h>
@@ -42,6 +43,7 @@ public:
     virtual void draw(const GameTime& gameTime) override;
 private:
     void buildGeometry();
+    void buildLightMaps();
 
     VGVertexBuffer m_verts; ///< Sphere's vertex buffer (of positions)
     VGIndexBuffer m_inds; ///< Sphere's index buffer
@@ -50,6 +52,9 @@ private:
     vg::FullQuadVBO m_quad; ///< Used for GBuffer clearing operations
     vg::GBuffer m_gbuffer; ///< Geometry buffer of deferred rendering
     SpriteBatch m_sb; ///< Debug SpriteBatch
+    AutoDelegatePool m_hooks; ///< Input hooks reservoir
+    VGTexture m_envMap; ///< Environment map
+    f32 m_roughness, m_reflectance, m_metalness; ///< Temp test values
 };
 
 #endif // TestDeferredScreen_h__
