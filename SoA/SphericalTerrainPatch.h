@@ -106,7 +106,7 @@ public:
     bool isRenderable() const;
 
     static const int INDICES_PER_QUAD = 6;
-    static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD;
+    static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 private:
     void requestMesh();
 

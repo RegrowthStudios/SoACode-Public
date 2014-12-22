@@ -149,10 +149,6 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     float h;
     f32v3 tmpPos;
   
-    // TODO(Ben): Stack array instead?
-    // Preallocate the verts for speed
-    std::vector <TerrainVertex> verts(PATCH_SIZE);
-
     // Loop through and set all vertex attributes
     float vertWidth = width / (PATCH_WIDTH - 1);
     int index = 0;
@@ -192,7 +188,14 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
         }
     }
 
+    // TMP: Approximate position with middle
     mesh->worldPosition = verts[index - PATCH_SIZE / 2].position;
+
+    // Construct skirts
+    // Top Skirt
+    for (int i = 0; i < PATCH_WIDTH; i++) {
+
+    }
    
     // If the buffers haven't been generated, generate them
     if (mesh->m_vbo == 0) {
@@ -209,16 +212,14 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     // Upload buffer data
     vg::GpuMemory::bindBuffer(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER,
-                                    verts.size() * sizeof(TerrainVertex),
-                                    verts.data());
+                                    VERTS_SIZE * sizeof(TerrainVertex),
+                                    verts);
 
     // TODO: Using a VAO makes it not work??
     //   glBindVertexArray(0);
 }
 
 void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
-    // Preallocate indices for speed
-    std::vector <ui16> indices(SphericalTerrainPatch::INDICES_PER_PATCH);
     SphericalTerrainMesh* mesh = data->mesh;
     // Loop through each quad and set indices
     int vertIndex;
@@ -277,6 +278,6 @@ void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
     
     vg::GpuMemory::bindBuffer(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
-                                    indices.size() * sizeof(ui16),
-                                    indices.data());
+                                    SphericalTerrainPatch::INDICES_PER_PATCH * sizeof(ui16),
+                                    indices);
 }

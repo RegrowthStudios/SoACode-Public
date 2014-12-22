@@ -80,6 +80,11 @@ private:
 
     static const int PATCHES_PER_FRAME = 16;
 
+    // PATCH_WIDTH * 4 is for skirts
+    static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4;
+    TerrainVertex verts[VERTS_SIZE];
+    ui16 indices[SphericalTerrainPatch::INDICES_PER_PATCH];
+
     float m_radius;
 
     int m_patchCounter;
