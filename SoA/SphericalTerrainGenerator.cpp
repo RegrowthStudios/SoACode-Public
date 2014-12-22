@@ -137,13 +137,14 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
+    SphericalTerrainMesh* mesh = data->mesh;
     // Get debug face color
-    const ColorRGB8 tcolor = DebugColors[(int)data->cubeFace];
+    const ColorRGB8 tcolor = DebugColors[(int)mesh->cubeFace];
 
     // Grab mappings so we can rotate the 2D grid appropriately
     const i32v3& coordMapping = data->coordMapping;
     const f32v3& startPos = data->startPos;
-    SphericalTerrainMesh* mesh = data->mesh;
+    
     float width = data->width;
     float h;
     f32v3 tmpPos;
@@ -218,10 +219,11 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
     // Preallocate indices for speed
     std::vector <ui16> indices(SphericalTerrainPatch::INDICES_PER_PATCH);
+    SphericalTerrainMesh* mesh = data->mesh;
     // Loop through each quad and set indices
     int vertIndex;
     int index = 0;
-    if (CubeWindings[(int)(data->cubeFace)]) {
+    if (CubeWindings[(int)(mesh->cubeFace)]) {
         // CCW
         for (int z = 0; z < PATCH_WIDTH - 1; z++) {
             for (int x = 0; x < PATCH_WIDTH - 1; x++) {
@@ -272,7 +274,7 @@ void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
             }
         }
     }
-    SphericalTerrainMesh* mesh = data->mesh;
+    
     vg::GpuMemory::bindBuffer(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
                                     indices.size() * sizeof(ui16),

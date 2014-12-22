@@ -68,6 +68,7 @@ public:
     VGIndexBuffer m_ibo = 0; ///< Index buffer object
 
     f64v3 worldPosition = f64v3(0.0);
+    CubeFace cubeFace;
 
     VGTexture normalMap = 0;
 

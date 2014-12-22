@@ -11,6 +11,15 @@
 #include "VoxelPlanetMapper.h"
 #include "utils.h"
 
+const f32v3 NormalMults[6] = {
+    f32v3(1.0f, 1.0f, -1.0f), //TOP
+    f32v3(1.0f, 1.0f, -1.0f), //LEFT
+    f32v3(1.0f, 1.0f, 1.0f), //RIGHT
+    f32v3(1.0f, 1.0f, 1.0f), //FRONT
+    f32v3(1.0f, 1.0f, -1.0f), //BACK
+    f32v3(1.0f, 1.0f, 1.0f) //BOTTOM
+};
+
 SphericalTerrainMesh::~SphericalTerrainMesh() {
     if (m_vbo) {
         vg::GpuMemory::freeBuffer(m_vbo);
@@ -34,7 +43,7 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
 
     f32m4 WVP = VP * W;
 
-
+    glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
 
