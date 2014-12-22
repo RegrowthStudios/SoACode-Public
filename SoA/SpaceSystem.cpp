@@ -350,6 +350,8 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
             KEG_CHECK;
         }
 
+        m_bodyLookupMap[body->name] = body->entity->id;
+
         //Only parse the first
         break;
     }

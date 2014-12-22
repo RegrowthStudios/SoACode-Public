@@ -89,6 +89,15 @@ public:
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
 
+    /// Targets a named body
+    /// @param name: Name of the body
+    void targetBody(const nString& name) {
+        auto& it = m_bodyLookupMap.find(name);
+        if (it != m_bodyLookupMap.end()) {
+            targetComponent = it->second;
+        }
+    }
+
     /// Changes target by offset
     /// @param offset: Integer offset by which to change target
     void offsetTarget(int offset) {
@@ -160,6 +169,8 @@ protected:
 
     SpriteBatch* m_spriteBatch = nullptr;
     SpriteFont* m_spriteFont = nullptr;
+
+    std::map<nString, vcore::EntityID> m_bodyLookupMap;
 
     // Temporary?
     App* m_app;

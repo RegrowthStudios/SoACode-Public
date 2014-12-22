@@ -72,6 +72,8 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     mouseButtons[0] = false;
     mouseButtons[1] = false;
 
+    _app->spaceSystem->targetBody("Aldrin");
+
     // Init the camera
     m_camera.init(_app->getWindow().getAspectRatio());
     m_camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
@@ -242,7 +244,7 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             } else {
                 glDisable(GL_MULTISAMPLE);
             }
-
+            _app->spaceSystem->targetBody("Aldrin");
             // Make swap chain
             _swapChain = new vg::RTSwapChain<2>(_viewport.z, _viewport.w);
             _swapChain->init(vg::TextureInternalFormat::RGBA8);
