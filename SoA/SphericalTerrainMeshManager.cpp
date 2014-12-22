@@ -5,7 +5,7 @@
 
 void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program) {
     for (int i = 0; i < m_meshes.size(); i++) {
-        if (m_meshes[i]->shouldDelete) {
+        if (m_meshes[i]->m_shouldDelete) {
             delete m_meshes[i];
             m_meshes[i] = m_meshes.back();
             m_meshes.pop_back();
@@ -18,5 +18,5 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
 
 void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh) {
     m_meshes.push_back(mesh);
-    mesh->isRenderable = true;
+    mesh->m_isRenderable = true;
 }

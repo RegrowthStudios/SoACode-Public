@@ -30,8 +30,8 @@ SphericalTerrainMesh::~SphericalTerrainMesh() {
     if (m_vao) {
         glDeleteVertexArrays(1, &m_vao);
     }
-    if (normalMap) {
-        glDeleteTextures(1, &normalMap);
+    if (m_normalMap) {
+        glDeleteTextures(1, &m_normalMap);
     }
 }
 
@@ -43,11 +43,11 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
 
     f32m4 WVP = VP * W;
 
-    glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)cubeFace][0]);
+    glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
 
-    glBindTexture(GL_TEXTURE_2D, normalMap);
+    glBindTexture(GL_TEXTURE_2D, m_normalMap);
 
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
@@ -99,7 +99,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     // Calculate distance from camera
     if (hasMesh()) {
-        m_worldPosition = m_mesh->worldPosition;
+        m_worldPosition = m_mesh->m_worldPosition;
         m_distance = glm::length(m_worldPosition - cameraPos);
     } else {
         m_distance = glm::length(m_worldPosition - cameraPos);
@@ -130,7 +130,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
             if (deleteMesh) {
                 // Children are renderable, free mesh.
                 // Render thread will deallocate.
-                m_mesh->shouldDelete = true;
+                m_mesh->m_shouldDelete = true;
                 m_mesh = nullptr;
             }
         }
@@ -158,7 +158,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
 
 void SphericalTerrainPatch::destroy() {
     if (m_mesh) {
-        m_mesh->shouldDelete = true;
+        m_mesh->m_shouldDelete = true;
         m_mesh = nullptr;
     }
     delete[] m_children;

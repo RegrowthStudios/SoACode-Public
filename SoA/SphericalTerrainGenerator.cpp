@@ -85,16 +85,16 @@ void SphericalTerrainGenerator::update() {
             TerrainGenDelegate* data = m_delegates[i];
         
             // Create and bind output normal map
-            if (data->mesh->normalMap == 0) {
-                glGenTextures(1, &data->mesh->normalMap);
-                glBindTexture(GL_TEXTURE_2D, data->mesh->normalMap);
+            if (data->mesh->m_normalMap == 0) {
+                glGenTextures(1, &data->mesh->m_normalMap);
+                glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
                 glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)NORMALGEN_INTERNAL_FORMAT, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
                 SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
             } else {
-                glBindTexture(GL_TEXTURE_2D, data->mesh->normalMap);
+                glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
             }
             // Bind texture to fbo
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->normalMap, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
 
             // Bind the heightmap texture
             glActiveTexture(GL_TEXTURE0);
@@ -143,7 +143,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     SphericalTerrainMesh* mesh = data->mesh;
     // Get debug face color
-    const ColorRGB8 tcolor = DebugColors[(int)mesh->cubeFace];
+    const ColorRGB8 tcolor = DebugColors[(int)mesh->m_cubeFace];
 
     // Grab mappings so we can rotate the 2D grid appropriately
     const i32v3& coordMapping = data->coordMapping;
@@ -193,7 +193,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     }
 
     // TMP: Approximate position with middle
-    mesh->worldPosition = verts[m_index - PATCH_SIZE / 2].position;
+    mesh->m_worldPosition = verts[m_index - PATCH_SIZE / 2].position;
 
     buildSkirts();
    
@@ -269,7 +269,7 @@ void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
     int vertIndex;
     int index = 0;
     int skirtIndex = PATCH_SIZE;
-    if (CubeWindings[(int)(mesh->cubeFace)]) {
+    if (CubeWindings[(int)(mesh->m_cubeFace)]) {
         // CCW
         // Main vertices
         for (int z = 0; z < PATCH_WIDTH - 1; z++) {

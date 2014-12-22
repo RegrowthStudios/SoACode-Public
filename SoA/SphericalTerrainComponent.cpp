@@ -52,8 +52,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         // Mark the generator as in use
         gen.inUse = true;
         gen.rpc.data.f = &gen;
-        mesh = new SphericalTerrainMesh;
-        mesh->cubeFace = cubeFace;
+        mesh = new SphericalTerrainMesh(cubeFace);
         // Set the data
         gen.startPos = startPos;
         gen.coordMapping = coordMapping;

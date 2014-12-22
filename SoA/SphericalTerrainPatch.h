@@ -53,7 +53,10 @@ private:
 
 class SphericalTerrainMesh {
 public:
-
+    friend class SphericalTerrainPatch;
+    friend class SphericalTerrainGenerator;
+    friend class SphericalTerrainMeshManager;
+    SphericalTerrainMesh(CubeFace cubeFace) : m_cubeFace(cubeFace) {}
     ~SphericalTerrainMesh();
 
     /// Draws the mesh
@@ -62,18 +65,18 @@ public:
     /// @param program: Shader program for rendering
     void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program);
    
-
+private:
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
     VGIndexBuffer m_ibo = 0; ///< Index buffer object
 
-    f64v3 worldPosition = f64v3(0.0);
-    CubeFace cubeFace;
+    f64v3 m_worldPosition = f64v3(0.0);
+    CubeFace m_cubeFace;
 
-    VGTexture normalMap = 0;
+    VGTexture m_normalMap = 0;
 
-    bool shouldDelete = false; ///< True when the mesh should be deleted
-    bool isRenderable = false; ///< True when there is a complete mesh
+    bool m_shouldDelete = false; ///< True when the mesh should be deleted
+    bool m_isRenderable = false; ///< True when there is a complete mesh
 };
 
 class SphericalTerrainPatch {
@@ -99,7 +102,7 @@ public:
     void destroy();
 
     /// @return true if it has a generated mesh
-    bool hasMesh() const { return (m_mesh && m_mesh->isRenderable); }
+    bool hasMesh() const { return (m_mesh && m_mesh->m_isRenderable); }
 
     /// @return true if it has a mesh, or all of its children are
     /// renderable.
