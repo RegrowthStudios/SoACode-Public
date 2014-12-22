@@ -174,30 +174,15 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.position = glm::normalize(v.position) * (m_radius + h);
           
             // Compute tangent
-            if (1 || data->cubeFace == CubeFace::RIGHT || data->cubeFace == CubeFace::LEFT) {
-             
-                    tmpPos[coordMapping.x] = (x + 1) * vertWidth + startPos.x;
-                    tmpPos[coordMapping.y] = startPos.y;
-                    tmpPos[coordMapping.z] = (z + 0) * vertWidth + startPos.z;
-                    tmpPos = glm::normalize(tmpPos) * (m_radius + h);
-                    v.tangent = glm::normalize(tmpPos - v.position);
+            tmpPos[coordMapping.x] = (x + 1) * vertWidth + startPos.x;
+            tmpPos[coordMapping.y] = startPos.y;
+            tmpPos[coordMapping.z] = (z)* vertWidth + startPos.z;
+            tmpPos = glm::normalize(tmpPos) * (m_radius + h);
+            v.tangent = glm::normalize(tmpPos - v.position);
 
-              
-            } else {
-                if (1 || x == 0) {
-                    tmpPos[coordMapping.x] = (x + 1) * vertWidth + startPos.x;
-                    tmpPos[coordMapping.y] = startPos.y;
-                    tmpPos[coordMapping.z] = (z + 0) * vertWidth + startPos.z;
-                    tmpPos = glm::normalize(tmpPos) * (m_radius + h);
-                    v.tangent = glm::normalize(tmpPos - v.position);
-                } else {
-                    const f32v3& npos = verts[index - 1].position;
-                    v.tangent = glm::normalize(v.position - npos);
-                }
-
-            }
-
-            
+            // Make sure tangent is orthogonal
+            f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
+            v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
             v.color.r = tcolor.r;
             v.color.g = tcolor.g;

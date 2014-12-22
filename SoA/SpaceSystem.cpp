@@ -207,7 +207,7 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     terrainProgram->enableVertexAttribArrays();
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(terrainProgram->getUniform("unNormalMap"), 0);
-    glUniform3f(terrainProgram->getUniform("unLightDirWorld"), 1.0f, 0.0f, 0.0f);
+  //  glUniform3f(terrainProgram->getUniform("unLightDirWorld"), 0.0f, 0.0f, 1.0f);
     for (auto& it : m_sphericalTerrainCT) {
         auto& cmp = it.second;
         cmp.draw(camera, terrainProgram, &m_namePositionCT.getFromEntity(it.first));
