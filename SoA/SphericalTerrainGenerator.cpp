@@ -14,6 +14,10 @@ const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 255, 255) //BOTTOM
 };
 
+TerrainVertex SphericalTerrainGenerator::verts[SphericalTerrainGenerator::VERTS_SIZE];
+ui16 SphericalTerrainGenerator::indices[SphericalTerrainPatch::INDICES_PER_PATCH];
+float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+
 SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram,
                                                      vg::GLProgram* normalProgram) :
     m_radius(radius),
@@ -150,15 +154,15 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     f32v3 tmpPos;
   
     // Loop through and set all vertex attributes
-    float vertWidth = width / (PATCH_WIDTH - 1);
-    int index = 0;
+    m_vertWidth = width / (PATCH_WIDTH - 1);
+    m_index = 0;
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {
-            auto& v = verts[index];
+            auto& v = verts[m_index];
             // Set the position based on which face we are on
-            v.position[coordMapping.x] = x * vertWidth + startPos.x;
+            v.position[coordMapping.x] = x * m_vertWidth + startPos.x;
             v.position[coordMapping.y] = startPos.y;
-            v.position[coordMapping.z] = z * vertWidth + startPos.z;
+            v.position[coordMapping.z] = z * m_vertWidth + startPos.z;
 
             // Get Height 
             h = m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1];
@@ -171,9 +175,9 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.position = glm::normalize(v.position) * (m_radius + h);
           
             // Compute tangent
-            tmpPos[coordMapping.x] = (x + 1) * vertWidth + startPos.x;
+            tmpPos[coordMapping.x] = (x + 1) * m_vertWidth + startPos.x;
             tmpPos[coordMapping.y] = startPos.y;
-            tmpPos[coordMapping.z] = (z)* vertWidth + startPos.z;
+            tmpPos[coordMapping.z] = (z)* m_vertWidth + startPos.z;
             tmpPos = glm::normalize(tmpPos) * (m_radius + h);
             v.tangent = glm::normalize(tmpPos - v.position);
 
@@ -184,18 +188,14 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.color.r = tcolor.r;
             v.color.g = tcolor.g;
             v.color.b = tcolor.b;
-            index++;
+            m_index++;
         }
     }
 
     // TMP: Approximate position with middle
-    mesh->worldPosition = verts[index - PATCH_SIZE / 2].position;
+    mesh->worldPosition = verts[m_index - PATCH_SIZE / 2].position;
 
-    // Construct skirts
-    // Top Skirt
-    for (int i = 0; i < PATCH_WIDTH; i++) {
-
-    }
+    buildSkirts();
    
     // If the buffers haven't been generated, generate them
     if (mesh->m_vbo == 0) {
@@ -219,13 +219,59 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     //   glBindVertexArray(0);
 }
 
+void SphericalTerrainGenerator::buildSkirts() {
+    const float SKIRT_DEPTH = m_vertWidth * 2.0f;
+    // Top Skirt
+    for (int i = 0; i < PATCH_WIDTH; i++) {
+        auto& v = verts[m_index];
+        // Copy the vertices from the top edge
+        v = verts[i];
+        // Extrude downward
+        float len = glm::length(v.position) - SKIRT_DEPTH;
+        v.position = glm::normalize(v.position) * len;
+        m_index++;
+    }
+    // Left Skirt
+    for (int i = 0; i < PATCH_WIDTH; i++) {
+        auto& v = verts[m_index];
+        // Copy the vertices from the left edge
+        v = verts[i * PATCH_WIDTH];
+        // Extrude downward
+        float len = glm::length(v.position) - SKIRT_DEPTH;
+        v.position = glm::normalize(v.position) * len;
+        m_index++;
+    }
+    // Right Skirt
+    for (int i = 0; i < PATCH_WIDTH; i++) {
+        auto& v = verts[m_index];
+        // Copy the vertices from the right edge
+        v = verts[i * PATCH_WIDTH + PATCH_WIDTH - 1];
+        // Extrude downward
+        float len = glm::length(v.position) - SKIRT_DEPTH;
+        v.position = glm::normalize(v.position) * len;
+        m_index++;
+    }
+    // Bottom Skirt
+    for (int i = 0; i < PATCH_WIDTH; i++) {
+        auto& v = verts[m_index];
+        // Copy the vertices from the bottom edge
+        v = verts[PATCH_SIZE - PATCH_WIDTH + i];
+        // Extrude downward
+        float len = glm::length(v.position) - SKIRT_DEPTH;
+        v.position = glm::normalize(v.position) * len;
+        m_index++;
+    }
+}
+
 void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
     SphericalTerrainMesh* mesh = data->mesh;
     // Loop through each quad and set indices
     int vertIndex;
     int index = 0;
+    int skirtIndex = PATCH_SIZE;
     if (CubeWindings[(int)(mesh->cubeFace)]) {
         // CCW
+        // Main vertices
         for (int z = 0; z < PATCH_WIDTH - 1; z++) {
             for (int x = 0; x < PATCH_WIDTH - 1; x++) {
                 // Compute index of back left vertex
@@ -249,8 +295,62 @@ void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
                 index += SphericalTerrainPatch::INDICES_PER_QUAD;
             }
         }
+        // Skirt vertices
+        // Top Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = i;
+            indices[index] = skirtIndex;
+            indices[index + 1] = vertIndex;
+            indices[index + 2] = vertIndex + 1;
+            indices[index + 3] = vertIndex + 1;
+            indices[index + 4] = skirtIndex + 1;
+            indices[index + 5] = skirtIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
+        }
+        skirtIndex++; // Skip last vertex
+        // Left Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = i * PATCH_WIDTH;
+            indices[index] = skirtIndex;
+            indices[index + 1] = skirtIndex + 1;
+            indices[index + 2] = vertIndex + PATCH_WIDTH;
+            indices[index + 3] = vertIndex + PATCH_WIDTH;
+            indices[index + 4] = vertIndex;
+            indices[index + 5] = skirtIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
+        }
+        skirtIndex++; // Skip last vertex
+        // Right Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = i * PATCH_WIDTH + PATCH_WIDTH - 1;
+            indices[index] = vertIndex;
+            indices[index + 1] = vertIndex + PATCH_WIDTH;
+            indices[index + 2] = skirtIndex + 1;
+            indices[index + 3] = skirtIndex + 1;
+            indices[index + 4] = skirtIndex;
+            indices[index + 5] = vertIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
+        }
+        skirtIndex++;
+        // Bottom Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = PATCH_SIZE - PATCH_WIDTH + i;
+            indices[index] = vertIndex;
+            indices[index + 1] = skirtIndex;
+            indices[index + 2] = skirtIndex + 1;
+            indices[index + 3] = skirtIndex + 1;
+            indices[index + 4] = vertIndex + 1;
+            indices[index + 5] = vertIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
+        }
+
     } else {
         //CW
+        // Main vertices
         for (int z = 0; z < PATCH_WIDTH - 1; z++) {
             for (int x = 0; x < PATCH_WIDTH - 1; x++) {
                 // Compute index of back left vertex
@@ -273,6 +373,58 @@ void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
                 }
                 index += SphericalTerrainPatch::INDICES_PER_QUAD;
             }
+        }
+        // Skirt vertices
+        // Top Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = i;
+            indices[index] = skirtIndex;
+            indices[index + 1] = skirtIndex + 1;
+            indices[index + 2] = vertIndex + 1;
+            indices[index + 3] = vertIndex + 1;
+            indices[index + 4] = vertIndex;
+            indices[index + 5] = skirtIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
+        }
+        skirtIndex++; // Skip last vertex
+        // Left Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = i * PATCH_WIDTH;
+            indices[index] = skirtIndex;
+            indices[index + 1] = vertIndex;
+            indices[index + 2] = vertIndex + PATCH_WIDTH;
+            indices[index + 3] = vertIndex + PATCH_WIDTH;
+            indices[index + 4] = skirtIndex + 1;
+            indices[index + 5] = skirtIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
+        }
+        skirtIndex++; // Skip last vertex
+        // Right Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = i * PATCH_WIDTH + PATCH_WIDTH - 1;
+            indices[index] = vertIndex;
+            indices[index + 1] = skirtIndex;
+            indices[index + 2] = skirtIndex + 1;
+            indices[index + 3] = skirtIndex + 1;
+            indices[index + 4] = vertIndex + PATCH_WIDTH;
+            indices[index + 5] = vertIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
+        }
+        skirtIndex++;
+        // Bottom Skirt
+        for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+            vertIndex = PATCH_SIZE - PATCH_WIDTH + i;
+            indices[index] = vertIndex;
+            indices[index + 1] = vertIndex + 1;
+            indices[index + 2] = skirtIndex + 1;
+            indices[index + 3] = skirtIndex + 1;
+            indices[index + 4] = skirtIndex;
+            indices[index + 5] = vertIndex;
+            index += SphericalTerrainPatch::INDICES_PER_QUAD;
+            skirtIndex++;
         }
     }
     

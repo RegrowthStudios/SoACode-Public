@@ -75,6 +75,8 @@ private:
     /// Generates mesh using heightmap
     void buildMesh(TerrainGenDelegate* data);
 
+    void buildSkirts();
+
     /// TODO: THIS IS REUSABLE
     void generateIndices(TerrainGenDelegate* data);
 
@@ -82,9 +84,11 @@ private:
 
     // PATCH_WIDTH * 4 is for skirts
     static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4;
-    TerrainVertex verts[VERTS_SIZE];
-    ui16 indices[SphericalTerrainPatch::INDICES_PER_PATCH];
-
+    static TerrainVertex verts[VERTS_SIZE];
+    static ui16 indices[SphericalTerrainPatch::INDICES_PER_PATCH];
+    
+    int m_index;
+    float m_vertWidth;
     float m_radius;
 
     int m_patchCounter;
@@ -108,7 +112,7 @@ private:
 
     vg::FullQuadVBO m_quad;
 
-    float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+    static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
 };
 
 #endif // SphericalTerrainGenerator_h__
