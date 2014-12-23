@@ -24,9 +24,6 @@ SphericalTerrainMesh::~SphericalTerrainMesh() {
     if (m_vbo) {
         vg::GpuMemory::freeBuffer(m_vbo);
     }
-    if (m_ibo) {
-        vg::GpuMemory::freeBuffer(m_ibo);
-    }
     if (m_vao) {
         glDeleteVertexArrays(1, &m_vao);
     }

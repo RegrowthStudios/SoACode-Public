@@ -70,6 +70,9 @@ private:
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
     VGIndexBuffer m_ibo = 0; ///< Index buffer object
 
+    VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
+    VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
+
     f64v3 m_worldPosition = f64v3(0.0);
     CubeFace m_cubeFace;
 

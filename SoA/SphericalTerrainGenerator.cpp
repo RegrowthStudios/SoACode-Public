@@ -18,6 +18,9 @@ TerrainVertex SphericalTerrainGenerator::verts[SphericalTerrainGenerator::VERTS_
 ui16 SphericalTerrainGenerator::indices[SphericalTerrainPatch::INDICES_PER_PATCH];
 float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
 
+VGIndexBuffer SphericalTerrainGenerator::m_cwIbo = 0; ///< Reusable CW IBO
+VGIndexBuffer SphericalTerrainGenerator::m_ccwIbo = 0; ///< Reusable CCW IBO
+
 SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram,
                                                      vg::GLProgram* normalProgram) :
     m_radius(radius),
@@ -45,6 +48,12 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram
 
     // Unbind used resources
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Construct reusable index buffer objects
+    if (m_cwIbo == 0) {
+        generateIndices(m_cwIbo, false);
+        generateIndices(m_ccwIbo, true);
+    }
 
 }
 
@@ -201,10 +210,13 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     if (mesh->m_vbo == 0) {
         //     glGenVertexArrays(1, &m_vao);
         vg::GpuMemory::createBuffer(mesh->m_vbo);
-        vg::GpuMemory::createBuffer(mesh->m_ibo);
     }
 
-    generateIndices(data);
+    if (CubeWindings[(int)mesh->m_cubeFace]) {
+        mesh->m_ibo = m_ccwIbo;
+    } else {
+        mesh->m_ibo = m_cwIbo;
+    }
 
     // TODO: Using a VAO makes it not work??
     //  glBindVertexArray(m_vao);
@@ -263,13 +275,12 @@ void SphericalTerrainGenerator::buildSkirts() {
     }
 }
 
-void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
-    SphericalTerrainMesh* mesh = data->mesh;
+void SphericalTerrainGenerator::generateIndices(VGIndexBuffer& ibo, bool ccw) {
     // Loop through each quad and set indices
     int vertIndex;
     int index = 0;
     int skirtIndex = PATCH_SIZE;
-    if (CubeWindings[(int)(mesh->m_cubeFace)]) {
+    if (ccw) {
         // CCW
         // Main vertices
         for (int z = 0; z < PATCH_WIDTH - 1; z++) {
@@ -428,8 +439,9 @@ void SphericalTerrainGenerator::generateIndices(TerrainGenDelegate* data) {
         }
     }
     
-    vg::GpuMemory::bindBuffer(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    vg::GpuMemory::uploadBufferData(mesh->m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
+    vg::GpuMemory::createBuffer(ibo);
+    vg::GpuMemory::bindBuffer(ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
                                     SphericalTerrainPatch::INDICES_PER_PATCH * sizeof(ui16),
                                     indices);
 }

@@ -78,7 +78,7 @@ private:
     void buildSkirts();
 
     /// TODO: THIS IS REUSABLE
-    void generateIndices(TerrainGenDelegate* data);
+    void generateIndices(VGIndexBuffer& ibo, bool ccw);
 
     static const int PATCHES_PER_FRAME = 16;
 
@@ -102,6 +102,9 @@ private:
 
     vg::GLProgram* m_genProgram;
     vg::GLProgram* m_normalProgram;
+
+    static VGIndexBuffer m_cwIbo; ///< Reusable CW IBO
+    static VGIndexBuffer m_ccwIbo; ///< Reusable CCW IBO
 
     VGUniform unCornerPos;
     VGUniform unCoordMapping;
