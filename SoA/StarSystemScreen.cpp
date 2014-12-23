@@ -237,8 +237,7 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
                     shaderTask.doWork();
                 }).detach();
                 while (!shaderTask.isFinished()) {
-                    glrpc.processRequests();
-                    Sleep(50);
+                    if (glrpc.processRequests() == 0) Sleep(50);
                 }
             }
 
