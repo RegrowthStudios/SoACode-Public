@@ -36,17 +36,14 @@ class LoadTaskShaders : public ILoadTask {
     friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuScreen;
 public:
-    LoadTaskShaders(vcore::RPCManager* glrpc, bool synchronous = false) :
-        m_glrpc(glrpc),
-        m_synchronous(synchronous) {
+    LoadTaskShaders(vcore::RPCManager* glrpc) :
+        m_glrpc(glrpc) {
         // Empty
     }
     virtual void load() override;
 private:
     vg::ShaderSource createShaderCode(const vg::ShaderType& stage, const IOManager& iom, const cString path, const cString defines = nullptr);
     ProgramGenDelegate* createProgram(nString name, const vg::ShaderSource& vs, const vg::ShaderSource& fs, std::vector<nString>* attr = nullptr);
-
-    bool m_synchronous = false;
 
     vcore::RPCManager* m_glrpc = nullptr;
     ProgramGenDelegate m_generators[APPROXIMATE_NUM_SHADERS_LOADING];
