@@ -1,14 +1,23 @@
 #include "stdafx.h"
 #include "SphericalTerrainMeshManager.h"
 
+#include "Texture2d.h"
+
 #include "SphericalTerrainPatch.h"
 
 void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
                                        vg::GLProgram* program, vg::GLProgram* waterProgram) {
     
+    static float dt = 0.0;
+    dt += 0.001;
+
     if (m_waterMeshes.size()) {
         waterProgram->use();
         waterProgram->enableVertexAttribArrays();
+
+        glUniform1f(waterProgram->getUniform("unDt"), dt);
+
+        glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
 
         for (int i = 0; i < m_waterMeshes.size(); i++) {
             if (m_waterMeshes[i]->m_shouldDelete) {

@@ -76,7 +76,6 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
 
 void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program) {
     // Set up matrix
-    checkGlError("A");
     f32m4 W(1.0);
     setMatrixTranslation(W, -cameraPos);
     f32m3 WV3x3 = glm::mat3(V * W);
@@ -90,8 +89,6 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const f32m4& V, con
     // TODO: Using a VAO makes it not work??
     // glBindVertexArray(m_vao);
 
-    glBindTexture(GL_TEXTURE_2D, m_normalMap);
-    checkGlError("B");
     vg::GpuMemory::bindBuffer(m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
@@ -106,10 +103,10 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const f32m4& V, con
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, texCoords));
 
-    checkGlError("C");
+
     vg::GpuMemory::bindBuffer(m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glDrawElements(GL_TRIANGLES, m_waterIndexCount, GL_UNSIGNED_SHORT, 0);
-    checkGlError("D");
+
     //   glBindVertexArray(0);
 }
 

@@ -80,8 +80,8 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     m_camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
     m_camera.setRight(f32v3(1.0, 0.0, 0.0));
     m_camera.setUp(glm::cross(m_camera.getRight(), m_camera.getDirection()));
-    m_camera.setClippingPlane(10000.0f, 3000000000000.0f);
-    m_camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(1.0f, 0.0f, 0.0f), 200000.0);
+    m_camera.setClippingPlane(1000.0f, 3000000000000.0f);
+    m_camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(1.0f, 0.0f, 0.0f), 6000.0);
 
     vg::GLProgramManager* glProgramManager = GameManager::glProgramManager;
 

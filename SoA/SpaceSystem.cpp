@@ -203,7 +203,7 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     }
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+    glEnable(GL_CULL_FACE);
     glActiveTexture(GL_TEXTURE0);
     terrainProgram->use();
     glUniform1i(terrainProgram->getUniform("unNormalMap"), 0);
