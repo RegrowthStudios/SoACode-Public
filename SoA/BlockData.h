@@ -245,6 +245,8 @@ public:
     }
 };
 
+typedef nString BlockIdentifier; ///< Unique identifier key for blocks
+
 class Block
 {
 public:
@@ -256,6 +258,7 @@ public:
 
     void SetAvgTexColors();
 
+    BlockIdentifier name;
     ui16 ID;
     ui16 burnTransformID;
     i16 waveEffect;
@@ -307,7 +310,7 @@ public:
     // END
 
     nString leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
-    nString name, emitterName, emitterOnBreakName, emitterRandomName;
+    nString emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
     std::vector <ColorRGB8> altColors;
