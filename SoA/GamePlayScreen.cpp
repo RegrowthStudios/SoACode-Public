@@ -108,12 +108,31 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
         _renderPipeline.loadNightVision();
     });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (void* s, const vui::MouseMotionEvent& e) {
+        if (_inFocus) {
+            // Pass mouse motion to the player
+            _player->mouseMove(e.dx, e.dy);
+        }
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (void* s, const vui::MouseButtonEvent& e) {
+        onMouseDown(e);
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (void* s, const vui::MouseButtonEvent& e) {
+        onMouseUp(e);
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&] (void* s, const vui::MouseEvent& e) {
+        _inFocus = true;
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&] (void* s, const vui::MouseEvent& e) {
+        _inFocus = false;
+    });
 
     GameManager::inputManager->startInput();
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
     GameManager::inputManager->stopInput();
+    m_hooks.dispose();
 
     InputManager* inputManager = GameManager::inputManager;
     inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
@@ -156,35 +175,7 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
-
-    // Push the event to the input manager
-    GameManager::inputManager->pushEvent(e);
-
-    // Handle custom input
-    switch (e.type) {
-        case SDL_MOUSEMOTION:
-            if (_inFocus) {
-                // Pass mouse motion to the player
-                _player->mouseMove(e.motion.xrel, e.motion.yrel);
-            }
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            onMouseDown(e);
-            break;
-        case SDL_MOUSEBUTTONUP:
-            onMouseUp(e);
-            break;
-        case SDL_WINDOWEVENT:
-            if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                SDL_SetRelativeMouseMode(SDL_FALSE);
-                _inFocus = false;
-            } else if (e.window.type == SDL_WINDOWEVENT_ENTER) {
-                SDL_SetRelativeMouseMode(SDL_TRUE);
-                _inFocus = true;
-            }
-        default:
-            break;
-    }
+    // Empty
 }
 
 void GamePlayScreen::update(const GameTime& gameTime) {
@@ -272,21 +263,21 @@ void GamePlayScreen::handleInput() {
     inputManager->update();
 }
 
-void GamePlayScreen::onMouseDown(const SDL_Event& e) {
+void GamePlayScreen::onMouseDown(const vui::MouseButtonEvent& e) {
     if (isInGame()) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         _inFocus = true;
     }
 }
 
-void GamePlayScreen::onMouseUp(const SDL_Event& e) {
-    if (e.button.button == SDL_BUTTON_LEFT) {
-        if (GameManager::voxelEditor->isEditing()) {
+void GamePlayScreen::onMouseUp(const vui::MouseButtonEvent& e) {
+    if (GameManager::voxelEditor->isEditing()) {
+        if (e.button == vui::MouseButton::LEFT) {
             GameManager::voxelEditor->editVoxels(_player->leftEquippedItem);
-        }
-    } else if (e.button.button == SDL_BUTTON_RIGHT) {
-        if (GameManager::voxelEditor->isEditing()) {
+            puts("EDIT");
+        } else if (e.button == vui::MouseButton::RIGHT) {
             GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
+            puts("EDIT");
         }
     }
 }

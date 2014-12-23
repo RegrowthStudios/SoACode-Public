@@ -99,10 +99,10 @@ private:
     void handleInput();
 
     /// Handles mouse down input for player
-    void onMouseDown(const SDL_Event& e);
+    void onMouseDown(const vui::MouseButtonEvent& e);
 
     /// Handles mouse up input for player
-    void onMouseUp(const SDL_Event& e);
+    void onMouseUp(const vui::MouseButtonEvent& e);
 
     /// Updates the player
     void updatePlayer();
@@ -133,6 +133,7 @@ private:
     volatile bool _threadRunning; ///< True when the thread should be running
 
     /// Delegates
+    AutoDelegatePool m_hooks; ///< Input hooks reservoir
     IDelegate<ui32>* _onPauseKeyDown;
     IDelegate<ui32>* _onFlyKeyDown;
     IDelegate<ui32>* _onGridKeyDown;
