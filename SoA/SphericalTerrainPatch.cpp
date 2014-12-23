@@ -100,7 +100,7 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const f32m4& V, con
                           sizeof(WaterVertex),
                           offsetptr(WaterVertex, color));
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE,
-                        -  sizeof(WaterVertex),
+                          sizeof(WaterVertex),
                           offsetptr(WaterVertex, texCoords));
 
 
