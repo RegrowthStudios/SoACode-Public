@@ -113,15 +113,6 @@ void GamePlayRenderPipeline::render() {
     _chunkGridRenderStage->draw();
     _liquidVoxelRenderStage->draw();
     _transparentVoxelRenderStage->draw();
-    
-    // Dev hud
-    _devHudRenderStage->draw();
-
-    // PDA
-    _pdaRenderStage->draw();
-
-    // Pause Menu
-    _pauseMenuRenderStage->draw();
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -140,6 +131,11 @@ void GamePlayRenderPipeline::render() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
     _hdrRenderStage->draw();
+
+    // UI
+    _devHudRenderStage->draw();
+    _pdaRenderStage->draw();
+    _pauseMenuRenderStage->draw();
 
     // Check for errors, just in case
     checkGlError("GamePlayRenderPipeline::render()");
