@@ -542,6 +542,9 @@
     <ClInclude Include="TestDeferredScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
+    <ClInclude Include="TestBlockViewScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -886,6 +889,7 @@
     <ClCompile Include="TestDeferredScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
+    <ClCompile Include="TestBlockViewScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
