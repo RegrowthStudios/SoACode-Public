@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SphericalTerrainMeshManager.h"
+#include "PlanetLoader.h"
 
 #include "Texture2d.h"
 
@@ -15,9 +16,15 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
         waterProgram->use();
         waterProgram->enableVertexAttribArrays();
 
-        glUniform1f(waterProgram->getUniform("unDt"), dt);
-
+        // Bind textures
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidColorMap.id);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
+
+        glUniform1i(waterProgram->getUniform("unColorMap"), 1);
+        glUniform1f(waterProgram->getUniform("unDt"), dt);
+        glUniform1i(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
 
         for (int i = 0; i < m_waterMeshes.size(); i++) {
             if (m_waterMeshes[i]->m_shouldDelete) {
@@ -36,6 +43,12 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
     }
 
     if (m_meshes.size()) {
+
+        // Bind textures
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainColorMap.id);
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(waterProgram->getUniform("unColorMap"), 1);
 
         program->use();
         program->enableVertexAttribArrays();

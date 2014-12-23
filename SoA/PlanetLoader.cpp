@@ -30,6 +30,16 @@ KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, low);
 KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, high);
 KEG_TYPE_INIT_END
 
+class LiquidColorKegProperties {
+public:
+    nString path = "";
+    float depthScale = 1000.0f;
+};
+KEG_TYPE_INIT_BEGIN_DEF_VAR(LiquidColorKegProperties)
+KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, STRING, path);
+KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, F32, depthScale);
+KEG_TYPE_INIT_END
+
 class TerrainFuncs {
 public:
     std::vector<TerrainFuncKegProperties> funcs;
@@ -55,6 +65,8 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
         return false;
     }
 
+    PlanetGenData* genData = new PlanetGenData;
+
     TerrainFuncs baseTerrainFuncs;
     TerrainFuncs tempTerrainFuncs;
     TerrainFuncs humTerrainFuncs;
@@ -62,7 +74,11 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     for (auto& kvp : node) {
         nString type = kvp.first.as<nString>();
         // Parse based on type
-        if (type == "baseHeight") {
+        if (type == "terrainColor") {
+            genData->liquidColorMap = m_textureCache.addTexture(kvp.second.as<nString>());
+        } else if (type == "liquidColor") {
+
+        } else if (type == "baseHeight") {
             parseTerrainFuncs(&baseTerrainFuncs, kvp.second);
         } else if (type == "temperature") {
             parseTerrainFuncs(&tempTerrainFuncs, kvp.second);
@@ -77,10 +93,12 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
                                             humTerrainFuncs);
 
     if (program != nullptr) {
-        PlanetGenData* genData = new PlanetGenData;
         genData->program = program;
+        genData->terrainColorMap = terrainTexture;
+        genData->liquidcolorMap = liquidTexture;
         return genData;
-    }
+    } 
+    delete genData;
     return nullptr;
 }
 
@@ -145,10 +163,32 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& nod
 
         error = Keg::parse((ui8*)&terrainFuncs->funcs.back(), kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
         if (error != Keg::Error::NONE) {
-            fprintf(stderr, "Keg error %d\n", (int)error); 
+            fprintf(stderr, "Keg error %d in parseTerrainFuncs()\n", (int)error); 
             return;
         }
     }
+}
+
+void PlanetLoader::parseLiquidColor(YAML::Node& node, PlanetGenData* genData) {
+    if (node.IsNull() || !node.IsMap()) {
+        std::cout << "Failed to parse node";
+        return;
+    }
+
+    LiquidColorKegProperties kegProps;
+
+    Keg::Error error;
+    error = Keg::parse((ui8*)&kegProps, node, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(LiquidColorKegProperties));
+    if (error != Keg::Error::NONE) {
+        fprintf(stderr, "Keg error %d in parseLiquidColor()\n", (int)error);
+        return;
+    }
+
+    if (kegProps.path.size()) {
+        genData->liquidColorMap = m_textureCache.addTexture(kegProps.path);
+    }
+    genData->liquidDepthScale = kegProps.depthScale;
+
 }
 
 vg::GLProgram* PlanetLoader::generateProgram(TerrainFuncs& baseTerrainFuncs,

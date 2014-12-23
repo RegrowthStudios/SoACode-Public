@@ -22,8 +22,9 @@
 
 #include <deque>
 
-class NamePositionComponent;
 class Camera;
+class NamePositionComponent;
+class PlanetGenData;
 class SphericalTerrainMeshManager;
 
 class TerrainGenDelegate : public IDelegate<void*> {
@@ -67,7 +68,7 @@ class SphericalTerrainComponent {
 public:
     /// Initialize the spherical terrain
     /// @param radius: Radius of the planet, must be multiple of 32.
-    void init(f64 radius, vg::GLProgram* genProgram,
+    void init(f64 radius, PlanetGenData* planetGenData,
               vg::GLProgram* normalProgram);
 
     void update(const f64v3& cameraPos,
@@ -91,6 +92,8 @@ private:
 
     SphericalTerrainMeshManager* m_meshManager = nullptr;
     SphericalTerrainGenerator* m_generator = nullptr;
+
+    PlanetGenData* m_planetGenData = nullptr;
 };
 
 #endif // SphericalTerrainComponent_h__

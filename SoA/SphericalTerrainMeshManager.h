@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Simple container for terrain meshes
+/// Simple container for terrain meshes. Each planet gets one
 ///
 
 #pragma once
@@ -19,10 +19,14 @@
 #include <GLProgram.h>
 
 class SphericalTerrainMesh;
+class PlanetGenData;
 
 class SphericalTerrainMeshManager {
 public:
-
+    SphericalTerrainMeshManager(PlanetGenData* planetGenData) :
+        m_planetGenData(planetGenData) {
+        // Empty
+    }
     /// Draws the meshes
     /// @param cameraPos: Position of the camera
     /// @param VP: View-Projection matrix
@@ -34,6 +38,7 @@ public:
     void addMesh(SphericalTerrainMesh* mesh);
 
 private:
+    PlanetGenData* m_planetGenData = nullptr;
     std::vector<SphericalTerrainMesh*> m_meshes; ///< All meshes
     std::vector<SphericalTerrainMesh*> m_waterMeshes; ///< Meshes with water active
 };

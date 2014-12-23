@@ -21,14 +21,16 @@
 #include <GLProgram.h>
 #include <Keg.h>
 #include <vector>
+#include "TextureCache.h"
 
 class IOManager;
 class TerrainFuncs;
 
 class PlanetGenData {
 public:
-    VGTexture surfaceColorMap;
-    VGTexture watercolorMap;
+    vg::Texture terrainColorMap;
+    vg::Texture liquidColorMap;
+    float liquidDepthScale = 1000.0f;
     std::vector<VGTexture> biomeMaps;
     vg::GLProgram* program;
 };
@@ -42,6 +44,9 @@ public:
     PlanetGenData* getDefaultGenData();
 private:
     void parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node);
+    
+    void parseLiquidColor(YAML::Node& node, PlanetGenData* genData);
+    
     vg::GLProgram* generateProgram(TerrainFuncs& baseTerrainFuncs,
                                    TerrainFuncs& tempTerrainFuncs,
                                    TerrainFuncs& humTerrainFuncs);
@@ -50,6 +55,8 @@ private:
     PlanetGenData* m_defaultGenData = nullptr;
 
     IOManager* m_iom = nullptr;
+
+    vg::TextureCache m_textureCache;
 };
 
 #endif // PlanetLoader_h__
