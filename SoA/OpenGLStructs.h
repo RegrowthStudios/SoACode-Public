@@ -70,16 +70,6 @@ public:
     ui8 sunlight; //24
 };
 
-class TerrainVertex {
-public:
-    f32v3 position; //12
-    f32v3 tangent; //24
-    ColorRGB8 color; //27
-    ui8 padding; //28
-    ui8v2 texCoords; //30
-    ui8 padding2[2]; //32
-};
-
 class PhysicsBlockVertex {
 public:
     ui8 position[3]; //3

@@ -56,6 +56,26 @@ const f32v3 CubeCoordinateMults[6] = {
     f32v3(1.0f, -1.0f, 1.0f) //BOTTOM
 };
 
+class TerrainVertex {
+public:
+    f32v3 position; //12
+    f32v3 tangent; //24
+    ColorRGB8 color; //27
+    ui8 padding; //28
+    ui8v2 texCoords; //30
+    ui8 padding2[2]; //32
+};
+
+class WaterVertex {
+public:
+    f32v3 position; //12
+    f32v3 tangent; //24
+    ColorRGB8 color; //27
+    ui8 padding; //28
+    ui8v2 texCoords; //30
+    ui8 padding2[2]; //32
+};
+
 class SphericalTerrainGenerator {
 public:
     SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram,
@@ -77,6 +97,12 @@ private:
 
     void buildSkirts();
 
+    void addWater(int z, int x);
+
+    void tryAddWaterVertex(int z, int x);
+
+    void tryAddWaterQuad(int z, int x);
+
     /// TODO: THIS IS REUSABLE
     void generateIndices(VGIndexBuffer& ibo, bool ccw);
 
@@ -85,11 +111,20 @@ private:
     // PATCH_WIDTH * 4 is for skirts
     static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4;
     static TerrainVertex verts[VERTS_SIZE];
-    static ui16 indices[SphericalTerrainPatch::INDICES_PER_PATCH];
-    
+    static WaterVertex waterVerts[VERTS_SIZE];
+    static ui16 waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
+    static ui16 waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
+    static bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
+
+    /// Meshing vars
     int m_index;
+    int m_waterIndex;
+    int m_waterIndexCount;
     float m_vertWidth;
     float m_radius;
+    i32v3 m_coordMapping;
+    f32v3 m_startPos;
+    bool m_ccw;
 
     int m_patchCounter;
     TerrainGenTextures m_textures[PATCHES_PER_FRAME];

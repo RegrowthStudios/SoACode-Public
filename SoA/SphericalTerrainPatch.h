@@ -68,7 +68,7 @@ public:
 private:
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
-    VGIndexBuffer m_ibo = 0; ///< Index buffer object
+    VGIndexBuffer m_ibo = 0; ///< Shared Index buffer object. DONT FREE THIS
 
     VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
     VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
