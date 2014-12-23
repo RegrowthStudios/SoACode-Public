@@ -274,6 +274,12 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     ui8* chSunlightData = chunkMesher->_sunlightData;
     ui16* chTertiaryData = chunkMesher->_tertiaryData;
 
+    // TODO(Ben): THIS IS A HACKY FIX. THE BELOW CODE IS WRONG
+    memset(chData, 0, sizeof(ui16)* PADDED_CHUNK_SIZE);
+    memset(chLampData, 0, sizeof(ui16)* PADDED_CHUNK_SIZE);
+    memset(chSunlightData, 0, sizeof(ui8)* PADDED_CHUNK_SIZE);
+    memset(chTertiaryData, 0, sizeof(ui16)* PADDED_CHUNK_SIZE);
+
     chunkMesher->wSize = 0;
     chunkMesher->chunk = this;
     chunkMesher->chunkGridData = chunkGridData;
@@ -822,6 +828,12 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
         ch1->unlock();
+    }
+
+    for (int i = 0; i < PADDED_CHUNK_SIZE; i++) {
+        if (chData[i] > 1024) {
+            std::cout << "WOAH";
+        }
     }
 }
 
