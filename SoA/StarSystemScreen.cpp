@@ -230,11 +230,17 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             break;
         case VKEY_F11:
             GameManager::glProgramManager->destroy();
-            vcore::RPCManager m_glrpc;
-
-            LoadTaskShaders shaderTask(&m_glrpc, true);
-
-            shaderTask.load();
+            { // Load shaders
+                vcore::RPCManager glrpc;
+                LoadTaskShaders shaderTask(&glrpc);
+                std::thread([&] () {
+                    shaderTask.doWork();
+                }).detach();
+                while (!shaderTask.isFinished()) {
+                    glrpc.processRequests();
+                    Sleep(50);
+                }
+            }
 
             delete _app->spaceSystem;
             const_cast<App*>(_app)->spaceSystem = new SpaceSystem(const_cast<App*>(_app));
