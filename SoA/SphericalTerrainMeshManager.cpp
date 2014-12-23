@@ -13,7 +13,7 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
         for (int i = 0; i < m_waterMeshes.size(); i++) {
             if (m_waterMeshes[i]->m_shouldDelete) {
                 // Don't delete here, it will happen in m_meshes
-                m_waterMeshes[i] = m_meshes.back();
+                m_waterMeshes[i] = m_waterMeshes.back();
                 m_waterMeshes.pop_back();
                 i--;
             } else {
