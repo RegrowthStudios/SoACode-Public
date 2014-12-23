@@ -328,27 +328,31 @@ void SphericalTerrainGenerator::addWater(int z, int x) {
 }
 
 void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
+    // TEMPORARY? Add slight offset so we don't need skirts
+    float mvw = m_vertWidth * 1.01;
+    const float UV_SCALE = 0.01;
+
     if (z < 0 || x < 0 || z >= PATCH_WIDTH || x >= PATCH_WIDTH) return;
     if (waterIndexGrid[z][x] == 0) {
         waterIndexGrid[z][x] = m_waterIndex + 1;
         auto& v = waterVerts[m_waterIndex];
         // Set the position based on which face we are on
-        v.position[m_coordMapping.x] = x * m_vertWidth + m_startPos.x;
+        v.position[m_coordMapping.x] = x * mvw + m_startPos.x;
         v.position[m_coordMapping.y] = m_startPos.y;
-        v.position[m_coordMapping.z] = z * m_vertWidth + m_startPos.z;
+        v.position[m_coordMapping.z] = z * mvw + m_startPos.z;
    
         // Set texture coordinates
-        v.texCoords.x = (ui8)(((float)x / (float)PATCH_WIDTH) * 255.0f);
-        v.texCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
+        v.texCoords.x = v.position[m_coordMapping.x] * UV_SCALE;
+        v.texCoords.y = v.position[m_coordMapping.z] * UV_SCALE;
 
         // Spherify it!
         v.position = glm::normalize(v.position) * m_radius;
 
         // Compute tangent
         f32v3 tmpPos;
-        tmpPos[m_coordMapping.x] = (x + 1) * m_vertWidth + m_startPos.x;
+        tmpPos[m_coordMapping.x] = (x + 1) * mvw + m_startPos.x;
         tmpPos[m_coordMapping.y] = m_startPos.y;
-        tmpPos[m_coordMapping.z] = z* m_vertWidth + m_startPos.z;
+        tmpPos[m_coordMapping.z] = z* mvw + m_startPos.z;
         tmpPos = glm::normalize(tmpPos) * m_radius;
         v.tangent = glm::normalize(tmpPos - v.position);
 
