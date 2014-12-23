@@ -545,6 +545,9 @@
     <ClInclude Include="TestBlockViewScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
+    <ClInclude Include="BlockPack.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -890,6 +893,9 @@
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
     <ClCompile Include="TestBlockViewScreen.cpp" />
+    <ClCompile Include="BlockPack.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
