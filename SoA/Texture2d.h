@@ -8,7 +8,7 @@
 // TODO: Remove This
 vg::Texture getTexture(nString source, struct Animation **anim = NULL);
 
-struct BlockPack {
+struct BlockTexturePack {
 public:
     void initialize(vg::Texture texInfo);
 
@@ -16,7 +16,7 @@ public:
     std::vector<ui8[256][3]> avgColors;
 };
 
-extern BlockPack blockPack; //TODO: Not global
+extern BlockTexturePack blockPack; //TODO: Not global
 
 // TODO: Get rid of these crap global textures
 extern vg::Texture markerTexture;

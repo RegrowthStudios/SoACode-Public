@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "BlockTextureMethods.h"
 
-#include "BlockData.h"
+#include "BlockPack.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
 #include "RenderTask.h"

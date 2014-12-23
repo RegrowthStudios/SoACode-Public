@@ -206,9 +206,6 @@ private:
     /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
     void makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset = i32v2(0));
 
-    /// Initializes minerals. This function is temporary.
-    void initializeMinerals();
-
     /// Updates the load list
     /// @param maxTicks: maximum time the function is allowed
     void updateLoadList(ui32 maxTicks);

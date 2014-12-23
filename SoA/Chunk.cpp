@@ -3,7 +3,7 @@
 
 #include <boost\circular_buffer.hpp>
 
-#include "BlockData.h"
+#include "BlockPack.h"
 #include "CAEngine.h"
 #include "ChunkMesher.h"
 #include "Errors.h"

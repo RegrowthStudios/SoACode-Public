@@ -2,7 +2,7 @@
 #include "LoadScreen.h"
 
 #include "App.h"
-#include "BlockData.h"
+#include "BlockPack.h"
 #include "colors.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
@@ -136,7 +136,7 @@ void LoadScreen::update(const GameTime& gameTime) {
         SetBlockAvgTexColors();
 
         //load the emitters
-        for (int i = 0; i < 4096; i++) {
+        for (int i = 0; i < Blocks.size(); i++) {
             if (Blocks[i].active) {
                 if (Blocks[i].emitterName.size()) {
                     Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);

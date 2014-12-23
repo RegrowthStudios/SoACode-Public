@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 
 #include "Animation.h"
-#include "BlockData.h"
+#include "BlockPack.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "FloraGenerator.h"
