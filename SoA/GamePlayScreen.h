@@ -98,12 +98,6 @@ private:
     /// Handles updating state based on input
     void handleInput();
 
-    /// Handles mouse down input for player
-    void onMouseDown(const vui::MouseButtonEvent& e);
-
-    /// Handles mouse up input for player
-    void onMouseUp(const vui::MouseButtonEvent& e);
-
     /// Updates the player
     void updatePlayer();
 
