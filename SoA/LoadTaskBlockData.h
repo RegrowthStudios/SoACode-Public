@@ -1,5 +1,5 @@
 #pragma once
-#include "BlockData.h"
+#include "BlockPack.h"
 #include "BlockLoader.h"
 #include "Errors.h"
 #include "FileSystem.h"
@@ -14,7 +14,7 @@ class LoadTaskBlockData : public ILoadTask {
         initConnectedTextures();
 
         // Load in .yml
-        if (!BlockLoader::loadBlocks("Data/BlockData.yml")) {
+        if (!BlockLoader::loadBlocks("Data/BlockData.yml", &Blocks)) {
             pError("Failed to load Data/BlockData.yml");
             exit(123456);
         }
@@ -38,10 +38,13 @@ class LoadTaskBlockData : public ILoadTask {
             }
         }
 
-        //for use in pressure explosions
-        Blocks[VISITED_NODE] = Blocks[NONE];
-        Blocks[VISITED_NODE].ID = VISITED_NODE;
-        Blocks[VISITED_NODE].name = "Visited Node";
+        { // For use in pressure explosions
+            Block visitedNode = Blocks[0];
+            visitedNode.name = "Visited Node";
+            Blocks.append(&visitedNode, 1);
+            VISITED_NODE = Blocks["Visited Node"].ID;
+        }
 
+        findIDs(&Blocks);
     }
 };

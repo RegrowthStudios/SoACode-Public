@@ -23,7 +23,7 @@ using namespace glm;
 
 Player::Player() : scannedBlock(0),
                     _mass(100),
-                    headInBlock(NONE),
+                    headInBlock(0),
                     rightEquippedItem(NULL),
                     leftEquippedItem(NULL),
                     lightActive(0),

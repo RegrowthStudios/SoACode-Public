@@ -91,8 +91,8 @@ vg::Texture fireTexture;
 vg::Texture waterNoiseTexture;
 vg::Texture crosshairTexture;
 
-BlockPack blockPack;
+BlockTexturePack blockPack;
 
-void BlockPack::initialize(vg::Texture texInfo) {
+void BlockTexturePack::initialize(vg::Texture texInfo) {
     textureInfo = texInfo;
 }

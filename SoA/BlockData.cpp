@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "BlockData.h"
 
+#include "BlockPack.h"
 #include "Errors.h"
 #include "FileSystem.h"
 #include "GameManager.h"
@@ -117,8 +118,6 @@ KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureTop", Keg::Value::basic(Keg::BasicT
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureBottom", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, bottomTexName)));
 KEG_TYPE_INIT_END
 
-std::vector <Block> Blocks;
-
 std::vector <int> TextureUnitIndices;
 
 int connectedTextureOffsets[256];
@@ -212,35 +211,35 @@ void initConnectedTextures()
 
 Block::Block() : emitterName(""), 
 emitterOnBreakName(""), 
-emitter(NULL),
-emitterOnBreak(NULL), 
-emitterRandom(NULL),
+emitter(nullptr),
+emitterOnBreak(nullptr),
+emitterRandom(nullptr),
 emitterRandomName(""),
 color(255, 255, 255),
 overlayColor(255, 255, 255),
 lightColor(0, 0, 0) {
-    allowLight = 0;
+    allowLight = false;
     ID = 0;
     name = leftTexName = rightTexName = backTexName = frontTexName = topTexName = bottomTexName = particleTexName = "";
     particleTex = 0;
-    collide = 1;
+    collide = true;
     occlude = BlockOcclusion::ALL;
     meshType = MeshType::BLOCK;
     waveEffect = 0;
     explosionResistance = 1.0;
     active = 0;
     useable = 1;
-    blockLight = 1;
+    blockLight = true;
     waterMeshLevel = 0;
-    waterBreak = 0;
-    isCrushable = 0;
+    waterBreak = false;
+    isCrushable = false;
     floatingAction = 1;
     flammability = 0.0f;
-    isSupportive = 1;
+    isSupportive = true;
     explosivePower = 0.0;
     explosionPowerLoss = 0.0;
     explosionRays = 0;
-    powderMove = 0;
+    powderMove = true;
     moveMod = 1.0f;
     spawnerVal = 0;
     sinkVal = 0;
@@ -373,4 +372,13 @@ void SetBlockAvgTexColors()
 void DrawHeadBlock(glm::dvec3 position, glm::mat4 &VP, Block *block, int flags, float light, float sunlight)
 {
   
+}
+
+ui16 idLowWater = 0;
+ui16& getLowWaterID() {
+    return idLowWater;
+}
+ui16 idVisitedNode = 0;
+ui16& getVisitedNodeID() {
+    return idVisitedNode;
 }

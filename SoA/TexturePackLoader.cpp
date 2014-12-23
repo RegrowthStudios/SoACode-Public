@@ -119,7 +119,7 @@ void TexturePackLoader::uploadTextures() {
     std::map <nString, Pixels>().swap(_pixelCache);
 }
 
-void TexturePackLoader::setBlockTextures(std::vector<Block>& blocks) {
+void TexturePackLoader::setBlockTextures(BlockPack& blocks) {
     // Initialize all the textures for blocks.
     for (size_t i = 0; i < blocks.size(); i++) {
         blocks[i].InitializeTexture();

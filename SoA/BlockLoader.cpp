@@ -3,7 +3,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-#include "BlockData.h"
+#include "BlockPack.h"
 #include "CAEngine.h"
 #include "Chunk.h"
 #include "Errors.h"
@@ -12,7 +12,7 @@
 #include "Keg.h"
 #include "TexturePackLoader.h"
 
-bool BlockLoader::loadBlocks(const nString& filePath) {
+bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
     IOManager ioManager; // TODO: Pass in a real boy
     const cString data = ioManager.readFileToString(filePath.c_str());
 
@@ -25,8 +25,8 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
-    
-    Blocks.resize(numBlocks);
+    std::vector<Block> loadedBlocks;
+
     Keg::Value v = Keg::Value::custom("Block", 0);
     for (auto& kvp : node) {
         Block b;
@@ -36,35 +36,40 @@ bool BlockLoader::loadBlocks(const nString& filePath) {
         // Bit of post-processing on the block
         postProcessBlockLoad(&b, &ioManager);
 
-        Blocks[b.ID] = b;
+        loadedBlocks.push_back(b);
     }
     delete[] data;
 
     // Set up the water blocks
-    if (!(SetWaterBlocks(LOWWATER))) return 0;
+    LOWWATER = pack->size(); // TODO: Please kill me now... I can't take this kind of nonsense anymore
+    SetWaterBlocks(loadedBlocks);
+
+    pack->append(loadedBlocks.data(), loadedBlocks.size());
 
     return true;
 }
 
-bool BlockLoader::saveBlocks(const nString& filePath) {
+bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     // Open the portal to Hell
     std::ofstream file(filePath);
     if (file.fail()) return false;
 
+    BlockPack& blocks = *pack;
+
     // Emit data
     YAML::Emitter e;
     e << YAML::BeginMap;
-    for (size_t i = 0; i < Blocks.size(); i++) {
-        if (Blocks[i].active) {
+    for (size_t i = 0; i < blocks.size(); i++) {
+        if (blocks[i].active) {
             // TODO: Water is a special case. We have 100 water block IDs, but we only want to write water once.
             if (i >= LOWWATER && i != LOWWATER) continue;
 
             // Write the block name first
-            e << YAML::Key << Blocks[i].name;
+            e << YAML::Key << blocks[i].name;
             // Write the block data now
             e << YAML::Value;
             e << YAML::BeginMap;
-            Keg::write((ui8*)&(Blocks[i]), e, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+            Keg::write((ui8*)&(blocks[i]), e, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
             e << YAML::EndMap;
         }
     }
@@ -112,30 +117,17 @@ void BlockLoader::postProcessBlockLoad(Block* block, IOManager* ioManager) {
 }
 
 
-i32 BlockLoader::SetWaterBlocks(int startID) {
-    float weight = 0;
-    Blocks[startID].name = "Water (1)"; //now build rest of water blocks
-    for (int i = startID + 1; i <= startID + 99; i++) {
-        if (Blocks[i].active) {
-            char buffer[1024];
-            sprintf(buffer, "ERROR: Block ID %d reserved for Water is already used by %s", i, Blocks[i].name);
-            showMessage(buffer);
-            return 0;
-        }
-        Blocks[i] = Blocks[startID];
-        Blocks[i].name = "Water (" + std::to_string(i - startID + 1) + ")";
-        Blocks[i].waterMeshLevel = i - startID + 1;
-        Blocks[i].meshType = MeshType::LIQUID;
+void BlockLoader::SetWaterBlocks(std::vector<Block>& blocks) {
+    for (i32 i = 0; i < 100; i++) {
+        blocks.push_back(Block());
+        blocks.back().name = "Water (" + std::to_string(i + 1) + ")";
+        blocks.back().waterMeshLevel = i + 1;
+        blocks.back().meshType = MeshType::LIQUID;
     }
-    for (int i = startID + 100; i < startID + 150; i++) {
-        if (Blocks[i].active) {
-            char buffer[1024];
-            sprintf(buffer, "ERROR: Block ID %d reserved for Pressurized Water is already used by %s", i, Blocks[i].name);
-            showMessage(buffer);
-            return 0;
-        }
-        Blocks[i] = Blocks[startID];
-        Blocks[i].name = "Water Pressurized (" + std::to_string(i - (startID + 99)) + ")";
-        Blocks[i].waterMeshLevel = i - startID + 1;
+    for (i32 i = 100; i < 150; i++) {
+        blocks.push_back(Block());
+        blocks.back().name = "Water Pressurized (" + std::to_string(i + 1) + ")";
+        blocks.back().waterMeshLevel = i + 1;
+        blocks.back().meshType = MeshType::LIQUID; // TODO: Should this be here?
     }
 }

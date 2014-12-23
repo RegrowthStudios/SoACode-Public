@@ -33,7 +33,9 @@ public:
     virtual void update(const GameTime& gameTime) override;
     virtual void draw(const GameTime& gameTime) override;
 private:
-
+    /// Loads a file of block data
+    /// @param file: File containing block data
+    void loadBlocks(const cString file);
 };
 
 #endif // TestBlockViewScreen_h__
