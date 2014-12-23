@@ -17,10 +17,9 @@
 
 #include <SDL\SDL_events.h>
 #include <SDL\SDL_joystick.h>
+#include <InputDispatcher.h>
 
 #include "Events.hpp"
-
-enum SDLKey;
 
 #define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.ini"
 
@@ -86,21 +85,19 @@ public:
 
     // keys are SDLK_ keys or SDL_BUTTON_
     /// Creates a double key axis.
-
     /// If the axis already exists the old axisID is returned and no data is modified.
     /// @param axisName: The name of the axis to create.
     /// @param defaultPositiveKey: The default key for the positive portion of the new axis.
     /// @param defaultNegativeKey: The default key for the negative portion of the new axis.
     /// @return The id of the new axis.
-    i32 createAxis(const nString& axisName, ui32 defaultPositiveKey, ui32 defaultNegativeKey); // Double key
+    i32 createAxis(const nString& axisName, VirtualKey defaultPositiveKey, VirtualKey defaultNegativeKey); // Double key
 
     /// Creates a single key axis.
-
     /// If the axis already exists the old axisID is returned and no data is modified.
     /// @param axisName: The name of the axis to create.
     /// @param defaultKey: The default key(positive) for the new axis.
     /// @return The id of the new axis.
-    i32 createAxis(const nString& axisName, ui32 defaultKey); // Single key
+    i32 createAxis(const nString& axisName, VirtualKey defaultKey); // Single key
     // TODO: Add joystick factory methods
 
     /// Get the positive key of the supplied axis.
@@ -114,20 +111,20 @@ public:
 
     /// @param axisID: The id of the axis to look up.
     /// @param key: The key to set the axes' positive key to.
-    void setPositiveKey(const i32 axisID, ui32 key);
+    void setPositiveKey(const i32 axisID, VirtualKey key);
 
     /// Get the negative key of the supplied axis.
 
     /// If the axis does not exist return UINT32_MAX.
     /// @param axisID: The id of the axis to look up.
     /// @return The negative key of the supplied axis.
-    ui32 getNegativeKey(const int axisID);
+    ui32 getNegativeKey(const i32 axisID);
 
     /// Set the negative key of the supplied axis.
 
     /// @param axisID: The id of the axis to look up.
     /// @param key: The key to set the axes' negative key to.
-    void setNegativeKey(const i32 axisID, ui32 key);
+    void setNegativeKey(const i32 axisID, VirtualKey key);
 
     /// Resets the axes' positive key to the default.
 
@@ -176,10 +173,6 @@ public:
     /// Stops receiving input events from dispatcher
     void stopInput();
 
-    /// Makes the internal map aware that some input event has occurred.
-    /// @param inputEvent: An input event created by sdl
-    void pushEvent(const SDL_Event& inputEvent);
-
     /// Subscribes a delegate to one of the axes' events.
     /// Returns nullptr if axisID is invalid or eventType is invalid.
     /// @see Event::add
@@ -212,10 +205,10 @@ private:
     struct Axis {
         nString name; ///< The name of the axis.
         AxisType type; ///< The type of axis.
-        ui32 defaultPositiveKey; ///< The default positive key.
-        ui32 defaultNegativeKey; ///< The default negative key.
-        ui32 positiveKey; ///< The actual positive key.
-        ui32 negativeKey; ///< The actual negative key.
+        VirtualKey defaultPositiveKey; ///< The default positive key.
+        VirtualKey defaultNegativeKey; ///< The default negative key.
+        VirtualKey positiveKey; ///< The actual positive key.
+        VirtualKey negativeKey; ///< The actual negative key.
         SDL_Joystick* joystick; /// The joystick that a JOYSTICK_AXIS would read from.
         i32 joystickAxis; ///< The axis number on the joystick.
         i32 joystickButton; ///< The button number on the joystick.
@@ -233,8 +226,8 @@ private:
     std::vector<Axis*> _axes; ///< All the stored axes.
     std::unordered_map<nString, i32> _axisLookup; ///< A map of axis names to axis IDs for quick look up.
     std::unordered_map<nString, i32> _iniKeys; ///< For use with ini file loading.
-    std::map<ui32, bool> _currentKeyStates; ///< The state of the keys and mouse buttons this frame.
-    std::map<ui32, bool> _previousKeyStates; ///< The state of the keys and mouse buttons last frame.
+    bool _currentKeyStates[VKEY_HIGHEST_VALUE]; ///< The state of the keys and mouse buttons this frame.
+    bool _previousKeyStates[VKEY_HIGHEST_VALUE]; ///< The state of the keys and mouse buttons last frame.
 
     bool m_receivingInput = false; ///< Tracks input reception state
     AutoDelegatePool m_inputHooks; ///< Stores input reception function hooks for deallocation
