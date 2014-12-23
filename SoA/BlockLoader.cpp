@@ -41,10 +41,12 @@ bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
     delete[] data;
 
     // Set up the water blocks
-    LOWWATER = pack->size(); // TODO: Please kill me now... I can't take this kind of nonsense anymore
     SetWaterBlocks(loadedBlocks);
 
     pack->append(loadedBlocks.data(), loadedBlocks.size());
+    
+    LOWWATER = (*pack)["Water (1)"].ID; // TODO: Please kill me now... I can't take this kind of nonsense anymore
+
 
     return true;
 }
