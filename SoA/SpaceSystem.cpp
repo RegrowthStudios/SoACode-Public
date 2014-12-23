@@ -180,7 +180,8 @@ void SpaceSystem::glUpdate() {
     }
 }
 
-void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram) {
+void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram,
+                             vg::GLProgram* waterProgram) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     static DebugRenderer debugRenderer;
@@ -203,18 +204,16 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    terrainProgram->use();
-    terrainProgram->enableVertexAttribArrays();
     glActiveTexture(GL_TEXTURE0);
+    terrainProgram->use();
     glUniform1i(terrainProgram->getUniform("unNormalMap"), 0);
-  //  glUniform3f(terrainProgram->getUniform("unLightDirWorld"), 0.0f, 0.0f, 1.0f);
+    waterProgram->use();
+    glUniform1i(waterProgram->getUniform("unNormalMap"), 0);
     for (auto& it : m_sphericalTerrainCT) {
         auto& cmp = it.second;
-        cmp.draw(camera, terrainProgram, &m_namePositionCT.getFromEntity(it.first));
+        cmp.draw(camera, terrainProgram, waterProgram, &m_namePositionCT.getFromEntity(it.first));
     }
-    terrainProgram->disableVertexAttribArrays();
-    terrainProgram->unuse();
-
+    waterProgram->unuse();
     m_mutex.unlock();
 
     drawHud();

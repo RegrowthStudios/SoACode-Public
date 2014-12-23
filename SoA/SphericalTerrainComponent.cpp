@@ -21,7 +21,6 @@ const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;
 
 void TerrainGenDelegate::invoke(void* sender, void* userData) {
     generator->generateTerrain(this);
-    meshManager->addMesh(mesh);
     inUse = false;
 }
 
@@ -33,8 +32,8 @@ void SphericalTerrainComponent::init(f64 radius, vg::GLProgram* genProgram,
     }
 
     m_meshManager = new SphericalTerrainMeshManager;
-    m_generator = new SphericalTerrainGenerator(radius, genProgram, normalProgram);
-    rpcDispatcher = new TerrainRpcDispatcher(m_generator, m_meshManager);
+    m_generator = new SphericalTerrainGenerator(radius, m_meshManager, genProgram, normalProgram);
+    rpcDispatcher = new TerrainRpcDispatcher(m_generator);
     
     f64 patchWidth = (radius * 2.0) / PATCH_ROW;
     m_sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
@@ -99,6 +98,7 @@ void SphericalTerrainComponent::glUpdate() {
 
 void SphericalTerrainComponent::draw(const Camera* camera,
                                      vg::GLProgram* terrainProgram,
+                                     vg::GLProgram* waterProgram,
                                      const NamePositionComponent* npComponent) {
     if (!m_patches) return;
 
@@ -107,7 +107,7 @@ void SphericalTerrainComponent::draw(const Camera* camera,
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
     // Draw patches
-    m_meshManager->draw(relativeCameraPos, camera->getViewMatrix(), VP, terrainProgram);
+    m_meshManager->draw(relativeCameraPos, camera->getViewMatrix(), VP, terrainProgram, waterProgram);
 }
 
 void SphericalTerrainComponent::initPatches() {

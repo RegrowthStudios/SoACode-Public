@@ -39,16 +39,13 @@ public:
 
     SphericalTerrainMesh* mesh = nullptr;
     SphericalTerrainGenerator* generator = nullptr;
-    SphericalTerrainMeshManager* meshManager = nullptr;
 };
 
 class TerrainRpcDispatcher {
 public:
-    TerrainRpcDispatcher(SphericalTerrainGenerator* generator, SphericalTerrainMeshManager* meshManager) :
-        m_generator(generator), 
-        m_meshManager(meshManager) {
+    TerrainRpcDispatcher(SphericalTerrainGenerator* generator) :
+        m_generator(generator) {
         for (int i = 0; i < NUM_GENERATORS; i++) {
-            m_generators[i].meshManager = m_meshManager;
             m_generators[i].generator = m_generator;
         }
     }
@@ -62,8 +59,7 @@ private:
     int counter = 0;
 
     SphericalTerrainGenerator* m_generator = nullptr;
-    SphericalTerrainMeshManager* m_meshManager = nullptr;
-   
+
     TerrainGenDelegate m_generators[NUM_GENERATORS];
 };
 
@@ -83,6 +79,7 @@ public:
 
     void draw(const Camera* camera,
               vg::GLProgram* terrainProgram,
+              vg::GLProgram* waterProgram,
               const NamePositionComponent* npComponent);
 private:
     void initPatches();

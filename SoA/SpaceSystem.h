@@ -78,7 +78,10 @@ public:
 
     /// Renders the space bodies
     /// @param camera: Camera for rendering
-    void drawBodies(const Camera* camera, vg::GLProgram* terrainProgram);
+    /// @param terrainProgram: Program for rendering terrain
+    /// @param waterProgram: Program for rendering water
+    void drawBodies(const Camera* camera, vg::GLProgram* terrainProgram,
+                    vg::GLProgram* waterProgram);
 
     /// Renders the space paths
     /// @param camera: Camera for rendering

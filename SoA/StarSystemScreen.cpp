@@ -103,7 +103,10 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     _quad.init();
 
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &m_camera);
-    m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera, glProgramManager->getProgram("BasicColor"), glProgramManager->getProgram("SphericalTerrain"));
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera,
+                                                          glProgramManager->getProgram("BasicColor"),
+                                                          glProgramManager->getProgram("SphericalTerrain"),
+                                                          glProgramManager->getProgram("SphericalWater"));
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, &m_camera);
 
     vui::InputDispatcher::mouse.onMotion.addFunctor(([=](void* s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); }));
@@ -251,7 +254,10 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             _quad.init();
 
             _skyboxRenderStage = new SkyboxRenderStage(GameManager::glProgramManager->getProgram("Texture"), &m_camera);
-            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera, GameManager::glProgramManager->getProgram("BasicColor"), GameManager::glProgramManager->getProgram("SphericalTerrain"));
+            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera,
+                                                                  GameManager::glProgramManager->getProgram("BasicColor"),
+                                                                  GameManager::glProgramManager->getProgram("SphericalTerrain"),
+                                                                  GameManager::glProgramManager->getProgram("SphericalWater"));
             _hdrRenderStage = new HdrRenderStage(GameManager::glProgramManager, &_quad, &m_camera);
             break;
     }

@@ -24,6 +24,12 @@ SphericalTerrainMesh::~SphericalTerrainMesh() {
     if (m_vbo) {
         vg::GpuMemory::freeBuffer(m_vbo);
     }
+    if (m_wvbo) {
+        vg::GpuMemory::freeBuffer(m_wvbo);
+    }
+    if (m_wibo) {
+        vg::GpuMemory::freeBuffer(m_wibo);
+    }
     if (m_vao) {
         glDeleteVertexArrays(1, &m_vao);
     }
@@ -66,6 +72,45 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glDrawElements(GL_TRIANGLES, SphericalTerrainPatch::INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
  //   glBindVertexArray(0);
+}
+
+void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program) {
+    // Set up matrix
+    checkGlError("A");
+    f32m4 W(1.0);
+    setMatrixTranslation(W, -cameraPos);
+    f32m3 WV3x3 = glm::mat3(V * W);
+
+    f32m4 WVP = VP * W;
+
+    glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
+    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
+    glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
+
+    // TODO: Using a VAO makes it not work??
+    // glBindVertexArray(m_vao);
+
+    glBindTexture(GL_TEXTURE_2D, m_normalMap);
+    checkGlError("B");
+    vg::GpuMemory::bindBuffer(m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, position));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, tangent));
+    glVertexAttribPointer(2, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, color));
+    glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, texCoords));
+
+    checkGlError("C");
+    vg::GpuMemory::bindBuffer(m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    glDrawElements(GL_TRIANGLES, m_waterIndexCount, GL_UNSIGNED_SHORT, 0);
+    checkGlError("D");
+    //   glBindVertexArray(0);
 }
 
 

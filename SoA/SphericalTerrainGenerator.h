@@ -78,7 +78,9 @@ public:
 
 class SphericalTerrainGenerator {
 public:
-    SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram,
+    SphericalTerrainGenerator(float radius,
+                              SphericalTerrainMeshManager* meshManager,
+                              vg::GLProgram* genProgram,
                               vg::GLProgram* normalProgram);
     ~SphericalTerrainGenerator();
 
@@ -132,6 +134,8 @@ private:
 
     VGFramebuffer m_normalFbo = 0;
     ui32v2 m_heightMapDims;
+
+    SphericalTerrainMeshManager* m_meshManager = nullptr;
 
     vcore::RPCManager m_rpcManager;
 

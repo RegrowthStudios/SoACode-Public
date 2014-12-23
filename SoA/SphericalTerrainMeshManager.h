@@ -26,13 +26,16 @@ public:
     /// Draws the meshes
     /// @param cameraPos: Position of the camera
     /// @param VP: View-Projection matrix
-    /// @param program: Shader program for rendering
-    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program);
+    /// @param program: Shader program for rendering terrain
+    /// @param waterProgram: Shader program for rendering water
+    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+              vg::GLProgram* program, vg::GLProgram* waterProgram);
 
     void addMesh(SphericalTerrainMesh* mesh);
 
 private:
-    std::vector<SphericalTerrainMesh*> m_meshes;
+    std::vector<SphericalTerrainMesh*> m_meshes; ///< All meshes
+    std::vector<SphericalTerrainMesh*> m_waterMeshes; ///< Meshes with water active
 };
 
 #endif // SphericalTerrainMeshManager_h__

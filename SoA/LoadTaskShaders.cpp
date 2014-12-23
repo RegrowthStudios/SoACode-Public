@@ -107,6 +107,13 @@ void LoadTaskShaders::load() {
     sphericalAttribs.push_back("vColor");
     sphericalAttribs.push_back("vUV");
 
+    // Attributes for spherical water
+    std::vector<nString> sphericalWaterAttribs;
+    sphericalWaterAttribs.push_back("vPosition");
+    sphericalWaterAttribs.push_back("vTangent");
+    sphericalWaterAttribs.push_back("vColor");
+    sphericalWaterAttribs.push_back("vUV");
+
     IOManager iom;
 
     m_glrpc->invoke(&createProgram("BasicColor",
@@ -198,6 +205,11 @@ void LoadTaskShaders::load() {
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalTerrain.vert"),
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalTerrain.frag"), 
         &sphericalAttribs
+        )->rpc, false);
+    m_glrpc->invoke(&createProgram("SphericalWater",
+        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.vert"),
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.frag"),
+        &sphericalWaterAttribs
         )->rpc, false);
     m_glrpc->invoke(&createProgram("SimplexNoise",
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/Simplex.vert"),

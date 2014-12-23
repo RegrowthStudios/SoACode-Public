@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainComponent.h"
+#include "SphericalTerrainMeshManager.h"
 
 #include "GpuMemory.h"
 #include "Errors.h"
@@ -25,9 +26,12 @@ bool SphericalTerrainGenerator::waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
 VGIndexBuffer SphericalTerrainGenerator::m_cwIbo = 0; ///< Reusable CW IBO
 VGIndexBuffer SphericalTerrainGenerator::m_ccwIbo = 0; ///< Reusable CCW IBO
 
-SphericalTerrainGenerator::SphericalTerrainGenerator(float radius, vg::GLProgram* genProgram,
+SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
+                                                     SphericalTerrainMeshManager* meshManager,
+                                                     vg::GLProgram* genProgram,
                                                      vg::GLProgram* normalProgram) :
     m_radius(radius),
+    m_meshManager(meshManager),
     m_genProgram(genProgram),
     m_normalProgram(normalProgram),
     unCornerPos(m_genProgram->getUniform("unCornerPos")),
@@ -237,6 +241,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     // Add water mesh
     if (m_waterIndexCount) {
+        mesh->m_waterIndexCount = m_waterIndexCount;
         vg::GpuMemory::createBuffer(mesh->m_wvbo);
         vg::GpuMemory::bindBuffer(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
         vg::GpuMemory::uploadBufferData(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER,
@@ -248,6 +253,12 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                                         m_waterIndexCount * sizeof(ui16),
                                         waterIndices);
     }
+
+    checkGlError("BUILD MESH");
+
+    // Finally, add to the mesh manager
+    m_meshManager->addMesh(mesh);
+
 
     // TODO: Using a VAO makes it not work??
    //    glBindVertexArray(0);
@@ -317,6 +328,7 @@ void SphericalTerrainGenerator::addWater(int z, int x) {
 }
 
 void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
+    if (z < 0 || x < 0 || z >= PATCH_WIDTH || x >= PATCH_WIDTH) return;
     if (waterIndexGrid[z][x] == 0) {
         waterIndexGrid[z][x] = m_waterIndex + 1;
         auto& v = waterVerts[m_waterIndex];
@@ -352,23 +364,24 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
 }
 
 void SphericalTerrainGenerator::tryAddWaterQuad(int z, int x) {
+    if (z < 0 || x < 0 || z >= PATCH_WIDTH - 1 || x >= PATCH_WIDTH - 1) return;
     if (!waterQuads[z][x]) {
         waterQuads[z][x] = true;
 
         if (m_ccw) {
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x];
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
         } else {
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x];
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x];
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x] - 1;
+            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
         }
     }
 }
