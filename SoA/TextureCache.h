@@ -22,6 +22,9 @@
 #include "Texture.h"
 #include "ImageLoader.h"
 
+#include "gtypes.h"
+#include "GLEnums.h"
+
 class IOManager;
 
 namespace vorb {
@@ -50,10 +53,14 @@ public:
     /// an existing texture ID if it already exists in the cache
     /// @param filePath: The file path of the texture
     /// @param samplingParameters: The texture sampler parameters
+    /// @param internalFormat: Internal format of the pixel data
+    /// @param textureFormat: Format of uploaded pixels
     /// @param mipmapLevels: The max number of mipmap levels
     /// @return The texture ID or 0 if loading fails
     Texture addTexture(const nString& filePath,
                        SamplerState* samplingParameters = &SamplerState::LINEAR_CLAMP_MIPMAP,
+                       vg::TextureInternalFormat internalFormat = vg::TextureInternalFormat::RGBA,
+                       vg::TextureFormat textureFormat = vg::TextureFormat::RGBA,
                        i32 mipmapLevels = INT_MAX);
 
     /// Uploads a png texture and adds it to the cache
@@ -63,6 +70,8 @@ public:
     /// @param width: The texture width in pixels
     /// @param height: The texture height in pixels
     /// @param samplingParameters: The texture sampler parameters
+    /// @param internalFormat : Internal format of the pixel data
+    /// @param textureFormat: Format of uploaded pixels
     /// @param mipmapLevels: The max number of mipmap levels
     /// @return The texture. ID will be 0 if loading fails
     Texture addTexture(const nString& filePath,
@@ -70,6 +79,8 @@ public:
                     ui32 width,
                     ui32 height,
                     SamplerState* samplingParameters = &SamplerState::LINEAR_CLAMP_MIPMAP,
+                    vg::TextureInternalFormat internalFormat = vg::TextureInternalFormat::RGBA,
+                    vg::TextureFormat textureFormat = vg::TextureFormat::RGBA,
                     i32 mipmapLevels = INT_MAX);
 
     /// Adds a texture to the cache

@@ -49,6 +49,8 @@ nString TextureCache::getTexturePath(ui32 textureID) {
 
 Texture TextureCache::addTexture(const nString& filePath,
                                 SamplerState* samplingParameters /* = &SamplerState::LINEAR_CLAMP_MIPMAP */,
+                                vg::TextureInternalFormat internalFormat /* = vg::TextureInternalFormat::RGBA */,
+                                vg::TextureFormat textureFormat /* = vg::TextureFormat::RGBA */,
                                 i32 mipmapLevels /* = INT_MAX */) {
 
     // Check if its already cached
@@ -64,7 +66,11 @@ Texture TextureCache::addTexture(const nString& filePath,
     }
 
     // Upload the texture through GpuMemory
-    texture.id = GpuMemory::uploadTexture(pixelStore.data(), texture.width, texture.height, samplingParameters, mipmapLevels);
+    texture.id = GpuMemory::uploadTexture(pixelStore.data(), texture.width, texture.height,
+                                          samplingParameters,
+                                          internalFormat,
+                                          textureFormat,
+                                          mipmapLevels);
 
     // Store the texture in the cache
     insertTexture(filePath, texture);
@@ -76,13 +82,19 @@ Texture TextureCache::addTexture(const nString& filePath,
                               ui32 width,
                               ui32 height,
                               SamplerState* samplingParameters /* = &SamplerState::LINEAR_CLAMP_MIPMAP */,
+                              vg::TextureInternalFormat internalFormat /* = vg::TextureInternalFormat::RGBA */,
+                              vg::TextureFormat textureFormat /* = vg::TextureFormat::RGBA */,
                               i32 mipmapLevels /* = INT_MAX */) {
     // Check if its already cached
     Texture texture = findTexture(filePath);
     if (texture.id) return texture;
 
     // Upload the texture through GpuMemory
-    texture.id = GpuMemory::uploadTexture(pixels, width, height, samplingParameters, mipmapLevels);
+    texture.id = GpuMemory::uploadTexture(pixels, width, height,
+                                          samplingParameters,
+                                          internalFormat,
+                                          textureFormat,
+                                          mipmapLevels);
     texture.width = width;
     texture.height = height;
 
