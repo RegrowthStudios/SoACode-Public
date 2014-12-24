@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "BlockTextureMethods.h"
 
+#include <ConnectedTextures.h>
+
 #include "BlockPack.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
@@ -196,8 +198,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
         }
     }
 
-
-    result += connectedTextureOffsets[connectedOffset];
+    result += vg::ConnectedTextureHelper::getOffsetFull(connectedOffset);
 }
 
 //Gets a grass side texture offset by looking at the surrounding blocks
@@ -276,7 +277,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
         connectedOffset |= 0x1;
     }
 
-    result += grassTextureOffsets[connectedOffset];
+    result += vg::ConnectedTextureHelper::getOffsetSmall(connectedOffset);
 }
 
 void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, int& result) {
