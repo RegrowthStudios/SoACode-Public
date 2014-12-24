@@ -15,8 +15,9 @@
 #ifndef BlockPack_h__
 #define BlockPack_h__
 
-#include "BlockData.h"
+#include <Events.hpp>
 
+#include "BlockData.h"
 /// A container for blocks
 class BlockPack {
 public:
@@ -72,9 +73,11 @@ public:
     const Block& operator[](const BlockIdentifier& id) const {
         return m_blockList[m_blocks.at(id)];
     }
+
+    Event<ui16> onBlockAddition; ///< Signaled when a block is loaded
 private:
-    std::unordered_map<BlockIdentifier, size_t> m_blocks;
-    std::vector<Block> m_blockList;
+    std::unordered_map<BlockIdentifier, ui16> m_blocks; ///< Blocks indices organized by identifiers
+    std::vector<Block> m_blockList; ///< Block data list
 };
 
 // TODO: This will need to be removed
