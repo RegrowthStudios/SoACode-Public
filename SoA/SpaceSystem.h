@@ -25,8 +25,6 @@
 #include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
 
-#include "GLProgramManager.h"
-
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
 #define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
@@ -42,6 +40,15 @@ class SpriteBatch;
 class SpriteFont;
 class StarKegProperties;
 class SystemBodyKegProperties;
+
+namespace vorb {
+    namespace core {
+        namespace graphics {
+            class TextureRecycler;
+            class GLProgramManager;
+        }
+    }
+}
 
 enum class BodyType {
     NONE,
@@ -60,6 +67,7 @@ public:
     vcore::Entity* entity = nullptr;
     BodyType type = BodyType::NONE;
 };
+
 
 class SpaceSystem : public vcore::ECS {
 public:
@@ -162,6 +170,8 @@ protected:
     IOManager m_ioManager;
 
     std::mutex m_mutex;
+
+    vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< For recycling normal maps
     
     PlanetLoader* m_planetLoader = nullptr;
 

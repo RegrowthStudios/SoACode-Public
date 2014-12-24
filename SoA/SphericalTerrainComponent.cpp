@@ -26,7 +26,8 @@ void TerrainGenDelegate::invoke(void* sender, void* userData) {
 }
 
 void SphericalTerrainComponent::init(f64 radius, PlanetGenData* planetGenData,
-                                     vg::GLProgram* normalProgram) {
+                                     vg::GLProgram* normalProgram,
+                                     vg::TextureRecycler* textureRecycler) {
     
     m_planetGenData = planetGenData;
     if (m_meshManager != nullptr) {
@@ -34,7 +35,9 @@ void SphericalTerrainComponent::init(f64 radius, PlanetGenData* planetGenData,
     }
 
     m_meshManager = new SphericalTerrainMeshManager(m_planetGenData);
-    m_generator = new SphericalTerrainGenerator(radius, m_meshManager, m_planetGenData->program, normalProgram);
+    m_generator = new SphericalTerrainGenerator(radius, m_meshManager,
+                                                m_planetGenData->program,
+                                                normalProgram, textureRecycler);
     rpcDispatcher = new TerrainRpcDispatcher(m_generator);
     
     f64 patchWidth = (radius * 2.0) / PATCH_ROW;

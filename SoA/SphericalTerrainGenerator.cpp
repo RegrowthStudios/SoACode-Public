@@ -29,11 +29,13 @@ VGIndexBuffer SphericalTerrainGenerator::m_ccwIbo = 0; ///< Reusable CCW IBO
 SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
                                                      SphericalTerrainMeshManager* meshManager,
                                                      vg::GLProgram* genProgram,
-                                                     vg::GLProgram* normalProgram) :
+                                                     vg::GLProgram* normalProgram,
+                                                     vg::TextureRecycler* normalMapRecycler) :
     m_radius(radius),
     m_meshManager(meshManager),
     m_genProgram(genProgram),
     m_normalProgram(normalProgram),
+    m_normalMapRecycler(normalMapRecycler),
     unCornerPos(m_genProgram->getUniform("unCornerPos")),
     unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
     unPatchWidth(m_genProgram->getUniform("unPatchWidth")),

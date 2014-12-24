@@ -24,6 +24,14 @@ class TerrainGenDelegate;
 #include <FullQuadVBO.h>
 #include <GBuffer.h>
 
+namespace vorb {
+    namespace core {
+        namespace graphics {
+            class TextureRecycler;
+        }
+    }
+}
+
 // Coordinate mapping for rotating 2d grid to quadcube positions
 // Pain of i32v3, first is coordinates
 const i32v3 CubeCoordinateMappings[6] = {
@@ -82,7 +90,8 @@ public:
     SphericalTerrainGenerator(float radius,
                               SphericalTerrainMeshManager* meshManager,
                               vg::GLProgram* genProgram,
-                              vg::GLProgram* normalProgram);
+                              vg::GLProgram* normalProgram,
+                              vg::TextureRecycler* normalMapRecycler);
     ~SphericalTerrainGenerator();
 
     // Do this on the openGL thread
@@ -143,6 +152,8 @@ private:
 
     vg::GLProgram* m_genProgram;
     vg::GLProgram* m_normalProgram;
+
+    vg::TextureRecycler* m_normalMapRecycler = nullptr;
 
     static VGIndexBuffer m_cwIbo; ///< Reusable CW IBO
     static VGIndexBuffer m_ccwIbo; ///< Reusable CCW IBO

@@ -4,16 +4,19 @@
 #include "Camera.h"
 #include "DebugRenderer.h"
 #include "DepthState.h"
+#include "GLProgramManager.h"
 #include "IOManager.h"
 #include "Keg.h"
 #include "PlanetLoader.h"
 #include "PlanetLoader.h"
 #include "RenderUtils.h"
+#include "SamplerState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainMeshManager.h"
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
+#include "TextureRecycler.hpp"
 #include "colors.h"
 #include "utils.h"
 
@@ -138,11 +141,20 @@ SpaceSystem::SpaceSystem(App* parent) : vcore::ECS() {
 
     m_app = parent;
     m_planetLoader = new PlanetLoader(&m_ioManager);
+   
+    #define MAX_NORMAL_MAPS 128U
+    m_normalMapRecycler = new vg::TextureRecycler((ui32)PATCH_NORMALMAP_WIDTH,
+                                                  (ui32)PATCH_NORMALMAP_WIDTH,
+                                                  &SamplerState::POINT_CLAMP,
+                                                  0,
+                                                  vg::TextureInternalFormat::RGB8,
+                                                  MAX_NORMAL_MAPS);
 }
 
 SpaceSystem::~SpaceSystem() {
     delete m_spriteBatch;
     delete m_spriteFont;
+    delete m_planetLoader;
 }
 
 void SpaceSystem::init(vg::GLProgramManager* programManager) {
@@ -376,7 +388,8 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
 
     m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0,
                                          properties->planetGenData,
-                                         m_programManager->getProgram("NormalMapGen"));
+                                         m_programManager->getProgram("NormalMapGen"),
+                                         m_normalMapRecycler);
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
