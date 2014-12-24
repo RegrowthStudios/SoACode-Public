@@ -27,6 +27,7 @@ namespace vorb {
         }
     }
 }
+namespace vg = vorb::core::graphics;
 
 class SphericalTerrainMeshManager {
 public:
