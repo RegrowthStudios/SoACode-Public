@@ -27,17 +27,18 @@ void TerrainGenDelegate::invoke(void* sender, void* userData) {
 
 void SphericalTerrainComponent::init(f64 radius, PlanetGenData* planetGenData,
                                      vg::GLProgram* normalProgram,
-                                     vg::TextureRecycler* textureRecycler) {
+                                     vg::TextureRecycler* normalMapRecycler) {
     
     m_planetGenData = planetGenData;
     if (m_meshManager != nullptr) {
         pError("Tried to initialize SphericalTerrainComponent twice!");
     }
 
-    m_meshManager = new SphericalTerrainMeshManager(m_planetGenData);
+    m_meshManager = new SphericalTerrainMeshManager(m_planetGenData,
+                                                    normalMapRecycler);
     m_generator = new SphericalTerrainGenerator(radius, m_meshManager,
                                                 m_planetGenData->program,
-                                                normalProgram, textureRecycler);
+                                                normalProgram, normalMapRecycler);
     rpcDispatcher = new TerrainRpcDispatcher(m_generator);
     
     f64 patchWidth = (radius * 2.0) / PATCH_ROW;

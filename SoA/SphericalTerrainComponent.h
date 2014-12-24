@@ -70,7 +70,7 @@ public:
     /// @param radius: Radius of the planet, must be multiple of 32.
     void init(f64 radius, PlanetGenData* planetGenData,
               vg::GLProgram* normalProgram,
-              vg::TextureRecycler* textureRecycler);
+              vg::TextureRecycler* normalMapRecycler);
 
     void update(const f64v3& cameraPos,
                 const NamePositionComponent* npComponent);

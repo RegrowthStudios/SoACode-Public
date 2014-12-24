@@ -5,6 +5,9 @@
 #include "PlanetLoader.h"
 #include "Texture2d.h"
 
+#include <GLProgram.h>
+#include <TextureRecycler.hpp>
+
 #include "SphericalTerrainPatch.h"
 
 void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
@@ -56,6 +59,7 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
 
         for (int i = 0; i < m_meshes.size(); i++) {
             if (m_meshes[i]->m_shouldDelete) {
+                m_meshes[i]->recycleNormalMap(m_normalMapRecycler);
                 delete m_meshes[i];
                 m_meshes[i] = m_meshes.back();
                 m_meshes.pop_back();

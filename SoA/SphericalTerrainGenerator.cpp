@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "SphericalTerrainGenerator.h"
+
+#include "Errors.h"
+#include "GpuMemory.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalTerrainMeshManager.h"
+#include "TextureRecycler.hpp"
 #include "Timing.h"
-#include "GpuMemory.h"
-#include "Errors.h"
 
 const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 0, 0), //TOP
@@ -103,10 +105,7 @@ void SphericalTerrainGenerator::update() {
         
             // Create and bind output normal map
             if (data->mesh->m_normalMap == 0) {
-                glGenTextures(1, &data->mesh->m_normalMap);
-                glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
-                glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)NORMALGEN_INTERNAL_FORMAT, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-                SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
+                data->mesh->m_normalMap = m_normalMapRecycler->produce();
             } else {
                 glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
             }

@@ -26,6 +26,13 @@ class Camera;
 class MeshManager;
 class TerrainRpcDispatcher;
 class TerrainGenDelegate;
+namespace vorb {
+    namespace core {
+        namespace graphics {
+            class TextureRecycler;
+        }
+    }
+}
 
 const int PIXELS_PER_PATCH_NM = 8;
 const int PATCH_WIDTH = 33;
@@ -58,6 +65,10 @@ public:
     friend class SphericalTerrainMeshManager;
     SphericalTerrainMesh(CubeFace cubeFace) : m_cubeFace(cubeFace) {}
     ~SphericalTerrainMesh();
+
+    /// Recycles the normal map
+    /// @param recycler: Recycles the texture
+    void recycleNormalMap(vg::TextureRecycler* recycler);
 
     /// Draws the terrain mesh
     /// @param cameraPos: Position of the camera

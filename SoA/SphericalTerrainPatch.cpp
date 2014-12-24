@@ -8,6 +8,7 @@
 #include "RenderUtils.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalTerrainGenerator.h"
+#include "TextureRecycler.hpp"
 #include "VoxelPlanetMapper.h"
 #include "utils.h"
 
@@ -35,6 +36,13 @@ SphericalTerrainMesh::~SphericalTerrainMesh() {
     }
     if (m_normalMap) {
         glDeleteTextures(1, &m_normalMap);
+    }
+}
+
+void SphericalTerrainMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
+    if (m_normalMap) {
+        recycler->recycle(m_normalMap);
+        m_normalMap = 0;
     }
 }
 
