@@ -4,7 +4,6 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "BlockPack.h"
-#include "CAEngine.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
@@ -13,40 +12,24 @@
 #include "TexturePackLoader.h"
 
 bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
-    IOManager ioManager; // TODO: Pass in a real boy
-    const cString data = ioManager.readFileToString(filePath.c_str());
-
-    YAML::Node node = YAML::Load(data);
-    if (node.IsNull() || !node.IsMap()) {
-        delete[] data;
-        return false;
-    }
+    IOManager iom; // TODO: Pass in a real boy
 
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
-    std::vector<Block> loadedBlocks;
-
-    Keg::Value v = Keg::Value::custom("Block", 0);
-    for (auto& kvp : node) {
-        Block b;
-        b.name = kvp.first.as<nString>();
-        Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
-
-        // Bit of post-processing on the block
-        postProcessBlockLoad(&b, &ioManager);
-
-        loadedBlocks.push_back(b);
+    GameBlockPostProcess bpp(&iom, GameManager::texturePackLoader, &CaPhysicsType::typesCache);
+    pack->onBlockAddition += &bpp;
+    if (!BlockLoader::load(&iom, filePath.c_str(), pack)) {
+        pack->onBlockAddition -= &bpp;
+        return false;
     }
-    delete[] data;
+    pack->onBlockAddition -= &bpp;
 
     // Set up the water blocks
-    SetWaterBlocks(loadedBlocks);
-
-    pack->append(loadedBlocks.data(), loadedBlocks.size());
-    
+    std::vector<Block> waterBlocks;
+    SetWaterBlocks(waterBlocks);
+    pack->append(waterBlocks.data(), waterBlocks.size());
     LOWWATER = (*pack)["Water (1)"].ID; // TODO: Please kill me now... I can't take this kind of nonsense anymore
-
 
     return true;
 }
@@ -77,47 +60,11 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     }
     e << YAML::EndMap;
 
-
     file << e.c_str();
     file.flush();
     file.close();
     return true;
 }
-
-
-void BlockLoader::postProcessBlockLoad(Block* block, IOManager* ioManager) {
-    block->active = true;
-    GameManager::texturePackLoader->registerBlockTexture(block->topTexName);
-    GameManager::texturePackLoader->registerBlockTexture(block->leftTexName);
-    GameManager::texturePackLoader->registerBlockTexture(block->rightTexName);
-    GameManager::texturePackLoader->registerBlockTexture(block->backTexName);
-    GameManager::texturePackLoader->registerBlockTexture(block->frontTexName);
-    GameManager::texturePackLoader->registerBlockTexture(block->bottomTexName);
-
-    // Pack light color
-    block->lightColorPacked = ((ui16)block->lightColor.r << LAMP_RED_SHIFT) |
-        ((ui16)block->lightColor.g << LAMP_GREEN_SHIFT) |
-        (ui16)block->lightColor.b;
-    // Ca Physics
-    if (block->caFilePath.length()) {
-        // Check if this physics type was already loaded
-        auto it = CaPhysicsType::typesCache.find(block->caFilePath);
-        if (it == CaPhysicsType::typesCache.end()) {
-            CaPhysicsType* newType = new CaPhysicsType();
-            // Load in the data
-            if (newType->loadFromYml(block->caFilePath, ioManager)) {
-                block->caIndex = newType->getCaIndex();
-                block->caAlg = newType->getCaAlg();
-            } else {
-                delete newType;
-            }
-        } else {
-            block->caIndex = it->second->getCaIndex();
-            block->caAlg = it->second->getCaAlg();
-        }
-    }
-}
-
 
 void BlockLoader::SetWaterBlocks(std::vector<Block>& blocks) {
     for (i32 i = 0; i < 100; i++) {
@@ -133,3 +80,84 @@ void BlockLoader::SetWaterBlocks(std::vector<Block>& blocks) {
         blocks.back().meshType = MeshType::LIQUID; // TODO: Should this be here?
     }
 }
+
+bool BlockLoader::load(const IOManager* iom, const cString filePath, BlockPack* pack) {
+    // Read file
+    const cString data = iom->readFileToString(filePath);
+    if (!data) return false;
+
+    // Convert to YAML
+    YAML::Node node = YAML::Load(data);
+    if (node.IsNull() || !node.IsMap()) {
+        delete[] data;
+        return false;
+    }
+
+    // Load all block nodes
+    std::vector<Block> loadedBlocks;
+    for (auto& kvp : node) {
+        // Add a block
+        loadedBlocks.emplace_back();
+        Block& b = loadedBlocks.back();
+
+        // Set name to key
+        b.name = kvp.first.as<nString>();
+        
+        // Load data
+        Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+    }
+    delete[] data;
+
+    // Add blocks to pack
+    pack->append(loadedBlocks.data(), loadedBlocks.size());
+
+    return true;
+}
+
+
+GameBlockPostProcess::GameBlockPostProcess(const IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache) :
+    m_iom(iom),
+    m_texPackLoader(tpl),
+    m_caCache(caCache) {
+    // Empty
+}
+
+void GameBlockPostProcess::invoke(void* s, ui16 id) {
+    Block& block = ((BlockPack*)s)->operator[](id);
+    block.active = true;
+
+    // Block textures
+    m_texPackLoader->registerBlockTexture(block.topTexName);
+    m_texPackLoader->registerBlockTexture(block.leftTexName);
+    m_texPackLoader->registerBlockTexture(block.rightTexName);
+    m_texPackLoader->registerBlockTexture(block.backTexName);
+    m_texPackLoader->registerBlockTexture(block.frontTexName);
+    m_texPackLoader->registerBlockTexture(block.bottomTexName);
+
+    // Pack light color
+    block.lightColorPacked =
+        ((ui16)block.lightColor.r << LAMP_RED_SHIFT) |
+        ((ui16)block.lightColor.g << LAMP_GREEN_SHIFT) |
+        (ui16)block.lightColor.b;
+
+    // Ca Physics
+    if (block.caFilePath.length()) {
+        // Check if this physics type was already loaded
+        auto it = m_caCache->find(block.caFilePath);
+        if (it == m_caCache->end()) {
+            CaPhysicsType* newType = new CaPhysicsType();
+            // Load in the data
+            if (newType->loadFromYml(block.caFilePath, m_iom)) {
+                block.caIndex = newType->getCaIndex();
+                block.caAlg = newType->getCaAlg();
+            } else {
+                delete newType;
+            }
+        } else {
+            block.caIndex = it->second->getCaIndex();
+            block.caAlg = it->second->getCaAlg();
+        }
+    }
+
+}
+
