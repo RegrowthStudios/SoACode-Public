@@ -1,16 +1,17 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponent.h"
+
 #include "Camera.h"
-#include "utils.h"
-#include "SphericalTerrainMeshManager.h"
 #include "Errors.h"
+#include "NamePositionComponent.h"
+#include "PlanetLoader.h"
+#include "SphericalTerrainMeshManager.h"
+#include "utils.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
-
-#include "NamePositionComponent.h"
 
 #define LOAD_DIST 40000.0
 // Should be even

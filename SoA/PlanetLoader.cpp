@@ -77,7 +77,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
         if (type == "terrainColor") {
             genData->liquidColorMap = m_textureCache.addTexture(kvp.second.as<nString>());
         } else if (type == "liquidColor") {
-
+            parseLiquidColor(kvp.second, genData);
         } else if (type == "baseHeight") {
             parseTerrainFuncs(&baseTerrainFuncs, kvp.second);
         } else if (type == "temperature") {
@@ -94,8 +94,6 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
 
     if (program != nullptr) {
         genData->program = program;
-        genData->terrainColorMap = terrainTexture;
-        genData->liquidcolorMap = liquidTexture;
         return genData;
     } 
     delete genData;
