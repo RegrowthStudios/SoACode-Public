@@ -129,9 +129,10 @@ private:
     f32v3 m_startPos;
     bool m_ccw;
 
-    int m_patchCounter;
+    int m_patchCounter = 0;
     TerrainGenTextures m_textures[PATCHES_PER_FRAME];
     TerrainGenDelegate* m_delegates[PATCHES_PER_FRAME];
+    VGBuffer m_pbos[PATCHES_PER_FRAME];
 
     VGFramebuffer m_normalFbo = 0;
     ui32v2 m_heightMapDims;
@@ -155,9 +156,7 @@ private:
 
     vg::FullQuadVBO m_quad;
 
-    static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
-    static ui8 m_temperatureData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
-    static ui8 m_humidityData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+    static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][3];
 };
 
 #endif // SphericalTerrainGenerator_h__

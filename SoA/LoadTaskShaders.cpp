@@ -82,8 +82,6 @@ void LoadTaskShaders::load() {
     terrainAttribs.push_back("vColorSlope");
     terrainAttribs.push_back("vTexTempRainSpec");
 
-
-
     // Attributes for block shaders
     std::vector<nString> blockAttribs;
     blockAttribs.push_back("position_TextureType");

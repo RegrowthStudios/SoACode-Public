@@ -7,9 +7,11 @@
 #include <IOManager.h>
 
 enum class TerrainFunction {
+    NOISE,
     RIDGED_NOISE
 };
 KEG_ENUM_INIT_BEGIN(TerrainFunction, TerrainFunction, e);
+e->addValue("noise", TerrainFunction::RIDGED_NOISE);
 e->addValue("ridgedNoise", TerrainFunction::RIDGED_NOISE);
 KEG_ENUM_INIT_END
 
@@ -76,7 +78,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
         nString type = kvp.first.as<nString>();
         // Parse based on type
         if (type == "terrainColor") {
-            genData->liquidColorMap = m_textureCache.addTexture(kvp.second.as<nString>());
+            genData->terrainColorMap = m_textureCache.addTexture(kvp.second.as<nString>());
         } else if (type == "liquidColor") {
             parseLiquidColor(kvp.second, genData);
         } else if (type == "baseHeight") {
@@ -156,7 +158,9 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& nod
         }
 
         terrainFuncs->funcs.push_back(TerrainFuncKegProperties());
-        if (type == "ridgedNoise") {
+        if (type == "noise") {
+            terrainFuncs->funcs.back().func = TerrainFunction::NOISE;
+        } else if (type == "ridgedNoise") {
             terrainFuncs->funcs.back().func = TerrainFunction::RIDGED_NOISE;
         }
 
@@ -207,6 +211,13 @@ vg::GLProgram* PlanetLoader::generateProgram(TerrainFuncs& baseTerrainFuncs,
     addNoiseFunctions(fSource, N_TEMP, tempTerrainFuncs);
     addNoiseFunctions(fSource, N_HUM, humTerrainFuncs);
 
+    // Clamp temp and rainfall and scale for byte
+    fSource += N_TEMP + "= clamp(" + N_TEMP + ", 0.0, 255.0);";
+    fSource += N_HUM + "= clamp(" + N_HUM + ", 0.0, 255.0);";
+
+//    fSource += N_TEMP + "= 128.0;";
+//    fSource += N_HUM + "= 128.0;";
+
     // Add final brace
     fSource += "}";
 
@@ -242,6 +253,23 @@ void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, 
     
     for (auto& fn : funcs.funcs) {
         switch (fn.func) {
+            case TerrainFunction::NOISE:
+                fSource += R"(
+                total = 0.0;
+                amplitude = 1.0;
+                maxAmplitude = 0.0;
+                frequency = )" + TS(fn.frequency) + R"(;
+
+                for (int i = 0; i < )" + TS(fn.octaves) + R"(; i++) {
+                    total += snoise(pos * frequency) * amplitude;
+
+                    frequency *= 2.0;
+                    maxAmplitude += amplitude;
+                    amplitude *= )" + TS(fn.persistence) + R"(;
+                }
+                )";
+                SCALE_CODE;
+                break;
             case TerrainFunction::RIDGED_NOISE:
                 fSource += R"(
                 total = 0.0;
@@ -250,7 +278,7 @@ void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, 
                 frequency = )" + TS(fn.frequency) + R"(;
 
                 for (int i = 0; i < )" + TS(fn.octaves) + R"(; i++) {
-                    total += 1.0 - abs(snoise(pos * frequency) * amplitude);
+                    total += (1.0 - abs(snoise(pos * frequency) * amplitude)) * 2.0 - 1.0;
 
                     frequency *= 2.0;
                     maxAmplitude += amplitude;

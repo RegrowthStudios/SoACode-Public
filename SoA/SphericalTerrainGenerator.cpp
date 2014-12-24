@@ -2,7 +2,7 @@
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalTerrainMeshManager.h"
-
+#include "Timing.h"
 #include "GpuMemory.h"
 #include "Errors.h"
 
@@ -17,9 +17,7 @@ const ColorRGB8 DebugColors[6] {
 
 TerrainVertex SphericalTerrainGenerator::verts[SphericalTerrainGenerator::VERTS_SIZE];
 WaterVertex SphericalTerrainGenerator::waterVerts[SphericalTerrainGenerator::VERTS_SIZE];
-float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
-ui8 SphericalTerrainGenerator::m_temperatureData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
-ui8 SphericalTerrainGenerator::m_humidityData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][3];
 
 ui16 SphericalTerrainGenerator::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
 ui16 SphericalTerrainGenerator::waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
@@ -65,6 +63,13 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
         generateIndices(m_ccwIbo, true);
     }
 
+    // Generate pixel buffer objects
+    for (int i = 0; i < PATCHES_PER_FRAME; i++) {
+        vg::GpuMemory::createBuffer(m_pbos[i]);
+        vg::GpuMemory::bindBuffer(m_pbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(m_heightData), NULL, GL_STREAM_READ);
+    }
+
 }
 
 SphericalTerrainGenerator::~SphericalTerrainGenerator() {
@@ -73,18 +78,9 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
 
 void SphericalTerrainGenerator::update() {
 
-    m_patchCounter = 0;
-
-    // Heightmap Generation
-    m_genProgram->use();
-    m_genProgram->enableVertexAttribArrays();
-    glDisable(GL_DEPTH_TEST);
+    PreciseTimer timer;
 
     glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-    m_rpcManager.processRequests(PATCHES_PER_FRAME);
-
-    m_genProgram->disableVertexAttribArrays();
-    m_genProgram->unuse();
 
     if (m_patchCounter) {
         // Normal map generation
@@ -97,10 +93,10 @@ void SphericalTerrainGenerator::update() {
         glBindFramebuffer(GL_FRAMEBUFFER, m_normalFbo);
         glViewport(0, 0, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH);
 
-        glFlush();
-        glFinish();
         // Loop through all textures
         for (int i = 0; i < m_patchCounter; i++) {
+
+            timer.start();
             TerrainGenDelegate* data = m_delegates[i];
         
             // Create and bind output normal map
@@ -115,15 +111,22 @@ void SphericalTerrainGenerator::update() {
             // Bind texture to fbo
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
 
-            // Get all the data
+            vg::GpuMemory::bindBuffer(m_pbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+
+            void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+            memcpy(m_heightData, src, sizeof(m_heightData));
+            glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+
+            vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
+
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().height);
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, m_heightData);
-            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().temp);
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, m_temperatureData);
-            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().hum);
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, m_humidityData);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().height_temp_hum);
+           
             
+
+            checkGlError("TEXT");
             // Set uniforms
             glUniform1f(unWidth, data->width / PATCH_HEIGHTMAP_WIDTH);
             glUniform1f(unTexelWidth, (float)PATCH_HEIGHTMAP_WIDTH);
@@ -133,7 +136,11 @@ void SphericalTerrainGenerator::update() {
 
             // And finally build the mesh
             buildMesh(data);
+
+
+          
             data->inUse = false;
+            printf("TIME: %.2f\n", timer.stop());
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -141,6 +148,19 @@ void SphericalTerrainGenerator::update() {
         m_normalProgram->disableVertexAttribArrays();
         m_normalProgram->unuse();
     }
+
+
+
+    m_patchCounter = 0;
+
+    // Heightmap Generation
+    m_genProgram->use();
+    m_genProgram->enableVertexAttribArrays();
+    glDisable(GL_DEPTH_TEST);
+    m_rpcManager.processRequests(PATCHES_PER_FRAME);
+    m_genProgram->disableVertexAttribArrays();
+    m_genProgram->unuse();
+    checkGlError("UPDATE");
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
@@ -158,6 +178,13 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     glUniform1f(unPatchWidth, data->width);
 
     m_quad.draw();
+
+    // Bind PBO
+    vg::GpuMemory::bindBuffer(m_pbos[m_patchCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glReadPixels(0, 0, PATCH_HEIGHTMAP_WIDTH, PATCH_HEIGHTMAP_WIDTH, GL_RGB, GL_FLOAT, 0);
+
+    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
 
     TerrainGenTextures::unuse();
 
@@ -201,9 +228,9 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             // Get data from heightmap 
             zIndex = z * PIXELS_PER_PATCH_NM + 1;
             xIndex = x * PIXELS_PER_PATCH_NM + 1;
-            h = m_heightData[zIndex][xIndex];
-            v.temperature = m_temperatureData[zIndex][xIndex];
-            v.humidity = m_humidityData[zIndex][xIndex];
+            h = m_heightData[zIndex][xIndex][0];
+            v.temperature = (ui8)m_heightData[zIndex][xIndex][1];
+            v.humidity = (ui8)m_heightData[zIndex][xIndex][2];
 
             // Water indexing
             if (h < 0) {
@@ -228,9 +255,9 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
-            v.color.r = tcolor.r;
-            v.color.g = tcolor.g;
-            v.color.b = tcolor.b;
+            v.color.r = 255;
+            v.color.g = 255;
+            v.color.b = 255;
             m_index++;
         }
     }
@@ -362,6 +389,14 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
         // Spherify it!
         v.position = glm::normalize(v.position) * m_radius;
 
+        float h = m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1][0];
+        if (h < 0) {
+            v.depth = -h;
+        } else {
+            v.depth = 0;
+        }
+        v.temperature = (ui8)m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1][1];
+
         // Compute tangent
         f32v3 tmpPos;
         tmpPos[m_coordMapping.x] = (x + 1) * mvw + m_startPos.x;
@@ -374,8 +409,8 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
         f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
         v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
-        v.color.r = 0;
-        v.color.g = 0;
+        v.color.r = 255;
+        v.color.g = 255;
         v.color.b = 255;
         m_waterIndex++;
     }

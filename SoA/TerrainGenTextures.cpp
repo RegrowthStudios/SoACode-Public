@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TerrainGenTextures.h"
+#include "Errors.h"
 
 #include <SamplerState.h>
 #include <GpuMemory.h>
@@ -10,23 +11,19 @@ TerrainGenTextures::~TerrainGenTextures() {
 
 void TerrainGenTextures::init(const ui32v2& dims) {
     m_dims = dims;
-    
+
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
     // Create texture targets
-    glGenTextures(3, m_textures);
-    initTarget(m_dims, m_tex.height, TERRAINGEN_INTERNAL_FORMAT_HEIGHT, 0);
-    initTarget(m_dims, m_tex.temp, TERRAINGEN_INTERNAL_FORMAT_TEMP, 1);
-    initTarget(m_dims, m_tex.hum, TERRAINGEN_INTERNAL_FORMAT_HUM, 2);
+    glGenTextures(1, m_textures);
+    initTarget(m_dims, m_tex.height_temp_hum, TERRAINGEN_INTERNAL_FORMAT, 0);
    
     // Set the output location for pixels
-    VGEnum bufs[3] = {
-        GL_COLOR_ATTACHMENT0,
-        GL_COLOR_ATTACHMENT1,
-        GL_COLOR_ATTACHMENT2
+    VGEnum bufs[1] = {
+        GL_COLOR_ATTACHMENT0
     };
-    glDrawBuffers(3, bufs);
+    glDrawBuffers(1, bufs);
 
     // Unbind used resources
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -49,9 +46,9 @@ void TerrainGenTextures::destroy() {
         glDeleteFramebuffers(1, &m_fbo);
         m_fbo = 0;
     }
-    if (m_tex.height != 0) {
-        glDeleteTextures(3, m_textures);
-        m_tex = { 0, 0, 0 };
+    if (m_tex.height_temp_hum != 0) {
+        glDeleteTextures(1, m_textures);
+        m_tex = { 0 };
     }
 }
 

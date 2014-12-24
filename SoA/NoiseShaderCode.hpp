@@ -41,9 +41,9 @@ void main() {
 //               https://github.com/ashima/webgl-noise
 // 
 
-const nString N_HEIGHT = "pHeight";
-const nString N_TEMP = "pTemp";
-const nString N_HUM = "pHum";
+const nString N_HEIGHT = "pOutput.r";
+const nString N_TEMP = "pOutput.g";
+const nString N_HUM = "pOutput.b";
 
 const nString NOISE_SRC_FRAG = R"(
 // Uniforms
@@ -55,9 +55,7 @@ uniform float unPatchWidth = 10.0;
 in vec2 fPos;
 
 // Outputs
-out float pHeight;
-out float pTemp;
-out float pHum;
+out vec3 pOutput;
 
 vec3 mod289(vec3 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
