@@ -156,6 +156,8 @@ private:
     vg::FullQuadVBO m_quad;
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+    static ui8 m_temperatureData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+    static ui8 m_humidityData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
 };
 
 #endif // SphericalTerrainGenerator_h__

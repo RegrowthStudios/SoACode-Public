@@ -18,6 +18,8 @@ const ColorRGB8 DebugColors[6] {
 TerrainVertex SphericalTerrainGenerator::verts[SphericalTerrainGenerator::VERTS_SIZE];
 WaterVertex SphericalTerrainGenerator::waterVerts[SphericalTerrainGenerator::VERTS_SIZE];
 float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+ui8 SphericalTerrainGenerator::m_temperatureData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
+ui8 SphericalTerrainGenerator::m_humidityData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH];
 
 ui16 SphericalTerrainGenerator::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
 ui16 SphericalTerrainGenerator::waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
@@ -113,10 +115,16 @@ void SphericalTerrainGenerator::update() {
             // Bind texture to fbo
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
 
-            // Bind the heightmap texture
+            // Get all the data
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().height);
             glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, m_heightData);
+            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().temp);
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, m_temperatureData);
+            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().hum);
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, m_humidityData);
+            
+            // Set uniforms
             glUniform1f(unWidth, data->width / PATCH_HEIGHTMAP_WIDTH);
             glUniform1f(unTexelWidth, (float)PATCH_HEIGHTMAP_WIDTH);
 
@@ -170,6 +178,8 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     float width = data->width;
     float h;
     f32v3 tmpPos;
+    int xIndex;
+    int zIndex;
     
     // Clear water index grid
     memset(waterIndexGrid, 0, sizeof(waterIndexGrid));
@@ -188,8 +198,12 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.position[m_coordMapping.y] = m_startPos.y;
             v.position[m_coordMapping.z] = z * m_vertWidth + m_startPos.z;
 
-            // Get Height 
-            h = m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1];
+            // Get data from heightmap 
+            zIndex = z * PIXELS_PER_PATCH_NM + 1;
+            xIndex = x * PIXELS_PER_PATCH_NM + 1;
+            h = m_heightData[zIndex][xIndex];
+            v.temperature = m_temperatureData[zIndex][xIndex];
+            v.humidity = m_humidityData[zIndex][xIndex];
 
             // Water indexing
             if (h < 0) {
