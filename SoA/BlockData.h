@@ -159,48 +159,7 @@ KEG_TYPE_DECL(BlockTexture);
 
 extern std::vector <int> TextureUnitIndices;
 
-const int numBlocks = 4096;
-
-extern std::vector <int> TextureUnitIndices;
-
-//TODO: KILL ALL OF THIS CRAP
-
-//enum Blocks { NONE, DIRT, DIRTGRASS, STONE, WOOD, SAND, SNOW = 12, ICE = 13, REDSAND = 21, FIRE = 1000};
-//
-//enum Blocks2 { WHITEFLOWERS = 256, TALLGRASS, TALLWEED, YELLOWGRASS, DRYGRASS, FLOWERGRASS, TALLLIGHTGRASS, SHORTLIGHTGRASS, REDBUSH, SHORTDARKGRASS, JUNGLEPLANT1, BLUEFLOWERS, LARGEREDFLOWER, PURPLEFLOWER, HEARTFLOWER, DANDILION };
-//
-//enum SmallMushrooms{ SMALLCYANMUSHROOM = 272, SMALLMAGENTAMUSHROOM };
-//
-//enum LeafBlocks { LEAVES1 = 288, LEAVES2};
-//
-//enum LeafBlocksTextures { T_LEAVES1 = 288, T_LEAVES2 };
-//
-//enum BlockLights { LIGHT1 = 16, LIGHT2, LIGHT3 };
-//
-//enum BlocksMinerals { COAL = 32, IRON, GOLD, SILVER, COPPER, TIN, LEAD, PLATINUM, DOLOMITE, DIAMOND, RUBY, EMERALD, SAPPHIRE, BAUXITE, MAGNETITE, MALACHITE,
-//                        EMBERNITE, SULFUR, CHROALLON, SEAMORPHITE, THORNMITE, MORPHIUM, OXYGENIUM, SUNANITE, CAMONITE, SUBMARIUM, TRITANIUM, URANIUM, TUNGSTEN};
-//enum BlocksMinerals2 { BLUECRYSTAL = 80 };
-//
-//enum BlocksMushroom { BLUEMUSHROOMBLOCK = 96, PURPLEMUSHROOMBLOCK, LAMELLABLOCK, MUSHROOMSTEM, GREYMUSHROOMBLOCK, DARKPURPLEMUSHROOMBLOCK, DARKBLUEMUSHROOMBLOCK};
-//
-//enum BlocksStones { SANDSTONE = 64, SHALE, LIMESTONE, GRAVEL, BASALT, SLATE, GNEISS, GRANITE, MARBLE, REDSANDSTONE = 75};
-//
-//enum BlockTextures1{ T_DIRT, T_DIRTGRASS, T_GRASS, T_STONE , T_WATER, T_SAND, T_WOOD, T_SNOW = 12, T_ICE = 13, T_REDSAND = 21};
-//
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
-//
-//enum Explosives { TNT = 112, NITRO, C4 };
-//enum ExplosivesTextures {T_TNT = 112, T_NITRO = 115, T_C4 = 118};
-//
-//enum BuildingBlocks { GLASS = 160, CONCRETE, BRICKS, PLANKS, COBBLE };
-//enum TransparentBuildingBlocksTextures{ T_GLASS = 304,};
-//enum BuildingBlocksTextures { T_CONCRETE = 161, T_BRICKS, T_PLANKS, T_COBBLE };
-
-
-extern int connectedTextureOffsets[256];
-extern int grassTextureOffsets[32];
-
-void initConnectedTextures();
 
 struct BlockVariable
 {

@@ -146,69 +146,6 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     return false;
 }
 
-void initConnectedTextures()
-{
-    memset(connectedTextureOffsets, 0, sizeof(connectedTextureOffsets));
-    memset(grassTextureOffsets, 0, sizeof(grassTextureOffsets));
-
-    connectedTextureOffsets[0xFF] = 0;
-    connectedTextureOffsets[0xEF] = 1;
-    connectedTextureOffsets[0xEE] = 2;
-    connectedTextureOffsets[0xFE] = 3;
-    connectedTextureOffsets[0xEB] = 4;
-    connectedTextureOffsets[0xFA] = 5;
-    connectedTextureOffsets[0xAB] = 6;
-    connectedTextureOffsets[0xEA] = 7;
-    connectedTextureOffsets[0x8A] = 8;
-    connectedTextureOffsets[0xA2] = 9;
-    connectedTextureOffsets[0x28] = 10;
-    connectedTextureOffsets[0xA] = 11;
-    connectedTextureOffsets[0xFB] = 12;
-    connectedTextureOffsets[0xE3] = 13;
-    connectedTextureOffsets[0xE0] = 14;
-    connectedTextureOffsets[0xF8] = 15;
-    connectedTextureOffsets[0xAF] = 16;
-    connectedTextureOffsets[0xBE] = 17;
-    connectedTextureOffsets[0xAE] = 18;
-    connectedTextureOffsets[0xBA] = 19;
-    connectedTextureOffsets[0x2A] = 20;
-    connectedTextureOffsets[0xA8] = 21;
-    connectedTextureOffsets[0xA0] = 22;
-    connectedTextureOffsets[0x82] = 23;
-    connectedTextureOffsets[0xBB] = 24;
-    connectedTextureOffsets[0x83] = 25;
-    connectedTextureOffsets[0] = 26;
-    connectedTextureOffsets[0x38] = 27;
-    connectedTextureOffsets[0xA3] = 28;
-    connectedTextureOffsets[0xE8] = 29;
-    connectedTextureOffsets[0x8B] = 30;
-    connectedTextureOffsets[0xE2] = 31;
-    connectedTextureOffsets[0x8] = 32;
-    connectedTextureOffsets[0x2] = 33;
-    connectedTextureOffsets[0x88] = 34;
-    connectedTextureOffsets[0x22] = 35;
-    connectedTextureOffsets[0xBF] = 36;
-    connectedTextureOffsets[0x8F] = 37;
-    connectedTextureOffsets[0xE] = 38;
-    connectedTextureOffsets[0x3E] = 39;
-    connectedTextureOffsets[0x8E] = 40;
-    connectedTextureOffsets[0x3A] = 41;
-    connectedTextureOffsets[0x2E] = 42;
-    connectedTextureOffsets[0xB8] = 43;
-    connectedTextureOffsets[0x20] = 44;
-    connectedTextureOffsets[0x80] = 45;
-    connectedTextureOffsets[0xAA] = 46;
-
-    grassTextureOffsets[0x1 | 0x8] = 1;
-    grassTextureOffsets[0x8] = 2;
-    grassTextureOffsets[0x0] = 3;
-    grassTextureOffsets[0x1 | 0x4 | 0x8] = 4;
-    grassTextureOffsets[0x1 | 0x2 | 0x8] = 5;
-    grassTextureOffsets[0x1 | 0x2 | 0x4 | 0x8] = 6;
-    grassTextureOffsets[0x4 | 0x8] = 7;
-    grassTextureOffsets[0x1 | 0x2] = 8;
-}
-
 Block::Block() : emitterName(""), 
 emitterOnBreakName(""), 
 emitter(nullptr),

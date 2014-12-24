@@ -10,9 +10,6 @@
 // This is hacky and temporary, it does way to much
 class LoadTaskBlockData : public ILoadTask {
     virtual void load() {
-
-        initConnectedTextures();
-
         // Load in .yml
         if (!BlockLoader::loadBlocks("Data/BlockData.yml", &Blocks)) {
             pError("Failed to load Data/BlockData.yml");
