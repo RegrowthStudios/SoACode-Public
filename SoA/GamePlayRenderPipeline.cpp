@@ -23,7 +23,8 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-GamePlayRenderPipeline::GamePlayRenderPipeline() {
+GamePlayRenderPipeline::GamePlayRenderPipeline() :
+    m_drawMode(GL_FILL) {
     // Empty
 }
 
@@ -106,6 +107,7 @@ void GamePlayRenderPipeline::render() {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ZERO);
+    glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
     _opaqueVoxelRenderStage->draw();
     _physicsBlockRenderStage->draw();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -113,6 +115,7 @@ void GamePlayRenderPipeline::render() {
     _chunkGridRenderStage->draw();
     _liquidVoxelRenderStage->draw();
     _transparentVoxelRenderStage->draw();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -233,4 +236,19 @@ void GamePlayRenderPipeline::loadNightVision() {
 
 void GamePlayRenderPipeline::toggleChunkGrid() {
     _chunkGridRenderStage->setIsVisible(!_chunkGridRenderStage->isVisible());
+}
+
+void GamePlayRenderPipeline::cycleDrawMode() {
+    switch (m_drawMode) {
+    case GL_FILL:
+        m_drawMode = GL_LINE;
+        break;
+    case GL_LINE:
+        m_drawMode = GL_POINT;
+        break;
+    case GL_POINT:
+    default:
+        m_drawMode = GL_FILL;
+        break;
+    }
 }
