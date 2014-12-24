@@ -106,13 +106,15 @@ void LoadTaskShaders::load() {
     sphericalAttribs.push_back("vTangent");
     sphericalAttribs.push_back("vColor");
     sphericalAttribs.push_back("vUV");
+    sphericalAttribs.push_back("vTemp_Hum");
 
     // Attributes for spherical water
     std::vector<nString> sphericalWaterAttribs;
     sphericalWaterAttribs.push_back("vPosition");
     sphericalWaterAttribs.push_back("vTangent");
-    sphericalWaterAttribs.push_back("vColor");
+    sphericalWaterAttribs.push_back("vColor_Temp");
     sphericalWaterAttribs.push_back("vUV");
+    sphericalWaterAttribs.push_back("vDepth");
 
     IOManager iom;
 

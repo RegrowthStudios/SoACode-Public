@@ -68,6 +68,9 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
     glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, texCoords));
+    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, temperature));
 
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glDrawElements(GL_TRIANGLES, SphericalTerrainPatch::INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
@@ -96,12 +99,15 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const f32m4& V, con
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
                           sizeof(WaterVertex),
                           offsetptr(WaterVertex, tangent));
-    glVertexAttribPointer(2, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(WaterVertex),
                           offsetptr(WaterVertex, color));
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE,
                           sizeof(WaterVertex),
                           offsetptr(WaterVertex, texCoords));
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE,
+                          sizeof(WaterVertex),
+                          offsetptr(WaterVertex, depth));
 
 
     vg::GpuMemory::bindBuffer(m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);

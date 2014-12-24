@@ -63,7 +63,8 @@ public:
     ColorRGB8 color; //27
     ui8 padding; //28
     ui8v2 texCoords; //30
-    ui8 padding2[2]; //32
+    ui8 temperature; //31
+    ui8 humidity; //32
 };
 
 class WaterVertex {
@@ -71,8 +72,9 @@ public:
     f32v3 position; //12
     f32v3 tangent; //24
     ColorRGB8 color; //27
-    ui8 padding; //28
+    ui8 temperature; //28
     f32v2 texCoords; //36
+    float depth; //40
 };
 
 class SphericalTerrainGenerator {
