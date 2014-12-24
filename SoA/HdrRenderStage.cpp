@@ -21,7 +21,7 @@ void HdrRenderStage::draw() {
     _oldVP = vp;
 
     vg::GLProgram* _glProgram = graphicsOptions.motionBlur > 0 ? _glProgramBlur : _glProgramDefault;
-    _glProgram = graphicsOptions.depthOfField == 1 ? _glProgramDoFBlur : _glProgram;
+    _glProgram = /*graphicsOptions.depthOfField == 1 ? _glProgramDoFBlur :*/ _glProgram;
 
     _glProgram->use();
     _glProgram->enableVertexAttribArrays();
@@ -37,10 +37,10 @@ void HdrRenderStage::draw() {
         glUniform1i(_glProgram->getUniform("unNumSamples"), (int)graphicsOptions.motionBlur);
         glUniform1f(_glProgram->getUniform("unBlurIntensity"), 0.5f);
     }
-    if (graphicsOptions.depthOfField > 0) {
-        glUniform1f(_glProgram->getUniform("unFocalLen"), 70.0f);
-        glUniform1f(_glProgram->getUniform("unZfocus"), 0.96f); // [0, 1]
-    }
+    //if (graphicsOptions.depthOfField > 0) {
+    //    glUniform1f(_glProgram->getUniform("unFocalLen"), 70.0f);
+    //    glUniform1f(_glProgram->getUniform("unZfocus"), 0.96f); // [0, 1]
+    //}
 
     glDisable(GL_DEPTH_TEST);
     _quad->draw();
