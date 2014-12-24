@@ -48,7 +48,7 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
         // Load the data
         std::vector<ui8>* pixelStore = new std::vector<ui8>();
-        vg::ImageLoader::loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height);
+        vg::ImageLoader::loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height, &_ioManager);
         if (pixelStore->size()) {
             // Add the data to the cache and get non-const reference to pixels
             Pixels* pixels = &(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).first->second);
@@ -172,7 +172,7 @@ ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
         // Load the color map into a buffer
         std::vector<ui8> buffer;
         ui32 width, height;
-        vg::ImageLoader::loadPng(name.c_str(), buffer, width, height, true);
+        vg::ImageLoader::loadPng(name.c_str(), buffer, width, height, &_ioManager, true);
 
         //// Error checking
         //if (width != MAP_WIDTH) {
@@ -453,13 +453,15 @@ void TexturePackLoader::mapTexturesToAtlases() {
 
 ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& height) {
 
+    if (filePath.empty()) return nullptr;
+
     // Check the cache
     auto& it = _pixelCache.find(filePath);
 
     if (it == _pixelCache.end()) {
         // Load the data
         std::vector<ui8>* pixelStore = new std::vector<ui8>();
-        vg::ImageLoader::loadPng((_texturePackPath + filePath).c_str(), *pixelStore, width, height);
+        vg::ImageLoader::loadPng((_texturePackPath + filePath).c_str(), *pixelStore, width, height, &_ioManager);
         if (pixelStore->size()) {
             // Add the data to the cache
             _pixelCache[filePath] = Pixels(pixelStore, width, height);

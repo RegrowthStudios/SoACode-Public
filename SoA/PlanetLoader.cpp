@@ -47,7 +47,8 @@ public:
 };
 
 PlanetLoader::PlanetLoader(IOManager* ioManager) :
-    m_iom(ioManager) {
+    m_iom(ioManager),
+    m_textureCache(m_iom) {
     // Empty
 }
 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TextureCache.h"
+#include "IOManager.h"
 
 #include "GpuMemory.h"
 #include "Errors.h"
@@ -10,12 +11,22 @@ namespace vorb {
 namespace core {
 namespace graphics {
 
-TextureCache::TextureCache() {
+    TextureCache::TextureCache() : 
+        m_ioManager(new IOManager),
+        m_ownsIoManager(true) {
+
+    }
+
+TextureCache::TextureCache(IOManager* ioManager) :
+    m_ioManager(ioManager) {
     // Empty
 }
 
 
 TextureCache::~TextureCache() {
+    if (m_ownsIoManager) {
+        delete m_ioManager;
+    }
     destroy();
 }
 
@@ -48,7 +59,7 @@ Texture TextureCache::addTexture(const nString& filePath,
     std::vector <ui8> pixelStore;
 
     // Load the pixel data
-    if (!ImageLoader::loadPng(filePath.c_str(), pixelStore, texture.width, texture.height, true)) {
+    if (!ImageLoader::loadPng(filePath.c_str(), pixelStore, texture.width, texture.height, m_ioManager, true)) {
         return Texture();
     }
 
