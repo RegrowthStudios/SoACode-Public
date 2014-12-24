@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "BlockPack.h"
 
-BlockPack::BlockPack() {
-    Block defaults[2] = {
-        Block(),
-        Block()
-    };
+BlockPack::BlockPack() :
+    onBlockAddition(this) {
+    
+    Block defaults[2];
     { // Create "None" block
         Block& b = defaults[0];
         b.name = "None";
@@ -47,6 +46,7 @@ void BlockPack::append(const Block* blocks, size_t n) {
         // Set the correct index
         block->ID = index;
         m_blocks[block->name] = index;
+        onBlockAddition(block->ID);
     }
 }
 
