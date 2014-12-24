@@ -138,6 +138,7 @@ private:
     IDelegate<ui32>* _onHUDKeyDown;
     IDelegate<ui32>* _onNightVisionToggle;
     IDelegate<ui32>* _onNightVisionReload;
+    IDelegate<ui32>* m_onDrawMode;
     GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
 
     #define MESSAGES_PER_FRAME 300
