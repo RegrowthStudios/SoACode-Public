@@ -49,7 +49,7 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
     glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
-   
+
     // TODO: Using a VAO makes it not work??
    // glBindVertexArray(m_vao);
 

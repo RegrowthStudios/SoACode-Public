@@ -247,6 +247,7 @@ void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
 
 void SpaceSystem::addSolarSystem(const nString& dirPath) {
     m_dirPath = dirPath;
+    m_ioManager.setSearchDirectory((m_dirPath + "/").c_str());
 
     // Load the system
     loadSystemProperties(dirPath);
@@ -331,7 +332,7 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
-                properties.planetGenData = m_planetLoader->loadPlanet(m_dirPath + "/" + properties.generation);
+                properties.planetGenData = m_planetLoader->loadPlanet(properties.generation);
             } else {
                 properties.planetGenData = m_planetLoader->getDefaultGenData();
             }
@@ -434,10 +435,11 @@ void SpaceSystem::addGasGiant(const SystemBodyKegProperties* sysProps, const Gas
 
 bool SpaceSystem::loadSystemProperties(const nString& dirPath) {
     nString data;
-    m_ioManager.readFileToString(dirPath + "/SystemProperties.yml", data);
+    m_ioManager.readFileToString("SystemProperties.yml", data);
     
     YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
+        fprintf(stderr, "Failed to load %s\n", (dirPath + "/SystemProperties.yml").c_str());
         return false;
     }
 
@@ -474,7 +476,7 @@ bool SpaceSystem::loadSystemProperties(const nString& dirPath) {
             SystemBody* body = new SystemBody;
             body->name = name;
             body->parentName = properties.parent;
-            loadBodyProperties(dirPath + "/" + properties.path.c_str(), &properties, body);
+            loadBodyProperties(properties.path, &properties, body);
             m_systemBodies[name] = body;
         }
     }
