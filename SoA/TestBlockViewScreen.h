@@ -18,6 +18,8 @@
 #include <Events.hpp>
 #include <IGameScreen.h>
 
+#include "BlockPack.h"
+
 class TestBlockView : public IGameScreen {
 public:
     /************************************************************************/
@@ -36,6 +38,9 @@ private:
     /// Loads a file of block data
     /// @param file: File containing block data
     void loadBlocks(const cString file);
+
+    BlockPack m_blocks; ///< Block data
+    AutoDelegatePool m_hooks; ///< Input hooks reservoir
 };
 
 #endif // TestBlockViewScreen_h__
