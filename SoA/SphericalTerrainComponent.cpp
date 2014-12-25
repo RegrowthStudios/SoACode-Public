@@ -37,7 +37,7 @@ void SphericalTerrainComponent::init(f64 radius, PlanetGenData* planetGenData,
     m_meshManager = new SphericalTerrainMeshManager(m_planetGenData,
                                                     normalMapRecycler);
     m_generator = new SphericalTerrainGenerator(radius, m_meshManager,
-                                                m_planetGenData->program,
+                                                m_planetGenData,
                                                 normalProgram, normalMapRecycler);
     rpcDispatcher = new TerrainRpcDispatcher(m_generator);
     

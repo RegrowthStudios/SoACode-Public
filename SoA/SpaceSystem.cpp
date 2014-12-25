@@ -228,11 +228,13 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     waterProgram->unuse();
     m_mutex.unlock();
 
-    drawHud();
+  //  drawHud();
     DepthState::FULL.set();
 }
 
 void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
+    return;
+    
     // Draw paths
     colorProgram->use();
     colorProgram->enableVertexAttribArrays();

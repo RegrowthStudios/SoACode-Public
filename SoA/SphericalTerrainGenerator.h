@@ -16,14 +16,14 @@
 #ifndef SphericalTerrainGenerator_h__
 #define SphericalTerrainGenerator_h__
 
-class TerrainGenDelegate;
-
 #include "SphericalTerrainPatch.h"
 #include "TerrainGenTextures.h"
 #include <GLProgram.h>
 #include <FullQuadVBO.h>
 #include <GBuffer.h>
 
+class TerrainGenDelegate;
+class PlanetGenData;
 namespace vorb {
     namespace core {
         namespace graphics {
@@ -89,7 +89,7 @@ class SphericalTerrainGenerator {
 public:
     SphericalTerrainGenerator(float radius,
                               SphericalTerrainMeshManager* meshManager,
-                              vg::GLProgram* genProgram,
+                              PlanetGenData* planetGenData,
                               vg::GLProgram* normalProgram,
                               vg::TextureRecycler* normalMapRecycler);
     ~SphericalTerrainGenerator();
@@ -150,8 +150,9 @@ private:
 
     vcore::RPCManager m_rpcManager;
 
-    vg::GLProgram* m_genProgram;
-    vg::GLProgram* m_normalProgram;
+    PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
+    vg::GLProgram* m_genProgram = nullptr;
+    vg::GLProgram* m_normalProgram = nullptr;
 
     vg::TextureRecycler* m_normalMapRecycler = nullptr;
 

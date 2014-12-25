@@ -3,6 +3,7 @@
 
 #include "Errors.h"
 #include "GpuMemory.h"
+#include "PlanetLoader.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalTerrainMeshManager.h"
 #include "TextureRecycler.hpp"
@@ -30,12 +31,13 @@ VGIndexBuffer SphericalTerrainGenerator::m_ccwIbo = 0; ///< Reusable CCW IBO
 
 SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
                                                      SphericalTerrainMeshManager* meshManager,
-                                                     vg::GLProgram* genProgram,
+                                                     PlanetGenData* planetGenData,
                                                      vg::GLProgram* normalProgram,
                                                      vg::TextureRecycler* normalMapRecycler) :
     m_radius(radius),
     m_meshManager(meshManager),
-    m_genProgram(genProgram),
+    m_planetGenData(planetGenData),
+    m_genProgram(planetGenData->program),
     m_normalProgram(normalProgram),
     m_normalMapRecycler(normalMapRecycler),
     unCornerPos(m_genProgram->getUniform("unCornerPos")),
@@ -110,7 +112,7 @@ void SphericalTerrainGenerator::update() {
                 glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
             }
 
-            std::cout << m_normalMapRecycler->getNumTextures() << " " << vg::GpuMemory::getTextureVramUsage() / 1024.0 / 1024.0 << std::endl;
+           // std::cout << m_normalMapRecycler->getNumTextures() << " " << vg::GpuMemory::getTextureVramUsage() / 1024.0 / 1024.0 << std::endl;
 
             // Bind normal map texture to fbo
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
@@ -190,8 +192,6 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     SphericalTerrainMesh* mesh = data->mesh;
-    // Get debug face color
-    const ColorRGB8 tcolor = DebugColors[(int)mesh->m_cubeFace];
 
     // Grab mappings so we can rotate the 2D grid appropriately
     m_coordMapping = data->coordMapping;
@@ -251,9 +251,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
-            v.color.r = 255;
-            v.color.g = 255;
-            v.color.b = 255;
+            v.color = m_planetGenData->terrainTint;
             m_index++;
         }
     }
@@ -403,9 +401,7 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
         f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
         v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
-        v.color.r = 255;
-        v.color.g = 255;
-        v.color.b = 255;
+        v.color = m_planetGenData->liquidTint;
         m_waterIndex++;
     }
 }

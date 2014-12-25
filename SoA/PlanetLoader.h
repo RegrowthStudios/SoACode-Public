@@ -31,6 +31,9 @@ public:
     vg::Texture terrainColorMap;
     vg::Texture liquidColorMap;
     vg::Texture terrainTexture;
+    vg::Texture liquidTexture;
+    ColorRGB8 liquidTint = ColorRGB8(255, 255, 255);
+    ColorRGB8 terrainTint = ColorRGB8(255, 255, 255);
     float liquidDepthScale = 1000.0f;
     std::vector<VGTexture> biomeMaps;
     vg::GLProgram* program;
@@ -48,6 +51,9 @@ private:
     
     void parseLiquidColor(YAML::Node& node, PlanetGenData* genData);
     
+    void parseTerrainColor(YAML::Node& node, PlanetGenData* genData);
+
+
     vg::GLProgram* generateProgram(TerrainFuncs& baseTerrainFuncs,
                                    TerrainFuncs& tempTerrainFuncs,
                                    TerrainFuncs& humTerrainFuncs);
