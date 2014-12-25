@@ -15,7 +15,7 @@
 
 #define LOAD_DIST 40000.0
 // Should be even
-#define PATCH_ROW 4  
+#define PATCH_ROW 2  
 #define NUM_FACES 6
 const int PATCHES_PER_FACE = (PATCH_ROW * PATCH_ROW);
 const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;

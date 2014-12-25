@@ -142,7 +142,7 @@ SpaceSystem::SpaceSystem(App* parent) : vcore::ECS() {
     m_app = parent;
     m_planetLoader = new PlanetLoader(&m_ioManager);
    
-    #define MAX_NORMAL_MAPS 128U
+    #define MAX_NORMAL_MAPS 512U
     m_normalMapRecycler = new vg::TextureRecycler((ui32)PATCH_NORMALMAP_WIDTH,
                                                   (ui32)PATCH_NORMALMAP_WIDTH,
                                                   &SamplerState::POINT_CLAMP,

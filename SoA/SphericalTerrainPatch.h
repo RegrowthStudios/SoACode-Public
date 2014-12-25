@@ -34,7 +34,7 @@ namespace vorb {
     }
 }
 
-const int PIXELS_PER_PATCH_NM = 8;
+const int PIXELS_PER_PATCH_NM = 4;
 const int PATCH_WIDTH = 33;
 const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH;
 const int PATCH_NORMALMAP_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM;

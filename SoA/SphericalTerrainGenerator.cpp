@@ -110,6 +110,8 @@ void SphericalTerrainGenerator::update() {
                 glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
             }
 
+            std::cout << m_normalMapRecycler->getNumTextures() << " " << vg::GpuMemory::getTextureVramUsage() / 1024.0 / 1024.0 << std::endl;
+
             // Bind normal map texture to fbo
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
 
