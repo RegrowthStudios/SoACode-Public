@@ -51,11 +51,14 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
         // Bind textures
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainColorMap.id);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainTexture.id);
         glActiveTexture(GL_TEXTURE0);
         program->use();
         program->enableVertexAttribArrays();
 
         glUniform1i(program->getUniform("unColorMap"), 1);
+        glUniform1i(program->getUniform("unTexture"), 2);
 
         for (int i = 0; i < m_meshes.size(); i++) {
             if (m_meshes[i]->m_shouldDelete) {

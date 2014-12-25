@@ -30,6 +30,7 @@ class PlanetGenData {
 public:
     vg::Texture terrainColorMap;
     vg::Texture liquidColorMap;
+    vg::Texture terrainTexture;
     float liquidDepthScale = 1000.0f;
     std::vector<VGTexture> biomeMaps;
     vg::GLProgram* program;
