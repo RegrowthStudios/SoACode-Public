@@ -104,6 +104,12 @@ void SphericalTerrainGenerator::update() {
         for (int i = 0; i < m_patchCounter; i++) {
 
             TerrainGenDelegate* data = m_delegates[i];
+
+            // Check for early delete
+            if (data->mesh->m_shouldDelete) {
+                delete data->mesh;
+                continue;
+            }
         
             // Create and bind output normal map
             if (data->mesh->m_normalMap == 0) {
@@ -167,6 +173,12 @@ void SphericalTerrainGenerator::update() {
 
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
   
+    // Check for early delete
+    if (data->mesh->m_shouldDelete) {
+        delete data->mesh;
+        return;
+    }
+
     m_textures[m_patchCounter].use();
     m_delegates[m_patchCounter] = data;
 
@@ -174,6 +186,8 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     glUniform3fv(unCornerPos, 1, &data->startPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
     glUniform1f(unPatchWidth, data->width);
+
+   
 
     m_quad.draw();
 
@@ -213,9 +227,12 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     // Loop through and set all vertex attributes
     m_vertWidth = width / (PATCH_WIDTH - 1);
     m_index = 0;
+
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {
+
             auto& v = verts[m_index];
+
             // Set the position based on which face we are on
             v.position[m_coordMapping.x] = x * m_vertWidth + m_startPos.x;
             v.position[m_coordMapping.y] = m_startPos.y;
