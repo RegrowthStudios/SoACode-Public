@@ -228,7 +228,26 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
         case VKEY_RIGHT:
             _app->spaceSystem->offsetTarget(1);
             break;
-        case VKEY_F11:
+        case VKEY_F10: // Reload star system
+            delete _app->spaceSystem;
+            const_cast<App*>(_app)->spaceSystem = new SpaceSystem(const_cast<App*>(_app));
+            const_cast<App*>(_app)->spaceSystem->init(GameManager::glProgramManager);
+            const_cast<App*>(_app)->spaceSystem->addSolarSystem("StarSystems/Trinity");
+            _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
+            _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
+            if (graphicsOptions.msaa > 0) {
+                glEnable(GL_MULTISAMPLE);
+            } else {
+                glDisable(GL_MULTISAMPLE);
+            }
+            _app->spaceSystem->targetBody("Aldrin");
+            delete m_spaceSystemRenderStage;
+            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera,
+                                                                  GameManager::glProgramManager->getProgram("BasicColor"),
+                                                                  GameManager::glProgramManager->getProgram("SphericalTerrain"),
+                                                                  GameManager::glProgramManager->getProgram("SphericalWater"));
+            break;
+        case VKEY_F11: // Reload everything
             GameManager::glProgramManager->destroy();
             { // Load shaders
                 vcore::RPCManager glrpc;
@@ -257,6 +276,10 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             _swapChain = new vg::RTSwapChain<2>(_viewport.z, _viewport.w);
             _swapChain->init(vg::TextureInternalFormat::RGBA8);
             _quad.init();
+
+            delete _skyboxRenderStage;
+            delete m_spaceSystemRenderStage;
+            delete _hdrRenderStage;
 
             _skyboxRenderStage = new SkyboxRenderStage(GameManager::glProgramManager->getProgram("Texture"), &m_camera);
             m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera,
