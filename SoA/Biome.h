@@ -15,6 +15,7 @@
 #define Biome_h__
 
 #include <vector>
+#include "Keg.h"
 
 class BiomeTree {
 public:
@@ -36,20 +37,9 @@ public:
 
 class Biome {
 public:
-    ui32 looseSoilDepth = 4;
-
-    ui16 surfaceBlock = 0;
-    ui16 underwaterBlock = 0;
-    ui16 beachBlock = 0;
-
-    f32 treeChance = 0.0f;
-
-    nString name = "NO BIOME";
-    nString fileName = "";
-
-    std::vector <Biome*> childBiomes;
-    std::vector <BiomeTree> possibleTrees;
-    std::vector <BiomeFlora> possibleFlora;
+    nString displayName;
+    ColorRGB8 mapColor;
 };
+KEG_TYPE_DECL(Biome);
 
 #endif // Biome_h__

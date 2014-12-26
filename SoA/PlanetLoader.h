@@ -22,6 +22,7 @@
 #include <Keg.h>
 #include <vector>
 #include "TextureCache.h"
+#include "Biome.h"
 
 class IOManager;
 class TerrainFuncs;
@@ -35,7 +36,8 @@ public:
     ColorRGB8 liquidTint = ColorRGB8(255, 255, 255);
     ColorRGB8 terrainTint = ColorRGB8(255, 255, 255);
     float liquidDepthScale = 1000.0f;
-    std::vector<VGTexture> biomeMaps;
+    vg::Texture baseLookupMap;
+    std::vector<Biome> biomes;
     vg::GLProgram* program;
 };
 
@@ -47,6 +49,8 @@ public:
     PlanetGenData* loadPlanet(const nString& filePath);
     PlanetGenData* getDefaultGenData();
 private:
+    void loadBiomes(const nString& filePath, PlanetGenData* genData);
+
     void parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node);
     
     void parseLiquidColor(YAML::Node& node, PlanetGenData* genData);
@@ -54,7 +58,8 @@ private:
     void parseTerrainColor(YAML::Node& node, PlanetGenData* genData);
 
 
-    vg::GLProgram* generateProgram(TerrainFuncs& baseTerrainFuncs,
+    vg::GLProgram* generateProgram(PlanetGenData* genData,
+                                   TerrainFuncs& baseTerrainFuncs,
                                    TerrainFuncs& tempTerrainFuncs,
                                    TerrainFuncs& humTerrainFuncs);
     void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);

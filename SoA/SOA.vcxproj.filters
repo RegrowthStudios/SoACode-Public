@@ -946,6 +946,7 @@
     <ClCompile Include="StarSystemScreen.cpp">
       <Filter>SOA Files\Screens\StarSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Biome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

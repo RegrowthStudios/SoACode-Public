@@ -89,11 +89,14 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     TerrainFuncs baseTerrainFuncs;
     TerrainFuncs tempTerrainFuncs;
     TerrainFuncs humTerrainFuncs;
+    nString biomePath = "";
 
     for (auto& kvp : node) {
         nString type = kvp.first.as<nString>();
         // Parse based on type
-        if (type == "terrainColor") {
+        if (type == "biomes") {
+            loadBiomes(kvp.second.as<nString>(), genData);
+        } else if (type == "terrainColor") {
             parseTerrainColor(kvp.second, genData);
         } else if (type == "liquidColor") {
             parseLiquidColor(kvp.second, genData);
@@ -106,10 +109,12 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
         }
     }
 
+    
     // Generate the program
-    vg::GLProgram* program = generateProgram(baseTerrainFuncs,
-                                            tempTerrainFuncs,
-                                            humTerrainFuncs);
+    vg::GLProgram* program = generateProgram(genData,
+                                             baseTerrainFuncs,
+                                             tempTerrainFuncs,
+                                             humTerrainFuncs);
 
     if (program != nullptr) {
         genData->program = program;
@@ -156,6 +161,36 @@ PlanetGenData* PlanetLoader::getDefaultGenData() {
 
     }
     return m_defaultGenData;
+}
+
+void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
+    nString data;
+    m_iom->readFileToString(filePath.c_str(), data);
+
+    YAML::Node node = YAML::Load(data.c_str());
+    if (node.IsNull() || !node.IsMap()) {
+        std::cout << "Failed to load " + filePath;
+        return;
+    }
+
+    Keg::Error error;
+
+    for (auto& kvp : node) {
+        nString type = kvp.first.as<nString>();
+        // Parse based on type
+        if (type == "baseLookupMap") {
+            genData->baseLookupMap = m_textureCache.addTexture(kvp.second.as<nString>(), &SamplerState::POINT_CLAMP);
+        } else {
+            // It is a biome
+            genData->biomes.emplace_back();
+            
+            error = Keg::parse((ui8*)&genData->biomes.back(), kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Biome));
+            if (error != Keg::Error::NONE) {
+                fprintf(stderr, "Keg error %d in loadBiomes()\n", (int)error);
+                return;
+            }
+        }
+    }
 }
 
 void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node) {
@@ -237,9 +272,10 @@ void PlanetLoader::parseTerrainColor(YAML::Node& node, PlanetGenData* genData) {
     genData->terrainTint = kegProps.tint;
 }
 
-vg::GLProgram* PlanetLoader::generateProgram(TerrainFuncs& baseTerrainFuncs,
-                               TerrainFuncs& tempTerrainFuncs,
-                               TerrainFuncs& humTerrainFuncs) {
+vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
+                                             TerrainFuncs& baseTerrainFuncs,
+                                             TerrainFuncs& tempTerrainFuncs,
+                                             TerrainFuncs& humTerrainFuncs) {
     // Build initial string
     nString fSource = NOISE_SRC_FRAG;
     fSource.reserve(fSource.size() + 8192);
