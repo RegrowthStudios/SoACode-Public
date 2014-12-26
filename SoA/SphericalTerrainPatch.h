@@ -100,6 +100,8 @@ private:
     bool m_isRenderable = false; ///< True when there is a complete mesh
 };
 
+// TODO(Ben): Sorting, Horizon Culling, Atmosphere, Frustum Culling, Bugfixes,
+// fix redundant quality changes
 class SphericalTerrainPatch {
 public:
     SphericalTerrainPatch() { };

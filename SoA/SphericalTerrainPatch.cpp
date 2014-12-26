@@ -154,6 +154,11 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
+    const float DIST_MIN = 2.0f;
+    const float DIST_MAX = 2.1f;
+
+#define MIN_SIZE 0.016f
+
     // Calculate distance from camera
     if (hasMesh()) {
         m_worldPosition = m_mesh->m_worldPosition;
@@ -164,7 +169,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     
     if (m_children) {
    
-        if (m_distance > m_width * 4.1) {
+        if (m_distance > m_width * DIST_MAX) {
             if (!m_mesh) {
                 requestMesh();
             }
@@ -191,7 +196,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
                 m_mesh = nullptr;
             }
         }
-    } else if (m_distance < m_width * 4.0) {
+    } else if (m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
         m_children = new SphericalTerrainPatch[4];
         // Segment into 4 children
         for (int z = 0; z < 2; z++) {
