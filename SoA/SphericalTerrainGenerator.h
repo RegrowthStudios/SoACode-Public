@@ -168,7 +168,7 @@ private:
 
     vg::FullQuadVBO m_quad;
 
-    static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][3];
+    static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 };
 
 #endif // SphericalTerrainGenerator_h__

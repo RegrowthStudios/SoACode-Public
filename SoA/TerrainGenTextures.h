@@ -18,7 +18,7 @@
 #include <gtypes.h>
 #include <glenums.h>
 
-#define TERRAINGEN_INTERNAL_FORMAT vg::TextureInternalFormat::RGB32F
+#define TERRAINGEN_INTERNAL_FORMAT vg::TextureInternalFormat::RGBA32F
 
 class TerrainGenTextures {
 public:

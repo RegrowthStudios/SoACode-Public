@@ -69,6 +69,8 @@ private:
                                    TerrainFuncs& humTerrainFuncs);
     void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);
 
+    void addBiomes(nString& fSource, PlanetGenData* genData);
+
     class BiomeLookupTexture {
     public:
         int index;

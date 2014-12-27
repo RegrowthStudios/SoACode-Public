@@ -20,7 +20,7 @@ const ColorRGB8 DebugColors[6] {
 
 TerrainVertex SphericalTerrainGenerator::verts[SphericalTerrainGenerator::VERTS_SIZE];
 WaterVertex SphericalTerrainGenerator::waterVerts[SphericalTerrainGenerator::VERTS_SIZE];
-float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][3];
+float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 
 ui16 SphericalTerrainGenerator::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
 ui16 SphericalTerrainGenerator::waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
@@ -158,6 +158,12 @@ void SphericalTerrainGenerator::update() {
     m_genProgram->use();
     m_genProgram->enableVertexAttribArrays();
 
+    if (m_planetGenData->baseBiomeLookupTexture) {
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(m_genProgram->getUniform("unBaseBiomes"), 1);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->baseBiomeLookupTexture);
+    }
+
     glDisable(GL_DEPTH_TEST);
     m_rpcManager.processRequests(PATCHES_PER_FRAME);
 
@@ -187,14 +193,12 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
     glUniform1f(unPatchWidth, data->width);
 
-   
-
     m_quad.draw();
 
     // Bind PBO
     vg::GpuMemory::bindBuffer(m_pbos[m_patchCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glReadPixels(0, 0, PATCH_HEIGHTMAP_WIDTH, PATCH_HEIGHTMAP_WIDTH, GL_RGB, GL_FLOAT, 0);
+    glReadPixels(0, 0, PATCH_HEIGHTMAP_WIDTH, PATCH_HEIGHTMAP_WIDTH, GL_RGBA, GL_FLOAT, 0);
 
     vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
 
@@ -269,6 +273,9 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
             v.color = m_planetGenData->terrainTint;
+            v.color.r = (ui8)(m_heightData[zIndex][xIndex][3] * 31.875f);
+            v.color.g = 0.0;
+            v.color.b = 0.0;
             m_index++;
         }
     }

@@ -348,6 +348,8 @@ vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
     addNoiseFunctions(fSource, N_TEMP, tempTerrainFuncs);
     addNoiseFunctions(fSource, N_HUM, humTerrainFuncs);
 
+    // Add biome code
+    addBiomes(fSource, genData);
 
     // Add final brace
     fSource += "}";
@@ -363,7 +365,6 @@ vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
     program->link();
     std::cout << fSource << std::endl;
     if (!program->getIsLinked()) {
-        std::cout << fSource << std::endl;
         showMessage("Failed to generate shader program");
         return nullptr;
     }
@@ -421,5 +422,15 @@ void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, 
             default:
                 break;
         }
+    }
+}
+
+void PlanetLoader::addBiomes(nString& fSource, PlanetGenData* genData) {
+    
+    // Base biome lookup
+    fSource += "uint biomeIndex = texture2D(unBaseBiomes, vec2(" + N_TEMP + "," + N_HUM + ")).x;";
+    fSource += N_BIOME + " = float(biomeIndex);";
+    for (int i = 0; i < genData->biomes.size(); i++) {
+
     }
 }

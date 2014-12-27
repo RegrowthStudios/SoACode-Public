@@ -44,9 +44,11 @@ void main() {
 const nString N_HEIGHT = "pOutput.r";
 const nString N_TEMP = "pOutput.g";
 const nString N_HUM = "pOutput.b";
+const nString N_BIOME = "pOutput.a";
 
 const nString NOISE_SRC_FRAG = R"(
 // Uniforms
+uniform usampler2D unBaseBiomes;
 uniform sampler2DArray unBiomes;
 uniform vec3 unCornerPos = vec3(0.0);
 uniform ivec3 unCoordMapping = ivec3(0);
@@ -56,7 +58,7 @@ uniform float unPatchWidth = 10.0;
 in vec2 fPos;
 
 // Outputs
-out vec3 pOutput;
+out vec4 pOutput;
 
 vec3 mod289(vec3 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -155,6 +157,8 @@ void main() {
     float amplitude;
     float maxAmplitude;
     float frequency;
+
+    pOutput.a = 0.0f;
 
     vec3 pos;
     pos[unCoordMapping.x] = unCornerPos.x + fPos.x * unPatchWidth;
