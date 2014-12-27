@@ -290,12 +290,6 @@ vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
     addNoiseFunctions(fSource, N_TEMP, tempTerrainFuncs);
     addNoiseFunctions(fSource, N_HUM, humTerrainFuncs);
 
-    // Clamp temp and rainfall and scale for byte
-    fSource += N_TEMP + "= clamp(" + N_TEMP + ", 0.0, 255.0);";
-    fSource += N_HUM + "= clamp(" + N_HUM + ", 0.0, 255.0);";
-
-//    fSource += N_TEMP + "= 128.0;";
-//    fSource += N_HUM + "= 128.0;";
 
     // Add final brace
     fSource += "}";

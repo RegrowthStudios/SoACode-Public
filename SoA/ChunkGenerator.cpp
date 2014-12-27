@@ -81,7 +81,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                 h = y +  chunk->gridPosition.y;
                 nh = (maph - 1) - h;
 
-                if ((h <= maph - 1) && (!tooSteep || maph - h > (biome->looseSoilDepth - 1))){ //ROCK LAYERS check for loose soil too
+                if ((h <= maph - 1) && (!tooSteep /*|| maph - h > (biome->looseSoilDepth - 1) */)){ //ROCK LAYERS check for loose soil too
                     if ((h - (maph - 1)) > -SURFACE_DEPTH){ //SURFACE LAYERS
                         if (nh >= SURFACE_DEPTH) exit(1);
                         data = STONE;// biome->surfaceLayers[nh];
@@ -93,7 +93,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                 } else if (h == maph && !tooSteep){ //surface
                     data = heightMap[hindex].surfaceBlock;
                     chunk->numBlocks++;
-                    if (!sandDepth && biome->beachBlock != SAND){
+                    if (!sandDepth /* && biome->beachBlock != SAND */){
                         if (snowDepth < 7){
                             TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
                         }
@@ -133,7 +133,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                     chunk->numBlocks++;
                 } else if (h == maph + 1 && h > 0){ //FLORA!
 
-                    if (biome->possibleFlora.size()){
+                    if (0  /*biome->possibleFlora.size() */){
                         r = chunk->GetPlantType(x + wx, z + wz, biome);
 
                //         if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[r], c);

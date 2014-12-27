@@ -47,6 +47,7 @@ const nString N_HUM = "pOutput.b";
 
 const nString NOISE_SRC_FRAG = R"(
 // Uniforms
+uniform sampler2DArray unBiomes = 0;
 uniform vec3 unCornerPos = vec3(0.0);
 uniform ivec3 unCoordMapping = ivec3(0);
 uniform float unPatchWidth = 10.0;

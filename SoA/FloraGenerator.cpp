@@ -525,29 +525,29 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
 }
 
 i32 FloraGenerator::getTreeIndex(Biome *biome, i32 x, i32 z) {
-    float noTreeChance = 1.0f - biome->treeChance;
-    float treeSum = 0.0f;
-    int index = -1;
+    //float noTreeChance = 1.0f - biome->treeChance;
+    //float treeSum = 0.0f;
+    //int index = -1;
 
-    for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
-        treeSum += biome->possibleTrees[i].probability; //precompute
-    }
+    //for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
+    //    treeSum += biome->possibleTrees[i].probability; //precompute
+    //}
 
-    float range = treeSum / biome->treeChance; //this gives us a an upperlimit for rand
-    float cutOff = range * noTreeChance; //this is the no tree chance in our rand range
-    float random = (PseudoRand(getPositionSeed(x, z)) + 1.0)*0.5*range; //get a random number for -1 to 1, and scales it to 0 to range
+    //float range = treeSum / biome->treeChance; //this gives us a an upperlimit for rand
+    //float cutOff = range * noTreeChance; //this is the no tree chance in our rand range
+    //float random = (PseudoRand(getPositionSeed(x, z)) + 1.0)*0.5*range; //get a random number for -1 to 1, and scales it to 0 to range
 
-    if (random < cutOff) { //this happens most of the time, so we check this first to return early!
-        return -1; //most of the time we finish here
-    }
+    //if (random < cutOff) { //this happens most of the time, so we check this first to return early!
+    //    return -1; //most of the time we finish here
+    //}
 
-    for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
-        cutOff += biome->possibleTrees[i].probability;
-        if (random < cutOff) {
-            return biome->possibleTrees[i].treeIndex;
-            break;
-        }
-    }
+    //for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
+    //    cutOff += biome->possibleTrees[i].probability;
+    //    if (random < cutOff) {
+    //        return biome->possibleTrees[i].treeIndex;
+    //        break;
+    //    }
+    //}
     return -1;
 }
 

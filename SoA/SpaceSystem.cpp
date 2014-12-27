@@ -217,15 +217,10 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);
     glActiveTexture(GL_TEXTURE0);
-    terrainProgram->use();
-    glUniform1i(terrainProgram->getUniform("unNormalMap"), 0);
-    waterProgram->use();
-    glUniform1i(waterProgram->getUniform("unNormalMap"), 0);
     for (auto& it : m_sphericalTerrainCT) {
         auto& cmp = it.second;
         cmp.draw(camera, terrainProgram, waterProgram, &m_namePositionCT.getFromEntity(it.first));
     }
-    waterProgram->unuse();
     m_mutex.unlock();
 
   //  drawHud();
