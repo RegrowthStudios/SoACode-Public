@@ -27,6 +27,9 @@
 class IOManager;
 class TerrainFuncs;
 
+#define LOOKUP_TEXTURE_WIDTH 256
+#define LOOKUP_TEXTURE_SIZE 65536
+
 class PlanetGenData {
 public:
     vg::Texture terrainColorMap = 0;
@@ -37,6 +40,7 @@ public:
     ColorRGB8 terrainTint = ColorRGB8(255, 255, 255);
     float liquidDepthScale = 1000.0f;
     VGTexture biomeArrayTexture = 0;
+    VGTexture baseBiomeLookupTexture = 0;
     std::vector<Biome> biomes;
     vg::GLProgram* program = nullptr;
 };
@@ -65,9 +69,15 @@ private:
                                    TerrainFuncs& humTerrainFuncs);
     void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);
 
+    class BiomeLookupTexture {
+    public:
+        int index;
+        std::vector<ui8> data = std::vector<ui8>(LOOKUP_TEXTURE_SIZE, 0);
+    };
+
     ui32 m_biomeCount = 0;
-    std::map<ui32, ui32> m_baseTextureMap;
-    std::map<ui32, std::vector<ui8> > m_interpLookupMap;
+    std::map<ui32, BiomeLookupTexture> m_biomeLookupMap;
+    std::vector<ui8> baseBiomeLookupTexture;
 
     PlanetGenData* m_defaultGenData = nullptr;
 
