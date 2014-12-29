@@ -9,13 +9,19 @@
 #include "TextureRecycler.hpp"
 #include "Timing.h"
 
-const ColorRGB8 DebugColors[6] {
+const ColorRGB8 DebugColors[12] {
     ColorRGB8(255, 0, 0), //TOP
     ColorRGB8(0, 255, 0), //LEFT
     ColorRGB8(0, 0, 255), //RIGHT
     ColorRGB8(255, 255, 0), //FRONT
     ColorRGB8(0, 255, 255), //BACK
-    ColorRGB8(255, 255, 255) //BOTTOM
+    ColorRGB8(33, 55, 255), //BOTTOM
+    ColorRGB8(255, 33, 55), //?
+    ColorRGB8(125, 125, 125), //?
+    ColorRGB8(255, 125, 125), //?
+    ColorRGB8(125, 255, 255), //?
+    ColorRGB8(125, 255, 125), //?
+    ColorRGB8(255, 125, 255) //?
 };
 
 TerrainVertex SphericalTerrainGenerator::verts[SphericalTerrainGenerator::VERTS_SIZE];
@@ -160,8 +166,11 @@ void SphericalTerrainGenerator::update() {
 
     if (m_planetGenData->baseBiomeLookupTexture) {
         glActiveTexture(GL_TEXTURE0);
-        glUniform1i(m_genProgram->getUniform("unBaseBiomes"), 1);
+        glUniform1i(m_genProgram->getUniform("unBaseBiomes"), 0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->baseBiomeLookupTexture);
+    //    glActiveTexture(GL_TEXTURE1);
+    //    glUniform1i(m_genProgram->getUniform("unBiomes"), 1);
+    //    glBindTexture(GL_TEXTURE_2D_ARRAY, m_planetGenData->biomeArrayTexture);
     }
 
     glDisable(GL_DEPTH_TEST);
@@ -273,9 +282,10 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
             v.color = m_planetGenData->terrainTint;
-            v.color.r = (ui8)(m_heightData[zIndex][xIndex][3] * 31.875f);
-            v.color.g = 0.0;
-            v.color.b = 0.0;
+            v.color = DebugColors[(int)round(m_heightData[zIndex][xIndex][3])];
+         //   v.color.r = (ui8)(m_heightData[zIndex][xIndex][3] * 31.875f);
+         //   v.color.g = 0.0;
+         //   v.color.b = 0.0;
             m_index++;
         }
     }

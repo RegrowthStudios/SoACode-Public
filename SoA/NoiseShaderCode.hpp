@@ -46,9 +46,11 @@ const nString N_TEMP = "pOutput.g";
 const nString N_HUM = "pOutput.b";
 const nString N_BIOME = "pOutput.a";
 
+const nString N_TEMP_HUM_V2 = "vec2(" + N_TEMP + "," + N_HUM + ")";
+
 const nString NOISE_SRC_FRAG = R"(
 // Uniforms
-uniform usampler2D unBaseBiomes;
+uniform sampler2D unBaseBiomes;
 uniform sampler2DArray unBiomes;
 uniform vec3 unCornerPos = vec3(0.0);
 uniform ivec3 unCoordMapping = ivec3(0);

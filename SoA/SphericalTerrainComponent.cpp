@@ -13,7 +13,7 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
-#define LOAD_DIST 40000.0
+#define LOAD_DIST 80000.0
 // Should be even
 #define PATCH_ROW 2  
 #define NUM_FACES 6

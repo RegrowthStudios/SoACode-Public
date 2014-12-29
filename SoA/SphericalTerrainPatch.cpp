@@ -154,8 +154,8 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
-    const float DIST_MIN = 2.0f;
-    const float DIST_MAX = 2.1f;
+    const float DIST_MIN = 4.0f;
+    const float DIST_MAX = 4.1f;
 
 #define MIN_SIZE 0.016f
 

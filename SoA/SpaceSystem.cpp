@@ -199,19 +199,19 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     static DebugRenderer debugRenderer;
     m_mutex.lock();
     for (auto& it : m_sphericalGravityCT) {
-        /*   auto& sgcmp = it.second;
-           float radius = sgcmp.radius;
-           const f64v3& position = m_namePositionCT.getFromEntity(it.first).position;
+        auto& sgcmp = it.second;
+        float radius = sgcmp.radius;
+        const f64v3& position = m_namePositionCT.getFromEntity(it.first).position;
 
-           debugRenderer.drawIcosphere(f32v3(0), radius, f32v4(1.0), 4);
+        debugRenderer.drawIcosphere(f32v3(0), radius * 0.99, f32v4(1.0), 4);
 
-           const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(it.first);
+        const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(it.first);
 
-           f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
+        f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
 
-           f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
+        f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
 
-           debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);*/
+        debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);
     }
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -236,7 +236,6 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
 }
 
 void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
-    return;
     
     // Draw paths
     colorProgram->use();

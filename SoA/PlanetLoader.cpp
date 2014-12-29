@@ -187,8 +187,10 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         if (type == "baseLookupMap") {
             std::vector<ui8> data;
             ui32 rWidth, rHeight;
-            vg::ImageLoader::loadPng(kvp.second.as<nString>().c_str(), data,
-                                 rWidth, rHeight, m_iom);
+            if (!vg::ImageLoader::loadPng(kvp.second.as<nString>().c_str(), data,
+                rWidth, rHeight, m_iom)) {
+                pError("Failed to load " + kvp.second.as<nString>());
+            }
             if (rWidth != 256 || rHeight != 256) {
                 pError("loadBiomes() error: width and height of " + kvp.second.as<nString>() + " must be 256");
             }
@@ -211,22 +213,22 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     }
 
     if (m_biomeLookupMap.size()) {
+
         // Generate base biome lookup texture
         genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(baseBiomeLookupTexture.data(),
                                                                    LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
                                                                    &SamplerState::POINT_CLAMP,
-                                                                   vg::TextureInternalFormat::R16UI,
+                                                                   vg::TextureInternalFormat::R8,
                                                                    vg::TextureFormat::RED, 0);
-
         // Generate array textures
         glGenTextures(1, &genData->biomeArrayTexture);
         glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);
         //Allocate the storage.
-        glTexStorage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_SIZE, LOOKUP_TEXTURE_SIZE, m_biomeLookupMap.size());
+        glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size());
         // Set up base lookup textures
         for (auto& it : m_biomeLookupMap) {
-            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_SIZE, LOOKUP_TEXTURE_SIZE,
-                            m_biomeLookupMap.size(), GL_R, GL_UNSIGNED_BYTE, it.second.data.data());
+            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
+                            1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());
         }
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -247,6 +249,7 @@ void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
         tex.data[index] = 255;
         m_biomeCount++;
     } else {
+        baseBiomeLookupTexture[index] = m_biomeCount - 1;
         it->second.data[index] = 255;
     }
 }
@@ -428,9 +431,22 @@ void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, 
 void PlanetLoader::addBiomes(nString& fSource, PlanetGenData* genData) {
     
     // Base biome lookup
-    fSource += "uint biomeIndex = texture2D(unBaseBiomes, vec2(" + N_TEMP + "," + N_HUM + ")).x;";
-    fSource += N_BIOME + " = float(biomeIndex);";
-    for (int i = 0; i < genData->biomes.size(); i++) {
+    fSource += "float biomeIndex = texture(unBaseBiomes, " + N_TEMP_HUM_V2 + " / 255.0   ).x * 255.0f; ";
+    fSource += N_BIOME + " = biomeIndex;";
+    fSource += "float baseMult = 1.0;";
 
+    for (int i = 0; i < genData->biomes.size(); i++) {
+        // Add if
+        if (i == 0) {
+            fSource += "if ";
+        } else {
+            fSource += "else if ";
+        }
+        // Add conditional
+        fSource += "(biomeIndex <" + std::to_string((float)i + 0.01) + ") {";
+        // Mult lookup
+        fSource += "baseMult = texture(unBiomes, vec3(" + N_TEMP + "," + N_HUM + "," + std::to_string(i) + ")).x;";
+        // Closing curly brace
+        fSource += "}";
     }
 }
