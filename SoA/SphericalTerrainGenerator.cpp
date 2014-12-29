@@ -278,8 +278,8 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                 angle = acos(glm::dot(equator, normal));
             }
             
-            v.temperature = calculateTemperature(255.0f, angle, m_heightData[zIndex][xIndex][1]);
-            v.humidity = calculateHumidity(255.0f, angle, m_heightData[zIndex][xIndex][2]);
+            v.temperature = calculateTemperature(100.0f, angle, m_heightData[zIndex][xIndex][1]);
+            v.humidity = calculateHumidity(60.0f, angle, m_heightData[zIndex][xIndex][2]);
 
             // Compute tangent
             tmpPos[m_coordMapping.x] = (x + 1) * m_vertWidth + m_startPos.x;
