@@ -227,6 +227,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     
     float width = data->width;
     float h;
+    float angle;
     f32v3 tmpPos;
     int xIndex;
     int zIndex;
@@ -255,9 +256,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             zIndex = z * PIXELS_PER_PATCH_NM + 1;
             xIndex = x * PIXELS_PER_PATCH_NM + 1;
             h = m_heightData[zIndex][xIndex][0];
-            v.temperature = (ui8)m_heightData[zIndex][xIndex][1];
-            v.humidity = (ui8)m_heightData[zIndex][xIndex][2];
-
+            
             // Water indexing
             if (h < 0) {
                 addWater(z, x);
@@ -268,7 +267,20 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.texCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
 
             // Spherify it!
-            v.position = glm::normalize(v.position) * (m_radius + h);
+            f32v3 normal = glm::normalize(v.position);
+            v.position = normal * (m_radius + h);
+
+            // Compute angle
+            if (normal.y == 1.0f || normal.y == -1.0f) {
+                angle = M_PI / 2.0;
+            } else {
+                f32v3 equator = glm::normalize(f32v3(normal.x, 0.0f, normal.z));
+                angle = acos(glm::dot(equator, normal));
+            }
+            
+            v.temperature = calculateTemperature(80.0f, angle, m_heightData[zIndex][xIndex][1]);
+            v.humidity = calculateHumidity(40.0f, angle, m_heightData[zIndex][xIndex][2]);
+
           
             // Compute tangent
             tmpPos[m_coordMapping.x] = (x + 1) * m_vertWidth + m_startPos.x;
@@ -329,6 +341,19 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     // TODO: Using a VAO makes it not work??
    //    glBindVertexArray(0);
+}
+
+// Thanks to tetryds for these
+ui8 SphericalTerrainGenerator::calculateTemperature(float range, float angle, float baseTemp) {
+    float tempFalloff = 1.0f - pow(cos(angle), 2.0f * angle);
+    return (ui8)(baseTemp - tempFalloff * range);
+}
+
+// Thanks to tetryds for these
+ui8 SphericalTerrainGenerator::calculateHumidity(float range, float angle, float baseHum) {
+    float cos3x = cos(3 * angle);
+    float humFalloff = (-0.25f * angle + 1.0f) * (cos3x * cos3x);
+    return (ui8)(baseHum - humFalloff * range);
 }
 
 void SphericalTerrainGenerator::buildSkirts() {

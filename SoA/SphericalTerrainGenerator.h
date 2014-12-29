@@ -107,6 +107,10 @@ private:
     /// Generates mesh using heightmap
     void buildMesh(TerrainGenDelegate* data);
 
+    ui8 calculateTemperature(float range, float angle, float baseTemp);
+
+    ui8 calculateHumidity(float range, float angle, float baseHum);
+
     void buildSkirts();
 
     void addWater(int z, int x);
