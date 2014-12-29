@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "GamePlayScreen.h"
 
+#include <Vorb/colors.h>
+#include <Vorb/Events.hpp>
+#include <Vorb/GpuMemory.h>
+#include <Vorb/SpriteFont.h>
+#include <Vorb/SpriteBatch.h>
+
 #include "Player.h"
 #include "App.h"
 #include "GameManager.h"
@@ -24,13 +30,8 @@
 #include "Inputs.h"
 #include "TexturePackLoader.h"
 #include "LoadTaskShaders.h"
-#include "GpuMemory.h"
-#include "SpriteFont.h"
-#include "SpriteBatch.h"
-#include "colors.h"
 #include "Options.h"
 #include "GamePlayScreenEvents.hpp"
-#include "Events.hpp"
 
 #define THREAD ThreadId::UPDATE
 

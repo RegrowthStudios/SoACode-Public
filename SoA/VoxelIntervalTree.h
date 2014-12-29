@@ -1,7 +1,5 @@
 #pragma once
 #include <map>
-#include <vector>
-#include "types.h"
 
 //Implementation of a specialized interval tree based on a red-black tree
 //Red black tree: http://en.wikipedia.org/wiki/Red%E2%80%93black_tree

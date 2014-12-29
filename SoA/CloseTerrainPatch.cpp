@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "TerrainPatch.h"
 
+#include <Vorb/utils.h>
+
 #include "BlockData.h"
 #include "Chunk.h"
 #include "FloraGenerator.h"
@@ -8,8 +10,6 @@
 #include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
-
-#include "utils.h"
 
 inline double BilinearInterpolation(int &a, int &b, int &c, int &d, int &step, float &x, float &z)
 {

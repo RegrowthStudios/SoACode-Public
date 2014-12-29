@@ -1,4 +1,5 @@
 #pragma once
+#include "Constants.h"
 
 class Chunk;
 enum class ChunkStates;

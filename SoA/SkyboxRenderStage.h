@@ -14,8 +14,8 @@
 #ifndef SkyboxRenderStage_h__
 #define SkyboxRenderStage_h__
 
-#include "IRenderStage.h"
-#include "GLProgram.h"
+#include <Vorb/GLProgram.h>
+#include <Vorb/IRenderStage.h>
 
 class SkyboxRenderer;
 class Camera;

@@ -16,12 +16,13 @@
 #ifndef TEXTUREPACKLOADER_H_
 #define TEXTUREPACKLOADER_H_
 
+#include <set>
+
+#include <Vorb/IOManager.h>
+#include <Vorb/TextureCache.h>
+
 #include "TextureAtlasStitcher.h"
 #include "BlockPack.h"
-#include "TextureCache.h"
-#include "IOManager.h"
-
-#include <set>
 
 /// Information stored in pack.yml
 struct TexturePackInfo {

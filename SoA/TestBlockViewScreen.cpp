@@ -1,15 +1,14 @@
 #include "stdafx.h"
 #include "TestBlockViewScreen.h"
 
-#include <colors.h>
-#include <DepthState.h>
 #include <glm/gtx/transform.hpp>
-#include <InputDispatcher.h>
-#include <IOManager.h>
-#include <Random.h>
-#include <RasterizerState.h>
-#include <Timing.h>
-#include <VoxelMesherCulled.h>
+#include <Vorb/colors.h>
+#include <Vorb/GLStates.h>
+#include <Vorb/InputDispatcher.h>
+#include <Vorb/IOManager.h>
+#include <Vorb/Random.h>
+#include <Vorb/Timing.h>
+#include <Vorb/VoxelMesherCulled.h>
 
 #include "BlockLoader.h"
 

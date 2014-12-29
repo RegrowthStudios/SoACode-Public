@@ -1,10 +1,9 @@
 #include "stdafx.h"
+#include "ChunkRenderer.h"
 
 #include "Camera.h"
 #include "Chunk.h"
-#include "ChunkRenderer.h"
 #include "Frustum.h"
-#include "GLProgram.h"
 #include "GLProgramManager.h"
 #include "GameManager.h"
 #include "GameRenderParams.h"

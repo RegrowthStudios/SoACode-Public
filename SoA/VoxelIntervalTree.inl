@@ -1,5 +1,4 @@
 #pragma once
-#include "VoxelIntervalTree.h"
 #include "Errors.h"
 
 template <typename T>

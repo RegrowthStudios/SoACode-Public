@@ -1,4 +1,20 @@
+///
+/// Inputs.h
+/// Seed of Andromeda
+///
+/// Created by Cristian Zaloj on 29 Dec 2014
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// Hard-coded list of inputs
+/// TODO: Remove
+///
+
 #pragma once
+
+#ifndef Inputs_h__
+#define Inputs_h__
 
 // These can not be an enum. They are very likely to change values at runtime!
 extern i32 INPUT_BLOCK_SCANNER;
@@ -38,3 +54,5 @@ extern i32 INPUT_RANDOM_DEBUG;
 
 // Initialize Input IDs At Runtime
 extern void initInputs();
+
+#endif // Inputs_h__

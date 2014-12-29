@@ -1,9 +1,9 @@
 #pragma once
-#include "ThreadPool.h"
-#include "WorldStructs.h"
+#include <Vorb/ThreadPool.h>
+#include <Vorb/Vorb.h>
 
-#include "Vorb.h"
 #include "IVoxelMapper.h"
+#include "WorldStructs.h"
 
 class Camera;
 class ChunkManager;

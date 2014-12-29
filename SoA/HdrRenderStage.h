@@ -15,10 +15,11 @@
 #ifndef HdrRenderStage_h__
 #define HdrRenderStage_h__
 
-#include "FullQuadVBO.h"
-#include "GLProgram.h"
+#include <Vorb/FullQuadVBO.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/IRenderStage.h>
+
 #include "GLProgramManager.h"
-#include "IRenderStage.h"
 
 class Camera;
 

@@ -2,21 +2,21 @@
 #include "stdafx.h"
 
 #include <SDL/SDL.h>
+#include <Vorb/Keg.h>
 
 #include "BlockTextureMethods.h"
 #include "CAEngine.h"
 #include "ChunkMesh.h"
 #include "Constants.h"
-#include "Keg.h"
-#include "Rendering.h"
 #include "global.h"
 #include "HardCodedIDs.h"
+#include "Rendering.h"
 
 ui16& getLowWaterID();
-ui16& getVisitedNodeID();
-
-#define VISITED_NODE (getVisitedNodeID())
 #define LOWWATER (getLowWaterID())
+ui16& getVisitedNodeID();
+#define VISITED_NODE (getVisitedNodeID())
+
 #define FULLWATER (LOWWATER + 99)
 #define FULLPRESSURE 4095
 #define WATERSOURCE 3946

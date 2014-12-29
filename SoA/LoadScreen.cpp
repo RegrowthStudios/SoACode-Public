@@ -1,9 +1,13 @@
 #include "stdafx.h"
 #include "LoadScreen.h"
 
+#include <Vorb/colors.h>
+#include <Vorb/GLStates.h>
+#include <Vorb/SpriteFont.h>
+#include <Vorb/SpriteBatch.h>
+
 #include "App.h"
 #include "BlockPack.h"
-#include "colors.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "GameManager.h"
@@ -18,13 +22,7 @@
 #include "MainMenuScreen.h"
 #include "ParticleEmitter.h"
 #include "Player.h"
-#include "SamplerState.h"
 #include "TexturePackLoader.h"
-
-#include "SpriteFont.h"
-#include "SpriteBatch.h"
-#include "RasterizerState.h"
-#include "DepthState.h"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);

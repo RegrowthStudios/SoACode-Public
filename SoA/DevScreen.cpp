@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "DevScreen.h"
 
-#include <InputDispatcher.h>
+#include <Vorb/InputDispatcher.h>
 
 i32 DevScreen::getNextScreen() const {
     if (m_nextScreen) return m_nextScreen->getIndex();

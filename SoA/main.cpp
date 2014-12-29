@@ -1,9 +1,9 @@
 #include "stdafx.h"
 
-#include <Vorb.h>
 #ifdef OS_WINDOWS
 #include <SDL/SDL_syswm.h>
 #endif
+#include <Vorb/Vorb.h>
 
 #include "App.h"
 

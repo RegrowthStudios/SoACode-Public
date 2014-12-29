@@ -1,8 +1,8 @@
 #pragma once
+#include <Vorb/GLProgram.h>
+
 #include "Frustum.h"
 #include "TerrainGenerator.h"
-
-#include "GLProgram.h"
 
 const int scale = (int)planetScale;
 

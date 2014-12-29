@@ -1,14 +1,13 @@
 #include "stdafx.h"
 #include "TestDeferredScreen.h"
 
-#include <colors.h>
-#include <DepthState.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <GLRenderTarget.h>
-#include <ImageLoader.h>
-#include <InputDispatcher.h>
-#include <IOManager.h>
-#include <RasterizerState.h>
+#include <Vorb/colors.h>
+#include <Vorb/GLStates.h>
+#include <Vorb/GLRenderTarget.h>
+#include <Vorb/ImageLoader.h>
+#include <Vorb/InputDispatcher.h>
+#include <Vorb/IOManager.h>
 
 // Number cells per row/column in a single grid
 const ui32 CELLS = 20;

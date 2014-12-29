@@ -1,6 +1,6 @@
 #pragma once
-#include "stdafx.h"
 
+// TODO: Dafuq, this is a lonely world.
 struct LiquidData {
     i32 startBlockID;
     i32 numLevels;

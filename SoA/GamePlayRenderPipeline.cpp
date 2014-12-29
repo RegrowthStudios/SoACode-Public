@@ -1,12 +1,13 @@
 #include "stdafx.h"
+#include "GamePlayRenderPipeline.h"
+
+#include <Vorb/GLStates.h>
 
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"
 #include "CutoutVoxelRenderStage.h"
-#include "DepthState.h"
 #include "DevHudRenderStage.h"
 #include "Errors.h"
-#include "GamePlayRenderPipeline.h"
 #include "HdrRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
 #include "MeshManager.h"

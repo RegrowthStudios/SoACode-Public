@@ -15,9 +15,10 @@
 #ifndef BlockPack_h__
 #define BlockPack_h__
 
-#include <Events.hpp>
+#include <Vorb/Events.hpp>
 
 #include "BlockData.h"
+
 /// A container for blocks
 class BlockPack {
 public:

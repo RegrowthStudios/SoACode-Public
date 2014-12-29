@@ -15,7 +15,7 @@
 #ifndef DevHudRenderStage_h__
 #define DevHudRenderStage_h__
 
-#include "IRenderStage.h"
+#include <Vorb/IRenderStage.h>
 
 class SpriteBatch;
 class SpriteFont;

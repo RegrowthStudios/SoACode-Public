@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "DevHudRenderStage.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
-#include "colors.h"
-#include "Player.h"
+
+#include <Vorb/colors.h>
+#include <Vorb/SpriteBatch.h>
+#include <Vorb/SpriteFont.h>
+
 #include "App.h"
+#include "Player.h"
 
 DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize, const Player* player,
                                      const App* app, const f32v2& windowDims) :

@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "TerrainGenerator.h"
 
+#include <Vorb/ImageLoader.h>
+
 #include "GameManager.h"
 #include "Planet.h"
 #include "SimplexNoise.h"
 #include "BlockData.h"
 #include "Errors.h"
-#include "ImageLoader.h"
 #include "TexturePackLoader.h"
 
 #define MAX(a,b) ((a)>(b)?(a):(b))

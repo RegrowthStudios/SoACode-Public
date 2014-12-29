@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "FloraGenerator.h"
 
+#include <Vorb/utils.h>
+
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkUpdater.h"
-#include "utils.h"
 #include "WorldStructs.h"
 
 KEG_ENUM_INIT_BEGIN(TreeLeafShape, TreeLeafShape, type)

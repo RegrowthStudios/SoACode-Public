@@ -16,7 +16,7 @@
 #ifndef TransparentVoxelRenderStage_h__
 #define TransparentVoxelRenderStage_h__
 
-#include "IRenderStage.h"
+#include <Vorb/IRenderStage.h>
 
 class GameRenderParams;
 class Camera;

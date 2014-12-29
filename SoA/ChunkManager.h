@@ -7,12 +7,12 @@
 #include <set>
 #include <thread>
 
-#include "Vorb.h"
+#include <Vorb/Vorb.h>
+#include <Vorb/FixedSizeArrayRecycler.hpp>
 
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkIOManager.h"
-#include "FixedSizeArrayRecycler.hpp"
 #include "GameManager.h"
 #include "IVoxelMapper.h"
 #include "VoxPool.h"

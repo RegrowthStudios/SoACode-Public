@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "HdrRenderStage.h"
 
+#include <Vorb/GLProgram.h>
+
 #include "Camera.h"
-#include "GLProgram.h"
 #include "Options.h"
 
 HdrRenderStage::HdrRenderStage(const vg::GLProgramManager* glPM, vg::FullQuadVBO* quad, const Camera* camera) :

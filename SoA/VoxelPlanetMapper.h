@@ -12,6 +12,7 @@
 #pragma once
 #include "IVoxelMapper.h"
 
+// TODO: Yeah... I dunno
 namespace vorb {
 namespace voxel {
 

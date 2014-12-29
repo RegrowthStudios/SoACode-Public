@@ -1,15 +1,15 @@
 #include "stdafx.h"
+#include "ChunkGenerator.h"
+
+#include <Vorb/Timing.h>
 
 #include "BlockPack.h"
-#include "ChunkGenerator.h"
 #include "Chunk.h"
 #include "WorldStructs.h"
 #include "VoxelIntervalTree.h"
 #include "TerrainGenerator.h"
 #include "Planet.h"
 #include "GameManager.h"
-
-#include "Timing.h"
 
 bool ChunkGenerator::generateChunk(Chunk* chunk, struct LoadData *ld)
 {

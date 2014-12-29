@@ -6,22 +6,19 @@
 //  Copyright 2014 Regrowth Studios
 //  All Rights Reserved
 //  
-//  This file provides the implementation for a
-//  virtual commputer.
+//  Summary:
+//  This file provides the implementation for a virtual computer.
 //
 
 #pragma once
 
-#ifndef COMPUTER_H_
-#define COMPUTER_H_
+#ifndef Computer_h_
+#define Computer_h_
 
-class Computer
-{
+class Computer {
 public:
     Computer();
-    ~Computer();
-protected:
-
+    virtual ~Computer();
 };
 
-#endif // COMPUTER_H_
+#endif // Computer_h_

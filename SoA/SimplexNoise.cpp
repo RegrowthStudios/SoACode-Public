@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SimplexNoise.h"
 
-#include "utils.h"
+#include <Vorb/utils.h>
 
 #define offsetfmult 1.45
 

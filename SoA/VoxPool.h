@@ -15,7 +15,7 @@
 #ifndef VoxPool_h__
 #define VoxPool_h__
 
-#include <ThreadPool.h>
+#include <Vorb/ThreadPool.h>
 
 // Worker data for a threadPool
 class WorkerData {

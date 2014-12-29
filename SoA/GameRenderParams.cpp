@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "GameRenderParams.h"
 
+#include <Vorb/utils.h>
+
 #include "Camera.h"
 #include "GameManager.h"
 #include "Planet.h"
 #include "Player.h"
 #include "Rendering.h"
-#include "utils.h"
 
 void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
                                        const Camera* ChunkCamera,

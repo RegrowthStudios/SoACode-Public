@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "BlockTextureMethods.h"
 
-#include <ConnectedTextures.h>
+#include <Vorb/ConnectedTextures.h>
+#include <Vorb/utils.h>
 
 #include "BlockPack.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
 #include "RenderTask.h"
 #include "VoxelBits.h"
-#include "utils.h"
 
 //Gets a random offset for use by random textures
 void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, int& result) {

@@ -19,7 +19,7 @@
 
 class GamePlayScreen;
 
-class PauseMenuAwesomiumAPI : public vui::IAwesomiumAPI<PauseMenuAwesomiumAPI> {
+class PauseMenuAwesomiumAPI : public IAwesomiumAPI<PauseMenuAwesomiumAPI> {
 public:
     /// Initializes the API and hooks up all functions
     /// @oaram interfaceObject: The object that the API will talk to

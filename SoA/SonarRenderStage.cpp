@@ -1,9 +1,9 @@
 #include "stdafx.h"
+#include "SonarRenderStage.h"
 
 #include "Camera.h"
 #include "ChunkRenderer.h"
 #include "MeshManager.h"
-#include "SonarRenderStage.h"
 
 
 SonarRenderStage::SonarRenderStage(const GameRenderParams* gameRenderParams) :

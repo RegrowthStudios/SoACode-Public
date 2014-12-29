@@ -1,12 +1,11 @@
 #include "stdafx.h"
 #include "TexturePackLoader.h"
-#include "ImageLoader.h"
 
-#include "Options.h"
+#include <Vorb/ImageLoader.h>
+#include <Vorb/Keg.h>
 
 #include "FileSystem.h"
-
-#include "Keg.h"
+#include "Options.h"
 
 /// yml definition for TexturePackInfo
 KEG_TYPE_INIT_BEGIN_DEF_VAR(TexturePackInfo)

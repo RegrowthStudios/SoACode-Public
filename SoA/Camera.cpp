@@ -6,9 +6,9 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <SDL/SDL.h>
+#include <Vorb/utils.h>
 
 #include "Options.h"
-#include "utils.h"
 
 #ifndef M_PI
 #define M_PI 3.1415926f

@@ -15,7 +15,7 @@
 #ifndef LoadTask_h__
 #define LoadTask_h__
 
-#include <IThreadPoolTask.h>
+#include <Vorb/IThreadPoolTask.h>
 
 #include "VoxPool.h"
 

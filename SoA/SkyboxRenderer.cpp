@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "SkyboxRenderer.h"
 
-#include "GLEnums.h"
-#include "GpuMemory.h"
+#include <Vorb/GLEnums.h>
+#include <Vorb/GpuMemory.h>
 
 // Skybox Cube //
 //    v6----- v5

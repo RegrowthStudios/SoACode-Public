@@ -2,13 +2,13 @@
 #include "BlockLoader.h"
 
 #include <boost/algorithm/string/replace.hpp>
+#include <Vorb/IOManager.h>
+#include <Vorb/Keg.h>
 
 #include "BlockPack.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
-#include "IOManager.h"
-#include "Keg.h"
 #include "TexturePackLoader.h"
 
 bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {

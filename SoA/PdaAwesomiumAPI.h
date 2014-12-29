@@ -21,7 +21,7 @@ class IGameScreen;
 class GamePlayScreen;
 
 /// Awesomium API for PDA
-class PdaAwesomiumAPI : public vui::IAwesomiumAPI<PdaAwesomiumAPI>
+class PdaAwesomiumAPI : public IAwesomiumAPI<PdaAwesomiumAPI>
 {
 public:
     /// Initializes the API and hooks up all functions

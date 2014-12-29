@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "App.h"
 
-#include <InputDispatcher.h>
-#include <ScreenList.h>
-#include <SpriteBatch.h>
+#include <Vorb/InputDispatcher.h>
+#include <Vorb/ScreenList.h>
+#include <Vorb/SpriteBatch.h>
 
 #include "DevScreen.h"
 #include "InitScreen.h"

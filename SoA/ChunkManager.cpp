@@ -7,6 +7,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <Vorb/GLEnums.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/Mesh.h>
+#include <Vorb/ThreadPool.h>
+#include <Vorb/Vorb.h>
 #include <ZLIB/zlib.h>
 
 #include "BlockData.h"
@@ -20,10 +25,7 @@
 #include "FloraGenerator.h"
 #include "FloraTask.h"
 #include "Frustum.h"
-#include "GLEnums.h"
-#include "GLProgram.h"
 #include "GenerateTask.h"
-#include "Mesh.h"
 #include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
@@ -33,9 +35,7 @@
 #include "Sound.h"
 #include "TerrainGenerator.h"
 #include "TerrainPatch.h"
-#include "ThreadPool.h"
 #include "VRayHelper.h"
-#include "Vorb.h"
 #include "VoxelLightEngine.h"
 #include "VoxelPlanetMapper.h"
 #include "VoxelRay.h"

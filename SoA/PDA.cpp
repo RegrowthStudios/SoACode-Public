@@ -1,15 +1,13 @@
 #include "stdafx.h"
 #include "PDA.h"
 
-#include "GamePlayScreen.h"
-#include "GLProgram.h"
+#include <Vorb/GLProgram.h>
 
+#include "GamePlayScreen.h"
 
 PDA::PDA() {
     // Empty
 }
-
-
 PDA::~PDA() {
     // Empty
 }

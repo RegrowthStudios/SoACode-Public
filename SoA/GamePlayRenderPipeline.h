@@ -14,13 +14,14 @@
 #ifndef GamePlayRenderPipeline_h__
 #define GamePlayRenderPipeline_h__
 
-#include "FullQuadVBO.h"
+#include <Vorb/FullQuadVBO.h>
+#include <Vorb/GLRenderTarget.h>
+#include <Vorb/IRenderPipeline.h>
+#include <Vorb/RTSwapChain.hpp>
+
 #include "GameRenderParams.h"
 #include "GLProgramManager.h"
-#include "GLRenderTarget.h"
-#include "IRenderPipeline.h"
 #include "NightVisionRenderStage.h"
-#include "RTSwapChain.hpp"
 
 /// Forward declarations
 class App;

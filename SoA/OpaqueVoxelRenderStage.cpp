@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "OpaqueVoxelRenderStage.h"
+
 #include "Camera.h"
 #include "MeshManager.h"
 #include "ChunkRenderer.h"

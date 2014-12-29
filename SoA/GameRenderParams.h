@@ -3,9 +3,6 @@
 #ifndef GameRenderParams_h__
 #define GameRenderParams_h__
 
-#include "stdafx.h"
-#include <vector>
-
 class ChunkMesh;
 class Camera;
 

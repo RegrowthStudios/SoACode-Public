@@ -12,7 +12,6 @@
 #include "OpenGLStructs.h"
 #include "Options.h"
 #include "Texture2d.h"
-#include "Texture2d.h"
 #include "WorldStructs.h"
 
 

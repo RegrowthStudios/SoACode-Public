@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "RegionFileManager.h"
 
 #include <direct.h> //for mkdir windows
 #include <dirent.h>
@@ -7,17 +8,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <Vorb/utils.h>
 #include <ZLIB/zlib.h>
 
 #include "global.h"
-
-#include "RegionFileManager.h"
-
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "Planet.h"
-#include "utils.h"
 
 // Section tags
 #define TAG_VOXELDATA 0x1

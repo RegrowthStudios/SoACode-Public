@@ -1,8 +1,8 @@
 #include "stdafx.h"
+#include "ChunkUpdater.h"
 
 #include "BlockPack.h"
 #include "CAEngine.h"
-#include "ChunkUpdater.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"

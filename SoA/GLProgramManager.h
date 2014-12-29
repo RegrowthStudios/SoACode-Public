@@ -14,11 +14,10 @@
 #ifndef GLPROGRAMMANAGER_H_
 #define GLPROGRAMMANAGER_H_
 
-#include "GLProgram.h"
-#include "IOManager.h"
-
 #include <unordered_map>
-#include <vector>
+
+#include <Vorb/GLProgram.h>
+#include <Vorb/IOManager.h>
 
 namespace vorb {
     namespace core {

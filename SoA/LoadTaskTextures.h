@@ -1,9 +1,7 @@
 #pragma once
 #include "LoadMonitor.h"
-
 #include "GameManager.h"
 #include "TexturePackLoader.h"
-
 #include "Options.h"
 
 // TODO(Ben): Multiple loader threads

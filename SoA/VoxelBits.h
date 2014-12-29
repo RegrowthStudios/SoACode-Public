@@ -7,15 +7,13 @@
 /// All Rights Reserved
 ///
 /// Contains utils for accessing voxel bits
-/// 
+/// TODO: Use C++ bit accessors
 ///
 
 #pragma once
 
 #ifndef VoxelBits_h__
 #define VoxelBits_h__
-
-#include "stdafx.h"
 
 //For lamp colors. Used to extract color values from the 16 bit color code
 #define LAMP_RED_MASK 0x7C00

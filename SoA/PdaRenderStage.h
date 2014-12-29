@@ -14,7 +14,7 @@
 #ifndef PdaRenderStage_h__
 #define PdaRenderStage_h__
 
-#include "IRenderStage.h"
+#include <Vorb/IRenderStage.h>
 
 class PDA;
 

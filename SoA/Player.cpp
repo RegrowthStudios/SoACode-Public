@@ -4,6 +4,8 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include <Vorb/utils.h>
+
 #include "BlockData.h"
 #include "GameManager.h"
 #include "InputManager.h"
@@ -14,7 +16,6 @@
 #include "Rendering.h"
 #include "Rendering.h"
 #include "Texture2d.h"
-#include "utils.h"
 
 // TODO: Get Rid Of This
 using namespace glm;

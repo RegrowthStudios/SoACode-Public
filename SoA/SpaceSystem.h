@@ -15,8 +15,9 @@
 #ifndef SpaceSystem_h__
 #define SpaceSystem_h__
 
-#include "ComponentTable.hpp"
-#include "ECS.h"
+#include <Vorb/ComponentTable.hpp>
+#include <Vorb/ECS.h>
+
 #include "SpaceComponents.h"
 
 class CTableSpaceObject : public vcore::ComponentTable<SpaceObject> {

@@ -2,6 +2,8 @@
 #include "Chunk.h"
 
 #include <boost\circular_buffer.hpp>
+#include <Vorb/ThreadPool.h>
+#include <Vorb/utils.h>
 
 #include "BlockPack.h"
 #include "CAEngine.h"
@@ -18,9 +20,7 @@
 #include "SimplexNoise.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
-#include "ThreadPool.h"
 #include "MessageManager.h"
-#include "utils.h"
 #include "VoxelUtils.h"
 
 GLuint Chunk::vboIndicesID = 0;

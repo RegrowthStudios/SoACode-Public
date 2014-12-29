@@ -1,9 +1,7 @@
 #include "stdafx.h"
-
 #include "ChunkMesh.h"
 
 #include "Chunk.h"
-
 #include "RenderTask.h"
 
 void MesherInfo::init(int dataWidth, int dataLayer) {
