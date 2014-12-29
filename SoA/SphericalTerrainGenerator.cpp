@@ -278,10 +278,9 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                 angle = acos(glm::dot(equator, normal));
             }
             
-            v.temperature = calculateTemperature(80.0f, angle, m_heightData[zIndex][xIndex][1]);
-            v.humidity = calculateHumidity(40.0f, angle, m_heightData[zIndex][xIndex][2]);
+            v.temperature = calculateTemperature(255.0f, angle, m_heightData[zIndex][xIndex][1]);
+            v.humidity = calculateHumidity(255.0f, angle, m_heightData[zIndex][xIndex][2]);
 
-          
             // Compute tangent
             tmpPos[m_coordMapping.x] = (x + 1) * m_vertWidth + m_startPos.x;
             tmpPos[m_coordMapping.y] = m_startPos.y;
@@ -345,15 +344,17 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
 // Thanks to tetryds for these
 ui8 SphericalTerrainGenerator::calculateTemperature(float range, float angle, float baseTemp) {
-    float tempFalloff = 1.0f - pow(cos(angle), 2.0f * angle);
-    return (ui8)(baseTemp - tempFalloff * range);
+    float tempFalloff = 1.0f - pow(cos(angle * angle), 2.0f * angle);
+    float temp = baseTemp - tempFalloff * range;
+    return (ui8)(glm::clamp(temp, 0.0f, 255.0f));
 }
 
 // Thanks to tetryds for these
 ui8 SphericalTerrainGenerator::calculateHumidity(float range, float angle, float baseHum) {
-    float cos3x = cos(3 * angle);
-    float humFalloff = (-0.25f * angle + 1.0f) * (cos3x * cos3x);
-    return (ui8)(baseHum - humFalloff * range);
+    float cos3x = cos(3.0f * angle);
+    float humFalloff = 1.0f - (-0.25f * angle + 1.0f) * (cos3x * cos3x);
+    float hum = baseHum - humFalloff * range;
+    return (ui8)(glm::clamp(hum, 0.0f, 255.0f));
 }
 
 void SphericalTerrainGenerator::buildSkirts() {
