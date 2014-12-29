@@ -5,16 +5,15 @@
 #include <glm\gtc\quaternion.hpp>
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include <Vorb/GLStates.h>
 
 #include "Camera.h"
-#include "DepthState.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "ObjectLoader.h"
 #include "Options.h"
-#include "RasterizerState.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
 #include "TerrainPatch.h"

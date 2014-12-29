@@ -1,12 +1,11 @@
 #include "stdafx.h"
 #include "TexturePackLoader.h"
-#include "ImageLoader.h"
 
-#include "Options.h"
+#include <Vorb/ImageLoader.h>
+#include <Vorb/Keg.h>
 
 #include "FileSystem.h"
-
-#include "Keg.h"
+#include "Options.h"
 
 /// yml definition for TexturePackInfo
 KEG_TYPE_INIT_BEGIN_DEF_VAR(TexturePackInfo)
@@ -119,7 +118,7 @@ void TexturePackLoader::uploadTextures() {
     std::map <nString, Pixels>().swap(_pixelCache);
 }
 
-void TexturePackLoader::setBlockTextures(std::vector<Block>& blocks) {
+void TexturePackLoader::setBlockTextures(BlockPack& blocks) {
     // Initialize all the textures for blocks.
     for (size_t i = 0; i < blocks.size(); i++) {
         blocks[i].InitializeTexture();

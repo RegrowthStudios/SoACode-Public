@@ -7,6 +7,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <Vorb/GLEnums.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/Mesh.h>
+#include <Vorb/ThreadPool.h>
+#include <Vorb/Vorb.h>
 #include <ZLIB/zlib.h>
 
 #include "BlockData.h"
@@ -20,10 +25,7 @@
 #include "FloraGenerator.h"
 #include "FloraTask.h"
 #include "Frustum.h"
-#include "GLEnums.h"
-#include "GLProgram.h"
 #include "GenerateTask.h"
-#include "Mesh.h"
 #include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
@@ -33,9 +35,7 @@
 #include "Sound.h"
 #include "TerrainGenerator.h"
 #include "TerrainPatch.h"
-#include "ThreadPool.h"
 #include "VRayHelper.h"
-#include "Vorb.h"
 #include "VoxelLightEngine.h"
 #include "VoxelPlanetMapper.h"
 #include "VoxelRay.h"
@@ -78,8 +78,6 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* vox
     initializeThreadPool();
 
     _voxelMapper = voxelMapper;
-    // Minerals //TODO(Ben): THIS IS RETARDED
-    initializeMinerals();
 
     // Sun Color Map
     GLubyte sbuffer[64][3];
@@ -688,39 +686,6 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapD
     _chunkSlots[0].back().detectNeighbors(_chunkSlotMap);
 }
 
-//This is hard coded and bad, we need a better method
-void ChunkManager::initializeMinerals() {
-    //                                           type            sheit  schanc cheit  cchanc   eheit   echanc   mins maxs
-    Chunk::possibleMinerals.push_back(new MineralData(TRITANIUM, -800, 0.1f, -2000, 5.0f, -5000000, 3.0f, 3, 30));
-    Chunk::possibleMinerals.push_back(new MineralData(URANIUM, -900, 0.1f, -3000, 5.0f, -5000000, 3.0f, 3, 50));
-    Chunk::possibleMinerals.push_back(new MineralData(DIAMOND, -150, 1.0f, -1000, 10.0f, -5000000, 9.0f, 1, 6));
-    Chunk::possibleMinerals.push_back(new MineralData(RUBY, -40, 1.0f, -500, 15.0f, -5000000, 10.0f, 1, 6));
-    Chunk::possibleMinerals.push_back(new MineralData(EMERALD, -35, 1.0f, -500, 15.0f, -5000000, 10.0f, 1, 6));
-    Chunk::possibleMinerals.push_back(new MineralData(SAPPHIRE, -30, 1.0f, -500, 15.0f, -5000000, 10.0f, 1, 6));
-    Chunk::possibleMinerals.push_back(new MineralData(EMBERNITE, -50, 1.0f, -700, 25.0f, -5000000, 10.0f, 3, 30));
-    Chunk::possibleMinerals.push_back(new MineralData(SULFUR, -100, 3.0f, -600, 25.0f, -5000000, 10.0f, 3, 100));
-    Chunk::possibleMinerals.push_back(new MineralData(CHROALLON, -120, 1.0f, -500, 15.0f, -5000000, 10.0f, 3, 20));
-    Chunk::possibleMinerals.push_back(new MineralData(SEAMORPHITE, 95, 1.0f, -900, 20.0f, -5000000, 10.0f, 3, 50));
-    Chunk::possibleMinerals.push_back(new MineralData(THORNMITE, -600, 1.0f, -1200, 10.0f, -5000000, 10.0f, 3, 10));
-    Chunk::possibleMinerals.push_back(new MineralData(MORPHIUM, -100, 1.0f, -500, 15.0f, -5000000, 10.0f, 3, 25));
-    Chunk::possibleMinerals.push_back(new MineralData(OXYGENIUM, 0, 1.0f, -100, 5.0f, -200, 3.0f, 3, 6));
-    Chunk::possibleMinerals.push_back(new MineralData(SUNANITE, -200, 1.0f, -800, 25.0f, -5000000, 10.0f, 3, 25));
-    Chunk::possibleMinerals.push_back(new MineralData(CAMONITE, -10, 0.1f, -800, 1.0f, -5000000, 0.4f, 3, 10));
-    Chunk::possibleMinerals.push_back(new MineralData(SUBMARIUM, -50, 1.0f, -600, 15.0f, -5000000, 10.0f, 3, 50));
-    Chunk::possibleMinerals.push_back(new MineralData(PLATINUM, -100, 1.0f, -900, 20.0f, -5000000, 10.0f, 3, 50));
-    Chunk::possibleMinerals.push_back(new MineralData(MALACHITE, -90, 1.0f, -800, 20.0f, -5000000, 10.0f, 3, 30));
-    Chunk::possibleMinerals.push_back(new MineralData(MAGNETITE, -60, 1.0f, -700, 20.0f, -5000000, 10.0f, 3, 25));
-    Chunk::possibleMinerals.push_back(new MineralData(BAUXITE, -40, 1.0f, -300, 20.0f, -5000000, 10.0f, 3, 60));
-    Chunk::possibleMinerals.push_back(new MineralData(LEAD, -40, 1.0f, -600, 20.0f, -5000000, 10.0f, 3, 50));
-    Chunk::possibleMinerals.push_back(new MineralData(SILVER, -20, 1.2f, -600, 20.0f, -5000000, 10.0f, 3, 30));
-    Chunk::possibleMinerals.push_back(new MineralData(GOLD, -20, 1.0f, -600, 20.0f, -5000000, 10.0f, 3, 30));
-    Chunk::possibleMinerals.push_back(new MineralData(IRON, -15, 2.0f, -550, 25.0f, -5000000, 10.0f, 3, 90));
-    Chunk::possibleMinerals.push_back(new MineralData(DOLOMITE, -10, 2.0f, -400, 20.0f, -5000000, 10.0f, 3, 200));
-    Chunk::possibleMinerals.push_back(new MineralData(TIN, -5, 4.0f, -200, 20.0f, -5000000, 10.0f, 3, 200));
-    Chunk::possibleMinerals.push_back(new MineralData(COPPER, -5, 4.0f, -300, 20.0f, -5000000, 10.0f, 3, 200));
-    Chunk::possibleMinerals.push_back(new MineralData(COAL, -10, 3.0f, -500, 35.0f, -5000000, 10.0f, 3, 300));
-}
-
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded
 void ChunkManager::updateLoadList(ui32 maxTicks) {
 
@@ -940,8 +905,8 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
         ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
         // TODO(Ben): Use a smother transform property for block instead of this hard coded garbage
         int blockID = GETBLOCKID(vvox::getBottomBlockData(owner, lockedChunk, blockIndex, blockIndex, owner));
-        if (blockID == Blocks::DIRTGRASS) {
-            owner->setBlockData(blockIndex, Blocks::DIRT);
+        if (blockID == DIRTGRASS) {
+            owner->setBlockData(blockIndex, DIRT);
         }
     }
 
@@ -953,7 +918,7 @@ void ChunkManager::placeTreeNodes(GeneratedTreeNodes* nodes) {
 
         int blockID = owner->getBlockData(blockIndex);
 
-        if (blockID == (ui16)Blocks::NONE) {
+        if (blockID == NONE) {
             ChunkUpdater::placeBlockNoUpdate(owner, blockIndex, node.blockType);
         }
     }

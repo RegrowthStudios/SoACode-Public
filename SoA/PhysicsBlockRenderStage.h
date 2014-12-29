@@ -15,8 +15,8 @@
 #ifndef PhysicsBlockRenderStage_h__
 #define PhysicsBlockRenderStage_h__
 
-#include "IRenderStage.h"
-#include "GLProgram.h"
+#include <Vorb/IRenderStage.h>
+#include <Vorb/GLProgram.h>
 
 class GameRenderParams;
 class PhysicsBlockMesh;

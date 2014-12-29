@@ -2,21 +2,19 @@
 #include "stdafx.h"
 #include "Texture2d.h"
 
-#include <TTF/SDL_ttf.h>
 #include <glm\gtc\quaternion.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include <TTF/SDL_ttf.h>
 
 #include "BlockData.h"
 #include "ChunkManager.h"
 #include "Errors.h"
-
 #include "Options.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "ZipFile.h"
-#include "TextureCache.h"
 
 //TODO(Ben): This is bad
 vg::Texture getTexture(nString source, Animation **anim) {
@@ -91,8 +89,8 @@ vg::Texture fireTexture;
 vg::Texture waterNoiseTexture;
 vg::Texture crosshairTexture;
 
-BlockPack blockPack;
+BlockTexturePack blockPack;
 
-void BlockPack::initialize(vg::Texture texInfo) {
+void BlockTexturePack::initialize(vg::Texture texInfo) {
     textureInfo = texInfo;
 }

@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-
 struct ChunkMesh;
 
 struct DistanceStruct {

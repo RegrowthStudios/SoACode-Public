@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "TestMappingScreen.h"
 
-#include <DepthState.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <RasterizerState.h>
+#include <Vorb/GLStates.h>
 
 #pragma region Simple shader code
 const cString SRC_VERT = R"(

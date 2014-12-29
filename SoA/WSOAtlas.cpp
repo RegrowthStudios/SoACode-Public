@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "WSOAtlas.h"
 
-#include "IOManager.h"
+#include <Vorb/IOManager.h>
+
 #include "WSOData.h"
 
 // This Information Is Found At The Beginning Of The WSO File

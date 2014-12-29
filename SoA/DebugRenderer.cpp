@@ -4,12 +4,12 @@
 #include <algorithm>
 #include <functional>
 
-#include "RenderUtils.h"
+#include <Vorb/RasterizerState.h>
+
 #include "GameManager.h"
 #include "GLProgramManager.h"
 #include "global.h"
-#include "RasterizerState.h"
-
+#include "RenderUtils.h"
 
 glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2);
 

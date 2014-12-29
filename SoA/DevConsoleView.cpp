@@ -4,10 +4,11 @@
 #include <algorithm>
 #include <iterator>
 
+#include <Vorb/GLStates.h>
+#include <Vorb/SpriteBatch.h>
+#include <Vorb/SpriteFont.h>
+
 #include "DevConsole.h"
-#include "GLStates.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
 
 DevConsoleView::DevConsoleView() :
 _batch(nullptr),

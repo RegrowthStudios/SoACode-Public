@@ -1,16 +1,14 @@
 #include "stdafx.h"
 #include "InitScreen.h"
 
+#include <Vorb/colors.h>
+#include <Vorb/GLStates.h>
+#include <Vorb/SpriteBatch.h>
+#include <Vorb/SpriteFont.h>
+
 #include "App.h"
-#include "BlendState.h"
-#include "colors.h"
-#include "DepthState.h"
 #include "LoadScreen.h"
 #include "GameManager.h"
-#include "RasterizerState.h"
-#include "SamplerState.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
 
 #define INIT_SCREEN_FONT "Fonts/orbitron_bold-webfont.ttf"
 #define INIT_SCREEN_FONT_SIZE 32

@@ -1,9 +1,9 @@
 #include "stdafx.h"
+#include "CutoutVoxelRenderStage.h"
+
 #include "Camera.h"
 #include "ChunkRenderer.h"
-#include "CutoutVoxelRenderStage.h"
 #include "MeshManager.h"
-
 
 CutoutVoxelRenderStage::CutoutVoxelRenderStage(const GameRenderParams* gameRenderParams) :
     _gameRenderParams(gameRenderParams) {

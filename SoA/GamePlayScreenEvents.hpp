@@ -15,18 +15,18 @@
 #ifndef GAME_PLAY_SCREEN_EVENTS_HPP
 #define GAME_PLAY_SCREEN_EVENTS_HPP
 
-#include "Events.hpp"
+#include <Vorb/Events.hpp>
+#include <Vorb/GpuMemory.h>
+
 #include "GamePlayScreen.h"
 #include "global.h"
 #include "GameManager.h"
 #include "TexturePackLoader.h"
 #include "Player.h"
-#include "GpuMemory.h"
 #include "GLProgramManager.h"
 #include "LoadTaskShaders.h"
 #include "Options.h"
 #include "PDA.h"
-#include "types.h"
 #include "GamePlayRenderPipeline.h"
 
 /// Generic delegate for all delegates that require access tot he GamePlayScreen

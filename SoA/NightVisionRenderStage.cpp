@@ -3,11 +3,12 @@
 
 #include <ctime>
 
-#include "colors.h"
-#include "GLProgram.h"
+#include <Vorb/colors.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/Random.h>
+#include <Vorb/SamplerState.h>
+
 #include "Options.h"
-#include "Random.h"
-#include "SamplerState.h"
 
 KEG_TYPE_INIT_BEGIN(NightVisionRenderParams, NightVisionRenderParams, kt)
 using namespace Keg;

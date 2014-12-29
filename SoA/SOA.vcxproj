@@ -54,7 +54,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)Vorb;$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
@@ -84,7 +84,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Vorb;$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
@@ -118,6 +118,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
+    <ClInclude Include="BlockPack.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
@@ -130,9 +131,11 @@
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GLProgramManager.h" />
+    <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
@@ -160,18 +163,18 @@
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceComponents.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
-    <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="LoadTaskGameManager.h" />
     <ClInclude Include="VoxelBits.h" />
+    <ClInclude Include="VoxelMesh.h" />
     <ClInclude Include="VoxelMesher.h" />
-    <ClInclude Include="BlockTextureAtlas.h" />
     <ClInclude Include="ChunkGenerator.h" />
     <ClInclude Include="ChunkMesh.h" />
     <ClInclude Include="ChunkRenderer.h" />
@@ -179,7 +182,7 @@
     <ClInclude Include="DevConsoleView.h" />
     <ClInclude Include="ChunkUpdater.h" />
     <ClInclude Include="GeometrySorter.h" />
-    <ClInclude Include="SmartVoxelContainer.h" />
+    <ClInclude Include="SmartVoxelContainer.hpp" />
     <ClInclude Include="VoxelIntervalTree.h" />
     <ClInclude Include="LiquidData.h" />
     <ClInclude Include="LoadBar.h" />
@@ -206,6 +209,7 @@
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelUtils.h" />
+    <ClInclude Include="VoxelVertices.h" />
     <ClInclude Include="VoxPool.h" />
     <ClInclude Include="WSO.h" />
     <ClInclude Include="WSOAtlas.h" />
@@ -250,13 +254,13 @@
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
     <ClInclude Include="VoxelWorld.h" />
-    <ClInclude Include="VoxDefs.h" />
     <ClInclude Include="EditorVariables.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
+    <ClCompile Include="BlockPack.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
@@ -269,6 +273,7 @@
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
+    <ClCompile Include="HardCodedIDs.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="GLProgramManager.cpp" />
@@ -296,14 +301,13 @@
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceComponents.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
-    <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
-    <ClCompile Include="BlockTextureAtlas.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
     <ClCompile Include="ChunkMesh.cpp" />
     <ClCompile Include="ChunkRenderer.cpp" />
@@ -338,7 +342,6 @@
     </ClCompile>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
-    <ClCompile Include="SmartVoxelContainer.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
     <ClCompile Include="VoxelPlanetMapper.cpp" />
@@ -384,6 +387,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Chunk.inl" />
+    <None Include="IAwesomiumAPI.inl" />
     <None Include="VoxelIntervalTree.inl" />
   </ItemGroup>
   <ItemGroup>

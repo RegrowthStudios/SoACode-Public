@@ -15,14 +15,14 @@
 #ifndef PDA_H_
 #define PDA_H_
 
-#include "Computer.h"
+#include <SDL/SDL.h>
+#include <Vorb/AwesomiumInterface.h>
 
-#include "AwesomiumInterface.h"
+#include "Computer.h"
 #include "PdaAwesomiumAPI.h"
 
 class GamePlayScreen;
 
-#include <SDL/SDL.h>
 
 enum class PdaState { BIOMETRICS, INVENTORY, DATA, CODEX, COMMUNICATIONS, SCANNER };
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "global.h"
+#include <Vorb/Vorb.h>
 
-#include "Vorb.h"
+#include "global.h"
 #include "IVoxelMapper.h"
 
 const int FREEZETEMP = 50;

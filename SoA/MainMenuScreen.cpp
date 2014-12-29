@@ -1,11 +1,11 @@
 #include "stdafx.h"
+#include "MainMenuScreen.h"
 
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\glm.hpp>
 
 #include "App.h"
 #include "GamePlayScreen.h"
-#include "MainMenuScreen.h"
 #include "IAwesomiumAPI.h"
 #include "ChunkManager.h"
 #include "Errors.h"

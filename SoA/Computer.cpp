@@ -1,12 +1,9 @@
 #include "stdafx.h"
 #include "Computer.h"
 
-
-Computer::Computer()
-{
+Computer::Computer() {
+    // Empty
 }
-
-
-Computer::~Computer()
-{
+Computer::~Computer() {
+    // Empty
 }

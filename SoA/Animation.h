@@ -3,7 +3,7 @@
 #ifndef Animation_h_
 #define Animation_h_
 
-#include "Texture.h"
+#include <Vorb/Texture.h>
 
 struct Animation {
     Animation() : fadeOutBegin(INT_MAX) {}

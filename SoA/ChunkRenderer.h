@@ -3,10 +3,9 @@
 #ifndef ChunkRenderer_h__
 #define ChunkRenderer_h__
 
-#include <vector>
-#include "types.h"
+#include <Vorb/GLProgram.h>
+
 #include "ChunkMesh.h"
-#include "GLProgram.h"
 
 class GameRenderParams;
 class PhysicsBlockMesh;

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "VoxelLightEngine.h"
 
 #include "Chunk.h"

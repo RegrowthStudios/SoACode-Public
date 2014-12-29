@@ -3,9 +3,9 @@
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <Vorb/DepthState.h>
 
 #include "Camera.h"
-#include "DepthState.h"
 #include "SkyboxRenderer.h"
 
 SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,

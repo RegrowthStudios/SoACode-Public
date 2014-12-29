@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 
 inline int getXFromBlockIndex(int blockIndex) {
     return blockIndex & 0x1f;

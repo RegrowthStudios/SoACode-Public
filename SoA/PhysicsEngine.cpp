@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PhysicsEngine.h"
 
+#include <Vorb/utils.h>
+
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
@@ -11,8 +13,6 @@
 #include "Sound.h"
 #include "VoxelLightEngine.h"
 #include "VoxelRay.h"
-
-#include "utils.h"
 
 PhysicsEngine::PhysicsEngine() {
 

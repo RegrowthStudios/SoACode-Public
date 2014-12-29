@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "PauseMenuAwesomiumAPI.h"
 
+#include <Vorb/MainGame.h>
+
 #include "App.h"
-#include "MainGame.h"
 #include "GamePlayScreen.h"
 
 void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {

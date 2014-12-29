@@ -16,16 +16,16 @@
 #ifndef GAMEPLAYSCREEN_H_
 #define GAMEPLAYSCREEN_H_
 
-#include "IGameScreen.h"
+#include <Vorb/AwesomiumInterface.h>
+#include <Vorb/Random.h>
+#include <Vorb/IGameScreen.h>
 
-#include "AwesomiumInterface.h"
 #include "GamePlayRenderPipeline.h"
 #include "LoadMonitor.h"
 #include "MainMenuAPI.h"
 #include "MessageManager.h"
 #include "PDA.h"
 #include "PauseMenu.h"
-#include "Random.h"
 
 class App;
 class SpriteBatch;
@@ -138,6 +138,7 @@ private:
     IDelegate<ui32>* _onHUDKeyDown;
     IDelegate<ui32>* _onNightVisionToggle;
     IDelegate<ui32>* _onNightVisionReload;
+    IDelegate<ui32>* m_onDrawMode;
     GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
 
     #define MESSAGES_PER_FRAME 300

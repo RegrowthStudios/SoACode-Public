@@ -1,18 +1,19 @@
 #include "stdafx.h"
 #include "CAEngine.h"
 
-#include "BlockData.h"
+#include <Vorb/IOManager.h>
+
+#include "BlockPack.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "ChunkUpdater.h"
 #include "GameManager.h"
-#include "IOManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "VoxelUtils.h"
 
-std::map<nString, CaPhysicsType*> CaPhysicsType::typesCache;
-std::vector<CaPhysicsType*> CaPhysicsType::typesArray;
+CaPhysicsTypeDict CaPhysicsType::typesCache;
+CaPhysicsTypeList CaPhysicsType::typesArray;
 
 KEG_ENUM_INIT_BEGIN(CA_ALGORITHM, CA_ALGORITHM, e)
 e->addValue("none", CA_ALGORITHM::NONE);
@@ -36,7 +37,7 @@ bool CaPhysicsType::update() {
     return false;
 }
 
-bool CaPhysicsType::loadFromYml(const nString& filePath, IOManager* ioManager) {
+bool CaPhysicsType::loadFromYml(const nString& filePath, const IOManager* ioManager) {
     // Load the file
     nString fileData;
     ioManager->readFileToString(filePath.c_str(), fileData);

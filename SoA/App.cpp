@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "App.h"
 
-#include <InputDispatcher.h>
-#include <ScreenList.h>
-#include <SpriteBatch.h>
+#include <Vorb/InputDispatcher.h>
+#include <Vorb/ScreenList.h>
+#include <Vorb/SpriteBatch.h>
 
 #include "DevScreen.h"
 #include "InitScreen.h"
@@ -12,6 +12,7 @@
 #include "GamePlayScreen.h"
 #include "MeshManager.h"
 #include "Options.h"
+#include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
 #include "TestMappingScreen.h"
@@ -43,6 +44,9 @@ void App::addScreens() {
     scrTests.push_back(new TestDeferredScreen);
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(VKEY_D, scrTests.back());
+    scrTests.push_back(new TestBlockView);
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_B, scrTests.back());
 
     // Start from dev screen for convenience
     _screenList->setScreen(scrDev->getIndex());

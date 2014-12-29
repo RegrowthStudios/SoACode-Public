@@ -15,7 +15,7 @@
 #ifndef PlanetRenderStage_h__
 #define PlanetRenderStage_h__
 
-#include "IRenderStage.h"
+#include <Vorb/IRenderStage.h>
 
 class Camera;
 

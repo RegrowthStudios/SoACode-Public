@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PhysicsBlocks.h"
 
+#include <Vorb/utils.h>
+
 #include "Actor.h"
 #include "BlockData.h"
 #include "VoxelMesher.h"
@@ -15,8 +17,6 @@
 #include "TerrainGenerator.h"
 #include "Texture2d.h"
 #include "MessageManager.h"
-
-#include "utils.h"
 
 void PhysicsBlockMesh::createVao(const vg::GLProgram* glProgram) {
     if (vaoID == 0) {

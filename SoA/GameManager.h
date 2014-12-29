@@ -1,10 +1,11 @@
 #pragma once
 #include <deque>
 
+#include <Vorb/TextureCache.h>
+#include <Vorb/Vorb.h>
+
 #include "WorldStructs.h"
 #include "GLProgramManager.h"
-#include "TextureCache.h"
-#include "Vorb.h"
 
 class ChunkSlot;
 class Player;

@@ -1,8 +1,5 @@
 #pragma once
-#include "compat.h"
-
 #include "Errors.h"
-
 
 extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
 

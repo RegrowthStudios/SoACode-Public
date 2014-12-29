@@ -2,8 +2,10 @@
 #include "Chunk.h"
 
 #include <boost\circular_buffer.hpp>
+#include <Vorb/ThreadPool.h>
+#include <Vorb/utils.h>
 
-#include "BlockData.h"
+#include "BlockPack.h"
 #include "CAEngine.h"
 #include "ChunkMesher.h"
 #include "Errors.h"
@@ -18,9 +20,7 @@
 #include "SimplexNoise.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
-#include "ThreadPool.h"
 #include "MessageManager.h"
-#include "utils.h"
 #include "VoxelUtils.h"
 
 GLuint Chunk::vboIndicesID = 0;
@@ -273,6 +273,12 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     ui16* chLampData = chunkMesher->_lampLightData;
     ui8* chSunlightData = chunkMesher->_sunlightData;
     ui16* chTertiaryData = chunkMesher->_tertiaryData;
+
+    // TODO(Ben): THIS IS A HACKY FIX. THE BELOW CODE IS WRONG
+    memset(chData, 0, sizeof(ui16)* PADDED_CHUNK_SIZE);
+    memset(chLampData, 0, sizeof(ui16)* PADDED_CHUNK_SIZE);
+    memset(chSunlightData, 0, sizeof(ui8)* PADDED_CHUNK_SIZE);
+    memset(chTertiaryData, 0, sizeof(ui16)* PADDED_CHUNK_SIZE);
 
     chunkMesher->wSize = 0;
     chunkMesher->chunk = this;
@@ -822,6 +828,12 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             chTertiaryData[off2] = ch1->getTertiaryData(off1);
         }
         ch1->unlock();
+    }
+
+    for (int i = 0; i < PADDED_CHUNK_SIZE; i++) {
+        if (chData[i] > 1024) {
+            std::cout << "WOAH";
+        }
     }
 }
 

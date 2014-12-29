@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "RenderTask.h"
 
+#include <Vorb/ThreadPool.h>
+
 #include "Chunk.h"
 #include "ChunkMesher.h"
-#include "ThreadPool.h"
 #include "VoxelLightEngine.h"
 
 void RenderTask::execute(WorkerData* workerData) {

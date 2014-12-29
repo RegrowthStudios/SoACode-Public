@@ -1,11 +1,11 @@
 #pragma once
+#include <Vorb/Vorb.h>
+
+#include "VoxelPlanetMapper.h"
 #include "Actor.h"
 #include "Camera.h"
 #include "Texture2d.h"
 #include "global.h"
-
-#include "Vorb.h"
-#include "VoxelPlanetMapper.h"
 
 class Chunk;
 

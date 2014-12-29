@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "GLProgramManager.h"
 
+#include <Vorb/GLEnums.h>
+
 #include "Errors.h"
-#include "GLEnums.h"
 
 vg::GLProgramManager::GLProgramManager() {
     // Empty

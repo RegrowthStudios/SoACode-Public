@@ -1,5 +1,4 @@
 #pragma once
-#include "compat.h"
 #include <condition_variable>
 #include <mutex>
 #include <queue>

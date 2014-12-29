@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "FloraGenerator.h"
 
+#include <Vorb/utils.h>
+
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkUpdater.h"
-#include "utils.h"
 #include "WorldStructs.h"
 
 KEG_ENUM_INIT_BEGIN(TreeLeafShape, TreeLeafShape, type)
@@ -416,14 +417,14 @@ bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, 
             if (_lockedChunk) { _lockedChunk->unlock(); }
             _lockedChunk = chunk;
             _lockedChunk->lock();
-            if (chunk->getBlockID(c - CHUNK_LAYER) != (ui16)Blocks::NONE) {
+            if (chunk->getBlockID(c - CHUNK_LAYER) != NONE) {
                 ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
             }
         } else if (chunk->bottom && chunk->bottom->isAccessible) {
             if (_lockedChunk) { _lockedChunk->unlock(); }
             _lockedChunk = chunk->bottom;
             _lockedChunk->lock();
-            if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != (ui16)Blocks::NONE) {
+            if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != NONE) {
                 _lockedChunk->unlock();
                 _lockedChunk = chunk;
                 _lockedChunk->lock();

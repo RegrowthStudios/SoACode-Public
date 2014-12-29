@@ -26,11 +26,11 @@
 #define NIGHT_VISION_TEXTURE_SLOT_NOISE 1
 #define NIGHT_VISION_DEFAULT_VISION_COLOR f32v3(0.1f, 0.95f, 0.2f)
 
-#include "FullQuadVBO.h"
-#include "GLProgram.h"
-#include "IRenderStage.h"
-#include "Keg.h"
-#include "Texture.h"
+#include <Vorb/FullQuadVBO.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/IRenderStage.h>
+#include <Vorb/Keg.h>
+#include <Vorb/Texture.h>
 
 struct NightVisionRenderParams {
 public:

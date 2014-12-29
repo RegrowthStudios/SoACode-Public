@@ -14,13 +14,14 @@
 #ifndef GamePlayRenderPipeline_h__
 #define GamePlayRenderPipeline_h__
 
-#include "FullQuadVBO.h"
+#include <Vorb/FullQuadVBO.h>
+#include <Vorb/GLRenderTarget.h>
+#include <Vorb/IRenderPipeline.h>
+#include <Vorb/RTSwapChain.hpp>
+
 #include "GameRenderParams.h"
 #include "GLProgramManager.h"
-#include "GLRenderTarget.h"
-#include "IRenderPipeline.h"
 #include "NightVisionRenderStage.h"
-#include "RTSwapChain.hpp"
 
 /// Forward declarations
 class App;
@@ -82,6 +83,8 @@ public:
     void loadNightVision();
     /// Toggle the visibility of chunkGrid
     void toggleChunkGrid();
+    /// Cycle poly mode for voxels
+    void cycleDrawMode();
 private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     PhysicsBlockRenderStage* _physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
@@ -106,6 +109,7 @@ private:
     // TODO: This is only for visualization purposes, must remove
     std::vector<NightVisionRenderParams> _nvParams; ///< Different night vision styles
     i32 _nvIndex = 0;
+    VGEnum m_drawMode;
 
     ui32v4 _viewport; ///< Viewport to draw to
     const Camera* _worldCamera = nullptr; ///< handle to world camera

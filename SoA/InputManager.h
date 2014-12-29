@@ -12,19 +12,17 @@
 
 #pragma once
 
-#ifndef INPUT_MANAGER_H
-#define INPUT_MANAGER_H
+#ifndef Input_Manager_h
+#define Input_Manager_h
 
 #include <SDL\SDL_events.h>
 #include <SDL\SDL_joystick.h>
-#include <InputDispatcher.h>
-
-#include "Events.hpp"
+#include <Vorb/Events.hpp>
+#include <Vorb/InputDispatcher.h>
 
 #define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.ini"
 
 /// Handles all the user input through the mouse, keyboard and gamepad.
-
 /// @author Frank McCoy
 class InputManager {
 public:
@@ -52,11 +50,8 @@ public:
     /// Get the value of the current axis.
 
     /// If only one key is to be used in the supplied axis it returns the state of the positive key. 1.0f if true, 0.0f if false.
-    ////
     /// If both positive and negative keys are to be used, if both or neither key is pressed 0.0f is returned.
-    ///
     /// If only the positive key is pressed 1.0f is returned.
-    ///
     /// If only the negative key is pressed -1.0f is returned.
     /// @param axisID: The id of the axis which is being looked up.
     /// @return a value in the range [-1.0, 1.0].
@@ -233,4 +228,4 @@ private:
     AutoDelegatePool m_inputHooks; ///< Stores input reception function hooks for deallocation
 };
 
-#endif //INPUT_MANAGER_H
+#endif //Input_Manager_h

@@ -15,7 +15,7 @@
 #ifndef RenderTask_h__
 #define RenderTask_h__
 
-#include <IThreadPoolTask.h>
+#include <Vorb/IThreadPoolTask.h>
 
 #include "Constants.h"
 #include "VoxPool.h"

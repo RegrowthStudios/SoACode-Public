@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "GamePlayScreen.h"
 
+#include <Vorb/colors.h>
+#include <Vorb/Events.hpp>
+#include <Vorb/GpuMemory.h>
+#include <Vorb/SpriteFont.h>
+#include <Vorb/SpriteBatch.h>
+
 #include "Player.h"
 #include "App.h"
 #include "GameManager.h"
@@ -24,13 +30,8 @@
 #include "Inputs.h"
 #include "TexturePackLoader.h"
 #include "LoadTaskShaders.h"
-#include "GpuMemory.h"
-#include "SpriteFont.h"
-#include "SpriteBatch.h"
-#include "colors.h"
 #include "Options.h"
 #include "GamePlayScreenEvents.hpp"
-#include "Events.hpp"
 
 #define THREAD ThreadId::UPDATE
 
@@ -108,6 +109,9 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
         _renderPipeline.loadNightVision();
     });
+    m_onDrawMode = inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+        _renderPipeline.cycleDrawMode();
+    });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (void* s, const vui::MouseMotionEvent& e) {
         if (_inFocus) {
             // Pass mouse motion to the player
@@ -175,6 +179,9 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
 
     inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, _onNightVisionReload);
     delete _onNightVisionReload;
+
+    inputManager->unsubscribe(INPUT_DRAW_MODE, InputManager::EventType::DOWN, m_onDrawMode);
+    delete m_onDrawMode;
 
     _threadRunning = false;
     _updateThread->join();
