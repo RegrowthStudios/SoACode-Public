@@ -16,6 +16,7 @@
 #define TestBlockViewScreen_h__
 
 #include <Events.hpp>
+#include <GLProgram.h>
 #include <IGameScreen.h>
 
 #include "BlockPack.h"
@@ -39,8 +40,16 @@ private:
     /// @param file: File containing block data
     void loadBlocks(const cString file);
 
+    void genBlockMesh();
+
     BlockPack m_blocks; ///< Block data
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
+    VGVertexBuffer m_verts;
+    VGVertexBuffer m_inds;
+    ui32 m_indCount;
+    vg::GLProgram m_program;
+    f32m4 m_mRotation;
+    bool m_movingCamera;
 };
 
 #endif // TestBlockViewScreen_h__
