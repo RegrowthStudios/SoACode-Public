@@ -273,11 +273,13 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
             // Spherify it!
             f32v3 normal = glm::normalize(v.position);
-          //  v.position = normal * (m_radius + h);
+            v.position = normal * (m_radius + h);
 
             // Compute angle
             if (normal.y == 1.0f || normal.y == -1.0f) {
                 angle = M_PI / 2.0;
+            } else if (abs(normal.y) < 0.001) {
+                angle = 0;
             } else {
                 f32v3 equator = glm::normalize(f32v3(normal.x, 0.0f, normal.z));
                 angle = acos(glm::dot(equator, normal));
