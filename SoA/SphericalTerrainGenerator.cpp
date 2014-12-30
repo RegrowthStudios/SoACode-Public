@@ -197,8 +197,13 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     m_textures[m_patchCounter].use();
     m_delegates[m_patchCounter] = data;
 
+    // Get padded position
+    f32v3 cornerPos = data->startPos;
+    cornerPos[data->coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
+    cornerPos[data->coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
+
     // Send uniforms
-    glUniform3fv(unCornerPos, 1, &data->startPos[0]);
+    glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
     glUniform1f(unPatchWidth, data->width);
 
@@ -268,7 +273,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
             // Spherify it!
             f32v3 normal = glm::normalize(v.position);
-            v.position = normal * (m_radius + h);
+          //  v.position = normal * (m_radius + h);
 
             // Compute angle
             if (normal.y == 1.0f || normal.y == -1.0f) {
@@ -358,7 +363,7 @@ ui8 SphericalTerrainGenerator::calculateHumidity(float range, float angle, float
 }
 
 void SphericalTerrainGenerator::buildSkirts() {
-    const float SKIRT_DEPTH = m_vertWidth * 2.0f;
+    const float SKIRT_DEPTH = m_vertWidth * 3.0f;
     // Top Skirt
     for (int i = 0; i < PATCH_WIDTH; i++) {
         auto& v = verts[m_index];

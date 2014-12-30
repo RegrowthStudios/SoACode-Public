@@ -224,6 +224,7 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     waterProgram->use();
     glUniform1i(waterProgram->getUniform("unNormalMap"), 0);
     glUniform1i(terrainProgram->getUniform("unColorMap"), 1);
+
     for (auto& it : m_sphericalTerrainCT) {
         auto& cmp = it.second;
        

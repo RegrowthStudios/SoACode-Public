@@ -142,7 +142,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     m_dispatcher = dispatcher;
 
     // Approximate the world position for now //TODO(Ben): Better
-    f64v2 centerGridPos = gridPosition + f64v2(width);
+    f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
 
     const i32v3& coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
     const f32v3& coordMults = CubeCoordinateMults[(int)m_cubeFace];
@@ -202,7 +202,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
         // Segment into 4 children
         for (int z = 0; z < 2; z++) {
             for (int x = 0; x < 2; x++) {
-                m_children[(z << 1) + x].init(m_gridPosition + f64v2(m_width / 2.0 * x, m_width / 2.0 * z),
+                m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
                                        m_cubeFace, m_sphericalTerrainData, m_width / 2.0,
                                        m_dispatcher);
             }
@@ -244,9 +244,9 @@ void SphericalTerrainPatch::requestMesh() {
     const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
     const i32v3& mappings = CubeCoordinateMappings[(int)m_cubeFace];
 
-    f32v3 startPos(m_gridPosition.x * mults.x - (1.0f / PATCH_HEIGHTMAP_WIDTH) * m_width,
+    f32v3 startPos(m_gridPosition.x * mults.x,
                    m_sphericalTerrainData->getRadius() * mults.y,
-                   m_gridPosition.y* mults.z - (1.0f / PATCH_HEIGHTMAP_WIDTH) * m_width);
+                   m_gridPosition.y* mults.z);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               mappings,
                                               m_width,

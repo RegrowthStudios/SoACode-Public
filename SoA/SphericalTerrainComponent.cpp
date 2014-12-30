@@ -42,7 +42,7 @@ void SphericalTerrainComponent::init(f64 radius, PlanetGenData* planetGenData,
                                                 normalProgram, normalMapRecycler);
     rpcDispatcher = new TerrainRpcDispatcher(m_generator);
     
-    f64 patchWidth = (radius * 2.0) / PATCH_ROW;
+    f64 patchWidth = (radius * 2.000) / PATCH_ROW;
     m_sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
 }
 
