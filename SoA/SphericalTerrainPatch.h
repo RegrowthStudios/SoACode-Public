@@ -73,14 +73,18 @@ public:
     /// Draws the terrain mesh
     /// @param cameraPos: Position of the camera
     /// @param VP: View-Projection matrix
+    /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering
-    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program);
+    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+              const f32m4& rot, vg::GLProgram* program);
    
     /// Draws the water mesh
     /// @param cameraPos: Position of the camera
     /// @param VP: View-Projection matrix
+    /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering
-    void drawWater(const f64v3& cameraPos, const f32m4& V, const f32m4& VP, vg::GLProgram* program);
+    void drawWater(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+                   const f32m4& rot, vg::GLProgram* program);
 
 private:
     VGVertexArray m_vao = 0; ///< Vertex array object

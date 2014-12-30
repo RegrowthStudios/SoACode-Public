@@ -36,7 +36,7 @@ public:
         f64q rotationQuat = f64q(eulerAngles);
 
         // Calculate total orientation
-        currentOrientation = rotationQuat * axisOrientation;
+        currentOrientation = axisOrientation * rotationQuat;
     }
 
     f64q axisOrientation; ///< Axis of rotation

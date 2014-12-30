@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponent.h"
 
+#include "AxisRotationComponent.h"
 #include "Camera.h"
 #include "Errors.h"
 #include "NamePositionComponent.h"
@@ -105,15 +106,21 @@ void SphericalTerrainComponent::glUpdate() {
 void SphericalTerrainComponent::draw(const Camera* camera,
                                      vg::GLProgram* terrainProgram,
                                      vg::GLProgram* waterProgram,
-                                     const NamePositionComponent* npComponent) {
+                                     const NamePositionComponent* npComponent,
+                                     const AxisRotationComponent* arComponent) {
     if (!m_patches) return;
 
+    f32m4 rotationMatrix = f32m4(glm::toMat4(arComponent->currentOrientation));
+
     f32m4 VP = camera->getProjectionMatrix() * camera->getViewMatrix();
+
+    
 
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
     // Draw patches
-    m_meshManager->draw(relativeCameraPos, camera->getViewMatrix(), VP, terrainProgram, waterProgram);
+    m_meshManager->draw(relativeCameraPos, camera->getViewMatrix(), VP,
+                        rotationMatrix, terrainProgram, waterProgram);
 }
 
 void SphericalTerrainComponent::initPatches() {

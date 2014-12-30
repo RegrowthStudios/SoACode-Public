@@ -41,9 +41,11 @@ public:
     /// @param cameraPos: Position of the camera
     /// @param V: View matrix
     /// @param VP: View-Projection matrix
+    /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
     void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+              const f32m4& rot,
               vg::GLProgram* program, vg::GLProgram* waterProgram);
 
     /// Adds a mesh 

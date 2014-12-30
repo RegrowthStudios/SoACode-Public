@@ -10,6 +10,7 @@
 #include "SphericalTerrainPatch.h"
 
 void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+                                       const f32m4& rot,
                                        vg::GLProgram* program, vg::GLProgram* waterProgram) {
     
     static float dt = 0.0;
@@ -35,7 +36,7 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
                 m_waterMeshes.pop_back();
                 i--;
             } else {
-                m_waterMeshes[i]->drawWater(cameraPos, V, VP, waterProgram);
+                m_waterMeshes[i]->drawWater(cameraPos, V, VP, rot, waterProgram);
             }
         }
 
@@ -63,7 +64,7 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
                 m_meshes.pop_back();
                 i--;
             } else {
-                m_meshes[i]->draw(cameraPos, V, VP, program);
+                m_meshes[i]->draw(cameraPos, V, VP, rot, program);
             }
         }
 

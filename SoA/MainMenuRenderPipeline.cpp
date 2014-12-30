@@ -68,7 +68,7 @@ void MainMenuRenderPipeline::render() {
     _skyboxRenderStage->draw();
     _planetRenderStage->draw();
     m_spaceSystemRenderStage->draw();
-    //_awesomiumRenderStage->draw();
+    _awesomiumRenderStage->draw();
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);

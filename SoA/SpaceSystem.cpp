@@ -226,7 +226,9 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     glUniform1i(terrainProgram->getUniform("unColorMap"), 1);
     for (auto& it : m_sphericalTerrainCT) {
         auto& cmp = it.second;
-        cmp.draw(camera, terrainProgram, waterProgram, &m_namePositionCT.getFromEntity(it.first));
+       
+        cmp.draw(camera, terrainProgram, waterProgram, &m_namePositionCT.getFromEntity(it.first),
+                 &m_axisRotationCT.getFromEntity(it.first));
     }
     waterProgram->unuse();
     m_mutex.unlock();

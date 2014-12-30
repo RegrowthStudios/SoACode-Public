@@ -55,7 +55,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     _camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
     _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
     _camera.setClippingPlane(10000.0f, 3000000000000.0f);
-    _camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(0.0f, -1.0f, 0.0f), f32v3(-1.0f, 0.0f, 0.0f), 200000.0);
+    _camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
 
     _app->spaceSystem->targetBody("Aldrin");
 

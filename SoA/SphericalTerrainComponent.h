@@ -24,6 +24,7 @@
 
 class Camera;
 class NamePositionComponent;
+class AxisRotationComponent;
 class PlanetGenData;
 class SphericalTerrainMeshManager;
 
@@ -82,7 +83,8 @@ public:
     void draw(const Camera* camera,
               vg::GLProgram* terrainProgram,
               vg::GLProgram* waterProgram,
-              const NamePositionComponent* npComponent);
+              const NamePositionComponent* npComponent,
+              const AxisRotationComponent* arComponent);
 private:
     void initPatches();
 
