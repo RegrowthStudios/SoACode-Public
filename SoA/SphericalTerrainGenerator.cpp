@@ -114,6 +114,7 @@ void SphericalTerrainGenerator::update() {
             // Check for early delete
             if (data->mesh->m_shouldDelete) {
                 delete data->mesh;
+                data->inUse = false;
                 continue;
             }
         
@@ -191,6 +192,7 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     // Check for early delete
     if (data->mesh->m_shouldDelete) {
         delete data->mesh;
+        data->inUse = false;
         return;
     }
 

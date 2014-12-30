@@ -29,14 +29,14 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
 
-        for (int i = 0; i < m_waterMeshes.size(); i++) {
+        for (int i = 0; i < m_waterMeshes.size();) {
             if (m_waterMeshes[i]->m_shouldDelete) {
                 // Don't delete here, it will happen in m_meshes
                 m_waterMeshes[i] = m_waterMeshes.back();
                 m_waterMeshes.pop_back();
-                i--;
             } else {
                 m_waterMeshes[i]->drawWater(cameraPos, V, VP, rot, waterProgram);
+                i++;
             }
         }
 
@@ -56,15 +56,15 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
         program->use();
         program->enableVertexAttribArrays();
 
-        for (int i = 0; i < m_meshes.size(); i++) {
+        for (int i = 0; i < m_meshes.size();) {
             if (m_meshes[i]->m_shouldDelete) {
                 m_meshes[i]->recycleNormalMap(m_normalMapRecycler);
                 delete m_meshes[i];
                 m_meshes[i] = m_meshes.back();
                 m_meshes.pop_back();
-                i--;
             } else {
                 m_meshes[i]->draw(cameraPos, V, VP, rot, program);
+                i++;
             }
         }
 
@@ -74,6 +74,11 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
 }
 
 void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh) {
+    for (auto& it : m_meshes) {
+        if (it == mesh) {
+            pError("AHHH");
+        }
+    }
     m_meshes.push_back(mesh);
     if (mesh->m_wvbo) {
         m_waterMeshes.push_back(mesh);

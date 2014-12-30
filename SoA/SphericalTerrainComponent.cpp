@@ -23,7 +23,6 @@ const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;
 
 void TerrainGenDelegate::invoke(void* sender, void* userData) {
     generator->generateTerrain(this);
-    inUse = false;
 }
 
 void SphericalTerrainComponent::init(f64 radius, PlanetGenData* planetGenData,

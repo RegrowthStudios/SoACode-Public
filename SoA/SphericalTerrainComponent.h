@@ -57,7 +57,7 @@ public:
                                              float width,
                                              CubeFace cubeFace);
 private:
-    static const int NUM_GENERATORS = 1000;
+    static const int NUM_GENERATORS = 1024;
     int counter = 0;
 
     SphericalTerrainGenerator* m_generator = nullptr;

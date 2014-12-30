@@ -100,7 +100,7 @@ private:
     VGTexture m_normalMap = 0;
     int m_waterIndexCount = 0;
 
-    bool m_shouldDelete = false; ///< True when the mesh should be deleted
+    volatile bool m_shouldDelete = false; ///< True when the mesh should be deleted
     bool m_isRenderable = false; ///< True when there is a complete mesh
 };
 
