@@ -127,7 +127,7 @@ void StarSystemScreen::onEvent(const SDL_Event& e) {
 void StarSystemScreen::update(const GameTime& gameTime) {
   
     static double time = 0.0;
-    time += 0.001;
+    time += 0.0000001;
 
     _app->spaceSystem->update(time, m_camera.getPosition());
     _app->spaceSystem->glUpdate();
