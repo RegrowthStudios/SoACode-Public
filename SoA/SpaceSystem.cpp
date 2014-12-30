@@ -221,6 +221,7 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     glUniform1i(terrainProgram->getUniform("unNormalMap"), 0);
     glUniform1i(terrainProgram->getUniform("unColorMap"), 1);
     glUniform1i(terrainProgram->getUniform("unTexture"), 2);
+    glUniform1f(terrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
     waterProgram->use();
     glUniform1i(waterProgram->getUniform("unNormalMap"), 0);
     glUniform1i(terrainProgram->getUniform("unColorMap"), 1);
