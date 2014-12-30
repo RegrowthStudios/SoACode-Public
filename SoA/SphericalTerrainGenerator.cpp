@@ -344,7 +344,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
 // Thanks to tetryds for these
 ui8 SphericalTerrainGenerator::calculateTemperature(float range, float angle, float baseTemp) {
-    float tempFalloff = 1.0f - pow(cos(angle * angle), 2.0f * angle);
+    float tempFalloff = 1.0f - pow(cos(angle), 2.0f * angle);
     float temp = baseTemp - tempFalloff * range;
     return (ui8)(glm::clamp(temp, 0.0f, 255.0f));
 }
