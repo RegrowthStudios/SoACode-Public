@@ -53,11 +53,11 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
     setMatrixTranslation(W, -cameraPos);
 
     f32m4 WVP = VP * W * rot;
-    f32m3 WV3x3 = glm::mat3(WVP);
+    W *= rot;
 
     glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
-    glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
+    glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
 
     // TODO: Using a VAO makes it not work??
    // glBindVertexArray(m_vao);
@@ -91,13 +91,12 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const f32m4& V, con
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -cameraPos);
-
-    f32m4 WVP = VP * W * rot;
-    f32m3 WV3x3 = glm::mat3(WVP);
+    W *= rot;
+    f32m4 WVP = VP * W;
 
     glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
-    glUniformMatrix3fv(program->getUniform("unWV3x3"), 1, GL_FALSE, &WV3x3[0][0]);
+    glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
 
     // TODO: Using a VAO makes it not work??
     // glBindVertexArray(m_vao);
