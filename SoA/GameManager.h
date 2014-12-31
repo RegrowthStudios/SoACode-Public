@@ -40,12 +40,9 @@ public:
     static void onQuit();
     static void endSession();
 
-    static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;
     static class PhysicsEngine* physicsEngine;
     static class SoundEngine* soundEngine;
-    static class ChunkManager* chunkManager;
-    static class InputManager* inputManager;
     static class ChunkIOManager* chunkIOManager;
     static class MessageManager* messageManager;
     static class TerrainGenerator* terrainGenerator;

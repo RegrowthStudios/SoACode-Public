@@ -29,7 +29,7 @@ void PdaAwesomiumAPI::setOwnerScreen(IGameScreen* ownerScreen) {
 Awesomium::JSValue PdaAwesomiumAPI::getInventory(const Awesomium::JSArray& args) {
  
     // Grab a handle to the inventory
-    const std::vector<Item*>& inventory = _ownerScreen->_player->inventory;
+    const std::vector<Item*>& inventory = _ownerScreen->m_player->inventory;
 
     Awesomium::JSArray entries;
     for (int i = 0; i < inventory.size(); i++) {
@@ -51,7 +51,7 @@ void PdaAwesomiumAPI::selectItem(const Awesomium::JSArray& args) {
     std::cout << "SELECT ITEM: " << hand << " " << name;
 
     // Search player inventory
-    Player* player = _ownerScreen->_player;
+    Player* player = _ownerScreen->m_player;
     // TODO(Ben): Not linear search
     for (int i = 0; i < player->inventory.size(); i++) {
         if (player->inventory[i]->name == name) {

@@ -51,7 +51,7 @@ public:
 
     virtual void invoke(void* sender, ui32 key) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        _screen->_inFocus = false;
+        _screen->m_inFocus = false;
     }
 };
 
@@ -63,7 +63,7 @@ public:
     OnFlyKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_player->flyToggle();
+        _screen->m_player->flyToggle();
     }
 };
 
@@ -74,7 +74,7 @@ public:
     OnGridKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_renderPipeline.toggleChunkGrid();
+        _screen->m_renderPipeline.toggleChunkGrid();
     }
 };
 
@@ -116,7 +116,7 @@ public:
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
-        _screen->_renderPipeline.destroy();
+        _screen->m_renderPipeline.destroy();
         _screen->initRenderPipeline();
     }
 };
@@ -128,15 +128,15 @@ public:
     OnInventoryKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        if(_screen->_pda.isOpen()) {
-            _screen->_pda.close();
+        if(_screen->m_pda.isOpen()) {
+            _screen->m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
-            _screen->_inFocus = true;
+            _screen->m_inFocus = true;
             SDL_StartTextInput();
         } else {
-            _screen->_pda.open();
+            _screen->m_pda.open();
             SDL_SetRelativeMouseMode(SDL_FALSE);
-            _screen->_inFocus = false;
+            _screen->m_inFocus = false;
             SDL_StopTextInput();
         }
     }
@@ -149,11 +149,11 @@ public:
     OnReloadUIKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        if(_screen->_pda.isOpen()) {
-            _screen->_pda.close();
+        if(_screen->m_pda.isOpen()) {
+            _screen->m_pda.close();
         }
-        _screen->_pda.destroy();
-        _screen->_pda.init(_screen);
+        _screen->m_pda.destroy();
+        _screen->m_pda.init(_screen);
     }
 };
 
@@ -164,7 +164,7 @@ public:
     OnHUDKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(void* sender, ui32 key) {
-        _screen->_renderPipeline.cycleDevHud();
+        _screen->m_renderPipeline.cycleDevHud();
     }
 };
 

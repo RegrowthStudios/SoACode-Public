@@ -39,12 +39,9 @@ bool GameManager::_systemsInitialized = false;
 float GameManager::fogStart, GameManager::fogEnd;
 Uint32 GameManager::maxLodTicks = 8;
 
-VoxelWorld *GameManager::voxelWorld = nullptr;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 PhysicsEngine *GameManager::physicsEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
-ChunkManager *GameManager::chunkManager = nullptr;
-InputManager *GameManager::inputManager = nullptr;
 ChunkIOManager* GameManager::chunkIOManager = nullptr;
 MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
@@ -63,11 +60,9 @@ GameStates GameManager::gameState = GameStates::MAINMENU;
 
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
-        voxelWorld = new VoxelWorld();
         voxelEditor = new VoxelEditor();
         physicsEngine = new PhysicsEngine();
         soundEngine = new SoundEngine();
-        chunkManager = &voxelWorld->getChunkManager();
         chunkIOManager = new ChunkIOManager();
         messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();

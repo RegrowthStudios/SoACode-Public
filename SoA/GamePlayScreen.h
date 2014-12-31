@@ -31,6 +31,7 @@ class App;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
+class VoxelWorld;
 
 template<typename... Params>
 class IDelegate;
@@ -86,11 +87,14 @@ public:
     i32 getWindowHeight() const;
 
     bool isInGame() const {
-        return (!_pda.isOpen() && !_pauseMenu.isOpen());
+        return (!m_pda.isOpen() && !m_pauseMenu.isOpen());
     }
 
 
 private:
+
+    /// Initializes the voxel world
+    void initVoxels();
 
     /// Initializes the rendering
     void initRenderPipeline();
@@ -111,35 +115,37 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
-    Player* _player; ///< The current player
+    VoxelWorld* m_voxelWorld = nullptr;
 
-    PDA _pda; ///< The PDA
+    Player* m_player; ///< The current player
 
-    PauseMenu _pauseMenu; ///< The Pause Menu
+    PDA m_pda; ///< The PDA
 
-    bool _inFocus; ///< true when the window is in focus
+    PauseMenu m_pauseMenu; ///< The Pause Menu
+
+    bool m_inFocus; ///< true when the window is in focus
 
     // TODO(Ben): Should they be stored here?
     //Camera _voxelCamera; ///< The camera for rendering the voxels
     //Camera _planetCamera; ///< The camera for rendering the planet
 
-    std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
-    volatile bool _threadRunning; ///< True when the thread should be running
+    std::thread* m_updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
+    volatile bool m_threadRunning; ///< True when the thread should be running
 
     /// Delegates
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    IDelegate<ui32>* _onPauseKeyDown;
-    IDelegate<ui32>* _onFlyKeyDown;
-    IDelegate<ui32>* _onGridKeyDown;
-    IDelegate<ui32>* _onReloadTexturesKeyDown;
-    IDelegate<ui32>* _onReloadShadersKeyDown;
-    IDelegate<ui32>* _onInventoryKeyDown;
-    IDelegate<ui32>* _onReloadUIKeyDown;
-    IDelegate<ui32>* _onHUDKeyDown;
-    IDelegate<ui32>* _onNightVisionToggle;
-    IDelegate<ui32>* _onNightVisionReload;
+    IDelegate<ui32>* m_onPauseKeyDown;
+    IDelegate<ui32>* m_onFlyKeyDown;
+    IDelegate<ui32>* m_onGridKeyDown;
+    IDelegate<ui32>* m_onReloadTexturesKeyDown;
+    IDelegate<ui32>* m_onReloadShadersKeyDown;
+    IDelegate<ui32>* m_onInventoryKeyDown;
+    IDelegate<ui32>* m_onReloadUIKeyDown;
+    IDelegate<ui32>* m_onHUDKeyDown;
+    IDelegate<ui32>* m_onNightVisionToggle;
+    IDelegate<ui32>* m_onNightVisionReload;
     IDelegate<ui32>* m_onDrawMode;
-    GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
+    GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
     #define MESSAGES_PER_FRAME 300
     Message messageBuffer[MESSAGES_PER_FRAME];

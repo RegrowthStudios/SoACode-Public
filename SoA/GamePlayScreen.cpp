@@ -35,17 +35,17 @@
 #define THREAD ThreadId::UPDATE
 
 CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
-    _updateThread(nullptr),
-    _threadRunning(false), 
-    _inFocus(true),
-    _onPauseKeyDown(nullptr),
-    _onFlyKeyDown(nullptr),
-    _onGridKeyDown(nullptr),
-    _onReloadTexturesKeyDown(nullptr),
-    _onReloadShadersKeyDown(nullptr),
-    _onInventoryKeyDown(nullptr),
-    _onReloadUIKeyDown(nullptr),
-    _onHUDKeyDown(nullptr) {
+    m_updateThread(nullptr),
+    m_threadRunning(false), 
+    m_inFocus(true),
+    m_onPauseKeyDown(nullptr),
+    m_onFlyKeyDown(nullptr),
+    m_onGridKeyDown(nullptr),
+    m_onReloadTexturesKeyDown(nullptr),
+    m_onReloadShadersKeyDown(nullptr),
+    m_onInventoryKeyDown(nullptr),
+    m_onReloadUIKeyDown(nullptr),
+    m_onHUDKeyDown(nullptr) {
     // Empty
 }
 
@@ -70,75 +70,75 @@ void GamePlayScreen::destroy(const GameTime& gameTime) {
 
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
-    _player = GameManager::player;
-    _player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
-    GameManager::initializeVoxelWorld(_player);
+    m_player = GameManager::player;
+    m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
+    GameManager::initializeVoxelWorld(m_player);
 
     // Initialize the PDA
-    _pda.init(this);
+    m_pda.init(this);
 
     // Initialize the Pause Menu
-    _pauseMenu.init(this);
+    m_pauseMenu.init(this);
 
     // Set up the rendering
     initRenderPipeline();
 
     // Initialize and run the update thread
-    _updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
+    m_updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
 
     // Force him to fly... This is temporary
-    _player->isFlying = true;
+    m_player->isFlying = true;
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     InputManager* inputManager = GameManager::inputManager;
-    _onPauseKeyDown = inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
-    _onFlyKeyDown = inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
-    _onGridKeyDown = inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
-    _onReloadTexturesKeyDown = inputManager->subscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadTexturesKeyDown(this));
-    _onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadShadersKeyDown(this));
-    _onInventoryKeyDown = inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
-    _onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
-    _onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
-    _onNightVisionToggle = inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+    m_onPauseKeyDown = inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
+    m_onFlyKeyDown = inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
+    m_onGridKeyDown = inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
+    m_onReloadTexturesKeyDown = inputManager->subscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadTexturesKeyDown(this));
+    m_onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadShadersKeyDown(this));
+    m_onInventoryKeyDown = inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
+    m_onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
+    m_onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
+    m_onNightVisionToggle = inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
         if (isInGame()) {
-            _renderPipeline.toggleNightVision();
+            m_renderPipeline.toggleNightVision();
         }
     });
-    _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
-        _renderPipeline.loadNightVision();
+    m_onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+        m_renderPipeline.loadNightVision();
     });
     m_onDrawMode = inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
-        _renderPipeline.cycleDrawMode();
+        m_renderPipeline.cycleDrawMode();
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (void* s, const vui::MouseMotionEvent& e) {
-        if (_inFocus) {
+        if (m_inFocus) {
             // Pass mouse motion to the player
-            _player->mouseMove(e.dx, e.dy);
+            m_player->mouseMove(e.dx, e.dy);
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (void* s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
-            _inFocus = true;
+            m_inFocus = true;
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (void* s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
             if (e.button == vui::MouseButton::LEFT) {
-                GameManager::voxelEditor->editVoxels(_player->leftEquippedItem);
+                GameManager::voxelEditor->editVoxels(m_player->leftEquippedItem);
                 puts("EDIT VOXELS");
             } else if (e.button == vui::MouseButton::RIGHT) {
-                GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
+                GameManager::voxelEditor->editVoxels(m_player->rightEquippedItem);
                 puts("EDIT VOXELS");
             }
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&] (void* s, const vui::MouseEvent& e) {
-        _inFocus = true;
+        m_inFocus = true;
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&] (void* s, const vui::MouseEvent& e) {
-        _inFocus = false;
+        m_inFocus = false;
     });
 
     GameManager::inputManager->startInput();
@@ -149,46 +149,46 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     m_hooks.dispose();
 
     InputManager* inputManager = GameManager::inputManager;
-    inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
-    delete _onPauseKeyDown;
+    inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, m_onPauseKeyDown);
+    delete m_onPauseKeyDown;
 
-    inputManager->unsubscribe(INPUT_FLY, InputManager::EventType::DOWN, _onFlyKeyDown);
-    delete _onFlyKeyDown;
+    inputManager->unsubscribe(INPUT_FLY, InputManager::EventType::DOWN, m_onFlyKeyDown);
+    delete m_onFlyKeyDown;
 
-    inputManager->unsubscribe(INPUT_GRID, InputManager::EventType::DOWN, _onGridKeyDown);
-    delete _onGridKeyDown;
+    inputManager->unsubscribe(INPUT_GRID, InputManager::EventType::DOWN, m_onGridKeyDown);
+    delete m_onGridKeyDown;
 
-    inputManager->unsubscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, _onReloadTexturesKeyDown);
-    delete _onReloadTexturesKeyDown;
+    inputManager->unsubscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, m_onReloadTexturesKeyDown);
+    delete m_onReloadTexturesKeyDown;
 
-    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, _onReloadShadersKeyDown);
-    delete _onReloadShadersKeyDown;
+    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
+    delete m_onReloadShadersKeyDown;
 
-    inputManager->unsubscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, _onInventoryKeyDown);
-    delete _onInventoryKeyDown;
+    inputManager->unsubscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, m_onInventoryKeyDown);
+    delete m_onInventoryKeyDown;
 
-    inputManager->unsubscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, _onReloadUIKeyDown);
-    delete _onReloadUIKeyDown;
+    inputManager->unsubscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, m_onReloadUIKeyDown);
+    delete m_onReloadUIKeyDown;
 
-    inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, _onHUDKeyDown);
-    delete _onHUDKeyDown;
+    inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, m_onHUDKeyDown);
+    delete m_onHUDKeyDown;
 
-    inputManager->unsubscribe(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, _onNightVisionToggle);
-    delete _onNightVisionToggle;
+    inputManager->unsubscribe(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, m_onNightVisionToggle);
+    delete m_onNightVisionToggle;
 
-    inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, _onNightVisionReload);
-    delete _onNightVisionReload;
+    inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, m_onNightVisionReload);
+    delete m_onNightVisionReload;
 
     inputManager->unsubscribe(INPUT_DRAW_MODE, InputManager::EventType::DOWN, m_onDrawMode);
     delete m_onDrawMode;
 
-    _threadRunning = false;
-    _updateThread->join();
-    delete _updateThread;
+    m_threadRunning = false;
+    m_updateThread->join();
+    delete m_updateThread;
     _app->meshManager->destroy();
-    _pda.destroy();
-    _renderPipeline.destroy();
-    _pauseMenu.destroy();
+    m_pda.destroy();
+    m_renderPipeline.destroy();
+    m_pauseMenu.destroy();
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
@@ -212,13 +212,13 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     updatePlayer();
 
     // Update the PDA
-    if (_pda.isOpen()) _pda.update();
+    if (m_pda.isOpen()) m_pda.update();
 
     // Updates the Pause Menu
-    if (_pauseMenu.isOpen()) _pauseMenu.update();
+    if (m_pauseMenu.isOpen()) m_pauseMenu.update();
 
     // Sort all meshes // TODO(Ben): There is redundancy here
-    _app->meshManager->sortMeshes(_player->headPosition);
+    _app->meshManager->sortMeshes(m_player->headPosition);
 
     // Process any updates from the render thread
     processMessages();
@@ -228,13 +228,13 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
 
     updateWorldCameraClip();
 
-    _renderPipeline.render();
+    m_renderPipeline.render();
 }
 
 void GamePlayScreen::unPause() { 
-    _pauseMenu.close(); 
+    m_pauseMenu.close(); 
     SDL_SetRelativeMouseMode(SDL_TRUE);
-    _inFocus = true;
+    m_inFocus = true;
 }
 
 i32 GamePlayScreen::getWindowWidth() const {
@@ -245,12 +245,34 @@ i32 GamePlayScreen::getWindowHeight() const {
     return _app->getWindow().getHeight();
 }
 
+void GamePlayScreen::initVoxels() {
+    bool atSurface = 1;
+    player = playr;
+
+    if (player) {
+        if (fileManager.loadPlayerFile(player)) {
+            atSurface = 0; //dont need to set height
+        }
+    }
+    m_voxelWorld = new VoxelWorld;
+    voxelWorld->initialize(player->facePosition, &player->voxelMapData, 0);
+
+    if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
+
+    player->gridPosition = player->facePosition;
+
+    //   player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
+
+    //   double dist = player->facePosition.y + planet->radius;
+    //  player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
+}
+
 void GamePlayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
-                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager,
-                         &_pauseMenu, GameManager::chunkManager->getChunkSlots(0));
+    m_renderPipeline.init(viewport, &m_player->getChunkCamera(), &m_player->getWorldCamera(), 
+                         _app, m_player, _app->meshManager, &m_pda, GameManager::glProgramManager,
+                         &m_pauseMenu, GameManager::chunkManager->getChunkSlots(0));
 }
 
 void GamePlayScreen::handleInput() {
@@ -260,17 +282,17 @@ void GamePlayScreen::handleInput() {
     // Block placement
     if (isInGame()) {
         if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
-            if (!(_player->leftEquippedItem)){
+            if (!(m_player->leftEquippedItem)){
                 GameManager::clickDragRay(true);
-            } else if (_player->leftEquippedItem->type == ITEM_BLOCK){
-                _player->dragBlock = _player->leftEquippedItem;
+            } else if (m_player->leftEquippedItem->type == ITEM_BLOCK){
+                m_player->dragBlock = m_player->leftEquippedItem;
                 GameManager::clickDragRay(false);
             }
         } else if (inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
-            if (!(_player->rightEquippedItem)){
+            if (!(m_player->rightEquippedItem)){
                 GameManager::clickDragRay(true);
-            } else if (_player->rightEquippedItem->type == ITEM_BLOCK){
-                _player->dragBlock = _player->rightEquippedItem;
+            } else if (m_player->rightEquippedItem->type == ITEM_BLOCK){
+                m_player->dragBlock = m_player->rightEquippedItem;
                 GameManager::clickDragRay(false);
             }
         }
@@ -304,7 +326,7 @@ void GamePlayScreen::updatePlayer() {
 }
 
 void GamePlayScreen::updateThreadFunc() {
-    _threadRunning = true;
+    m_threadRunning = true;
 
     FpsLimiter fpsLimiter;
     fpsLimiter.init(maxPhysicsFps);
@@ -315,7 +337,7 @@ void GamePlayScreen::updateThreadFunc() {
 
     static int saveStateTicks = SDL_GetTicks();
 
-    while (_threadRunning) {
+    while (m_threadRunning) {
         fpsLimiter.beginFrame();
 
         GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
@@ -428,6 +450,6 @@ void GamePlayScreen::updateWorldCameraClip() {
 
     double clip = MAX(nearClip / planetScale * 0.5, a);
     // The world camera has a dynamic clipping plane
-    _player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    _player->getWorldCamera().updateProjection();
+    m_player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    m_player->getWorldCamera().updateProjection();
 }
