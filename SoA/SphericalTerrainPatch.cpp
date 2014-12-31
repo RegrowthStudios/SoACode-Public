@@ -132,11 +132,13 @@ SphericalTerrainPatch::~SphericalTerrainPatch() {
 
 void SphericalTerrainPatch::init(const f64v2& gridPosition,
                                  CubeFace cubeFace,
+                                 int lod,
                                  const SphericalTerrainData* sphericalTerrainData,
                                  f64 width,
                                  TerrainRpcDispatcher* dispatcher) {
     m_gridPosition = gridPosition;
     m_cubeFace = cubeFace;
+    m_lod = lod;
     m_sphericalTerrainData = sphericalTerrainData;
     m_width = width;
     m_dispatcher = dispatcher;
@@ -155,8 +157,8 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
-    const float DIST_MIN = 4.0f;
-    const float DIST_MAX = 4.1f;
+    const float DIST_MIN = 3.0f;
+    const float DIST_MAX = 3.1f;
 
 #define MIN_SIZE 0.016f
 
@@ -197,13 +199,13 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
                 m_mesh = nullptr;
             }
         }
-    } else if (m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
+    } else if (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
         m_children = new SphericalTerrainPatch[4];
         // Segment into 4 children
         for (int z = 0; z < 2; z++) {
             for (int x = 0; x < 2; x++) {
                 m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
-                                       m_cubeFace, m_sphericalTerrainData, m_width / 2.0,
+                                       m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
                                        m_dispatcher);
             }
         }

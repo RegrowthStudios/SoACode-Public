@@ -40,6 +40,8 @@ const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH;
 const int PATCH_NORMALMAP_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM + 2; // + 2 for padding
 const int PATCH_HEIGHTMAP_WIDTH = PATCH_NORMALMAP_WIDTH + 2; // + 2 for padding
 
+const int MAX_LOD = 10;
+
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {
 public:
@@ -117,6 +119,7 @@ public:
     /// @param width: Width of the patch in KM
     void init(const f64v2& gridPosition,
               CubeFace cubeFace,
+              int lod,
               const SphericalTerrainData* sphericalTerrainData,
               f64 width,
               TerrainRpcDispatcher* dispatcher);

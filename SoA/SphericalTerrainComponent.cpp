@@ -140,7 +140,7 @@ void SphericalTerrainComponent::initPatches() {
                 gridPos.x = (x - center) * patchWidth;
                 gridPos.y = (z - center) * patchWidth;
                 p.init(gridPos, static_cast<CubeFace>(face),
-                       m_sphericalTerrainData, patchWidth,
+                       0, m_sphericalTerrainData, patchWidth,
                        rpcDispatcher);
             }
         }
