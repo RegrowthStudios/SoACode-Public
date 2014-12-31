@@ -39,6 +39,9 @@ public:
     ColorRGB8 liquidTint = ColorRGB8(255, 255, 255);
     ColorRGB8 terrainTint = ColorRGB8(255, 255, 255);
     float liquidDepthScale = 1000.0f;
+    float liquidFreezeTemp = -1.0f;
+    float tempLatitudeFalloff = 0.0f;
+    float humLatitudeFalloff = 0.0f;
     VGTexture biomeArrayTexture = 0;
     VGTexture baseBiomeLookupTexture = 0;
     std::vector<Biome> biomes;

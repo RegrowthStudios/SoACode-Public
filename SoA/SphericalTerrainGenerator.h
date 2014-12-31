@@ -112,6 +112,8 @@ private:
 
     ui8 calculateHumidity(float range, float angle, float baseHum);
 
+    float computeAngleFromNormal(const f32v3& normal);
+
     void buildSkirts();
 
     void addWater(int z, int x);

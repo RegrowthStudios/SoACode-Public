@@ -41,12 +41,14 @@ public:
     nString texturePath = "";
     ColorRGB8 tint = ColorRGB8(255, 255, 255);
     float depthScale = 1000.0f;
+    float freezeTemp = -1.0f;
 };
 KEG_TYPE_INIT_BEGIN_DEF_VAR(LiquidColorKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, STRING, colorPath);
 KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, STRING, texturePath);
 KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, UI8_V3, tint); 
 KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, F32, depthScale);
+KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, F32, freezeTemp);
 KEG_TYPE_INIT_END
 
 class TerrainColorKegProperties {
@@ -103,6 +105,10 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
             parseTerrainColor(kvp.second, genData);
         } else if (type == "liquidColor") {
             parseLiquidColor(kvp.second, genData);
+        } else if (type == "tempLatitudeFalloff") {
+            genData->tempLatitudeFalloff = kvp.second.as<float>();
+        } else if (type == "humLatitudeFalloff") {
+            genData->humLatitudeFalloff = kvp.second.as<float>();
         } else if (type == "baseHeight") {
             parseTerrainFuncs(&baseTerrainFuncs, kvp.second);
         } else if (type == "temperature") {
@@ -305,6 +311,7 @@ void PlanetLoader::parseLiquidColor(YAML::Node& node, PlanetGenData* genData) {
     if (kegProps.texturePath.size()) {
         genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &SamplerState::LINEAR_WRAP_MIPMAP);
     }
+    genData->liquidFreezeTemp = kegProps.freezeTemp;
     genData->liquidDepthScale = kegProps.depthScale;
     genData->liquidTint = kegProps.tint;
 }

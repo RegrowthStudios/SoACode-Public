@@ -281,19 +281,10 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             f32v3 normal = glm::normalize(v.position);
             v.position = normal * (m_radius + h);
 
-            // Compute angle
-            if (normal.y == 1.0f || normal.y == -1.0f) {
-                angle = M_PI / 2.0;
-            } else if (abs(normal.y) < 0.001) {
-                // Need to do this to fix an equator bug
-                angle = 0;
-            } else {
-                f32v3 equator = glm::normalize(f32v3(normal.x, 0.0f, normal.z));
-                angle = acos(glm::dot(equator, normal));
-            }
+            angle = computeAngleFromNormal(normal);
             
-            v.temperature = calculateTemperature(100.0f, angle, m_heightData[zIndex][xIndex][1]);
-            v.humidity = calculateHumidity(60.0f, angle, m_heightData[zIndex][xIndex][2]);
+            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, m_heightData[zIndex][xIndex][1]);
+            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, m_heightData[zIndex][xIndex][2]);
 
             // Compute tangent
             tmpPos[m_coordMapping.x] = (x + 1) * m_vertWidth + m_startPos.x;
@@ -371,6 +362,19 @@ ui8 SphericalTerrainGenerator::calculateHumidity(float range, float angle, float
     return (ui8)(glm::clamp(hum, 0.0f, 255.0f));
 }
 
+float SphericalTerrainGenerator::computeAngleFromNormal(const f32v3& normal) {
+    // Compute angle
+    if (normal.y == 1.0f || normal.y == -1.0f) {
+        return M_PI / 2.0;
+    } else if (abs(normal.y) < 0.001) {
+        // Need to do this to fix an equator bug
+        return 0.0f;
+    } else {
+        f32v3 equator = glm::normalize(f32v3(normal.x, 0.0f, normal.z));
+        return acos(glm::dot(equator, normal));
+    }
+}
+
 void SphericalTerrainGenerator::buildSkirts() {
     const float SKIRT_DEPTH = m_vertWidth * 3.0f;
     // Top Skirt
@@ -438,6 +442,8 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
     // TEMPORARY? Add slight offset so we don't need skirts
     float mvw = m_vertWidth * 1.01;
     const float UV_SCALE = 0.01;
+    int xIndex;
+    int zIndex;
 
     if (z < 0 || x < 0 || z >= PATCH_WIDTH || x >= PATCH_WIDTH) return;
     if (waterIndexGrid[z][x] == 0) {
@@ -453,15 +459,20 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
         v.texCoords.y = v.position[m_coordMapping.z] * UV_SCALE;
 
         // Spherify it!
-        v.position = glm::normalize(v.position) * m_radius;
+        f32v3 normal = glm::normalize(v.position);
+        v.position = normal * m_radius;
 
-        float h = m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1][0];
+        zIndex = z * PIXELS_PER_PATCH_NM + 1;
+        xIndex = x * PIXELS_PER_PATCH_NM + 1;
+        float h = m_heightData[zIndex][xIndex][0];
         if (h < 0) {
             v.depth = -h;
         } else {
             v.depth = 0;
         }
-        v.temperature = (ui8)m_heightData[z * PIXELS_PER_PATCH_NM + 1][x * PIXELS_PER_PATCH_NM + 1][1];
+
+        v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, computeAngleFromNormal(normal), m_heightData[zIndex][xIndex][1]);
+        
 
         // Compute tangent
         f32v3 tmpPos;

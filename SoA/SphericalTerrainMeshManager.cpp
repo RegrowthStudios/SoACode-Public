@@ -28,7 +28,7 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
 
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
-
+        glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
         for (int i = 0; i < m_waterMeshes.size();) {
             if (m_waterMeshes[i]->m_shouldDelete) {
                 // Don't delete here, it will happen in m_meshes
