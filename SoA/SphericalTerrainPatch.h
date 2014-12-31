@@ -73,19 +73,19 @@ public:
     void recycleNormalMap(vg::TextureRecycler* recycler);
 
     /// Draws the terrain mesh
-    /// @param cameraPos: Position of the camera
-    /// @param VP: View-Projection matrix
+    /// @param cameraPos: Relative position of the camera
+    /// @param camera: The camera
     /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering
-    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+    void draw(const f64v3& relativePos, const Camera* camera,
               const f32m4& rot, vg::GLProgram* program);
    
     /// Draws the water mesh
-    /// @param cameraPos: Position of the camera
-    /// @param VP: View-Projection matrix
+    /// @param relativePos: Relative position of the camera
+    /// @param camera: The camera
     /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering
-    void drawWater(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+    void drawWater(const f64v3& relativePos, const Camera* camera,
                    const f32m4& rot, vg::GLProgram* program);
 
 private:

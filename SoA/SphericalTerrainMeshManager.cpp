@@ -3,13 +3,14 @@
 
 #include "Errors.h"
 #include "PlanetLoader.h"
+#include "Camera.h"
 
 #include <GLProgram.h>
 #include <TextureRecycler.hpp>
 
 #include "SphericalTerrainPatch.h"
 
-void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* camera,
                                        const f32m4& rot,
                                        vg::GLProgram* program, vg::GLProgram* waterProgram) {
     
@@ -17,6 +18,10 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
     dt += 0.001;
 
     if (m_waterMeshes.size()) {
+
+        if (!waterProgram->getIsLinked()) {
+            pError("HELLO");
+        }
         waterProgram->use();
         waterProgram->enableVertexAttribArrays();
 
@@ -29,13 +34,14 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
+       
         for (int i = 0; i < m_waterMeshes.size();) {
             if (m_waterMeshes[i]->m_shouldDelete) {
                 // Don't delete here, it will happen in m_meshes
                 m_waterMeshes[i] = m_waterMeshes.back();
                 m_waterMeshes.pop_back();
             } else {
-                m_waterMeshes[i]->drawWater(cameraPos, V, VP, rot, waterProgram);
+                m_waterMeshes[i]->drawWater(relativePos, camera, rot, waterProgram);
                 i++;
             }
         }
@@ -63,7 +69,7 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
                 m_meshes[i] = m_meshes.back();
                 m_meshes.pop_back();
             } else {
-                m_meshes[i]->draw(cameraPos, V, VP, rot, program);
+                m_meshes[i]->draw(relativePos, camera, rot, program);
                 i++;
             }
         }

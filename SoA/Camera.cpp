@@ -30,22 +30,24 @@ void Camera::offsetPosition(glm::vec3 offset) {
 }
 
 void Camera::update() {
-    if (m_fieldOfView != graphicsOptions.fov){
+    if (m_fieldOfView != graphicsOptions.fov) {
         setFieldOfView(graphicsOptions.fov);
     }
 
     bool updateFrustum = false;
-    if (m_viewChanged){
+    if (m_viewChanged) {
         updateView();
         m_viewChanged = false;
         updateFrustum = true;
     }
-    if (m_projectionChanged){
+    if (m_projectionChanged) {
         updateProjection();
         m_projectionChanged = false;
         updateFrustum = true;
     }
+
     if (updateFrustum) {
+        m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
         m_frustum.update(m_projectionMatrix, m_viewMatrix);
     }
 }

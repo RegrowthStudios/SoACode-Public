@@ -36,8 +36,9 @@ public:
     const glm::vec3& getRight() const { return m_right; }
     const glm::vec3& getUp() const { return m_up; }
 
-    const glm::mat4& getProjectionMatrix() const { return m_projectionMatrix; }
-    const glm::mat4& getViewMatrix() const { return m_viewMatrix; }
+    const f32m4& getProjectionMatrix() const { return m_projectionMatrix; }
+    const f32m4& getViewMatrix() const { return m_viewMatrix; }
+    const f32m4& getViewProjectionMatrix() const { return m_viewProjectionMatrix; }
 
     const float& getNearClip() const { return m_zNear; }
     const float& getFarClip() const { return m_zFar; }
@@ -66,6 +67,7 @@ protected:
 
     f32m4 m_projectionMatrix;
     f32m4 m_viewMatrix;
+    f32m4 m_viewProjectionMatrix;
 
     Frustum m_frustum; ///< For frustum culling
 };

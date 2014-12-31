@@ -19,6 +19,7 @@
 
 class SphericalTerrainMesh;
 class PlanetGenData;
+class Camera;
 namespace vorb {
     namespace core {
         namespace graphics {
@@ -38,13 +39,12 @@ public:
         // Empty
     }
     /// Draws the meshes
-    /// @param cameraPos: Position of the camera
-    /// @param V: View matrix
-    /// @param VP: View-Projection matrix
+    /// @param relativePos: Relative position of the camera
+    /// @param Camera: The camera
     /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
-    void draw(const f64v3& cameraPos, const f32m4& V, const f32m4& VP,
+    void draw(const f64v3& relativePos, const Camera* camera,
               const f32m4& rot,
               vg::GLProgram* program, vg::GLProgram* waterProgram);
 
