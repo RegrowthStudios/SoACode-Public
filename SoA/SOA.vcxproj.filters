@@ -587,6 +587,9 @@
     <ClInclude Include="StarSystemScreen.h">
       <Filter>SOA Files\Screens\StarSystem</Filter>
     </ClInclude>
+    <ClInclude Include="AtmosphereComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -947,6 +950,7 @@
       <Filter>SOA Files\Screens\StarSystem</Filter>
     </ClCompile>
     <ClCompile Include="Biome.cpp" />
+    <ClCompile Include="AtmosphereComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

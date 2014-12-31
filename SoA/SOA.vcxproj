@@ -118,6 +118,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="Atmosphere.h" />
+    <ClInclude Include="AtmosphereComponent.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="AxisRotationComponent.h" />
     <ClInclude Include="Biome.h" />
@@ -270,6 +271,7 @@
   <ItemGroup>
     <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="Atmosphere.cpp" />
+    <ClCompile Include="AtmosphereComponent.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
