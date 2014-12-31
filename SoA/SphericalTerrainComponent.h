@@ -20,6 +20,7 @@
 #include "SphericalTerrainPatch.h"
 #include "SphericalTerrainGenerator.h"
 
+#include <Vorb/RPC.h>
 #include <deque>
 
 class Camera;

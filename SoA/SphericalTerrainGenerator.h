@@ -21,6 +21,7 @@
 #include <Vorb/GLProgram.h>
 #include <Vorb/FullQuadVBO.h>
 #include <Vorb/GBuffer.h>
+#include <Vorb/RPC.h>
 
 class TerrainGenDelegate;
 class PlanetGenData;

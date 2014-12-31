@@ -533,50 +533,11 @@
     <ClInclude Include="Atmosphere.h">
       <Filter>SOA Files\BenPLZ</Filter>
     </ClInclude>
-    <ClInclude Include="AxisRotationComponent.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="Biome.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuScreenEvents.hpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="NamePositionComponent.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseShaderCode.hpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="OrbitComponent.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetLoader.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalGravityComponent.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainComponent.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainGenerator.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainMeshManager.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainPatch.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainGenTextures.h">
       <Filter>SOA Files\BenPLZ</Filter>
     </ClInclude>
     <ClInclude Include="StarSystemScreen.h">
       <Filter>SOA Files\Screens\StarSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="AtmosphereComponent.h">
-      <Filter>SOA Files</Filter>
     </ClInclude>
     <ClInclude Include="TestBlockViewScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
@@ -598,6 +559,45 @@
     </ClInclude>
     <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalGravityComponent.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponent.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="NamePositionComponent.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitComponent.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="AtmosphereComponent.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="AxisRotationComponent.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseShaderCode.hpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetLoader.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainGenerator.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainMeshManager.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainPatch.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainGenTextures.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="Biome.h">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -925,32 +925,10 @@
     <ClCompile Include="Atmosphere.cpp">
       <Filter>SOA Files\BenPLZ</Filter>
     </ClCompile>
-    <ClCompile Include="OrbitComponent.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetLoader.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainComponent.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainGenerator.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainMeshManager.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainPatch.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainGenTextures.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
     <ClCompile Include="StarSystemScreen.cpp">
       <Filter>SOA Files\Screens\StarSystem</Filter>
     </ClCompile>
     <ClCompile Include="Biome.cpp" />
-    <ClCompile Include="AtmosphereComponent.cpp" />
     <ClCompile Include="BlockPack.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
@@ -959,6 +937,30 @@
     </ClCompile>
     <ClCompile Include="TestBlockViewScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponent.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitComponent.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="AtmosphereComponent.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetLoader.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainGenerator.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainMeshManager.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainPatch.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainGenTextures.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

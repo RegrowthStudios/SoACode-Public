@@ -5,51 +5,6 @@
 
 const static float GOLDEN_RATIO = 1.61803398875f;
 
-const static int NUM_ICOSOHEDRON_VERTICES = 12;
-const static glm::vec3 ICOSOHEDRON_VERTICES[12] = {
-    glm::vec3(-1.0f, GOLDEN_RATIO, 0.0f),
-    glm::vec3(1.0f, GOLDEN_RATIO, 0.0f),
-    glm::vec3(-1.0f, -GOLDEN_RATIO, 0.0f),
-    glm::vec3(1.0f, -GOLDEN_RATIO, 0.0f),
-
-    glm::vec3(0.0f, -1.0f, GOLDEN_RATIO),//4
-    glm::vec3(0.0f, 1.0f, GOLDEN_RATIO),
-    glm::vec3(0.0f, -1.0, -GOLDEN_RATIO),
-    glm::vec3(0.0f, 1.0f, -GOLDEN_RATIO),
-
-    glm::vec3(GOLDEN_RATIO, 0.0f, -1.0f),//8
-    glm::vec3(GOLDEN_RATIO, 0.0f, 1.0f),
-    glm::vec3(-GOLDEN_RATIO, 0.0f, -1.0f),
-    glm::vec3(-GOLDEN_RATIO, 0.0, 1.0f)
-};
-
-const static int NUM_ICOSOHEDRON_INDICES = 60;
-const static GLuint ICOSOHEDRON_INDICES[60] = {
-    0, 11, 5,
-    0, 5, 1,
-    0, 1, 7,
-    0, 7, 10,
-    0, 10, 11,
-
-    1, 5, 9,
-    5, 11, 4,
-    11, 10, 2,
-    10, 7, 6,
-    7, 1, 8,
-
-    3, 9, 4,
-    3, 4, 2,
-    3, 2, 6,
-    3, 6, 8,
-    3, 8, 9,
-
-    4, 9, 5,
-    2, 4, 11,
-    6, 2, 10,
-    8, 6, 7,
-    9, 8, 1
-};
-
 const static int NUM_CUBE_VERTICES = 8;
 const static glm::vec3 CUBE_VERTICES[8] = {
     //front

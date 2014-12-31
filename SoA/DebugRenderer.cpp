@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <functional>
 
+#include <Vorb/MeshGenerators.h>
 #include <Vorb/RasterizerState.h>
 
 #include "GameManager.h"
@@ -174,84 +175,10 @@ void DebugRenderer::renderLines(const glm::mat4 &vp, const f32m4& w, const glm::
 }
 
 void DebugRenderer::createIcosphere(const int lod) {
-    std::vector<GLuint> oldIndices;
-    std::vector<GLuint> newIndices;
-    std::vector<glm::vec3> vertices;
-    std::unordered_map<glm::vec3, GLuint, Vec3KeyFuncs, Vec3KeyFuncs> vertexLookup;
-    for(GLuint i = 0; i < NUM_ICOSOHEDRON_INDICES; i++) {
-        if(i < NUM_ICOSOHEDRON_VERTICES) {
-            vertices.push_back(glm::normalize(ICOSOHEDRON_VERTICES[i]));
-            vertexLookup[glm::normalize(ICOSOHEDRON_VERTICES[i])] = i;
-        }
-        oldIndices.push_back(ICOSOHEDRON_INDICES[i]);
-    }
-    for(int i = 0; i < lod; i++) {
-        for(int j = 0; j < oldIndices.size(); j += 3) {
-            /*
-                            j
-                       mp12   mp13
-                    j+1    mp23   j+2
-            */
-            //Defined in counter clockwise order
-            glm::vec3 vertex1 = vertices[oldIndices[j + 0]];
-            glm::vec3 vertex2 = vertices[oldIndices[j + 1]];
-            glm::vec3 vertex3 = vertices[oldIndices[j + 2]];
-
-            glm::vec3 midPoint12 = findMidpoint(vertex1, vertex2);
-            glm::vec3 midPoint23 = findMidpoint(vertex2, vertex3);
-            glm::vec3 midPoint13 = findMidpoint(vertex1, vertex3);
-
-            GLuint mp12Index;
-            GLuint mp23Index;
-            GLuint mp13Index;
-
-            auto iter = vertexLookup.find(midPoint12);
-            if(iter != vertexLookup.end()) { //It is in the map
-                mp12Index = iter->second;
-            } else { //Not in the map
-                mp12Index = vertices.size();
-                vertices.push_back(midPoint12);
-                vertexLookup[midPoint12] = mp12Index;
-            }
-
-            iter = vertexLookup.find(midPoint23);
-            if(iter != vertexLookup.end()) { //It is in the map
-                mp23Index = iter->second;
-            } else { //Not in the map
-                mp23Index = vertices.size();
-                vertices.push_back(midPoint23);
-                vertexLookup[midPoint23] = mp23Index;
-            }
-
-            iter = vertexLookup.find(midPoint13);
-            if(iter != vertexLookup.end()) { //It is in the map
-                mp13Index = iter->second;
-            } else { //Not in the map
-                mp13Index = vertices.size();
-                vertices.push_back(midPoint13);
-                vertexLookup[midPoint13] = mp13Index;
-            }
-
-            newIndices.push_back(oldIndices[j]);
-            newIndices.push_back(mp12Index);
-            newIndices.push_back(mp13Index);
-
-            newIndices.push_back(mp12Index);
-            newIndices.push_back(oldIndices[j + 1]);
-            newIndices.push_back(mp23Index);
-
-            newIndices.push_back(mp13Index);
-            newIndices.push_back(mp23Index);
-            newIndices.push_back(oldIndices[j + 2]);
-
-            newIndices.push_back(mp12Index);
-            newIndices.push_back(mp23Index);
-            newIndices.push_back(mp13Index);
-        }
-        oldIndices.swap(newIndices);
-        newIndices.clear();
-    }
-    _icosphereMeshes[lod] = createMesh(vertices.data(), vertices.size(), oldIndices.data(), oldIndices.size());
+    std::vector<ui32> indices;
+    std::vector<f32v3> positions;
+    vmesh::generateIcosphereMesh(lod, indices, positions);
+    _icosphereMeshes[lod] = createMesh(positions.data(), positions.size(), indices.data(), indices.size());
 }
 
 inline glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2) {
