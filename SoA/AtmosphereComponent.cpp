@@ -5,16 +5,7 @@
 AtmosphereComponent::AtmosphereComponent() {
 }
 
-AtmosphereComponent::AtmosphereComponent() {
-
-}
-
-
 AtmosphereComponent::~AtmosphereComponent() {
-}
-
-AtmosphereComponent::~AtmosphereComponent() {
-
 }
 
 void AtmosphereComponent::init() {

@@ -68,7 +68,6 @@ void MainMenuRenderPipeline::render() {
     _skyboxRenderStage->draw();
     _planetRenderStage->draw();
     m_spaceSystemRenderStage->draw();
-    _awesomiumRenderStage->draw();
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -82,6 +81,8 @@ void MainMenuRenderPipeline::render() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
     _hdrRenderStage->draw();
+
+    _awesomiumRenderStage->draw();
 
     // Check for errors, just in case
     checkGlError("MainMenuRenderPipeline::render()");

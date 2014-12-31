@@ -15,10 +15,10 @@
 #ifndef TestConsoleScreen_h__
 #define TestConsoleScreen_h__
 
-#include <Events.hpp>
-#include <IGameScreen.h>
-#include <LuaDevConsole.h>
-#include <TextInputListener.hpp>
+#include <Vorb/Events.hpp>
+#include <Vorb/IGameScreen.h>
+#include <Vorb/LuaDevConsole.h>
+#include <Vorb/TextInputListener.hpp>
 
 class TestConsoleScreen : public IGameScreen {
 public:

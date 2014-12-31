@@ -14,17 +14,12 @@
 
 #pragma once
 
-#ifndef AWESOMIUMAPI_H_
-#define AWESOMIUMAPI_H_
+#ifndef IAwesomiumAPI_h__
+#define IAwesomiumAPI_h__
 
 #include <Awesomium/JSArray.h>
 #include <Awesomium/JSValue.h>
-#include <map>
-
-#include "IGameScreen.h"
-
-namespace vorb {
-namespace ui {
+#include <Vorb/IGameScreen.h>
 
 /// class that implements the C++ callbacks for Awesomium
 /// The template argument should be the derived class
@@ -78,12 +73,6 @@ protected:
     Awesomium::JSObject* _interfaceObject; ///< the interface object to talk to
 };
 
-}
-}
+#include "IAwesomiumAPI.inl"
 
-// Need to include the cpp file in the header for templates
-#include "IAwesomiumAPI.cpp"
-
-namespace vui = vorb::ui;
-
-#endif // AWESOMIUMAPI_H_
+#endif // IAwesomiumAPI_h__

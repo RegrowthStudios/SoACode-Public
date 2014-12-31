@@ -18,9 +18,9 @@
 
 #include "SphericalTerrainPatch.h"
 #include "TerrainGenTextures.h"
-#include <GLProgram.h>
-#include <FullQuadVBO.h>
-#include <GBuffer.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/FullQuadVBO.h>
+#include <Vorb/GBuffer.h>
 
 class TerrainGenDelegate;
 class PlanetGenData;

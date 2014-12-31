@@ -1,16 +1,17 @@
 #include "stdafx.h"
 #include "SphericalTerrainPatch.h"
 
+#include <Vorb/GpuMemory.h>
+#include <Vorb/TextureRecycler.hpp>
+#include <Vorb/utils.h>
+
 #include "Camera.h"
 #include "Chunk.h"
-#include "GpuMemory.h"
 #include "RPC.h"
 #include "RenderUtils.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalTerrainGenerator.h"
-#include "TextureRecycler.hpp"
 #include "VoxelPlanetMapper.h"
-#include "utils.h"
 
 const f32v3 NormalMults[6] = {
     f32v3(1.0f, 1.0f, -1.0f), //TOP

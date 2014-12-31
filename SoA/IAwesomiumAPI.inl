@@ -1,16 +1,10 @@
-#include "stdafx.h"
-
-#include "IAwesomiumAPI.h"
-
 #include <Awesomium/STLHelpers.h>
+
 #include "Camera.h"
 #include "GameManager.h"
 
 #ifndef IAWESOMIUMAPI_CPP_
 #define IAWESOMIUMAPI_CPP_
-
-namespace vorb {
-namespace ui {
 
 template <class C>
 IAwesomiumAPI<C>::IAwesomiumAPI()  :
@@ -70,9 +64,6 @@ void IAwesomiumAPI<C>::print(const Awesomium::JSArray& args) {
     } else if (args[0].IsBoolean()) {
         std::cout << (int)args[0].ToBoolean() << std::endl;
     }
-}
-
-}
 }
 
 #endif IAWESOMIUMAPI_CPP_

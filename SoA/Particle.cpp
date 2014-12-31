@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "Particle.h"
 
+#include <Vorb/utils.h>
+
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "ParticleEngine.h"
-#include "utils.h"
 
 std::vector <ParticleType> particleTypes;
 

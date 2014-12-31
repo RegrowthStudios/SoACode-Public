@@ -6,9 +6,9 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <SDL/SDL.h>
+#include <Vorb/utils.h>
 
 #include "Options.h"
-#include "utils.h"
 
 Camera::Camera() {
     // Empty

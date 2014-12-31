@@ -14,11 +14,12 @@
 #ifndef MainMenuRenderPipeline_h__
 #define MainMenuRenderPipeline_h__
 
-#include "FullQuadVBO.h"
+#include <Vorb/FullQuadVBO.h>
+#include <Vorb/GLRenderTarget.h>
+#include <Vorb/IRenderPipeline.h>
+#include <Vorb/RTSwapChain.hpp>
+
 #include "GLProgramManager.h"
-#include "GLRenderTarget.h"
-#include "IRenderPipeline.h"
-#include "RTSwapChain.hpp"
 
 /// Forward declarations
 class AwesomiumRenderStage;

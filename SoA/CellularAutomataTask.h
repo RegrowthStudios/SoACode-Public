@@ -15,7 +15,7 @@
 #ifndef CellularAutomataTask_h__
 #define CellularAutomataTask_h__
 
-#include <IThreadPoolTask.h>
+#include <Vorb/IThreadPoolTask.h>
 
 #include "VoxPool.h"
 

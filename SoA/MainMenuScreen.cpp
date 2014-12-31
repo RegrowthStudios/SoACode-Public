@@ -1,9 +1,13 @@
 #include "stdafx.h"
+#include "MainMenuScreen.h"
 
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\glm.hpp>
 
 #include "App.h"
+
+#include "GamePlayScreen.h"
+#include "IAwesomiumAPI.h"
 #include "ChunkManager.h"
 #include "Errors.h"
 #include "FileSystem.h"
@@ -94,15 +98,13 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
 
-    GameManager::inputManager->pushEvent(e);
-
     // Check for reloading the UI
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
         std::cout << "\n\nReloading MainMenu UI...\n\n";
         _awesomiumInterface.destroy();
         _awesomiumInterface.init("UI/MainMenu/",
                                  "MainMenu_UI", 
-                                 "index.html", 
+                                 "index.html",
                                  _app->getWindow().getWidth(),
                                  _app->getWindow().getHeight(),
                                  this);
@@ -128,7 +130,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
                                 f64v3(glm::normalize(_camera.getDirection())) * _app->spaceSystem->getTargetRadius());
 
     _camera.update();
-    GameManager::inputManager->update();
+    GameManager::inputManager->update(); // TODO: Remove
 
     MeshManager* meshManager = _app->meshManager;
 
@@ -149,6 +151,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
                 break;
         }
     }
+
     // Check for shader reload
     if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
         GameManager::glProgramManager->destroy();

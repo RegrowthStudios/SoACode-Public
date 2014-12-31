@@ -4,12 +4,12 @@
 #include <algorithm>
 #include <functional>
 
-#include "RenderUtils.h"
+#include <Vorb/RasterizerState.h>
+
 #include "GameManager.h"
 #include "GLProgramManager.h"
 #include "global.h"
-#include "RasterizerState.h"
-
+#include "RenderUtils.h"
 
 f32m4 DebugRenderer::_modelMatrix(1.0);
 

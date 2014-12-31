@@ -1,18 +1,24 @@
 #include "stdafx.h"
 #include "PlanetRenderStage.h"
 
+
 #include "Camera.h"
+
+#include <Vorb/GLStates.h>
+#include <Vorb/GameWindow.h>
+#include <Vorb/RasterizerState.h>
+
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "ChunkIOManager.h"
 #include "DebugRenderer.h"
-#include "DepthState.h"
 #include "GLProgramManager.h"
 #include "GameManager.h"
-#include "GameWindow.h"
 #include "MeshManager.h"
 #include "Options.h"
-#include "RasterizerState.h"
+
+#include "Player.h"
+
 #include "SkyboxRenderer.h"
 #include "Texture2d.h"
 #include "VoxelEditor.h"

@@ -1,8 +1,9 @@
 #pragma once
-#include "global.h"
+#include <Vorb/Vorb.h>
 
 #include "Biome.h"
-#include "Vorb.h"
+
+#include "global.h"
 #include "IVoxelMapper.h"
 
 const int FREEZETEMP = 50;

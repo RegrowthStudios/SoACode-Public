@@ -1,15 +1,12 @@
 #include "stdafx.h"
 #include "WorldStructs.h"
-#include "RenderTask.h"
-
-#include <cstdlib>
 
 #include "BlockData.h"
 #include "Chunk.h"
 #include "Options.h"
 #include "GameManager.h"
 #include "GLProgramManager.h"
-
+#include "RenderTask.h"
 #include "Texture2d.h"
 
 MultiplePreciseTimer globalMultiplePreciseTimer; ///< for easy global benchmarking

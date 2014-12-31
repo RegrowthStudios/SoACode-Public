@@ -143,9 +143,6 @@
     <ClInclude Include="BlockData.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="BlockTextureAtlas.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
     <ClInclude Include="CAEngine.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
@@ -311,9 +308,6 @@
     <ClInclude Include="TextureAtlasStitcher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="VoxDefs.h">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelEditor.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
@@ -355,9 +349,6 @@
     </ClInclude>
     <ClInclude Include="VoxelIntervalTree.h">
       <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
-    <ClInclude Include="SmartVoxelContainer.h">
-      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -406,9 +397,6 @@
     </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureCache.h">
-      <Filter>SOA Files\Rendering\Images</Filter>
     </ClInclude>
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
@@ -590,6 +578,27 @@
     <ClInclude Include="AtmosphereComponent.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestBlockViewScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockPack.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="HardCodedIDs.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelMesh.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelVertices.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="SmartVoxelContainer.hpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumAPI.h">
+      <Filter>SOA Files\Screens</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -600,9 +609,6 @@
     </ClCompile>
     <ClCompile Include="BlockData.cpp">
       <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockTextureAtlas.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
     <ClCompile Include="CAEngine.cpp">
       <Filter>SOA Files\Voxel</Filter>
@@ -769,9 +775,6 @@
     <ClCompile Include="ChunkMesh.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="SmartVoxelContainer.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
     <ClCompile Include="VoxelMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
@@ -804,9 +807,6 @@
     </ClCompile>
     <ClCompile Include="MeshManager.cpp">
       <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureCache.cpp">
-      <Filter>SOA Files\Rendering\Images</Filter>
     </ClCompile>
     <ClCompile Include="PDA.cpp">
       <Filter>SOA Files\Game\Tools</Filter>
@@ -951,6 +951,15 @@
     </ClCompile>
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="AtmosphereComponent.cpp" />
+    <ClCompile Include="BlockPack.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="HardCodedIDs.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="TestBlockViewScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -973,6 +982,9 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
+    </None>
+    <None Include="IAwesomiumAPI.inl">
+      <Filter>SOA Files\Screens</Filter>
     </None>
   </ItemGroup>
 </Project>

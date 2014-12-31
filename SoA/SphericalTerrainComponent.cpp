@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponent.h"
 
+#include <Vorb/utils.h>
+
 #include "AxisRotationComponent.h"
 #include "Camera.h"
 #include "Errors.h"
 #include "NamePositionComponent.h"
 #include "PlanetLoader.h"
 #include "SphericalTerrainMeshManager.h"
-#include "utils.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>

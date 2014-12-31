@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "SphericalTerrainGenerator.h"
 
+#include <Vorb/GpuMemory.h>
+#include <Vorb/TextureRecycler.hpp>
+#include <Vorb/Timing.h>
+
 #include "Errors.h"
-#include "GpuMemory.h"
 #include "PlanetLoader.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalTerrainMeshManager.h"
-#include "TextureRecycler.hpp"
-#include "Timing.h"
 
 const ColorRGB8 DebugColors[12] {
     ColorRGB8(255, 0, 0), //TOP

@@ -15,7 +15,7 @@
 #ifndef OpaqueVoxelRenderStage_h__
 #define OpaqueVoxelRenderStage_h__
 
-#include "IRenderStage.h"
+#include <Vorb/IRenderStage.h>
 
 class GameRenderParams;
 class Camera;

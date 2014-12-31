@@ -4,18 +4,18 @@
 #include <set>
 #include <mutex>
 
-#include "Vorb.h"
-#include <IThreadPoolTask.h>
-#include "IVoxelMapper.h"
+#include <Vorb/Vorb.h>
+#include <Vorb/IThreadPoolTask.h>
 
 #include "Biome.h"
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
-#include "SmartVoxelContainer.h"
+#include "IVoxelMapper.h"
+#include "SmartVoxelContainer.hpp"
 #include "readerwriterqueue.h"
-#include "WorldStructs.h"
 #include "TerrainGenerator.h"
-#include "Vorb.h"
+#include "WorldStructs.h"
+
 #include "VoxelBits.h"
 #include "VoxelLightEngine.h"
 #include "VoxPool.h"

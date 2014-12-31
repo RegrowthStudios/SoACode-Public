@@ -15,8 +15,6 @@
 #ifndef MESHMANAGER_H_
 #define MESHMANAGER_H_
 
-#include <vector>
-
 class TerrainMeshMessage;
 class ChunkMeshData;
 class ParticleMeshMessage;

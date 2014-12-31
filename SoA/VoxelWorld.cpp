@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "VoxelWorld.h"
 
-#include "VoxelPlanetMapper.h"
+#include <Vorb/utils.h>
 
 #include "BlockData.h"
 #include "CAEngine.h"
@@ -15,7 +15,7 @@
 #include "Sound.h"
 #include "VoxelEditor.h"
 #include "global.h"
-#include "utils.h"
+#include "VoxelPlanetMapper.h"
 
 VoxelWorld::VoxelWorld() : _chunkManager(NULL) {
 

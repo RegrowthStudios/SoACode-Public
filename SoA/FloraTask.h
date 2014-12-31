@@ -15,7 +15,7 @@
 #ifndef FloraTask_h__
 #define FloraTask_h__
 
-#include <IThreadPoolTask.h>
+#include <Vorb/IThreadPoolTask.h>
 
 #include "FloraGenerator.h"
 #include "VoxPool.h"

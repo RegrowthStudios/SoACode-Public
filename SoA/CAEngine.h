@@ -1,7 +1,8 @@
 #pragma once
+#include <Vorb/Keg.h>
+
 #include "CellularAutomataTask.h"
 #include "Constants.h"
-#include "Keg.h"
 #include "LiquidData.h"
 
 class ChunkManager;
@@ -21,6 +22,9 @@ public:
 };
 KEG_TYPE_DECL(CaPhysicsData);
 
+typedef std::map<nString, CaPhysicsType*> CaPhysicsTypeDict;
+typedef std::vector<CaPhysicsType*> CaPhysicsTypeList;
+
 class CaPhysicsType {
 public:
 
@@ -32,7 +36,7 @@ public:
     /// @param filePath: path of the yml file
     /// @param ioManager: IOManager that will read the file
     /// @return true on success
-    bool loadFromYml(const nString& filePath, IOManager* ioManager);
+    bool loadFromYml(const nString& filePath, const IOManager* ioManager);
 
     // Getters
     const int& getCaIndex() const { return _caIndex; }
@@ -46,8 +50,8 @@ public:
     /// Clears all the cached types
     static void clearTypes();
 
-    static std::vector<CaPhysicsType*> typesArray; ///< Stores cached types
-    static std::map<nString, CaPhysicsType*> typesCache; ///< Stores cached types mapped to filepath
+    static CaPhysicsTypeList typesArray; ///< Stores cached types
+    static CaPhysicsTypeDict typesCache; ///< Stores cached types mapped to filepath
 private:
 
     CaPhysicsData _data; ///< The algorithm specific data

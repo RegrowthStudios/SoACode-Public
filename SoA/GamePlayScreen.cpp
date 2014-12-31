@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "GamePlayScreen.h"
 
+#include <Vorb/colors.h>
+#include <Vorb/Events.hpp>
+#include <Vorb/GpuMemory.h>
+#include <Vorb/SpriteFont.h>
+#include <Vorb/SpriteBatch.h>
+
 #include "Player.h"
 #include "App.h"
 #include "GameManager.h"
@@ -23,13 +29,8 @@
 #include "Inputs.h"
 #include "TexturePackLoader.h"
 #include "LoadTaskShaders.h"
-#include "GpuMemory.h"
-#include "SpriteFont.h"
-#include "SpriteBatch.h"
-#include "colors.h"
 #include "Options.h"
 #include "GamePlayScreenEvents.hpp"
-#include "Events.hpp"
 
 #define THREAD ThreadId::UPDATE
 
@@ -107,12 +108,45 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
         _renderPipeline.loadNightVision();
     });
+    m_onDrawMode = inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+        _renderPipeline.cycleDrawMode();
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (void* s, const vui::MouseMotionEvent& e) {
+        if (_inFocus) {
+            // Pass mouse motion to the player
+            _player->mouseMove(e.dx, e.dy);
+        }
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (void* s, const vui::MouseButtonEvent& e) {
+        if (isInGame()) {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+            _inFocus = true;
+        }
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (void* s, const vui::MouseButtonEvent& e) {
+        if (GameManager::voxelEditor->isEditing()) {
+            if (e.button == vui::MouseButton::LEFT) {
+                GameManager::voxelEditor->editVoxels(_player->leftEquippedItem);
+                puts("EDIT VOXELS");
+            } else if (e.button == vui::MouseButton::RIGHT) {
+                GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
+                puts("EDIT VOXELS");
+            }
+        }
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&] (void* s, const vui::MouseEvent& e) {
+        _inFocus = true;
+    });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&] (void* s, const vui::MouseEvent& e) {
+        _inFocus = false;
+    });
 
     GameManager::inputManager->startInput();
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
     GameManager::inputManager->stopInput();
+    m_hooks.dispose();
 
     InputManager* inputManager = GameManager::inputManager;
     inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
@@ -145,6 +179,9 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, _onNightVisionReload);
     delete _onNightVisionReload;
 
+    inputManager->unsubscribe(INPUT_DRAW_MODE, InputManager::EventType::DOWN, m_onDrawMode);
+    delete m_onDrawMode;
+
     _threadRunning = false;
     _updateThread->join();
     delete _updateThread;
@@ -155,35 +192,7 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
 }
 
 void GamePlayScreen::onEvent(const SDL_Event& e) {
-
-    // Push the event to the input manager
-    GameManager::inputManager->pushEvent(e);
-
-    // Handle custom input
-    switch (e.type) {
-        case SDL_MOUSEMOTION:
-            if (_inFocus) {
-                // Pass mouse motion to the player
-                _player->mouseMove(e.motion.xrel, e.motion.yrel);
-            }
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            onMouseDown(e);
-            break;
-        case SDL_MOUSEBUTTONUP:
-            onMouseUp(e);
-            break;
-        case SDL_WINDOWEVENT:
-            if (e.window.type == SDL_WINDOWEVENT_LEAVE || e.window.type == SDL_WINDOWEVENT_FOCUS_LOST){
-                SDL_SetRelativeMouseMode(SDL_FALSE);
-                _inFocus = false;
-            } else if (e.window.type == SDL_WINDOWEVENT_ENTER) {
-                SDL_SetRelativeMouseMode(SDL_TRUE);
-                _inFocus = true;
-            }
-        default:
-            break;
-    }
+    // Empty
 }
 
 void GamePlayScreen::update(const GameTime& gameTime) {
@@ -269,25 +278,6 @@ void GamePlayScreen::handleInput() {
 
     // Update inputManager internal state
     inputManager->update();
-}
-
-void GamePlayScreen::onMouseDown(const SDL_Event& e) {
-    if (isInGame()) {
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-        _inFocus = true;
-    }
-}
-
-void GamePlayScreen::onMouseUp(const SDL_Event& e) {
-    if (e.button.button == SDL_BUTTON_LEFT) {
-        if (GameManager::voxelEditor->isEditing()) {
-            GameManager::voxelEditor->editVoxels(_player->leftEquippedItem);
-        }
-    } else if (e.button.button == SDL_BUTTON_RIGHT) {
-        if (GameManager::voxelEditor->isEditing()) {
-            GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
-        }
-    }
 }
 
 void GamePlayScreen::updatePlayer() {

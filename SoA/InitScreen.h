@@ -1,5 +1,5 @@
 #pragma once
-#include "IGameScreen.h"
+#include <Vorb/IGameScreen.h>
 
 class App;
 class SpriteBatch;

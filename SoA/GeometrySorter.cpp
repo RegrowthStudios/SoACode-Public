@@ -1,9 +1,9 @@
 #include "stdafx.h"
-
 #include "GeometrySorter.h"
 
+#include <Vorb/utils.h>
+
 #include "ChunkRenderer.h"
-#include "utils.h"
 
 std::vector <Distanceclass> GeometrySorter::_distBuffer;
 

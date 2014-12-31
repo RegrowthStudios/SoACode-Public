@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AwesomiumRenderStage.h"
-#include "IAwesomiumInterface.h"
+
+#include <Vorb/IAwesomiumInterface.h>
 
 
 AwesomiumRenderStage::AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface, vg::GLProgram* glProgram) :

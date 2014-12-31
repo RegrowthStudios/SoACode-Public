@@ -1,9 +1,6 @@
 #pragma once
-#include "stdafx.h"
 #include "OpenGLStructs.h"
 #include "BlockTextureMethods.h"
-
-#include <vector>
 
 enum class MeshType {
     NONE, 

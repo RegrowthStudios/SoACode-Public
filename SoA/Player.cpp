@@ -4,6 +4,8 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include <Vorb/utils.h>
+
 #include "BlockData.h"
 #include "GameManager.h"
 #include "InputManager.h"
@@ -13,7 +15,6 @@
 #include "Rendering.h"
 #include "Rendering.h"
 #include "Texture2d.h"
-#include "utils.h"
 
 // TODO: Get Rid Of This
 using namespace glm;
@@ -22,7 +23,7 @@ using namespace glm;
 
 Player::Player() : scannedBlock(0),
                     _mass(100),
-                    headInBlock(NONE),
+                    headInBlock(0),
                     rightEquippedItem(NULL),
                     leftEquippedItem(NULL),
                     lightActive(0),

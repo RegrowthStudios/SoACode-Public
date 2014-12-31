@@ -1,6 +1,6 @@
 #pragma once
-#include "OpenGLStructs.h"
 #include "BlockData.h"
+#include "OpenGLStructs.h"
 
 #define NUM_FLORA_MESHES 4
 #define NUM_FLORA_VERTICES 36

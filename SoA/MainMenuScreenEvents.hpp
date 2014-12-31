@@ -15,7 +15,8 @@
 #ifndef MainMenuScreenEvents_h__
 #define MainMenuScreenEvents_h__
 
-#include "Events.hpp"
+#include <Vorb/Events.hpp>
+
 #include "MainMenuScreen.h"
 #include "LoadTaskShaders.h"
 

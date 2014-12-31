@@ -1,9 +1,13 @@
 #include "stdafx.h"
 #include "LoadScreen.h"
 
+#include <Vorb/colors.h>
+#include <Vorb/GLStates.h>
+#include <Vorb/SpriteFont.h>
+#include <Vorb/SpriteBatch.h>
+
 #include "App.h"
-#include "BlockData.h"
-#include "colors.h"
+#include "BlockPack.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "GameManager.h"
@@ -18,13 +22,7 @@
 #include "MainMenuScreen.h"
 #include "ParticleEmitter.h"
 #include "Player.h"
-#include "SamplerState.h"
 #include "TexturePackLoader.h"
-
-#include "SpriteFont.h"
-#include "SpriteBatch.h"
-#include "RasterizerState.h"
-#include "DepthState.h"
 
 // TEMPORARY
 #include "StarSystemScreen.h"
@@ -139,7 +137,7 @@ void LoadScreen::update(const GameTime& gameTime) {
         SetBlockAvgTexColors();
 
         //load the emitters
-        for (int i = 0; i < 4096; i++) {
+        for (int i = 0; i < Blocks.size(); i++) {
             if (Blocks[i].active) {
                 if (Blocks[i].emitterName.size()) {
                 //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);

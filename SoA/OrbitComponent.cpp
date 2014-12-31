@@ -6,8 +6,9 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include <Vorb/GLProgram.h>
+
 #include "Constants.h"
-#include "GLProgram.h"
 #include "NamePositionComponent.h"
 #include "RenderUtils.h"
 

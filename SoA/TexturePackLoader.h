@@ -16,12 +16,13 @@
 #ifndef TEXTUREPACKLOADER_H_
 #define TEXTUREPACKLOADER_H_
 
-#include "TextureAtlasStitcher.h"
-#include "BlockData.h"
-#include "TextureCache.h"
-#include "IOManager.h"
-
 #include <set>
+
+#include <Vorb/IOManager.h>
+#include <Vorb/TextureCache.h>
+
+#include "TextureAtlasStitcher.h"
+#include "BlockPack.h"
 
 /// Information stored in pack.yml
 class TexturePackInfo {
@@ -82,7 +83,7 @@ public:
 
     /// Sets the textures for blocks.
     /// Should be called after uploadTextures()
-    void setBlockTextures(std::vector<Block>& blocks);
+    void setBlockTextures(BlockPack& blocks);
 
     /// Loads the pack file for this texture pack
     /// @param filePath: The path of the pack file

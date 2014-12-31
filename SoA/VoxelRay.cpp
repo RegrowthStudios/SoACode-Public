@@ -3,7 +3,7 @@
 
 #include <float.h>
 
-#include "utils.h"
+#include <Vorb/utils.h>
 
 VoxelRay::VoxelRay(f64v3 start, f64v3 direction) {
     _startPos = start;

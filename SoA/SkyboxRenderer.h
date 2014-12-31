@@ -14,7 +14,8 @@
 #ifndef SkyboxRenderer_h__
 #define SkyboxRenderer_h__
 
-#include "GLProgram.h"
+#include <Vorb/GLProgram.h>
+
 #include "Texture2d.h"
 
 class SkyboxVertex {

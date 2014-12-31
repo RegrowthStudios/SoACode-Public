@@ -14,8 +14,8 @@
 #ifndef AwesomiumRenderStage_h__
 #define AwesomiumRenderStage_h__
 
-#include "IRenderStage.h"
-#include "GLProgram.h"
+#include <Vorb/IRenderStage.h>
+#include <Vorb/GLProgram.h>
 
 class IAwesomiumInterface;
 

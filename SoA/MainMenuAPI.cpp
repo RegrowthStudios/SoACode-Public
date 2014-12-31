@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "MainMenuAPI.h"
 
-#include "MainMenuScreen.h"
-#include "GameManager.h"
-
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include "MainMenuScreen.h"
+#include "GameManager.h"
 
 void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 

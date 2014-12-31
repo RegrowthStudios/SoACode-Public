@@ -1,10 +1,11 @@
 #pragma once
-#include "Constants.h"
-
 #include <deque>
 #include <map>
 
-#include "Vorb.h"
+#include <ZLIB/zconf.h>
+#include <Vorb/Vorb.h>
+
+#include "Constants.h"
 #include "IVoxelMapper.h"
 
 //Size of a sector in bytes
@@ -120,7 +121,7 @@ private:
 
     ui8 _chunkHeaderBuffer[sizeof(ChunkHeader)];
     ui8 _regionFileHeaderBuffer[sizeof(RegionFileHeader)];
-
+    
     ui32 _maxCacheSize;
     ui32 _chunkOffset; ///< Offset into the chunk data
     uLongf _chunkBufferSize;

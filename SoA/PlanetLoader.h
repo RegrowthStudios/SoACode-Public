@@ -18,10 +18,11 @@
 
 #pragma once
 
-#include <GLProgram.h>
-#include <Keg.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/Keg.h>
+#include <Vorb/TextureCache.h>
+
 #include <vector>
-#include "TextureCache.h"
 #include "Biome.h"
 
 class IOManager;

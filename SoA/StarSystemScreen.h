@@ -15,17 +15,18 @@
 #ifndef StarSystemScreen_h__
 #define StarSystemScreen_h__
 
-#include "IGameScreen.h"
-#include <GLProgram.h>
 
 #include "Camera.h"
-#include "FullQuadVBO.h"
-#include "GLRenderTarget.h"
 #include "HdrRenderStage.h"
-#include "KeyboardEventDispatcher.h"
-#include "MouseInputDispatcher.h"
-#include "RTSwapChain.hpp"
-#include "TextureCache.h"
+
+#include <Vorb/FullQuadVBO.h>
+#include <Vorb/GLProgram.h>
+#include <Vorb/GLRenderTarget.h>
+#include <Vorb/IGameScreen.h>
+#include <Vorb/KeyboardEventDispatcher.h>
+#include <Vorb/MouseInputDispatcher.h>
+#include <Vorb/RTSwapChain.hpp>
+#include <Vorb/TextureCache.h>
 
 class App;
 class SkyboxRenderStage;

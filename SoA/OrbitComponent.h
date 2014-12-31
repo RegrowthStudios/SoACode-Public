@@ -18,8 +18,8 @@
 #include <SDL/SDL_stdinc.h>
 #include <mutex>
 
-#include "GpuMemory.h"
-#include "Entity.h"
+#include <Vorb/GpuMemory.h>
+#include <Vorb/Entity.h>
 
 namespace vorb {
     namespace core {

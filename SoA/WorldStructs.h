@@ -1,10 +1,11 @@
 #pragma once
 #include <queue>
 
+#include <Vorb/Timing.h>
+
 #include "Constants.h"
 #include "OpenGLStructs.h"
 #include "Texture2d.h"
-#include "Timing.h"
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 

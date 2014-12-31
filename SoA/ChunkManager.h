@@ -7,12 +7,12 @@
 #include <set>
 #include <thread>
 
-#include "Vorb.h"
+#include <Vorb/Vorb.h>
+#include <Vorb/FixedSizeArrayRecycler.hpp>
 
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkIOManager.h"
-#include "FixedSizeArrayRecycler.hpp"
 #include "GameManager.h"
 #include "IVoxelMapper.h"
 #include "VoxPool.h"
@@ -205,9 +205,6 @@ private:
     /// @param relativeMapData: the voxelMapData that this chunk is relative to.
     /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
     void makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset = i32v2(0));
-
-    /// Initializes minerals. This function is temporary.
-    void initializeMinerals();
 
     /// Updates the load list
     /// @param maxTicks: maximum time the function is allowed

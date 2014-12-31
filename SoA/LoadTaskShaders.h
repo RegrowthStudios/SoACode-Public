@@ -1,8 +1,8 @@
 #pragma once
 #include <SDL/SDL.h>
 
-#include <RPC.h>
-#include <SpriteBatch.h>
+#include <Vorb/RPC.h>
+#include <Vorb/SpriteBatch.h>
 
 #include "Errors.h"
 #include "LoadMonitor.h"

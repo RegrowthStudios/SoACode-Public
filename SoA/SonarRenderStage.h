@@ -15,9 +15,10 @@
 #ifndef SonarRenderStage_h__
 #define SonarRenderStage_h__
 
-#include "IRenderStage.h"
+#include <Vorb/IRenderStage.h>
 
 class Camera;
+class GameRenderParams;
 class MeshManager;
 
 class SonarRenderStage : public vg::IRenderStage

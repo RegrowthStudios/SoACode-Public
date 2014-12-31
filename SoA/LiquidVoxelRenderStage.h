@@ -15,7 +15,7 @@
 #ifndef LiquidVoxelRenderStage_h__
 #define LiquidVoxelRenderStage_h__
 
-#include "IRenderStage.h"
+#include <Vorb/IRenderStage.h>
 
 class MeshManager;
 class GameRenderParams;

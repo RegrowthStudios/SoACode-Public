@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RPC.h>
-#include <IGameScreen.h>
-#include <Random.h>
+#include <Vorb/IGameScreen.h>
+#include <Vorb/Random.h>
+#include <Vorb/RPC.h>
 
 #include "LoadMonitor.h"
 #include "LoadBar.h"

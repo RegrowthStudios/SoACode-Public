@@ -15,15 +15,17 @@
 #ifndef SpaceSystem_h__
 #define SpaceSystem_h__
 
+
 #include "AxisRotationComponent.h"
-#include "ComponentTable.hpp"
-#include "ECS.h"
-#include "GLProgram.h"
-#include "IOManager.h"
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
 #include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
+
+#include <Vorb/GLProgram.h>
+#include <Vorb/IOManager.h>
+#include <Vorb/ComponentTable.hpp>
+#include <Vorb/ECS.h>
 
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"

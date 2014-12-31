@@ -1,7 +1,7 @@
 #pragma once
 #include <chrono>
 
-#include "GLProgram.h"
+#include <Vorb/GLProgram.h>
 
 const static float GOLDEN_RATIO = 1.61803398875f;
 

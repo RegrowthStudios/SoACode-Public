@@ -1,6 +1,6 @@
 #pragma once
-
 #include <unordered_map>
+
 #include "concurrentqueue.h"
 
 enum class MessageID {

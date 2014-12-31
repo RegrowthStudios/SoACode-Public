@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PhysicsBlocks.h"
 
+#include <Vorb/utils.h>
+
 #include "Actor.h"
 #include "BlockData.h"
 #include "Chunk.h"
@@ -18,8 +20,6 @@
 #include "VoxelMesher.h"
 
 f32m4 PhysicsBlockBatch::worldMatrix(1.0);
-
-#include "utils.h"
 
 void PhysicsBlockMesh::createVao(const vg::GLProgram* glProgram) {
     if (vaoID == 0) {

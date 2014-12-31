@@ -12,8 +12,9 @@
 #include "Options.h"
 #include "RenderUtils.h"
 #include "Texture2d.h"
-#include "Texture2d.h"
+
 #include "VoxelMesher.h"
+
 #include "WorldStructs.h"
 
 

@@ -15,8 +15,8 @@
 #ifndef TerrainGenTextures_h__
 #define TerrainGenTextures_h__
 
-#include <gtypes.h>
-#include <glenums.h>
+#include <Vorb/gtypes.h>
+#include <Vorb/glenums.h>
 
 #define TERRAINGEN_INTERNAL_FORMAT vg::TextureInternalFormat::RGBA32F
 

@@ -3,22 +3,23 @@
 #include "App.h"
 #include "Camera.h"
 #include "DebugRenderer.h"
-#include "DepthState.h"
 #include "GLProgramManager.h"
-#include "IOManager.h"
-#include "Keg.h"
 #include "PlanetLoader.h"
 #include "PlanetLoader.h"
 #include "RenderUtils.h"
-#include "SamplerState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainMeshManager.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
-#include "TextureRecycler.hpp"
-#include "colors.h"
-#include "utils.h"
+
+#include <Vorb/DepthState.h>
+#include <Vorb/IOManager.h>
+#include <Vorb/Keg.h>
+#include <Vorb/SamplerState.h>
+#include <Vorb/SpriteBatch.h>
+#include <Vorb/SpriteFont.h>
+#include <Vorb/TextureRecycler.hpp>
+#include <Vorb/colors.h>
+#include <Vorb/utils.h>
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>

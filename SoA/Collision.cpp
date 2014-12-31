@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "Collision.h"
 
-#include "BlockData.h"
+#include <Vorb/utils.h>
+
+#include "BlockPack.h"
 #include "Chunkmanager.h"
 #include "Player.h"
-#include "utils.h"
 #include "VoxelNavigation.inl"
 
 void blockCollision(Player* player, Chunk* chunk, Chunk* lockedChunk, ui16 blockType, i32 c, f64 bdx, f64 bdy, f64 bdz, f64 dx, f64 dy, f64 dz);

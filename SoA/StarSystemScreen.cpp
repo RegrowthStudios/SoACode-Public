@@ -1,18 +1,20 @@
 #include "stdafx.h"
 #include "StarSystemScreen.h"
 
+#include <Vorb/DepthState.h>
+#include <Vorb/IOManager.h>
+#include <Vorb/InputDispatcher.h>
+#include <Vorb/Timing.h>
+
 #include "App.h"
-#include "DepthState.h"
+
 #include "GameManager.h"
-#include "IOManager.h"
-#include "InputDispatcher.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "LoadTaskShaders.h"
 #include "Options.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystem.h"
-#include <Timing.h>
 #include "SpaceSystemRenderStage.h"
 #include "MeshManager.h"
 

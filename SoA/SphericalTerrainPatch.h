@@ -17,8 +17,8 @@
 
 #include "TerrainGenerator.h"
 
-#include "gtypes.h"
-#include "GLProgram.h"
+#include <Vorb/gtypes.h>
+#include <Vorb/GLProgram.h>
 
 enum class CubeFace { TOP, LEFT, RIGHT, FRONT, BACK, BOTTOM };
 

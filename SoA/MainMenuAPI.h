@@ -21,7 +21,7 @@ class IGameScreen;
 class MainMenuScreen;
 
 /// Awesomium API for MainMenuScreen
-class MainMenuAPI : public vui::IAwesomiumAPI<MainMenuAPI>
+class MainMenuAPI : public IAwesomiumAPI<MainMenuAPI>
 {
 public:
     /// Initializes the API and hooks up all functions

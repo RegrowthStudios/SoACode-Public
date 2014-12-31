@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 
-#include "ImageLoader.h"
-
 #include "NoiseShaderCode.hpp"
 #include "Errors.h"
 
-#include <GpuMemory.h>
-#include <IOManager.h>
+#include <Vorb/ImageLoader.h>
+#include <Vorb/GpuMemory.h>
+#include <Vorb/IOManager.h>
 
 enum class TerrainFunction {
     NOISE,
