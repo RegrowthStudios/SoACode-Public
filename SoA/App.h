@@ -14,6 +14,7 @@ class MeshManager;
 class TexturePackLoader;
 class SpaceSystem;
 class StarSystemScreen;
+class IOManager;
 
 class App : public MainGame {
 public:
@@ -24,18 +25,20 @@ public:
     virtual void onExit();
 
     // Accessible Pointers To Screens
-    InitScreen* scrInit;
-    LoadScreen* scrLoad;
-    MainMenuScreen* scrMainMenu;
-    GamePlayScreen* scrGamePlay;
-    StarSystemScreen* scrStarSystem;
+    InitScreen* scrInit = nullptr;
+    LoadScreen* scrLoad = nullptr;
+    MainMenuScreen* scrMainMenu = nullptr;
+    GamePlayScreen* scrGamePlay = nullptr;
+    StarSystemScreen* scrStarSystem = nullptr;
 
 
-    SpaceSystem* spaceSystem; ///< Space ECS
-    DevScreen* scrDev;
+    SpaceSystem* spaceSystem = nullptr; ///< Space ECS
+    DevScreen* scrDev = nullptr;
     std::vector<IGameScreen*> scrTests;
+    IOManager* m_saveFileIom = nullptr;
 
-    MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
+    // TODO(Ben): This can go somewhere else v v v
+    MeshManager* meshManager = nullptr; ///< Stores chunk, terrain, particle, and physics block meshes
 };
 
 #endif // App_h_

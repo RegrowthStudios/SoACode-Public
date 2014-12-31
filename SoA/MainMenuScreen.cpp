@@ -184,10 +184,12 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (fileManager.setSaveFile(fileName) != 0) {
+    if (!_app->m_saveFileIom->directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
+    _app->m_saveFileIom->setSearchDirectory(fileName.c_str());
+
     // Check the planet string
     nString planetName = fileManager.getWorldString(fileName + "/World/");
     if (planetName == "") {
@@ -195,8 +197,6 @@ void MainMenuScreen::loadGame(const nString& fileName) {
         return;
     }
 
-    // Set the save file path
-    GameManager::saveFilePath = fileName;
     // Check the chunk version
     GameManager::chunkIOManager->checkVersion();
 
@@ -209,17 +209,16 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (fileManager.setSaveFile(fileName) != 0) {
+    if (!_app->m_saveFileIom->directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-   
+    _app->m_saveFileIom->setSearchDirectory(fileName.c_str());
+
     // Save the world file
     nString worldText("Aldrin");
     _ioManager.writeStringToFile((fileName + "/World/world.txt").c_str(), worldText);
 
-    // Set the save file path
-    GameManager::saveFilePath = fileName;
     // Save the chunk version
     GameManager::chunkIOManager->saveVersionFile();
 

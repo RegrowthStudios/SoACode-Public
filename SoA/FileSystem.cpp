@@ -187,18 +187,6 @@ nString FileManager::getWorldString(nString filePath) {
     return rv;
 }
 
-i32 FileManager::setSaveFile(nString filePath) {
-    class stat statbuf;
-
-    if (stat(filePath.c_str(), &statbuf) != 0) {
-        pError("Save file does not exist.");
-        return 1;
-    }
-
-    GameManager::saveFilePath = filePath;
-    return 0;
-}
-
 inline void readLine(ui8* buffer, cString dest, i32& size) {
 
     for (int i = 0; i < size; i++) {

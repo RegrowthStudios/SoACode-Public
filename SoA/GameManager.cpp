@@ -42,7 +42,6 @@ Uint32 GameManager::maxLodTicks = 8;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 PhysicsEngine *GameManager::physicsEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
-ChunkIOManager* GameManager::chunkIOManager = nullptr;
 MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
@@ -55,7 +54,6 @@ TerrainGenerator* GameManager::terrainGenerator = nullptr;
 Player *GameManager::player;
 std::vector <Marker> GameManager::markers;
 Planet *GameManager::planet = nullptr;
-nString GameManager::saveFilePath = "";
 GameStates GameManager::gameState = GameStates::MAINMENU;
 
 void GameManager::initializeSystems() {
@@ -63,7 +61,6 @@ void GameManager::initializeSystems() {
         voxelEditor = new VoxelEditor();
         physicsEngine = new PhysicsEngine();
         soundEngine = new SoundEngine();
-        chunkIOManager = new ChunkIOManager();
         messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");

@@ -78,6 +78,7 @@ void App::onInit() {
     meshManager = new MeshManager;
     spaceSystem = new SpaceSystem(this);
     spaceSystem->init(GameManager::glProgramManager);
+    m_saveFileIom = new IOManager;
 }
 
 void App::onExit() {
@@ -87,14 +88,14 @@ void App::onExit() {
 }
 
 App::~App() {
-#define COND_DEL(SCR) if (SCR) { delete SCR; SCR = nullptr; }
 
-    COND_DEL(scrInit)
-    COND_DEL(scrLoad)
-    // TODO: Why do these break
-    //COND_DEL(scrMainMenu)
-    //COND_DEL(scrGamePlay)
-    COND_DEL(scrDev)
+
+    delete scrInit;
+    delete scrLoad;
+    delete scrMainMenu;
+    delete scrGamePlay;
+    delete scrDev;
+    delete scrStarSystem; 
 
     delete meshManager;
 }

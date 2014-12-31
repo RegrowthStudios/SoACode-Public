@@ -90,7 +90,6 @@ public:
         return (!m_pda.isOpen() && !m_pauseMenu.isOpen());
     }
 
-
 private:
 
     /// Initializes the voxel world
@@ -115,9 +114,12 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
+    /// Loads the player save file
+    bool loadPlayerFile(const cString filePath, Player* player);
+
     VoxelWorld* m_voxelWorld = nullptr;
 
-    Player* m_player; ///< The current player
+    Player* m_player = nullptr; ///< The current player
 
     PDA m_pda; ///< The PDA
 
@@ -129,22 +131,22 @@ private:
     //Camera _voxelCamera; ///< The camera for rendering the voxels
     //Camera _planetCamera; ///< The camera for rendering the planet
 
-    std::thread* m_updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
+    std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     /// Delegates
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    IDelegate<ui32>* m_onPauseKeyDown;
-    IDelegate<ui32>* m_onFlyKeyDown;
-    IDelegate<ui32>* m_onGridKeyDown;
-    IDelegate<ui32>* m_onReloadTexturesKeyDown;
-    IDelegate<ui32>* m_onReloadShadersKeyDown;
-    IDelegate<ui32>* m_onInventoryKeyDown;
-    IDelegate<ui32>* m_onReloadUIKeyDown;
-    IDelegate<ui32>* m_onHUDKeyDown;
-    IDelegate<ui32>* m_onNightVisionToggle;
-    IDelegate<ui32>* m_onNightVisionReload;
-    IDelegate<ui32>* m_onDrawMode;
+    IDelegate<ui32>* m_onPauseKeyDown = nullptr;
+    IDelegate<ui32>* m_onFlyKeyDown = nullptr;
+    IDelegate<ui32>* m_onGridKeyDown = nullptr;
+    IDelegate<ui32>* m_onReloadTexturesKeyDown = nullptr;
+    IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
+    IDelegate<ui32>* m_onInventoryKeyDown = nullptr;
+    IDelegate<ui32>* m_onReloadUIKeyDown = nullptr;
+    IDelegate<ui32>* m_onHUDKeyDown = nullptr;
+    IDelegate<ui32>* m_onNightVisionToggle = nullptr;
+    IDelegate<ui32>* m_onNightVisionReload = nullptr;
+    IDelegate<ui32>* m_onDrawMode = nullptr;
     GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
     #define MESSAGES_PER_FRAME 300

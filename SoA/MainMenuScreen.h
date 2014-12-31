@@ -78,7 +78,7 @@ private:
 
     CinematicCamera _camera; ///< The camera that looks at the planet from space
 
-    std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
+    std::thread* _updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool _threadRunning; ///< True when the thread should be running
 
     IDelegate<ui32>* _onReloadShadersKeyDown = nullptr;

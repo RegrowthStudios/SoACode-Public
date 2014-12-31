@@ -26,7 +26,6 @@ public:
     i32 createSaveFile(nString filePath);
     i32 createWorldFile(nString filePath);
     nString getWorldString(nString filePath);
-    i32 setSaveFile(nString filePath);
     i32 getSaveListSize();
 
     i32 getParticleType(nString fileName);

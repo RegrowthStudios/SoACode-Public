@@ -43,7 +43,6 @@ public:
     static class VoxelEditor* voxelEditor;
     static class PhysicsEngine* physicsEngine;
     static class SoundEngine* soundEngine;
-    static class ChunkIOManager* chunkIOManager;
     static class MessageManager* messageManager;
     static class TerrainGenerator* terrainGenerator;
 
@@ -60,7 +59,6 @@ public:
     static class vg::TextureCache* textureCache;
 
     static GameStates gameState;
-    static nString saveFilePath;
 private:
     static bool _systemsInitialized;
 

@@ -185,6 +185,8 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     m_threadRunning = false;
     m_updateThread->join();
     delete m_updateThread;
+    delete m_player;
+    delete m_voxelWorld;
     _app->meshManager->destroy();
     m_pda.destroy();
     m_renderPipeline.destroy();
@@ -247,15 +249,15 @@ i32 GamePlayScreen::getWindowHeight() const {
 
 void GamePlayScreen::initVoxels() {
     bool atSurface = 1;
-    player = playr;
+    m_player = new Player;
 
-    if (player) {
-        if (fileManager.loadPlayerFile(player)) {
-            atSurface = 0; //dont need to set height
-        }
+ 
+    if (fileManager.loadPlayerFile(player)) {
+        atSurface = 0; //dont need to set height
     }
+
     m_voxelWorld = new VoxelWorld;
-    voxelWorld->initialize(player->facePosition, &player->voxelMapData, 0);
+    m_voxelWorld->initialize(player->facePosition, &player->voxelMapData, 0);
 
     if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
 
@@ -452,4 +454,33 @@ void GamePlayScreen::updateWorldCameraClip() {
     // The world camera has a dynamic clipping plane
     m_player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     m_player->getWorldCamera().updateProjection();
+}
+
+bool GamePlayScreen::loadPlayerFile(const cString filePath, Player* player) {
+    //loadMarkers(player);
+    
+    FILE *file = NULL;
+    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
+    if (file == NULL) {
+        //file doesnt exist so set spawn to random
+        srand(time(NULL));
+        int spawnFace = rand() % 4 + 1;
+        player->voxelMapData.face = spawnFace;
+        return 0;
+    }
+    GLubyte buffer[2048];
+    int n;
+    n = fread(buffer, 1, 1024, file);
+    int byte = 0;
+    player->facePosition.x = BufferUtils::extractFloat(buffer, (byte++) * 4);
+    player->facePosition.y = BufferUtils::extractFloat(buffer, (byte++) * 4);
+    player->facePosition.z = BufferUtils::extractFloat(buffer, (byte++) * 4);
+    player->voxelMapData.face = BufferUtils::extractInt(buffer, (byte++) * 4);
+    player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
+    player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
+    player->isFlying = BufferUtils::extractBool(buffer, byte * 4);
+    fclose(file);
+    player->voxelMapData.ipos = fastFloor(player->facePosition.z / (double)CHUNK_WIDTH);
+    player->voxelMapData.jpos = fastFloor(player->facePosition.x / (double)CHUNK_WIDTH);
+    return 1;
 }
