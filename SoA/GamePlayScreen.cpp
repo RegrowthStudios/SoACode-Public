@@ -313,6 +313,8 @@ void GamePlayScreen::updateThreadFunc() {
 
     Message message;
 
+    static int saveStateTicks = SDL_GetTicks();
+
     while (_threadRunning) {
         fpsLimiter.beginFrame();
 
@@ -320,14 +322,41 @@ void GamePlayScreen::updateThreadFunc() {
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
         GameManager::soundEngine->update();
 
-        while (messageManager->tryDeque(THREAD, message)) {
+        //while (messageManager->tryDeque(THREAD, message)) {
             // Process the message
-            switch (message.id) {
+        //    switch (message.id) {
                 
-            }
+        //    }
+       // }
+
+
+
+
+        HeightData tmpHeightData;
+        if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
+            player->currBiome = tmpHeightData.biome;
+            player->currTemp = tmpHeightData.temperature;
+            player->currHumidity = tmpHeightData.rainfall;
+        } else {
+            player->currBiome = NULL;
+            player->currTemp = -1;
+            player->currHumidity = -1;
         }
 
-        GameManager::update();
+        voxelWorld->update(&player->getChunkCamera());
+
+        if (inputManager->getKey(INPUT_BLOCK_SCANNER)) {
+            player->scannedBlock = voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(player->chunkDirection()), player->headPosition);
+        } else {
+            player->scannedBlock = NONE;
+        }
+
+        particleEngine.update();
+
+        if (SDL_GetTicks() - saveStateTicks >= 20000) {
+            saveStateTicks = SDL_GetTicks();
+            savePlayerState();
+        }
 
         physicsFps = fpsLimiter.endFrame();
     }

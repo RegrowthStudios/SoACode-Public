@@ -376,7 +376,7 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
         //Only parse the first
         break;
     }
-
+    return true;
 }
 
 void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body) {

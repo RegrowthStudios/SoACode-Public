@@ -273,6 +273,7 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, flo
         // Move along Z axis
         directionalMove(blockIndex, chunkOffset, TREE_FRONT);
     }
+    return true;
 }
 
 bool FloraGenerator::makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>* nodes) {
@@ -338,6 +339,7 @@ bool FloraGenerator::makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x,
                 break;
         }
     }
+    return true;
 }
 
 void FloraGenerator::directionalMove(int& blockIndex, ui16& chunkOffset, TreeDir dir) {

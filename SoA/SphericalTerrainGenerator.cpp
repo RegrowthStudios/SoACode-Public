@@ -442,7 +442,7 @@ void SphericalTerrainGenerator::addWater(int z, int x) {
 void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
     // TEMPORARY? Add slight offset so we don't need skirts
     float mvw = m_vertWidth * 1.005;
-    const float UV_SCALE = 0.01;
+    const float UV_SCALE = 0.04;
     int xIndex;
     int zIndex;
 

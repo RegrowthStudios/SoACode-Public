@@ -1,7 +1,7 @@
 #pragma once
 #include "EditorVariables.h"
 
-class Animation;
+struct Animation;
 class ZipFile;
 class TreeType;
 class Biome;

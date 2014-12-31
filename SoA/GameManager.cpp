@@ -230,9 +230,9 @@ void GameManager::initializeVoxelWorld(Player *playr) {
     player = playr;
 
     if (player) {
- //       if (fileManager.loadPlayerFile(player)) {
-  //          atSurface = 0; //dont need to set height
-  //      }
+        if (fileManager.loadPlayerFile(player)) {
+            atSurface = 0; //dont need to set height
+        }
     }
 
     voxelWorld->initialize(player->facePosition, &player->voxelMapData, 0);
@@ -249,73 +249,6 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 
 int ticksArray2[10];
 int ticksArrayIndex2 = 0;
-
-void GameManager::update() {
-    static int saveStateTicks = SDL_GetTicks();
-
-    if (gameInitialized) {
-        if (player->isOnPlanet) {
-
-            HeightData tmpHeightData;
-            if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
-                player->currBiome = tmpHeightData.biome;
-                player->currTemp = tmpHeightData.temperature;
-                player->currHumidity = tmpHeightData.rainfall;
-            } else {
-                player->currBiome = NULL;
-                player->currTemp = -1;
-                player->currHumidity = -1;
-            }
-
-            player->currCh = NULL;
-            if (player->currCh != NULL) {
-                if (player->currCh->isAccessible) {
-                    int x = player->headPosition.x - player->currCh->gridPosition.x;
-                    int y = player->headPosition.y - player->currCh->gridPosition.y;
-                    int z = player->headPosition.z - player->currCh->gridPosition.z;
-                    int c = y * CHUNK_WIDTH * CHUNK_WIDTH + z * CHUNK_WIDTH + x;
-                    player->headInBlock = player->currCh->getBlockData(c);
-                    player->headVoxelLight = player->currCh->getLampLight(c) - 8;
-                    player->headSunLight = player->currCh->getSunlight(c) - 8;
-                    if (player->headVoxelLight < 0) player->headVoxelLight = 0;
-                    if (player->headSunLight < 0) player->headSunLight = 0;
-                }
-            }
-
-            voxelWorld->update(&player->getChunkCamera());
-
-            if (inputManager->getKey(INPUT_BLOCK_SCANNER)) {
-                player->scannedBlock = voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(player->chunkDirection()), player->headPosition);
-            } else {
-                player->scannedBlock = NONE;
-            }
-
-        } else {
-            //    closestLodDistance = (glm::length(player->worldPosition) - chunkManager.planet->radius - 20000)*0.7;
-            player->currBiome = NULL;
-            player->currTemp = -1;
-            player->currHumidity = -1;
-        }
-    }
-
-   // voxelWorld->getPlanet()->rotationUpdate();
-
-    updatePlanet(player->worldPosition, maxLodTicks);   //SOMETIMES TAKING A LONG TIME!
-
-    if (gameInitialized) {
-        particleEngine.update();
-
-        if (SDL_GetTicks() - saveStateTicks >= 20000) {
-            saveStateTicks = SDL_GetTicks();
-            savePlayerState();
-        }
-    }
-
-}
-
-void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
-  //  planet->updateLODs(worldPosition, maxTicks);
-}
 
 void GameManager::addMarker(glm::dvec3 pos, nString name, glm::vec3 color) {
     markers.push_back(Marker(pos, name, color));

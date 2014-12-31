@@ -32,8 +32,6 @@ public:
     static int newGame(nString saveName);
     static int loadGame(nString saveName);
     static void initializeVoxelWorld(Player *plyr = nullptr);
-    static void update();
-    static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);
     static void drawMarkers();
 
     static void addMarker(glm::dvec3 pos, nString name, glm::vec3 color);
