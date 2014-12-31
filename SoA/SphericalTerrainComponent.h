@@ -55,6 +55,7 @@ public:
     SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
                                              const i32v3& coordMapping,
                                              float width,
+                                             int lod,
                                              CubeFace cubeFace);
 private:
     static const int NUM_GENERATORS = 1024;

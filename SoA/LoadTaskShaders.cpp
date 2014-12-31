@@ -102,8 +102,9 @@ void LoadTaskShaders::load() {
     std::vector<nString> sphericalAttribs;
     sphericalAttribs.push_back("vPosition");
     sphericalAttribs.push_back("vTangent");
-    sphericalAttribs.push_back("vColor");
     sphericalAttribs.push_back("vUV");
+    sphericalAttribs.push_back("vColor");
+    sphericalAttribs.push_back("vNormUV");
     sphericalAttribs.push_back("vTemp_Hum");
 
     // Attributes for spherical water

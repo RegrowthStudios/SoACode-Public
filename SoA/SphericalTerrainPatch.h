@@ -65,7 +65,7 @@ public:
     friend class SphericalTerrainPatch;
     friend class SphericalTerrainGenerator;
     friend class SphericalTerrainMeshManager;
-    SphericalTerrainMesh(CubeFace cubeFace) : m_cubeFace(cubeFace) {}
+    SphericalTerrainMesh(CubeFace cubeFace) : m_cubeFace(cubeFace){}
     ~SphericalTerrainMesh();
 
     /// Recycles the normal map

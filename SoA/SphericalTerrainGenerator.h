@@ -68,11 +68,12 @@ class TerrainVertex {
 public:
     f32v3 position; //12
     f32v3 tangent; //24
-    ColorRGB8 color; //27
-    ui8 padding; //28
-    ui8v2 texCoords; //30
-    ui8 temperature; //31
-    ui8 humidity; //32
+    f32v2 texCoords; //32
+    ColorRGB8 color; //35
+    ui8 padding; //36
+    ui8v2 normTexCoords; //38
+    ui8 temperature; //39
+    ui8 humidity; //40
 };
 
 class WaterVertex {

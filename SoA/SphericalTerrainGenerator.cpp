@@ -269,9 +269,13 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                 addWater(z, x);
             }
 
-            // Set texture coordinates
-            v.texCoords.x = (ui8)(((float)x / (float)PATCH_WIDTH) * 255.0f);
-            v.texCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
+            // Set texture coordinates using grid position
+            v.texCoords.x = v.position[m_coordMapping.x];
+            v.texCoords.y = v.position[m_coordMapping.z];
+
+            // Set normal map texture coordinates
+            v.normTexCoords.x = (ui8)(((float)x / (float)PATCH_WIDTH) * 255.0f);
+            v.normTexCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
 
             // Spherify it!
             f32v3 normal = glm::normalize(v.position);

@@ -74,11 +74,6 @@ void SphericalTerrainMeshManager::draw(const f64v3& cameraPos, const f32m4& V, c
 }
 
 void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh) {
-    for (auto& it : m_meshes) {
-        if (it == mesh) {
-            pError("AHHH");
-        }
-    }
     m_meshes.push_back(mesh);
     if (mesh->m_wvbo) {
         m_waterMeshes.push_back(mesh);

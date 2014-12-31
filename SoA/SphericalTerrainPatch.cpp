@@ -71,13 +71,16 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const f32m4& V, const f3
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, tangent));
-    glVertexAttribPointer(2, 3, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, color));
-    glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, texCoords));
+    glVertexAttribPointer(3, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, color));
     glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, normTexCoords));
+    glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, temperature));
 
@@ -252,5 +255,6 @@ void SphericalTerrainPatch::requestMesh() {
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               mappings,
                                               m_width,
+                                              m_lod,
                                               m_cubeFace);
 }
