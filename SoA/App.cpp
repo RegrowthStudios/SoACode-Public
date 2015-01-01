@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "App.h"
 
-
 #include "GamePlayScreen.h"
 
 #include <Vorb/InputDispatcher.h>
@@ -19,6 +18,7 @@
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "Options.h"
+#include "InputManager.h"
 
 #include "SpaceSystem.h"
 #include "StarSystemScreen.h"
@@ -78,7 +78,8 @@ void App::onInit() {
     meshManager = new MeshManager;
     spaceSystem = new SpaceSystem(this);
     spaceSystem->init(GameManager::glProgramManager);
-    m_saveFileIom = new IOManager;
+    saveFileIom = new IOManager;
+    inputManager = new InputManager;
 }
 
 void App::onExit() {
@@ -89,13 +90,13 @@ void App::onExit() {
 
 App::~App() {
 
-
     delete scrInit;
     delete scrLoad;
     delete scrMainMenu;
     delete scrGamePlay;
     delete scrDev;
     delete scrStarSystem; 
+    delete inputManager;
 
     delete meshManager;
 }

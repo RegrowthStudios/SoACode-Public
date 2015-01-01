@@ -41,7 +41,6 @@ public:
     static void endSession();
 
     static class VoxelEditor* voxelEditor;
-    static class PhysicsEngine* physicsEngine;
     static class SoundEngine* soundEngine;
     static class MessageManager* messageManager;
     static class TerrainGenerator* terrainGenerator;

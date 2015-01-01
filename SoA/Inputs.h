@@ -52,7 +52,9 @@ extern i32 INPUT_WATER_UPDATE;
 extern i32 INPUT_ZOOM;
 extern i32 INPUT_RANDOM_DEBUG;
 
+class InputManager;
+
 // Initialize Input IDs At Runtime
-extern void initInputs();
+extern void initInputs(InputManager* inputManager);
 
 #endif // Inputs_h__

@@ -7,6 +7,7 @@
 
 class Camera;
 class ChunkManager;
+class ChunkIOManager;
 class VoxelEditor;
 class Item;
 
@@ -20,12 +21,14 @@ public:
     void getClosestChunks(glm::dvec3 &coord, class Chunk **chunks);
     void endSession();
 
-    inline ChunkManager &getChunkManager() { return *_chunkManager; }
+    inline ChunkManager &getChunkManager() { return *m_chunkManager; }
 
 private:
     void updatePhysics(const Camera* camera);
 
     //chunk manager manages and updates the chunk grid
-    ChunkManager* _chunkManager;
+    ChunkManager* m_chunkManager = nullptr;
+    ChunkIOManager* m_chunkIo = nullptr;
+    PhysicsEngine* m_physicsEngine = nullptr;
 };
 

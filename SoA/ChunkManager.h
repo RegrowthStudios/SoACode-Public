@@ -68,7 +68,9 @@ public:
     /// @param gridPosition: the floating point starting grid position.
     /// @param voxelMapper: The chosen voxel mapping scheme
     /// @param flags: bitwise combination of ChunkManager::InitFlags
-    void initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper, vvox::VoxelMapData* startingMapData, ui32 flags);
+    void initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper,
+                    vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo, 
+                    ui32 flags);
 
     /// Updates the chunks
     /// @param camera: The camera that is rendering the voxels
@@ -336,6 +338,8 @@ private:
     int _numCaTasks = 0; ///< The number of CA tasks currently being processed
 
     VoxelLightEngine* _voxelLightEngine; ///< Used for checking top chunks for sunlight
+
+    ChunkIOManager* m_chunkIo = nullptr;
 
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> _byteFixedSizeArrayRecycler; ///< For recycling voxel data

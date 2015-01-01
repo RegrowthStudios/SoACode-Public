@@ -184,11 +184,11 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!_app->m_saveFileIom->directoryExists(fileName.c_str())) {
+    if (!_app->saveFileIom->directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    _app->m_saveFileIom->setSearchDirectory(fileName.c_str());
+    _app->saveFileIom->setSearchDirectory(fileName.c_str());
 
     // Check the planet string
     nString planetName = fileManager.getWorldString(fileName + "/World/");
@@ -209,11 +209,11 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!_app->m_saveFileIom->directoryExists(fileName.c_str())) {
+    if (!_app->saveFileIom->directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    _app->m_saveFileIom->setSearchDirectory(fileName.c_str());
+    _app->saveFileIom->setSearchDirectory(fileName.c_str());
 
     // Save the world file
     nString worldText("Aldrin");

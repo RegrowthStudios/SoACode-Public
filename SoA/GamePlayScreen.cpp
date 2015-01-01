@@ -65,7 +65,7 @@ void GamePlayScreen::build() {
 }
 
 void GamePlayScreen::destroy(const GameTime& gameTime) {
-    // Declassion happens in onExit
+    // Destruction happens in onExit
 }
 
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
@@ -91,7 +91,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
-    InputManager* inputManager = GameManager::inputManager;
+    InputManager* inputManager = _app->inputManager;
     m_onPauseKeyDown = inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
     m_onFlyKeyDown = inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
     m_onGridKeyDown = inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
@@ -141,14 +141,17 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
         m_inFocus = false;
     });
 
-    GameManager::inputManager->startInput();
+    _app->inputManager->startInput();
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
-    GameManager::inputManager->stopInput();
+    
+    InputManager* inputManager = _app->inputManager;
+
+    inputManager->stopInput();
     m_hooks.dispose();
 
-    InputManager* inputManager = GameManager::inputManager;
+    
     inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, m_onPauseKeyDown);
     delete m_onPauseKeyDown;
 
@@ -274,12 +277,12 @@ void GamePlayScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_player->getChunkCamera(), &m_player->getWorldCamera(), 
                          _app, m_player, _app->meshManager, &m_pda, GameManager::glProgramManager,
-                         &m_pauseMenu, GameManager::chunkManager->getChunkSlots(0));
+                         &m_pauseMenu, m_voxelWorld->getChunkManager().getChunkSlots(0));
 }
 
 void GamePlayScreen::handleInput() {
     // Get input manager handle
-    InputManager* inputManager = GameManager::inputManager;
+    InputManager* inputManager = _app->inputManager;
 
     // Block placement
     if (isInGame()) {

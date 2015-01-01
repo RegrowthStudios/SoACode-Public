@@ -17,7 +17,7 @@
 #include "global.h"
 #include "VoxelPlanetMapper.h"
 
-VoxelWorld::VoxelWorld() : _chunkManager(NULL) {
+VoxelWorld::VoxelWorld() {
 
 }
 
@@ -29,12 +29,16 @@ VoxelWorld::~VoxelWorld()
 
 void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, GLuint flags)
 {
-  /*  if (_chunkManager) {
+    if (m_chunkManager) {
         pError("VoxelWorld::initialize() called twice before end session!");
-        delete _chunkManager;
+        delete m_chunkManager;
     }
-    _chunkManager = new ChunkManager();
-    GameManager::chunkManager = _chunkManager;
+
+    m_physicsEngine = new PhysicsEngine;
+    m_chunkManager = new ChunkManager;
+    m_chunkIo = new ChunkIOManager;
+
+  /*  
     
     if (planet == NULL) showMessage("Initialized chunk manager with NULL planet!");
 
@@ -44,36 +48,39 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* starting
     _chunkManager->initialize(gpos, voxelPlanetMapper, startingMapData, flags);
 
     setPlanet(planet);*/
+
 }
 
 void VoxelWorld::update(const Camera* camera)
 {
     // Update the Chunks
-    _chunkManager->update(camera);
+    m_chunkManager->update(camera);
     // Update the physics
     updatePhysics(camera);
 }
 
 void VoxelWorld::getClosestChunks(glm::dvec3 &coord, class Chunk **chunks)
 {
-    _chunkManager->getClosestChunks(coord, chunks);
+    m_chunkManager->getClosestChunks(coord, chunks);
 }
 
 void VoxelWorld::endSession()
 {
-    GameManager::chunkIOManager->onQuit();
-    _chunkManager->destroy();
-    delete _chunkManager;
-    _chunkManager = NULL;
-    GameManager::chunkManager = NULL;
+    m_chunkIo->onQuit();
+    delete m_chunkIo;
+    m_chunkManager->destroy();
+    delete m_chunkManager;
+    m_chunkManager = nullptr;
+    delete m_physicsEngine;
+    m_physicsEngine = nullptr;
 }
 
 void VoxelWorld::updatePhysics(const Camera* camera) {
 
-    GameManager::chunkManager->updateCaPhysics();
+    m_chunkManager->updateCaPhysics();
 
     // Update physics engine
     globalMultiplePreciseTimer.start("Physics Engine");
 
-    GameManager::physicsEngine->update(f64v3(camera->getDirection()));
+    m_physicsEngine->update(f64v3(camera->getDirection()));
 }

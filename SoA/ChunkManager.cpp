@@ -71,11 +71,14 @@ ChunkManager::~ChunkManager() {
     delete _voxelLightEngine;
 }
 
-void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper, vvox::VoxelMapData* startingMapData, ui32 flags) {
+void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper,
+                              vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
+                              ui32 flags) {
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
 
+    m_chunkIo = chunkIo;
     _voxelMapper = voxelMapper;
 
     // Sun Color Map
@@ -90,7 +93,7 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* vox
     //}
 
     // IO thread
-    GameManager::chunkIOManager->beginThread();
+    m_chunkIo->beginThread();
 
     // Initialize grid
     csGridWidth = 1 + (graphicsOptions.voxelRenderDistance / 32) * 2;
@@ -302,7 +305,7 @@ ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
 void ChunkManager::destroy() {
    
     // Clear the chunk IO thread
-    GameManager::chunkIOManager->clear();
+    m_chunkIo->clear();
 
     // Destroy the thread pool
     _threadPool.destroy();
@@ -350,7 +353,7 @@ void ChunkManager::saveAllChunks() {
     for (i32 i = 0; i < _chunkSlots[0].size(); i++) { //update distances for all chunks
         chunk = _chunkSlots[0][i].chunk;
         if (chunk && chunk->dirty && chunk->_state > ChunkStates::TREES) {
-            GameManager::chunkIOManager->addToSaveList(chunk);
+            m_chunkIo->addToSaveList(chunk);
         }
     }
 }
@@ -598,7 +601,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
     TerrainGenerator* generator = GameManager::terrainGenerator;
     GenerateTask* generateTask;
     //IO load chunks
-    while (GameManager::chunkIOManager->finishedLoadChunks.try_dequeue(ch)) {
+    while (m_chunkIo->finishedLoadChunks.try_dequeue(ch)) {
 
         ch->inLoadThread = 0;
         
@@ -711,7 +714,7 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         }
     }
 
-    if (chunksToLoad.size()) GameManager::chunkIOManager->addToLoadList(chunksToLoad);
+    if (chunksToLoad.size()) m_chunkIo->addToLoadList(chunksToLoad);
     chunksToLoad.clear();
 }
 
@@ -1044,7 +1047,7 @@ void ChunkManager::updateCaPhysics() {
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
         if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
-            GameManager::chunkIOManager->addToSaveList(chunk);
+            m_chunkIo->addToSaveList(chunk);
         }
         // Clear any opengl buffers
         chunk->clearBuffers();
@@ -1156,7 +1159,7 @@ void ChunkManager::updateChunks(const Camera* camera) {
             // Only remove it if it isn't needed by its neighbors
             if (!chunk->lastOwnerTask && !chunk->isAdjacentInThread()) {
                 if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
-                    GameManager::chunkIOManager->addToSaveList(cs->chunk);
+                    m_chunkIo->addToSaveList(cs->chunk);
                 }
                 _chunkSlotMap.erase(chunk->chunkPosition);
 
@@ -1207,7 +1210,7 @@ void ChunkManager::updateChunks(const Camera* camera) {
 
             // save if its been a minute
             if (save && chunk->dirty) {
-                GameManager::chunkIOManager->addToSaveList(chunk);  
+                m_chunkIo->addToSaveList(chunk);
             }
         }
     }

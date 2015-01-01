@@ -42,13 +42,13 @@ i32 INPUT_RANDOM_DEBUG = -1;
 
 // Reduce Some Code
 #define CREATE_INPUT(ID,KEY,VAR) \
-    VAR = GameManager::inputManager->createAxis(#ID, KEY);
+    VAR = inputManager->createAxis(#ID, KEY);
 
 #define CREATE_INPUT_D(ID, KEY_NEG, KEY_POS, VAR) \
-    VAR = GameManager::inputManager->createAxis(#ID, KEY_NEG, KEY_POS);
+    VAR = inputManager->createAxis(#ID, KEY_NEG, KEY_POS);
 
 // Generate Input Handles
-void initInputs() {
+void initInputs(InputManager* inputManager) {
     CREATE_INPUT(Random Debug, VKEY_6, INPUT_RANDOM_DEBUG);
 
     // The Greatest Input In The Cosmos
