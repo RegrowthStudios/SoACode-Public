@@ -4,6 +4,7 @@
 #include "OpenGLStructs.h"
 
 class Chunk;
+class ChunkManager;
 class PhysicsBlockBatch;
 
 class ExplosionNode {
@@ -87,7 +88,7 @@ private:
     void explosion(const f64v3& pos, i32 numRays, f64 power, f64 loss);
     void pressureExplosion(f64v3& pos);
     void pressureUpdate(PressureNode& pn);
-    inline void explosionRay(const f64v3& pos, f32 force, f32 powerLoss, const f32v3& dir);
+    inline void explosionRay(ChunkManager* chunkManager, const f64v3& pos, f32 force, f32 powerLoss, const f32v3& dir);
     void performExplosions();
 
     // Floating detection

@@ -57,8 +57,6 @@ i32 GamePlayScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
 
-//#define SUBSCRIBE(ID, CLASS, VAR) \
-//    VAR = inputManager->subscribe(ID, InputManager::EventType::DOWN, new CLASS(this));
 
 void GamePlayScreen::build() {
     // Empty
@@ -70,9 +68,11 @@ void GamePlayScreen::destroy(const GameTime& gameTime) {
 
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
+    m_inputManager = new InputManager;
+
     m_player = GameManager::player;
     m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
-    GameManager::initializeVoxelWorld(m_player);
+    initVoxels();
 
     // Initialize the PDA
     m_pda.init(this);
@@ -91,24 +91,23 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
-    InputManager* inputManager = _app->inputManager;
-    m_onPauseKeyDown = inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
-    m_onFlyKeyDown = inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
-    m_onGridKeyDown = inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
-    m_onReloadTexturesKeyDown = inputManager->subscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadTexturesKeyDown(this));
-    m_onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadShadersKeyDown(this));
-    m_onInventoryKeyDown = inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
-    m_onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
-    m_onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
-    m_onNightVisionToggle = inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+    m_onPauseKeyDown = m_inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
+    m_onFlyKeyDown = m_inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
+    m_onGridKeyDown = m_inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
+    m_onReloadTexturesKeyDown = m_inputManager->subscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadTexturesKeyDown(this));
+    m_onReloadShadersKeyDown = m_inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadShadersKeyDown(this));
+    m_onInventoryKeyDown = m_inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
+    m_onReloadUIKeyDown = m_inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
+    m_onHUDKeyDown = m_inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
+    m_onNightVisionToggle = m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&](void* s, ui32 a) -> void {
         if (isInGame()) {
             m_renderPipeline.toggleNightVision();
         }
     });
-    m_onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+    m_onNightVisionReload = m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&](void* s, ui32 a) -> void {
         m_renderPipeline.loadNightVision();
     });
-    m_onDrawMode = inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&] (void* s, ui32 a) -> void {
+    m_onDrawMode = m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&](void* s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (void* s, const vui::MouseMotionEvent& e) {
@@ -141,48 +140,46 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
         m_inFocus = false;
     });
 
-    _app->inputManager->startInput();
+    m_inputManager->startInput();
 }
 
 void GamePlayScreen::onExit(const GameTime& gameTime) {
-    
-    InputManager* inputManager = _app->inputManager;
 
-    inputManager->stopInput();
+    m_inputManager->stopInput();
     m_hooks.dispose();
 
     
-    inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, m_onPauseKeyDown);
+    m_inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, m_onPauseKeyDown);
     delete m_onPauseKeyDown;
 
-    inputManager->unsubscribe(INPUT_FLY, InputManager::EventType::DOWN, m_onFlyKeyDown);
+    m_inputManager->unsubscribe(INPUT_FLY, InputManager::EventType::DOWN, m_onFlyKeyDown);
     delete m_onFlyKeyDown;
 
-    inputManager->unsubscribe(INPUT_GRID, InputManager::EventType::DOWN, m_onGridKeyDown);
+    m_inputManager->unsubscribe(INPUT_GRID, InputManager::EventType::DOWN, m_onGridKeyDown);
     delete m_onGridKeyDown;
 
-    inputManager->unsubscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, m_onReloadTexturesKeyDown);
+    m_inputManager->unsubscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, m_onReloadTexturesKeyDown);
     delete m_onReloadTexturesKeyDown;
 
-    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
+    m_inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
     delete m_onReloadShadersKeyDown;
 
-    inputManager->unsubscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, m_onInventoryKeyDown);
+    m_inputManager->unsubscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, m_onInventoryKeyDown);
     delete m_onInventoryKeyDown;
 
-    inputManager->unsubscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, m_onReloadUIKeyDown);
+    m_inputManager->unsubscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, m_onReloadUIKeyDown);
     delete m_onReloadUIKeyDown;
 
-    inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, m_onHUDKeyDown);
+    m_inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, m_onHUDKeyDown);
     delete m_onHUDKeyDown;
 
-    inputManager->unsubscribe(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, m_onNightVisionToggle);
+    m_inputManager->unsubscribe(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, m_onNightVisionToggle);
     delete m_onNightVisionToggle;
 
-    inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, m_onNightVisionReload);
+    m_inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, m_onNightVisionReload);
     delete m_onNightVisionReload;
 
-    inputManager->unsubscribe(INPUT_DRAW_MODE, InputManager::EventType::DOWN, m_onDrawMode);
+    m_inputManager->unsubscribe(INPUT_DRAW_MODE, InputManager::EventType::DOWN, m_onDrawMode);
     delete m_onDrawMode;
 
     m_threadRunning = false;
@@ -254,7 +251,6 @@ void GamePlayScreen::initVoxels() {
     bool atSurface = 1;
     m_player = new Player;
 
- 
     if (fileManager.loadPlayerFile(player)) {
         atSurface = 0; //dont need to set height
     }
@@ -281,19 +277,17 @@ void GamePlayScreen::initRenderPipeline() {
 }
 
 void GamePlayScreen::handleInput() {
-    // Get input manager handle
-    InputManager* inputManager = _app->inputManager;
 
     // Block placement
     if (isInGame()) {
-        if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
+        if (m_inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->leftEquippedItem)){
                 GameManager::clickDragRay(true);
             } else if (m_player->leftEquippedItem->type == ITEM_BLOCK){
                 m_player->dragBlock = m_player->leftEquippedItem;
                 GameManager::clickDragRay(false);
             }
-        } else if (inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
+        } else if (m_inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->rightEquippedItem)){
                 GameManager::clickDragRay(true);
             } else if (m_player->rightEquippedItem->type == ITEM_BLOCK){
@@ -304,7 +298,7 @@ void GamePlayScreen::handleInput() {
     }
 
     // Update inputManager internal state
-    inputManager->update();
+    m_inputManager->update();
 }
 
 void GamePlayScreen::updatePlayer() {
@@ -360,25 +354,25 @@ void GamePlayScreen::updateThreadFunc() {
 
 
         HeightData tmpHeightData;
-        if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
-            player->currBiome = tmpHeightData.biome;
-            player->currTemp = tmpHeightData.temperature;
-            player->currHumidity = tmpHeightData.rainfall;
+        if (!m_voxelWorld->getChunkManager().getPositionHeightData((int)m_player->headPosition.x, (int)m_player->headPosition.z, tmpHeightData)) {
+            m_player->currBiome = tmpHeightData.biome;
+            m_player->currTemp = tmpHeightData.temperature;
+            m_player->currHumidity = tmpHeightData.rainfall;
         } else {
-            player->currBiome = NULL;
-            player->currTemp = -1;
-            player->currHumidity = -1;
+            m_player->currBiome = NULL;
+            m_player->currTemp = -1;
+            m_player->currHumidity = -1;
         }
 
-        voxelWorld->update(&player->getChunkCamera());
+        m_voxelWorld->update(&m_player->getChunkCamera());
 
-        if (inputManager->getKey(INPUT_BLOCK_SCANNER)) {
-            player->scannedBlock = voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(player->chunkDirection()), player->headPosition);
+        if (m_inputManager->getKey(INPUT_BLOCK_SCANNER)) {
+            m_player->scannedBlock = m_voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(m_player->chunkDirection()), m_player->headPosition);
         } else {
-            player->scannedBlock = NONE;
+            m_player->scannedBlock = NONE;
         }
 
-        particleEngine.update();
+        m_particleEngine.update();
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
             saveStateTicks = SDL_GetTicks();
@@ -462,27 +456,24 @@ void GamePlayScreen::updateWorldCameraClip() {
 bool GamePlayScreen::loadPlayerFile(const cString filePath, Player* player) {
     //loadMarkers(player);
     
-    FILE *file = NULL;
-    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
-    if (file == NULL) {
+    std::vector<ui8> data;
+    if (!_app->saveFileIom->readFileToData(("Players/" + player->getName() + ".dat").c_str(), data)) {
         //file doesnt exist so set spawn to random
         srand(time(NULL));
         int spawnFace = rand() % 4 + 1;
         player->voxelMapData.face = spawnFace;
         return 0;
     }
-    GLubyte buffer[2048];
-    int n;
-    n = fread(buffer, 1, 1024, file);
+
     int byte = 0;
-    player->facePosition.x = BufferUtils::extractFloat(buffer, (byte++) * 4);
-    player->facePosition.y = BufferUtils::extractFloat(buffer, (byte++) * 4);
-    player->facePosition.z = BufferUtils::extractFloat(buffer, (byte++) * 4);
-    player->voxelMapData.face = BufferUtils::extractInt(buffer, (byte++) * 4);
-    player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
-    player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
-    player->isFlying = BufferUtils::extractBool(buffer, byte * 4);
-    fclose(file);
+    player->facePosition.x = BufferUtils::extractFloat(data.data(), (byte++) * 4);
+    player->facePosition.y = BufferUtils::extractFloat(data.data(), (byte++) * 4);
+    player->facePosition.z = BufferUtils::extractFloat(data.data(), (byte++) * 4);
+    player->voxelMapData.face = BufferUtils::extractInt(data.data(), (byte++) * 4);
+    player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
+    player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
+    player->isFlying = BufferUtils::extractBool(data.data(), byte * 4);
+
     player->voxelMapData.ipos = fastFloor(player->facePosition.z / (double)CHUNK_WIDTH);
     player->voxelMapData.jpos = fastFloor(player->facePosition.x / (double)CHUNK_WIDTH);
     return 1;

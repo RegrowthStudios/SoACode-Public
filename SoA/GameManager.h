@@ -11,6 +11,7 @@ class ChunkSlot;
 class Player;
 class VoxelEditor;
 class Chunk;
+class ChunkManager;
 
 enum class GameStates { PLAY, PAUSE, INVENTORY, MAINMENU, ZOOMINGIN, ZOOMINGOUT, WORLDEDITOR, EXIT };
 
@@ -29,14 +30,11 @@ public:
     static void initializeSound();
     static void saveState();
     static void savePlayerState();
-    static int newGame(nString saveName);
-    static int loadGame(nString saveName);
-    static void initializeVoxelWorld(Player *plyr = nullptr);
     static void drawMarkers();
 
     static void addMarker(glm::dvec3 pos, nString name, glm::vec3 color);
-    static void clickDragRay(bool isBreakRay);
-    static void scanWSO();
+    static void clickDragRay(ChunkManager* chunkManager, bool isBreakRay);
+    static void scanWSO(ChunkManager* chunkManager);
     static void onQuit();
     static void endSession();
 

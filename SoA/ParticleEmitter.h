@@ -1,11 +1,13 @@
 #pragma once
 
+class ChunkManager;
+
 class ParticleEmitter {
 public:
     ParticleEmitter();
     ParticleEmitter(f64v3 pos, i32 typ);
 
-    i32 update();
+    i32 update(ChunkManager* chunkManager);
 
     f64v3 position;
     f32v3 initialVel;

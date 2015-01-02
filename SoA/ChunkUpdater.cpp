@@ -118,13 +118,7 @@ void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIn
 }
 
 void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
-  
-    //If you call placeBlock with the air block, call remove block
- //   if (blockType == NONE) {
- //       removeBlock(chunk, blockIndex, false);
- //       return;
- //   }
-
+ 
     Block &block = GETBLOCK(blockType);
 
     if (chunk->getBlockData(blockIndex) == NONE) {
@@ -231,7 +225,7 @@ void ChunkUpdater::placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedC
     placeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex, blockType);
 }
 
-void ChunkUpdater::removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
+void ChunkUpdater::removeBlock(PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
 {
     int blockID = chunk->getBlockID(blockIndex);
     const Block &block = Blocks[blockID];
@@ -255,16 +249,16 @@ void ChunkUpdater::removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex
         } else{
             d = (GLubyte)(explodeDist);
         }
-        GameManager::physicsEngine->addFallingCheckNode(FallingCheckNode(chunk, blockIndex, da, db, dc, d));
+        physicsEngine->addFallingCheckNode(FallingCheckNode(chunk, blockIndex, da, db, dc, d));
     } else{
-        GameManager::physicsEngine->addFallingCheckNode(FallingCheckNode(chunk, blockIndex));
+        physicsEngine->addFallingCheckNode(FallingCheckNode(chunk, blockIndex));
     }
 
     //If we are braking the block rather than removing it, it should explode or emit particles
     if (isBreak) {
         if (block.explosivePower){
             glm::dvec3 dtmp(chunk->gridPosition.x + pos.x, chunk->gridPosition.y + pos.y, chunk->gridPosition.z + pos.z);
-            GameManager::physicsEngine->addExplosion(ExplosionNode(dtmp, blockID));
+            physicsEngine->addExplosion(ExplosionNode(dtmp, blockID));
         }
 
         if (block.emitterOnBreak && block.explosivePower == 0){ // 
@@ -329,9 +323,9 @@ void ChunkUpdater::removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex
     updateNeighborStates(chunk, pos, ChunkStates::MESH);
 }
 
-void ChunkUpdater::removeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir) {
+void ChunkUpdater::removeBlockSafe(PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir) {
     vvox::swapLockedChunk(chunk, lockedChunk);
-    removeBlock(chunk, lockedChunk, blockIndex, isBreak, force, explodeDir);
+    removeBlock(physicsEngine, chunk, lockedChunk, blockIndex, isBreak, force, explodeDir);
 }
 
 void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)

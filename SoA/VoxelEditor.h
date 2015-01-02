@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 
+class ChunkManager;
 class Item;
 
 class EditorNode {
@@ -13,7 +14,7 @@ class VoxelEditor {
 public:    
     VoxelEditor();
 
-    void editVoxels(Item *block);
+    void editVoxels(ChunkManager* chunkManager, Item *block);
 
     void stopDragging();
 
@@ -31,8 +32,8 @@ public:
 
 private:
     
-    void placeAABox(Item *block);
-    void placeLine(Item *block);
+    void placeAABox(ChunkManager* chunkManager, Item *block);
+    void placeLine(ChunkManager* chunkManager, Item *block);
 
     // v v v Just some ideas v v v
     // void placeBox();

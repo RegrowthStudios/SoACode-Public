@@ -9,6 +9,7 @@
 #include "global.h"
 
 class Chunk;
+class InputManager;
 
 class CollisionData {
 public:
@@ -37,7 +38,7 @@ public:
     ~Player();
 
     void initialize(nString playerName, float aspectRatio);
-    bool update(bool isMouseIn, f64 Gravity, f64 AirFrictionForce);
+    bool update(InputManager* inputManager, bool isMouseIn, f64 Gravity, f64 AirFrictionForce);
     void setNearestPlanet(i32 WorldRadius, i32 EnterRadius, i32 PlanetRowSize);
     void checkFaceTransition();
     void crouchMovement(bool up);
@@ -151,6 +152,8 @@ private:
     nString _name;
 
     Camera _worldCamera, _chunkCamera;
+
+    InputManager* m_inputManager = nullptr;
 
     f32 _acceleration, _maxVelocity;
 

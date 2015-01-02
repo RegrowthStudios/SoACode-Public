@@ -2,6 +2,7 @@
 #include "Constants.h"
 
 class Chunk;
+class PhysicsEngine;
 enum class ChunkStates;
 
 class ChunkUpdater {
@@ -16,8 +17,8 @@ public:
     static void placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
     static void placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
   
-    static void removeBlock(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
-    static void removeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
+    static void removeBlock(PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
+    static void removeBlockSafe(PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
     static void removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
     static void removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
 

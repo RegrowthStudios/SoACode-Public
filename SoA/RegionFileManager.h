@@ -61,7 +61,7 @@ class Chunk;
 
 class RegionFileManager {
 public:
-    RegionFileManager();
+    RegionFileManager(const nString& saveDir);
     ~RegionFileManager();
 
     void clear();
@@ -128,6 +128,7 @@ private:
     std::map <nString, RegionFile*> _regionFileCache;
     std::deque <RegionFile*> _regionFileCacheQueue;
 
+    nString m_saveDir;
     RegionFile* _regionFile;
     ChunkHeader _chunkHeader;
 };

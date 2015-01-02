@@ -11,8 +11,8 @@ maxSizeE(0), minSizeS(0), maxSizeS(0), spawnTimeS(100), spawnTimeE(100) {}
 ParticleEmitter::ParticleEmitter(glm::dvec3 pos, int typ) : position(pos), type(typ), dt(0), maxDuration(INT_MAX), initialVel(0.0f), minSizeE(0),
 maxSizeE(0), minSizeS(0), maxSizeS(0), spawnTimeS(100), spawnTimeE(100) {}
 
-i32 ParticleEmitter::update() {
-    const glm::dvec3 chunkListPos(0);// GameManager::chunkManager->cornerPosition);
+i32 ParticleEmitter::update(ChunkManager* chunkManager) {
+    const glm::dvec3 chunkListPos(0);
     GLuint currSpawnTime;
     switch(type) {
     case EMITTER_LINEAR:
@@ -41,7 +41,7 @@ i32 ParticleEmitter::update() {
                 pos.y = (gy / CHUNK_WIDTH);
                 pos.z = (gz / CHUNK_WIDTH);
 
-                ch = GameManager::chunkManager->getChunk(pos);
+                ch = chunkManager->getChunk(pos);
                 if((!ch) || ch->isAccessible == 0) return 1;
 
                 pos.x = gx % CHUNK_WIDTH;

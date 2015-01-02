@@ -31,6 +31,7 @@
 class App;
 class SkyboxRenderStage;
 class SpaceSystemRenderStage;
+class InputManager;
 
 class StarSystemScreen : public IAppScreen<App> {
 public:
@@ -64,6 +65,8 @@ private:
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr;
+
+    InputManager* m_inputManager = nullptr;
 
     ui32v4 _viewport; ///< Viewport to draw to
 };

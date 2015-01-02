@@ -72,7 +72,11 @@ bool checkZlibError(nString message, int zerror) {
     return false;
 }
 
-RegionFileManager::RegionFileManager() :_regionFile(nullptr), _copySectorsBuffer(nullptr), _maxCacheSize(8) {
+RegionFileManager::RegionFileManager(const nString& saveDir) :_regionFile(nullptr),
+_copySectorsBuffer(nullptr),
+_maxCacheSize(8),
+m_saveDir(saveDir) {
+    // Empty
 }
 
 RegionFileManager::~RegionFileManager() {
@@ -130,7 +134,7 @@ bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxel
     } 
 
 
-    filePath = GameManager::saveFilePath + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
+    filePath = m_saveDir + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
    
     //open file if it exists
     FILE* file = fopen(filePath.c_str(), "rb+");
@@ -389,7 +393,7 @@ void RegionFileManager::flush() {
 
 bool RegionFileManager::saveVersionFile() {
     FILE* file;
-    file = fopen((GameManager::saveFilePath + "/Region/version.dat").c_str(), "wb");
+    file = fopen((m_saveDir + "/Region/version.dat").c_str(), "wb");
 
     if (!file) return false;
 
@@ -403,10 +407,10 @@ bool RegionFileManager::saveVersionFile() {
 
 bool RegionFileManager::checkVersion() {
     FILE* file;
-    file = fopen((GameManager::saveFilePath + "/Region/version.dat").c_str(), "rb");
+    file = fopen((m_saveDir + "/Region/version.dat").c_str(), "rb");
 
     if (!file) {
-        pError(GameManager::saveFilePath + "/Region/version.dat not found. Game will assume the version is correct, but it is "
+        pError(m_saveDir + "/Region/version.dat not found. Game will assume the version is correct, but it is "
                + "probable that this save will not work if the version is wrong. If this is a save from 0.1.6 or earlier, then it is "
                + "only compatible with version 0.1.6 of the game. In that case, please make a new save or download 0.1.6 to play this save.");
         return saveVersionFile();

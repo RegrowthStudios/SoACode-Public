@@ -40,7 +40,7 @@ public:
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
-        _screen->_renderPipeline.destroy();
+        _screen->m_renderPipeline.destroy();
         _screen->initRenderPipeline();
     }
 };

@@ -8,6 +8,7 @@
 class ChunkManager;
 class Chunk;
 class IOManager;
+class PhysicsEngine;
 
 /// Resolution of CA updates in frames
 #define CA_TICK_RES 4
@@ -65,7 +66,7 @@ class CAEngine {
 public:
     CAEngine();
     void setChunk(Chunk* chunk) { _chunk = chunk; }
-    void updateSpawnerBlocks(bool powders);
+    void updateSpawnerBlocks(PhysicsEngine* physicsEngine, bool powders);
     void updateLiquidBlocks(int caIndex);
     void updatePowderBlocks(int caIndex);
 private:

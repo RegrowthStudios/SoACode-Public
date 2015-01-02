@@ -125,9 +125,9 @@ int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0,
 
 const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20 };
 
-bool PhysicsBlock::update(Chunk*& lockedChunk)
+bool PhysicsBlock::update(ChunkManager* chunkManager, Chunk*& lockedChunk)
 {
-    if (done == 2) return true; //defer declassion by two frames for good measure
+    if (done == 2) return true; //defer destruction by two frames for good measure
     if (done != 0) {
         done++;
         return false;
@@ -155,10 +155,10 @@ bool PhysicsBlock::update(Chunk*& lockedChunk)
     f64v3 worldPos = f64v3(position) + batch->_position;
 
     // Get the chunk position
-    i32v3 chPos = GameManager::chunkManager->getChunkPosition(worldPos);
+    i32v3 chPos = chunkManager->getChunkPosition(worldPos);
     
     // Get the chunk
-    Chunk* ch = GameManager::chunkManager->getChunk(chPos);
+    Chunk* ch = chunkManager->getChunk(chPos);
     if ((!ch) || ch->isAccessible == 0) return true;
 
     
@@ -180,13 +180,13 @@ bool PhysicsBlock::update(Chunk*& lockedChunk)
     // If we are colliding we need an air block
     if (colliding) {
         if (collideBlock.collide == false) {
-            if (Blocks[blockID].explosivePower) {
-                GameManager::physicsEngine->addExplosion(
-                    ExplosionNode(f64v3(position) + batch->_position,
-                    blockID));
-            } else {
+         //   if (Blocks[blockID].explosivePower) {
+         //       GameManager::physicsEngine->addExplosion(
+         //           ExplosionNode(f64v3(position) + batch->_position,
+         //           blockID));
+         //   } else {
                 ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
-            }
+         //   }
             // Mark this block as done so it can be removed in a few frames
             done = 1;
         }

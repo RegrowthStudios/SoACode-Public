@@ -18,7 +18,6 @@
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "Options.h"
-#include "InputManager.h"
 
 #include "SpaceSystem.h"
 #include "StarSystemScreen.h"
@@ -79,7 +78,6 @@ void App::onInit() {
     spaceSystem = new SpaceSystem(this);
     spaceSystem->init(GameManager::glProgramManager);
     saveFileIom = new IOManager;
-    inputManager = new InputManager;
 }
 
 void App::onExit() {

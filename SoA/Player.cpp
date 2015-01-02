@@ -123,8 +123,9 @@ void Player::updateCameras()
 	right = glm::cross(direction, up);*/
 }
 
-bool Player::update(bool isMouseIn, double Gravity, double AirFrictionForce)
+bool Player::update(InputManager* inputManager, bool isMouseIn, double Gravity, double AirFrictionForce)
 {
+    m_inputManager = inputManager;
     _gravity = Gravity;
     _airFrictionForce = AirFrictionForce;
 
@@ -348,8 +349,8 @@ void Player::groundMove()
     vec3 velChangeRay;
     float dirAgility;
     
-    float forwardInput = GameManager::inputManager->getAxis(INPUT_VERTICAL);
-    float rightInput = GameManager::inputManager->getAxis(INPUT_HORIZONTAL);
+    float forwardInput = m_inputManager->getAxis(INPUT_VERTICAL);
+    float rightInput = m_inputManager->getAxis(INPUT_HORIZONTAL);
 
     walkDir = planeDir * forwardInput;
     walkDir += right * rightInput;
@@ -377,14 +378,14 @@ void Player::groundMove()
         }
     }
 
-    if (GameManager::inputManager->getKey(INPUT_SPRINT)){
+    if (m_inputManager->getKey(INPUT_SPRINT)) {
         isSprinting = true;
         maxVel *= 1.5;
     }else{
         isSprinting = false;
     }
-    bool inputJumping = GameManager::inputManager->getKey(INPUT_JUMP);
-    bool inputCrouching = GameManager::inputManager->getKey(INPUT_CROUCH);
+    bool inputJumping = m_inputManager->getKey(INPUT_JUMP);
+    bool inputCrouching = m_inputManager->getKey(INPUT_CROUCH);
     //********************* crouch
     if (inputCrouching){
         crouchMovement(0);
@@ -484,12 +485,12 @@ void Player::groundMove()
 
 void Player::flyModeMove()
 {
-    float forwardInput = GameManager::inputManager->getAxis(INPUT_VERTICAL);
-    float rightInput = GameManager::inputManager->getAxis(INPUT_HORIZONTAL);
-    float jumpInput = GameManager::inputManager->getAxis(INPUT_JUMP);
-    float sprintInput = GameManager::inputManager->getAxis(INPUT_SPRINT);
-    float crouchInput = GameManager::inputManager->getAxis(INPUT_CROUCH);
-    float megaSpeedInput = GameManager::inputManager->getAxis(INPUT_MEGA_SPEED);
+    float forwardInput = m_inputManager->getAxis(INPUT_VERTICAL);
+    float rightInput = m_inputManager->getAxis(INPUT_HORIZONTAL);
+    float jumpInput = m_inputManager->getAxis(INPUT_JUMP);
+    float sprintInput = m_inputManager->getAxis(INPUT_SPRINT);
+    float crouchInput = m_inputManager->getAxis(INPUT_CROUCH);
+    float megaSpeedInput = m_inputManager->getAxis(INPUT_MEGA_SPEED);
 
     vel = 0;
     if (jumpInput > 0){

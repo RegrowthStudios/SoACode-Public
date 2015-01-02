@@ -405,7 +405,7 @@ void PhysicsEngine::pressureUpdate(PressureNode &pn)
 
 }
 
-void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, const f32v3 &dir) {
+void PhysicsEngine::explosionRay(ChunkManager* chunkManager, const f64v3 &pos, f32 force, f32 powerLoss, const f32v3 &dir) {
 
   
     VoxelRay vr(pos, f64v3(dir));
@@ -419,15 +419,15 @@ void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, con
     Chunk* lockedChunk = nullptr;
 
     // A minimum chunk position for determining voxel coords using only positive numbers
-    i32v3 relativeChunkSpot = GameManager::chunkManager->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
+    i32v3 relativeChunkSpot = chunkManager->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
     // Loop Traversal
     while (vr.getDistanceTraversed() < maxDistance) {
 
-        chunkPos = GameManager::chunkManager->getChunkPosition(loc);
+        chunkPos = chunkManager->getChunkPosition(loc);
 
-        Chunk* currentChunk = GameManager::chunkManager->getChunk(chunkPos);
+        Chunk* currentChunk = chunkManager->getChunk(chunkPos);
         if (currentChunk) {
 
             relativeLocation = loc - relativeChunkSpot;

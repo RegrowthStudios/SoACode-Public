@@ -38,6 +38,14 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* starting
     m_chunkManager = new ChunkManager;
     m_chunkIo = new ChunkIOManager;
 
+    //BAD MKAY
+    // Save the chunk version
+    m_chunkIo->saveVersionFile();
+
+    if (!m_chunkIo->checkVersion()) {
+        pError("Bad Version");
+    }
+
   /*  
     
     if (planet == NULL) showMessage("Initialized chunk manager with NULL planet!");

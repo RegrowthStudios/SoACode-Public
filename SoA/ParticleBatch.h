@@ -13,7 +13,7 @@ public:
     ~ParticleBatch();
 
     inline int findUnusedParticle();
-    void addParticles(int num, glm::dvec3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], glm::vec3 extraForce);
+    void addParticles(ChunkManager* chunkManager, int num, glm::dvec3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], glm::vec3 extraForce);
     void addParticles(int num, glm::dvec3 pos, ParticleEmitter* emitter);
 
 

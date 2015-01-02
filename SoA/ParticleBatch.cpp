@@ -49,7 +49,7 @@ int ParticleBatch::findUnusedParticle() {
     return -1; // All particles are taken, fail
 }
 
-void ParticleBatch::addParticles(int num, f64v3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], f32v3 extraForce) {
+void ParticleBatch::addParticles(ChunkManager* chunkManager, int num, f64v3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], f32v3 extraForce) {
 #define POS_OFFSET 10000.0
     
     if(size + num >= maxParticles) return;
@@ -58,7 +58,7 @@ void ParticleBatch::addParticles(int num, f64v3 pos, int tex, double force, floa
 
     if(size == 0) { //new origin
         // We offset by POS_OFFSET so we can guarentee the batch will always be positive
-        position = f64v3(GameManager::chunkManager->getChunkPosition(pos - POS_OFFSET) * CHUNK_WIDTH);
+        position = f64v3(chunkManager->getChunkPosition(pos - POS_OFFSET) * CHUNK_WIDTH);
     } else {
         dpos = position - pos;
     }

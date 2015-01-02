@@ -141,53 +141,6 @@ void GameManager::savePlayerState() {
    // fileManager.savePlayerFile(player);
 }
 
-int GameManager::newGame(nString saveName) {
-    nString dirPath = "Saves/";
-
-    for (size_t i = 0; i < saveName.size(); i++) {
-        if (!((saveName[i] >= '0' && saveName[i] <= '9') || (saveName[i] >= 'a' && saveName[i] <= 'z') || (saveName[i] >= 'A' && saveName[i] <= 'Z') || (saveName[i] == ' ') || (saveName[i] == '_'))) {
-            return 1;
-        }
-    }
-    std::cout << "CREATING " << saveName << std::endl;
-    // TODO: Boost
-    if (_mkdir(dirPath.c_str()) == 0){ //Create the save directory if it's not there. Will fail if it is, but that's ok. Should probably be in CreateSaveFile.
-        std::cout << "Save directory " + dirPath + " did not exist and was created!" << std::endl;
-    }
-
-    int rv = fileManager.createSaveFile(dirPath + saveName);
-    if (rv != 2) {
-        fileManager.createWorldFile(dirPath + saveName + "/World/");
-        saveFilePath = dirPath + saveName;
-        chunkIOManager->saveVersionFile();
-    }
-
-    return rv;
-}
-
-int GameManager::loadGame(nString saveName) {
-    std::cout << "LOADING " << saveName << std::endl;
-
-    //SaveFileInput(); //get the save file for the game
-
-    nString dirPath = "Saves/";
-    fileManager.makeSaveDirectories(dirPath + saveName);
-    if (fileManager.setSaveFile(dirPath + saveName) != 0) {
-        std::cout << "Could not set save file.\n";
-        return 1;
-    }
-    nString planetName = fileManager.getWorldString(dirPath + saveName + "/World/");
-    if (planetName == "") {
-        std::cout << "NO PLANET NAME";
-        return 1;
-    }
-
-    saveFilePath = dirPath + saveName;
-    chunkIOManager->checkVersion();
-
-    return 0;
-}
-
 void BindVBOIndicesID() {
     std::vector<GLuint> indices;
     indices.resize(589824);
@@ -213,30 +166,6 @@ void BindVBOIndicesID() {
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-void GameManager::initializeVoxelWorld(Player *playr) {
-    gameInitialized = 1;
-
-    bool atSurface = 1;
-    player = playr;
-
-    if (player) {
-        if (fileManager.loadPlayerFile(player)) {
-            atSurface = 0; //dont need to set height
-        }
-    }
-
-    voxelWorld->initialize(player->facePosition, &player->voxelMapData, 0);
-
-    if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
-
-    player->gridPosition = player->facePosition;
-
- //   player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
-
- //   double dist = player->facePosition.y + planet->radius;
-  //  player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
-}
-
 int ticksArray2[10];
 int ticksArrayIndex2 = 0;
 
@@ -249,7 +178,7 @@ bool isSolidBlock(const i32& blockID) {
     return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
 
-void GameManager::clickDragRay(bool isBreakRay) {
+void GameManager::clickDragRay(ChunkManager* chunkManager, bool isBreakRay) {
 #define MAX_RANGE 120.0f
 
     VoxelRayQuery rq;
@@ -282,14 +211,14 @@ void GameManager::clickDragRay(bool isBreakRay) {
         voxelEditor->setEndPosition(position);
     }
 }
-void GameManager::scanWSO() {
+void GameManager::scanWSO(ChunkManager* chunkManager) {
 
 #define SCAN_MAX_DISTANCE 20.0
     VoxelRayQuery rq = VRayHelper::getQuery(
         player->getChunkCamera().getPosition(),
         player->getChunkCamera().getDirection(),
         SCAN_MAX_DISTANCE,
-        GameManager::chunkManager,
+        chunkManager,
         isSolidBlock
         );
     if (rq.distance > SCAN_MAX_DISTANCE || rq.id == 0) return;

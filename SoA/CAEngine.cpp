@@ -72,7 +72,7 @@ CAEngine::CAEngine() {
     _highIndex = _lowIndex + _range - 1;
 }
 
-void CAEngine::updateSpawnerBlocks(bool powders)
+void CAEngine::updateSpawnerBlocks(PhysicsEngine* physicsEngine, bool powders)
 {
     _lockedChunk = nullptr;
     int spawnerVal;
@@ -103,7 +103,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                         ChunkUpdater::placeBlock(_chunk, _lockedChunk, c, spawnerVal);
                     } else if (powders){
                         physicsBlockPos = glm::dvec3((double)_chunk->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->gridPosition.y + c / CHUNK_LAYER, (double)_chunk->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
-                        GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
+                        physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 } else if (bottom && bottom->isAccessible){
                     c = c - CHUNK_LAYER + CHUNK_SIZE;
@@ -111,7 +111,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                         ChunkUpdater::placeBlockSafe(bottom, _lockedChunk, c, spawnerVal);
                     } else if (powders){
                         physicsBlockPos = glm::dvec3((double)bottom->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)bottom->gridPosition.y + c / CHUNK_LAYER, (double)bottom->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
-                        GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
+                        physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 }
             }

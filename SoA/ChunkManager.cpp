@@ -328,8 +328,6 @@ void ChunkManager::destroy() {
     }
     _chunkGridDataMap.clear();
 
-    GameManager::physicsEngine->clearAll();
-
     for (size_t i = 0; i < _freeWaitingChunks.size(); i++) { //kill the residual waiting threads too
         _freeWaitingChunks[i]->inSaveThread = nullptr;
         freeChunk(_freeWaitingChunks[i]);

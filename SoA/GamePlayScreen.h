@@ -28,6 +28,7 @@
 #include "PauseMenu.h"
 
 class App;
+class InputManager;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
@@ -118,6 +119,8 @@ private:
     bool loadPlayerFile(const cString filePath, Player* player);
 
     VoxelWorld* m_voxelWorld = nullptr;
+
+    InputManager* m_inputManager = nullptr;
 
     Player* m_player = nullptr; ///< The current player
 

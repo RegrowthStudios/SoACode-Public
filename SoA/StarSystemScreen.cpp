@@ -71,6 +71,8 @@ static const ui8 grad3[12][3] = {
 
 void StarSystemScreen::onEntry(const GameTime& gameTime) {
 
+    m_inputManager = new InputManager;
+
     mouseButtons[0] = false;
     mouseButtons[1] = false;
 
@@ -119,7 +121,8 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
 }
 
 void StarSystemScreen::onExit(const GameTime& gameTime) {
-    GameManager::inputManager->stopInput();
+    m_inputManager->stopInput();
+    delete m_inputManager;
 }
 
 void StarSystemScreen::onEvent(const SDL_Event& e) {
@@ -146,7 +149,7 @@ void StarSystemScreen::update(const GameTime& gameTime) {
 
     m_camera.updateProjection();
 
-    GameManager::inputManager->update();
+    m_inputManager->update();
 
 }
 

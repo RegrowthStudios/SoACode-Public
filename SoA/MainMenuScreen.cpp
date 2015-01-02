@@ -32,8 +32,8 @@
 #define THREAD ThreadId::UPDATE
 
 CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
-    _updateThread(nullptr),
-    _threadRunning(false){
+    m_updateThread(nullptr),
+    m_threadRunning(false){
     // Empty
 }
 
@@ -54,55 +54,57 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
     // Initialize the camera
-    _camera.init(_app->getWindow().getAspectRatio());
-    _camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
-    _camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
-    _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
-    _camera.setClippingPlane(10000.0f, 3000000000000.0f);
-    _camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
+    m_camera.init(_app->getWindow().getAspectRatio());
+    m_camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
+    m_camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
+    m_camera.setUp(glm::cross(m_camera.getRight(), m_camera.getDirection()));
+    m_camera.setClippingPlane(10000.0f, 3000000000000.0f);
+    m_camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
 
     _app->spaceSystem->targetBody("Aldrin");
 
     // Initialize the user interface
-    _awesomiumInterface.init("UI/MainMenu/",
+    m_awesomiumInterface.init("UI/MainMenu/",
                              "MainMenu_UI",
                              "index.html", 
                              _app->getWindow().getWidth(), 
                              _app->getWindow().getHeight(),
                              this);
 
+    m_inputManager = new InputManager;
+
     // Init rendering
     initRenderPipeline();
-    InputManager* inputManager = GameManager::inputManager;
-    _onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnMainMenuReloadShadersKeyDown(this));
+    m_onReloadShadersKeyDown = m_inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnMainMenuReloadShadersKeyDown(this));
 
     // Run the update thread for updating the planet
-    _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
+    m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 
-    GameManager::inputManager->startInput();
+    m_inputManager->startInput();
 }
 
 void MainMenuScreen::onExit(const GameTime& gameTime) {
-    GameManager::inputManager->stopInput();
+    m_inputManager->stopInput();
 
-    _threadRunning = false;
-    _updateThread->join();
-    delete _updateThread;
-    _awesomiumInterface.destroy();
-    _renderPipeline.destroy();
+    m_threadRunning = false;
+    m_updateThread->join();
+    delete m_updateThread;
+    m_awesomiumInterface.destroy();
+    m_renderPipeline.destroy();
 
-    InputManager* inputManager = GameManager::inputManager;
-    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, _onReloadShadersKeyDown);
-    delete _onReloadShadersKeyDown;
+    m_inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
+    delete m_onReloadShadersKeyDown;
+
+    delete m_inputManager;
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
 
     // Check for reloading the UI
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
+    if (m_inputManager->getKeyDown(INPUT_RELOAD_UI)) {
         std::cout << "\n\nReloading MainMenu UI...\n\n";
-        _awesomiumInterface.destroy();
-        _awesomiumInterface.init("UI/MainMenu/",
+        m_awesomiumInterface.destroy();
+        m_awesomiumInterface.init("UI/MainMenu/",
                                  "MainMenu_UI", 
                                  "index.html",
                                  _app->getWindow().getWidth(),
@@ -114,23 +116,23 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 
 void MainMenuScreen::update(const GameTime& gameTime) {
 
-    _awesomiumInterface.update();
+    m_awesomiumInterface.update();
     
     static double time = 0.0;
     time += 0.001;
 
-    _app->spaceSystem->update(time, _camera.getPosition());
+    _app->spaceSystem->update(time, m_camera.getPosition());
     _app->spaceSystem->glUpdate();
     // Connect camera to target planet
-    float length = _camera.getFocalLength() / 10.0;
+    float length = m_camera.getFocalLength() / 10.0;
     if (length == 0) length = 0.1;
-    _camera.setClippingPlane(length, _camera.getFarClip());
+    m_camera.setClippingPlane(length, m_camera.getFarClip());
     // Target closest point on sphere
-    _camera.setTargetFocalPoint(_app->spaceSystem->getTargetPosition() -
-                                f64v3(glm::normalize(_camera.getDirection())) * _app->spaceSystem->getTargetRadius());
+    m_camera.setTargetFocalPoint(_app->spaceSystem->getTargetPosition() -
+                                f64v3(glm::normalize(m_camera.getDirection())) * _app->spaceSystem->getTargetRadius());
 
-    _camera.update();
-    GameManager::inputManager->update(); // TODO: Remove
+    m_camera.update();
+    m_inputManager->update(); // TODO: Remove
 
     MeshManager* meshManager = _app->meshManager;
 
@@ -153,12 +155,12 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     }
 
     // Check for shader reload
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+    if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
         // Reload the pipeline with new shaders
-        _renderPipeline.destroy();
+        m_renderPipeline.destroy();
         initRenderPipeline();
     }
 
@@ -169,13 +171,13 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 
     updateWorldCameraClip();
 
-    _renderPipeline.render();
+    m_renderPipeline.render();
 }
 
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_camera, &_awesomiumInterface,
+    m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
                          _app->spaceSystem, GameManager::glProgramManager);
 }
 
@@ -197,9 +199,6 @@ void MainMenuScreen::loadGame(const nString& fileName) {
         return;
     }
 
-    // Check the chunk version
-    GameManager::chunkIOManager->checkVersion();
-
     _state = ScreenState::CHANGE_NEXT;
 }
 
@@ -217,17 +216,14 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     // Save the world file
     nString worldText("Aldrin");
-    _ioManager.writeStringToFile((fileName + "/World/world.txt").c_str(), worldText);
-
-    // Save the chunk version
-    GameManager::chunkIOManager->saveVersionFile();
+    m_ioManager.writeStringToFile((fileName + "/World/world.txt").c_str(), worldText);
 
     _state = ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::updateThreadFunc() {
 
-    _threadRunning = true;
+    m_threadRunning = true;
 
     Message message;
 
@@ -241,7 +237,7 @@ void MainMenuScreen::updateThreadFunc() {
     FpsLimiter fpsLimiter;
     fpsLimiter.init(maxPhysicsFps);
 
-    while (_threadRunning) {
+    while (m_threadRunning) {
 
         fpsLimiter.beginFrame();
 
@@ -282,5 +278,5 @@ void MainMenuScreen::updateWorldCameraClip() {
     // The world camera has a dynamic clipping plane
 //    _camera.setClippingPlane(1.0f, 200.0f);
  //   _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    _camera.updateProjection();
+    m_camera.updateProjection();
 }

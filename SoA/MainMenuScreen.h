@@ -27,6 +27,7 @@
 
 class App;
 class TerrainMeshMessage;
+class InputManager;
 
 class MainMenuScreen : public IAppScreen<App>
 {
@@ -49,8 +50,8 @@ public:
     virtual void draw(const GameTime& gameTime);
 
     // Getters
-    CinematicCamera& getCamera() { return _camera; }
-    IOManager& getIOManager() { return _ioManager; }
+    CinematicCamera& getCamera() { return m_camera; }
+    IOManager& getIOManager() { return m_ioManager; }
 
 private:
 
@@ -72,18 +73,20 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
-    vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface; ///< The user interface
+    vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
     
-    IOManager _ioManager; ///< Helper class for IO operations
+    IOManager m_ioManager; ///< Helper class for IO operations
 
-    CinematicCamera _camera; ///< The camera that looks at the planet from space
+    InputManager* m_inputManager = nullptr;
 
-    std::thread* _updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
-    volatile bool _threadRunning; ///< True when the thread should be running
+    CinematicCamera m_camera; ///< The camera that looks at the planet from space
 
-    IDelegate<ui32>* _onReloadShadersKeyDown = nullptr;
+    std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
+    volatile bool m_threadRunning; ///< True when the thread should be running
 
-    MainMenuRenderPipeline _renderPipeline; ///< This handles all rendering for the main menu
+    IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
+
+    MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
 };
 
 #endif // MAINMENUSCREEN_H_
