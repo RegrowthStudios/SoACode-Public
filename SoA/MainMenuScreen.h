@@ -49,7 +49,7 @@ public:
 
     // Getters
     CinematicCamera& getCamera() { return _camera; }
-    IOManager& getIOManager() { return _ioManager; }
+    vio::IOManager& getIOManager() { return _ioManager; }
 
 private:
 
@@ -73,7 +73,7 @@ private:
 
     vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface; ///< The user interface
     
-    IOManager _ioManager; ///< Helper class for IO operations
+    vio::IOManager _ioManager; ///< Helper class for IO operations
 
     CinematicCamera _camera; ///< The camera that looks at the planet from space
 

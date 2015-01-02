@@ -218,7 +218,7 @@ void GamePlayRenderPipeline::loadNightVision() {
     _nvIndex = 0;
     _nvParams.clear();
 
-    IOManager iom;
+    vio::IOManager iom;
     const cString nvData = iom.readFileToString("Data/NightVision.yml");
     if (nvData) {
         Array<NightVisionRenderParams> arr;

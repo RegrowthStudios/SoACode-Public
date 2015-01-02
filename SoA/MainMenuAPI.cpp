@@ -52,7 +52,7 @@ Awesomium::JSValue MainMenuAPI::getPlanetRadius(const Awesomium::JSArray& args) 
 Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
 
     // Read the contents of the Saves directory
-    std::vector<boost::filesystem::path> paths;
+    std::vector<vpath> paths;
     _ownerScreen->getIOManager().getDirectoryEntries("Saves", paths);
 
     // For getting localtime
@@ -62,12 +62,12 @@ Awesomium::JSValue MainMenuAPI::getSaveFiles(const Awesomium::JSArray& args) {
 
     Awesomium::JSArray entries;
     for (int i = 0; i < paths.size(); i++) {
-        if (boost::filesystem::is_directory(paths[i])) {
+        if (paths[i].isDirectory()) {
             // Add the filename
-            nString fileName = paths[i].filename().string();
+            nString fileName = paths[i].getLeaf();
             entries.Push(Awesomium::WSLit(fileName.c_str()));
             // Add the access time
-            time_t writeTime = boost::filesystem::last_write_time(paths[i]);
+            time_t writeTime = paths[i].getLastModTime();
             // Get the time info
             localtime_s(&timeinfo, &writeTime);
             // Create the string

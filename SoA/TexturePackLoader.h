@@ -197,7 +197,7 @@ private:
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
 
-    IOManager _ioManager; ///< Provides IO utilities
+    vio::IOManager _ioManager; ///< Provides IO utilities
 
     int _numAtlasPages;
 };

@@ -450,7 +450,7 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
 }
 i32 FileManager::loadTreeType(nString filePath, TreeType *tree) {
     // TODO: This Should Be An Argument
-    IOManager iom;
+    vio::IOManager iom;
 
     nString data;
     iom.readFileToString(filePath.c_str(), data);
