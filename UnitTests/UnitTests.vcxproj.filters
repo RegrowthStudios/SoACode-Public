@@ -50,6 +50,9 @@
     <ClCompile Include="VorbCoreECS.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="VorbIO.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

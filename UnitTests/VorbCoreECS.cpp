@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "macros.h"
 
-#include "ECS.h"
-#include "ComponentTable.hpp"
-
 #undef UNIT_TEST_BATCH
 #define UNIT_TEST_BATCH Vorb_Core_ECS_
+
+#include <Vorb/ECS.h>
+#include <Vorb/ComponentTable.hpp>
 
 TEST(Creation) {
     vcore::ECS ecs;

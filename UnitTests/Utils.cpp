@@ -6,8 +6,8 @@
 
 #include <random>
 
-#include <Random.h>
-#include <Timing.h>
+#include <Vorb/Random.h>
+#include <Vorb/Timing.h>
 
 TEST(MersenneTwister) {
     f32 t1, t2;

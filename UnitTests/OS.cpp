@@ -5,7 +5,7 @@
 #define UNIT_TEST_BATCH OS_
 
 #define OS_WINDOWS
-#include <MemFile.h>
+#include <Vorb/MemFile.h>
 
 TEST(ConsoleRedirect) {
     MemFile m;
