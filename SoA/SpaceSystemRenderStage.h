@@ -52,8 +52,8 @@ private:
 
     void drawHud();
 
-    std::unique_ptr<SpriteBatch> m_spriteBatch;
-    std::unique_ptr<SpriteFont> m_spriteFont;
+    SpriteBatch* m_spriteBatch = nullptr;
+    SpriteFont* m_spriteFont = nullptr;
 
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
