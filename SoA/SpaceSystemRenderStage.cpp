@@ -125,9 +125,6 @@ void SpaceSystemRenderStage::drawPaths() {
 
 
 void SpaceSystemRenderStage::drawHud() {
-
-    DepthState::NONE.set();
-
     // Lazily load spritebatch
     if (!m_spriteBatch) {
         m_spriteBatch = new SpriteBatch(true, true);
@@ -164,19 +161,24 @@ void SpaceSystemRenderStage::drawHud() {
         f64v3 relativePos = it.second.position - m_camera->getPosition();
         f64 distance = glm::length(relativePos);
         float radiusPixels;
+        float radius;
         if (m_camera->pointInFrustum(f32v3(relativePos))) {
             // Get screen position 
-            f32v2 screenCoords = m_camera->worldToScreenPoint(relativePos);
+            f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
+            f32v2 xyScreenCoords(screenCoords.x, screenCoords.y);
+            float depth = screenCoords.z;
 
             // See if it has a radius
             componentID = m_spaceSystem->m_sphericalGravityCT.getComponentID(it.first);
             if (componentID) {
                 // Get radius of projected sphere
-                radiusPixels = (m_spaceSystem->m_sphericalGravityCT.get(componentID).radius /
+                radius = m_spaceSystem->m_sphericalGravityCT.get(componentID).radius;
+                radiusPixels = (radius /
                                 (tan(m_camera->getFieldOfView() / 2) * distance)) *
                                 (m_viewport.y / 2.0f);
             } else {
-                radiusPixels = (m_spaceSystem->m_sphericalGravityCT.get(componentID).radius /
+                radius = 1000.0f;
+                radiusPixels = (radius /
                                 (tan(m_camera->getFieldOfView() / 2) * distance)) *
                                 (m_viewport.y / 2.0f);
             }
@@ -184,20 +186,25 @@ void SpaceSystemRenderStage::drawHud() {
             if (radiusPixels < 16.0f) {
 
                 // Draw Indicator
-                m_spriteBatch->draw(m_selectorTexture, screenCoords * m_viewport - selectorSize / 2.0f, selectorSize, textColor);
+                m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
+                                    xyScreenCoords * m_viewport,
+                                    -selectorSize / 2.0f,
+                                    selectorSize, textColor, depth);
                 // Draw Text
                 m_spriteBatch->drawString(m_spriteFont,
                                           it.second.name.c_str(),
-                                          screenCoords * m_viewport + textOffset,
+                                          xyScreenCoords * m_viewport + textOffset,
                                           f32v2(0.5f),
-                                          textColor);
+                                          textColor,
+                                          depth);
             }
 
         }
     }
 
     m_spriteBatch->end();
-    m_spriteBatch->renderBatch(m_viewport);
+    m_spriteBatch->renderBatch(m_viewport, nullptr, &DepthState::READ);
 
+    // Restore depth state
     DepthState::FULL.set();
 }
