@@ -27,6 +27,10 @@ MainMenuSystemViewer::MainMenuSystemViewer(CinematicCamera* camera, SpaceSystem*
     vui::InputDispatcher::mouse.onWheel.addFunctor(([=](void* s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); }));
 }
 
+MainMenuSystemViewer::~MainMenuSystemViewer() {
+    // Empty
+}
+
 void MainMenuSystemViewer::update() {
 
 }

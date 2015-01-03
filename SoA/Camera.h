@@ -30,6 +30,9 @@ public:
     void setFocalLength(float focalLength) { m_focalLength = focalLength; m_viewChanged = 1; }
     void setAspectRatio(float aspectRatio) { m_aspectRatio = aspectRatio; m_projectionChanged = 1; }
 
+    // Gets the position of a 3D point on the screen plane
+    f32v2 worldToScreenPoint(const f32v3& worldPoint);
+
     //getters
     const glm::dvec3& getPosition() const { return m_position; }
     const glm::vec3& getDirection() const { return m_direction; }

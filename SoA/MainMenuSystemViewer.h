@@ -16,6 +16,10 @@
 #ifndef MainMenuSystemViewer_h__
 #define MainMenuSystemViewer_h__
 
+#include <Vorb/Vorb.h>
+// Temporary
+#include <Vorb/MouseInputDispatcher.h>
+
 class CinematicCamera;
 class InputManager;
 class SpaceSystem;
@@ -23,10 +27,17 @@ class SpaceSystem;
 class MainMenuSystemViewer {
 public:
     MainMenuSystemViewer(CinematicCamera* camera, SpaceSystem* spaceSystem, InputManager* inputManager);
+    ~MainMenuSystemViewer();
 
     void update();
 
 private:
+    // Events
+    void onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e);
+    void onMouseButtonUp(void* sender, const vui::MouseButtonEvent& e);
+    void onMouseWheel(void* sender, const vui::MouseWheelEvent& e);
+    void onMouseMotion(void* sender, const vui::MouseMotionEvent& e);
+
     nString currentBody = "";
 
     CinematicCamera* m_camera = nullptr;

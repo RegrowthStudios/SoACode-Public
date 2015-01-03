@@ -38,6 +38,10 @@ CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
     // Empty
 }
 
+MainMenuScreen::~MainMenuScreen() {
+    // Empty
+}
+
 i32 MainMenuScreen::getNextScreen() const {
     return _app->scrGamePlay->getIndex();
 }

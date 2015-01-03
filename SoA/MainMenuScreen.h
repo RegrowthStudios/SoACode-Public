@@ -36,6 +36,7 @@ class MainMenuScreen : public IAppScreen<App>
     friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
     CTOR_APP_SCREEN_DECL(MainMenuScreen, App);
+    ~MainMenuScreen();
 
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;
