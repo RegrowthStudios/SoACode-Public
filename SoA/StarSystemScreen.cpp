@@ -107,7 +107,7 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     _quad.init();
 
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &m_camera);
-    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport),
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport.z, _viewport.w),
                                                           _app->spaceSystem, &m_camera,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),

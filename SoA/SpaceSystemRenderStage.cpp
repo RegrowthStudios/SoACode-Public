@@ -132,7 +132,6 @@ void SpaceSystemRenderStage::drawHud() {
     if (!m_spriteBatch) {
         m_spriteBatch = new SpriteBatch(true, true);
         m_spriteFont = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
-        checkGlError("NN");
     }
 
     // Reset the yOffset
@@ -181,20 +180,17 @@ void SpaceSystemRenderStage::drawHud() {
                                 (tan(m_camera->getFieldOfView() / 2) * distance)) *
                                 (m_viewport.y / 2.0f);
             }
-            checkGlError("QQQ");
 
             if (radiusPixels < 16.0f) {
 
                 // Draw Indicator
                 m_spriteBatch->draw(m_selectorTexture, screenCoords * m_viewport - selectorSize / 2.0f, selectorSize, textColor);
                 // Draw Text
-                checkGlError("EE");
                 m_spriteBatch->drawString(m_spriteFont,
                                           it.second.name.c_str(),
                                           screenCoords * m_viewport + textOffset,
                                           f32v2(0.5f),
                                           textColor);
-                checkGlError("GG");
             }
 
         }
@@ -204,6 +200,4 @@ void SpaceSystemRenderStage::drawHud() {
     m_spriteBatch->renderBatch(m_viewport);
 
     DepthState::FULL.set();
-
-    checkGlError("HELLO");
 }
