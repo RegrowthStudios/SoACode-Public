@@ -151,6 +151,7 @@
     <ClInclude Include="MainMenuRenderPipeline.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MainMenuScreenEvents.hpp" />
+    <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="NamePositionComponent.h" />
@@ -301,6 +302,7 @@
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />

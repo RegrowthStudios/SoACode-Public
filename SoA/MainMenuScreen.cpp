@@ -6,19 +6,21 @@
 
 #include "App.h"
 
-#include "GamePlayScreen.h"
-#include "IAwesomiumAPI.h"
 #include "ChunkManager.h"
 #include "Errors.h"
 #include "FileSystem.h"
 #include "Frustum.h"
 #include "GameManager.h"
 #include "GamePlayScreen.h"
+#include "GamePlayScreen.h"
+#include "IAwesomiumAPI.h"
 #include "IAwesomiumAPI.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
+#include "MainMenuScreenEvents.hpp"
+#include "MainMenuSystemViewer.h"
 #include "MeshManager.h"
 #include "MessageManager.h"
 #include "Options.h"
@@ -27,7 +29,6 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
 #include "VoxelEditor.h"
-#include "MainMenuScreenEvents.hpp"
 
 #define THREAD ThreadId::UPDATE
 
@@ -53,15 +54,12 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
-    // Initialize the camera
-    m_camera.init(_app->getWindow().getAspectRatio());
-    m_camera.setPosition(glm::dvec3(0.0, 200000.0, 0.0));
-    m_camera.setDirection(glm::vec3(0.0, -1.0, 0.0));
-    m_camera.setUp(glm::cross(m_camera.getRight(), m_camera.getDirection()));
-    m_camera.setClippingPlane(10000.0f, 3000000000000.0f);
-    m_camera.setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
 
-    _app->spaceSystem->targetBody("Aldrin");
+    m_camera.init(_app->getWindow().getAspectRatio());
+
+    m_inputManager = new InputManager;
+
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(&m_camera, _app->spaceSystem, m_inputManager);
 
     // Initialize the user interface
     m_awesomiumInterface.init("UI/MainMenu/",
@@ -71,7 +69,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
                              _app->getWindow().getHeight(),
                              this);
 
-    m_inputManager = new InputManager;
+   
 
     // Init rendering
     initRenderPipeline();
@@ -85,6 +83,8 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
 void MainMenuScreen::onExit(const GameTime& gameTime) {
     m_inputManager->stopInput();
+
+    m_mainMenuSystemViewer.reset();
 
     m_threadRunning = false;
     m_updateThread->join();
@@ -120,6 +120,8 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     
     static double time = 0.0;
     time += 0.001;
+
+    m_mainMenuSystemViewer->update();
 
     _app->spaceSystem->update(time, m_camera.getPosition());
     _app->spaceSystem->glUpdate();

@@ -599,6 +599,9 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
+    <ClInclude Include="MainMenuSystemViewer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -962,6 +965,7 @@
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
+    <ClCompile Include="MainMenuSystemViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

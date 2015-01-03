@@ -26,8 +26,9 @@
 #include "MainMenuRenderPipeline.h"
 
 class App;
-class TerrainMeshMessage;
 class InputManager;
+class MainMenuSystemViewer;
+class TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
 {
@@ -80,6 +81,8 @@ private:
     InputManager* m_inputManager = nullptr;
 
     CinematicCamera m_camera; ///< The camera that looks at the planet from space
+
+    std::unique_ptr<MainMenuSystemViewer> m_mainMenuSystemViewer;
 
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
