@@ -31,7 +31,8 @@ public:
     void setAspectRatio(float aspectRatio) { m_aspectRatio = aspectRatio; m_projectionChanged = 1; }
 
     // Gets the position of a 3D point on the screen plane
-    f32v2 worldToScreenPoint(const f32v3& worldPoint);
+    f32v2 worldToScreenPoint(const f32v3& worldPoint) const;
+    f32v2 worldToScreenPoint(const f64v3& worldPoint) const;
 
     //getters
     const glm::dvec3& getPosition() const { return m_position; }

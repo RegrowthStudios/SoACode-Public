@@ -80,6 +80,24 @@ void Camera::yawFromMouse(float dx, float speed) {
     applyRotation(frontQuat);
 }
 
+f32v2 Camera::worldToScreenPoint(const f32v3& worldPoint) const {
+    // Transform world to clipping coordinates
+    f32v4 clipPoint = m_viewProjectionMatrix * f32v4(worldPoint, 1.0f);
+    clipPoint.x /= clipPoint.w;
+    clipPoint.y /= clipPoint.w;
+    return f32v2((clipPoint.x + 1.0) / 2.0f,
+                 (1.0 - clipPoint.y) / 2.0f);
+}
+
+f32v2 Camera::worldToScreenPoint(const f64v3& worldPoint) const {
+    // Transform world to clipping coordinates
+    f64v4 clipPoint = f64m4(m_viewProjectionMatrix) * f64v4(worldPoint, 1.0);
+    clipPoint.x /= clipPoint.w;
+    clipPoint.y /= clipPoint.w;
+    return f32v2((clipPoint.x + 1.0) / 2.0,
+                 (1.0 - clipPoint.y) / 2.0);
+}
+
 void CinematicCamera::update()
 {
     m_viewChanged = true;

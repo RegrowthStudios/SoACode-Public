@@ -26,4 +26,5 @@ void SpaceSystemRenderStage::draw() {
     const_cast<SpaceSystem*>(m_spaceSystem)->drawBodies(m_camera, m_terrainProgram,
                                                         m_waterProgram);
     const_cast<SpaceSystem*>(m_spaceSystem)->drawPaths(m_camera, m_colorProgram);
+    const_cast<SpaceSystem*>(m_spaceSystem)->drawHud(m_camera);
 }

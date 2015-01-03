@@ -40,7 +40,7 @@ m_glrpc() {
 }
 
 i32 LoadScreen::getNextScreen() const {
-    return _app->scrMainMenu->getIndex();
+    return _app->scrStarSystem->getIndex();
 }
 i32 LoadScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;

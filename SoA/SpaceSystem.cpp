@@ -236,7 +236,7 @@ void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram
     waterProgram->unuse();
     m_mutex.unlock();
 
-  //  drawHud();
+  
     DepthState::FULL.set();
 }
 
@@ -543,7 +543,8 @@ void SpaceSystem::setOrbitProperties(vcore::ComponentID cmp, const SystemBodyKeg
     }
 }
 
-void SpaceSystem::drawHud() {
+void SpaceSystem::drawHud(const Camera* camera) {
+    f32v2 viewportDims = f32v2(m_app->getWindow().getViewportDims());
     // Lazily load spritebatch
     if (!m_spriteBatch) {
         m_spriteBatch = new SpriteBatch(true, true);
@@ -556,19 +557,33 @@ void SpaceSystem::drawHud() {
 
     m_spriteBatch->begin();
 
-    m_spriteBatch->drawString(m_spriteFont,
+    /*m_spriteBatch->drawString(m_spriteFont,
                              ("Name: " + getTargetName()).c_str(),
                              f32v2(0.0f, yOffset),
                              f32v2(1.0f),
                              color::White);
-    yOffset += fontHeight;
-    m_spriteBatch->drawString(m_spriteFont,
-                              ("Radius: " + std::to_string(getTargetRadius()) + " KM").c_str(),
-                              f32v2(0.0f, yOffset),
-                              f32v2(1.0f),
-                              color::White);
-    yOffset += fontHeight;
+                             yOffset += fontHeight;
+                             m_spriteBatch->drawString(m_spriteFont,
+                             ("Radius: " + std::to_string(getTargetRadius()) + " KM").c_str(),
+                             f32v2(0.0f, yOffset),
+                             f32v2(1.0f),
+                             color::White);
+                             yOffset += fontHeight;*/
+
+    // Render all bodies
+    for (auto& it : m_namePositionCT) {
+        f64v3 relativePos = glm::normalize(it.second.position - camera->getPosition()) * (f64)camera->getNearClip() * 4.0;
+        if (camera->pointInFrustum(f32v3(relativePos))) {
+            f32v2 screenCoords = camera->worldToScreenPoint(relativePos);
+            m_spriteBatch->drawString(m_spriteFont,
+                                      it.second.name.c_str(),
+                                      screenCoords * viewportDims,
+                                      f32v2(0.5f),
+                                      color::White);
+            std::cout << it.second.name.c_str() << std::endl;
+        }
+    }
 
     m_spriteBatch->end();
-    m_spriteBatch->renderBatch(f32v2(m_app->getWindow().getViewportDims()));
+    m_spriteBatch->renderBatch(viewportDims);
 }

@@ -98,6 +98,8 @@ public:
     /// @param colorProgram: glProgram for basic color
     void drawPaths(const Camera* camera, vg::GLProgram* colorProgram);
 
+    void drawHud(const Camera* camera);
+
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
@@ -158,8 +160,6 @@ protected:
 
     void setOrbitProperties(vcore::ComponentID cmp, 
                             const SystemBodyKegProperties* sysProps);
-
-    void drawHud();
 
     vcore::ComponentID targetComponent = 1; ///< Current namePositionComponent we are focusing on
 
