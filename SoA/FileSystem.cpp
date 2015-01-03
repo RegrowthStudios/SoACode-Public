@@ -9,8 +9,8 @@
 #include <Vorb/IOManager.h>
 #include <Vorb/Keg.h>
 #include <Vorb/TextureCache.h>
-#include <ZLIB/ioapi.c>
-#include <ZLIB/unzip.c>
+#include <ZLIB/ioapi.h>
+#include <ZLIB/unzip.h>
 
 #include "Animation.h"
 #include "BlockPack.h"
