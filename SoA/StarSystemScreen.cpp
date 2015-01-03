@@ -107,7 +107,8 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     _quad.init();
 
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &m_camera);
-    m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera,
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport),
+                                                          _app->spaceSystem, &m_camera,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),
                                                           glProgramManager->getProgram("SphericalWater"),
@@ -236,7 +237,7 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             break;
         case VKEY_F10: // Reload star system
             delete _app->spaceSystem;
-            const_cast<App*>(_app)->spaceSystem = new SpaceSystem(const_cast<App*>(_app));
+            const_cast<App*>(_app)->spaceSystem = new SpaceSystem();
             const_cast<App*>(_app)->spaceSystem->init(GameManager::glProgramManager);
             const_cast<App*>(_app)->spaceSystem->addSolarSystem("StarSystems/Trinity");
             _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
@@ -248,7 +249,8 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             }
             _app->spaceSystem->targetBody("Aldrin");
             delete m_spaceSystemRenderStage;
-            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera,
+            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->getWindow().getViewportDims(),
+                                                                  _app->spaceSystem, &m_camera,
                                                                   GameManager::glProgramManager->getProgram("BasicColor"),
                                                                   GameManager::glProgramManager->getProgram("SphericalTerrain"),
                                                                   GameManager::glProgramManager->getProgram("SphericalWater"),
@@ -268,7 +270,7 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             }
 
             delete _app->spaceSystem;
-            const_cast<App*>(_app)->spaceSystem = new SpaceSystem(const_cast<App*>(_app));
+            const_cast<App*>(_app)->spaceSystem = new SpaceSystem();
             const_cast<App*>(_app)->spaceSystem->init(GameManager::glProgramManager);
             const_cast<App*>(_app)->spaceSystem->addSolarSystem("StarSystems/Trinity");
             _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
@@ -289,7 +291,8 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             delete _hdrRenderStage;
 
             _skyboxRenderStage = new SkyboxRenderStage(GameManager::glProgramManager->getProgram("Texture"), &m_camera);
-            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->spaceSystem, &m_camera,
+            m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->getWindow().getViewportDims(),
+                                                                  _app->spaceSystem, &m_camera,
                                                                   GameManager::glProgramManager->getProgram("BasicColor"),
                                                                   GameManager::glProgramManager->getProgram("SphericalTerrain"),
                                                                   GameManager::glProgramManager->getProgram("SphericalWater"),

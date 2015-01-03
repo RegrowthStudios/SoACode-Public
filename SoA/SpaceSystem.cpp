@@ -2,23 +2,16 @@
 
 #include "App.h"
 #include "Camera.h"
-#include "DebugRenderer.h"
-#include "GLProgramManager.h"
 #include "PlanetLoader.h"
 #include "PlanetLoader.h"
-#include "RenderUtils.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainMeshManager.h"
+#include "GLProgramManager.h"
 
-#include <Vorb/DepthState.h>
 #include <Vorb/IOManager.h>
 #include <Vorb/Keg.h>
-#include <Vorb/SamplerState.h>
-#include <Vorb/SpriteBatch.h>
-#include <Vorb/SpriteFont.h>
 #include <Vorb/TextureRecycler.hpp>
-#include <Vorb/colors.h>
 #include <Vorb/utils.h>
 
 #include <glm\gtc\type_ptr.hpp>
@@ -133,14 +126,13 @@ KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, F64, angularSpeed);
 KEG_TYPE_INIT_ADD_MEMBER(GasGiantKegProperties, STRING, displayName);
 KEG_TYPE_INIT_END
 
-SpaceSystem::SpaceSystem(App* parent) : vcore::ECS() {
+SpaceSystem::SpaceSystem() : vcore::ECS() {
     // Add in component tables
     addComponentTable(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, &m_namePositionCT);
     addComponentTable(SPACE_SYSTEM_CT_AXISROTATION_NAME, &m_axisRotationCT);
     addComponentTable(SPACE_SYSTEM_CT_ORBIT_NAME, &m_orbitCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
 
-    m_app = parent;
     m_planetLoader = new PlanetLoader(&m_ioManager);
    
     #define MAX_NORMAL_MAPS 512U
@@ -191,79 +183,6 @@ void SpaceSystem::glUpdate() {
     for (auto& cmp : m_sphericalTerrainCT) {
         cmp.second.glUpdate();
     }
-}
-
-void SpaceSystem::drawBodies(const Camera* camera, vg::GLProgram* terrainProgram,
-                             vg::GLProgram* waterProgram) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    static DebugRenderer debugRenderer;
-    m_mutex.lock();
-    for (auto& it : m_sphericalGravityCT) {
-        auto& sgcmp = it.second;
-        float radius = sgcmp.radius;
-        const f64v3& position = m_namePositionCT.getFromEntity(it.first).position;
-
-        debugRenderer.drawIcosphere(f32v3(0), radius * 0.99, f32v4(1.0), 4);
-
-        const AxisRotationComponent& axisRotComp = m_axisRotationCT.getFromEntity(it.first);
-
-        f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
-
-        f32m4 WVP = camera->getProjectionMatrix() * camera->getViewMatrix();
-
-        debugRenderer.render(WVP, f32v3(camera->getPosition() - position), rotationMatrix);
-    }
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_CULL_FACE);
-    glActiveTexture(GL_TEXTURE0);
-    terrainProgram->use();
-    glUniform1i(terrainProgram->getUniform("unNormalMap"), 0);
-    glUniform1i(terrainProgram->getUniform("unColorMap"), 1);
-    glUniform1i(terrainProgram->getUniform("unTexture"), 2);
-    glUniform1f(terrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
-    waterProgram->use();
-    glUniform1i(waterProgram->getUniform("unNormalMap"), 0);
-    glUniform1i(waterProgram->getUniform("unColorMap"), 1);
-
-    for (auto& it : m_sphericalTerrainCT) {
-        auto& cmp = it.second;
-       
-        cmp.draw(camera, terrainProgram, waterProgram, &m_namePositionCT.getFromEntity(it.first),
-                 &m_axisRotationCT.getFromEntity(it.first));
-    }
-    waterProgram->unuse();
-    m_mutex.unlock();
-
-  
-    DepthState::FULL.set();
-}
-
-void SpaceSystem::drawPaths(const Camera* camera, vg::GLProgram* colorProgram) {
-    
-    // Draw paths
-    colorProgram->use();
-    colorProgram->enableVertexAttribArrays();
-    glDepthMask(GL_FALSE);
-    glLineWidth(3.0f);
- 
-    f32m4 wvp = camera->getProjectionMatrix() * camera->getViewMatrix();
-    m_mutex.lock();
-    for (auto& it : m_orbitCT) {
-        auto& cmp = it.second;
-        if (cmp.parentNpId) {
-            cmp.drawPath(colorProgram, wvp, &m_namePositionCT.getFromEntity(it.first),
-                         camera->getPosition(), &m_namePositionCT.get(cmp.parentNpId));
-        } else {
-            cmp.drawPath(colorProgram, wvp, &m_namePositionCT.getFromEntity(it.first),
-                         camera->getPosition());
-        }
-    }
-    m_mutex.unlock();
-    colorProgram->disableVertexAttribArrays();
-    colorProgram->unuse();
-    glDepthMask(GL_TRUE);
 }
 
 void SpaceSystem::addSolarSystem(const nString& dirPath) {
@@ -541,78 +460,4 @@ void SpaceSystem::setOrbitProperties(vcore::ComponentID cmp, const SystemBodyKeg
     } else if (right != sysProps->orbitNormal) {
         orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
     }
-}
-
-void SpaceSystem::drawHud(const Camera* camera, VGTexture selectorTexture) {
-    f32v2 viewportDims = f32v2(m_app->getWindow().getViewportDims());
-    // Lazily load spritebatch
-    if (!m_spriteBatch) {
-        m_spriteBatch = new SpriteBatch(true, true);
-        m_spriteFont = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
-    }
-
-    // Reset the yOffset
-    float yOffset = 0.0f;
-    float fontHeight = m_spriteFont->getFontHeight();
-
-    m_spriteBatch->begin();
-
-    /*m_spriteBatch->drawString(m_spriteFont,
-                             ("Name: " + getTargetName()).c_str(),
-                             f32v2(0.0f, yOffset),
-                             f32v2(1.0f),
-                             color::White);
-                             yOffset += fontHeight;
-                             m_spriteBatch->drawString(m_spriteFont,
-                             ("Radius: " + std::to_string(getTargetRadius()) + " KM").c_str(),
-                             f32v2(0.0f, yOffset),
-                             f32v2(1.0f),
-                             color::White);
-                             yOffset += fontHeight;*/
-
-
-
-    // Render all bodies
-    for (auto& it : m_namePositionCT) {
-        vcore::ComponentID componentID;
-        color4 textColor = color::White;
-        f32v2 selectorSize(32.0f, 32.0f);
-        const f32v2 textOffset(16.0f, -32.0f);
-        f64v3 relativePos = it.second.position - camera->getPosition();
-        f64 distance = glm::length(relativePos);
-        float radiusPixels;
-        if (camera->pointInFrustum(f32v3(relativePos))) {
-            // Get screen position 
-            f32v2 screenCoords = camera->worldToScreenPoint(relativePos);
-
-            // See if it has a radius
-            componentID = m_sphericalGravityCT.getComponentID(it.first);
-            if (componentID) {
-                // Get radius of projected sphere
-                radiusPixels = (m_sphericalGravityCT.get(componentID).radius /
-                                (tan(camera->getFieldOfView() / 2) * distance)) *
-                                (viewportDims.y / 2.0f);
-            } else {
-                radiusPixels = (m_sphericalGravityCT.get(componentID).radius /
-                                (tan(camera->getFieldOfView() / 2) * distance)) *
-                                (viewportDims.y / 2.0f);
-            }
-
-            if (radiusPixels < 16.0f) {
-
-                // Draw Indicator
-                m_spriteBatch->draw(selectorTexture, screenCoords * viewportDims - selectorSize / 2.0f, selectorSize, textColor);
-                // Draw Text
-                m_spriteBatch->drawString(m_spriteFont,
-                                          it.second.name.c_str(),
-                                          screenCoords * viewportDims + textOffset,
-                                          f32v2(0.5f),
-                                          textColor);
-            }
-
-        }
-    }
-
-    m_spriteBatch->end();
-    m_spriteBatch->renderBatch(viewportDims);
 }

@@ -22,7 +22,6 @@
 #include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
 
-#include <Vorb/GLProgram.h>
 #include <Vorb/IOManager.h>
 #include <Vorb/ComponentTable.hpp>
 #include <Vorb/ECS.h>
@@ -72,8 +71,9 @@ public:
 
 
 class SpaceSystem : public vcore::ECS {
+    friend class SpaceSystemRenderStage;
 public:
-    SpaceSystem(App* parent);
+    SpaceSystem();
     ~SpaceSystem();
 
     void init(vg::GLProgramManager* programManager);
@@ -85,20 +85,6 @@ public:
     
     /// Updates openGL specific stuff, should be called on render thread
     void glUpdate();
-
-    /// Renders the space bodies
-    /// @param camera: Camera for rendering
-    /// @param terrainProgram: Program for rendering terrain
-    /// @param waterProgram: Program for rendering water
-    void drawBodies(const Camera* camera, vg::GLProgram* terrainProgram,
-                    vg::GLProgram* waterProgram);
-
-    /// Renders the space paths
-    /// @param camera: Camera for rendering
-    /// @param colorProgram: glProgram for basic color
-    void drawPaths(const Camera* camera, vg::GLProgram* colorProgram);
-
-    void drawHud(const Camera* camera, VGTexture selectorTexture);
 
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
@@ -186,9 +172,6 @@ protected:
     SpriteFont* m_spriteFont = nullptr;
 
     std::map<nString, vcore::EntityID> m_bodyLookupMap;
-
-    // Temporary?
-    App* m_app;
 
     nString m_dirPath; ///< Path to the main directory
     nString m_systemDescription; ///< textual description of the system

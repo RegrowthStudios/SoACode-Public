@@ -46,7 +46,7 @@ public:
     /// GLPrograms
     void init(const ui32v4& viewport, Camera* camera,
               IAwesomiumInterface* awesomiumInterface,
-              const SpaceSystem* spaceSystem,
+              SpaceSystem* spaceSystem,
               const vg::GLProgramManager* glProgramManager);
 
     /// Renders the pipeline

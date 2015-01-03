@@ -18,11 +18,15 @@
 #include <Vorb/IRenderStage.h>
 #include <Vorb/GLProgram.h>
 
+class App;
 class SpaceSystem;
+class SpriteBatch;
+class SpriteFont;
 
 class SpaceSystemRenderStage : public vg::IRenderStage {
 public:
-    SpaceSystemRenderStage(const SpaceSystem* spaceSystem,
+    SpaceSystemRenderStage(ui32v2 viewport,
+                           SpaceSystem* spaceSystem,
                            const Camera* camera,
                            vg::GLProgram* colorProgram,
                            vg::GLProgram* terrainProgram,
@@ -30,15 +34,34 @@ public:
                            VGTexture selectorTexture);
     ~SpaceSystemRenderStage();
 
+    void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
+
     /// Draws the render stage
     virtual void draw() override;
 private:
-    const SpaceSystem* m_spaceSystem;
-    const Camera* m_camera;
-    vg::GLProgram* m_colorProgram;
-    vg::GLProgram* m_terrainProgram;
-    vg::GLProgram* m_waterProgram;
-    VGTexture m_selectorTexture;
+    /// Renders the space bodies
+    /// @param camera: Camera for rendering
+    /// @param terrainProgram: Program for rendering terrain
+    /// @param waterProgram: Program for rendering water
+    void drawBodies();
+
+    /// Renders the space paths
+    /// @param camera: Camera for rendering
+    /// @param colorProgram: glProgram for basic color
+    void drawPaths();
+
+    void drawHud();
+
+    std::unique_ptr<SpriteBatch> m_spriteBatch;
+    std::unique_ptr<SpriteFont> m_spriteFont;
+
+    f32v2 m_viewport;
+    SpaceSystem* m_spaceSystem = nullptr;
+    const Camera* m_camera = nullptr;
+    vg::GLProgram* m_colorProgram = nullptr;
+    vg::GLProgram* m_terrainProgram = nullptr;
+    vg::GLProgram* m_waterProgram = nullptr;
+    VGTexture m_selectorTexture = 0;
 };
 
 #endif // SpaceSystemRenderStage_h__
