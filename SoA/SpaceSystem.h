@@ -98,7 +98,7 @@ public:
     /// @param colorProgram: glProgram for basic color
     void drawPaths(const Camera* camera, vg::GLProgram* colorProgram);
 
-    void drawHud(const Camera* camera);
+    void drawHud(const Camera* camera, VGTexture selectorTexture);
 
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory

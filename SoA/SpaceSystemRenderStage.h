@@ -26,7 +26,8 @@ public:
                            const Camera* camera,
                            vg::GLProgram* colorProgram,
                            vg::GLProgram* terrainProgram,
-                           vg::GLProgram* waterProgram);
+                           vg::GLProgram* waterProgram,
+                           VGTexture selectorTexture);
     ~SpaceSystemRenderStage();
 
     /// Draws the render stage
@@ -37,6 +38,7 @@ private:
     vg::GLProgram* m_colorProgram;
     vg::GLProgram* m_terrainProgram;
     vg::GLProgram* m_waterProgram;
+    VGTexture m_selectorTexture;
 };
 
 #endif // SpaceSystemRenderStage_h__

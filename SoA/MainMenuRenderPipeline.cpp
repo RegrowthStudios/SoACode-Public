@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "MainMenuRenderPipeline.h"
 
+#include <Vorb/TextureCache.h>
+
 #include "AwesomiumRenderStage.h"
 #include "Errors.h"
 #include "HdrRenderStage.h"
@@ -8,6 +10,7 @@
 #include "PlanetRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
+#include "GameManager.h"
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() {
     // Empty
@@ -50,10 +53,12 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
     _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
 
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, camera);
+    // TODO(Ben): Use texture pack iomanager
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(spaceSystem, camera,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),
-                                                          glProgramManager->getProgram("SphericalWater"));
+                                                          glProgramManager->getProgram("SphericalWater"),
+                                                          GameManager::textureCache->addTexture("Textures/selector.png").id);
 
 }
 

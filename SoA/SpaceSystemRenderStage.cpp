@@ -7,12 +7,14 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(const SpaceSystem* spaceSystem,
                                                const Camera* camera,
                                                vg::GLProgram* colorProgram,
                                                vg::GLProgram* terrainProgram,
-                                               vg::GLProgram* waterProgram) :
+                                               vg::GLProgram* waterProgram,
+                                               VGTexture selectorTexture) :
     m_spaceSystem(spaceSystem),
     m_camera(camera),
     m_colorProgram(colorProgram),
     m_terrainProgram(terrainProgram),
-    m_waterProgram(waterProgram) {
+    m_waterProgram(waterProgram),
+    m_selectorTexture(selectorTexture) {
     // Empty
 }
 
@@ -26,5 +28,5 @@ void SpaceSystemRenderStage::draw() {
     const_cast<SpaceSystem*>(m_spaceSystem)->drawBodies(m_camera, m_terrainProgram,
                                                         m_waterProgram);
     const_cast<SpaceSystem*>(m_spaceSystem)->drawPaths(m_camera, m_colorProgram);
-    const_cast<SpaceSystem*>(m_spaceSystem)->drawHud(m_camera);
+    const_cast<SpaceSystem*>(m_spaceSystem)->drawHud(m_camera, m_selectorTexture);
 }

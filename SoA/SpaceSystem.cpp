@@ -543,7 +543,7 @@ void SpaceSystem::setOrbitProperties(vcore::ComponentID cmp, const SystemBodyKeg
     }
 }
 
-void SpaceSystem::drawHud(const Camera* camera) {
+void SpaceSystem::drawHud(const Camera* camera, VGTexture selectorTexture) {
     f32v2 viewportDims = f32v2(m_app->getWindow().getViewportDims());
     // Lazily load spritebatch
     if (!m_spriteBatch) {
@@ -570,17 +570,46 @@ void SpaceSystem::drawHud(const Camera* camera) {
                              color::White);
                              yOffset += fontHeight;*/
 
+
+
     // Render all bodies
     for (auto& it : m_namePositionCT) {
-        f64v3 relativePos = glm::normalize(it.second.position - camera->getPosition()) * (f64)camera->getNearClip() * 4.0;
+        vcore::ComponentID componentID;
+        color4 textColor = color::White;
+        f32v2 selectorSize(32.0f, 32.0f);
+        const f32v2 textOffset(16.0f, -32.0f);
+        f64v3 relativePos = it.second.position - camera->getPosition();
+        f64 distance = glm::length(relativePos);
+        float radiusPixels;
         if (camera->pointInFrustum(f32v3(relativePos))) {
+            // Get screen position 
             f32v2 screenCoords = camera->worldToScreenPoint(relativePos);
-            m_spriteBatch->drawString(m_spriteFont,
-                                      it.second.name.c_str(),
-                                      screenCoords * viewportDims,
-                                      f32v2(0.5f),
-                                      color::White);
-            std::cout << it.second.name.c_str() << std::endl;
+
+            // See if it has a radius
+            componentID = m_sphericalGravityCT.getComponentID(it.first);
+            if (componentID) {
+                // Get radius of projected sphere
+                radiusPixels = (m_sphericalGravityCT.get(componentID).radius /
+                                (tan(camera->getFieldOfView() / 2) * distance)) *
+                                (viewportDims.y / 2.0f);
+            } else {
+                radiusPixels = (m_sphericalGravityCT.get(componentID).radius /
+                                (tan(camera->getFieldOfView() / 2) * distance)) *
+                                (viewportDims.y / 2.0f);
+            }
+
+            if (radiusPixels < 16.0f) {
+
+                // Draw Indicator
+                m_spriteBatch->draw(selectorTexture, screenCoords * viewportDims - selectorSize / 2.0f, selectorSize, textColor);
+                // Draw Text
+                m_spriteBatch->drawString(m_spriteFont,
+                                          it.second.name.c_str(),
+                                          screenCoords * viewportDims + textOffset,
+                                          f32v2(0.5f),
+                                          textColor);
+            }
+
         }
     }
 
