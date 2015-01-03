@@ -23,6 +23,9 @@ int main(int argc, char **argv) {
     delete mg;
     mg = nullptr;
 
+    // Dispose Vorb modules
+    vorb::dispose(vorb::InitParam::ALL);
+
 #ifdef OS_WINDOWS
     // Need to free the console on windows
     FreeConsole();
