@@ -50,13 +50,14 @@ class ChunkSlot;
 class FloraTask;
 class GenerateTask;
 class GeneratedTreeNodes;
+class PhysicsEngine;
 class RenderTask;
 class VoxelLightEngine;
 
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
 public:
-    ChunkManager();
+    ChunkManager(PhysicsEngine* physicsEngine);
     ~ChunkManager();
 
     enum InitFlags {
@@ -181,6 +182,10 @@ public:
     void setIsStationary(bool isStationary) {
         _isStationary = isStationary;
     }
+
+
+    /// Getters
+    PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 
 private:
 
@@ -338,6 +343,8 @@ private:
     int _numCaTasks = 0; ///< The number of CA tasks currently being processed
 
     VoxelLightEngine* _voxelLightEngine; ///< Used for checking top chunks for sunlight
+
+    PhysicsEngine* m_physicsEngine = nullptr;
 
     ChunkIOManager* m_chunkIo = nullptr;
 

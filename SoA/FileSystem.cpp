@@ -163,8 +163,6 @@ i32 FileManager::createSaveFile(nString filePath) {
     if (!boost::filesystem::create_directory((filePath + "/Region/f5").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-
-    return setSaveFile(filePath);
 }
 i32 FileManager::createWorldFile(nString filePath) {
     std::ofstream file(filePath + "world.txt");

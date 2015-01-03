@@ -6,10 +6,12 @@
 #include "WorldStructs.h"
 
 class Camera;
-class ChunkManager;
 class ChunkIOManager;
-class VoxelEditor;
+class ChunkManager;
 class Item;
+class ParticleEngine;
+class PhysicsEngine;
+class VoxelEditor;
 
 class VoxelWorld
 {
@@ -22,6 +24,7 @@ public:
     void endSession();
 
     inline ChunkManager &getChunkManager() { return *m_chunkManager; }
+    inline PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 
 private:
     void updatePhysics(const Camera* camera);
@@ -30,5 +33,6 @@ private:
     ChunkManager* m_chunkManager = nullptr;
     ChunkIOManager* m_chunkIo = nullptr;
     PhysicsEngine* m_physicsEngine = nullptr;
+    ParticleEngine* m_particleEngine = nullptr;
 };
 

@@ -10,6 +10,7 @@
 class Chunk;
 class ChunkManager;
 class PhysicsBlockBatch;
+class PhysicsEngine;
 
 class PhysicsBlockMesh {
 public:
@@ -39,7 +40,7 @@ public:
 class PhysicsBlock {
 public:
     PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 BlockType, i32 ydiff, f32v2& dir, f32v3 extraForce);
-    bool update(ChunkManager* chunkManager, Chunk*& lockedChunk);
+    bool update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk*& lockedChunk);
 
     f32v3 position;
     f32v3 velocity;
@@ -56,7 +57,7 @@ public:
     ~PhysicsBlockBatch();
 
     static void draw(PhysicsBlockMesh* pbm, const vg::GLProgram* program, const f64v3& PlayerPos, const f32m4& VP);
-    bool update();
+    bool update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine);
     void addBlock(const f64v3& pos, i32 ydiff, f32v2& dir, f32v3 extraForce);
 
     std::vector<PhysicsBlock> physicsBlocks;

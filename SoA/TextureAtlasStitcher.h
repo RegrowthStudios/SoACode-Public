@@ -19,7 +19,7 @@
 const i32 BLOCK_TEXTURE_ATLAS_WIDTH = 16;
 const i32 BLOCK_TEXTURE_ATLAS_SIZE = BLOCK_TEXTURE_ATLAS_WIDTH * BLOCK_TEXTURE_ATLAS_WIDTH;
 
-/// Stores Information About An Atlas Page For Conclassion Purposes
+/// Stores Information About An Atlas Page For Construction Purposes
 class BlockAtlasPage;
 
 class BlockLayerLoadData {

@@ -587,7 +587,7 @@ bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
     sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
     tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
 
-    //Conclass the node vectors
+    //Construct the node vectors
     for (int i = 1; i < CHUNK_SIZE; i++) {
         blockID = _blockIDBuffer[i];
         lampLight = _lampLightBuffer[i];

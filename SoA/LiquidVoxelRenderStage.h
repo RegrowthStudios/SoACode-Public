@@ -23,7 +23,7 @@ class GameRenderParams;
 class LiquidVoxelRenderStage : public vg::IRenderStage
 {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param meshManager: Handle to the class that holds meshes
     LiquidVoxelRenderStage(const GameRenderParams* gameRenderParams);

@@ -71,7 +71,7 @@ namespace moodycamel {
         // greater size than the last block) is added. Blocks are never removed.
 
     public:
-        // Conclasss a queue that can hold maxSize elements without further
+        // Constructs a queue that can hold maxSize elements without further
         // allocations. Allocates maxSize + 1, rounded up to the nearest power
         // of 2, elements.
         explicit ReaderWriterQueue(size_t maxSize = 15)

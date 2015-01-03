@@ -125,10 +125,14 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (void* s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
             if (e.button == vui::MouseButton::LEFT) {
-                GameManager::voxelEditor->editVoxels(m_player->leftEquippedItem);
+                GameManager::voxelEditor->editVoxels(&m_voxelWorld->getChunkManager(),
+                                                     m_voxelWorld->getPhysicsEngine(),
+                                                     m_player->leftEquippedItem);
                 puts("EDIT VOXELS");
             } else if (e.button == vui::MouseButton::RIGHT) {
-                GameManager::voxelEditor->editVoxels(m_player->rightEquippedItem);
+                GameManager::voxelEditor->editVoxels(&m_voxelWorld->getChunkManager(),
+                                                     m_voxelWorld->getPhysicsEngine(),
+                                                     m_player->rightEquippedItem);
                 puts("EDIT VOXELS");
             }
         }
@@ -251,16 +255,16 @@ void GamePlayScreen::initVoxels() {
     bool atSurface = 1;
     m_player = new Player;
 
-    if (fileManager.loadPlayerFile(player)) {
+    if (loadPlayerFile("TEST", m_player)) {
         atSurface = 0; //dont need to set height
     }
 
     m_voxelWorld = new VoxelWorld;
-    m_voxelWorld->initialize(player->facePosition, &player->voxelMapData, 0);
+    m_voxelWorld->initialize(m_player->facePosition, &m_player->voxelMapData, 0);
 
-    if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
+    if (atSurface) m_player->facePosition.y = 0;// voxelWorld->getCenterY();
 
-    player->gridPosition = player->facePosition;
+    m_player->gridPosition = m_player->facePosition;
 
     //   player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
 
@@ -282,17 +286,17 @@ void GamePlayScreen::handleInput() {
     if (isInGame()) {
         if (m_inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->leftEquippedItem)){
-                GameManager::clickDragRay(true);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), true);
             } else if (m_player->leftEquippedItem->type == ITEM_BLOCK){
                 m_player->dragBlock = m_player->leftEquippedItem;
-                GameManager::clickDragRay(false);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), false);
             }
         } else if (m_inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->rightEquippedItem)){
-                GameManager::clickDragRay(true);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), true);
             } else if (m_player->rightEquippedItem->type == ITEM_BLOCK){
                 m_player->dragBlock = m_player->rightEquippedItem;
-                GameManager::clickDragRay(false);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), false);
             }
         }
     }
@@ -372,11 +376,9 @@ void GamePlayScreen::updateThreadFunc() {
             m_player->scannedBlock = NONE;
         }
 
-        m_particleEngine.update();
-
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
             saveStateTicks = SDL_GetTicks();
-            savePlayerState();
+      //      savePlayerState();
         }
 
         physicsFps = fpsLimiter.endFrame();
@@ -470,8 +472,8 @@ bool GamePlayScreen::loadPlayerFile(const cString filePath, Player* player) {
     player->facePosition.y = BufferUtils::extractFloat(data.data(), (byte++) * 4);
     player->facePosition.z = BufferUtils::extractFloat(data.data(), (byte++) * 4);
     player->voxelMapData.face = BufferUtils::extractInt(data.data(), (byte++) * 4);
-    player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
-    player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
+ //   player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
+  //  player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
     player->isFlying = BufferUtils::extractBool(data.data(), byte * 4);
 
     player->voxelMapData.ipos = fastFloor(player->facePosition.z / (double)CHUNK_WIDTH);

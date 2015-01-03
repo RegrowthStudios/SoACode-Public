@@ -41,7 +41,7 @@ public:
         DOWN ///< Event when a button is pressed.
     };
 
-    /// Conclassor.
+    /// Constructor.
     InputManager();
 
     /// Declassor.

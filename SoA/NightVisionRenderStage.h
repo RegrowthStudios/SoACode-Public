@@ -48,7 +48,7 @@ KEG_TYPE_DECL(NightVisionRenderParams);
 /// Renders a night vision post-process effect
 class NightVisionRenderStage : public vg::IRenderStage {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param glProgram: The program used to render HDR
     /// @param quad: Quad used for rendering to screen
     NightVisionRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad);

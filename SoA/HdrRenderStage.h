@@ -25,7 +25,7 @@ class Camera;
 
 class HdrRenderStage : public vg::IRenderStage {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param glProgram: The program used to render HDR
     /// @param quad: Quad used for rendering to screen
     /// @param camera: Camera used to render the scene

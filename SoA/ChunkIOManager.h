@@ -13,7 +13,7 @@ class Chunk;
 
 class ChunkIOManager {
 public:
-    ChunkIOManager();
+    ChunkIOManager(const nString& saveDir);
     ~ChunkIOManager();
     void clear();
 

@@ -25,11 +25,11 @@ void ParticleEngine::clearEmitters() {
     emitters.clear();
 }
 
-void ParticleEngine::update() {
+void ParticleEngine::update(ChunkManager* chunkManager) {
     staticParticles.update();
     animatedParticles.updateAnimated();
     for(size_t i = 0; i < emitters.size();) {
-        if(emitters[i]->update()) {
+        if(emitters[i]->update(chunkManager)) {
 
             delete emitters[i];
             emitters[i] = emitters.back();
@@ -40,18 +40,18 @@ void ParticleEngine::update() {
     }
 }
 
-void ParticleEngine::addParticles(int num, glm::dvec3 pos, int type, double force, int time, int deg, glm::vec4 color, int tex, float life, GLubyte billSize, glm::vec3 expForce) {
+void ParticleEngine::addParticles(ChunkManager* chunkManager, int num, glm::dvec3 pos, int type, double force, int time, int deg, glm::vec4 color, int tex, float life, GLubyte billSize, glm::vec3 expForce) {
     GLubyte Color[4];
     Color[0] = (GLubyte)(color.r);
     Color[1] = (GLubyte)(color.g);
     Color[2] = (GLubyte)(color.b);
     Color[3] = (GLubyte)(color.a);
     if(graphicsOptions.enableParticles) {
-        staticParticles.addParticles(num, pos, tex, force, life, billSize, Color, expForce);
+        staticParticles.addParticles(chunkManager, num, pos, tex, force, life, billSize, Color, expForce);
     }
 }
 
-void ParticleEngine::addAnimatedParticles(int num, glm::dvec3 pos, int type, double force, int time, int deg, glm::vec4 color, int tex, float life, GLubyte billSize, glm::vec3 expForce) {
+void ParticleEngine::addAnimatedParticles(ChunkManager* chunkManager, int num, glm::dvec3 pos, int type, double force, int time, int deg, glm::vec4 color, int tex, float life, GLubyte billSize, glm::vec3 expForce) {
     GLubyte Color[4];
     Color[0] = (GLubyte)(color.r);
     Color[1] = (GLubyte)(color.g);
@@ -60,16 +60,16 @@ void ParticleEngine::addAnimatedParticles(int num, glm::dvec3 pos, int type, dou
     //    if (graphicsOptions.enableParticles){
     switch(type) {
     case PARTICLE_EXPLOSION:
-        animatedParticles.addParticles(num, pos, tex, force, life, billSize, Color, expForce);
+        animatedParticles.addParticles(chunkManager, num, pos, tex, force, life, billSize, Color, expForce);
         break;
     case PARTICLE_FIRE:
-        animatedParticles.addParticles(num, pos, tex, force, life, billSize, Color, expForce);
+        animatedParticles.addParticles(chunkManager, num, pos, tex, force, life, billSize, Color, expForce);
         break;
     }
     //    }
 }
 
-void ParticleEngine::addAnimatedParticles(int num, glm::dvec3 pos, ParticleEmitter *emitter) {
+void ParticleEngine::addAnimatedParticles(ChunkManager* chunkManager, int num, glm::dvec3 pos, ParticleEmitter *emitter) {
     animatedParticles.addParticles(num, pos, emitter);
 }
 

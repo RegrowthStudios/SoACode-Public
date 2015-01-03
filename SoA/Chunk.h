@@ -98,7 +98,7 @@ public:
 
     bool hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate);
 
-    /// Conclassor
+    /// Constructor
     /// @param shortRecycler: Recycler for ui16 data arrays
     /// @param byteRecycler: Recycler for ui8 data arrays
     Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 

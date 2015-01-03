@@ -77,7 +77,7 @@ void FloraTask::execute(WorkerData* workerData) {
                 }
             }
         }
-        // Conclass chunk positions using all chunk offsets
+        // Construct chunk positions using all chunk offsets
         const i32v3& startPos = generatedTreeNodes->startChunkGridPos;
         for (auto& it : allChunkOffsets) {
             generatedTreeNodes->allChunkPositions.emplace_back(startPos.x + getXOffset(it),

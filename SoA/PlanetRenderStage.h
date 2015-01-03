@@ -22,7 +22,7 @@ class Camera;
 class PlanetRenderStage : public vg::IRenderStage
 {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param camera: The camera handle
     PlanetRenderStage(const Camera* camera);
 

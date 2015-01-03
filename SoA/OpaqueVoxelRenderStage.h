@@ -24,7 +24,7 @@ class MeshManager;
 class OpaqueVoxelRenderStage : public vg::IRenderStage
 {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param gameRenderParams: Shared parameters for rendering voxels
     OpaqueVoxelRenderStage(const GameRenderParams* gameRenderParams);
 

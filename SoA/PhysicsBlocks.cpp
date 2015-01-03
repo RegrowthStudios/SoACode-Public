@@ -125,7 +125,7 @@ int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0,
 
 const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20 };
 
-bool PhysicsBlock::update(ChunkManager* chunkManager, Chunk*& lockedChunk)
+bool PhysicsBlock::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk*& lockedChunk)
 {
     if (done == 2) return true; //defer destruction by two frames for good measure
     if (done != 0) {
@@ -203,13 +203,13 @@ bool PhysicsBlock::update(ChunkManager* chunkManager, Chunk*& lockedChunk)
             color.b = Blocks[blockID].color.b;
             color.a = 255;
 
-            particleEngine.addParticles(BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
+            particleEngine.addParticles(chunkManager, BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
             return true;
         }
         
         // If colliding block is crushable, break that block
         if (collideBlock.isCrushable) {
-            ChunkUpdater::removeBlock(ch, lockedChunk, c, true);
+            ChunkUpdater::removeBlock(chunkManager, physicsEngine, ch, lockedChunk, c, true);
         } else {
             colliding = true;
         }
@@ -308,7 +308,7 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program
     glBindVertexArray(0);
 }
 
-bool PhysicsBlockBatch::update()
+bool PhysicsBlockBatch::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine)
 {
     size_t i = 0;
 
@@ -323,8 +323,8 @@ bool PhysicsBlockBatch::update()
 
     Chunk* lockedChunk = nullptr;
 
-    while (i < physicsBlocks.size()){
-        if (physicsBlocks[i].update(lockedChunk)){
+    while (i < physicsBlocks.size()) {
+        if (physicsBlocks[i].update(chunkManager, physicsEngine, lockedChunk)){
             physicsBlocks[i] = physicsBlocks.back();
             physicsBlocks.pop_back(); //dont need to increment i 
         } else{ //if it was successfully updated, add its data to the buffers

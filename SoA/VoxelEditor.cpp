@@ -13,14 +13,14 @@
 VoxelEditor::VoxelEditor() : _currentTool(EDITOR_TOOLS::AABOX), _startPosition(INT_MAX), _endPosition(INT_MAX) {
 }
 
-void VoxelEditor::editVoxels(ChunkManager* chunkManager, Item *block) {
+void VoxelEditor::editVoxels(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block) {
     if (_startPosition.x == INT_MAX || _endPosition.x == INT_MAX) {
         return;
     }
 
     switch (_currentTool) {
     case EDITOR_TOOLS::AABOX:
-        placeAABox(chunkManager, block);
+        placeAABox(chunkManager, physicsEngine, block);
         break;
     case EDITOR_TOOLS::LINE:
         placeLine(chunkManager, block);
@@ -28,7 +28,7 @@ void VoxelEditor::editVoxels(ChunkManager* chunkManager, Item *block) {
     }
 }
 
-void VoxelEditor::placeAABox(ChunkManager* chunkManager, Item *block) {
+void VoxelEditor::placeAABox(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block) {
     Chunk* chunk = nullptr;
     int blockIndex = -1, blockID;
     int soundNum = 0;
@@ -86,7 +86,7 @@ void VoxelEditor::placeAABox(ChunkManager* chunkManager, Item *block) {
                         if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)){
                             if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
-                            ChunkUpdater::removeBlock(chunk, lockedChunk, blockIndex, true);
+                            ChunkUpdater::removeBlock(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, true);
                         }
                     } else {
                         if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0))
@@ -116,7 +116,7 @@ void VoxelEditor::stopDragging() {
     _endPosition = i32v3(INT_MAX);
 }
 
-void VoxelEditor::placeLine(Item *block) {
+void VoxelEditor::placeLine(ChunkManager* chunkManager, Item *block) {
 
 }
 

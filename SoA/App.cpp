@@ -94,7 +94,6 @@ App::~App() {
     delete scrGamePlay;
     delete scrDev;
     delete scrStarSystem; 
-    delete inputManager;
 
     delete meshManager;
 }

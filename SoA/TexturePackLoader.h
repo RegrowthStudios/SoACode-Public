@@ -49,7 +49,7 @@ class ZipFile;
 class TexturePackLoader
 {
 public:
-    /// Conclassor
+    /// Constructor
     /// @param textureCache: The texture cache where textures will be stored
     TexturePackLoader(vg::TextureCache* textureCache);
     ~TexturePackLoader();
@@ -67,7 +67,7 @@ public:
     void registerBlockTexture(const nString& filePath) { _blockTexturesToLoad.insert(filePath); }
 
     /// Loads all textures added to the texture pack and stores them
-    /// but does not conclass the texture atlases
+    /// but does not Construct the texture atlases
     /// @param texturePackPath: Path to the texture pack
     void loadAllTextures(const nString& texturePackPath);
 

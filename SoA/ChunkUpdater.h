@@ -3,11 +3,12 @@
 
 class Chunk;
 class PhysicsEngine;
+class ChunkManager;
 enum class ChunkStates;
 
 class ChunkUpdater {
 public:
-    static void randomBlockUpdates(Chunk* chunk);
+    static void randomBlockUpdates(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk);
     static void placeBlock(Chunk* chunk, Chunk*& lockedChunk,  int blockIndex, int blockType) {
         placeBlockNoUpdate(chunk, blockIndex, blockType);
         addBlockToUpdateList(chunk, lockedChunk, blockIndex);
@@ -17,8 +18,8 @@ public:
     static void placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
     static void placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
   
-    static void removeBlock(PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
-    static void removeBlockSafe(PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
+    static void removeBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
+    static void removeBlockSafe(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
     static void removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
     static void removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
 
@@ -33,12 +34,12 @@ private:
     static void breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force = 0.0f, glm::vec3 extraForce = glm::vec3(0.0f));
 
     static void placeFlora(Chunk* chunk, int blockIndex, int blockID);
-    static void removeFlora(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockID);
+    static void removeFlora(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockID);
 
     //Fire
-    static void updateFireBlock(Chunk* chunk, int blockIndex);
+    static void updateFireBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, int blockIndex);
     static float getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
-    static void burnAdjacentBlocks(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
+    static void burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
     static inline void checkBurnBlock(int blockIndex, Chunk*& lockedChunk, int blockType, Chunk *owner, float burnMult = 1.0);
 };
 

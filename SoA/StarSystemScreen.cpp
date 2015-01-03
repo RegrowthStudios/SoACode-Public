@@ -92,7 +92,7 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
     _viewport = ui32v4(0, 0, _app->getWindow().getViewportDims());
     
 
-    // Conclass framebuffer
+    // Construct framebuffer
     _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
     _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
     if (graphicsOptions.msaa > 0) {

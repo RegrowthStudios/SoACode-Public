@@ -2,6 +2,7 @@
 #include <map>
 
 class ChunkManager;
+class PhysicsEngine;
 class Item;
 
 class EditorNode {
@@ -14,7 +15,7 @@ class VoxelEditor {
 public:    
     VoxelEditor();
 
-    void editVoxels(ChunkManager* chunkManager, Item *block);
+    void editVoxels(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block);
 
     void stopDragging();
 
@@ -32,7 +33,7 @@ public:
 
 private:
     
-    void placeAABox(ChunkManager* chunkManager, Item *block);
+    void placeAABox(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block);
     void placeLine(ChunkManager* chunkManager, Item *block);
 
     // v v v Just some ideas v v v

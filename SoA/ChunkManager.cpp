@@ -49,14 +49,15 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
 
-//TEXTURE TUTORIAL STUFF
-
-//5846 5061
-ChunkManager::ChunkManager() : 
+ChunkManager::ChunkManager(PhysicsEngine* physicsEngine) : 
     _isStationary(0),
     _cameraVoxelMapData(nullptr),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
-    _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS) {
+    _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS),
+    m_physicsEngine(physicsEngine) {
+   
+    m_physicsEngine->setChunkManager(this);
+
     NoChunkFade = 0;
     planet = NULL;
     _poccx = _poccy = _poccz = -1;
@@ -1029,7 +1030,7 @@ void ChunkManager::updateCaPhysics() {
             for (int i = 0; i < chunkSlots.size(); i++) {
                 chunk = chunkSlots[i].chunk;
                 if (chunk && chunk->numNeighbors == 6 && chunk->hasCaUpdates(typesToUpdate)) {
-                    caTask = new CellularAutomataTask(chunk, chunk->owner->inFrustum);
+                    caTask = new CellularAutomataTask(this, m_physicsEngine, chunk, chunk->owner->inFrustum);
                     for (auto& type : typesToUpdate) {
                         caTask->addCaTypeToUpdate(type);
                     }
@@ -1192,7 +1193,7 @@ void ChunkManager::updateChunks(const Camera* camera) {
                 chunk->changeState(ChunkStates::MESH);
             }
 
-            if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(chunk);
+            if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(this, m_physicsEngine, chunk);
 
             // Check to see if it needs to be added to the mesh list
             if (chunk->_chunkListPtr == nullptr && chunk->lastOwnerTask == false) {

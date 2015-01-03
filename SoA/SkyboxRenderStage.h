@@ -23,7 +23,7 @@ class Camera;
 class SkyboxRenderStage : public vg::IRenderStage
 {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param program: The opengl program for rendering
     /// @param camera: Handle to the camera used to render the stage
     SkyboxRenderStage(vg::GLProgram* program,

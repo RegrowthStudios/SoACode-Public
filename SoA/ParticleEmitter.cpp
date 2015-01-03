@@ -23,7 +23,7 @@ i32 ParticleEmitter::update(ChunkManager* chunkManager) {
         currSpawnTime = (dt / (float)maxDuration) * (spawnTimeE - spawnTimeS) + spawnTimeS;
 
         if((dt % currSpawnTime) == 0) {
-            particleEngine.addAnimatedParticles(1, position, this);
+            particleEngine.addAnimatedParticles(chunkManager, 1, position, this);
             if(dt >= minDuration) {
 
                 int gx = position.x - chunkListPos.x;

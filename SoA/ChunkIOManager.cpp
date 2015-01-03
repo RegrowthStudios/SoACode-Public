@@ -21,7 +21,8 @@
 #include "Options.h"
 #include "Player.h"
 
-ChunkIOManager::ChunkIOManager()
+ChunkIOManager::ChunkIOManager(const nString& saveDir) :
+    _regionFileManager(saveDir)
 {
     _isThreadFinished = 0;
     readWriteThread = NULL;

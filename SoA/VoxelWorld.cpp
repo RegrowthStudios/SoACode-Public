@@ -11,11 +11,12 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "Item.h"
+#include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "Sound.h"
 #include "VoxelEditor.h"
-#include "global.h"
 #include "VoxelPlanetMapper.h"
+#include "global.h"
 
 VoxelWorld::VoxelWorld() {
 
@@ -35,8 +36,9 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* starting
     }
 
     m_physicsEngine = new PhysicsEngine;
-    m_chunkManager = new ChunkManager;
-    m_chunkIo = new ChunkIOManager;
+    m_chunkManager = new ChunkManager(m_physicsEngine);
+    m_chunkIo = new ChunkIOManager("TEST");
+    m_particleEngine = new ParticleEngine;
 
     //BAD MKAY
     // Save the chunk version
@@ -81,6 +83,8 @@ void VoxelWorld::endSession()
     m_chunkManager = nullptr;
     delete m_physicsEngine;
     m_physicsEngine = nullptr;
+    delete m_particleEngine;
+    m_particleEngine = nullptr;
 }
 
 void VoxelWorld::updatePhysics(const Camera* camera) {
@@ -91,4 +95,6 @@ void VoxelWorld::updatePhysics(const Camera* camera) {
     globalMultiplePreciseTimer.start("Physics Engine");
 
     m_physicsEngine->update(f64v3(camera->getDirection()));
+
+    m_particleEngine->update(m_chunkManager);
 }

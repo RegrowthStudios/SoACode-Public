@@ -30,7 +30,7 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
         pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
     }
 
-    // Conclass framebuffer
+    // Construct framebuffer
     _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
     _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
     if (graphicsOptions.msaa > 0) {

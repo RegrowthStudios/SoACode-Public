@@ -134,7 +134,7 @@ void GameManager::initializeSound() {
 void GameManager::saveState() {
     savePlayerState();
   //  saveOptions();
-    voxelWorld->getChunkManager().saveAllChunks();
+  //  voxelWorld->getChunkManager().saveAllChunks();
 }
 
 void GameManager::savePlayerState() {
@@ -239,14 +239,12 @@ void GameManager::scanWSO(ChunkManager* chunkManager) {
 void GameManager::onQuit() {
     GLuint st = SDL_GetTicks();
     saveState();
-    voxelWorld->endSession();
     markers.clear();
 }
 
 void GameManager::endSession() {
     player->isUnderWater = 0;
     onQuit();
-    physicsEngine->clearAll();
 #ifdef _DEBUG 
     //_CrtDumpMemoryLeaks();
 #endif

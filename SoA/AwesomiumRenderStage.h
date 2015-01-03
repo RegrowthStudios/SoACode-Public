@@ -21,7 +21,7 @@ class IAwesomiumInterface;
 
 class AwesomiumRenderStage : public vg::IRenderStage {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param awesomiumInterface: The user interface handle
     /// @param glProgram: The opengl program used to render the interface
     AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface, vg::GLProgram* glProgram);

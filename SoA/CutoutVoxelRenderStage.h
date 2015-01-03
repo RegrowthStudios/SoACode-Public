@@ -25,7 +25,7 @@ class MeshManager;
 
 class CutoutVoxelRenderStage : public vg::IRenderStage {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param meshManager: Handle to the class that holds meshes
     CutoutVoxelRenderStage(const GameRenderParams* gameRenderParams);

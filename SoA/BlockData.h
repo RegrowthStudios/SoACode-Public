@@ -66,7 +66,7 @@ KEG_ENUM_DECL(BlockOcclusion);
 
 class BlockTextureLayer {
 public:
-    // Set defaults in conclassor for no .tex file
+    // Set defaults in Constructor for no .tex file
     BlockTextureLayer() : 
         method(ConnectedTextureMethods::NONE),
         size(1),

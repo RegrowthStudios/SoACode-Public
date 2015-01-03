@@ -70,6 +70,9 @@ public:
     PhysicsEngine();
     ~PhysicsEngine();
 
+    // TODO(Ben): This is temporary
+    void setChunkManager(ChunkManager* chunkManager) { m_chunkManager = chunkManager; }
+
     void clearAll();
     void update(const f64v3& viewDir);
 
@@ -108,4 +111,6 @@ private:
     // Physics Blocks
     PhysicsBlockBatch* _physicsBlockBatches[65536]; //for all possible block IDs.
     std::vector<PhysicsBlockBatch*> _activePhysicsBlockBatches;
+
+    ChunkManager* m_chunkManager = nullptr;
 };

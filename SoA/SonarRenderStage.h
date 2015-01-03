@@ -24,7 +24,7 @@ class MeshManager;
 class SonarRenderStage : public vg::IRenderStage
 {
 public:
-    /// Conclassor which injects dependencies
+    /// Constructor which injects dependencies
     /// @param camera: The camera handle
     /// @param meshManager: Handle to the class that holds meshes
     SonarRenderStage(const GameRenderParams* gameRenderParams);
