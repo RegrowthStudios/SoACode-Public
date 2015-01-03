@@ -1,22 +1,25 @@
 #pragma once
 
 #include <Vorb/Events.hpp>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "BlockData.h"
 #include "CAEngine.h"
 
+DECL_VIO(class, IOManager)
+
 class BlockPack;
-class IOManager;
 class TexturePackLoader;
+
 
 class GameBlockPostProcess : public IDelegate<ui16> {
 public:
-    GameBlockPostProcess(const IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache);
+    GameBlockPostProcess(const vio::IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache);
 
-    virtual void invoke(void* s, ui16 id) override;
+    virtual void invoke(Sender s, ui16 id) override;
 private:
     TexturePackLoader* m_texPackLoader; ///< Texture pack loader
-    const IOManager* m_iom; ///< IO workspace
+    const vio::IOManager* m_iom; ///< IO workspace
     CaPhysicsTypeDict* m_caCache; ///< CA type cache
 };
 
@@ -34,7 +37,7 @@ public:
     /// @param filePath: The .yml file path
     /// @param pack: Depository for all loaded blocks
     /// @return true on success, false on failure
-    static bool load(const IOManager* iom, const cString filePath, BlockPack* pack);
+    static bool load(const vio::IOManager* iom, const cString filePath, BlockPack* pack);
 
     /// Saves blocks to a .yml file
     /// @param filePath: The .yml file path

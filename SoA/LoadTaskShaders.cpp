@@ -3,7 +3,7 @@
 
 #include "GameManager.h"
 
-void ProgramGenDelegate::invoke(void* sender, void* userData) {
+void ProgramGenDelegate::invoke(Sender sender, void* userData) {
     std::cout << "Building shader: " << name << std::endl;
     program = new vg::GLProgram(true);
     if (!program->addShader(vs)) {
@@ -30,7 +30,7 @@ void ProgramGenDelegate::invoke(void* sender, void* userData) {
     program->initUniforms();
 }
 
-vg::ShaderSource LoadTaskShaders::createShaderCode(const vg::ShaderType& stage, const IOManager& iom, const cString path, const cString defines /*= nullptr*/) {
+vg::ShaderSource LoadTaskShaders::createShaderCode(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines /*= nullptr*/) {
     vg::ShaderSource src;
     src.stage = stage;
     if (defines) src.sources.push_back(defines);
@@ -97,7 +97,7 @@ void LoadTaskShaders::load() {
     dd.push_back("vPosition");
     dd.push_back("vUV");
 
-    IOManager iom;
+    vio::IOManager iom;
 
     m_glrpc->invoke(&createProgram("BasicColor",
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/BasicShading/BasicColorShading.vert"),
