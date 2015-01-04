@@ -28,6 +28,7 @@ class SpaceSystemRenderStage : public vg::IRenderStage {
 public:
     SpaceSystemRenderStage(ui32v2 viewport,
                            SpaceSystem* spaceSystem,
+                           MainMenuSystemViewer* systemViewer,
                            const Camera* camera,
                            vg::GLProgram* colorProgram,
                            vg::GLProgram* terrainProgram,
@@ -58,15 +59,10 @@ private:
     SpriteBatch* m_spriteBatch = nullptr;
     SpriteFont* m_spriteFont = nullptr;
 
-    struct BodyArData {
-        float hoverTime = 0.0f;
-    };
-
-    std::map <vcore::EntityID, float> hoverTimes;
-
     f32v2 m_mouseCoords = f32v2(-1.0f);
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
+    MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_camera = nullptr;
     vg::GLProgram* m_colorProgram = nullptr;
     vg::GLProgram* m_terrainProgram = nullptr;

@@ -26,10 +26,23 @@ class SpaceSystem;
 
 class MainMenuSystemViewer {
 public:
-    MainMenuSystemViewer(CinematicCamera* camera, SpaceSystem* spaceSystem, InputManager* inputManager);
+    MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputManager* inputManager);
     ~MainMenuSystemViewer();
 
+    void setViewport(const ui32v2& viewPort) { m_viewport = viewPort; }
+
     void update();
+
+    struct BodyArData {
+        float hoverTime = 0.0f;
+        float selectorSize = 0.0f;
+        bool inFrustum = false;
+    };
+    const BodyArData* finBodyAr(vcore::EntityID eid) const {
+        auto& it = bodyArData.find(eid);
+        if (it == bodyArData.end()) return nullptr;
+        return &it->second;
+    }
 
 private:
     // Events
@@ -39,6 +52,12 @@ private:
     void onMouseMotion(void* sender, const vui::MouseMotionEvent& e);
 
     nString currentBody = "";
+
+    std::map <vcore::EntityID, BodyArData> bodyArData;
+
+
+    f32v2 m_mouseCoords = f32v2(-1.0f);
+    f32v2 m_viewport;
 
     CinematicCamera* m_camera = nullptr;
     SpaceSystem* m_spaceSystem = nullptr;

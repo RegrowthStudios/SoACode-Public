@@ -23,9 +23,11 @@
 #include "GLProgramManager.h"
 #include "OrbitComponent.h"
 #include "RenderUtils.h"
+#include "MainMenuSystemViewer.h"
 
 SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
+                                               MainMenuSystemViewer* systemViewer,
                                                const Camera* camera,
                                                vg::GLProgram* colorProgram,
                                                vg::GLProgram* terrainProgram,
@@ -33,6 +35,7 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                VGTexture selectorTexture) :
     m_viewport(viewport),
     m_spaceSystem(spaceSystem),
+    m_mainMenuSystemViewer(systemViewer),
     m_camera(camera),
     m_colorProgram(colorProgram),
     m_terrainProgram(terrainProgram),
@@ -47,8 +50,10 @@ SpaceSystemRenderStage::~SpaceSystemRenderStage() {
 
 void SpaceSystemRenderStage::draw() {
     drawBodies();
-    drawPaths();
-    drawHud();
+    if (m_mainMenuSystemViewer) {
+        drawPaths();
+        drawHud();
+    }
 }
 
 void SpaceSystemRenderStage::drawBodies() {
@@ -111,8 +116,12 @@ void SpaceSystemRenderStage::drawPaths() {
     m_spaceSystem->m_mutex.lock();
     for (auto& it : m_spaceSystem->m_orbitCT) {
 
+        // Get the augmented reality data
+        const MainMenuSystemViewer::BodyArData* bodyArData = m_mainMenuSystemViewer->finBodyAr(it.first);
+        if (bodyArData == nullptr) continue;
+
         // Interpolated alpha
-        float alpha = 0.15 + 0.85 * hermite(hoverTimes[it.first]);
+        float alpha = 0.15 + 0.85 * hermite(bodyArData->hoverTime);
 
         auto& cmp = it.second;
         if (cmp.parentNpId) {
@@ -135,6 +144,8 @@ void SpaceSystemRenderStage::drawHud() {
     const float HOVER_SPEED = 0.08f;
     const float HOVER_SIZE_INC = 7.0f;
     const float ROTATION_FACTOR = M_PI * 2.0f + M_PI / 4;
+    const float MIN_SELECTOR_SIZE = 12.0f;
+    const float MAX_SELECTOR_SIZE = 160.0f;
 
     // Lazily load spritebatch
     if (!m_spriteBatch) {
@@ -148,35 +159,24 @@ void SpaceSystemRenderStage::drawHud() {
 
     m_spriteBatch->begin();
 
-    /*m_spriteBatch->drawString(m_spriteFont,
-    ("Name: " + getTargetName()).c_str(),
-    f32v2(0.0f, yOffset),
-    f32v2(1.0f),
-    color::White);
-    yOffset += fontHeight;
-    m_spriteBatch->drawString(m_spriteFont,
-    ("Radius: " + std::to_string(getTargetRadius()) + " KM").c_str(),
-    f32v2(0.0f, yOffset),
-    f32v2(1.0f),
-    color::White);
-    yOffset += fontHeight;*/
-
-
-
     // Render all bodies
     for (auto& it : m_spaceSystem->m_namePositionCT) {
+
+        // Get the augmented reality data
+        const MainMenuSystemViewer::BodyArData* bodyArData = m_mainMenuSystemViewer->finBodyAr(it.first);
+        if (bodyArData == nullptr) continue;
+
         vcore::ComponentID componentID;
-        float selectorSize = 32.0f;
-        const f32v2 textOffset(14.0f, -30.0f);
+
         f64v3 relativePos = it.second.position - m_camera->getPosition();
         f64 distance = glm::length(relativePos);
         float radiusPixels;
         float radius;
         color4 textColor;
 
-        float& hoverTime = hoverTimes[it.first];
+        float hoverTime = bodyArData->hoverTime;
 
-        if (m_camera->pointInFrustum(f32v3(relativePos))) {
+        if (bodyArData->inFrustum) {
 
             // Get screen position 
             f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
@@ -195,36 +195,10 @@ void SpaceSystemRenderStage::drawHud() {
                 textColor.interpolate(color::White, color::Aquamarine, interpolator);
             }
 
-            // Interpolate size
-            selectorSize += interpolator * HOVER_SIZE_INC;
-
-            // Detect mouse hover
-            if (glm::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
-                hoverTime += HOVER_SPEED;
-                if (hoverTime > 1.0f) hoverTime = 1.0f;
-            } else {
-                hoverTime -= HOVER_SPEED;
-                if (hoverTime < 0.0f) hoverTime = 0.0f;
-            }
-
-            // See if it has a radius
-            componentID = m_spaceSystem->m_sphericalGravityCT.getComponentID(it.first);
-            if (componentID) {
-                // Get radius of projected sphere
-                radius = m_spaceSystem->m_sphericalGravityCT.get(componentID).radius;
-                radiusPixels = (radius /
-                                (tan(m_camera->getFieldOfView() / 2) * distance)) *
-                                (m_viewport.y / 2.0f);
-            } else {
-                radius = 1000.0f;
-                radiusPixels = (radius /
-                                (tan(m_camera->getFieldOfView() / 2) * distance)) *
-                                (m_viewport.y / 2.0f);
-            }
-
-            if (radiusPixels < selectorSize / 2.0f) {
-
-                
+            float selectorSize = bodyArData->selectorSize;
+          
+            // Only render if it isn't too big
+            if (selectorSize < MAX_SELECTOR_SIZE) {
 
                 // Draw Indicator
                 m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
@@ -233,11 +207,16 @@ void SpaceSystemRenderStage::drawHud() {
                                     f32v2(selectorSize),
                                     interpolator * ROTATION_FACTOR,
                                     textColor, screenCoords.z);
+
+                // Text offset and scaling
+                const f32v2 textOffset(selectorSize / 2.0f, -selectorSize / 2.0f);
+                const f32v2 textScale((((selectorSize - MIN_SELECTOR_SIZE) / (MAX_SELECTOR_SIZE - MIN_SELECTOR_SIZE)) * 0.5 + 0.5) * 0.6);
+
                 // Draw Text
                 m_spriteBatch->drawString(m_spriteFont,
                                           it.second.name.c_str(),
                                           xyScreenCoords + textOffset,
-                                          f32v2(0.5f),
+                                          textScale,
                                           textColor,
                                           screenCoords.z);
             }

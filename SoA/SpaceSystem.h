@@ -72,6 +72,7 @@ public:
 
 class SpaceSystem : public vcore::ECS {
     friend class SpaceSystemRenderStage;
+    friend class MainMenuSystemViewer;
 public:
     SpaceSystem();
     ~SpaceSystem();
