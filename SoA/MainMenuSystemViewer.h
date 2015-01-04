@@ -38,6 +38,7 @@ public:
         float hoverTime = 0.0f;
         float selectorSize = 0.0f;
         bool inFrustum = false;
+        bool isHovering = false;
     };
     const BodyArData* finBodyAr(vcore::EntityID eid) const {
         auto& it = bodyArData.find(eid);

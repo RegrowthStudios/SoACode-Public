@@ -88,9 +88,11 @@ void MainMenuSystemViewer::update() {
 
             // Detect mouse hover
             if (glm::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
+                data.isHovering = true;
                 hoverTime += HOVER_SPEED;
                 if (hoverTime > 1.0f) hoverTime = 1.0f;
             } else {
+                data.isHovering = false;
                 hoverTime -= HOVER_SPEED;
                 if (hoverTime < 0.0f) hoverTime = 0.0f;
             }
@@ -98,6 +100,7 @@ void MainMenuSystemViewer::update() {
             data.hoverTime = hoverTime;
             data.selectorSize = selectorSize;
         } else {
+            data.isHovering = false;
             data.inFrustum = false;
         }
     }
@@ -110,6 +113,13 @@ void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButto
         mouseButtons[0] = true;
     } else {
         mouseButtons[1] = true;
+    }
+
+    for (auto& it : bodyArData) {
+        if (it.second.isHovering) {
+            m_spaceSystem->targetBody(it.first);
+            break;
+        }
     }
 }
 

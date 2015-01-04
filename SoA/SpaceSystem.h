@@ -99,6 +99,11 @@ public:
             targetComponent = it->second;
         }
     }
+    /// Targets an entity
+    /// @param eid: Entity ID
+    void targetBody(vcore::EntityID eid) {
+        targetComponent = eid;
+    }
 
     /// Changes target by offset
     /// @param offset: Integer offset by which to change target
