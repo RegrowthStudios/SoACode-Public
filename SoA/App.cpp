@@ -20,7 +20,6 @@
 #include "Options.h"
 
 #include "SpaceSystem.h"
-#include "StarSystemScreen.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
@@ -32,19 +31,16 @@ void App::addScreens() {
     scrLoad = new LoadScreen(this);
     scrMainMenu = new MainMenuScreen(this);
     scrGamePlay = new GamePlayScreen(this);
-    scrStarSystem = new StarSystemScreen(this);
 
     _screenList->addScreen(scrInit);
     _screenList->addScreen(scrLoad);
     _screenList->addScreen(scrMainMenu);
     _screenList->addScreen(scrGamePlay);
-    _screenList->addScreen(scrStarSystem);
 
     // Add development screen
     scrDev = new DevScreen;
     scrDev->addScreen(VKEY_RETURN, scrInit);
     scrDev->addScreen(VKEY_SPACE, scrInit);
-    scrDev->addScreen(VKEY_S, scrStarSystem);
     _screenList->addScreen(scrDev);
 
     // Add test screens
@@ -93,7 +89,6 @@ App::~App() {
     delete scrMainMenu;
     delete scrGamePlay;
     delete scrDev;
-    delete scrStarSystem; 
 
     delete meshManager;
 }

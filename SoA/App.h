@@ -13,7 +13,6 @@ class GamePlayScreen;
 class MeshManager;
 class TexturePackLoader;
 class SpaceSystem;
-class StarSystemScreen;
 class IOManager;
 
 class App : public MainGame {
@@ -29,7 +28,6 @@ public:
     LoadScreen* scrLoad = nullptr;
     MainMenuScreen* scrMainMenu = nullptr;
     GamePlayScreen* scrGamePlay = nullptr;
-    StarSystemScreen* scrStarSystem = nullptr;
 
     SpaceSystem* spaceSystem = nullptr; ///< Space ECS
     DevScreen* scrDev = nullptr;

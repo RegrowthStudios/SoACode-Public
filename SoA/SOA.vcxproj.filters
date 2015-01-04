@@ -533,9 +533,6 @@
     <ClInclude Include="MainMenuScreenEvents.hpp">
       <Filter>SOA Files\BenPLZ</Filter>
     </ClInclude>
-    <ClInclude Include="StarSystemScreen.h">
-      <Filter>SOA Files\Screens\StarSystem</Filter>
-    </ClInclude>
     <ClInclude Include="TestBlockViewScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -921,9 +918,6 @@
     </ClCompile>
     <ClCompile Include="Atmosphere.cpp">
       <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
-    <ClCompile Include="StarSystemScreen.cpp">
-      <Filter>SOA Files\Screens\StarSystem</Filter>
     </ClCompile>
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp">

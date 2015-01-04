@@ -24,9 +24,6 @@
 #include "Player.h"
 #include "TexturePackLoader.h"
 
-// TEMPORARY
-#include "StarSystemScreen.h"
-
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
 const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
