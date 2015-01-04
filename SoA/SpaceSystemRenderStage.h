@@ -17,6 +17,7 @@
 
 #include <Vorb/IRenderStage.h>
 #include <Vorb/GLProgram.h>
+#include <Vorb/ECS.h>
 
 class App;
 class SpaceSystem;
@@ -56,6 +57,12 @@ private:
 
     SpriteBatch* m_spriteBatch = nullptr;
     SpriteFont* m_spriteFont = nullptr;
+
+    struct BodyArData {
+        float hoverTime = 0.0f;
+    };
+
+    std::map <vcore::EntityID, float> hoverTimes;
 
     f32v2 m_mouseCoords = f32v2(-1.0f);
     f32v2 m_viewport;

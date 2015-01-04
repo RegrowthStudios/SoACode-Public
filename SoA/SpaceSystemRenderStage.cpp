@@ -125,6 +125,10 @@ void SpaceSystemRenderStage::drawPaths() {
 
 
 void SpaceSystemRenderStage::drawHud() {
+
+    const float HOVER_SPEED = 0.07f;
+    const float HOVER_SIZE_INC = 3.0f;
+
     // Lazily load spritebatch
     if (!m_spriteBatch) {
         m_spriteBatch = new SpriteBatch(true, true);
@@ -155,13 +159,15 @@ void SpaceSystemRenderStage::drawHud() {
     // Render all bodies
     for (auto& it : m_spaceSystem->m_namePositionCT) {
         vcore::ComponentID componentID;
-        color4 textColor = color::White;
         float selectorSize = 32.0f;
         const f32v2 textOffset(14.0f, -30.0f);
         f64v3 relativePos = it.second.position - m_camera->getPosition();
         f64 distance = glm::length(relativePos);
         float radiusPixels;
         float radius;
+
+        float& hoverTime = hoverTimes[it.first];
+
         if (m_camera->pointInFrustum(f32v3(relativePos))) {
 
             // Get screen position 
@@ -170,9 +176,17 @@ void SpaceSystemRenderStage::drawHud() {
 
             float depth = screenCoords.z;
 
+            color4 textColor;
+            textColor.interpolate(color::White, color::Yellow, hoverTime);
+            selectorSize += hoverTime * HOVER_SIZE_INC;
+
             // Detect mouse hover
             if (glm::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
-                textColor = color::Yellow;
+                hoverTime += HOVER_SPEED;
+                if (hoverTime > 1.0f) hoverTime = 1.0f;
+            } else {
+                hoverTime -= HOVER_SPEED;
+                if (hoverTime < 0.0f) hoverTime = 0.0f;
             }
 
             // See if it has a radius
