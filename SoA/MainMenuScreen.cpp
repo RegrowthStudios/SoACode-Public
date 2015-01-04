@@ -130,13 +130,6 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
     _app->spaceSystem->update(time, m_camera.getPosition());
     _app->spaceSystem->glUpdate();
-    // Connect camera to target planet
-    float length = m_camera.getFocalLength() / 10.0;
-    if (length == 0) length = 0.1;
-    m_camera.setClippingPlane(length, m_camera.getFarClip());
-    // Target closest point on sphere
-    m_camera.setTargetFocalPoint(_app->spaceSystem->getTargetPosition() -
-                                f64v3(glm::normalize(m_camera.getDirection())) * _app->spaceSystem->getTargetRadius());
 
     m_camera.update();
     m_inputManager->update(); // TODO: Remove
@@ -194,11 +187,11 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!_app->saveFileIom->directoryExists(fileName.c_str())) {
+    if (!m_gameStartState.saveFileIom->directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    _app->saveFileIom->setSearchDirectory(fileName.c_str());
+    m_gameStartState.saveFileIom->setSearchDirectory(fileName.c_str());
 
     // Check the planet string
     nString planetName = fileManager.getWorldString(fileName + "/World/");
@@ -216,11 +209,11 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!_app->saveFileIom->directoryExists(fileName.c_str())) {
+    if (!m_gameStartState.saveFileIom->directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    _app->saveFileIom->setSearchDirectory(fileName.c_str());
+    m_gameStartState.saveFileIom->setSearchDirectory(fileName.c_str());
 
     // Save the world file
     nString worldText("Aldrin");

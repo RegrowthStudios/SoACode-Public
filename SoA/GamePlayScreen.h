@@ -22,13 +22,14 @@
 
 #include "GamePlayRenderPipeline.h"
 #include "LoadMonitor.h"
-#include "MainMenuAPI.h"
 #include "MessageManager.h"
 #include "PDA.h"
 #include "PauseMenu.h"
 
 class App;
+class GameStartState;
 class InputManager;
+class MainMenuScreen;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
@@ -66,7 +67,7 @@ class GamePlayScreen : public IAppScreen<App> {
     friend class OnGridKeyDown;
     friend class PauseMenuAwesomiumAPI;
 public:
-    CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
+    GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
 
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
@@ -116,7 +117,10 @@ private:
     void updateWorldCameraClip();
 
     /// Loads the player save file
-    bool loadPlayerFile(const cString filePath, Player* player);
+    bool loadPlayerFile(Player* player);
+
+    const MainMenuScreen* m_mainMenuScreen = nullptr;
+    const GameStartState* m_gameStartState = nullptr;
 
     VoxelWorld* m_voxelWorld = nullptr;
 

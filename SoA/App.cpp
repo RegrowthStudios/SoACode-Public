@@ -30,7 +30,7 @@ void App::addScreens() {
     scrInit = new InitScreen(this);
     scrLoad = new LoadScreen(this);
     scrMainMenu = new MainMenuScreen(this);
-    scrGamePlay = new GamePlayScreen(this);
+    scrGamePlay = new GamePlayScreen(this, scrMainMenu);
 
     _screenList->addScreen(scrInit);
     _screenList->addScreen(scrLoad);
@@ -73,7 +73,6 @@ void App::onInit() {
     meshManager = new MeshManager;
     spaceSystem = new SpaceSystem();
     spaceSystem->init(GameManager::glProgramManager);
-    saveFileIom = new IOManager;
 }
 
 void App::onExit() {

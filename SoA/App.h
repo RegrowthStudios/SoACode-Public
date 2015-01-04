@@ -13,7 +13,6 @@ class GamePlayScreen;
 class MeshManager;
 class TexturePackLoader;
 class SpaceSystem;
-class IOManager;
 
 class App : public MainGame {
 public:
@@ -32,7 +31,6 @@ public:
     SpaceSystem* spaceSystem = nullptr; ///< Space ECS
     DevScreen* scrDev = nullptr;
     std::vector<IGameScreen*> scrTests;
-    IOManager* saveFileIom = nullptr;
 
     // TODO(Ben): This can go somewhere else v v v
     MeshManager* meshManager = nullptr; ///< Stores chunk, terrain, particle, and physics block meshes

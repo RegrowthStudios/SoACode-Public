@@ -15,7 +15,6 @@
 #ifndef MESHMANAGER_H_
 #define MESHMANAGER_H_
 
-class TerrainMeshMessage;
 class ChunkMeshData;
 class ParticleMeshMessage;
 class PhysicsBlockMeshMessage;
@@ -29,10 +28,6 @@ class MeshManager
 {
 public:
     MeshManager();
-
-    /// Updates a terrain mesh
-    /// @param tmm: the TerrainMeshMessage, sent by the update thread
-    void updateTerrainMesh(TerrainMeshMessage* tmm);
 
     /// Updates a chunk mesh
     /// @param cmd: the ChunkMeshData sent by the update thread

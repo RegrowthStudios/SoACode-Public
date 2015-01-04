@@ -22,8 +22,8 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
 
     // Initialize the camera
     m_camera->setPosition(glm::dvec3(0.0, 200000.0, 0.0));
-    m_camera->setDirection(glm::vec3(0.0, -1.0, 0.0));
-    m_camera->setUp(glm::cross(m_camera->getRight(), m_camera->getDirection()));
+
+    // Initialize the camera
     m_camera->setClippingPlane(10000.0f, 3000000000000.0f);
     m_camera->setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
 
@@ -104,6 +104,15 @@ void MainMenuSystemViewer::update() {
             data.inFrustum = false;
         }
     }
+
+    // Connect camera to target planet
+    float length = m_camera->getFocalLength() / 10.0;
+    if (length == 0) length = 0.1;
+    m_camera->setClippingPlane(length, m_camera->getFarClip());
+    // Target closest point on sphere
+    m_camera->setTargetFocalPoint(m_spaceSystem->getTargetPosition() -
+                                 f64v3(glm::normalize(m_camera->getDirection())) * m_spaceSystem->getTargetRadius());
+
 }
 
 void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e) {
@@ -111,15 +120,15 @@ void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButto
     m_mouseCoords.y = e.y;
     if (e.button == vui::MouseButton::LEFT) {
         mouseButtons[0] = true;
+        // Target a body if we clicked on one
+        for (auto& it : bodyArData) {
+            if (it.second.isHovering) {
+                m_spaceSystem->targetBody(it.first);
+                break;
+            }
+        }
     } else {
         mouseButtons[1] = true;
-    }
-
-    for (auto& it : bodyArData) {
-        if (it.second.isHovering) {
-            m_spaceSystem->targetBody(it.first);
-            break;
-        }
     }
 }
 

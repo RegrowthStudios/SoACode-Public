@@ -7,34 +7,37 @@
 #include <Vorb/SpriteFont.h>
 #include <Vorb/SpriteBatch.h>
 
-#include "Player.h"
 #include "App.h"
-#include "GameManager.h"
-#include "InputManager.h"
-#include "Sound.h"
-#include "MessageManager.h"
-#include "SphericalTerrainPatch.h"
-#include "MeshManager.h"
+#include "ChunkManager.h"
 #include "ChunkMesh.h"
+#include "ChunkRenderer.h"
+#include "Collision.h"
+#include "DebugRenderer.h"
+#include "Errors.h"
+#include "GameManager.h"
+#include "GamePlayScreenEvents.hpp"
+#include "InputManager.h"
+#include "Inputs.h"
+#include "LoadTaskShaders.h"
+#include "MainMenuScreen.h"
+#include "MeshManager.h"
+#include "MessageManager.h"
+#include "Options.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
+#include "Player.h"
 #include "RenderTask.h"
-#include "Errors.h"
-#include "ChunkRenderer.h"
-#include "ChunkManager.h"
-#include "VoxelWorld.h"
-#include "VoxelEditor.h"
-#include "DebugRenderer.h"
-#include "Collision.h"
-#include "Inputs.h"
+#include "Sound.h"
+#include "SphericalTerrainPatch.h"
 #include "TexturePackLoader.h"
-#include "LoadTaskShaders.h"
-#include "Options.h"
-#include "GamePlayScreenEvents.hpp"
+#include "VoxelEditor.h"
+#include "VoxelWorld.h"
 
 #define THREAD ThreadId::UPDATE
 
-CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
+GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
+    IAppScreen<App>(app),
+    m_mainMenuScreen(mainMenuScreen),
     m_updateThread(nullptr),
     m_threadRunning(false), 
     m_inFocus(true),
@@ -69,6 +72,8 @@ void GamePlayScreen::destroy(const GameTime& gameTime) {
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_inputManager = new InputManager;
+
+    m_gameStartState = m_mainMenuScreen->getGameStartState();
 
     m_player = GameManager::player;
     m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
@@ -255,7 +260,7 @@ void GamePlayScreen::initVoxels() {
     bool atSurface = 1;
     m_player = new Player;
 
-    if (loadPlayerFile("TEST", m_player)) {
+    if (loadPlayerFile(m_player)) {
         atSurface = 0; //dont need to set height
     }
 
@@ -455,11 +460,11 @@ void GamePlayScreen::updateWorldCameraClip() {
     m_player->getWorldCamera().updateProjection();
 }
 
-bool GamePlayScreen::loadPlayerFile(const cString filePath, Player* player) {
+bool GamePlayScreen::loadPlayerFile(Player* player) {
     //loadMarkers(player);
     
     std::vector<ui8> data;
-    if (!_app->saveFileIom->readFileToData(("Players/" + player->getName() + ".dat").c_str(), data)) {
+    if (!m_gameStartState->saveFileIom->readFileToData(("Players/" + player->getName() + ".dat").c_str(), data)) {
         //file doesnt exist so set spawn to random
         srand(time(NULL));
         int spawnFace = rand() % 4 + 1;

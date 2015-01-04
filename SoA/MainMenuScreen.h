@@ -30,6 +30,12 @@ class InputManager;
 class MainMenuSystemViewer;
 class TerrainMeshMessage;
 
+struct GameStartState {
+    IOManager* saveFileIom = nullptr;
+    bool isNewGame = true;
+    nString saveFileName = "";
+};
+
 class MainMenuScreen : public IAppScreen<App>
 {
     friend class OnMainMenuReloadShadersKeyDown;
@@ -54,6 +60,7 @@ public:
     // Getters
     CinematicCamera& getCamera() { return m_camera; }
     IOManager& getIOManager() { return m_ioManager; }
+    const GameStartState* getGameStartState() const { return &m_gameStartState; }
 
 private:
 
@@ -74,6 +81,8 @@ private:
 
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
+
+    GameStartState m_gameStartState;
 
     vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
     
