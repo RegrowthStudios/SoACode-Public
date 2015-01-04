@@ -195,9 +195,7 @@ void SpaceSystemRenderStage::drawHud() {
                 textColor.interpolate(color::White, color::Aquamarine, interpolator);
             }
 
-            // Interpolate size and color
-            
-            textColor.interpolate(color::White, color::Aquamarine, interpolator);
+            // Interpolate size
             selectorSize += interpolator * HOVER_SIZE_INC;
 
             // Detect mouse hover
