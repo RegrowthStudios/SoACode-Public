@@ -89,6 +89,7 @@ void MainMenuSystemViewer::update() {
             // Detect mouse hover
             if (glm::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
                 data.isHovering = true;
+                data.hoverEntity = it.first;
                 hoverTime += HOVER_SPEED;
                 if (hoverTime > 1.0f) hoverTime = 1.0f;
             } else {
@@ -123,6 +124,7 @@ void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButto
         // Target a body if we clicked on one
         for (auto& it : bodyArData) {
             if (it.second.isHovering) {
+                pickStartLocation(it.second.hoverEntity);
                 m_spaceSystem->targetBody(it.first);
                 break;
             }
@@ -157,5 +159,58 @@ void MainMenuSystemViewer::onMouseMotion(void* sender, const vui::MouseMotionEve
     }
     if (mouseButtons[1]) {
         m_camera->yawFromMouse((float)e.dx, MOUSE_SPEED);
+    }
+}
+
+inline float sum(const f32v3& v) {
+    return v.x + v.y + v.z;
+}
+
+inline bool intersect(const f32v3& raydir, const f32v3& rayorig, const f32v3& pos,
+                      const float& rad, f32v3& hitpoint, float& distance, f32v3& normal) {
+    float a = sum(raydir*raydir);
+    float b = sum(raydir * (2.0f * (rayorig - pos)));
+    float c = sum(pos*pos) + sum(rayorig*rayorig) - 2.0f*sum(rayorig*pos) - rad*rad;
+    float D = b*b + (-4.0f)*a*c;
+
+    // If ray can not intersect then stop
+    if (D < 0) {
+        return false;
+    }
+    D = sqrtf(D);
+
+    // Ray can intersect the sphere, solve the closer hitpoint
+    float t = (-0.5f)*(b + D) / a;
+    if (t > 0.0f) {
+        distance = sqrtf(a)*t;
+        hitpoint = rayorig + t*raydir;
+        normal = (hitpoint - pos) / rad;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
+    f32v2 ndc = f32v2((m_mouseCoords.x / m_viewport.x) * 2.0f - 1.0f,
+        1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
+    f32v3 pickRay = m_camera->getPickRay(ndc);
+
+    vcore::ComponentID cid = m_spaceSystem->m_namePositionCT.getComponentID(eid);
+    if (!cid) return;
+    f64v3 centerPos = m_spaceSystem->m_namePositionCT.get(cid).position;
+    f32v3 pos = f32v3(centerPos - m_camera->getPosition());
+
+    cid = m_spaceSystem->m_sphericalGravityCT.getComponentID(eid);
+    if (!cid) return;
+    float radius = m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
+
+    // Compute the intersection
+    f32v3 normal, hitpoint;
+    float distance;
+    if (intersect(pickRay, f32v3(0.0f), pos, radius, hitpoint, distance, normal)) {
+        auto& data = bodyArData[eid];
+        data.selectedPos = hitpoint - pos;
+        data.isLandSelected = true;
     }
 }

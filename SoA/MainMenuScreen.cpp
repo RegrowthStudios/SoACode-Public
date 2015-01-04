@@ -124,7 +124,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     m_awesomiumInterface.update();
     
     static double time = 0.0;
-    time += 0.001;
+    time += 0.0001;
 
     m_mainMenuSystemViewer->update();
 

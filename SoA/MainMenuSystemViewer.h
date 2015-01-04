@@ -38,9 +38,10 @@ public:
         float hoverTime = 0.0f;
         float selectorSize = 0.0f;
         bool inFrustum = false;
+        vcore::EntityID hoverEntity = 0;
         bool isHovering = false;
         bool isLandSelected = false;
-        f32v3 landPos;
+        f32v3 selectedPos;
     };
     const BodyArData* finBodyAr(vcore::EntityID eid) const {
         auto& it = bodyArData.find(eid);
@@ -57,6 +58,8 @@ private:
     void onMouseButtonUp(void* sender, const vui::MouseButtonEvent& e);
     void onMouseWheel(void* sender, const vui::MouseWheelEvent& e);
     void onMouseMotion(void* sender, const vui::MouseMotionEvent& e);
+
+    void pickStartLocation(vcore::EntityID eid);
 
     nString currentBody = "";
 

@@ -106,6 +106,8 @@ void SpaceSystemRenderStage::drawBodies() {
 
 void SpaceSystemRenderStage::drawPaths() {
 
+    DepthState::READ.set();
+
     // Draw paths
     m_colorProgram->use();
     m_colorProgram->enableVertexAttribArrays();
@@ -160,7 +162,8 @@ void SpaceSystemRenderStage::drawHud() {
 
         vcore::ComponentID componentID;
 
-        f64v3 relativePos = it.second.position - m_camera->getPosition();
+        f64v3 position = it.second.position;
+        f64v3 relativePos = position - m_camera->getPosition();
         color4 textColor;
 
         float hoverTime = bodyArData->hoverTime;
@@ -209,8 +212,24 @@ void SpaceSystemRenderStage::drawHud() {
                                           textScale,
                                           textColor,
                                           screenCoords.z);
-            }
 
+            }
+            // Land selector
+            if (bodyArData->isLandSelected) {
+
+                relativePos = (position + f64v3(bodyArData->selectedPos)) - m_camera->getPosition();
+                screenCoords = m_camera->worldToScreenPoint(relativePos);
+                xyScreenCoords = f32v2(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
+
+                DepthState::NONE.set();
+                m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
+                                    xyScreenCoords,
+                                    f32v2(0.5f, 0.5f),
+                                    f32v2(10.0f),
+                                    interpolator * ROTATION_FACTOR,
+                                    color::Red, screenCoords.z);
+                DepthState::READ.set();
+            }
         }
     }
 
