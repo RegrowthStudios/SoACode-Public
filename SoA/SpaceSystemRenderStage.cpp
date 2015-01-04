@@ -156,17 +156,24 @@ void SpaceSystemRenderStage::drawHud() {
     for (auto& it : m_spaceSystem->m_namePositionCT) {
         vcore::ComponentID componentID;
         color4 textColor = color::White;
-        f32v2 selectorSize(32.0f, 32.0f);
+        float selectorSize = 32.0f;
         const f32v2 textOffset(14.0f, -30.0f);
         f64v3 relativePos = it.second.position - m_camera->getPosition();
         f64 distance = glm::length(relativePos);
         float radiusPixels;
         float radius;
         if (m_camera->pointInFrustum(f32v3(relativePos))) {
+
             // Get screen position 
             f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
-            f32v2 xyScreenCoords(screenCoords.x, screenCoords.y);
+            f32v2 xyScreenCoords(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
+
             float depth = screenCoords.z;
+
+            // Detect mouse hover
+            if (glm::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
+                textColor = color::Yellow;
+            }
 
             // See if it has a radius
             componentID = m_spaceSystem->m_sphericalGravityCT.getComponentID(it.first);
@@ -183,17 +190,19 @@ void SpaceSystemRenderStage::drawHud() {
                                 (m_viewport.y / 2.0f);
             }
 
-            if (radiusPixels < 16.0f) {
+            if (radiusPixels < selectorSize / 2.0f) {
+
+                
 
                 // Draw Indicator
                 m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
-                                    xyScreenCoords * m_viewport,
-                                    -selectorSize / 2.0f,
-                                    selectorSize, textColor, depth);
+                                    xyScreenCoords,
+                                    f32v2(0.5f, 0.5f),
+                                    f32v2(selectorSize), textColor, depth);
                 // Draw Text
                 m_spriteBatch->drawString(m_spriteFont,
                                           it.second.name.c_str(),
-                                          xyScreenCoords * m_viewport + textOffset,
+                                          xyScreenCoords + textOffset,
                                           f32v2(0.5f),
                                           textColor,
                                           depth);

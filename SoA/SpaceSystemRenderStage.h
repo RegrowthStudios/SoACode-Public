@@ -36,6 +36,8 @@ public:
 
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
 
+    void setMouseCoords(const f32v2& mouseCoords) { m_mouseCoords = mouseCoords; }
+
     /// Draws the render stage
     virtual void draw() override;
 private:
@@ -55,6 +57,7 @@ private:
     SpriteBatch* m_spriteBatch = nullptr;
     SpriteFont* m_spriteFont = nullptr;
 
+    f32v2 m_mouseCoords = f32v2(-1.0f);
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
     const Camera* m_camera = nullptr;

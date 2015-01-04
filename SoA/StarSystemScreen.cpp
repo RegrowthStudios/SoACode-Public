@@ -225,6 +225,8 @@ void StarSystemScreen::onMouseMotion(void* sender, const vui::MouseMotionEvent& 
     if (mouseButtons[1]) {
         m_camera.yawFromMouse((float)e.dx, MOUSE_SPEED);
     }
+
+    m_spaceSystemRenderStage->setMouseCoords(f32v2(e.x, e.y));
 }
 
 void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
