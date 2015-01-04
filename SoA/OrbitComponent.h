@@ -50,7 +50,7 @@ public:
 
     /// Draws the ellipse and a point for the body
     void drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent,
-                 const f64v3& camPos, NamePositionComponent* parentNpComponent = nullptr);
+                 const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent = nullptr);
 
     /// Gets the vertex buffer ID for ellipse
     const VGBuffer& getVbo() const { return m_vbo; }

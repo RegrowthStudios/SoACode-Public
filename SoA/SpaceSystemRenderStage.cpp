@@ -13,6 +13,7 @@
 #include <Vorb/SpriteBatch.h>
 #include <Vorb/SpriteFont.h>
 #include <Vorb/colors.h>
+#include <Vorb/utils.h>
 
 #include "App.h"
 #include "AxisRotationComponent.h"
@@ -20,6 +21,7 @@
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "GLProgramManager.h"
+#include "OrbitComponent.h"
 #include "RenderUtils.h"
 
 SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
@@ -108,13 +110,17 @@ void SpaceSystemRenderStage::drawPaths() {
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
     m_spaceSystem->m_mutex.lock();
     for (auto& it : m_spaceSystem->m_orbitCT) {
+
+        // Interpolated alpha
+        float alpha = 0.15 + 0.85 * hermite(hoverTimes[it.first]);
+
         auto& cmp = it.second;
         if (cmp.parentNpId) {
             cmp.drawPath(m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
-                         m_camera->getPosition(), &m_spaceSystem->m_namePositionCT.get(cmp.parentNpId));
+                         m_camera->getPosition(), alpha, &m_spaceSystem->m_namePositionCT.get(cmp.parentNpId));
         } else {
             cmp.drawPath(m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
-                         m_camera->getPosition());
+                         m_camera->getPosition(), alpha);
         }
     }
     m_spaceSystem->m_mutex.unlock();
@@ -126,8 +132,9 @@ void SpaceSystemRenderStage::drawPaths() {
 
 void SpaceSystemRenderStage::drawHud() {
 
-    const float HOVER_SPEED = 0.07f;
-    const float HOVER_SIZE_INC = 3.0f;
+    const float HOVER_SPEED = 0.08f;
+    const float HOVER_SIZE_INC = 7.0f;
+    const float ROTATION_FACTOR = M_PI * 2.0f + M_PI / 4;
 
     // Lazily load spritebatch
     if (!m_spriteBatch) {
@@ -165,6 +172,7 @@ void SpaceSystemRenderStage::drawHud() {
         f64 distance = glm::length(relativePos);
         float radiusPixels;
         float radius;
+        color4 textColor;
 
         float& hoverTime = hoverTimes[it.first];
 
@@ -174,11 +182,23 @@ void SpaceSystemRenderStage::drawHud() {
             f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
             f32v2 xyScreenCoords(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
-            float depth = screenCoords.z;
+            // Get a smooth interpolator with hermite
+            float interpolator = hermite(hoverTime);
+            
+            // Find its orbit path color and do color interpolation
+            componentID = m_spaceSystem->m_orbitCT.getComponentID(it.first);
+            if (componentID) {
+                const ui8v4& tcolor = m_spaceSystem->m_orbitCT.get(componentID).pathColor;
+                ColorRGBA8 targetColor(tcolor.r, tcolor.g, tcolor.b, tcolor.a);
+                textColor.interpolate(color::White, targetColor, interpolator);
+            } else {
+                textColor.interpolate(color::White, color::Aquamarine, interpolator);
+            }
 
-            color4 textColor;
-            textColor.interpolate(color::White, color::Yellow, hoverTime);
-            selectorSize += hoverTime * HOVER_SIZE_INC;
+            // Interpolate size and color
+            
+            textColor.interpolate(color::White, color::Aquamarine, interpolator);
+            selectorSize += interpolator * HOVER_SIZE_INC;
 
             // Detect mouse hover
             if (glm::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
@@ -212,14 +232,16 @@ void SpaceSystemRenderStage::drawHud() {
                 m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
                                     xyScreenCoords,
                                     f32v2(0.5f, 0.5f),
-                                    f32v2(selectorSize), textColor, depth);
+                                    f32v2(selectorSize),
+                                    interpolator * ROTATION_FACTOR,
+                                    textColor, screenCoords.z);
                 // Draw Text
                 m_spriteBatch->drawString(m_spriteFont,
                                           it.second.name.c_str(),
                                           xyScreenCoords + textOffset,
                                           f32v2(0.5f),
                                           textColor,
-                                          depth);
+                                          screenCoords.z);
             }
 
         }

@@ -60,7 +60,7 @@ void OrbitComponent::destroy() {
 }
 
 void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent,
-                              const f64v3& camPos, NamePositionComponent* parentNpComponent /* = nullptr */) {
+                              const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent /* = nullptr */) {
 
     f32v4 color(f32v4(pathColor) / 255.0f);
     f32m4 transMatrix(1.0f);
@@ -70,7 +70,7 @@ void OrbitComponent::drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, Nam
         setMatrixTranslation(transMatrix, -camPos);
     }
     f32m4 pathMatrix = wvp * transMatrix * glm::mat4(glm::toMat4(orientation));
-    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, color.a);
+    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, alpha);
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
     // Lazily generate mesh
