@@ -30,6 +30,7 @@ class PlanetRenderStage;
 class SkyboxRenderStage;
 class SpaceSystem;
 class SpaceSystemRenderStage;
+class MainMenuSystemViewer;
 
 class MainMenuRenderPipeline : public vg::IRenderPipeline 
 {
@@ -42,11 +43,13 @@ public:
     /// @param camera: The camera used for rendering.
     /// @param awesomiumInterface: The user interface
     /// @param spaceSystem: The space system for rendering
+    /// @param systemViewer: System viewing controller for main menu
     /// @param glProgramManager: The program cache that contains all needed
     /// GLPrograms
     void init(const ui32v4& viewport, Camera* camera,
               IAwesomiumInterface* awesomiumInterface,
               SpaceSystem* spaceSystem,
+              const MainMenuSystemViewer* systemViewer,
               const vg::GLProgramManager* glProgramManager);
 
     /// Renders the pipeline

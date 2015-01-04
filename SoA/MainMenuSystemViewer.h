@@ -19,6 +19,7 @@
 #include <Vorb/Vorb.h>
 // Temporary
 #include <Vorb/MouseInputDispatcher.h>
+#include <Vorb/ECS.h>
 
 class CinematicCamera;
 class InputManager;
@@ -44,6 +45,9 @@ public:
         return &it->second;
     }
 
+    static const float MIN_SELECTOR_SIZE;
+    static const float MAX_SELECTOR_SIZE;
+
 private:
     // Events
     void onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e);
@@ -55,7 +59,7 @@ private:
 
     std::map <vcore::EntityID, BodyArData> bodyArData;
 
-
+    bool mouseButtons[2];
     f32v2 m_mouseCoords = f32v2(-1.0f);
     f32v2 m_viewport;
 

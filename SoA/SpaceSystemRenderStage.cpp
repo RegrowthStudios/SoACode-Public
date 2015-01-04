@@ -27,7 +27,7 @@
 
 SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
-                                               MainMenuSystemViewer* systemViewer,
+                                               const MainMenuSystemViewer* systemViewer,
                                                const Camera* camera,
                                                vg::GLProgram* colorProgram,
                                                vg::GLProgram* terrainProgram,
@@ -141,21 +141,13 @@ void SpaceSystemRenderStage::drawPaths() {
 
 void SpaceSystemRenderStage::drawHud() {
 
-    const float HOVER_SPEED = 0.08f;
-    const float HOVER_SIZE_INC = 7.0f;
     const float ROTATION_FACTOR = M_PI * 2.0f + M_PI / 4;
-    const float MIN_SELECTOR_SIZE = 12.0f;
-    const float MAX_SELECTOR_SIZE = 160.0f;
 
     // Lazily load spritebatch
     if (!m_spriteBatch) {
         m_spriteBatch = new SpriteBatch(true, true);
         m_spriteFont = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
     }
-
-    // Reset the yOffset
-    float yOffset = 0.0f;
-    float fontHeight = m_spriteFont->getFontHeight();
 
     m_spriteBatch->begin();
 
@@ -169,9 +161,6 @@ void SpaceSystemRenderStage::drawHud() {
         vcore::ComponentID componentID;
 
         f64v3 relativePos = it.second.position - m_camera->getPosition();
-        f64 distance = glm::length(relativePos);
-        float radiusPixels;
-        float radius;
         color4 textColor;
 
         float hoverTime = bodyArData->hoverTime;
@@ -198,7 +187,7 @@ void SpaceSystemRenderStage::drawHud() {
             float selectorSize = bodyArData->selectorSize;
           
             // Only render if it isn't too big
-            if (selectorSize < MAX_SELECTOR_SIZE) {
+            if (selectorSize < MainMenuSystemViewer::MAX_SELECTOR_SIZE) {
 
                 // Draw Indicator
                 m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
@@ -210,7 +199,8 @@ void SpaceSystemRenderStage::drawHud() {
 
                 // Text offset and scaling
                 const f32v2 textOffset(selectorSize / 2.0f, -selectorSize / 2.0f);
-                const f32v2 textScale((((selectorSize - MIN_SELECTOR_SIZE) / (MAX_SELECTOR_SIZE - MIN_SELECTOR_SIZE)) * 0.5 + 0.5) * 0.6);
+                const f32v2 textScale((((selectorSize - MainMenuSystemViewer::MIN_SELECTOR_SIZE) /
+                    (MainMenuSystemViewer::MAX_SELECTOR_SIZE - MainMenuSystemViewer::MIN_SELECTOR_SIZE)) * 0.5 + 0.5) * 0.6);
 
                 // Draw Text
                 m_spriteBatch->drawString(m_spriteFont,

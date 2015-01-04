@@ -20,6 +20,7 @@
 #include <Vorb/ECS.h>
 
 class App;
+class MainMenuSystemViewer;
 class SpaceSystem;
 class SpriteBatch;
 class SpriteFont;
@@ -28,7 +29,7 @@ class SpaceSystemRenderStage : public vg::IRenderStage {
 public:
     SpaceSystemRenderStage(ui32v2 viewport,
                            SpaceSystem* spaceSystem,
-                           MainMenuSystemViewer* systemViewer,
+                           const MainMenuSystemViewer* systemViewer,
                            const Camera* camera,
                            vg::GLProgram* colorProgram,
                            vg::GLProgram* terrainProgram,
@@ -37,8 +38,6 @@ public:
     ~SpaceSystemRenderStage();
 
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
-
-    void setMouseCoords(const f32v2& mouseCoords) { m_mouseCoords = mouseCoords; }
 
     /// Draws the render stage
     virtual void draw() override;
@@ -59,10 +58,9 @@ private:
     SpriteBatch* m_spriteBatch = nullptr;
     SpriteFont* m_spriteFont = nullptr;
 
-    f32v2 m_mouseCoords = f32v2(-1.0f);
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
-    MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
+    const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_camera = nullptr;
     vg::GLProgram* m_colorProgram = nullptr;
     vg::GLProgram* m_terrainProgram = nullptr;

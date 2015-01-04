@@ -7,6 +7,9 @@
 #include "Camera.h"
 #include "SpaceSystem.h"
 
+const float MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
+const float MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
+
 MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera,
                                            SpaceSystem* spaceSystem, InputManager* inputManager) :
         m_viewport(viewport),
@@ -14,6 +17,9 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
         m_spaceSystem(spaceSystem),
         m_inputManager(inputManager) {
     
+    mouseButtons[0] = false;
+    mouseButtons[1] = false;
+
     // Initialize the camera
     m_camera->setPosition(glm::dvec3(0.0, 200000.0, 0.0));
     m_camera->setDirection(glm::vec3(0.0, -1.0, 0.0));
@@ -37,9 +43,6 @@ MainMenuSystemViewer::~MainMenuSystemViewer() {
 void MainMenuSystemViewer::update() {
     const float HOVER_SPEED = 0.08f;
     const float HOVER_SIZE_INC = 7.0f;
-    const float ROTATION_FACTOR = M_PI * 2.0f + M_PI / 4;
-    const float MIN_SELECTOR_SIZE = 12.0f;
-    const float MAX_SELECTOR_SIZE = 160.0f;
 
     // Render all bodies
     for (auto& it : m_spaceSystem->m_namePositionCT) {
@@ -101,17 +104,39 @@ void MainMenuSystemViewer::update() {
 }
 
 void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e) {
-
+    m_mouseCoords.x = e.x;
+    m_mouseCoords.y = e.y;
+    if (e.button == vui::MouseButton::LEFT) {
+        mouseButtons[0] = true;
+    } else {
+        mouseButtons[1] = true;
+    }
 }
 
 void MainMenuSystemViewer::onMouseButtonUp(void* sender, const vui::MouseButtonEvent& e) {
-
+    m_mouseCoords.x = e.x;
+    m_mouseCoords.y = e.y;
+    if (e.button == vui::MouseButton::LEFT) {
+        mouseButtons[0] = false;
+    } else {
+        mouseButtons[1] = false;
+    }
 }
 
 void MainMenuSystemViewer::onMouseWheel(void* sender, const vui::MouseWheelEvent& e) {
-
+#define SCROLL_SPEED 0.1f
+    m_camera->offsetTargetFocalLength(m_camera->getTargetFocalLength() * SCROLL_SPEED * -e.dy);
 }
 
 void MainMenuSystemViewer::onMouseMotion(void* sender, const vui::MouseMotionEvent& e) {
+    m_mouseCoords.x = e.x;
+    m_mouseCoords.y = e.y;
 
+#define MOUSE_SPEED 0.1f
+    if (mouseButtons[0]) {
+        m_camera->rotateFromMouse((float)-e.dx, (float)-e.dy, MOUSE_SPEED);
+    }
+    if (mouseButtons[1]) {
+        m_camera->yawFromMouse((float)e.dx, MOUSE_SPEED);
+    }
 }

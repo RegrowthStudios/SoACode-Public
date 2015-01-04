@@ -24,6 +24,7 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
 void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
                                   IAwesomiumInterface* awesomiumInterface,
                                   SpaceSystem* spaceSystem,
+                                  const MainMenuSystemViewer* systemViewer,
                                   const vg::GLProgramManager* glProgramManager) {
     // Set the viewport
     _viewport = viewport;
@@ -54,8 +55,8 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
 
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, camera);
     // TODO(Ben): Use texture pack iomanager
-    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport),
-                                                          spaceSystem, camera,
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport.z, _viewport.w),
+                                                          spaceSystem, systemViewer, camera,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),
                                                           glProgramManager->getProgram("SphericalWater"),
@@ -72,7 +73,6 @@ void MainMenuRenderPipeline::render() {
 
     // Main render passes
     _skyboxRenderStage->draw();
-    _planetRenderStage->draw();
     m_spaceSystemRenderStage->draw();
 
     // Post processing

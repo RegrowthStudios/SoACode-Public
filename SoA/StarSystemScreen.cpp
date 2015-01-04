@@ -108,7 +108,7 @@ void StarSystemScreen::onEntry(const GameTime& gameTime) {
 
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &m_camera);
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport.z, _viewport.w),
-                                                          _app->spaceSystem, &m_camera,
+                                                          _app->spaceSystem, nullptr, &m_camera,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),
                                                           glProgramManager->getProgram("SphericalWater"),
@@ -225,8 +225,6 @@ void StarSystemScreen::onMouseMotion(void* sender, const vui::MouseMotionEvent& 
     if (mouseButtons[1]) {
         m_camera.yawFromMouse((float)e.dx, MOUSE_SPEED);
     }
-
-    m_spaceSystemRenderStage->setMouseCoords(f32v2(e.x, e.y));
 }
 
 void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
@@ -252,7 +250,7 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
             _app->spaceSystem->targetBody("Aldrin");
             delete m_spaceSystemRenderStage;
             m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->getWindow().getViewportDims(),
-                                                                  _app->spaceSystem, &m_camera,
+                                                                  _app->spaceSystem, nullptr, &m_camera,
                                                                   GameManager::glProgramManager->getProgram("BasicColor"),
                                                                   GameManager::glProgramManager->getProgram("SphericalTerrain"),
                                                                   GameManager::glProgramManager->getProgram("SphericalWater"),
@@ -294,7 +292,7 @@ void StarSystemScreen::onKeyDown(void* sender, const vui::KeyEvent& e) {
 
             _skyboxRenderStage = new SkyboxRenderStage(GameManager::glProgramManager->getProgram("Texture"), &m_camera);
             m_spaceSystemRenderStage = new SpaceSystemRenderStage(_app->getWindow().getViewportDims(),
-                                                                  _app->spaceSystem, &m_camera,
+                                                                  _app->spaceSystem, nullptr, &m_camera,
                                                                   GameManager::glProgramManager->getProgram("BasicColor"),
                                                                   GameManager::glProgramManager->getProgram("SphericalTerrain"),
                                                                   GameManager::glProgramManager->getProgram("SphericalWater"),

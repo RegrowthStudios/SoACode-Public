@@ -63,7 +63,8 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     m_inputManager = new InputManager;
 
-    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(&m_camera, _app->spaceSystem, m_inputManager);
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+                                                                    &m_camera, _app->spaceSystem, m_inputManager);
 
     // Initialize the user interface
     m_awesomiumInterface.init("UI/MainMenu/",
@@ -184,7 +185,8 @@ void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
-                         _app->spaceSystem, GameManager::glProgramManager);
+                         _app->spaceSystem, m_mainMenuSystemViewer.get(),
+                         GameManager::glProgramManager);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
