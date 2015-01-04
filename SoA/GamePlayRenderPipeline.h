@@ -41,7 +41,6 @@ class PauseMenu;
 class PauseMenuRenderStage;
 class PdaRenderStage;
 class PhysicsBlockRenderStage;
-class PlanetRenderStage;
 class Player;
 class SkyboxRenderStage;
 class TransparentVoxelRenderStage;
@@ -88,7 +87,6 @@ public:
 private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     PhysicsBlockRenderStage* _physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
-    PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     OpaqueVoxelRenderStage* _opaqueVoxelRenderStage = nullptr; ///< Renders opaque voxels
     CutoutVoxelRenderStage* _cutoutVoxelRenderStage = nullptr; ///< Renders cutout voxels
     ChunkGridRenderStage* _chunkGridRenderStage = nullptr;

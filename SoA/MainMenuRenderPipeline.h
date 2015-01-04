@@ -26,7 +26,6 @@ class AwesomiumRenderStage;
 class Camera;
 class HdrRenderStage;
 class IAwesomiumInterface;
-class PlanetRenderStage;
 class SkyboxRenderStage;
 class SpaceSystem;
 class SpaceSystemRenderStage;
@@ -59,7 +58,6 @@ public:
     virtual void destroy() override;
 private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
-    PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     AwesomiumRenderStage* _awesomiumRenderStage = nullptr; ///< Renders the UI
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
     SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Renders space system

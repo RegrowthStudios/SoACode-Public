@@ -18,7 +18,6 @@
 #include "PauseMenuRenderStage.h"
 #include "PdaRenderStage.h"
 #include "PhysicsBlockRenderStage.h"
-#include "PlanetRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
 
@@ -69,7 +68,6 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), _worldCamera);
     _physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, _meshManager->getPhysicsBlockMeshes(), glProgramManager->getProgram("PhysicsBlock"));
-    _planetRenderStage = new PlanetRenderStage(_worldCamera);
     _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
     _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
     _chunkGridRenderStage = new ChunkGridRenderStage(&_gameRenderParams, chunkSlots);
@@ -101,7 +99,6 @@ void GamePlayRenderPipeline::render() {
 
     // worldCamera passes
     _skyboxRenderStage->draw();
-    _planetRenderStage->draw();
 
     // Clear the depth buffer so we can draw the voxel passes
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -150,11 +147,6 @@ void GamePlayRenderPipeline::destroy() {
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
 
-    delete _planetRenderStage;
-    _planetRenderStage = nullptr;
-
-    delete _planetRenderStage;
-    _planetRenderStage = nullptr;
 
     delete _opaqueVoxelRenderStage;
     _opaqueVoxelRenderStage = nullptr;

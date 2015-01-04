@@ -7,7 +7,6 @@
 #include "Errors.h"
 #include "HdrRenderStage.h"
 #include "Options.h"
-#include "PlanetRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
 #include "GameManager.h"
@@ -50,7 +49,6 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
 
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), camera);
-    _planetRenderStage = new PlanetRenderStage(camera);
     _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
 
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, camera);
@@ -97,9 +95,6 @@ void MainMenuRenderPipeline::render() {
 void MainMenuRenderPipeline::destroy() {
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
-
-    delete _planetRenderStage;
-    _planetRenderStage = nullptr;
 
     delete _awesomiumRenderStage;
     _awesomiumRenderStage = nullptr;

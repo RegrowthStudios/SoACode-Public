@@ -167,7 +167,6 @@
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PlanetLoader.h" />
-    <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
@@ -316,7 +315,6 @@
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
-    <ClCompile Include="PlanetRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />

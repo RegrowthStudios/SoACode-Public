@@ -425,9 +425,6 @@
     <ClInclude Include="SonarRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="PlanetRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
     <ClInclude Include="OpaqueVoxelRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -833,9 +830,6 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="OpaqueVoxelRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="SonarRenderStage.cpp">
