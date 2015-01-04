@@ -39,6 +39,8 @@ public:
         float selectorSize = 0.0f;
         bool inFrustum = false;
         bool isHovering = false;
+        bool isLandSelected = false;
+        f32v3 landPos;
     };
     const BodyArData* finBodyAr(vcore::EntityID eid) const {
         auto& it = bodyArData.find(eid);

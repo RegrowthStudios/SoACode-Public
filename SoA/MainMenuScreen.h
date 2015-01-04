@@ -33,7 +33,8 @@ class TerrainMeshMessage;
 struct GameStartState {
     IOManager* saveFileIom = nullptr;
     bool isNewGame = true;
-    nString saveFileName = "";
+    f32v3 startGridPos = f32v3(0.0f);
+    int startFace = 0;
 };
 
 class MainMenuScreen : public IAppScreen<App>
