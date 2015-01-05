@@ -58,6 +58,7 @@ public:
 
 private:
     // Events
+    AutoDelegatePool m_hooks; ///< Input hooks reservoir
     void onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e);
     void onMouseButtonUp(void* sender, const vui::MouseButtonEvent& e);
     void onMouseWheel(void* sender, const vui::MouseWheelEvent& e);
