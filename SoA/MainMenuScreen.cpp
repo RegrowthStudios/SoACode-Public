@@ -187,11 +187,11 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!m_gameStartState.saveFileIom->directoryExists(fileName.c_str())) {
+    if (!m_gameStartState.saveFileIom.directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    m_gameStartState.saveFileIom->setSearchDirectory(fileName.c_str());
+    m_gameStartState.saveFileIom.setSearchDirectory(fileName.c_str());
 
     // Check the planet string
     nString planetName = fileManager.getWorldString(fileName + "/World/");
@@ -205,15 +205,26 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
 
 void MainMenuScreen::newGame(const nString& fileName) {
+
+    if (m_mainMenuSystemViewer->getSelectedCubeFace() == -1) {
+        return;
+    }
+
+    const f32v2& selectedGridPos = m_mainMenuSystemViewer->getSelectedGridPos();
+
+    m_gameStartState.isNewGame = true;
+    m_gameStartState.startFace = m_mainMenuSystemViewer->getSelectedCubeFace();
+    m_gameStartState.startGridPos = f32v3(selectedGridPos.x, 0.0f, selectedGridPos.y);
+
     std::cout << "Making new game: " << fileName << std::endl;
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!m_gameStartState.saveFileIom->directoryExists(fileName.c_str())) {
+    if (!m_gameStartState.saveFileIom.directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    m_gameStartState.saveFileIom->setSearchDirectory(fileName.c_str());
+    m_gameStartState.saveFileIom.setSearchDirectory(fileName.c_str());
 
     // Save the world file
     nString worldText("Aldrin");

@@ -77,6 +77,11 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_player = GameManager::player;
     m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
+    if (m_gameStartState->isNewGame) {
+        m_player->voxelMapData.face = m_gameStartState->startFace;
+        m_player->voxelMapData.ipos = m_gameStartState->startGridPos.z;
+        m_player->voxelMapData.jpos = m_gameStartState->startGridPos.x;
+    }
     initVoxels();
 
     // Initialize the PDA
@@ -263,6 +268,8 @@ void GamePlayScreen::initVoxels() {
     if (loadPlayerFile(m_player)) {
         atSurface = 0; //dont need to set height
     }
+
+
 
     m_voxelWorld = new VoxelWorld;
     m_voxelWorld->initialize(m_player->facePosition, &m_player->voxelMapData, 0);
@@ -464,7 +471,7 @@ bool GamePlayScreen::loadPlayerFile(Player* player) {
     //loadMarkers(player);
     
     std::vector<ui8> data;
-    if (!m_gameStartState->saveFileIom->readFileToData(("Players/" + player->getName() + ".dat").c_str(), data)) {
+    if (!m_gameStartState->saveFileIom.readFileToData(("Players/" + player->getName() + ".dat").c_str(), data)) {
         //file doesnt exist so set spawn to random
         srand(time(NULL));
         int spawnFace = rand() % 4 + 1;

@@ -49,6 +49,10 @@ public:
         return &it->second;
     }
 
+    /// Getters
+    const f32v2& getSelectedGridPos() const { return m_selectedGridPos; }
+    const int& getSelectedCubeFace() const { return m_selectedCubeFace; }
+
     static const float MIN_SELECTOR_SIZE;
     static const float MAX_SELECTOR_SIZE;
 
@@ -60,7 +64,7 @@ private:
     void onMouseMotion(void* sender, const vui::MouseMotionEvent& e);
 
     void pickStartLocation(vcore::EntityID eid);
-    void computeGridPosition(const f32v3& hitpoint, float radius, int& cubeFace, f32v2& gpos);
+    void computeGridPosition(const f32v3& hitpoint, float radius);
 
     nString currentBody = "";
 
@@ -69,6 +73,9 @@ private:
     bool mouseButtons[2];
     f32v2 m_mouseCoords = f32v2(-1.0f);
     f32v2 m_viewport;
+
+    f32v2 m_selectedGridPos = f32v2(0.0f);
+    int m_selectedCubeFace = -1;
 
     CinematicCamera* m_camera = nullptr;
     SpaceSystem* m_spaceSystem = nullptr;

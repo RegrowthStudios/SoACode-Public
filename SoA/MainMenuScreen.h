@@ -31,7 +31,7 @@ class MainMenuSystemViewer;
 class TerrainMeshMessage;
 
 struct GameStartState {
-    IOManager* saveFileIom = nullptr;
+    IOManager saveFileIom;
     bool isNewGame = true;
     f32v3 startGridPos = f32v3(0.0f);
     int startFace = 0;

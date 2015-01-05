@@ -275,9 +275,8 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
             hitpoint = f32v3(glm::inverse(rot) * f64v3(hitpoint));
         }
 
-        computeGridPosition(hitpoint, radius);
-
         // Compute face and grid position
+        computeGridPosition(hitpoint, radius);
 
         auto& data = bodyArData[eid];
         data.selectedPos = hitpoint;
@@ -285,7 +284,7 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
     }
 }
 
-void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radius, int& cubeFace, f32v2& gpos) {
+void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radius) {
     f32v3 cornerPos[2];
     float min;
     f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
@@ -301,28 +300,28 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radi
     const float eps = 0.01;
 
     if (abs(gridHit.x - (-radius)) < eps) { //-X
-        cubeFace = (int)CubeFace::LEFT;
-        gpos.x = gridHit.z;
-        gpos.y = gridHit.y;
+        m_selectedCubeFace = (int)CubeFace::LEFT;
+        m_selectedGridPos.x = gridHit.z;
+        m_selectedGridPos.y = gridHit.y;
     } else if (abs(gridHit.x - radius) < eps) { //X
-        cubeFace = (int)CubeFace::RIGHT;
-        gpos.x = gridHit.z;
-        gpos.y = gridHit.y;
+        m_selectedCubeFace = (int)CubeFace::RIGHT;
+        m_selectedGridPos.x = gridHit.z;
+        m_selectedGridPos.y = gridHit.y;
     } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
-        cubeFace = (int)CubeFace::BOTTOM;
-        gpos.x = gridHit.x;
-        gpos.y = gridHit.z;
+        m_selectedCubeFace = (int)CubeFace::BOTTOM;
+        m_selectedGridPos.x = gridHit.x;
+        m_selectedGridPos.y = gridHit.z;
     } else if (abs(gridHit.y - radius) < eps) { //Y
-        cubeFace = (int)CubeFace::TOP;
-        gpos.x = gridHit.x;
-        gpos.y = gridHit.z;
+        m_selectedCubeFace = (int)CubeFace::TOP;
+        m_selectedGridPos.x = gridHit.x;
+        m_selectedGridPos.y = gridHit.z;
     } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
-        cubeFace = (int)CubeFace::BACK;
-        gpos.x = gridHit.x;
-        gpos.y = gridHit.y;
+        m_selectedCubeFace = (int)CubeFace::BACK;
+        m_selectedGridPos.x = gridHit.x;
+        m_selectedGridPos.y = gridHit.y;
     } else if (abs(gridHit.z - radius) < eps) { //Z
-        cubeFace = (int)CubeFace::FRONT;
-        gpos.x = gridHit.x;
-        gpos.y = gridHit.y;
+        m_selectedCubeFace = (int)CubeFace::FRONT;
+        m_selectedGridPos.x = gridHit.x;
+        m_selectedGridPos.y = gridHit.y;
     }
 }
