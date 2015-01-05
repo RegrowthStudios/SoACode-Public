@@ -7,6 +7,7 @@
 #include <Vorb/utils.h>
 
 #include "BlockData.h"
+#include "BlockPack.h"
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
@@ -97,6 +98,19 @@ void Player::initialize(nString playerName, float aspectRatio) {
     _name = playerName;
     _chunkCamera.init(aspectRatio);
     _worldCamera.init(aspectRatio);
+
+    for (size_t i = 1; i < Blocks.size(); i++) {
+        if (Blocks[i].active && !(i >= LOWWATER && i < FULLWATER || i > FULLWATER)) {
+            if (ObjectList[i] != NULL) {
+                printf("Object ID %d already taken by %s. Requested by %s.\n", i, ObjectList[i]->name.c_str(), Blocks[i].name.c_str());
+                int a;
+                std::cin >> a;
+                exit(198);
+            }
+            ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, 0, 0, 0);
+            inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, 0, 0, 0));
+        }
+    }
 }
 
 void Player::updateCameras()

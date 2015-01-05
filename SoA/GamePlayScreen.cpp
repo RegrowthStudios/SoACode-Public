@@ -75,7 +75,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_gameStartState = m_mainMenuScreen->getGameStartState();
 
-    m_player = GameManager::player;
+    m_player = new Player;
     m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
     if (m_gameStartState->isNewGame) {
         m_player->voxelMapData.face = m_gameStartState->startFace;
@@ -298,17 +298,17 @@ void GamePlayScreen::handleInput() {
     if (isInGame()) {
         if (m_inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->leftEquippedItem)){
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), true);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, true);
             } else if (m_player->leftEquippedItem->type == ITEM_BLOCK){
                 m_player->dragBlock = m_player->leftEquippedItem;
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), false);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, false);
             }
         } else if (m_inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->rightEquippedItem)){
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), true);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, true);
             } else if (m_player->rightEquippedItem->type == ITEM_BLOCK){
                 m_player->dragBlock = m_player->rightEquippedItem;
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), false);
+                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, false);
             }
         }
     }

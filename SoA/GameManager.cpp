@@ -50,7 +50,6 @@ TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
 TerrainGenerator* GameManager::terrainGenerator = nullptr;
 
-Player *GameManager::player;
 std::vector <Marker> GameManager::markers;
 Planet *GameManager::planet = nullptr;
 GameStates GameManager::gameState = GameStates::MAINMENU;
@@ -178,7 +177,7 @@ bool isSolidBlock(const i32& blockID) {
     return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
 
-void GameManager::clickDragRay(ChunkManager* chunkManager, bool isBreakRay) {
+void GameManager::clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay) {
 #define MAX_RANGE 120.0f
 
     VoxelRayQuery rq;
@@ -211,7 +210,7 @@ void GameManager::clickDragRay(ChunkManager* chunkManager, bool isBreakRay) {
         voxelEditor->setEndPosition(position);
     }
 }
-void GameManager::scanWSO(ChunkManager* chunkManager) {
+void GameManager::scanWSO(ChunkManager* chunkManager, Player* player) {
 
 #define SCAN_MAX_DISTANCE 20.0
     VoxelRayQuery rq = VRayHelper::getQuery(
@@ -243,7 +242,6 @@ void GameManager::onQuit() {
 }
 
 void GameManager::endSession() {
-    player->isUnderWater = 0;
     onQuit();
 #ifdef _DEBUG 
     //_CrtDumpMemoryLeaks();

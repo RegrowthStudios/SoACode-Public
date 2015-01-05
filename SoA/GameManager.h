@@ -21,8 +21,6 @@ class GameManager
 {
 public:
 
-    static Player *player;
-
     static void initializeSystems();
     static void registerTexturesForLoad();
     static void getTextureHandles();
@@ -33,8 +31,8 @@ public:
     static void drawMarkers();
 
     static void addMarker(glm::dvec3 pos, nString name, glm::vec3 color);
-    static void clickDragRay(ChunkManager* chunkManager, bool isBreakRay);
-    static void scanWSO(ChunkManager* chunkManager);
+    static void clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay);
+    static void scanWSO(ChunkManager* chunkManager, Player* player);
     static void onQuit();
     static void endSession();
 

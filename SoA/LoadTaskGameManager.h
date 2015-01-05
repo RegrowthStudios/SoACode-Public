@@ -11,7 +11,6 @@ class LoadTaskGameManager : public ILoadTask {
     virtual void load() {
         GameManager::gameState = GameStates::MAINMENU;
         GameManager::initializeSystems();
-        GameManager::player = new Player();
         GameManager::registerTexturesForLoad();
     }
 };
