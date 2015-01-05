@@ -6,6 +6,7 @@
 
 #include "Camera.h"
 #include "SpaceSystem.h"
+#include "SphericalTerrainPatch.h"
 
 const float MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
 const float MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
@@ -122,12 +123,27 @@ void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButto
     if (e.button == vui::MouseButton::LEFT) {
         mouseButtons[0] = true;
         // Target a body if we clicked on one
+        f64 closestDist = 99999999999999999999999999999.0;
+        vcore::EntityID closestEntity = 0;
         for (auto& it : bodyArData) {
             if (it.second.isHovering) {
-                pickStartLocation(it.second.hoverEntity);
-                m_spaceSystem->targetBody(it.first);
-                break;
+
+                // Check distance so we pick only the closest one
+                f64v3 pos = m_spaceSystem->m_namePositionCT.getFromEntity(it.first).position;
+                f64 dist = glm::length(pos - m_camera->getPosition());
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestEntity = it.first;
+                } else {
+                    it.second.isLandSelected = false;
+                }
             }
+        }
+
+        // If we selected an entity, then do the target picking
+        if (closestEntity) {
+            pickStartLocation(closestEntity);
+            m_spaceSystem->targetBody(closestEntity);
         }
     } else {
         mouseButtons[1] = true;
@@ -162,11 +178,13 @@ void MainMenuSystemViewer::onMouseMotion(void* sender, const vui::MouseMotionEve
     }
 }
 
+// TODO(Ben): Move this somewhere else
 inline float sum(const f32v3& v) {
     return v.x + v.y + v.z;
 }
 
-inline bool intersect(const f32v3& raydir, const f32v3& rayorig, const f32v3& pos,
+// TODO(Ben): Move this somewhere else
+inline bool sphereIntersect(const f32v3& raydir, const f32v3& rayorig, const f32v3& pos,
                       const float& rad, f32v3& hitpoint, float& distance, f32v3& normal) {
     float a = sum(raydir*raydir);
     float b = sum(raydir * (2.0f * (rayorig - pos)));
@@ -191,6 +209,47 @@ inline bool intersect(const f32v3& raydir, const f32v3& rayorig, const f32v3& po
     return true;
 }
 
+/*
+* Ray-box intersection using IEEE numerical properties to ensure that the
+* test is both robust and efficient, as described in:
+*
+*      Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley
+*      "An Efficient and Robust Ray-Box Intersection Algorithm"
+*      Journal of graphics tools, 10(1):49-54, 2005
+*
+*/
+
+// TODO(Ben): Move this somewhere else
+bool boxIntersect(const f32v3 corners[2], const f32v3& dir, const f32v3& start, float& tmin) {
+    float tmax, tymin, tymax, tzmin, tzmax;
+
+    f32v3 invdir = 1.0f / dir;
+    i32v3 sign;
+    sign.x = (invdir.x) < 0;
+    sign.y = (invdir.y) < 0;
+    sign.z = (invdir.z) < 0;
+
+    tmin = (corners[sign[0]].x - start.x) * invdir.x;
+    tmax = (corners[1 - sign[0]].x - start.x) * invdir.x;
+    tymin = (corners[sign[1]].y - start.y) * invdir.y;
+    tymax = (corners[1 - sign[1]].y - start.y) * invdir.y;
+    if ((tmin > tymax) || (tymin > tmax))
+        return false;
+    if (tymin > tmin)
+        tmin = tymin;
+    if (tymax < tmax)
+        tmax = tymax;
+    tzmin = (corners[sign[2]].z - start.z) * invdir.z;
+    tzmax = (corners[1 - sign[2]].z - start.z) * invdir.z;
+    if ((tmin > tzmax) || (tzmin > tmax))
+        return false;
+    if (tzmin > tmin)
+        tmin = tzmin;
+    if (tzmax < tmax)
+        tmax = tzmax;
+    return true;
+}
+
 void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
     f32v2 ndc = f32v2((m_mouseCoords.x / m_viewport.x) * 2.0f - 1.0f,
         1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
@@ -208,9 +267,62 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
     // Compute the intersection
     f32v3 normal, hitpoint;
     float distance;
-    if (intersect(pickRay, f32v3(0.0f), pos, radius, hitpoint, distance, normal)) {
+    if (sphereIntersect(pickRay, f32v3(0.0f), pos, radius, hitpoint, distance, normal)) {
+        hitpoint -= pos;
+        cid = m_spaceSystem->m_axisRotationCT.getComponentID(eid);
+        if (cid) {
+            f64q rot = m_spaceSystem->m_axisRotationCT.get(cid).currentOrientation;
+            hitpoint = f32v3(glm::inverse(rot) * f64v3(hitpoint));
+        }
+
+        computeGridPosition(hitpoint, radius);
+
+        // Compute face and grid position
+
         auto& data = bodyArData[eid];
-        data.selectedPos = hitpoint - pos;
+        data.selectedPos = hitpoint;
         data.isLandSelected = true;
+    }
+}
+
+void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radius, int& cubeFace, f32v2& gpos) {
+    f32v3 cornerPos[2];
+    float min;
+    f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
+    f32v3 dir = -glm::normalize(hitpoint);
+    cornerPos[0] = f32v3(-radius, -radius, -radius);
+    cornerPos[1] = f32v3(radius, radius, radius);
+    if (!boxIntersect(cornerPos, dir,
+        start, min)) {
+        std::cerr << "Failed to find grid position from click\n";
+    }
+
+    f32v3 gridHit = start + dir * min;
+    const float eps = 0.01;
+
+    if (abs(gridHit.x - (-radius)) < eps) { //-X
+        cubeFace = (int)CubeFace::LEFT;
+        gpos.x = gridHit.z;
+        gpos.y = gridHit.y;
+    } else if (abs(gridHit.x - radius) < eps) { //X
+        cubeFace = (int)CubeFace::RIGHT;
+        gpos.x = gridHit.z;
+        gpos.y = gridHit.y;
+    } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
+        cubeFace = (int)CubeFace::BOTTOM;
+        gpos.x = gridHit.x;
+        gpos.y = gridHit.z;
+    } else if (abs(gridHit.y - radius) < eps) { //Y
+        cubeFace = (int)CubeFace::TOP;
+        gpos.x = gridHit.x;
+        gpos.y = gridHit.z;
+    } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
+        cubeFace = (int)CubeFace::BACK;
+        gpos.x = gridHit.x;
+        gpos.y = gridHit.y;
+    } else if (abs(gridHit.z - radius) < eps) { //Z
+        cubeFace = (int)CubeFace::FRONT;
+        gpos.x = gridHit.x;
+        gpos.y = gridHit.y;
     }
 }

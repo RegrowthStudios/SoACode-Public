@@ -144,6 +144,8 @@ void SpaceSystemRenderStage::drawPaths() {
 void SpaceSystemRenderStage::drawHud() {
 
     const float ROTATION_FACTOR = M_PI * 2.0f + M_PI / 4;
+    static float dt = 0.0;
+    dt += 0.01;
 
     // Lazily load spritebatch
     if (!m_spriteBatch) {
@@ -216,19 +218,26 @@ void SpaceSystemRenderStage::drawHud() {
             }
             // Land selector
             if (bodyArData->isLandSelected) {
+                f32v3 selectedPos = bodyArData->selectedPos;
+                // Apply axis rotation if applicable
+                componentID = m_spaceSystem->m_axisRotationCT.getComponentID(it.first);
+                if (componentID) {
+                    f64q rot = m_spaceSystem->m_axisRotationCT.get(componentID).currentOrientation;
+                    selectedPos = f32v3(rot * f64v3(selectedPos));
+                }
 
-                relativePos = (position + f64v3(bodyArData->selectedPos)) - m_camera->getPosition();
+                relativePos = (position + f64v3(selectedPos)) - m_camera->getPosition();
                 screenCoords = m_camera->worldToScreenPoint(relativePos);
                 xyScreenCoords = f32v2(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
-                DepthState::NONE.set();
+                color4 sColor = color::Red;
+                sColor.a = 155;
                 m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
                                     xyScreenCoords,
                                     f32v2(0.5f, 0.5f),
-                                    f32v2(10.0f),
-                                    interpolator * ROTATION_FACTOR,
-                                    color::Red, screenCoords.z);
-                DepthState::READ.set();
+                                    f32v2(22.0f) + cos(dt * 8.0f) * 4.0f,
+                                    dt * ROTATION_FACTOR,
+                                    sColor, 0.0f);
             }
         }
     }

@@ -60,6 +60,7 @@ private:
     void onMouseMotion(void* sender, const vui::MouseMotionEvent& e);
 
     void pickStartLocation(vcore::EntityID eid);
+    void computeGridPosition(const f32v3& hitpoint, float radius, int& cubeFace, f32v2& gpos);
 
     nString currentBody = "";
 
