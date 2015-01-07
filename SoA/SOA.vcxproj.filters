@@ -596,6 +596,9 @@
     <ClInclude Include="MainMenuSystemViewer.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="SphericalVoxelComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -954,6 +957,7 @@
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="MainMenuSystemViewer.cpp" />
+    <ClCompile Include="SphericalVoxelComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
