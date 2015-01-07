@@ -269,8 +269,6 @@ void GamePlayScreen::initVoxels() {
         atSurface = 0; //dont need to set height
     }
 
-
-
     m_voxelWorld = new VoxelWorld;
     m_voxelWorld->initialize(m_player->facePosition, &m_player->voxelMapData, 0);
 
