@@ -76,7 +76,8 @@ public:
               vg::TextureRecycler* normalMapRecycler);
 
     void update(const f64v3& cameraPos,
-                const NamePositionComponent* npComponent);
+                const NamePositionComponent* npComponent,
+                const AxisRotationComponent* arComponent);
 
     /// Updates openGL specific stuff. Call on render thread
     void glUpdate();

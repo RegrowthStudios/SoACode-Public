@@ -162,7 +162,8 @@ void SpaceSystem::update(double time, const f64v3& cameraPos) {
 
     // Update Spherical Terrain
     for (auto& it : m_sphericalTerrainCT) {
-        it.second.update(cameraPos, &m_namePositionCT.getFromEntity(it.first));
+        it.second.update(cameraPos, &m_namePositionCT.getFromEntity(it.first),
+                         &m_axisRotationCT.getFromEntity(it.first));
     }
 
     // Update Orbits ( Do this last)

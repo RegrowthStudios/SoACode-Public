@@ -75,9 +75,10 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
 }
 
 void SphericalTerrainComponent::update(const f64v3& cameraPos,
-                                       const NamePositionComponent* npComponent) {
+                                       const NamePositionComponent* npComponent,
+                                       const AxisRotationComponent* arComponent) {
     /// Calculate camera distance
-    f64v3 relativeCameraPos = cameraPos - npComponent->position;
+    f64v3 relativeCameraPos = glm::inverse(arComponent->currentOrientation) * (cameraPos - npComponent->position);
     f64 distance = glm::length(relativeCameraPos);
 
     if (distance <= LOAD_DIST) {
