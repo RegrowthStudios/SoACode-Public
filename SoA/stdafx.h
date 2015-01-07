@@ -18,7 +18,3 @@
 #include <Vorb/stdafx.h>
 
 #endif // stdafx_h__SoA
-
-#pragma once
-
-
