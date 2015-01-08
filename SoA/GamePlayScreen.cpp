@@ -275,7 +275,7 @@ void GamePlayScreen::initVoxels() {
 
     m_chunkManager = _app->spaceSystem->enableVoxelsOnTarget(m_player->headPosition,
                                             &m_player->voxelMapData,
-                                            &m_gameStartState->saveFileIom)->getChunkManager();
+                                            &m_gameStartState->saveFileIom)->m_chunkManager;
 }
 
 void GamePlayScreen::initRenderPipeline() {

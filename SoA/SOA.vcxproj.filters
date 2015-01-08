@@ -599,6 +599,12 @@
     <ClInclude Include="OrbitComponentUpdater.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="SphericalVoxelComponentUpdater.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponentUpdater.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -957,6 +963,8 @@
     <ClCompile Include="SphericalVoxelComponent.cpp" />
     <ClCompile Include="AxisRotationComponent.cpp" />
     <ClCompile Include="OrbitComponentUpdater.cpp" />
+    <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
+    <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

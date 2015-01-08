@@ -166,10 +166,7 @@ void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxe
                          &m_axisRotationCT.getFromEntity(it.first));
     }
 
-    // Update Spherical Voxels
-    for (auto& it : m_sphericalVoxelCT) {
-        it.second.update(voxelCamera);
-    }
+    m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
 
     // Update Orbits ( Do this last)
     m_orbitComponentUpdater.update(this, time);

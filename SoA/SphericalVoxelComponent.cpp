@@ -10,14 +10,6 @@
 
 #include <Vorb/IOManager.h>
 
-SphericalVoxelComponent::SphericalVoxelComponent() {
-    // Empty
-}
-
-SphericalVoxelComponent::~SphericalVoxelComponent() {
-    // Empty
-}
-
 void SphericalVoxelComponent::init(const SphericalTerrainData* sphericalTerrainData, const IOManager* saveFileIom,
                                    SphericalTerrainGenerator* terrainGenerator,
                                    const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData) {
@@ -39,37 +31,4 @@ void SphericalVoxelComponent::init(const SphericalTerrainData* sphericalTerrainD
                                m_generator,
                                startingMapData,
                                m_chunkIo);
-}
-
-void SphericalVoxelComponent::update(const Camera* voxelCamera) {
-    m_chunkManager->update(voxelCamera);
-}
-
-void SphericalVoxelComponent::getClosestChunks(glm::dvec3 &coord, Chunk **chunks) {
-
-}
-
-void SphericalVoxelComponent::endSession() {
-    delete m_physicsEngine;
-    m_physicsEngine = nullptr;
-
-    delete m_chunkManager;
-    m_chunkManager = nullptr;
-
-    delete m_chunkIo;
-    m_chunkIo = nullptr;
-
-    delete m_particleEngine;
-    m_particleEngine = nullptr;
-
-    delete m_voxelPlanetMapper;
-    m_voxelPlanetMapper = nullptr;
-}
-
-void SphericalVoxelComponent::destroyVoxels() {
-    m_enabled = false;
-}
-
-void SphericalVoxelComponent::updatePhysics(const Camera* camera) {
-
 }

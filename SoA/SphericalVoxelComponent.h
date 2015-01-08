@@ -37,23 +37,10 @@ namespace vvox = vorb::voxel;
 
 class SphericalVoxelComponent {
 public:
-    SphericalVoxelComponent();
-    ~SphericalVoxelComponent();
-
     void init(const SphericalTerrainData* sphericalTerrainData, const IOManager* saveFileIom,
               SphericalTerrainGenerator* terrainGenerator,
               const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData);
 
-    void update(const Camera* voxelCamera);
-    void getClosestChunks(glm::dvec3 &coord, Chunk **chunks);
-    void endSession();
-
-    inline ChunkManager* getChunkManager() { return m_chunkManager; }
-    inline PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
-
-private:
-    void destroyVoxels();
-    void updatePhysics(const Camera* camera);
 
     //chunk manager manages and updates the chunk grid
     ChunkManager* m_chunkManager = nullptr;

@@ -23,6 +23,7 @@
 #include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalVoxelComponent.h"
+#include "SphericalVoxelComponentUpdater.h"
 
 #include <Vorb/IOManager.h>
 #include <Vorb/ComponentTable.hpp>
@@ -179,6 +180,8 @@ protected:
     /// Updaters
     friend class OrbitComponentUpdater;
     OrbitComponentUpdater m_orbitComponentUpdater;
+    friend class SphericalVoxelComponentUpdater;
+    SphericalVoxelComponentUpdater m_sphericalVoxelComponentUpdater;
 };
 
 #endif // SpaceSystem_h__
