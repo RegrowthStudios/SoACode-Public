@@ -21,6 +21,7 @@
 #include "OrbitComponent.h"
 #include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
+#include "SphericalVoxelComponent.h"
 
 #include <Vorb/IOManager.h>
 #include <Vorb/ComponentTable.hpp>
@@ -137,6 +138,9 @@ public:
         return m_namePositionCT.get(targetComponent).name;
     }
 
+    void enableVoxels() { m_isVoxelsEnabled = true; }
+    void disableVoxels() { m_isVoxelsEnabled = false; }
+
 protected:
     bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
 
@@ -160,6 +164,9 @@ protected:
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
     vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    vcore::ComponentTable<SphericalVoxelComponent> m_sphericalVoxelCT;
+
+    bool m_isVoxelsEnabled = false;
 
     IOManager m_ioManager;
 

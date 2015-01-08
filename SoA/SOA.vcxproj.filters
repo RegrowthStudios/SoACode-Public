@@ -958,6 +958,7 @@
     </ClCompile>
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="SphericalVoxelComponent.cpp" />
+    <ClCompile Include="AxisRotationComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

@@ -82,12 +82,13 @@ public:
     /// Updates openGL specific stuff. Call on render thread
     void glUpdate();
 
-
     void draw(const Camera* camera,
               vg::GLProgram* terrainProgram,
               vg::GLProgram* waterProgram,
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
+
+    const SphericalTerrainData* getSphericalTerrainData() const { return m_sphericalTerrainData; }
 private:
     void initPatches();
 

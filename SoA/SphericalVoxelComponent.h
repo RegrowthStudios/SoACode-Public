@@ -21,9 +21,11 @@ class Camera;
 class Chunk;
 class ChunkIOManager;
 class ChunkManager;
+class IOManager;
 class ParticleEngine;
 class PhysicsEngine;
 class PlanetGenData;
+class SphericalTerrainData;
 class SphericalTerrainGenerator;
 
 class SphericalVoxelComponent {
@@ -31,8 +33,9 @@ public:
     SphericalVoxelComponent();
     ~SphericalVoxelComponent();
 
-    void initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, GLuint flags);
-    void update(const Camera* camera);
+    void init(const SphericalTerrainData* sphericalTerrainData, const IOManager* saveFileIom);
+    void initVoxels(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, GLuint flags);
+    void update(const Camera* voxelCamera);
     void getClosestChunks(glm::dvec3 &coord, Chunk **chunks);
     void endSession();
 
@@ -40,6 +43,7 @@ public:
     inline PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 
 private:
+    void destroyVoxels();
     void updatePhysics(const Camera* camera);
 
     //chunk manager manages and updates the chunk grid
@@ -50,6 +54,11 @@ private:
     SphericalTerrainGenerator* m_generator = nullptr;
 
     PlanetGenData* m_planetGenData = nullptr;
+    const SphericalTerrainData* m_sphericalTerrainData = nullptr;
+
+    const IOManager* m_saveFileIom = nullptr;
+
+    bool m_enabled = false;
 };
 
 #endif // SphericalVoxelComponent_h__

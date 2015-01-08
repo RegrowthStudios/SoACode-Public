@@ -166,6 +166,13 @@ void SpaceSystem::update(double time, const f64v3& cameraPos) {
                          &m_axisRotationCT.getFromEntity(it.first));
     }
 
+    // Update Spherical Voxels
+    if (m_isVoxelsEnabled) {
+        for (auto& it : m_sphericalVoxelCT) {
+            it.second.update(cameraPos - m_namePositionCT.getFromEntity(it.first).position);
+        }
+    }
+
     // Update Orbits ( Do this last)
     for (auto& it : m_orbitCT) {
         auto& cmp = it.second;
@@ -309,6 +316,7 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
     vcore::ComponentID oCmp = m_orbitCT.add(id);
     vcore::ComponentID stCmp = m_sphericalTerrainCT.add(id);
     vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
+    vcore::ComponentID svCmp = m_sphericalVoxelCT.add(id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
@@ -322,6 +330,9 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
+
+    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(stCmp).getSphericalTerrainData());
+
 
     // Set the name
     m_namePositionCT.get(npCmp).name = body->name;
