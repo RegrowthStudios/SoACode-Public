@@ -94,8 +94,8 @@ public:
 
     /// Enables voxel component on target entity, if applicable
     /// @param saveFIleIom: IOManager for the save file
-    /// @return true when succesfully enabled
-    bool enableVoxelsOnTarget(const f64v3& gpos,
+    /// @return pointer to component when successfully enabled
+    SphericalVoxelComponent* enableVoxelsOnTarget(const f64v3& gpos,
                               vvox::VoxelMapData* startingMapData,
                               const IOManager* saveFileIom = nullptr);
 

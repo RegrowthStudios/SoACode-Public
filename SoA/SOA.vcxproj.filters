@@ -320,9 +320,6 @@
     <ClInclude Include="VoxelUtils.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelWorld.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="VRayHelper.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
@@ -747,9 +744,6 @@
     </ClCompile>
     <ClCompile Include="VoxelRay.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelWorld.cpp">
-      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="VRayHelper.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>

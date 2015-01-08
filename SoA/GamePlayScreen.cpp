@@ -32,7 +32,6 @@
 #include "SphericalTerrainPatch.h"
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
-#include "VoxelWorld.h"
 
 #define THREAD ThreadId::UPDATE
 
@@ -135,7 +134,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (void* s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
-            if (e.button == vui::MouseButton::LEFT) {
+        /*    if (e.button == vui::MouseButton::LEFT) {
                 GameManager::voxelEditor->editVoxels(&m_voxelWorld->getChunkManager(),
                                                      m_voxelWorld->getPhysicsEngine(),
                                                      m_player->leftEquippedItem);
@@ -145,7 +144,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
                                                      m_voxelWorld->getPhysicsEngine(),
                                                      m_player->rightEquippedItem);
                 puts("EDIT VOXELS");
-            }
+            }*/
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&] (void* s, const vui::MouseEvent& e) {
@@ -201,7 +200,6 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     delete m_player;
-    delete m_voxelWorld;
     _app->meshManager->destroy();
     m_pda.destroy();
     m_renderPipeline.destroy();
@@ -275,9 +273,9 @@ void GamePlayScreen::initVoxels() {
         atSurface = 0; //don't need to set height
     }
 
-    _app->spaceSystem->enableVoxelsOnTarget(m_player->headPosition,
+    m_chunkManager = _app->spaceSystem->enableVoxelsOnTarget(m_player->headPosition,
                                             &m_player->voxelMapData,
-                                            &m_gameStartState->saveFileIom);
+                                            &m_gameStartState->saveFileIom)->getChunkManager();
 }
 
 void GamePlayScreen::initRenderPipeline() {
@@ -285,7 +283,7 @@ void GamePlayScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_player->getChunkCamera(), &m_player->getWorldCamera(), 
                          _app, m_player, _app->meshManager, &m_pda, GameManager::glProgramManager,
-                         &m_pauseMenu, m_voxelWorld->getChunkManager().getChunkSlots(0));
+                         &m_pauseMenu, m_chunkManager->getChunkSlots(0));
 }
 
 void GamePlayScreen::handleInput() {
@@ -294,17 +292,17 @@ void GamePlayScreen::handleInput() {
     if (isInGame()) {
         if (m_inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->leftEquippedItem)){
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, true);
+                GameManager::clickDragRay(m_chunkManager, m_player, true);
             } else if (m_player->leftEquippedItem->type == ITEM_BLOCK){
                 m_player->dragBlock = m_player->leftEquippedItem;
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, false);
+                GameManager::clickDragRay(m_chunkManager, m_player, false);
             }
         } else if (m_inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
             if (!(m_player->rightEquippedItem)){
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, true);
+                GameManager::clickDragRay(m_chunkManager, m_player, true);
             } else if (m_player->rightEquippedItem->type == ITEM_BLOCK){
                 m_player->dragBlock = m_player->rightEquippedItem;
-                GameManager::clickDragRay(&m_voxelWorld->getChunkManager(), m_player, false);
+                GameManager::clickDragRay(m_chunkManager, m_player, false);
             }
         }
     }
@@ -366,7 +364,7 @@ void GamePlayScreen::updateThreadFunc() {
 
 
         HeightData tmpHeightData;
-        if (!m_voxelWorld->getChunkManager().getPositionHeightData((int)m_player->headPosition.x, (int)m_player->headPosition.z, tmpHeightData)) {
+        if (!m_chunkManager->getPositionHeightData((int)m_player->headPosition.x, (int)m_player->headPosition.z, tmpHeightData)) {
             m_player->currBiome = tmpHeightData.biome;
             m_player->currTemp = tmpHeightData.temperature;
             m_player->currHumidity = tmpHeightData.rainfall;
@@ -376,10 +374,11 @@ void GamePlayScreen::updateThreadFunc() {
             m_player->currHumidity = -1;
         }
 
-        m_voxelWorld->update(&m_player->getChunkCamera());
+        
+      //  m_voxelWorld->update(&m_player->getChunkCamera());
 
         if (m_inputManager->getKey(INPUT_BLOCK_SCANNER)) {
-            m_player->scannedBlock = m_voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(m_player->chunkDirection()), m_player->headPosition);
+            m_player->scannedBlock = m_chunkManager->getBlockFromDir(glm::dvec3(m_player->chunkDirection()), m_player->headPosition);
         } else {
             m_player->scannedBlock = NONE;
         }

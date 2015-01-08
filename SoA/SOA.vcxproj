@@ -267,7 +267,6 @@
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
-    <ClInclude Include="VoxelWorld.h" />
     <ClInclude Include="EditorVariables.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
@@ -392,7 +391,6 @@
     <ClCompile Include="TerrainGenerator.cpp" />
     <ClCompile Include="Texture2d.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
-    <ClCompile Include="VoxelWorld.cpp" />
     <ClCompile Include="WSO.cpp" />
     <ClCompile Include="WSOAtlas.cpp" />
     <ClCompile Include="WSOScanner.cpp" />

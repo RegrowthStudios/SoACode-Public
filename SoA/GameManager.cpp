@@ -32,7 +32,6 @@
 #include "WSOScanner.h"
 
 #include "VoxelEditor.h"
-#include "voxelWorld.h"
 
 bool GameManager::gameInitialized = false;
 bool GameManager::_systemsInitialized = false;

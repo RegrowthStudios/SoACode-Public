@@ -33,7 +33,6 @@ class MainMenuScreen;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
-class VoxelWorld;
 
 template<typename... Params>
 class IDelegate;
@@ -122,8 +121,6 @@ private:
     const MainMenuScreen* m_mainMenuScreen = nullptr;
     const GameStartState* m_gameStartState = nullptr;
 
-    VoxelWorld* m_voxelWorld = nullptr;
-
     InputManager* m_inputManager = nullptr;
 
     Player* m_player = nullptr; ///< The current player
@@ -137,6 +134,8 @@ private:
     // TODO(Ben): Should they be stored here?
     //Camera _voxelCamera; ///< The camera for rendering the voxels
     //Camera _planetCamera; ///< The camera for rendering the planet
+
+    ChunkManager* m_chunkManager = nullptr;
 
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
