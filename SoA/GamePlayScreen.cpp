@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "RenderTask.h"
 #include "Sound.h"
+#include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
@@ -220,6 +221,11 @@ void GamePlayScreen::update(const GameTime& gameTime) {
             glSpeedFactor = 3.0f;
         }
     }
+    static f64 time = 0.0;
+    time += 0.00001;
+    _app->spaceSystem->update(time, m_player->getWorldCamera().getPosition(),
+                              &m_player->getChunkCamera());
+    _app->spaceSystem->glUpdate();
     
     // Update the input
     handleInput();
@@ -266,20 +272,10 @@ void GamePlayScreen::initVoxels() {
     m_player = new Player;
 
     if (loadPlayerFile(m_player)) {
-        atSurface = 0; //dont need to set height
+        atSurface = 0; //don't need to set height
     }
 
-    m_voxelWorld = new VoxelWorld;
-    m_voxelWorld->initialize(m_player->facePosition, &m_player->voxelMapData, 0);
-
-    if (atSurface) m_player->facePosition.y = 0;// voxelWorld->getCenterY();
-
-    m_player->gridPosition = m_player->facePosition;
-
-    //   player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
-
-    //   double dist = player->facePosition.y + planet->radius;
-    //  player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
+    _app->spaceSystem->enableVoxelsOnTarget(&m_gameStartState->saveFileIom);
 }
 
 void GamePlayScreen::initRenderPipeline() {
@@ -316,8 +312,8 @@ void GamePlayScreen::handleInput() {
 }
 
 void GamePlayScreen::updatePlayer() {
-  //  double dist = _player->facePosition.y + GameManager::planet->getRadius();
-  ////  _player->update(_inFocus, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(_player->velocity)));
+
+    m_player->update(true, 0.0f, 0.0f);
 
   //  Chunk **chunks = new Chunk*[8];
   //  _player->isGrounded = 0;

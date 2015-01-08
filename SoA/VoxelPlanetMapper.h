@@ -150,8 +150,6 @@ public:
     }
     int face;
     int rotation;
-
-    static int _gridWidth, _halfGridWidth;
 };
 
 class VoxelPlanetMapper : public IVoxelMapper

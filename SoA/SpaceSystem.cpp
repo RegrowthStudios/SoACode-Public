@@ -251,7 +251,7 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
     }
 }
 
-bool SpaceSystem::enableVoxelsOnTarget(IOManager* saveFileIom) {
+bool SpaceSystem::enableVoxelsOnTarget(const IOManager* saveFileIom) {
     if (m_targetComponent == 0) return false;
 
     // Make sure it isn't already enabled
