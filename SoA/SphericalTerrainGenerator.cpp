@@ -56,8 +56,12 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
     unTexelWidth(m_normalProgram->getUniform("unTexelWidth")) {
 
     m_heightMapDims = ui32v2(PATCH_HEIGHTMAP_WIDTH);
+    ui32v2 chunkDims = ui32v2(CHUNK_WIDTH);
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
         m_patchTextures[i].init(m_heightMapDims);
+    }
+    for (int i = 0; i < RAW_PER_FRAME; i++) {
+        m_rawTextures[i].init(chunkDims);
     }
     m_quad.init();
 
