@@ -52,6 +52,7 @@ public:
     vvox::VoxelMapData* voxelMapData;
     HeightData heightData[CHUNK_LAYER];
     int refCount;
+    volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
 };
 
 class RawGenDelegate : public IDelegate < void* > {

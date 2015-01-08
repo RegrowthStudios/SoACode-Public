@@ -67,7 +67,7 @@ public:
     /// @return a new mesh on success, nullptr on failure
     bool dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData);
 private:
-    static const int NUM_GENERATORS = 128;
+    static const int NUM_GENERATORS = 512;
     int counter = 0;
 
     SphericalTerrainGenerator* m_generator = nullptr;
@@ -212,9 +212,6 @@ public:
 
 private:
 
-    /// Requests that the terrain generator create a heightmap
-    void requestHeightmap(Chunk* chunk);
-
     /// Initializes the threadpool
     void initializeThreadPool();
 
@@ -232,6 +229,12 @@ private:
 
     /// Updates all chunks that have been loaded
     void updateLoadedChunks(ui32 maxTicks);
+
+    /// Updates all chunks that are ready to be generated
+    void updateGenerateList();
+
+    /// Adds a generate task to the threadpool
+    void addGenerateTask(Chunk* chunk);
 
     /// Creates a chunk and any needed grid data at a given chunk position
     /// @param chunkPosition: position to create the chunk at
@@ -280,6 +283,10 @@ private:
     /// Adds a chunk to the meshList
     /// @param chunk: the chunk to add
     void addToMeshList(Chunk* chunk);
+
+    /// Adds a chunk to the generateList
+    /// @param chunk: the chunk to add
+    void addToGenerateList(Chunk* chunk);
 
     /// Recycles a chunk
     /// @param chunk: the chunk to recycle
@@ -337,6 +344,8 @@ private:
     std::vector<Chunk*> _meshList;
     /// Stack of chunks that need to be sent to the IO thread
     std::vector<Chunk*> _loadList;
+    /// Stack of chunks needing generation
+    std::vector<Chunk*> m_generateList;
 
     /// Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;

@@ -106,7 +106,7 @@ public:
 
     void invokeRawGen(vcore::RPC* so) {
         // TODO(Ben): Change second param to false
-        m_rawRpcManager.invoke(so, true);
+        m_rawRpcManager.invoke(so, false);
     }
 
     void invokePatchTerrainGen(vcore::RPC* so) {
