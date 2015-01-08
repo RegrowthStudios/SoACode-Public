@@ -32,7 +32,7 @@
 #include "PhysicsEngine.h"
 #include "RenderTask.h"
 #include "Sound.h"
-#include "TerrainGenerator.h"
+#include "SphericalTerrainGenerator.h"
 
 #include "SphericalTerrainPatch.h"
 
@@ -48,6 +48,32 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define MAX_VOXEL_ARRAYS_TO_CACHE 200
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
+
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData) {
+    // Check if there is a free generator
+    if (!m_generators[counter].inUse) {
+        auto& gen = m_generators[counter];
+        // Mark the generator as in use
+        gen.inUse = true;
+        gen.gridData = cgd;
+        gen.rpc.data.f = &gen;
+        // Set the data
+        gen.startPos.x = mapData->jpos;
+        gen.startPos.y = mapData->ipos;
+        gen.coordMapping.x = vvox::FaceCoords[mapData->face][mapData->rotation][1];
+        gen.coordMapping.y = vvox::FaceCoords[mapData->face][mapData->rotation][2];
+        gen.coordMapping.z = vvox::FaceCoords[mapData->face][mapData->rotation][0];
+        gen.width = 32;
+        gen.step = 1;
+        // Invoke generator
+        m_generator->invokeRawGen(&gen.rpc);
+        // Go to next generator
+        counter++;
+        if (counter == NUM_GENERATORS) counter = 0;
+        return true;
+    }
+    return false;
+}
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine) : 
     _isStationary(0),
@@ -77,6 +103,8 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* vox
                               vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo) {
 
     m_terrainGenerator = terrainGenerator;
+
+    heightmapGenRpcDispatcher = std::make_unique<HeightmapGenRpcDispatcher>(m_terrainGenerator);
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
@@ -302,6 +330,8 @@ void ChunkManager::destroy() {
     // Clear the chunk IO thread
     m_chunkIo->clear();
 
+    heightmapGenRpcDispatcher.reset();
+
     // Destroy the thread pool
     _threadPool.destroy();
 
@@ -424,8 +454,8 @@ void ChunkManager::initializeThreadPool() {
     SDL_Delay(100);
 }
 
-void ChunkManager::requestHeightmap() {
-    m_terrainGenerator->
+void ChunkManager::requestHeightmap(Chunk* chunk) {
+    heightmapGenRpcDispatcher->dispatchHeightmapGen(chunk->chunkGridData, (vvox::VoxelPlanetMapData*)chunk->voxelMapData);
 }
 
 void ChunkManager::processFinishedTasks() {
@@ -609,10 +639,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         
         //TODO(Ben): Beware of race here.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-            requestHeightmap();
-       /*     generator->setVoxelMapping(chunkGridData->voxelMapData, planet->getRadius(), 1.0);
-            generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
-            generator->postProcessHeightmap(chunkGridData->heightData);*/
+            requestHeightmap(ch);
         }
 
         // If it is not saved. Generate it!

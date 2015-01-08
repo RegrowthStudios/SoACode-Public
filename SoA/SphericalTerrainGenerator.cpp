@@ -397,7 +397,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         RawGenDelegate* data = m_rawDelegates[i];
 
         // Grab the pixel data from the PBO
-        vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        vg::GpuMemory::bindBuffer(m_rawPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
         
         // Set the height data using the src

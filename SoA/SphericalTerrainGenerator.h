@@ -104,7 +104,7 @@ public:
 
     void generateRawHeightmap(RawGenDelegate* data);
 
-    void invokeHeightmapGen(vcore::RPC* so) {
+    void invokeRawGen(vcore::RPC* so) {
         // TODO(Ben): Change second param to false
         m_rawRpcManager.invoke(so, true);
     }

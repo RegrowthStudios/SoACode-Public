@@ -266,7 +266,9 @@ bool SpaceSystem::enableVoxelsOnTarget(const f64v3& gpos,
 
     // Add spherical voxel component
     vcore::ComponentID svCmp = m_sphericalVoxelCT.add(m_targetEntity);
-    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).getSphericalTerrainData(), saveFileIom, gpos, startingMapData);
+    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).getSphericalTerrainData(), saveFileIom,
+                                       m_sphericalTerrainCT.get(cid).getGenerator(),
+                                       gpos, startingMapData);
     return true;
 }
 

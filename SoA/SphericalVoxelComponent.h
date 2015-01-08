@@ -41,6 +41,7 @@ public:
     ~SphericalVoxelComponent();
 
     void init(const SphericalTerrainData* sphericalTerrainData, const IOManager* saveFileIom,
+              SphericalTerrainGenerator* terrainGenerator,
               const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData);
 
     void update(const Camera* voxelCamera);

@@ -89,6 +89,7 @@ public:
               const AxisRotationComponent* arComponent);
 
     const SphericalTerrainData* getSphericalTerrainData() const { return m_sphericalTerrainData; }
+    SphericalTerrainGenerator* getGenerator() const { return m_generator; }
 private:
     void initPatches();
 

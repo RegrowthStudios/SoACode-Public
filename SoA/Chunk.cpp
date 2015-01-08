@@ -13,21 +13,21 @@
 #include "Errors.h"
 #include "Frustum.h"
 #include "GameManager.h"
+#include "MessageManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
-#include "readerwriterqueue.h"
 #include "RenderTask.h"
 #include "Rendering.h"
 #include "SimplexNoise.h"
 #include "Sound.h"
+#include "SphericalTerrainGenerator.h"
 #include "TerrainGenerator.h"
-#include "MessageManager.h"
 #include "VoxelUtils.h"
+#include "readerwriterqueue.h"
 
 GLuint Chunk::vboIndicesID = 0;
 
 std::vector<MineralData*> Chunk::possibleMinerals;
-
 
 void RawGenDelegate::invoke(void* sender, void* userData) {
     generator->generateRawHeightmap(this);
