@@ -38,7 +38,7 @@ public:
     ~Player();
 
     void initialize(nString playerName, float aspectRatio);
-    bool update(InputManager* inputManager, bool isMouseIn, f64 Gravity, f64 AirFrictionForce);
+    bool update(int worldRadius, InputManager* inputManager, bool isMouseIn, f64 Gravity, f64 AirFrictionForce);
     void setNearestPlanet(i32 WorldRadius, i32 EnterRadius, i32 PlanetRowSize);
     void checkFaceTransition();
     void crouchMovement(bool up);

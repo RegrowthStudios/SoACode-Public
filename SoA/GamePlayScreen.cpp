@@ -313,7 +313,7 @@ void GamePlayScreen::handleInput() {
 
 void GamePlayScreen::updatePlayer() {
 
-    m_player->update(m_inputManager, true, 0.0f, 0.0f);
+    m_player->update((int)_app->spaceSystem->getTargetRadius() * 1000, m_inputManager, true, 0.0f, 0.0f);
 
   //  Chunk **chunks = new Chunk*[8];
   //  _player->isGrounded = 0;

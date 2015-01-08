@@ -137,8 +137,9 @@ void Player::updateCameras()
 	right = glm::cross(direction, up);*/
 }
 
-bool Player::update(InputManager* inputManager, bool isMouseIn, double Gravity, double AirFrictionForce)
+bool Player::update(int worldRadius, InputManager* inputManager, bool isMouseIn, double Gravity, double AirFrictionForce)
 {
+    _worldRadius = worldRadius;
     m_inputManager = inputManager;
     _gravity = Gravity;
     _airFrictionForce = AirFrictionForce;
