@@ -20,7 +20,6 @@ public:
     float fogEnd;
     float fogStart;
     float lightActive;
-    f32m4 VP;
     const Camera* chunkCamera;
     const std::vector <ChunkMesh *>* chunkMeshes;
     bool isUnderwater;

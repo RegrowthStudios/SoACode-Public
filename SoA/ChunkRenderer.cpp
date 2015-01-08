@@ -52,7 +52,7 @@ void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
     {
         ChunkRenderer::drawChunkBlocks(chunkMeshes[i], program, 
                                        gameRenderParams->chunkCamera->getPosition(),
-                                       gameRenderParams->VP);
+                                       gameRenderParams->chunkCamera->getViewProjectionMatrix());
     }
 
     glDepthMask(GL_TRUE);
@@ -144,7 +144,8 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
         if (gameRenderParams->chunkCamera->sphereInFrustum(f32v3(f64v3(cmPos) + f64v3(CHUNK_WIDTH / 2) - position), 28.0f)) {
             if (cm->distance < fadeDist + 12.5){
                 cm->inFrustum = 1;
-                ChunkRenderer::drawChunkBlocks(cm, program, position, gameRenderParams->VP);
+                ChunkRenderer::drawChunkBlocks(cm, program, position,
+                                               gameRenderParams->chunkCamera->getViewProjectionMatrix());
             } else{
                 cm->inFrustum = 0;
             }
@@ -228,7 +229,8 @@ void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
         cm = chunkMeshes[i];
 
         if (cm->inFrustum){
-            ChunkRenderer::drawChunkCutoutBlocks(cm, program, position, gameRenderParams->VP);
+            ChunkRenderer::drawChunkCutoutBlocks(cm, program, position,
+                                                 gameRenderParams->chunkCamera->getViewProjectionMatrix());
         }
     }
     glEnable(GL_CULL_FACE);
@@ -330,7 +332,8 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
                 }
             }
 
-            ChunkRenderer::drawChunkTransparentBlocks(cm, program, position, gameRenderParams->VP);
+            ChunkRenderer::drawChunkTransparentBlocks(cm, program, position,
+                                                      gameRenderParams->chunkCamera->getViewProjectionMatrix());
         }
     }
     glEnable(GL_CULL_FACE);
@@ -379,7 +382,7 @@ void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
     {
         ChunkRenderer::drawChunkWater(chunkMeshes[i], program,
                                       gameRenderParams->chunkCamera->getPosition(), 
-                                      gameRenderParams->VP);
+                                      gameRenderParams->chunkCamera->getViewProjectionMatrix());
     }
 
     glDepthMask(GL_TRUE);

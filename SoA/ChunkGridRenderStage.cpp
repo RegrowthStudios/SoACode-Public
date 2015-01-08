@@ -118,7 +118,9 @@ void ChunkGridRenderStage::draw() {
         // Bind the program
         chunkLineProgram->use();
         // Set Matrix
-        glUniformMatrix4fv(chunkLineProgram->getUniform("MVP"), 1, GL_FALSE, &(_gameRenderParams->VP[0][0]));
+        glUniformMatrix4fv(chunkLineProgram->getUniform("MVP"), 1,
+                           GL_FALSE,
+                           &(_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
         // Set Texture
         glUniform1i(chunkLineProgram->getUniform("tex"), 0);
         glActiveTexture(GL_TEXTURE0);

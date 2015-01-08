@@ -91,7 +91,8 @@ GamePlayRenderPipeline::~GamePlayRenderPipeline() {
 
 void GamePlayRenderPipeline::render() {
     // Set up the gameRenderParams
-    _gameRenderParams.calculateParams(_worldCamera->getPosition(), _chunkCamera, &_meshManager->getChunkMeshes(), false);
+    _gameRenderParams.calculateParams(_worldCamera->getPosition(), _chunkCamera,
+                                      &_meshManager->getChunkMeshes(), false);
     // Bind the FBO
     _hdrFrameBuffer->use();
   

@@ -12,20 +12,17 @@ void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
                                        const Camera* ChunkCamera,
                                        const std::vector<ChunkMesh*>* ChunkMeshes,
                                        bool IsUnderwater) {
-    //chunkCamera = ChunkCamera;
-    //isUnderwater = IsUnderwater;
+    chunkCamera = ChunkCamera;
+    isUnderwater = IsUnderwater;
 
-    //// Cache the VP to prevent needless multiplies
-    //VP = chunkCamera->getProjectionMatrix() * chunkCamera->getViewMatrix();
-    //
-    //chunkMeshes = ChunkMeshes;
+    chunkMeshes = ChunkMeshes;
 
-    //// Calculate fog
-    //glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);
-    //float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCameraPos, 1.0))));
+    // Calculate fog
+    glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);
+    float theta = 1.0f; // glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCameraPos, 1.0))));
 
-    //calculateFog(theta, isUnderwater);
-    //calculateSunlight(theta);
+    calculateFog(theta, isUnderwater);
+    calculateSunlight(theta);
 }
 
 void GameRenderParams::calculateFog(float theta, bool isUnderwater) {
