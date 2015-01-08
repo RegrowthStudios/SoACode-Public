@@ -275,7 +275,9 @@ void GamePlayScreen::initVoxels() {
         atSurface = 0; //don't need to set height
     }
 
-    _app->spaceSystem->enableVoxelsOnTarget(&m_gameStartState->saveFileIom);
+    _app->spaceSystem->enableVoxelsOnTarget(m_player->headPosition,
+                                            &m_player->voxelMapData,
+                                            &m_gameStartState->saveFileIom);
 }
 
 void GamePlayScreen::initRenderPipeline() {
@@ -313,7 +315,7 @@ void GamePlayScreen::handleInput() {
 
 void GamePlayScreen::updatePlayer() {
 
-    m_player->update(true, 0.0f, 0.0f);
+    m_player->update(m_inputManager, true, 0.0f, 0.0f);
 
   //  Chunk **chunks = new Chunk*[8];
   //  _player->isGrounded = 0;

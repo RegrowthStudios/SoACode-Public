@@ -251,7 +251,9 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
     }
 }
 
-bool SpaceSystem::enableVoxelsOnTarget(const IOManager* saveFileIom) {
+bool SpaceSystem::enableVoxelsOnTarget(const f64v3& gpos,
+                                       vvox::VoxelMapData* startingMapData,
+                                       const IOManager* saveFileIom /*= nullptr*/) {
     if (m_targetComponent == 0) return false;
 
     // Make sure it isn't already enabled
@@ -264,7 +266,7 @@ bool SpaceSystem::enableVoxelsOnTarget(const IOManager* saveFileIom) {
 
     // Add spherical voxel component
     vcore::ComponentID svCmp = m_sphericalVoxelCT.add(m_targetEntity);
-    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).getSphericalTerrainData(), saveFileIom);
+    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).getSphericalTerrainData(), saveFileIom, gpos, startingMapData);
     return true;
 }
 

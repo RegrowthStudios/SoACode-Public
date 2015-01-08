@@ -33,7 +33,7 @@ namespace vorb {
         class VoxelPlanetMapper;
     }
 }
-namespace vvox = vorb::core::voxel;
+namespace vvox = vorb::voxel;
 
 class SphericalVoxelComponent {
 public:
@@ -47,21 +47,22 @@ public:
     void getClosestChunks(glm::dvec3 &coord, Chunk **chunks);
     void endSession();
 
-    inline ChunkManager* getChunkManager() { return m_chunkManager.get(); }
-    inline PhysicsEngine* getPhysicsEngine() { return m_physicsEngine.get(); }
+    inline ChunkManager* getChunkManager() { return m_chunkManager; }
+    inline PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 
 private:
     void destroyVoxels();
     void updatePhysics(const Camera* camera);
 
     //chunk manager manages and updates the chunk grid
-    std::unique_ptr<ChunkManager> m_chunkManager = nullptr;
-    std::unique_ptr<ChunkIOManager> m_chunkIo = nullptr;
-    std::unique_ptr<PhysicsEngine> m_physicsEngine = nullptr;
-    std::unique_ptr<ParticleEngine> m_particleEngine = nullptr;
-    std::unique_ptr<SphericalTerrainGenerator> m_generator = nullptr;
+    ChunkManager* m_chunkManager = nullptr;
+    ChunkIOManager* m_chunkIo = nullptr;
+    PhysicsEngine* m_physicsEngine = nullptr;
+    ParticleEngine* m_particleEngine = nullptr;
 
-    std::unique_ptr<vvox::VoxelPlanetMapper> m_voxelPlanetMapper = nullptr;
+    SphericalTerrainGenerator* m_generator = nullptr;
+
+    vvox::VoxelPlanetMapper* m_voxelPlanetMapper = nullptr;
 
     PlanetGenData* m_planetGenData = nullptr;
     const SphericalTerrainData* m_sphericalTerrainData = nullptr;
