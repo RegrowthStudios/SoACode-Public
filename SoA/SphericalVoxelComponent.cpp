@@ -22,12 +22,7 @@ void SphericalVoxelComponent::initVoxels(const glm::dvec3 &gpos, vvox::VoxelMapD
 }
 
 void SphericalVoxelComponent::update(const Camera* voxelCamera) {
-    f64 distance = glm::length(relSpaceCameraPos);
-    if (distance < m_sphericalTerrainData->getRadius() * 1.05) {
-         
-    } else {
 
-    }
 }
 
 void SphericalVoxelComponent::getClosestChunks(glm::dvec3 &coord, Chunk **chunks) {

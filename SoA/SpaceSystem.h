@@ -83,7 +83,7 @@ public:
     /// Updates the space system
     /// @param time: The time in seconds
     /// @param cameraPos: Position of the camera
-    void update(double time, const f64v3& cameraPos);
+    void update(double time, const f64v3& cameraPos, const Camera* voxelCamera = nullptr);
     
     /// Updates openGL specific stuff, should be called on render thread
     void glUpdate();
@@ -92,54 +92,39 @@ public:
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
 
+    /// Enables voxel component on target entity, if applicable
+    /// @param saveFIleIom: IOManager for the save file
+    /// @return true when succesfully enabled
+    bool enableVoxelsOnTarget(IOManager* saveFileIom = nullptr);
+
     /// Targets a named body
     /// @param name: Name of the body
-    void targetBody(const nString& name) {
-        auto& it = m_bodyLookupMap.find(name);
-        if (it != m_bodyLookupMap.end()) {
-            targetComponent = it->second;
-        }
-    }
+    void targetBody(const nString& name);
     /// Targets an entity
     /// @param eid: Entity ID
-    void targetBody(vcore::EntityID eid) {
-        targetComponent = eid;
-    }
+    void targetBody(vcore::EntityID eid);
 
-    /// Changes target by offset
-    /// @param offset: Integer offset by which to change target
-    void offsetTarget(int offset) {
-        targetComponent += offset;
-        if (targetComponent >= m_namePositionCT.getComponentListSize()) {
-            targetComponent = 1;
-        } else if (targetComponent <= 0) {
-            targetComponent = m_namePositionCT.getComponentListSize() - 1;
-        }
-    }
+    /// Goes to the next target
+    void nextTarget();
+
+    /// Goes to the previous target
+    void previousTarget();
 
     /// Gets the position of the targeted entity
     /// @return position
-    f64v3 getTargetPosition() {
-        m_mutex.lock();
-        f64v3 pos = m_namePositionCT.get(targetComponent).position;
-        m_mutex.unlock();
-        return pos;
-    }
+    f64v3 getTargetPosition();
 
     /// Gets the position of the targeted entity
     /// @return radius
     f64 getTargetRadius() {
-        return m_sphericalGravityCT.get(targetComponent).radius;
+        return m_sphericalGravityCT.get(m_targetComponent).radius;
     }
 
     /// Gets the name of the targeted component
     /// @return position
     nString getTargetName() {
-        return m_namePositionCT.get(targetComponent).name;
+        return m_namePositionCT.get(m_targetComponent).name;
     }
-
-    void enableVoxels() { m_isVoxelsEnabled = true; }
-    void disableVoxels() { m_isVoxelsEnabled = false; }
 
 protected:
     bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
@@ -157,7 +142,8 @@ protected:
     void setOrbitProperties(vcore::ComponentID cmp, 
                             const SystemBodyKegProperties* sysProps);
 
-    vcore::ComponentID targetComponent = 1; ///< Current namePositionComponent we are focusing on
+    vcore::EntityID m_targetEntity = 1; ///< Current entity we are focusing on
+    vcore::ComponentID m_targetComponent = 1; ///< namePositionComponent of the targetEntity
 
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
@@ -165,8 +151,6 @@ protected:
     vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
     vcore::ComponentTable<SphericalVoxelComponent> m_sphericalVoxelCT;
-
-    bool m_isVoxelsEnabled = false;
 
     IOManager m_ioManager;
 

@@ -154,7 +154,7 @@ void SpaceSystem::init(vg::GLProgramManager* programManager) {
     m_programManager = programManager;
 }
 
-void SpaceSystem::update(double time, const f64v3& cameraPos) {
+void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxelCamera /* = nullptr */) {
     m_mutex.lock();
     for (auto& it : m_axisRotationCT) {
         it.second.update(time);
@@ -167,10 +167,8 @@ void SpaceSystem::update(double time, const f64v3& cameraPos) {
     }
 
     // Update Spherical Voxels
-    if (m_isVoxelsEnabled) {
-        for (auto& it : m_sphericalVoxelCT) {
-            it.second.update(cameraPos - m_namePositionCT.getFromEntity(it.first).position);
-        }
+    for (auto& it : m_sphericalVoxelCT) {
+        it.second.update(voxelCamera);
     }
 
     // Update Orbits ( Do this last)
@@ -253,6 +251,59 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
     }
 }
 
+bool SpaceSystem::enableVoxelsOnTarget(IOManager* saveFileIom) {
+    if (m_targetComponent == 0) return false;
+
+    // Make sure it isn't already enabled
+    vcore::ComponentID cid = m_sphericalVoxelCT.getComponentID(m_targetEntity);
+    if (cid != 0) return false;
+
+    // It needs a spherical terrain component
+    cid = m_sphericalTerrainCT.getComponentID(m_targetEntity);
+    if (cid == 0) return false;
+
+    // Add spherical voxel component
+    vcore::ComponentID svCmp = m_sphericalVoxelCT.add(m_targetEntity);
+    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).getSphericalTerrainData(), saveFileIom);
+    return true;
+}
+
+void SpaceSystem::targetBody(const nString& name) {
+    auto& it = m_bodyLookupMap.find(name);
+    if (it != m_bodyLookupMap.end()) {
+        m_targetEntity = it->second;
+        m_targetComponent = m_namePositionCT.getComponentID(m_targetEntity);
+    }
+}
+
+void SpaceSystem::targetBody(vcore::EntityID eid) {
+    m_targetEntity = eid;
+    m_targetComponent = m_namePositionCT.getComponentID(m_targetEntity);
+}
+
+void SpaceSystem::nextTarget() {
+    auto& it = m_bodyLookupMap.find(m_namePositionCT.get(m_targetComponent).name);
+    it++;
+    if (it == m_bodyLookupMap.end()) it = m_bodyLookupMap.begin();
+    m_targetEntity = it->second;
+    m_targetComponent = m_namePositionCT.getComponentID(m_targetEntity);
+}
+
+void SpaceSystem::previousTarget() {
+    auto& it = m_bodyLookupMap.find(m_namePositionCT.get(m_targetComponent).name);
+    if (it == m_bodyLookupMap.begin()) it = m_bodyLookupMap.end();
+    it--;
+    m_targetEntity = it->second;
+    m_targetComponent = m_namePositionCT.getComponentID(m_targetEntity);
+}
+
+f64v3 SpaceSystem::getTargetPosition() {
+    m_mutex.lock();
+    f64v3 pos = m_namePositionCT.get(m_targetComponent).position;
+    m_mutex.unlock();
+    return pos;
+}
+
 bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body) {
     
     #define KEG_CHECK if (error != Keg::Error::NONE) { \
@@ -316,7 +367,6 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
     vcore::ComponentID oCmp = m_orbitCT.add(id);
     vcore::ComponentID stCmp = m_sphericalTerrainCT.add(id);
     vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
-    vcore::ComponentID svCmp = m_sphericalVoxelCT.add(id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
@@ -330,8 +380,6 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
-
-    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(stCmp).getSphericalTerrainData());
 
 
     // Set the name
