@@ -38,13 +38,6 @@ public:
         destroy();
     }
 
-    /// Updates the position based on time and parent position
-    /// @param time: Time in seconds
-    /// @param npComponent: The positional component of this component
-    /// @param parentNpComponent: The parents positional component
-    void update(f64 time, NamePositionComponent* npComponent,
-                NamePositionComponent* parentNpComponent = nullptr);
-
     /// Frees resources
     void destroy();
 

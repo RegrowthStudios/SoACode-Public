@@ -19,6 +19,7 @@
 #include "AxisRotationComponent.h"
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
+#include "OrbitComponentUpdater.h"
 #include "SphericalGravityComponent.h"
 #include "SphericalTerrainComponent.h"
 #include "SphericalVoxelComponent.h"
@@ -174,6 +175,10 @@ protected:
 
     nString m_dirPath; ///< Path to the main directory
     nString m_systemDescription; ///< textual description of the system
+
+    /// Updaters
+    friend class OrbitComponentUpdater;
+    OrbitComponentUpdater m_orbitComponentUpdater;
 };
 
 #endif // SpaceSystem_h__

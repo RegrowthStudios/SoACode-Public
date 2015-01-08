@@ -172,15 +172,7 @@ void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxe
     }
 
     // Update Orbits ( Do this last)
-    for (auto& it : m_orbitCT) {
-        auto& cmp = it.second;
-        if (cmp.parentNpId) {
-            cmp.update(time, &m_namePositionCT.getFromEntity(it.first),
-                       &m_namePositionCT.get(cmp.parentNpId));
-        } else {
-            cmp.update(time, &m_namePositionCT.getFromEntity(it.first));
-        }
-    }
+    m_orbitComponentUpdater.update(this, time);
 
     m_mutex.unlock();
 }

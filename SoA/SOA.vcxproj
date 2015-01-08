@@ -159,6 +159,7 @@
     <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OrbitComponent.h" />
+    <ClInclude Include="OrbitComponentUpdater.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="PauseMenuAwesomiumAPI.h" />
     <ClInclude Include="PauseMenuRenderStage.h" />
@@ -307,6 +308,7 @@
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OrbitComponent.cpp" />
+    <ClCompile Include="OrbitComponentUpdater.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
     <ClCompile Include="PauseMenuRenderStage.cpp" />

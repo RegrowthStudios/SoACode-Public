@@ -15,41 +15,6 @@
 #define DEGREES 360
 #define VERTS_PER_DEGREE 8
 
-void OrbitComponent::update(f64 time, NamePositionComponent* npComponent,
-            NamePositionComponent* parentNpComponent /* = nullptr */) {
-
-    /// Calculates position as a function of time
-    /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
-    f64 semiMajor3 = semiMajor * semiMajor * semiMajor;
-    f64 meanAnomaly = sqrt((M_G * totalMass) / semiMajor3) * time;
-
-    // Solve Kepler's equation to compute eccentric anomaly 
-    // using Newton's method
-    // http://www.jgiesen.de/kepler/kepler.html
-#define ITERATIONS 5
-    f64 eccentricAnomaly, F;
-    eccentricAnomaly = meanAnomaly;
-    F = eccentricAnomaly - eccentricity * sin(meanAnomaly) - meanAnomaly;
-    for (int i = 0; i < ITERATIONS; i++) {
-        eccentricAnomaly = eccentricAnomaly -
-            F / (1.0 - eccentricity * cos(eccentricAnomaly));
-        F = eccentricAnomaly -
-            eccentricity * sin(eccentricAnomaly) - meanAnomaly;
-    }
-
-    // Finally calculate position
-    f64v3 position;
-    position.x = semiMajor * (cos(eccentricAnomaly) - eccentricity);
-    position.y = 0.0;
-    position.z = semiMajor * sqrt(1.0 - eccentricity * eccentricity) *
-        sin(eccentricAnomaly);
-    if (parentNpComponent) {
-        npComponent->position = orientation * position + parentNpComponent->position;
-    } else {
-        npComponent->position = orientation * position;
-    }
-}
-
 void OrbitComponent::destroy() {
     if (m_vbo != 0) {
         vg::GpuMemory::freeBuffer(m_vbo);
