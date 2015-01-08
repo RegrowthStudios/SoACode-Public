@@ -83,6 +83,11 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
         vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(m_heightData), NULL, GL_STREAM_READ);
     }
+    for (int i = 0; i < RAW_PER_FRAME; i++) {
+        vg::GpuMemory::createBuffer(m_rawPbos[i]);
+        vg::GpuMemory::bindBuffer(m_rawPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(float) * 4 * CHUNK_LAYER, NULL, GL_STREAM_READ);
+    }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 }
