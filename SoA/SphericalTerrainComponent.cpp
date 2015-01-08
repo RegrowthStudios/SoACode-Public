@@ -66,7 +66,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         gen.mesh = mesh;
         gen.width = width;
         // Invoke generator
-        m_generator->invokeTerrainGen(&gen.rpc);
+        m_generator->invokePatchTerrainGen(&gen.rpc);
         // Go to next generator
         counter++;
         if (counter == NUM_GENERATORS) counter = 0;

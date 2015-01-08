@@ -20,6 +20,8 @@
 #include "VoxelLightEngine.h"
 #include "VoxPool.h"
 
+#include <Vorb/RPC.h>
+
 //used by threadpool
 
 const int MAXLIGHT = 31;
@@ -32,10 +34,11 @@ enum LightTypes {LIGHT, SUNLIGHT};
 
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
-class LightMessage;
-class RenderTask;
 class CaPhysicsType;
 class ChunkMesher;
+class LightMessage;
+class RenderTask;
+class SphericalTerrainGenerator;
 
 class ChunkGridData {
 public:
@@ -49,6 +52,23 @@ public:
     vvox::VoxelMapData* voxelMapData;
     HeightData heightData[CHUNK_LAYER];
     int refCount;
+};
+
+class RawGenDelegate : public IDelegate < void* > {
+public:
+    virtual void invoke(void* sender, void* userData);
+    volatile bool inUse = false;
+
+    vcore::RPC rpc;
+
+    f32v3 startPos;
+    i32v3 coordMapping;
+    int width;
+    float step;
+
+    ChunkGridData* gridData = nullptr;
+
+    SphericalTerrainGenerator* generator = nullptr;
 };
 
 class ChunkSlot;

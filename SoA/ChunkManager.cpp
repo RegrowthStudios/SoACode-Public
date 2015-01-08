@@ -73,8 +73,10 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper,
-                              vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
-                              ui32 flags) {
+                              SphericalTerrainGenerator* terrainGenerator,
+                              vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo) {
+
+    m_terrainGenerator = terrainGenerator;
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
@@ -84,14 +86,6 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* vox
 
     // Sun Color Map
     GLubyte sbuffer[64][3];
-
-    //glBindTexture(GL_TEXTURE_2D, GameManager::planet->sunColorMapTexture.ID);
-    //glGetTexImage(GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, sbuffer);
-    //for (i32 i = 0; i < 64; i++) {
-    //    sunColor[i][0] = (i32)sbuffer[i][2]; //converts bgr to rgb
-    //    sunColor[i][1] = (i32)sbuffer[i][1];
-    //    sunColor[i][2] = (i32)sbuffer[i][0];
-    //}
 
     // IO thread
     m_chunkIo->beginThread();
@@ -430,6 +424,10 @@ void ChunkManager::initializeThreadPool() {
     SDL_Delay(100);
 }
 
+void ChunkManager::requestHeightmap() {
+    m_terrainGenerator->
+}
+
 void ChunkManager::processFinishedTasks() {
 
     #define MAX_TASKS 100
@@ -597,7 +595,6 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
 
     ui32 startTicks = SDL_GetTicks();
     Chunk* ch;
-    TerrainGenerator* generator = GameManager::terrainGenerator;
     GenerateTask* generateTask;
     //IO load chunks
     while (m_chunkIo->finishedLoadChunks.try_dequeue(ch)) {
@@ -610,7 +607,9 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         //If the heightmap has not been generated, generate it.
         ChunkGridData* chunkGridData = ch->chunkGridData;
         
+        //TODO(Ben): Beware of race here.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
+            requestHeightmap();
        /*     generator->setVoxelMapping(chunkGridData->voxelMapData, planet->getRadius(), 1.0);
             generator->GenerateHeightMap(chunkGridData->heightData, chunkGridData->voxelMapData->ipos * CHUNK_WIDTH, chunkGridData->voxelMapData->jpos * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 1, 0);
             generator->postProcessHeightmap(chunkGridData->heightData);*/

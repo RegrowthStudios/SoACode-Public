@@ -68,10 +68,12 @@ public:
     /// Initializes the grid at the surface and returns the Y value
     /// @param gridPosition: the floating point starting grid position.
     /// @param voxelMapper: The chosen voxel mapping scheme
-    /// @param flags: bitwise combination of ChunkManager::InitFlags
+    /// @param terrainGenerator: Generator for the heightmap noise
+    /// @param startingMapData: Initial map data
+    /// @param chunkIo: IO for chunks
     void initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper,
-                    vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo, 
-                    ui32 flags);
+                    SphericalTerrainGenerator* terrainGenerator,
+                    vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo);
 
     /// Updates the chunks
     /// @param camera: The camera that is rendering the voxels
@@ -188,6 +190,9 @@ public:
     PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 
 private:
+
+    /// Requests that the terrain generator create a heightmap
+    void requestHeightmap();
 
     /// Initializes the threadpool
     void initializeThreadPool();
@@ -339,6 +344,9 @@ private:
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData> _threadPool;
+
+    /// Generates voxel heightmaps
+    SphericalTerrainGenerator* m_terrainGenerator = nullptr;
 
     int _numCaTasks = 0; ///< The number of CA tasks currently being processed
 

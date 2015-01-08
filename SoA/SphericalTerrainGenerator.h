@@ -24,6 +24,7 @@
 #include <Vorb/RPC.h>
 
 class TerrainGenDelegate;
+class RawGenDelegate;
 class PlanetGenData;
 namespace vorb {
     namespace core {
@@ -101,10 +102,21 @@ public:
 
     void generateTerrain(TerrainGenDelegate* data);
 
-    void invokeTerrainGen(vcore::RPC* so) {
-        m_rpcManager.invoke(so, false);
+    void generateRawHeightmap(RawGenDelegate* data);
+
+    void invokeHeightmapGen(vcore::RPC* so) {
+        // TODO(Ben): Change second param to false
+        m_rawRpcManager.invoke(so, true);
+    }
+
+    void invokePatchTerrainGen(vcore::RPC* so) {
+        m_patchRpcManager.invoke(so, false);
     }
 private:
+
+    void updatePatchGeneration();
+
+    void updateRawGeneration();
 
     /// Generates mesh using heightmap
     void buildMesh(TerrainGenDelegate* data);
@@ -127,6 +139,7 @@ private:
     void generateIndices(VGIndexBuffer& ibo, bool ccw);
 
     static const int PATCHES_PER_FRAME = 16;
+    static const int RAW_PER_FRAME = 8;
 
     // PATCH_WIDTH * 4 is for skirts
     static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4;
@@ -147,16 +160,22 @@ private:
     bool m_ccw;
 
     int m_patchCounter = 0;
-    TerrainGenTextures m_textures[PATCHES_PER_FRAME];
-    TerrainGenDelegate* m_delegates[PATCHES_PER_FRAME];
-    VGBuffer m_pbos[PATCHES_PER_FRAME];
+    TerrainGenTextures m_patchTextures[PATCHES_PER_FRAME];
+    TerrainGenDelegate* m_patchDelegates[PATCHES_PER_FRAME];
+    VGBuffer m_patchPbos[PATCHES_PER_FRAME];
+
+    int m_rawCounter = 0;
+    TerrainGenTextures m_rawTextures[RAW_PER_FRAME];
+    RawGenDelegate* m_rawDelegates[RAW_PER_FRAME];
+    VGBuffer m_rawPbos[RAW_PER_FRAME];
 
     VGFramebuffer m_normalFbo = 0;
     ui32v2 m_heightMapDims;
 
     SphericalTerrainMeshManager* m_meshManager = nullptr;
 
-    vcore::RPCManager m_rpcManager;
+    vcore::RPCManager m_patchRpcManager; /// RPC manager for mesh height maps
+    vcore::RPCManager m_rawRpcManager; /// RPC manager for raw height data requests
 
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::GLProgram* m_genProgram = nullptr;

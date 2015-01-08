@@ -5,6 +5,7 @@
 #include <Vorb/TextureRecycler.hpp>
 #include <Vorb/Timing.h>
 
+#include "Chunk.h"
 #include "Errors.h"
 #include "PlanetLoader.h"
 #include "SphericalTerrainComponent.h"
@@ -56,7 +57,7 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
 
     m_heightMapDims = ui32v2(PATCH_HEIGHTMAP_WIDTH);
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        m_textures[i].init(m_heightMapDims);
+        m_patchTextures[i].init(m_heightMapDims);
     }
     m_quad.init();
 
@@ -78,8 +79,8 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
 
     // Generate pixel buffer objects
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        vg::GpuMemory::createBuffer(m_pbos[i]);
-        vg::GpuMemory::bindBuffer(m_pbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        vg::GpuMemory::createBuffer(m_patchPbos[i]);
+        vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(m_heightData), NULL, GL_STREAM_READ);
     }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
@@ -88,7 +89,7 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
 
 SphericalTerrainGenerator::~SphericalTerrainGenerator() {
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        vg::GpuMemory::freeBuffer(m_pbos[i]);
+        vg::GpuMemory::freeBuffer(m_patchPbos[i]);
     }
 }
 
@@ -97,72 +98,15 @@ void SphericalTerrainGenerator::update() {
     // Need to disable alpha blending
     glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 
-    if (m_patchCounter) {
-        // Normal map generation
-        m_normalProgram->enableVertexAttribArrays();
-        m_normalProgram->use();
-
-        glActiveTexture(GL_TEXTURE0);
-        glUniform1i(unHeightMap, 0);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, m_normalFbo);
-        glViewport(0, 0, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH);
-
-        // Loop through all textures
-        for (int i = 0; i < m_patchCounter; i++) {
-
-            TerrainGenDelegate* data = m_delegates[i];
-
-            // Check for early delete
-            if (data->mesh->m_shouldDelete) {
-                delete data->mesh;
-                data->inUse = false;
-                continue;
-            }
-        
-            // Create and bind output normal map
-            if (data->mesh->m_normalMap == 0) {
-                data->mesh->m_normalMap = m_normalMapRecycler->produce();
-            } else {
-                glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
-            }
-
-           // std::cout << m_normalMapRecycler->getNumTextures() << " " << vg::GpuMemory::getTextureVramUsage() / 1024.0 / 1024.0 << std::endl;
-
-            // Bind normal map texture to fbo
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
-
-            // Grab the pixel data from the PBO
-            vg::GpuMemory::bindBuffer(m_pbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
-            void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-            memcpy(m_heightData, src, sizeof(m_heightData));
-            glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
-            vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
-            
-            // Bind texture for normal map gen
-            glBindTexture(GL_TEXTURE_2D, m_textures[i].getTextureIDs().height_temp_hum);
- 
-            // Set uniforms
-            glUniform1f(unWidth, data->width / PATCH_HEIGHTMAP_WIDTH);
-            glUniform1f(unTexelWidth, (float)PATCH_HEIGHTMAP_WIDTH);
-
-            // Generate normal map
-            m_quad.draw();
-
-            // And finally build the mesh
-            buildMesh(data);
-
-            data->inUse = false;
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        m_normalProgram->disableVertexAttribArrays();
-        m_normalProgram->unuse();
+    if (m_rawCounter) {
+        updateRawGeneration();
+        m_rawCounter = 0;
     }
-
-    m_patchCounter = 0;
-
+    if (m_patchCounter) {
+        updatePatchGeneration();
+        m_patchCounter = 0;
+    }
+    
     // Heightmap Generation
     m_genProgram->use();
     m_genProgram->enableVertexAttribArrays();
@@ -177,7 +121,8 @@ void SphericalTerrainGenerator::update() {
     }
 
     glDisable(GL_DEPTH_TEST);
-    m_rpcManager.processRequests(PATCHES_PER_FRAME);
+    m_rawRpcManager.processRequests(RAW_PER_FRAME);
+    m_patchRpcManager.processRequests(PATCHES_PER_FRAME);
 
     m_genProgram->disableVertexAttribArrays();
     m_genProgram->unuse();
@@ -200,8 +145,8 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
         return;
     }
 
-    m_textures[m_patchCounter].use();
-    m_delegates[m_patchCounter] = data;
+    m_patchTextures[m_patchCounter].use();
+    m_patchDelegates[m_patchCounter] = data;
 
     // Get padded position
     f32v3 cornerPos = data->startPos;
@@ -216,7 +161,7 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     m_quad.draw();
 
     // Bind PBO
-    vg::GpuMemory::bindBuffer(m_pbos[m_patchCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
+    vg::GpuMemory::bindBuffer(m_patchPbos[m_patchCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glReadPixels(0, 0, PATCH_HEIGHTMAP_WIDTH, PATCH_HEIGHTMAP_WIDTH, GL_RGBA, GL_FLOAT, 0);
 
@@ -225,6 +170,36 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     TerrainGenTextures::unuse();
 
     m_patchCounter++;
+}
+
+void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
+
+    m_rawTextures[m_rawCounter].use();
+    m_rawDelegates[m_rawCounter] = data;
+
+    // Get padded position
+    f32v3 cornerPos = data->startPos;
+    //TODO(Ben): This is wrong
+    cornerPos[data->coordMapping.x] -= (1.0f / 32.0f);
+    cornerPos[data->coordMapping.z] -= (1.0f / 32.0f);
+
+    // Send uniforms
+    glUniform3fv(unCornerPos, 1, &cornerPos[0]);
+    glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
+
+    glUniform1f(unPatchWidth, 32.0f); //TODO(Ben): This is wrong
+    m_quad.draw();
+
+    // Bind PBO
+    vg::GpuMemory::bindBuffer(m_rawPbos[m_rawCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glReadPixels(0, 0, data->width, data->width, GL_RGBA, GL_FLOAT, 0);
+
+    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
+
+    TerrainGenTextures::unuse();
+
+    m_rawCounter++;
 }
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
@@ -349,6 +324,99 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
 
     // TODO: Using a VAO makes it not work??
    //    glBindVertexArray(0);
+}
+
+void SphericalTerrainGenerator::updatePatchGeneration() {
+    // Normal map generation
+    m_normalProgram->enableVertexAttribArrays();
+    m_normalProgram->use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(unHeightMap, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_normalFbo);
+    glViewport(0, 0, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH);
+
+    // Loop through all textures
+    for (int i = 0; i < m_patchCounter; i++) {
+
+        TerrainGenDelegate* data = m_patchDelegates[i];
+
+        // Check for early delete
+        if (data->mesh->m_shouldDelete) {
+            delete data->mesh;
+            data->inUse = false;
+            continue;
+        }
+
+        // Create and bind output normal map
+        if (data->mesh->m_normalMap == 0) {
+            data->mesh->m_normalMap = m_normalMapRecycler->produce();
+        } else {
+            glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
+        }
+
+        // std::cout << m_normalMapRecycler->getNumTextures() << " " << vg::GpuMemory::getTextureVramUsage() / 1024.0 / 1024.0 << std::endl;
+
+        // Bind normal map texture to fbo
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
+
+        // Grab the pixel data from the PBO
+        vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+        memcpy(m_heightData, src, sizeof(m_heightData));
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+        vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
+
+        // Bind texture for normal map gen
+        glBindTexture(GL_TEXTURE_2D, m_patchTextures[i].getTextureIDs().height_temp_hum);
+
+        // Set uniforms
+        glUniform1f(unWidth, data->width / PATCH_HEIGHTMAP_WIDTH);
+        glUniform1f(unTexelWidth, (float)PATCH_HEIGHTMAP_WIDTH);
+
+        // Generate normal map
+        m_quad.draw();
+
+        // And finally build the mesh
+        buildMesh(data);
+
+        data->inUse = false;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    m_normalProgram->disableVertexAttribArrays();
+    m_normalProgram->unuse();
+}
+
+void SphericalTerrainGenerator::updateRawGeneration() {
+    // Loop through all textures
+    for (int i = 0; i < m_rawCounter; i++) {
+
+        RawGenDelegate* data = m_rawDelegates[i];
+
+        // Grab the pixel data from the PBO
+        vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+        
+        // Set the height data using the src
+        int c = 0;
+        for (int y = 0; y < CHUNK_WIDTH; y++) {
+            for (int x = 0; x < CHUNK_WIDTH; x++, c++) {
+                data->gridData->heightData[c].height = m_heightData[y][x][0];
+                data->gridData->heightData[c].temperature = m_heightData[y][x][1];
+                data->gridData->heightData[c].rainfall = m_heightData[y][x][2];
+                //TODO(Ben): Biomes
+                data->gridData->heightData[c].biome = nullptr;
+            }
+        }
+
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+        vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
+
+        data->inUse = false;
+    }
 }
 
 // Thanks to tetryds for these

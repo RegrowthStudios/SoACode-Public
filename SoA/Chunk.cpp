@@ -29,6 +29,10 @@ GLuint Chunk::vboIndicesID = 0;
 std::vector<MineralData*> Chunk::possibleMinerals;
 
 
+void RawGenDelegate::invoke(void* sender, void* userData) {
+    generator->generateRawHeightmap(this);
+}
+
 //1735
 //1500
 double surfaceDensity[9][5][5];
