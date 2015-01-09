@@ -129,6 +129,15 @@
     <Filter Include="SOA Files\Screens\StarSystem">
       <UniqueIdentifier>{1c1faa8a-6bbf-4bd3-a594-ba162a1a31a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\ECS\Components">
+      <UniqueIdentifier>{9ca22bd9-7b16-4f82-914d-635a6afa8e69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Updaters">
+      <UniqueIdentifier>{85765d6e-8575-45fa-82db-357787c61b39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Renderers">
+      <UniqueIdentifier>{b9e3a61e-f44d-40ff-bbfa-9feae3a45d83}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -527,9 +536,6 @@
     <ClInclude Include="Atmosphere.h">
       <Filter>SOA Files\BenPLZ</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenuScreenEvents.hpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
     <ClInclude Include="TestBlockViewScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -550,24 +556,6 @@
     </ClInclude>
     <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Screens</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalGravityComponent.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainComponent.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="NamePositionComponent.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="OrbitComponent.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="AtmosphereComponent.h">
-      <Filter>SOA Files\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="AxisRotationComponent.h">
-      <Filter>SOA Files\ECS</Filter>
     </ClInclude>
     <ClInclude Include="NoiseShaderCode.hpp">
       <Filter>SOA Files\Game\Universe</Filter>
@@ -590,29 +578,50 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenuSystemViewer.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="AtmosphereComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalVoxelComponent.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="AxisRotationComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="OrbitComponentUpdater.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="NamePositionComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalVoxelComponentUpdater.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="OrbitComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainComponentUpdater.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="SphericalGravityComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="AxisRotationComponentUpdater.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="SphericalTerrainComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
     <ClInclude Include="OrbitComponentRenderer.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\ECS\Renderers</Filter>
     </ClInclude>
     <ClInclude Include="SphericalTerrainComponentRenderer.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="AxisRotationComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalVoxelComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalVoxelComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuSystemViewer.h">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuScreenEvents.hpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -944,12 +953,6 @@
     <ClCompile Include="TestBlockViewScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainComponent.cpp">
-      <Filter>SOA Files\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="AtmosphereComponent.cpp">
-      <Filter>SOA Files\ECS</Filter>
-    </ClCompile>
     <ClCompile Include="PlanetLoader.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
@@ -965,15 +968,39 @@
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuSystemViewer.cpp" />
-    <ClCompile Include="SphericalVoxelComponent.cpp" />
-    <ClCompile Include="AxisRotationComponent.cpp" />
-    <ClCompile Include="OrbitComponentUpdater.cpp" />
-    <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
-    <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
-    <ClCompile Include="AxisRotationComponentUpdater.cpp" />
-    <ClCompile Include="OrbitComponentRenderer.cpp" />
-    <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
+    <ClCompile Include="AtmosphereComponent.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponent.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitComponentRenderer.cpp">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalVoxelComponent.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalVoxelComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="AxisRotationComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="AxisRotationComponent.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponentRenderer.cpp">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuSystemViewer.cpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
