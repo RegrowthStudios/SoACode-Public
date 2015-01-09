@@ -29,7 +29,7 @@ GLuint Chunk::vboIndicesID = 0;
 
 std::vector<MineralData*> Chunk::possibleMinerals;
 
-void RawGenDelegate::invoke(void* sender, void* userData) {
+void RawGenDelegate::invoke(Sender sender, void* userData) {
     generator->generateRawHeightmap(this);
 }
 

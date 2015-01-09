@@ -101,7 +101,7 @@ public:
     /// @return pointer to component when successfully enabled
     SphericalVoxelComponent* enableVoxelsOnTarget(const f64v3& gpos,
                               vvox::VoxelMapData* startingMapData,
-                              const IOManager* saveFileIom = nullptr);
+                              const vio::IOManager* saveFileIom = nullptr);
 
     /// Targets a named body
     /// @param name: Name of the body
@@ -158,7 +158,7 @@ protected:
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
     vcore::ComponentTable<SphericalVoxelComponent> m_sphericalVoxelCT;
 
-    IOManager m_ioManager;
+    vio::IOManager m_ioManager;
 
     std::mutex m_mutex;
 

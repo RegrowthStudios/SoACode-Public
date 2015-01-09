@@ -13,7 +13,7 @@
 
 
 bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
-    IOManager iom; // TODO: Pass in a real boy
+    vio::IOManager iom; // TODO: Pass in a real boy
 
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
@@ -83,7 +83,7 @@ void BlockLoader::SetWaterBlocks(std::vector<Block>& blocks) {
     }
 }
 
-bool BlockLoader::load(const IOManager* iom, const cString filePath, BlockPack* pack) {
+bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockPack* pack) {
     // Read file
     const cString data = iom->readFileToString(filePath);
     if (!data) return false;
@@ -117,14 +117,14 @@ bool BlockLoader::load(const IOManager* iom, const cString filePath, BlockPack* 
 }
 
 
-GameBlockPostProcess::GameBlockPostProcess(const IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache) :
+GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache) :
     m_iom(iom),
     m_texPackLoader(tpl),
     m_caCache(caCache) {
     // Empty
 }
 
-void GameBlockPostProcess::invoke(void* s, ui16 id) {
+void GameBlockPostProcess::invoke(Sender s, ui16 id) {
     Block& block = ((BlockPack*)s)->operator[](id);
     block.active = true;
 

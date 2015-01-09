@@ -31,10 +31,10 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
     m_spaceSystem->targetBody("Aldrin");
 
     // Register events
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=](void* s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=](void* s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](void* s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onWheel, [=](void* s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
 }
 
 MainMenuSystemViewer::~MainMenuSystemViewer() {
@@ -117,7 +117,7 @@ void MainMenuSystemViewer::update() {
 
 }
 
-void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e) {
+void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButtonEvent& e) {
     m_mouseCoords.x = e.x;
     m_mouseCoords.y = e.y;
     if (e.button == vui::MouseButton::LEFT) {
@@ -150,7 +150,7 @@ void MainMenuSystemViewer::onMouseButtonDown(void* sender, const vui::MouseButto
     }
 }
 
-void MainMenuSystemViewer::onMouseButtonUp(void* sender, const vui::MouseButtonEvent& e) {
+void MainMenuSystemViewer::onMouseButtonUp(Sender sender, const vui::MouseButtonEvent& e) {
     m_mouseCoords.x = e.x;
     m_mouseCoords.y = e.y;
     if (e.button == vui::MouseButton::LEFT) {
@@ -160,12 +160,12 @@ void MainMenuSystemViewer::onMouseButtonUp(void* sender, const vui::MouseButtonE
     }
 }
 
-void MainMenuSystemViewer::onMouseWheel(void* sender, const vui::MouseWheelEvent& e) {
+void MainMenuSystemViewer::onMouseWheel(Sender sender, const vui::MouseWheelEvent& e) {
 #define SCROLL_SPEED 0.1f
     m_camera->offsetTargetFocalLength(m_camera->getTargetFocalLength() * SCROLL_SPEED * -e.dy);
 }
 
-void MainMenuSystemViewer::onMouseMotion(void* sender, const vui::MouseMotionEvent& e) {
+void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEvent& e) {
     m_mouseCoords.x = e.x;
     m_mouseCoords.y = e.y;
 

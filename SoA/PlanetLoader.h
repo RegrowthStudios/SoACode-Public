@@ -21,11 +21,13 @@
 #include <Vorb/GLProgram.h>
 #include <Vorb/Keg.h>
 #include <Vorb/TextureCache.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include <vector>
 #include "Biome.h"
 
-class IOManager;
+DECL_VIO(class, IOManager);
+
 class TerrainFuncs;
 
 #define LOOKUP_TEXTURE_WIDTH 256
@@ -51,7 +53,7 @@ public:
 
 class PlanetLoader {
 public:
-    PlanetLoader(IOManager* ioManager);
+    PlanetLoader(vio::IOManager* ioManager);
     ~PlanetLoader();
 
     PlanetGenData* loadPlanet(const nString& filePath);
@@ -87,7 +89,7 @@ private:
 
     PlanetGenData* m_defaultGenData = nullptr;
 
-    IOManager* m_iom = nullptr;
+    vio::IOManager* m_iom = nullptr;
 
     vg::TextureCache m_textureCache;
 };

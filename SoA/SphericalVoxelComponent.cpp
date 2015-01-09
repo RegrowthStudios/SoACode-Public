@@ -10,7 +10,7 @@
 
 #include <Vorb/IOManager.h>
 
-void SphericalVoxelComponent::init(const SphericalTerrainData* sphericalTerrainData, const IOManager* saveFileIom,
+void SphericalVoxelComponent::init(const SphericalTerrainData* sphericalTerrainData, const vio::IOManager* saveFileIom,
                                    SphericalTerrainGenerator* terrainGenerator,
                                    const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData) {
     this->sphericalTerrainData = sphericalTerrainData;
@@ -19,7 +19,7 @@ void SphericalVoxelComponent::init(const SphericalTerrainData* sphericalTerrainD
     // Allocate resources
     physicsEngine = new PhysicsEngine();
     chunkManager = new ChunkManager(physicsEngine);
-    chunkIo = new ChunkIOManager(saveFileIom->getSearchDirectory());
+    chunkIo = new ChunkIOManager(saveFileIom->getSearchDirectory().getString());
     particleEngine = new ParticleEngine();
     generator = terrainGenerator;
 

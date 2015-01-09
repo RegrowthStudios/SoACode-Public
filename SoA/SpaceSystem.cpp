@@ -238,7 +238,7 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
 
 SphericalVoxelComponent* SpaceSystem::enableVoxelsOnTarget(const f64v3& gpos,
                                        vvox::VoxelMapData* startingMapData,
-                                       const IOManager* saveFileIom /*= nullptr*/) {
+                                       const vio::IOManager* saveFileIom /*= nullptr*/) {
     if (m_targetComponent == 0) return nullptr;
 
     // Make sure it isn't already enabled

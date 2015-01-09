@@ -2,7 +2,6 @@
 #include "RegionFileManager.h"
 
 #include <direct.h> //for mkdir windows
-#include <dirent.h>
 #include <fcntl.h>
 #include <io.h>
 #include <sys/stat.h>

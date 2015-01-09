@@ -17,27 +17,24 @@
 
 #include "IVoxelMapper.h"
 
+#include <Vorb/VorbPreDecl.inl>
+
 class Camera;
 class Chunk;
 class ChunkIOManager;
 class ChunkManager;
-class IOManager;
 class ParticleEngine;
 class PhysicsEngine;
 class PlanetGenData;
 class SphericalTerrainData;
 class SphericalTerrainGenerator;
 
-namespace vorb {
-    namespace voxel {
-        class VoxelPlanetMapper;
-    }
-}
-namespace vvox = vorb::voxel;
+DECL_VVOX(class, VoxelPlanetMapper);
+DECL_VIO(class, IOManager);
 
 class SphericalVoxelComponent {
 public:
-    void init(const SphericalTerrainData* sphericalTerrainData, const IOManager* saveFileIom,
+    void init(const SphericalTerrainData* sphericalTerrainData, const vio::IOManager* saveFileIom,
               SphericalTerrainGenerator* terrainGenerator,
               const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData);
 
@@ -55,7 +52,7 @@ public:
     PlanetGenData* planetGenData = nullptr;
     const SphericalTerrainData* sphericalTerrainData = nullptr;
 
-    const IOManager* saveFileIom = nullptr;
+    const vio::IOManager* saveFileIom = nullptr;
 
     bool enabled = false;
 };

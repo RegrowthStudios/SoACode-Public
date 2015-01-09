@@ -37,7 +37,7 @@ bool CaPhysicsType::update() {
     return false;
 }
 
-bool CaPhysicsType::loadFromYml(const nString& filePath, const IOManager* ioManager) {
+bool CaPhysicsType::loadFromYml(const nString& filePath, const vio::IOManager* ioManager) {
     // Load the file
     nString fileData;
     ioManager->readFileToString(filePath.c_str(), fileData);

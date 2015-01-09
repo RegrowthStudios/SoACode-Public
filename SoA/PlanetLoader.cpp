@@ -68,7 +68,7 @@ public:
     float baseHeight = 0.0f;
 };
 
-PlanetLoader::PlanetLoader(IOManager* ioManager) :
+PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
     m_iom(ioManager),
     m_textureCache(m_iom) {
     // Empty

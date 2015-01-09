@@ -33,7 +33,7 @@ void vg::GLProgramManager::addProgram(nString shaderName, cString vertexPath, cS
         // Allocate the program
         newProgram = new GLProgram(true);
 
-        IOManager iom;
+        vio::IOManager iom;
         const cString code;
 
         // Create the vertex shader

@@ -59,10 +59,10 @@ public:
 private:
     // Events
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    void onMouseButtonDown(void* sender, const vui::MouseButtonEvent& e);
-    void onMouseButtonUp(void* sender, const vui::MouseButtonEvent& e);
-    void onMouseWheel(void* sender, const vui::MouseWheelEvent& e);
-    void onMouseMotion(void* sender, const vui::MouseMotionEvent& e);
+    void onMouseButtonDown(Sender sender, const vui::MouseButtonEvent& e);
+    void onMouseButtonUp(Sender sender, const vui::MouseButtonEvent& e);
+    void onMouseWheel(Sender sender, const vui::MouseWheelEvent& e);
+    void onMouseMotion(Sender sender, const vui::MouseMotionEvent& e);
 
     void pickStartLocation(vcore::EntityID eid);
     void computeGridPosition(const f32v3& hitpoint, float radius);

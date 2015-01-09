@@ -18,16 +18,16 @@ void TestConsoleScreen::destroy(const GameTime& gameTime) {
 }
 
 void TestConsoleScreen::onEntry(const GameTime& gameTime) {
-    m_delegatePool.addAutoHook(&m_console.onStream[DEV_CONSOLE_STREAM_OUT], [&] (void* sender, const cString s) {
+    m_delegatePool.addAutoHook(&m_console.onStream[DEV_CONSOLE_STREAM_OUT], [&] (Sender sender, const cString s) {
         printf("Out:   %s\n", s);
     });
-    m_delegatePool.addAutoHook(&m_console.onStream[DEV_CONSOLE_STREAM_ERR], [&] (void* sender, const cString s) {
+    m_delegatePool.addAutoHook(&m_console.onStream[DEV_CONSOLE_STREAM_ERR], [&] (Sender sender, const cString s) {
         printf("Err:   %s\n", s);
     });
-    m_delegatePool.addAutoHook(&m_text.onTextChange, [&] (void* sender, const cString s) {
+    m_delegatePool.addAutoHook(&m_text.onTextChange, [&] (Sender sender, const cString s) {
         printf("\rInput: %s  ", s);
     });
-    m_delegatePool.addAutoHook(&m_text.onTextEntry, [&] (void* sender, const cString s) {
+    m_delegatePool.addAutoHook(&m_text.onTextEntry, [&] (Sender sender, const cString s) {
         printf("\rComm:  %s\n", s);
         m_console.invokeCommand(s);
     });

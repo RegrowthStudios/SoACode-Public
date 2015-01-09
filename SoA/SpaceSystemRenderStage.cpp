@@ -185,9 +185,9 @@ void SpaceSystemRenderStage::drawHud() {
             if (componentID) {
                 const ui8v4& tcolor = m_spaceSystem->m_orbitCT.get(componentID).pathColor;
                 ColorRGBA8 targetColor(tcolor.r, tcolor.g, tcolor.b, tcolor.a);
-                textColor.interpolate(color::White, targetColor, interpolator);
+                textColor.lerp(color::White, targetColor, interpolator);
             } else {
-                textColor.interpolate(color::White, color::Aquamarine, interpolator);
+                textColor.lerp(color::White, color::Aquamarine, interpolator);
             }
 
             float selectorSize = bodyArData->selectorSize;

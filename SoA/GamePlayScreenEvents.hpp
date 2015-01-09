@@ -38,7 +38,7 @@ public:
     GamePlayScreenDelegate() {}
     GamePlayScreenDelegate(GamePlayScreen* screen): _screen(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) = 0;
+    virtual void invoke(Sender sender, ui32 key) override = 0;
 protected:
     GamePlayScreen* _screen;
 };
@@ -49,7 +49,7 @@ public:
     OnPauseKeyDown() {}
     OnPauseKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         _screen->m_inFocus = false;
     }
@@ -62,7 +62,7 @@ public:
     OnFlyKeyDown() {}
     OnFlyKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         _screen->m_player->flyToggle();
     }
 };
@@ -73,7 +73,7 @@ public:
     OnGridKeyDown() {}
     OnGridKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         _screen->m_renderPipeline.toggleChunkGrid();
     }
 };
@@ -84,7 +84,7 @@ public:
     OnReloadTexturesKeyDown() {}
     OnReloadTexturesKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         // Free atlas
         vg::GpuMemory::freeTexture(blockPack.textureInfo.id);
         // Free all textures
@@ -112,7 +112,7 @@ public:
     OnReloadShadersKeyDown() {}
     OnReloadShadersKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
@@ -127,7 +127,7 @@ public:
     OnInventoryKeyDown() {}
     OnInventoryKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         if(_screen->m_pda.isOpen()) {
             _screen->m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -148,7 +148,7 @@ public:
     OnReloadUIKeyDown() {}
     OnReloadUIKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         if(_screen->m_pda.isOpen()) {
             _screen->m_pda.close();
         }
@@ -163,7 +163,7 @@ public:
     OnHUDKeyDown() {}
     OnHUDKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         _screen->m_renderPipeline.cycleDevHud();
     }
 };

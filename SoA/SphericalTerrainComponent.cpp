@@ -15,7 +15,7 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
-void TerrainGenDelegate::invoke(void* sender, void* userData) {
+void TerrainGenDelegate::invoke(Sender sender, void* userData) {
     generator->generateTerrain(this);
 }
 

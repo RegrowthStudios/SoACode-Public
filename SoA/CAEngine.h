@@ -1,13 +1,15 @@
 #pragma once
 #include <Vorb/Keg.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "CellularAutomataTask.h"
 #include "Constants.h"
 #include "LiquidData.h"
 
+DECL_VIO(class, IOManager)
+
 class ChunkManager;
 class Chunk;
-class IOManager;
 class PhysicsEngine;
 
 /// Resolution of CA updates in frames
@@ -37,7 +39,7 @@ public:
     /// @param filePath: path of the yml file
     /// @param ioManager: IOManager that will read the file
     /// @return true on success
-    bool loadFromYml(const nString& filePath, const IOManager* ioManager);
+    bool loadFromYml(const nString& filePath, const vio::IOManager* ioManager);
 
     // Getters
     const int& getCaIndex() const { return _caIndex; }

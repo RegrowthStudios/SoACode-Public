@@ -12,7 +12,7 @@ class OnReloadShaderKeyDown;
 
 class ProgramGenDelegate : public IDelegate<void*> {
 public:
-    virtual void invoke(void* sender, void* userData) override;
+    virtual void invoke(Sender sender, void* userData) override;
 
     nString name;
     vg::ShaderSource vs;
@@ -42,7 +42,7 @@ public:
     }
     virtual void load() override;
 private:
-    vg::ShaderSource createShaderCode(const vg::ShaderType& stage, const IOManager& iom, const cString path, const cString defines = nullptr);
+    vg::ShaderSource createShaderCode(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr);
     ProgramGenDelegate* createProgram(nString name, const vg::ShaderSource& vs, const vg::ShaderSource& fs, std::vector<nString>* attr = nullptr);
 
     vcore::RPCManager* m_glrpc = nullptr;

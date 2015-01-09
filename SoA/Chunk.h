@@ -57,7 +57,7 @@ public:
 
 class RawGenDelegate : public IDelegate < void* > {
 public:
-    virtual void invoke(void* sender, void* userData);
+    virtual void invoke(Sender sender, void* userData) override;
     volatile bool inUse = false;
 
     vcore::RPC rpc;

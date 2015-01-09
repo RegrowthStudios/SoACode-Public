@@ -25,7 +25,7 @@ public:
     MainMenuScreenDelegate() {}
     MainMenuScreenDelegate(MainMenuScreen* screen) : _screen(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) = 0;
+    virtual void invoke(Sender sender, ui32 key) override = 0;
 protected:
     MainMenuScreen* _screen;
 };
@@ -36,7 +36,7 @@ public:
     OnMainMenuReloadShadersKeyDown() {}
     OnMainMenuReloadShadersKeyDown(MainMenuScreen* screen) : MainMenuScreenDelegate(screen) {}
 
-    virtual void invoke(void* sender, ui32 key) {
+    virtual void invoke(Sender sender, ui32 key) override {
         GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();

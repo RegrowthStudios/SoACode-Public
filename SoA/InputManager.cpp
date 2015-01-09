@@ -149,7 +149,7 @@ i32 InputManager::getAxisID(const nString& axisName) const {
 }
 
 void InputManager::loadAxes(const std::string &location) {
-    IOManager ioManager; //TODO PASS IN
+    vio::IOManager ioManager; //TODO PASS IN
     nString data;
     ioManager.readFileToString(location.c_str(), data);
    
@@ -201,7 +201,7 @@ void InputManager::update() {
 }
 
 void InputManager::startInput() {
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=] (void* sender, const vui::MouseButtonEvent& e) {
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=] (Sender sender, const vui::MouseButtonEvent& e) {
         switch (e.button) {
         case vui::MouseButton::LEFT:
             _currentKeyStates[SDL_BUTTON_LEFT] = true;
@@ -213,7 +213,7 @@ void InputManager::startInput() {
             break;
         }
     });
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=] (void* sender, const vui::MouseButtonEvent& e) {
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=] (Sender sender, const vui::MouseButtonEvent& e) {
         switch (e.button) {
         case vui::MouseButton::LEFT:
             _currentKeyStates[SDL_BUTTON_LEFT] = false;
@@ -225,10 +225,10 @@ void InputManager::startInput() {
             break;
         }
     });
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [=] (void* sender, const vui::KeyEvent& e) {
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [=] (Sender sender, const vui::KeyEvent& e) {
         _currentKeyStates[e.keyCode] = true;
     });
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyUp, [=] (void* sender, const vui::KeyEvent& e) {
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyUp, [=] (Sender sender, const vui::KeyEvent& e) {
         _currentKeyStates[e.keyCode] = false;
     });
 }

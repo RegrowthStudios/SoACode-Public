@@ -7,6 +7,8 @@
 #include "GameManager.h"
 #include "InputManager.h"
 
+#include <Vorb/IOManager.h>
+
 KEG_TYPE_INIT_BEGIN_DEF_VAR(GraphicsOptions)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("enableParticles", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(GraphicsOptions, enableParticles)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("fov", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, fov)));
@@ -37,7 +39,7 @@ GameOptions gameOptions;
 MenuOptions menuOptions;
 
 bool loadOptions(const cString filePath) {
-    IOManager ioManager; // TODO: Pass in a real boy
+    vio::IOManager ioManager; // TODO: Pass in a real boy
     const cString data = ioManager.readFileToString(filePath);
 
     YAML::Node node = YAML::Load(data);

@@ -31,7 +31,7 @@ class MainMenuSystemViewer;
 class TerrainMeshMessage;
 
 struct GameStartState {
-    IOManager saveFileIom;
+    vio::IOManager saveFileIom;
     bool isNewGame = true;
     f32v3 startGridPos = f32v3(0.0f);
     int startFace = 0;
@@ -60,7 +60,7 @@ public:
 
     // Getters
     CinematicCamera& getCamera() { return m_camera; }
-    IOManager& getIOManager() { return m_ioManager; }
+    vio::IOManager& getIOManager() { return m_ioManager; }
     const GameStartState* getGameStartState() const { return &m_gameStartState; }
 
 private:
@@ -87,7 +87,7 @@ private:
 
     vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
     
-    IOManager m_ioManager; ///< Helper class for IO operations
+    vio::IOManager m_ioManager; ///< Helper class for IO operations
 
     InputManager* m_inputManager = nullptr;
 

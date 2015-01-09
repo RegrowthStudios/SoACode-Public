@@ -109,30 +109,31 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     m_onInventoryKeyDown = m_inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
     m_onReloadUIKeyDown = m_inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
     m_onHUDKeyDown = m_inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
-    m_onNightVisionToggle = m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&](void* s, ui32 a) -> void {
+    m_onNightVisionToggle = m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         if (isInGame()) {
             m_renderPipeline.toggleNightVision();
         }
     });
-    m_onNightVisionReload = m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&](void* s, ui32 a) -> void {
+
+    m_onNightVisionReload = m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.loadNightVision();
     });
-    m_onDrawMode = m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&](void* s, ui32 a) -> void {
+    m_onDrawMode = m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (void* s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
         if (m_inFocus) {
             // Pass mouse motion to the player
             m_player->mouseMove(e.dx, e.dy);
         }
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (void* s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
             m_inFocus = true;
         }
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (void* s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
         /*    if (e.button == vui::MouseButton::LEFT) {
                 GameManager::voxelEditor->editVoxels(&m_voxelWorld->getChunkManager(),
@@ -147,10 +148,10 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
             }*/
         }
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&] (void* s, const vui::MouseEvent& e) {
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const vui::MouseEvent& e) {
         m_inFocus = true;
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&] (void* s, const vui::MouseEvent& e) {
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
         m_inFocus = false;
     });
 
