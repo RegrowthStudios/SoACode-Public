@@ -161,10 +161,7 @@ void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxe
     }
 
     // Update Spherical Terrain
-    for (auto& it : m_sphericalTerrainCT) {
-        it.second.update(cameraPos, &m_namePositionCT.getFromEntity(it.first),
-                         &m_axisRotationCT.getFromEntity(it.first));
-    }
+    m_sphericalTerrainComponentUpdater.update(this, cameraPos);
 
     m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
 
@@ -175,9 +172,7 @@ void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxe
 }
 
 void SpaceSystem::glUpdate() {
-    for (auto& cmp : m_sphericalTerrainCT) {
-        cmp.second.glUpdate();
-    }
+    m_sphericalTerrainComponentUpdater.glUpdate(this);
 }
 
 void SpaceSystem::addSolarSystem(const nString& dirPath) {
@@ -255,8 +250,8 @@ SphericalVoxelComponent* SpaceSystem::enableVoxelsOnTarget(const f64v3& gpos,
 
     // Add spherical voxel component
     vcore::ComponentID svCmp = m_sphericalVoxelCT.add(m_targetEntity);
-    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).getSphericalTerrainData(), saveFileIom,
-                                       m_sphericalTerrainCT.get(cid).getGenerator(),
+    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).sphericalTerrainData, saveFileIom,
+                                       m_sphericalTerrainCT.get(cid).generator,
                                        gpos, startingMapData);
     return &m_sphericalVoxelCT.get(svCmp);
 }

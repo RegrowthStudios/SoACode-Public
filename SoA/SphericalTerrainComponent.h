@@ -29,6 +29,13 @@ class AxisRotationComponent;
 class PlanetGenData;
 class SphericalTerrainMeshManager;
 
+#define LOAD_DIST 80000.0
+// Should be even
+#define PATCH_ROW 2  
+#define NUM_FACES 6
+const int PATCHES_PER_FACE = (PATCH_ROW * PATCH_ROW);
+const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;
+
 class TerrainGenDelegate : public IDelegate<void*> {
 public:
     virtual void invoke(void* sender, void* userData);
@@ -75,12 +82,6 @@ public:
               vg::GLProgram* normalProgram,
               vg::TextureRecycler* normalMapRecycler);
 
-    void update(const f64v3& cameraPos,
-                const NamePositionComponent* npComponent,
-                const AxisRotationComponent* arComponent);
-
-    /// Updates openGL specific stuff. Call on render thread
-    void glUpdate();
 
     void draw(const Camera* camera,
               vg::GLProgram* terrainProgram,
@@ -88,20 +89,15 @@ public:
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
 
-    const SphericalTerrainData* getSphericalTerrainData() const { return m_sphericalTerrainData; }
-    SphericalTerrainGenerator* getGenerator() const { return m_generator; }
-private:
-    void initPatches();
-
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
-    SphericalTerrainPatch* m_patches = nullptr; ///< Buffer for top level patches
-    SphericalTerrainData* m_sphericalTerrainData = nullptr;
+    SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches
+    SphericalTerrainData* sphericalTerrainData = nullptr;
 
-    SphericalTerrainMeshManager* m_meshManager = nullptr;
-    SphericalTerrainGenerator* m_generator = nullptr;
+    SphericalTerrainMeshManager* meshManager = nullptr;
+    SphericalTerrainGenerator* generator = nullptr;
 
-    PlanetGenData* m_planetGenData = nullptr;
+    PlanetGenData* planetGenData = nullptr;
 };
 
 #endif // SphericalTerrainComponent_h__

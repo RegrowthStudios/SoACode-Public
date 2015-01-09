@@ -13,22 +13,22 @@
 void SphericalVoxelComponent::init(const SphericalTerrainData* sphericalTerrainData, const IOManager* saveFileIom,
                                    SphericalTerrainGenerator* terrainGenerator,
                                    const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData) {
-    m_sphericalTerrainData = sphericalTerrainData;
-    m_saveFileIom = saveFileIom;
+    this->sphericalTerrainData = sphericalTerrainData;
+    this->saveFileIom = saveFileIom;
 
     // Allocate resources
-    m_physicsEngine = new PhysicsEngine();
-    m_chunkManager = new ChunkManager(m_physicsEngine);
-    m_chunkIo = new ChunkIOManager(saveFileIom->getSearchDirectory());
-    m_particleEngine = new ParticleEngine();
-    m_generator = terrainGenerator;
+    physicsEngine = new PhysicsEngine();
+    chunkManager = new ChunkManager(physicsEngine);
+    chunkIo = new ChunkIOManager(saveFileIom->getSearchDirectory());
+    particleEngine = new ParticleEngine();
+    generator = terrainGenerator;
 
     // Init the mapper that will handle spherical voxel mapping
-    m_voxelPlanetMapper = new vvox::VoxelPlanetMapper((i32)sphericalTerrainData->getRadius() / CHUNK_WIDTH);
+    voxelPlanetMapper = new vvox::VoxelPlanetMapper((i32)sphericalTerrainData->getRadius() / CHUNK_WIDTH);
 
     // Set up the chunk manager
-    m_chunkManager->initialize(gpos, m_voxelPlanetMapper,
-                               m_generator,
+    chunkManager->initialize(gpos, voxelPlanetMapper,
+                               generator,
                                startingMapData,
-                               m_chunkIo);
+                               chunkIo);
 }

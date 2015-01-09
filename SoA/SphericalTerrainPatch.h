@@ -55,6 +55,7 @@ public:
     }
 
     const f64& getRadius() const { return m_radius; }
+    const f64& getPatchWidth() const { return m_patchWidth; }
 private:
     f64 m_radius; ///< Radius of the planet in KM
     f64 m_patchWidth; ///< Width of a patch in KM

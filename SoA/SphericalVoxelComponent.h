@@ -43,21 +43,21 @@ public:
 
 
     //chunk manager manages and updates the chunk grid
-    ChunkManager* m_chunkManager = nullptr;
-    ChunkIOManager* m_chunkIo = nullptr;
-    PhysicsEngine* m_physicsEngine = nullptr;
-    ParticleEngine* m_particleEngine = nullptr;
+    ChunkManager* chunkManager = nullptr;
+    ChunkIOManager* chunkIo = nullptr;
+    PhysicsEngine* physicsEngine = nullptr;
+    ParticleEngine* particleEngine = nullptr;
 
-    SphericalTerrainGenerator* m_generator = nullptr;
+    SphericalTerrainGenerator* generator = nullptr;
 
-    vvox::VoxelPlanetMapper* m_voxelPlanetMapper = nullptr;
+    vvox::VoxelPlanetMapper* voxelPlanetMapper = nullptr;
 
-    PlanetGenData* m_planetGenData = nullptr;
-    const SphericalTerrainData* m_sphericalTerrainData = nullptr;
+    PlanetGenData* planetGenData = nullptr;
+    const SphericalTerrainData* sphericalTerrainData = nullptr;
 
-    const IOManager* m_saveFileIom = nullptr;
+    const IOManager* saveFileIom = nullptr;
 
-    bool m_enabled = false;
+    bool enabled = false;
 };
 
 #endif // SphericalVoxelComponent_h__

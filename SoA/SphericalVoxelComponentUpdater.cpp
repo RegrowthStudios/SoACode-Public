@@ -7,7 +7,7 @@
 
 void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const Camera* voxelCamera) {
     for (auto& it : spaceSystem->m_sphericalVoxelCT) {
-        it.second.m_chunkManager->update(voxelCamera);
+        it.second.chunkManager->update(voxelCamera);
     }
 }
 
@@ -20,20 +20,20 @@ void SphericalVoxelComponentUpdater::getClosestChunks(SphericalVoxelComponent* c
 }
 
 void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
-    delete cmp->m_physicsEngine;
-    cmp->m_physicsEngine = nullptr;
+    delete cmp->physicsEngine;
+    cmp->physicsEngine = nullptr;
 
-    delete cmp->m_chunkManager;
-    cmp->m_chunkManager = nullptr;
+    delete cmp->chunkManager;
+    cmp->chunkManager = nullptr;
 
-    delete cmp->m_chunkIo;
-    cmp->m_chunkIo = nullptr;
+    delete cmp->chunkIo;
+    cmp->chunkIo = nullptr;
 
-    delete cmp->m_particleEngine;
-    cmp->m_particleEngine = nullptr;
+    delete cmp->particleEngine;
+    cmp->particleEngine = nullptr;
 
-    delete cmp->m_voxelPlanetMapper;
-    cmp->m_voxelPlanetMapper = nullptr;
+    delete cmp->voxelPlanetMapper;
+    cmp->voxelPlanetMapper = nullptr;
 }
 
 void SphericalVoxelComponentUpdater::destroyVoxels() {
