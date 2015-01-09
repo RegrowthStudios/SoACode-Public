@@ -25,6 +25,7 @@
 #include "SphericalVoxelComponent.h"
 #include "SphericalVoxelComponentUpdater.h"
 #include "SphericalTerrainComponentUpdater.h"
+#include "AxisRotationComponentUpdater.h"
 
 #include <Vorb/IOManager.h>
 #include <Vorb/ComponentTable.hpp>
@@ -185,6 +186,8 @@ protected:
     SphericalVoxelComponentUpdater m_sphericalVoxelComponentUpdater;
     friend class SphericalTerrainComponentUpdater;
     SphericalTerrainComponentUpdater m_sphericalTerrainComponentUpdater;
+    friend class AxisRotationComponentUpdater;
+    AxisRotationComponentUpdater m_axisRotationComponentUpdater;
 };
 
 #endif // SpaceSystem_h__

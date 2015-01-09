@@ -121,6 +121,7 @@
     <ClInclude Include="AtmosphereComponent.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="AxisRotationComponent.h" />
+    <ClInclude Include="AxisRotationComponentUpdater.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockPack.h" />
     <ClInclude Include="BlockTextureMethods.h" />
@@ -279,6 +280,7 @@
     <ClCompile Include="AtmosphereComponent.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="AxisRotationComponent.cpp" />
+    <ClCompile Include="AxisRotationComponentUpdater.cpp" />
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />

@@ -21,9 +21,6 @@ class AxisRotationComponent {
 public:
     /// Initializes the component
     void init(f64 AngularSpeed_RS, f64 CurrentRotation, f64q AxisOrientation);
-    /// Updates the component
-    /// @param time: Time in seconds
-    void update(double time);
 
     f64q axisOrientation; ///< Axis of rotation
     f64q currentOrientation; ///< Current orientation with axis and rotation

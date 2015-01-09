@@ -156,13 +156,14 @@ void SpaceSystem::init(vg::GLProgramManager* programManager) {
 
 void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxelCamera /* = nullptr */) {
     m_mutex.lock();
-    for (auto& it : m_axisRotationCT) {
-        it.second.update(time);
-    }
+
+    // Update planet rotation
+    m_axisRotationComponentUpdater.update(this, time);
 
     // Update Spherical Terrain
     m_sphericalTerrainComponentUpdater.update(this, cameraPos);
 
+    // Update voxels
     m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
 
     // Update Orbits ( Do this last)
