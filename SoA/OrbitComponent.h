@@ -16,37 +16,14 @@
 #define OrbitComponent_h__
 
 #include <SDL/SDL_stdinc.h>
-#include <mutex>
 
 #include <Vorb/GpuMemory.h>
 #include <Vorb/Entity.h>
-
-namespace vorb {
-    namespace core {
-        namespace graphics {
-            class GLProgram;
-        }
-    }
-}
 
 class NamePositionComponent;
 
 class OrbitComponent {
 public:
-
-    ~OrbitComponent() {
-        destroy();
-    }
-
-    /// Frees resources
-    void destroy();
-
-    /// Draws the ellipse and a point for the body
-    void drawPath(vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent,
-                 const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent = nullptr);
-
-    /// Gets the vertex buffer ID for ellipse
-    const VGBuffer& getVbo() const { return m_vbo; }
 
     f64 semiMajor = 0.0; ///< Semi-major of the ellipse
     f64 semiMinor = 0.0; ///< Semi-minor of the ellipse
@@ -57,13 +34,7 @@ public:
     f64q orientation = f64q(0.0, 0.0, 0.0, 0.0); ///< Orientation of the orbit path
     ui8v4 pathColor = ui8v4(255); ///< Color of the path
     vcore::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
-
-private:
-    /// Creates the ellipsoid mesh
-    void generateOrbitEllipse();
-
-    VGBuffer m_vbo = 0; ///< vbo for the ellipse
-    VGBuffer m_pvbo = 0; ///< vbo for the imposter
+    VGBuffer vbo = 0; ///< vbo for the ellipse
 };
 
 #endif // OrbitComponent_h__

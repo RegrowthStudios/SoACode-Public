@@ -19,6 +19,8 @@
 #include <Vorb/GLProgram.h>
 #include <Vorb/ECS.h>
 
+#include "OrbitComponentRenderer.h"
+
 class App;
 class MainMenuSystemViewer;
 class SpaceSystem;
@@ -66,6 +68,8 @@ private:
     vg::GLProgram* m_terrainProgram = nullptr;
     vg::GLProgram* m_waterProgram = nullptr;
     VGTexture m_selectorTexture = 0;
+
+    OrbitComponentRenderer m_orbitComponentRenderer;
 };
 
 #endif // SpaceSystemRenderStage_h__

@@ -127,10 +127,10 @@ void SpaceSystemRenderStage::drawPaths() {
 
         auto& cmp = it.second;
         if (cmp.parentNpId) {
-            cmp.drawPath(m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
+            m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                          m_camera->getPosition(), alpha, &m_spaceSystem->m_namePositionCT.get(cmp.parentNpId));
         } else {
-            cmp.drawPath(m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
+            m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                          m_camera->getPosition(), alpha);
         }
     }

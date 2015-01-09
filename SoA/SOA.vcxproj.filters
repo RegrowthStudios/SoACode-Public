@@ -608,6 +608,9 @@
     <ClInclude Include="AxisRotationComponentUpdater.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="OrbitComponentRenderer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -941,9 +944,6 @@
     <ClCompile Include="SphericalTerrainComponent.cpp">
       <Filter>SOA Files\ECS</Filter>
     </ClCompile>
-    <ClCompile Include="OrbitComponent.cpp">
-      <Filter>SOA Files\ECS</Filter>
-    </ClCompile>
     <ClCompile Include="AtmosphereComponent.cpp">
       <Filter>SOA Files\ECS</Filter>
     </ClCompile>
@@ -969,6 +969,7 @@
     <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
     <ClCompile Include="AxisRotationComponentUpdater.cpp" />
+    <ClCompile Include="OrbitComponentRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
