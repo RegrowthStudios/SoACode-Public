@@ -66,19 +66,3 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
     }
     return mesh;
 }
-
-void SphericalTerrainComponent::draw(const Camera* camera,
-                                     vg::GLProgram* terrainProgram,
-                                     vg::GLProgram* waterProgram,
-                                     const NamePositionComponent* npComponent,
-                                     const AxisRotationComponent* arComponent) {
-    if (!patches) return;
-
-    f32m4 rotationMatrix = f32m4(glm::toMat4(arComponent->currentOrientation));
-    
-    f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
-
-    // Draw patches
-    meshManager->draw(relativeCameraPos, camera,
-                        rotationMatrix, terrainProgram, waterProgram);
-}

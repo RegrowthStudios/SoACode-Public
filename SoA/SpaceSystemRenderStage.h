@@ -20,6 +20,7 @@
 #include <Vorb/ECS.h>
 
 #include "OrbitComponentRenderer.h"
+#include "SphericalTerrainComponentRenderer.h"
 
 class App;
 class MainMenuSystemViewer;
@@ -70,6 +71,7 @@ private:
     VGTexture m_selectorTexture = 0;
 
     OrbitComponentRenderer m_orbitComponentRenderer;
+    SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
 };
 
 #endif // SpaceSystemRenderStage_h__

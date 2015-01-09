@@ -82,13 +82,6 @@ public:
               vg::GLProgram* normalProgram,
               vg::TextureRecycler* normalMapRecycler);
 
-
-    void draw(const Camera* camera,
-              vg::GLProgram* terrainProgram,
-              vg::GLProgram* waterProgram,
-              const NamePositionComponent* npComponent,
-              const AxisRotationComponent* arComponent);
-
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
     SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches

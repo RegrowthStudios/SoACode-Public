@@ -93,7 +93,8 @@ void SpaceSystemRenderStage::drawBodies() {
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
 
-        cmp.draw(m_camera, m_terrainProgram, m_waterProgram,
+        m_sphericalTerrainComponentRenderer.draw(cmp, m_camera, 
+                 m_terrainProgram, m_waterProgram,
                  &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
     }
