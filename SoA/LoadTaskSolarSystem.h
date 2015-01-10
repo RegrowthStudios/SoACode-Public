@@ -2,19 +2,20 @@
 #include "LoadMonitor.h"
 #include "SpaceSystem.h"
 
+#include "SoaEngine.h"
+
 // Sample Dependency Task
 class LoadTaskSolarSystem : public ILoadTask {
     friend class LoadScreen;
 
-    LoadTaskSolarSystem(nString FilePath, SpaceSystem* SpaceSystem) :
-        filePath(FilePath),
-        spaceSystem(SpaceSystem) {
-        // Empty
+    LoadTaskSolarSystem(const nString& filePath, SoaState* state) :
+        soaState(state) {
+        loadData.filePath = filePath;
     }
     virtual void load() {
-        spaceSystem->addSolarSystem(filePath);
+        SoaEngine::loadSpaceSystem(soaState, loadData);
     }
     
-    nString filePath;
-    SpaceSystem* spaceSystem;
+    SoaEngine::SpaceSystemLoadData loadData;
+    SoaState* soaState;
 };

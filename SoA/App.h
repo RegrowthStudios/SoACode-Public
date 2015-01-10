@@ -12,7 +12,6 @@ class MainMenuScreen;
 class GamePlayScreen;
 class MeshManager;
 class TexturePackLoader;
-class SpaceSystem;
 
 class App : public MainGame {
 public:
@@ -28,7 +27,6 @@ public:
     MainMenuScreen* scrMainMenu = nullptr;
     GamePlayScreen* scrGamePlay = nullptr;
 
-    SpaceSystem* spaceSystem = nullptr; ///< Space ECS
     DevScreen* scrDev = nullptr;
     std::vector<IGameScreen*> scrTests;
 

@@ -17,6 +17,7 @@
 #include "IAwesomiumAPI.h"
 #include "InputManager.h"
 #include "Inputs.h"
+#include "LoadScreen.h"
 #include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
 #include "MainMenuScreenEvents.hpp"
@@ -25,6 +26,7 @@
 #include "MessageManager.h"
 #include "Options.h"
 #include "SoAState.h"
+#include "SoaEngine.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
@@ -32,9 +34,11 @@
 
 #define THREAD ThreadId::UPDATE
 
-CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
+MainMenuScreen::MainMenuScreen(const App* app, const LoadScreen* loadScreen) :
+    IAppScreen<App>(app),
+    m_loadScreen(loadScreen),
     m_updateThread(nullptr),
-    m_threadRunning(false){
+    m_threadRunning(false) {
     // Empty
 }
 
@@ -45,6 +49,7 @@ MainMenuScreen::~MainMenuScreen() {
 i32 MainMenuScreen::getNextScreen() const {
     return _app->scrGamePlay->getIndex();
 }
+
 i32 MainMenuScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -59,14 +64,15 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
-    m_soaState = std::make_unique<SoaState>();
-
+    // Get the state handle
+    m_soaState = m_loadScreen->getSoAState();
+                             
     m_camera.init(_app->getWindow().getAspectRatio());
 
     m_inputManager = new InputManager;
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                    &m_camera, _app->spaceSystem, m_inputManager);
+                                                                    &m_camera, &m_soaState->spaceSystem, m_inputManager);
 
     // Initialize the user interface
     m_awesomiumInterface.init("UI/MainMenu/",
@@ -130,8 +136,8 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
     m_mainMenuSystemViewer->update();
 
-    _app->spaceSystem->update(time, m_camera.getPosition());
-    _app->spaceSystem->glUpdate();
+    m_soaState->spaceSystem.update(time, m_camera.getPosition());
+    m_soaState->spaceSystem.glUpdate();
 
     m_camera.update();
     m_inputManager->update(); // TODO: Remove
@@ -180,8 +186,8 @@ void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
-                         _app->spaceSystem, m_mainMenuSystemViewer.get(),
-                         GameManager::glProgramManager);
+                          &m_soaState->spaceSystem, m_mainMenuSystemViewer.get(),
+                          GameManager::glProgramManager);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {

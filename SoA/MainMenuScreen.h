@@ -27,16 +27,17 @@
 
 class App;
 class InputManager;
+class LoadScreen;
 class MainMenuSystemViewer;
-class TerrainMeshMessage;
 class SoaState;
+class TerrainMeshMessage;
 
 class MainMenuScreen : public IAppScreen<App>
 {
     friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
-    CTOR_APP_SCREEN_DECL(MainMenuScreen, App);
+    MainMenuScreen(const App* app, const LoadScreen* loadScreen);
     ~MainMenuScreen();
 
     virtual i32 getNextScreen() const;
@@ -55,7 +56,7 @@ public:
     // Getters
     CinematicCamera& getCamera() { return m_camera; }
     vio::IOManager& getIOManager() { return m_ioManager; }
-    SoaState* getSoAState() const { return m_soaState.get(); }
+    SoaState* getSoAState() const { return m_soaState; }
 
 private:
 
@@ -77,7 +78,8 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
-    std::unique_ptr<SoaState> m_soaState = nullptr;
+    const LoadScreen* m_loadScreen = nullptr;
+    SoaState* m_soaState = nullptr;
 
     vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
     

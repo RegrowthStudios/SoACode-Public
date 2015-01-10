@@ -23,11 +23,9 @@ class SoaState;
 class SoaEngine {
 public:
     struct SpaceSystemLoadData {
-        SpaceSystem* spaceSystem;
-        // More stuff here
+        nString filePath;
     };
     struct GameSystemLoadData {
-        GameSystem* spaceSystem;
         // More stuff here
     };
 

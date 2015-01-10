@@ -4,7 +4,7 @@
 #include "SoaState.h"
 
 bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData) {
-
+    state->spaceSystem.addSolarSystem(loadData.filePath);
 }
 
 bool SoaEngine::loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData) {

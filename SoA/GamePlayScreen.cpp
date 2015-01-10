@@ -26,6 +26,7 @@
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
 #include "RenderTask.h"
+#include "SoaState.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
@@ -219,7 +220,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     time += 0.00001;
  //   _app->spaceSystem->update(time, m_player->getWorldCamera().getPosition(),
  //                             &m_player->getChunkCamera());
-    _app->spaceSystem->glUpdate();
+    m_soaState->spaceSystem.glUpdate();
     
     // Update the input
     handleInput();

@@ -21,6 +21,7 @@
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
 #include "ParticleEmitter.h"
+#include "SoaState.h"
 #include "TexturePackLoader.h"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
@@ -32,6 +33,10 @@ _sf(nullptr),
 _sb(nullptr),
 _monitor(),
 m_glrpc() {
+    // Empty
+}
+
+LoadScreen::~LoadScreen() {
     // Empty
 }
 
@@ -50,6 +55,8 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 }
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
+
+    m_soaState = std::make_unique<SoaState>();
 
     // Make LoadBar Resources
     _sb = new SpriteBatch(true, true);
@@ -150,7 +157,7 @@ void LoadScreen::update(const GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
-        LoadTaskSolarSystem loadTaskSolarSystem("StarSystems/Trinity", _app->spaceSystem);
+        LoadTaskSolarSystem loadTaskSolarSystem("StarSystems/Trinity", m_soaState.get());
         loadTaskSolarSystem.load();
 
         _state = ScreenState::CHANGE_NEXT;

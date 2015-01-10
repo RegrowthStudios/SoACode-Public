@@ -29,7 +29,7 @@
 void App::addScreens() {
     scrInit = new InitScreen(this);
     scrLoad = new LoadScreen(this);
-    scrMainMenu = new MainMenuScreen(this);
+    scrMainMenu = new MainMenuScreen(this, scrLoad);
     scrGamePlay = new GamePlayScreen(this, scrMainMenu);
 
     _screenList->addScreen(scrInit);
@@ -71,8 +71,6 @@ void App::onInit() {
 
     // Allocate resources
     meshManager = new MeshManager;
-    spaceSystem = new SpaceSystem();
-    spaceSystem->init(GameManager::glProgramManager);
 }
 
 void App::onExit() {
