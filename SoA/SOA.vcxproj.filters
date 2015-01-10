@@ -629,6 +629,15 @@
     <ClInclude Include="VoxelPositionComponent.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AabbCollidableComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveInputComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

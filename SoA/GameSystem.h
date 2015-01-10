@@ -18,7 +18,11 @@
 #include <Vorb/ComponentTable.hpp>
 #include <Vorb/ECS.h>
 
+#include "AabbCollidableComponent.h"
+#include "MoveInputComponent.h"
+#include "PhysicsComponent.h"
 #include "SpacePositionComponent.h"
+#include "VoxelPositionComponent.h"
 
 class GameSystem : public vcore::ECS {
 public:

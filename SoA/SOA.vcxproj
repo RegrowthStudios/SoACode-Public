@@ -145,6 +145,7 @@ EXIT 0</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AabbCollidableComponent.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="Atmosphere.h" />
@@ -186,6 +187,7 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="MoveInputComponent.h" />
     <ClInclude Include="NamePositionComponent.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
@@ -200,6 +202,7 @@ EXIT 0</Command>
     <ClInclude Include="PdaAwesomiumAPI.h" />
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
+    <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
