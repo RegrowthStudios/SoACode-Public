@@ -161,17 +161,17 @@ void SoundEngine::update(const glm::dvec3 &listenerPos, const glm::vec3 &listene
     _system->update();
 
     if (songPlaying == 0) {
-        if (GameManager::gameState == GameStates::MAINMENU) {
-            if (SDL_GetTicks() - songStartTicks >= 0) { //play the song once every half minute
-                PlayExistingSound("TitleMusic", 0, 1.0f, 1, glm::dvec3(0.0), 1);
-                songPlaying = 1;
-            }
-        } else {
-            if (SDL_GetTicks() - songStartTicks >= 30000) { //play the song once every half minute
-                PlayExistingSound("ThemeMusic", 0, 1.0f, 1, glm::dvec3(0.0), 1);
-                songPlaying = 1;
-            }
-        }
+        //if (GameManager::gameState == GameStates::MAINMENU) {
+        //    if (SDL_GetTicks() - songStartTicks >= 0) { //play the song once every half minute
+        //        PlayExistingSound("TitleMusic", 0, 1.0f, 1, glm::dvec3(0.0), 1);
+        //        songPlaying = 1;
+        //    }
+        //} else {
+        //    if (SDL_GetTicks() - songStartTicks >= 30000) { //play the song once every half minute
+        //        PlayExistingSound("ThemeMusic", 0, 1.0f, 1, glm::dvec3(0.0), 1);
+        //        songPlaying = 1;
+        //    }
+        //}
     }
 
     _lastFrameTicks = SDL_GetTicks();

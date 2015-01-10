@@ -8,7 +8,6 @@
 // Sample Dependency Task
 class LoadTaskGameManager : public ILoadTask {
     virtual void load() {
-        GameManager::gameState = GameStates::MAINMENU;
         GameManager::initializeSystems();
         GameManager::registerTexturesForLoad();
     }

@@ -13,8 +13,6 @@ class VoxelEditor;
 class Chunk;
 class ChunkManager;
 
-enum class GameStates { PLAY, PAUSE, INVENTORY, MAINMENU, ZOOMINGIN, ZOOMINGOUT, WORLDEDITOR, EXIT };
-
 //This is where the main game components are contained
 // TODO(Ben): Dependency injection.
 class GameManager
@@ -44,8 +42,6 @@ public:
     static bool gameInitialized;
     static float fogStart, fogEnd;
     static Uint32 maxLodTicks;
-    static std::vector <Marker> markers;
-    static class Planet* planet;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
     static class DebugRenderer* debugRenderer;
@@ -53,7 +49,6 @@ public:
     static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
     static class vg::TextureCache* textureCache;
 
-    static GameStates gameState;
 private:
     static bool _systemsInitialized;
 

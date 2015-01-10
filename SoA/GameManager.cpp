@@ -48,10 +48,6 @@ TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
 TerrainGenerator* GameManager::terrainGenerator = nullptr;
 
-std::vector <Marker> GameManager::markers;
-Planet *GameManager::planet = nullptr;
-GameStates GameManager::gameState = GameStates::MAINMENU;
-
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
         voxelEditor = new VoxelEditor();
@@ -167,8 +163,8 @@ int ticksArray2[10];
 int ticksArrayIndex2 = 0;
 
 void GameManager::addMarker(glm::dvec3 pos, nString name, glm::vec3 color) {
-    markers.push_back(Marker(pos, name, color));
-    markers.back().num = markers.size() - 1;
+   // markers.push_back(Marker(pos, name, color));
+  //  markers.back().num = markers.size() - 1;
 }
 
 bool isSolidBlock(const i32& blockID) {
@@ -236,7 +232,6 @@ void GameManager::scanWSO(ChunkManager* chunkManager, Player* player) {
 void GameManager::onQuit() {
     GLuint st = SDL_GetTicks();
     saveState();
-    markers.clear();
 }
 
 void GameManager::endSession() {
