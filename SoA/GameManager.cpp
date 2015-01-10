@@ -20,7 +20,6 @@
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
-#include "Player.h"
 #include "Rendering.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
@@ -179,59 +178,59 @@ bool isSolidBlock(const i32& blockID) {
 void GameManager::clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay) {
 #define MAX_RANGE 120.0f
 
-    VoxelRayQuery rq;
-    if (isBreakRay) {
-        // Obtain The Simple Query
-        rq = VRayHelper::getQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+    //VoxelRayQuery rq;
+    //if (isBreakRay) {
+    //    // Obtain The Simple Query
+    //    rq = VRayHelper::getQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
-        // Check If Something Was Picked
-        if (rq.distance > MAX_RANGE || rq.id == NONE) return;
-    } else {
-        // Obtain The Full Query
-        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+    //    // Check If Something Was Picked
+    //    if (rq.distance > MAX_RANGE || rq.id == NONE) return;
+    //} else {
+    //    // Obtain The Full Query
+    //    VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
-        // Check If Something Was Picked
-        if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
+    //    // Check If Something Was Picked
+    //    if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
 
-        // We Want This Indexing Information From The Query
-        rq = rfq.outer;
-    }
+    //    // We Want This Indexing Information From The Query
+    //    rq = rfq.outer;
+    //}
 
-    if (rq.chunk == nullptr) {
-        return;
-    }
+    //if (rq.chunk == nullptr) {
+    //    return;
+    //}
 
-    i32v3 position = rq.location;
-    if (voxelEditor->isEditing() == false) {
-        voxelEditor->setStartPosition(position);
-        voxelEditor->setEndPosition(position);
-    } else {
-        voxelEditor->setEndPosition(position);
-    }
+    //i32v3 position = rq.location;
+    //if (voxelEditor->isEditing() == false) {
+    //    voxelEditor->setStartPosition(position);
+    //    voxelEditor->setEndPosition(position);
+    //} else {
+    //    voxelEditor->setEndPosition(position);
+    //}
 }
 void GameManager::scanWSO(ChunkManager* chunkManager, Player* player) {
 
 #define SCAN_MAX_DISTANCE 20.0
-    VoxelRayQuery rq = VRayHelper::getQuery(
-        player->getChunkCamera().getPosition(),
-        player->getChunkCamera().getDirection(),
-        SCAN_MAX_DISTANCE,
-        chunkManager,
-        isSolidBlock
-        );
-    if (rq.distance > SCAN_MAX_DISTANCE || rq.id == 0) return;
+    /* VoxelRayQuery rq = VRayHelper::getQuery(
+         player->getChunkCamera().getPosition(),
+         player->getChunkCamera().getDirection(),
+         SCAN_MAX_DISTANCE,
+         chunkManager,
+         isSolidBlock
+         );
+         if (rq.distance > SCAN_MAX_DISTANCE || rq.id == 0) return;
 
-    auto wsos = wsoScanner->scanWSOs(rq.location, chunkManager);
-    
-    for (i32 i = 0; i < wsos.size(); i++) {
-        f32v3 wsoPos(wsos[i]->position);
-        f32v3 wsoSize(wsos[i]->data->size);
-        wsoPos += wsoSize * 0.5f;
+         auto wsos = wsoScanner->scanWSOs(rq.location, chunkManager);
 
-        debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
+         for (i32 i = 0; i < wsos.size(); i++) {
+         f32v3 wsoPos(wsos[i]->position);
+         f32v3 wsoSize(wsos[i]->data->size);
+         wsoPos += wsoSize * 0.5f;
 
-        delete wsos[i];
-    }
+         debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
+
+         delete wsos[i];
+         }*/
 }
 
 void GameManager::onQuit() {

@@ -5,7 +5,6 @@
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "LoadMonitor.h"
-#include "Player.h"
 
 // This is hacky and temporary, it does way to much
 class LoadTaskBlockData : public ILoadTask {

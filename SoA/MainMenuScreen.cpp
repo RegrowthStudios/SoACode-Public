@@ -24,7 +24,6 @@
 #include "MeshManager.h"
 #include "MessageManager.h"
 #include "Options.h"
-#include "Player.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"

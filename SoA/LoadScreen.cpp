@@ -21,7 +21,6 @@
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
 #include "ParticleEmitter.h"
-#include "Player.h"
 #include "TexturePackLoader.h"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);

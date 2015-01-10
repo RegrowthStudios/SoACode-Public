@@ -22,7 +22,6 @@
 #include "global.h"
 #include "GameManager.h"
 #include "TexturePackLoader.h"
-#include "Player.h"
 #include "GLProgramManager.h"
 #include "LoadTaskShaders.h"
 #include "Options.h"
@@ -63,7 +62,7 @@ public:
     OnFlyKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        _screen->m_player->flyToggle();
+  //      _screen->m_player->flyToggle();
     }
 };
 

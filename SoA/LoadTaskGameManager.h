@@ -1,7 +1,6 @@
 #pragma once
 #include <SDL/SDL.h>
 
-#include "Player.h"
 #include "GameManager.h"
 #include "InputManager.h"
 #include "LoadMonitor.h"

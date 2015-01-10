@@ -102,9 +102,6 @@ private:
     /// Handles updating state based on input
     void handleInput();
 
-    /// Updates the player
-    void updatePlayer();
-
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
@@ -122,8 +119,6 @@ private:
     const GameStartState* m_gameStartState = nullptr;
 
     InputManager* m_inputManager = nullptr;
-
-    Player* m_player = nullptr; ///< The current player
 
     PDA m_pda; ///< The PDA
 

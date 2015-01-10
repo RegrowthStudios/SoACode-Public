@@ -23,7 +23,6 @@
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
 #include "Particles.h"
-#include "Player.h"
 #include "TerrainGenerator.h"
 
 #include "Texture2d.h"

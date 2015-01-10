@@ -18,7 +18,6 @@
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "Options.h"
-#include "Player.h"
 
 ChunkIOManager::ChunkIOManager(const nString& saveDir) :
     _regionFileManager(saveDir)

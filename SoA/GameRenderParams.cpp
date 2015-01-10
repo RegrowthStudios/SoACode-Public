@@ -5,7 +5,6 @@
 
 #include "Camera.h"
 #include "GameManager.h"
-#include "Player.h"
 #include "Rendering.h"
 
 void GameRenderParams::calculateParams(const f64v3& worldCameraPos,

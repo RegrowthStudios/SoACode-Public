@@ -5,7 +5,6 @@
 
 #include "BlockPack.h"
 #include "Chunkmanager.h"
-#include "Player.h"
 #include "VoxelNavigation.inl"
 
 void blockCollision(Player* player, Chunk* chunk, Chunk* lockedChunk, ui16 blockType, i32 c, f64 bdx, f64 bdy, f64 bdz, f64 dx, f64 dy, f64 dz);
@@ -23,7 +22,7 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 si
     double dx, dy, dz, bdx, bdy, bdz;
     Chunk *chunk;
 
-    glm::vec3 *playerBox = &(player->boundingBox);
+    glm::vec3 *playerBox = nullptr; // &(player->boundingBox);
     boxX = playerBox->x;
     boxY = playerBox->y/2.0; //the box point is dead center of the player
     boxZ = playerBox->z;
@@ -220,146 +219,146 @@ void blockCollision(Player *player, Chunk *chunk, Chunk* lockedChunk, GLushort b
 {
 //    if (chunks[i]->data[blx + bly + blz] == WATER) continue; //no clip water
 
-    glm::dvec3 *playerPos = &(player->gridPosition);
-    double boxX = player->boundingBox.x;
-    double boxY = player->boundingBox.y/2.0;
-    double boxZ = player->boundingBox.z;
-    double stepMod = 1.0f/(float)PLAYER_COLLISION_STEPS;
-    bool pushedDown = 0;
-    CollisionData *cData = &(player->collisionData);
-
-    if (blockType >= LOWWATER){
-    //    cout << (player->headPosition.y - player->position.y) << "  " << dy-(blockType - LOWWATER)*0.005 << endl;
-        if (dy <= 0) player->isSwimming = 1;
-    //    if (dy-(blockType - LOWWATER)*0.005 <= -(player->headPosition.y - player->position.y)) player->underWater = 1;
-        if (dy+0.5 < -(player->headPosition.y - player->gridPosition.y - boxY - (blockType - LOWWATER)*0.01)) player->isUnderWater = 1;
-    }
-
-    //cout << dx << " " << dy << " " << dz << " " << bdx << " " << bdy << " " << bdz << endl;
-    if (Blocks[blockType].moveMod <= 1.0){
-        if (Blocks[blockType].moveMod < player->getMoveMod()) player->setMoveMod(Blocks[blockType].moveMod);
-    }
-    else if (player->getMoveMod() >= 1.0){ //slippery things like ice
-        if (Blocks[blockType].moveMod > player->getMoveMod()) player->setMoveMod(Blocks[blockType].moveMod);
-    }
-    //player->moveMod *= pow(Blocks[blockType].moveMod, stepMod);
-    if (Blocks[blockType].collide == 0 || player->isFlying) return; //do no collision with the block
-
-    double mov = 0.07 * glSpeedFactor * stepMod; //mov is the distance we should move from a collision
-    double push = 0.9 * stepMod;//how hard the block tries to push us out. Start with an almost full push. Dont set to 1.0 or it pushes too far and we climb jerkily
-    bool moveUp = 0;    
-    bool collided = 0;
-
-    if (dy >= 1.0) { //if the player is more than 1.0 block above a block
-        Chunk *own;
-        int nc;
-        int topc = vvox::getTopBlockData(chunk, lockedChunk, c, nc, own);
-        if (GETBLOCK(topc).collide == 0 && GETBLOCK(vvox::getTopBlockData(own, lockedChunk, nc)).collide == 0) { // if there is at least 2 free spaces above
-    //        cout << "TOP: " << chunk->GetTopBlock(c) << " " << (int)GETBLOCK(chunk->GetTopBlock(c)).collide << " ";
-            moveUp = 1;
-            push = 0.1 * stepMod; //if its a low climb, we can sorta clip into it
-        }
-    }else if (dy > -2.0 && dy < 1.0){
-        player->canCling = 1;
-        if (player->isSprinting) { //climbing happens when sprinting or holding jump
-            if (GETBLOCK(vvox::getTopBlockData(chunk, lockedChunk, c)).collide == 0) {
-                moveUp = 1;
-                player->isClinging = 1;
-            }
-        }
-    }
-
-    if (player->isSprinting){
-        mov = 0.1 * glSpeedFactor * stepMod;
-    }
-
-    if (moveUp){
-        if (bdy < mov){ //just a normal top of the block collision
-            if (bdy > cData->yMove) cData->yMove = bdy;
-            if (player->velocity.y < 0.0f){
-                if (-player->velocity.y > cData->yDecel) cData->yDecel = -player->velocity.y;
-                player->velocity.y = 0.0f;
-            }
-            if (bdx > 0.2 && bdz > 0.2){
-                player->isGrounded = 1;
-            }
-        }else{ //climbing collision
-            if (mov > cData->yMove) cData->yMove = mov;
-            if (player->velocity.y < 0.0f){
-                if (-player->velocity.y > cData->yDecel) cData->yDecel = -player->velocity.y;
-                player->velocity.y = 0.0f;
-            }
-            player->isClimbing = 1;
-        }
-    }
-
-    if (bdy < bdz && bdy < bdx && dy < -0.5 && Blocks[GETBLOCKID(vvox::getBottomBlockData(chunk, lockedChunk, c))].collide == 0) { //head y collision
-         //TODO PREVENT A FAST MOVING PERSON FROM GOING THROUGH BOTTOM BY TESTING HOW MUCH WE CAN CROUCH BEFORE WE BOUNCE OFF
-    //    cout << "A";
-        if (bdy > cData->headSquish) cData->headSquish = bdy; 
-        if (player->velocity.y > 0.0f) player->velocity.y = 0.0; //maybe not do this? let people hit their heads and feet scrunch up
-    }
-    if (bdx < bdz && bdy > 0.2){ //x collision BDY is different when crouching. Look into this
-        if (!player->isSprinting  && GETBLOCK(vvox::getBottomBlockData(chunk, lockedChunk, c)).collide == 0) { //auto crouch
-            if (player->getCrouch() != 1.0){
-                if (dx < 0 && GETBLOCK(vvox::getLeftBlockData(chunk, lockedChunk, c)).collide == 0) {
-                    pushedDown = 1;
-                } else if (dx > 0 && GETBLOCK(vvox::getRightBlockData(chunk, lockedChunk, c)).collide == 0) {
-                    pushedDown = 1;
-                }
-            }
-            if (pushedDown && !player->isClinging){
-                collided = 1; //to stop z from colliding
-                mov = 0.2 * glSpeedFactor * stepMod;
-                if (mov > bdy - 0.2) mov = bdy - 0.2;
-                if (mov > cData->headSquish) cData->headSquish = mov; 
-    //            cout << "G " << (int)player->clinging;
-            }
-            //if (player->velocity.y > 0.0f) player->velocity.y = 0.0; 
-        }
-        if (!pushedDown || dy > -0.2){
-            if (dx > 0 && GETBLOCK(vvox::getRightBlockData(chunk, lockedChunk, c)).collide == 0) {
-                mov = bdx*push;
-                if (mov > ABS(cData->xMove)) cData->xMove = mov;
-                collided = 1;
-    //            cout << "C";
-            } else if (GETBLOCK(vvox::getLeftBlockData(chunk, lockedChunk, c)).collide == 0) {
-                mov = bdx*push;
-                if (mov > ABS(cData->xMove)) cData->xMove = -mov;
-                collided = 1;
-//                cout << "C";
-            }
-        }
-        if ((1.0 - push) < cData->xPush) cData->xPush = 1.0 - push;
-    }
-    if (bdy > 0.2 && !collided){ //z collision
-        if (!player->isSprinting && dy < -0.0 && GETBLOCK(vvox::getBottomBlockData(chunk, lockedChunk, c)).collide == 0) { //auto crouch
-            if (player->getCrouch() != 1.0){
-                if (dz < 0 && GETBLOCK(vvox::getBackBlockData(chunk, lockedChunk, c)).collide == 0) {
-                    pushedDown = 1;
-                } else if (dz > 0 && GETBLOCK(vvox::getFrontBlockData(chunk, lockedChunk, c)).collide == 0) {
-                    pushedDown = 1;
-                }
-            }
-            if (pushedDown && !player->isClinging){
-    //            cout << "A ";
-                mov = 0.2 * glSpeedFactor * stepMod;
-                if (mov > bdy - 0.2) mov = bdy - 0.2;
-                if (mov > cData->headSquish) cData->headSquish = mov; 
-            }
-            //if (player->velocity.y > 0.0f) player->velocity.y = 0.0; 
-        }
-        if (!pushedDown || dy > -0.2){
-            if (dz > 0 && GETBLOCK(vvox::getFrontBlockData(chunk, lockedChunk, c)).collide == 0) {
-                mov = bdz*push;
-                if (mov > ABS(cData->zMove)) cData->zMove = mov;
-    //            cout << "B";
-            } else if (GETBLOCK(vvox::getBackBlockData(chunk, lockedChunk, c)).collide == 0) {
-                mov = bdz*push;
-                if (mov > ABS(cData->zMove)) cData->zMove = -mov;
-    //            cout << "B";
-            }
-        }
-        if ((1.0 - push) < cData->zPush) cData->zPush = 1.0 - push;
-    }
+//    glm::dvec3 *playerPos = &(player->gridPosition);
+//    double boxX = player->boundingBox.x;
+//    double boxY = player->boundingBox.y/2.0;
+//    double boxZ = player->boundingBox.z;
+//    double stepMod = 1.0f/(float)PLAYER_COLLISION_STEPS;
+//    bool pushedDown = 0;
+//    CollisionData *cData = &(player->collisionData);
+//
+//    if (blockType >= LOWWATER){
+//    //    cout << (player->headPosition.y - player->position.y) << "  " << dy-(blockType - LOWWATER)*0.005 << endl;
+//        if (dy <= 0) player->isSwimming = 1;
+//    //    if (dy-(blockType - LOWWATER)*0.005 <= -(player->headPosition.y - player->position.y)) player->underWater = 1;
+//        if (dy+0.5 < -(player->headPosition.y - player->gridPosition.y - boxY - (blockType - LOWWATER)*0.01)) player->isUnderWater = 1;
+//    }
+//
+//    //cout << dx << " " << dy << " " << dz << " " << bdx << " " << bdy << " " << bdz << endl;
+//    if (Blocks[blockType].moveMod <= 1.0){
+//        if (Blocks[blockType].moveMod < player->getMoveMod()) player->setMoveMod(Blocks[blockType].moveMod);
+//    }
+//    else if (player->getMoveMod() >= 1.0){ //slippery things like ice
+//        if (Blocks[blockType].moveMod > player->getMoveMod()) player->setMoveMod(Blocks[blockType].moveMod);
+//    }
+//    //player->moveMod *= pow(Blocks[blockType].moveMod, stepMod);
+//    if (Blocks[blockType].collide == 0 || player->isFlying) return; //do no collision with the block
+//
+//    double mov = 0.07 * glSpeedFactor * stepMod; //mov is the distance we should move from a collision
+//    double push = 0.9 * stepMod;//how hard the block tries to push us out. Start with an almost full push. Dont set to 1.0 or it pushes too far and we climb jerkily
+//    bool moveUp = 0;    
+//    bool collided = 0;
+//
+//    if (dy >= 1.0) { //if the player is more than 1.0 block above a block
+//        Chunk *own;
+//        int nc;
+//        int topc = vvox::getTopBlockData(chunk, lockedChunk, c, nc, own);
+//        if (GETBLOCK(topc).collide == 0 && GETBLOCK(vvox::getTopBlockData(own, lockedChunk, nc)).collide == 0) { // if there is at least 2 free spaces above
+//    //        cout << "TOP: " << chunk->GetTopBlock(c) << " " << (int)GETBLOCK(chunk->GetTopBlock(c)).collide << " ";
+//            moveUp = 1;
+//            push = 0.1 * stepMod; //if its a low climb, we can sorta clip into it
+//        }
+//    }else if (dy > -2.0 && dy < 1.0){
+//        player->canCling = 1;
+//        if (player->isSprinting) { //climbing happens when sprinting or holding jump
+//            if (GETBLOCK(vvox::getTopBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                moveUp = 1;
+//                player->isClinging = 1;
+//            }
+//        }
+//    }
+//
+//    if (player->isSprinting){
+//        mov = 0.1 * glSpeedFactor * stepMod;
+//    }
+//
+//    if (moveUp){
+//        if (bdy < mov){ //just a normal top of the block collision
+//            if (bdy > cData->yMove) cData->yMove = bdy;
+//            if (player->velocity.y < 0.0f){
+//                if (-player->velocity.y > cData->yDecel) cData->yDecel = -player->velocity.y;
+//                player->velocity.y = 0.0f;
+//            }
+//            if (bdx > 0.2 && bdz > 0.2){
+//                player->isGrounded = 1;
+//            }
+//        }else{ //climbing collision
+//            if (mov > cData->yMove) cData->yMove = mov;
+//            if (player->velocity.y < 0.0f){
+//                if (-player->velocity.y > cData->yDecel) cData->yDecel = -player->velocity.y;
+//                player->velocity.y = 0.0f;
+//            }
+//            player->isClimbing = 1;
+//        }
+//    }
+//
+//    if (bdy < bdz && bdy < bdx && dy < -0.5 && Blocks[GETBLOCKID(vvox::getBottomBlockData(chunk, lockedChunk, c))].collide == 0) { //head y collision
+//         //TODO PREVENT A FAST MOVING PERSON FROM GOING THROUGH BOTTOM BY TESTING HOW MUCH WE CAN CROUCH BEFORE WE BOUNCE OFF
+//    //    cout << "A";
+//        if (bdy > cData->headSquish) cData->headSquish = bdy; 
+//        if (player->velocity.y > 0.0f) player->velocity.y = 0.0; //maybe not do this? let people hit their heads and feet scrunch up
+//    }
+//    if (bdx < bdz && bdy > 0.2){ //x collision BDY is different when crouching. Look into this
+//        if (!player->isSprinting  && GETBLOCK(vvox::getBottomBlockData(chunk, lockedChunk, c)).collide == 0) { //auto crouch
+//            if (player->getCrouch() != 1.0){
+//                if (dx < 0 && GETBLOCK(vvox::getLeftBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                    pushedDown = 1;
+//                } else if (dx > 0 && GETBLOCK(vvox::getRightBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                    pushedDown = 1;
+//                }
+//            }
+//            if (pushedDown && !player->isClinging){
+//                collided = 1; //to stop z from colliding
+//                mov = 0.2 * glSpeedFactor * stepMod;
+//                if (mov > bdy - 0.2) mov = bdy - 0.2;
+//                if (mov > cData->headSquish) cData->headSquish = mov; 
+//    //            cout << "G " << (int)player->clinging;
+//            }
+//            //if (player->velocity.y > 0.0f) player->velocity.y = 0.0; 
+//        }
+//        if (!pushedDown || dy > -0.2){
+//            if (dx > 0 && GETBLOCK(vvox::getRightBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                mov = bdx*push;
+//                if (mov > ABS(cData->xMove)) cData->xMove = mov;
+//                collided = 1;
+//    //            cout << "C";
+//            } else if (GETBLOCK(vvox::getLeftBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                mov = bdx*push;
+//                if (mov > ABS(cData->xMove)) cData->xMove = -mov;
+//                collided = 1;
+////                cout << "C";
+//            }
+//        }
+//        if ((1.0 - push) < cData->xPush) cData->xPush = 1.0 - push;
+//    }
+//    if (bdy > 0.2 && !collided){ //z collision
+//        if (!player->isSprinting && dy < -0.0 && GETBLOCK(vvox::getBottomBlockData(chunk, lockedChunk, c)).collide == 0) { //auto crouch
+//            if (player->getCrouch() != 1.0){
+//                if (dz < 0 && GETBLOCK(vvox::getBackBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                    pushedDown = 1;
+//                } else if (dz > 0 && GETBLOCK(vvox::getFrontBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                    pushedDown = 1;
+//                }
+//            }
+//            if (pushedDown && !player->isClinging){
+//    //            cout << "A ";
+//                mov = 0.2 * glSpeedFactor * stepMod;
+//                if (mov > bdy - 0.2) mov = bdy - 0.2;
+//                if (mov > cData->headSquish) cData->headSquish = mov; 
+//            }
+//            //if (player->velocity.y > 0.0f) player->velocity.y = 0.0; 
+//        }
+//        if (!pushedDown || dy > -0.2){
+//            if (dz > 0 && GETBLOCK(vvox::getFrontBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                mov = bdz*push;
+//                if (mov > ABS(cData->zMove)) cData->zMove = mov;
+//    //            cout << "B";
+//            } else if (GETBLOCK(vvox::getBackBlockData(chunk, lockedChunk, c)).collide == 0) {
+//                mov = bdz*push;
+//                if (mov > ABS(cData->zMove)) cData->zMove = -mov;
+//    //            cout << "B";
+//            }
+//        }
+//        if ((1.0 - push) < cData->zPush) cData->zPush = 1.0 - push;
+//    }
 }
