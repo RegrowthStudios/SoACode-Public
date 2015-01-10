@@ -1,5 +1,5 @@
 ///
-/// SoAState.h
+/// SoaState.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 10 Jan 2015
@@ -20,7 +20,7 @@
 
 #include <Vorb/IOManager.h>
 
-class SoAState {
+class SoaState {
 public:
     SpaceSystem spaceSystem;
     GameSystem gameSystem;

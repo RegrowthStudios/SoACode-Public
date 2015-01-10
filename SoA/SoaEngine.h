@@ -17,10 +17,10 @@
 
 class GameSystem;
 class SpaceSystem;
-class SoAState;
+class SoaState;
 
 #pragma once
-class SoAEngine {
+class SoaEngine {
 public:
     struct SpaceSystemLoadData {
         SpaceSystem* spaceSystem;
@@ -31,16 +31,16 @@ public:
         // More stuff here
     };
 
-    static bool loadSpaceSystem(OUT SoAState* state, const SpaceSystemLoadData& loadData);
+    static bool loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData);
 
-    static bool loadGameSystem(OUT SoAState* state, const GameSystemLoadData& loadData);
+    static bool loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData);
 
-    static void destroyAll(OUT SoAState* state);
+    static void destroyAll(OUT SoaState* state);
 
-    static void destroyGameSystem(OUT SoAState* state);
+    static void destroyGameSystem(OUT SoaState* state);
 
 private:
-    static void destroySpaceSystem(OUT SoAState* state);
+    static void destroySpaceSystem(OUT SoaState* state);
 };
 
 #endif // SoAEngine_h__

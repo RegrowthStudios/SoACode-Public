@@ -641,10 +641,10 @@
     <ClInclude Include="GameSystem.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="SoAState.h">
+    <ClInclude Include="SoaEngine.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoAEngine.h">
+    <ClInclude Include="SoaState.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1022,7 +1022,7 @@
     <ClCompile Include="SpaceSystem.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="SoAEngine.cpp" />
+    <ClCompile Include="SoaEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

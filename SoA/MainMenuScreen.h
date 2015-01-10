@@ -29,7 +29,7 @@ class App;
 class InputManager;
 class MainMenuSystemViewer;
 class TerrainMeshMessage;
-class SoAState;
+class SoaState;
 
 class MainMenuScreen : public IAppScreen<App>
 {
@@ -55,7 +55,7 @@ public:
     // Getters
     CinematicCamera& getCamera() { return m_camera; }
     vio::IOManager& getIOManager() { return m_ioManager; }
-    SoAState* getSoAState() const { return m_soaState.get(); }
+    SoaState* getSoAState() const { return m_soaState.get(); }
 
 private:
 
@@ -77,7 +77,7 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
-    std::unique_ptr<SoAState> m_soaState = nullptr;
+    std::unique_ptr<SoaState> m_soaState = nullptr;
 
     vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
     

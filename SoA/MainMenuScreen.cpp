@@ -59,7 +59,7 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
-    m_soaState = std::make_unique<SoAState>();
+    m_soaState = std::make_unique<SoaState>();
 
     m_camera.init(_app->getWindow().getAspectRatio());
 
