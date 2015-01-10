@@ -288,6 +288,7 @@ void GamePlayScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_player->getChunkCamera(), &m_player->getWorldCamera(), 
                          _app, m_player, _app->meshManager, &m_pda, GameManager::glProgramManager,
+                         _app->spaceSystem,
                          &m_pauseMenu, m_chunkManager->getChunkSlots(0));
 }
 

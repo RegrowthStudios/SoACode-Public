@@ -19,6 +19,7 @@
 #include "PdaRenderStage.h"
 #include "PhysicsBlockRenderStage.h"
 #include "SkyboxRenderStage.h"
+#include "SpaceSystemRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
 
 #define DEVHUD_FONT_SIZE 32
@@ -32,6 +33,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
                                   const Camera* worldCamera, const App* app,
                                   const Player* player, const MeshManager* meshManager,
                                   const PDA* pda, const vg::GLProgramManager* glProgramManager,
+                                  SpaceSystem* spaceSystem,
                                   const PauseMenu* pauseMenu, const std::vector<ChunkSlot>& chunkSlots) {
     // Set the viewport
     _viewport = viewport;
@@ -78,6 +80,12 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     _pauseMenuRenderStage = new PauseMenuRenderStage(pauseMenu);
     _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, _chunkCamera);
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(windowDims),
+                                                          spaceSystem, nullptr, _worldCamera,
+                                                          glProgramManager->getProgram("BasicColor"),
+                                                          glProgramManager->getProgram("SphericalTerrain"),
+                                                          glProgramManager->getProgram("SphericalWater"),
+                                                          GameManager::textureCache->addTexture("Textures/selector.png").id);
 
     loadNightVision();
     // No post-process effects to begin with

@@ -43,6 +43,8 @@ class PdaRenderStage;
 class PhysicsBlockRenderStage;
 class Player;
 class SkyboxRenderStage;
+class SpaceSystem;
+class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 
 class GamePlayRenderPipeline : public vg::IRenderPipeline {
@@ -59,12 +61,14 @@ public:
     /// @param meshManager: Stores all needed meshes
     /// @param pda: The PDA to render
     /// @param glProgramManager: Contains all the needed GLPrograms
+    /// @param spaceSystem: Used for planet and AR rendering
     /// @param pauseMenu: The PauseMenu to render
     /// @param chunkSlots: The chunk slots for debug rendering
     void init(const ui32v4& viewport, Camera* chunkCamera,
               const Camera* worldCamera, const App* app,
               const Player* player, const MeshManager* meshManager,
               const PDA* pda, const vg::GLProgramManager* glProgramManager,
+              SpaceSystem* spaceSystem,
               const PauseMenu* pauseMenu, const std::vector<ChunkSlot>& chunkSlots);
 
     /// Renders the pipeline
@@ -97,6 +101,7 @@ private:
     PauseMenuRenderStage* _pauseMenuRenderStage = nullptr; ///< Renders the pause menu
     NightVisionRenderStage* _nightVisionRenderStage = nullptr; ///< Renders night vision
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
+    SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Render space and planets
 
     vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
