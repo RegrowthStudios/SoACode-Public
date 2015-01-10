@@ -620,6 +620,9 @@
     <ClInclude Include="MainMenuScreenEvents.hpp">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
+    <ClInclude Include="GameSystem.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

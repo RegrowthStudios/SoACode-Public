@@ -166,6 +166,7 @@ EXIT 0</Command>
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="GameSystem.h" />
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
