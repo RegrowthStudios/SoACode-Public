@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// 
+/// Handles initialization and destruction of SoAState
 ///
 
 #pragma once

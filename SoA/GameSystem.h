@@ -30,7 +30,7 @@ public:
     vcore::ComponentTable<MoveInputComponent> moveInputCT;
     vcore::ComponentTable<PhysicsComponent> physicsCT;
     vcore::ComponentTable<SpacePositionComponent> spacePositionCT;
-    vcore::ComponentTable<VoxelPositionComponent> spacePositionCT;
-}
+    vcore::ComponentTable<VoxelPositionComponent> voxelPositionCT;
+};
 
 #endif // GameSystem_h__

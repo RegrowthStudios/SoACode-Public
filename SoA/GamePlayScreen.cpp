@@ -72,7 +72,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_inputManager = new InputManager;
 
-    m_gameStartState = m_mainMenuScreen->getGameStartState();
+    m_soaState = m_mainMenuScreen->getSoAState();
 
     //m_player = new Player;
     //m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is

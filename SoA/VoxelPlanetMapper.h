@@ -61,7 +61,14 @@ const int FaceRadialSign[6] = { 1, -1, 1, 1, -1, -1 };
 class VoxelPlanetMapData : public VoxelMapData
 {
 public:
+    VoxelPlanetMapData() {};
     VoxelPlanetMapData(int Face, int Ipos, int Jpos, int Rot){
+        face = Face;
+        ipos = Ipos;
+        jpos = Jpos;
+        rotation = Rot;
+    }
+    void set(int Face, int Ipos, int Jpos, int Rot) {
         face = Face;
         ipos = Ipos;
         jpos = Jpos;

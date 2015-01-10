@@ -24,6 +24,7 @@
 #include "MeshManager.h"
 #include "MessageManager.h"
 #include "Options.h"
+#include "SoAState.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
@@ -57,6 +58,8 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
+
+    m_soaState = std::make_unique<SoAState>();
 
     m_camera.init(_app->getWindow().getAspectRatio());
 
@@ -186,11 +189,11 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!m_gameStartState.saveFileIom.directoryExists(fileName.c_str())) {
+    if (!m_soaState->saveFileIom.directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    m_gameStartState.saveFileIom.setSearchDirectory(fileName.c_str());
+    m_soaState->saveFileIom.setSearchDirectory(fileName.c_str());
 
     // Check the planet string
     nString planetName = fileManager.getWorldString(fileName + "/World/");
@@ -211,19 +214,19 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     const f32v2& selectedGridPos = m_mainMenuSystemViewer->getSelectedGridPos();
 
-    m_gameStartState.isNewGame = true;
-    m_gameStartState.startFace = m_mainMenuSystemViewer->getSelectedCubeFace();
-    m_gameStartState.startGridPos = f32v3(selectedGridPos.x, 0.0f, selectedGridPos.y);
+    m_soaState->isNewGame = true;
+    m_soaState->startFace = m_mainMenuSystemViewer->getSelectedCubeFace();
+    m_soaState->startGridPos = f32v3(selectedGridPos.x, 0.0f, selectedGridPos.y);
 
     std::cout << "Making new game: " << fileName << std::endl;
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (!m_gameStartState.saveFileIom.directoryExists(fileName.c_str())) {
+    if (!m_soaState->saveFileIom.directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-    m_gameStartState.saveFileIom.setSearchDirectory(fileName.c_str());
+    m_soaState->saveFileIom.setSearchDirectory(fileName.c_str());
 
     // Save the world file
     nString worldText("Aldrin");

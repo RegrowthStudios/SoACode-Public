@@ -18,10 +18,17 @@
 #include "SpaceSystem.h"
 #include "GameSystem.h"
 
+#include <Vorb/IOManager.h>
+
 class SoAState {
 public:
     SpaceSystem spaceSystem;
     GameSystem gameSystem;
+
+    vio::IOManager saveFileIom;
+    bool isNewGame = true;
+    f32v3 startGridPos = f32v3(0.0f);
+    int startFace = 0;
 };
 
 #endif // SoAState_h__

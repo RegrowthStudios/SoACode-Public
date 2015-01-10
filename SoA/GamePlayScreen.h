@@ -30,6 +30,7 @@ class App;
 class GameStartState;
 class InputManager;
 class MainMenuScreen;
+class SoAState;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
@@ -116,7 +117,7 @@ private:
     bool loadPlayerFile(Player* player);
 
     const MainMenuScreen* m_mainMenuScreen = nullptr;
-    const GameStartState* m_gameStartState = nullptr;
+    SoAState* m_soaState = nullptr;
 
     InputManager* m_inputManager = nullptr;
 

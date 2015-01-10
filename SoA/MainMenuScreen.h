@@ -21,21 +21,15 @@
 #include <Vorb/IGameScreen.h>
 #include <Vorb/Random.h>
 
-#include "MainMenuAPI.h"
 #include "LoadMonitor.h"
+#include "MainMenuAPI.h"
 #include "MainMenuRenderPipeline.h"
 
 class App;
 class InputManager;
 class MainMenuSystemViewer;
 class TerrainMeshMessage;
-
-struct GameStartState {
-    vio::IOManager saveFileIom;
-    bool isNewGame = true;
-    f32v3 startGridPos = f32v3(0.0f);
-    int startFace = 0;
-};
+class SoAState;
 
 class MainMenuScreen : public IAppScreen<App>
 {
@@ -61,7 +55,7 @@ public:
     // Getters
     CinematicCamera& getCamera() { return m_camera; }
     vio::IOManager& getIOManager() { return m_ioManager; }
-    const GameStartState* getGameStartState() const { return &m_gameStartState; }
+    SoAState* getSoAState() const { return m_soaState.get(); }
 
 private:
 
@@ -83,7 +77,7 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
-    GameStartState m_gameStartState;
+    std::unique_ptr<SoAState> m_soaState = nullptr;
 
     vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
     
