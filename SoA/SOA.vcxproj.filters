@@ -138,6 +138,9 @@
     <Filter Include="SOA Files\ECS\Renderers">
       <UniqueIdentifier>{b9e3a61e-f44d-40ff-bbfa-9feae3a45d83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\ECS\Systems">
+      <UniqueIdentifier>{73eeb8a0-c66a-4fc2-bd59-edcbe41b3993}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -476,9 +479,6 @@
     <ClInclude Include="ARProcessor.h">
       <Filter>SOA Files\Game\Tools\AR</Filter>
     </ClInclude>
-    <ClInclude Include="SpaceSystem.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="PhysicsBlockRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -620,22 +620,28 @@
     <ClInclude Include="MainMenuScreenEvents.hpp">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystem.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SpacePositionComponent.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelPositionComponent.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="SpaceSystem.h">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsComponent.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="AabbCollidableComponent.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="SpacePositionComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
     <ClInclude Include="MoveInputComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelPositionComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="AabbCollidableComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystem.h">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="SoAState.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -904,9 +910,6 @@
     <ClCompile Include="ARProcessor.cpp">
       <Filter>SOA Files\Game\Tools\AR</Filter>
     </ClCompile>
-    <ClCompile Include="SpaceSystem.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="PhysicsBlockRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
@@ -1012,6 +1015,9 @@
     </ClCompile>
     <ClCompile Include="MainMenuSystemViewer.cpp">
       <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -205,6 +205,7 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SoAState.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpacePositionComponent.h" />
