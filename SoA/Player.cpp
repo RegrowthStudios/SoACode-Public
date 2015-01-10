@@ -137,14 +137,15 @@ void Player::updateCameras()
 	right = glm::cross(direction, up);*/
 }
 
-bool Player::update(int worldRadius, InputManager* inputManager, bool isMouseIn, double Gravity, double AirFrictionForce)
+bool Player::update(InputManager* inputManager, bool isMouseIn, double Gravity, double AirFrictionForce)
 {
-    _worldRadius = worldRadius;
     m_inputManager = inputManager;
     _gravity = Gravity;
     _airFrictionForce = AirFrictionForce;
 
     updateCameras();
+
+    std::cout << worldDirection().x << " " << worldDirection().y << " " << worldDirection().z << std::endl;
 
     if (canCling == 0 || isGrounded) isClinging = 0;
 
@@ -341,7 +342,8 @@ void Player::mouseMove(int relx, int rely)
     float senstivityMult = (gameOptions.mouseSensitivity / 100.0f * 2.75 + 0.25);
     const float mouseSpeed = 0.1;
 
-    //_chunkCamera.offsetAngles(-mouseSpeed / _zoomPercent* double(-rely) * senstivityMult, -mouseSpeed / _zoomPercent* double(-relx) * senstivityMult);
+    _chunkCamera.rotateFromMouse(relx, rely, mouseSpeed);
+
     updateCameras();
 }
 

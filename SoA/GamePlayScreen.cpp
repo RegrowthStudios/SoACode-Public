@@ -273,10 +273,14 @@ void GamePlayScreen::initVoxels() {
     if (loadPlayerFile(m_player)) {
         atSurface = 0; //don't need to set height
     }
+    auto cmp = _app->spaceSystem->enableVoxelsOnTarget(m_player->headPosition,
+                                                        &m_player->voxelMapData,
+                                                        &m_gameStartState->saveFileIom);
+    m_chunkManager = cmp->chunkManager;
 
-    m_chunkManager = _app->spaceSystem->enableVoxelsOnTarget(m_player->headPosition,
-                                            &m_player->voxelMapData,
-                                            &m_gameStartState->saveFileIom)->chunkManager;
+    // TODO(Ben): Holy shit this blows.
+    m_player->setNearestPlanet(cmp->sphericalTerrainData->getRadius() * 1000.0f, 9999999999.0f,
+                               (cmp->sphericalTerrainData->getRadius() * 1000.0 * 2.0) / 32.0);
 }
 
 void GamePlayScreen::initRenderPipeline() {
@@ -314,7 +318,7 @@ void GamePlayScreen::handleInput() {
 
 void GamePlayScreen::updatePlayer() {
 
-    m_player->update((int)_app->spaceSystem->getTargetRadius() * 1000, m_inputManager, true, 0.0f, 0.0f);
+    m_player->update(m_inputManager, true, 0.0f, 0.0f);
 
   //  Chunk **chunks = new Chunk*[8];
   //  _player->isGrounded = 0;
