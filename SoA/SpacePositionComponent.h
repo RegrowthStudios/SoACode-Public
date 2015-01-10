@@ -17,7 +17,7 @@
 
 class SpacePositionComponent {
 public:
-    f64v3 position;
+    f64v3 position = f64v3(0.0);
     f64q orientation;
 };
 

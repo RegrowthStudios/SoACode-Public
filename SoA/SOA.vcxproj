@@ -204,6 +204,7 @@ EXIT 0</Command>
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
+    <ClInclude Include="SpacePositionComponent.h" />
     <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SphericalGravityComponent.h" />
@@ -260,6 +261,7 @@ EXIT 0</Command>
     <ClInclude Include="VoxelLightEngine.h" />
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
+    <ClInclude Include="VoxelPositionComponent.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="VoxelVertices.h" />
     <ClInclude Include="VoxPool.h" />

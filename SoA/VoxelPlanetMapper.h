@@ -67,7 +67,7 @@ public:
         jpos = Jpos;
         rotation = Rot;
     }
-    void getIterationConstants(int& jStart, int& jMult, int& jEnd, int& jInc, int& kStart, int& kMult, int& kEnd, int& kInc) {
+    void getIterationConstants(OUT int& jStart, OUT int& jMult, OUT int& jEnd, OUT int& jInc, OUT int& kStart, OUT int& kMult, OUT int& kEnd, OUT int& kInc) {
         switch (rotation){ //we use rotation value to un-rotate the chunk data
             case 0: //no rotation
                 jStart = 0;
@@ -108,7 +108,7 @@ public:
         }
     }
 
-    void getChunkGridPos(int& iPos, int& jPos) {
+    void getChunkGridPos(OUT int& iPos, OUT int& jPos) {
         int idir = FaceSigns[face][rotation][0];
         int jdir = FaceSigns[face][rotation][1];
        
@@ -122,7 +122,7 @@ public:
         }
     }
 
-    void getVoxelGridPos(int& iPos, int& jPos) {
+    void getVoxelGridPos(OUT int& iPos, OUT int& jPos) {
         //used for tree coords
         jPos = jpos * CHUNK_WIDTH * FaceSigns[face][rotation][0];
         iPos = ipos * CHUNK_WIDTH * FaceSigns[face][rotation][1];
@@ -134,7 +134,7 @@ public:
         }
     }
 
-    void getGenerationIterationConstants(int& ipos, int& jpos, int& rpos, int& idir, int& jdir, int& rdir) {
+    void getGenerationIterationConstants(OUT int& ipos, OUT int& jpos, OUT int& rpos, OUT int& idir, OUT int& jdir, OUT int& rdir) {
         ipos = FaceCoords[face][rotation][0];
         jpos = FaceCoords[face][rotation][1];
         rpos = FaceCoords[face][rotation][2];

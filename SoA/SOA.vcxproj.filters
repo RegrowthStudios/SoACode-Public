@@ -623,6 +623,12 @@
     <ClInclude Include="GameSystem.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="SpacePositionComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelPositionComponent.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
