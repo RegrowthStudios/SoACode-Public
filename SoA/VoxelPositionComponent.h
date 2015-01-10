@@ -17,9 +17,11 @@
 
 #include "VoxelPlanetMapper.h"
 
+typedef f64v3 VoxelPosition;
+
 class VoxelPositionComponent {
 public:
-    f64v3 position = f64v3(0.0);
+    VoxelPosition position = VoxelPosition(0.0);
     f64q orientation;
     vvox::VoxelPlanetMapData mapData;
 };
