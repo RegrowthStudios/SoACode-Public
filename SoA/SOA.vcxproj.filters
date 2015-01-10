@@ -281,9 +281,6 @@
     <ClInclude Include="PhysicsEngine.h">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>SOA Files\Game\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="readerwriterqueue.h">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
@@ -735,9 +732,6 @@
     </ClCompile>
     <ClCompile Include="PhysicsEngine.cpp">
       <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>SOA Files\Game\Objects</Filter>
     </ClCompile>
     <ClCompile Include="RegionFileManager.cpp">
       <Filter>SOA Files\Data</Filter>

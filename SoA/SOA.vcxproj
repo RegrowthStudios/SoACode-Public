@@ -291,7 +291,6 @@ EXIT 0</Command>
     <ClInclude Include="OpenGLStructs.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="Particles.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="SimplexNoise.h" />
@@ -425,7 +424,6 @@ EXIT 0</Command>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="Options.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="Sound.cpp" />
