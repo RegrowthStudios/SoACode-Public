@@ -368,6 +368,7 @@ EXIT 0</Command>
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SoaController.cpp" />
     <ClCompile Include="SoaEngine.cpp" />
+    <ClCompile Include="SoaState.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />

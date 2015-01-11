@@ -19,6 +19,7 @@ class SoaState;
 
 class SoaController {
 public:
+    ~SoaController();
     void startGame(OUT SoaState* state);
 };
 

@@ -20,7 +20,7 @@
 class GameSystem;
 
 namespace GameSystemFactories {
-    extern vcore::Entity createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
+    extern vcore::EntityID createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
                                       const f64q& orientation, float massKg, const f64v3& initialVel);
    
     extern void destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity);

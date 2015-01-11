@@ -1,8 +1,13 @@
 #include "stdafx.h"
 #include "SoaController.h"
 
-#include "SoaState.h"
 #include "GameSystemFactories.h"
+#include "SoaState.h"
+#include <Vorb/Entity.h>
+
+SoaController::~SoaController() {
+    // Empty
+}
 
 void SoaController::startGame(OUT SoaState* state) {
     if (state->isNewGame) {

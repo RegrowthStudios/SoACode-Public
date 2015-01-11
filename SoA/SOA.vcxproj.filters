@@ -1035,6 +1035,7 @@
     <ClCompile Include="SoaController.cpp" />
     <ClCompile Include="GameSystemFactories.cpp" />
     <ClCompile Include="GameSystemUpdater.cpp" />
+    <ClCompile Include="SoaState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

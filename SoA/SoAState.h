@@ -20,22 +20,24 @@
 
 #include <Vorb/IOManager.h>
 #include <Vorb/Entity.h>
+#include <Vorb/VorbPreDecl.inl>
 
 class DebugRenderer;
 class MeshManager;
+DECL_VG(class, GLProgramManager);
 
 class SoaState {
 public:
-    ~SoaState() {};
+    ~SoaState();
 
     SpaceSystem spaceSystem;
     GameSystem gameSystem;
 
-    vcore::Entity playerEntity;
+    vcore::EntityID playerEntity = 0;
 
-    std::unique_ptr<vg::GLProgramManager> glProgramManager = nullptr;
-    std::unique_ptr<DebugRenderer> debugRenderer = nullptr;
-    std::unique_ptr<MeshManager> meshManager = nullptr;
+    std::unique_ptr<vg::GLProgramManager> glProgramManager;
+    std::unique_ptr<DebugRenderer> debugRenderer;
+    std::unique_ptr<MeshManager> meshManager;
 
     vio::IOManager saveFileIom;
     bool isNewGame = true;

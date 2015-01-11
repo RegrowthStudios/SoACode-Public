@@ -362,7 +362,7 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
                                      0.0,
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
-    m_sphericalTerrainCT.get(stCmp).init(properties->diameter / 2.0,
+    m_sphericalTerrainCT.get(stCmp).init(npCmp, properties->diameter / 2.0,
                                          properties->planetGenData,
                                          m_programManager->getProgram("NormalMapGen"),
                                          m_normalMapRecycler);

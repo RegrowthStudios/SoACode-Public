@@ -178,78 +178,6 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
     }
 }
 
-// TODO(Ben): Move this somewhere else
-inline float sum(const f32v3& v) {
-    return v.x + v.y + v.z;
-}
-
-// TODO(Ben): Move this somewhere else
-inline bool sphereIntersect(const f32v3& raydir, const f32v3& rayorig, const f32v3& pos,
-                      const float& rad, f32v3& hitpoint, float& distance, f32v3& normal) {
-    float a = sum(raydir*raydir);
-    float b = sum(raydir * (2.0f * (rayorig - pos)));
-    float c = sum(pos*pos) + sum(rayorig*rayorig) - 2.0f*sum(rayorig*pos) - rad*rad;
-    float D = b*b + (-4.0f)*a*c;
-
-    // If ray can not intersect then stop
-    if (D < 0) {
-        return false;
-    }
-    D = sqrtf(D);
-
-    // Ray can intersect the sphere, solve the closer hitpoint
-    float t = (-0.5f)*(b + D) / a;
-    if (t > 0.0f) {
-        distance = sqrtf(a)*t;
-        hitpoint = rayorig + t*raydir;
-        normal = (hitpoint - pos) / rad;
-    } else {
-        return false;
-    }
-    return true;
-}
-
-/*
-* Ray-box intersection using IEEE numerical properties to ensure that the
-* test is both robust and efficient, as described in:
-*
-*      Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley
-*      "An Efficient and Robust Ray-Box Intersection Algorithm"
-*      Journal of graphics tools, 10(1):49-54, 2005
-*
-*/
-
-// TODO(Ben): Move this somewhere else
-bool boxIntersect(const f32v3 corners[2], const f32v3& dir, const f32v3& start, float& tmin) {
-    float tmax, tymin, tymax, tzmin, tzmax;
-
-    f32v3 invdir = 1.0f / dir;
-    i32v3 sign;
-    sign.x = (invdir.x) < 0;
-    sign.y = (invdir.y) < 0;
-    sign.z = (invdir.z) < 0;
-
-    tmin = (corners[sign[0]].x - start.x) * invdir.x;
-    tmax = (corners[1 - sign[0]].x - start.x) * invdir.x;
-    tymin = (corners[sign[1]].y - start.y) * invdir.y;
-    tymax = (corners[1 - sign[1]].y - start.y) * invdir.y;
-    if ((tmin > tymax) || (tymin > tmax))
-        return false;
-    if (tymin > tmin)
-        tmin = tymin;
-    if (tymax < tmax)
-        tmax = tymax;
-    tzmin = (corners[sign[2]].z - start.z) * invdir.z;
-    tzmax = (corners[1 - sign[2]].z - start.z) * invdir.z;
-    if ((tmin > tzmax) || (tzmin > tmax))
-        return false;
-    if (tzmin > tmin)
-        tmin = tzmin;
-    if (tzmax < tmax)
-        tmax = tzmax;
-    return true;
-}
-
 void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
     f32v2 ndc = f32v2((m_mouseCoords.x / m_viewport.x) * 2.0f - 1.0f,
         1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
@@ -267,7 +195,7 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
     // Compute the intersection
     f32v3 normal, hitpoint;
     float distance;
-    if (sphereIntersect(pickRay, f32v3(0.0f), pos, radius, hitpoint, distance, normal)) {
+    if (IntersectionUtils::sphereIntersect(pickRay, f32v3(0.0f), pos, radius, hitpoint, distance, normal)) {
         hitpoint -= pos;
         cid = m_spaceSystem->m_axisRotationCT.getComponentID(eid);
         if (cid) {
@@ -291,7 +219,7 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radi
     f32v3 dir = -glm::normalize(hitpoint);
     cornerPos[0] = f32v3(-radius, -radius, -radius);
     cornerPos[1] = f32v3(radius, radius, radius);
-    if (!boxIntersect(cornerPos, dir,
+    if (!IntersectionUtils::boxIntersect(cornerPos, dir,
         start, min)) {
         std::cerr << "Failed to find grid position from click\n";
     }
