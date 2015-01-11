@@ -123,6 +123,9 @@
     <Filter Include="SOA Files\Screens\Test">
       <UniqueIdentifier>{07d56bf0-8858-45a6-bcf5-6fe4f58dc323}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Sound\Music">
+      <UniqueIdentifier>{70862515-6514-4574-9caf-db361861ced8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -551,6 +554,9 @@
     <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Screens</Filter>
     </ClInclude>
+    <ClInclude Include="MusicPlayer.h">
+      <Filter>SOA Files\Sound\Music</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -894,6 +900,9 @@
     </ClCompile>
     <ClCompile Include="TestBlockViewScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicPlayer.cpp">
+      <Filter>SOA Files\Sound\Music</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
