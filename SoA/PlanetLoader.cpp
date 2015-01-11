@@ -229,7 +229,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         glGenTextures(1, &genData->biomeArrayTexture);
         glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);
         //Allocate the storage.
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
         // Set up base lookup textures
         for (auto& it : m_biomeLookupMap) {
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,

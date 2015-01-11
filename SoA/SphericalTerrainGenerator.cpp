@@ -374,7 +374,7 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
         vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
         memcpy(m_heightData, src, sizeof(m_heightData));
-        glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
 
         // Bind texture for normal map gen
@@ -421,7 +421,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
             }
         }
 
-        glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
 
         data->inUse = false;
