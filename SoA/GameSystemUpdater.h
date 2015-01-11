@@ -16,18 +16,33 @@
 #define GameSystemUpdater_h__
 
 class GameSystem;
+class SpaceSystem;
 
 class GameSystemUpdater {
 public:
-    void update(OUT GameSystem* gameSystem);
-
-    void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem);
+    /// Updates the game system, and also updates voxel components for space system
+    /// planet transitions.
+    /// @param gameSystem: Game ECS
+    /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
+    void update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem);
+    /// Checks to see if there should be any voxel planet transitions, and possibly
+    /// adds or removes spherical voxel components from SpaceSystem
+    /// @param gameSystem: Game ECS
+    /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
+    void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem);
 private:
-    void updatePhysics(OUT GameSystem* gameSystem);
+    /// Updates physics components
+    /// @param gameSystem: Game ECS
+    /// @param spaceSystem: Space ECS.
+    void updatePhysics(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem);
+    /// Updates collision components
+    /// @param gameSystem: Game ECS
     void updateCollision(OUT GameSystem* gameSystem);
+    /// Updates movement components
+    /// @param gameSystem: Game ECS
     void updateMoveInput(OUT GameSystem* gameSystem);
 
-    int m_frameCounter = 0;
+    int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 };
 
 #endif // GameSystemUpdater_h__
