@@ -22,3 +22,7 @@ extern vcore::Entity GameSystemFactories::createPlayer(OUT GameSystem* gameSyste
 
     return entity;
 }
+
+void GameSystemFactories::destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity) {
+    gameSystem->deleteEntity(playerEntity);
+}
