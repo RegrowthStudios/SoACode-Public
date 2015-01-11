@@ -2,6 +2,9 @@
 #include "GameSystemUpdater.h"
 
 #include "GameSystem.h"
+#include "SpaceSystem.h"
+#include "SphericalTerrainPatch.h"
+
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
     // Update entity tables
@@ -17,7 +20,32 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 }
 
 void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
-
+#define LOAD_DIST_MULT 1.05
+    for (auto& it : gameSystem->spacePositionCT) {
+        auto& spcmp = it.second;
+        for (auto& sit : spaceSystem->m_sphericalTerrainCT) {
+            auto& stcmp = sit.second;
+            auto& npcmp = spaceSystem->m_namePositionCT.get(stcmp.namePositionComponent);
+            // Calculate distance
+            // TODO(Ben): Use ^2 distance as optimization to avoid sqrt
+            f64 distance = glm::length(spcmp.position - npcmp.position);
+            // Check for voxel transition
+            if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT && !spcmp.voxelPositionComponent) {
+                // We need to transition to the voxels
+                vcore::ComponentID vpid = gameSystem->voxelPositionCT.add(it.first);
+                auto& vpcmp = gameSystem->voxelPositionCT.get(vpid);
+                spcmp.voxelPositionComponent = vpid;
+                // Calculate voxel position
+                auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
+                // TODO(Ben): This
+            } else if (spcmp.voxelPositionComponent) {
+                // We need to transition to space
+                gameSystem->voxelPositionCT.remove(it.first);
+                spcmp.voxelPositionComponent = 0;
+                // TODO(Ben): Refcount SVC
+            }
+        }
+    }
     m_frameCounter = 0;
 }
 

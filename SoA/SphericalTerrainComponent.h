@@ -21,6 +21,7 @@
 #include "SphericalTerrainGenerator.h"
 
 #include <Vorb/RPC.h>
+#include <Vorb/Entity.h>
 #include <deque>
 
 class Camera;
@@ -78,10 +79,12 @@ class SphericalTerrainComponent {
 public:
     /// Initialize the spherical terrain
     /// @param radius: Radius of the planet, must be multiple of 32.
-    void init(f64 radius, PlanetGenData* planetGenData,
+    void init(vcore::ComponentID npComp, 
+              f64 radius, PlanetGenData* planetGenData,
               vg::GLProgram* normalProgram,
               vg::TextureRecycler* normalMapRecycler);
 
+    vcore::ComponentID namePositionComponent = 0;
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
     SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches

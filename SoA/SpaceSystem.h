@@ -74,7 +74,7 @@ public:
     BodyType type = BodyType::NONE;
 };
 
-
+//TODO(Ben): This should be POD, split it up
 class SpaceSystem : public vcore::ECS {
     friend class SpaceSystemRenderStage;
     friend class MainMenuSystemViewer;
@@ -132,6 +132,13 @@ public:
         return m_namePositionCT.get(m_targetComponent).name;
     }
 
+    vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
+    vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
+    vcore::ComponentTable<OrbitComponent> m_orbitCT;
+    vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
+    vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    vcore::ComponentTable<SphericalVoxelComponent> m_sphericalVoxelCT;
+
 protected:
     bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
 
@@ -150,13 +157,6 @@ protected:
 
     vcore::EntityID m_targetEntity = 1; ///< Current entity we are focusing on
     vcore::ComponentID m_targetComponent = 1; ///< namePositionComponent of the targetEntity
-
-    vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
-    vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
-    vcore::ComponentTable<OrbitComponent> m_orbitCT;
-    vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
-    vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
-    vcore::ComponentTable<SphericalVoxelComponent> m_sphericalVoxelCT;
 
     vio::IOManager m_ioManager;
 
