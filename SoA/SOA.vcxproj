@@ -205,6 +205,7 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SoaController.h" />
     <ClInclude Include="SoaEngine.h" />
     <ClInclude Include="SoaState.h" />
     <ClInclude Include="SonarRenderStage.h" />
@@ -361,6 +362,7 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SoaController.cpp" />
     <ClCompile Include="SoaEngine.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />

@@ -647,6 +647,9 @@
     <ClInclude Include="SoaState.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="SoaController.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1023,6 +1026,7 @@
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="SoaEngine.cpp" />
+    <ClCompile Include="SoaController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

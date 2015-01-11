@@ -153,14 +153,6 @@ void BindVBOIndicesID() {
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-int ticksArray2[10];
-int ticksArrayIndex2 = 0;
-
-void GameManager::addMarker(glm::dvec3 pos, nString name, glm::vec3 color) {
-   // markers.push_back(Marker(pos, name, color));
-  //  markers.back().num = markers.size() - 1;
-}
-
 bool isSolidBlock(const i32& blockID) {
     return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
