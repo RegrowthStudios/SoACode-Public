@@ -59,9 +59,10 @@ void SpaceSystemRenderStage::draw() {
 void SpaceSystemRenderStage::drawBodies() {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    m_spaceSystem->m_mutex.lock();
 
     /* static DebugRenderer debugRenderer;
-     m_spaceSystem->m_mutex.lock();
+     
      for (auto& it : m_spaceSystem->m_sphericalGravityCT) {
      auto& sgcmp = it.second;
      float radius = sgcmp.radius;
