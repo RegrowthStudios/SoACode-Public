@@ -42,10 +42,8 @@ SoundEngine *GameManager::soundEngine = nullptr;
 MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
-DebugRenderer* GameManager::debugRenderer = nullptr;
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
-TerrainGenerator* GameManager::terrainGenerator = nullptr;
 
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
@@ -57,10 +55,7 @@ void GameManager::initializeSystems() {
         wsoScanner = new WSOScanner(wsoAtlas);
         textureCache = new vg::TextureCache();
         texturePackLoader = new TexturePackLoader(textureCache);
-        terrainGenerator = new TerrainGenerator();
-        
-        debugRenderer = new DebugRenderer();
- 
+
         _systemsInitialized = true;
     }
 }

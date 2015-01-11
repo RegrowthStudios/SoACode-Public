@@ -10,7 +10,6 @@ class InitScreen;
 class LoadScreen;
 class MainMenuScreen;
 class GamePlayScreen;
-class MeshManager;
 class TexturePackLoader;
 
 class App : public MainGame {
@@ -29,9 +28,6 @@ public:
 
     DevScreen* scrDev = nullptr;
     std::vector<IGameScreen*> scrTests;
-
-    // TODO(Ben): This can go somewhere else v v v
-    MeshManager* meshManager = nullptr; ///< Stores chunk, terrain, particle, and physics block meshes
 };
 
 #endif // App_h_

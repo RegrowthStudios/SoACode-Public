@@ -6,6 +6,7 @@
 
 #include "App.h"
 
+#include "DebugRenderer.h"
 #include "ChunkManager.h"
 #include "Errors.h"
 #include "FileSystem.h"
@@ -141,8 +142,6 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
     m_camera.update();
     m_inputManager->update(); // TODO: Remove
-
-    MeshManager* meshManager = _app->meshManager;
 
     TerrainMeshMessage* tmm;
     Message message;

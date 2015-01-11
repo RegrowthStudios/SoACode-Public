@@ -20,6 +20,7 @@
 #include "LoadTaskSound.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
+#include "MeshManager.h"
 #include "ParticleEmitter.h"
 #include "SoaState.h"
 #include "TexturePackLoader.h"

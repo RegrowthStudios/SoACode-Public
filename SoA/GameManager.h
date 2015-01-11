@@ -37,14 +37,12 @@ public:
     static class VoxelEditor* voxelEditor;
     static class SoundEngine* soundEngine;
     static class MessageManager* messageManager;
-    static class TerrainGenerator* terrainGenerator;
 
     static bool gameInitialized;
     static float fogStart, fogEnd;
     static Uint32 maxLodTicks;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
-    static class DebugRenderer* debugRenderer;
     static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
     static class vg::TextureCache* textureCache;
 

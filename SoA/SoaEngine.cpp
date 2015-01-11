@@ -3,9 +3,14 @@
 
 #include "SoaState.h"
 #include "GLProgramManager.h"
+#include "DebugRenderer.h"
+#include "MeshManager.h"
 
 bool SoaEngine::initState(OUT SoaState* state) {
     state->glProgramManager = std::make_unique<vg::GLProgramManager>();
+    state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
+    state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
+    return true;
 }
 
 bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData) {

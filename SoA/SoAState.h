@@ -20,6 +20,9 @@
 
 #include <Vorb/IOManager.h>
 
+class DebugRenderer;
+class MeshManager;
+
 class SoaState {
 public:
     ~SoaState() {};
@@ -28,6 +31,8 @@ public:
     GameSystem gameSystem;
 
     std::unique_ptr<vg::GLProgramManager> glProgramManager = nullptr;
+    std::unique_ptr<DebugRenderer> debugRenderer = nullptr;
+    std::unique_ptr<MeshManager> meshManager = nullptr;
 
     vio::IOManager saveFileIom;
     bool isNewGame = true;

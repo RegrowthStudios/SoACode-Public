@@ -68,9 +68,6 @@ void App::onInit() {
     loadOptions("Data/Options.yml");
 
     SamplerState::initPredefined();
-
-    // Allocate resources
-    meshManager = new MeshManager;
 }
 
 void App::onExit() {
@@ -86,6 +83,4 @@ App::~App() {
     delete scrMainMenu;
     delete scrGamePlay;
     delete scrDev;
-
-    delete meshManager;
 }

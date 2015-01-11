@@ -197,7 +197,6 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     m_threadRunning = false;
     m_updateThread->join();
     delete m_updateThread;
-    _app->meshManager->destroy();
     m_pda.destroy();
     m_renderPipeline.destroy();
     m_pauseMenu.destroy();
@@ -394,7 +393,7 @@ void GamePlayScreen::processMessages() {
 
     TerrainMeshMessage* tmm;
     int j = 0,k = 0;
-    MeshManager* meshManager = _app->meshManager;
+    MeshManager* meshManager = m_soaState->meshManager.get();
     ChunkMesh* cm;
     PreciseTimer timer;
     timer.start();
