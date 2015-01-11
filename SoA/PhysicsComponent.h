@@ -18,9 +18,14 @@
 class PhysicsComponent {
 public:
 
+    void init(f32 massKg, const f64v3& vel = f64v3(0.0)) {
+        mass = massKg;
+        velocity = vel;
+    }
+
     const f64v3 computeMomentum() const { return ((f64)mass) * velocity; }
 
-    f64v3 velocity;
+    f64v3 velocity = f64v3(0.0);
     f32 mass;
 };
 

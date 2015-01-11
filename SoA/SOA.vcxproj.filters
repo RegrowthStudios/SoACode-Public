@@ -650,6 +650,9 @@
     <ClInclude Include="SoaController.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameSystemFactories.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1027,6 +1030,7 @@
     </ClCompile>
     <ClCompile Include="SoaEngine.cpp" />
     <ClCompile Include="SoaController.cpp" />
+    <ClCompile Include="GameSystemFactories.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

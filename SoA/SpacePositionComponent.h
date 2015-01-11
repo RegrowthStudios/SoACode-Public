@@ -17,6 +17,11 @@
 
 class SpacePositionComponent {
 public:
+    void init(const f64v3& pos, const f64q& orient) {
+        position = pos;
+        orientation = orient;
+    }
+
     f64v3 position = f64v3(0.0);
     f64q orientation;
 };

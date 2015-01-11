@@ -19,6 +19,7 @@
 #include "GameSystem.h"
 
 #include <Vorb/IOManager.h>
+#include <Vorb/Entity.h>
 
 class DebugRenderer;
 class MeshManager;
@@ -29,6 +30,8 @@ public:
 
     SpaceSystem spaceSystem;
     GameSystem gameSystem;
+
+    vcore::Entity playerEntity;
 
     std::unique_ptr<vg::GLProgramManager> glProgramManager = nullptr;
     std::unique_ptr<DebugRenderer> debugRenderer = nullptr;

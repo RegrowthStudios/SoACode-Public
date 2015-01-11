@@ -17,14 +17,20 @@
 
 class MoveInputComponent {
 public:
-    bool isWPressed = false; ///< True when moving forward
-    bool isSPressed = false; ///< True when moving backward
-    bool isAPressed = false; ///< True when moving left
-    bool isDPressed = false; ///< True when moving right
-    bool isJumping = false; ///< True when attempting to jump
-    bool isCrouching = false; ///< True when attempting to crouch
-    bool isParkouring = false; ///< True when parkouring
-    bool isSprinting = false; ///< True when sprinting
+    // Bitfield inputs
+    union {
+        struct {
+            bool tryMoveForward : 1; ///< True when moving forward
+            bool tryMoveBackward : 1; ///< True when moving backward
+            bool tryMoveLeft : 1; ///< True when moving left
+            bool tryMoveRight : 1; ///< True when moving right
+            bool tryJump : 1; ///< True when attempting to jump
+            bool tryCrouch : 1; ///< True when attempting to crouch
+            bool tryParkour : 1; ///< True when parkouring
+            bool trySprint : 1; ///< True when sprinting
+        };
+        ui8 moveFlags = 0;
+    };
 };
 
 #endif // MoveInputComponent_h__

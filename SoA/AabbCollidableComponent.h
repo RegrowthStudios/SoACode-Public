@@ -17,7 +17,17 @@
 
 class AabbCollidableComponent {
 public:
-    f32v3 box; ///< x, y, z widths
+    /// Initializes the component
+    /// @param boxDims: Dimensions of the box in blocks
+    /// @param boxOffset: Offset of the box in blocks. If 0,
+    /// then the -x,-y,-z corner is the origin.
+    void init(const f32v3& boxDims, const f32v3& boxOffset) {
+        box = boxDims;
+        offset = boxOffset;
+    }
+
+    f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks
+    f32v3 offset = f32v3(0.0f); ///< x, y, z offsets in blocks
 };
 
 #endif // AabbCollidableComponent_h__
