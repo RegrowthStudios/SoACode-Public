@@ -13,8 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vorb", "Vorb\Vorb.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OOLua", "Vorb\deps\src\OOLua.vcxproj", "{FB1AB70E-4D03-434E-A127-650F8D777B13}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JSON", "Vorb\deps\src\JSON.vcxproj", "{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZLIB", "Vorb\deps\src\ZLIB.vcxproj", "{B8B9A66A-92D7-4FAB-8159-C93804CE84FC}"
 EndProject
 Global
@@ -57,16 +55,6 @@ Global
 		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Win32.ActiveCfg = Release|Win32
 		{FB1AB70E-4D03-434E-A127-650F8D777B13}.Release|Win32.Build.0 = Release|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Debug|Win32.ActiveCfg = Debug|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Debug|Win32.Build.0 = Debug|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Release|Any CPU.ActiveCfg = Release|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Release|Win32.ActiveCfg = Release|Win32
-		{66ACBA10-35E7-4B5F-AE8F-641278C57AFD}.Release|Win32.Build.0 = Release|Win32
 		{B8B9A66A-92D7-4FAB-8159-C93804CE84FC}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{B8B9A66A-92D7-4FAB-8159-C93804CE84FC}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{B8B9A66A-92D7-4FAB-8159-C93804CE84FC}.Debug|Mixed Platforms.Build.0 = Debug|Win32
