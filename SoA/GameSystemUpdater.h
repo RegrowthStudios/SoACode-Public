@@ -16,6 +16,7 @@
 #define GameSystemUpdater_h__
 
 #include "PhysicsComponentUpdater.h"
+#include "CollisionComponentUpdater.h"
 
 class GameSystem;
 class SpaceSystem;
@@ -35,11 +36,10 @@ public:
     void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem);
 private:
     PhysicsComponentUpdater physicsUpdater;
-    /// Updates collision components
-    /// @param gameSystem: Game ECS
-    void updateCollision(OUT GameSystem* gameSystem);
+    CollisionComponentUpdater collisionUpdater;
     /// Updates movement components
     /// @param gameSystem: Game ECS
+    /// TODO(Ben): Don't think this is the right func
     void updateMoveInput(OUT GameSystem* gameSystem);
     /// Calculates voxel position from relative space position
     /// @param relPos: relative position of the entity against the world center

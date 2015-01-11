@@ -659,6 +659,9 @@
     <ClInclude Include="PhysicsComponentUpdater.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="CollisionComponentUpdater.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1040,6 +1043,7 @@
     <ClCompile Include="GameSystemUpdater.cpp" />
     <ClCompile Include="SoaState.cpp" />
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
+    <ClCompile Include="CollisionComponentUpdater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

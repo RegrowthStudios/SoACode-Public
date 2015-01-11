@@ -10,7 +10,7 @@
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);
-    updateCollision(gameSystem);
+    collisionUpdater.update(gameSystem);
     updateMoveInput(gameSystem);
 
     // Update voxel planet transitions every 60 frames
@@ -49,29 +49,6 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
         }
     }
     m_frameCounter = 0;
-}
-
-// TODO(Ben): Timestep
-void GameSystemUpdater::updatePhysics(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem) {
-    for (auto& it : gameSystem->physicsCT) {
-        auto& cmp = it.second;
-        // Get the position component
-        auto& spcmp = gameSystem->spacePositionCT.get(cmp.spacePositionComponent);
-        // Voxel position dictates space position
-        if (cmp.voxelPositionComponent) {
-            auto& vpcmp = gameSystem->voxelPositionCT.get(cmp.voxelPositionComponent);
-            vpcmp.position += cmp.velocity;
-            // TODO(Ben): Compute spcmp.position from vpcmp.position
-        } else {
-            spcmp.position += cmp.velocity; // * timestep
-        }
-    }
-}
-
-void GameSystemUpdater::updateCollision(OUT GameSystem* gameSystem) {
-    for (auto& it : gameSystem->aabbCollidableCT) {
-        //TODO(Ben): this
-    }
 }
 
 void GameSystemUpdater::updateMoveInput(OUT GameSystem* gameSystem) {

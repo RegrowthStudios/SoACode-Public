@@ -158,6 +158,7 @@ EXIT 0</Command>
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="CollisionComponentUpdater.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="DevScreen.h" />
     <ClInclude Include="FloraTask.h" />
@@ -329,6 +330,7 @@ EXIT 0</Command>
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
+    <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
