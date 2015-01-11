@@ -2,6 +2,9 @@
 #include <chrono>
 
 #include <Vorb/GLProgram.h>
+#include <Vorb/VorbPreDecl.inl>
+
+DECL_VG(class, GLProgramManager);
 
 const static float GOLDEN_RATIO = 1.61803398875f;
 
@@ -76,7 +79,7 @@ public:
 
 class DebugRenderer {
 public:
-    DebugRenderer();
+    DebugRenderer(const vg::GLProgramManager* glProgramManager);
     ~DebugRenderer();
 
     void render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w = f32m4(1.0));
@@ -106,6 +109,7 @@ private:
 
     // Program that is currently in use
     vg::GLProgram* _program;
+    const vg::GLProgramManager* m_glProgramManager = nullptr;
 
     static f32m4 _modelMatrix; ///< Reusable model matrix
 

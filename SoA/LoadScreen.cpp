@@ -57,6 +57,7 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 void LoadScreen::onEntry(const GameTime& gameTime) {
 
     m_soaState = std::make_unique<SoaState>();
+    SoaEngine::initState(m_soaState.get());
 
     // Make LoadBar Resources
     _sb = new SpriteBatch(true, true);
@@ -65,7 +66,7 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
   
-    addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc));
+    addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc, m_soaState->glProgramManager.get()));
     _monitor.setDep("Shaders", "GameManager");
 
     addLoadTask("Sound", "Sound", new LoadTaskSound);

@@ -11,7 +11,7 @@ PauseMenu::~PauseMenu() {
     // Empty
 }
 
-void PauseMenu::init(GamePlayScreen* ownerScreen) {
+void PauseMenu::init(GamePlayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager) {
     // Initialize the user interface
     _awesomiumInterface.init("UI/PauseMenu/",
                              "PAUSE_UI",
@@ -19,6 +19,7 @@ void PauseMenu::init(GamePlayScreen* ownerScreen) {
                              ownerScreen->getWindowWidth(),
                              ownerScreen->getWindowHeight(),
                              ownerScreen);
+    m_glProgramManager = glProgramManager;
 }
 
 void PauseMenu::open() {
@@ -38,7 +39,7 @@ void PauseMenu::update() {
 }
 
 void PauseMenu::draw() const {
-    _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
+    _awesomiumInterface.draw(m_glProgramManager->getProgram("Texture2D"));
 }
 
 void PauseMenu::destroy() {

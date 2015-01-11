@@ -28,7 +28,8 @@ inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usag
     return true;
 }
 
-MeshManager::MeshManager() { 
+MeshManager::MeshManager(const vg::GLProgramManager* glProgramManager) :
+    m_glProgramManager(glProgramManager) {
     // Empty
 }
 
@@ -210,7 +211,7 @@ void MeshManager::updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm) {
         }
 
         if (pbm->vaoID == 0) {
-            pbm->createVao(GameManager::glProgramManager->getProgram("PhysicsBlock"));
+            pbm->createVao(m_glProgramManager->getProgram("PhysicsBlock"));
         }
 
         pbm->bX = pbmm->bX;

@@ -15,6 +15,8 @@
 #ifndef MESHMANAGER_H_
 #define MESHMANAGER_H_
 
+#include <Vorb/VorbPreDecl.inl>
+
 class ChunkMeshData;
 class ParticleMeshMessage;
 class PhysicsBlockMeshMessage;
@@ -24,10 +26,12 @@ class ParticleMesh;
 class PhysicsBlockMesh;
 class SphericalTerrainMesh;
 
+DECL_VG(class, GLProgramManager);
+
 class MeshManager
 {
 public:
-    MeshManager();
+    MeshManager(const vg::GLProgramManager* glProgramManager);
 
     /// Updates a chunk mesh
     /// @param cmd: the ChunkMeshData sent by the update thread
@@ -68,7 +72,7 @@ private:
     std::vector <ChunkMesh *> _chunkMeshes;
     std::vector <ParticleMesh *> _particleMeshes;
     std::vector <PhysicsBlockMesh *> _physicsBlockMeshes;
-
+    const vg::GLProgramManager* m_glProgramManager = nullptr;
 };
 
 #endif // MESHMANAGER_H_

@@ -16,8 +16,11 @@
 #define PauseMenu_h__
 
 #include <Vorb/AwesomiumInterface.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "PauseMenuAwesomiumAPI.h"
+
+DECL_VG(class, GLProgramManager);
 
 class PauseMenu {
 public:
@@ -26,7 +29,7 @@ public:
 
     /// Initializes the Pause Menu
     /// @param ownerScreen: The screen that owns this pause menu
-    void init(GamePlayScreen* ownerScreen);
+    void init(GamePlayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager);
 
     /// Opens the Pause Menu
     void open();
@@ -51,7 +54,7 @@ public:
     const bool& isOpen() const { return _isOpen; }
 private:
     vui::AwesomiumInterface<PauseMenuAwesomiumAPI> _awesomiumInterface; ///< The user interface
-
+    const vg::GLProgramManager* m_glProgramManager = nullptr;
     bool _isOpen = false;
 };
 

@@ -37,11 +37,11 @@ public:
     OnMainMenuReloadShadersKeyDown(MainMenuScreen* screen) : MainMenuScreenDelegate(screen) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        GameManager::glProgramManager->destroy();
+     /*   GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
         _screen->m_renderPipeline.destroy();
-        _screen->initRenderPipeline();
+        _screen->initRenderPipeline();*/
     }
 };
 

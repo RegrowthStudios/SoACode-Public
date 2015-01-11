@@ -28,6 +28,7 @@ public:
     struct GameSystemLoadData {
         // More stuff here
     };
+    static bool initState(OUT SoaState* state);
 
     static bool loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData);
 

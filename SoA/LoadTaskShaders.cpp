@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "LoadTaskShaders.h"
 
+#include "GLProgramManager.h"
 #include "GameManager.h"
 
 void ProgramGenDelegate::invoke(Sender sender, void* userData) {
@@ -58,8 +59,6 @@ ProgramGenDelegate* LoadTaskShaders::createProgram(nString name, const vg::Shade
 }
 
 void LoadTaskShaders::load() {
-    vg::GLProgramManager* glProgramManager = GameManager::glProgramManager;
-
     //***** Attribute Vectors ******
     // So that the same VAO can be used for multiple shaders,
     // it is advantageous to manually set the attributes so that
@@ -229,7 +228,7 @@ void LoadTaskShaders::load() {
         del.rpc.block();
 
         if (del.program) {
-            glProgramManager->addProgram(del.name, del.program);
+            m_glProgramManager->addProgram(del.name, del.program);
         } else {
             i--;
             showMessage(del.errorMessage + " Check command output for more detail. Will attempt to reload.");

@@ -45,7 +45,6 @@ public:
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
     static class DebugRenderer* debugRenderer;
-    static vg::GLProgramManager* glProgramManager;
     static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
     static class vg::TextureCache* textureCache;
 

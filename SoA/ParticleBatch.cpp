@@ -15,21 +15,16 @@ f32m4 ParticleBatch::worldMatrix(1.0);
 
 BillboardVertex vboBVerts[maxParticles];
 
-ParticleBatch::~ParticleBatch() {
-
-    //if (mesh != NULL){
-    //    ParticleMeshMessage *pmm = new ParticleMeshMessage;
-    //    pmm->mesh = mesh;
-    //    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, pmm)); //tell GL thread to free the batch
-    //}
-}
-
 ParticleBatch::ParticleBatch(): size(0),
 uvWidth(1.0f / 16.0f),
 lastAddedParticle(0),
 animated(0),
-mesh(NULL) {
+mesh(NULL){
     memset(lifes, 0, sizeof(lifes));
+}
+
+ParticleBatch::~ParticleBatch() {
+
 }
 
 int ParticleBatch::findUnusedParticle() {
@@ -332,12 +327,12 @@ int ParticleBatch::updateAnimated() {
     return 0;
 }
 
-void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
+void ParticleBatch::draw(vg::GLProgram* program, ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
  
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+    //vg::GLProgram* program = m_glProgramManager->getProgram("Billboard");
 
     glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 
@@ -374,7 +369,7 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
 }
 
-void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
+void ParticleBatch::drawAnimated(vg::GLProgram* program, ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
@@ -387,7 +382,7 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
         }
     }
 
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+    //vg::GLProgram* program = m_glProgramManager->getProgram("Billboard");
 
     glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 

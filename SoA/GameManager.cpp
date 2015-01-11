@@ -43,7 +43,6 @@ MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 DebugRenderer* GameManager::debugRenderer = nullptr;
-vg::GLProgramManager* GameManager::glProgramManager = new vg::GLProgramManager();
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
 TerrainGenerator* GameManager::terrainGenerator = nullptr;

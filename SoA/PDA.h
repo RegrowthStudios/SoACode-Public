@@ -17,12 +17,14 @@
 
 #include <SDL/SDL.h>
 #include <Vorb/AwesomiumInterface.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "Computer.h"
 #include "PdaAwesomiumAPI.h"
 
 class GamePlayScreen;
 
+DECL_VG(class, GLProgramManager);
 
 enum class PdaState { BIOMETRICS, INVENTORY, DATA, CODEX, COMMUNICATIONS, SCANNER };
 
@@ -34,7 +36,7 @@ public:
 
     /// Initializes the PDA
     /// @param ownerScreen: The screen that owns this PDA
-    void init(GamePlayScreen* ownerScreen);
+    void init(GamePlayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager);
 
     /// Opens the PDA
     void open();
@@ -60,7 +62,7 @@ public:
 private:
 
     vui::AwesomiumInterface<PdaAwesomiumAPI> _awesomiumInterface; ///< The user interface
-    
+    const vg::GLProgramManager* m_glProgramManager = nullptr;
     bool _isOpen = false;
 };
 

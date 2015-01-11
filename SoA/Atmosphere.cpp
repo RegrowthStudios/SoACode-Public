@@ -74,7 +74,7 @@ void Atmosphere::initialize(nString filePath, float PlanetRadius) {
 }
 
 void Atmosphere::draw(float theta, const glm::mat4 &MVP, glm::vec3 lightPos, const glm::dvec3 &ppos) {
-    vg::GLProgram* shader = GameManager::glProgramManager->getProgram("Sky");
+    vg::GLProgram* shader = nullptr; // GameManager::glProgramManager->getProgram("Sky");
     shader->use();
 
     glm::mat4 GlobalModelMatrix(1.0);

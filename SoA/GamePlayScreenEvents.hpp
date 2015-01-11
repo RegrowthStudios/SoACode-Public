@@ -112,11 +112,11 @@ public:
     OnReloadShadersKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        GameManager::glProgramManager->destroy();
+      /*  GameManager::glProgramManager->destroy();
         LoadTaskShaders shaderTask(nullptr);
         shaderTask.load();
         _screen->m_renderPipeline.destroy();
-        _screen->initRenderPipeline();
+        _screen->initRenderPipeline();*/
     }
 };
 
@@ -148,11 +148,11 @@ public:
     OnReloadUIKeyDown(GamePlayScreen* screen): GamePlayScreenDelegate(screen) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        if(_screen->m_pda.isOpen()) {
+       /* if(_screen->m_pda.isOpen()) {
             _screen->m_pda.close();
         }
         _screen->m_pda.destroy();
-        _screen->m_pda.init(_screen);
+        _screen->m_pda.init(_screen);*/
     }
 };
 

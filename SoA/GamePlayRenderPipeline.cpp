@@ -67,6 +67,9 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     // Get window dimensions
     f32v2 windowDims(_viewport.z, _viewport.w);
 
+    // Set up shared params
+    _gameRenderParams.glProgramManager = glProgramManager;
+
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), _worldCamera);
     _physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, _meshManager->getPhysicsBlockMeshes(), glProgramManager->getProgram("PhysicsBlock"));

@@ -85,10 +85,10 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     initVoxels();
 
     // Initialize the PDA
-    m_pda.init(this);
+    m_pda.init(this, m_soaState->glProgramManager.get());
 
     // Initialize the Pause Menu
-    m_pauseMenu.init(this);
+    m_pauseMenu.init(this, m_soaState->glProgramManager.get());
 
     // Set up the rendering
     initRenderPipeline();

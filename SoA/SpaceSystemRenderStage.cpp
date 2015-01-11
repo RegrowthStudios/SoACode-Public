@@ -60,23 +60,23 @@ void SpaceSystemRenderStage::drawBodies() {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    static DebugRenderer debugRenderer;
-    m_spaceSystem->m_mutex.lock();
-    for (auto& it : m_spaceSystem->m_sphericalGravityCT) {
-        auto& sgcmp = it.second;
-        float radius = sgcmp.radius;
-        const f64v3& position = m_spaceSystem->m_namePositionCT.getFromEntity(it.first).position;
+    /* static DebugRenderer debugRenderer;
+     m_spaceSystem->m_mutex.lock();
+     for (auto& it : m_spaceSystem->m_sphericalGravityCT) {
+     auto& sgcmp = it.second;
+     float radius = sgcmp.radius;
+     const f64v3& position = m_spaceSystem->m_namePositionCT.getFromEntity(it.first).position;
 
-        debugRenderer.drawIcosphere(f32v3(0), radius * 0.99, f32v4(1.0), 4);
+     debugRenderer.drawIcosphere(f32v3(0), radius * 0.99, f32v4(1.0), 4);
 
-        const AxisRotationComponent& axisRotComp = m_spaceSystem->m_axisRotationCT.getFromEntity(it.first);
+     const AxisRotationComponent& axisRotComp = m_spaceSystem->m_axisRotationCT.getFromEntity(it.first);
 
-        f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
+     f32m4 rotationMatrix = f32m4(glm::toMat4(axisRotComp.currentOrientation));
 
-        f32m4 WVP = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
+     f32m4 WVP = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
 
-        debugRenderer.render(WVP, f32v3(m_camera->getPosition() - position), rotationMatrix);
-    }
+     debugRenderer.render(WVP, f32v3(m_camera->getPosition() - position), rotationMatrix);
+     }*/
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);

@@ -163,14 +163,14 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     }
 
     // Check for shader reload
-    if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-        GameManager::glProgramManager->destroy();
-        LoadTaskShaders shaderTask(nullptr);
-        shaderTask.load();
-        // Reload the pipeline with new shaders
-        m_renderPipeline.destroy();
-        initRenderPipeline();
-    }
+    //if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+    //    GameManager::glProgramManager->destroy();
+    //    LoadTaskShaders shaderTask(nullptr);
+    //    shaderTask.load();
+    //    // Reload the pipeline with new shaders
+    //    m_renderPipeline.destroy();
+    //    initRenderPipeline();
+    //}
 
     bdt += glSpeedFactor * 0.01;
 }
@@ -187,7 +187,7 @@ void MainMenuScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
                           &m_soaState->spaceSystem, m_mainMenuSystemViewer.get(),
-                          GameManager::glProgramManager);
+                          m_soaState->glProgramManager.get());
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {

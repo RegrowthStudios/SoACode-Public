@@ -27,9 +27,10 @@ public:
     }
 };
 
-DebugRenderer::DebugRenderer():
+DebugRenderer::DebugRenderer(const vg::GLProgramManager* glProgramManager) :
     _cubeMesh(nullptr),
-    _lineMesh(nullptr)
+    _lineMesh(nullptr),
+    m_glProgramManager(glProgramManager)
 {}
 
 DebugRenderer::~DebugRenderer() {
@@ -58,7 +59,7 @@ void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, cons
     std::chrono::duration<double> elapsedTime = _currentTimePoint - _previousTimePoint;
     double deltaT = elapsedTime.count();
 
-    _program = GameManager::glProgramManager->getProgram("BasicColor");
+    _program = m_glProgramManager->getProgram("BasicColor");
 
     _program->use();
     _program->enableVertexAttribArrays();

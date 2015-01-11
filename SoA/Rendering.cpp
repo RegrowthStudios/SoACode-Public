@@ -80,7 +80,7 @@ void WorldRenderer::DrawLine(glm::vec3 a, glm::vec3 b)
     glDrawArrays(GL_LINES, 0, 2);
 }
 
-void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, const glm::mat4 &VP, const glm::vec4& color)
+void DrawWireBox(vg::GLProgram* program, double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, const glm::mat4 &VP, const glm::vec4& color)
 {
     // Vertex names
     #define BOT_BACK_LEFT 0
@@ -97,7 +97,7 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     glm::mat4 MVP = VP * worldMatrix;
 
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
+    //vg::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
 
     program->use();
     program->enableVertexAttribArrays();
@@ -251,7 +251,7 @@ GLuint MakeBlockVbo(Block *block){
     return vboID;
 }
 
-void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation){
+void Draw3DCube(vg::GLProgramManager* glProgramManager, Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation) {
 
     const float eyeDir[3] = { 0.0f, 0.0f, -1.0f };
     const float fadeDist = (GLfloat)10000.0f;
@@ -272,11 +272,11 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     switch (block->meshType) {
         case MeshType::CROSSFLORA:
         case MeshType::FLORA:
-            program = GameManager::glProgramManager->getProgram("Cutout");
+            program = glProgramManager->getProgram("Cutout");
             break;
         case MeshType::BLOCK:
         default:
-            program = GameManager::glProgramManager->getProgram("Block");
+            program = glProgramManager->getProgram("Block");
             break;
     }
 

@@ -1,5 +1,8 @@
 #pragma once
 #include <map>
+#include <Vorb/VorbPreDecl.inl>
+
+DECL_VG(class, GLProgram);
 
 class ChunkManager;
 class PhysicsEngine;
@@ -29,7 +32,7 @@ public:
     const i32v3& getEndPosition() const { return _endPosition; }
 
     //Draws the guide lines
-    void drawGuides(const f64v3& cameraPos, const glm::mat4 &VP, int blockID);
+    void drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const glm::mat4 &VP, int blockID);
 
 private:
     

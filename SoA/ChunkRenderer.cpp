@@ -21,8 +21,8 @@ f32m4 ChunkRenderer::worldMatrix(1.0);
 void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 {
     //*********************Blocks*******************
-
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Sonar");
+    
+    vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Sonar");
     program->use();
 
     // Bind the block textures
@@ -65,7 +65,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 {
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
 
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Block");
+    vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Block");
     program->use();
 
     glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
@@ -162,7 +162,7 @@ void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 {
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
 
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Cutout");
+    vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Cutout");
     program->use();
 
     glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
@@ -243,7 +243,7 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 {
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
 
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Transparency");
+    vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Transparency");
     program->use();
 
     glUniform1f(program->getUniform("lightType"), gameRenderParams->lightActive);
@@ -344,7 +344,7 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 
 void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
 {
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Water");
+    vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Water");
     program->use();
 
     glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);

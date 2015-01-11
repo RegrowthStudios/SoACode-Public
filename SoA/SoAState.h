@@ -22,8 +22,12 @@
 
 class SoaState {
 public:
+    ~SoaState() {};
+
     SpaceSystem spaceSystem;
     GameSystem gameSystem;
+
+    std::unique_ptr<vg::GLProgramManager> glProgramManager = nullptr;
 
     vio::IOManager saveFileIom;
     bool isNewGame = true;
