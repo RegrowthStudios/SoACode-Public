@@ -20,8 +20,10 @@
 #include "LoadTaskSound.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
+#include "MusicPlayer.h"
 #include "ParticleEmitter.h"
 #include "Player.h"
+#include "SoaFileSystem.h"
 #include "TexturePackLoader.h"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
@@ -51,6 +53,10 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 }
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
+    SoaFileSystem fs;
+    fs.init();
+    MusicPlayer mp;
+    mp.refreshLists(fs);
 
     // Make LoadBar Resources
     _sb = new SpriteBatch(true, true);
