@@ -4,6 +4,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <Vorb/IOManager.h>
 #include <Vorb/Keg.h>
+#include <yaml-cpp/yaml.h>
 
 #include "BlockPack.h"
 #include "Chunk.h"
