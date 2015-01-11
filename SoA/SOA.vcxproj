@@ -181,6 +181,7 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PlanetRenderStage.h" />
     <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SoaFileSystem.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceComponents.h" />
@@ -320,6 +321,7 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PlanetRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SoaFileSystem.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="SpaceComponents.cpp" />

@@ -557,6 +557,9 @@
     <ClInclude Include="MusicPlayer.h">
       <Filter>SOA Files\Sound\Music</Filter>
     </ClInclude>
+    <ClInclude Include="SoaFileSystem.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -903,6 +906,9 @@
     </ClCompile>
     <ClCompile Include="MusicPlayer.cpp">
       <Filter>SOA Files\Sound\Music</Filter>
+    </ClCompile>
+    <ClCompile Include="SoaFileSystem.cpp">
+      <Filter>SOA Files\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
