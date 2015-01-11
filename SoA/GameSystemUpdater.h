@@ -41,6 +41,11 @@ private:
     /// Updates movement components
     /// @param gameSystem: Game ECS
     void updateMoveInput(OUT GameSystem* gameSystem);
+    /// Calculates voxel position from relative space position
+    /// @param relPos: relative position of the entity against the world center
+    /// @param radius: Radius of the world
+    /// @param vpcmp: Voxel position component of the entity
+    void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT VoxelPositionComponent& vpcmp);
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 };
