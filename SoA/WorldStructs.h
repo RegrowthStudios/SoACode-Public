@@ -71,19 +71,17 @@ public:
     LoadData()
     {
     }
-    LoadData(class HeightData *hmap, class TerrainGenerator *gen)
+    LoadData(class HeightData *hmap)
     {
         heightMap = hmap;
-        generator = gen;
     }
     
-    inline void init(HeightData *hmap, TerrainGenerator *gen)
+    inline void init(HeightData *hmap)
     {
-        generator = gen;
+        heightMap = hmap;
     }
 
     HeightData *heightMap;
-    TerrainGenerator *generator;
 };
 
 class MineralData

@@ -696,7 +696,7 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
     chunk->_tertiaryDataContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
 
     // Initialize the task
-    generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, nullptr));
+    generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData));
     chunk->lastOwnerTask = generateTask;
     // Add the task
     _threadPool.addTask(generateTask);

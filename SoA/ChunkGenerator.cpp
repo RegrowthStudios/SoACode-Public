@@ -11,7 +11,6 @@
 #include "Chunk.h"
 #include "WorldStructs.h"
 #include "VoxelIntervalTree.h"
-#include "TerrainGenerator.h"
 #include "GameManager.h"
 
 
@@ -25,7 +24,6 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
     int wz, wx;
     chunk->voxelMapData->getVoxelGridPos(wz, wx);
 
-    TerrainGenerator &generator = *(ld->generator);
     Biome *biome;
     chunk->numBlocks = 0;
     int temperature;
