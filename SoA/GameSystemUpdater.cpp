@@ -9,7 +9,7 @@
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
     // Update entity tables
-    updatePhysics(gameSystem, spaceSystem);
+    physicsUpdater.update(gameSystem, spaceSystem);
     updateCollision(gameSystem);
     updateMoveInput(gameSystem);
 

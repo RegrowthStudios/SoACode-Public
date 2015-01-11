@@ -15,8 +15,11 @@
 #ifndef GameSystemUpdater_h__
 #define GameSystemUpdater_h__
 
+#include "PhysicsComponentUpdater.h"
+
 class GameSystem;
 class SpaceSystem;
+class VoxelPositionComponent;
 
 class GameSystemUpdater {
 public:
@@ -31,10 +34,7 @@ public:
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
     void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem);
 private:
-    /// Updates physics components
-    /// @param gameSystem: Game ECS
-    /// @param spaceSystem: Space ECS.
-    void updatePhysics(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem);
+    PhysicsComponentUpdater physicsUpdater;
     /// Updates collision components
     /// @param gameSystem: Game ECS
     void updateCollision(OUT GameSystem* gameSystem);

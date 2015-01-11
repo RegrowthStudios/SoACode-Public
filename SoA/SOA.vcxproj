@@ -205,6 +205,7 @@ EXIT 0</Command>
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PhysicsComponent.h" />
+    <ClInclude Include="PhysicsComponentUpdater.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SoaController.h" />
@@ -364,6 +365,7 @@ EXIT 0</Command>
     <ClCompile Include="PdaAwesomiumAPI.cpp" />
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
+    <ClCompile Include="PhysicsComponentUpdater.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SoaController.cpp" />
