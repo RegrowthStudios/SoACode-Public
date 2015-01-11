@@ -4,7 +4,7 @@
 #include "SoaState.h"
 #include "GameSystemFactories.h"
 
-void SoaController::startGame(SoaState* state) {
+void SoaController::startGame(OUT SoaState* state) {
     if (state->isNewGame) {
         // Create the player entity
         state->playerEntity = GameSystemFactories::createPlayer(&state->gameSystem, f64v3(0.0),

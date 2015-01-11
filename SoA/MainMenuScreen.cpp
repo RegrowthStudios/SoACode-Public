@@ -233,10 +233,6 @@ void MainMenuScreen::newGame(const nString& fileName) {
     }
     m_soaState->saveFileIom.setSearchDirectory(fileName.c_str());
 
-    // Save the world file
-    nString worldText("Aldrin");
-    m_ioManager.writeStringToFile((fileName + "/World/world.txt").c_str(), worldText);
-
     _state = ScreenState::CHANGE_NEXT;
 }
 

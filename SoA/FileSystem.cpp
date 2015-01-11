@@ -110,16 +110,9 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
 i32 FileManager::makeSaveDirectories(nString filePath) {
     boost::filesystem::create_directory("Saves");
     boost::filesystem::create_directory(filePath);
-    boost::filesystem::create_directory(filePath + "/Players");
-    boost::filesystem::create_directory(filePath + "/Data");
-    boost::filesystem::create_directory(filePath + "/World");
-    boost::filesystem::create_directory(filePath + "/Region");
-    boost::filesystem::create_directory(filePath + "/Region/f0");
-    boost::filesystem::create_directory(filePath + "/Region/f1");
-    boost::filesystem::create_directory(filePath + "/Region/f2");
-    boost::filesystem::create_directory(filePath + "/Region/f3");
-    boost::filesystem::create_directory(filePath + "/Region/f4");
-    boost::filesystem::create_directory(filePath + "/Region/f5");
+    boost::filesystem::create_directory(filePath + "/players");
+    boost::filesystem::create_directory(filePath + "/system");
+    boost::filesystem::create_directory(filePath + "/cache");
     return 0;
 }
 i32 FileManager::createSaveFile(nString filePath) {
