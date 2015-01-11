@@ -26,7 +26,6 @@
 #include "LoadTaskShaders.h"
 #include "Options.h"
 #include "PDA.h"
-#include "types.h"
 #include "GamePlayRenderPipeline.h"
 
 /// Generic delegate for all delegates that require access tot he GamePlayScreen
