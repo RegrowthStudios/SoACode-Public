@@ -5,7 +5,7 @@
 
 #include "GameSystem.h"
 
-extern vcore::EntityID GameSystemFactories::createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
+vcore::EntityID GameSystemFactories::createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
                                                        const f64q& orientation, float massKg, const f64v3& initialVel) {
     vcore::EntityID id = gameSystem->addEntity();
 

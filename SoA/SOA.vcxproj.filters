@@ -141,6 +141,9 @@
     <Filter Include="SOA Files\ECS\Systems">
       <UniqueIdentifier>{73eeb8a0-c66a-4fc2-bd59-edcbe41b3993}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\ECS\Factories">
+      <UniqueIdentifier>{5a883327-0095-495a-b35f-f80c5fec3f94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -641,25 +644,31 @@
     <ClInclude Include="GameSystem.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="SoaEngine.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SoaState.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SoaController.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="PhysicsComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
     <ClInclude Include="GameSystemFactories.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\ECS\Factories</Filter>
     </ClInclude>
     <ClInclude Include="GameSystemUpdater.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsComponentUpdater.h">
-      <Filter>SOA Files</Filter>
+    <ClInclude Include="SoaController.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SoaEngine.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SoaState.h">
+      <Filter>SOA Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="CollisionComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="ParkourMoveUpdater.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceMoveUpdater.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1037,13 +1046,29 @@
     <ClCompile Include="SpaceSystem.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="SoaEngine.cpp" />
-    <ClCompile Include="SoaController.cpp" />
-    <ClCompile Include="GameSystemFactories.cpp" />
-    <ClCompile Include="GameSystemUpdater.cpp" />
-    <ClCompile Include="SoaState.cpp" />
-    <ClCompile Include="PhysicsComponentUpdater.cpp" />
-    <ClCompile Include="CollisionComponentUpdater.cpp" />
+    <ClCompile Include="CollisionComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemFactories.cpp">
+      <Filter>SOA Files\ECS\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SoaController.cpp">
+      <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SoaEngine.cpp">
+      <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SoaState.cpp">
+      <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ParkourComponentUpdater.cpp" />
+    <ClCompile Include="FreeMoveComponentUpdater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

@@ -198,6 +198,7 @@ EXIT 0</Command>
     <ClInclude Include="OrbitComponent.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
     <ClInclude Include="OrbitComponentUpdater.h" />
+    <ClInclude Include="ParkourMoveUpdater.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="PauseMenuAwesomiumAPI.h" />
     <ClInclude Include="PauseMenuRenderStage.h" />
@@ -214,6 +215,7 @@ EXIT 0</Command>
     <ClInclude Include="SoaState.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
+    <ClInclude Include="SpaceMoveUpdater.h" />
     <ClInclude Include="SpacePositionComponent.h" />
     <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
@@ -360,6 +362,7 @@ EXIT 0</Command>
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OrbitComponentRenderer.cpp" />
     <ClCompile Include="OrbitComponentUpdater.cpp" />
+    <ClCompile Include="ParkourComponentUpdater.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
     <ClCompile Include="PauseMenuRenderStage.cpp" />
@@ -375,6 +378,7 @@ EXIT 0</Command>
     <ClCompile Include="SoaState.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
+    <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="SphericalTerrainComponent.cpp" />

@@ -6,7 +6,6 @@
 #include "SphericalTerrainPatch.h"
 #include <Vorb/IntersectionUtils.inl>
 
-
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);
