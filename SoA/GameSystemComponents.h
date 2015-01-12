@@ -23,7 +23,7 @@ struct AabbCollidableComponent {
     f32v3 offset = f32v3(0.0f); ///< x, y, z offsets in blocks
 };
 
-struct MoveInputComponent {
+struct ParkourInputComponent {
     // Bitfield inputs
     union {
         struct {
@@ -38,6 +38,25 @@ struct MoveInputComponent {
         };
         ui8 moveFlags = 0;
     };
+    vcore::ComponentID physicsComponent;
+    float acceleration;
+    float maxSpeed;
+};
+
+struct FreeMoveInputComponent {
+    // Bitfield inputs
+    union {
+        struct {
+            bool tryMoveForward : 1; ///< True when moving forward
+            bool tryMoveBackward : 1; ///< True when moving backward
+            bool tryMoveLeft : 1; ///< True when moving left
+            bool tryMoveRight : 1; ///< True when moving right
+            bool tryUp : 1; ///< True when attempting to go up
+            bool tryDown : 1; ///< True when attempting to go down
+        };
+        ui8 moveFlags = 0;
+    };
+    vcore::ComponentID physicsComponent;
 };
 
 struct SpacePositionComponent {

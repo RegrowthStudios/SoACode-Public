@@ -143,24 +143,6 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     m_camera.update();
     m_inputManager->update(); // TODO: Remove
 
-    TerrainMeshMessage* tmm;
-    Message message;
-    while (GameManager::messageManager->tryDeque(ThreadId::RENDERING, message)) {
-        switch (message.id) {
-            case MessageID::TERRAIN_MESH:
-          //      meshManager->updateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));
-                break;
-            case MessageID::REMOVE_TREES:
-                /*       tmm = static_cast<TerrainMeshMessage*>(message.data);
-                       if (tmm->terrainBuffers->treeVboID != 0) glDeleteBuffers(1, &(tmm->terrainBuffers->treeVboID));
-                       tmm->terrainBuffers->treeVboID = 0;*/
-                delete tmm;
-                break;
-            default:
-                break;
-        }
-    }
-
     // Check for shader reload
     //if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
     //    GameManager::glProgramManager->destroy();
