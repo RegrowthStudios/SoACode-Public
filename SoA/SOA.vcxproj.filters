@@ -659,6 +659,9 @@
     <ClInclude Include="GameSystemComponents.h">
       <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
+    <ClInclude Include="GameSystemEvents.hpp">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">

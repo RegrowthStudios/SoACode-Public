@@ -9,6 +9,11 @@
 #include <Vorb/FastConversion.inl>
 #include <Vorb/IntersectionUtils.inl>
 
+
+GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager) {
+
+}
+
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);

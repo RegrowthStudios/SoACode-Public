@@ -17,13 +17,17 @@
 
 #include "PhysicsComponentUpdater.h"
 #include "CollisionComponentUpdater.h"
+#include <Vorb/VorbPreDecl.inl>
 
 class GameSystem;
+class InputManager;
 class SpaceSystem;
 class VoxelPositionComponent;
+DECL_VVOX(class VoxelPlanetMapData);
 
 class GameSystemUpdater {
 public:
+    GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager);
     /// Updates the game system, and also updates voxel components for space system
     /// planet transitions.
     /// @param gameSystem: Game ECS
@@ -49,6 +53,7 @@ private:
     void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos);
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
+    IDelegate<ui32>* m_onForwardKeyDown = nullptr;
 };
 
 #endif // GameSystemUpdater_h__
