@@ -626,21 +626,6 @@
     <ClInclude Include="SpaceSystem.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SpacePositionComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="MoveInputComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelPositionComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="AabbCollidableComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
     <ClInclude Include="GameSystem.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
@@ -670,6 +655,9 @@
     </ClInclude>
     <ClInclude Include="SpaceMoveUpdater.h">
       <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemComponents.h">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

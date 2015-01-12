@@ -145,7 +145,6 @@ EXIT 0</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AabbCollidableComponent.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="Atmosphere.h" />
@@ -169,6 +168,7 @@ EXIT 0</Command>
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GameSystem.h" />
+    <ClInclude Include="GameSystemComponents.h" />
     <ClInclude Include="GameSystemFactories.h" />
     <ClInclude Include="GameSystemUpdater.h" />
     <ClInclude Include="HardCodedIDs.h" />
@@ -190,7 +190,6 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
-    <ClInclude Include="MoveInputComponent.h" />
     <ClInclude Include="NamePositionComponent.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
@@ -206,7 +205,6 @@ EXIT 0</Command>
     <ClInclude Include="PdaAwesomiumAPI.h" />
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
-    <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PhysicsComponentUpdater.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
@@ -216,7 +214,6 @@ EXIT 0</Command>
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceMoveUpdater.h" />
-    <ClInclude Include="SpacePositionComponent.h" />
     <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SphericalGravityComponent.h" />
@@ -273,7 +270,6 @@ EXIT 0</Command>
     <ClInclude Include="VoxelLightEngine.h" />
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
-    <ClInclude Include="VoxelPositionComponent.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="VoxelVertices.h" />
     <ClInclude Include="VoxPool.h" />
