@@ -3,7 +3,11 @@
 
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\glm.hpp>
+#include <Vorb/SoundEngine.h>
+#include <Vorb/SoundListener.h>
 
+#include "AmbienceLibrary.h"
+#include "AmbiencePlayer.h"
 #include "App.h"
 #include "GamePlayScreen.h"
 #include "IAwesomiumAPI.h"
@@ -48,6 +52,17 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
+    m_engine = new vsound::Engine;
+    m_engine->init();
+    m_ambLibrary = new AmbienceLibrary;
+    m_ambLibrary->addTrack("Menu", "Track1", "Data/Music/Abyss.mp3");
+    m_ambLibrary->addTrack("Menu", "Track2", "Data/Music/BGM Creepy.mp3");
+    m_ambLibrary->addTrack("Menu", "Track3", "Data/Music/BGM Unknown.mp3");
+    m_ambLibrary->addTrack("Menu", "Track4", "Data/Music/Stranded.mp3");
+    m_ambPlayer = new AmbiencePlayer;
+    m_ambPlayer->init(m_engine, m_ambLibrary);
+    m_ambPlayer->setToTrack("Menu", 50);
+
     // Initialize the camera
     _camera.init(_app->getWindow().getAspectRatio());
     _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
@@ -82,6 +97,12 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     delete _updateThread;
     _awesomiumInterface.destroy();
     _renderPipeline.destroy();
+
+    m_ambPlayer->dispose();
+    m_engine->dispose();
+    delete m_ambLibrary;
+    delete m_ambPlayer;
+    delete m_engine;
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
@@ -135,6 +156,9 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     }
 
     bdt += glSpeedFactor * 0.01;
+
+    m_ambPlayer->update((f32)gameTime.elapsed);
+    m_engine->update(vsound::Listener());
 }
 
 void MainMenuScreen::draw(const GameTime& gameTime) {
