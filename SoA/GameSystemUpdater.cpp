@@ -4,6 +4,9 @@
 #include "GameSystem.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
+#include "GameSystemFactories.h"
+
+#include <Vorb/FastConversion.inl>
 #include <Vorb/IntersectionUtils.inl>
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
@@ -32,13 +35,17 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             f64 distance = glm::length(spcmp.position - npcmp.position);
             // Check for voxel transition
             if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT && !spcmp.voxelPositionComponent) {
-                // We need to transition to the voxels
-                vcore::ComponentID vpid = gameSystem->voxelPositionCT.add(it.first);
-                auto& vpcmp = gameSystem->voxelPositionCT.get(vpid);
-                spcmp.voxelPositionComponent = vpid;
+                
                 // Calculate voxel position
                 auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
-                computeVoxelPosition(relPos, (f32)stcmp.sphericalTerrainData->getRadius(), vpcmp);
+                vvox::VoxelPlanetMapData mapData;
+                f64v3 pos;
+                computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), mapData, pos);
+
+                // We need to transition to the voxels
+                vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, pos, f64q(), mapData);
+
+                spcmp.voxelPositionComponent = vpid;
             } else if (spcmp.voxelPositionComponent) {
                 // We need to transition to space
                 gameSystem->voxelPositionCT.remove(it.first);
@@ -51,18 +58,24 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
 }
 
 void GameSystemUpdater::updateMoveInput(OUT GameSystem* gameSystem) {
-    for (auto& it : gameSystem->moveInputCT) {
+  //  for (auto& it : gameSystem->moveInputCT) {
 
-    }
+  //  }
 }
 
-void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT VoxelPositionComponent& vpcmp) {
+void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos) {
+#define VOXELS_PER_KM 2000.0
+
+    f64v3 voxelRelPos = relPos * VOXELS_PER_KM;
+    f32 voxelRadius = (float)(radius * VOXELS_PER_KM);
+
     f32v3 cornerPos[2];
     float min;
-    f32v3 start = f32v3(glm::normalize(relPos) * 2.0);
-    f32v3 dir = f32v3(-glm::normalize(relPos));
-    cornerPos[0] = f32v3(-radius, -radius, -radius);
-    cornerPos[1] = f32v3(radius, radius, radius);
+    float distance = (float)glm::length(voxelRelPos);
+    f32v3 start = f32v3(glm::normalize(voxelRelPos) * 2.0);
+    f32v3 dir = f32v3(-glm::normalize(voxelRelPos));
+    cornerPos[0] = f32v3(-voxelRadius, -voxelRadius, -voxelRadius);
+    cornerPos[1] = f32v3(voxelRadius, voxelRadius, voxelRadius);
     if (!IntersectionUtils::boxIntersect(cornerPos, dir,
         start, min)) {
         std::cerr << "Failed to find grid position\n";
@@ -71,30 +84,33 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
     f32v3 gridHit = start + dir * min;
     const float eps = 0.01;
 
-    vpcmp.mapData.rotation = 0;
-    if (abs(gridHit.x - (-radius)) < eps) { //-X
-        vpcmp.mapData.face = (int)CubeFace::LEFT;
-        vpcmp.mapData.ipos = gridHit.z;
-        vpcmp.mapData.jpos = gridHit.y;
-    } else if (abs(gridHit.x - radius) < eps) { //X
-        vpcmp.mapData.face = (int)CubeFace::RIGHT;
-        vpcmp.mapData.ipos = gridHit.z;
-        vpcmp.mapData.jpos = gridHit.y;
-    } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
-        vpcmp.mapData.face = (int)CubeFace::BOTTOM;
-        vpcmp.mapData.ipos = gridHit.x;
-        vpcmp.mapData.jpos = gridHit.z;
-    } else if (abs(gridHit.y - radius) < eps) { //Y
-        vpcmp.mapData.face = (int)CubeFace::TOP;
-        vpcmp.mapData.ipos = gridHit.x;
-        vpcmp.mapData.jpos = gridHit.z;
-    } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
-        vpcmp.mapData.face = (int)CubeFace::BACK;
-        vpcmp.mapData.ipos = gridHit.x;
-        vpcmp.mapData.jpos = gridHit.y;
-    } else if (abs(gridHit.z - radius) < eps) { //Z
-        vpcmp.mapData.face = (int)CubeFace::FRONT;
-        vpcmp.mapData.ipos = gridHit.x;
-        vpcmp.mapData.jpos = gridHit.y;
+    mapData.rotation = 0;
+    if (abs(gridHit.x - (-voxelRadius)) < eps) { //-X
+        mapData.face = (int)CubeFace::LEFT;
+        pos.z = gridHit.z;
+        pos.x = gridHit.y;
+    } else if (abs(gridHit.x - voxelRadius) < eps) { //X
+        mapData.face = (int)CubeFace::RIGHT;
+        pos.z = gridHit.z;
+        pos.x = gridHit.y;
+    } else if (abs(gridHit.y - (-voxelRadius)) < eps) { //-Y
+        mapData.face = (int)CubeFace::BOTTOM;
+        pos.z = gridHit.x;
+        pos.x = gridHit.z;
+    } else if (abs(gridHit.y - voxelRadius) < eps) { //Y
+        mapData.face = (int)CubeFace::TOP;
+        pos.z = gridHit.x;
+        pos.x = gridHit.z;
+    } else if (abs(gridHit.z - (-voxelRadius)) < eps) { //-Z
+        mapData.face = (int)CubeFace::BACK;
+        pos.z = gridHit.x;
+        pos.x = gridHit.y;
+    } else if (abs(gridHit.z - voxelRadius) < eps) { //Z
+        mapData.face = (int)CubeFace::FRONT;
+        pos.z = gridHit.x;
+        pos.x = gridHit.y;
     }
+    pos.y = distance - voxelRadius;
+    mapData.ipos = fastFloor(gridHit.x / (float)CHUNK_WIDTH);
+    mapData.jpos = fastFloor(gridHit.y / (float)CHUNK_WIDTH);
 }

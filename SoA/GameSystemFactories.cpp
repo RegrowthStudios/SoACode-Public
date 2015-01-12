@@ -74,3 +74,16 @@ extern vcore::ComponentID GameSystemFactories::addAabbCollidable(OUT GameSystem*
 extern void GameSystemFactories::removeAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->aabbCollidableCT.remove(entity);
 }
+
+extern vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                                                const VoxelPosition& position, const f64q& orientation,
+                                                                vvox::VoxelPlanetMapData mapData) {
+    // We need to transition to the voxels
+    vcore::ComponentID vpid = gameSystem->voxelPositionCT.add(it.first);
+    auto& vpcmp = gameSystem->voxelPositionCT.get(vpid);
+    
+}
+
+extern void GameSystemFactories::removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+    gameSystem->voxelPositionCT.remove(entity);
+}
