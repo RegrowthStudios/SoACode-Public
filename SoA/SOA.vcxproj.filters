@@ -126,6 +126,9 @@
     <Filter Include="SOA Files\Sound\Music">
       <UniqueIdentifier>{70862515-6514-4574-9caf-db361861ced8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Sound\Ambience">
+      <UniqueIdentifier>{29e314c8-5ae6-4581-9595-811643a15e11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -560,6 +563,15 @@
     <ClInclude Include="SoaFileSystem.h">
       <Filter>SOA Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="AmbienceLibrary.h">
+      <Filter>SOA Files\Sound\Ambience</Filter>
+    </ClInclude>
+    <ClInclude Include="AmbienceStream.h">
+      <Filter>SOA Files\Sound\Ambience</Filter>
+    </ClInclude>
+    <ClInclude Include="AmbiencePlayer.h">
+      <Filter>SOA Files\Sound\Ambience</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -909,6 +921,15 @@
     </ClCompile>
     <ClCompile Include="SoaFileSystem.cpp">
       <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="AmbienceLibrary.cpp">
+      <Filter>SOA Files\Sound\Ambience</Filter>
+    </ClCompile>
+    <ClCompile Include="AmbienceStream.cpp">
+      <Filter>SOA Files\Sound\Ambience</Filter>
+    </ClCompile>
+    <ClCompile Include="AmbiencePlayer.cpp">
+      <Filter>SOA Files\Sound\Ambience</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

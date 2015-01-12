@@ -136,6 +136,9 @@ EXIT 0</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AmbienceLibrary.h" />
+    <ClInclude Include="AmbiencePlayer.h" />
+    <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
@@ -281,6 +284,9 @@ EXIT 0</Command>
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AmbienceLibrary.cpp" />
+    <ClCompile Include="AmbiencePlayer.cpp" />
+    <ClCompile Include="AmbienceStream.cpp" />
     <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="BlockPack.cpp" />
