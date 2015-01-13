@@ -13,7 +13,7 @@ SoaController::~SoaController() {
 void SoaController::startGame(OUT SoaState* state) {
     if (state->isNewGame) {
         // Create the player entity
-        state->playerEntity = GameSystemFactories::createPlayer(&state->gameSystem, f64v3(0.0),
+        state->playerEntity = GameSystemFactories::createPlayer(&state->gameSystem, state->startSpacePos,
                                           f64q(), 73.0f, f64v3(0.0));
     } else {
 

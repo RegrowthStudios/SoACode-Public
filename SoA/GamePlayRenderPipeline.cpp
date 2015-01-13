@@ -64,8 +64,8 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     // Get window dimensions
     f32v2 windowDims(_viewport.z, _viewport.w);
 
-    _worldCamera.setAspectRatio(_viewport.z / _viewport.w);
-    _chunkCamera.setAspectRatio(_viewport.z / _viewport.w);
+    _worldCamera.setAspectRatio(windowDims.x / windowDims.y);
+    _chunkCamera.setAspectRatio(windowDims.x / windowDims.y);
 
     // Set up shared params
     const vg::GLProgramManager* glProgramManager = soaState->glProgramManager.get();
@@ -113,6 +113,7 @@ void GamePlayRenderPipeline::render() {
 
     // worldCamera passes
     _skyboxRenderStage->draw();
+    m_spaceSystemRenderStage->draw();
 
     // Clear the depth buffer so we can draw the voxel passes
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -269,11 +270,9 @@ void GamePlayRenderPipeline::updateCameras() {
         // DO STUFF
     } 
 
-  
     auto& spcmp = gs->spacePositionCT.get(phycmp.spacePositionComponent);
-    std::cout << spcmp.orientation.x << " " << spcmp.orientation.y << " " << spcmp.orientation.z << " " << spcmp.orientation.w << std::endl;
-
-    _worldCamera.setClippingPlane(20.0f, 999999999.0f);
+    printVec("POSITION: ", spcmp.position);
+    _worldCamera.setClippingPlane(10.0f, 999999999.0f);
     _worldCamera.setPosition(spcmp.position);
     _worldCamera.setOrientation(spcmp.orientation);
     _worldCamera.update();
