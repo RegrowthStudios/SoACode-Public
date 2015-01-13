@@ -78,6 +78,7 @@ void GamePlayScreen::destroy(const GameTime& gameTime) {
 void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_inputManager = new InputManager;
+    initInputs(m_inputManager);
 
     m_soaState = m_mainMenuScreen->getSoAState();
 
@@ -159,6 +160,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
         m_inFocus = true;
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
         m_inFocus = false;
     });
 

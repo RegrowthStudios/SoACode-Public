@@ -55,8 +55,10 @@ struct FreeMoveInputComponent {
             bool tryMoveUp : 1; ///< True when attempting to go up
             bool tryMoveDown : 1; ///< True when attempting to go down
             bool superSpeed : 1; ///< True when super speed is active
+            bool tryRollLeft : 1; ///< True when trying to roll left along cam Z
+            bool tryRollRight : 1; ///< True when trying to roll right along cam Z
         };
-        ui8 moveFlags = 0;
+        ui16 moveFlags = 0;
     };
     vcore::ComponentID physicsComponent = 0;
     float speed = 0.1f;
