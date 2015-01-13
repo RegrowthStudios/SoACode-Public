@@ -79,7 +79,7 @@ extern vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* 
                                                                 const VoxelPosition& position, const f64q& orientation,
                                                                 vvox::VoxelPlanetMapData mapData) {
     // We need to transition to the voxels
-    vcore::ComponentID vpid = gameSystem->voxelPositionCT.add(it.first);
+    vcore::ComponentID vpid = gameSystem->voxelPositionCT.add(entity);
     auto& vpcmp = gameSystem->voxelPositionCT.get(vpid);
     
 }

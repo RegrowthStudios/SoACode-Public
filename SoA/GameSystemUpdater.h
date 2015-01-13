@@ -17,6 +17,7 @@
 
 #include "PhysicsComponentUpdater.h"
 #include "CollisionComponentUpdater.h"
+#include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
 class GameSystem;
@@ -54,6 +55,13 @@ private:
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
     IDelegate<ui32>* m_onForwardKeyDown = nullptr;
+    IDelegate<ui32>* m_onForwardKeyUp = nullptr;
+    IDelegate<ui32>* m_onRightKeyDown = nullptr;
+    IDelegate<ui32>* m_onRightKeyUp = nullptr;
+    IDelegate<ui32>* m_onLeftKeyDown = nullptr;
+    IDelegate<ui32>* m_onLeftKeyUp = nullptr;
+    IDelegate<ui32>* m_onBackwardKeyDown = nullptr;
+    IDelegate<ui32>* m_onBackwardKeyUp = nullptr;
 };
 
 #endif // GameSystemUpdater_h__
