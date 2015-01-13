@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TestConsoleScreen.h"
 
-#include <Vorb/InputDispatcher.h>
+#include <Vorb/ui/InputDispatcher.h>
 
 i32 TestConsoleScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;

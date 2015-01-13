@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <Vorb/DepthState.h>
+#include <Vorb/graphics/DepthState.h>
 
 #include "Camera.h"
 #include "SkyboxRenderer.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Vorb/IGameScreen.h>
+#include <Vorb/ui/IGameScreen.h>
 #include <Vorb/Random.h>
 #include <Vorb/RPC.h>
 

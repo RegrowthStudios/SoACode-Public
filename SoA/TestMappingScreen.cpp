@@ -2,7 +2,7 @@
 #include "TestMappingScreen.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <Vorb/GLStates.h>
+#include <Vorb/graphics/GLStates.h>
 
 #pragma region Simple shader code
 const cString SRC_VERT = R"(

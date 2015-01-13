@@ -4,7 +4,6 @@
 #define IAwesomiumInterface_h__
 
 #include "stdafx.h"
-#include "GLProgram.h"
 
 #include <Awesomium/BitmapSurface.h>
 #include <Awesomium/DataPak.h>
@@ -12,6 +11,7 @@
 #include <Awesomium/STLHelpers.h>
 #include <Awesomium/WebCore.h>
 #include <SDL/SDL.h>
+#include <Vorb/graphics/GLProgram.h>
 
 /// Abstract class that allows you to hold a handle to a a generic AwesomiumInterface<C>
 class IAwesomiumInterface {

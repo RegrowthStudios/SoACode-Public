@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <Vorb/RasterizerState.h>
+#include <Vorb/graphics/RasterizerState.h>
 
 #include "GameManager.h"
 #include "GLProgramManager.h"

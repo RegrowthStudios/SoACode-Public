@@ -15,14 +15,14 @@
 #ifndef TestDeferredScreen_h__
 #define TestDeferredScreen_h__
 
-#include <Vorb/DeferredShaders.h>
 #include <Vorb/Events.hpp>
-#include <Vorb/FullQuadVBO.h>
-#include <Vorb/GBuffer.h>
-#include <Vorb/GLProgram.h>
-#include <Vorb/gtypes.h>
-#include <Vorb/IGameScreen.h>
-#include <Vorb/SpriteBatch.h>
+#include <Vorb/graphics/DeferredShaders.h>
+#include <Vorb/graphics/FullQuadVBO.h>
+#include <Vorb/graphics/GBuffer.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/gtypes.h>
+#include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/ui/IGameScreen.h>
 
 class TestDeferredScreen : public IGameScreen {
 public:

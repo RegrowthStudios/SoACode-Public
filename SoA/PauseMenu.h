@@ -15,8 +15,7 @@
 #ifndef PauseMenu_h__
 #define PauseMenu_h__
 
-#include <Vorb/AwesomiumInterface.h>
-
+#include "AwesomiumInterface.h"
 #include "PauseMenuAwesomiumAPI.h"
 
 class PauseMenu {

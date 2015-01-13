@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PDA.h"
 
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "GamePlayScreen.h"
 

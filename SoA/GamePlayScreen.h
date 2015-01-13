@@ -16,10 +16,10 @@
 #ifndef GAMEPLAYSCREEN_H_
 #define GAMEPLAYSCREEN_H_
 
-#include <Vorb/AwesomiumInterface.h>
 #include <Vorb/Random.h>
-#include <Vorb/IGameScreen.h>
+#include <Vorb/ui/IGameScreen.h>
 
+#include "AwesomiumInterface.h"
 #include "GamePlayRenderPipeline.h"
 #include "LoadMonitor.h"
 #include "MainMenuAPI.h"

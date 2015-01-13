@@ -16,9 +16,9 @@
 #define AWESOMIUMINTERFACE_H_
 
 #include "SDL/SDL.h"
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/ui/InputDispatcher.h>
 
-#include "GLProgram.h"
-#include "InputDispatcher.h"
 #include "IAwesomiumInterface.h"
 #include "OpenglSurfaceFactory.h"
 

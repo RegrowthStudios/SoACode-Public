@@ -138,6 +138,7 @@ EXIT 0</Command>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
+    <ClInclude Include="AwesomiumInterface.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="BlockPack.h" />
     <ClInclude Include="BlockTextureMethods.h" />
@@ -157,6 +158,7 @@ EXIT 0</Command>
     <ClInclude Include="BlockLoader.h" />
     <ClInclude Include="GLProgramManager.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
+    <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
@@ -171,6 +173,7 @@ EXIT 0</Command>
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
+    <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="PauseMenuAwesomiumAPI.h" />
     <ClInclude Include="PauseMenuRenderStage.h" />
@@ -309,6 +312,7 @@ EXIT 0</Command>
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
+    <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
     <ClCompile Include="PauseMenuRenderStage.cpp" />
@@ -407,6 +411,7 @@ EXIT 0</Command>
     <Text Include="docs\FileSpecs\WSO.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AwesomiumInterface.inl" />
     <None Include="Chunk.inl" />
     <None Include="IAwesomiumAPI.inl" />
     <None Include="VoxelIntervalTree.inl" />

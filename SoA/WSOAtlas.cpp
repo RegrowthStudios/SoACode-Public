@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "WSOAtlas.h"
 
-#include <Vorb/IOManager.h>
+#include <Vorb/io/IOManager.h>
 
 #include "WSOData.h"
 

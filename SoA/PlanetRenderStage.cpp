@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "PlanetRenderStage.h"
 
-#include <Vorb/GLStates.h>
-#include <Vorb/GameWindow.h>
+#include <Vorb/graphics/GLStates.h>
+#include <Vorb/ui/GameWindow.h>
 
 #include "Chunk.h"
 #include "ChunkManager.h"

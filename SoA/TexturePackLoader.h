@@ -18,8 +18,8 @@
 
 #include <set>
 
-#include <Vorb/IOManager.h>
-#include <Vorb/TextureCache.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/graphics/TextureCache.h>
 
 #include "TextureAtlasStitcher.h"
 #include "BlockPack.h"

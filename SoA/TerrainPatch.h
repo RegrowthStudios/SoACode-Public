@@ -1,5 +1,5 @@
 #pragma once
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "Frustum.h"
 #include "TerrainGenerator.h"
