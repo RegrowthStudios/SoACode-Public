@@ -14,7 +14,7 @@
 #ifndef SkyboxRenderer_h__
 #define SkyboxRenderer_h__
 
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "Texture2d.h"
 

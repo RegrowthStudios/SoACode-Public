@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "LoadBar.h"
 
-#include <Vorb/SpriteBatch.h>
+#include <Vorb/graphics/SpriteBatch.h>
 
 LoadBarCommonProperties::LoadBarCommonProperties(const f32v2& offset, const f32v2& size, const f32& moveSpeed, const f32v2& textOffset, const f32& textSize) :
 offsetDirection(offset),

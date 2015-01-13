@@ -2,7 +2,7 @@
 #include <deque>
 #include <queue>
 
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "WorldStructs.h"
 #include "OpenGLStructs.h"

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PauseMenuAwesomiumAPI.h"
 
-#include <Vorb/MainGame.h>
+#include <Vorb/ui/MainGame.h>
 
 #include "App.h"
 #include "GamePlayScreen.h"

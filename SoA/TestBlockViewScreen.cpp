@@ -3,12 +3,12 @@
 
 #include <glm/gtx/transform.hpp>
 #include <Vorb/colors.h>
-#include <Vorb/GLStates.h>
-#include <Vorb/InputDispatcher.h>
-#include <Vorb/IOManager.h>
+#include <Vorb/graphics/GLStates.h>
+#include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/io/IOManager.h>
 #include <Vorb/Random.h>
 #include <Vorb/Timing.h>
-#include <Vorb/VoxelMesherCulled.h>
+#include <Vorb/voxel/VoxelMesherCulled.h>
 
 #include "BlockLoader.h"
 

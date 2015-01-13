@@ -2,7 +2,7 @@
 #include "stdafx.h"
 
 #include <SDL/SDL.h>
-#include <Vorb/Keg.h>
+#include <Vorb/io/Keg.h>
 
 #include "BlockTextureMethods.h"
 #include "CAEngine.h"

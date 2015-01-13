@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GLProgramManager.h"
 
-#include <Vorb/GLEnums.h>
+#include <Vorb/graphics/GLEnums.h>
 
 #include "Errors.h"
 

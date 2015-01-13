@@ -3,9 +3,9 @@
 
 #include <Vorb/colors.h>
 #include <Vorb/Events.hpp>
-#include <Vorb/GpuMemory.h>
-#include <Vorb/SpriteFont.h>
-#include <Vorb/SpriteBatch.h>
+#include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/graphics/SpriteFont.h>
+#include <Vorb/graphics/SpriteBatch.h>
 
 #include "Player.h"
 #include "App.h"

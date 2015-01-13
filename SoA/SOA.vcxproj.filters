@@ -129,6 +129,9 @@
     <Filter Include="SOA Files\Sound\Ambience">
       <UniqueIdentifier>{29e314c8-5ae6-4581-9595-811643a15e11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Rendering\Awesomium">
+      <UniqueIdentifier>{19a0ff49-6794-4225-847f-886ba6baa490}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -572,6 +575,15 @@
     <ClInclude Include="AmbiencePlayer.h">
       <Filter>SOA Files\Sound\Ambience</Filter>
     </ClInclude>
+    <ClInclude Include="AwesomiumInterface.h">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumInterface.h">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenglSurfaceFactory.h">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -931,6 +943,9 @@
     <ClCompile Include="AmbiencePlayer.cpp">
       <Filter>SOA Files\Sound\Ambience</Filter>
     </ClCompile>
+    <ClCompile Include="OpenglSurfaceFactory.cpp">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -956,6 +971,9 @@
     </None>
     <None Include="IAwesomiumAPI.inl">
       <Filter>SOA Files\Screens</Filter>
+    </None>
+    <None Include="AwesomiumInterface.inl">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
     </None>
   </ItemGroup>
 </Project>

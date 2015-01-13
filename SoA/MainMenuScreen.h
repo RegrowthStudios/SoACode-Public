@@ -17,11 +17,11 @@
 #ifndef MAINMENUSCREEN_H_
 #define MAINMENUSCREEN_H_
 
-#include <Vorb/AwesomiumInterface.h>
-#include <Vorb/IGameScreen.h>
+#include <Vorb/ui/IGameScreen.h>
 #include <Vorb/Random.h>
 #include <Vorb/VorbPreDecl.inl>
 
+#include "AwesomiumInterface.h"
 #include "MainMenuAPI.h"
 #include "LoadMonitor.h"
 #include "MainMenuRenderPipeline.h"

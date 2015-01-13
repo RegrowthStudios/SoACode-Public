@@ -16,9 +16,9 @@
 #define TestConsoleScreen_h__
 
 #include <Vorb/Events.hpp>
-#include <Vorb/IGameScreen.h>
-#include <Vorb/LuaDevConsole.h>
-#include <Vorb/TextInputListener.hpp>
+#include <Vorb/ui/IGameScreen.h>
+#include <Vorb/ui/LuaDevConsole.h>
+#include <Vorb/ui/TextInputListener.hpp>
 
 class TestConsoleScreen : public IGameScreen {
 public:

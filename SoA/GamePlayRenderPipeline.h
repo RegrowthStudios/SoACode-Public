@@ -14,10 +14,10 @@
 #ifndef GamePlayRenderPipeline_h__
 #define GamePlayRenderPipeline_h__
 
-#include <Vorb/FullQuadVBO.h>
-#include <Vorb/GLRenderTarget.h>
-#include <Vorb/IRenderPipeline.h>
-#include <Vorb/RTSwapChain.hpp>
+#include <Vorb/graphics/FullQuadVBO.h>
+#include <Vorb/graphics/GLRenderTarget.h>
+#include <Vorb/graphics/IRenderPipeline.h>
+#include <Vorb/graphics/RTSwapChain.hpp>
 
 #include "GameRenderParams.h"
 #include "GLProgramManager.h"

@@ -16,8 +16,8 @@
 
 #include <unordered_map>
 
-#include <Vorb/GLProgram.h>
-#include <Vorb/IOManager.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/io/IOManager.h>
 
 namespace vorb {
     namespace core {
