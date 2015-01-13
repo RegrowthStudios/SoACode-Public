@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SphericalTerrainPatch.h"
 
-#include <Vorb/GpuMemory.h>
+#include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/TextureRecycler.hpp>
 #include <Vorb/utils.h>
 

@@ -5,7 +5,7 @@
 #include <functional>
 
 #include <Vorb/MeshGenerators.h>
-#include <Vorb/RasterizerState.h>
+#include <Vorb/graphics/RasterizerState.h>
 
 #include "GameManager.h"
 #include "GLProgramManager.h"

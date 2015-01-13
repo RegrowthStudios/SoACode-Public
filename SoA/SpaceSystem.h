@@ -15,7 +15,6 @@
 #ifndef SpaceSystem_h__
 #define SpaceSystem_h__
 
-
 #include "AxisRotationComponent.h"
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
@@ -27,9 +26,9 @@
 #include "SphericalTerrainComponentUpdater.h"
 #include "AxisRotationComponentUpdater.h"
 
-#include <Vorb/IOManager.h>
-#include <Vorb/ComponentTable.hpp>
-#include <Vorb/ECS.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/ecs/ComponentTable.hpp>
+#include <Vorb/ecs/ECS.h>
 
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"

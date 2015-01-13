@@ -16,9 +16,9 @@
 #define OrbitComponent_h__
 
 #include <SDL/SDL_stdinc.h>
-
-#include <Vorb/GpuMemory.h>
-#include <Vorb/Entity.h>
+#include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/ecs/Entity.h>
+#include <Vorb/graphics/gtypes.h>
 
 class NamePositionComponent;
 

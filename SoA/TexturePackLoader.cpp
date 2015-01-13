@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "TexturePackLoader.h"
 
-#include <Vorb/ImageLoader.h>
-#include <Vorb/Keg.h>
+#include <Vorb/graphics/ImageIO.h>
+#include <Vorb/io/Keg.h>
 
 #include "FileSystem.h"
 #include "Options.h"
@@ -47,7 +47,9 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
         // Load the data
         std::vector<ui8>* pixelStore = new std::vector<ui8>();
-        vg::ImageLoader::loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height, &_ioManager);
+        // TODO: Use iom to get a path
+        vpath texPath; _ioManager.resolvePath(_texturePackPath + it->first, texPath);
+        vio::ImageIO().loadPng(texPath.getString(), *pixelStore, width, height);
         if (pixelStore->size()) {
             // Add the data to the cache and get non-const reference to pixels
             Pixels* pixels = &(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).first->second);
@@ -171,7 +173,10 @@ ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
         // Load the color map into a buffer
         std::vector<ui8> buffer;
         ui32 width, height;
-        vg::ImageLoader::loadPng(name.c_str(), buffer, width, height, &_ioManager, true);
+        
+        // TODO: Same as above
+        vpath texPath; _ioManager.resolvePath(name, texPath);
+        vio::ImageIO().loadPng(texPath.getString(), buffer, width, height);
 
         //// Error checking
         //if (width != MAP_WIDTH) {
@@ -191,7 +196,6 @@ ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
         //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 2]);
         //    }
         //}
-
         return _blockColorMaps.size() - 1;
     }
 }
@@ -460,7 +464,9 @@ ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& he
     if (it == _pixelCache.end()) {
         // Load the data
         std::vector<ui8>* pixelStore = new std::vector<ui8>();
-        vg::ImageLoader::loadPng((_texturePackPath + filePath).c_str(), *pixelStore, width, height, &_ioManager);
+
+        vpath texPath; _ioManager.resolvePath(_texturePackPath + filePath, texPath);
+        vio::ImageIO().loadPng(texPath.getString(), *pixelStore, width, height);
         if (pixelStore->size()) {
             // Add the data to the cache
             _pixelCache[filePath] = Pixels(pixelStore, width, height);

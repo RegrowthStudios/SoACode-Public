@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "OrbitComponentRenderer.h"
 
+#include <Vorb/graphics/GLProgram.h>
+#include <glm/gtx/quaternion.hpp>
+
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
 #include "RenderUtils.h"
-
-#include <Vorb/GLProgram.h>
-#include <glm/gtx/quaternion.hpp>
 
 #define DEGREES 360
 #define VERTS_PER_DEGREE 8

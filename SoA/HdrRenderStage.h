@@ -15,9 +15,9 @@
 #ifndef HdrRenderStage_h__
 #define HdrRenderStage_h__
 
-#include <Vorb/FullQuadVBO.h>
-#include <Vorb/GLProgram.h>
-#include <Vorb/IRenderStage.h>
+#include <Vorb/graphics/FullQuadVBO.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/IRenderStage.h>
 
 #include "GLProgramManager.h"
 

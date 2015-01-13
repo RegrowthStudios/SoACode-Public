@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "GamePlayRenderPipeline.h"
 
-#include <Vorb/GLStates.h>
+#include <Vorb/graphics/GLStates.h>
+#include <yaml-cpp/yaml.h>
 
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"

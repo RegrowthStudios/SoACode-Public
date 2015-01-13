@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TerrainGenerator.h"
 
-#include <Vorb/ImageLoader.h>
+#include <Vorb/graphics/ImageIO.h>
 
 #include "GameManager.h"
 #include "SimplexNoise.h"

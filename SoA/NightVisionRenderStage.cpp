@@ -4,9 +4,9 @@
 #include <ctime>
 
 #include <Vorb/colors.h>
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/Random.h>
-#include <Vorb/SamplerState.h>
+#include <Vorb/graphics/SamplerState.h>
 
 #include "Options.h"
 

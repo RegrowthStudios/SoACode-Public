@@ -18,12 +18,11 @@
 
 #pragma once
 
-#include <Vorb/GLProgram.h>
-#include <Vorb/Keg.h>
-#include <Vorb/TextureCache.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/io/Keg.h>
+#include <Vorb/graphics/TextureCache.h>
 #include <Vorb/VorbPreDecl.inl>
 
-#include <vector>
 #include "Biome.h"
 
 DECL_VIO(class, IOManager);

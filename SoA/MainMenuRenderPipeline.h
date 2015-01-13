@@ -14,10 +14,10 @@
 #ifndef MainMenuRenderPipeline_h__
 #define MainMenuRenderPipeline_h__
 
-#include <Vorb/FullQuadVBO.h>
-#include <Vorb/GLRenderTarget.h>
-#include <Vorb/IRenderPipeline.h>
-#include <Vorb/RTSwapChain.hpp>
+#include <Vorb/graphics/FullQuadVBO.h>
+#include <Vorb/graphics/GLRenderTarget.h>
+#include <Vorb/graphics/IRenderPipeline.h>
+#include <Vorb/graphics/RTSwapChain.hpp>
 
 #include "GLProgramManager.h"
 

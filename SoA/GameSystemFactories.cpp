@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GameSystemFactories.h"
 
-#include <Vorb/ECS.h>
+#include <Vorb/ecs/ECS.h>
 
 #include "GameSystem.h"
 
@@ -25,7 +25,7 @@ void GameSystemFactories::destroyPlayer(OUT GameSystem* gameSystem, vcore::Entit
 }
 
 extern vcore::ComponentID GameSystemFactories::addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity) {
-    gameSystem->freeMoveInputCT.add(entity);
+    return gameSystem->freeMoveInputCT.add(entity);
 }
 
 extern void GameSystemFactories::removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity) {
@@ -81,7 +81,7 @@ extern vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* 
     // We need to transition to the voxels
     vcore::ComponentID vpid = gameSystem->voxelPositionCT.add(entity);
     auto& vpcmp = gameSystem->voxelPositionCT.get(vpid);
-    
+    return vpid;
 }
 
 extern void GameSystemFactories::removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {

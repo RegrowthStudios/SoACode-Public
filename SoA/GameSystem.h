@@ -15,8 +15,8 @@
 #ifndef GameSystem_h__
 #define GameSystem_h__
 
-#include <Vorb/ComponentTable.hpp>
-#include <Vorb/ECS.h>
+#include <Vorb/ecs/ComponentTable.hpp>
+#include <Vorb/ecs/ECS.h>
 
 #include "GameSystemComponents.h"
 

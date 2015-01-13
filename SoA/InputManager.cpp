@@ -1,21 +1,15 @@
 #include "stdafx.h"
 #include "InputManager.h"
 
-#include <sstream>
-
 #include <SDL\SDL_keyboard.h>
 #include <SDL\SDL_mouse.h>
+#include <Vorb/io/Keg.h>
+#include <yaml-cpp/yaml.h>
 
 #include "global.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "Inputs.h"
-
-#include <Vorb/Keg.h>
-
-#include <string>
-#include <sstream>
-#include <stdio.h>
 
 KEG_ENUM_INIT_BEGIN(AxisType, InputManager::AxisType, e)
 e->addValue("dualKey", InputManager::AxisType::DUAL_KEY);

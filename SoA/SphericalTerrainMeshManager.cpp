@@ -5,7 +5,7 @@
 #include "PlanetLoader.h"
 #include "Camera.h"
 
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/TextureRecycler.hpp>
 
 #include "SphericalTerrainPatch.h"

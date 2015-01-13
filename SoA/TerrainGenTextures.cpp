@@ -2,8 +2,8 @@
 #include "TerrainGenTextures.h"
 #include "Errors.h"
 
-#include <Vorb/SamplerState.h>
-#include <Vorb/GpuMemory.h>
+#include <Vorb/graphics/SamplerState.h>
+#include <Vorb/graphics/GpuMemory.h>
 
 TerrainGenTextures::~TerrainGenTextures() {
     destroy();

@@ -3,7 +3,7 @@
 #ifndef App_h_
 #define App_h_
 
-#include <Vorb/MainGame.h>
+#include <Vorb/ui/MainGame.h>
 
 class DevScreen;
 class InitScreen;

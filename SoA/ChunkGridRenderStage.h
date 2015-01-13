@@ -16,7 +16,7 @@
 #ifndef ChunkGridRenderStage_h__
 #define ChunkGridRenderStage_h__
 
-#include <Vorb/IRenderStage.h>
+#include <Vorb/graphics/IRenderStage.h>
 
 class GameRenderParams;
 class ChunkSlot;

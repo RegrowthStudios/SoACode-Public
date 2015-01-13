@@ -2,12 +2,13 @@
 #include "Options.h"
 
 #include <SDL/SDL.h>
+#include <Vorb/io/IOManager.h>
+#include <yaml-cpp/yaml.h>
 
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "InputManager.h"
 
-#include <Vorb/IOManager.h>
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(GraphicsOptions)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("enableParticles", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(GraphicsOptions, enableParticles)));

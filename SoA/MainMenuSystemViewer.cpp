@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MainMenuSystemViewer.h"
 
-#include <Vorb/InputDispatcher.h>
+#include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/utils.h>
 
 #include "Camera.h"

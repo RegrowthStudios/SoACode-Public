@@ -2,8 +2,9 @@
 #include "BlockLoader.h"
 
 #include <boost/algorithm/string/replace.hpp>
-#include <Vorb/IOManager.h>
-#include <Vorb/Keg.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/io/Keg.h>
+#include <yaml-cpp/yaml.h>
 
 #include "BlockPack.h"
 #include "Chunk.h"

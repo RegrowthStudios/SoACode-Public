@@ -1,14 +1,9 @@
 #include "stdafx.h"
 #include "App.h"
 
-#include "GamePlayScreen.h"
-
-#include <Vorb/InputDispatcher.h>
-#include <Vorb/ScreenList.h>
-#include <Vorb/SpriteBatch.h>
-#include <Vorb/InputDispatcher.h>
-#include <Vorb/ScreenList.h>
-#include <Vorb/SpriteBatch.h>
+#include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/ui/ScreenList.h>
+#include <Vorb/graphics/SpriteBatch.h>
 
 #include "DevScreen.h"
 #include "GameManager.h"
@@ -18,7 +13,7 @@
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "Options.h"
-
+#include "GamePlayScreen.h"
 #include "SpaceSystem.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"

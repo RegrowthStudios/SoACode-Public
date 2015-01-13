@@ -15,9 +15,9 @@
 #ifndef SpaceSystemRenderStage_h__
 #define SpaceSystemRenderStage_h__
 
-#include <Vorb/IRenderStage.h>
-#include <Vorb/GLProgram.h>
-#include <Vorb/ECS.h>
+#include <Vorb/graphics/IRenderStage.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/ecs/ECS.h>
 
 #include "OrbitComponentRenderer.h"
 #include "SphericalTerrainComponentRenderer.h"

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MainMenuRenderPipeline.h"
 
-#include <Vorb/TextureCache.h>
+#include <Vorb/graphics/TextureCache.h>
 
 #include "AwesomiumRenderStage.h"
 #include "Errors.h"

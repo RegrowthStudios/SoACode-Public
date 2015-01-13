@@ -2,9 +2,9 @@
 #include <SDL/SDL.h>
 
 #include <Vorb/RPC.h>
-#include <Vorb/SpriteBatch.h>
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/SpriteBatch.h>
 
 #include "Errors.h"
 #include "LoadMonitor.h"

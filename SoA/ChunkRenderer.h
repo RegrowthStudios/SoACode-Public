@@ -3,7 +3,7 @@
 #ifndef ChunkRenderer_h__
 #define ChunkRenderer_h__
 
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "ChunkMesh.h"
 

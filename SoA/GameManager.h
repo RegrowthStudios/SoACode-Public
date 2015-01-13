@@ -1,7 +1,7 @@
 #pragma once
 #include <deque>
 
-#include <Vorb/TextureCache.h>
+#include <Vorb/graphics/TextureCache.h>
 #include <Vorb/Vorb.h>
 
 #include "WorldStructs.h"

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CAEngine.h"
 
-#include <Vorb/IOManager.h>
+#include <Vorb/io/IOManager.h>
 
 #include "BlockPack.h"
 #include "Chunk.h"

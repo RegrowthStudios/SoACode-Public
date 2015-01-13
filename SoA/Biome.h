@@ -14,8 +14,7 @@
 #ifndef Biome_h__
 #define Biome_h__
 
-#include <vector>
-#include <Vorb/Keg.h>
+#include <Vorb/io/Keg.h>
 
 class BiomeTree {
 public:

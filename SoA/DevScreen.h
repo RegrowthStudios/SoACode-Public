@@ -16,7 +16,7 @@
 #define DevScreen_h__
 
 #include <Vorb/Events.hpp>
-#include <Vorb/IGameScreen.h>
+#include <Vorb/ui/IGameScreen.h>
 
 class DevScreen : public IGameScreen {
 public:

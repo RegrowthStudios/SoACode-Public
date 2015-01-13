@@ -9,11 +9,11 @@
 #include "SphericalTerrainMeshManager.h"
 #include "GLProgramManager.h"
 
-#include <Vorb/IOManager.h>
-#include <Vorb/Keg.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/io/Keg.h>
 #include <Vorb/TextureRecycler.hpp>
 #include <Vorb/utils.h>
-
+#include <yaml-cpp/yaml.h>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\quaternion.hpp>
 #include <glm\gtx\quaternion.hpp>

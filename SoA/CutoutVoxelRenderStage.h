@@ -17,7 +17,7 @@
 #ifndef CutoutVoxelRenderStage_h__
 #define CutoutVoxelRenderStage_h__
 
-#include <Vorb/IRenderStage.h>
+#include <Vorb/graphics/IRenderStage.h>
 
 class GameRenderParams;
 class Camera;

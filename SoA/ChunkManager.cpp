@@ -7,9 +7,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <Vorb/GLEnums.h>
-#include <Vorb/GLProgram.h>
-#include <Vorb/Mesh.h>
+#include <Vorb/graphics/GLEnums.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/Mesh.h>
 #include <Vorb/ThreadPool.h>
 #include <Vorb/Vorb.h>
 #include <ZLIB/zlib.h>

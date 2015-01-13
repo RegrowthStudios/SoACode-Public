@@ -1,8 +1,8 @@
 #pragma once
 #include <chrono>
 
-#include <Vorb/GLProgram.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/GLProgram.h>
 
 DECL_VG(class, GLProgramManager);
 

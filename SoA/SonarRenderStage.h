@@ -15,7 +15,7 @@
 #ifndef SonarRenderStage_h__
 #define SonarRenderStage_h__
 
-#include <Vorb/IRenderStage.h>
+#include <Vorb/graphics/IRenderStage.h>
 
 class Camera;
 class GameRenderParams;

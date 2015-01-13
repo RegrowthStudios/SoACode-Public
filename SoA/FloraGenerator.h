@@ -1,6 +1,6 @@
 #pragma once
 #include <Vorb/utils.h>
-#include <Vorb/Keg.h>
+#include <Vorb/io/Keg.h>
 
 class Chunk;
 class TreeType;

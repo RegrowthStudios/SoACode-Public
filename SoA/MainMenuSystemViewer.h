@@ -18,8 +18,8 @@
 
 #include <Vorb/Vorb.h>
 // Temporary
-#include <Vorb/MouseInputDispatcher.h>
-#include <Vorb/ECS.h>
+#include <Vorb/ui/MouseInputDispatcher.h>
+#include <Vorb/ecs/ECS.h>
 
 class CinematicCamera;
 class InputManager;

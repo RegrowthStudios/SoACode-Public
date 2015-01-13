@@ -7,11 +7,11 @@
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
-#include <Vorb/DepthState.h>
-#include <Vorb/GLProgram.h>
-#include <Vorb/SamplerState.h>
-#include <Vorb/SpriteBatch.h>
-#include <Vorb/SpriteFont.h>
+#include <Vorb/graphics/DepthState.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/SamplerState.h>
+#include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/colors.h>
 #include <Vorb/utils.h>
 

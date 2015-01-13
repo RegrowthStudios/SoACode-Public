@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "SoaController.h"
 
+#include <Vorb/ecs/Entity.h>
+
 #include "GameSystemFactories.h"
 #include "SoaState.h"
-#include <Vorb/Entity.h>
 
 SoaController::~SoaController() {
     // Empty

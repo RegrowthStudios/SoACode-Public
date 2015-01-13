@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "SphericalVoxelComponent.h"
-#include "SphericalTerrainPatch.h"
 
+#include <Vorb/io/IOManager.h>
+
+#include "SphericalTerrainPatch.h"
 #include "ChunkManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "SphericalTerrainGenerator.h"
 #include "VoxelPlanetMapper.h"
 
-#include <Vorb/IOManager.h>
 
 void SphericalVoxelComponent::init(const SphericalTerrainData* sphericalTerrainData, const vio::IOManager* saveFileIom,
                                    SphericalTerrainGenerator* terrainGenerator,

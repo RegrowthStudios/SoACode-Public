@@ -3,11 +3,11 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <Vorb/colors.h>
-#include <Vorb/GLStates.h>
-#include <Vorb/GLRenderTarget.h>
-#include <Vorb/ImageLoader.h>
-#include <Vorb/InputDispatcher.h>
-#include <Vorb/IOManager.h>
+#include <Vorb/graphics/GLStates.h>
+#include <Vorb/graphics/GLRenderTarget.h>
+#include <Vorb/graphics/ImageIO.h>
+#include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/io/IOManager.h>
 
 // Number cells per row/column in a single grid
 const ui32 CELLS = 20;
@@ -400,22 +400,23 @@ void TestDeferredScreen::buildLightMaps() {
     std::vector<ui8> pixels;
     ui32v2 size;
     
-    vg::ImageLoader::loadPng("Textures/Test/nx.png", pixels, size.x, size.y, false);
+    vio::ImageIO imageLoader;
+    imageLoader.loadPng("Textures/Test/nx.png", pixels, size.x, size.y);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     pixels.swap(std::vector<ui8>());
-    vg::ImageLoader::loadPng("Textures/Test/px.png", pixels, size.x, size.y, false);
+    imageLoader.loadPng("Textures/Test/px.png", pixels, size.x, size.y);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     pixels.swap(std::vector<ui8>());
-    vg::ImageLoader::loadPng("Textures/Test/ny.png", pixels, size.x, size.y, false);
+    imageLoader.loadPng("Textures/Test/ny.png", pixels, size.x, size.y);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     pixels.swap(std::vector<ui8>());
-    vg::ImageLoader::loadPng("Textures/Test/py.png", pixels, size.x, size.y, false);
+    imageLoader.loadPng("Textures/Test/py.png", pixels, size.x, size.y);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     pixels.swap(std::vector<ui8>());
-    vg::ImageLoader::loadPng("Textures/Test/nz.png", pixels, size.x, size.y, false);
+    imageLoader.loadPng("Textures/Test/nz.png", pixels, size.x, size.y);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     pixels.swap(std::vector<ui8>());
-    vg::ImageLoader::loadPng("Textures/Test/pz.png", pixels, size.x, size.y, false);
+    imageLoader.loadPng("Textures/Test/pz.png", pixels, size.x, size.y);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     pixels.swap(std::vector<ui8>());
 

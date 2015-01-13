@@ -15,9 +15,9 @@
 #ifndef PauseMenu_h__
 #define PauseMenu_h__
 
-#include <Vorb/AwesomiumInterface.h>
 #include <Vorb/VorbPreDecl.inl>
 
+#include "AwesomiumInterface.h"
 #include "PauseMenuAwesomiumAPI.h"
 
 DECL_VG(class, GLProgramManager);

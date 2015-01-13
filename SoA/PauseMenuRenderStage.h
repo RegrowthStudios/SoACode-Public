@@ -15,7 +15,7 @@
 #ifndef PauseMenuRenderStage_h__
 #define PauseMenuRenderStage_h__
 
-#include <Vorb/IRenderStage.h>
+#include <Vorb/graphics/IRenderStage.h>
 
 class PauseMenu;
 

@@ -18,8 +18,8 @@
 #include "SpaceSystem.h"
 #include "GameSystem.h"
 
-#include <Vorb/IOManager.h>
-#include <Vorb/Entity.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class DebugRenderer;

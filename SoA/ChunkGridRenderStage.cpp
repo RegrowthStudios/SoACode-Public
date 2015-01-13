@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "ChunkGridRenderStage.h"
 
-#include <Vorb/GLProgram.h>
-#include <Vorb/Mesh.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/Mesh.h>
 
 #include "Camera.h"
 #include "Chunk.h"

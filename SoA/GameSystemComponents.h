@@ -15,8 +15,9 @@
 #ifndef GameSystemComponents_h__
 #define GameSystemComponents_h__
 
+#include <Vorb/ecs/Entity.h>
+
 #include "VoxelPlanetMapper.h"
-#include <Vorb/Entity.h>
 
 struct AabbCollidableComponent {
     f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks

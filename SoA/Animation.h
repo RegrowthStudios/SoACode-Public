@@ -3,7 +3,7 @@
 #ifndef Animation_h_
 #define Animation_h_
 
-#include <Vorb/Texture.h>
+#include <Vorb/graphics/Texture.h>
 
 class Animation {
 public:

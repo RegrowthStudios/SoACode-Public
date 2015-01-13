@@ -1,8 +1,8 @@
 #pragma once
 #include <SDL/SDL.h>
+#include <Vorb/graphics/TextureCache.h>
 
 #include "Constants.h"
-#include <Vorb/TextureCache.h>
 
 // TODO: Remove This
 vg::Texture getTexture(nString source, struct Animation **anim = NULL);

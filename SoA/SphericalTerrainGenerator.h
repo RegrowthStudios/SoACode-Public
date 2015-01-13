@@ -16,12 +16,13 @@
 #ifndef SphericalTerrainGenerator_h__
 #define SphericalTerrainGenerator_h__
 
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/FullQuadVBO.h>
+#include <Vorb/graphics/GBuffer.h>
+#include <Vorb/RPC.h>
+
 #include "SphericalTerrainPatch.h"
 #include "TerrainGenTextures.h"
-#include <Vorb/GLProgram.h>
-#include <Vorb/FullQuadVBO.h>
-#include <Vorb/GBuffer.h>
-#include <Vorb/RPC.h>
 
 class TerrainGenDelegate;
 class RawGenDelegate;

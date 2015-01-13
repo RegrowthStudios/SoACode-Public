@@ -16,12 +16,11 @@
 #ifndef SphericalTerrainComponent_h__
 #define SphericalTerrainComponent_h__
 
-#include "stdafx.h"
 #include "SphericalTerrainPatch.h"
 #include "SphericalTerrainGenerator.h"
 
 #include <Vorb/RPC.h>
-#include <Vorb/Entity.h>
+#include <Vorb/ecs/Entity.h>
 #include <deque>
 
 class Camera;

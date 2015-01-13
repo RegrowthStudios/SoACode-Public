@@ -15,7 +15,7 @@
 #ifndef GameSystemFactories_h__
 #define GameSystemFactories_h__
 
-#include <Vorb/Entity.h>
+#include <Vorb/ecs/Entity.h>
 
 class GameSystem;
 

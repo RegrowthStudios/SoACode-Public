@@ -2,8 +2,8 @@
 #include "DevHudRenderStage.h"
 
 #include <Vorb/colors.h>
-#include <Vorb/SpriteBatch.h>
-#include <Vorb/SpriteFont.h>
+#include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/graphics/SpriteFont.h>
 
 #include "App.h"
 #include "global.h"

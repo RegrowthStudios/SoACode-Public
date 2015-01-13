@@ -144,6 +144,9 @@
     <Filter Include="SOA Files\ECS\Factories">
       <UniqueIdentifier>{5a883327-0095-495a-b35f-f80c5fec3f94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Rendering\Awesomium">
+      <UniqueIdentifier>{19a0ff49-6794-4225-847f-886ba6baa490}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -662,6 +665,15 @@
     <ClInclude Include="GameSystemEvents.hpp">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="AwesomiumInterface.h">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
+    <ClInclude Include="IAwesomiumInterface.h">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenglSurfaceFactory.h">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1060,6 +1072,9 @@
     </ClCompile>
     <ClCompile Include="ParkourComponentUpdater.cpp" />
     <ClCompile Include="FreeMoveComponentUpdater.cpp" />
+    <ClCompile Include="OpenglSurfaceFactory.cpp">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -1085,6 +1100,9 @@
     </None>
     <None Include="IAwesomiumAPI.inl">
       <Filter>SOA Files\Screens</Filter>
+    </None>
+    <None Include="AwesomiumInterface.inl">
+      <Filter>SOA Files\Rendering\Awesomium</Filter>
     </None>
   </ItemGroup>
 </Project>

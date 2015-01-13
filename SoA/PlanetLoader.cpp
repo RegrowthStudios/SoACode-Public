@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 
+#include <Vorb/graphics/ImageIO.h>
+#include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/io/IOManager.h>
+#include <yaml-cpp/yaml.h>
+
 #include "NoiseShaderCode.hpp"
 #include "Errors.h"
-
-#include <Vorb/ImageLoader.h>
-#include <Vorb/GpuMemory.h>
-#include <Vorb/IOManager.h>
 
 enum class TerrainFunction {
     NOISE,
@@ -192,8 +193,8 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         if (type == "baseLookupMap") {
             std::vector<ui8> data;
             ui32 rWidth, rHeight;
-            if (!vg::ImageLoader::loadPng(kvp.second.as<nString>().c_str(), data,
-                rWidth, rHeight, m_iom)) {
+            vpath texPath; m_iom->resolvePath(kvp.second.as<nString>(), texPath);
+            if (!vio::ImageIO().loadPng(texPath.getString(), data, rWidth, rHeight)) {
                 pError("Failed to load " + kvp.second.as<nString>());
             }
             if (rWidth != 256 || rHeight != 256) {
