@@ -55,7 +55,7 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 
     // Update voxel planet transitions every 60 frames
     m_frameCounter++;
-    if (m_frameCounter == 60) {
+    if (m_frameCounter == 2) {
         updateVoxelPlanetTransitions(gameSystem, spaceSystem);
     }
 }
@@ -63,6 +63,7 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
 #define LOAD_DIST_MULT 1.05
     for (auto& it : gameSystem->spacePositionCT) {
+        bool inVoxelRange = false;
         auto& spcmp = it.second;
         for (auto& sit : spaceSystem->m_sphericalTerrainCT) {
             auto& stcmp = sit.second;
@@ -72,24 +73,28 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             f64v3 relPos = spcmp.position - npcmp.position;
             f64 distance = glm::length(spcmp.position - npcmp.position);
             // Check for voxel transition
-            if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT && !spcmp.voxelPositionComponent) {
-                
-                // Calculate voxel position
-                auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
-                vvox::VoxelPlanetMapData mapData;
-                f64v3 pos;
-                computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), mapData, pos);
+            if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT) {
+                inVoxelRange = true;
+                if (!spcmp.voxelPositionComponent) {
+                    // Calculate voxel position
+                    auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
+                    vvox::VoxelPlanetMapData mapData;
+                    f64v3 pos;
+                    computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), mapData, pos);
 
-                // We need to transition to the voxels
-                vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, pos, f64q(), mapData);
+                    // We need to transition to the voxels
+                    vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, pos, f64q(), mapData);
 
-                spcmp.voxelPositionComponent = vpid;
-            } else if (spcmp.voxelPositionComponent) {
-                // We need to transition to space
-                gameSystem->voxelPositionCT.remove(it.first);
-                spcmp.voxelPositionComponent = 0;
-                // TODO(Ben): Refcount SVC
+                    spcmp.voxelPositionComponent = vpid;
+                }
             }
+        }
+        // If we are in range of no planets, delete voxel position component
+        if (!inVoxelRange && spcmp.voxelPositionComponent) {
+            // We need to transition to space
+            gameSystem->voxelPositionCT.remove(it.first);
+            spcmp.voxelPositionComponent = 0;
+            // TODO(Ben): Refcount SVC
         }
     }
     m_frameCounter = 0;
