@@ -34,7 +34,8 @@ namespace GameSystemFactories {
     /* Component Factories                                                  */
     /************************************************************************/
     /// Free movement component
-    extern vcore::ComponentID addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity);
+    extern vcore::ComponentID addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                               vcore::ComponentID physicsComponent);
     extern void removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Physics component
     extern vcore::ComponentID addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,

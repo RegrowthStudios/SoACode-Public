@@ -72,5 +72,5 @@ void FreeMoveComponentUpdater::rotateFromMouse(GameSystem* gameSystem, FreeMoveI
     f64q upQuat = glm::angleAxis((f64)(dy * speed), right);
     f64q rightQuat = glm::angleAxis((f64)(dx * speed), up);
 
-    *orientation = *orientation * upQuat * rightQuat;
+    *orientation = upQuat * rightQuat * (*orientation);
 }

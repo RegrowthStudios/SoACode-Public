@@ -268,7 +268,11 @@ void GamePlayRenderPipeline::updateCameras() {
         auto& vpcmp = gs->voxelPositionCT.get(phycmp.voxelPositionComponent);
         // DO STUFF
     } 
+
+  
     auto& spcmp = gs->spacePositionCT.get(phycmp.spacePositionComponent);
+    std::cout << spcmp.orientation.x << " " << spcmp.orientation.y << " " << spcmp.orientation.z << " " << spcmp.orientation.w << std::endl;
+
     _worldCamera.setClippingPlane(20.0f, 999999999.0f);
     _worldCamera.setPosition(spcmp.position);
     _worldCamera.setOrientation(spcmp.orientation);

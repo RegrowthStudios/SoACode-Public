@@ -11,11 +11,11 @@ vcore::EntityID GameSystemFactories::createPlayer(OUT GameSystem* gameSystem, co
 
     vcore::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation);
 
-    addPhysics(gameSystem, id, massKg, initialVel, spCmpId);
+    vcore::ComponentID pyCmpId = addPhysics(gameSystem, id, massKg, initialVel, spCmpId);
 
     addAabbCollidable(gameSystem, id, f32v3(1.7f, 3.7f, 1.7f), f32v3(0.0f));
 
-    addFreeMoveInput(gameSystem, id);
+    addFreeMoveInput(gameSystem, id, pyCmpId);
 
     return id;
 }
@@ -24,8 +24,12 @@ void GameSystemFactories::destroyPlayer(OUT GameSystem* gameSystem, vcore::Entit
     gameSystem->deleteEntity(playerEntity);
 }
 
-extern vcore::ComponentID GameSystemFactories::addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity) {
-    return gameSystem->freeMoveInputCT.add(entity);
+extern vcore::ComponentID GameSystemFactories::addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                                                vcore::ComponentID physicsComponent) {
+    vcore::ComponentID vmCmpId = gameSystem->freeMoveInputCT.add(entity);
+    auto& vmCmp = gameSystem->freeMoveInputCT.get(vmCmpId);
+    vmCmp.physicsComponent = physicsComponent;
+    return vmCmpId;
 }
 
 extern void GameSystemFactories::removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity) {
