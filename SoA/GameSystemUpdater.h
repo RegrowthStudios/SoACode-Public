@@ -63,6 +63,16 @@ private:
     IDelegate<ui32>* m_onLeftKeyUp = nullptr;
     IDelegate<ui32>* m_onBackwardKeyDown = nullptr;
     IDelegate<ui32>* m_onBackwardKeyUp = nullptr;
+    IDelegate<ui32>* m_onLeftRollKeyDown = nullptr;
+    IDelegate<ui32>* m_onLeftRollKeyUp = nullptr;
+    IDelegate<ui32>* m_onRightRollKeyDown = nullptr;
+    IDelegate<ui32>* m_onRightRollKeyUp = nullptr;
+    IDelegate<ui32>* m_onUpKeyDown = nullptr;
+    IDelegate<ui32>* m_onUpKeyUp = nullptr;
+    IDelegate<ui32>* m_onDownKeyDown = nullptr;
+    IDelegate<ui32>* m_onDownKeyUp = nullptr;
+    IDelegate<ui32>* m_onSuperSpeedKeyDown = nullptr;
+    IDelegate<ui32>* m_onSuperSpeedKeyUp = nullptr;
 };
 
 #endif // GameSystemUpdater_h__
