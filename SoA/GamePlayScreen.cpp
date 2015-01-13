@@ -81,6 +81,8 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_soaState = m_mainMenuScreen->getSoAState();
 
+    controller.startGame(m_soaState);
+
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(&m_soaState->gameSystem, m_inputManager);
 
     //m_player = new Player;
@@ -289,10 +291,10 @@ void GamePlayScreen::initVoxels() {
 void GamePlayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-//    m_renderPipeline.init(viewport, &m_player->getChunkCamera(), &m_player->getWorldCamera(), 
-//                         _app, m_player, _app->meshManager, &m_pda, GameManager::glProgramManager,
-//                         _app->spaceSystem,
-//                         &m_pauseMenu, m_chunkManager->getChunkSlots(0));
+    m_renderPipeline.init(viewport, m_soaState,
+                          _app, &m_pda,
+                          &m_soaState->spaceSystem,
+                          &m_pauseMenu, m_chunkManager->getChunkSlots(0));
 }
 
 void GamePlayScreen::handleInput() {

@@ -20,6 +20,7 @@ public:
     bool sphereInFrustum(const f32v3& pos, float radius) const { return m_frustum.sphereInFrustum(pos, radius); }
 
     //setters
+    void setOrientation(const f64q& orientation);
     void setFocalPoint(glm::dvec3 focalPoint) { m_focalPoint = focalPoint; m_viewChanged = 1; }
     void setPosition(glm::dvec3 position){ m_focalPoint = position; m_position = position; m_focalLength = 0;  m_viewChanged = 1; }
     void setDirection(glm::vec3 direction){ m_direction = direction; m_viewChanged = 1; }

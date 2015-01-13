@@ -80,6 +80,13 @@ void Camera::yawFromMouse(float dx, float speed) {
     applyRotation(frontQuat);
 }
 
+void Camera::setOrientation(const f64q& orientation) {
+    m_direction = orientation * f64v3(0.0, 0.0, 1.0);
+    m_right = orientation * f64v3(1.0, 0.0, 0.0);
+    m_up = orientation * f64v3(0.0, 1.0, 0.0);
+    m_viewChanged = true;
+}
+
 f32v3 Camera::worldToScreenPoint(const f32v3& worldPoint) const {
     // Transform world to clipping coordinates
     f32v4 clipPoint = m_viewProjectionMatrix * f32v4(worldPoint, 1.0f);

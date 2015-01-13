@@ -8,11 +8,10 @@
 #include "App.h"
 #include "global.h"
 
-DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize, const Player* player,
+DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize,
                                      const App* app, const f32v2& windowDims) :
     _spriteBatch(new SpriteBatch(true, true)),
     _spriteFont(new SpriteFont(fontPath, fontSize)),
-    _player(player),
     _mode(DevUiModes::HANDS),
     _app(app),
     _windowDims(windowDims),

@@ -25,6 +25,7 @@
 #include "MessageManager.h"
 #include "PDA.h"
 #include "PauseMenu.h"
+#include "SoaController.h"
 
 class App;
 class GameStartState;
@@ -130,6 +131,7 @@ private:
 
     bool m_inFocus; ///< true when the window is in focus
 
+    SoaController controller;
     std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
 
     ChunkManager* m_chunkManager = nullptr;
