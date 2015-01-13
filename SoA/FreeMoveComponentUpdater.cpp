@@ -24,7 +24,7 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
 
         f64 speed = (f64)fmcmp.speed;
         if (fmcmp.superSpeed) {
-            speed *= 10.0; // temporary
+            speed *= 200.0; // temporary
         }
         // Calculate velocity vector from inputs and speed
         physcmp.velocity = f64v3(0.0);
@@ -37,10 +37,10 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
         }
 
         if (fmcmp.tryMoveRight) {
-            right = *orientation * f64v3(1.0, 0.0, 0.0);
+            right = *orientation * f64v3(-1.0, 0.0, 0.0);
             physcmp.velocity += right * speed;
         } else if (fmcmp.tryMoveLeft) {
-            right = *orientation * f64v3(1.0, 0.0, 0.0);
+            right = *orientation * f64v3(-1.0, 0.0, 0.0);
             physcmp.velocity -= right * speed;
         }
 
@@ -55,10 +55,10 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
         #define ROLL_SPEED 0.3
         if (fmcmp.tryRollLeft) {
             forward = *orientation * f64v3(0.0, 0.0, 1.0);
-            *orientation = glm::angleAxis(ROLL_SPEED, forward) * (*orientation);
+            *orientation = glm::angleAxis(-ROLL_SPEED, forward) * (*orientation);
         } else if (fmcmp.tryRollRight) {
             forward = *orientation * f64v3(0.0, 0.0, 1.0);
-            *orientation = glm::angleAxis(-ROLL_SPEED, forward) * (*orientation);
+            *orientation = glm::angleAxis(ROLL_SPEED, forward) * (*orientation);
         }
     }
 }
