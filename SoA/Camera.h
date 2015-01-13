@@ -13,7 +13,7 @@ public:
     void updateProjection();
     virtual void applyRotation(const f32q& rot);
     virtual void rotateFromMouse(float dx, float dy, float speed);
-    virtual void yawFromMouse(float dx, float speed);
+    virtual void rollFromMouse(float dx, float speed);
 
     // Frustum wrappers
     bool pointInFrustum(const f32v3& pos) const { return m_frustum.pointInFrustum(pos); }
@@ -85,7 +85,7 @@ public:
 
     virtual void applyRotation(const f32q& rot) override;
     virtual void rotateFromMouse(float dx, float dy, float speed) override;
-    virtual void yawFromMouse(float dx, float speed) override;
+    virtual void rollFromMouse(float dx, float speed) override;
 
     void offsetTargetFocalLength(float offset);
 

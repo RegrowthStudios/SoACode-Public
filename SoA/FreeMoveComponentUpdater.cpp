@@ -14,7 +14,7 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
         auto& fmcmp = it.second;
         auto& physcmp = gameSystem->physicsCT.get(fmcmp.physicsComponent);
 
-        const f64q* orientation;
+        f64q* orientation;
         // If there is a voxel component, we use voxel position
         if (physcmp.voxelPositionComponent) {
             orientation = &gameSystem->voxelPositionCT.get(physcmp.voxelPositionComponent).orientation;
@@ -50,6 +50,15 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
         } else if (fmcmp.tryMoveDown) {
             up = *orientation * f64v3(0.0, 1.0, 0.0);
             physcmp.velocity -= up * speed;
+        }
+
+        #define ROLL_SPEED 0.3
+        if (fmcmp.tryRollLeft) {
+            forward = *orientation * f64v3(0.0, 0.0, 1.0);
+            *orientation = glm::angleAxis(ROLL_SPEED, forward) * (*orientation);
+        } else if (fmcmp.tryRollRight) {
+            forward = *orientation * f64v3(0.0, 0.0, 1.0);
+            *orientation = glm::angleAxis(-ROLL_SPEED, forward) * (*orientation);
         }
     }
 }

@@ -31,10 +31,10 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     m_onDownKeyDown = inputManager->subscribe(INPUT_CROUCH, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnDownKeyDown(gameSystem));
     m_onDownKeyUp = inputManager->subscribe(INPUT_CROUCH, InputManager::EventType::UP, (IDelegate<ui32>*)new OnDownKeyUp(gameSystem));
 
-    m_onLeftRollKeyDown = inputManager->subscribe(INPUT_JUMP, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnLeftRollKeyDown(gameSystem));
-    m_onLeftRollKeyUp = inputManager->subscribe(INPUT_JUMP, InputManager::EventType::UP, (IDelegate<ui32>*)new OnLeftRollKeyUp(gameSystem));
-    m_onRightRollKeyDown = inputManager->subscribe(INPUT_BACKWARD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnRightRollKeyDown(gameSystem));
-    m_onRightRollKeyUp = inputManager->subscribe(INPUT_BACKWARD, InputManager::EventType::UP, (IDelegate<ui32>*)new OnRightRollKeyUp(gameSystem));
+    m_onLeftRollKeyDown = inputManager->subscribe(INPUT_LEFT_ROLL, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnLeftRollKeyDown(gameSystem));
+    m_onLeftRollKeyUp = inputManager->subscribe(INPUT_LEFT_ROLL, InputManager::EventType::UP, (IDelegate<ui32>*)new OnLeftRollKeyUp(gameSystem));
+    m_onRightRollKeyDown = inputManager->subscribe(INPUT_RIGHT_ROLL, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnRightRollKeyDown(gameSystem));
+    m_onRightRollKeyUp = inputManager->subscribe(INPUT_RIGHT_ROLL, InputManager::EventType::UP, (IDelegate<ui32>*)new OnRightRollKeyUp(gameSystem));
 
     m_onSuperSpeedKeyDown = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnSuperSpeedKeyDown(gameSystem));
     m_onSuperSpeedKeyUp = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::UP, (IDelegate<ui32>*)new OnSuperSpeedKeyUp(gameSystem));

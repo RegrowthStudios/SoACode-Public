@@ -174,7 +174,7 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
         m_camera->rotateFromMouse((float)-e.dx, (float)-e.dy, MOUSE_SPEED);
     }
     if (mouseButtons[1]) {
-        m_camera->yawFromMouse((float)e.dx, MOUSE_SPEED);
+        m_camera->rollFromMouse((float)e.dx, MOUSE_SPEED);
     }
 }
 

@@ -271,7 +271,7 @@ void GamePlayRenderPipeline::updateCameras() {
     } 
 
     auto& spcmp = gs->spacePositionCT.get(phycmp.spacePositionComponent);
-    printVec("POSITION: ", spcmp.position);
+    //printVec("POSITION: ", spcmp.position);
     _worldCamera.setClippingPlane(10.0f, 999999999.0f);
     _worldCamera.setPosition(spcmp.position);
     _worldCamera.setOrientation(spcmp.orientation);

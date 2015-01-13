@@ -183,9 +183,9 @@ void InputManager::update() {
         switch(axis->type) {
         case SINGLE_KEY:
             if(!_previousKeyStates[axis->positiveKey] && _currentKeyStates[axis->positiveKey]) //Up
-                axis->upEvent(axis->positiveKey);
-            else if(_previousKeyStates[axis->positiveKey] && !_currentKeyStates[axis->positiveKey]) //Down
                 axis->downEvent(axis->positiveKey);
+            else if(_previousKeyStates[axis->positiveKey] && !_currentKeyStates[axis->positiveKey]) //Down
+                axis->upEvent(axis->positiveKey);
             break;
         default:
             break;

@@ -74,7 +74,7 @@ void Camera::rotateFromMouse(float dx, float dy, float speed) {
     applyRotation(upQuat * rightQuat);
 }
 
-void Camera::yawFromMouse(float dx, float speed) {
+void Camera::rollFromMouse(float dx, float speed) {
     f32q frontQuat = glm::angleAxis(dx * speed, m_direction);
 
     applyRotation(frontQuat);
@@ -153,7 +153,7 @@ void CinematicCamera::rotateFromMouse(float dx, float dy, float speed) {
     applyRotation(upQuat * rightQuat);
 }
 
-void CinematicCamera::yawFromMouse(float dx, float speed) {
+void CinematicCamera::rollFromMouse(float dx, float speed) {
     f32q frontQuat = glm::angleAxis(dx * speed, m_targetDirection);
 
     applyRotation(frontQuat);
