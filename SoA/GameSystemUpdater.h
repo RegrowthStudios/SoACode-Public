@@ -52,6 +52,9 @@ private:
     void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos);
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
+
+    /// Delegates
+    AutoDelegatePool m_hooks; ///< Input hooks reservoir
     IDelegate<ui32>* m_onForwardKeyDown = nullptr;
     IDelegate<ui32>* m_onForwardKeyUp = nullptr;
     IDelegate<ui32>* m_onRightKeyDown = nullptr;

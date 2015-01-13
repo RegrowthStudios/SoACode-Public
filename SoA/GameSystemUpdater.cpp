@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameSystemUpdater.h"
 
+#include "FreeMoveComponentUpdater.h"
 #include "GameSystem.h"
 #include "GameSystemFactories.h"
 #include "InputManager.h"
@@ -24,6 +25,12 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     m_onRightKeyUp = inputManager->subscribe(INPUT_RIGHT, InputManager::EventType::UP, (IDelegate<ui32>*)new OnRightKeyUp(gameSystem));
     m_onBackwardKeyDown = inputManager->subscribe(INPUT_BACKWARD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnBackwardKeyDown(gameSystem));
     m_onBackwardKeyUp = inputManager->subscribe(INPUT_BACKWARD, InputManager::EventType::UP, (IDelegate<ui32>*)new OnBackwardKeyUp(gameSystem));
+    
+    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
+        for (auto& it : gameSystem->freeMoveInputCT) {
+            FreeMoveComponentUpdater::rotateFromMouse(gameSystem, it.second, e.dx, e.dy, 0.1);
+        }
+    });
 }
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {

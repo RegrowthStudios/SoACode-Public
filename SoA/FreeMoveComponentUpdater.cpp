@@ -53,3 +53,24 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
         }
     }
 }
+
+void FreeMoveComponentUpdater::rotateFromMouse(GameSystem* gameSystem, FreeMoveInputComponent& cmp, float dx, float dy, float speed) {
+
+    auto& physcmp = gameSystem->physicsCT.get(cmp.physicsComponent);
+
+    f64q* orientation;
+    // If there is a voxel component, we use voxel position
+    if (physcmp.voxelPositionComponent) {
+        orientation = &gameSystem->voxelPositionCT.get(physcmp.voxelPositionComponent).orientation;
+    } else {
+        orientation = &gameSystem->spacePositionCT.get(physcmp.spacePositionComponent).orientation;
+    }
+
+    f64v3 right = *orientation * f64v3(1.0, 0.0, 0.0);
+    f64v3 up = *orientation * f64v3(0.0, 1.0, 0.0);
+
+    f64q upQuat = glm::angleAxis((f64)(dy * speed), right);
+    f64q rightQuat = glm::angleAxis((f64)(dx * speed), up);
+
+    *orientation = *orientation * upQuat * rightQuat;
+}
