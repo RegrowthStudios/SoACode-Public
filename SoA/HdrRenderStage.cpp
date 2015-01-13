@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "HdrRenderStage.h"
 
-#include <Vorb/GLProgram.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "Camera.h"
 #include "Options.h"

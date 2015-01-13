@@ -16,8 +16,8 @@
 #define PDA_H_
 
 #include <SDL/SDL.h>
-#include <Vorb/AwesomiumInterface.h>
 
+#include "AwesomiumInterface.h"
 #include "Computer.h"
 #include "PdaAwesomiumAPI.h"
 

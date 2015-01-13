@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "AwesomiumRenderStage.h"
 
-#include <Vorb/IAwesomiumInterface.h>
+#include "IAwesomiumInterface.h"
 
 
 AwesomiumRenderStage::AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface, vg::GLProgram* glProgram) :
-    _awesomiumInterface(awesomiumInterface),
-    _glProgram(glProgram) {
-}
+_awesomiumInterface(awesomiumInterface),
+_glProgram(glProgram) {}
 
 void AwesomiumRenderStage::draw() {
     glDisable(GL_DEPTH_TEST);

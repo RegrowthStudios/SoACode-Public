@@ -6,9 +6,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <Vorb/IOManager.h>
-#include <Vorb/Keg.h>
-#include <Vorb/TextureCache.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/io/Keg.h>
+#include <Vorb/graphics/TextureCache.h>
 #include <ZLIB/ioapi.h>
 #include <ZLIB/unzip.h>
 

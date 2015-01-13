@@ -15,9 +15,9 @@
 #ifndef TestMappingScreen_h__
 #define TestMappingScreen_h__
 
-#include <Vorb/IGameScreen.h>
-#include <Vorb/GLProgram.h>
-#include <Vorb/gtypes.h>
+#include <Vorb/ui/IGameScreen.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/gtypes.h>
 
 class TestMappingScreen : public IGameScreen {
 public:

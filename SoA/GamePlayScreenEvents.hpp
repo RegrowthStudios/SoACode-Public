@@ -16,7 +16,7 @@
 #define GAME_PLAY_SCREEN_EVENTS_HPP
 
 #include <Vorb/Events.hpp>
-#include <Vorb/GpuMemory.h>
+#include <Vorb/graphics/GpuMemory.h>
 
 #include "GamePlayScreen.h"
 #include "global.h"

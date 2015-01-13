@@ -18,7 +18,7 @@
 #include <SDL\SDL_events.h>
 #include <SDL\SDL_joystick.h>
 #include <Vorb/Events.hpp>
-#include <Vorb/InputDispatcher.h>
+#include <Vorb/ui/InputDispatcher.h>
 
 #define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.ini"
 

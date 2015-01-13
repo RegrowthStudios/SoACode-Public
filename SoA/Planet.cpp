@@ -5,7 +5,7 @@
 #include <glm\gtc\quaternion.hpp>
 #include <glm\gtx\quaternion.hpp>
 #include <glm\gtc\matrix_transform.hpp>
-#include <Vorb/GLStates.h>
+#include <Vorb/graphics/GLStates.h>
 
 #include "Camera.h"
 #include "FileSystem.h"

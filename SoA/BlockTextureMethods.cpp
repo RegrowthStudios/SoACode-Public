@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "BlockTextureMethods.h"
 
-#include <Vorb/ConnectedTextures.h>
+#include <Vorb/graphics/ConnectedTextures.h>
 #include <Vorb/utils.h>
 
 #include "BlockPack.h"

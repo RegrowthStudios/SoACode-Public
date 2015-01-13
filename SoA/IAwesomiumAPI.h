@@ -19,7 +19,7 @@
 
 #include <Awesomium/JSArray.h>
 #include <Awesomium/JSValue.h>
-#include <Vorb/IGameScreen.h>
+#include <Vorb/ui/IGameScreen.h>
 
 /// class that implements the C++ callbacks for Awesomium
 /// The template argument should be the derived class
