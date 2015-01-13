@@ -34,6 +34,8 @@ class SoaState;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
+class GameSystem;
+class GameSystemUpdater;
 
 template<typename... Params>
 class IDelegate;
@@ -68,6 +70,7 @@ class GamePlayScreen : public IAppScreen<App> {
     friend class PauseMenuAwesomiumAPI;
 public:
     GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
+    ~GamePlayScreen();
 
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
@@ -127,9 +130,7 @@ private:
 
     bool m_inFocus; ///< true when the window is in focus
 
-    // TODO(Ben): Should they be stored here?
-    //Camera _voxelCamera; ///< The camera for rendering the voxels
-    //Camera _planetCamera; ///< The camera for rendering the planet
+    std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
 
     ChunkManager* m_chunkManager = nullptr;
 

@@ -15,8 +15,9 @@
 #ifndef GameSystemUpdater_h__
 #define GameSystemUpdater_h__
 
-#include "PhysicsComponentUpdater.h"
 #include "CollisionComponentUpdater.h"
+#include "FreeMoveComponentUpdater.h"
+#include "PhysicsComponentUpdater.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
@@ -42,10 +43,7 @@ public:
 private:
     PhysicsComponentUpdater physicsUpdater;
     CollisionComponentUpdater collisionUpdater;
-    /// Updates movement components
-    /// @param gameSystem: Game ECS
-    /// TODO(Ben): Don't think this is the right func
-    void updateMoveInput(OUT GameSystem* gameSystem);
+    FreeMoveComponentUpdater freeMoveUpdater;
     /// Calculates voxel position from relative space position
     /// @param relPos: relative position of the entity against the world center
     /// @param radius: Radius of the world

@@ -16,6 +16,8 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "GamePlayScreenEvents.hpp"
+#include "GameSystem.h"
+#include "GameSystemUpdater.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "LoadTaskShaders.h"
@@ -52,6 +54,10 @@ GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScr
     // Empty
 }
 
+GamePlayScreen::~GamePlayScreen() {
+    // Empty
+}
+
 i32 GamePlayScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -74,6 +80,8 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     m_inputManager = new InputManager;
 
     m_soaState = m_mainMenuScreen->getSoAState();
+
+    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(&m_soaState->gameSystem, m_inputManager);
 
     //m_player = new Player;
     //m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
@@ -160,6 +168,8 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     m_inputManager->stopInput();
     m_hooks.dispose();
 
+    // Easy way to clear everything
+    m_soaState->gameSystem = GameSystem();
     
     m_inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, m_onPauseKeyDown);
     delete m_onPauseKeyDown;
@@ -223,6 +233,8 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     
     // Update the input
     handleInput();
+
+    m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem);
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();

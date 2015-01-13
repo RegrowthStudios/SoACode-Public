@@ -30,7 +30,7 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);
     collisionUpdater.update(gameSystem);
-    updateMoveInput(gameSystem);
+    freeMoveUpdater.update(gameSystem);
 
     // Update voxel planet transitions every 60 frames
     m_frameCounter++;
@@ -72,12 +72,6 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
         }
     }
     m_frameCounter = 0;
-}
-
-void GameSystemUpdater::updateMoveInput(OUT GameSystem* gameSystem) {
-  //  for (auto& it : gameSystem->moveInputCT) {
-
-  //  }
 }
 
 void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos) {
