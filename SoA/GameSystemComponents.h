@@ -52,12 +52,14 @@ struct FreeMoveInputComponent {
             bool tryMoveBackward : 1; ///< True when moving backward
             bool tryMoveLeft : 1; ///< True when moving left
             bool tryMoveRight : 1; ///< True when moving right
-            bool tryUp : 1; ///< True when attempting to go up
-            bool tryDown : 1; ///< True when attempting to go down
+            bool tryMoveUp : 1; ///< True when attempting to go up
+            bool tryMoveDown : 1; ///< True when attempting to go down
+            bool superSpeed : 1; ///< True when super speed is active
         };
         ui8 moveFlags = 0;
     };
-    vcore::ComponentID physicsComponent;
+    vcore::ComponentID physicsComponent = 0;
+    float speed = 0.1f;
 };
 
 struct SpacePositionComponent {

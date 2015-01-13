@@ -124,9 +124,9 @@ void SphericalTerrainGenerator::update() {
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(m_genProgram->getUniform("unBaseBiomes"), 0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->baseBiomeLookupTexture);
-        glActiveTexture(GL_TEXTURE1);
-        glUniform1i(m_genProgram->getUniform("unBiomes"), 1);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, m_planetGenData->biomeArrayTexture);
+    //    glActiveTexture(GL_TEXTURE1);
+    //    glUniform1i(m_genProgram->getUniform("unBiomes"), 1);
+    //    glBindTexture(GL_TEXTURE_2D_ARRAY, m_planetGenData->biomeArrayTexture);
     }
 
     glDisable(GL_DEPTH_TEST);

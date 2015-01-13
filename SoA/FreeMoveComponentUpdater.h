@@ -15,10 +15,11 @@
 #ifndef FreeMoveComponentUpdater_h__
 #define FreeMoveComponentUpdater_h__
 
+class GameSystem;
+
 class FreeMoveComponentUpdater {
 public:
-    FreeMoveComponentUpdater();
-    ~FreeMoveComponentUpdater();
+    void update(GameSystem* gameSystem);
 };
 
 #endif // FreeMoveComponentUpdater_h__

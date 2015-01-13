@@ -653,12 +653,6 @@
     <ClInclude Include="CollisionComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
-    <ClInclude Include="ParkourMoveUpdater.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceMoveUpdater.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameSystemComponents.h">
       <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
@@ -673,6 +667,9 @@
     </ClInclude>
     <ClInclude Include="OpenglSurfaceFactory.h">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
+    <ClInclude Include="ParkourMoveUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1070,10 +1067,14 @@
     <ClCompile Include="SoaState.cpp">
       <Filter>SOA Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="ParkourComponentUpdater.cpp" />
-    <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClCompile>
+    <ClCompile Include="ParkourComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeMoveComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
