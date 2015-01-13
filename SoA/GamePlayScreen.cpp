@@ -230,9 +230,10 @@ void GamePlayScreen::update(const GameTime& gameTime) {
         }
     }
     static f64 time = 0.0;
-    time += 0.00001;
- //   _app->spaceSystem->update(time, m_player->getWorldCamera().getPosition(),
- //                             &m_player->getChunkCamera());
+    time += 0.000001;
+
+    auto& npcmp = m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity);
+    m_soaState->spaceSystem.update(time, npcmp.position, nullptr);
     m_soaState->spaceSystem.glUpdate();
     
     // Update the input
