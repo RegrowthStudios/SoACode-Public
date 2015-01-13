@@ -16,8 +16,8 @@
 #define AmbiencePlayer_h__
 
 #include <Vorb/Random.h>
-#include <Vorb/SoundInstance.h>
-#include <Vorb/SoundResource.h>
+#include <Vorb/sound/SoundInstance.h>
+#include <Vorb/sound/SoundResource.h>
 #include <Vorb/VorbPreDecl.inl>
 
 #include "AmbienceStream.h"

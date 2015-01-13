@@ -3,8 +3,8 @@
 
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\glm.hpp>
-#include <Vorb/SoundEngine.h>
-#include <Vorb/SoundListener.h>
+#include <Vorb/sound/SoundEngine.h>
+#include <Vorb/sound/SoundListener.h>
 
 #include "AmbienceLibrary.h"
 #include "AmbiencePlayer.h"

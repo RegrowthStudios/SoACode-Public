@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AmbiencePlayer.h"
 
-#include <Vorb/SoundEngine.h>
+#include <Vorb/sound/SoundEngine.h>
 
 #include "AmbienceLibrary.h"
 

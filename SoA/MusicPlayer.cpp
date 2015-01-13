@@ -2,7 +2,7 @@
 #include "MusicPlayer.h"
 
 #include <Vorb/IO.h>
-#include <Vorb/SoundEngine.h>
+#include <Vorb/sound/SoundEngine.h>
 
 
 #include "SoaFileSystem.h"

@@ -15,7 +15,7 @@
 #ifndef SoaFilesystem_h__
 #define SoaFilesystem_h__
 
-#include <vorb/IOManager.h>
+#include <Vorb/io/IOManager.h>
 
 class SoaFileSystem {
 public:
