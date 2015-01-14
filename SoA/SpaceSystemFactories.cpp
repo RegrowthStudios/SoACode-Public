@@ -4,10 +4,19 @@
 #include "SpaceSystem.h"
 
 vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity, vcore::ComponentID sphericalTerrainComponent) {
+#define VOXELS_PER_KM 2000.0
+    
     vcore::ComponentID svCmpId = spaceSystem->m_sphericalVoxelCT.add(entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
+    auto& stcmp = spaceSystem->m_sphericalTerrainCT.get(sphericalTerrainComponent);
+
+    // Get component handles
+    svcmp.axisRotationComponent = stcmp.axisRotationComponent;
+    svcmp.namePositionComponent = stcmp.namePositionComponent;
     svcmp.sphericalTerrainComponent = sphericalTerrainComponent;
+
+    svcmp.voxelRadius = stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
 
         /*  this->sphericalTerrainData = sphericalTerrainData;
         this->saveFileIom = saveFileIom;

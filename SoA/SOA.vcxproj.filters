@@ -1025,9 +1025,6 @@
     <ClCompile Include="OrbitComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalVoxelComponent.cpp">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClCompile>
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClCompile>

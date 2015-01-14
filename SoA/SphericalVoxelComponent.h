@@ -35,11 +35,6 @@ DECL_VIO(class, IOManager);
 
 class SphericalVoxelComponent {
 public:
-    void init(const SphericalTerrainData* sphericalTerrainData, const vio::IOManager* saveFileIom,
-              SphericalTerrainGenerator* terrainGenerator,
-              const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData);
-
-
     //chunk manager manages and updates the chunk grid
     ChunkManager* chunkManager = nullptr;
     ChunkIOManager* chunkIo = nullptr;
@@ -56,6 +51,10 @@ public:
     const vio::IOManager* saveFileIom = nullptr;
 
     vcore::ComponentID sphericalTerrainComponent = 0;
+    vcore::ComponentID namePositionComponent = 0;
+    vcore::ComponentID axisRotationComponent = 0;
+
+    f64 voxelRadius = 0; ///< Radius of the planet in voxels
 
     bool enabled = false;
 };

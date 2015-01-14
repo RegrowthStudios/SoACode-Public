@@ -388,7 +388,6 @@ EXIT 0</Command>
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
     <ClCompile Include="SphericalTerrainGenerator.cpp" />
     <ClCompile Include="SphericalTerrainMeshManager.cpp" />
-    <ClCompile Include="SphericalVoxelComponent.cpp" />
     <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
     <ClCompile Include="TerrainGenTextures.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />

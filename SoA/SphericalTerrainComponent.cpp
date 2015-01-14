@@ -20,10 +20,12 @@ void TerrainGenDelegate::invoke(Sender sender, void* userData) {
 }
 
 void SphericalTerrainComponent::init(vcore::ComponentID npComp,
+                                     vcore::ComponentID arComp,
                                      f64 radius, PlanetGenData* planetGenData,
                                      vg::GLProgram* normalProgram,
                                      vg::TextureRecycler* normalMapRecycler) {
     namePositionComponent = npComp;
+    axisRotationComponent = arComp;
     planetGenData = planetGenData;
     if (meshManager != nullptr) {
         pError("Tried to initialize SphericalTerrainComponent twice!");

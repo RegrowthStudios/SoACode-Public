@@ -164,7 +164,7 @@ void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxe
     m_sphericalTerrainComponentUpdater.update(this, cameraPos);
 
     // Update voxels
-    m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
+//    m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
 
     // Update Orbits ( Do this last)
     m_orbitComponentUpdater.update(this, time);
@@ -341,7 +341,7 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
                                      0.0,
                                      quatBetweenVectors(up, glm::normalize(properties->axis)));
 
-    m_sphericalTerrainCT.get(stCmp).init(npCmp, properties->diameter / 2.0,
+    m_sphericalTerrainCT.get(stCmp).init(npCmp, arCmp, properties->diameter / 2.0,
                                          properties->planetGenData,
                                          m_programManager->getProgram("NormalMapGen"),
                                          m_normalMapRecycler);

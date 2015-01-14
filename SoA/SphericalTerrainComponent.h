@@ -79,11 +79,14 @@ public:
     /// Initialize the spherical terrain
     /// @param radius: Radius of the planet, must be multiple of 32.
     void init(vcore::ComponentID npComp, 
+              vcore::ComponentID arComp,
               f64 radius, PlanetGenData* planetGenData,
               vg::GLProgram* normalProgram,
               vg::TextureRecycler* normalMapRecycler);
 
     vcore::ComponentID namePositionComponent = 0;
+    vcore::ComponentID axisRotationComponent = 0;
+
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
     SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches
