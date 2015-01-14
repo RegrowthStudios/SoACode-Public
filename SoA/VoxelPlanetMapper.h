@@ -129,6 +129,33 @@ public:
         }
     }
 
+    f32v3 getWorldNormal(float radius) {
+        float i = FaceCoords[face][rotation][0];
+        float j = FaceCoords[face][rotation][1];
+        float r = FaceCoords[face][rotation][2];
+        float idir = FaceSigns[face][rotation][0];
+        float jdir = FaceSigns[face][rotation][1];
+        float rdir = FaceRadialSign[face];
+        f32v3 position;
+        position[i] = ipos * idir * CHUNK_WIDTH;
+        position[j] = jpos * jdir * CHUNK_WIDTH;
+        position[r] = radius * rdir;
+        return glm::normalize(position);
+    }
+    f64v3 getWorldNormal(f64 radius) {
+        f64 i = FaceCoords[face][rotation][0];
+        f64 j = FaceCoords[face][rotation][1];
+        f64 r = FaceCoords[face][rotation][2];
+        f64 idir = FaceSigns[face][rotation][0];
+        f64 jdir = FaceSigns[face][rotation][1];
+        f64 rdir = FaceRadialSign[face];
+        f64v3 position;
+        position[i] = ipos * idir * CHUNK_WIDTH;
+        position[j] = jpos * jdir * CHUNK_WIDTH;
+        position[r] = radius * rdir;
+        return glm::normalize(position);
+    }
+
     void getVoxelGridPos(OUT int& iPos, OUT int& jPos) {
         //used for tree coords
         jPos = jpos * CHUNK_WIDTH * FaceSigns[face][rotation][0];

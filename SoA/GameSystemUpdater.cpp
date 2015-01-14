@@ -90,8 +90,10 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first));
                     }
 
+                    f64q voxOrientation = spcmp.orientation * rotcmp.currentOrientation;
+
                     // We need to transition to the voxels
-                    vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, svid, pos, f64q(), mapData);
+                    vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
                     pycmp.voxelPositionComponent = vpid;
                 }
             }
@@ -123,16 +125,17 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
     if (!IntersectionUtils::boxIntersect(cornerPos, dir,
         start, min)) {
         std::cerr << "Failed to find grid position\n";
+        throw 3252;
     }
 
     f32v3 gridHit = start + dir * min;
-    const float eps = 0.01;
+    const float eps = 2.0f;
 
     mapData.rotation = 0;
     if (abs(gridHit.x - (-voxelRadius)) < eps) { //-X
         mapData.face = (int)CubeFace::LEFT;
         pos.z = gridHit.z;
-        pos.x = gridHit.y;
+        pos.x = -gridHit.y;
     } else if (abs(gridHit.x - voxelRadius) < eps) { //X
         mapData.face = (int)CubeFace::RIGHT;
         pos.z = gridHit.z;
@@ -153,8 +156,11 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
         mapData.face = (int)CubeFace::FRONT;
         pos.z = gridHit.x;
         pos.x = gridHit.y;
+    } else {
+        std::cerr << "ERROR: FAILED TO FIND A FACE ON SPACE -> WORLD TRANSITION";
+        throw 44352;
     }
     pos.y = distance - voxelRadius;
-    mapData.ipos = fastFloor(gridHit.x / (float)CHUNK_WIDTH);
-    mapData.jpos = fastFloor(gridHit.y / (float)CHUNK_WIDTH);
+    mapData.ipos = fastFloor(pos.z / (float)CHUNK_WIDTH);
+    mapData.jpos = fastFloor(pos.x / (float)CHUNK_WIDTH);
 }

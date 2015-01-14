@@ -29,10 +29,10 @@ namespace SpaceSystemFactories {
     /************************************************************************/
     /* Component Factories                                                  */
     /************************************************************************/
-    /// Free movement component
+    /// Spherical voxel component
     extern vcore::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                          vcore::ComponentID sphericalTerrainComponent);
-    extern vcore::ComponentID removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
 #endif // SpaceSystemFactories_h__

@@ -39,6 +39,6 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
     return svCmpId;
 }
 
-vcore::ComponentID SpaceSystemFactories::removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
+void SpaceSystemFactories::removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
     spaceSystem->m_sphericalVoxelCT.remove(entity);
 }

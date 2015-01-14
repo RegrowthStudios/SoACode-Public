@@ -286,7 +286,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
             v.color = m_planetGenData->terrainTint;
-          //  v.color = DebugColors[(int)round(m_heightData[zIndex][xIndex][3])];
+            v.color = DebugColors[(int)mesh->m_cubeFace];
          //   v.color.r = (ui8)(m_heightData[zIndex][xIndex][3] * 31.875f);
          //   v.color.g = 0.0;
          //   v.color.b = 0.0;
