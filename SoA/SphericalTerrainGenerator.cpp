@@ -17,7 +17,7 @@ const ColorRGB8 DebugColors[12] {
     ColorRGB8(0, 0, 255), //RIGHT
     ColorRGB8(255, 255, 0), //FRONT
     ColorRGB8(0, 255, 255), //BACK
-    ColorRGB8(33, 55, 255), //BOTTOM
+    ColorRGB8(255, 0, 255), //BOTTOM
     ColorRGB8(255, 33, 55), //?
     ColorRGB8(125, 125, 125), //?
     ColorRGB8(255, 125, 125), //?

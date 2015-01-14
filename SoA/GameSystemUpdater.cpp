@@ -134,28 +134,28 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
     mapData.rotation = 0;
     if (abs(gridHit.x - (-voxelRadius)) < eps) { //-X
         mapData.face = (int)CubeFace::LEFT;
-        pos.z = gridHit.z;
-        pos.x = -gridHit.y;
+        pos.z = -gridHit.y;
+        pos.x = gridHit.z;
     } else if (abs(gridHit.x - voxelRadius) < eps) { //X
         mapData.face = (int)CubeFace::RIGHT;
-        pos.z = gridHit.z;
-        pos.x = gridHit.y;
+        pos.z = -gridHit.y;
+        pos.x = -gridHit.z;
     } else if (abs(gridHit.y - (-voxelRadius)) < eps) { //-Y
         mapData.face = (int)CubeFace::BOTTOM;
-        pos.z = gridHit.x;
+        pos.z = -gridHit.x;
         pos.x = gridHit.z;
     } else if (abs(gridHit.y - voxelRadius) < eps) { //Y
         mapData.face = (int)CubeFace::TOP;
-        pos.z = gridHit.x;
-        pos.x = gridHit.z;
+        pos.z = gridHit.z;
+        pos.x = gridHit.x;
     } else if (abs(gridHit.z - (-voxelRadius)) < eps) { //-Z
         mapData.face = (int)CubeFace::BACK;
-        pos.z = gridHit.x;
-        pos.x = gridHit.y;
+        pos.z = -gridHit.y;
+        pos.x = -gridHit.x;
     } else if (abs(gridHit.z - voxelRadius) < eps) { //Z
         mapData.face = (int)CubeFace::FRONT;
-        pos.z = gridHit.x;
-        pos.x = gridHit.y;
+        pos.z = -gridHit.y;
+        pos.x = gridHit.x;
     } else {
         std::cerr << "ERROR: FAILED TO FIND A FACE ON SPACE -> WORLD TRANSITION";
         throw 44352;
