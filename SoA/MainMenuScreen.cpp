@@ -132,12 +132,10 @@ void MainMenuScreen::update(const GameTime& gameTime) {
 
     m_awesomiumInterface.update();
     
-    static double time = 0.0;
-    time += 0.0001;
-
     m_mainMenuSystemViewer->update();
 
-    m_soaState->spaceSystem.update(time, m_camera.getPosition());
+    m_soaState->time += 0.00001;
+    m_soaState->spaceSystem.update(m_soaState->time, m_camera.getPosition());
     m_soaState->spaceSystem.glUpdate();
 
     m_camera.update();

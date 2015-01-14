@@ -44,6 +44,7 @@ public:
     f32v3 startGridPos = f32v3(0.0f);
     f64v3 startSpacePos = f64v3(0.0f);
     int startFace = 0;
+    f64 time = 0.0;
 };
 
 #endif // SoAState_h__

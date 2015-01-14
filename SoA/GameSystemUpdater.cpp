@@ -82,9 +82,15 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     f64v3 pos;
                     computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), mapData, pos);
 
+                    // Check for the spherical voxel component
+                    vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
+                    if (svid == 0) {
+
+                    }
+
                     // We need to transition to the voxels
                     vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, pos, f64q(), mapData);
-
+ 
                     spcmp.voxelPositionComponent = vpid;
                 }
             }

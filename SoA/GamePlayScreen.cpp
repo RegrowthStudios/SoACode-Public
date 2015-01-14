@@ -229,11 +229,10 @@ void GamePlayScreen::update(const GameTime& gameTime) {
             glSpeedFactor = 3.0f;
         }
     }
-    static f64 time = 0.0;
-    time += 0.000001;
 
+    m_soaState->time += 0.0000001;
     auto& npcmp = m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity);
-    m_soaState->spaceSystem.update(time, npcmp.position, nullptr);
+    m_soaState->spaceSystem.update(m_soaState->time, npcmp.position, nullptr);
     m_soaState->spaceSystem.glUpdate();
     
     // Update the input

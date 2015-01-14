@@ -218,6 +218,7 @@ EXIT 0</Command>
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SpaceSystemFactories.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SphericalGravityComponent.h" />
     <ClInclude Include="SphericalTerrainComponent.h" />
@@ -380,6 +381,7 @@ EXIT 0</Command>
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="SpaceSystemFactories.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="SphericalTerrainComponent.cpp" />
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />

@@ -671,6 +671,9 @@
     <ClInclude Include="ParkourMoveUpdater.h">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
+    <ClInclude Include="SpaceSystemFactories.h">
+      <Filter>SOA Files\ECS\Factories</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1075,6 +1078,9 @@
     </ClCompile>
     <ClCompile Include="FreeMoveComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystemFactories.cpp">
+      <Filter>SOA Files\ECS\Factories</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

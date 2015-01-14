@@ -53,6 +53,7 @@ namespace GameSystemFactories {
     extern void removeAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Voxel Position Component
     extern vcore::ComponentID addVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                               vcore::ComponentID parentVoxelComponent,
                                                const VoxelPosition& position,
                                                const f64q& orientation,
                                                vvox::VoxelPlanetMapData mapData);
