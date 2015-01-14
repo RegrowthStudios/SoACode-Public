@@ -236,27 +236,6 @@ void SpaceSystem::addSolarSystem(const nString& dirPath) {
     }
 }
 
-SphericalVoxelComponent* SpaceSystem::enableVoxelsOnTarget(const f64v3& gpos,
-                                       vvox::VoxelMapData* startingMapData,
-                                       const vio::IOManager* saveFileIom /*= nullptr*/) {
-    if (m_targetComponent == 0) return nullptr;
-
-    // Make sure it isn't already enabled
-    vcore::ComponentID cid = m_sphericalVoxelCT.getComponentID(m_targetEntity);
-    if (cid != 0) return nullptr;
-
-    // It needs a spherical terrain component
-    cid = m_sphericalTerrainCT.getComponentID(m_targetEntity);
-    if (cid == 0) return nullptr;
-
-    // Add spherical voxel component
-    vcore::ComponentID svCmp = m_sphericalVoxelCT.add(m_targetEntity);
-    m_sphericalVoxelCT.get(svCmp).init(m_sphericalTerrainCT.get(cid).sphericalTerrainData, saveFileIom,
-                                       m_sphericalTerrainCT.get(cid).generator,
-                                       gpos, startingMapData);
-    return &m_sphericalVoxelCT.get(svCmp);
-}
-
 void SpaceSystem::targetBody(const nString& name) {
     auto& it = m_bodyLookupMap.find(name);
     if (it != m_bodyLookupMap.end()) {

@@ -17,6 +17,7 @@
 
 #include "IVoxelMapper.h"
 
+#include <Vorb/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;
@@ -53,6 +54,8 @@ public:
     const SphericalTerrainData* sphericalTerrainData = nullptr;
 
     const vio::IOManager* saveFileIom = nullptr;
+
+    vcore::ComponentID sphericalTerrainComponent = 0;
 
     bool enabled = false;
 };

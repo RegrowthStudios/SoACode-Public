@@ -95,13 +95,6 @@ public:
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
 
-    /// Enables voxel component on target entity, if applicable
-    /// @param saveFIleIom: IOManager for the save file
-    /// @return pointer to component when successfully enabled
-    SphericalVoxelComponent* enableVoxelsOnTarget(const f64v3& gpos,
-                              vvox::VoxelMapData* startingMapData,
-                              const vio::IOManager* saveFileIom = nullptr);
-
     /// Targets a named body
     /// @param name: Name of the body
     void targetBody(const nString& name);
