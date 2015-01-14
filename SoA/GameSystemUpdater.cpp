@@ -65,6 +65,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
     for (auto& it : gameSystem->spacePositionCT) {
         bool inVoxelRange = false;
         auto& spcmp = it.second;
+        auto& pycmp = gameSystem->physicsCT.getFromEntity(it.first);
         for (auto& sit : spaceSystem->m_sphericalTerrainCT) {
             auto& stcmp = sit.second;
             auto& npcmp = spaceSystem->m_namePositionCT.get(stcmp.namePositionComponent);
@@ -75,7 +76,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             // Check for voxel transition
             if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT) {
                 inVoxelRange = true;
-                if (!spcmp.voxelPositionComponent) {
+                if (!pycmp.voxelPositionComponent) {
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
                     vvox::VoxelPlanetMapData mapData;
@@ -91,16 +92,15 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
 
                     // We need to transition to the voxels
                     vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, svid, pos, f64q(), mapData);
- 
-                    spcmp.voxelPositionComponent = vpid;
+                    pycmp.voxelPositionComponent = vpid;
                 }
             }
         }
         // If we are in range of no planets, delete voxel position component
-        if (!inVoxelRange && spcmp.voxelPositionComponent) {
+        if (!inVoxelRange && pycmp.voxelPositionComponent) {
             // We need to transition to space
             gameSystem->voxelPositionCT.remove(it.first);
-            spcmp.voxelPositionComponent = 0;
+            pycmp.voxelPositionComponent = 0;
             // TODO(Ben): Refcount SVC
         }
     }

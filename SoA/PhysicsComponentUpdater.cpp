@@ -6,6 +6,7 @@
 
 // TODO(Ben): Timestep
 void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem) {
+#define VOXELS_PER_KM 2000.0
     for (auto& it : gameSystem->physicsCT) {
         auto& cmp = it.second;
         // Get the position component
@@ -22,12 +23,13 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSyst
             auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
             auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
 
-            f64v3 spacePos = glm::normalize(vpcmp.position) * (vpcmp.position.y + svcmp.voxelRadius);
+            f64v3 spacePos = glm::normalize(vpcmp.position) * (vpcmp.position.y + svcmp.voxelRadius) / VOXELS_PER_KM;
 
             spcmp.position = arcmp.currentOrientation * spacePos + npcmp.position;
-            spcmp.orientation = vpcmp.orientation * arcmp.currentOrientation;
+            spcmp.orientation = arcmp.currentOrientation * vpcmp.orientation;
         } else {
             spcmp.position += cmp.velocity; // * timestep
         }
+        printVec("POS :", spcmp.position);
     }
 }

@@ -67,7 +67,6 @@ struct FreeMoveInputComponent {
 struct SpacePositionComponent {
     f64v3 position = f64v3(0.0);
     f64q orientation;
-    vcore::ComponentID voxelPositionComponent = 0;
 };
 
 typedef f64v3 VoxelPosition;
