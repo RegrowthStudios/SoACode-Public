@@ -36,9 +36,9 @@ DECL_VIO(class, IOManager);
 class SphericalVoxelComponent {
 public:
     //chunk manager manages and updates the chunk grid
+    PhysicsEngine* physicsEngine = nullptr;
     ChunkManager* chunkManager = nullptr;
     ChunkIOManager* chunkIo = nullptr;
-    PhysicsEngine* physicsEngine = nullptr;
     ParticleEngine* particleEngine = nullptr;
 
     SphericalTerrainGenerator* generator = nullptr;
@@ -55,8 +55,6 @@ public:
     vcore::ComponentID axisRotationComponent = 0;
 
     f64 voxelRadius = 0; ///< Radius of the planet in voxels
-
-    bool enabled = false;
 };
 
 #endif // SphericalVoxelComponent_h__

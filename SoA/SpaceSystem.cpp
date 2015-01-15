@@ -164,7 +164,7 @@ void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxe
     m_sphericalTerrainComponentUpdater.update(this, cameraPos);
 
     // Update voxels
-//    m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
+    m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
 
     // Update Orbits ( Do this last)
     m_orbitComponentUpdater.update(this, time);
