@@ -12,10 +12,12 @@
 #pragma once
 #include "IVoxelMapper.h"
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 // TODO: Yeah... I dunno
 namespace vorb {
 namespace voxel {
-
 
 //relative rotations for the face transitions
 //0 = top, 1 = left, 2 = right, 3 = front, 4 = back, 5 = bottom
@@ -175,7 +177,55 @@ public:
         idir = FaceSigns[face][rotation][0];
         jdir = FaceSigns[face][rotation][1];
         rdir = FaceRadialSign[face];
+    }
 
+    // TODO(Ben): This is jank, copied from old code
+    f64q calculateVoxelToSpaceQuat(const f64v3& facePosition, f64 worldRadius) {
+
+        int ipos, rpos, jpos;
+        double incI, incJ, magnitude;
+        glm::dvec3 v1, v2, v3;
+        glm::vec3 tangent, biTangent;
+        //Imagine the cube unfolded. Each face is like the following image for calculating tangent and bitangent
+        // _____________
+        // |           |
+        // |        j  |
+        // |       --->|
+        // |     |i    |
+        // |_____V_____|
+        ipos = vvox::FaceCoords[face][rotation][0];
+        jpos = vvox::FaceCoords[face][rotation][1];
+        rpos = vvox::FaceCoords[face][rotation][2];
+        incI = vvox::FaceSigns[face][rotation][0];
+        incJ = vvox::FaceSigns[face][rotation][1];
+        v1[ipos] = incI * facePosition.z;
+        v1[jpos] = incJ * facePosition.x;
+        v1[rpos] = vvox::FaceRadialSign[face] * worldRadius;
+        f64v3 worldPosition = (facePosition.y + worldRadius)*glm::normalize(v1);
+
+        incI *= 100;
+        incJ *= 100;
+        v1 = worldPosition;
+        //need v2 and v3 for computing tangent and bitangent
+        v2[ipos] = (double)worldPosition[ipos];
+        v2[jpos] = (double)worldPosition[jpos] + incJ;
+        v2[rpos] = worldPosition[rpos];
+        v3[ipos] = (double)worldPosition[ipos] + incI;
+        v3[jpos] = (double)worldPosition[jpos];
+        v3[rpos] = worldPosition[rpos];
+        //normalize them all
+        v1 = glm::normalize(v1);
+        v2 = glm::normalize(v2);
+        v3 = glm::normalize(v3);
+        tangent = glm::vec3(glm::normalize(v2 - v1));
+        biTangent = glm::vec3(glm::normalize(v3 - v1));
+        f64m4 worldRotationMatrix;
+        worldRotationMatrix[0] = f64v4(tangent, 0);
+        worldRotationMatrix[1] = f64v4(v1, 0);
+        worldRotationMatrix[2] = f64v4(biTangent, 0);
+        worldRotationMatrix[3] = f64v4(0, 0, 0, 1);
+      
+        return glm::quat_cast(worldRotationMatrix);
     }
 
     // Used to get the directory path for chunks, based on which planet face

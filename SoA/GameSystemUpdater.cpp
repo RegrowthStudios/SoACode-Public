@@ -90,7 +90,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first));
                     }
 
-                    f64q voxOrientation = rotcmp.invCurrentOrientation * spcmp.orientation;
+                    f64q voxOrientation = glm::inverse(mapData.calculateVoxelToSpaceQuat(pos, stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
 
                     // We need to transition to the voxels
                     vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
@@ -142,8 +142,8 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
         pos.x = -gridHit.z;
     } else if (abs(gridHit.y - (-voxelRadius)) < eps) { //-Y
         mapData.face = (int)CubeFace::BOTTOM;
-        pos.z = -gridHit.x;
-        pos.x = gridHit.z;
+        pos.z = -gridHit.z;
+        pos.x = gridHit.x;
     } else if (abs(gridHit.y - voxelRadius) < eps) { //Y
         mapData.face = (int)CubeFace::TOP;
         pos.z = gridHit.z;

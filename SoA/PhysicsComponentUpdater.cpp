@@ -23,10 +23,14 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSyst
             auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
             auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
 
+            vpcmp.mapData.ipos = vpcmp.position.z / CHUNK_WIDTH;
+            vpcmp.mapData.jpos = vpcmp.position.x / CHUNK_WIDTH;
+
             f64v3 spacePos = vpcmp.mapData.getWorldNormal(svcmp.voxelRadius) * (vpcmp.position.y + svcmp.voxelRadius) / VOXELS_PER_KM;
 
             spcmp.position = arcmp.currentOrientation * spacePos + npcmp.position;
-            spcmp.orientation = arcmp.currentOrientation * vpcmp.orientation;
+            // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
+            spcmp.orientation = (vpcmp.mapData.calculateVoxelToSpaceQuat(vpcmp.position, svcmp.voxelRadius)) * arcmp.currentOrientation * vpcmp.orientation;
         } else {
             spcmp.position += cmp.velocity; // * timestep
         }
