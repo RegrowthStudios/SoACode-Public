@@ -134,8 +134,6 @@ private:
     SoaController controller;
     std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
 
-    ChunkManager* m_chunkManager = nullptr;
-
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 

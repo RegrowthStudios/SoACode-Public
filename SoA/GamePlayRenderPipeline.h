@@ -59,7 +59,7 @@ public:
     void init(const ui32v4& viewport, const SoaState* soaState, const App* app,
               const PDA* pda,
               SpaceSystem* spaceSystem,
-              const PauseMenu* pauseMenu, const std::vector<ChunkSlot>& chunkSlots);
+              const PauseMenu* pauseMenu);
 
     /// Renders the pipeline
     virtual void render() override;
@@ -112,6 +112,7 @@ private:
     Camera _worldCamera; ///< handle to world camera
     Camera _chunkCamera; ///< handle to chunk camera
     const MeshManager* _meshManager; ///< Handle to the meshes
+    bool m_voxelsActive = false;
 };
 
 #endif // GamePlayRenderPipeline_h__

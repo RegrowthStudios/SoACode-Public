@@ -26,15 +26,15 @@ public:
     /// Constructor which injects dependencies
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param chunkSlots: The chunk slots that we need to render boxes for
-    ChunkGridRenderStage(const GameRenderParams* gameRenderParams, 
-                         const std::vector<ChunkSlot>& chunkSlots);
+    ChunkGridRenderStage(const GameRenderParams* gameRenderParams);
     ~ChunkGridRenderStage();
 
     // Draws the render stage
+    void setChunkSlots(const std::vector<ChunkSlot>* chunkSlots) { _chunkSlots = chunkSlots; }
     virtual void draw() override;
 private:
     const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
-    const std::vector<ChunkSlot>& _chunkSlots;
+    const std::vector<ChunkSlot>* _chunkSlots = nullptr;
 };
 
 #endif // ChunkGridRenderStage_h__

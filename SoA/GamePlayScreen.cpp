@@ -297,7 +297,7 @@ void GamePlayScreen::initRenderPipeline() {
     m_renderPipeline.init(viewport, m_soaState,
                           _app, &m_pda,
                           &m_soaState->spaceSystem,
-                          &m_pauseMenu, m_chunkManager->getChunkSlots(0));
+                          &m_pauseMenu);
 }
 
 void GamePlayScreen::handleInput() {
