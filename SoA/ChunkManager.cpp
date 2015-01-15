@@ -78,7 +78,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
                            SphericalTerrainGenerator* terrainGenerator,
-                           vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
+                           const vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
                            const f64v3& gridPosition) :
     _isStationary(0),
     _cameraVoxelMapData(nullptr),

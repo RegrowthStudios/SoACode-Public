@@ -89,7 +89,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     if (svid == 0) {
                         svid = SpaceSystemFactories::addSphericalVoxelComponent(spaceSystem, sit.first,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
-                                                                                &soaState->saveFileIom);
+                                                                                &mapData, pos, soaState);
                     }
 
                     f64q voxOrientation = glm::inverse(mapData.calculateVoxelToSpaceQuat(pos, stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;

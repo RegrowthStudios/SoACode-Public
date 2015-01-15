@@ -1,16 +1,19 @@
 #include "stdafx.h"
 #include "SpaceSystemFactories.h"
 
-#include "SpaceSystem.h"
-#include "ChunkManager.h"
-#include "PhysicsEngine.h"
 #include "ChunkIOManager.h"
+#include "ChunkManager.h"
 #include "ParticleEngine.h"
+#include "PhysicsEngine.h"
+#include "SoaState.h"
+#include "SpaceSystem.h"
 #include "VoxelPlanetMapper.h"
 
 vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                     vcore::ComponentID sphericalTerrainComponent,
-                                                                    const vio::IOManager* saveGameIom) {
+                                                                    const vvox::VoxelMapData* startingMapData,
+                                                                    const f64v3& gridPosition,
+                                                                    const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0
     
     vcore::ComponentID svCmpId = spaceSystem->m_sphericalVoxelCT.add(entity);
@@ -27,14 +30,18 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
 
     // TODO(Ben): Destroy these
     svcmp.physicsEngine = new PhysicsEngine();
-    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine);
-    svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR");
-    svcmp.particleEngine = new ParticleEngine();
-    svcmp.generator = stcmp.generator;
     svcmp.voxelPlanetMapper = new vvox::VoxelPlanetMapper((i32)svcmp.voxelRadius / CHUNK_WIDTH);
+    svcmp.generator = stcmp.generator;
+    svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR");
+    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine, svcmp.voxelPlanetMapper,
+                                          svcmp.generator, startingMapData,
+                                          svcmp.chunkIo,
+                                          gridPosition);
+    svcmp.particleEngine = new ParticleEngine();
+    
     svcmp.planetGenData = stcmp.planetGenData;
     svcmp.sphericalTerrainData = stcmp.sphericalTerrainData;
-    svcmp.saveFileIom = saveGameIom;
+    svcmp.saveFileIom = &soaState->saveFileIom;
     
 
     /*  this->sphericalTerrainData = sphericalTerrainData;
