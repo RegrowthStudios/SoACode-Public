@@ -76,12 +76,18 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
     return false;
 }
 
-ChunkManager::ChunkManager(PhysicsEngine* physicsEngine) : 
+ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
+                           SphericalTerrainGenerator* terrainGenerator,
+                           vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
+                           const f64v3& gridPosition) :
     _isStationary(0),
     _cameraVoxelMapData(nullptr),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
     _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS),
-    m_physicsEngine(physicsEngine) {
+    _voxelMapper(voxelMapper),
+    m_terrainGenerator(terrainGenerator),
+    m_physicsEngine(physicsEngine),
+    m_chunkIo(chunkIo) {
    
     m_physicsEngine->setChunkManager(this);
 
@@ -92,29 +98,12 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine) :
 
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
-}
 
-ChunkManager::~ChunkManager() {
-    deleteAllChunks();
-    delete _voxelLightEngine;
-}
-
-void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper,
-                              SphericalTerrainGenerator* terrainGenerator,
-                              vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo) {
-
-    m_terrainGenerator = terrainGenerator;
 
     heightmapGenRpcDispatcher = std::make_unique<HeightmapGenRpcDispatcher>(m_terrainGenerator);
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
-
-    m_chunkIo = chunkIo;
-    _voxelMapper = voxelMapper;
-
-    // Sun Color Map
-    GLubyte sbuffer[64][3];
 
     // IO thread
     m_chunkIo->beginThread();
@@ -139,12 +128,17 @@ void ChunkManager::initialize(const f64v3& gridPosition, vvox::IVoxelMapper* vox
 
     // Get the chunk position
     i32v3 chunkPosition;
-    chunkPosition.x = fastFloor(gridPosition.x / (float)CHUNK_WIDTH);
-    chunkPosition.y = fastFloor(gridPosition.y / (float)CHUNK_WIDTH);
-    chunkPosition.z = fastFloor(gridPosition.z / (float)CHUNK_WIDTH);
+    chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
+    chunkPosition.y = fastFloor(gridPosition.y / (double)CHUNK_WIDTH);
+    chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
 
     // Make the first chunk
     makeChunkAt(chunkPosition, startingMapData);
+}
+
+ChunkManager::~ChunkManager() {
+    deleteAllChunks();
+    delete _voxelLightEngine;
 }
 
 bool sortChunksAscending(const Chunk* a, const Chunk* b) {

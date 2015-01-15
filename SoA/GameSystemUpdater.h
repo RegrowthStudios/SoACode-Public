@@ -25,6 +25,7 @@ class GameSystem;
 class InputManager;
 class SpaceSystem;
 class VoxelPositionComponent;
+class SoaState;
 DECL_VVOX(class VoxelPlanetMapData);
 
 class GameSystemUpdater {
@@ -34,12 +35,12 @@ public:
     /// planet transitions.
     /// @param gameSystem: Game ECS
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
-    void update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem);
+    void update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
     /// Checks to see if there should be any voxel planet transitions, and possibly
     /// adds or removes spherical voxel components from SpaceSystem
     /// @param gameSystem: Game ECS
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
-    void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem);
+    void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
 private:
     PhysicsComponentUpdater physicsUpdater;
     CollisionComponentUpdater collisionUpdater;

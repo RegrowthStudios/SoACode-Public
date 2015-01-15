@@ -7,6 +7,7 @@
 #include "GameSystemFactories.h"
 #include "InputManager.h"
 #include "Inputs.h"
+#include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemFactories.h"
 #include "SphericalTerrainPatch.h"
@@ -47,7 +48,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
 }
 
-void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
+void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);
     collisionUpdater.update(gameSystem);
@@ -56,11 +57,11 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
     // Update voxel planet transitions every 60 frames
     m_frameCounter++;
     if (m_frameCounter == 2) {
-        updateVoxelPlanetTransitions(gameSystem, spaceSystem);
+        updateVoxelPlanetTransitions(gameSystem, spaceSystem, soaState);
     }
 }
 
-void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem) {
+void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 #define LOAD_DIST_MULT 1.05
     for (auto& it : gameSystem->spacePositionCT) {
         bool inVoxelRange = false;
@@ -87,7 +88,8 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
                     if (svid == 0) {
                         svid = SpaceSystemFactories::addSphericalVoxelComponent(spaceSystem, sit.first,
-                                                                                spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first));
+                                                                                spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
+                                                                                &soaState->saveFileIom);
                     }
 
                     f64q voxOrientation = glm::inverse(mapData.calculateVoxelToSpaceQuat(pos, stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;

@@ -8,7 +8,9 @@
 #include "ParticleEngine.h"
 #include "VoxelPlanetMapper.h"
 
-vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity, vcore::ComponentID sphericalTerrainComponent) {
+vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                                    vcore::ComponentID sphericalTerrainComponent,
+                                                                    const vio::IOManager* saveGameIom) {
 #define VOXELS_PER_KM 2000.0
     
     vcore::ComponentID svCmpId = spaceSystem->m_sphericalVoxelCT.add(entity);
@@ -32,7 +34,7 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
     svcmp.voxelPlanetMapper = new vvox::VoxelPlanetMapper((i32)svcmp.voxelRadius / CHUNK_WIDTH);
     svcmp.planetGenData = stcmp.planetGenData;
     svcmp.sphericalTerrainData = stcmp.sphericalTerrainData;
-    svcmp.saveFileIom = nullptr; //errr
+    svcmp.saveFileIom = saveGameIom;
     
 
     /*  this->sphericalTerrainData = sphericalTerrainData;

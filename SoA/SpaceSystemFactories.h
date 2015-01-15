@@ -18,6 +18,9 @@
 class SpaceSystem;
 
 #include <Vorb/Entity.h>
+#include <Vorb/VorbPreDecl.inl>
+
+DECL_VIO(class IOManager);
 
 namespace SpaceSystemFactories {
     /************************************************************************/
@@ -31,7 +34,8 @@ namespace SpaceSystemFactories {
     /************************************************************************/
     /// Spherical voxel component
     extern vcore::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                         vcore::ComponentID sphericalTerrainComponent);
+                                                         vcore::ComponentID sphericalTerrainComponent,
+                                                         const vio::IOManager* saveGameIom);
     extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 

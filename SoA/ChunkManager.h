@@ -78,23 +78,16 @@ private:
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
 public:
-    ChunkManager(PhysicsEngine* physicsEngine);
+    ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
+                 SphericalTerrainGenerator* terrainGenerator,
+                 vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
+                 const f64v3& gridPosition);
     ~ChunkManager();
 
     enum InitFlags {
         FLAT_GRASS,
         SET_Y_TO_SURFACE
     };
-
-    /// Initializes the grid at the surface and returns the Y value
-    /// @param gridPosition: the floating point starting grid position.
-    /// @param voxelMapper: The chosen voxel mapping scheme
-    /// @param terrainGenerator: Generator for the heightmap noise
-    /// @param startingMapData: Initial map data
-    /// @param chunkIo: IO for chunks
-    void initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper,
-                    SphericalTerrainGenerator* terrainGenerator,
-                    vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo);
 
     /// Updates the chunks
     /// @param camera: The camera that is rendering the voxels

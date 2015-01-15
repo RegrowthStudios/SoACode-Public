@@ -35,7 +35,6 @@ DECL_VIO(class, IOManager);
 
 class SphericalVoxelComponent {
 public:
-    //chunk manager manages and updates the chunk grid
     PhysicsEngine* physicsEngine = nullptr;
     ChunkManager* chunkManager = nullptr;
     ChunkIOManager* chunkIo = nullptr;

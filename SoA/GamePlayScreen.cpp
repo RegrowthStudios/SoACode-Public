@@ -238,7 +238,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     // Update the input
     handleInput();
 
-    m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem);
+    m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem, m_soaState);
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
