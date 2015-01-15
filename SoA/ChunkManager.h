@@ -47,7 +47,6 @@ public:
     i32 numAwaitingReuse;
 };
 
-class Camera;
 class ChunkSlot;
 class FloraTask;
 class GenerateTask;
@@ -91,7 +90,7 @@ public:
 
     /// Updates the chunks
     /// @param camera: The camera that is rendering the voxels
-    void update(const Camera* camera);
+    void update(const f64v3& position);
 
     /// Gets the 8 closest chunks to a point
     /// @param coord: the position in question
@@ -293,7 +292,7 @@ private:
 
     /// Updates all chunks
     /// @param position: the camera position
-    void updateChunks(const Camera* cameran);
+    void updateChunks(const f64v3& position);
 
     /// Updates the neighbors for a chunk slot, possible loading new chunks
     /// @param cs: the chunkslot in question

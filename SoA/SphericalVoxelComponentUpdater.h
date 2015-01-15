@@ -17,14 +17,16 @@
 
 class AxisRotationComponent;
 class Camera;
+class Chunk;
+class GameSystem;
 class NamePositionComponent;
+class SoaState;
 class SpaceSystem;
 class SphericalVoxelComponent;
-class Chunk;
 
 class SphericalVoxelComponentUpdater {
 public:
-    void update(SpaceSystem* spaceSystem, const Camera* voxelCamera);
+    void update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState);
     void getClosestChunks(SphericalVoxelComponent* cmp, glm::dvec3 &coord, Chunk **chunks);
     void endSession(SphericalVoxelComponent* cmp);
 

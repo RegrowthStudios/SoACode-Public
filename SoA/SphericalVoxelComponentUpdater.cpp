@@ -2,12 +2,18 @@
 #include "SphericalVoxelComponentUpdater.h"
 
 #include "ChunkManager.h"
+#include "GameSystem.h"
+#include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalVoxelComponent.h"
 
-void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const Camera* voxelCamera) {
-    for (auto& it : spaceSystem->m_sphericalVoxelCT) {
-        it.second.chunkManager->update(voxelCamera);
+void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState) {
+    if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
+
+        auto& playerPosCmp = gameSystem->voxelPositionCT.getFromEntity(soaState->playerEntity);
+        for (auto& it : spaceSystem->m_sphericalVoxelCT) {
+            it.second.chunkManager->update(playerPosCmp.position);
+        }
     }
 }
 

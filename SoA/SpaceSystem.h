@@ -38,9 +38,11 @@
 class App;
 class Binary;
 class Camera;
+class GameSystem;
 class GasGiantKegProperties;
 class PlanetKegProperties;
 class PlanetLoader;
+class SoaState;
 class SpriteBatch;
 class SpriteFont;
 class StarKegProperties;
@@ -84,9 +86,9 @@ public:
     void init(vg::GLProgramManager* programManager);
 
     /// Updates the space system
-    /// @param time: The time in seconds
-    /// @param cameraPos: Position of the camera
-    void update(double time, const f64v3& cameraPos, const Camera* voxelCamera = nullptr);
+    /// @param gameSystem: ECS for game entities
+    /// @param soaState: Game State
+    void update(const GameSystem* gameSystem, const SoaState* soaState, const f64v3& spacePos);
     
     /// Updates openGL specific stuff, should be called on render thread
     void glUpdate();

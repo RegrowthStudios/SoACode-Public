@@ -2,12 +2,14 @@
 
 #include "App.h"
 #include "Camera.h"
+#include "GLProgramManager.h"
+#include "GameSystem.h"
 #include "PlanetLoader.h"
 #include "PlanetLoader.h"
+#include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainMeshManager.h"
-#include "GLProgramManager.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/io/Keg.h>
@@ -154,20 +156,20 @@ void SpaceSystem::init(vg::GLProgramManager* programManager) {
     m_programManager = programManager;
 }
 
-void SpaceSystem::update(double time, const f64v3& cameraPos, const Camera* voxelCamera /* = nullptr */) {
+void SpaceSystem::update(const GameSystem* gameSystem, const SoaState* soaState, const f64v3& spacePos) {
     m_mutex.lock();
 
     // Update planet rotation
-    m_axisRotationComponentUpdater.update(this, time);
+    m_axisRotationComponentUpdater.update(this, soaState->time);
 
     // Update Spherical Terrain
-    m_sphericalTerrainComponentUpdater.update(this, cameraPos);
+    m_sphericalTerrainComponentUpdater.update(this, spacePos);
 
     // Update voxels
-    m_sphericalVoxelComponentUpdater.update(this, voxelCamera);
+    m_sphericalVoxelComponentUpdater.update(this, gameSystem, soaState);
 
     // Update Orbits ( Do this last)
-    m_orbitComponentUpdater.update(this, time);
+    m_orbitComponentUpdater.update(this, soaState->time);
 
     m_mutex.unlock();
 }
