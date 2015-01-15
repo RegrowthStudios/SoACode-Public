@@ -15,7 +15,7 @@ void AxisRotationComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
         f64q rotationQuat = f64q(eulerAngles);
 
         // Calculate total orientation
-        cmp.currentOrientation = f64q();// cmp.axisOrientation * rotationQuat;
+        cmp.currentOrientation = cmp.axisOrientation * rotationQuat;
         cmp.invCurrentOrientation = glm::inverse(cmp.currentOrientation);
     }
 }

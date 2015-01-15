@@ -30,7 +30,7 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSyst
 
             spcmp.position = arcmp.currentOrientation * spacePos + npcmp.position;
             // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
-            spcmp.orientation = (vpcmp.mapData.calculateVoxelToSpaceQuat(vpcmp.position, svcmp.voxelRadius)) * arcmp.currentOrientation * vpcmp.orientation;
+            spcmp.orientation = arcmp.currentOrientation * (vpcmp.mapData.calculateVoxelToSpaceQuat(vpcmp.position, svcmp.voxelRadius)) * vpcmp.orientation;
         } else {
             spcmp.position += cmp.velocity; // * timestep
         }
