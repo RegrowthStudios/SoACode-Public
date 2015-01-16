@@ -124,12 +124,12 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
-robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
-EXIT 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Copy Vorb to dependencies</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -161,12 +161,12 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
-robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
-EXIT 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Copy Vorb to dependencies</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -205,12 +205,12 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
-robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
-EXIT 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Copy Vorb to dependencies</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -249,12 +249,12 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
-robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
-EXIT 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>Copy Vorb to dependencies</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
