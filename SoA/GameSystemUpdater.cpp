@@ -90,6 +90,8 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                         svid = SpaceSystemFactories::addSphericalVoxelComponent(spaceSystem, sit.first,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
                                                                                 &mapData, pos, soaState);
+                    } else {
+                        spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }
 
                     f64q voxOrientation = glm::inverse(mapData.calculateVoxelToSpaceQuat(pos, stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
@@ -105,7 +107,13 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             // We need to transition to space
             gameSystem->voxelPositionCT.remove(it.first);
             pycmp.voxelPositionComponent = 0;
-            // TODO(Ben): Refcount SVC
+            
+            vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
+            auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svid);
+            svcmp.refCount--;
+            if (svcmp.refCount == 0) {
+                spaceSystem->m_sphericalVoxelCT.remove(it.first);
+            }
         }
     }
     m_frameCounter = 0;
