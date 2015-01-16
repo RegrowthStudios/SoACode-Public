@@ -8,6 +8,7 @@
 ///
 /// Summary:
 /// Will play music files from a playlist
+/// TODO: Not finished yet
 ///
 
 #pragma once
@@ -21,7 +22,6 @@
 class SoaFileSystem;
 DECL_VSOUND(class, Engine)
 
-/// 
 class MusicPlayer {
 public:
     void refreshLists(const SoaFileSystem& fs);
