@@ -28,7 +28,6 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
 
     svcmp.voxelRadius = stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
 
-    // TODO(Ben): Destroy these
     svcmp.physicsEngine = new PhysicsEngine();
     svcmp.voxelPlanetMapper = new vvox::VoxelPlanetMapper((i32)svcmp.voxelRadius / CHUNK_WIDTH);
     svcmp.generator = stcmp.generator;

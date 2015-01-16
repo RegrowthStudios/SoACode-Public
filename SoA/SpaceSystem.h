@@ -25,6 +25,7 @@
 #include "SphericalVoxelComponentUpdater.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "AxisRotationComponentUpdater.h"
+#include "SphericalVoxelComponentTable.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/ComponentTable.hpp>
@@ -131,7 +132,7 @@ public:
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
     vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
-    vcore::ComponentTable<SphericalVoxelComponent> m_sphericalVoxelCT;
+    SphericalVoxelComponentTable m_sphericalVoxelCT;
 
 protected:
     bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);

@@ -147,6 +147,9 @@
     <Filter Include="SOA Files\Rendering\Awesomium">
       <UniqueIdentifier>{19a0ff49-6794-4225-847f-886ba6baa490}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\ECS\ComponentTables">
+      <UniqueIdentifier>{f52bd506-1a48-4733-81fd-e5ccf12ec387}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -674,6 +677,9 @@
     <ClInclude Include="SpaceSystemFactories.h">
       <Filter>SOA Files\ECS\Factories</Filter>
     </ClInclude>
+    <ClInclude Include="SphericalVoxelComponentTable.h">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1078,6 +1084,9 @@
     </ClCompile>
     <ClCompile Include="SpaceSystemFactories.cpp">
       <Filter>SOA Files\ECS\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalVoxelComponentTable.cpp">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
