@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -22,7 +30,20 @@
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120_xp</PlatformToolset>
@@ -35,23 +56,43 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
-    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\SoA\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(PlatformTarget)\$(Configuration)\SoA\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
     <TargetName>SoA</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>SoA</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
-    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(PlatformTarget)\$(Configuration)\SoA\</IntDir>
-    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
     <TargetName>SoA</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>SoA</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -72,19 +113,56 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;fmodexL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb-d.lib;fmodexL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
-        robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
-        EXIT 0</Command>
-      <Message>Copying dependencies and resources to output directory</Message>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
+robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
+EXIT 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copy Vorb to dependencies</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;$(SolutionDir)Vorb\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb-d.lib;fmodexL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
+robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
 EXIT 0</Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -116,19 +194,63 @@ EXIT 0</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb.lib;fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(PlatformTarget)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
-        robocopy /XO /E "$(SolutionDir)game\ " "$(OutDir) " * /XD ".git"
-        EXIT 0</Command>
-      <Message>Copying dependencies and resources to output directory</Message>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
+robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
+EXIT 0</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copy Vorb to dependencies</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;$(SolutionDir)Vorb\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb.lib;fmodex64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LargeAddressAware>true</LargeAddressAware>
+    </Link>
+    <PostBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)Vorb\include " "$(SolutionDir)deps\include\Vorb " *
+robocopy /XO /E "$(SolutionDir)Vorb\bin\$(PlatformName)\$(Configuration) " "$(SolutionDir)deps\lib\$(PlatformName)\ " Vorb*
 EXIT 0</Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -373,7 +495,9 @@ EXIT 0</Command>
     <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="TextureAtlasStitcher.cpp" />
@@ -425,16 +549,6 @@ EXIT 0</Command>
     <None Include="Chunk.inl" />
     <None Include="IAwesomiumAPI.inl" />
     <None Include="VoxelIntervalTree.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Vorb\Vorb.vcxproj">
-      <Project>{be4855ee-e92c-4688-ae44-e44e3149eab5}</Project>
-      <Private>true</Private>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
