@@ -23,7 +23,7 @@ DevConsoleView::~DevConsoleView() {
 }
 
 void DevConsoleView::init(DevConsole* console, i32 linesToRender, vg::GLProgramManager* glProgramManager) {
-    _renderRing.set_capacity(linesToRender);
+    _renderRing.resize(linesToRender);
     _renderRing.clear();
 
     _console = console;
@@ -87,7 +87,7 @@ void DevConsoleView::onNewCommand(const nString& str) {
     std::stringstream ss(str);
     std::string item;
     while (std::getline(ss, item, '\n')) {
-        _renderRing.push_back(item);
+        _renderRing.push(item);
     }
 
     _isViewModified = true;
@@ -103,7 +103,7 @@ void DevConsoleView::redrawBatch() {
 
     // Draw Command Lines
     for (i32 i = 0; i < _renderRing.size(); i++) {
-        const cString cStr = _renderRing[i].c_str();
+        const cString cStr = _renderRing.at(i).c_str();
         if (cStr) {
             _batch->drawString(_font, cStr,
                 f32v2(10, textHeight * i + 10),

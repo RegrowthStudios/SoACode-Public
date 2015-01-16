@@ -1,5 +1,5 @@
 #pragma once
-#include <boost\circular_buffer.hpp>
+#include <Vorb/RingBuffer.hpp>
 #include <SDL/SDL.h>
 
 #include "GLProgramManager.h"
@@ -8,7 +8,7 @@ class DevConsole;
 class SpriteBatch;
 class SpriteFont;
 
-typedef boost::circular_buffer<nString> StringRing;
+typedef vorb::ring_buffer<nString> StringRing;
 
 const f32 DEV_CONSOLE_MARKER_BLINK_DELAY = 0.85f;
 

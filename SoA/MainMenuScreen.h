@@ -19,6 +19,7 @@
 
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/Random.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "AwesomiumInterface.h"
 #include "MainMenuAPI.h"
@@ -27,6 +28,9 @@
 
 class App;
 struct TerrainMeshMessage;
+DECL_VSOUND(class, Engine)
+class AmbienceLibrary;
+class AmbiencePlayer;
 
 class MainMenuScreen : public IAppScreen<App>
 {
@@ -81,6 +85,11 @@ private:
     volatile bool _threadRunning; ///< True when the thread should be running
 
     MainMenuRenderPipeline _renderPipeline; ///< This handles all rendering for the main menu
+
+    // TODO: Remove to a client state
+    vsound::Engine* m_engine;
+    AmbienceLibrary* m_ambLibrary;
+    AmbiencePlayer* m_ambPlayer;
 };
 
 #endif // MAINMENUSCREEN_H_
