@@ -307,6 +307,9 @@ private:
     /// Used by cave occlusion
     void recursiveFloodFill(bool left, bool right, bool front, bool back, bool top, bool bottom, Chunk* chunk);
 
+    /// Simple debugging print
+    void printOwnerList(Chunk* chunk);
+
     //***** Private Variables *****
 
     /// Theoretical maximum number of chunks that could be in memory at one time.

@@ -752,6 +752,7 @@ i32 ChunkManager::updateSetupList(ui32 maxTicks) {
                 // Remove from the setup list
                 _setupList[i] = _setupList.back();
                 _setupList.pop_back();
+                chunk->clearChunkListPtr();
             }
             break;
         default: // chunks that should not be here should be removed
@@ -1062,6 +1063,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask) {
             globalAccumulationTimer.start("FREE B");
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
+            printOwnerList(chunk);
             chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
             chunk->unlock();
@@ -1359,5 +1361,23 @@ void ChunkManager::recursiveFloodFill(bool left, bool right, bool front, bool ba
         } else {
             chunk->bottom->occlude = 0;
         }
+    }
+}
+
+void ChunkManager::printOwnerList(Chunk* chunk) {
+    if (chunk->_chunkListPtr) {
+        if (chunk->_chunkListPtr == &_freeList) {
+            std::cout << "freeList ";
+        } else if (chunk->_chunkListPtr == &_setupList) {
+            std::cout << "setupList ";
+        } else if (chunk->_chunkListPtr == &_meshList) {
+            std::cout << "meshList ";
+        } else if (chunk->_chunkListPtr == &_loadList) {
+            std::cout << "loadList ";
+        } else if (chunk->_chunkListPtr == &m_generateList) {
+            std::cout << "generateList ";
+        }
+    } else {
+        std::cout << "NO LIST ";
     }
 }

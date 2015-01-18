@@ -38,7 +38,6 @@ void RawGenDelegate::invoke(Sender sender, void* userData) {
 double surfaceDensity[9][5][5];
 
 void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
-
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
 	freeWaiting = 0;
