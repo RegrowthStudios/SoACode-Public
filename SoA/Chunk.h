@@ -95,7 +95,7 @@ public:
         _tertiaryDataContainer.update(_dataLock);
     }
 
-    inline void calculateDistance2(const i32v3& cameraPos) {
+    void calculateDistance2(const i32v3& cameraPos) {
         distance2 = getDistance2(gridPosition, cameraPos);
     }
     

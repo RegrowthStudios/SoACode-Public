@@ -592,7 +592,6 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         // If it is not saved. Generate it!
         if (ch->loadStatus == 1) {
             ch->loadStatus == 0;
-            ch->isAccessible = false;
 
             // If we can generate immediately, then do so. Otherwise we wait
             if (canGenerate) {
@@ -692,8 +691,6 @@ void ChunkManager::updateLoadList(ui32 maxTicks) {
         // Check if the chunk is waiting to be freed
         if (chunk->freeWaiting) continue;
 
-        chunk->isAccessible = false;
-
         chunksToLoad.push_back(chunk);
 
         if (SDL_GetTicks() - sticks >= maxTicks) {
@@ -783,7 +780,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             continue;
         }
 
-        if (chunk->inFrustum && trySetMeshDependencies(chunk)) {     
+        if (0 && chunk->inFrustum && trySetMeshDependencies(chunk)) {     
            
             chunk->occlude = 0;
 

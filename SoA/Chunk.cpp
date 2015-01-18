@@ -98,7 +98,7 @@ void Chunk::clear(bool clearDraw)
     _tertiaryDataContainer.clear();
 
     _state = ChunkStates::LOAD;
-    isAccessible = 0;
+    isAccessible = false;
     left = right = front = back = top = bottom = nullptr;
     _chunkListPtr = nullptr;
     treeTryTicks = 0;
@@ -285,7 +285,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     chunkMesher->chunkGridData = chunkGridData;
 
     //Must have all neighbors
-    assert( && left && right && back && front && bottom);
+    assert(top && left && right && back && front && bottom);
 
     lock();
     queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh

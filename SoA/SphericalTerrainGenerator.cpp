@@ -109,11 +109,9 @@ void SphericalTerrainGenerator::update() {
 
     if (m_rawCounter) {
         updateRawGeneration();
-        m_rawCounter = 0;
     }
     if (m_patchCounter) {
         updatePatchGeneration();
-        m_patchCounter = 0;
     }
     
     // Heightmap Generation
@@ -392,6 +390,7 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
 
         data->inUse = false;
     }
+    m_patchCounter = 0;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -426,6 +425,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
 
         data->inUse = false;
     }
+    m_rawCounter = 0;
 }
 
 // Thanks to tetryds for these

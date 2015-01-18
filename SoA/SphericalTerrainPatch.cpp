@@ -56,6 +56,11 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const Camera* camera,
     f32m4 WVP = camera->getViewProjectionMatrix() * W * rot;
     W *= rot;
 
+    // TODO(Ben): GOT A CRASH HERE!
+    if ((int)m_cubeFace < 0 || (int)m_cubeFace > 6) {
+        pError("m_cubeFace is invalid in draw!");
+    }
+
     glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
@@ -97,6 +102,11 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const Camera* camer
     setMatrixTranslation(W, -cameraPos);
     W *= rot;
     f32m4 WVP = camera->getViewProjectionMatrix() * W;
+
+    // TODO(Ben): GOT A CRASH HERE!
+    if ((int)m_cubeFace < 0 || (int)m_cubeFace > 6) {
+        pError("m_cubeFace is invalid in drawWater!");
+    }
 
     glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);

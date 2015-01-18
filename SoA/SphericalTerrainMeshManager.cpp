@@ -19,9 +19,6 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
 
     if (m_waterMeshes.size()) {
 
-        if (!waterProgram->getIsLinked()) {
-            pError("HELLO");
-        }
         waterProgram->use();
         waterProgram->enableVertexAttribArrays();
 
@@ -34,12 +31,19 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
-       
+
         for (int i = 0; i < m_waterMeshes.size();) {
             if (m_waterMeshes[i]->m_shouldDelete) {
-                // Don't delete here, it will happen in m_meshes
+                // Only delete here if m_wvbo is 0. See comment [15] in below block
+                if (m_waterMeshes[i]->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m_waterMeshes[i]->m_wvbo);
+                } else {
+                    delete m_waterMeshes[i];
+                }
+
                 m_waterMeshes[i] = m_waterMeshes.back();
                 m_waterMeshes.pop_back();
+              
             } else {
                 m_waterMeshes[i]->drawWater(relativePos, camera, rot, waterProgram);
                 i++;
@@ -65,7 +69,16 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
         for (int i = 0; i < m_meshes.size();) {
             if (m_meshes[i]->m_shouldDelete) {
                 m_meshes[i]->recycleNormalMap(m_normalMapRecycler);
-                delete m_meshes[i];
+
+                // [15] If m_wvbo is 1, then chunk was marked for delete between
+                // Drawing water and terrain. So we free m_wvbo to mark it
+                // for delete on the next pass through m_waterMeshes
+                if (m_meshes[i]->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m_meshes[i]->m_wvbo);
+                } else {
+                    delete m_meshes[i];
+                }
+
                 m_meshes[i] = m_meshes.back();
                 m_meshes.pop_back();
             } else {
@@ -80,6 +93,7 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
 }
 
 void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh) {
+
     m_meshes.push_back(mesh);
     if (mesh->m_wvbo) {
         m_waterMeshes.push_back(mesh);
