@@ -41,8 +41,8 @@ public:
     void init(Chunk* ch, RenderTaskType cType);
 
     RenderTaskType type; 
-    Chunk* chunk;
-    ChunkMeshData* chunkMeshData;
+    Chunk* chunk = nullptr;
+    ChunkMesh* chunkMesh = nullptr;
 
 private:
     void updateLight(VoxelLightEngine* voxelLightEngine);

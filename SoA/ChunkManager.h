@@ -213,9 +213,6 @@ private:
     /// Processes a generate task that is finished
     void processFinishedGenerateTask(GenerateTask* task);
 
-    /// Processes a render task that is finished
-    void processFinishedRenderTask(RenderTask* task);
-
     /// Processes a flora task that is finished
     void processFinishedFloraTask(FloraTask* task);
 

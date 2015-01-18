@@ -474,7 +474,7 @@ void ChunkManager::processFinishedTasks() {
         // Post processing based on task type
         switch (task->getTaskId()) {
             case RENDER_TASK_ID:
-                processFinishedRenderTask(static_cast<RenderTask*>(task));
+                if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
                 if (_freeRenderTasks.size() < MAX_CACHED_TASKS) {
                     // Store the render task so we don't have to call new
                     _freeRenderTasks.push_back(static_cast<RenderTask*>(task));
@@ -499,7 +499,7 @@ void ChunkManager::processFinishedTasks() {
                 if (task == chunk->lastOwnerTask) {
                     chunk->lastOwnerTask = nullptr;
                 }
-                processFinishedRenderTask(static_cast<CellularAutomataTask*>(task)->renderTask);
+                if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
                 if (_freeRenderTasks.size() < MAX_CACHED_TASKS) {
                     // Store the render task so we don't have to call new
                     _freeRenderTasks.push_back(static_cast<CellularAutomataTask*>(task)->renderTask);
@@ -536,65 +536,6 @@ void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
             addToMeshList(ch);
         }
     }
-}
-
-void ChunkManager::processFinishedRenderTask(RenderTask* task) {
-    Chunk* chunk = task->chunk;
-    if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
-    // Don't do anything if the chunk should be freed
-    if (chunk->freeWaiting) return;
-    ChunkMeshData *cmd = task->chunkMeshData;
-
-    // Remove the chunk if it is waiting to be freed
-    if (chunk->freeWaiting) {
-        if (chunk->mesh != NULL) {
-            // Chunk no longer needs the mesh handle
-            chunk->mesh = NULL;
-            // Set the properties to defaults that the mesh is deleted
-            *cmd = ChunkMeshData(chunk);
-            // Send the message
-            GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                                    Message(MessageID::CHUNK_MESH,
-                                                    (void *)cmd));
-        } else {
-            delete cmd;
-        }
-        return;
-    }
-
-    // Add the chunk mesh to the message
-    cmd->chunkMesh = chunk->mesh;
-
-
-    switch (cmd->type) {
-        case RenderTaskType::DEFAULT:
-            if (cmd->waterVertices.empty() && cmd->transVertices.empty() && cmd->vertices.empty() && cmd->cutoutVertices.empty()) {
-                chunk->mesh = nullptr;
-            } else if (chunk->mesh == nullptr) {
-                chunk->mesh = new ChunkMesh(chunk);
-                cmd->chunkMesh = chunk->mesh;
-            }
-            break;
-        case RenderTaskType::LIQUID:
-            if (cmd->waterVertices.empty() && (chunk->mesh == nullptr || (chunk->mesh->vboID == 0 && chunk->mesh->cutoutVboID == 0 && chunk->mesh->transVboID == 0))) {
-                chunk->mesh = nullptr;
-            } else if (chunk->mesh == nullptr) {
-                chunk->mesh = new ChunkMesh(chunk);
-                cmd->chunkMesh = chunk->mesh;
-            }
-            break;
-    }
-
-    //if the chunk has a mesh, send it
-    if (cmd->chunkMesh) {
-
-        GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                                Message(MessageID::CHUNK_MESH,
-                                                (void *)cmd));
-    }
-
-    if (chunk->_chunkListPtr == nullptr) chunk->_state = ChunkStates::DRAW;
-    
 }
 
 void ChunkManager::processFinishedFloraTask(FloraTask* task) {

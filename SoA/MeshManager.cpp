@@ -139,7 +139,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
             break;
     }
 
-    //If this mesh isnt in use anymore, delete it
+    //If this mesh isn't in use anymore, delete it
     if (cm->vboID == 0 && cm->waterVboID == 0 && cm->transVboID == 0 && cm->cutoutVboID == 0){
         if (cm->vecIndex != UNINITIALIZED_INDEX){
             _chunkMeshes[cm->vecIndex] = _chunkMeshes.back();

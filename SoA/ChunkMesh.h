@@ -91,8 +91,8 @@ public:
 class ChunkMeshData
 {
 public:
-    ChunkMeshData(Chunk *ch);
-    ChunkMeshData(RenderTask *task);
+    //ChunkMeshData(Chunk *ch) : chunk(ch), type(RenderTaskType::DEFAULT) {}
+    ChunkMeshData(RenderTask *task) : chunk(task->chunk), chunkMesh(task->chunkMesh), type(task->type) {}
 
     void addTransQuad(const i8v3& pos);
 
@@ -102,12 +102,12 @@ public:
     std::vector <BlockVertex> transVertices;
     std::vector <BlockVertex> cutoutVertices;
     std::vector <LiquidVertex> waterVertices;
-    Chunk *chunk;
+    Chunk *chunk = nullptr;
     class ChunkMesh *chunkMesh = nullptr;
     RenderTaskType type;
 
     //*** Transparency info for sorting ***
-    ui32 transVertIndex;
+    ui32 transVertIndex = 0;
     std::vector <i8v3> transQuadPositions;
     std::vector <ui32> transQuadIndices;
 };
