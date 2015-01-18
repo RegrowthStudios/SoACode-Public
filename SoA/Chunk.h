@@ -103,10 +103,6 @@ public:
 
     void addDependency() { chunkDependencies++; }
     void removeDependency() { chunkDependencies--; }
-    
-    /// Checks if adjacent chunks are in thread, since we don't want
-    /// to remove chunks when their neighbors need them.
-    bool isAdjacentInThread();
 
     int getTopSunlight(int c);
 

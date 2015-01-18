@@ -210,7 +210,8 @@ void ChunkManager::update(const f64v3& position) {
     for (size_t i = 0; i < _freeWaitingChunks.size();) {
         ch = _freeWaitingChunks[i];
         if (ch->inSaveThread == false && ch->inLoadThread == false && 
-            !ch->lastOwnerTask && !ch->_chunkListPtr) {
+            !ch->lastOwnerTask && !ch->_chunkListPtr && ch->chunkDependencies == 0) {
+            ch->clearNeighbors();
             freeChunk(_freeWaitingChunks[i]);
             _freeWaitingChunks[i] = _freeWaitingChunks.back();
             _freeWaitingChunks.pop_back();
@@ -955,19 +956,13 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         }
         // Clear any opengl buffers
         chunk->clearBuffers();
-        // Lock to prevent data races
-        globalAccumulationTimer.start("FREE A");
-        chunk->lock();
-        // Sever any connections with neighbor chunks
-        globalAccumulationTimer.stop();
-        chunk->clearNeighbors();
 
         if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask) {
             globalAccumulationTimer.start("FREE B");
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
-            chunk->unlock();
+
             _freeWaitingChunks.push_back(chunk);
             globalAccumulationTimer.stop();
         } else {
@@ -989,7 +984,6 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             chunk->clearBuffers();
 
             chunk->clear();
-            chunk->unlock();
             recycleChunk(chunk);
         }
     }
@@ -1077,7 +1071,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
         if (chunk->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
             // Only remove it if it isn't needed by its neighbors
-            if (!chunk->lastOwnerTask && !chunk->isAdjacentInThread()) {
+            if (!chunk->lastOwnerTask && !chunk->chunkDependencies) {
                 if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
                     m_chunkIo->addToSaveList(chunk);
                 }

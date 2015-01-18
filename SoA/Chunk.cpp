@@ -109,8 +109,6 @@ void Chunk::clear(bool clearDraw)
     std::vector<ui16>().swap(sunRemovalList);
     std::vector<ui16>().swap(sunExtendList);
 
-    std::set<Chunk*>().swap(chunkDependencies);
-
     for (size_t i = 0; i < blockUpdateList.size(); i++) {
         std::vector <ui16>().swap(blockUpdateList[i]); //release the memory manually
     }
@@ -945,52 +943,4 @@ double Chunk::getDistance2(const i32v3& pos, const i32v3& cameraPos) {
     dz = dz - cameraPos.z;
     //we dont sqrt the distance since sqrt is slow
     return dx*dx + dy*dy + dz*dz;
-}
-
-bool Chunk::isAdjacentInThread() {
-    if (left) {
-        if (left->lastOwnerTask) return true;
-        if (left->front && left->front->lastOwnerTask) return true;
-        if (left->back && left->back->lastOwnerTask) return true;
-    }
-    if (right) {
-        if (right->lastOwnerTask) return true;
-        if (right->front && right->front->lastOwnerTask) return true;
-        if (right->back && right->back->lastOwnerTask) return true;
-    }
-    if (back) {
-        if (back->lastOwnerTask) return true;
-        if (back->bottom && back->bottom->lastOwnerTask) return true;
-    }
-    if (front) {
-        if (front->lastOwnerTask) return true;
-        if (front->bottom && front->bottom->lastOwnerTask) return true;
-    }
-    if (bottom) {
-        if (bottom->lastOwnerTask) return true;
-        if (bottom->left) {
-            if (bottom->left->lastOwnerTask) return true;
-            if (bottom->left->back && bottom->left->back->lastOwnerTask) return true;
-            if (bottom->left->front && bottom->left->front->lastOwnerTask) return true;
-        }
-        if (bottom->right) {
-            if (bottom->right->lastOwnerTask) return true;
-            if (bottom->right->back && bottom->right->back->lastOwnerTask) return true;
-            if (bottom->right->front && bottom->right->front->lastOwnerTask) return true;
-        }
-    }
-    if (top) {
-        if (top->lastOwnerTask) return true;
-        if (top->left) {
-            if (top->left->lastOwnerTask) return true;
-            if (top->left->back && top->left->back->lastOwnerTask) return true;
-            if (top->left->front && top->left->front->lastOwnerTask) return true;
-        }
-        if (top->right) {
-            if (top->right->lastOwnerTask) return true;
-            if (top->right->back && top->right->back->lastOwnerTask) return true;
-            if (top->right->front && top->right->front->lastOwnerTask) return true;
-        }
-    }
-    return false;
 }
