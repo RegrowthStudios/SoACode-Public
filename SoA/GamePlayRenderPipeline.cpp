@@ -134,7 +134,7 @@ void GamePlayRenderPipeline::render() {
         _cutoutVoxelRenderStage->draw();
 
         auto& voxcmp = gameSystem.voxelPositionCT.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
-        _chunkGridRenderStage->setChunkSlots(&spaceSystem.m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunkSlots(0));
+        _chunkGridRenderStage->setChunks(&spaceSystem.m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunks());
         _chunkGridRenderStage->draw();
         _liquidVoxelRenderStage->draw();
         _transparentVoxelRenderStage->draw();

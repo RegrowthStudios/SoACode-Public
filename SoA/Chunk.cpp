@@ -37,7 +37,7 @@ void RawGenDelegate::invoke(Sender sender, void* userData) {
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const i32v3 &chunkPos) {
+void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
 	freeWaiting = 0;
@@ -76,8 +76,8 @@ void Chunk::init(const i32v3 &chunkPos) {
 	drawWater = 0;
 	occlude = 0;
     lastOwnerTask = nullptr;
-    distance2 = owner->distance2;
-    chunkGridData = owner->chunkGridData;
+
+    this->chunkGridData = chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;
 
     mesh = new ChunkMesh(this);
@@ -106,6 +106,8 @@ void Chunk::clear(bool clearDraw)
     std::vector<PlantData>().swap(plantsToLoad);
     std::vector<ui16>().swap(sunRemovalList);
     std::vector<ui16>().swap(sunExtendList);
+
+    std::set<Chunk*>().swap(chunkDependencies);
 
     for (size_t i = 0; i < blockUpdateList.size(); i++) {
         std::vector <ui16>().swap(blockUpdateList[i]); //release the memory manually

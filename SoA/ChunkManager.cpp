@@ -236,10 +236,11 @@ void ChunkManager::update(const f64v3& position) {
 }
 
 void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
-#define GETCHUNK(y, z, x) it = _chunkSlotMap.find(chPos + i32v3(x, y, z)); chunk = (it == _chunkSlotMap.end() ? nullptr : it->second->chunk);
+#define GETCHUNK(y, z, x) it = m_chunkMap.find(chPos + i32v3(x, y, z)); chunk = (it == m_chunkMap.end() ? nullptr : it->second);
 
     i32 xDir, yDir, zDir;
     Chunk* chunk;
+    std::unordered_map<i32v3, Chunk*>::iterator it; // Used in macro
 
     //Get the chunk coordinates (assume its always positive)
     i32v3 chPos = getChunkPosition(coords);
@@ -299,20 +300,20 @@ Chunk* ChunkManager::getChunk(const f64v3& position) {
 
     auto it = m_chunkMap.find(chPos);
     if (it == m_chunkMap.end()) return nullptr;
-    return it->second->chunk;
+    return it->second;
 
 }
 
 Chunk* ChunkManager::getChunk(const i32v3& chunkPos) {
     auto it = m_chunkMap.find(chunkPos);
     if (it == m_chunkMap.end()) return nullptr;
-    return it->second->chunk;
+    return it->second;
 }
 
 const Chunk* ChunkManager::getChunk(const i32v3& chunkPos) const {
     auto it = m_chunkMap.find(chunkPos);
     if (it == m_chunkMap.end()) return nullptr;
-    return it->second->chunk;
+    return it->second;
 }
 
 ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
@@ -514,8 +515,6 @@ void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
 
     if (!(ch->freeWaiting)) {
 
-        ch->detectNeighbors(m_chunkMap);
-
         //check to see if the top chunk has light that should end up in this chunk
         _voxelLightEngine->checkTopForSunlight(ch);
 
@@ -600,7 +599,6 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
                 addToGenerateList(ch);
             }
         } else {
-            ch->detectNeighbors(m_chunkMap);
             ch->_state = ChunkStates::MESH;
             addToMeshList(ch);
             ch->dirty = false;
@@ -659,10 +657,9 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapD
         chunkGridData->refCount++;
     }
 
-
     // Make and initialize a chunk
     Chunk* chunk = produceChunk();
-    chunk->init(chunkPosition);
+    chunk->init(chunkPosition, chunkGridData);
 
     m_chunks.push_back(chunk);
 
@@ -937,7 +934,7 @@ void ChunkManager::updateCaPhysics() {
             for (int i = 0; i < m_chunks.size(); i++) {
                 chunk = m_chunks[i];
                 if (chunk && chunk->numNeighbors == 6 && chunk->hasCaUpdates(typesToUpdate)) {
-                    caTask = new CellularAutomataTask(this, m_physicsEngine, chunk, chunk->owner->inFrustum);
+                    caTask = new CellularAutomataTask(this, m_physicsEngine, chunk, chunk->inFrustum);
                     for (auto& type : typesToUpdate) {
                         caTask->addCaTypeToUpdate(type);
                     }
@@ -1102,7 +1099,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
             // See if neighbors need to be added
             if (chunk->numNeighbors != 6) {
                 globalAccumulationTimer.start("CSN");
-                updateChunkNeighbors(cs, intPosition);
+                updateChunkNeighbors(chunk, intPosition);
                 globalAccumulationTimer.stop();
             }
             globalAccumulationTimer.start("REST");
@@ -1194,9 +1191,9 @@ void ChunkManager::caveOcclusion(const f64v3& ppos) {
         _poccy = chPos.y;
         _poccz = chPos.z;
 
-        for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
-            if (_chunkSlots[0][i].chunk) _chunkSlots[0][i].chunk->occlude = 1;
-        }
+    //    for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
+     //       if (_chunkSlots[0][i].chunk) _chunkSlots[0][i].chunk->occlude = 1;
+    //    }
 
         ch = getChunk(chPos);
         if ((!ch) || ch->isAccessible == false) return;

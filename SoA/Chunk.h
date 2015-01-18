@@ -86,7 +86,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &chunkPos);
+    void init(const i32v3 &chunkPos, ChunkGridData* chunkGridData);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
@@ -232,6 +232,8 @@ public:
 
     std::vector <ui16> sunRemovalList;
     std::vector <ui16> sunExtendList;
+
+    std::set<Chunk*> chunkDependencies; ///< Set of chunks that depend on this chunk in other threads.
 
     static ui32 vboIndicesID;
 
