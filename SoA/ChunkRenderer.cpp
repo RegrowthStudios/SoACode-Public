@@ -407,7 +407,7 @@ void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* p
     const ChunkMeshRenderData& chunkMeshInfo = CMI->meshInfo;
 
     //top
-    if (chunkMeshInfo.pyVboSize && PlayerPos.y > CMI->position.y + chunkMeshInfo.lowestY){
+    if (chunkMeshInfo.pyVboSize){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pyVboOff * 6 * sizeof(GLuint)) / 4));
     }
 

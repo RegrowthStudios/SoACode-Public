@@ -651,6 +651,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
                 chunkGridData->heightData[i].snowDepth = 0;
                 chunkGridData->heightData[i].sandDepth = 0;
                 chunkGridData->heightData[i].depth = 0;
+                chunkGridData->heightData[i].flags = 0;
             }
           //  canGenerate = false;
         }

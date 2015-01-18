@@ -27,6 +27,8 @@ public:
     bool createOnlyWaterMesh(RenderTask* renderTask);
     void freeBuffers();
 
+    static void bindVBOIndicesID();
+
     ChunkMeshData* chunkMeshData;
 private:
     enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
@@ -43,8 +45,6 @@ private:
     void addLiquidToMesh(MesherInfo& mi);
 
     int getLiquidLevel(int blockIndex, const Block& block);
-
-    void bindVBOIndicesID();
 
     bool checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);

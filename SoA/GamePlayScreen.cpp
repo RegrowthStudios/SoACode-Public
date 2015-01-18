@@ -10,6 +10,7 @@
 #include "App.h"
 #include "ChunkManager.h"
 #include "ChunkMesh.h"
+#include "ChunkMesher.h"
 #include "ChunkRenderer.h"
 #include "Collision.h"
 #include "DebugRenderer.h"
@@ -79,6 +80,8 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_inputManager = new InputManager;
     initInputs(m_inputManager);
+
+    ChunkMesher::bindVBOIndicesID();
 
     m_soaState = m_mainMenuScreen->getSoAState();
 
@@ -286,9 +289,6 @@ void GamePlayScreen::initVoxels() {
  //                                                       &m_gameStartState->saveFileIom);
  //   m_chunkManager = cmp->chunkManager;
 
-    // TODO(Ben): Holy shit this blows.
- //   m_player->setNearestPlanet(cmp->sphericalTerrainData->getRadius() * 1000.0f, 9999999999.0f,
-//                               (cmp->sphericalTerrainData->getRadius() * 1000.0 * 2.0) / 32.0);
 }
 
 void GamePlayScreen::initRenderPipeline() {
