@@ -89,15 +89,6 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(&m_soaState->gameSystem, m_inputManager);
 
-    //m_player = new Player;
-    //m_player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
-    //if (m_gameStartState->isNewGame) {
-    //    m_player->voxelMapData.face = m_gameStartState->startFace;
-    //    m_player->voxelMapData.ipos = m_gameStartState->startGridPos.z;
-    //    m_player->voxelMapData.jpos = m_gameStartState->startGridPos.x;
-    //}
-    initVoxels();
-
     // Initialize the PDA
     m_pda.init(this, m_soaState->glProgramManager.get());
 
@@ -270,19 +261,6 @@ i32 GamePlayScreen::getWindowWidth() const {
 
 i32 GamePlayScreen::getWindowHeight() const {
     return _app->getWindow().getHeight();
-}
-
-void GamePlayScreen::initVoxels() {
-    bool atSurface = 1;
-  
- //   if (loadPlayerFile(m_player)) {
-  //      atSurface = 0; //don't need to set height
- //   }
-//    auto cmp = _app->spaceSystem->enableVoxelsOnTarget(m_player->headPosition,
- //                                                       &m_player->voxelMapData,
- //                                                       &m_gameStartState->saveFileIom);
- //   m_chunkManager = cmp->chunkManager;
-
 }
 
 void GamePlayScreen::initRenderPipeline() {

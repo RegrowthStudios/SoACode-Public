@@ -98,9 +98,6 @@ public:
 
 private:
 
-    /// Initializes the voxel world
-    void initVoxels();
-
     /// Initializes the rendering
     void initRenderPipeline();
 
