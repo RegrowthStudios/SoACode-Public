@@ -61,7 +61,7 @@ struct FreeMoveInputComponent {
         ui16 moveFlags = 0;
     };
     vcore::ComponentID physicsComponent = 0;
-    float speed = 0.1f;
+    float speed = 0.3f;
 };
 
 struct SpacePositionComponent {

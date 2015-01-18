@@ -780,7 +780,7 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             continue;
         }
 
-        if (0 && chunk->inFrustum && trySetMeshDependencies(chunk)) {     
+        if (chunk->inFrustum && trySetMeshDependencies(chunk)) {     
            
             chunk->occlude = 0;
 
@@ -1263,10 +1263,11 @@ void ChunkManager::printOwnerList(Chunk* chunk) {
 }
 
 bool ChunkManager::trySetMeshDependencies(Chunk* chunk) {
-    chunk->meshJobCounter++;
     // If this chunk is still in a mesh thread, don't re-add dependencies
-    if (chunk->meshJobCounter > 1) return true;
-
+    if (chunk->meshJobCounter) {
+        chunk->meshJobCounter++;
+        return true;
+    }
     if (chunk->numNeighbors != 6) return false;
 
     Chunk* nc;
@@ -1350,6 +1351,7 @@ bool ChunkManager::trySetMeshDependencies(Chunk* chunk) {
     chunk->back->top->addDependency();
     chunk->back->bottom->addDependency();
 
+    chunk->meshJobCounter++;
     return true;
 }
 

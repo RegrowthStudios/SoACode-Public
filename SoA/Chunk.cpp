@@ -284,9 +284,6 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     chunkMesher->chunk = this;
     chunkMesher->chunkGridData = chunkGridData;
 
-    //Must have all neighbors
-    assert(top && left && right && back && front && bottom);
-
     lock();
     queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh
     if (_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
