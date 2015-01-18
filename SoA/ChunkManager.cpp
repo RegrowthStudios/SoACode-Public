@@ -1082,6 +1082,12 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             }
             // Completely clear the chunk and then recycle it
             
+            // Destroy the mesh
+            chunk->mesh->needsDestroy = true;
+            GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                                 Message(MessageID::CHUNK_MESH,
+                                                 (void *)new ChunkMeshData(chunk->mesh));
+
             chunk->clear();
             chunk->unlock();
             recycleChunk(chunk);

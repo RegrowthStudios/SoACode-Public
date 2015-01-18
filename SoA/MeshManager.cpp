@@ -36,6 +36,18 @@ MeshManager::MeshManager(const vg::GLProgramManager* glProgramManager) :
 void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
     ChunkMesh *cm = cmd->chunkMesh;
 
+    // Destroy meshes if main thread asks
+    if (cm->needsDestroy) {
+        if (cm->vecIndex != UNINITIALIZED_INDEX) {
+            _chunkMeshes[cm->vecIndex] = _chunkMeshes.back();
+            _chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
+            _chunkMeshes.pop_back();
+        }
+        delete cm;
+        delete cmd;
+        return;
+    }
+
     //store the index data for sorting in the chunk mesh
     cm->transQuadIndices.swap(cmd->transQuadIndices);
     cm->transQuadPositions.swap(cmd->transQuadPositions);
@@ -146,7 +158,6 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
             _chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
             _chunkMeshes.pop_back();
         }
-        delete cm;
     }
 
 

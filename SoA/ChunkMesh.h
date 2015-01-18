@@ -91,7 +91,7 @@ public:
 class ChunkMeshData
 {
 public:
-    //ChunkMeshData(Chunk *ch) : chunk(ch), type(RenderTaskType::DEFAULT) {}
+    ChunkMeshData(ChunkMesh *cm) : chunkMesh(cm), type(RenderTaskType::DEFAULT) {}
     ChunkMeshData(RenderTask *task) : chunk(task->chunk), chunkMesh(task->chunkMesh), type(task->type) {}
 
     void addTransQuad(const i8v3& pos);
@@ -131,6 +131,8 @@ public:
     glm::ivec3 position;
     bool inFrustum = false;
     bool needsSort = true;
+    bool needsDestroy = false;
+    int vecIndex = UNINITIALIZED_INDEX;
 
     //*** Transparency info for sorting ***
     GLuint transIndexID = 0;
