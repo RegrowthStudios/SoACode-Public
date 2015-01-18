@@ -1,15 +1,9 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "stdafx.h"
 #include "Errors.h"
 
-#include <Windows.h>
-#include <cstdlib>
-
 #include <SDL/SDL.h>
 
-#include "OpenglManager.h"
-
-void showMessage(const string& message)
+void showMessage(const nString& message)
 {
 #if defined(_WIN32) || defined(_WIN64)
     //SDL_WM_IconifyWindow();
@@ -24,9 +18,9 @@ void showMessage(const string& message)
 }
 
 //yes 1, no 0
-int showYesNoBox(const string& message)
+int showYesNoBox(const nString& message)
 {
-#if defined(_WIN32) || defined(_WIN64) 
+#if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);
     SDL_SetRelativeMouseMode(SDL_FALSE);
     int id = MessageBox(NULL, message.c_str(), "SoA", MB_YESNO);
@@ -41,9 +35,9 @@ int showYesNoBox(const string& message)
 }
 
 ///yes 1, no 0, cancel -1
-int showYesNoCancelBox(const string& message)
+int showYesNoCancelBox(const nString& message)
 {
-#if defined(_WIN32) || defined(_WIN64) 
+#if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);
     SDL_SetRelativeMouseMode(SDL_FALSE);
     int id = MessageBox(NULL, message.c_str(), "SoA", MB_YESNOCANCEL);
@@ -58,27 +52,13 @@ int showYesNoCancelBox(const string& message)
 #endif
 }
 
-string getFullPath(const char *initialDir)
+nString getFullPath(const char *initialDir)
 {
-    string rval;
+    nString rval;
     char pathBuffer[1024];
     _fullpath(pathBuffer, initialDir, 1024);
     rval = pathBuffer;
     return rval;
-}
-
-void mError(const string& message)
-{
-    FILE *logFile = NULL;
-    SDL_SetRelativeMouseMode(SDL_FALSE);
-    logFile = fopen("errorlog.txt", "a+");
-    if (logFile != NULL){
-        fprintf(logFile, "*ERROR: %s \n", message.c_str());
-        fclose(logFile);
-    }
-    printf("*ERROR: %s \n", message);
-    gameToGl.enqueue(Message(GL_M_ERROR, strdup(message.c_str())));
-    openglManager.WaitForMessage(GL_M_DONE);
 }
 
 void pError(const char *message)
@@ -92,10 +72,10 @@ void pError(const char *message)
     }
     printf("*ERROR: %s \n", message);
     fflush(stdout);
-    showMessage("ERROR: " + string(message));
+    showMessage("ERROR: " + nString(message));
 }
 
-void pError(const string& message)
+void pError(const nString& message)
 {
     FILE *logFile = NULL;
     SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -110,7 +90,7 @@ void pError(const string& message)
 }
 
 //Checks the output of glGetError and prints an appropriate error message if needed.
-bool checkGlError(const string& errorLocation) {
+bool checkGlError(const nString& errorLocation) {
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
         switch (error) {
@@ -133,7 +113,7 @@ bool checkGlError(const string& errorLocation) {
             pError("At " + errorLocation + ". Error code 1285: GL_OUT_OF_MEMORY");
             break;
         default:
-            pError("At " + errorLocation + ". Error code UNKNOWN");
+            pError("At " + errorLocation + ". Error code " + std::to_string(error) + ": UNKNOWN");
             break;
         }
         return true;

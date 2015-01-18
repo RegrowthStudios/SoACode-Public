@@ -1,42 +1,51 @@
+///
+/// RenderTask.h
+/// Seed of Andromeda
+///
+/// Created by Benjamin Arnold on 11 Nov 2014
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// This file has the implementation of a render task for SoA
+///
+
 #pragma once
+
+#ifndef RenderTask_h__
+#define RenderTask_h__
+
+#include <Vorb/IThreadPoolTask.h>
+
 #include "Constants.h"
+#include "VoxPool.h"
 
 class Chunk;
+class ChunkGridData;
+class ChunkMeshData;
+class VoxelLightEngine;
 
-// For Use With Render Task's Type
-#define RENDER_TASK_RENDER 0
-#define RENDER_TASK_WATER 1
+enum class RenderTaskType { DEFAULT, LIQUID };
 
-// Sizes For A Padded Chunk
-const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
-const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
-const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
+#define RENDER_TASK_ID 0
 
 // Represents A Mesh Creation Task
-struct RenderTask {
+class RenderTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
-    // Helper Function To Set The Chunk Data
-    void setChunk(Chunk* ch, i32 cType) {
-        type = cType;
-        chunk = ch;
-        num = ch->num;
-        position = ch->position;
-        wSize = 0;
-    }
+    RenderTask() : vcore::IThreadPoolTask<WorkerData>(true, RENDER_TASK_ID) {}
 
-	// Notice that the edges of the chunk data are padded. We have to do this because
-	// We don't want to have to access neighboring chunks in multiple threads, that requires
-	// us to use mutex locks. This way is much faster and also prevents bounds checking
-    ui16 chData[PADDED_CHUNK_SIZE];
-    ubyte chLightData[2][PADDED_CHUNK_SIZE];
-    ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
-    ui8 temperatures[CHUNK_LAYER];
-    ui8 rainfalls[CHUNK_LAYER];
-    ui8 depthMap[CHUNK_LAYER];
-	i32 wSize;
-	ui16 wvec[CHUNK_SIZE];
-	i32 num;
-	i32 type; // RENDER_TASK_RENDER, RENDER_TASK_WATER
-	i32v3 position;
+    // Executes the task
+    void execute(WorkerData* workerData) override;
+
+    // Initializes the task
+    void init(Chunk* ch, RenderTaskType cType);
+
+    RenderTaskType type; 
     Chunk* chunk;
+    ChunkMeshData* chunkMeshData;
+
+private:
+    void updateLight(VoxelLightEngine* voxelLightEngine);
 };
+
+#endif // RenderTask_h__

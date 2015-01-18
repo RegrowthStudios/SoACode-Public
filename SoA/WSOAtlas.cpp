@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "WSOAtlas.h"
 
-#include "IOManager.h"
+#include <Vorb/io/IOManager.h>
+
 #include "WSOData.h"
 
 // This Information Is Found At The Beginning Of The WSO File
@@ -46,26 +47,26 @@ void WSOAtlas::add(WSOData* data) {
 }
 
 void WSOAtlas::load(const cString file) {
-    IOManager iom;
+    vio::IOManager iom;
 
     // Attempt To Open The File
-    FILE* f = iom.openFile(file, "r");
-    if (!f) return;
+    vfstream f = iom.openFile(file, vio::FileOpenFlags::READ_ONLY_EXISTING | vio::FileOpenFlags::BINARY);
+    if (!f.isOpened()) return;
 
     // Read The Header
     WSOFileHeader header;
-    fread(&header, sizeof(WSOFileHeader), 1, f);
+    f.read(1, sizeof(WSOFileHeader), &header);
 
     // Read All The Index Information
     WSOIndexInformation* indices = new WSOIndexInformation[header.wsoCount];
-    fread(indices, sizeof(WSOIndexInformation), header.wsoCount, f);
+    f.read(header.wsoCount, sizeof(WSOIndexInformation), indices);
 
     // Read The DATA Segment
     ubyte* data = new ubyte[header.dataSegmentSize];
-    fread(data, sizeof(ubyte), header.dataSegmentSize, f);
+    f.read(header.dataSegmentSize, sizeof(ubyte), data);
 
     // Close The File
-    fclose(f);
+    f.close();
 
     // Allocate Memory For All The WSO Data
     WSOData* wsoData = new WSOData[header.wsoCount]();

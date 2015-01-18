@@ -1,12 +1,13 @@
 #include "stdafx.h"
-
 #include "VoxelEditor.h"
+
+#include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "ChunkUpdater.h"
-#include "Sound.h"
-#include "BlockData.h"
 #include "Item.h"
+#include "Sound.h"
+#include "VoxelNavigation.inl"
 
 
 VoxelEditor::VoxelEditor() : _currentTool(EDITOR_TOOLS::AABOX), _startPosition(INT_MAX), _endPosition(INT_MAX) {
@@ -28,7 +29,6 @@ void VoxelEditor::editVoxels(Item *block) {
 }
 
 void VoxelEditor::placeAABox(Item *block) {
-
     Chunk* chunk = nullptr;
     int blockIndex = -1, blockID;
     int soundNum = 0;
@@ -38,9 +38,8 @@ void VoxelEditor::placeAABox(Item *block) {
 
     ChunkManager* chunkManager = GameManager::chunkManager;
 
-    //Coordinates relative to the ChunkManager
-    i32v3 relStart = _startPosition - chunkManager->cornerPosition;
-    i32v3 relEnd = _endPosition - chunkManager->cornerPosition;
+    i32v3 start = _startPosition;
+    i32v3 end = _endPosition;
 
     bool breakBlocks = false;
     if (block == nullptr){
@@ -48,29 +47,32 @@ void VoxelEditor::placeAABox(Item *block) {
     }
 
     //Set up iteration bounds
-    if (relStart.y < relEnd.y) {
-        yStart = relStart.y;
-        yEnd = relEnd.y;
+    if (start.y < end.y) {
+        yStart = start.y;
+        yEnd = end.y;
     } else {
-        yEnd = relStart.y;
-        yStart = relEnd.y;
+        yEnd = start.y;
+        yStart = end.y;
     }
 
-    if (relStart.z < relEnd.z) {
-        zStart = relStart.z;
-        zEnd = relEnd.z;
+    if (start.z < end.z) {
+        zStart = start.z;
+        zEnd = end.z;
     } else {
-        zEnd = relStart.z;
-        zStart = relEnd.z;
+        zEnd = start.z;
+        zStart = end.z;
     }
 
-    if (relStart.x < relEnd.x) {
-        xStart = relStart.x;
-        xEnd = relEnd.x;
+    if (start.x < end.x) {
+        xStart = start.x;
+        xEnd = end.x;
     } else {
-        xEnd = relStart.x;
-        xStart = relEnd.x;
+        xEnd = start.x;
+        xStart = end.x;
     }
+
+    // Keep track of which chunk is locked
+    Chunk* lockedChunk = nullptr;
 
     for (int y = yStart; y <= yEnd; y++) {
         for (int z = zStart; z <= zEnd; z++) {
@@ -79,23 +81,25 @@ void VoxelEditor::placeAABox(Item *block) {
                 chunkManager->getBlockAndChunk(i32v3(x, y, z), &chunk, blockIndex);
 
                 if (chunk && chunk->isAccessible) {
-                    blockID = chunk->getBlockID(blockIndex);
+                  
+                    blockID = chunk->getBlockIDSafe(lockedChunk, blockIndex);
 
                     if (breakBlocks){
                         if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)){
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z) + f64v3(chunkManager->cornerPosition));
+                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
-                            ChunkUpdater::removeBlock(chunk, blockIndex, true);
+                            ChunkUpdater::removeBlock(chunk, lockedChunk, blockIndex, true);
                         }
                     } else {
                         if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0))
                         {
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z) + f64v3(chunkManager->cornerPosition));
+                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
-                            ChunkUpdater::placeBlock(chunk, blockIndex, block->ID);
+                            ChunkUpdater::placeBlock(chunk, lockedChunk, blockIndex, block->ID);
                             block->count--;
                             if (block->count == 0){
                                 stopDragging();
+                                if (lockedChunk) lockedChunk->unlock();
                                 return;
                             }
                         }
@@ -104,7 +108,7 @@ void VoxelEditor::placeAABox(Item *block) {
             }
         }
     }
-
+    if (lockedChunk) lockedChunk->unlock();
     stopDragging();
 }
 
@@ -122,7 +126,7 @@ bool VoxelEditor::isEditing() {
     return (_startPosition.x != INT_MAX && _endPosition.x != INT_MAX);
 }
 
-void VoxelEditor::drawGuides(const f64v3& cameraPos, glm::mat4 &VP, int blockID)
+void VoxelEditor::drawGuides(const f64v3& cameraPos, const glm::mat4 &VP, int blockID)
 {
     switch (_currentTool) {
         case EDITOR_TOOLS::AABOX:

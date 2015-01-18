@@ -3,11 +3,11 @@
 #include <mutex>
 #include <queue>
 #include <thread>
-#include <Windows.h>
 
 #include <ZLIB/zlib.h>
 
 #include "RegionFileManager.h"
+#include "readerwriterqueue.h"
 
 class Chunk;
 
@@ -24,9 +24,6 @@ public:
 
     void beginThread();
 
-    i32 getLoadListSize();
-    i32 getSaveListSize();
-
     void onQuit();
 
     void setDisableLoading(bool disableLoading) { _shouldDisableLoading = disableLoading; }
@@ -34,11 +31,10 @@ public:
     bool saveVersionFile();
     bool checkVersion();
 
-    std::queue<Chunk*> chunksToLoad;
-    std::queue<Chunk*> chunksToSave; 
+    moodycamel::ReaderWriterQueue<Chunk*> chunksToLoad;
+    moodycamel::ReaderWriterQueue<Chunk*> chunksToSave;
     std::thread* readWriteThread;
-    std::mutex flcLock;
-    std::vector<Chunk*> finishedLoadChunks;
+    moodycamel::ReaderWriterQueue<Chunk*> finishedLoadChunks;
 private:
     RegionFileManager _regionFileManager;
 

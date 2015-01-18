@@ -1,31 +1,20 @@
+///
+/// stdafx.h
+/// Seed of Andromeda
+///
+/// Created by Cristian Zaloj on 29 Dec 2014
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// PCH for Seed of Andromeda
+///
+
 #pragma once
-// Make Sure We Use Correct Debug Variables
-#ifdef DEBUG
-#ifndef _DEBUG
-#define _DEBUG
-#endif
-#endif // DEBUG
-#ifdef _DEBUG
-#ifndef DEBUG
-#define DEBUG
-#endif
-#endif // _DEBUG
 
-#define MACRO_PARAN_L {
-#define MACRO_PARAN_R }
+#ifndef stdafx_h__SoA
+#define stdafx_h__SoA
 
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <math.h>
-#include <queue>
-#include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <Vorb/stdafx.h>
 
-#include <GL\glew.h>
-
-#include "types.h"
+#endif // stdafx_h__SoA

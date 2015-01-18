@@ -1,36 +1,25 @@
 #pragma once
 #include "OpenGLStructs.h"
 #include "BlockData.h"
+#include "ChunkMesh.h"
 
 class RenderTask;
 class Chunk;
 struct ChunkMeshData;
 struct BlockTexture;
-struct BlockTextureLayer;
+class BlockTextureLayer;
 
-// Stores Chunk Mesh Information
-struct MeshInfo {
-public:
-    i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
-    i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
-    i32 wsize;
-    i32 pyVboSize, nxVboSize, pxVboSize, nzVboSize, pzVboSize, nyVboSize, transparentIndex, cutoutIndex;
-    i32 y, z, x;
-    i32 y2, z2, x2; //used for transparent positions. == y*2,z*2,x*2
-    i32 c, wc;
-    i32 btype;
-    i32 pbtype;
-    i32 pupIndex, pfrontIndex, pbackIndex, pbotIndex;
-    i32 temperature, rainfall;
-    MeshType meshType;
-    bool mergeUp, mergeBot, mergeFront, mergeBack;
-
-    RenderTask* task;
-};
+// Sizes For A Padded Chunk
+const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
+const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
+const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 // each worker thread gets one of these
 class ChunkMesher {
 public:
+
+    friend class Chunk;
+
     ChunkMesher();
     ~ChunkMesher();
     
@@ -42,29 +31,27 @@ public:
 private:
     enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
 
-    inline void mergeTopVerts(MeshInfo& mi);
-    inline void mergeFrontVerts(MeshInfo& mi);
-    inline void mergeBackVerts(MeshInfo& mi);
-    inline void mergeRightVerts(MeshInfo& mi);
-    inline void mergeLeftVerts(MeshInfo& mi);
-    inline void mergeBottomVerts(MeshInfo& mi);
+    void mergeTopVerts(MesherInfo& mi);
+    void mergeFrontVerts(MesherInfo& mi);
+    void mergeBackVerts(MesherInfo& mi);
+    void mergeRightVerts(MesherInfo& mi);
+    void mergeLeftVerts(MesherInfo& mi);
+    void mergeBottomVerts(MesherInfo& mi);
 
-    
-    inline void getTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 color[3]);
-    //inline void getOverlayTextureIndex(const MeshInfo &mi, const BlockTexture& blockTexture, int& result, int rightDir, int upDir, int frontDir, unsigned int directionIndex, ui8 overlayColor[3]);
-    inline void getRandomTextureIndex(const MeshInfo &mi, const BlockTextureLayer& blockTexInfo, int& result);
-    inline void getConnectedTextureIndex(const MeshInfo &mi, int& result, bool innerSeams, int rightDir, int upDir, int frontDir, unsigned int offset);
-    inline void getGrassTextureIndex(const MeshInfo &mi, int& result, int rightDir, int upDir, int frontDir, unsigned int offset, ui8 color[3]);
+    void addBlockToMesh(MesherInfo& mi);
+    void addFloraToMesh(MesherInfo& mi);
+    void addLiquidToMesh(MesherInfo& mi);
 
-    void addBlockToMesh(MeshInfo& mi);
-    void addFloraToMesh(MeshInfo& mi);
-    void addLiquidToMesh(MeshInfo& mi);
+    int getLiquidLevel(int blockIndex, const Block& block);
 
     void bindVBOIndicesID();
 
-    inline void GetLightDataArray(int c, int &x, int &y, int &z, GLbyte lights[], GLbyte sunlights[], GLushort *chData, GLubyte *chLightData[2], bool faces[6]);
-    inline bool checkBlockFaces(bool faces[6], sbyte lights[26], sbyte sunlights[26], const RenderTask* task, const bool occlude, const i32 btype, const i32 wc);
-    inline GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
+    bool checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
+    GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
+    void calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj);
+    void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
+
+    void computeLODData(int levelOfDetail);
 
     std::vector<BlockVertex> _finalTopVerts;
     std::vector<BlockVertex> _finalLeftVerts;
@@ -77,6 +64,23 @@ private:
     std::vector<BlockVertex> _transparentVerts;
     std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
+
+    //Dimensions of the voxel data, based on LOD
+    int dataWidth;
+    int dataLayer;
+    int dataSize;
+
+    Chunk* chunk; ///< The chunk we are currently meshing;
+    ChunkGridData* chunkGridData; ///< current grid data
+
+    int wSize;
+    // Voxel data arrays
+    ui16 _wvec[CHUNK_SIZE];
+    ui16 _blockIDData[PADDED_CHUNK_SIZE];
+    ui16 _lampLightData[PADDED_CHUNK_SIZE];
+    ui8 _sunlightData[PADDED_CHUNK_SIZE];
+    ui16 _tertiaryData[PADDED_CHUNK_SIZE];
+
     ui32 _finalQuads[7000];
 
     BlockVertex _topVerts[4100];

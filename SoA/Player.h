@@ -1,4 +1,7 @@
 #pragma once
+#include <Vorb/Vorb.h>
+
+#include "VoxelPlanetMapper.h"
 #include "Actor.h"
 #include "Camera.h"
 #include "Texture2d.h"
@@ -32,7 +35,7 @@ public:
     Player();
     ~Player();
 
-    void initialize(nString playerName);
+    void initialize(nString playerName, float aspectRatio);
     bool update(bool isMouseIn, f64 Gravity, f64 AirFrictionForce);
     void setNearestPlanet(i32 WorldRadius, i32 EnterRadius, i32 PlanetRowSize);
     void checkFaceTransition();
@@ -53,34 +56,34 @@ public:
 
     //getters
     const f32v3& chunkDirection() const {
-        return _chunkCamera.direction();
+        return _chunkCamera.getDirection();
     }
     const f32v3& chunkUp() const {
-        return _chunkCamera.up();
+        return _chunkCamera.getUp();
     }
 
     const f32m4& chunkViewMatrix() const {
-        return _chunkCamera.viewMatrix();
+        return _chunkCamera.getViewMatrix();
     }
     const f32m4& chunkProjectionMatrix() const {
-        return _chunkCamera.projectionMatrix();
+        return _chunkCamera.getProjectionMatrix();
     }
 
     const f32v3& worldDirection() const {
-        return _worldCamera.direction();
+        return _worldCamera.getDirection();
     }
     const f32v3& worldUp() const {
-        return _worldCamera.up();
+        return _worldCamera.getUp();
     }
     const f32v3& worldRight() const {
-        return _worldCamera.right();
+        return _worldCamera.getRight();
     }
 
     const f32m4& worldViewMatrix() const {
-        return _worldCamera.viewMatrix();
+        return _worldCamera.getViewMatrix();
     }
     const f32m4& worldProjectionMatrix() const {
-        return _worldCamera.projectionMatrix();
+        return _worldCamera.getProjectionMatrix();
     }
 
     Camera& getWorldCamera() {
@@ -129,7 +132,7 @@ public:
 
     i32 planetRowSize;
 
-    FaceData faceData;
+    vvox::VoxelPlanetMapData voxelMapData;
     CollisionData collisionData;
 
     f32m4 worldRotationMatrix;
@@ -182,4 +185,3 @@ private:
 
     bool _wasSpacePressedLastFrame;
 };
-extern Player* player;

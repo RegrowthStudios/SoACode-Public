@@ -1,49 +1,34 @@
 #pragma once
-#include <vector>
-#include "types.h"
 
-struct ChunkMesh
-{
-    ChunkMesh() : vboID(0), vaoID(0), transVaoID(0), transVboID(0), cutoutVaoID(0), cutoutVboID(0), indexSize(0), waterVboID(0), waterIndexSize(0), vecIndex(-1), distance(30.0f), needsSort(true) {}
+#ifndef ChunkRenderer_h__
+#define ChunkRenderer_h__
 
-    //***** This 84 byte block gets memcpyd from ChunkMeshData *****
-    GLint pxVboOff, pxVboSize, nxVboOff, nxVboSize, pzVboOff, pzVboSize, nzVboOff, nzVboSize;
-    GLint pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize, cutoutVboSize;
-    GLint highestY, lowestY, highestX, lowestX, highestZ, lowestZ;
-    GLuint indexSize;
-    GLuint waterIndexSize;
-    //*****  End Block *****
+#include <Vorb/graphics/GLProgram.h>
 
-    GLuint vboID;
-    GLuint vaoID;
-    GLuint transVboID;
-    GLuint transVaoID;
-    GLuint cutoutVboID;
-    GLuint cutoutVaoID;
-    GLuint waterVboID;
-    float distance;
-    glm::ivec3 position;
-    int vecIndex;
-    bool inFrustum;
-    bool needsSort;
+#include "ChunkMesh.h"
 
-    //*** Transparency info for sorting ***
-    GLuint transIndexID;
-    std::vector <i8v3> transQuadPositions;
-    std::vector <ui32> transQuadIndices;
-    
-};
+class GameRenderParams;
+class PhysicsBlockMesh;
 
 class ChunkRenderer {
 public:
-    static void draw(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
-    static void drawTransparentBlocks(const ChunkMesh *CMI, const glm::dvec3 &playerPos, const glm::mat4 &VP);
-    static void drawCutoutBlocks(const ChunkMesh *CMI, const glm::dvec3 &playerPos, const glm::mat4 &VP);
-    static void drawSonar(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
-    static void drawWater(const ChunkMesh *CMI, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
+    static void drawSonar(const GameRenderParams* gameRenderParams);
+    static void drawBlocks(const GameRenderParams* gameRenderParams);
+    static void drawCutoutBlocks(const GameRenderParams* gameRenderParams);
+    static void drawTransparentBlocks(const GameRenderParams* gameRenderParams);
+    static void drawWater(const GameRenderParams* gameRenderParams);
 
     static void bindTransparentVao(ChunkMesh *CMI);
     static void bindCutoutVao(ChunkMesh *CMI);
     static void bindVao(ChunkMesh *CMI);
-    
+    static void bindWaterVao(ChunkMesh *CMI);
+   
+private:
+    static void drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+    static void drawChunkTransparentBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawChunkCutoutBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawChunkWater(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+
 };
+
+#endif // ChunkRenderer_h__

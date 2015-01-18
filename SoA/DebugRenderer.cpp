@@ -4,10 +4,12 @@
 #include <algorithm>
 #include <functional>
 
-#include "RenderUtils.h"
+#include <Vorb/graphics/RasterizerState.h>
+
+#include "GameManager.h"
+#include "GLProgramManager.h"
 #include "global.h"
-#include "RasterizerState.h"
-#include "shader.h"
+#include "RenderUtils.h"
 
 glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2);
 
@@ -51,17 +53,22 @@ void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos) {
     _currentTimePoint = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsedTime = _currentTimePoint - _previousTimePoint;
     double deltaT = elapsedTime.count();
-    basicColorShader.Bind();
-    glEnableVertexAttribArray(0);
 
+    _program = GameManager::glProgramManager->getProgram("BasicColor");
+
+    _program->use();
+    _program->enableVertexAttribArrays();
+    
     if(_icospheresToRender.size() > 0) renderIcospheres(vp, playerPos, deltaT);
     if(_cubesToRender.size() > 0) renderCubes(vp, playerPos, deltaT);
     if(_linesToRender.size() > 0) renderLines(vp, playerPos, deltaT);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDisableVertexAttribArray(0);
-    basicColorShader.UnBind();
+    
+    _program->disableVertexAttribArrays();
+    _program->use();
+    
 }
 
 void DebugRenderer::drawIcosphere(const glm::vec3 &position, const float radius, const glm::vec4 &color, const int lod, const double duration) {
@@ -115,8 +122,8 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playe
         setModelMatrixScale(i->radius, i->radius, i->radius);
         glm::mat4 mvp = vp * GlobalModelMatrix;
 
-        glUniform4f(basicColorShader.colorID, i->color.r, i->color.g, i->color.b, i->color.a);
-        glUniformMatrix4fv(basicColorShader.mvpID, 1, GL_FALSE, &mvp[0][0]);
+        glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
+        glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
         glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
 
         i->timeTillDeletion -= deltaT;
@@ -134,8 +141,8 @@ void DebugRenderer::renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos,
         setModelMatrixScale(i->size);
         glm::mat4 mvp = vp * GlobalModelMatrix;
 
-        glUniform4f(basicColorShader.colorID, i->color.r, i->color.g, i->color.b, i->color.a);
-        glUniformMatrix4fv(basicColorShader.mvpID, 1, GL_FALSE, &mvp[0][0]);
+        glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
+        glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
 
         glDrawElements(GL_TRIANGLES, _cubeMesh->numIndices, GL_UNSIGNED_INT, 0);
 
@@ -151,11 +158,11 @@ void DebugRenderer::renderLines(const glm::mat4 &vp, const glm::vec3& playerPos,
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
     setModelMatrixScale(1.0f, 1.0f, 1.0f);
     for(auto i = _linesToRender.begin(); i != _linesToRender.end(); i++) {
-        glUniform4f(basicColorShader.colorID, i->color.r, i->color.g, i->color.b, i->color.a);
+        glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         setModelMatrixTranslation(i->position1, playerPos);
         
         glm::mat4 mvp = vp * GlobalModelMatrix;
-        glUniformMatrix4fv(basicColorShader.mvpID, 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
         glm::vec3 secondVertex = i->position2 - i->position1;
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(glm::vec3), sizeof(glm::vec3), &secondVertex);
         glDrawElements(GL_LINES, _lineMesh->numIndices, GL_UNSIGNED_INT, 0);

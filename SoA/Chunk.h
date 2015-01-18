@@ -2,12 +2,20 @@
 #include <algorithm>
 #include <queue>
 #include <set>
+#include <mutex>
+
+#include <Vorb/Vorb.h>
+#include <Vorb/IThreadPoolTask.h>
 
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
+#include "IVoxelMapper.h"
+#include "SmartVoxelContainer.hpp"
 #include "readerwriterqueue.h"
 #include "WorldStructs.h"
+#include "VoxelBits.h"
 #include "VoxelLightEngine.h"
+#include "VoxPool.h"
 
 //used by threadpool
 
@@ -21,11 +29,29 @@ enum LightTypes {LIGHT, SUNLIGHT};
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
 struct LightMessage;
-struct LightRemovalNode;
-struct RenderTask;
+class RenderTask;
+class CaPhysicsType;
+class ChunkMesher;
+
+class ChunkGridData {
+public:
+    ChunkGridData(vvox::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData), refCount(1) {
+        //Mark the data as unloaded
+        heightData[0].height = UNLOADED_HEIGHT;
+    }
+    ~ChunkGridData() {
+        delete voxelMapData;
+    }
+    vvox::VoxelMapData* voxelMapData;
+    HeightData heightData[CHUNK_LAYER];
+    int refCount;
+};
+
+class ChunkSlot;
 
 class Chunk{
 public:
+
     friend class ChunkManager;
     friend class EditorTree;
     friend class ChunkMesher;
@@ -37,156 +63,237 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-	void init(const glm::ivec3 &pos, int hzI, int hxI, FaceData *fd);
-	
+    void init(const i32v3 &gridPos, ChunkSlot* Owner);
+
+    void updateContainers() {
+        _blockIDContainer.update(_dataLock);
+        _sunlightContainer.update(_dataLock);
+        _lampLightContainer.update(_dataLock);
+        _tertiaryDataContainer.update(_dataLock);
+    }
+    
     void changeState(ChunkStates State);
-	
-	int getLeftBlockData(int c);
-	int getLeftBlockData(int c, int x, int *c2, Chunk **owner);
-	int getRightBlockData(int c);
-	int getRightBlockData(int c, int x, int *c2, Chunk **owner);
-	int getFrontBlockData(int c);
-	int getFrontBlockData(int c, int z, int *c2, Chunk **owner);
-	int getBackBlockData(int c);
-	int getBackBlockData(int c, int z, int *c2, Chunk **owner);
-	int getBottomBlockData(int c);
-	int getBottomBlockData(int c, int y, int *c2, Chunk **owner);
-	int getTopBlockData(int c);
-	int getTopBlockData(int c, int *c2, Chunk **owner);
-	int getTopBlockData(int c, int y, int *c2, Chunk **owner);
+    
+    /// Checks if adjacent chunks are in thread, since we don't want
+    /// to remove chunks when their neighbors need them.
+    bool isAdjacentInThread();
 
     int getTopSunlight(int c);
 
-	void getLeftLightData(int c, GLbyte &l, GLbyte &sl);
-	void getRightLightData(int c, GLbyte &l, GLbyte &sl);
-	void getFrontLightData(int c, GLbyte &l, GLbyte &sl);
-	void getBackLightData(int c, GLbyte &l, GLbyte &sl);
-	void getBottomLightData(int c, GLbyte &l, GLbyte &sl);
-	void getTopLightData(int c, GLbyte &l, GLbyte &sl);
+    void clear(bool clearDraw = 1);
+    void clearBuffers();
+    void clearNeighbors();
+    
+    void CheckEdgeBlocks();
+    int GetPlantType(int x, int z, Biome *biome);
 
-	void clear(bool clearDraw = 1);
-	void clearBuffers();
-	
-	void CheckEdgeBlocks();
-	int GetPlantType(int x, int z, Biome *biome);
+    void setupMeshData(ChunkMesher *chunkMesher);
 
-    void SetupMeshData(RenderTask *renderTask);
+    void addToChunkList(std::vector<Chunk*> *chunkListPtr);
+    void clearChunkListPtr();
 
-	Chunk(){
-	}
-	~Chunk(){
-		clearBuffers();
-	}
+    bool hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate);
 
-	static vector <MineralData*> possibleMinerals;
-	
+    /// Constructor
+    /// @param shortRecycler: Recycler for ui16 data arrays
+    /// @param byteRecycler: Recycler for ui8 data arrays
+    Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 
+          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler,
+          int numCaTypes) : 
+          _blockIDContainer(shortRecycler), 
+          _sunlightContainer(byteRecycler),
+          _lampLightContainer(shortRecycler),
+          _tertiaryDataContainer(shortRecycler) {
+        blockUpdateList.resize(numCaTypes * 2);
+        activeUpdateList.resize(numCaTypes);
+        // Empty
+    }
+    ~Chunk(){
+        clearBuffers();
+    }
+
+    static std::vector<MineralData*> possibleMinerals;
+    
     //getters
-    ChunkStates getState() const { return state; }
-    GLushort getBlockData(int c) const;
+    ChunkStates getState() const { return _state; }
+    ui16 getBlockData(int c) const;
+    ui16 getBlockDataSafe(Chunk*& lockedChunk, int c);
     int getBlockID(int c) const;
-    int getLight(int type, int c) const;
+    int getBlockIDSafe(Chunk*& lockedChunk, int c);
+    int getSunlight(int c) const;
+    int getSunlightSafe(int c, Chunk*& lockedChunk);
+    ui16 getTertiaryData(int c) const;
+    int getFloraHeight(int c) const;
+
+    ui16 getLampLight(int c) const;
+    ui16 getLampRed(int c) const;
+    ui16 getLampGreen(int c) const;
+    ui16 getLampBlue(int c) const;
+
     const Block& getBlock(int c) const;
+    const Block& getBlockSafe(Chunk*& lockedChunk, int c);
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
+    int getLevelOfDetail() const { return _levelOfDetail; }
+
     //setters
-    void setBlockID(int c, int val);
-    void setBlockData(int c, GLushort val);
-    void setLight(int type, int c, int val);
+    void setBlockData(int c, ui16 val);
+    void setBlockDataSafe(Chunk*& lockedChunk, int c, ui16 val);
+    void setTertiaryData(int c, ui16 val);
+    void setTertiaryDataSafe(Chunk*& lockedChunk, int c, ui16 val);
+    void setSunlight(int c, ui8 val);
+    void setSunlightSafe(Chunk*& lockedChunk, int c, ui8 val);
+    void setLampLight(int c, ui16 val);
+    void setLampLightSafe(Chunk*& lockedChunk, int c, ui16 val);
+    void setFloraHeight(int c, ui16 val);
+    void setFloraHeightSafe(Chunk*& lockedChunk, int c, ui16 val);
 
+    void setLevelOfDetail(int lod) { _levelOfDetail = lod; }
 
-    int neighbors;
-    bool activeUpdateList[8];
+    inline void addPhysicsUpdate(int caIndex, int blockIndex) {
+        blockUpdateList[(caIndex << 1) + (int)activeUpdateList[caIndex]].push_back(blockIndex);
+    }
+    
+    int numNeighbors;
+    std::vector<bool> activeUpdateList;
     bool drawWater;
     bool hasLoadedSunlight;
     bool occlude; //this needs a new name
     bool topBlocked, leftBlocked, rightBlocked, bottomBlocked, frontBlocked, backBlocked;
     bool dirty;
     int loadStatus;
-    bool inLoadThread;
+    volatile bool inLoadThread;
     volatile bool inSaveThread;
-    volatile bool inRenderThread;
-    bool inGenerateThread;
-    bool inFinishedMeshes;
-    bool inFinishedChunks;
-    bool isAccessible;
+    volatile bool isAccessible;
+    volatile bool queuedForMesh;
+
+    bool queuedForPhysics;
+
+    vorb::core::IThreadPoolTask<WorkerData>* lastOwnerTask; ///< Pointer to task that is working on us
 
     ChunkMesh *mesh;
 
-    vector <TreeData> treesToLoad;
-    vector <PlantData> plantsToLoad;
-    vector <GLushort> spawnerBlocks;
-    glm::ivec3 position;
-    FaceData faceData;
-    int hzIndex, hxIndex;
-    int worldX, worlxY, worldZ;
-    int num;
+    std::vector <TreeData> treesToLoad;
+    std::vector <PlantData> plantsToLoad;
+    std::vector <GLushort> spawnerBlocks;
+    i32v3 gridPosition;  // Position relative to the voxel grid
+    i32v3 chunkPosition; // floor(gridPosition / (float)CHUNK_WIDTH)
+
+    int numBlocks;
     int minh;
     double distance2;
     bool freeWaiting;
-    bool hadMeshLastUpdate;
 
     int blockUpdateIndex;
     int treeTryTicks;
-    int drawIndex, updateIndex;
+    
     int threadJob;
     float setupWaitingTime;
 
-    vector <ui16> blockUpdateList[8][2];
-    vector <LightUpdateNode> lightUpdateQueue;
-    vector <LightRemovalNode> lightRemovalQueue;
-    vector <ui16> sunRemovalList;
-    vector <ui16> sunExtendList;
+    std::vector< std::vector<ui16> > blockUpdateList;
+
+    std::queue <SunlightUpdateNode> sunlightUpdateQueue;
+    std::queue <SunlightRemovalNode> sunlightRemovalQueue;
+    std::queue <LampLightUpdateNode> lampLightUpdateQueue;
+    std::queue <LampLightRemovalNode> lampLightRemovalQueue;
+
+    std::vector <ui16> sunRemovalList;
+    std::vector <ui16> sunExtendList;
 
     static ui32 vboIndicesID;
 
-    vector <Chunk *> *setupListPtr;
     Chunk *right, *left, *front, *back, *top, *bottom;
 
+    ChunkSlot* owner;
+    ChunkGridData* chunkGridData;
+    vvox::VoxelMapData* voxelMapData;
+
+    // Thread safety functions
+    inline void lock() { _dataLock.lock(); }
+    inline void unlock() { _dataLock.unlock(); }
+    std::mutex& getDataLock() { return _dataLock; }
+
 private:
-    ChunkStates state;
 
-    //For passing light updates to neighbor chunks with multithreading.
-    //One queue per edge so there is only one writer per queue
-    //This is a queue of ints for compatability with moodycamel,
-    //but the ints are interpreted as LightMessages
-   /* moodycamel::ReaderWriterQueue<ui32> lightFromLeft;
-    moodycamel::ReaderWriterQueue<ui32> lightFromRight;
-    moodycamel::ReaderWriterQueue<ui32> lightFromFront;
-    moodycamel::ReaderWriterQueue<ui32> lightFromBack;
-    moodycamel::ReaderWriterQueue<ui32> lightFromTop;
-    moodycamel::ReaderWriterQueue<ui32> lightFromBottom;
-    //And one queue for the main thread updates, such as adding torches
-    moodycamel::ReaderWriterQueue<ui32> lightFromMain; */
+    /// _dataLock guards chunk data.
+    /// Since only the main thread modifies data, the main thread does not
+    /// need to lock when reading, only when writing. All other threads should
+    /// lock when reading.
+    std::mutex _dataLock; ///< Lock that guards chunk data. Try to minimize locking.
 
+    // Keeps track of which setup list we belong to
+    std::vector <Chunk*>* _chunkListPtr;
 
-    ui16 data[CHUNK_SIZE]; 
-    ui8 lightData[2][CHUNK_SIZE]; //0 = light 1 = sunlight
-    ui8 biomes[CHUNK_LAYER]; //lookup for biomesLookupMap
-    ui8 temperatures[CHUNK_LAYER];
-    ui8 rainfalls[CHUNK_LAYER];
-    ui8 depthMap[CHUNK_LAYER];
+    ChunkStates _state;
+
+    //The data that defines the voxels
+    vvox::SmartVoxelContainer<ui16> _blockIDContainer;
+    vvox::SmartVoxelContainer<ui8> _sunlightContainer;
+    vvox::SmartVoxelContainer<ui16> _lampLightContainer;
+    vvox::SmartVoxelContainer<ui16> _tertiaryDataContainer;
+
+    int _levelOfDetail; ///< Determines the LOD of the chunk, 0 being base
 
 };
 
 //INLINE FUNCTION DEFINITIONS
 #include "Chunk.inl"
 
-struct ChunkSlot
+class ChunkSlot
 {
-    void Initialize(const glm::ivec3 &pos, Chunk *ch, int Ipos, int Jpos, FaceData *fD){
-        chunk = ch;
-        position = pos;
-        ipos = Ipos;
-        jpos = Jpos;
-        fd = fD;
+public:
+
+    friend class ChunkManager;
+
+    ChunkSlot(const glm::ivec3 &pos, Chunk *ch, ChunkGridData* cgd) :
+        chunk(ch),
+        position(pos),
+        chunkGridData(cgd),
+        left(nullptr),
+        right(nullptr),
+        back(nullptr),
+        front(nullptr),
+        bottom(nullptr),
+        top(nullptr),
+        numNeighbors(0),
+        inFrustum(false),
+        distance2(1.0f){}
+
+    inline void calculateDistance2(const i32v3& cameraPos) {
+        distance2 = getDistance2(position, cameraPos);
+        chunk->distance2 = distance2;
     }
 
-	Chunk *chunk;
-	glm::ivec3 position;
+    void clearNeighbors();
+
+    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap);
+
+    void reconnectToNeighbors();
+
+    Chunk *chunk;
+    glm::ivec3 position;
+
+    int numNeighbors;
+    //Indices of neighbors
+    ChunkSlot* left, *right, *back, *front, *top, *bottom;
 
     //squared distance
-	double distance2;
-	int ipos, jpos;
-	FaceData *fd;
+    double distance2;
+
+    ChunkGridData* chunkGridData;
+
+    bool inFrustum;
+private:
+    static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 };
+
+inline i32 getPositionSeed(i32 x, i32 y, i32 z) {
+    return ((x & 0x7FF) << 10) |
+        ((y & 0x3FF)) |
+        ((z & 0x7FF) << 21);
+}
+inline i32 getPositionSeed(i32 x, i32 z) {
+    return ((x & 0xFFFF) << 16) |
+        (z & 0xFFFF);
+}

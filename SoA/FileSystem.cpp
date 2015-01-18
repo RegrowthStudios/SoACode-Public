@@ -1,20 +1,23 @@
 #include "stdafx.h"
 #include "FileSystem.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-#include <direct.h> //for chdir windows
-#include <dirent.h>
+#include <sys/stat.h>
 
-#include <ZLIB/ioapi.c>
-#include <ZLIB/unzip.c>
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/io/Keg.h>
+#include <Vorb/graphics/TextureCache.h>
+#include <ZLIB/ioapi.h>
+#include <ZLIB/unzip.h>
 
-#include "BlockData.h"
+#include "Animation.h"
+#include "BlockPack.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "FloraGenerator.h"
-#include "FloraGenerator.h"
 #include "GameManager.h"
-#include "IOManager.h"
-#include "Keg.h"
 #include "Options.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
@@ -23,103 +26,23 @@
 #include "Planet.h"
 #include "Player.h"
 #include "TerrainGenerator.h"
-#include "TextureAtlasManager.h"
+#include "TexturePackLoader.h"
 #include "WorldStructs.h"
 #include "ZipFile.h"
 
 FileManager fileManager;
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <tchar.h> 
-#include <strsafe.h>
-#include <Shobjidl.h>
-
-#include <windows.h> 
-#include <windowsx.h> 
-#include <strsafe.h> 
-
-#include <new> 
-#include <shlobj.h> 
-#include <shlwapi.h> 
-
-// Enable Visual Style 
-#if defined _M_IX86 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#elif defined _M_IA64 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='ia64' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#elif defined _M_X64 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#else 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"") 
-#endif 
-#pragma endregion 
-#endif
-
-
-i32 FileManager::deleteDirectory(const nString& refcstrRootDirectory, bool bDeleteSubdirectories) {
-#if defined(_WIN32) || defined(_WIN64)
-    bool            bSubdirectory = false;       // Flag, indicating whether
-    // subdirectories have been found
-    HANDLE          hFile;                       // Handle to directory
-    nString     strFilePath;                 // Filepath
-    nString     strPattern;                  // Pattern
-    WIN32_FIND_DATA FileInformation;             // File information
-
-
-    strPattern = refcstrRootDirectory + "\\*.*";
-    hFile = ::FindFirstFile(strPattern.c_str(), &FileInformation);
-    if (hFile != INVALID_HANDLE_VALUE) {
-        do {
-            if (FileInformation.cFileName[0] != '.') {
-                strFilePath.erase();
-                strFilePath = refcstrRootDirectory + "\\" + FileInformation.cFileName;
-
-                if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                    if (bDeleteSubdirectories) {
-                        // Delete subdirectory
-                        int iRC = deleteDirectory(strFilePath, bDeleteSubdirectories);
-                        if (iRC)
-                            return iRC;
-                    } else
-                        bSubdirectory = true;
-                } else {
-                    // Set file attributes
-                    if (::SetFileAttributes(strFilePath.c_str(),
-                        FILE_ATTRIBUTE_NORMAL) == FALSE)
-                        return ::GetLastError();
-
-                    // Delete file
-                    if (::DeleteFile(strFilePath.c_str()) == FALSE)
-                        return ::GetLastError();
-                }
-            }
-        } while (::FindNextFile(hFile, &FileInformation) == TRUE);
-
-        // Close handle
-        ::FindClose(hFile);
-
-        DWORD dwError = ::GetLastError();
-        if (dwError != ERROR_NO_MORE_FILES)
-            return dwError;
-        else {
-            if (!bSubdirectory) {
-                // Set directory attributes
-                if (::SetFileAttributes(refcstrRootDirectory.c_str(),
-                    FILE_ATTRIBUTE_NORMAL) == FALSE)
-                    return ::GetLastError();
-
-                // Delete directory
-                if (::RemoveDirectory(refcstrRootDirectory.c_str()) == FALSE)
-                    return ::GetLastError();
-            }
-        }
-    }
-#endif
-    return 0;
+i32 FileManager::deleteDirectory(const nString& rootDirectory) {
+    boost::system::error_code error;
+    i32 filesRemoved = boost::filesystem::remove_all(rootDirectory, error);
+#ifdef DEBUG
+    // Print Error Message For Debugging
+    if (error.value() != 0) printf("%s\n", error.message().c_str());
+#endif // DEBUG
+    return error.value();
 }
 
-FileManager::FileManager() : isInitialized(0) {}
-
+FileManager::FileManager() : isInitialized(false) {}
 void FileManager::initialize() {
     isInitialized = 1;
 
@@ -159,7 +82,6 @@ void FileManager::makeBiomeVariableMap() {
 
 
 }
-
 void FileManager::makeNoiseVariableMap() {
     NoiseInfo noise;
     noiseVariableMap.clear();
@@ -183,7 +105,7 @@ i32 FileManager::loadFloraNoiseFunctions(const cString filename, Planet* planet)
     double persistence, lowbound, upbound, frequency;
     int octaves, type;
     nString types;
-    map <nString, int>::iterator fit;
+    std::map <nString, int>::iterator fit;
 
     std::ifstream file;
 
@@ -192,7 +114,7 @@ i32 FileManager::loadFloraNoiseFunctions(const cString filename, Planet* planet)
     file.open(filename);
     if (file.fail()) {
         printf("ERROR: Flora Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
-        cin >> octaves;
+        std::cin >> octaves;
         file.close();
         return 1;
     }
@@ -207,12 +129,12 @@ i32 FileManager::loadFloraNoiseFunctions(const cString filename, Planet* planet)
             if (fit == planet->floraLookupMap.end()) {
                 printf("ERROR: (%s) Flora type %s not found in FloraData.txt\n", filename, types.c_str());
                 printf("Enter any key to continue... ");
-                cin >> types;
+                std::cin >> types;
             } else {
                 type = fit->second;
                 if (!(file >> persistence >> frequency >> octaves >> lowbound >> upbound)) {
-                    printf("	ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
-                    cin >> octaves;
+                    printf("    ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
+                    std::cin >> octaves;
                     file.close();
                     return 1;
                 }
@@ -244,52 +166,52 @@ i32 FileManager::loadCloudNoiseFunctions(const cString filename, Planet* planet)
 
     //file.open(filename);
     //if (file.fail()){
-    //	printf("ERROR: Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
-    //	cin >> octaves;
-    //	file.close();
-    //	return 1;
+    //    printf("ERROR: Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
+    //    cin >> octaves;
+    //    file.close();
+    //    return 1;
     //}
     //
     //while (file >> types){
-    //	if (types[0] == '#'){
-    //		file.getline(buffer, 512);
-    //	}else{
-    //		type = atoi(types.c_str());
+    //    if (types[0] == '#'){
+    //        file.getline(buffer, 512);
+    //    }else{
+    //        type = atoi(types.c_str());
 
-    //		if (!(file >> persistence >> frequency >> octaves >> lowbound)){
-    //			printf("	ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
-    //			cin >> octaves;
-    //			file.close();
-    //			return 1;
-    //		}
-    //		if (type == 0){
-    //			stormNoiseFunction = new NoiseInfo();
-    //			stormNoiseFunction->frequency = frequency;
-    //			stormNoiseFunction->persistence = persistence;
-    //			stormNoiseFunction->octaves = octaves;
-    //			stormNoiseFunction->type = type;
-    //			stormNoiseFunction->lowBound = lowbound;
-    //		}else if (type == 1){
-    //			sunnyCloudyNoiseFunction = new NoiseInfo();
-    //			sunnyCloudyNoiseFunction->frequency = frequency;
-    //			sunnyCloudyNoiseFunction->persistence = persistence;
-    //			sunnyCloudyNoiseFunction->octaves = octaves;
-    //			sunnyCloudyNoiseFunction->type = type;
-    //			sunnyCloudyNoiseFunction->lowBound = lowbound;
-    //		}else if (type == 2){
-    //			cumulusNoiseFunction = new NoiseInfo();
-    //			cumulusNoiseFunction->frequency = frequency;
-    //			cumulusNoiseFunction->persistence = persistence;
-    //			cumulusNoiseFunction->octaves = octaves;
-    //			cumulusNoiseFunction->type = type;
-    //			cumulusNoiseFunction->lowBound = lowbound;
-    //		}else{
-    //			printf("	ERROR: Noise Function File %s invalid type!\nEnter any key to continue: ", filename);
-    //			cin >> octaves;
-    //			file.close();
-    //			return 1;
-    //		}
-    //	}
+    //        if (!(file >> persistence >> frequency >> octaves >> lowbound)){
+    //            printf("    ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
+    //            cin >> octaves;
+    //            file.close();
+    //            return 1;
+    //        }
+    //        if (type == 0){
+    //            stormNoiseFunction = new NoiseInfo();
+    //            stormNoiseFunction->frequency = frequency;
+    //            stormNoiseFunction->persistence = persistence;
+    //            stormNoiseFunction->octaves = octaves;
+    //            stormNoiseFunction->type = type;
+    //            stormNoiseFunction->lowBound = lowbound;
+    //        }else if (type == 1){
+    //            sunnyCloudyNoiseFunction = new NoiseInfo();
+    //            sunnyCloudyNoiseFunction->frequency = frequency;
+    //            sunnyCloudyNoiseFunction->persistence = persistence;
+    //            sunnyCloudyNoiseFunction->octaves = octaves;
+    //            sunnyCloudyNoiseFunction->type = type;
+    //            sunnyCloudyNoiseFunction->lowBound = lowbound;
+    //        }else if (type == 2){
+    //            cumulusNoiseFunction = new NoiseInfo();
+    //            cumulusNoiseFunction->frequency = frequency;
+    //            cumulusNoiseFunction->persistence = persistence;
+    //            cumulusNoiseFunction->octaves = octaves;
+    //            cumulusNoiseFunction->type = type;
+    //            cumulusNoiseFunction->lowBound = lowbound;
+    //        }else{
+    //            printf("    ERROR: Noise Function File %s invalid type!\nEnter any key to continue: ", filename);
+    //            cin >> octaves;
+    //            file.close();
+    //            return 1;
+    //        }
+    //    }
     //}
     //file.close();
     return 0;
@@ -302,14 +224,16 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
     bool hasTemp = 0, hasRainfall = 0;
     bool isModifier;
 
-    ifstream file;
+    TerrainGenerator* generator = GameManager::terrainGenerator;
+
+    std::ifstream file;
 
     char buffer[512];
 
     file.open(filename);
     if (file.fail()) {
         printf("ERROR: Noise Function File %s could not be found!\nEnter any key to continue: ", filename);
-        cin >> octaves;
+        std::cin >> octaves;
         file.close();
         return 1;
     }
@@ -327,48 +251,48 @@ i32 FileManager::loadNoiseFunctions(const cString filename, bool mandatory, Plan
             type = atoi(types.c_str());
 
             if (!(file >> persistence >> frequency >> octaves >> lowbound >> upbound >> scale)) {
-                printf("	ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
-                cin >> octaves;
+                printf("    ERROR: Noise Function File %s has a format error!\nEnter any key to continue: ", filename);
+                std::cin >> octaves;
                 file.close();
                 return 1;
             }
 
             if (type == 10000) {
-                currTerrainGenerator->SetRiverNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetRiverNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10001) {
-                currTerrainGenerator->SetTributaryNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetTributaryNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10002) {
-                currTerrainGenerator->SetBiomeOffsetNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetBiomeOffsetNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10003) {
-                currTerrainGenerator->SetPreturbNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetPreturbNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10004) {
                 hasTemp = 1;
-                currTerrainGenerator->SetTemperatureNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetTemperatureNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else if (type == 10005) {
                 hasRainfall = 1;
-                currTerrainGenerator->SetRainfallNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
+                generator->SetRainfallNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type);
             } else {
-                currTerrainGenerator->AddNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type, isModifier);
+                generator->AddNoiseFunction(persistence, frequency, octaves, lowbound, upbound, scale, type, isModifier);
             }
         }
     }
     file.close();
     if (mandatory) {
         if (!hasTemp) {
-            cout << "	ERROR: Temperature noise function missing! Noise type = 30\nEnter any key to continue: ";
-            cin >> octaves;
+            std::cout << "    ERROR: Temperature noise function missing! Noise type = 30\nEnter any key to continue: ";
+            std::cin >> octaves;
             return 1;
         }
         if (!hasRainfall) {
-            cout << "	ERROR: Rainfall noise function missing! Noise type = 31\nEnter any key to continue: ";
-            cin >> octaves;
+            std::cout << "    ERROR: Rainfall noise function missing! Noise type = 31\nEnter any key to continue: ";
+            std::cin >> octaves;
             return 1;
         }
     }
     return 0;
 }
 i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
-    ifstream file;
+    std::ifstream file;
     nString s;
     int blockID, textureID, meshType;
     char buffer[512];
@@ -388,20 +312,20 @@ i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
         }
         sscanf(&(s[0]), "%d", &blockID);
         if (!(file >> textureID >> s >> meshType)) {
-            printf("	ERROR: World/Flora/FloraData.txt has a format error!\nEnter any key to continue: ");
-            cin >> s;
+            printf("    ERROR: World/Flora/FloraData.txt has a format error!\nEnter any key to continue: ");
+            std::cin >> s;
             file.close();
             return 1;
         }
-      /*  if (meshType == 1) {
-            meshType = MeshType::FLORA;
+        /*  if (meshType == 1) {
+        meshType = MeshType::FLORA;
         } else {
-            meshType = MeshType::CROSSFLORA;
+        meshType = MeshType::CROSSFLORA;
         }*/
         if (!(Blocks[blockID].active)) { //for loading
             printf("ERROR: (FloraData.txt) block ID %d not defined!\n", blockID);
             printf("Enter any key to continue... ");
-            cin >> s;
+            std::cin >> s;
         } else {
             planet->floraLookupMap.insert(make_pair(s, planet->floraTypeVec.size()));
             PlantType *ft = new PlantType;
@@ -410,17 +334,17 @@ i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
             planet->floraTypeVec.push_back(ft);
         }
         //if (Blocks[blockID].active){ //for manual creation
-        //	printf("ERROR: (FloraData.txt) block ID %d already in use!\n", blockID);
-        //	printf("Enter any key to continue... ");
-        //	cin >> s;
+        //    printf("ERROR: (FloraData.txt) block ID %d already in use!\n", blockID);
+        //    printf("Enter any key to continue... ");
+        //    cin >> s;
         //}else{
-        //	planet->floraLookupMap.insert(make_pair(s, planet->floraTypeVec.size()));
-        //	FloraType *ft = new FloraType;
-        //	ft->name = s;
-        //	ft->baseBlock = blockID;
-        //	planet->floraTypeVec.push_back(ft);
-        //	for (int i = 0; i < s.size(); i++) if (s[i] == '_') s[i] = ' ';
-        //	Blocks[blockID].SetName(s).SetMeshType(meshType).SetHealth(100).SetPhysics(P_SOLID).SetColor(255, 255, 255).SetTexture(textureID).SetCollide(0).SetOcclude(0).SetWaveEffect(1).SetNumParticles(2).SetExplosionResistance(0.05).SetWaterBreak(1).SetWeight(0.1f).SetValue(10.0f).SetIsCrushable(1).SetFloatingAction(2).SetIsSupportive(0);
+        //    planet->floraLookupMap.insert(make_pair(s, planet->floraTypeVec.size()));
+        //    FloraType *ft = new FloraType;
+        //    ft->name = s;
+        //    ft->baseBlock = blockID;
+        //    planet->floraTypeVec.push_back(ft);
+        //    for (int i = 0; i < s.size(); i++) if (s[i] == '_') s[i] = ' ';
+        //    Blocks[blockID].SetName(s).SetMeshType(meshType).SetHealth(100).SetPhysics(P_SOLID).SetColor(255, 255, 255).SetTexture(textureID).SetCollide(0).SetOcclude(0).SetWaveEffect(1).SetNumParticles(2).SetExplosionResistance(0.05).SetWaterBreak(1).SetWeight(0.1f).SetValue(10.0f).SetIsCrushable(1).SetFloatingAction(2).SetIsSupportive(0);
         //}
     }
     file.close();
@@ -435,7 +359,7 @@ i32 FileManager::loadFloraData(Planet *planet, nString worldFilePath) {
 i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
     printf("Loading TreeData...\n");
     TreeType *tree = NULL;
-    ifstream file;
+    std::ifstream file;
     int minSize, r, g, b;
     size_t i;
     nString s, name, fileName;
@@ -466,7 +390,7 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
         if (!(file >> fileName)) {
             printf("ERROR: (TreeData.txt) Could not read tree fileName for %s!\n", name.c_str());
             int a;
-            cin >> a;
+            std::cin >> a;
         }
         fileName = worldFilePath + "Trees/TreeTypes/" + fileName;
         tree = new TreeType;
@@ -492,7 +416,7 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
     file.open((worldFilePath + "Trees/Leaves.txt").c_str());
     if (file.fail()) {
         perror((worldFilePath + "Trees/Leaves.txt").c_str());
-        cin >> minSize;
+        std::cin >> minSize;
         file.close();
         return 1;
     }
@@ -510,12 +434,10 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
 
         if (first) {
             Blocks[lblock].altColors.clear();
-            Blocks[lblock].color[0] = r;
-            Blocks[lblock].color[1] = g;
-            Blocks[lblock].color[2] = b;
+            Blocks[lblock].color = ColorRGB8(r, g, b);
             first = 0;
         }
-        Blocks[lblock].altColors.push_back(glm::ivec3(r, g, b));
+        Blocks[lblock].altColors.emplace_back(r, g, b);
         i++;
         if (i == 15) {
             i = 0;
@@ -527,175 +449,25 @@ i32 FileManager::loadAllTreeData(Planet *planet, nString worldFilePath) {
     return 0;
 }
 i32 FileManager::loadTreeType(nString filePath, TreeType *tree) {
+    // TODO: This Should Be An Argument
+    vio::IOManager iom;
 
-    //*** Begin Useful Macros ***
-#define GETFLOATPAIR(a) \
-    if (sscanf(iniVal->getStr().c_str(), "%f,%f", &(a.min), &(a.max)) != 2) { \
-    pError("error loading " + filePath + " " + iniVal->getStr() + " should be of form f,f"); \
-    continue; \
-    }
+    nString data;
+    iom.readFileToString(filePath.c_str(), data);
+    if (data.empty()) return 1;
 
-#define GETINTPAIR(a) \
-    if (sscanf(iniVal->getStr().c_str(), "%d,%d", &(a.min), &(a.max)) != 2) { \
-    pError("error loading " + filePath + " " + iniVal->getStr() + " should be of form i,i"); \
-    continue; \
-    }
-    //*** End Useful Macros ***
-
-    tree->fileName = filePath;
-
-    std::vector <std::vector <IniValue> > iniValues;
-    std::vector <nString> iniSections;
-    cout << filePath << endl;
-    if (loadIniFile(filePath, iniValues, iniSections)) return 1;
-
-    float f1, f2;
-    int i1, i2;
-    int iVal;
-    int currID = 0;
-    IniValue *iniVal;
-    for (size_t i = 0; i < iniSections.size(); i++) {
-        for (size_t j = 0; j < iniValues[i].size(); j++) {
-            iniVal = &(iniValues[i][j]);
-
-            iVal = getIniVal(iniVal->key);
-
-            switch (iVal) {
-            case TREE_INI_BRANCHCHANCEBOTTOM:
-                GETFLOATPAIR(tree->bottomBranchChance);
-                break;
-            case TREE_INI_BRANCHCHANCECAPMOD:
-                tree->capBranchChanceMod = iniVal->getFloat();
-                break;
-            case TREE_INI_BRANCHCHANCETOP:
-                GETFLOATPAIR(tree->topBranchChance);
-                break;
-            case TREE_INI_BRANCHDIRECTIONBOTTOM:
-                tree->bottomBranchDir = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHDIRECTIONTOP:
-                tree->topBranchDir = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLEAFSHAPE:
-                tree->branchLeafShape = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLEAFSIZEMOD:
-                tree->branchLeafSizeMod = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLEAFYMOD:
-                tree->branchLeafYMod = iniVal->getInt();
-                break;
-            case TREE_INI_BRANCHLENGTHBOTTOM:
-                GETINTPAIR(tree->bottomBranchLength);
-                break;
-            case TREE_INI_BRANCHLENGTHTOP:
-                GETINTPAIR(tree->topBranchLength);
-                break;
-            case TREE_INI_BRANCHSTART:
-                tree->branchStart = iniVal->getFloat();
-                break;
-            case TREE_INI_BRANCHWIDTHBOTTOM:
-                GETINTPAIR(tree->bottomBranchWidth);
-                break;
-            case TREE_INI_BRANCHWIDTHTOP:
-                GETINTPAIR(tree->topBranchWidth);
-                break;
-            case TREE_INI_DROOPYLEAVESACTIVE:
-                tree->hasDroopyLeaves = iniVal->getBool();
-                break;
-            case TREE_INI_DROOPYLEAVESLENGTH:
-                GETINTPAIR(tree->droopyLength);
-                break;
-            case TREE_INI_DROOPYLEAVESSLOPE:
-                tree->droopyLeavesSlope = iniVal->getInt();
-                break;
-            case TREE_INI_DROOPYLEAVESDSLOPE:
-                tree->droopyLeavesSlope = iniVal->getInt();
-                break;
-            case TREE_INI_HASTHICKCAPBRANCHES:
-                tree->hasThickCapBranches = iniVal->getBool();
-                break;
-            case TREE_INI_IDCORE:
-                tree->idCore = iniVal->getInt();
-                break;
-            case TREE_INI_IDLEAVES:
-                tree->idLeaves = iniVal->getInt();
-                break;
-            case TREE_INI_IDBARK:
-                tree->idOuter = iniVal->getInt();
-                break;
-            case TREE_INI_IDROOT:
-                tree->idRoot = iniVal->getInt();
-                break;
-            case TREE_INI_IDSPECIALBLOCK:
-                tree->idSpecial = iniVal->getInt();
-                break;
-            case TREE_INI_ISSLOPERANDOM:
-                tree->isSlopeRandom = iniVal->getBool();
-                break;
-            case TREE_INI_LEAFCAPSHAPE:
-                tree->leafCapShape = iniVal->getInt();
-                break;
-            case TREE_INI_LEAFCAPSIZE:
-                GETINTPAIR(tree->leafCapSize);
-                break;
-            case TREE_INI_MUSHROOMCAPCURLLENGTH:
-                tree->mushroomCapCurlLength = iniVal->getInt();
-                break;
-            case TREE_INI_MUSHROOMCAPGILLTHICKNESS:
-                tree->mushroomCapGillThickness = iniVal->getInt();
-                break;
-            case TREE_INI_MUSHROOMCAPINVERTED:
-                tree->isMushroomCapInverted = iniVal->getBool();
-                break;
-            case TREE_INI_MUSHROOMCAPSTRETCHMOD:
-                tree->mushroomCapLengthMod = iniVal->getInt();
-                break;
-            case TREE_INI_MUSHROOMCAPTHICKNESS:
-                tree->mushroomCapThickness = iniVal->getInt();
-                break;
-            case TREE_INI_ROOTDEPTH:
-                tree->rootDepthMult = iniVal->getFloat();
-                break;
-            case TREE_INI_TRUNKCHANGEDIRCHANCE:
-                tree->trunkChangeDirChance = iniVal->getFloat();
-                break;
-            case TREE_INI_TRUNKCOREWIDTH:
-                tree->coreWidth = iniVal->getInt();
-                break;
-            case TREE_INI_TRUNKHEIGHT:
-                GETINTPAIR(tree->trunkHeight);
-                break;
-            case TREE_INI_TRUNKHEIGHTBASE:
-                GETINTPAIR(tree->trunkBaseHeight);
-                break;
-            case TREE_INI_TRUNKSLOPEEND:
-                GETINTPAIR(tree->trunkEndSlope);
-                break;
-            case TREE_INI_TRUNKSLOPESTART:
-                GETINTPAIR(tree->trunkStartSlope);
-                break;
-            case TREE_INI_TRUNKWIDTHBASE:
-                GETINTPAIR(tree->trunkBaseWidth);
-                break;
-            case TREE_INI_TRUNKWIDTHMID:
-                GETINTPAIR(tree->trunkMidWidth);
-                break;
-            case TREE_INI_TRUNKWIDTHTOP:
-                GETINTPAIR(tree->trunkTopWidth);
-                break;
-            }
-        }
-    }
-    return 0;
+    return Keg::parse(tree, data.c_str(), "TreeType") == Keg::Error::NONE ? 0 : 1;
 }
 
 i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
-    ifstream file;
+    std::ifstream file;
     int mapColor, activeList = 0;
     char buffer[512];
     nString bfname;
     Biome *biome;
+
+    vg::TextureCache* textureCache = GameManager::textureCache;
+
 
     nString ts, s;
     file.open(worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt");
@@ -713,39 +485,39 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
         }
         if (ts == "Biome_Map_Filename:") {
             if (!(file >> s)) {
-                printf("	ERROR: World/Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Map_Filename!\nEnter any key to continue: ");
-                cin >> s;
+                printf("    ERROR: World/Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Map_Filename!\nEnter any key to continue: ");
+                std::cin >> s;
                 file.close();
                 return 1;
             }
             planet->biomeMapFileName = s;
-            loadPNG(planet->biomeMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->biomeMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Biome_Color_Filename:") {
             if (!(file >> s)) {
-                cout << "	ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Color_Filename!\nEnter any key to continue: ";
-                cin >> s;
+                std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Biome_Color_Filename!\nEnter any key to continue: ";
+                std::cin >> s;
                 file.close();
                 return 1;
             }
             planet->colorMapFileName = s;
-            loadPNG(planet->colorMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->colorMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Water_Color_Filename:") {
             if (!(file >> s)) {
-                cout << "	ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Water_Color_Filename!\nEnter any key to continue: ";
-                cin >> s;
+                std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt trouble reading Water_Color_Filename!\nEnter any key to continue: ";
+                std::cin >> s;
                 file.close();
                 return 1;
             }
             planet->waterColorMapFileName = s;
-            loadPNG(planet->waterColorMapTexture, (worldFilePath + "Biomes/BiomeDistribution/" + s).c_str(), PNGLoadInfo(textureSamplers + 3, 12));
+            planet->waterColorMapTexture = textureCache->addTexture(worldFilePath + "Biomes/BiomeDistribution/" + s, &SamplerState::LINEAR_CLAMP_MIPMAP);
         } else if (ts == "Base_Biomes:") {
             activeList = 1;
         } else if (ts == "Main_Biomes:") {
             activeList = 2;
         } else {
             if (!(file >> bfname)) {
-                cout << "	ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt format error!\nEnter any key to continue: ";
-                cin >> s;
+                std::cout << "    ERROR: " + worldFilePath + "Biomes/BiomeDistribution/BiomeList.txt format error!\nEnter any key to continue: ";
+                std::cin >> s;
                 file.close();
                 return 1;
             }
@@ -756,8 +528,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 biome->isBase = 1;
 
                 if (!(file >> s)) {
-                    printf("	ERROR: %s trouble reading mapColor!\nEnter any key to continue: ", bfname.c_str());
-                    cin >> s;
+                    printf("    ERROR: %s trouble reading mapColor!\nEnter any key to continue: ", bfname.c_str());
+                    std::cin >> s;
                     file.close();
                     return 1;
                 }
@@ -778,8 +550,8 @@ i32 FileManager::loadBiomeData(Planet *planet, nString worldFilePath) {
                 }
                 planet->addMainBiome(biome);
             } else {
-                printf("	FORMAT ERROR: %sBiomes/BiomeDistribution/BiomeList.txt) Line: %s \nEnter any key to continue: ", worldFilePath, bfname.c_str());
-                cin >> s;
+                printf("    FORMAT ERROR: %sBiomes/BiomeDistribution/BiomeList.txt) Line: %s \nEnter any key to continue: ", worldFilePath, bfname.c_str());
+                std::cin >> s;
                 file.close();
                 return 1;
             }
@@ -820,7 +592,7 @@ i32 FileManager::saveBiomeData(Planet *planet, nString worldFilePath) {
 i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nString worldFilePath) {
     nString ts;
     nString childFileName;
-    ifstream biomeFile;
+    std::ifstream biomeFile;
     int activeList;
     double d;
     char buffer[512];
@@ -860,99 +632,99 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             activeList = 5;
         } else if (ts == "Underwater_Block_ID:") {
             if (!(biomeFile >> biome->underwaterBlock)) {
-                printf("	ERROR: %s trouble reading Underwater_Block_ID!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Underwater_Block_ID!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Beach_Block_ID:") {
             if (!(biomeFile >> biome->beachBlock)) {
-                printf("	ERROR: %s trouble reading Beach_Block_ID!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Beach_Block_ID!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Apply_Biome_At:") {
             if (!(biomeFile >> biome->applyBiomeAt)) {
-                printf("	ERROR: %s trouble reading Apply_Biome_At!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Apply_Biome_At!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Terrain_Mult:") {
             if (!(biomeFile >> biome->minTerrainMult)) {
-                printf("	ERROR: %s trouble reading Min_Terrain_Mult!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Min_Terrain_Mult!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Temp:") {
             if (!(biomeFile >> biome->lowTemp)) {
-                printf("	ERROR: %s trouble reading Min_Temp!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Min_Temp!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Temp:") {
             if (!(biomeFile >> biome->highTemp)) {
-                printf("	ERROR: %s trouble reading Max_Temp!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Max_Temp!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Temp_Slope_Length:") {
             if (!(biomeFile >> biome->tempSlopeLength)) {
-                printf("	ERROR: %s trouble reading Temp_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Temp_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Min_Rain:") {
             if (!(biomeFile >> biome->lowRain)) {
-                printf("	ERROR: %s trouble reading Min_Rain!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Min_Rain!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Rain:") {
             if (!(biomeFile >> biome->highRain)) {
-                printf("	ERROR: %s trouble reading Max_Rain!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Max_Rain!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Height:") {
             if (!(biomeFile >> biome->maxHeight)) {
-                printf("	ERROR: %s trouble reading Max_Height!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Max_Height!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Max_Height_Slope_Length:") {
             if (!(biomeFile >> biome->maxHeightSlopeLength)) {
-                printf("	ERROR: %s trouble reading Max_Height_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Max_Height_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Rain_Slope_Length:") {
             if (!(biomeFile >> biome->rainSlopeLength)) {
-                printf("	ERROR: %s trouble reading Rain_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Rain_Slope_Length!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
         } else if (ts == "Terrain_Color:") {
             if (!(biomeFile >> biome->hasAltColor)) {
-                printf("	ERROR: %s trouble reading active!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading active!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
             int a, b, c;
             if (!(biomeFile >> a >> b >> c)) {
-                printf("	ERROR: %s trouble reading terrain color!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading terrain color!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -961,8 +733,8 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             biome->b = c;
         } else if (activeList == 1) { //tree types
             if (!(biomeFile >> d)) {
-                printf("	ERROR: %s trouble reading tree probability!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading tree probability!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -970,14 +742,14 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             if (tit == planet->treeLookupMap.end()) {
                 printf("ERROR: (%s) Tree type %s not found in TreeData.txt\n", fileName.c_str(), ts.c_str());
                 printf("Enter any key to continue... ");
-                cin >> ts;
+                std::cin >> ts;
             } else {
                 biome->possibleTrees.push_back(BiomeTree(d, tit->second));
             }
         } else if (activeList == 2) { //flora types
             if (!(biomeFile >> d)) {
-                printf("	ERROR: %s trouble reading flora probability!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading flora probability!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -985,7 +757,7 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             if (tit == planet->floraLookupMap.end()) {
                 printf("ERROR: (%s) Flora type %s not found in FloraData.txt\n", fileName.c_str(), ts.c_str());
                 printf("Enter any key to continue... ");
-                cin >> ts;
+                std::cin >> ts;
             } else {
                 biome->possibleFlora.push_back(BiomeFlora(d, tit->second));
             }
@@ -994,8 +766,8 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             childBiome->isBase = 0;
             childBiome->name = ts;
             if (!(biomeFile >> childFileName)) {
-                printf("	ERROR: %s trouble reading child filename!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading child filename!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -1007,8 +779,8 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             NoiseInfo noisef;
             if (sscanf(&(ts[0]), "%d", &(noisef.type)) == 0 ||
                 !(biomeFile >> noisef.persistence >> noisef.frequency >> noisef.octaves >> noisef.lowBound >> noisef.upBound >> noisef.scale >> noisef.composition)) {
-                printf("	ERROR: %s trouble reading unique terrain noise!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading unique terrain noise!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -1017,8 +789,8 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
             if (sscanf(&(ts[0]), "%lf", &(biome->distributionNoise.persistence)) == 0 ||
                 !(biomeFile >> biome->distributionNoise.frequency >> biome->distributionNoise.octaves >>
                 biome->distributionNoise.lowBound >> biome->distributionNoise.upBound)) {
-                printf("	ERROR: %s trouble reading Distribution_Noise!\nEnter any key to continue: ", fileName.c_str());
-                cin >> ts;
+                printf("    ERROR: %s trouble reading Distribution_Noise!\nEnter any key to continue: ", fileName.c_str());
+                std::cin >> ts;
                 biomeFile.close();
                 return 1;
             }
@@ -1036,8 +808,8 @@ i32 FileManager::readBiome(Biome* biome, nString fileName, Planet* planet, nStri
     return 0;
 }
 i32 FileManager::saveBiome(Biome *biome) {
-    ofstream file;
-    map <nString, BiomeVariable>::iterator bit;
+    std::ofstream file;
+    std::map <nString, BiomeVariable>::iterator bit;
     NoiseInfo *np;
 
     if (biome->filename.size() < 4) return 1;
@@ -1046,7 +818,7 @@ i32 FileManager::saveBiome(Biome *biome) {
     if (file.fail()) {
         perror((newFileName).c_str());
         int a;
-        cin >> a;
+        std::cin >> a;
         return 0;
     }
 
@@ -1095,7 +867,7 @@ i32 FileManager::saveBiome(Biome *biome) {
     int findex;
     for (size_t i = 0; i < biome->possibleFlora.size(); i++) {
         findex = biome->possibleFlora[i].floraIndex;
-        cout << findex << endl;
+        std::cout << findex << std::endl;
         fflush(stdout);
         file << "PossibleFlora" << i << "= " << GameManager::planet->floraTypeVec[findex]->name << " " << biome->possibleFlora[i].probability;
         if (GameManager::planet->floraNoiseFunctions[findex]) {
@@ -1132,7 +904,7 @@ void FileManager::saveAllBiomes(Planet *planet) {
 }
 
 i32 FileManager::saveTreeData(TreeType *tt) {
-#define STRCOMB(a,b) (to_string(a) + "," + to_string(b))
+#define STRCOMB(a,b) (std::to_string(a) + "," + std::to_string(b))
     std::vector <std::vector <IniValue> > iniValues;
     std::vector <nString> iniSections;
 
@@ -1141,14 +913,14 @@ i32 FileManager::saveTreeData(TreeType *tt) {
     std::vector<IniValue> &ivs = iniValues.back();
 
     ivs.push_back(IniValue("name", tt->name));
-    ivs.push_back(IniValue("branchChanceBottom", STRCOMB(tt->bottomBranchChance.min, tt->bottomBranchChance.max)));
-    ivs.push_back(IniValue("branchChanceTop", STRCOMB(tt->bottomBranchChance.min, tt->bottomBranchChance.max)));
+    ivs.push_back(IniValue("branchChanceBottom", STRCOMB(tt->branchingPropsBottom.chance.min, tt->branchingPropsBottom.chance.max)));
+    ivs.push_back(IniValue("branchChanceTop", STRCOMB(tt->branchingPropsTop.chance.min, tt->branchingPropsTop.chance.max)));
     ivs.push_back(IniValue("branchChanceCapMod", tt->capBranchChanceMod));
-    ivs.push_back(IniValue("branchDirBottom", tt->bottomBranchDir));
-    ivs.push_back(IniValue("branchDirTop", tt->topBranchDir));
-    ivs.push_back(IniValue("branchLengthBottom", STRCOMB(tt->bottomBranchLength.min, tt->topBranchLength.max)));
-    ivs.push_back(IniValue("branchWidthBottom", STRCOMB(tt->bottomBranchWidth.min, tt->bottomBranchWidth.max)));
-    ivs.push_back(IniValue("branchLeafShape", tt->branchLeafShape));
+    ivs.push_back(IniValue("branchDirBottom", tt->branchingPropsBottom.direction));
+    ivs.push_back(IniValue("branchDirTop", tt->branchingPropsTop.direction));
+    ivs.push_back(IniValue("branchLengthBottom", STRCOMB(tt->branchingPropsBottom.length.min, tt->branchingPropsBottom.length.max)));
+    ivs.push_back(IniValue("branchWidthBottom", STRCOMB(tt->branchingPropsBottom.width.min, tt->branchingPropsBottom.width.max)));
+    ivs.push_back(IniValue("branchLeafShape", (i32)tt->branchLeafShape));
     ivs.push_back(IniValue("branchLeafSizeMod", tt->branchLeafSizeMod));
     ivs.push_back(IniValue("branchLeafYMod", tt->branchLeafYMod));
     ivs.push_back(IniValue("branchStart", tt->branchStart));
@@ -1160,7 +932,7 @@ i32 FileManager::saveTreeData(TreeType *tt) {
     ivs.push_back(IniValue("hasThickCapBranches", tt->hasThickCapBranches));
     ivs.push_back(IniValue("mushroomCapInverted", tt->isMushroomCapInverted));
     ivs.push_back(IniValue("isSlopeRandom", tt->isSlopeRandom));
-    ivs.push_back(IniValue("leafCapShape", tt->leafCapShape));
+    ivs.push_back(IniValue("leafCapShape", (i32)tt->leafCapShape));
     ivs.push_back(IniValue("leafCapSize", STRCOMB(tt->leafCapSize.min, tt->leafCapSize.max)));
     ivs.push_back(IniValue("idLeaves", tt->idLeaves));
     ivs.push_back(IniValue("mushroomCapCurlLength", tt->mushroomCapCurlLength));
@@ -1171,8 +943,8 @@ i32 FileManager::saveTreeData(TreeType *tt) {
     ivs.push_back(IniValue("idRoot", tt->idRoot));
     ivs.push_back(IniValue("idRoot", tt->idRoot));
     ivs.push_back(IniValue("idSpecialBlock", tt->idSpecial));
-    ivs.push_back(IniValue("branchLengthTop", STRCOMB(tt->topBranchLength.min, tt->topBranchLength.max)));
-    ivs.push_back(IniValue("branchWidthTop", STRCOMB(tt->topBranchWidth.min, tt->topBranchWidth.max)));
+    ivs.push_back(IniValue("branchLengthTop", STRCOMB(tt->branchingPropsTop.length.min, tt->branchingPropsTop.length.max)));
+    ivs.push_back(IniValue("branchWidthTop", STRCOMB(tt->branchingPropsTop.width.min, tt->branchingPropsTop.width.max)));
     ivs.push_back(IniValue("trunkHeightBase", STRCOMB(tt->trunkBaseHeight.min, tt->trunkBaseHeight.max)));
     ivs.push_back(IniValue("trunkWidthBase", STRCOMB(tt->trunkBaseWidth.min, tt->trunkBaseWidth.max)));
     ivs.push_back(IniValue("trunkChangeDirChance", tt->trunkTopWidth.min));
@@ -1192,15 +964,11 @@ void FileManager::saveAllTreeFiles(Planet *planet) {
     }
 }
 
-const COMDLG_FILTERSPEC c_rgFileTypes[] =
-{
-    { L"Word Documents (*.docx)", L"*.docx" },
-    { L"Text Files (*.txt)", L"*.txt" },
-    { L"All Files (*.*)", L"*.*" }
-};
-
 nString FileManager::getFileNameDialog(const nString &prompt, const char *initialDir) {
-#ifdef _WIN32
+    // TODO: Probably Not Necessary, Either Way Bad Code
+
+#if 0
+    //#ifdef _WIN32
     //TODO: This sucks
     nString initdir = getFullPath(initialDir); //need to maintain working directory
     char pathBuffer[1024];
@@ -1317,11 +1085,11 @@ nString FileManager::getFileNameDialog(const nString &prompt, const char *initia
     _chdir(initdir.c_str()); //set dir back to initial dir
 
     return buffer;
-#elif
     cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;
 #endif
+
     return "";
 }
 
@@ -1340,278 +1108,11 @@ nString FileManager::getSaveFileNameDialog(const nString &prompt, const char *in
     GetSaveFileName(&ofns);
     return buffer;
 #elif
-    cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
+    std::cout << "ERROR! FILE DIALOG NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
-    cin >> a;
+    std::cin >> a;
 #endif
     return "";
-}
-
-i32 SetWaterBlocks(int startID) {
-    float weight = Blocks[startID].weight;
-    Blocks[startID].name = "Water (1)"; //now build rest of water blocks
-    for (int i = startID + 1; i <= startID + 99; i++) {
-        if (Blocks[i].active) {
-            char buffer[1024];
-            sprintf(buffer, "ERROR: Block ID %d reserved for Water is already used by %s", i, Blocks[i].name);
-            showMessage(buffer);
-            return 0;
-        }
-        Blocks[i] = Blocks[startID];
-        Blocks[i].name = "Water (" + to_string(i - startID + 1) + ")";
-        Blocks[i].waterMeshLevel = i - startID + 1;
-        Blocks[i].weight = (i - startID + 1) / 100.0f * weight;
-    }
-    for (int i = startID + 100; i < startID + 150; i++) {
-        if (Blocks[i].active) {
-            char buffer[1024];
-            sprintf(buffer, "ERROR: Block ID %d reserved for Pressurized Water is already used by %s", i, Blocks[i].name);
-            showMessage(buffer);
-            return 0;
-        }
-        Blocks[i] = Blocks[startID];
-        Blocks[i].name = "Water Pressurized (" + to_string(i - (startID + 99)) + ")";
-        Blocks[i].waterMeshLevel = i - startID + 1;
-        Blocks[i].weight = 100.0f * weight;
-    }
-}
-
-void FileManager::loadTexturePack(nString fileName) {
-
-    DIR *defDir = NULL;
-    bool loadAll = 0;
-    bool isDefault;
-    bool isDefaultZip;
-    nString defaultFileName = "Textures/TexturePacks/" + graphicsOptions.defaultTexturePack;
-    isDefaultZip = (defaultFileName.substr(defaultFileName.size() - 4) == ".zip");
-
-    //verify the default pack
-    if (isDefaultZip == 0) {
-        defDir = opendir(defaultFileName.c_str());
-        if (defDir == NULL) {
-            defaultFileName = defaultFileName + ".zip";
-            graphicsOptions.defaultTexturePack = "SoA_Default.zip";
-            isDefaultZip = 1;
-        } else {
-            closedir(defDir);
-        }
-    } else {
-        struct stat statbuf;
-        if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-            isDefaultZip = 0;
-            defaultFileName = defaultFileName.substr(0, defaultFileName.size() - 4); //chop off .zip
-            graphicsOptions.defaultTexturePack = "SoA_Default";
-        }
-    }
-
-    struct stat statbuf; //check that default pack exists
-    if (stat(defaultFileName.c_str(), &statbuf) != 0) {
-        pError("Default Texture Pack SoA_Default is missing! Please re-install the game.");
-        exit(44);
-    }
-
-    if (!isDefaultZip) defaultFileName += "/";
-
-    if (fileName == graphicsOptions.currTexturePack) {
-        //DrawLoadingScreen("Resizing Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    } else {
-        loadAll = 1;
-        graphicsOptions.currTexturePack = fileName;
-        //DrawLoadingScreen("Loading Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    }
-
-    if (stat(fileName.c_str(), &statbuf) != 0) {
-        pError("Texture Pack \"" + fileName + "\" is missing! The game will use the " + graphicsOptions.defaultTexturePack + " Texture Pack instead.");
-        fileName = defaultFileName;
-        graphicsOptions.currTexturePack = graphicsOptions.defaultTexturePack;
-        graphicsOptions.texturePackString = graphicsOptions.defaultTexturePack;
-        //DrawLoadingScreen("Loading Texture Pack " + fileName + "...", 0, glm::vec4(0.0, 0.0, 0.0, 0.7), 36);
-    }
-
-    bool isZip = fileName.substr(fileName.size() - 4) == ".zip";
-    if (!isZip) fileName += "/";
-
-    isDefault = (fileName == defaultFileName);
-
-    //load texture pack
-    if (loadAll) {
-
-
-        if (isZip) {
-            ZipFile zipFile(fileName);
-            if (zipFile.isFailure()) exit(1000);
-            size_t filesize;
-            unsigned char *zipData, *resData;
-
-            //resolution
-            resData = zipFile.readFile("resolution.txt", filesize);
-            if (sscanf((char *)resData, "%d", &(graphicsOptions.currTextureRes)) != 1) {
-                pError("failed to read resolution.txt in texture pack " + fileName);
-                return;
-            }
-            graphicsOptions.defaultTextureRes = graphicsOptions.currTextureRes;
-            delete[] resData;
-
-            zipData = zipFile.readFile("FarTerrain/location_marker.png", filesize);
-            loadPNG(markerTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/terrain_texture.png", filesize);
-            loadPNG(terrainTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/normal_leaves_billboard.png", filesize);
-            loadPNG(normalLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/pine_leaves_billboard.png", filesize);
-            loadPNG(pineLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/mushroom_cap_billboard.png", filesize);
-            loadPNG(mushroomCapTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("FarTerrain/tree_trunk_1.png", filesize);
-            loadPNG(treeTrunkTexture1, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Blocks/Liquids/water_normal_map.png", filesize);
-            loadPNG(waterNormalTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/front.png", filesize);
-            loadPNG(starboxTextures[0], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/right.png", filesize);
-            loadPNG(starboxTextures[1], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/top.png", filesize);
-            loadPNG(starboxTextures[2], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/left.png", filesize);
-            loadPNG(starboxTextures[3], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/bottom.png", filesize);
-            loadPNG(starboxTextures[4], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("Sky/StarSkybox/back.png", filesize);
-            loadPNG(starboxTextures[5], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            zipData = zipFile.readFile("FarTerrain/water_noise.png", filesize);
-            loadPNG(waterNoiseTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            zipData = zipFile.readFile("Particle/ball_mask.png", filesize);
-            loadPNG(ballMaskTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-        } else {
-
-            //resolution
-            ifstream resFile(fileName + "resolution.txt");
-            if (resFile.fail() || !(resFile >> graphicsOptions.currTextureRes)) {
-                pError("failed to read resolution.txt in texture pack " + fileName);
-                return;
-            }
-            graphicsOptions.defaultTextureRes = graphicsOptions.currTextureRes;
-            resFile.close();
-
-
-            loadPNG(markerTexture, (fileName + "FarTerrain/location_marker.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(terrainTexture, (fileName + "FarTerrain/terrain_texture.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(normalLeavesTexture, (fileName + "FarTerrain/normal_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(pineLeavesTexture, (fileName + "FarTerrain/pine_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(mushroomCapTexture, (fileName + "FarTerrain/mushroom_cap_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(treeTrunkTexture1, (fileName + "FarTerrain/tree_trunk_1.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(waterNormalTexture, (fileName + "Blocks/Liquids/water_normal_map.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(starboxTextures[0], (fileName + "Sky/StarSkybox/front.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[1], (fileName + "Sky/StarSkybox/right.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[2], (fileName + "Sky/StarSkybox/top.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[3], (fileName + "Sky/StarSkybox/left.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[4], (fileName + "Sky/StarSkybox/bottom.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(starboxTextures[5], (fileName + "Sky/StarSkybox/back.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            loadPNG(waterNoiseTexture, (fileName + "FarTerrain/water_noise.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            loadPNG(ballMaskTexture, (fileName + "Particle/ball_mask.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-
-        }
-    }
-
-    //load defaults if they are missing
-    if (isDefault == 0) {
-
-        if (isDefaultZip) {
-            ZipFile zipFile(defaultFileName);
-            if (zipFile.isFailure()) exit(1000);
-            size_t filesize;
-            unsigned char *zipData;
-            if (markerTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/location_marker.png", filesize);
-                loadPNG(markerTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (terrainTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/terrain_texture.png", filesize);
-                loadPNG(terrainTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (normalLeavesTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/normal_leaves_billboard.png", filesize);
-                loadPNG(normalLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (pineLeavesTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/pine_leaves_billboard.png", filesize);
-                loadPNG(pineLeavesTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (mushroomCapTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/mushroom_cap_billboard.png", filesize);
-                loadPNG(mushroomCapTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (treeTrunkTexture1.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/tree_trunk_1.png", filesize);
-                loadPNG(treeTrunkTexture1, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (waterNormalTexture.ID == 0) {
-                zipData = zipFile.readFile("Blocks/Liquids/water_normal_map.png", filesize);
-                loadPNG(waterNormalTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (starboxTextures[0].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/front.png", filesize);
-                loadPNG(starboxTextures[0], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[1].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/right.png", filesize);
-                loadPNG(starboxTextures[1], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[2].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/top.png", filesize);
-                loadPNG(starboxTextures[2], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[3].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/left.png", filesize);
-                loadPNG(starboxTextures[3], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[4].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/bottom.png", filesize);
-                loadPNG(starboxTextures[4], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (starboxTextures[5].ID == 0) {
-                zipData = zipFile.readFile("Sky/StarSkybox/back.png", filesize);
-                loadPNG(starboxTextures[5], zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-            if (waterNoiseTexture.ID == 0) {
-                zipData = zipFile.readFile("FarTerrain/water_noise.png", filesize);
-                loadPNG(waterNoiseTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 1, 12), true);
-            }
-            if (ballMaskTexture.ID == 0) {
-                zipData = zipFile.readFile("Particle/ball_mask.png", filesize);
-                loadPNG(ballMaskTexture, zipData, filesize, PNGLoadInfo(textureSamplers + 3, 12), true);
-            }
-        } else {
-            if (markerTexture.ID == 0) loadPNG(markerTexture, (defaultFileName + "FarTerrain/location_marker.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (terrainTexture.ID == 0) loadPNG(terrainTexture, (defaultFileName + "FarTerrain/terrain_texture.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (normalLeavesTexture.ID == 0) loadPNG(normalLeavesTexture, (defaultFileName + "FarTerrain/normal_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (pineLeavesTexture.ID == 0) loadPNG(pineLeavesTexture, (defaultFileName + "FarTerrain/pine_leaves_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (mushroomCapTexture.ID == 0) loadPNG(mushroomCapTexture, (defaultFileName + "FarTerrain/mushroom_cap_billboard.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (treeTrunkTexture1.ID == 0) loadPNG(treeTrunkTexture1, (defaultFileName + "FarTerrain/tree_trunk_1.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (waterNormalTexture.ID == 0) loadPNG(waterNormalTexture, (defaultFileName + "Blocks/Liquids/water_normal_map.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (starboxTextures[0].ID == 0) loadPNG(starboxTextures[0], (defaultFileName + "Sky/StarSkybox/front.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[1].ID == 0) loadPNG(starboxTextures[1], (defaultFileName + "Sky/StarSkybox/right.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[2].ID == 0) loadPNG(starboxTextures[2], (defaultFileName + "Sky/StarSkybox/top.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[3].ID == 0) loadPNG(starboxTextures[3], (defaultFileName + "Sky/StarSkybox/left.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[4].ID == 0) loadPNG(starboxTextures[4], (defaultFileName + "Sky/StarSkybox/bottom.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (starboxTextures[5].ID == 0) loadPNG(starboxTextures[5], (defaultFileName + "Sky/StarSkybox/back.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-            if (waterNoiseTexture.ID == 0) loadPNG(waterNoiseTexture, (defaultFileName + "FarTerrain/water_noise.png").c_str(), PNGLoadInfo(textureSamplers + 1, 12));
-            if (ballMaskTexture.ID == 0) loadPNG(ballMaskTexture, (defaultFileName + "Particle/ball_mask.png").c_str(), PNGLoadInfo(textureSamplers + 3, 12));
-        }
-    }
-
-    //check resolution
-    if (!(graphicsOptions.currTextureRes > 0) && !(graphicsOptions.currTextureRes & (graphicsOptions.currTextureRes - 1))) { //check that it is a power of two
-        pError("resolution.txt in texture pack " + fileName + " resolution is " + to_string(graphicsOptions.currTextureRes) + ". It must be a power of two!");
-        return;
-    }
-
-
-    GameManager::textureAtlasManager->loadBlockAtlas(fileName);
-    
-    for (size_t i = 0; i < Blocks.size(); i++){
-        Blocks[i].InitializeTexture();
-    }
 }
 
 nString FileManager::loadTexturePackDescription(nString fileName) {
@@ -1637,7 +1138,7 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
         if (rv.size() == 0) return "No description.";
         return rv;
     } else {
-        ifstream descFile(fileName + "description.txt");
+        std::ifstream descFile(fileName + "description.txt");
         if (descFile.fail()) {
             perror((fileName + "description.txt").c_str());
             descFile.close();
@@ -1652,336 +1153,10 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
         if (rv.size() == 0) return "No description.";
         return rv;
     }
-
-}
-
-i32 FileManager::loadBlocks(nString filePath) {
-    textureMap.clear();
-    GameManager::textureAtlasManager->clearAll();
-
-    for (auto i = _animationMap.begin(); i != _animationMap.end(); i++) {
-        delete i->second;
-    }
-    _animationMap.clear();
-    for (auto i = _emitterMap.begin(); i != _emitterMap.end(); i++) {
-        delete i->second;
-    }
-    _emitterMap.clear();
-    particleTypes.clear();
-    _particleTypeMap.clear();
-
-    particleEngine.clearEmitters();
-
-    for (int i = 0; i < OBJECT_LIST_SIZE; i++) {
-        ObjectList[i] = NULL;
-    }
-
-    TextureUnitIndices.resize(1024, 0);
-
-    for (int i = 256; i < 512; i++) {
-        TextureUnitIndices[i] = 1;
-    }
-
-    Blocks.clear();
-    Blocks.resize(numBlocks, Block());
-    for (size_t i = 0; i < Blocks.size(); i++) {
-        Blocks[i].ID = i;
-    }
-
-    std::vector <std::vector <IniValue> > iniValues;
-    std::vector <nString> iniSections;
-    if (loadIniFile(filePath, iniValues, iniSections)) return 0;
-
-    nString tmps;
-    int hexColor;
-    int iVal;
-    int currID = 0;
-    IniValue *iniVal;
-    Block *b = NULL;
-    for (size_t i = 1; i < iniSections.size(); i++) {
-        for (size_t j = 0; j < iniValues[i].size(); j++) {
-            iniVal = &(iniValues[i][j]);
-
-            iVal = getBlockIniVal(iniVal->key);
-
-            switch (iVal) {
-            case BLOCK_INI_ID:
-                currID = iniVal->getInt();
-                b = &(Blocks[currID]);
-                b->active = 1;
-                b->name = iniSections[i];
-                b->ID = currID;
-                break;
-            case BLOCK_INI_ALLOWSLIGHT:
-                b->allowLight = iniVal->getInt();
-                break;
-            case BLOCK_INI_BLOCKSSUNRAYS:
-                b->blockLight = iniVal->getInt();
-                break;
-            case BLOCK_INI_BREAKSBYWATER:
-                b->waterBreak = iniVal->getInt();
-                break;
-            case BLOCK_INI_BURNTRANSFORMID:
-                b->burnTransformID = iniVal->getInt();
-                break;
-            case BLOCK_INI_COLLISION:
-                b->collide = iniVal->getInt();
-                break;
-            case BLOCK_INI_COLOR:
-                if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->color[0] = ((hexColor >> 16) & 0xFF);
-                    b->color[1] = ((hexColor >> 8) & 0xFF);
-                    b->color[2] = (hexColor & 0xFF);
-                }
-                break;
-            case BLOCK_INI_OVERLAYCOLOR:
-                if (sscanf(&((iniVal->getStr())[0]), "%x", &hexColor) == 1) {
-                    b->overlayColor[0] = ((hexColor >> 16) & 0xFF);
-                    b->overlayColor[1] = ((hexColor >> 8) & 0xFF);
-                    b->overlayColor[2] = (hexColor & 0xFF);
-                }
-                break;
-            case BLOCK_INI_CRUSHABLE:
-                b->isCrushable = iniVal->getInt();
-                break;
-            case BLOCK_INI_EMITTER:
-                b->emitterName = iniVal->getStr();
-                break;
-            case BLOCK_INI_EMITTERONBREAK:
-                b->emitterOnBreakName = iniVal->getStr();
-                break;
-            case BLOCK_INI_EMITTERRANDOM:
-                b->emitterRandomName = iniVal->getStr();
-                break;
-            case BLOCK_INI_EXPLOSIONPOWER:
-                b->explosivePower = iniVal->getFloat();
-                break;
-            case BLOCK_INI_EXPLOSIONPOWERLOSS:
-                b->powerLoss = iniVal->getFloat();
-                break;
-            case BLOCK_INI_EXPLOSIONRAYS:
-                b->explosionRays = iniVal->getInt();
-                break;
-            case BLOCK_INI_EXPLOSIVERESISTANCE:
-                b->explosionResistance = iniVal->getFloat();
-                break;
-            case BLOCK_INI_FLAMMABILITY:
-                b->flammability = iniVal->getFloat();
-                break;
-            case BLOCK_INI_FLOATINGACTION:
-                b->floatingAction = iniVal->getInt();
-                break;
-            case BLOCK_INI_HEALTH:
-                b->health = iniVal->getInt();
-                break;
-            case BLOCK_INI_LIGHTACTIVE:
-                b->isLight = iniVal->getInt();
-                break;
-            case BLOCK_INI_LIGHTINTENSITY:
-                b->lightIntensity = iniVal->getInt();
-                break;
-            case BLOCK_INI_MATERIAL:
-                b->material = iniVal->getInt();
-                break;
-            case BLOCK_INI_MESHTYPE:
-                b->meshType = static_cast<MeshType>(iniVal->getInt() + 1);
-                break;
-            case BLOCK_INI_MOVEMENTMOD:
-                b->moveMod = iniVal->getFloat();
-                break;
-            case BLOCK_INI_MOVESPOWDER:
-                b->powderMove = iniVal->getInt();
-                break;
-            case BLOCK_INI_PHYSICSPROPERTY:
-                b->physicsProperty = iniVal->getInt();
-                break;
-            case BLOCK_INI_SUPPORTIVE:
-                b->isSupportive = iniVal->getInt();
-                break;
-            case BLOCK_INI_TEXTURE:
-                b->topTexName = iniVal->getStr();
-                b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = b->bottomTexName = b->topTexName;
-                GameManager::textureAtlasManager->addBlockTexture(b->topTexName);
-                break;
-            case BLOCK_INI_TEXTURETOP:
-                b->topTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->topTexName);
-                break;
-            case BLOCK_INI_TEXTURESIDE:
-                b->leftTexName = b->rightTexName = b->frontTexName = b->backTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->leftTexName);
-                break;
-            case BLOCK_INI_TEXTUREBOTTOM:
-                b->bottomTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->bottomTexName);
-                break;
-            case BLOCK_INI_TEXTURE_PARTICLE:
-                b->particleTexName = iniVal->getStr();
-                GameManager::textureAtlasManager->addBlockTexture(b->particleTexName);
-                break;
-            case BLOCK_INI_USEABLE:
-                b->useable = iniVal->getInt();
-                break;
-            case BLOCK_INI_VALUE:
-                b->value = iniVal->getFloat();
-                break;
-            case BLOCK_INI_WATERMESHLEVEL:
-                b->waterMeshLevel = iniVal->getInt();
-                break;
-            case BLOCK_INI_WAVEEFFECT:
-                b->waveEffect = iniVal->getInt();
-                break;
-            case BLOCK_INI_WEIGHT:
-                b->weight = iniVal->getFloat();
-                break;
-            case BLOCK_INI_OCCLUDE:
-                b->occlude = iniVal->getInt();
-                break;
-            case BLOCK_INI_SOURCE:
-                b->spawnerVal = iniVal->getInt();
-                break;
-            case BLOCK_INI_SINK:
-                b->sinkVal = iniVal->getInt();
-                break;
-            default:
-                if (iniVal->key.substr(0, 8) == "altColor") {
-                    int cr, cg, cb;
-                    if (sscanf(iniVal->val.c_str(), "%d,%d,%d", &cr, &cg, &cb) == 3) {
-                        b->altColors.push_back(glm::ivec3(cr, cg, cb));
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    if (!(SetWaterBlocks(LOWWATER))) return 0;
-
-    //load the texture pack
-    loadTexturePack("Textures/TexturePacks/" + graphicsOptions.texturePackString);
-
-    //load the emitters
-    for (int i = 0; i < 4096; i++) {
-        if (Blocks[i].active) {
-            if (Blocks[i].emitterName.size()) {
-                Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
-            }
-            if (Blocks[i].emitterOnBreakName.size()) {
-                Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
-            }
-            if (Blocks[i].emitterRandomName.size()) {
-                Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
-            }
-        }
-    }
-
-    //It has no texture
-    Blocks[0].pxTex = -1;
-    Blocks[0].pyTex = -1;
-    Blocks[0].pzTex = -1;
-    Blocks[0].nxTex = -1;
-    Blocks[0].nyTex = -1;
-    Blocks[0].nzTex = -1;
-
-    return 1;
-
-}
-
-i32 FileManager::saveBlocks(nString filePath) {
-    //worldFilePath + "Trees/TreeTypes/"
-    std::vector <std::vector <IniValue> > iniValues;
-    std::vector <nString> iniSections;
-    char colorString[20];
-
-    iniSections.push_back("");
-    iniValues.push_back(std::vector<IniValue>());
-
-    Block db; //default block
-    Block *b;
-    for (size_t i = 0; i < Blocks.size(); i++) {
-        b = &(Blocks[i]);
-        if (b->active) {
-            if (i >= LOWWATER) {
-                if (i == LOWWATER) {
-                    iniSections.push_back("Water");
-                } else {
-                    continue;
-                }
-            } else {
-                iniSections.push_back(b->name);
-            }
-
-            iniValues.push_back(std::vector<IniValue>());
-            iniValues.back().push_back(IniValue("id", to_string(i)));
-            if (db.allowLight != b->allowLight) iniValues.back().push_back(IniValue("allowsLight", to_string(b->allowLight)));
-            if (db.blockLight != b->blockLight) iniValues.back().push_back(IniValue("blocksSunRays", to_string(b->blockLight)));
-            if (db.waterBreak != b->waterBreak) iniValues.back().push_back(IniValue("breaksByWater", to_string(b->waterBreak)));
-            if (db.burnTransformID != b->burnTransformID) iniValues.back().push_back(IniValue("burnTransformid", to_string(b->burnTransformID)));
-            if (db.collide != b->collide) iniValues.back().push_back(IniValue("collision", to_string(b->collide)));
-            if ((db.color[0] != b->color[0]) || (db.color[1] != b->color[1]) || (db.color[2] != b->color[2])) {
-                sprintf(colorString, "%02x%02x%02x", b->color[0], b->color[1], b->color[2]);
-                iniValues.back().push_back(IniValue("color", nString(colorString)));
-            }
-            if (db.isCrushable != b->isCrushable) iniValues.back().push_back(IniValue("crushable", to_string(b->isCrushable)));
-            if (db.emitterName != b->emitterName) iniValues.back().push_back(IniValue("emitter", b->emitterName));
-            if (db.emitterOnBreakName != b->emitterOnBreakName) iniValues.back().push_back(IniValue("emitterOnBreak", b->emitterOnBreakName));
-            if (db.emitterRandomName != b->emitterRandomName) iniValues.back().push_back(IniValue("emitterRandom", b->emitterRandomName));
-            if (db.explosivePower != b->explosivePower) iniValues.back().push_back(IniValue("explosionPower", b->explosivePower));
-            if (db.powerLoss != b->powerLoss) iniValues.back().push_back(IniValue("explosionPowerLoss", b->powerLoss));
-            if (db.explosionRays != b->explosionRays) iniValues.back().push_back(IniValue("explosionRays", to_string(b->explosionRays)));
-            if (db.explosionResistance != b->explosionResistance) iniValues.back().push_back(IniValue("explosiveResistance", b->explosionResistance));
-            if (db.flammability != b->flammability) iniValues.back().push_back(IniValue("flammability", b->flammability));
-            if (db.floatingAction != b->floatingAction) iniValues.back().push_back(IniValue("floatingAction", to_string(b->floatingAction)));
-            if (db.isLight != b->isLight) iniValues.back().push_back(IniValue("lightActive", to_string(b->isLight)));
-            if (db.lightIntensity != b->lightIntensity) iniValues.back().push_back(IniValue("lightIntensity", to_string(b->lightIntensity)));
-            if (db.meshType != b->meshType) iniValues.back().push_back(IniValue("meshType", to_string((int)b->meshType)));
-            if (db.moveMod != b->moveMod) iniValues.back().push_back(IniValue("movementMod", b->moveMod));
-            if (db.powderMove != b->powderMove) iniValues.back().push_back(IniValue("movesPowder", to_string(b->powderMove)));
-            if ((db.overlayColor[0] != b->overlayColor[0]) || (db.overlayColor[1] != b->overlayColor[1]) || (db.overlayColor[2] != b->overlayColor[2])) {
-                sprintf(colorString, "%02x%02x%02x", b->overlayColor[0], b->overlayColor[1], b->overlayColor[2]);
-                iniValues.back().push_back(IniValue("overlayColor", nString(colorString)));
-            }
-            if (db.physicsProperty != b->physicsProperty) iniValues.back().push_back(IniValue("physicsProperty", to_string(b->physicsProperty)));
-            if (db.sinkVal != b->sinkVal) iniValues.back().push_back(IniValue("sink", to_string(b->sinkVal)));
-            if (db.spawnerVal != b->spawnerVal) iniValues.back().push_back(IniValue("source", to_string(b->spawnerVal)));
-            if (db.isSupportive != b->isSupportive) iniValues.back().push_back(IniValue("supportive", to_string(b->isSupportive)));
-
-            //check for textureSide
-            if (b->frontTexName == b->leftTexName && b->leftTexName == b->backTexName && b->backTexName == b->rightTexName) {
-                //check for texture
-                if (b->topTexName == b->frontTexName && b->rightTexName == b->bottomTexName) {
-                    if (b->topTexName.size()) iniValues.back().push_back(IniValue("texture", b->topTexName));
-                } else {
-                    if (b->bottomTexName.size()) iniValues.back().push_back(IniValue("textureBottom", b->bottomTexName));
-                    if (b->frontTexName.size()) iniValues.back().push_back(IniValue("textureSide", b->frontTexName));
-                    if (b->topTexName.size()) iniValues.back().push_back(IniValue("textureTop", b->topTexName));
-                }
-            } else { // all textures are individual
-                if (b->backTexName.size()) iniValues.back().push_back(IniValue("textureBack", b->backTexName));
-                if (b->bottomTexName.size()) iniValues.back().push_back(IniValue("textureBottom", b->bottomTexName));
-                if (b->frontTexName.size())  iniValues.back().push_back(IniValue("textureFront", b->frontTexName));
-                if (b->leftTexName.size()) iniValues.back().push_back(IniValue("textureLeft", b->leftTexName));
-                if (b->rightTexName.size()) iniValues.back().push_back(IniValue("textureRight", b->rightTexName));
-                if (b->topTexName.size()) iniValues.back().push_back(IniValue("textureTop", b->topTexName));
-            }
-
-            if (db.particleTexName != b->particleTexName) iniValues.back().push_back(IniValue("textureParticle", b->particleTexName));
-            if (db.waterMeshLevel != b->waterMeshLevel) iniValues.back().push_back(IniValue("waterMeshLevel", to_string(b->waterMeshLevel)));
-            if (db.waveEffect != b->waveEffect) iniValues.back().push_back(IniValue("waveEffect", to_string(b->waveEffect)));
-            if (db.occlude != b->occlude) iniValues.back().push_back(IniValue("occlude", to_string(b->occlude)));
-            for (size_t j = 0; j < b->altColors.size(); j++) {
-                iniValues.back().push_back(IniValue("altColor" + to_string(j), to_string(b->altColors[j].r) + "," + to_string(b->altColors[j].g) + "," + to_string(b->altColors[j].b)));
-            }
-
-        }
-    }
-    if (saveIniFile(filePath, iniValues, iniSections)) return 0;
-
-    return 1;
 }
 
 void FileManager::loadNoiseDescriptions(const char *filename) {
-    ifstream file;
+    std::ifstream file;
     nString s;
     char buffer[1024];
     int i = 0;
@@ -2009,77 +1184,75 @@ void FileManager::loadNoiseDescriptions(const char *filename) {
 }
 
 i32 FileManager::makeSaveDirectories(nString filePath) {
-    _mkdir(filePath.c_str());
-    _mkdir((filePath + "/Players").c_str());
-    _mkdir((filePath + "/Data").c_str());
-    _mkdir((filePath + "/World").c_str());
-    _mkdir((filePath + "/Region").c_str());
-    _mkdir((filePath + "/Region/f0").c_str());
-    _mkdir((filePath + "/Region/f1").c_str());
-    _mkdir((filePath + "/Region/f2").c_str());
-    _mkdir((filePath + "/Region/f3").c_str());
-    _mkdir((filePath + "/Region/f4").c_str());
-    _mkdir((filePath + "/Region/f5").c_str());
+    boost::filesystem::create_directory("Saves");
+    boost::filesystem::create_directory(filePath);
+    boost::filesystem::create_directory(filePath + "/Players");
+    boost::filesystem::create_directory(filePath + "/Data");
+    boost::filesystem::create_directory(filePath + "/World");
+    boost::filesystem::create_directory(filePath + "/Region");
+    boost::filesystem::create_directory(filePath + "/Region/f0");
+    boost::filesystem::create_directory(filePath + "/Region/f1");
+    boost::filesystem::create_directory(filePath + "/Region/f2");
+    boost::filesystem::create_directory(filePath + "/Region/f3");
+    boost::filesystem::create_directory(filePath + "/Region/f4");
+    boost::filesystem::create_directory(filePath + "/Region/f5");
     return 0;
 }
-
 i32 FileManager::createSaveFile(nString filePath) {
     struct stat statbuf;
 
-    if (stat(filePath.c_str(), &statbuf) == 0) {
+    if (boost::filesystem::exists(filePath)) {
         return 2;
     }
 
-    if (_mkdir(filePath.c_str()) != 0) {
+    if (!boost::filesystem::create_directory(filePath)) {
         perror(filePath.c_str()); pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Players").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Players").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Data").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Data").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/World").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/World").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f0").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f0").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f1").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f1").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f2").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f2").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f3").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f3").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f4").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f4").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
-    if (_mkdir((filePath + "/Region/f5").c_str()) != 0) {
+    if (!boost::filesystem::create_directory((filePath + "/Region/f5").c_str())) {
         pError("Failed to create directory in CreateSaveFile()"); return 1;
     }
 
     return setSaveFile(filePath);
 }
-
 i32 FileManager::createWorldFile(nString filePath) {
-    ofstream file(filePath + "world.txt");
+    std::ofstream file(filePath + "world.txt");
     if (file.fail()) {
         perror((filePath + "world.txt").c_str());
         return 1;
     }
-    file << menuOptions.selectPlanetName << endl;
+    file << menuOptions.selectPlanetName << std::endl;
     file.close();
     return 0;
 }
-
 nString FileManager::getWorldString(nString filePath) {
-    ifstream file(filePath + "world.txt");
+    std::ifstream file(filePath + "world.txt");
     if (file.fail()) {
         return "";
     }
@@ -2097,14 +1270,14 @@ i32 FileManager::setSaveFile(nString filePath) {
         return 1;
     }
 
-    saveFilePath = filePath;
+    GameManager::saveFilePath = filePath;
     return 0;
 }
 
 i32 FileManager::loadMarkers(Player *player) {
 
 
-    std::ifstream f(saveFilePath + "/Data/" + player->getName() + "_markers.ini");  // New enough C++ library will accept just name
+    std::ifstream f(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini");  // New enough C++ library will accept just name
     if (f.is_open() == 0) {
         f.close();
         return 0;
@@ -2113,7 +1286,7 @@ i32 FileManager::loadMarkers(Player *player) {
 
     std::vector <std::vector <IniValue> > iniValues;
     std::vector <nString> iniSections;
-    if (loadIniFile(saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
+    if (loadIniFile(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
 
     int iVal;
     IniValue *iniVal;
@@ -2149,17 +1322,16 @@ i32 FileManager::loadMarkers(Player *player) {
     }
     return 0;
 }
-
 i32 FileManager::loadPlayerFile(Player *player) {
     loadMarkers(player);
 
     FILE *file = NULL;
-    file = fopen((saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
+    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "rb");
     if (file == NULL) {
         //file doesnt exist so set spawn to random
         srand(time(NULL));
         int spawnFace = rand() % 4 + 1;
-        player->faceData.face = spawnFace;
+        player->voxelMapData.face = spawnFace;
         return 0;
     }
 
@@ -2171,14 +1343,16 @@ i32 FileManager::loadPlayerFile(Player *player) {
     player->facePosition.x = BufferUtils::extractFloat(buffer, (byte++) * 4);
     player->facePosition.y = BufferUtils::extractFloat(buffer, (byte++) * 4);
     player->facePosition.z = BufferUtils::extractFloat(buffer, (byte++) * 4);
-    player->faceData.face = BufferUtils::extractInt(buffer, (byte++) * 4);
+    player->voxelMapData.face = BufferUtils::extractInt(buffer, (byte++) * 4);
     player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
     player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(buffer, (byte++) * 4));
     player->isFlying = BufferUtils::extractBool(buffer, byte * 4);
     fclose(file);
+
+    player->voxelMapData.ipos = fastFloor(player->facePosition.z / (double)CHUNK_WIDTH);
+    player->voxelMapData.jpos = fastFloor(player->facePosition.x / (double)CHUNK_WIDTH);
     return 1;
 }
-
 i32 FileManager::saveMarkers(Player *player) {
 
     std::vector <std::vector <IniValue> > iniValues;
@@ -2191,23 +1365,22 @@ i32 FileManager::saveMarkers(Player *player) {
         m = &(GameManager::markers[i]);
         iniSections.push_back(m->name);
         iniValues.push_back(std::vector<IniValue>());
-        iniValues.back().push_back(IniValue("r", to_string(m->color.color.r)));
-        iniValues.back().push_back(IniValue("g", to_string(m->color.color.g)));
-        iniValues.back().push_back(IniValue("b", to_string(m->color.color.b)));
-        iniValues.back().push_back(IniValue("x", to_string(m->pos.x)));
-        iniValues.back().push_back(IniValue("y", to_string(m->pos.y)));
-        iniValues.back().push_back(IniValue("z", to_string(m->pos.z)));
+        iniValues.back().push_back(IniValue("r", std::to_string(m->color.r)));
+        iniValues.back().push_back(IniValue("g", std::to_string(m->color.g)));
+        iniValues.back().push_back(IniValue("b", std::to_string(m->color.b)));
+        iniValues.back().push_back(IniValue("x", std::to_string(m->pos.x)));
+        iniValues.back().push_back(IniValue("y", std::to_string(m->pos.y)));
+        iniValues.back().push_back(IniValue("z", std::to_string(m->pos.z)));
     }
 
-    if (saveIniFile(saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
+    if (saveIniFile(GameManager::saveFilePath + "/Data/" + player->getName() + "_markers.ini", iniValues, iniSections)) return 1;
 
 }
-
 i32 FileManager::savePlayerFile(Player *player) {
     saveMarkers(player);
 
     FILE *file = NULL;
-    file = fopen((saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "wb");
+    file = fopen((GameManager::saveFilePath + "/Players/" + player->getName() + ".dat").c_str(), "wb");
     if (file == NULL) {
         pError("Failed to open player .dat file for writing!");
         return 0; //uhhh idk 
@@ -2217,17 +1390,17 @@ i32 FileManager::savePlayerFile(Player *player) {
 
     int byte = 0;
 
-    int rot = player->faceData.rotation;
-    int face = player->faceData.face;
+    int rot = player->voxelMapData.rotation;
+    int face = player->voxelMapData.face;
 
     float facex = player->facePosition.x;
     float facey = player->facePosition.y;
     float facez = player->facePosition.z;
 
-    if (FaceOffsets[face][rot][0] != FaceOffsets[face][0][0]) {
+    if (vvox::FaceSigns[face][rot][0] != vvox::FaceSigns[face][0][0]) {
         facez = -facez;
     }
-    if (FaceOffsets[face][rot][1] != FaceOffsets[face][0][1]) {
+    if (vvox::FaceSigns[face][rot][1] != vvox::FaceSigns[face][0][1]) {
         facex = -facex;
     }
 
@@ -2251,71 +1424,6 @@ i32 FileManager::savePlayerFile(Player *player) {
     return 1;
 }
 
-i32 FileManager::printDirectory(std::vector <nString> &fileNames, nString dirPath) {
-    DIR *dir = NULL;
-    struct dirent *entry;
-    int i = 0;
-    struct stat statBuf;
-    struct tm *lt;
-    time_t t;
-
-    dir = opendir(dirPath.c_str());
-
-    if (dir == NULL) {
-        perror(dirPath.c_str());
-        pError("Could not open directory!");
-        return 0;
-    }
-
-    //iterate the directory
-    while ((entry = readdir(dir))) {
-        if (entry->d_name[0] != '.') {
-            if (stat((dirPath + entry->d_name).c_str(), &statBuf) != 0)pError("PrintDirectory() Stat error!");
-            t = statBuf.st_mtime;
-            lt = localtime(&t);
-
-            printf(("%d) %-20s Last Changed: %02d/%02d/%d  %02d:%02d\n"), i, entry->d_name, lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900,
-                lt->tm_hour, lt->tm_min);
-            fileNames.push_back(entry->d_name);
-            i++;
-        }
-    }
-    closedir(dir);
-}
-
-i32 FileManager::getDirectoryEntries(std::vector<nString>& fileNames, std::vector <nString> &descriptions, nString dirPath) {
-    DIR *dir = NULL;
-    struct dirent *entry;
-    int i = 0;
-    struct stat statBuf;
-    struct tm *lt;
-    time_t t;
-    char descBuf[1024];
-
-    dir = opendir(dirPath.c_str());
-
-    if (dir == NULL) {
-        perror(dirPath.c_str());
-        pError(("Could not open directory " + dirPath).c_str());
-        return 0;
-    }
-
-    //iterate the directory
-    while ((entry = readdir(dir))) {
-        if (entry->d_name[0] != '.') {
-            if (stat((dirPath + entry->d_name).c_str(), &statBuf) != 0)pError("GetDirectoryEntries() Stat error!");
-            t = statBuf.st_mtime;
-            lt = localtime(&t);
-
-            sprintf(descBuf, ("%04d.%02d.%02d  %02d:%02d"), lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
-            fileNames.push_back(entry->d_name);
-            descriptions.push_back(descBuf);
-            i++;
-        }
-    }
-    return 0;
-}
-
 inline void readLine(ui8* buffer, cString dest, i32& size) {
 
     for (int i = 0; i < size; i++) {
@@ -2336,13 +1444,12 @@ inline void readLine(ui8* buffer, cString dest, i32& size) {
         }
     }
 }
-
-i32 FileManager::loadIniFile(nString filePath, std::vector <std::vector <IniValue> > &iniValues, std::vector <nString> &iniSections, ZipFile *zipFile) {
+i32 FileManager::loadIniFile(nString filePath, std::vector<std::vector<IniValue>> &iniValues, std::vector <nString> &iniSections, ZipFile *zipFile) {
     char buffer[1024];
     int n;
     nString currentName = "";
     nString s, s2;
-    ifstream file;
+    std::ifstream file;
     int currSection = 0;
 
     iniSections.push_back("");
@@ -2391,8 +1498,8 @@ i32 FileManager::loadIniFile(nString filePath, std::vector <std::vector <IniValu
 
         file.open((filePath).c_str());
         if (file.fail()) {
-            //	pError((filePath + " could not be opened for read").c_str());
-            //	perror((filePath).c_str());
+            //    pError((filePath + " could not be opened for read").c_str());
+            //    perror((filePath).c_str());
             return 1;
         }
 
@@ -2426,9 +1533,8 @@ i32 FileManager::loadIniFile(nString filePath, std::vector <std::vector <IniValu
 
     return 0;
 }
-
 i32 FileManager::saveIniFile(nString filePath, std::vector <std::vector <IniValue> > &iniValues, std::vector <nString> &iniSections) {
-    ofstream file;
+    std::ofstream file;
     file.open(filePath.c_str());
     if (file.fail()) {
         pError((filePath + " could not be opened for write").c_str());
@@ -2537,7 +1643,6 @@ ParticleEmitter* FileManager::loadEmitter(nString fileName) {
     }
     return NULL;
 }
-
 Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
     auto it = _animationMap.find(fileName);
     if (it != _animationMap.end()) {
@@ -2567,7 +1672,7 @@ Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
                     a->fadeOutBegin = iniVal->getInt();
                     break;
                 case INI_TEXTURE:
-                    a->textureInfo = getTextureInfo(iniVal->getStr());
+                    a->texture = getTexture(iniVal->getStr());
                     break;
                 case INI_XFRAMES:
                     a->xFrames = iniVal->getInt();
@@ -2585,206 +1690,18 @@ Animation *FileManager::loadAnimation(nString fileName, ZipFile *zipFile) {
     return NULL;
 }
 
-bool FileManager::loadTexFile(nString fileName, ZipFile *zipFile, BlockTexture* rv) {
-    // This Should Be An Argument
-    IOManager iom;
-
-    // Set Some Default Values
-    rv->overlay.textureIndex = 1;
-    rv->base.size = i32v2(1, 1);
-    rv->overlay.size = i32v2(1, 1);
-
-    const cString data = iom.readFileToString(fileName.c_str());
-    if (data) {
-        if (Keg::parse(rv, data, "BlockTexture") == Keg::Error::NONE) {
-            if (rv->base.weights.length() > 0) {
-                rv->base.totalWeight = 0;
-                for (i32 i = 0; i < rv->base.weights.length(); i++) {
-                    rv->base.totalWeight += rv->base.weights[i];
-                }
-            }
-            if (rv->overlay.weights.length() > 0) {
-                rv->overlay.totalWeight = 0;
-                for (i32 i = 0; i < rv->overlay.weights.length(); i++) {
-                    rv->overlay.totalWeight += rv->overlay.weights[i];
-                }
-            }
-            return true;
-        }
-    }
-    return false;
-    //std::vector <std::vector <IniValue> > iniValues;
-    //std::vector <nString> iniSections;
-    //if (loadIniFile(fileName, iniValues, iniSections, zipFile)) return rv;
-
-    //istringstream iss;
-    //nString s;
-    //int weight;
-    //int iVal;
-    //IniValue *iniVal;
-
-    //const int BASE = 0;
-    //const int OVERLAY = 1;
-
-    //int headerType = BASE;
-    //for (size_t i = 0; i < iniSections.size(); i++) {
-    //    if (iniSections[i] == "BaseTexture") {
-    //        headerType = BASE;
-    //    } else if (iniSections[i] == "OverlayTexture") {
-    //        headerType = OVERLAY;
-    //    }
-    //    for (size_t j = 0; j < iniValues[i].size(); j++) {
-    //        iniVal = &(iniValues[i][j]);
-    //        iVal = getIniVal(iniVal->key);
-    //        if (headerType == BASE) {
-    //            switch (iVal) {
-    //            case INI_PATH_BASE_TEXTURE:
-    //                rv.base.path = iniVal->getStr();
-    //                break;
-    //            case INI_METHOD:
-    //                s = iniVal->getStr();
-    //                if (s == "connect") {
-    //                    rv.base.method = CTM_CONNECTED;
-    //                } else if (s == "random") {
-    //                    rv.base.method = CTM_RANDOM;
-    //                } else if (s == "repeat") {
-    //                    rv.base.method = CTM_REPEAT;
-    //                } else if (s == "grass") {
-    //                    rv.base.method = CTM_GRASS;
-    //                } else if (s == "horizontal") {
-    //                    rv.base.method = CTM_HORIZONTAL;
-    //                } else if (s == "vertical") {
-    //                    rv.base.method = CTM_VERTICAL;
-    //                }
-    //                break;
-    //            case INI_INNERSEAMS:
-    //                s = iniVal->getStr();
-    //                if (s == "true") {
-    //                    rv.base.innerSeams = true;
-    //                } else {
-    //                    rv.base.innerSeams = false;
-    //                }
-    //                break;
-    //            case INI_WEIGHTS:
-    //                s = iniVal->getStr();
-    //                iss.clear();
-    //                iss.str(s);
-    //                rv.base.totalWeight = 0;
-    //                while (iss >> weight) {
-    //                    rv.base.weights.push_back(weight);
-    //                    rv.base.totalWeight += weight;
-    //                }
-    //                break;
-    //            case INI_SYMMETRY:
-    //                s = iniVal->getStr();
-    //                if (s == "opposite") {
-    //                    rv.base.symmetry = SYMMETRY_OPPOSITE;
-    //                } else if (s == "all") {
-    //                    rv.base.symmetry = SYMMETRY_ALL;
-    //                } else {
-    //                    rv.base.symmetry = SYMMETRY_NONE;
-    //                }
-    //                break;
-    //            case INI_WIDTH:
-    //                rv.base.width = iniVal->getInt();
-    //                break;
-    //            case INI_HEIGHT:
-    //                rv.base.height = iniVal->getInt();
-    //                break;
-    //            case INI_USEMAPCOLOR:
-    //                rv.base.useMapColor = 1;
-    //                break;
-    //            }
-    //        } else if (headerType == OVERLAY) {
-    //            switch (iVal) {
-    //            case INI_METHOD:
-    //                s = iniVal->getStr();
-    //                if (s == "connect") {
-    //                    rv.overlay.method = CTM_CONNECTED;
-    //                } else if (s == "random") {
-    //                    rv.overlay.method = CTM_RANDOM;
-    //                } else if (s == "repeat") {
-    //                    rv.overlay.method = CTM_REPEAT;
-    //                } else if (s == "grass") {
-    //                    rv.overlay.method = CTM_GRASS;
-    //                } else if (s == "horizontal") {
-    //                    rv.overlay.method = CTM_HORIZONTAL;
-    //                } else if (s == "vertical") {
-    //                    rv.overlay.method = CTM_VERTICAL;
-    //                }
-    //                break;
-    //            case INI_INNERSEAMS:
-    //                s = iniVal->getStr();
-    //                if (s == "true") {
-    //                    rv.overlay.innerSeams = true;
-    //                } else {
-    //                    rv.overlay.innerSeams = false;
-    //                }
-    //                break;
-    //            case INI_WEIGHTS:
-    //                s = iniVal->getStr();
-    //                iss.clear();
-    //                iss.str(s);
-    //                rv.overlay.totalWeight = 0;
-    //                while (iss >> weight) {
-    //                    rv.overlay.weights.push_back(weight);
-    //                    rv.overlayTotalWeight += weight;
-    //                }
-    //                break;
-    //            case INI_SYMMETRY:
-    //                s = iniVal->getStr();
-    //                if (s == "opposite") {
-    //                    rv.overlaySymmetry = SYMMETRY_OPPOSITE;
-    //                } else if (s == "all") {
-    //                    rv.overlaySymmetry = SYMMETRY_ALL;
-    //                } else {
-    //                    rv.overlaySymmetry = SYMMETRY_NONE;
-    //                }
-    //                break;
-    //            case INI_WIDTH:
-    //                rv.overlayWidth = iniVal->getInt();
-    //                break;
-    //            case INI_HEIGHT:
-    //                rv.overlayHeight = iniVal->getInt();
-    //                break;
-    //            case INI_PATH_OVERLAY:
-    //                rv.overlayPath = iniVal->getStr();
-    //                break;
-    //            case INI_BLEND_MODE:
-    //                s = iniVal->getStr();
-    //                if (s == "multiply") {
-    //                    rv.blendMode = BLEND_TYPE_MULTIPLY;
-    //                } else if (s == "subtract") {
-    //                    rv.blendMode = BLEND_TYPE_SUBTRACT;
-    //                } else if (s == "add") {
-    //                    rv.blendMode = BLEND_TYPE_ADD;
-    //                } else { //replace
-    //                    rv.blendMode = BLEND_TYPE_REPLACE;
-    //                }
-    //                break;
-    //            case INI_USEMAPCOLOR:
-    //                rv.overlayUseMapColor = 1;
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-
-    //return rv;
-}
-
-int FileManager::getParticleType(nString fileName) {
+i32 FileManager::getParticleType(nString fileName) {
     auto it = _particleTypeMap.find(fileName);
     if (it != _particleTypeMap.end()) {
         return it->second;
     } else {
         Animation *anim = NULL;
-        TextureInfo ti = getTextureInfo(fileName, &anim);
+        vg::Texture ti = getTexture(fileName, &anim);
         particleTypes.push_back(ParticleType());
         particleTypes.back().texture = ti;
         if (anim == NULL) {
             particleTypes.back().animation = new Animation();
-            particleTypes.back().animation->textureInfo = ti;
+            particleTypes.back().animation->texture = ti;
             particleTypes.back().animation->duration = 100;
             particleTypes.back().animation->xFrames = 1;
             particleTypes.back().animation->yFrames = 1;
@@ -2792,7 +1709,7 @@ int FileManager::getParticleType(nString fileName) {
             particleTypes.back().animation->fadeOutBegin = INT_MAX;
         } else {
             particleTypes.back().animation = anim;
-            particleTypes.back().animation->textureInfo = ti;
+            particleTypes.back().animation->texture = ti;
         }
         _particleTypeMap.insert(make_pair(fileName, particleTypes.size() - 1));
         return particleTypes.size() - 1;
@@ -2800,9 +1717,11 @@ int FileManager::getParticleType(nString fileName) {
     return -1;
 }
 
-map <nString, INI_KEYS> IniMap;
-map <nString, INI_KEYS> BlockIniMap;
-map <nString, INI_KEYS> BiomeIniMap;
+#pragma region TODO: Marked For Removal
+
+std::map <nString, INI_KEYS> IniMap;
+std::map <nString, INI_KEYS> BlockIniMap;
+std::map <nString, INI_KEYS> BiomeIniMap;
 
 void FileManager::initializeINIMaps() {
     //       planet properties
@@ -2950,7 +1869,7 @@ void FileManager::initializeINIMaps() {
     BlockIniMap["floatingAction"] = BLOCK_INI_FLOATINGACTION;
     BlockIniMap["health"] = BLOCK_INI_HEALTH;
     BlockIniMap["lightActive"] = BLOCK_INI_LIGHTACTIVE;
-    BlockIniMap["lightIntensity"] = BLOCK_INI_LIGHTINTENSITY;
+    BlockIniMap["lightColor"] = BLOCK_INI_LIGHTCOLOR;
     BlockIniMap["material"] = BLOCK_INI_MATERIAL;
     BlockIniMap["meshType"] = BLOCK_INI_MESHTYPE;
     BlockIniMap["movementMod"] = BLOCK_INI_MOVEMENTMOD;
@@ -2960,6 +1879,7 @@ void FileManager::initializeINIMaps() {
     BlockIniMap["useable"] = BLOCK_INI_USEABLE;
     BlockIniMap["value"] = BLOCK_INI_VALUE;
     BlockIniMap["color"] = BLOCK_INI_COLOR;
+    BlockIniMap["colorFilter"] = BLOCK_INI_COLORFILTER;
     BlockIniMap["overlayColor"] = BLOCK_INI_OVERLAYCOLOR;
     BlockIniMap["waterMeshLevel"] = BLOCK_INI_WATERMESHLEVEL;
     BlockIniMap["waveEffect"] = BLOCK_INI_WAVEEFFECT;
@@ -3047,3 +1967,5 @@ double IniValue::getDouble() {
 nString IniValue::getStr() {
     return val;
 }
+#pragma endregion
+

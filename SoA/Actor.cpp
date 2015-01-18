@@ -2,11 +2,11 @@
 #include "Actor.h"
 
 
-Actor::Actor(void)
-{
+Actor::Actor(void) {
+    // empty
 }
 
 
-Actor::~Actor(void)
-{
+Actor::~Actor(void) {
+    // empty
 }

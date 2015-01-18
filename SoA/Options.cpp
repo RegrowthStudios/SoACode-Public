@@ -15,8 +15,6 @@ GameOptions gameOptions;
 MenuOptions menuOptions;
 
 void initializeOptions() {
-    graphicsOptions.nativeWidth = graphicsOptions.windowWidth = graphicsOptions.screenWidth = 1280;
-    graphicsOptions.nativeHeight = graphicsOptions.windowHeight = graphicsOptions.screenHeight = 720;
     graphicsOptions.cloudDetail = 1;
     graphicsOptions.lookSensitivity = 0.0026;
     graphicsOptions.voxelRenderDistance = 144;
@@ -27,27 +25,28 @@ void initializeOptions() {
     graphicsOptions.hdrExposure = 3.0f;
     graphicsOptions.gamma = 1.0f;
     graphicsOptions.secColorMult = 0.1f;
-    graphicsOptions.isFullscreen = 0;
-    graphicsOptions.isBorderless = 0;
     graphicsOptions.isVsync = 0;
     graphicsOptions.needsWindowReload = 0;
     graphicsOptions.fov = 70;
     graphicsOptions.hudMode = 0;
-    graphicsOptions.texturePackString = "SoA_Default";
-    graphicsOptions.defaultTexturePack = "SoA_Default.zip";
-    graphicsOptions.currTexturePack = "";
+    graphicsOptions.texturePackString = "Default";
+    graphicsOptions.defaultTexturePack = "Default.zip";
+    graphicsOptions.currTexturePack = graphicsOptions.texturePackString;
     graphicsOptions.needsFboReload = 0;
     graphicsOptions.needsFullscreenToggle = 0;
     graphicsOptions.maxFPS = 60.0f;
     graphicsOptions.motionBlur = 8;
+    graphicsOptions.depthOfField = 1;
     graphicsOptions.msaa = 0;
     graphicsOptions.maxMsaa = 32;
+    graphicsOptions.voxelLODThreshold = 128.0f;
+    graphicsOptions.voxelLODThreshold2 = graphicsOptions.voxelLODThreshold * graphicsOptions.voxelLODThreshold;
 
     gameOptions.invertMouse = 0;
     gameOptions.mouseSensitivity = 30.0;
 
     graphicsOptions.specularExponent = 8.0f;
-    graphicsOptions.specularIntensity = 1.0f;
+    graphicsOptions.specularIntensity = 0.3f;
 
     soundOptions.effectVolume = 100;
     soundOptions.musicVolume = 100;
@@ -87,18 +86,10 @@ int loadOptions() {
                 soundOptions.musicVolume = iniVal->getInt(); break;
             case INI_RENDER_DISTANCE:
                 graphicsOptions.voxelRenderDistance = iniVal->getInt(); break;
-            case INI_SCREEN_WIDTH:
-                graphicsOptions.screenWidth = iniVal->getInt(); break;
-            case INI_SCREEN_HEIGHT:
-                graphicsOptions.screenHeight = iniVal->getInt(); break;
             case INI_TERRAIN_QUALITY:
                 graphicsOptions.lodDetail = iniVal->getInt(); break;
             case INI_TEXTUREPACK:
                 graphicsOptions.texturePackString = iniVal->getStr(); break;
-            case INI_FULLSCREEN:
-                graphicsOptions.isFullscreen = iniVal->getBool(); break;
-            case INI_ISBORDERLESS:
-                graphicsOptions.isBorderless = iniVal->getBool(); break;
             case INI_INVERTMOUSE:
                 gameOptions.invertMouse = iniVal->getBool(); break;
             case INI_MAXFPS:
@@ -109,6 +100,8 @@ int loadOptions() {
                 graphicsOptions.motionBlur = iniVal->getInt(); break;
             case INI_MSAA:
                 graphicsOptions.msaa = iniVal->getInt(); break;
+            default:
+                break;
             }
         }
     }
@@ -126,30 +119,26 @@ int saveOptions() {
     iniValues.push_back(std::vector<IniValue>());
 
     iniValues.back().push_back(IniValue("atmosphereSecColorExposure", graphicsOptions.secColorMult));
-    iniValues.back().push_back(IniValue("enableParticles", to_string(graphicsOptions.enableParticles)));
+    iniValues.back().push_back(IniValue("enableParticles", std::to_string(graphicsOptions.enableParticles)));
     iniValues.back().push_back(IniValue("fov", graphicsOptions.fov));
-    iniValues.back().push_back(IniValue("fullScreen", to_string(graphicsOptions.isFullscreen)));
-    iniValues.back().push_back(IniValue("isBorderless", to_string(graphicsOptions.isBorderless)));
     iniValues.back().push_back(IniValue("gamma", graphicsOptions.gamma));
     iniValues.back().push_back(IniValue("renderDistance", graphicsOptions.voxelRenderDistance));
-    iniValues.back().push_back(IniValue("screenWidth", graphicsOptions.screenWidth));
-    iniValues.back().push_back(IniValue("screenHeight", graphicsOptions.screenHeight));
     iniValues.back().push_back(IniValue("terrainQuality", graphicsOptions.lodDetail));
     iniValues.back().push_back(IniValue("texturePack", graphicsOptions.texturePackString));
     iniValues.back().push_back(IniValue("maxFps", graphicsOptions.maxFPS));
     iniValues.back().push_back(IniValue("motionBlur", graphicsOptions.motionBlur));
     iniValues.back().push_back(IniValue("msaa", graphicsOptions.msaa));
-    iniValues.back().push_back(IniValue("vSync", to_string(graphicsOptions.isVsync)));
+    iniValues.back().push_back(IniValue("vSync", std::to_string(graphicsOptions.isVsync)));
 
     iniSections.push_back("GameOptions");
     iniValues.push_back(std::vector<IniValue>());
-    iniValues.back().push_back(IniValue("invertMouse", to_string(gameOptions.invertMouse)));
+    iniValues.back().push_back(IniValue("invertMouse", std::to_string(gameOptions.invertMouse)));
     iniValues.back().push_back(IniValue("mouseSensitivity", gameOptions.mouseSensitivity));
 
     iniSections.push_back("SoundOptions");
     iniValues.push_back(std::vector<IniValue>());
-    iniValues.back().push_back(IniValue("effectVolume", to_string(soundOptions.effectVolume)));
-    iniValues.back().push_back(IniValue("musicVolume", to_string(soundOptions.musicVolume)));
+    iniValues.back().push_back(IniValue("effectVolume", std::to_string(soundOptions.effectVolume)));
+    iniValues.back().push_back(IniValue("musicVolume", std::to_string(soundOptions.musicVolume)));
 
     if (fileManager.saveIniFile("Data/options.ini", iniValues, iniSections)) return 1;
     return 0;

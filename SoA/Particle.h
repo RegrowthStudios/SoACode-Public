@@ -11,7 +11,7 @@ public:
     }
 
     struct Animation* animation;
-    TextureInfo texture;
+    vg::Texture texture;
     i32 tmpTexUnit;
     ui8 color[4];
 };
@@ -44,7 +44,7 @@ public:
     f32 distance;
     i32 type;
 
-    bool billboardUpdate(const std::deque< std::deque< std::deque<struct ChunkSlot*> > >& chunkList, f64v3&, class Actor* player);
+    bool billboardUpdate(const std::deque< std::deque< std::deque<class ChunkSlot*> > >& chunkList, f64v3&, class Actor* player);
     bool update();
-    bool update(const std::deque< std::deque< std::deque<ChunkSlot*> > >& chunkList, const f64v3& chunkListPos);
+    bool update(const f64v3& batchPosition);
 };

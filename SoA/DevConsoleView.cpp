@@ -4,10 +4,11 @@
 #include <algorithm>
 #include <iterator>
 
+#include <Vorb/graphics/GLStates.h>
+#include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/graphics/SpriteFont.h>
+
 #include "DevConsole.h"
-#include "GLStates.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
 
 DevConsoleView::DevConsoleView() :
 _batch(nullptr),
@@ -21,8 +22,8 @@ DevConsoleView::~DevConsoleView() {
     dispose();
 }
 
-void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
-    _renderRing.set_capacity(linesToRender);
+void DevConsoleView::init(DevConsole* console, i32 linesToRender, vg::GLProgramManager* glProgramManager) {
+    _renderRing.resize(linesToRender);
     _renderRing.clear();
 
     _console = console;
@@ -32,8 +33,7 @@ void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
     _console->addListener(_fHook, this);
     _isViewModified = true;
 
-    _batch = new SpriteBatch(true);
-    _batch->init();
+    _batch = new SpriteBatch(true, true);
 
     _font = new SpriteFont("Fonts\\chintzy.ttf", 32);
 }
@@ -87,7 +87,7 @@ void DevConsoleView::onNewCommand(const nString& str) {
     std::stringstream ss(str);
     std::string item;
     while (std::getline(ss, item, '\n')) {
-        _renderRing.push_back(item);
+        _renderRing.push(item);
     }
 
     _isViewModified = true;
@@ -103,12 +103,12 @@ void DevConsoleView::redrawBatch() {
 
     // Draw Command Lines
     for (i32 i = 0; i < _renderRing.size(); i++) {
-        const cString cStr = _renderRing[i].c_str();
+        const cString cStr = _renderRing.at(i).c_str();
         if (cStr) {
             _batch->drawString(_font, cStr,
                 f32v2(10, textHeight * i + 10),
                 f32v2(1),
-                color8(0, 255, 0, 255),
+                ColorRGBA8(0, 255, 0, 255),
                 0.9f
                 );
         }

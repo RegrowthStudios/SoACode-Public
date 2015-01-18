@@ -8,7 +8,6 @@ _commandListeners() {}
 void DevConsole::addListener(FuncNewCommand f, void* meta) {
     EventBinding eb = { f, meta };
     _commandListeners.emplace_back(eb);
-    //_commandListeners.push_back(eb);
 }
 void DevConsole::removeListener(FuncNewCommand f) {
     auto foundListener = std::find(_commandListeners.begin(), _commandListeners.end(), f);
@@ -18,7 +17,7 @@ void DevConsole::removeListener(FuncNewCommand f) {
 }
 
 void DevConsole::write(const nString& s) {
-    _commands.push_back(s);
+    _commands.push(s);
     EventBinding eb;
     for (i32 i = 0; i < _commandListeners.size(); i++) {
         eb = _commandListeners[i];
@@ -27,5 +26,5 @@ void DevConsole::write(const nString& s) {
 }
 
 const nString& DevConsole::getCommand(const i32& index) {
-    return _commands[index];
+    return _commands.at(index);
 }

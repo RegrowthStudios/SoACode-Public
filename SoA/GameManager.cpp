@@ -2,17 +2,21 @@
 #include "GameManager.h"
 
 #include <direct.h> //for mkdir windows
-#include <time.h>
+#include <ctime>
+
+#include <Vorb/Threadpool.h>
+#include <Vorb/utils.h>
 
 #include "BlockData.h"
 #include "CAEngine.h"
 #include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "ChunkManager.h"
+#include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "OpenglManager.h"
+#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
@@ -21,16 +25,13 @@
 #include "Rendering.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
-#include "TextureAtlasManager.h"
-#include "Threadpool.h"
+#include "TexturePackLoader.h"
 #include "VRayHelper.h"
 #include "WSO.h"
 #include "WSOAtlas.h"
 #include "WSOData.h"
 #include "WSOScanner.h"
-#include "WorldEditor.h"
-#include "shader.h"
-#include "utils.h"
+
 #include "VoxelEditor.h"
 #include "voxelWorld.h"
 
@@ -42,18 +43,21 @@ Uint32 GameManager::maxLodTicks = 8;
 VoxelWorld *GameManager::voxelWorld = nullptr;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 PhysicsEngine *GameManager::physicsEngine = nullptr;
-CAEngine *GameManager::caEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
 ChunkManager *GameManager::chunkManager = nullptr;
 InputManager *GameManager::inputManager = nullptr;
-TextureAtlasManager *GameManager::textureAtlasManager = nullptr;
 ChunkIOManager* GameManager::chunkIOManager = nullptr;
+MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
+DebugRenderer* GameManager::debugRenderer = nullptr;
+vg::GLProgramManager* GameManager::glProgramManager = new vg::GLProgramManager();
+TexturePackLoader* GameManager::texturePackLoader = nullptr;
+vg::TextureCache* GameManager::textureCache = nullptr;
+TerrainGenerator* GameManager::terrainGenerator = nullptr;
 
 Player *GameManager::player;
-vector <Marker> GameManager::markers;
-WorldEditor *GameManager::worldEditor = nullptr;
+std::vector <Marker> GameManager::markers;
 Planet *GameManager::planet = nullptr;
 nString GameManager::saveFilePath = "";
 GameStates GameManager::gameState = GameStates::MAINMENU;
@@ -63,37 +67,78 @@ void GameManager::initializeSystems() {
         voxelWorld = new VoxelWorld();
         voxelEditor = new VoxelEditor();
         physicsEngine = new PhysicsEngine();
-        caEngine = new CAEngine();
         soundEngine = new SoundEngine();
         chunkManager = &voxelWorld->getChunkManager();
-        textureAtlasManager = new TextureAtlasManager();
         chunkIOManager = new ChunkIOManager();
-        
+        messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
+        textureCache = new vg::TextureCache();
+        texturePackLoader = new TexturePackLoader(textureCache);
+        terrainGenerator = new TerrainGenerator();
         
+        debugRenderer = new DebugRenderer();
+ 
         _systemsInitialized = true;
     }
 }
 
-void GameManager::initializeWorldEditor() {
-    worldEditor = new WorldEditor;
-    worldEditor->initialize(planet);
+void GameManager::registerTexturesForLoad() {
 
+    texturePackLoader->registerTexture("FarTerrain/location_marker.png");
+    texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+    texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
+    texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
+    texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+
+    texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/top.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/left.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
+    texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
+
+    texturePackLoader->registerTexture("FarTerrain/water_noise.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+    texturePackLoader->registerTexture("Particle/ball_mask.png");
+
+    texturePackLoader->registerTexture("GUI/crosshair.png");
 }
 
-void GameManager::exitWorldEditor() {
-    if (worldEditor != nullptr) {
-        delete worldEditor;
-        worldEditor = nullptr;
-    }
-    currentUserInterface = nullptr;
+void GameManager::getTextureHandles() {
+
+    markerTexture = textureCache->findTexture("FarTerrain/location_marker.png");
+    terrainTexture = textureCache->findTexture("FarTerrain/terrain_texture.png");
+
+    normalLeavesTexture = textureCache->findTexture("FarTerrain/normal_leaves_billboard.png");
+    pineLeavesTexture = textureCache->findTexture("FarTerrain/pine_leaves_billboard.png");
+    mushroomCapTexture = textureCache->findTexture("FarTerrain/mushroom_cap_billboard.png");
+    treeTrunkTexture1 = textureCache->findTexture("FarTerrain/tree_trunk_1.png");
+    waterNormalTexture = textureCache->findTexture("Blocks/Liquids/water_normal_map.png");
+
+    skyboxTextures[0] = textureCache->findTexture("Sky/StarSkybox/front.png");
+    skyboxTextures[1] = textureCache->findTexture("Sky/StarSkybox/right.png");
+    skyboxTextures[2] = textureCache->findTexture("Sky/StarSkybox/top.png");
+    skyboxTextures[3] = textureCache->findTexture("Sky/StarSkybox/left.png");
+    skyboxTextures[4] = textureCache->findTexture("Sky/StarSkybox/bottom.png");
+    skyboxTextures[5] = textureCache->findTexture("Sky/StarSkybox/back.png");
+
+    waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
+    ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
+    crosshairTexture = textureCache->findTexture("GUI/crosshair.png");
+
+    // TODO(Ben): Parallelize this
+    logoTexture = textureCache->addTexture("Textures/logo.png");
+    sunTexture = textureCache->addTexture("Textures/sun_texture.png");
+    BlankTextureID = textureCache->addTexture("Textures/blank.png", &SamplerState::POINT_CLAMP);
+    explosionTexture = textureCache->addTexture("Textures/explosion.png");
+    fireTexture = textureCache->addTexture("Textures/fire.png");
 }
 
 void GameManager::initializeSound() {
     soundEngine->Initialize();
-
     soundEngine->LoadAllSounds();
 }
 
@@ -107,19 +152,19 @@ void GameManager::savePlayerState() {
     fileManager.savePlayerFile(player);
 }
 
-int GameManager::newGame(string saveName) {
-    string dirPath = "Saves/";
+int GameManager::newGame(nString saveName) {
+    nString dirPath = "Saves/";
 
     for (size_t i = 0; i < saveName.size(); i++) {
         if (!((saveName[i] >= '0' && saveName[i] <= '9') || (saveName[i] >= 'a' && saveName[i] <= 'z') || (saveName[i] >= 'A' && saveName[i] <= 'Z') || (saveName[i] == ' ') || (saveName[i] == '_'))) {
             return 1;
         }
     }
-    cout << "CREATING " << saveName << endl;
-
-	if (_mkdir(dirPath.c_str()) == 0){ //Create the save directory if it's not there. Will fail if it is, but that's ok. Should probably be in CreateSaveFile.
-		cout << "Save directory " + dirPath + " did not exist and was created!" << endl;
-	}
+    std::cout << "CREATING " << saveName << std::endl;
+    // TODO: Boost
+    if (_mkdir(dirPath.c_str()) == 0){ //Create the save directory if it's not there. Will fail if it is, but that's ok. Should probably be in CreateSaveFile.
+        std::cout << "Save directory " + dirPath + " did not exist and was created!" << std::endl;
+    }
 
     int rv = fileManager.createSaveFile(dirPath + saveName);
     if (rv != 2) {
@@ -131,20 +176,20 @@ int GameManager::newGame(string saveName) {
     return rv;
 }
 
-int GameManager::loadGame(string saveName) {
-    cout << "LOADING " << saveName << endl;
+int GameManager::loadGame(nString saveName) {
+    std::cout << "LOADING " << saveName << std::endl;
 
     //SaveFileInput(); //get the save file for the game
 
-    string dirPath = "Saves/";
+    nString dirPath = "Saves/";
     fileManager.makeSaveDirectories(dirPath + saveName);
     if (fileManager.setSaveFile(dirPath + saveName) != 0) {
-        cout << "Could not set save file.\n";
+        std::cout << "Could not set save file.\n";
         return 1;
     }
-    string planetName = fileManager.getWorldString(dirPath + saveName + "/World/");
+    nString planetName = fileManager.getWorldString(dirPath + saveName + "/World/");
     if (planetName == "") {
-        cout << "NO PLANET NAME";
+        std::cout << "NO PLANET NAME";
         return 1;
     }
 
@@ -155,7 +200,7 @@ int GameManager::loadGame(string saveName) {
 }
 
 void BindVBOIndicesID() {
-    vector<GLuint> indices;
+    std::vector<GLuint> indices;
     indices.resize(589824);
 
     int j = 0;
@@ -179,7 +224,7 @@ void BindVBOIndicesID() {
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-void GameManager::loadPlanet(string filePath) {
+void GameManager::loadPlanet(nString filePath) {
     //DrawLoadingScreen("Initializing planet...");
     if (planet) {
         delete planet;
@@ -197,8 +242,6 @@ void GameManager::loadPlanet(string filePath) {
     debugTicks = SDL_GetTicks();
 
     BindVBOIndicesID();
-
-    currTerrainGenerator = planet->generator;
 
 }
 
@@ -221,9 +264,10 @@ void GameManager::initializeVoxelWorld(Player *playr) {
             atSurface = 0; //dont need to set height
         }
     }
-    voxelWorld->initialize(player->facePosition, &(player->faceData), planet, atSurface, 0);
 
-    if (atSurface) player->facePosition.y = voxelWorld->getCenterY();
+    voxelWorld->initialize(player->facePosition, &player->voxelMapData, planet, 0);
+
+    if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
 
     player->gridPosition = player->facePosition;
 
@@ -231,30 +275,22 @@ void GameManager::initializeVoxelWorld(Player *playr) {
 
     double dist = player->facePosition.y + planet->radius;
     player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
-
-    voxelWorld->beginSession(player->gridPosition);
 }
 
 int ticksArray2[10];
 int ticksArrayIndex2 = 0;
 
-void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[]) {
+void GameManager::update() {
     static int saveStateTicks = SDL_GetTicks();
 
     if (gameInitialized) {
         if (player->isOnPlanet) {
+
             HeightData tmpHeightData;
             if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
-                if (tmpHeightData.height != UNLOADED_HEIGHT) {
-                    player->currBiome = tmpHeightData.biome;
-                    player->currTemp = tmpHeightData.temperature;
-                    player->currHumidity = tmpHeightData.rainfall;
-
-                } else {
-                    player->currBiome = NULL;
-                    player->currTemp = -1;
-                    player->currHumidity = -1;
-                }
+                player->currBiome = tmpHeightData.biome;
+                player->currTemp = tmpHeightData.temperature;
+                player->currHumidity = tmpHeightData.rainfall;
             } else {
                 player->currBiome = NULL;
                 player->currTemp = -1;
@@ -264,19 +300,19 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
             player->currCh = NULL;
             if (player->currCh != NULL) {
                 if (player->currCh->isAccessible) {
-                    int x = player->headPosition.x - player->currCh->position.x;
-                    int y = player->headPosition.y - player->currCh->position.y;
-                    int z = player->headPosition.z - player->currCh->position.z;
+                    int x = player->headPosition.x - player->currCh->gridPosition.x;
+                    int y = player->headPosition.y - player->currCh->gridPosition.y;
+                    int z = player->headPosition.z - player->currCh->gridPosition.z;
                     int c = y * CHUNK_WIDTH * CHUNK_WIDTH + z * CHUNK_WIDTH + x;
                     player->headInBlock = player->currCh->getBlockData(c);
-                    player->headVoxelLight = player->currCh->getLight(LIGHT, c) - 8;
-                    player->headSunLight = player->currCh->getLight(SUNLIGHT, c) - 8;
+                    player->headVoxelLight = player->currCh->getLampLight(c) - 8;
+                    player->headSunLight = player->currCh->getSunlight(c) - 8;
                     if (player->headVoxelLight < 0) player->headVoxelLight = 0;
                     if (player->headSunLight < 0) player->headSunLight = 0;
                 }
             }
 
-            voxelWorld->update(player->headPosition, glm::dvec3(player->chunkDirection()));
+            voxelWorld->update(&player->getChunkCamera());
 
             if (inputManager->getKey(INPUT_BLOCK_SCANNER)) {
                 player->scannedBlock = voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(player->chunkDirection()), player->headPosition);
@@ -285,7 +321,7 @@ void GameManager::update(float dt, glm::dvec3 &cameraPosition, float cameraView[
             }
 
         } else {
-            //	closestLodDistance = (glm::length(player->worldPosition) - chunkManager.planet->radius - 20000)*0.7;
+            //    closestLodDistance = (glm::length(player->worldPosition) - chunkManager.planet->radius - 20000)*0.7;
             player->currBiome = NULL;
             player->currTemp = -1;
             player->currHumidity = -1;
@@ -311,35 +347,7 @@ void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
     planet->updateLODs(worldPosition, maxTicks);
 }
 
-void GameManager::drawSpace(glm::mat4 &VP, bool connectedToPlanet) {
-    glm::mat4 IMVP;
-    if (connectedToPlanet) {
-        IMVP = VP * GameManager::planet->invRotationMatrix;
-    } else {
-        IMVP = VP;
-    }
-
-    glDepthMask(GL_FALSE);
-    if (!drawMode) DrawStars((float)0, IMVP);
-    DrawSun((float)0, IMVP);
-    glDepthMask(GL_TRUE);
-}
-
-void GameManager::drawPlanet(glm::dvec3 worldPos, glm::mat4 &VP, const glm::mat4 &V, float ambVal, glm::vec3 lightPos, float fadeDist, bool connectedToPlanet) {
-
-    GameManager::planet->draw(0, VP, V, lightPos, worldPos, ambVal, fadeDist, connectedToPlanet);
-
-    if (connectedToPlanet) {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, glm::vec3((GameManager::planet->invRotationMatrix) * glm::vec4(lightPos, 1.0)), worldPos);
-    } else {
-        if (!drawMode) GameManager::planet->atmosphere.draw((float)0, VP, lightPos, worldPos);
-    }
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-    GameManager::planet->drawTrees(VP, worldPos, ambVal);
-}
-
-void GameManager::addMarker(glm::dvec3 pos, string name, glm::vec3 color) {
+void GameManager::addMarker(glm::dvec3 pos, nString name, glm::vec3 color) {
     markers.push_back(Marker(pos, name, color));
     markers.back().num = markers.size() - 1;
 }
@@ -354,13 +362,13 @@ void GameManager::clickDragRay(bool isBreakRay) {
     VoxelRayQuery rq;
     if (isBreakRay) {
         // Obtain The Simple Query
-        rq = VRayHelper::getQuery(player->getChunkCamera().position(), player->chunkDirection(), chunkManager, isSolidBlock);
+        rq = VRayHelper::getQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rq.distance > MAX_RANGE || rq.id == NONE) return;
     } else {
         // Obtain The Full Query
-        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().position(), player->chunkDirection(), chunkManager, isSolidBlock);
+        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
         // Check If Something Was Picked
         if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
@@ -373,7 +381,7 @@ void GameManager::clickDragRay(bool isBreakRay) {
         return;
     }
 
-    i32v3 position = chunkManager->cornerPosition + rq.location;
+    i32v3 position = rq.location;
     if (voxelEditor->isEditing() == false) {
         voxelEditor->setStartPosition(position);
         voxelEditor->setEndPosition(position);
@@ -382,10 +390,12 @@ void GameManager::clickDragRay(bool isBreakRay) {
     }
 }
 void GameManager::scanWSO() {
+
 #define SCAN_MAX_DISTANCE 20.0
     VoxelRayQuery rq = VRayHelper::getQuery(
-        player->getChunkCamera().position(),
-        player->getChunkCamera().direction(),
+        player->getChunkCamera().getPosition(),
+        player->getChunkCamera().getDirection(),
+        SCAN_MAX_DISTANCE,
         GameManager::chunkManager,
         isSolidBlock
         );
@@ -398,7 +408,7 @@ void GameManager::scanWSO() {
         f32v3 wsoSize(wsos[i]->data->size);
         wsoPos += wsoSize * 0.5f;
 
-        openglManager.debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
+        debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
 
         delete wsos[i];
     }
@@ -419,8 +429,3 @@ void GameManager::endSession() {
     //_CrtDumpMemoryLeaks();
 #endif
 }
-
-const deque <deque <deque <ChunkSlot *> > >& GameManager::getChunkList() {
-    return chunkManager->getChunkList();
-}
-

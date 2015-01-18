@@ -15,6 +15,7 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+*.i
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -177,3 +178,10 @@ FakesAssemblies/
 [Tt]humbs.db
 *.DS_Store
 desktop.ini
+
+# Python files
+*.pyc
+
+# A Folder To Put Personal Stuff
+Mine/
+

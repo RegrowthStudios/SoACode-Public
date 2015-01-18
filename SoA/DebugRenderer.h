@@ -1,6 +1,8 @@
 #pragma once
 #include <chrono>
 
+#include <Vorb/graphics/GLProgram.h>
+
 const static float GOLDEN_RATIO = 1.61803398875f;
 
 const static int NUM_ICOSOHEDRON_VERTICES = 12;
@@ -142,6 +144,9 @@ private:
     std::map<int, SimpleMesh*> _icosphereMeshes;
     SimpleMesh* _cubeMesh;
     SimpleMesh* _lineMesh;
+
+    // Program that is currently in use
+    vg::GLProgram* _program;
 
     std::chrono::time_point<std::chrono::system_clock> _previousTimePoint;
     std::chrono::time_point<std::chrono::system_clock> _currentTimePoint;

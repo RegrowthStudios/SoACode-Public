@@ -3,9 +3,9 @@
 
 #include <float.h>
 
-#include "utils.h"
+#include <Vorb/utils.h>
 
-VoxelRay::VoxelRay(f32v3 start, f32v3 direction) {
+VoxelRay::VoxelRay(f64v3 start, f64v3 direction) {
     _startPos = start;
     _direction = direction;
     _currentPos = _startPos;
@@ -15,8 +15,8 @@ VoxelRay::VoxelRay(f32v3 start, f32v3 direction) {
 
 i32v3 VoxelRay::getNextVoxelPosition() {
     //Find All Distances To Next Voxel In Each Direction
-    f32v3 next;
-    f32v3 r;
+    f64v3 next;
+    f64v3 r;
 
     // X-Distance
     if (_direction.x > 0) {
@@ -58,7 +58,7 @@ i32v3 VoxelRay::getNextVoxelPosition() {
     }
 
     // Get Minimum Movement To The Next Voxel
-    f32 rat;
+    f64 rat;
     if (r.x < r.y && r.x < r.z) {
         // Move In The X-Direction
         rat = r.x;

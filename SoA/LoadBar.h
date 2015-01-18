@@ -38,14 +38,14 @@ public:
 
     void setCommonProperties(const LoadBarCommonProperties& commonProps);
     void setStartPosition(const f32v2& position);
-    void setText(const cString text);
-    void setColor(const color8& colorText, const color8& colorBackground);
+    void setText(const nString& text);
+    void setColor(const ColorRGBA8& colorText, const ColorRGBA8& colorBackground);
 
     void update(f32 dt);
 
     void draw(SpriteBatch* sb, SpriteFont* sf, ui32 backTexture, f32 depth);
 private:
-    cString _text;
+    nString _text;
 
     LoadBarCommonProperties _commonProps;
 
@@ -53,6 +53,6 @@ private:
     i32 _moveDirection;
     f32 _lerpAmount;
 
-    color8 _colorText;
-    color8 _colorBackground;
+    ColorRGBA8 _colorText;
+    ColorRGBA8 _colorBackground;
 };

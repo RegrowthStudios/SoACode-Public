@@ -1,23 +1,24 @@
 #include "stdafx.h"
 #include "ParticleBatch.h"
 
+#include "Animation.h"
 #include "ChunkManager.h"
 #include "GameManager.h"
-#include "OpenglManager.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
 #include "ParticleMesh.h"
-#include "shader.h"
+#include "MessageManager.h"
+
 
 BillboardVertex vboBVerts[maxParticles];
 
 ParticleBatch::~ParticleBatch() {
 
     //if (mesh != NULL){
-    //	ParticleMeshMessage *pmm = new ParticleMeshMessage;
-    //	pmm->mesh = mesh;
-    //	gameToGl.enqueue(Message(GL_M_PARTICLEMESH, pmm)); //tell GL thread to free the batch
+    //    ParticleMeshMessage *pmm = new ParticleMeshMessage;
+    //    pmm->mesh = mesh;
+    //    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, pmm)); //tell GL thread to free the batch
     //}
 }
 
@@ -46,13 +47,16 @@ int ParticleBatch::findUnusedParticle() {
     return -1; // All particles are taken, fail
 }
 
-void ParticleBatch::addParticles(int num, glm::dvec3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], glm::vec3 extraForce) {
+void ParticleBatch::addParticles(int num, f64v3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], f32v3 extraForce) {
+#define POS_OFFSET 10000.0
+    
     if(size + num >= maxParticles) return;
-    glm::dvec3 spos;
-    glm::dvec3 dpos;
+    f64v3 spos;
+    f64v3 dpos;
 
     if(size == 0) { //new origin
-        position = pos;
+        // We offset by POS_OFFSET so we can guarentee the batch will always be positive
+        position = f64v3(GameManager::chunkManager->getChunkPosition(pos - POS_OFFSET) * CHUNK_WIDTH);
     } else {
         dpos = position - pos;
     }
@@ -173,8 +177,6 @@ void ParticleBatch::addParticles(int num, glm::dvec3 pos, ParticleEmitter *emitt
 
 int ParticleBatch::update() {
 
-    const deque < deque < deque < ChunkSlot* > > > &chunkList = GameManager::getChunkList();
-    glm::dvec3 chunkListPos(GameManager::chunkManager->cornerPosition);
     glm::quat quaternion;
     glm::dvec3 pos;
     int n = 0;
@@ -194,7 +196,7 @@ int ParticleBatch::update() {
                 psize = particles[i].size * 0.0875;
             }
 
-            particles[i].update(chunkList, chunkListPos - position);
+            particles[i].update(position);
 
             vboBVerts[n].pos = particles[i].position;
             vboBVerts[n].light[0] = particles[i].light[0];
@@ -225,7 +227,10 @@ int ParticleBatch::update() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, (void *)pmm));
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                         Message(MessageID::PARTICLE_MESH,
+                                         (void *)pmm));
+
 
     return 0;
 }
@@ -241,7 +246,7 @@ int ParticleBatch::updateAnimated() {
     int textureCounter = 0;
     Animation *animation;
     if(size == 0) return 0;
-    vector <int> usedTexUnits;
+    std::vector <int> usedTexUnits;
 
     for(int i = 0; i < maxParticles; i++) {
         if(lifes[i] > 0) {
@@ -318,7 +323,9 @@ int ParticleBatch::updateAnimated() {
     pmm->verts.resize(n);
     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    gameToGl.enqueue(Message(GL_M_PARTICLEMESH, (void *)pmm));
+    GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                         Message(MessageID::PARTICLE_MESH,
+                                         (void *)pmm));
 
     return 0;
 }
@@ -326,9 +333,11 @@ int ParticleBatch::updateAnimated() {
 void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
  
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
-    glUniform1f(billboardShader.alphaThresholdID, 0.01f);
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+
+    glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -338,8 +347,8 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(billboardShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(billboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
@@ -365,19 +374,20 @@ void ParticleBatch::draw(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP)
 
 void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.ID);
+    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
     glDepthMask(GL_FALSE);
 
     for(size_t i = 0; i < pm->usedParticles.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         if(particleTypes[pm->usedParticles[i]].animation) {
-            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->textureInfo.ID);
+            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->texture.id);
         }
     }
 
-   
-    glUniform1f(billboardShader.alphaThresholdID, 0.01f);
+    vg::GLProgram* program = GameManager::glProgramManager->getProgram("Billboard");
+
+    glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 
     if(pm->size > 0 && pm->uvBufferID != 0) {
 
@@ -387,8 +397,8 @@ void ParticleBatch::drawAnimated(ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::m
 
         glm::mat4 MVP = VP * GlobalModelMatrix;
 
-        glUniformMatrix4fv(billboardShader.mID, 1, GL_FALSE, &GlobalModelMatrix[0][0]);
-        glUniformMatrix4fv(billboardShader.mvpID, 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+        glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
         glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
         glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);

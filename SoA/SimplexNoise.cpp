@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SimplexNoise.h"
 
-#include "utils.h"
+#include <Vorb/utils.h>
 
 #define offsetfmult 1.45
 
@@ -11,20 +11,20 @@ double ridged_octave_noise_2d( const double octaves, const double persistence, c
     double total = 0;
     double frequency = freq;
     double amplitude = 1;
-	double d;
+    double d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
     double maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
-		d = raw_noise_2d( x * frequency, y * frequency );
-		if (i > 12){
-			if (d < 0) d = -d;
-		}else if (i > 0){ //first octave sets the base
-			if (d < 0) d = -d;
-			d = 1.0 - d;
-		}
+        d = raw_noise_2d( x * frequency, y * frequency );
+        if (i > 12){
+            if (d < 0) d = -d;
+        }else if (i > 0){ //first octave sets the base
+            if (d < 0) d = -d;
+            d = 1.0 - d;
+        }
         total += d * amplitude;
 
         frequency *= 2.0;
@@ -39,20 +39,20 @@ double reverse_ridged_octave_noise_2d( const double octaves, const double persis
     double total = 0;
     double frequency = freq;
     double amplitude = 1;
-	double d;
+    double d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
     double maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
-		d = raw_noise_2d( x * frequency, y * frequency );
-		if (i > 0){ //first octave sets the base
-			if (d < 0){
-				d = -d;
-			}
-			d = d;
-		}
+        d = raw_noise_2d( x * frequency, y * frequency );
+        if (i > 0){ //first octave sets the base
+            if (d < 0){
+                d = -d;
+            }
+            d = d;
+        }
         total += d * amplitude;
 
         frequency *= 2.0;
@@ -67,20 +67,20 @@ double ridged_octave_noise_3d( const double octaves, const double persistence, c
     double total = 0;
     double frequency = freq;
     double amplitude = 1;
-	double d;
+    double d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
     double maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
-		d = raw_noise_3d( x * frequency, y * frequency, z * frequency );
-		if (i > 12){
-			if (d < 0) d = -d;
-		}else if (i > 0){ //first octave sets the base
-			if (d < 0) d = -d;
-			d = 1.0 - d;
-		}
+        d = raw_noise_3d( x * frequency, y * frequency, z * frequency );
+        if (i > 12){
+            if (d < 0) d = -d;
+        }else if (i > 0){ //first octave sets the base
+            if (d < 0) d = -d;
+            d = 1.0 - d;
+        }
         total += d * amplitude;
 
         frequency *= 2.0;
@@ -95,20 +95,20 @@ double reverse_ridged_octave_noise_3d( const double octaves, const double persis
     double total = 0;
     double frequency = freq;
     double amplitude = 1;
-	double d;
+    double d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
     double maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
-		d = raw_noise_3d( x * frequency, y * frequency, z * frequency );
-		if (i > 0){ //first octave sets the base
-			if (d < 0){
-				d = -d;
-			}
-			d = d;
-		}
+        d = raw_noise_3d( x * frequency, y * frequency, z * frequency );
+        if (i > 0){ //first octave sets the base
+            if (d < 0){
+                d = -d;
+            }
+            d = d;
+        }
         total += d * amplitude;
 
         frequency *= 2.0;
@@ -152,27 +152,27 @@ double ridged_octave_noise_3d_1( const double octaves, const double persistence,
     double total = 0;
     double frequency = freq;
     double amplitude = 1;
-	double d;
-	double mult = 4;
+    double d;
+    double mult = 4;
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
     double maxAmplitude = 0;
 
-	//******************** Make it so that successive noise cannot delete cave, and can only create it?
+    //******************** Make it so that successive noise cannot delete cave, and can only create it?
     for( int i=0; i < octaves; i++ ) {
-	
-		d = raw_noise_3d((y+raw_noise_2d(y * frequency*4, x * frequency*4)*mult) * frequency, (z + raw_noise_2d(z * frequency*4, y * frequency*4)*mult) * frequency, (x+raw_noise_2d(x * frequency*4, z * frequency*4)*mult) * frequency);
-	
-		if (d < 0) d = -d;
+    
+        d = raw_noise_3d((y+raw_noise_2d(y * frequency*4, x * frequency*4)*mult) * frequency, (z + raw_noise_2d(z * frequency*4, y * frequency*4)*mult) * frequency, (x+raw_noise_2d(x * frequency*4, z * frequency*4)*mult) * frequency);
+    
+        if (d < 0) d = -d;
 
-		d = (1.0 - (d)); //first four octaves have extra weight
-	
-	//	if (d < 0.9) d = 0.9;
+        d = (1.0 - (d)); //first four octaves have extra weight
+    
+    //    if (d < 0.9) d = 0.9;
 
-		total += d * amplitude;
-		maxAmplitude += amplitude;
+        total += d * amplitude;
+        maxAmplitude += amplitude;
         frequency *= 3;
-		amplitude *= persistence;
+        amplitude *= persistence;
     }
 
     return total / maxAmplitude;
@@ -182,31 +182,31 @@ double ridged_octave_noise_3d_2( const double octaves, const double persistence,
     double total = 0;
     double frequency = freq;
     double amplitude = 1;
-	double d;
-	double mult = 4;
+    double d;
+    double mult = 4;
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
     double maxAmplitude = 0;
 
-	//******************** Make it so that successive noise cannot delete cave, and can only create it?
-    for( int i=0; i < octaves; i++ ) {	
-		d = raw_noise_3d((y+raw_noise_2d(-z*frequency*offsetfmult*0.9 + y * frequency*offsetfmult*1.2, x * frequency*offsetfmult*0.7)*mult) * frequency, (z + raw_noise_2d(z * frequency*offsetfmult*0.8, y * frequency*offsetfmult*0.69 - x * frequency*offsetfmult*1.17)*mult) * frequency, (x+raw_noise_2d(x * frequency*offsetfmult*0.86, -y*frequency*offsetfmult*0.9 + z * frequency*offsetfmult)*mult) * frequency);
-	
-		d = (1.0 - (d*d)); 
-	
-		//if (i < 2 && d > .96){
-		//	d = .95 - (d-.95);
-			//if (d < .93) d = .93;
-	//		d = .96;
-	//	}//else if (i > 1 && d < 0.5){
-		//	d = 1.0 - d;
-		//}
-	//if (i > 0){
-		total += d * amplitude;
-		maxAmplitude += amplitude;
-	//}
+    //******************** Make it so that successive noise cannot delete cave, and can only create it?
+    for( int i=0; i < octaves; i++ ) {    
+        d = raw_noise_3d((y+raw_noise_2d(-z*frequency*offsetfmult*0.9 + y * frequency*offsetfmult*1.2, x * frequency*offsetfmult*0.7)*mult) * frequency, (z + raw_noise_2d(z * frequency*offsetfmult*0.8, y * frequency*offsetfmult*0.69 - x * frequency*offsetfmult*1.17)*mult) * frequency, (x+raw_noise_2d(x * frequency*offsetfmult*0.86, -y*frequency*offsetfmult*0.9 + z * frequency*offsetfmult)*mult) * frequency);
+    
+        d = (1.0 - (d*d)); 
+    
+        //if (i < 2 && d > .96){
+        //    d = .95 - (d-.95);
+            //if (d < .93) d = .93;
+    //        d = .96;
+    //    }//else if (i > 1 && d < 0.5){
+        //    d = 1.0 - d;
+        //}
+    //if (i > 0){
+        total += d * amplitude;
+        maxAmplitude += amplitude;
+    //}
         frequency *= 2.5;
-		amplitude *= persistence;
+        amplitude *= persistence;
     }
 
     return total / maxAmplitude;

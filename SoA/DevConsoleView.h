@@ -1,12 +1,14 @@
 #pragma once
-#include <boost\circular_buffer.hpp>
-#include <SDL\SDL.h>
+#include <Vorb/RingBuffer.hpp>
+#include <SDL/SDL.h>
+
+#include "GLProgramManager.h"
 
 class DevConsole;
 class SpriteBatch;
 class SpriteFont;
 
-typedef boost::circular_buffer<nString> StringRing;
+typedef vorb::ring_buffer<nString> StringRing;
 
 const f32 DEV_CONSOLE_MARKER_BLINK_DELAY = 0.85f;
 
@@ -15,7 +17,7 @@ public:
     DevConsoleView();
     ~DevConsoleView();
 
-    void init(DevConsole* console, i32 linesToRender);
+    void init(DevConsole* console, i32 linesToRender, vg::GLProgramManager* glProgramManager);
     void dispose();
 
     void onEvent(const SDL_Event& e);

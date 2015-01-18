@@ -1,17 +1,19 @@
 #pragma once
-#include "IGameScreen.h"
 
-#include "Random.h"
-#include "Thread.h"
+#include <Vorb/ui/IGameScreen.h>
+#include <Vorb/Random.h>
+#include <Vorb/RPC.h>
 
-class FrameBuffer;
-class LoadBar;
+#include "LoadMonitor.h"
+#include "LoadBar.h"
+
+class App;
 class SpriteBatch;
 class SpriteFont;
 
-class LoadScreen : public IGameScreen {
+class LoadScreen : public IAppScreen<App> {
 public:
-    LoadScreen();
+    CTOR_APP_SCREEN_DECL(LoadScreen, App);
 
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;
@@ -26,27 +28,16 @@ public:
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
 private:
-    void checkSystemRequirements();
-    void initializeOld();
+    void addLoadTask(const nString& name, const cString loadText, ILoadTask* task);
 
-    void createFrameBuffer();
-    void loadShaders();
-    void loadTextures();
-    void loadInputs();
-    void loadBlockData();
-
-    void changeFont();
-
-    LoadBar* _loadBars;
+    // Visualization Of Loading Tasks
+    std::vector<LoadBar> _loadBars;
     SpriteBatch* _sb;
     SpriteFont* _sf;
-    ui32 _texID;
 
-    FrameBuffer* _frameBuffer;
+    // Loading Tasks
+    LoadMonitor _monitor;
+    std::vector<ILoadTask*> _loadTasks;
 
-    Thread<LoadScreen*> _loadThreads[4];
-
-    Random rand;
-    f32 rTimeRefresh;
-    std::map<nString, nString> _ffm;
+    vcore::RPCManager m_glrpc; ///< Handles cross-thread OpenGL calls
 };

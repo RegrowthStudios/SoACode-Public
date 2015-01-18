@@ -1,12 +1,15 @@
 #include "stdafx.h"
 #include "InputManager.h"
 
+#include <sstream>
+
 #include <SDL\SDL_keyboard.h>
 #include <SDL\SDL_mouse.h>
 
 #include "global.h"
 #include "FileSystem.h"
-
+#include "GameManager.h"
+#include "Inputs.h"
 
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
@@ -17,10 +20,8 @@ _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
     _iniKeys["negativeKey"] = 4;
     _iniKeys["joystickButton"] = 5;
     _iniKeys["joystickAxis"] = 6;
-    for (unsigned int i = 0; i < 256; i++) {
-        _currentKeyStates[i] = false;
-        _previousKeyStates[i] = false;
-    }
+    memset(_currentKeyStates, 0, sizeof(_currentKeyStates));
+    memset(_previousKeyStates, 0, sizeof(_previousKeyStates));
 }
 
 InputManager::~InputManager() {
@@ -29,7 +30,7 @@ InputManager::~InputManager() {
     }
 }
 
-float InputManager::getAxis(const int axisID) {
+f32 InputManager::getAxis(const i32 axisID) {
     // Check Input
     if (axisID < 0 || axisID >= _axes.size()) return 0.0f;
     
@@ -54,7 +55,7 @@ float InputManager::getAxis(const int axisID) {
     return result;
 }
 
-bool InputManager::getKey(const int axisID) {
+bool InputManager::getKey(const i32 axisID) {
     // Check Input
     if (axisID < 0 || axisID >= _axes.size()) return false;
 
@@ -62,7 +63,7 @@ bool InputManager::getKey(const int axisID) {
     return _currentKeyStates[axis->positiveKey];
 }
 
-bool InputManager::getKeyDown(const int axisID) {
+bool InputManager::getKeyDown(const i32 axisID) {
     // Check Input
     if (axisID < 0 || axisID >= _axes.size()) return false;
 
@@ -70,7 +71,7 @@ bool InputManager::getKeyDown(const int axisID) {
     return _currentKeyStates[axis->positiveKey] && !_previousKeyStates[axis->positiveKey];
 }
 
-bool InputManager::getKeyUp(const int axisID) {
+bool InputManager::getKeyUp(const i32 axisID) {
     // Check Input
     if (axisID < 0 || axisID >= _axes.size()) return false;
 
@@ -78,7 +79,7 @@ bool InputManager::getKeyUp(const int axisID) {
     return !_currentKeyStates[axis->positiveKey] && _previousKeyStates[axis->positiveKey];
 }
 
-i32 InputManager::createAxis(const nString& axisName, ui32 defaultPositiveKey, ui32 defaultNegativeKey) {
+i32 InputManager::createAxis(const nString& axisName, VirtualKey defaultPositiveKey, VirtualKey defaultNegativeKey) {
     i32 id = getAxisID(axisName);
     if (id >= 0) return id;
     id = _axes.size();
@@ -98,8 +99,7 @@ i32 InputManager::createAxis(const nString& axisName, ui32 defaultPositiveKey, u
     return id;
 }
 
-int InputManager::createAxis(const std::string &axisName, unsigned int defaultPositiveKey) {
-
+i32 InputManager::createAxis(const nString& axisName, VirtualKey defaultPositiveKey) {
     i32 id = getAxisID(axisName);
     if (id >= 0) return id;
     id = _axes.size();
@@ -109,8 +109,11 @@ int InputManager::createAxis(const std::string &axisName, unsigned int defaultPo
     axis->type = AxisType::SINGLE_KEY;
     axis->defaultPositiveKey = defaultPositiveKey;
     axis->positiveKey = defaultPositiveKey;
+    axis->upEvent = Event<ui32>(this);
+    axis->downEvent = Event<ui32>(this);
     //Not applicable for this type of axis
-    axis->negativeKey = (SDLKey)0;
+    axis->negativeKey = VKEY_UNKNOWN;
+    axis->defaultNegativeKey = VKEY_UNKNOWN;
     axis->joystick = NULL;
     axis->joystickAxis = -1;
     axis->joystickButton = -1;
@@ -128,9 +131,9 @@ i32 InputManager::getAxisID(const nString& axisName) const {
     }
 }
 
-void InputManager::loadAxes(const std::string &location) {
-    vector <vector <IniValue> > iniValues;
-    vector <string> iniSections;
+void InputManager::loadAxes(const nString& location) {
+    std::vector<std::vector<IniValue>> iniValues;
+    std::vector<nString> iniSections;
     if (fileManager.loadIniFile(location, iniValues, iniSections))  return;
 
     IniValue* iniVal;
@@ -149,16 +152,16 @@ void InputManager::loadAxes(const std::string &location) {
                 curAxis->type = (AxisType)iniVal->getInt();
                 break;
             case 1: // Default Positive Key
-                curAxis->defaultPositiveKey = (SDLKey)iniVal->getInt();
+                curAxis->defaultPositiveKey = (VirtualKey)iniVal->getInt();
                 break;
             case 2: // Default Negative Key
-                curAxis->defaultNegativeKey = (SDLKey)iniVal->getInt();
+                curAxis->defaultNegativeKey = (VirtualKey)iniVal->getInt();
                 break;
             case 3: // Positive Key
-                curAxis->positiveKey = (SDLKey)iniVal->getInt();
+                curAxis->positiveKey = (VirtualKey)iniVal->getInt();
                 break;
             case 4: // Negative Key
-                curAxis->negativeKey = (SDLKey)iniVal->getInt();
+                curAxis->negativeKey = (VirtualKey)iniVal->getInt();
                 break;
             case 5: // Joystick Button
                 curAxis->joystickButton = iniVal->getInt();
@@ -167,6 +170,10 @@ void InputManager::loadAxes(const std::string &location) {
                 curAxis->joystickAxis = iniVal->getInt();
                 break;
             }
+        }
+        if(curAxis->type == AxisType::SINGLE_KEY) {
+            curAxis->upEvent = Event<ui32>();
+            curAxis->downEvent = Event<ui32>();
         }
         _axisLookup[curAxis->name] = _axes.size();
         _axes.push_back(curAxis);
@@ -178,45 +185,88 @@ void InputManager::loadAxes() {
     loadAxes(_defaultConfigLocation);
 }
 
+// TODO: Remove this
 void InputManager::update() {
-    for (auto iter = _previousKeyStates.begin(); iter != _previousKeyStates.end(); iter++) {
-        iter->second = _currentKeyStates[iter->first];
+    for(Axis* axis : _axes) {
+        switch(axis->type) {
+        case SINGLE_KEY:
+            if(!_previousKeyStates[axis->positiveKey] && _currentKeyStates[axis->positiveKey]) //Up
+                axis->upEvent(axis->positiveKey);
+            else if(_previousKeyStates[axis->positiveKey] && !_currentKeyStates[axis->positiveKey]) //Down
+                axis->downEvent(axis->positiveKey);
+            break;
+        default:
+            break;
+        }
     }
+    memcpy(_previousKeyStates, _currentKeyStates, sizeof(_previousKeyStates));
 }
 
-void InputManager::pushEvent(const SDL_Event& inputEvent) {
-    switch (inputEvent.type) {
-    case SDL_MOUSEBUTTONDOWN:
-        if (inputEvent.button.button == SDL_BUTTON_LEFT) {
+void InputManager::startInput() {
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=] (Sender sender, const vui::MouseButtonEvent& e) {
+        switch (e.button) {
+        case vui::MouseButton::LEFT:
             _currentKeyStates[SDL_BUTTON_LEFT] = true;
-        } else if (inputEvent.button.button == SDL_BUTTON_RIGHT) {
+            break;
+        case vui::MouseButton::RIGHT:
             _currentKeyStates[SDL_BUTTON_RIGHT] = true;
+            break;
+        default:
+            break;
         }
-        break;
-    case SDL_MOUSEBUTTONUP:
-        if (inputEvent.button.button == SDL_BUTTON_LEFT) {
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=] (Sender sender, const vui::MouseButtonEvent& e) {
+        switch (e.button) {
+        case vui::MouseButton::LEFT:
             _currentKeyStates[SDL_BUTTON_LEFT] = false;
-        } else if (inputEvent.button.button == SDL_BUTTON_RIGHT) {
+            break;
+        case vui::MouseButton::RIGHT:
             _currentKeyStates[SDL_BUTTON_RIGHT] = false;
+            break;
+        default:
+            break;
         }
-        break;
-    case SDL_MOUSEWHEEL:
-        break;
-    case SDL_KEYDOWN:
-        _currentKeyStates[inputEvent.key.keysym.sym] = true;
-        break;
-    case SDL_KEYUP:
-        _currentKeyStates[inputEvent.key.keysym.sym] = false;
-        break;
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [=] (Sender sender, const vui::KeyEvent& e) {
+        _currentKeyStates[e.keyCode] = true;
+    });
+    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyUp, [=] (Sender sender, const vui::KeyEvent& e) {
+        _currentKeyStates[e.keyCode] = false;
+    });
+}
+
+void InputManager::stopInput() {
+    m_inputHooks.dispose();
+}
+
+IDelegate<ui32>* InputManager::subscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f) {
+    if(axisID < 0 || axisID >= _axes.size() || f == nullptr || _axes[axisID]->type != AxisType::SINGLE_KEY) return nullptr;
+    switch(eventType) {
+    case UP:
+        return _axes[axisID]->upEvent.add(f);
+    case DOWN:
+        std::cout << "subscribing" << axisID << std::endl;
+        return _axes[axisID]->downEvent.add(f);
+    }
+    return nullptr;
+}
+
+void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f) {
+    if(axisID < 0 || axisID >= _axes.size() || f == nullptr || _axes[axisID]->type != AxisType::SINGLE_KEY) return;
+    switch(eventType) {
+    case UP:
+        _axes[axisID]->upEvent.remove(f);
+    case DOWN:
+        _axes[axisID]->downEvent.remove(f);
     }
 }
 
-void InputManager::saveAxes(const string &filePath) {
-    std::vector<string> iniSections;
-    std::vector< std::vector<IniValue> > iniValues;
+void InputManager::saveAxes(const nString &filePath) {
+    std::vector<nString> iniSections;
+    std::vector<std::vector<IniValue>> iniValues;
 
     iniSections.push_back("");
-    iniValues.push_back(vector<IniValue>());
+    iniValues.push_back(std::vector<IniValue>());
     for (unsigned int i = 0; i < _axes.size(); i++) {
         Axis* axis = _axes[i];
         iniSections.push_back(axis->name);
@@ -239,7 +289,7 @@ void InputManager::saveAxes() {
     saveAxes(_defaultConfigLocation);
 }
 
-int InputManager::getIniKey(const std::string &val) {
+i32 InputManager::getIniKey(const nString &val) {
     auto iter = _iniKeys.find(val);
     if (iter != _iniKeys.end()) {
         return iter->second;
@@ -248,32 +298,39 @@ int InputManager::getIniKey(const std::string &val) {
     }
 }
 
-unsigned int InputManager::getNegativeKey(const int axisID) {
+ui32 InputManager::getNegativeKey(const i32 axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return UINT32_MAX;
     return _axes.at(axisID)->negativeKey;
 }
 
-void InputManager::setNegativeKey(const int axisID, unsigned int key) {
-    _axes.at(axisID)->negativeKey = key;
+void InputManager::setNegativeKey(const i32 axisID, VirtualKey key) {
+    if(axisID < 0 || axisID >= _axes.size()) return;
+    _axes.at(axisID)->negativeKey = (VirtualKey)key;
 }
 
-unsigned int InputManager::getPositiveKey(const int axisID) {
+ui32 InputManager::getPositiveKey(const i32 axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return UINT32_MAX;
     return _axes.at(axisID)->positiveKey;
 }
 
-void InputManager::setPositiveKey(const int axisID, unsigned int key) {
+void InputManager::setPositiveKey(const i32 axisID, VirtualKey key) {
     _axes.at(axisID)->positiveKey = key;
 }
 
-void InputManager::setPositiveKeyToDefault(const int axisID) {
+void InputManager::setPositiveKeyToDefault(const i32 axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return;
     Axis* axis = _axes.at(axisID);
     axis->positiveKey = axis->defaultPositiveKey;
 }
 
-void InputManager::setNegativeKeyToDefault(const int axisID) {
+void InputManager::setNegativeKeyToDefault(const i32 axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return;
     Axis* axis = _axes.at(axisID);
     axis->negativeKey = axis->defaultNegativeKey;
 }
 
-InputManager::AxisType InputManager::getAxisType(const int axisID) {
+InputManager::AxisType InputManager::getAxisType(const i32 axisID) {
+    if(axisID < 0 || axisID >= _axes.size()) return AxisType::NONE;
     return _axes.at(axisID)->type;
 }
+

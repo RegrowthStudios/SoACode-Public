@@ -17,6 +17,17 @@
 
 struct TreeType;
 struct PlantType;
+class Camera;
+
+struct AtmosphereProperties {
+public:
+    f32 rayleighConstant;
+    f32 rayleighScaleDepth;
+    f32 mieConstant;
+    f32 sunIntensity;
+    f32 mieAsymmetry;
+    f32v3 lightWavelengths;
+};
 
 class Atmosphere {
 public:
@@ -24,9 +35,7 @@ public:
 
     void initialize(nString filePath, f32 PlanetRadius);
     void loadProperties(nString filePath);
-    void draw(f32 theta, f32m4& MVP, f32v3 lightPos, f64v3& ppos);
-    void drawSkyFromAtmosphere(f32 theta, f32m4& mVP, f32v3 lightPos, f64v3& ppos);
-    void drawSkyFromSpace(f32 theta, f32m4& mVP, f32v3 lightPos, f64v3& ppos);
+    void draw(f32 theta, const f32m4& MVP, f32v3 lightPos, const f64v3& ppos);
 
     std::vector<ColorVertex> vertices;
     std::vector<ui16> indices;
@@ -36,10 +45,10 @@ public:
     f64 planetRadius;
 
     f32 m_fWavelength[3], m_fWavelength4[3];
-    f32 m_Kr;		// Rayleigh scattering constant
-    f32 m_Km;		// Mie scattering constant
-    f32 m_ESun;		// Sun brightness constant
-    f32 m_g;		// The Mie phase asymmetry factor
+    f32 m_Kr;        // Rayleigh scattering constant
+    f32 m_Km;        // Mie scattering constant
+    f32 m_ESun;        // Sun brightness constant
+    f32 m_g;        // The Mie phase asymmetry factor
     f32 m_fExposure;
     f32 m_fRayleighScaleDepth;
     f32 fSamples;
@@ -60,10 +69,9 @@ public:
     void loadData(nString filePath, bool ignoreBiomes);
     void saveData();
 
-    void draw(f32 theta, const f32m4& VP, const f32m4& V, f32v3 lightPos, f64v3& PlayerPos, f32 sunVal, f32 fadeDistance, bool connectedToPlanet);
-    void drawTrees(f32m4& VP, const f64v3& PlayerPos, f32 sunVal);
-    void drawGroundFromAtmosphere(f32 theta, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, f32 fadeDistance, bool onPlanet);
-    void drawGroundFromSpace(f32 theta, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, bool onPlanet);
+    void draw(f32 theta, const Camera* camera, f32v3 lightPos, f32 sunVal, f32 fadeDistance, bool connectedToPlanet);
+    void drawTrees(const f32m4& VP, const f64v3& PlayerPos, f32 sunVal);
+    void drawGround(f32 theta, const Camera* camera, const f32m4& VP, f32v3 lightPos, const f64v3& PlayerPos, const f64v3& rotPlayerPos, float fadeDistance, bool onPlanet);
 
     void updateLODs(f64v3& worldPosition, ui32 maxTicks);
     void rotationUpdate();
@@ -102,17 +110,17 @@ public:
     std::vector<TerrainPatch*> LODUpdateList;
     std::vector<struct TerrainBuffers*> drawList[6];
 
-    //		double axialZTilt[66];
+    //        double axialZTilt[66];
 
     void clearBiomes();
     void addBaseBiome(Biome* baseBiome, i32 mapColor);
     void addMainBiome(Biome* mainBiome);
     void addChildBiome(Biome* childBiome);
 
-    TextureInfo biomeMapTexture;
-    TextureInfo colorMapTexture;
-    TextureInfo sunColorMapTexture;
-    TextureInfo waterColorMapTexture;
+    vg::Texture biomeMapTexture;
+    vg::Texture colorMapTexture;
+    vg::Texture sunColorMapTexture;
+    vg::Texture waterColorMapTexture;
 
     i32 bindex;
     std::map<i32, Biome*> baseBiomesLookupMap;
@@ -131,8 +139,8 @@ public:
     i32 maximumDepth;
     std::vector<ui16> rockLayers;
 
-    std::map<string, i32> treeLookupMap;
-    std::map<string, i32> floraLookupMap;
+    std::map<nString, i32> treeLookupMap;
+    std::map<nString, i32> floraLookupMap;
 
     Atmosphere atmosphere;
 
@@ -143,5 +151,4 @@ public:
 
     f32q axisQuaternion;
     f32q rotateQuaternion;
-    class TerrainGenerator* generator;
 };

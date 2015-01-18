@@ -48,11 +48,11 @@ static enum INI_KEYS {
     TREE_INI_BRANCHSTART, TREE_INI_BRANCHCHANCETOP, TREE_INI_BRANCHCHANCECAPMOD, TREE_INI_BRANCHLEAFYMOD, TREE_INI_ROOTDEPTH,
 
     BLOCK_INI_NONE, BLOCK_INI_ID, BLOCK_INI_ALLOWSLIGHT, BLOCK_INI_BLOCKSSUNRAYS, BLOCK_INI_BREAKSBYWATER,
-    BLOCK_INI_COLLISION, 
+    BLOCK_INI_COLLISION,
     BLOCK_INI_CRUSHABLE, BLOCK_INI_EXPLOSIONPOWER, BLOCK_INI_EXPLOSIONPOWERLOSS,
     BLOCK_INI_EXPLOSIONRAYS, BLOCK_INI_EXPLOSIVERESISTANCE, BLOCK_INI_FLOATINGACTION, BLOCK_INI_HEALTH, BLOCK_INI_LIGHTACTIVE,
-    BLOCK_INI_LIGHTINTENSITY, BLOCK_INI_MATERIAL, BLOCK_INI_MESHTYPE, BLOCK_INI_MOVEMENTMOD, BLOCK_INI_MOVESPOWDER,
-    BLOCK_INI_PHYSICSPROPERTY, BLOCK_INI_SUPPORTIVE, BLOCK_INI_COLOR, BLOCK_INI_OVERLAYCOLOR,
+    BLOCK_INI_LIGHTCOLOR, BLOCK_INI_MATERIAL, BLOCK_INI_MESHTYPE, BLOCK_INI_MOVEMENTMOD, BLOCK_INI_MOVESPOWDER,
+    BLOCK_INI_PHYSICSPROPERTY, BLOCK_INI_SUPPORTIVE, BLOCK_INI_COLOR, BLOCK_INI_COLORFILTER, BLOCK_INI_OVERLAYCOLOR,
     BLOCK_INI_USEABLE, BLOCK_INI_VALUE, BLOCK_INI_WATERMESHLEVEL, BLOCK_INI_WAVEEFFECT, BLOCK_INI_WEIGHT, BLOCK_INI_OCCLUDE,
     BLOCK_INI_SOURCE, BLOCK_INI_SINK, BLOCK_INI_TEXTURE, BLOCK_INI_TEXTURETOP, BLOCK_INI_TEXTURESIDE, BLOCK_INI_TEXTUREBOTTOM,
     BLOCK_INI_TEXTURE_PARTICLE, BLOCK_INI_FLAMMABILITY, BLOCK_INI_BURNTRANSFORMID,
@@ -69,7 +69,7 @@ public:
     void initialize();
     i32 readZipFile(nString fileName);
 
-    i32 deleteDirectory(const nString& refcstrRootDirectory, bool bDeleteSubdirectories = true);
+    i32 deleteDirectory(const nString& refcstrRootDirectory);
 
     i32 loadCloudNoiseFunctions(const cString filename, class Planet* planet);
     i32 loadNoiseFunctions(const cString filename, bool mandatory, Planet* planet);
@@ -79,10 +79,8 @@ public:
     i32 loadTreeType(nString filePath, TreeType* tree);
     i32 loadBiomeData(Planet* planet, nString worldFilePath);
     i32 readBiome(Biome* biome, nString fileName, Planet* planet, nString worldFilePath);
-    void loadTexturePack(nString fileName);
-    nString loadTexturePackDescription(nString fileName);
 
-    bool loadTexFile(nString fileName, ZipFile* zipFile, struct BlockTexture* rv);
+    nString loadTexturePackDescription(nString fileName);
 
     i32 loadBlocks(nString filePath);
     i32 saveBlocks(nString filePath);
@@ -98,8 +96,6 @@ public:
     nString getSaveFileNameDialog(const nString& prompt, const cString initialDir);
 
     void loadNoiseDescriptions(const cString filename);
-    int printDirectory(std::vector<nString>& fileNames, nString dirPath);
-    int getDirectoryEntries(std::vector<nString>& fileNames, std::vector<nString>& descriptions, nString dirPath);
 
     INI_KEYS getIniVal(nString& s);
     INI_KEYS getBlockIniVal(nString& s);
@@ -117,7 +113,7 @@ public:
 
     i32 loadIniFile(nString filePath, std::vector< std::vector<IniValue> >& iniValues, std::vector<nString>& iniSections, ZipFile* zipFile = nullptr);
     i32 saveIniFile(nString filePath, std::vector< std::vector<IniValue> >& iniValues, std::vector<nString>& iniSections);
-    
+
     class ParticleEmitter* loadEmitter(nString fileName);
     struct Animation* loadAnimation(nString fileName, ZipFile* zipFile = nullptr);
     i32 getParticleType(nString fileName);

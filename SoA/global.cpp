@@ -3,16 +3,17 @@
 
 #include <SDL/SDL.h>
 
-// TODO: Remove This
-using namespace std;
-
-void printVec(string desc, glm::vec3 vec)
+void printVec(nString desc, f32v3 vec)
 {
-	cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
+    std::cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << std::endl;
 }
-void printVec(string desc, glm::dvec3 vec)
+void printVec(nString desc, f32v4 vec)
 {
-	cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << endl;
+    std::cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << " " << vec.w << std::endl;
+}
+void printVec(nString desc, f64v3 vec)
+{
+    std::cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << std::endl;
 }
 
 GLushort boxDrawIndices[6] = {0,1,2,2,3,0};
@@ -21,7 +22,7 @@ GLfloat boxUVs[8] = {0, 1, 0, 0, 1, 0, 1, 1};
 HGLRC mainHGLRC;
 SDL_Window* mainWindow = NULL;
 
-mutex mainContextLock;
+std::mutex mainContextLock;
 SDL_GLContext mainOpenGLContext;
 
 float maxPhysicsFps = 62.5f;
@@ -31,7 +32,6 @@ bool debugVarc = 0;
 bool debugVarh = 0;
 GLuint debugTicks;
 bool debugTicksDone;
-int gridState = 0;
 float bdt = 0.0f;
 float planetDrawMode = 0.0f;
 

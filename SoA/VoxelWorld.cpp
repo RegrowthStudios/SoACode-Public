@@ -1,7 +1,11 @@
 #include "stdafx.h"
 #include "VoxelWorld.h"
 
+#include <Vorb/utils.h>
+
 #include "BlockData.h"
+#include "CAEngine.h"
+#include "Camera.h"
 #include "Chunk.h"
 #include "ChunkManager.h"
 #include "Errors.h"
@@ -10,9 +14,9 @@
 #include "PhysicsEngine.h"
 #include "Planet.h"
 #include "Sound.h"
-#include "global.h"
-#include "utils.h"
 #include "VoxelEditor.h"
+#include "global.h"
+#include "VoxelPlanetMapper.h"
 
 VoxelWorld::VoxelWorld() : _planet(NULL), _chunkManager(NULL) {
 
@@ -24,7 +28,7 @@ VoxelWorld::~VoxelWorld()
 }
 
 
-void VoxelWorld::initialize(const glm::dvec3 &gpos, FaceData *faceData, Planet *planet, bool atSurface, bool flatgrass)
+void VoxelWorld::initialize(const glm::dvec3 &gpos, vvox::VoxelMapData* startingMapData, Planet *planet, GLuint flags)
 {
     if (_chunkManager) {
         pError("VoxelWorld::initialize() called twice before end session!");
@@ -32,76 +36,51 @@ void VoxelWorld::initialize(const glm::dvec3 &gpos, FaceData *faceData, Planet *
     }
     _chunkManager = new ChunkManager();
     GameManager::chunkManager = _chunkManager;
+    
+    if (planet == NULL) showMessage("Initialized chunk manager with NULL planet!");
 
-	initializeThreadPool();
-	
-	if (planet == NULL) showMessage("Initialized chunkmanager with NULL planet!");
+    _chunkManager->planet = planet;
 
-	_chunkManager->planet = planet;
-    GLuint flags = 0;
-    if (atSurface) flags |= ChunkManager::SET_Y_TO_SURFACE;
-    if (flatgrass) flags |= ChunkManager::FLAT_GRASS;
+    vvox::VoxelPlanetMapper* voxelPlanetMapper = new vvox::VoxelPlanetMapper(planet->facecsGridWidth);
+    _chunkManager->initialize(gpos, voxelPlanetMapper, startingMapData, flags);
 
-    _chunkManager->initialize(gpos, faceData, flags);
-
-	setPlanet(planet);
-	//	drawList.reserve(64*64);
-
-	_faceData = faceData;
+    setPlanet(planet);
 }
 
-void VoxelWorld::beginSession(const glm::dvec3 &gridPosition)
+void VoxelWorld::update(const Camera* camera)
 {
-	_chunkManager->InitializeChunks();
-	_chunkManager->loadAllChunks(2, gridPosition);
-}
-
-void VoxelWorld::update(const glm::dvec3 &position, const glm::dvec3 &viewDir)
-{
-	_chunkManager->update(position, viewDir);
-}
-
-void VoxelWorld::initializeThreadPool()
-{
-	size_t hc = thread::hardware_concurrency();
-	if (hc > 1) hc--;
-	if (hc > 1) hc--;
-	SDL_GL_MakeCurrent(mainWindow, NULL);
-	_chunkManager->threadPool.initialize(hc);
-	SDL_Delay(100);
-	mainContextLock.lock();
-	SDL_GL_MakeCurrent(mainWindow, mainOpenGLContext);
-	mainContextLock.unlock();
-}
-
-void VoxelWorld::closeThreadPool()
-{
-	_chunkManager->threadPool.close();
+    // Update the Chunks
+    _chunkManager->update(camera);
+    // Update the physics
+    updatePhysics(camera);
 }
 
 void VoxelWorld::setPlanet(Planet *planet)
 {
-	_planet = planet;
-	GameManager::planet = planet;
+    _planet = planet;
+    GameManager::planet = planet;
 }
 
-int VoxelWorld::getCenterY() const { return _chunkManager->cornerPosition.y + (csGridWidth/2) * CHUNK_WIDTH + CHUNK_WIDTH/2; }
-
-void VoxelWorld::resizeGrid(const glm::dvec3 &gpos)
+void VoxelWorld::getClosestChunks(glm::dvec3 &coord, class Chunk **chunks)
 {
-	_chunkManager->resizeGrid(gpos);
-}
-
-int VoxelWorld::getClosestChunks(glm::dvec3 &coord, class Chunk **chunks)
-{
-	return _chunkManager->getClosestChunks(coord, chunks);
+    _chunkManager->getClosestChunks(coord, chunks);
 }
 
 void VoxelWorld::endSession()
 {
     GameManager::chunkIOManager->onQuit();
-	_chunkManager->clearAll();
+    _chunkManager->destroy();
     delete _chunkManager;
     _chunkManager = NULL;
     GameManager::chunkManager = NULL;
+}
+
+void VoxelWorld::updatePhysics(const Camera* camera) {
+
+    GameManager::chunkManager->updateCaPhysics();
+
+    // Update physics engine
+    globalMultiplePreciseTimer.start("Physics Engine");
+
+    GameManager::physicsEngine->update(f64v3(camera->getDirection()));
 }

@@ -73,8 +73,9 @@ std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkManager* cm) 
             localPos += position;
 
             // This Is A Possible WSO
-            WSO* wso = new WSO(data, f64v3(localPos + cm->cornerPosition));
-            wsos.push_back(wso);
+            //TODO(Cristian) Make this work for new chunkmanager mapping
+            //WSO* wso = new WSO(data, f64v3(localPos + cm->cornerPosition));
+            //wsos.push_back(wso);
         }
     }
 
