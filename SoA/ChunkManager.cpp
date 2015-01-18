@@ -565,7 +565,7 @@ void ChunkManager::processFinishedRenderTask(RenderTask* task) {
     // Add the chunk mesh to the message
     cmd->chunkMesh = chunk->mesh;
 
-    // Check if we need to allocate a new chunk mesh or orphan the current chunk mesh so that it can be freed in openglManager
+
     switch (cmd->type) {
         case RenderTaskType::DEFAULT:
             if (cmd->waterVertices.empty() && cmd->transVertices.empty() && cmd->vertices.empty() && cmd->cutoutVertices.empty()) {
@@ -637,23 +637,23 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         
         //TODO(Ben): Beware of race here.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-            if (!chunkGridData->wasRequestSent) {
-                // Keep trying to send it until it succeeds
-                while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
+         //   if (!chunkGridData->wasRequestSent) {
+          //      // Keep trying to send it until it succeeds
+         //       while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
                     (vvox::VoxelPlanetMapData*)ch->voxelMapData));
-            }
-            /*for (int i = 0; i < 1024; i++) {
-                chunkGridData->heightData[i].height = 0;
-                chunkGridData->heightData[i].temperature = 128;
-                chunkGridData->heightData[i].rainfall = 128;
-                chunkGridData->heightData[i].biome = nullptr;
-                chunkGridData->heightData[i].surfaceBlock = STONE;
-                chunkGridData->heightData[i].snowDepth = 0;
-                chunkGridData->heightData[i].sandDepth = 0;
-                chunkGridData->heightData[i].depth = 0;
-                chunkGridData->heightData[i].flags = 0;
-                }*/
-            canGenerate = false;
+        //    }
+        for (int i = 0; i < 1024; i++) {
+            chunkGridData->heightData[i].height = 0;
+            chunkGridData->heightData[i].temperature = 128;
+            chunkGridData->heightData[i].rainfall = 128;
+            chunkGridData->heightData[i].biome = nullptr;
+            chunkGridData->heightData[i].surfaceBlock = STONE;
+            chunkGridData->heightData[i].snowDepth = 0;
+            chunkGridData->heightData[i].sandDepth = 0;
+            chunkGridData->heightData[i].depth = 0;
+            chunkGridData->heightData[i].flags = 0;
+        }
+          //  canGenerate = false;
         }
 
         // If it is not saved. Generate it!

@@ -48,10 +48,10 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
     inSaveThread = false;
     queuedForMesh = false;
 	dirty = 0;
-	//THIS MUST COME BEFORE CLEARBUFFERS
-	mesh = NULL;
-	clearBuffers();
-	_chunkListPtr = NULL;
+
+	mesh = new ChunkMesh(this);
+	
+    _chunkListPtr = NULL;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
     gridPosition = gridPos;

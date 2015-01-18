@@ -27,21 +27,6 @@ void MesherInfo::init(int dataWidth, int dataLayer) {
     nzOverlayMethodParams.init(this, -1, dataLayer, -dataWidth, offsetof(BlockTextureFaces, BlockTextureFaces::nz) / sizeof(ui32) + NUM_FACES);
 }
 
-ChunkMesh::ChunkMesh(Chunk *ch) : vboID(0),
-    vaoID(0),
-    transVaoID(0),
-    transVboID(0),
-    transIndexID(0),
-    cutoutVaoID(0), 
-    cutoutVboID(0), 
-    waterVboID(0), 
-    vecIndex(UNINITIALIZED_INDEX),
-    distance(30.0f),
-    needsSort(true), 
-    inFrustum(false), 
-    position(ch->gridPosition)
-{}
-
 ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), type(RenderTaskType::DEFAULT){
 }
 

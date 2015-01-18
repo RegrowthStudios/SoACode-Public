@@ -8,6 +8,8 @@
 #include "VoxelLightEngine.h"
 
 void RenderTask::execute(WorkerData* workerData) {
+
+    return;
     // Mesh updates are accompanied by light updates
     if (workerData->voxelLightEngine == nullptr) {
         workerData->voxelLightEngine = new VoxelLightEngine();

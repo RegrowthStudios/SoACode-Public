@@ -64,12 +64,28 @@ public:
 
 class ChunkMeshRenderData {
 public:
-    ChunkMeshRenderData() : indexSize(0), waterIndexSize(0) {}
-    i32 pxVboOff, pxVboSize, nxVboOff, nxVboSize, pzVboOff, pzVboSize, nzVboOff, nzVboSize;
-    i32 pyVboOff, pyVboSize, nyVboOff, nyVboSize, transVboSize, cutoutVboSize;
-    i32 highestY, lowestY, highestX, lowestX, highestZ, lowestZ;
-    ui32 indexSize;
-    ui32 waterIndexSize;
+    i32 pxVboOff = 0;
+    i32 pxVboSize = 0; 
+    i32 nxVboOff = 0;
+    i32 nxVboSize = 0;
+    i32 pzVboOff = 0;
+    i32 pzVboSize = 0;
+    i32 nzVboOff = 0;
+    i32 nzVboSize = 0;
+    i32 pyVboOff = 0;
+    i32 pyVboSize = 0;
+    i32 nyVboOff = 0;
+    i32 nyVboSize = 0;
+    i32 transVboSize = 0;
+    i32 cutoutVboSize = 0;
+    i32 highestY = INT_MIN;
+    i32 lowestY = INT_MAX;
+    i32 highestX = INT_MIN;
+    i32 lowestX = INT_MAX;
+    i32 highestZ = INT_MIN;
+    i32 lowestZ = INT_MAX;
+    ui32 indexSize = 0;
+    ui32 waterIndexSize = 0;
 };
 
 class ChunkMeshData
@@ -99,7 +115,7 @@ public:
 class ChunkMesh
 {
 public:
-    ChunkMesh(Chunk *ch);
+    ChunkMesh(const Chunk *ch) : position(ch->gridPosition) {}
 
     ChunkMeshRenderData meshInfo;
 
@@ -111,15 +127,13 @@ public:
     GLuint cutoutVaoID = 0;
     GLuint waterVboID = 0;
     GLuint waterVaoID = 0;
-    float distance;
+    float distance = 32.0f;
     glm::ivec3 position;
-    int vecIndex;
-    bool inFrustum;
-    bool needsSort;
+    bool inFrustum = false;
+    bool needsSort = true;
 
     //*** Transparency info for sorting ***
-    GLuint transIndexID;
+    GLuint transIndexID = 0;
     std::vector <i8v3> transQuadPositions;
     std::vector <ui32> transQuadIndices;
-
 };

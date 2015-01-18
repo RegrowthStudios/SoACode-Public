@@ -14,6 +14,8 @@ CellularAutomataTask::CellularAutomataTask(ChunkManager* chunkManager,
     m_physicsEngine(physicsEngine),
     _chunk(chunk) {
 
+    return;
+
     typesToUpdate.reserve(2);
 
     if (makeMesh) {
