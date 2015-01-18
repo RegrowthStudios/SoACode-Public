@@ -37,7 +37,7 @@ void RawGenDelegate::invoke(Sender sender, void* userData) {
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
+void Chunk::init(const i32v3 &gridPos){
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
 	freeWaiting = 0;
@@ -76,7 +76,6 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
 	spawnerBlocks.clear();
 	drawWater = 0;
 	occlude = 0;
-    owner = Owner;
     lastOwnerTask = nullptr;
     distance2 = owner->distance2;
     chunkGridData = owner->chunkGridData;
@@ -864,65 +863,14 @@ int Chunk::getTemperature(int xz) const {
     return (int)chunkGridData->heightData[xz].temperature;
 }
 
-void ChunkSlot::clearNeighbors() {
-    if (left) {
-        if (left->right == this) {
-            left->right = nullptr;
-            left->numNeighbors--;
-        }
-        left = nullptr;
-    }
-    if (right) {
-        if (right->left == this) {
-            right->left = nullptr;
-            right->numNeighbors--;
-        }
-        right = nullptr;
-    }
-    if (top) {
-        if (top->bottom == this) {
-            top->bottom = nullptr;
-            top->numNeighbors--;
-        }
-        top = nullptr;
-    }
-    if (bottom) {
-        if (bottom->top == this) {
-            bottom->top = nullptr;
-            bottom->numNeighbors--;
-        }
-        bottom = nullptr;
-    }
-    if (front) {
-        if (front->back == this) {
-            front->back = nullptr;
-            front->numNeighbors--;
-        }
-        front = nullptr;
-    }
-    if (back) {
-        if (back->front == this) {
-            back->front = nullptr;
-            back->numNeighbors--;
-        }
-        back = nullptr;
-    }
-    numNeighbors = 0;
-}
+void Chunk::detectNeighbors(std::unordered_map<i32v3, Chunk*>& chunkMap) {
 
-void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap) {
-
-    std::unordered_map<i32v3, ChunkSlot*>::iterator it;
-
-    i32v3 chPos;
-    chPos.x = fastFloor(position.x / (double)CHUNK_WIDTH);
-    chPos.y = fastFloor(position.y / (double)CHUNK_WIDTH);
-    chPos.z = fastFloor(position.z / (double)CHUNK_WIDTH);
+    std::unordered_map<i32v3, Chunk*>::iterator it;
 
     //left
     if (left == nullptr) {
-        it = chunkSlotMap.find(chPos + i32v3(-1, 0, 0));
-        if (it != chunkSlotMap.end()) {
+        it = chunkMap.find(chunkPosition + i32v3(-1, 0, 0));
+        if (it != chunkMap.end()) {
             left = it->second;
             left->right = this;
             numNeighbors++;
@@ -931,8 +879,8 @@ void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlot
     }
     //right
     if (right == nullptr) {
-        it = chunkSlotMap.find(chPos + i32v3(1, 0, 0));
-        if (it != chunkSlotMap.end()) {
+        it = chunkMap.find(chunkPosition + i32v3(1, 0, 0));
+        if (it != chunkMap.end()) {
             right = it->second;
             right->left = this;
             numNeighbors++;
@@ -942,8 +890,8 @@ void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlot
 
     //back
     if (back == nullptr) {
-        it = chunkSlotMap.find(chPos + i32v3(0, 0, -1));
-        if (it != chunkSlotMap.end()) {
+        it = chunkMap.find(chunkPosition + i32v3(0, 0, -1));
+        if (it != chunkMap.end()) {
             back = it->second;
             back->front = this;
             numNeighbors++;
@@ -953,8 +901,8 @@ void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlot
 
     //front
     if (front == nullptr) {
-        it = chunkSlotMap.find(chPos + i32v3(0, 0, 1));
-        if (it != chunkSlotMap.end()) {
+        it = chunkMap.find(chunkPosition + i32v3(0, 0, 1));
+        if (it != chunkMap.end()) {
             front = it->second;
             front->back = this;
             numNeighbors++;
@@ -964,8 +912,8 @@ void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlot
 
     //bottom
     if (bottom == nullptr) {
-        it = chunkSlotMap.find(chPos + i32v3(0, -1, 0));
-        if (it != chunkSlotMap.end()) {
+        it = chunkMap.find(chunkPosition + i32v3(0, -1, 0));
+        if (it != chunkMap.end()) {
             bottom = it->second;
             bottom->top = this;
             numNeighbors++;
@@ -975,8 +923,8 @@ void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlot
 
     //top
     if (top == nullptr) {
-        it = chunkSlotMap.find(chPos + i32v3(0, 1, 0));
-        if (it != chunkSlotMap.end()) {
+        it = chunkMap.find(chunkPosition + i32v3(0, 1, 0));
+        if (it != chunkMap.end()) {
             top = it->second;
             top->bottom = this;
             numNeighbors++;
@@ -985,32 +933,7 @@ void ChunkSlot::detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlot
     }
 }
 
-void ChunkSlot::reconnectToNeighbors() {
-
-    if (chunk) {
-        chunk->owner = this;
-    }
-    if (left) {
-        left->right = this;
-    }
-    if (right) {
-        right->left = this;
-    }
-    if (back) {
-        back->front = this;
-    }
-    if (front) {
-        front->back = this;
-    }
-    if (top) {
-        top->bottom = this;
-    }
-    if (bottom) {
-        bottom->top = this;
-    }
-}
-
-double ChunkSlot::getDistance2(const i32v3& pos, const i32v3& cameraPos) {
+double Chunk::getDistance2(const i32v3& pos, const i32v3& cameraPos) {
     double dx = (cameraPos.x <= pos.x) ? pos.x : ((cameraPos.x > pos.x + CHUNK_WIDTH) ? (pos.x + CHUNK_WIDTH) : cameraPos.x);
     double dy = (cameraPos.y <= pos.y) ? pos.y : ((cameraPos.y > pos.y + CHUNK_WIDTH) ? (pos.y + CHUNK_WIDTH) : cameraPos.y);
     double dz = (cameraPos.z <= pos.z) ? pos.z : ((cameraPos.z > pos.z + CHUNK_WIDTH) ? (pos.z + CHUNK_WIDTH) : cameraPos.z);

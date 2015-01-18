@@ -72,8 +72,6 @@ public:
     SphericalTerrainGenerator* generator = nullptr;
 };
 
-class ChunkSlot;
-
 class Chunk{
 public:
 
@@ -88,13 +86,18 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &gridPos, ChunkSlot* Owner);
+    void init(const i32v3 &gridPos);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
         _sunlightContainer.update(_dataLock);
         _lampLightContainer.update(_dataLock);
         _tertiaryDataContainer.update(_dataLock);
+    }
+
+    inline void calculateDistance2(const i32v3& cameraPos) {
+        distance2 = getDistance2(position, cameraPos);
+        chunk->distance2 = distance2;
     }
     
     void changeState(ChunkStates State);
@@ -160,6 +163,8 @@ public:
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
+    void detectNeighbors(std::unordered_map<i32v3, Chunk*>& chunkMap);
+
     int getLevelOfDetail() const { return _levelOfDetail; }
 
     //setters
@@ -180,6 +185,8 @@ public:
         blockUpdateList[(caIndex << 1) + (int)activeUpdateList[caIndex]].push_back(blockIndex);
     }
     
+    static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
+
     int numNeighbors;
     std::vector<bool> activeUpdateList;
     bool drawWater;
@@ -230,7 +237,6 @@ public:
 
     Chunk *right, *left, *front, *back, *top, *bottom;
 
-    ChunkSlot* owner;
     ChunkGridData* chunkGridData;
     vvox::VoxelMapData* voxelMapData;
 
@@ -264,54 +270,6 @@ private:
 
 //INLINE FUNCTION DEFINITIONS
 #include "Chunk.inl"
-
-class ChunkSlot
-{
-public:
-
-    friend class ChunkManager;
-
-    ChunkSlot(const glm::ivec3 &pos, Chunk *ch, ChunkGridData* cgd) :
-        chunk(ch),
-        position(pos),
-        chunkGridData(cgd),
-        left(nullptr),
-        right(nullptr),
-        back(nullptr),
-        front(nullptr),
-        bottom(nullptr),
-        top(nullptr),
-        numNeighbors(0),
-        inFrustum(false),
-        distance2(1.0f){}
-
-    inline void calculateDistance2(const i32v3& cameraPos) {
-        distance2 = getDistance2(position, cameraPos);
-        chunk->distance2 = distance2;
-    }
-
-    void clearNeighbors();
-
-    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap);
-
-    void reconnectToNeighbors();
-
-    Chunk *chunk;
-    glm::ivec3 position;
-
-    int numNeighbors;
-    //Indices of neighbors
-    ChunkSlot* left, *right, *back, *front, *top, *bottom;
-
-    //squared distance
-    double distance2;
-
-    ChunkGridData* chunkGridData;
-
-    bool inFrustum;
-private:
-    static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
-};
 
 inline i32 getPositionSeed(i32 x, i32 y, i32 z) {
     return ((x & 0x7FF) << 10) |

@@ -111,16 +111,12 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* vox
     csGridWidth = 1 + (graphicsOptions.voxelRenderDistance / 32) * 2;
     std::cout << "GRID WIDTH: " << csGridWidth << std::endl;
     _csGridSize = csGridWidth * csGridWidth * csGridWidth;
-    _chunkSlotMap.reserve(_csGridSize);
+    m_chunkMap.reserve(_csGridSize);
 
     // Set initial capacity of stacks for efficiency
     _setupList.reserve(_csGridSize / 2);
     _meshList.reserve(_csGridSize / 2);
     _loadList.reserve(_csGridSize / 2);
-
-    // Reserve capacity for chunkslots. If this capacity is not enough, we will get a 
-    // crash. We use * 4 just in case. It should be plenty
-    _chunkSlots[0].reserve(_csGridSize * 4);
 
     // Allocate the camera voxel map data so we can tell where on the grid the camera exists
     _cameraVoxelMapData = _voxelMapper->getNewVoxelMapData(startingMapData);
@@ -244,9 +240,6 @@ void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
     i32 xDir, yDir, zDir;
     Chunk* chunk;
 
-    std::unordered_map<i32v3, ChunkSlot*>::iterator it;
-    std::vector <ChunkSlot>& chunkSlots = _chunkSlots[0];
-
     //Get the chunk coordinates (assume its always positive)
     i32v3 chPos = getChunkPosition(coords);
 
@@ -303,21 +296,21 @@ Chunk* ChunkManager::getChunk(const f64v3& position) {
 
     i32v3 chPos = getChunkPosition(position);
 
-    auto it = _chunkSlotMap.find(chPos);
-    if (it == _chunkSlotMap.end()) return nullptr;
+    auto it = m_chunkMap.find(chPos);
+    if (it == m_chunkMap.end()) return nullptr;
     return it->second->chunk;
 
 }
 
 Chunk* ChunkManager::getChunk(const i32v3& chunkPos) {
-    auto it = _chunkSlotMap.find(chunkPos);
-    if (it == _chunkSlotMap.end()) return nullptr;
+    auto it = m_chunkMap.find(chunkPos);
+    if (it == m_chunkMap.end()) return nullptr;
     return it->second->chunk;
 }
 
 const Chunk* ChunkManager::getChunk(const i32v3& chunkPos) const {
-    auto it = _chunkSlotMap.find(chunkPos);
-    if (it == _chunkSlotMap.end()) return nullptr;
+    auto it = m_chunkMap.find(chunkPos);
+    if (it == m_chunkMap.end()) return nullptr;
     return it->second->chunk;
 }
 
@@ -346,8 +339,8 @@ void ChunkManager::destroy() {
     }
     Chunk::possibleMinerals.clear();
 
-    for (i32 i = 0; i < _chunkSlots[0].size(); i++) {
-        freeChunk(_chunkSlots[0][i].chunk);
+    for (i32 i = 0; i < m_chunks.size(); i++) {
+        freeChunk(m_chunks[i]);
     }
 
     for (auto it = _chunkGridDataMap.begin(); it != _chunkGridDataMap.end(); it++) {
@@ -363,7 +356,7 @@ void ChunkManager::destroy() {
 
     deleteAllChunks();
 
-    std::vector<ChunkSlot>().swap(_chunkSlots[0]);
+    std::vector<Chunk*>().swap(m_chunks);
 
     std::vector<RenderTask*>().swap(_freeRenderTasks);
     std::vector<GenerateTask*>().swap(_freeGenerateTasks);
@@ -375,8 +368,8 @@ void ChunkManager::destroy() {
 void ChunkManager::saveAllChunks() {
 
     Chunk* chunk;
-    for (i32 i = 0; i < _chunkSlots[0].size(); i++) { //update distances for all chunks
-        chunk = _chunkSlots[0][i].chunk;
+    for (i32 i = 0; i < m_chunks.size(); i++) { //update distances for all chunks
+        chunk = m_chunks[i];
         if (chunk && chunk->dirty && chunk->_state > ChunkStates::TREES) {
             m_chunkIo->addToSaveList(chunk);
         }
@@ -402,12 +395,8 @@ void ChunkManager::getBlockAndChunk(const i32v3& blockPosition, Chunk** chunk, i
 }
 
 void ChunkManager::remeshAllChunks() {
-    Chunk* chunk;
-    for (int i = 0; i < _chunkSlots[0].size(); i++) {
-        chunk = _chunkSlots[0][i].chunk;
-        if (chunk) {
-            chunk->changeState(ChunkStates::MESH);
-        }
+    for (int i = 0; i < m_chunks.size(); i++) {
+        m_chunks[i]->changeState(ChunkStates::MESH);
     }
 }
 
@@ -669,8 +658,6 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapD
         chunkGridData->refCount++;
     }
 
-    // Add a new chunkslot for the chunk
-    _chunkSlots[0].emplace_back(chunkPosition * CHUNK_WIDTH, nullptr, chunkGridData);
 
     // Make and initialize a chunk
     Chunk* chunk = produceChunk();
@@ -683,10 +670,10 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapD
     addToLoadList(chunk);
 
     // Add the chunkSlot to the hashmap keyed on the chunk Position
-    _chunkSlotMap[chunk->chunkPosition] = &_chunkSlots[0].back();
+    m_chunkMap[chunk->chunkPosition] = &_chunkSlots[0].back();
 
     // Connect to any neighbors
-    _chunkSlots[0].back().detectNeighbors(_chunkSlotMap);
+    _chunkSlots[0].back().detectNeighbors(m_chunkMap);
 }
 
 //traverses the back of the load list, popping of entries and giving them to threads to be loaded
@@ -1024,13 +1011,12 @@ void ChunkManager::updateCaPhysics() {
         }
 
         if (typesToUpdate.size()) {
-            const std::vector<ChunkSlot>& chunkSlots = _chunkSlots[0];
             CellularAutomataTask* caTask;
             Chunk* chunk;
             
             // Loop through all chunk slots and update chunks that have updates
-            for (int i = 0; i < chunkSlots.size(); i++) {
-                chunk = chunkSlots[i].chunk;
+            for (int i = 0; i < m_chunks.size(); i++) {
+                chunk = m_chunks[i];
                 if (chunk && chunk->numNeighbors == 6 && chunk->hasCaUpdates(typesToUpdate)) {
                     caTask = new CellularAutomataTask(this, m_physicsEngine, chunk, chunk->owner->inFrustum);
                     for (auto& type : typesToUpdate) {
@@ -1063,7 +1049,6 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask) {
             globalAccumulationTimer.start("FREE B");
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
-            printOwnerList(chunk);
             chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
             chunk->unlock();
@@ -1144,7 +1129,6 @@ void ChunkManager::deleteAllChunks() {
 
 void ChunkManager::updateChunks(const f64v3& position) {
 
-    ChunkSlot *cs;
     Chunk* chunk;
 
     i32v3 chPos;
@@ -1164,10 +1148,10 @@ void ChunkManager::updateChunks(const f64v3& position) {
         saveTicks = SDL_GetTicks();
     }
 
-    for (i32 i = (i32)_chunkSlots[0].size()-1; i >= 0; i--) { //update distances for all chunks
-        cs = &(_chunkSlots[0][i]);
+    for (i32 i = (i32)m_chunks.size() - 1; i >= 0; i--) { //update distances for all chunks
+        chunk = m_chunks[i];
 
-        cs->calculateDistance2(intPosition);
+        chunk->calculateDistance2(intPosition);
         chunk = cs->chunk;
         globalAccumulationTimer.start("UC");
         if (chunk->_state > ChunkStates::TREES) {
@@ -1181,7 +1165,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
                     m_chunkIo->addToSaveList(cs->chunk);
                 }
-                _chunkSlotMap.erase(chunk->chunkPosition);
+                m_chunkMap.erase(chunk->chunkPosition);
 
                 freeChunk(chunk);
                 
@@ -1193,7 +1177,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 _chunkSlots[0].pop_back();
                 if (i < _chunkSlots[0].size()) {
                     _chunkSlots[0][i].reconnectToNeighbors();
-                    _chunkSlotMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
+                    m_chunkMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
                 }
                 globalAccumulationTimer.stop();
             }

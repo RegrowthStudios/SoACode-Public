@@ -316,16 +316,12 @@ private:
     /// It is actually bigger than the maximum for safety
     i32 _csGridSize;
 
-    /// All chunks slots. Right now only the first is used,
-    /// but ideally there is one vector per LOD level for recombination
-    /// TODO(Ben): Implement recombination
-    std::vector<ChunkSlot> _chunkSlots[6]; //one per LOD
-
     /// list of chunks that are waiting for threads to finish on them
     std::vector<Chunk*> _freeWaitingChunks;
+    std::vector<Chunk*> m_chunks;
 
-    /// hashmap of chunk slots
-    std::unordered_map<i32v3, ChunkSlot*> _chunkSlotMap;
+    /// hashmap of chunks
+    std::unordered_map<i32v3, Chunk*> m_chunkMap;
 
     /// Chunk Lists
     /// Stack of free chunks that have been recycled and can be used
