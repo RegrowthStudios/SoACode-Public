@@ -101,7 +101,6 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
     glUniform1f(program->getUniform("fadeDistance"), fadeDist);
 
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     glLineWidth(3);

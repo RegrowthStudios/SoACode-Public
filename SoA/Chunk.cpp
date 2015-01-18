@@ -48,8 +48,6 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
     inSaveThread = false;
     queuedForMesh = false;
 	dirty = 0;
-
-	mesh = new ChunkMesh(this);
 	
     _chunkListPtr = NULL;
 	setupWaitingTime = 0;
@@ -84,6 +82,8 @@ void Chunk::init(const i32v3 &gridPos, ChunkSlot* Owner){
     distance2 = owner->distance2;
     chunkGridData = owner->chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;
+
+    mesh = new ChunkMesh(this);
 }
 
 std::vector<Chunk*> *dbgst;

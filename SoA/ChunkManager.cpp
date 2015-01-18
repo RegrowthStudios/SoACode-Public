@@ -817,7 +817,6 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
                 chunk->_state = ChunkStates::DRAW;
                 
             } else {
-                chunk->clearBuffers();
                 // Remove from the mesh list
                 _meshList[i] = _meshList.back();
                 _meshList.pop_back();

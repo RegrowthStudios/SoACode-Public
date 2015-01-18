@@ -157,6 +157,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
             _chunkMeshes[cm->vecIndex] = _chunkMeshes.back();
             _chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
             _chunkMeshes.pop_back();
+            cm->vecIndex = UNINITIALIZED_INDEX;
         }
     }
 
