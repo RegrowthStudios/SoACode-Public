@@ -223,9 +223,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
             glSpeedFactor = 3.0f;
         }
     }
-
     m_soaState->spaceSystem.glUpdate();
-    
     // Update the input
     handleInput();
 
@@ -245,7 +243,6 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 void GamePlayScreen::draw(const GameTime& gameTime) {
 
     updateWorldCameraClip();
-
     m_renderPipeline.render();
 }
 

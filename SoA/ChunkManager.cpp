@@ -637,12 +637,12 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         
         //TODO(Ben): Beware of race here.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-            //if (!chunkGridData->wasRequestSent) {
-            //    // Keep trying to send it until it succeeds
-            //    while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-            //        (vvox::VoxelPlanetMapData*)ch->voxelMapData));
-            //}
-            for (int i = 0; i < 1024; i++) {
+            if (!chunkGridData->wasRequestSent) {
+                // Keep trying to send it until it succeeds
+                while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
+                    (vvox::VoxelPlanetMapData*)ch->voxelMapData));
+            }
+            /*for (int i = 0; i < 1024; i++) {
                 chunkGridData->heightData[i].height = 0;
                 chunkGridData->heightData[i].temperature = 128;
                 chunkGridData->heightData[i].rainfall = 128;
@@ -652,8 +652,8 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
                 chunkGridData->heightData[i].sandDepth = 0;
                 chunkGridData->heightData[i].depth = 0;
                 chunkGridData->heightData[i].flags = 0;
-            }
-          //  canGenerate = false;
+                }*/
+            canGenerate = false;
         }
 
         // If it is not saved. Generate it!

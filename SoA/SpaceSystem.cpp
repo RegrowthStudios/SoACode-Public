@@ -157,7 +157,6 @@ void SpaceSystem::init(vg::GLProgramManager* programManager) {
 }
 
 void SpaceSystem::update(const GameSystem* gameSystem, const SoaState* soaState, const f64v3& spacePos) {
-    m_mutex.lock();
 
     // Update planet rotation
     m_axisRotationComponentUpdater.update(this, soaState->time);
@@ -167,6 +166,8 @@ void SpaceSystem::update(const GameSystem* gameSystem, const SoaState* soaState,
 
     // Update voxels
     m_sphericalVoxelComponentUpdater.update(this, gameSystem, soaState);
+
+    m_mutex.lock();
 
     // Update Orbits ( Do this last)
     m_orbitComponentUpdater.update(this, soaState->time);
