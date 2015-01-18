@@ -233,16 +233,10 @@ void GamePlayScreen::update(const GameTime& gameTime) {
         }
     }
 
-    m_soaState->time += 0.0000001;
-    auto& npcmp = m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity);
-    m_soaState->spaceSystem.update(&m_soaState->gameSystem, m_soaState,
-                                   m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity).position);
     m_soaState->spaceSystem.glUpdate();
     
     // Update the input
     handleInput();
-
-    m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem, m_soaState);
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -367,35 +361,13 @@ void GamePlayScreen::updateThreadFunc() {
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
         GameManager::soundEngine->update();
 
-        //while (messageManager->tryDeque(THREAD, message)) {
-            // Process the message
-        //    switch (message.id) {
-                
-        //    }
-       // }
+        m_soaState->time += 0.0000001;
+        auto& npcmp = m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity);
+        m_soaState->spaceSystem.update(&m_soaState->gameSystem, m_soaState,
+                                       m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity).position);
 
+        m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem, m_soaState);
 
-
-
-    /*    HeightData tmpHeightData;
-        if (!m_chunkManager->getPositionHeightData((int)m_player->headPosition.x, (int)m_player->headPosition.z, tmpHeightData)) {
-            m_player->currBiome = tmpHeightData.biome;
-            m_player->currTemp = tmpHeightData.temperature;
-            m_player->currHumidity = tmpHeightData.rainfall;
-        } else {
-            m_player->currBiome = NULL;
-            m_player->currTemp = -1;
-            m_player->currHumidity = -1;
-        }*/
-
-        
-      //  m_voxelWorld->update(&m_player->getChunkCamera());
-
-        /*  if (m_inputManager->getKey(INPUT_BLOCK_SCANNER)) {
-              m_player->scannedBlock = m_chunkManager->getBlockFromDir(glm::dvec3(m_player->chunkDirection()), m_player->headPosition);
-              } else {
-              m_player->scannedBlock = NONE;
-              }*/
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
             saveStateTicks = SDL_GetTicks();

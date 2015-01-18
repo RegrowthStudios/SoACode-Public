@@ -16,7 +16,7 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSyst
             // NOTE: This is costly
 
             auto& vpcmp = gameSystem->voxelPositionCT.get(cmp.voxelPositionComponent);
-            vpcmp.position += cmp.velocity * VOXELS_PER_KM; // * VOXELS_PER_KM is temporary
+            vpcmp.position += cmp.velocity;
 
             // Compute the space position and orientation from voxel position and orientation
             auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(vpcmp.parentVoxelComponent);
