@@ -474,6 +474,7 @@ void ChunkManager::processFinishedTasks() {
         // Post processing based on task type
         switch (task->getTaskId()) {
             case RENDER_TASK_ID:
+                chunk = static_cast<RenderTask*>(task)->chunk;
                 if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
                 if (_freeRenderTasks.size() < MAX_CACHED_TASKS) {
                     // Store the render task so we don't have to call new
