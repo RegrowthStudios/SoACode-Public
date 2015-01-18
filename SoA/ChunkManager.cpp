@@ -668,7 +668,7 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapD
     addToLoadList(chunk);
 
     // Add the chunkSlot to the hashmap keyed on the chunk Position
-    m_chunkMap[chunkPosition] = m_chunks.back();
+    m_chunkMap[chunkPosition] = chunk;
 
     // Connect to any neighbors
     chunk->detectNeighbors(m_chunkMap);
@@ -1152,10 +1152,9 @@ void ChunkManager::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
 }
 
 void ChunkManager::tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
-    i32v3 newPosition = chunk->chunkPosition + offset * CHUNK_WIDTH;
+    i32v3 newPosition = chunk->gridPosition + offset * CHUNK_WIDTH;
    
     double dist2 = Chunk::getDistance2(newPosition, cameraPos);
-    double dist = sqrt(dist2);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
 
         i32v3 chunkPosition = getChunkPosition(newPosition);
