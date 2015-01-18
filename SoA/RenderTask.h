@@ -22,6 +22,7 @@
 
 class Chunk;
 class ChunkGridData;
+class ChunkMesh;
 class ChunkMeshData;
 class VoxelLightEngine;
 

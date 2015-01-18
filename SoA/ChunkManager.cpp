@@ -581,19 +581,19 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
          //   if (!chunkGridData->wasRequestSent) {
           //      // Keep trying to send it until it succeeds
          //       while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                    (vvox::VoxelPlanetMapData*)ch->voxelMapData));
+        //            (vvox::VoxelPlanetMapData*)ch->voxelMapData));
         //    }
-        for (int i = 0; i < 1024; i++) {
-            chunkGridData->heightData[i].height = 0;
-            chunkGridData->heightData[i].temperature = 128;
-            chunkGridData->heightData[i].rainfall = 128;
-            chunkGridData->heightData[i].biome = nullptr;
-            chunkGridData->heightData[i].surfaceBlock = STONE;
-            chunkGridData->heightData[i].snowDepth = 0;
-            chunkGridData->heightData[i].sandDepth = 0;
-            chunkGridData->heightData[i].depth = 0;
-            chunkGridData->heightData[i].flags = 0;
-        }
+            for (int i = 0; i < 1024; i++) {
+                chunkGridData->heightData[i].height = 0;
+                chunkGridData->heightData[i].temperature = 128;
+                chunkGridData->heightData[i].rainfall = 128;
+                chunkGridData->heightData[i].biome = nullptr;
+                chunkGridData->heightData[i].surfaceBlock = STONE;
+                chunkGridData->heightData[i].snowDepth = 0;
+                chunkGridData->heightData[i].sandDepth = 0;
+                chunkGridData->heightData[i].depth = 0;
+                chunkGridData->heightData[i].flags = 0;
+            }
           //  canGenerate = false;
         }
 
@@ -1058,8 +1058,8 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         // Sever any connections with neighbor chunks
         globalAccumulationTimer.stop();
         chunk->clearNeighbors();
-        
-        if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr) {
+
+        if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask) {
             globalAccumulationTimer.start("FREE B");
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
@@ -1083,10 +1083,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             // Completely clear the chunk and then recycle it
             
             // Destroy the mesh
-            chunk->mesh->needsDestroy = true;
-            GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                                 Message(MessageID::CHUNK_MESH,
-                                                 (void *)new ChunkMeshData(chunk->mesh));
+            chunk->clearBuffers();
 
             chunk->clear();
             chunk->unlock();

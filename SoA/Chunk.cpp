@@ -125,13 +125,11 @@ void Chunk::clear(bool clearDraw)
 void Chunk::clearBuffers()
 {
 	if (mesh){
-		ChunkMeshData *cmd = new ChunkMeshData(this);
-		cmd->chunkMesh = mesh;
-		mesh = NULL;
-
+        mesh->needsDestroy = true;
         GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                             Message(MessageID::CHUNK_MESH, 
-                                             (void*)cmd));
+                                             Message(MessageID::CHUNK_MESH,
+                                             (void *)new ChunkMeshData(mesh)));
+        mesh = nullptr;
 
 	}
 }

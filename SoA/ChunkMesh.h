@@ -16,10 +16,11 @@ enum class MeshType {
 
 enum class RenderTaskType;
 
-class RenderTask;
+class Block;
 class Chunk;
 class ChunkGridData;
-class Block;
+class ChunkMesh;
+class RenderTask;
 
 // Stores Chunk Mesh Information
 class MesherInfo {
@@ -91,8 +92,8 @@ public:
 class ChunkMeshData
 {
 public:
-    ChunkMeshData(ChunkMesh *cm) : chunkMesh(cm), type(RenderTaskType::DEFAULT) {}
-    ChunkMeshData(RenderTask *task) : chunk(task->chunk), chunkMesh(task->chunkMesh), type(task->type) {}
+    ChunkMeshData(ChunkMesh *cm);
+    ChunkMeshData(RenderTask *task);
 
     void addTransQuad(const i8v3& pos);
 
@@ -115,7 +116,7 @@ public:
 class ChunkMesh
 {
 public:
-    ChunkMesh(const Chunk *ch) : position(ch->gridPosition) {}
+    ChunkMesh(const Chunk *ch);
 
     ChunkMeshRenderData meshInfo;
 
