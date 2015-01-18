@@ -487,15 +487,15 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
     int c = td.startc;
     int x = c%CHUNK_WIDTH;
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
-    srand(chunk->gridPosition.z*chunk->gridPosition.x - x*z - globalTreeSeed);
+    srand(chunk->voxelPosition.z*chunk->voxelPosition.x - x*z - globalTreeSeed);
 
-    float mod = ((PseudoRand(globalTreeSeed + chunk->gridPosition.x*CHUNK_SIZE + z - chunk->gridPosition.x, chunk->gridPosition.z*chunk->gridPosition.z - x*z - globalTreeSeed) + 1.0) / 2.0);
+    float mod = ((PseudoRand(globalTreeSeed + chunk->voxelPosition.x*CHUNK_SIZE + z - chunk->voxelPosition.x, chunk->voxelPosition.z*chunk->voxelPosition.z - x*z - globalTreeSeed) + 1.0) / 2.0);
     td.ageMod = mod;
     td.treeHeight = (int)(mod*(tt->trunkHeight.max - tt->trunkHeight.min) + tt->trunkHeight.min);
     td.droopyLength = mod * (tt->droopyLength.max - tt->droopyLength.min) + tt->droopyLength.min;
     td.branchStart = (int)(tt->branchStart*td.treeHeight);
     td.topLeafSize = mod * (tt->leafCapSize.max - tt->leafCapSize.min) + tt->leafCapSize.min;
-    td.trunkDir = (int)((PseudoRand(chunk->gridPosition.x + z - x, x*z - z*z + x - chunk->gridPosition.z) + 1.0)*2.0);
+    td.trunkDir = (int)((PseudoRand(chunk->voxelPosition.x + z - x, x*z - z*z + x - chunk->voxelPosition.z) + 1.0)*2.0);
     if (td.trunkDir == 4) td.trunkDir = 3;
     if (tt->isSlopeRandom == 0) {
         td.trunkStartSlope = mod*(tt->trunkStartSlope.max - tt->trunkStartSlope.min) + tt->trunkStartSlope.min;

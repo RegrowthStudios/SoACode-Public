@@ -104,7 +104,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                     if (spawnerVal >= LOWWATER) {
                         ChunkUpdater::placeBlock(_chunk, _lockedChunk, c, spawnerVal);
                     } else if (powders){
-                        physicsBlockPos = glm::dvec3((double)_chunk->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->gridPosition.y + c / CHUNK_LAYER, (double)_chunk->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
+                        physicsBlockPos = glm::dvec3((double)_chunk->voxelPosition.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->voxelPosition.y + c / CHUNK_LAYER, (double)_chunk->voxelPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
                         m_physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 } else if (bottom && bottom->isAccessible){
@@ -112,7 +112,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                     if (spawnerVal >= LOWWATER){
                         ChunkUpdater::placeBlockSafe(bottom, _lockedChunk, c, spawnerVal);
                     } else if (powders){
-                        physicsBlockPos = glm::dvec3((double)bottom->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)bottom->gridPosition.y + c / CHUNK_LAYER, (double)bottom->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
+                        physicsBlockPos = glm::dvec3((double)bottom->voxelPosition.x + c%CHUNK_WIDTH + 0.5, (double)bottom->voxelPosition.y + c / CHUNK_LAYER, (double)bottom->voxelPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
                         m_physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 }
@@ -260,7 +260,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
 
     bool hasChanged = false;
     bool inFrustum = (!_chunk->mesh || _chunk->mesh->inFrustum);
-    const i32v3 &position = _chunk->gridPosition;
+    const i32v3 &position = _chunk->voxelPosition;
 
     // Get the block index and owner for the bottom chunk
     if (pos.y > 0){

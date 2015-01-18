@@ -52,7 +52,7 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
     chunkPosition = chunkPos;
-    gridPosition = chunkPos * CHUNK_WIDTH;
+    voxelPosition = chunkPos * CHUNK_WIDTH;
   
 	numBlocks = -1;
 	_state = ChunkStates::LOAD;

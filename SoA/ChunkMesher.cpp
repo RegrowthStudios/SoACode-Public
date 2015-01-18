@@ -1337,7 +1337,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //store the render task so we can pass it to functions
     mi.task = renderTask;
     mi.chunkGridData = chunk->chunkGridData;
-    mi.position = chunk->gridPosition;
+    mi.position = chunk->voxelPosition;
 
     //Used in merging
     _currPrevRightQuads = 0;

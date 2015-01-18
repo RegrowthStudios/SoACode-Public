@@ -96,7 +96,7 @@ public:
     }
 
     void calculateDistance2(const i32v3& cameraPos) {
-        distance2 = getDistance2(gridPosition, cameraPos);
+        distance2 = getDistance2(voxelPosition, cameraPos);
     }
     
     void changeState(ChunkStates State);
@@ -208,7 +208,7 @@ public:
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
     std::vector <GLushort> spawnerBlocks;
-    i32v3 gridPosition;  // Position relative to the voxel grid
+    i32v3 voxelPosition;  // Position relative to the voxel grid
     i32v3 chunkPosition; // floor(gridPosition / (float)CHUNK_WIDTH)
 
     int numBlocks;

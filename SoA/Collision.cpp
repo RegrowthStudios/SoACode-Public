@@ -35,9 +35,9 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 si
         if (!(chunks[i]) || chunks[i]->isAccessible == false) continue; //avoid errors
 
         //find the midpoint so that we can subdivide the chunk into 8 sections
-        x = chunks[i]->gridPosition.x + CHUNK_WIDTH / 2;
-        y = chunks[i]->gridPosition.y + CHUNK_WIDTH / 2;
-        z = chunks[i]->gridPosition.z + CHUNK_WIDTH / 2;
+        x = chunks[i]->voxelPosition.x + CHUNK_WIDTH / 2;
+        y = chunks[i]->voxelPosition.y + CHUNK_WIDTH / 2;
+        z = chunks[i]->voxelPosition.z + CHUNK_WIDTH / 2;
 
         //checks to see if the distance between the players midpoint and the box midpoint is greater than the radius
         //all three axis must be colliding for a collision

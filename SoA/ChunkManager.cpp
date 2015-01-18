@@ -1152,7 +1152,7 @@ void ChunkManager::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
 }
 
 void ChunkManager::tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
-    i32v3 newPosition = chunk->gridPosition + offset * CHUNK_WIDTH;
+    i32v3 newPosition = chunk->voxelPosition + offset * CHUNK_WIDTH;
    
     double dist2 = Chunk::getDistance2(newPosition, cameraPos);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {

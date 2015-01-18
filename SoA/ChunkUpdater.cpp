@@ -133,7 +133,7 @@ void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockTyp
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
     if (block.emitter) {
-        particleEngine.addEmitter(block.emitter, glm::dvec3(chunk->gridPosition.x + pos.x, chunk->gridPosition.y + pos.y, chunk->gridPosition.z + pos.z), blockType);
+        particleEngine.addEmitter(block.emitter, glm::dvec3(chunk->voxelPosition.x + pos.x, chunk->voxelPosition.y + pos.y, chunk->voxelPosition.z + pos.z), blockType);
     }
 
     // If its a plant, we need to do some extra iteration
@@ -257,12 +257,12 @@ void ChunkUpdater::removeBlock(ChunkManager* chunkManager, PhysicsEngine* physic
     //If we are braking the block rather than removing it, it should explode or emit particles
     if (isBreak) {
         if (block.explosivePower){
-            glm::dvec3 dtmp(chunk->gridPosition.x + pos.x, chunk->gridPosition.y + pos.y, chunk->gridPosition.z + pos.z);
+            glm::dvec3 dtmp(chunk->voxelPosition.x + pos.x, chunk->voxelPosition.y + pos.y, chunk->voxelPosition.z + pos.z);
             physicsEngine->addExplosion(ExplosionNode(dtmp, blockID));
         }
 
         if (block.emitterOnBreak && block.explosivePower == 0){ // 
-            particleEngine.addEmitter(block.emitterOnBreak, glm::dvec3(chunk->gridPosition.x + blockIndex%CHUNK_WIDTH, chunk->gridPosition.y + blockIndex / CHUNK_LAYER, chunk->gridPosition.z + (blockIndex%CHUNK_LAYER) / CHUNK_WIDTH), blockID);
+            particleEngine.addEmitter(block.emitterOnBreak, glm::dvec3(chunk->voxelPosition.x + blockIndex%CHUNK_WIDTH, chunk->voxelPosition.y + blockIndex / CHUNK_LAYER, chunk->voxelPosition.z + (blockIndex%CHUNK_LAYER) / CHUNK_WIDTH), blockID);
         }
         if (explodeDist){
             float expForce = glm::length(explodeDir);
@@ -900,7 +900,7 @@ void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine*
             removeBlockSafe(chunkManager, physicsEngine, owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
-                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
+                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->voxelPosition.x + blockIndex2%CHUNK_WIDTH, owner2->voxelPosition.y + blockIndex2 / CHUNK_LAYER, owner2->voxelPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
             owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
@@ -914,7 +914,7 @@ void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine*
             removeBlockSafe(chunkManager, physicsEngine, owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
-                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
+                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->voxelPosition.x + blockIndex2%CHUNK_WIDTH, owner2->voxelPosition.y + blockIndex2 / CHUNK_LAYER, owner2->voxelPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
             owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
@@ -928,7 +928,7 @@ void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine*
             removeBlockSafe(chunkManager, physicsEngine, owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
-                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
+                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->voxelPosition.x + blockIndex2%CHUNK_WIDTH, owner2->voxelPosition.y + blockIndex2 / CHUNK_LAYER, owner2->voxelPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
             owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
@@ -942,7 +942,7 @@ void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine*
             removeBlockSafe(chunkManager, physicsEngine, owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
-                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
+                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->voxelPosition.x + blockIndex2%CHUNK_WIDTH, owner2->voxelPosition.y + blockIndex2 / CHUNK_LAYER, owner2->voxelPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
             owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
@@ -956,7 +956,7 @@ void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine*
             removeBlockSafe(chunkManager, physicsEngine, owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
-                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
+                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->voxelPosition.x + blockIndex2%CHUNK_WIDTH, owner2->voxelPosition.y + blockIndex2 / CHUNK_LAYER, owner2->voxelPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
             owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }
@@ -970,7 +970,7 @@ void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine*
             removeBlockSafe(chunkManager, physicsEngine, owner2, lockedChunk, blockIndex2, true);
         } else{
             if (Blocks[b->burnTransformID].emitter){
-                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->gridPosition.x + blockIndex2%CHUNK_WIDTH, owner2->gridPosition.y + blockIndex2 / CHUNK_LAYER, owner2->gridPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
+                particleEngine.addEmitter(Blocks[b->burnTransformID].emitter, glm::dvec3(owner2->voxelPosition.x + blockIndex2%CHUNK_WIDTH, owner2->voxelPosition.y + blockIndex2 / CHUNK_LAYER, owner2->voxelPosition.z + (blockIndex2%CHUNK_LAYER) / CHUNK_WIDTH), b->burnTransformID);
             }
             owner2->setBlockDataSafe(lockedChunk, blockIndex2, b->burnTransformID);
         }

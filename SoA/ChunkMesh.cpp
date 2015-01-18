@@ -50,6 +50,6 @@ void ChunkMeshData::addTransQuad(const i8v3& pos) {
     transVertIndex += 4;
 }
 
-ChunkMesh::ChunkMesh(const Chunk *ch) : position(ch->gridPosition) {
+ChunkMesh::ChunkMesh(const Chunk *ch) : position(ch->voxelPosition) {
     // Empty
 }

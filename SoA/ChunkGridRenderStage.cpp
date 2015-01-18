@@ -45,7 +45,7 @@ void ChunkGridRenderStage::draw() {
 
     for (i32 i = 0; i < m_chunks->size(); i++) {
         chunk = (*m_chunks)[i];
-        posOffset = f32v3(f64v3(chunk->gridPosition) - m_gameRenderParams->chunkCamera->getPosition());
+        posOffset = f32v3(f64v3(chunk->voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());
 
         if (((chunk->mesh && chunk->mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
 
