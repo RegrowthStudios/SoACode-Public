@@ -67,6 +67,8 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
 	treesToLoad.clear();
 	blockUpdateIndex = 0;
     _levelOfDetail = 1;
+    meshJobCounter = 0;
+    chunkDependencies = 0;
     
     for (size_t i = 0; i < blockUpdateList.size(); i++) {
 		blockUpdateList[i].clear();
@@ -285,7 +287,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     chunkMesher->chunkGridData = chunkGridData;
 
     //Must have all neighbors
-    assert(top && left && right && back && front && bottom);
+    assert( && left && right && back && front && bottom);
 
     lock();
     queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh

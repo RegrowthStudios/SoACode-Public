@@ -100,6 +100,9 @@ public:
     }
     
     void changeState(ChunkStates State);
+
+    void addDependency() { chunkDependencies++; }
+    void removeDependency() { chunkDependencies--; }
     
     /// Checks if adjacent chunks are in thread, since we don't want
     /// to remove chunks when their neighbors need them.
@@ -200,6 +203,7 @@ public:
     volatile bool queuedForMesh;
 
     bool queuedForPhysics;
+    int meshJobCounter = 0; ///< Counts the number of mesh tasks this chunk is in
 
     vorb::core::IThreadPoolTask<WorkerData>* lastOwnerTask; ///< Pointer to task that is working on us
 
@@ -233,7 +237,7 @@ public:
     std::vector <ui16> sunRemovalList;
     std::vector <ui16> sunExtendList;
 
-    std::set<Chunk*> chunkDependencies; ///< Set of chunks that depend on this chunk in other threads.
+    int chunkDependencies = 0; ///< Number of chunks that depend on this chunk in other threads.
 
     static ui32 vboIndicesID;
 

@@ -306,6 +306,12 @@ private:
     /// Simple debugging print
     void printOwnerList(Chunk* chunk);
 
+    /// True when the chunk can be sent to mesh thread. Will set neighbor dependencies
+    bool trySetMeshDependencies(Chunk* chunk);
+
+    /// Removes all mesh dependencies
+    void tryRemoveMeshDependencies(Chunk* chunk);
+
     //***** Private Variables *****
 
     /// Theoretical maximum number of chunks that could be in memory at one time.

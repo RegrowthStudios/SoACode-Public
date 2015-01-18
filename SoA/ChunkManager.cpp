@@ -466,6 +466,7 @@ void ChunkManager::processFinishedTasks() {
         switch (task->getTaskId()) {
             case RENDER_TASK_ID:
                 chunk = static_cast<RenderTask*>(task)->chunk;
+                tryRemoveMeshDependencies(chunk);
                 if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
                 if (_freeRenderTasks.size() < MAX_CACHED_TASKS) {
                     // Store the render task so we don't have to call new
@@ -771,44 +772,43 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             continue;
         }
 
-        if (chunk->numNeighbors == 6 && chunk->inFrustum) {     
-            
-            if (chunk->numBlocks) {
+        // If it has no solid blocks, dont mesh it
+        if (!chunk->numBlocks) {
+            // Remove from the mesh list
+            _meshList[i] = _meshList.back();
+            _meshList.pop_back();
+            chunk->clearChunkListPtr();
+            chunk->_state = ChunkStates::INACTIVE;
+            continue;
+        }
 
-                chunk->occlude = 0;
+        if (chunk->inFrustum && trySetMeshDependencies(chunk)) {     
+           
+            chunk->occlude = 0;
 
-                // Get a render task
-                if (_freeRenderTasks.size()) {
-                    newRenderTask = _freeRenderTasks.back();
-                    _freeRenderTasks.pop_back();
-                } else {
-                    newRenderTask = new RenderTask;
-                }
-
-                if (chunk->_state == ChunkStates::MESH) {
-                    newRenderTask->init(chunk, RenderTaskType::DEFAULT);
-                } else {
-                    newRenderTask->init(chunk, RenderTaskType::LIQUID);
-                }
-
-                chunk->lastOwnerTask = newRenderTask;
-                _threadPool.addTask(newRenderTask);
-
-                // Remove from the mesh list
-                _meshList[i] = _meshList.back();
-                _meshList.pop_back();
-                chunk->clearChunkListPtr();
-
-                chunk->_state = ChunkStates::DRAW;
-                
+            // Get a render task
+            if (_freeRenderTasks.size()) {
+                newRenderTask = _freeRenderTasks.back();
+                _freeRenderTasks.pop_back();
             } else {
-                // Remove from the mesh list
-                _meshList[i] = _meshList.back();
-                _meshList.pop_back();
-                chunk->clearChunkListPtr();
-
-                chunk->_state = ChunkStates::INACTIVE;
+                newRenderTask = new RenderTask;
             }
+
+            if (chunk->_state == ChunkStates::MESH) {
+                newRenderTask->init(chunk, RenderTaskType::DEFAULT);
+            } else {
+                newRenderTask->init(chunk, RenderTaskType::LIQUID);
+            }
+
+            chunk->lastOwnerTask = newRenderTask;
+            _threadPool.addTask(newRenderTask);
+
+            // Remove from the mesh list
+            _meshList[i] = _meshList.back();
+            _meshList.pop_back();
+            chunk->clearChunkListPtr();
+
+            chunk->_state = ChunkStates::DRAW;
         }
 
 
@@ -1269,4 +1269,142 @@ void ChunkManager::printOwnerList(Chunk* chunk) {
     } else {
         std::cout << "NO LIST ";
     }
+}
+
+bool ChunkManager::trySetMeshDependencies(Chunk* chunk) {
+    chunk->meshJobCounter++;
+    // If this chunk is still in a mesh thread, don't re-add dependencies
+    if (chunk->meshJobCounter > 1) return true;
+
+    if (chunk->numNeighbors != 6) return false;
+
+    Chunk* nc;
+
+    // Neighbors
+    if (!chunk->left->isAccessible || !chunk->right->isAccessible ||
+        !chunk->front->isAccessible || !chunk->back->isAccessible ||
+        !chunk->top->isAccessible || !chunk->bottom->isAccessible) return false;
+   
+    // Left Side
+    if (!chunk->left->back || !chunk->left->back->isAccessible) return false;
+    if (!chunk->left->front || !chunk->left->front->isAccessible) return false;
+    nc = chunk->left->top;
+    if (!nc || !nc->isAccessible) return false;
+    if (!nc->back || !nc->back->isAccessible) return false;
+    if (!nc->front || !nc->front->isAccessible) return false;
+    nc = chunk->left->bottom;
+    if (!nc || !nc->isAccessible) return false;
+    if (!nc->back || !nc->back->isAccessible) return false;
+    if (!nc->front || !nc->front->isAccessible) return false;
+    
+    // Right side
+    if (!chunk->right->back || !chunk->right->back->isAccessible) return false;
+    if (!chunk->right->front || !chunk->right->front->isAccessible) return false;
+    nc = chunk->right->top;
+    if (!nc || !nc->isAccessible) return false;
+    if (!nc->back || !nc->back->isAccessible) return false;
+    if (!nc->front || !nc->front->isAccessible) return false;
+    nc = chunk->right->bottom;
+    if (!nc || !nc->isAccessible) return false;
+    if (!nc->back || !nc->back->isAccessible) return false;
+    if (!nc->front || !nc->front->isAccessible) return false;
+
+    // Front
+    if (!chunk->front->top || !chunk->front->top->isAccessible) return false;
+    if (!chunk->front->bottom || !chunk->front->bottom->isAccessible) return false;
+
+    // Back
+    if (!chunk->back->top || !chunk->back->top->isAccessible) return false;
+    if (!chunk->back->bottom || !chunk->back->bottom->isAccessible) return false;
+
+    // If we get here, we can set dependencies
+
+    // Neighbors
+    chunk->left->addDependency();
+    chunk->right->addDependency();
+    chunk->front->addDependency();
+    chunk->back->addDependency();
+    chunk->top->addDependency();
+    chunk->bottom->addDependency();
+
+    // Left Side
+    chunk->left->back->addDependency();
+    chunk->left->front->addDependency();
+    nc = chunk->left->top;
+    nc->addDependency();
+    nc->back->addDependency();
+    nc->front->addDependency();
+    nc = chunk->left->bottom;
+    nc->addDependency();
+    nc->back->addDependency();
+    nc->front->addDependency();
+
+    // Right side
+    chunk->right->back->addDependency();
+    chunk->right->front->addDependency();
+    nc = chunk->right->top;
+    nc->addDependency();
+    nc->back->addDependency();
+    nc->front->addDependency();
+    nc = chunk->right->bottom;
+    nc->addDependency();
+    nc->back->addDependency();
+    nc->front->addDependency();
+
+    // Front
+    chunk->front->top->addDependency();
+    chunk->front->bottom->addDependency();
+
+    // Back
+    chunk->back->top->addDependency();
+    chunk->back->bottom->addDependency();
+
+    return true;
+}
+
+void ChunkManager::tryRemoveMeshDependencies(Chunk* chunk) {
+    chunk->meshJobCounter--;
+    // If this chunk is still in a mesh thread, don't remove dependencies
+    if (chunk->meshJobCounter) return;
+
+    Chunk* nc;
+    // Neighbors
+    chunk->left->removeDependency();
+    chunk->right->removeDependency();
+    chunk->front->removeDependency();
+    chunk->back->removeDependency();
+    chunk->top->removeDependency();
+    chunk->bottom->removeDependency();
+
+    // Left Side
+    chunk->left->back->removeDependency();
+    chunk->left->front->removeDependency();
+    nc = chunk->left->top;
+    nc->removeDependency();
+    nc->back->removeDependency();
+    nc->front->removeDependency();
+    nc = chunk->left->bottom;
+    nc->removeDependency();
+    nc->back->removeDependency();
+    nc->front->removeDependency();
+
+    // Right side
+    chunk->right->back->removeDependency();
+    chunk->right->front->removeDependency();
+    nc = chunk->right->top;
+    nc->removeDependency();
+    nc->back->removeDependency();
+    nc->front->removeDependency();
+    nc = chunk->right->bottom;
+    nc->removeDependency();
+    nc->back->removeDependency();
+    nc->front->removeDependency();
+
+    // Front
+    chunk->front->top->removeDependency();
+    chunk->front->bottom->removeDependency();
+
+    // Back
+    chunk->back->top->removeDependency();
+    chunk->back->bottom->removeDependency();
 }
