@@ -10,7 +10,7 @@
 #include "GameRenderParams.h"
 
 ChunkGridRenderStage::ChunkGridRenderStage(const GameRenderParams* gameRenderParams) :
-    _gameRenderParams(gameRenderParams) {
+    m_gameRenderParams(gameRenderParams) {
     // Empty
 }
 
@@ -23,7 +23,7 @@ ChunkGridRenderStage::~ChunkGridRenderStage() {
 /// it should not cause a crash. However data may be partially incorrect.
 void ChunkGridRenderStage::draw() {
     //if (!_isVisible) return;
-    if (!_chunkSlots) return;
+    if (!m_chunks) return;
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
     // Shader that is lazily initialized
@@ -32,9 +32,9 @@ void ChunkGridRenderStage::draw() {
     vcore::Mesh mesh;
     mesh.init(vg::PrimitiveType::LINES, true);
     // Reserve the number of vertices and indices we think we will need
-    mesh.reserve(_chunkSlots->size() * 8, _chunkSlots->size() * 24);
+    mesh.reserve(m_chunks->size() * 8, m_chunks->size() * 24);
     // Build the mesh
-    Chunk* chunk;
+    const Chunk* chunk;
     ColorRGBA8 color;
     // Used to build each grid
     std::vector<vcore::MeshVertex> vertices(8);
@@ -43,12 +43,11 @@ void ChunkGridRenderStage::draw() {
 
     f32v3 posOffset;
 
-    for (i32 i = 0; i < _chunkSlots->size(); i++) {
-        chunk = (*_chunkSlots)[i].chunk;
-        if (!chunk) continue;
-        posOffset = f32v3(f64v3(chunk->gridPosition) - _gameRenderParams->chunkCamera->getPosition());
+    for (i32 i = 0; i < m_chunks->size(); i++) {
+        chunk = (*m_chunks)[i];
+        posOffset = f32v3(f64v3(chunk->gridPosition) - m_gameRenderParams->chunkCamera->getPosition());
 
-        if (((chunk->mesh && chunk->mesh->inFrustum) || _gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
+        if (((chunk->mesh && chunk->mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
 
             switch (chunk->getState()) {
                 case ChunkStates::GENERATE:
@@ -119,7 +118,7 @@ void ChunkGridRenderStage::draw() {
         // Set Matrix
         glUniformMatrix4fv(chunkLineProgram->getUniform("MVP"), 1,
                            GL_FALSE,
-                           &(_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
+                           &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
         // Set Texture
         glUniform1i(chunkLineProgram->getUniform("tex"), 0);
         glActiveTexture(GL_TEXTURE0);

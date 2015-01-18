@@ -86,7 +86,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &gridPos);
+    void init(const i32v3 &chunkPos);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
@@ -96,8 +96,7 @@ public:
     }
 
     inline void calculateDistance2(const i32v3& cameraPos) {
-        distance2 = getDistance2(position, cameraPos);
-        chunk->distance2 = distance2;
+        distance2 = getDistance2(gridPosition, cameraPos);
     }
     
     void changeState(ChunkStates State);
@@ -216,6 +215,7 @@ public:
     int minh;
     double distance2;
     bool freeWaiting;
+    bool inFrustum = false;
 
     int blockUpdateIndex;
     int treeTryTicks;

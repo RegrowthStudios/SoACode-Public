@@ -37,7 +37,7 @@ void RawGenDelegate::invoke(Sender sender, void* userData) {
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const i32v3 &gridPos){
+void Chunk::init(const i32v3 &chunkPos) {
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
 	freeWaiting = 0;
@@ -51,10 +51,9 @@ void Chunk::init(const i32v3 &gridPos){
     _chunkListPtr = NULL;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
-    gridPosition = gridPos;
-    chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
-    chunkPosition.y = fastFloor(gridPosition.y / (double)CHUNK_WIDTH);
-    chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
+    chunkPosition = chunkPos;
+    gridPosition = chunkPos * CHUNK_WIDTH;
+  
 	numBlocks = -1;
 	_state = ChunkStates::LOAD;
 	left = NULL;

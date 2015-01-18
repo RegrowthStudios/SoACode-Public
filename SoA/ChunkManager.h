@@ -251,10 +251,6 @@ private:
     /// @param nodes: the nodes to place
     void placeTreeNodes(GeneratedTreeNodes* nodes);
 
-    /// Setups any chunk neighbor connections
-    /// @param chunk: the chunk to connect
-    void setupNeighbors(Chunk* chunk);
-
     /// Frees a chunk from the world. 
     /// The chunk may be recycled, or it may need to wait for some threads
     /// to finish processing on it.
@@ -291,16 +287,16 @@ private:
     /// @param position: the camera position
     void updateChunks(const f64v3& position);
 
-    /// Updates the neighbors for a chunk slot, possible loading new chunks
-    /// @param cs: the chunkslot in question
+    /// Updates the neighbors for a chunk, possibly loading new chunks
+    /// @param chunk: the chunk in question
     /// @param cameraPos: camera position
-    void updateChunkslotNeighbors(ChunkSlot* cs, const i32v3& cameraPos);
+    void updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos);
 
-    /// Tries to load a chunk slot neighbor if it is in range
-    /// @param cs: relative chunk slot
+    /// Tries to load a chunk neighbor if it is in range
+    /// @param chunk: relative chunk
     /// @param cameraPos: the camera position
     /// @param offset: the offset, must be unit length.
-    ChunkSlot* tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& cameraPos, const i32v3& offset);
+    void tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset);
 
     /// Calculates cave occlusion. This is temporarily broken /// TODO(Ben): Fix cave occlusion
     void caveOcclusion(const f64v3& ppos);
