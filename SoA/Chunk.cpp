@@ -134,27 +134,27 @@ void Chunk::clearBuffers()
 }
 
 void Chunk::clearNeighbors() {
-    if (left && left->right == this) {
+    if (left) {
         left->right = nullptr;
         left->numNeighbors--;
     }
-    if (right && right->left == this) {
+    if (right) {
         right->left = nullptr;
         right->numNeighbors--;
     }
-    if (top && top->bottom == this) {
+    if (top) {
         top->bottom = nullptr;
         top->numNeighbors--;
     }
-    if (bottom && bottom->top == this) {
+    if (bottom) {
         bottom->top = nullptr;
         bottom->numNeighbors--;
     }
-    if (front && front->back == this) {
+    if (front) {
         front->back = nullptr;
         front->numNeighbors--;
     }
-    if (back && back->front == this) {
+    if (back) {
         back->front = nullptr;
         back->numNeighbors--;
     }

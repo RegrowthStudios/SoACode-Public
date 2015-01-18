@@ -211,7 +211,6 @@ void ChunkManager::update(const f64v3& position) {
         ch = _freeWaitingChunks[i];
         if (ch->inSaveThread == false && ch->inLoadThread == false && 
             !ch->lastOwnerTask && !ch->_chunkListPtr && ch->chunkDependencies == 0) {
-            ch->clearNeighbors();
             freeChunk(_freeWaitingChunks[i]);
             _freeWaitingChunks[i] = _freeWaitingChunks.back();
             _freeWaitingChunks.pop_back();
@@ -809,7 +808,6 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             chunk->_state = ChunkStates::DRAW;
         }
 
-
         if (SDL_GetTicks() - startTicks > maxTicks) break;
     }
     return 0;
@@ -963,23 +961,18 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             _freeWaitingChunks.push_back(chunk);
             globalAccumulationTimer.stop();
         } else {
-
+            chunk->clearNeighbors();
             // Reduce the ref count since the chunk no longer needs chunkGridData
             chunk->chunkGridData->refCount--;
             // Check to see if we should free the grid data
             if (chunk->chunkGridData->refCount == 0) {
-                globalAccumulationTimer.start("FREE C");
                 i32v2 gridPosition(chunk->chunkPosition.x, chunk->chunkPosition.z);
                 _chunkGridDataMap.erase(gridPosition);
-                globalAccumulationTimer.start("FREE D");
+
                 delete chunk->chunkGridData;
                 globalAccumulationTimer.stop();
             }
-            // Completely clear the chunk and then recycle it
-            
-            // Destroy the mesh
-            chunk->clearBuffers();
-
+            // Completely clear the chunk and then recycle it 
             chunk->clear();
             recycleChunk(chunk);
         }
