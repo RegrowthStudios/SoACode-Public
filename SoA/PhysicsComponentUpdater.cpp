@@ -34,6 +34,5 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSyst
         } else {
             spcmp.position += cmp.velocity; // * timestep
         }
-        printVec("POS :", spcmp.position);
     }
 }

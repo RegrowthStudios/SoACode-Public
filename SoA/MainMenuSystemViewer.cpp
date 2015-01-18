@@ -45,7 +45,6 @@ void MainMenuSystemViewer::update() {
     const float HOVER_SPEED = 0.08f;
     const float HOVER_SIZE_INC = 7.0f;
 
-    // Render all bodies
     for (auto& it : m_spaceSystem->m_namePositionCT) {
         vcore::ComponentID componentID;
 
@@ -142,6 +141,7 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
 
         // If we selected an entity, then do the target picking
         if (closestEntity) {
+            m_selectedPlanet = closestEntity;
             pickStartLocation(closestEntity);
             m_spaceSystem->targetBody(closestEntity);
         }
@@ -202,6 +202,8 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
             f64q rot = m_spaceSystem->m_axisRotationCT.get(cid).currentOrientation;
             hitpoint = f32v3(glm::inverse(rot) * f64v3(hitpoint));
         }
+
+        m_clickPos = f64v3(hitpoint);
 
         // Compute face and grid position
         computeGridPosition(hitpoint, radius);

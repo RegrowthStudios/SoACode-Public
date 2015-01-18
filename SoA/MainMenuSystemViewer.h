@@ -52,6 +52,8 @@ public:
     /// Getters
     const f32v2& getSelectedGridPos() const { return m_selectedGridPos; }
     const int& getSelectedCubeFace() const { return m_selectedCubeFace; }
+    vcore::EntityID getSelectedPlanet() const { return m_selectedPlanet; }
+    const f64v3& getClickPos() const { return m_clickPos; }
 
     static const float MIN_SELECTOR_SIZE;
     static const float MAX_SELECTOR_SIZE;
@@ -74,9 +76,12 @@ private:
     bool mouseButtons[2];
     f32v2 m_mouseCoords = f32v2(-1.0f);
     f32v2 m_viewport;
+    f64v3 m_clickPos = f64v3(0.0);
 
     f32v2 m_selectedGridPos = f32v2(0.0f);
     int m_selectedCubeFace = -1;
+
+    vcore::EntityID m_selectedPlanet = 0;
 
     CinematicCamera* m_camera = nullptr;
     SpaceSystem* m_spaceSystem = nullptr;

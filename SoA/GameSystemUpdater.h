@@ -40,7 +40,7 @@ public:
     /// adds or removes spherical voxel components from SpaceSystem
     /// @param gameSystem: Game ECS
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
-    void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
+    static void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
 private:
     PhysicsComponentUpdater physicsUpdater;
     CollisionComponentUpdater collisionUpdater;
@@ -50,7 +50,7 @@ private:
     /// @param radius: Radius of the world
     /// @param mapData: Mapping data for spherical voxel position
     /// @param pos: the resulting voxel grid relative position
-    void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos);
+    static void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos);
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 

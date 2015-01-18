@@ -49,15 +49,19 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
 }
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
+
+#define CHECK_FRAMES 2
+
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);
     collisionUpdater.update(gameSystem);
     freeMoveUpdater.update(gameSystem);
 
-    // Update voxel planet transitions every 60 frames
+    // Update voxel planet transitions every CHECK_FRAMES frames
     m_frameCounter++;
-    if (m_frameCounter == 2) {
+    if (m_frameCounter == CHECK_FRAMES) {
         updateVoxelPlanetTransitions(gameSystem, spaceSystem, soaState);
+        m_frameCounter = 0;
     }
 }
 
@@ -116,7 +120,6 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             }
         }
     }
-    m_frameCounter = 0;
 }
 
 void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos) {

@@ -202,7 +202,8 @@ void MainMenuScreen::newGame(const nString& fileName) {
     m_soaState->isNewGame = true;
     m_soaState->startFace = m_mainMenuSystemViewer->getSelectedCubeFace();
     m_soaState->startGridPos = f32v3(selectedGridPos.x, 0.0f, selectedGridPos.y);
-    m_soaState->startSpacePos = m_camera.getPosition();
+    m_soaState->startSpacePos = m_mainMenuSystemViewer->getClickPos();
+    m_soaState->startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
 
     std::cout << "Making new game: " << fileName << std::endl;
 

@@ -33,6 +33,7 @@ public:
     SpaceSystem spaceSystem;
     GameSystem gameSystem;
 
+    vcore::EntityID startingPlanet = 0;
     vcore::EntityID playerEntity = 0;
 
     std::unique_ptr<vg::GLProgramManager> glProgramManager;

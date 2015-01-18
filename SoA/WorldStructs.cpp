@@ -10,6 +10,7 @@
 #include "Texture2d.h"
 
 MultiplePreciseTimer globalMultiplePreciseTimer; ///< for easy global benchmarking
+AccumulationTimer globalAccumulationTimer; ///< for easy global benchmarking
 
 class Item *ObjectList[OBJECT_LIST_SIZE];
 

@@ -99,7 +99,6 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* vox
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
 
-
     heightmapGenRpcDispatcher = std::make_unique<HeightmapGenRpcDispatcher>(m_terrainGenerator);
 
     // Initialize the threadpool for chunk loading
@@ -229,6 +228,14 @@ void ChunkManager::update(const f64v3& position) {
     globalMultiplePreciseTimer.end(false);
 
     timeEndPeriod(1);
+
+    static int g = 0;
+    if (++g == 10) {
+        globalAccumulationTimer.printAll(false);
+        std::cout << "\n";
+        globalAccumulationTimer.clear();
+        g = 0;
+    }
 }
 
 void ChunkManager::getClosestChunks(f64v3 &coords, Chunk** chunks) {
@@ -630,12 +637,22 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         
         //TODO(Ben): Beware of race here.
         if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-            if (!chunkGridData->wasRequestSent) {
-                // Keep trying to send it until it succeeds
-                while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                    (vvox::VoxelPlanetMapData*)ch->voxelMapData));
+            //if (!chunkGridData->wasRequestSent) {
+            //    // Keep trying to send it until it succeeds
+            //    while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
+            //        (vvox::VoxelPlanetMapData*)ch->voxelMapData));
+            //}
+            for (int i = 0; i < 1024; i++) {
+                chunkGridData->heightData[i].height = 0;
+                chunkGridData->heightData[i].temperature = 128;
+                chunkGridData->heightData[i].rainfall = 128;
+                chunkGridData->heightData[i].biome = nullptr;
+                chunkGridData->heightData[i].surfaceBlock = STONE;
+                chunkGridData->heightData[i].snowDepth = 0;
+                chunkGridData->heightData[i].sandDepth = 0;
+                chunkGridData->heightData[i].depth = 0;
             }
-            canGenerate = false;
+          //  canGenerate = false;
         }
 
         // If it is not saved. Generate it!
@@ -1087,29 +1104,39 @@ void ChunkManager::updateCaPhysics() {
 
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
+        
         if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
             m_chunkIo->addToSaveList(chunk);
         }
         // Clear any opengl buffers
         chunk->clearBuffers();
         // Lock to prevent data races
+        globalAccumulationTimer.start("FREE A");
         chunk->lock();
         // Sever any connections with neighbor chunks
+        globalAccumulationTimer.stop();
         chunk->clearNeighbors();
+        
         if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr) {
+            globalAccumulationTimer.start("FREE B");
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
             chunk->unlock();
             _freeWaitingChunks.push_back(chunk);
+            globalAccumulationTimer.stop();
         } else {
+
             // Reduce the ref count since the chunk no longer needs chunkGridData
             chunk->chunkGridData->refCount--;
             // Check to see if we should free the grid data
             if (chunk->chunkGridData->refCount == 0) {
+                globalAccumulationTimer.start("FREE C");
                 i32v2 gridPosition(chunk->chunkPosition.x, chunk->chunkPosition.z);
                 _chunkGridDataMap.erase(gridPosition);
+                globalAccumulationTimer.start("FREE D");
                 delete chunk->chunkGridData;
+                globalAccumulationTimer.stop();
             }
             // Completely clear the chunk and then recycle it
             
@@ -1195,10 +1222,11 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
         cs->calculateDistance2(intPosition);
         chunk = cs->chunk;
+        globalAccumulationTimer.start("UC");
         if (chunk->_state > ChunkStates::TREES) {
             chunk->updateContainers();
         }
-
+        globalAccumulationTimer.stop();
         if (cs->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
            
             // Only remove it if it isn't needed by its neighbors
@@ -1209,6 +1237,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 _chunkSlotMap.erase(chunk->chunkPosition);
 
                 freeChunk(chunk);
+                
                 cs->chunk = nullptr;
 
                 cs->clearNeighbors();
@@ -1219,6 +1248,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
                     _chunkSlots[0][i].reconnectToNeighbors();
                     _chunkSlotMap[_chunkSlots[0][i].chunk->chunkPosition] = &(_chunkSlots[0][i]);
                 }
+                globalAccumulationTimer.stop();
             }
         } else { //inside maximum range
 
@@ -1228,9 +1258,11 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
             // See if neighbors need to be added
             if (cs->numNeighbors != 6) {
+                globalAccumulationTimer.start("CSN");
                 updateChunkslotNeighbors(cs, intPosition);
+                globalAccumulationTimer.stop();
             }
-
+            globalAccumulationTimer.start("REST");
             // Calculate the LOD as a power of two
             int newLOD = (int)(sqrt(chunk->distance2) / graphicsOptions.voxelLODThreshold) + 1;
             //  newLOD = 2;
@@ -1248,8 +1280,10 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 case ChunkStates::WATERMESH:
                 case ChunkStates::MESH:
                     addToMeshList(chunk);
+                    globalAccumulationTimer.stop();
                     break;
                 default:
+                    globalAccumulationTimer.stop();
                     break;
                 }
             }
@@ -1258,6 +1292,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
             if (save && chunk->dirty) {
                 m_chunkIo->addToSaveList(chunk);
             }
+            globalAccumulationTimer.stop();
         }
     }
 

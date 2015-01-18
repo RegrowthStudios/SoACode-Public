@@ -16,7 +16,6 @@
 #define SoaController_h__
 
 class SoaState;
-
 class SoaController {
 public:
     ~SoaController();
