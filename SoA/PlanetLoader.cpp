@@ -420,7 +420,7 @@ void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, 
                 frequency = )" + TS(fn.frequency) + R"(;
 
                 for (int i = 0; i < )" + TS(fn.octaves) + R"(; i++) {
-                    total += (1.0 - abs(snoise(pos * frequency) * amplitude)) * 2.0 - 1.0;
+                    total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;
 
                     frequency *= 2.0;
                     maxAmplitude += amplitude;
