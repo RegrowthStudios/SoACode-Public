@@ -59,7 +59,6 @@ const int FaceSigns[6][4][2] = {
 
 const int FaceRadialSign[6] = { 1, -1, 1, 1, -1, -1 };
 
-
 class VoxelPlanetMapData : public VoxelMapData
 {
 public:

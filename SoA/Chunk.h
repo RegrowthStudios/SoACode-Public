@@ -42,17 +42,15 @@ class SphericalTerrainGenerator;
 
 class ChunkGridData {
 public:
-    ChunkGridData(vvox::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData), refCount(1) {
-        //Mark the data as unloaded
-        heightData[0].height = UNLOADED_HEIGHT;
-    }
+    ChunkGridData(vvox::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData) { }
     ~ChunkGridData() {
         delete voxelMapData;
     }
     vvox::VoxelMapData* voxelMapData;
     HeightData heightData[CHUNK_LAYER];
-    int refCount;
+    int refCount = 1;
     volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
+    volatile bool isLoaded = false;
 };
 
 class RawGenDelegate : public IDelegate < void* > {

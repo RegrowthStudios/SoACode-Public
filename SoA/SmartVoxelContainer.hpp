@@ -26,12 +26,12 @@
 namespace vorb {
     namespace voxel {
 
-        static ui32 MAX_CONTAINER_CHANGES_PER_FRAME = UINT_MAX; ///< You can optionally set this in order to limit changes per frame
-        static ui32 totalContainerChanges = 1; ///< Set this to 1 each frame
+        static ui32 MAX_COMPRESSIONS_PER_FRAME = UINT_MAX; ///< You can optionally set this in order to limit changes per frame
+        static ui32 totalContainerCompressions = 1; ///< Set this to 1 each frame
 
         /// This should be called once per frame to reset totalContainerChanges
-        inline void clearContainerChanges() {
-            totalContainerChanges = 1; ///< Start at 1 so that integer overflow handles the default case
+        inline void clearContainerCompressionsCounter() {
+            totalContainerCompressions = 1; ///< Start at 1 so that integer overflow handles the default case
         }
 
         enum class VoxelStorageState {
@@ -134,12 +134,12 @@ namespace vorb {
 
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     // Check if we should uncompress the data
-                    if (_quietFrames == 0 && totalContainerChanges <= MAX_CONTAINER_CHANGES_PER_FRAME) {
+                    if (_quietFrames == 0) {
                         uncompress(dataLock);
                     }
                 } else {
                     // Check if we should compress the data
-                    if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS && totalContainerChanges <= MAX_CONTAINER_CHANGES_PER_FRAME) {
+                    if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS && totalContainerCompressions <= MAX_COMPRESSIONS_PER_FRAME) {
                         compress(dataLock);
                     }
                 }
@@ -178,7 +178,6 @@ namespace vorb {
                 // Set the new state
                 _state = VoxelStorageState::FLAT_ARRAY;
                 dataLock.unlock();
-                totalContainerChanges++;
             }
 
             inline void compress(std::mutex& dataLock) {
@@ -205,7 +204,7 @@ namespace vorb {
                 // Create the tree
                 _dataTree.createFromSortedArray(dataVector);
                 dataLock.unlock();
-                totalContainerChanges++;
+                totalContainerCompressions++;
             }
 
             VoxelIntervalTree<T> _dataTree; ///< Interval tree of voxel data

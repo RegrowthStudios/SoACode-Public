@@ -13,7 +13,7 @@ public:
     GLint height;
     GLint temperature;
     GLint rainfall;
-    GLint snowDepth;
+    GLint snowDepth; // TODO(Ben): THESE AREN'T NEEDED
     GLint sandDepth;
     GLint flags;
     GLubyte depth;

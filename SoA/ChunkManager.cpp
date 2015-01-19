@@ -49,7 +49,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define MAX_VOXEL_ARRAYS_TO_CACHE 200
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
-const ui32 MAX_CONTAINER_CHANGES_PER_FRAME = 8;
+const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 
 bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData) {
     // Check if there is a free generator
@@ -69,6 +69,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
         gen.width = 32;
         gen.step = 1;
         // Invoke generator
+        cgd->refCount++;
         m_generator->invokeRawGen(&gen.rpc);
         // Go to next generator
         counter++;
@@ -92,7 +93,7 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* vox
     m_chunkIo(chunkIo) {
    
     // Set maximum container changes
-    vvox::MAX_CONTAINER_CHANGES_PER_FRAME = MAX_CONTAINER_CHANGES_PER_FRAME;
+    vvox::MAX_COMPRESSIONS_PER_FRAME = MAX_COMPRESSIONS_PER_FRAME;
 
     m_physicsEngine->setChunkManager(this);
 
@@ -224,6 +225,8 @@ void ChunkManager::update(const f64v3& position) {
         }
     }
 
+    std::cout << _freeWaitingChunks.size() << " ";
+
     globalMultiplePreciseTimer.start("Finished Tasks");
     processFinishedTasks();
     //change the parameter to true to print out the timings
@@ -291,7 +294,7 @@ i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
     i32v2 gridPosition(fastFloor(posX / (float)CHUNK_WIDTH) * CHUNK_WIDTH, fastFloor(posZ / (float)CHUNK_WIDTH) * CHUNK_WIDTH);
     ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
     if (chunkGridData) {
-        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) return 1;
+        if (!chunkGridData->isLoaded) return 1;
         hd = chunkGridData->heightData[(posZ%CHUNK_WIDTH) * CHUNK_WIDTH + posX%CHUNK_WIDTH];
         return 0;
     } else {
@@ -573,35 +576,24 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         ChunkGridData* chunkGridData = ch->chunkGridData;
         
         //TODO(Ben): Beware of race here.
-        if (chunkGridData->heightData[0].height == UNLOADED_HEIGHT) {
-         //   if (!chunkGridData->wasRequestSent) {
-          //      // Keep trying to send it until it succeeds
-         //       while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-        //            (vvox::VoxelPlanetMapData*)ch->voxelMapData));
-        //    }
-            for (int i = 0; i < 1024; i++) {
-                chunkGridData->heightData[i].height = 0;
-                chunkGridData->heightData[i].temperature = 128;
-                chunkGridData->heightData[i].rainfall = 128;
-                chunkGridData->heightData[i].biome = nullptr;
-                chunkGridData->heightData[i].surfaceBlock = STONE;
-                chunkGridData->heightData[i].snowDepth = 0;
-                chunkGridData->heightData[i].sandDepth = 0;
-                chunkGridData->heightData[i].depth = 0;
-                chunkGridData->heightData[i].flags = 0;
+        if (!chunkGridData->isLoaded) {
+            if (!chunkGridData->wasRequestSent) {
+                // Keep trying to send it until it succeeds
+                while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
+                    (vvox::VoxelPlanetMapData*)ch->voxelMapData));
             }
-          //  canGenerate = false;
+
+            canGenerate = false;
         }
 
         // If it is not saved. Generate it!
         if (ch->loadStatus == 1) {
-            ch->loadStatus == 0;
-
             // If we can generate immediately, then do so. Otherwise we wait
             if (canGenerate) {
                 addGenerateTask(ch);
+                std::cout << "HELLO: " << chunkGridData->heightData[0].height << std::endl;
             } else {
-                addToGenerateList(ch);
+                addToGenerateList(ch);            
             }
         } else {
             ch->_state = ChunkStates::MESH;
@@ -618,8 +610,19 @@ void ChunkManager::updateGenerateList() {
     Chunk *chunk;
     for (i32 i = m_generateList.size() - 1; i >= 0; i--) {
         chunk = m_generateList[i];
-
-        
+        // Check if the chunk is waiting to be freed
+        if (chunk->freeWaiting) {
+            // Remove from the setup list
+            m_generateList[i] = m_generateList.back();
+            m_generateList.pop_back();
+            chunk->clearChunkListPtr();
+            continue;
+        } else if (chunk->chunkGridData->isLoaded) {
+            addGenerateTask(chunk);
+            m_generateList[i] = m_generateList.back();
+            m_generateList.pop_back();
+            chunk->clearChunkListPtr();
+        }
     }
 }
 
@@ -1049,8 +1052,8 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
     #define MS_PER_MINUTE 60000
 
-    // Clear container changes
-    vvox::clearContainerChanges();
+    // Reset the counter for number of container compressions
+    vvox::clearContainerCompressionsCounter();
 
     if (SDL_GetTicks() - saveTicks >= MS_PER_MINUTE) { //save once per minute
         save = 1;

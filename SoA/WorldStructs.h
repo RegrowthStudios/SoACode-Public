@@ -12,8 +12,6 @@ extern AccumulationTimer globalAccumulationTimer;
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
-const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.
-
 class FixedSizeBillboardVertex{
 public:
     glm::vec3 pos;
