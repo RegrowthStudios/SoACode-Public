@@ -11,6 +11,9 @@
 #include "SphericalTerrainComponent.h"
 #include "SphericalTerrainMeshManager.h"
 
+#define M_PER_KM 1000.0f
+#define KM_PER_M 0.001f
+
 const ColorRGB8 DebugColors[12] {
     ColorRGB8(255, 0, 0), //TOP
     ColorRGB8(0, 255, 0), //LEFT
@@ -248,7 +251,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             // Get data from heightmap 
             zIndex = z * PIXELS_PER_PATCH_NM + 1;
             xIndex = x * PIXELS_PER_PATCH_NM + 1;
-            h = m_heightData[zIndex][xIndex][0];
+            h = m_heightData[zIndex][xIndex][0] * KM_PER_M;
             
             // Water indexing
             if (h < 0) {
@@ -284,7 +287,7 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
             v.color = m_planetGenData->terrainTint;
-            v.color = DebugColors[(int)mesh->m_cubeFace];
+         //   v.color = DebugColors[(int)mesh->m_cubeFace];
          //   v.color.r = (ui8)(m_heightData[zIndex][xIndex][3] * 31.875f);
          //   v.color.g = 0.0;
          //   v.color.b = 0.0;
@@ -379,7 +382,7 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
         glBindTexture(GL_TEXTURE_2D, m_patchTextures[i].getTextureIDs().height_temp_hum);
 
         // Set uniforms
-        glUniform1f(unWidth, data->width / PATCH_HEIGHTMAP_WIDTH);
+        glUniform1f(unWidth, (data->width / PATCH_HEIGHTMAP_WIDTH) * M_PER_KM);
         glUniform1f(unTexelWidth, (float)PATCH_HEIGHTMAP_WIDTH);
 
         // Generate normal map
@@ -429,7 +432,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
 
         data->gridData->isLoaded = true;
-        data->gridData->refCount--; //TODO(Ben): This will result in a memory leak
+        data->gridData->refCount--; //TODO(Ben): This will result in a memory leak since when it hits 0, it wont deallocate
         data->inUse = false;
     }
     m_rawCounter = 0;
@@ -552,15 +555,14 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
 
         zIndex = z * PIXELS_PER_PATCH_NM + 1;
         xIndex = x * PIXELS_PER_PATCH_NM + 1;
-        float h = m_heightData[zIndex][xIndex][0];
-        if (h < 0) {
-            v.depth = -h;
+        float d = m_heightData[zIndex][xIndex][0] * KM_PER_M;
+        if (d < 0) {
+            v.depth = -d;
         } else {
             v.depth = 0;
         }
 
         v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, computeAngleFromNormal(normal), m_heightData[zIndex][xIndex][1]);
-        
 
         // Compute tangent
         f32v3 tmpPos;
