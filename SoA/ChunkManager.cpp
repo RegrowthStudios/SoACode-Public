@@ -779,6 +779,8 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             continue;
         }
 
+        std::cout << chunk->numNeighbors << " ";
+
         if (chunk->inFrustum && trySetMeshDependencies(chunk)) {     
            
             chunk->occlude = 0;
@@ -1148,15 +1150,13 @@ void ChunkManager::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
 }
 
 void ChunkManager::tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
-    i32v3 newPosition = chunk->voxelPosition + offset * CHUNK_WIDTH;
+    i32v3 newPosition = chunk->chunkPosition + offset;
    
-    double dist2 = Chunk::getDistance2(newPosition, cameraPos);
+    double dist2 = Chunk::getDistance2(newPosition * CHUNK_WIDTH, cameraPos);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
 
-        i32v3 chunkPosition = getChunkPosition(newPosition);
-
         i32v2 ijOffset(offset.z, offset.x);
-        makeChunkAt(chunkPosition, chunk->chunkGridData->voxelMapData, ijOffset);
+        makeChunkAt(newPosition, chunk->chunkGridData->voxelMapData, ijOffset);
     }
 }
 

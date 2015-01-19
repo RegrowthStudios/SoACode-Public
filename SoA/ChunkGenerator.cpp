@@ -36,8 +36,6 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
     ui8* sunLightArray = chunk->_sunlightContainer._dataArray;
     ui16* tertiaryDataArray = chunk->_tertiaryDataContainer._dataArray;
 
-    chunk->numNeighbors = 0;
-
     int c = 0;
     int flags;
     int h = 0, maph;
