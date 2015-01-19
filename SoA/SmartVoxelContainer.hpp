@@ -50,8 +50,8 @@ namespace vorb {
             /// @param arrayRecycler: Pointer to a recycler. Template parameters must be
             /// <CHUNK_SIZE, T>
             SmartVoxelContainer(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* arrayRecycler) :
-                _dataArray(nullptr), _accessCount(0), _quietFrames(0),
-                _state(VoxelStorageState::FLAT_ARRAY), _arrayRecycler(arrayRecycler) {
+                 _arrayRecycler(arrayRecycler) {
+                // Empty
             }
 
             /// Gets the element at index
@@ -108,7 +108,7 @@ namespace vorb {
                 }
             }
 
-            #define QUIET_FRAMES_UNTIL_COMPRESS 120
+            #define QUIET_FRAMES_UNTIL_COMPRESS 60
             #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
 
             inline void changeState(VoxelStorageState newState, std::mutex& dataLock) {
@@ -183,15 +183,16 @@ namespace vorb {
             inline void compress(std::mutex& dataLock) {
                 dataLock.lock();
                 // Sorted array for creating the interval tree
-                std::vector<VoxelIntervalTree<T>::LightweightNode> dataVector;
-                dataVector.reserve(CHUNK_WIDTH / 2);
-                dataVector.emplace_back(0, 1, _dataArray[0]);
+                // Using stack array to avoid allocations, beware stack overflow
+                VoxelIntervalTree<T>::LightweightNode data[CHUNK_SIZE];
+                int index = 0;
+                data[0].set(0, 1, _dataArray[0]);
                 // Set the data
-                for (int i = 1; i < CHUNK_SIZE; i++) {
-                    if (_dataArray[i] == dataVector.back().data) {
-                        dataVector.back().length++;
+                for (int i = 1; i < CHUNK_SIZE; ++i) {
+                    if (_dataArray[i] == data[index].data) {
+                        ++(data[index].length);
                     } else {
-                        dataVector.emplace_back(i, 1, _dataArray[i]);
+                        data[++index].set(i, 1, _dataArray[i]);
                     }
                 }
 
@@ -202,17 +203,18 @@ namespace vorb {
                 // Set new state
                 _state = VoxelStorageState::INTERVAL_TREE;
                 // Create the tree
-                _dataTree.createFromSortedArray(dataVector);
+                _dataTree.createFromSortedArray(data, index + 1);
+
                 dataLock.unlock();
                 totalContainerCompressions++;
             }
 
             VoxelIntervalTree<T> _dataTree; ///< Interval tree of voxel data
-            T* _dataArray; ///< pointer to an array of voxel data
-            int _accessCount; ///< Number of times the container was accessed this frame
-            int _quietFrames; ///< Number of frames since we have had heavy updates
+            T* _dataArray = nullptr; ///< pointer to an array of voxel data
+            int _accessCount = 0; ///< Number of times the container was accessed this frame
+            int _quietFrames = 0; ///< Number of frames since we have had heavy updates
 
-            VoxelStorageState _state; ///< Current data structure state
+            VoxelStorageState _state = VoxelStorageState::FLAT_ARRAY; ///< Current data structure state
 
             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* _arrayRecycler; ///< For recycling the voxel arrays
         };

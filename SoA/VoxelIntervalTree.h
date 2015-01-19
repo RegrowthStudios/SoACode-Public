@@ -9,15 +9,19 @@ template <typename T>
 class VoxelIntervalTree {
 public:
 
-    VoxelIntervalTree() : _root(-1) {}
-
 #define COLOR_BIT 0x8000
 #define START_MASK 0x7FFF
 
     //Node for createFromArray
     class LightweightNode {
     public:
+        LightweightNode() {}
         LightweightNode(ui16 Start, ui16 Length, T Data) : start(Start), length(Length), data(Data) {}
+        void set(ui16 Start, ui16 Length, T Data) {
+            start = Start;
+            length = Length;
+            data = Data;
+        }
         ui16 start;
         ui16 length;
         T data;
@@ -49,13 +53,13 @@ public:
     bool checkTreeValidity() const {
         int tot = 0;
         for (size_t i = 0; i < _tree.size(); i++) {
-            if (_tree[i].length > 32768) {
+            if (_tree[i].length > CHUNK_SIZE) {
                 std::cout << "AHA";
                 fflush(stdout);
             }
             tot += _tree[i].length;
         }
-        if (tot != 32768) {
+        if (tot != CHUNK_SIZE) {
             pError("Invalid Tree! Total size is not 32768, it is " + std::to_string(tot));
             fflush(stdout);
         }
@@ -69,10 +73,6 @@ public:
     }
 
     bool checkValidRB() const {
-        //    if (_tree[_root].isRed()) {
-        //        std::cout << "ROOT IS RED!\n";
-        //        fflush(stdout);
-        //    }
         if (_tree[_root].parent != -1) {
             std::cout << "ROOT HAS A PARENT!\n";
             fflush(stdout);
@@ -110,6 +110,16 @@ public:
             _tree[i].data = data[i].data;
         }
         _root = arrayToRedBlackTree(0, data.size() - 1, -1, true);
+    }
+
+    void createFromSortedArray(LightweightNode data[], int size) {
+        _tree.resize(size);
+        for (int i = 0; i < size; i++) {
+            _tree[i].setStart(data[i].start);
+            _tree[i].length = data[i].length;
+            _tree[i].data = data[i].data;
+        }
+        _root = arrayToRedBlackTree(0, size - 1, -1, true);
     }
 
     T getData(ui16 index) const;
@@ -167,7 +177,7 @@ private:
     void rotateLeft(int index);
 
 
-    int _root;
+    int _root = -1;
     std::vector <Node> _tree;
 
     class NodeToAdd {

@@ -591,7 +591,6 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
             // If we can generate immediately, then do so. Otherwise we wait
             if (canGenerate) {
                 addGenerateTask(ch);
-                std::cout << "HELLO: " << chunkGridData->heightData[0].height << std::endl;
             } else {
                 addToGenerateList(ch);            
             }

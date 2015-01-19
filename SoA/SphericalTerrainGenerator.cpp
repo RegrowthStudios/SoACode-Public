@@ -417,7 +417,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
                 data->gridData->heightData[c].rainfall = m_heightData[y][x][2];
                 //TODO(Ben): Biomes
                 data->gridData->heightData[c].biome = nullptr;
-                data->gridData->heightData[c].surfaceBlock = DIRTGRASS;
+                data->gridData->heightData[c].surfaceBlock = STONE;
                 data->gridData->heightData[c].depth = 0;
                 data->gridData->heightData[c].sandDepth = 0; // TODO(Ben): kill this
                 data->gridData->heightData[c].snowDepth = 0;
