@@ -555,7 +555,7 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
 
         zIndex = z * PIXELS_PER_PATCH_NM + 1;
         xIndex = x * PIXELS_PER_PATCH_NM + 1;
-        float d = m_heightData[zIndex][xIndex][0] * KM_PER_M;
+        float d = m_heightData[zIndex][xIndex][0];
         if (d < 0) {
             v.depth = -d;
         } else {
