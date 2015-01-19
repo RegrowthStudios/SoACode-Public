@@ -861,9 +861,9 @@ int Chunk::getTemperature(int xz) const {
     return (int)chunkGridData->heightData[xz].temperature;
 }
 
-void Chunk::detectNeighbors(std::unordered_map<i32v3, Chunk*>& chunkMap) {
+void Chunk::detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap) {
 
-    std::unordered_map<i32v3, Chunk*>::iterator it;
+    std::unordered_map<i32v3, Chunk*>::const_iterator it;
 
     //left
     if (left == nullptr) {

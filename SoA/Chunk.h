@@ -161,7 +161,7 @@ public:
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
-    void detectNeighbors(std::unordered_map<i32v3, Chunk*>& chunkMap);
+    void detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap);
 
     int getLevelOfDetail() const { return _levelOfDetail; }
 

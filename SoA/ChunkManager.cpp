@@ -779,8 +779,6 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             continue;
         }
 
-        std::cout << chunk->numNeighbors << " ";
-
         if (chunk->inFrustum && trySetMeshDependencies(chunk)) {     
            
             chunk->occlude = 0;
