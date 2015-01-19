@@ -1066,7 +1066,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
         chunk->calculateDistance2(intPosition);
 
         globalAccumulationTimer.start("UC");
-        if (chunk->_state > ChunkStates::TREES) {
+        if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
 #ifndef DEBUG //Compressing containers is hilariously slow in debug mode
             chunk->updateContainers();
 #endif

@@ -195,17 +195,17 @@ namespace vorb {
                         data[++index].set(i, 1, _dataArray[i]);
                     }
                 }
-
-                // Recycle memory
-                _arrayRecycler->recycle(_dataArray);
-                _dataArray = nullptr;
-
                 // Set new state
                 _state = VoxelStorageState::INTERVAL_TREE;
                 // Create the tree
                 _dataTree.createFromSortedArray(data, index + 1);
 
                 dataLock.unlock();
+
+                // Recycle memory
+                _arrayRecycler->recycle(_dataArray);
+                _dataArray = nullptr;
+
                 totalContainerCompressions++;
             }
 
