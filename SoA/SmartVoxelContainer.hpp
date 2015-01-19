@@ -26,6 +26,14 @@
 namespace vorb {
     namespace voxel {
 
+        static ui32 MAX_CONTAINER_CHANGES_PER_FRAME = UINT_MAX; ///< You can optionally set this in order to limit changes per frame
+        static ui32 totalContainerChanges = 1; ///< Set this to 1 each frame
+
+        /// This should be called once per frame to reset totalContainerChanges
+        inline void clearContainerChanges() {
+            totalContainerChanges = 1; ///< Start at 1 so that integer overflow handles the default case
+        }
+
         enum class VoxelStorageState {
             FLAT_ARRAY,
             INTERVAL_TREE
@@ -100,7 +108,7 @@ namespace vorb {
                 }
             }
 
-            #define QUIET_FRAMES_UNTIL_COMPRESS 60
+            #define QUIET_FRAMES_UNTIL_COMPRESS 120
             #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
 
             inline void changeState(VoxelStorageState newState, std::mutex& dataLock) {
@@ -126,12 +134,12 @@ namespace vorb {
 
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     // Check if we should uncompress the data
-                    if (_quietFrames == 0) {
+                    if (_quietFrames == 0 && totalContainerChanges <= MAX_CONTAINER_CHANGES_PER_FRAME) {
                         uncompress(dataLock);
                     }
                 } else {
                     // Check if we should compress the data
-                    if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS) {
+                    if (_quietFrames >= QUIET_FRAMES_UNTIL_COMPRESS && totalContainerChanges <= MAX_CONTAINER_CHANGES_PER_FRAME) {
                         compress(dataLock);
                     }
                 }
@@ -159,7 +167,6 @@ namespace vorb {
             /// Getters
             VoxelStorageState getState() { return _state; }
             T* getDataArray() { return _dataArray; }
-
         private: 
 
             inline void uncompress(std::mutex& dataLock) {
@@ -171,6 +178,7 @@ namespace vorb {
                 // Set the new state
                 _state = VoxelStorageState::FLAT_ARRAY;
                 dataLock.unlock();
+                totalContainerChanges++;
             }
 
             inline void compress(std::mutex& dataLock) {
@@ -197,6 +205,7 @@ namespace vorb {
                 // Create the tree
                 _dataTree.createFromSortedArray(dataVector);
                 dataLock.unlock();
+                totalContainerChanges++;
             }
 
             VoxelIntervalTree<T> _dataTree; ///< Interval tree of voxel data

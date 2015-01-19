@@ -33,6 +33,7 @@
 #include "RenderTask.h"
 #include "Sound.h"
 #include "SphericalTerrainGenerator.h"
+#include "SmartVoxelContainer.hpp"
 
 #include "SphericalTerrainPatch.h"
 
@@ -48,6 +49,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define MAX_VOXEL_ARRAYS_TO_CACHE 200
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
+const ui32 MAX_CONTAINER_CHANGES_PER_FRAME = 8;
 
 bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData) {
     // Check if there is a free generator
@@ -89,6 +91,9 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* vox
     m_physicsEngine(physicsEngine),
     m_chunkIo(chunkIo) {
    
+    // Set maximum container changes
+    vvox::MAX_CONTAINER_CHANGES_PER_FRAME = MAX_CONTAINER_CHANGES_PER_FRAME;
+
     m_physicsEngine->setChunkManager(this);
 
     NoChunkFade = 0;
@@ -1043,6 +1048,9 @@ void ChunkManager::updateChunks(const f64v3& position) {
     bool save = 0;
 
     #define MS_PER_MINUTE 60000
+
+    // Clear container changes
+    vvox::clearContainerChanges();
 
     if (SDL_GetTicks() - saveTicks >= MS_PER_MINUTE) { //save once per minute
         save = 1;

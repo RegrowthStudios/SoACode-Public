@@ -287,7 +287,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
         for (int i = 0; i < _blockIDContainer._dataTree.size(); i++) {
             for (int j = 0; j < _blockIDContainer._dataTree[i].length; j++) {
                 c = _blockIDContainer._dataTree[i].getStart() + j;
-                assert(c < CHUNK_SIZE);
+
                 getPosFromBlockIndex(c, pos);
 
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
@@ -321,7 +321,6 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             for (int j = 0; j < _lampLightContainer._dataTree[i].length; j++) {
                 c = _lampLightContainer._dataTree[i].getStart() + j;
 
-                assert(c < CHUNK_SIZE);
                 getPosFromBlockIndex(c, pos);
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
@@ -346,7 +345,6 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             for (int j = 0; j < _sunlightContainer._dataTree[i].length; j++) {
                 c = _sunlightContainer._dataTree[i].getStart() + j;
 
-                assert(c < CHUNK_SIZE);
                 getPosFromBlockIndex(c, pos);
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
@@ -371,7 +369,6 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             for (int j = 0; j < _tertiaryDataContainer._dataTree[i].length; j++) {
                 c = _tertiaryDataContainer._dataTree[i].getStart() + j;
 
-                assert(c < CHUNK_SIZE);
                 getPosFromBlockIndex(c, pos);
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
