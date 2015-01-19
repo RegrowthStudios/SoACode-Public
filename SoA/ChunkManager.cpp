@@ -961,6 +961,8 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             _freeWaitingChunks.push_back(chunk);
             globalAccumulationTimer.stop();
         } else {
+            m_chunkMap.erase(chunk->chunkPosition);
+
             chunk->clearNeighbors();
             // Reduce the ref count since the chunk no longer needs chunkGridData
             chunk->chunkGridData->refCount--;
@@ -1055,7 +1057,9 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
         globalAccumulationTimer.start("UC");
         if (chunk->_state > ChunkStates::TREES) {
+#ifndef DEBUG //Compressing containers is hilariously slow in debug mode
             chunk->updateContainers();
+#endif
         }
         globalAccumulationTimer.stop();
         if (chunk->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
@@ -1065,7 +1069,6 @@ void ChunkManager::updateChunks(const f64v3& position) {
                 if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
                     m_chunkIo->addToSaveList(chunk);
                 }
-                m_chunkMap.erase(chunk->chunkPosition);
 
                 freeChunk(chunk);
 
