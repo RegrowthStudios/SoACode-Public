@@ -95,11 +95,11 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
                     glDeleteVertexArrays(1, &(cm->transVaoID));
                     cm->transVaoID = 0;
                 }
-                if (cm->transVboID == 0) {
+                if (cm->transVboID != 0) {
                     glDeleteBuffers(1, &(cm->transVboID));
                     cm->transVboID = 0;
                 }
-                if (cm->transIndexID == 0) {
+                if (cm->transIndexID != 0) {
                     glDeleteBuffers(1, &(cm->transIndexID));
                     cm->transIndexID = 0;
                 }
@@ -119,7 +119,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
                     glDeleteVertexArrays(1, &(cm->cutoutVaoID));
                     cm->cutoutVaoID = 0;
                 }
-                if (cm->cutoutVboID == 0) {
+                if (cm->cutoutVboID != 0) {
                     glDeleteBuffers(1, &(cm->cutoutVboID));
                     cm->cutoutVboID = 0;
                 }

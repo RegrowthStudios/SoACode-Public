@@ -13,6 +13,7 @@
 
 #define M_PER_KM 1000.0f
 #define KM_PER_M 0.001f
+#define VOXELS_PER_M 2.0f
 
 const ColorRGB8 DebugColors[12] {
     ColorRGB8(255, 0, 0), //TOP
@@ -415,7 +416,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         int c = 0;
         for (int y = 0; y < CHUNK_WIDTH; y++) {
             for (int x = 0; x < CHUNK_WIDTH; x++, c++) {
-                data->gridData->heightData[c].height = m_heightData[y][x][0];
+                data->gridData->heightData[c].height = m_heightData[y][x][0] * VOXELS_PER_M;
                 data->gridData->heightData[c].temperature = m_heightData[y][x][1];
                 data->gridData->heightData[c].rainfall = m_heightData[y][x][2];
                 //TODO(Ben): Biomes
