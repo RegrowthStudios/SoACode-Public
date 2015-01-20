@@ -50,6 +50,7 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
         delete cmd;
         return;
     }
+    cm->refCount--;
 
     //store the index data for sorting in the chunk mesh
     cm->transQuadIndices.swap(cmd->transQuadIndices);
@@ -339,23 +340,15 @@ void MeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     static GLuint saveTicks = SDL_GetTicks();
 
     for (int i = 0; i < _chunkMeshes.size(); i++){ //update distances for all chunk meshes
-
-        if (_chunkMeshes[i]->needsDestroy) {
-            delete _chunkMeshes[i];
-            _chunkMeshes[i] = _chunkMeshes.back();
-            _chunkMeshes[i]->vecIndex = i;
-            _chunkMeshes.pop_back();
-        } else {
-            cm = _chunkMeshes[i];
-            const glm::ivec3 &cmPos = cm->position;
-            cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
-            cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
-            cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
-            dx = cx - mx;
-            dy = cy - my;
-            dz = cz - mz;
-            cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
-        }
+        cm = _chunkMeshes[i];
+        const glm::ivec3 &cmPos = cm->position;
+        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
+        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
+        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
+        dx = cx - mx;
+        dy = cy - my;
+        dz = cz - mz;
+        cm->distance2 = dx*dx + dy*dy + dz*dz;     
     }
 }
 
@@ -369,7 +362,7 @@ void MeshManager::recursiveSortMeshList(std::vector <ChunkMesh*> &v, int start, 
 
     //end recursion when small enough
     if (size == 2){
-        if ((pivot->distance) < (v[start + 1]->distance)){
+        if ((pivot->distance2) < (v[start + 1]->distance2)){
             v[start] = v[start + 1];
             v[start + 1] = pivot;
 
@@ -385,9 +378,9 @@ void MeshManager::recursiveSortMeshList(std::vector <ChunkMesh*> &v, int start, 
 
     //variables to minimize dereferences
     int md, ld, pd;
-    pd = pivot->distance;
-    md = mid->distance;
-    ld = last->distance;
+    pd = pivot->distance2;
+    md = mid->distance2;
+    ld = last->distance2;
 
     //calculate pivot
     if ((pd > md && md > ld) || (pd < md && md < ld)){
@@ -421,8 +414,8 @@ void MeshManager::recursiveSortMeshList(std::vector <ChunkMesh*> &v, int start, 
 
     //increment and decrement pointers until they are past each other
     while (i <= j){
-        while (i < start + size - 1 && (v[i]->distance) > pd) i++;
-        while (j > start + 1 && (v[j]->distance) < pd) j--;
+        while (i < start + size - 1 && (v[i]->distance2) > pd) i++;
+        while (j > start + 1 && (v[j]->distance2) < pd) j--;
 
         if (i <= j){
             tmp = v[i];

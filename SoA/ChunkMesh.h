@@ -128,11 +128,12 @@ public:
     GLuint cutoutVaoID = 0;
     GLuint waterVboID = 0;
     GLuint waterVaoID = 0;
-    float distance = 32.0f;
+    float distance2 = 32.0f;
     glm::ivec3 position;
     bool inFrustum = false;
     bool needsSort = true;
     bool needsDestroy = false;
+    volatile int refCount = 0;
     int vecIndex = UNINITIALIZED_INDEX;
 
     //*** Transparency info for sorting ***

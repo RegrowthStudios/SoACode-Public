@@ -45,6 +45,7 @@ void RenderTask::init(Chunk* ch, RenderTaskType cType) {
     type = cType;
     chunk = ch;
     chunkMesh = chunk->mesh;
+    chunkMesh->refCount++;
 }
 
 void RenderTask::updateLight(VoxelLightEngine* voxelLightEngine) {

@@ -138,10 +138,10 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
         dx = cx - mx;
         dy = cy - my;
         dz = cz - mz;
-        cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
+        cm->distance2 = sqrt(dx*dx + dy*dy + dz*dz);
 
         if (gameRenderParams->chunkCamera->sphereInFrustum(f32v3(f64v3(cmPos) + f64v3(CHUNK_WIDTH / 2) - position), 28.0f)) {
-            if (cm->distance < fadeDist + 12.5){
+            if (cm->distance2 < fadeDist + 12.5){
                 cm->inFrustum = 1;
                 ChunkRenderer::drawChunkBlocks(cm, program, position,
                                                gameRenderParams->chunkCamera->getViewProjectionMatrix());

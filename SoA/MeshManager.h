@@ -45,8 +45,7 @@ public:
     /// @param pbmm: The PhysicsBlockMeshMessage sent by the update thread
     void updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm);
 
-    /// Sorts the messages from front to back and handles mesh deallocation
-    /// You should call this every frame or meshes will not deallocate.
+    /// Sorts the messages from front to back
     /// @param cameraPosition: The position of the camera to calculate distance from
     /// @param sort: True when you want to sort meshes
     void updateMeshes(const f64v3& cameraPosition, bool sort);

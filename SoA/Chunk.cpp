@@ -89,7 +89,6 @@ std::vector<Chunk*> *dbgst;
 
 void Chunk::clear(bool clearDraw)
 {
-    clearBuffers();
     freeWaiting = false;
     voxelMapData = nullptr;
     _blockIDContainer.clear();
@@ -126,6 +125,9 @@ void Chunk::clearBuffers()
 	if (mesh){
         // Will signify that it needs to be destroyed in render thread
         mesh->needsDestroy = true;
+        GameManager::messageManager->enqueue(ThreadId::UPDATE,
+                                             Message(MessageID::CHUNK_MESH,
+                                             (void *)new ChunkMeshData(mesh)));
         mesh = nullptr;
 	}
 }

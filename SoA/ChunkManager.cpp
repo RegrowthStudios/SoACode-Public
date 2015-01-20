@@ -223,7 +223,8 @@ void ChunkManager::update(const f64v3& position) {
     for (size_t i = 0; i < _freeWaitingChunks.size();) {
         ch = _freeWaitingChunks[i];
         if (ch->inSaveThread == false && ch->inLoadThread == false && 
-            !ch->lastOwnerTask && !ch->_chunkListPtr && ch->chunkDependencies == 0) {
+            !ch->lastOwnerTask && !ch->_chunkListPtr && ch->chunkDependencies == 0 &&
+            !(ch->mesh && ch->mesh->refCount)) {
             freeChunk(_freeWaitingChunks[i]);
             _freeWaitingChunks[i] = _freeWaitingChunks.back();
             _freeWaitingChunks.pop_back();
@@ -966,10 +967,9 @@ void ChunkManager::freeChunk(Chunk* chunk) {
         if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
             m_chunkIo->addToSaveList(chunk);
         }
-        // Clear any opengl buffers
-        chunk->clearBuffers();
-
-        if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask) {
+     
+        if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask ||
+            (chunk->mesh && chunk->mesh->refCount)) {
             globalAccumulationTimer.start("FREE B");
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
@@ -1122,7 +1122,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
             if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(this, m_physicsEngine, chunk);
 
             // Check to see if it needs to be added to the mesh list
-            if (chunk->_chunkListPtr == nullptr && chunk->lastOwnerTask == false) {
+            if (!chunk->_chunkListPtr && !chunk->lastOwnerTask) {
                 switch (chunk->_state) {
                 case ChunkStates::WATERMESH:
                 case ChunkStates::MESH:
