@@ -16,7 +16,7 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
                                                                     const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0
     
-    vcore::ComponentID svCmpId = spaceSystem->m_sphericalVoxelCT.add(entity);
+    vcore::ComponentID svCmpId = spaceSystem->addComponent("Spherical Voxel", entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
     auto& stcmp = spaceSystem->m_sphericalTerrainCT.get(sphericalTerrainComponent);
@@ -65,5 +65,5 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
 }
 
 void SpaceSystemFactories::removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->m_sphericalVoxelCT.remove(entity);
+    spaceSystem->deleteComponent("SphericalVoxel", entity);
 }

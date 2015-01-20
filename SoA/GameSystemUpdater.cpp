@@ -109,14 +109,14 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
         // If we are in range of no planets, delete voxel position component
         if (!inVoxelRange && pycmp.voxelPositionComponent) {
             // We need to transition to space
-            gameSystem->voxelPositionCT.remove(it.first);
+            gameSystem->deleteComponent("VoxelPosition", it.first);
             pycmp.voxelPositionComponent = 0;
             
             vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
             auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svid);
             svcmp.refCount--;
             if (svcmp.refCount == 0) {
-                spaceSystem->m_sphericalVoxelCT.remove(it.first);
+                spaceSystem->deleteComponent("SphericalVoxel", it.first);
             }
         }
     }

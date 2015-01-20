@@ -26,21 +26,21 @@ void GameSystemFactories::destroyPlayer(OUT GameSystem* gameSystem, vcore::Entit
 
 vcore::ComponentID GameSystemFactories::addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                 vcore::ComponentID physicsComponent) {
-    vcore::ComponentID vmCmpId = gameSystem->freeMoveInputCT.add(entity);
+    vcore::ComponentID vmCmpId = gameSystem->addComponent("FreeMove", entity);
     auto& vmCmp = gameSystem->freeMoveInputCT.get(vmCmpId);
     vmCmp.physicsComponent = physicsComponent;
     return vmCmpId;
 }
 
 void GameSystemFactories::removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity) {
-    gameSystem->freeMoveInputCT.remove(entity);
+    gameSystem->deleteComponent("FreeMove", entity);
 }
 
 vcore::ComponentID GameSystemFactories::addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                           float massKg, const f64v3& initialVel,
                                                           vcore::ComponentID spacePositionComponent,
                                                           OPT vcore::ComponentID voxelPositionComponent /*= 0*/) {
-    vcore::ComponentID pCmpId = gameSystem->physicsCT.add(entity);
+    vcore::ComponentID pCmpId = gameSystem->addComponent("Physics", entity);
     auto& pCmp = gameSystem->physicsCT.get(pCmpId);
     pCmp.spacePositionComponent = spacePositionComponent;
     pCmp.voxelPositionComponent = voxelPositionComponent;
@@ -50,12 +50,12 @@ vcore::ComponentID GameSystemFactories::addPhysics(OUT GameSystem* gameSystem, v
 }
 
 void GameSystemFactories::removePhysics(OUT GameSystem* gameSystem, vcore::EntityID entity) {
-    gameSystem->physicsCT.remove(entity);
+    gameSystem->deleteComponent("Physics", entity);
 }
 
 vcore::ComponentID GameSystemFactories::addSpacePosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                 const f64v3& position, const f64q& orientation) {
-    vcore::ComponentID spCmpId = gameSystem->spacePositionCT.add(entity);
+    vcore::ComponentID spCmpId = gameSystem->addComponent("SpacePosition", entity);
     auto& spCmp = gameSystem->spacePositionCT.get(spCmpId);
     spCmp.position = position;
     spCmp.orientation = orientation;
@@ -63,12 +63,12 @@ vcore::ComponentID GameSystemFactories::addSpacePosition(OUT GameSystem* gameSys
 }
 
 void GameSystemFactories::removeSpacePosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
-    gameSystem->spacePositionCT.remove(entity);
+    gameSystem->deleteComponent("Space Position", entity);
 }
 
 vcore::ComponentID GameSystemFactories::addAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                  const f32v3& box, const f32v3& offset) {
-    vcore::ComponentID abCmpId = gameSystem->aabbCollidableCT.add(entity);
+    vcore::ComponentID abCmpId = gameSystem->addComponent("AABBCollidable", entity);
     auto& abCmp = gameSystem->aabbCollidableCT.get(abCmpId);
     abCmp.box = f32v3(1.7f, 3.7f, 1.7f);
     abCmp.offset = f32v3(0.0f);
@@ -76,7 +76,7 @@ vcore::ComponentID GameSystemFactories::addAabbCollidable(OUT GameSystem* gameSy
 }
 
 void GameSystemFactories::removeAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity) {
-    gameSystem->aabbCollidableCT.remove(entity);
+    gameSystem->deleteComponent("AABBCollidable", entity);
 }
 
 vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
@@ -84,7 +84,7 @@ vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* gameSys
                                                                 const VoxelPosition& position, const f64q& orientation,
                                                                 vvox::VoxelPlanetMapData mapData) {
     // We need to transition to the voxels
-    vcore::ComponentID vpid = gameSystem->voxelPositionCT.add(entity);
+    vcore::ComponentID vpid = gameSystem->addComponent("VoxelPosition", entity);
     auto& vpcmp = gameSystem->voxelPositionCT.get(vpid);
     vpcmp.parentVoxelComponent = parentVoxelComponent;
     vpcmp.position = position;
@@ -94,5 +94,5 @@ vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* gameSys
 }
 
 void GameSystemFactories::removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
-    gameSystem->voxelPositionCT.remove(entity);
+    gameSystem->deleteComponent("VoxelPosition", entity);
 }

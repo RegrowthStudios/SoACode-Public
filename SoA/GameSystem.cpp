@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "GameSystem.h"
 
-GameSystem::GameSystem() {
-    addComponentTable("AABB Collidable", &aabbCollidableCT);
-    addComponentTable("Free MoveFree", &freeMoveInputCT);
+GameSystem::GameSystem() : vcore::ECS() {
+    addComponentTable("AABBCollidable", &aabbCollidableCT);
+    addComponentTable("FreeMoveFree", &freeMoveInputCT);
     addComponentTable("Physics", &physicsCT);
-    addComponentTable("Space Position", &spacePositionCT);
-    addComponentTable("Voxel Position", &voxelPositionCT);
+    addComponentTable("SpacePosition", &spacePositionCT);
+    addComponentTable("VoxelPosition", &voxelPositionCT);
 }

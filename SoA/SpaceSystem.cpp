@@ -134,6 +134,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_AXISROTATION_NAME, &m_axisRotationCT);
     addComponentTable(SPACE_SYSTEM_CT_ORBIT_NAME, &m_orbitCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
+    addComponentTable(SPACE_SYSTEM_CT_SPHERICAL_GRAVITY_NAME, &m_sphericalGravityCT);
 
     m_planetLoader = new PlanetLoader(&m_ioManager);
    
@@ -333,11 +334,11 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
     body->entity = new vcore::Entity(addEntity());
     const vcore::EntityID& id = body->entity->id;
 
-    vcore::ComponentID npCmp = m_namePositionCT.add(id);
-    vcore::ComponentID arCmp = m_axisRotationCT.add(id);
-    vcore::ComponentID oCmp = m_orbitCT.add(id);
-    vcore::ComponentID stCmp = m_sphericalTerrainCT.add(id);
-    vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
+    vcore::ComponentID npCmp = addComponent("NamePosition", id);
+    vcore::ComponentID arCmp = addComponent("AxisRotation", id);
+    vcore::ComponentID oCmp = addComponent("Orbit", id);
+    vcore::ComponentID stCmp = addComponent("SphericalTerrain", id);
+    vcore::ComponentID sgCmp = addComponent("SphericalGravity", id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
@@ -363,10 +364,10 @@ void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKeg
     body->entity = new vcore::Entity(addEntity());
     const vcore::EntityID& id = body->entity->id;
 
-    vcore::ComponentID npCmp = m_namePositionCT.add(id);
-    vcore::ComponentID arCmp = m_axisRotationCT.add(id);
-    vcore::ComponentID oCmp = m_orbitCT.add(id);
-    vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
+    vcore::ComponentID npCmp = addComponent("NamePosition", id);
+    vcore::ComponentID arCmp = addComponent("AxisRotation", id);
+    vcore::ComponentID oCmp = addComponent("Orbit", id);
+    vcore::ComponentID sgCmp = addComponent("SphericalGravity", id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
@@ -386,10 +387,10 @@ void SpaceSystem::addGasGiant(const SystemBodyKegProperties* sysProps, const Gas
     body->entity = new vcore::Entity(addEntity());
     const vcore::EntityID& id = body->entity->id;
 
-    vcore::ComponentID npCmp = m_namePositionCT.add(id);
-    vcore::ComponentID arCmp = m_axisRotationCT.add(id);
-    vcore::ComponentID oCmp = m_orbitCT.add(id);
-    vcore::ComponentID sgCmp = m_sphericalGravityCT.add(id);
+    vcore::ComponentID npCmp = addComponent("NamePosition", id);
+    vcore::ComponentID arCmp = addComponent("AxisRotation", id);
+    vcore::ComponentID oCmp = addComponent("Orbit", id);
+    vcore::ComponentID sgCmp = addComponent("SphericalGravity", id);
 
     f64v3 up(0.0, 1.0, 0.0);
     m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
