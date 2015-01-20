@@ -970,13 +970,11 @@ void ChunkManager::freeChunk(Chunk* chunk) {
      
         if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask ||
             (chunk->mesh && chunk->mesh->refCount)) {
-            globalAccumulationTimer.start("FREE B");
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
 
             _freeWaitingChunks.push_back(chunk);
-            globalAccumulationTimer.stop();
         } else {
             m_chunkMap.erase(chunk->chunkPosition);
 
@@ -989,7 +987,6 @@ void ChunkManager::freeChunk(Chunk* chunk) {
                 _chunkGridDataMap.erase(gridPosition);
 
                 delete chunk->chunkGridData;
-                globalAccumulationTimer.stop();
             }
             // Completely clear the chunk and then recycle it 
             chunk->clear();
@@ -1075,7 +1072,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
         chunk->calculateDistance2(intPosition);
 
-        globalAccumulationTimer.start("UC");
+        globalAccumulationTimer.start("Update Containers");
         if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
 #ifndef DEBUG //Compressing containers is hilariously slow in debug mode
             chunk->updateContainers();
@@ -1105,11 +1102,11 @@ void ChunkManager::updateChunks(const f64v3& position) {
 
             // See if neighbors need to be added
             if (chunk->numNeighbors != 6) {
-                globalAccumulationTimer.start("CSN");
+                globalAccumulationTimer.start("Update Neighbors");
                 updateChunkNeighbors(chunk, intPosition);
                 globalAccumulationTimer.stop();
             }
-            globalAccumulationTimer.start("REST");
+            globalAccumulationTimer.start("Rest of Update");
             // Calculate the LOD as a power of two
             int newLOD = (int)(sqrt(chunk->distance2) / graphicsOptions.voxelLODThreshold) + 1;
             //  newLOD = 2;
