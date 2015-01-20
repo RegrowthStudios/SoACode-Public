@@ -232,8 +232,6 @@ void ChunkManager::update(const f64v3& position) {
         }
     }
 
-    std::cout << _freeWaitingChunks.size() << " ";
-
     globalMultiplePreciseTimer.start("Finished Tasks");
     processFinishedTasks();
     //change the parameter to true to print out the timings
@@ -796,6 +794,11 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
         if (chunk->inFrustum && trySetMeshDependencies(chunk)) {     
            
             chunk->occlude = 0;
+
+            // Allocate mesh if needed
+            if (chunk->mesh == nullptr) {
+                chunk->mesh = new ChunkMesh(chunk);
+            }
 
             // Get a render task
             if (_freeRenderTasks.size()) {

@@ -82,7 +82,7 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
     this->chunkGridData = chunkGridData;
     voxelMapData = chunkGridData->voxelMapData;
 
-    mesh = new ChunkMesh(this);
+    mesh = nullptr;
 }
 
 std::vector<Chunk*> *dbgst;
@@ -124,12 +124,9 @@ void Chunk::clear(bool clearDraw)
 void Chunk::clearBuffers()
 {
 	if (mesh){
+        // Will signify that it needs to be destroyed in render thread
         mesh->needsDestroy = true;
-        GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                             Message(MessageID::CHUNK_MESH,
-                                             (void *)new ChunkMeshData(mesh)));
         mesh = nullptr;
-
 	}
 }
 

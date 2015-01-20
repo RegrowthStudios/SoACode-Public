@@ -9,6 +9,7 @@
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 extern AccumulationTimer globalAccumulationTimer;
+extern AccumulationTimer globalRenderAccumulationTimer; ///< for easy global benchmarking
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 

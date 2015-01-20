@@ -216,6 +216,8 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
 
 void GamePlayScreen::update(const GameTime& gameTime) {
 
+    globalRenderAccumulationTimer.start("A");
+
     // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
     if (_app->getFps()) {
         glSpeedFactor = 60.0f / _app->getFps();
@@ -224,6 +226,10 @@ void GamePlayScreen::update(const GameTime& gameTime) {
         }
     }
     m_soaState->spaceSystem.glUpdate();
+
+    m_soaState->meshManager->sortMeshes()
+
+    globalRenderAccumulationTimer.start("B");
     // Update the input
     handleInput();
 
@@ -238,12 +244,23 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 
     // Process any updates from the render thread
     processMessages();
+
+    globalRenderAccumulationTimer.stop();
 }
 
 void GamePlayScreen::draw(const GameTime& gameTime) {
-
+    globalRenderAccumulationTimer.start("C");
     updateWorldCameraClip();
     m_renderPipeline.render();
+    globalRenderAccumulationTimer.stop();
+
+    static int g = 0;
+    if (++g == 10) {
+        globalRenderAccumulationTimer.printAll(false);
+        std::cout << "\n";
+        globalRenderAccumulationTimer.clear();
+        g = 0;
+    }
 }
 
 void GamePlayScreen::unPause() { 

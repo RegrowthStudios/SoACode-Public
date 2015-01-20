@@ -262,9 +262,11 @@ void MeshManager::updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm) {
     delete pbmm;
 }
 
-void MeshManager::sortMeshes(const f64v3& cameraPosition) {
+void MeshManager::updateMeshes(const f64v3& cameraPosition, bool sort) {
     updateMeshDistances(cameraPosition);
-    recursiveSortMeshList(_chunkMeshes, 0, _chunkMeshes.size());
+    if (sort) {
+        recursiveSortMeshList(_chunkMeshes, 0, _chunkMeshes.size());
+    }
 }
 
 void MeshManager::destroy() {
@@ -337,15 +339,23 @@ void MeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     static GLuint saveTicks = SDL_GetTicks();
 
     for (int i = 0; i < _chunkMeshes.size(); i++){ //update distances for all chunk meshes
-        cm = _chunkMeshes[i];
-        const glm::ivec3 &cmPos = cm->position;
-        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
-        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
-        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
-        dx = cx - mx;
-        dy = cy - my;
-        dz = cz - mz;
-        cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
+
+        if (_chunkMeshes[i]->needsDestroy) {
+            delete _chunkMeshes[i];
+            _chunkMeshes[i] = _chunkMeshes.back();
+            _chunkMeshes[i]->vecIndex = i;
+            _chunkMeshes.pop_back();
+        } else {
+            cm = _chunkMeshes[i];
+            const glm::ivec3 &cmPos = cm->position;
+            cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
+            cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
+            cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
+            dx = cx - mx;
+            dy = cy - my;
+            dz = cz - mz;
+            cm->distance = sqrt(dx*dx + dy*dy + dz*dz);
+        }
     }
 }
 

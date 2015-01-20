@@ -47,7 +47,7 @@ public:
 
     /// Sorts the messages from front to back
     /// @param cameraPosition: The position of the camera to calculate distance from
-    void sortMeshes(const f64v3& cameraPosition);
+    void updateMeshes(const f64v3& cameraPosition, bool sort);
 
     /// Destroys all of the meshes and frees allocated memory
     void destroy();
