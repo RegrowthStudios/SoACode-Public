@@ -13,6 +13,7 @@
 
 #define M_PER_KM 1000.0f
 #define KM_PER_M 0.001f
+#define KM_PER_VOXEL 0.0005f
 #define VOXELS_PER_M 2.0f
 
 const ColorRGB8 DebugColors[12] {
@@ -104,6 +105,12 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
         vg::GpuMemory::freeBuffer(m_patchPbos[i]);
     }
+    for (int i = 0; i < RAW_PER_FRAME; i++) {
+        vg::GpuMemory::freeBuffer(m_rawPbos[i]);
+    }
+    vg::GpuMemory::freeBuffer(m_cwIbo);
+    vg::GpuMemory::freeBuffer(m_ccwIbo);
+    glDeleteFramebuffers(1, &m_normalFbo);
 }
 
 void SphericalTerrainGenerator::update() {
@@ -189,16 +196,13 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawDelegates[m_rawCounter] = data;
 
     // Get padded position
-    f32v3 cornerPos = data->startPos;
-    //TODO(Ben): This is wrong
-    cornerPos[data->coordMapping.x] -= (1.0f / 32.0f);
-    cornerPos[data->coordMapping.z] -= (1.0f / 32.0f);
+    f32v3 cornerPos = data->startPos * KM_PER_VOXEL;
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
 
-    glUniform1f(unPatchWidth, 32.0f); //TODO(Ben): This is wrong
+    glUniform1f(unPatchWidth, (data->width * data->step) * KM_PER_VOXEL);
     m_quad.draw();
 
     // Bind PBO

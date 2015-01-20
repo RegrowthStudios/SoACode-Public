@@ -35,7 +35,7 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
     svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine, svcmp.voxelPlanetMapper,
                                           svcmp.generator, startingMapData,
                                           svcmp.chunkIo,
-                                          gridPosition);
+                                          gridPosition, svcmp.voxelRadius);
     svcmp.particleEngine = new ParticleEngine();
     
     svcmp.planetGenData = stcmp.planetGenData;

@@ -64,7 +64,7 @@ public:
         }
     }
     /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData);
+    bool dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData, float voxelRadius);
 private:
     static const int NUM_GENERATORS = 512;
     int counter = 0;
@@ -80,7 +80,7 @@ public:
     ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
                  SphericalTerrainGenerator* terrainGenerator,
                  const vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
-                 const f64v3& gridPosition);
+                 const f64v3& gridPosition, float planetVoxelRadius);
     ~ChunkManager();
 
     enum InitFlags {
@@ -378,6 +378,8 @@ private:
     PhysicsEngine* m_physicsEngine = nullptr;
 
     ChunkIOManager* m_chunkIo = nullptr;
+
+    float m_planetVoxelRadius = 0;
 
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> _byteFixedSizeArrayRecycler; ///< For recycling voxel data
