@@ -16,7 +16,7 @@ vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSys
                                                                     const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0
     
-    vcore::ComponentID svCmpId = spaceSystem->addComponent("Spherical Voxel", entity);
+    vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
     auto& stcmp = spaceSystem->m_sphericalTerrainCT.get(sphericalTerrainComponent);

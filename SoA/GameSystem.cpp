@@ -3,7 +3,7 @@
 
 GameSystem::GameSystem() : vcore::ECS() {
     addComponentTable("AABBCollidable", &aabbCollidableCT);
-    addComponentTable("FreeMove", &freeMoveInputCT);
+    addComponentTable("FreeMoveFree", &freeMoveInputCT);
     addComponentTable("Physics", &physicsCT);
     addComponentTable("SpacePosition", &spacePositionCT);
     addComponentTable("VoxelPosition", &voxelPositionCT);

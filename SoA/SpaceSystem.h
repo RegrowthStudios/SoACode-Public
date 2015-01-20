@@ -36,6 +36,7 @@
 #define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 #define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
+#define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 
 class App;
 class Binary;
