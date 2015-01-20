@@ -196,13 +196,13 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawDelegates[m_rawCounter] = data;
 
     // Get padded position
-    f32v3 cornerPos = data->startPos * 0.0f;
+    f32v3 cornerPos = data->startPos;
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
 
-    glUniform1f(unPatchWidth, (data->width * data->step) * 0.0f);
+    glUniform1f(unPatchWidth, (data->width * data->step));
     m_quad.draw();
 
     // Bind PBO
@@ -426,7 +426,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         int c = 0;
         for (int y = 0; y < CHUNK_WIDTH; y++) {
             for (int x = 0; x < CHUNK_WIDTH; x++, c++) {
-                data->gridData->heightData[c].height = heightData[y][x][0];
+                data->gridData->heightData[c].height = heightData[y][x][0] * VOXELS_PER_M;
                 data->gridData->heightData[c].temperature = heightData[y][x][1];
                 data->gridData->heightData[c].rainfall = heightData[y][x][2];
                 //TODO(Ben): Biomes
