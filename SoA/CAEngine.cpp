@@ -64,7 +64,9 @@ void CaPhysicsType::clearTypes() {
     typesArray.clear();
 }
 
-CAEngine::CAEngine() {
+CAEngine::CAEngine(ChunkManager* chunkManager, PhysicsEngine* physicsEngine) :
+    m_chunkManager(chunkManager),
+    m_physicsEngine(physicsEngine){
     memset(_blockUpdateFlagList, 0, sizeof(_blockUpdateFlagList));
     //temporary
     _lowIndex = LOWWATER; 
@@ -102,16 +104,16 @@ void CAEngine::updateSpawnerBlocks(bool powders)
                     if (spawnerVal >= LOWWATER) {
                         ChunkUpdater::placeBlock(_chunk, _lockedChunk, c, spawnerVal);
                     } else if (powders){
-                        physicsBlockPos = glm::dvec3((double)_chunk->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->gridPosition.y + c / CHUNK_LAYER, (double)_chunk->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
-                        GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
+                        physicsBlockPos = glm::dvec3((double)_chunk->voxelPosition.x + c%CHUNK_WIDTH + 0.5, (double)_chunk->voxelPosition.y + c / CHUNK_LAYER, (double)_chunk->voxelPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
+                        m_physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 } else if (bottom && bottom->isAccessible){
                     c = c - CHUNK_LAYER + CHUNK_SIZE;
                     if (spawnerVal >= LOWWATER){
                         ChunkUpdater::placeBlockSafe(bottom, _lockedChunk, c, spawnerVal);
                     } else if (powders){
-                        physicsBlockPos = glm::dvec3((double)bottom->gridPosition.x + c%CHUNK_WIDTH + 0.5, (double)bottom->gridPosition.y + c / CHUNK_LAYER, (double)bottom->gridPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
-                        GameManager::physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
+                        physicsBlockPos = glm::dvec3((double)bottom->voxelPosition.x + c%CHUNK_WIDTH + 0.5, (double)bottom->voxelPosition.y + c / CHUNK_LAYER, (double)bottom->voxelPosition.z + (c%CHUNK_LAYER) / CHUNK_WIDTH + 0.5);
+                        m_physicsEngine->addPhysicsBlock(physicsBlockPos, spawnerVal);
                     }
                 }
             }
@@ -258,7 +260,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
 
     bool hasChanged = false;
     bool inFrustum = (!_chunk->mesh || _chunk->mesh->inFrustum);
-    const i32v3 &position = _chunk->gridPosition;
+    const i32v3 &position = _chunk->voxelPosition;
 
     // Get the block index and owner for the bottom chunk
     if (pos.y > 0){
@@ -282,7 +284,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
         ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
         if (owner != _chunk) ChunkUpdater::updateNeighborStates(owner, nextIndex, ChunkStates::WATERMESH);
 
-        if (startBlockID > _lowIndex + 10 && inFrustum) particleEngine.addParticles(1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
+        if (startBlockID > _lowIndex + 10 && inFrustum) particleEngine.addParticles(m_chunkManager, 1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
         return;
     } else if (IS_LIQUID(blockID)) { //If we are falling on the same liquid
         //how much empty space there is
@@ -293,7 +295,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
             startBlockID -= diff;
             ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, blockID + diff);
 
-            if (diff > 10 && inFrustum) particleEngine.addParticles(1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
+            if (diff > 10 && inFrustum) particleEngine.addParticles(m_chunkManager, 1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
             hasChanged = 1;
             
             if (owner != _chunk) {
@@ -308,18 +310,18 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
             ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
             if (owner != _chunk) ChunkUpdater::updateNeighborStates(owner, nextIndex, ChunkStates::WATERMESH);
 
-            if (startBlockID > _lowIndex + 10 && inFrustum) particleEngine.addParticles(1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
+            if (startBlockID > _lowIndex + 10 && inFrustum) particleEngine.addParticles(m_chunkManager, 1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
             return;
         }
     } else if (Blocks[blockID].waterBreak) { //destroy a waterBreak block, such as flora
-        ChunkUpdater::removeBlock(owner, _lockedChunk, nextIndex, true);
+        ChunkUpdater::removeBlock(m_chunkManager, m_physicsEngine, owner, _lockedChunk, nextIndex, true);
         ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, startBlockID);
         ChunkUpdater::removeBlockFromLiquidPhysicsSafe(_chunk, _lockedChunk, startBlockIndex);
 
         ChunkUpdater::updateNeighborStates(_chunk, pos, ChunkStates::WATERMESH);
         if (owner != _chunk) ChunkUpdater::updateNeighborStates(owner, nextIndex, ChunkStates::WATERMESH);
 
-        if (startBlockID > _lowIndex + 10 && inFrustum) particleEngine.addParticles(1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
+        if (startBlockID > _lowIndex + 10 && inFrustum) particleEngine.addParticles(m_chunkManager, 1, glm::dvec3(position.x + pos.x, position.y + pos.y - 1.0, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
         return;
     }
 
@@ -472,7 +474,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
                 if (blockID == NONE){
                     ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, _lowIndex - 1 + diff);
                 } else if (Blocks[blockID].waterBreak){
-                    ChunkUpdater::removeBlock(owner, _lockedChunk, nextIndex, true);
+                    ChunkUpdater::removeBlock(m_chunkManager, m_physicsEngine, owner, _lockedChunk, nextIndex, true);
                     ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, _lowIndex - 1 + diff);
                 } else{
                     ChunkUpdater::placeBlockFromLiquidPhysics(owner, _lockedChunk, nextIndex, blockID + diff);
@@ -480,7 +482,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
 
                
                 startBlockID -= diff;
-                if (diff > 10 && inFrustum) particleEngine.addParticles(1, glm::dvec3(position.x + pos.x, position.y + pos.y, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
+                if (diff > 10 && inFrustum) particleEngine.addParticles(m_chunkManager, 1, glm::dvec3(position.x + pos.x, position.y + pos.y, position.z + pos.z), 0, 0.1, 16665, 1111, glm::vec4(255.0f, 255.0f, 255.0f, 255.0f), Blocks[blockID].particleTex, 0.5f, 8);
                
                 if (owner != _chunk) {
                     owner->changeState(ChunkStates::WATERMESH);
@@ -566,7 +568,7 @@ void CAEngine::powderPhysics(int blockIndex)
     if (bottomBlock.isCrushable) {
         // Move down and crush block
         ChunkUpdater::placeBlock(nextChunk, _lockedChunk, nextBlockIndex, blockData);
-        ChunkUpdater::removeBlockSafe(_chunk, _lockedChunk, blockIndex, false);
+        ChunkUpdater::removeBlockSafe(m_chunkManager, m_physicsEngine, _chunk, _lockedChunk, blockIndex, false);
         return;
     } else if (bottomBlock.powderMove) {
         // Move down and swap places
@@ -625,7 +627,7 @@ void CAEngine::powderPhysics(int blockIndex)
             if (nextBlock.isCrushable) {
                 // Move and crush block
                 ChunkUpdater::placeBlockSafe(nextChunk, _lockedChunk, nextBlockIndex, blockData);
-                ChunkUpdater::removeBlockSafe(_chunk, _lockedChunk, blockIndex, false);
+                ChunkUpdater::removeBlockSafe(m_chunkManager, m_physicsEngine, _chunk, _lockedChunk, blockIndex, false);
                 return;
             } else if (nextBlock.powderMove) {
                 // Move and swap places

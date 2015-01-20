@@ -20,8 +20,6 @@
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
-#include "Planet.h"
-#include "Player.h"
 #include "Rendering.h"
 #include "Sound.h"
 #include "TerrainGenerator.h"
@@ -33,53 +31,31 @@
 #include "WSOScanner.h"
 
 #include "VoxelEditor.h"
-#include "voxelWorld.h"
 
 bool GameManager::gameInitialized = false;
 bool GameManager::_systemsInitialized = false;
 float GameManager::fogStart, GameManager::fogEnd;
 Uint32 GameManager::maxLodTicks = 8;
 
-VoxelWorld *GameManager::voxelWorld = nullptr;
 VoxelEditor* GameManager::voxelEditor = nullptr;
-PhysicsEngine *GameManager::physicsEngine = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
-ChunkManager *GameManager::chunkManager = nullptr;
-InputManager *GameManager::inputManager = nullptr;
-ChunkIOManager* GameManager::chunkIOManager = nullptr;
 MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
-DebugRenderer* GameManager::debugRenderer = nullptr;
-vg::GLProgramManager* GameManager::glProgramManager = new vg::GLProgramManager();
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
-TerrainGenerator* GameManager::terrainGenerator = nullptr;
-
-Player *GameManager::player;
-std::vector <Marker> GameManager::markers;
-Planet *GameManager::planet = nullptr;
-nString GameManager::saveFilePath = "";
-GameStates GameManager::gameState = GameStates::MAINMENU;
 
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
-        voxelWorld = new VoxelWorld();
         voxelEditor = new VoxelEditor();
-        physicsEngine = new PhysicsEngine();
         soundEngine = new SoundEngine();
-        chunkManager = &voxelWorld->getChunkManager();
-        chunkIOManager = new ChunkIOManager();
         messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
         textureCache = new vg::TextureCache();
         texturePackLoader = new TexturePackLoader(textureCache);
-        terrainGenerator = new TerrainGenerator();
-        
-        debugRenderer = new DebugRenderer();
- 
+
         _systemsInitialized = true;
     }
 }
@@ -144,59 +120,12 @@ void GameManager::initializeSound() {
 
 void GameManager::saveState() {
     savePlayerState();
-    saveOptions();
-    voxelWorld->getChunkManager().saveAllChunks();
+  //  saveOptions();
+  //  voxelWorld->getChunkManager().saveAllChunks();
 }
 
 void GameManager::savePlayerState() {
-    fileManager.savePlayerFile(player);
-}
-
-int GameManager::newGame(nString saveName) {
-    nString dirPath = "Saves/";
-
-    for (size_t i = 0; i < saveName.size(); i++) {
-        if (!((saveName[i] >= '0' && saveName[i] <= '9') || (saveName[i] >= 'a' && saveName[i] <= 'z') || (saveName[i] >= 'A' && saveName[i] <= 'Z') || (saveName[i] == ' ') || (saveName[i] == '_'))) {
-            return 1;
-        }
-    }
-    std::cout << "CREATING " << saveName << std::endl;
-    // TODO: Boost
-    if (_mkdir(dirPath.c_str()) == 0){ //Create the save directory if it's not there. Will fail if it is, but that's ok. Should probably be in CreateSaveFile.
-        std::cout << "Save directory " + dirPath + " did not exist and was created!" << std::endl;
-    }
-
-    int rv = fileManager.createSaveFile(dirPath + saveName);
-    if (rv != 2) {
-        fileManager.createWorldFile(dirPath + saveName + "/World/");
-        saveFilePath = dirPath + saveName;
-        chunkIOManager->saveVersionFile();
-    }
-
-    return rv;
-}
-
-int GameManager::loadGame(nString saveName) {
-    std::cout << "LOADING " << saveName << std::endl;
-
-    //SaveFileInput(); //get the save file for the game
-
-    nString dirPath = "Saves/";
-    fileManager.makeSaveDirectories(dirPath + saveName);
-    if (fileManager.setSaveFile(dirPath + saveName) != 0) {
-        std::cout << "Could not set save file.\n";
-        return 1;
-    }
-    nString planetName = fileManager.getWorldString(dirPath + saveName + "/World/");
-    if (planetName == "") {
-        std::cout << "NO PLANET NAME";
-        return 1;
-    }
-
-    saveFilePath = dirPath + saveName;
-    chunkIOManager->checkVersion();
-
-    return 0;
+   // fileManager.savePlayerFile(player);
 }
 
 void BindVBOIndicesID() {
@@ -224,207 +153,75 @@ void BindVBOIndicesID() {
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
 }
 
-void GameManager::loadPlanet(nString filePath) {
-    //DrawLoadingScreen("Initializing planet...");
-    if (planet) {
-        delete planet;
-        planet = NULL;
-    }
-    Planet *newPlanet = new Planet;
-
-    newPlanet->initialize(filePath);
-
-    planet = newPlanet;
-
-    GLuint startTimer = SDL_GetTicks();
-
-    debugTicksDone = 0;
-    debugTicks = SDL_GetTicks();
-
-    BindVBOIndicesID();
-
-}
-
-void GameManager::initializePlanet(const glm::dvec3 cameraPos) {
-    if (!planet) {
-        showMessage("Tried to initialize planet before loading!");
-        exit(334);
-    }
-    planet->initializeTerrain(cameraPos);
-}
-
-void GameManager::initializeVoxelWorld(Player *playr) {
-    gameInitialized = 1;
-
-    bool atSurface = 1;
-    player = playr;
-
-    if (player) {
-        if (fileManager.loadPlayerFile(player)) {
-            atSurface = 0; //dont need to set height
-        }
-    }
-
-    voxelWorld->initialize(player->facePosition, &player->voxelMapData, planet, 0);
-
-    if (atSurface) player->facePosition.y = 0;// voxelWorld->getCenterY();
-
-    player->gridPosition = player->facePosition;
-
-    player->setNearestPlanet(planet->scaledRadius, planet->atmosphere.radius, planet->facecsGridWidth);
-
-    double dist = player->facePosition.y + planet->radius;
-    player->update(1, planet->getGravityAccel(dist), planet->getAirFrictionForce(dist, glm::length(player->velocity)));
-}
-
-int ticksArray2[10];
-int ticksArrayIndex2 = 0;
-
-void GameManager::update() {
-    static int saveStateTicks = SDL_GetTicks();
-
-    if (gameInitialized) {
-        if (player->isOnPlanet) {
-
-            HeightData tmpHeightData;
-            if (!voxelWorld->getChunkManager().getPositionHeightData((int)player->headPosition.x, (int)player->headPosition.z, tmpHeightData)) {
-                player->currBiome = tmpHeightData.biome;
-                player->currTemp = tmpHeightData.temperature;
-                player->currHumidity = tmpHeightData.rainfall;
-            } else {
-                player->currBiome = NULL;
-                player->currTemp = -1;
-                player->currHumidity = -1;
-            }
-
-            player->currCh = NULL;
-            if (player->currCh != NULL) {
-                if (player->currCh->isAccessible) {
-                    int x = player->headPosition.x - player->currCh->gridPosition.x;
-                    int y = player->headPosition.y - player->currCh->gridPosition.y;
-                    int z = player->headPosition.z - player->currCh->gridPosition.z;
-                    int c = y * CHUNK_WIDTH * CHUNK_WIDTH + z * CHUNK_WIDTH + x;
-                    player->headInBlock = player->currCh->getBlockData(c);
-                    player->headVoxelLight = player->currCh->getLampLight(c) - 8;
-                    player->headSunLight = player->currCh->getSunlight(c) - 8;
-                    if (player->headVoxelLight < 0) player->headVoxelLight = 0;
-                    if (player->headSunLight < 0) player->headSunLight = 0;
-                }
-            }
-
-            voxelWorld->update(&player->getChunkCamera());
-
-            if (inputManager->getKey(INPUT_BLOCK_SCANNER)) {
-                player->scannedBlock = voxelWorld->getChunkManager().getBlockFromDir(glm::dvec3(player->chunkDirection()), player->headPosition);
-            } else {
-                player->scannedBlock = NONE;
-            }
-
-        } else {
-            //    closestLodDistance = (glm::length(player->worldPosition) - chunkManager.planet->radius - 20000)*0.7;
-            player->currBiome = NULL;
-            player->currTemp = -1;
-            player->currHumidity = -1;
-        }
-    }
-
-    voxelWorld->getPlanet()->rotationUpdate();
-
-    updatePlanet(player->worldPosition, maxLodTicks);   //SOMETIMES TAKING A LONG TIME!
-
-    if (gameInitialized) {
-        particleEngine.update();
-
-        if (SDL_GetTicks() - saveStateTicks >= 20000) {
-            saveStateTicks = SDL_GetTicks();
-            savePlayerState();
-        }
-    }
-
-}
-
-void GameManager::updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks) {
-    planet->updateLODs(worldPosition, maxTicks);
-}
-
-void GameManager::addMarker(glm::dvec3 pos, nString name, glm::vec3 color) {
-    markers.push_back(Marker(pos, name, color));
-    markers.back().num = markers.size() - 1;
-}
-
 bool isSolidBlock(const i32& blockID) {
     return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
 
-void GameManager::clickDragRay(bool isBreakRay) {
+void GameManager::clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay) {
 #define MAX_RANGE 120.0f
 
-    VoxelRayQuery rq;
-    if (isBreakRay) {
-        // Obtain The Simple Query
-        rq = VRayHelper::getQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+    //VoxelRayQuery rq;
+    //if (isBreakRay) {
+    //    // Obtain The Simple Query
+    //    rq = VRayHelper::getQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
-        // Check If Something Was Picked
-        if (rq.distance > MAX_RANGE || rq.id == NONE) return;
-    } else {
-        // Obtain The Full Query
-        VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
+    //    // Check If Something Was Picked
+    //    if (rq.distance > MAX_RANGE || rq.id == NONE) return;
+    //} else {
+    //    // Obtain The Full Query
+    //    VoxelRayFullQuery rfq = VRayHelper::getFullQuery(player->getChunkCamera().getPosition(), player->chunkDirection(), MAX_RANGE, chunkManager, isSolidBlock);
 
-        // Check If Something Was Picked
-        if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
+    //    // Check If Something Was Picked
+    //    if (rfq.inner.distance > MAX_RANGE || rfq.inner.id == NONE) return;
 
-        // We Want This Indexing Information From The Query
-        rq = rfq.outer;
-    }
+    //    // We Want This Indexing Information From The Query
+    //    rq = rfq.outer;
+    //}
 
-    if (rq.chunk == nullptr) {
-        return;
-    }
+    //if (rq.chunk == nullptr) {
+    //    return;
+    //}
 
-    i32v3 position = rq.location;
-    if (voxelEditor->isEditing() == false) {
-        voxelEditor->setStartPosition(position);
-        voxelEditor->setEndPosition(position);
-    } else {
-        voxelEditor->setEndPosition(position);
-    }
+    //i32v3 position = rq.location;
+    //if (voxelEditor->isEditing() == false) {
+    //    voxelEditor->setStartPosition(position);
+    //    voxelEditor->setEndPosition(position);
+    //} else {
+    //    voxelEditor->setEndPosition(position);
+    //}
 }
-void GameManager::scanWSO() {
+void GameManager::scanWSO(ChunkManager* chunkManager, Player* player) {
 
 #define SCAN_MAX_DISTANCE 20.0
-    VoxelRayQuery rq = VRayHelper::getQuery(
-        player->getChunkCamera().getPosition(),
-        player->getChunkCamera().getDirection(),
-        SCAN_MAX_DISTANCE,
-        GameManager::chunkManager,
-        isSolidBlock
-        );
-    if (rq.distance > SCAN_MAX_DISTANCE || rq.id == 0) return;
+    /* VoxelRayQuery rq = VRayHelper::getQuery(
+         player->getChunkCamera().getPosition(),
+         player->getChunkCamera().getDirection(),
+         SCAN_MAX_DISTANCE,
+         chunkManager,
+         isSolidBlock
+         );
+         if (rq.distance > SCAN_MAX_DISTANCE || rq.id == 0) return;
 
-    auto wsos = wsoScanner->scanWSOs(rq.location, chunkManager);
-    
-    for (i32 i = 0; i < wsos.size(); i++) {
-        f32v3 wsoPos(wsos[i]->position);
-        f32v3 wsoSize(wsos[i]->data->size);
-        wsoPos += wsoSize * 0.5f;
+         auto wsos = wsoScanner->scanWSOs(rq.location, chunkManager);
 
-        debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
+         for (i32 i = 0; i < wsos.size(); i++) {
+         f32v3 wsoPos(wsos[i]->position);
+         f32v3 wsoSize(wsos[i]->data->size);
+         wsoPos += wsoSize * 0.5f;
 
-        delete wsos[i];
-    }
+         debugRenderer->drawCube(wsoPos, wsoSize + 0.3f, f32v4(1, 1, 0, 0.1f), 2.0);
+
+         delete wsos[i];
+         }*/
 }
 
 void GameManager::onQuit() {
     GLuint st = SDL_GetTicks();
     saveState();
-    voxelWorld->endSession();
-    markers.clear();
 }
 
 void GameManager::endSession() {
-    player->isUnderWater = 0;
     onQuit();
-    physicsEngine->clearAll();
 #ifdef _DEBUG 
     //_CrtDumpMemoryLeaks();
 #endif

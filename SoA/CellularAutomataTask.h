@@ -19,9 +19,11 @@
 
 #include "VoxPool.h"
 
-class Chunk;
-class RenderTask;
 class CaPhysicsType;
+class Chunk;
+class ChunkManager;
+class PhysicsEngine;
+class RenderTask;
 
 #define CA_TASK_ID 3
 
@@ -37,7 +39,9 @@ public:
     /// Constructs the task
     /// @param chunk: The the chunk to update
     /// @param flags: Combination of CA_FLAG
-    CellularAutomataTask(Chunk* chunk, bool makeMesh);
+    CellularAutomataTask(ChunkManager* chunkManager,
+                         PhysicsEngine* physicsEngine,
+                         Chunk* chunk, bool makeMesh);
 
     /// Adds a caPhysicsType for update
     void addCaTypeToUpdate(CaPhysicsType* caType) {
@@ -51,7 +55,9 @@ public:
 
 private:
     std::vector<CaPhysicsType*> typesToUpdate; ///< All the CA types that will be updated by this task
-    Chunk* _chunk; ///< The chunk we are updating
+    Chunk* _chunk = nullptr; ///< The chunk we are updating
+    ChunkManager* m_chunkManager = nullptr;
+    PhysicsEngine* m_physicsEngine = nullptr;
 };
 
 #endif // CellularAutomataTask_h__

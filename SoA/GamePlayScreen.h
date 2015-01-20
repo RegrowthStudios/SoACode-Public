@@ -22,15 +22,21 @@
 #include "AwesomiumInterface.h"
 #include "GamePlayRenderPipeline.h"
 #include "LoadMonitor.h"
-#include "MainMenuAPI.h"
 #include "MessageManager.h"
 #include "PDA.h"
 #include "PauseMenu.h"
+#include "SoaController.h"
 
 class App;
+class GameStartState;
+class InputManager;
+class MainMenuScreen;
+class SoaState;
 class SpriteBatch;
 class SpriteFont;
-struct TerrainMeshMessage;
+class TerrainMeshMessage;
+class GameSystem;
+class GameSystemUpdater;
 
 template<typename... Params>
 class IDelegate;
@@ -64,7 +70,8 @@ class GamePlayScreen : public IAppScreen<App> {
     friend class OnGridKeyDown;
     friend class PauseMenuAwesomiumAPI;
 public:
-    CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
+    GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
+    ~GamePlayScreen();
 
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
@@ -86,9 +93,8 @@ public:
     i32 getWindowHeight() const;
 
     bool isInGame() const {
-        return (!_pda.isOpen() && !_pauseMenu.isOpen());
+        return (!m_pda.isOpen() && !m_pauseMenu.isOpen());
     }
-
 
 private:
 
@@ -97,9 +103,6 @@ private:
 
     /// Handles updating state based on input
     void handleInput();
-
-    /// Updates the player
-    void updatePlayer();
 
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
@@ -111,35 +114,40 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
-    Player* _player; ///< The current player
+    /// Loads the player save file
+    bool loadPlayerFile(Player* player);
 
-    PDA _pda; ///< The PDA
+    const MainMenuScreen* m_mainMenuScreen = nullptr;
+    SoaState* m_soaState = nullptr;
 
-    PauseMenu _pauseMenu; ///< The Pause Menu
+    InputManager* m_inputManager = nullptr;
 
-    bool _inFocus; ///< true when the window is in focus
+    PDA m_pda; ///< The PDA
 
-    // TODO(Ben): Should they be stored here?
-    //Camera _voxelCamera; ///< The camera for rendering the voxels
-    //Camera _planetCamera; ///< The camera for rendering the planet
+    PauseMenu m_pauseMenu; ///< The Pause Menu
 
-    std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
-    volatile bool _threadRunning; ///< True when the thread should be running
+    bool m_inFocus; ///< true when the window is in focus
+
+    SoaController controller;
+    std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
+
+    std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
+    volatile bool m_threadRunning; ///< True when the thread should be running
 
     /// Delegates
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    IDelegate<ui32>* _onPauseKeyDown;
-    IDelegate<ui32>* _onFlyKeyDown;
-    IDelegate<ui32>* _onGridKeyDown;
-    IDelegate<ui32>* _onReloadTexturesKeyDown;
-    IDelegate<ui32>* _onReloadShadersKeyDown;
-    IDelegate<ui32>* _onInventoryKeyDown;
-    IDelegate<ui32>* _onReloadUIKeyDown;
-    IDelegate<ui32>* _onHUDKeyDown;
-    IDelegate<ui32>* _onNightVisionToggle;
-    IDelegate<ui32>* _onNightVisionReload;
-    IDelegate<ui32>* m_onDrawMode;
-    GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
+    IDelegate<ui32>* m_onPauseKeyDown = nullptr;
+    IDelegate<ui32>* m_onFlyKeyDown = nullptr;
+    IDelegate<ui32>* m_onGridKeyDown = nullptr;
+    IDelegate<ui32>* m_onReloadTexturesKeyDown = nullptr;
+    IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
+    IDelegate<ui32>* m_onInventoryKeyDown = nullptr;
+    IDelegate<ui32>* m_onReloadUIKeyDown = nullptr;
+    IDelegate<ui32>* m_onHUDKeyDown = nullptr;
+    IDelegate<ui32>* m_onNightVisionToggle = nullptr;
+    IDelegate<ui32>* m_onNightVisionReload = nullptr;
+    IDelegate<ui32>* m_onDrawMode = nullptr;
+    GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
     #define MESSAGES_PER_FRAME 300
     Message messageBuffer[MESSAGES_PER_FRAME];

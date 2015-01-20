@@ -6,22 +6,26 @@
 #include <Vorb/graphics/SpriteBatch.h>
 
 #include "DevScreen.h"
+#include "GameManager.h"
+#include "GamePlayScreen.h"
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "MainMenuScreen.h"
-#include "GamePlayScreen.h"
 #include "MeshManager.h"
 #include "Options.h"
+#include "GamePlayScreen.h"
+#include "SpaceSystem.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
 #include "TestMappingScreen.h"
 
+
 void App::addScreens() {
     scrInit = new InitScreen(this);
     scrLoad = new LoadScreen(this);
-    scrMainMenu = new MainMenuScreen(this);
-    scrGamePlay = new GamePlayScreen(this);
+    scrMainMenu = new MainMenuScreen(this, scrLoad);
+    scrGamePlay = new GamePlayScreen(this, scrMainMenu);
 
     _screenList->addScreen(scrInit);
     _screenList->addScreen(scrLoad);
@@ -48,20 +52,17 @@ void App::addScreens() {
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(VKEY_B, scrTests.back());
 
+
     // Start from dev screen for convenience
-    _screenList->setScreen(scrDev->getIndex());
+    _screenList->setScreen(scrInit->getIndex());
 }
 
 void App::onInit() {
     
     // Load the graphical options
-    initializeOptions();
-    loadOptions();
+    loadOptions("Data/Options.yml");
 
     SamplerState::initPredefined();
-
-    // Allocate resources
-    meshManager = new MeshManager;
 }
 
 void App::onExit() {
@@ -71,14 +72,10 @@ void App::onExit() {
 }
 
 App::~App() {
-#define COND_DEL(SCR) if (SCR) { delete SCR; SCR = nullptr; }
 
-    COND_DEL(scrInit)
-    COND_DEL(scrLoad)
-    // TODO: Why do these break
-    //COND_DEL(scrMainMenu)
-    //COND_DEL(scrGamePlay)
-    COND_DEL(scrDev)
-
-    delete meshManager;
+    delete scrInit;
+    delete scrLoad;
+    delete scrMainMenu;
+    delete scrGamePlay;
+    delete scrDev;
 }

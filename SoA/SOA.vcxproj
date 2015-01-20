@@ -67,6 +67,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)deps\win32\include;$(SolutionDir);$(SolutionDir)deps\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\win32\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)deps\win32\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\win32\lib;$(SolutionDir)bin\lib\$(PlatformName)\$(PlatformTarget)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IntDir>$(Configuration)</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
@@ -263,12 +272,18 @@ EXIT 0</Command>
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
+    <ClInclude Include="Atmosphere.h" />
+    <ClInclude Include="AtmosphereComponent.h" />
     <ClInclude Include="AwesomiumInterface.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
+    <ClInclude Include="AxisRotationComponent.h" />
+    <ClInclude Include="AxisRotationComponentUpdater.h" />
+    <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockPack.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="CollisionComponentUpdater.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="DevScreen.h" />
     <ClInclude Include="FloraTask.h" />
@@ -278,6 +293,11 @@ EXIT 0</Command>
     <ClInclude Include="GamePlayRenderPipeline.h" />
     <ClInclude Include="GamePlayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="GameSystem.h" />
+    <ClInclude Include="GameSystemComponents.h" />
+    <ClInclude Include="GameSystemEvents.hpp" />
+    <ClInclude Include="GameSystemFactories.h" />
+    <ClInclude Include="GameSystemUpdater.h" />
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
@@ -287,18 +307,26 @@ EXIT 0</Command>
     <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
-    <ClInclude Include="LoadTaskPlanet.h" />
     <ClInclude Include="LoadTaskShaders.h" />
+    <ClInclude Include="LoadTaskSolarSystem.h" />
     <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
     <ClInclude Include="MainMenuRenderPipeline.h" />
     <ClInclude Include="MainMenuScreen.h" />
+    <ClInclude Include="MainMenuScreenEvents.hpp" />
+    <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="NamePositionComponent.h" />
     <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
+    <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
+    <ClInclude Include="OrbitComponent.h" />
+    <ClInclude Include="OrbitComponentRenderer.h" />
+    <ClInclude Include="OrbitComponentUpdater.h" />
+    <ClInclude Include="ParkourMoveUpdater.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="PauseMenuAwesomiumAPI.h" />
@@ -307,13 +335,28 @@ EXIT 0</Command>
     <ClInclude Include="PdaAwesomiumAPI.h" />
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
-    <ClInclude Include="PlanetRenderStage.h" />
+    <ClInclude Include="PhysicsComponentUpdater.h" />
+    <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SoaController.h" />
+    <ClInclude Include="SoaEngine.h" />
+    <ClInclude Include="SoaState.h" />
     <ClInclude Include="SoaFileSystem.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
-    <ClInclude Include="SpaceComponents.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SpaceSystemFactories.h" />
+    <ClInclude Include="SpaceSystemRenderStage.h" />
+    <ClInclude Include="SphericalGravityComponent.h" />
+    <ClInclude Include="SphericalTerrainComponent.h" />
+    <ClInclude Include="SphericalTerrainComponentRenderer.h" />
+    <ClInclude Include="SphericalTerrainComponentUpdater.h" />
+    <ClInclude Include="SphericalTerrainGenerator.h" />
+    <ClInclude Include="SphericalTerrainMeshManager.h" />
+    <ClInclude Include="SphericalVoxelComponent.h" />
+    <ClInclude Include="SphericalVoxelComponentTable.h" />
+    <ClInclude Include="SphericalVoxelComponentUpdater.h" />
+    <ClInclude Include="TerrainGenTextures.h" />
     <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
@@ -386,13 +429,11 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
-    <ClInclude Include="TerrainPatch.h" />
+    <ClInclude Include="SphericalTerrainPatch.h" />
     <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="OpenGLStructs.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="Particles.h" />
-    <ClInclude Include="Planet.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="SimplexNoise.h" />
@@ -404,7 +445,6 @@ EXIT 0</Command>
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
-    <ClInclude Include="VoxelWorld.h" />
     <ClInclude Include="EditorVariables.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
@@ -413,11 +453,17 @@ EXIT 0</Command>
     <ClCompile Include="AmbiencePlayer.cpp" />
     <ClCompile Include="AmbienceStream.cpp" />
     <ClCompile Include="ARProcessor.cpp" />
+    <ClCompile Include="Atmosphere.cpp" />
+    <ClCompile Include="AtmosphereComponent.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
+    <ClCompile Include="AxisRotationComponent.cpp" />
+    <ClCompile Include="AxisRotationComponentUpdater.cpp" />
+    <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
+    <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
@@ -426,6 +472,9 @@ EXIT 0</Command>
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GameSystem.cpp" />
+    <ClCompile Include="GameSystemFactories.cpp" />
+    <ClCompile Include="GameSystemUpdater.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="HardCodedIDs.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
@@ -438,11 +487,15 @@ EXIT 0</Command>
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
+    <ClCompile Include="OrbitComponentRenderer.cpp" />
+    <ClCompile Include="OrbitComponentUpdater.cpp" />
+    <ClCompile Include="ParkourComponentUpdater.cpp" />
     <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
@@ -451,13 +504,27 @@ EXIT 0</Command>
     <ClCompile Include="PdaAwesomiumAPI.cpp" />
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
-    <ClCompile Include="PlanetRenderStage.cpp" />
+    <ClCompile Include="PhysicsComponentUpdater.cpp" />
+    <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SoaController.cpp" />
+    <ClCompile Include="SoaEngine.cpp" />
+    <ClCompile Include="SoaState.cpp" />
     <ClCompile Include="SoaFileSystem.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
-    <ClCompile Include="SpaceComponents.cpp" />
+    <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="SpaceSystemFactories.cpp" />
+    <ClCompile Include="SpaceSystemRenderStage.cpp" />
+    <ClCompile Include="SphericalTerrainComponent.cpp" />
+    <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
+    <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
+    <ClCompile Include="SphericalTerrainGenerator.cpp" />
+    <ClCompile Include="SphericalTerrainMeshManager.cpp" />
+    <ClCompile Include="SphericalVoxelComponentTable.cpp" />
+    <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
+    <ClCompile Include="TerrainGenTextures.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
@@ -492,7 +559,6 @@ EXIT 0</Command>
     <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
     <ClCompile Include="RenderTask.cpp" />
-    <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -510,26 +576,22 @@ EXIT 0</Command>
     <ClCompile Include="ChunkIOManager.cpp" />
     <ClCompile Include="ChunkManager.cpp" />
     <ClCompile Include="ChunkMesher.cpp" />
-    <ClCompile Include="CloseTerrainPatch.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="global.cpp" />
-    <ClCompile Include="TerrainPatch.cpp" />
+    <ClCompile Include="SphericalTerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="Options.cpp" />
-    <ClCompile Include="Planet.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="TerrainGenerator.cpp" />
     <ClCompile Include="Texture2d.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
-    <ClCompile Include="VoxelWorld.cpp" />
     <ClCompile Include="WSO.cpp" />
     <ClCompile Include="WSOAtlas.cpp" />
     <ClCompile Include="WSOScanner.cpp" />

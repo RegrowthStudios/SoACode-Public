@@ -32,7 +32,7 @@
 #include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/graphics/Texture.h>
 
-struct NightVisionRenderParams {
+class NightVisionRenderParams {
 public:
     static NightVisionRenderParams createDefault();
 

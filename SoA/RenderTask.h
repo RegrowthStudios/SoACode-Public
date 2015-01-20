@@ -22,6 +22,7 @@
 
 class Chunk;
 class ChunkGridData;
+class ChunkMesh;
 class ChunkMeshData;
 class VoxelLightEngine;
 
@@ -41,8 +42,8 @@ public:
     void init(Chunk* ch, RenderTaskType cType);
 
     RenderTaskType type; 
-    Chunk* chunk;
-    ChunkMeshData* chunkMeshData;
+    Chunk* chunk = nullptr;
+    ChunkMesh* chunkMesh = nullptr;
 
 private:
     void updateLight(VoxelLightEngine* voxelLightEngine);

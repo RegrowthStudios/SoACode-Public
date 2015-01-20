@@ -2,7 +2,6 @@
 #include "PdaAwesomiumAPI.h"
 
 #include "GamePlayScreen.h"
-#include "Player.h"
 
 void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
 
@@ -29,13 +28,13 @@ void PdaAwesomiumAPI::setOwnerScreen(IGameScreen* ownerScreen) {
 Awesomium::JSValue PdaAwesomiumAPI::getInventory(const Awesomium::JSArray& args) {
  
     // Grab a handle to the inventory
-    const std::vector<Item*>& inventory = _ownerScreen->_player->inventory;
+  //  const std::vector<Item*>& inventory = _ownerScreen->m_player->inventory;
 
     Awesomium::JSArray entries;
-    for (int i = 0; i < inventory.size(); i++) {
+ /*   for (int i = 0; i < inventory.size(); i++) {
         entries.Push(Awesomium::WSLit(inventory[i]->name.c_str()));
         entries.Push(Awesomium::JSValue(inventory[i]->count));
-    }
+    }*/
     return Awesomium::JSValue(entries);
 }
 
@@ -51,29 +50,29 @@ void PdaAwesomiumAPI::selectItem(const Awesomium::JSArray& args) {
     std::cout << "SELECT ITEM: " << hand << " " << name;
 
     // Search player inventory
-    Player* player = _ownerScreen->_player;
+    //Player* player = _ownerScreen->m_player;
     // TODO(Ben): Not linear search
-    for (int i = 0; i < player->inventory.size(); i++) {
-        if (player->inventory[i]->name == name) {
-            // Check which hand was clicked
-            if (hand == HAND_LEFT) {
-                if (player->leftEquippedItem == player->inventory[i]) {
-                    // If the item is already equipped, unequip it.
-                    player->leftEquippedItem = nullptr;
-                } else {
-                    // Equip the item
-                    player->leftEquippedItem = player->inventory[i];
-                }
-            } else if (hand == HAND_RIGHT) {
-                if (player->rightEquippedItem == player->inventory[i]) {
-                    // If the item is already equipped, unequip it.
-                    player->rightEquippedItem = nullptr;
-                } else {
-                    // Equip the item
-                    player->rightEquippedItem = player->inventory[i];
-                }
-            }
-            break;
-        }
-    }
+    //for (int i = 0; i < player->inventory.size(); i++) {
+    //    if (player->inventory[i]->name == name) {
+    //        // Check which hand was clicked
+    //        if (hand == HAND_LEFT) {
+    //            if (player->leftEquippedItem == player->inventory[i]) {
+    //                // If the item is already equipped, unequip it.
+    //                player->leftEquippedItem = nullptr;
+    //            } else {
+    //                // Equip the item
+    //                player->leftEquippedItem = player->inventory[i];
+    //            }
+    //        } else if (hand == HAND_RIGHT) {
+    //            if (player->rightEquippedItem == player->inventory[i]) {
+    //                // If the item is already equipped, unequip it.
+    //                player->rightEquippedItem = nullptr;
+    //            } else {
+    //                // Equip the item
+    //                player->rightEquippedItem = player->inventory[i];
+    //            }
+    //        }
+    //        break;
+    //    }
+    //}
 }

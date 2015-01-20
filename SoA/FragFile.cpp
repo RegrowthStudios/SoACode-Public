@@ -2,7 +2,7 @@
 #include "FragFile.h"
 
 // Fragmentation Seeking Information
-struct FragBlockHeader {
+class FragBlockHeader {
 public:
     // Path ID
     i32 id;
@@ -12,7 +12,7 @@ public:
     i32 offset;
 };
 // A Header For Each Data Path
-struct FragHeader {
+class FragHeader {
 public:
     // The Total Size Of The Path
     i32 totalSize;

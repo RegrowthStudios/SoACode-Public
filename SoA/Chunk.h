@@ -7,47 +7,68 @@
 #include <Vorb/Vorb.h>
 #include <Vorb/IThreadPoolTask.h>
 
+#include "Biome.h"
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "IVoxelMapper.h"
 #include "SmartVoxelContainer.hpp"
 #include "readerwriterqueue.h"
+#include "TerrainGenerator.h"
 #include "WorldStructs.h"
+
 #include "VoxelBits.h"
 #include "VoxelLightEngine.h"
 #include "VoxPool.h"
+
+#include <Vorb/RPC.h>
 
 //used by threadpool
 
 const int MAXLIGHT = 31;
 
 class Block;
-struct PlantData;
+
+class PlantData;
 
 enum LightTypes {LIGHT, SUNLIGHT};
 
 enum class ChunkStates { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
-struct LightMessage;
-class RenderTask;
 class CaPhysicsType;
 class ChunkMesher;
+class LightMessage;
+class RenderTask;
+class SphericalTerrainGenerator;
 
 class ChunkGridData {
 public:
-    ChunkGridData(vvox::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData), refCount(1) {
-        //Mark the data as unloaded
-        heightData[0].height = UNLOADED_HEIGHT;
-    }
+    ChunkGridData(vvox::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData) { }
     ~ChunkGridData() {
         delete voxelMapData;
     }
     vvox::VoxelMapData* voxelMapData;
     HeightData heightData[CHUNK_LAYER];
-    int refCount;
+    int refCount = 1;
+    volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
+    volatile bool isLoaded = false;
 };
 
-class ChunkSlot;
+class RawGenDelegate : public IDelegate < void* > {
+public:
+    virtual void invoke(Sender sender, void* userData) override;
+    volatile bool inUse = false;
+
+    vcore::RPC rpc;
+
+    f32v3 startPos;
+    i32v3 coordMapping;
+    int width;
+    float step;
+
+    ChunkGridData* gridData = nullptr;
+
+    SphericalTerrainGenerator* generator = nullptr;
+};
 
 class Chunk{
 public:
@@ -63,7 +84,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &gridPos, ChunkSlot* Owner);
+    void init(const i32v3 &chunkPos, ChunkGridData* chunkGridData);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
@@ -71,12 +92,15 @@ public:
         _lampLightContainer.update(_dataLock);
         _tertiaryDataContainer.update(_dataLock);
     }
+
+    void calculateDistance2(const i32v3& cameraPos) {
+        distance2 = getDistance2(voxelPosition, cameraPos);
+    }
     
     void changeState(ChunkStates State);
-    
-    /// Checks if adjacent chunks are in thread, since we don't want
-    /// to remove chunks when their neighbors need them.
-    bool isAdjacentInThread();
+
+    void addDependency() { chunkDependencies++; }
+    void removeDependency() { chunkDependencies--; }
 
     int getTopSunlight(int c);
 
@@ -135,6 +159,8 @@ public:
     int getRainfall(int xz) const;
     int getTemperature(int xz) const;
 
+    void detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap);
+
     int getLevelOfDetail() const { return _levelOfDetail; }
 
     //setters
@@ -155,6 +181,8 @@ public:
         blockUpdateList[(caIndex << 1) + (int)activeUpdateList[caIndex]].push_back(blockIndex);
     }
     
+    static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
+
     int numNeighbors;
     std::vector<bool> activeUpdateList;
     bool drawWater;
@@ -169,6 +197,7 @@ public:
     volatile bool queuedForMesh;
 
     bool queuedForPhysics;
+    int meshJobCounter = 0; ///< Counts the number of mesh tasks this chunk is in
 
     vorb::core::IThreadPoolTask<WorkerData>* lastOwnerTask; ///< Pointer to task that is working on us
 
@@ -177,13 +206,14 @@ public:
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
     std::vector <GLushort> spawnerBlocks;
-    i32v3 gridPosition;  // Position relative to the voxel grid
+    i32v3 voxelPosition;  // Position relative to the voxel grid
     i32v3 chunkPosition; // floor(gridPosition / (float)CHUNK_WIDTH)
 
     int numBlocks;
     int minh;
     double distance2;
     bool freeWaiting;
+    bool inFrustum = false;
 
     int blockUpdateIndex;
     int treeTryTicks;
@@ -201,11 +231,12 @@ public:
     std::vector <ui16> sunRemovalList;
     std::vector <ui16> sunExtendList;
 
+    int chunkDependencies = 0; ///< Number of chunks that depend on this chunk in other threads.
+
     static ui32 vboIndicesID;
 
     Chunk *right, *left, *front, *back, *top, *bottom;
 
-    ChunkSlot* owner;
     ChunkGridData* chunkGridData;
     vvox::VoxelMapData* voxelMapData;
 
@@ -239,54 +270,6 @@ private:
 
 //INLINE FUNCTION DEFINITIONS
 #include "Chunk.inl"
-
-class ChunkSlot
-{
-public:
-
-    friend class ChunkManager;
-
-    ChunkSlot(const glm::ivec3 &pos, Chunk *ch, ChunkGridData* cgd) :
-        chunk(ch),
-        position(pos),
-        chunkGridData(cgd),
-        left(nullptr),
-        right(nullptr),
-        back(nullptr),
-        front(nullptr),
-        bottom(nullptr),
-        top(nullptr),
-        numNeighbors(0),
-        inFrustum(false),
-        distance2(1.0f){}
-
-    inline void calculateDistance2(const i32v3& cameraPos) {
-        distance2 = getDistance2(position, cameraPos);
-        chunk->distance2 = distance2;
-    }
-
-    void clearNeighbors();
-
-    void detectNeighbors(std::unordered_map<i32v3, ChunkSlot*>& chunkSlotMap);
-
-    void reconnectToNeighbors();
-
-    Chunk *chunk;
-    glm::ivec3 position;
-
-    int numNeighbors;
-    //Indices of neighbors
-    ChunkSlot* left, *right, *back, *front, *top, *bottom;
-
-    //squared distance
-    double distance2;
-
-    ChunkGridData* chunkGridData;
-
-    bool inFrustum;
-private:
-    static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
-};
 
 inline i32 getPositionSeed(i32 x, i32 y, i32 z) {
     return ((x & 0x7FF) << 10) |

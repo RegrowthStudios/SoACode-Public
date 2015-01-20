@@ -4,14 +4,17 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "BlockData.h"
-#include "VoxelMesher.h"
 #include "Chunk.h"
 #include "GLProgramManager.h"
 #include "GameManager.h"
 #include "ObjectLoader.h"
 #include "OpenGLStructs.h"
 #include "Options.h"
+#include "RenderUtils.h"
 #include "Texture2d.h"
+
+#include "VoxelMesher.h"
+
 #include "WorldStructs.h"
 
 
@@ -77,7 +80,7 @@ void WorldRenderer::DrawLine(glm::vec3 a, glm::vec3 b)
     glDrawArrays(GL_LINES, 0, 2);
 }
 
-void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, const glm::mat4 &VP, const glm::vec4& color)
+void DrawWireBox(vg::GLProgram* program, double x, double y, double z, double xw, double yh, double zw, float lineWidth, const glm::dvec3 &playerPos, const glm::mat4 &VP, const glm::vec4& color)
 {
     // Vertex names
     #define BOT_BACK_LEFT 0
@@ -88,24 +91,20 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
     #define TOP_BACK_RIGHT 5
     #define TOP_FRONT_LEFT 6
     #define TOP_FRONT_RIGHT 7
+    f32m4 worldMatrix(1.0);
+    setMatrixTranslation(worldMatrix, xw, yh, zw);
+    setMatrixScale(worldMatrix, x - playerPos.x, y - playerPos.y, z - playerPos.z);
 
-    GlobalModelMatrix[0][0] = xw;
-    GlobalModelMatrix[1][1] = yh;
-    GlobalModelMatrix[2][2] = zw;
-    GlobalModelMatrix[3][0] = (float)((double)x - playerPos.x);
-    GlobalModelMatrix[3][1] = (float)((double)y - playerPos.y);
-    GlobalModelMatrix[3][2] = (float)((double)z - playerPos.z);
+    glm::mat4 MVP = VP * worldMatrix;
 
-    glm::mat4 MVP = VP * GlobalModelMatrix;
-
-    vg::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
+    //vg::GLProgram* program = GameManager::glProgramManager->getProgram("BasicColor");
 
     program->use();
     program->enableVertexAttribArrays();
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniform4f(program->getUniform("unColor"), (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
-    // Lazily construct vbo
+    // Lazily Construct vbo
     static ui32 vbo = 0;
     static ui32 ibo = 0;
     if (vbo == 0) {
@@ -159,10 +158,6 @@ void DrawWireBox(double x, double y, double z, double xw, double yh, double zw, 
 
     program->disableVertexAttribArrays();
     program->unuse();
-
-    GlobalModelMatrix[0][0] = 1.0;
-    GlobalModelMatrix[1][1] = 1.0;
-    GlobalModelMatrix[2][2] = 1.0;
 }
 
 GLuint MakeBlockVbo(Block *block){
@@ -256,23 +251,20 @@ GLuint MakeBlockVbo(Block *block){
     return vboID;
 }
 
-void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation){
+void Draw3DCube(vg::GLProgramManager* glProgramManager, Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation) {
 
     const float eyeDir[3] = { 0.0f, 0.0f, -1.0f };
     const float fadeDist = (GLfloat)10000.0f;
     const float blockAmbient = 0.000f;
     const glm::vec3 light = glm::vec3(glm::inverse(rotation) * glm::vec4(glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)), 1.0));
 
-    GlobalModelMatrix[3][0] = (x);
-    GlobalModelMatrix[3][1] = (y);
-    GlobalModelMatrix[3][2] = (z);
+    f32m4 worldMatrix(1.0);
+    setMatrixTranslation(worldMatrix, x, y, z);
 
     glm::mat4 translation(1.0);
-    translation[3][0] = -0.5;
-    translation[3][1] = -0.5;
-    translation[3][2] = -0.5;
+    setMatrixTranslation(translation, -0.5, -0.5, -0.5);
 
-    glm::mat4 M = GlobalModelMatrix * rotation * translation;
+    glm::mat4 M = worldMatrix * rotation * translation;
     glm::mat4 MVP = VP * M;
 
     vg::GLProgram* program = nullptr;
@@ -280,11 +272,11 @@ void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::
     switch (block->meshType) {
         case MeshType::CROSSFLORA:
         case MeshType::FLORA:
-            program = GameManager::glProgramManager->getProgram("Cutout");
+            program = glProgramManager->getProgram("Cutout");
             break;
         case MeshType::BLOCK:
         default:
-            program = GameManager::glProgramManager->getProgram("Block");
+            program = glProgramManager->getProgram("Block");
             break;
     }
 

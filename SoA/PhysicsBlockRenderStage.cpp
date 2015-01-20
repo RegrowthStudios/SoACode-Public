@@ -45,7 +45,8 @@ void PhysicsBlockRenderStage::draw() {
     }
 
     for (Uint32 i = 0; i < _physicsBlockMeshes.size(); i++) {
-        PhysicsBlockBatch::draw(_physicsBlockMeshes[i], _glProgram, _gameRenderParams->chunkCamera->getPosition(), _gameRenderParams->VP);
+        PhysicsBlockBatch::draw(_physicsBlockMeshes[i], _glProgram, _gameRenderParams->chunkCamera->getPosition(),
+                                _gameRenderParams->chunkCamera->getViewProjectionMatrix());
     }
 
     _glProgram->unuse();

@@ -10,7 +10,7 @@ public:
         color[3] = 255;
     }
 
-    struct Animation* animation;
+    class Animation* animation;
     vg::Texture texture;
     i32 tmpTexUnit;
     ui8 color[4];

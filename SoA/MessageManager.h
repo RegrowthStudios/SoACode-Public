@@ -8,15 +8,14 @@ enum class MessageID {
     DONE,
     QUIT,
     NEW_PLANET,
-    TERRAIN_MESH,
-    REMOVE_TREES,
     CHUNK_MESH,
     PARTICLE_MESH,
     PHYSICS_BLOCK_MESH
 };
 
-struct Message
+class Message
 {
+public:
     Message() : id(MessageID::NONE), data(NULL){}
     Message(MessageID i, void *d) : id(i), data(d) {}
     MessageID id;

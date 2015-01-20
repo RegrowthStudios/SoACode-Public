@@ -18,10 +18,9 @@
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "Options.h"
-#include "Planet.h"
-#include "Player.h"
 
-ChunkIOManager::ChunkIOManager()
+ChunkIOManager::ChunkIOManager(const nString& saveDir) :
+    _regionFileManager(saveDir)
 {
     _isThreadFinished = 0;
     readWriteThread = NULL;
@@ -102,7 +101,7 @@ void ChunkIOManager::addToLoadList(std::vector <Chunk *> &chunks)
             chunksToLoad.enqueue(ch);
         }
         else{
-            std::cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << ch->gridPosition.x << " " << ch->gridPosition.y << " " << ch->gridPosition.z << std::endl;
+            std::cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << ch->voxelPosition.x << " " << ch->voxelPosition.y << " " << ch->voxelPosition.z << std::endl;
         }
     }
     _cond.notify_one();
@@ -136,13 +135,13 @@ void ChunkIOManager::readWriteChunks()
         // All tasks
         while (chunksToLoad.try_dequeue(ch) || chunksToSave.try_dequeue(ch)) {
             if (ch->getState() == ChunkStates::LOAD) {
-                if (_regionFileManager.tryLoadChunk(ch) == false) {
+                if (1 || _regionFileManager.tryLoadChunk(ch) == false) {
                     ch->loadStatus = 1;
                 }
 
                 finishedLoadChunks.enqueue(ch);
             } else { //save
-                _regionFileManager.saveChunk(ch);
+               // _regionFileManager.saveChunk(ch);
                 ch->inSaveThread = 0; //race condition?
             }
            

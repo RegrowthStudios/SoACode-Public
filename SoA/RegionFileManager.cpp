@@ -14,7 +14,7 @@
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
-#include "Planet.h"
+
 
 // Section tags
 #define TAG_VOXELDATA 0x1
@@ -71,7 +71,11 @@ bool checkZlibError(nString message, int zerror) {
     return false;
 }
 
-RegionFileManager::RegionFileManager() :_regionFile(nullptr), _copySectorsBuffer(nullptr), _maxCacheSize(8) {
+RegionFileManager::RegionFileManager(const nString& saveDir) :_regionFile(nullptr),
+_copySectorsBuffer(nullptr),
+_maxCacheSize(8),
+m_saveDir(saveDir) {
+    // Empty
 }
 
 RegionFileManager::~RegionFileManager() {
@@ -96,7 +100,7 @@ void RegionFileManager::clear() {
 bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxelMapData, bool create) {
 
     nString filePath;
-    struct stat statbuf;
+    class stat statbuf;
     RegionFile* rf;
 
     if (_regionFile && _regionFile->file && region == _regionFile->region) {
@@ -129,7 +133,7 @@ bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxel
     } 
 
 
-    filePath = GameManager::saveFilePath + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
+    filePath = m_saveDir + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
    
     //open file if it exists
     FILE* file = fopen(filePath.c_str(), "rb+");
@@ -174,7 +178,7 @@ bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxel
 
         _regionFile->totalSectors = 0;
         fflush(_regionFile->file);
-    } else{ //load header data into the header struct 
+    } else{ //load header data into the header class 
 
         if (loadRegionHeader() == false) return false;
 
@@ -388,7 +392,7 @@ void RegionFileManager::flush() {
 
 bool RegionFileManager::saveVersionFile() {
     FILE* file;
-    file = fopen((GameManager::saveFilePath + "/Region/version.dat").c_str(), "wb");
+    file = fopen((m_saveDir + "/Region/version.dat").c_str(), "wb");
 
     if (!file) return false;
 
@@ -402,10 +406,10 @@ bool RegionFileManager::saveVersionFile() {
 
 bool RegionFileManager::checkVersion() {
     FILE* file;
-    file = fopen((GameManager::saveFilePath + "/Region/version.dat").c_str(), "rb");
+    file = fopen((m_saveDir + "/Region/version.dat").c_str(), "rb");
 
     if (!file) {
-        pError(GameManager::saveFilePath + "/Region/version.dat not found. Game will assume the version is correct, but it is "
+        pError(m_saveDir + "/Region/version.dat not found. Game will assume the version is correct, but it is "
                + "probable that this save will not work if the version is wrong. If this is a save from 0.1.6 or earlier, then it is "
                + "only compatible with version 0.1.6 of the game. In that case, please make a new save or download 0.1.6 to play this save.");
         return saveVersionFile();
@@ -643,7 +647,7 @@ bool RegionFileManager::saveRegionHeader() {
     return true;
 }
 
-//Loads the header for the region file and stores it in the region file struct
+//Loads the header for the region file and stores it in the region file class
 bool RegionFileManager::loadRegionHeader() {
 
     if (!seek(0)){
@@ -836,7 +840,7 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
     int ip, jp;
     chunk->voxelMapData->getChunkGridPos(ip, jp);
 
-    int ym = ((int)floor(chunk->gridPosition.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
+    int ym = ((int)floor(chunk->voxelPosition.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
     int im = ip % REGION_WIDTH;
     int jm = jp % REGION_WIDTH;
 
@@ -862,5 +866,5 @@ nString RegionFileManager::getRegionString(Chunk *ch)
 
     ch->voxelMapData->getChunkGridPos(ip, jp);
 
-    return "r." + std::to_string(jp >> RSHIFT) + "." + std::to_string(fastFloor(ch->gridPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + std::to_string(ip >> RSHIFT);
+    return "r." + std::to_string(jp >> RSHIFT) + "." + std::to_string(fastFloor(ch->voxelPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + std::to_string(ip >> RSHIFT);
 }

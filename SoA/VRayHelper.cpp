@@ -3,7 +3,6 @@
 
 #include "Chunk.h"
 #include "ChunkManager.h"
-#include "Player.h"
 #include "VoxelRay.h"
 
 const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkManager* cm, PredBlockID f) {

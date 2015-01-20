@@ -10,11 +10,13 @@
 #include <Vorb/Vorb.h>
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
+//TODO(Ben): Use forward decl
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "GameManager.h"
 #include "IVoxelMapper.h"
+#include "VoxelPlanetMapper.h"
 #include "VoxPool.h"
 #include "WorldStructs.h"
 
@@ -23,14 +25,14 @@ const i32 lodStep = 1;
 extern ui32 strtTimer;
 
 // Message used when placing blocks
-struct PlaceBlocksMessage {
+class PlaceBlocksMessage {
 
     PlaceBlocksMessage(Item *equipped) : equippedItem(equipped) {}
 
     Item* equippedItem;
 };
 
-struct ChunkDiagnostics {
+class ChunkDiagnostics {
 public:
     // Number Of Chunks That Have Been Allocated During The Program's Life
     i32 totalAllocated;
@@ -45,18 +47,40 @@ public:
     i32 numAwaitingReuse;
 };
 
-class Camera;
 class ChunkSlot;
 class FloraTask;
 class GenerateTask;
 class GeneratedTreeNodes;
+class PhysicsEngine;
 class RenderTask;
 class VoxelLightEngine;
+
+class HeightmapGenRpcDispatcher {
+public:
+    HeightmapGenRpcDispatcher(SphericalTerrainGenerator* generator) :
+        m_generator(generator) {
+        for (int i = 0; i < NUM_GENERATORS; i++) {
+            m_generators[i].generator = m_generator;
+        }
+    }
+    /// @return a new mesh on success, nullptr on failure
+    bool dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData, float voxelRadius);
+private:
+    static const int NUM_GENERATORS = 512;
+    int counter = 0;
+
+    SphericalTerrainGenerator* m_generator = nullptr;
+
+    RawGenDelegate m_generators[NUM_GENERATORS];
+};
 
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
 public:
-    ChunkManager();
+    ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
+                 SphericalTerrainGenerator* terrainGenerator,
+                 const vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
+                 const f64v3& gridPosition, float planetVoxelRadius);
     ~ChunkManager();
 
     enum InitFlags {
@@ -64,15 +88,9 @@ public:
         SET_Y_TO_SURFACE
     };
 
-    /// Initializes the grid at the surface and returns the Y value
-    /// @param gridPosition: the floating point starting grid position.
-    /// @param voxelMapper: The chosen voxel mapping scheme
-    /// @param flags: bitwise combination of ChunkManager::InitFlags
-    void initialize(const f64v3& gridPosition, vvox::IVoxelMapper* voxelMapper, vvox::VoxelMapData* startingMapData, ui32 flags);
-
     /// Updates the chunks
     /// @param camera: The camera that is rendering the voxels
-    void update(const Camera* camera);
+    void update(const f64v3& position);
 
     /// Gets the 8 closest chunks to a point
     /// @param coord: the position in question
@@ -151,8 +169,8 @@ public:
         return _chunkDiagnostics;
     }
 
-    const std::vector<ChunkSlot>& getChunkSlots(int levelOfDetail) const {
-        return _chunkSlots[levelOfDetail];
+    const std::vector<Chunk*>& getChunks() const {
+        return m_chunks;
     }
 
     /// Forces a remesh of all chunks
@@ -180,6 +198,10 @@ public:
         _isStationary = isStationary;
     }
 
+
+    /// Getters
+    PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
+
 private:
 
     /// Initializes the threadpool
@@ -191,14 +213,17 @@ private:
     /// Processes a generate task that is finished
     void processFinishedGenerateTask(GenerateTask* task);
 
-    /// Processes a render task that is finished
-    void processFinishedRenderTask(RenderTask* task);
-
     /// Processes a flora task that is finished
     void processFinishedFloraTask(FloraTask* task);
 
     /// Updates all chunks that have been loaded
     void updateLoadedChunks(ui32 maxTicks);
+
+    /// Updates all chunks that are ready to be generated
+    void updateGenerateList();
+
+    /// Adds a generate task to the threadpool
+    void addGenerateTask(Chunk* chunk);
 
     /// Creates a chunk and any needed grid data at a given chunk position
     /// @param chunkPosition: position to create the chunk at
@@ -226,10 +251,6 @@ private:
     /// @param nodes: the nodes to place
     void placeTreeNodes(GeneratedTreeNodes* nodes);
 
-    /// Setups any chunk neighbor connections
-    /// @param chunk: the chunk to connect
-    void setupNeighbors(Chunk* chunk);
-
     /// Frees a chunk from the world. 
     /// The chunk may be recycled, or it may need to wait for some threads
     /// to finish processing on it.
@@ -248,6 +269,10 @@ private:
     /// @param chunk: the chunk to add
     void addToMeshList(Chunk* chunk);
 
+    /// Adds a chunk to the generateList
+    /// @param chunk: the chunk to add
+    void addToGenerateList(Chunk* chunk);
+
     /// Recycles a chunk
     /// @param chunk: the chunk to recycle
     void recycleChunk(Chunk* chunk);
@@ -260,23 +285,32 @@ private:
 
     /// Updates all chunks
     /// @param position: the camera position
-    void updateChunks(const Camera* cameran);
+    void updateChunks(const f64v3& position);
 
-    /// Updates the neighbors for a chunk slot, possible loading new chunks
-    /// @param cs: the chunkslot in question
+    /// Updates the neighbors for a chunk, possibly loading new chunks
+    /// @param chunk: the chunk in question
     /// @param cameraPos: camera position
-    void updateChunkslotNeighbors(ChunkSlot* cs, const i32v3& cameraPos);
+    void updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos);
 
-    /// Tries to load a chunk slot neighbor if it is in range
-    /// @param cs: relative chunk slot
+    /// Tries to load a chunk neighbor if it is in range
+    /// @param chunk: relative chunk
     /// @param cameraPos: the camera position
     /// @param offset: the offset, must be unit length.
-    ChunkSlot* tryLoadChunkslotNeighbor(ChunkSlot* cs, const i32v3& cameraPos, const i32v3& offset);
+    void tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset);
 
     /// Calculates cave occlusion. This is temporarily broken /// TODO(Ben): Fix cave occlusion
     void caveOcclusion(const f64v3& ppos);
     /// Used by cave occlusion
     void recursiveFloodFill(bool left, bool right, bool front, bool back, bool top, bool bottom, Chunk* chunk);
+
+    /// Simple debugging print
+    void printOwnerList(Chunk* chunk);
+
+    /// True when the chunk can be sent to mesh thread. Will set neighbor dependencies
+    bool trySetMeshDependencies(Chunk* chunk);
+
+    /// Removes all mesh dependencies
+    void tryRemoveMeshDependencies(Chunk* chunk);
 
     //***** Private Variables *****
 
@@ -284,16 +318,12 @@ private:
     /// It is actually bigger than the maximum for safety
     i32 _csGridSize;
 
-    /// All chunks slots. Right now only the first is used,
-    /// but ideally there is one vector per LOD level for recombination
-    /// TODO(Ben): Implement recombination
-    std::vector<ChunkSlot> _chunkSlots[6]; //one per LOD
-
     /// list of chunks that are waiting for threads to finish on them
     std::vector<Chunk*> _freeWaitingChunks;
+    std::vector<Chunk*> m_chunks;
 
-    /// hashmap of chunk slots
-    std::unordered_map<i32v3, ChunkSlot*> _chunkSlotMap;
+    /// hashmap of chunks
+    std::unordered_map<i32v3, Chunk*> m_chunkMap;
 
     /// Chunk Lists
     /// Stack of free chunks that have been recycled and can be used
@@ -304,6 +334,8 @@ private:
     std::vector<Chunk*> _meshList;
     /// Stack of chunks that need to be sent to the IO thread
     std::vector<Chunk*> _loadList;
+    /// Stack of chunks needing generation
+    std::vector<Chunk*> m_generateList;
 
     /// Indexed by (x,z)
     std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
@@ -333,9 +365,21 @@ private:
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData> _threadPool;
 
+    /// Dispatches asynchronous generation requests
+    std::unique_ptr<HeightmapGenRpcDispatcher> heightmapGenRpcDispatcher = nullptr;
+
+    /// Generates voxel heightmaps
+    SphericalTerrainGenerator* m_terrainGenerator = nullptr;
+
     int _numCaTasks = 0; ///< The number of CA tasks currently being processed
 
     VoxelLightEngine* _voxelLightEngine; ///< Used for checking top chunks for sunlight
+
+    PhysicsEngine* m_physicsEngine = nullptr;
+
+    ChunkIOManager* m_chunkIo = nullptr;
+
+    float m_planetVoxelRadius = 0;
 
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> _byteFixedSizeArrayRecycler; ///< For recycling voxel data

@@ -25,13 +25,15 @@
 #include "BlockPack.h"
 
 /// Information stored in pack.yml
-struct TexturePackInfo {
+class TexturePackInfo {
+public:
     nString name;
     ui32 resolution;
     nString description;
 };
 
-struct BlockTextureData {
+class BlockTextureData {
+public:
     BlockTextureLayer* base;
     BlockTextureLayer* overlay;
     BlendType blendMode;
@@ -65,7 +67,7 @@ public:
     void registerBlockTexture(const nString& filePath) { _blockTexturesToLoad.insert(filePath); }
 
     /// Loads all textures added to the texture pack and stores them
-    /// but does not construct the texture atlases
+    /// but does not Construct the texture atlases
     /// @param texturePackPath: Path to the texture pack
     void loadAllTextures(const nString& texturePackPath);
 
@@ -149,8 +151,9 @@ private:
     /// @return Pointer to the pixel data
     ui8* getPixels(const nString& filePath, ui32& width, ui32& height);
 
-    /// Struct used for cacheing pixels
-    struct Pixels {
+    /// class used for cacheing pixels
+    class Pixels {
+    public:
         Pixels() : data(nullptr), width(0), height(0) {};
         Pixels(std::vector<ui8>* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
             // Empty
@@ -160,8 +163,9 @@ private:
         ui32 height;
     };
 
-    /// Struct used for storing texture upload state
-    struct TextureToUpload {
+    /// class used for storing texture upload state
+    class TextureToUpload {
+    public:
         TextureToUpload() : pixels(nullptr), samplerState(nullptr) {};
         TextureToUpload(Pixels* p, SamplerState* ss) :
             pixels(p), samplerState(ss) {

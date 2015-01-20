@@ -9,36 +9,52 @@
 #include "AmbienceLibrary.h"
 #include "AmbiencePlayer.h"
 #include "App.h"
-#include "GamePlayScreen.h"
-#include "IAwesomiumAPI.h"
+
+#include "DebugRenderer.h"
 #include "ChunkManager.h"
 #include "Errors.h"
-#include "Player.h"
-#include "Planet.h"
+#include "FileSystem.h"
+#include "Frustum.h"
+#include "GameManager.h"
+#include "GamePlayScreen.h"
+#include "GamePlayScreen.h"
+#include "IAwesomiumAPI.h"
+#include "IAwesomiumAPI.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "GameManager.h"
-#include "Sound.h"
-#include "Options.h"
-#include "MessageManager.h"
-#include "VoxelEditor.h"
-#include "Frustum.h"
-#include "TerrainPatch.h"
+#include "LoadScreen.h"
 #include "LoadTaskShaders.h"
-#include "FileSystem.h"
+#include "MainMenuScreen.h"
+#include "MainMenuScreenEvents.hpp"
+#include "MainMenuSystemViewer.h"
 #include "MeshManager.h"
+#include "MessageManager.h"
+#include "Options.h"
+#include "SoAState.h"
+#include "SoaEngine.h"
+#include "Sound.h"
+#include "SpaceSystem.h"
+#include "SphericalTerrainPatch.h"
+#include "VoxelEditor.h"
 
 #define THREAD ThreadId::UPDATE
 
-CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
-    _updateThread(nullptr),
-    _threadRunning(false){
+MainMenuScreen::MainMenuScreen(const App* app, const LoadScreen* loadScreen) :
+    IAppScreen<App>(app),
+    m_loadScreen(loadScreen),
+    m_updateThread(nullptr),
+    m_threadRunning(false) {
+    // Empty
+}
+
+MainMenuScreen::~MainMenuScreen() {
     // Empty
 }
 
 i32 MainMenuScreen::getNextScreen() const {
     return _app->scrGamePlay->getIndex();
 }
+
 i32 MainMenuScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -52,6 +68,16 @@ void MainMenuScreen::destroy(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEntry(const GameTime& gameTime) {
+
+    // Get the state handle
+    m_soaState = m_loadScreen->getSoAState();
+                             
+    m_camera.init(_app->getWindow().getAspectRatio());
+
+    m_inputManager = new InputManager;
+
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+                                                                    &m_camera, &m_soaState->spaceSystem, m_inputManager);
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
@@ -63,40 +89,43 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     m_ambPlayer->init(m_engine, m_ambLibrary);
     m_ambPlayer->setToTrack("Menu", 50);
 
-    // Initialize the camera
-    _camera.init(_app->getWindow().getAspectRatio());
-    _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
-    _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
-    _camera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
-    _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
-    _camera.setClippingPlane(1000000.0f, 30000000.0f);
-    _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
 
     // Initialize the user interface
-    _awesomiumInterface.init("UI/MainMenu/",
+    m_awesomiumInterface.init("UI/MainMenu/",
                              "MainMenu_UI",
                              "index.html", 
                              _app->getWindow().getWidth(), 
                              _app->getWindow().getHeight(),
                              this);
 
+   
+
     // Init rendering
     initRenderPipeline();
+    m_onReloadShadersKeyDown = m_inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnMainMenuReloadShadersKeyDown(this));
 
     // Run the update thread for updating the planet
-    _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
+    m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 
-    GameManager::inputManager->startInput();
+    m_inputManager->startInput();
 }
 
 void MainMenuScreen::onExit(const GameTime& gameTime) {
-    GameManager::inputManager->stopInput();
+    m_inputManager->stopInput();
 
-    _threadRunning = false;
-    _updateThread->join();
-    delete _updateThread;
-    _awesomiumInterface.destroy();
-    _renderPipeline.destroy();
+    m_mainMenuSystemViewer.reset();
+
+    m_threadRunning = false;
+    m_updateThread->join();
+    delete m_updateThread;
+    m_awesomiumInterface.destroy();
+    m_renderPipeline.destroy();
+
+
+    m_inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
+    delete m_onReloadShadersKeyDown;
+
+    delete m_inputManager;
 
     m_ambPlayer->dispose();
     m_engine->dispose();
@@ -106,54 +135,43 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
+
     // Check for reloading the UI
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
+    if (m_inputManager->getKeyDown(INPUT_RELOAD_UI)) {
         std::cout << "\n\nReloading MainMenu UI...\n\n";
-        _awesomiumInterface.destroy();
-        _awesomiumInterface.init("UI/MainMenu/",
+        m_awesomiumInterface.destroy();
+        m_awesomiumInterface.init("UI/MainMenu/",
                                  "MainMenu_UI", 
                                  "index.html",
                                  _app->getWindow().getWidth(),
                                  _app->getWindow().getHeight(),
                                  this);
     }
+
 }
 
 void MainMenuScreen::update(const GameTime& gameTime) {
-    _awesomiumInterface.update();
 
-    _camera.update();
-    GameManager::inputManager->update(); // TODO: Remove
+    m_awesomiumInterface.update();
+    
+    m_mainMenuSystemViewer->update();
 
-    MeshManager* meshManager = _app->meshManager;
+    m_soaState->time += 0.0000001;
+    m_soaState->spaceSystem.update(&m_soaState->gameSystem, m_soaState, m_camera.getPosition());
+    m_soaState->spaceSystem.glUpdate();
 
-    TerrainMeshMessage* tmm;
-    Message message;
-    while (GameManager::messageManager->tryDeque(ThreadId::RENDERING, message)) {
-        switch (message.id) {
-            case MessageID::TERRAIN_MESH:
-                meshManager->updateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));
-                break;
-            case MessageID::REMOVE_TREES:
-                tmm = static_cast<TerrainMeshMessage*>(message.data);
-                if (tmm->terrainBuffers->treeVboID != 0) glDeleteBuffers(1, &(tmm->terrainBuffers->treeVboID));
-                tmm->terrainBuffers->treeVboID = 0;
-                delete tmm;
-                break;
-            default:
-                break;
-        }
-    }
+    m_camera.update();
+    m_inputManager->update(); // TODO: Remove
 
     // Check for shader reload
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-        GameManager::glProgramManager->destroy();
-        LoadTaskShaders shaderTask(nullptr);
-        shaderTask.load();
-        // Reload the pipeline with new shaders
-        _renderPipeline.destroy();
-        initRenderPipeline();
-    }
+    //if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
+    //    GameManager::glProgramManager->destroy();
+    //    LoadTaskShaders shaderTask(nullptr);
+    //    shaderTask.load();
+    //    // Reload the pipeline with new shaders
+    //    m_renderPipeline.destroy();
+    //    initRenderPipeline();
+    //}
 
     bdt += glSpeedFactor * 0.01;
 
@@ -165,13 +183,15 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 
     updateWorldCameraClip();
 
-    _renderPipeline.render();
+    m_renderPipeline.render();
 }
 
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_camera, &_awesomiumInterface, GameManager::glProgramManager);
+    m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
+                          &m_soaState->spaceSystem, m_mainMenuSystemViewer.get(),
+                          m_soaState->glProgramManager.get());
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -179,10 +199,12 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (fileManager.setSaveFile(fileName) != 0) {
+    if (!m_soaState->saveFileIom.directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
+    m_soaState->saveFileIom.setSearchDirectory(fileName.c_str());
+
     // Check the planet string
     nString planetName = fileManager.getWorldString(fileName + "/World/");
     if (planetName == "") {
@@ -190,40 +212,40 @@ void MainMenuScreen::loadGame(const nString& fileName) {
         return;
     }
 
-    // Set the save file path
-    GameManager::saveFilePath = fileName;
-    // Check the chunk version
-    GameManager::chunkIOManager->checkVersion();
-
     _state = ScreenState::CHANGE_NEXT;
 }
 
 
 void MainMenuScreen::newGame(const nString& fileName) {
+
+    if (m_mainMenuSystemViewer->getSelectedCubeFace() == -1) {
+        return;
+    }
+
+    const f32v2& selectedGridPos = m_mainMenuSystemViewer->getSelectedGridPos();
+
+    m_soaState->isNewGame = true;
+    m_soaState->startFace = m_mainMenuSystemViewer->getSelectedCubeFace();
+    m_soaState->startGridPos = f32v3(selectedGridPos.x, 0.0f, selectedGridPos.y);
+    m_soaState->startSpacePos = m_mainMenuSystemViewer->getClickPos();
+    m_soaState->startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
+
     std::cout << "Making new game: " << fileName << std::endl;
 
     // Make the save directories, in case they were deleted
     fileManager.makeSaveDirectories(fileName);
-    if (fileManager.setSaveFile(fileName) != 0) {
+    if (!m_soaState->saveFileIom.directoryExists(fileName.c_str())) {
         std::cout << "Could not set save file.\n";
         return;
     }
-   
-    // Save the world file
-    nString worldText("Aldrin");
-    _ioManager.writeStringToFile((fileName + "/World/world.txt").c_str(), worldText);
-
-    // Set the save file path
-    GameManager::saveFilePath = fileName;
-    // Save the chunk version
-    GameManager::chunkIOManager->saveVersionFile();
+    m_soaState->saveFileIom.setSearchDirectory(fileName.c_str());
 
     _state = ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::updateThreadFunc() {
 
-    _threadRunning = true;
+    m_threadRunning = true;
 
     Message message;
 
@@ -237,7 +259,7 @@ void MainMenuScreen::updateThreadFunc() {
     FpsLimiter fpsLimiter;
     fpsLimiter.init(maxPhysicsFps);
 
-    while (_threadRunning) {
+    while (m_threadRunning) {
 
         fpsLimiter.beginFrame();
 
@@ -256,10 +278,8 @@ void MainMenuScreen::updateThreadFunc() {
             }
         }
 
-        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
-
-        GameManager::planet->rotationUpdate();
-        GameManager::updatePlanet(camPos, 10);
+      //  f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
+     
         
         physicsFps = fpsLimiter.endFrame();
     }
@@ -268,15 +288,17 @@ void MainMenuScreen::updateThreadFunc() {
 void MainMenuScreen::updateWorldCameraClip() {
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    if (nearClip < 0.1) nearClip = 0.1;
-    double a = 0.0;
-    // TODO(Ben): This is crap fix it (Sorry Brian)
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    if (a < 0) a = 0;
+    //double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
+    //if (nearClip < 0.1) nearClip = 0.1;
+    //double a = 0.0;
+    //// TODO(Ben): This is crap fix it (Sorry Brian)
+    //a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
+    //if (a < 0) a = 0;
 
-    double clip = MAX(nearClip / planetScale * 0.5, a);
+    //double clip = MAX(nearClip / planetScale * 0.5, a);
+    double clip = 10000.0;
     // The world camera has a dynamic clipping plane
-    _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    _camera.updateProjection();
+//    _camera.setClippingPlane(1.0f, 200.0f);
+ //   _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
+    m_camera.updateProjection();
 }

@@ -13,17 +13,19 @@
 #include "GameManager.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "LoadTaskShaders.h"
-#include "LoadTaskGameManager.h"
 #include "LoadTaskBlockData.h"
-#include "LoadTaskPlanet.h"
+#include "LoadTaskGameManager.h"
+#include "LoadTaskShaders.h"
+#include "LoadTaskSolarSystem.h"
 #include "LoadTaskSound.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
+#include "MeshManager.h"
+#include "SoaState.h"
 #include "MusicPlayer.h"
 #include "ParticleEmitter.h"
-#include "Player.h"
 #include "SoaFileSystem.h"
+
 #include "TexturePackLoader.h"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
@@ -35,6 +37,10 @@ _sf(nullptr),
 _sb(nullptr),
 _monitor(),
 m_glrpc() {
+    // Empty
+}
+
+LoadScreen::~LoadScreen() {
     // Empty
 }
 
@@ -58,6 +64,9 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     MusicPlayer mp;
     mp.refreshLists(fs);
 
+    m_soaState = std::make_unique<SoaState>();
+    SoaEngine::initState(m_soaState.get());
+
     // Make LoadBar Resources
     _sb = new SpriteBatch(true, true);
     _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
@@ -65,7 +74,7 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
   
-    addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc));
+    addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc, m_soaState->glProgramManager.get()));
     _monitor.setDep("Shaders", "GameManager");
 
     addLoadTask("Sound", "Sound", new LoadTaskSound);
@@ -143,13 +152,13 @@ void LoadScreen::update(const GameTime& gameTime) {
         for (int i = 0; i < Blocks.size(); i++) {
             if (Blocks[i].active) {
                 if (Blocks[i].emitterName.size()) {
-                    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
+                //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
                 }
                 if (Blocks[i].emitterOnBreakName.size()) {
-                    Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
+               //     Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
                 }
                 if (Blocks[i].emitterRandomName.size()) {
-                    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
+                //    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
                 }
             }
         }
@@ -157,8 +166,8 @@ void LoadScreen::update(const GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
-        LoadTaskPlanet loadTaskPlanet;
-        loadTaskPlanet.load();
+        LoadTaskSolarSystem loadTaskSolarSystem("StarSystems/Trinity", m_soaState.get());
+        loadTaskSolarSystem.load();
 
         _state = ScreenState::CHANGE_NEXT;
         loadedTextures = true;

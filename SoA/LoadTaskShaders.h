@@ -2,11 +2,15 @@
 #include <SDL/SDL.h>
 
 #include <Vorb/RPC.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/SpriteBatch.h>
 
 #include "Errors.h"
 #include "LoadMonitor.h"
-#include "GLProgramManager.h"
+
+DECL_VG(class, GLProgramManager);
+DECL_VIO(class, IOManager);
 
 class OnReloadShaderKeyDown;
 
@@ -33,13 +37,14 @@ class LoadTaskShaders : public ILoadTask {
     friend class LoadScreen;
     friend class GamePlayScreen;
     friend class OnReloadShadersKeyDown;
+    friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuScreen;
 public:
-    LoadTaskShaders(vcore::RPCManager* glrpc) :
-        m_glrpc(glrpc) {
+    LoadTaskShaders(vcore::RPCManager* glrpc, vg::GLProgramManager* glProgramManager) :
+        m_glrpc(glrpc),
+        m_glProgramManager(glProgramManager) {
         // Empty
     }
-
     virtual void load() override;
 private:
     vg::ShaderSource createShaderCode(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr);
@@ -49,4 +54,5 @@ private:
     ProgramGenDelegate m_generators[APPROXIMATE_NUM_SHADERS_LOADING];
     size_t m_numGenerators = 0;
     std::vector<const cString> m_filesToDelete;
+    vg::GLProgramManager* m_glProgramManager = nullptr;
 };

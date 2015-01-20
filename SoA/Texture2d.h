@@ -9,6 +9,7 @@ vg::Texture getTexture(nString source, struct Animation **anim = NULL);
 
 struct BlockTexturePack {
 public:
+public:
     void initialize(vg::Texture texInfo);
 
     vg::Texture textureInfo;

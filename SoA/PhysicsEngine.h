@@ -4,9 +4,10 @@
 #include "OpenGLStructs.h"
 
 class Chunk;
+class ChunkManager;
 class PhysicsBlockBatch;
 
-struct ExplosionNode {
+class ExplosionNode {
 public:
     ExplosionNode(f64v3& pos, i32 blocktype) : ppos(pos), val(blocktype) {}
 
@@ -14,7 +15,7 @@ public:
     i32 val;
 };
 
-struct ExplosionInfo {
+class ExplosionInfo {
 public:
     ExplosionInfo(f64v3& Pos, f32 Force) : pos(Pos), force(Force) {}
 
@@ -22,7 +23,7 @@ public:
     f32 force;
 };
 
-struct PressureNode {
+class PressureNode {
 public:
     PressureNode(Chunk* Ch, ui16 C, f32 Force, ExplosionInfo* en) : ch(Ch), c(C), force(Force), explosionInfo(en) {}
 
@@ -32,7 +33,7 @@ public:
     f32 force; //todo: make into a ui16 to save 2 bytes
 };
 
-struct VisitedNode {
+class VisitedNode {
 public:
     VisitedNode(Chunk* Ch, ui16 C) : ch(Ch), c(C) {}
 
@@ -40,7 +41,7 @@ public:
     ui16 c;
 };
 
-struct FallingCheckNode {
+class FallingCheckNode {
 public:
     FallingCheckNode(Chunk* chk, ui16 C, i8 expNx = 0, i8 expNy = 0, i8 expNz = 0, ui8 expDist = 0);
 
@@ -50,7 +51,7 @@ public:
     ui8 explosionDist; //distance in meters from explosion
 };
 
-struct FallingNode {
+class FallingNode {
 public:
     inline void setValues(ui16 C, Chunk* Ch, i32 nsw);
 
@@ -68,6 +69,9 @@ class PhysicsEngine {
 public:
     PhysicsEngine();
     ~PhysicsEngine();
+
+    // TODO(Ben): This is temporary
+    void setChunkManager(ChunkManager* chunkManager) { m_chunkManager = chunkManager; }
 
     void clearAll();
     void update(const f64v3& viewDir);
@@ -87,7 +91,7 @@ private:
     void explosion(const f64v3& pos, i32 numRays, f64 power, f64 loss);
     void pressureExplosion(f64v3& pos);
     void pressureUpdate(PressureNode& pn);
-    inline void explosionRay(const f64v3& pos, f32 force, f32 powerLoss, const f32v3& dir);
+    inline void explosionRay(ChunkManager* chunkManager, const f64v3& pos, f32 force, f32 powerLoss, const f32v3& dir);
     void performExplosions();
 
     // Floating detection
@@ -107,4 +111,6 @@ private:
     // Physics Blocks
     PhysicsBlockBatch* _physicsBlockBatches[65536]; //for all possible block IDs.
     std::vector<PhysicsBlockBatch*> _activePhysicsBlockBatches;
+
+    ChunkManager* m_chunkManager = nullptr;
 };

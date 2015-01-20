@@ -2,7 +2,7 @@
 class SpriteBatch;
 class SpriteFont;
 
-struct LoadBarCommonProperties {
+class LoadBarCommonProperties {
 public:
     LoadBarCommonProperties(const f32v2& offset, const f32v2& size, const f32& moveSpeed, const f32v2& textOffset, const f32& textSize);
     LoadBarCommonProperties() : LoadBarCommonProperties(f32v2(0), f32v2(0), 0, f32v2(0), 0) {}

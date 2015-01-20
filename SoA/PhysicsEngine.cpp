@@ -56,7 +56,7 @@ void PhysicsEngine::update(const f64v3 &viewDir) {
     //detectFloatingBlocks(viewDir);
 
     for (Uint32 i = 0; i < _activePhysicsBlockBatches.size();){
-        if (_activePhysicsBlockBatches[i]->update()){
+        if (_activePhysicsBlockBatches[i]->update(m_chunkManager, this)){
             _physicsBlockBatches[_activePhysicsBlockBatches[i]->blockType] = NULL;
             delete _activePhysicsBlockBatches[i];
             _activePhysicsBlockBatches[i] = _activePhysicsBlockBatches.back();
@@ -83,7 +83,7 @@ void PhysicsEngine::explosion(const glm::dvec3 &pos, int numRays, double power, 
     }
 
     for (int i = 0; i < numRays; i++){
-        explosionRay(pos, power, loss, _precomputedExplosionDirs[k++]);
+        explosionRay(m_chunkManager, pos, power, loss, _precomputedExplosionDirs[k++]);
     }
 }
 
@@ -405,7 +405,7 @@ void PhysicsEngine::pressureUpdate(PressureNode &pn)
 
 }
 
-void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, const f32v3 &dir) {
+void PhysicsEngine::explosionRay(ChunkManager* chunkManager, const f64v3 &pos, f32 force, f32 powerLoss, const f32v3 &dir) {
 
   
     VoxelRay vr(pos, f64v3(dir));
@@ -419,15 +419,15 @@ void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, con
     Chunk* lockedChunk = nullptr;
 
     // A minimum chunk position for determining voxel coords using only positive numbers
-    i32v3 relativeChunkSpot = GameManager::chunkManager->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
+    i32v3 relativeChunkSpot = chunkManager->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
     // Loop Traversal
     while (vr.getDistanceTraversed() < maxDistance) {
 
-        chunkPos = GameManager::chunkManager->getChunkPosition(loc);
+        chunkPos = chunkManager->getChunkPosition(loc);
 
-        Chunk* currentChunk = GameManager::chunkManager->getChunk(chunkPos);
+        Chunk* currentChunk = chunkManager->getChunk(chunkPos);
         if (currentChunk) {
 
             relativeLocation = loc - relativeChunkSpot;
@@ -449,7 +449,7 @@ void PhysicsEngine::explosionRay(const f64v3 &pos, f32 force, f32 powerLoss, con
                     return;
                 }
                 rayToBlock = dir * vr.getDistanceTraversed();
-                ChunkUpdater::removeBlock(currentChunk, lockedChunk, voxelIndex, 1, 0.4*force, rayToBlock);
+                ChunkUpdater::removeBlock(chunkManager, chunkManager->getPhysicsEngine(), currentChunk, lockedChunk, voxelIndex, 1, 0.4*force, rayToBlock);
                 if (Blocks[blockID].explosivePower){
                     _deferredExplosions.push(ExplosionNode(pos + f64v3(rayToBlock), blockID));
                 }

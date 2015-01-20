@@ -66,7 +66,7 @@ KEG_ENUM_DECL(BlockOcclusion);
 
 class BlockTextureLayer {
 public:
-    // Set defaults in constructor for no .tex file
+    // Set defaults in Constructor for no .tex file
     BlockTextureLayer() : 
         method(ConnectedTextureMethods::NONE),
         size(1),
@@ -144,7 +144,8 @@ public:
 };
 KEG_TYPE_DECL(BlockTextureLayer);
 
-struct BlockTexture {
+class BlockTexture {
+public:
     BlockTexture() : blendMode(BlendType::ALPHA){};
     BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
         base(b), overlay(o), blendMode(bt){
@@ -161,8 +162,10 @@ extern std::vector <int> TextureUnitIndices;
 
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
 
-struct BlockVariable
+//TODO(Ben): Crush this bullshit
+class BlockVariable
 {
+public:
     //VarType 0 = int, 1 = float
     BlockVariable(){}
     BlockVariable(float Min, float Max, float Step, int ByteOffset, int VarType){ min = Min; max = Max; step = Step; byteOffset = ByteOffset; varType = VarType; controlType = 0; editorAccessible = 1;}
@@ -177,7 +180,7 @@ struct BlockVariable
 
 extern std::map<nString, BlockVariable> blockVariableMap;
 
-struct ItemDrop
+class ItemDrop
 {
     ItemDrop(Item *itm, int Num){
         item = itm;
@@ -187,11 +190,12 @@ struct ItemDrop
     int num;
 };
 
-struct BlockTextureFaces {
+class BlockTextureFaces {
 public:
     union {
         ui32 array[6];       ///  Access 6-sided block textures as an array
-        struct {
+        class {
+        public:
             ui32 px;  /// Positive x-axis texture
             ui32 py;  /// Positive y-axis texture
             ui32 pz;  /// Positive z-axis texture

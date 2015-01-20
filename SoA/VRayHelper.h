@@ -6,7 +6,7 @@ class Chunk;
 typedef bool(*PredBlockID)(const i32& blockID);
 
 // Queryable Information
-struct VoxelRayQuery {
+class VoxelRayQuery {
 public:
     // Block ID
     i32 id;
@@ -19,7 +19,7 @@ public:
     Chunk* chunk;
     i32 voxelIndex;
 };
-struct VoxelRayFullQuery {
+class VoxelRayFullQuery {
 public:
     // The Place Of The Chosen Block
     VoxelRayQuery inner;

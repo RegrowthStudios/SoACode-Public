@@ -1,5 +1,5 @@
 #pragma once
-struct WSOData;
+class WSOData;
 
 /************************************************************************/
 /* WSO File Specification                                               */

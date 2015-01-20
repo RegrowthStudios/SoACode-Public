@@ -5,7 +5,6 @@
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "LoadMonitor.h"
-#include "Player.h"
 
 // This is hacky and temporary, it does way to much
 class LoadTaskBlockData : public ILoadTask {
@@ -18,22 +17,6 @@ class LoadTaskBlockData : public ILoadTask {
 
         // Uncomment to Save in .yml
         //BlockLoader::saveBlocks("Data/SavedBlockData.yml");
-
-        Player* player = GameManager::player;
-
-        // Initialize objects
-        for (size_t i = 1; i < Blocks.size(); i++){
-            if (Blocks[i].active && !(i >= LOWWATER && i < FULLWATER || i > FULLWATER)){
-                if (ObjectList[i] != NULL){
-                    printf("Object ID %d already taken by %s. Requested by %s.\n", i, ObjectList[i]->name.c_str(), Blocks[i].name.c_str());
-                    int a;
-                    std::cin >> a;
-                    exit(198);
-                }
-                ObjectList[i] = new Item(i, 1, Blocks[i].name, ITEM_BLOCK, 0, 0, 0);
-                player->inventory.push_back(new Item(i, 9999999, Blocks[i].name, ITEM_BLOCK, 0, 0, 0));
-            }
-        }
 
         { // For use in pressure explosions
             Block visitedNode = Blocks[0];

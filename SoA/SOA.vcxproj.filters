@@ -123,6 +123,27 @@
     <Filter Include="SOA Files\Screens\Test">
       <UniqueIdentifier>{07d56bf0-8858-45a6-bcf5-6fe4f58dc323}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\BenPLZ">
+      <UniqueIdentifier>{e615de38-47c4-4140-9c49-3bfe280752fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\StarSystem">
+      <UniqueIdentifier>{1c1faa8a-6bbf-4bd3-a594-ba162a1a31a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Components">
+      <UniqueIdentifier>{9ca22bd9-7b16-4f82-914d-635a6afa8e69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Updaters">
+      <UniqueIdentifier>{85765d6e-8575-45fa-82db-357787c61b39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Renderers">
+      <UniqueIdentifier>{b9e3a61e-f44d-40ff-bbfa-9feae3a45d83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Systems">
+      <UniqueIdentifier>{73eeb8a0-c66a-4fc2-bd59-edcbe41b3993}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Factories">
+      <UniqueIdentifier>{5a883327-0095-495a-b35f-f80c5fec3f94}</UniqueIdentifier>
+    </Filter>
     <Filter Include="SOA Files\Sound\Music">
       <UniqueIdentifier>{70862515-6514-4574-9caf-db361861ced8}</UniqueIdentifier>
     </Filter>
@@ -131,6 +152,9 @@
     </Filter>
     <Filter Include="SOA Files\Rendering\Awesomium">
       <UniqueIdentifier>{19a0ff49-6794-4225-847f-886ba6baa490}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\ComponentTables">
+      <UniqueIdentifier>{f52bd506-1a48-4733-81fd-e5ccf12ec387}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -275,12 +299,6 @@
     <ClInclude Include="PhysicsEngine.h">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Planet.h">
-      <Filter>SOA Files\Game\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>SOA Files\Game\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="readerwriterqueue.h">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
@@ -308,9 +326,6 @@
     <ClInclude Include="TerrainGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainPatch.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Texture2d.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
@@ -328,9 +343,6 @@
     </ClInclude>
     <ClInclude Include="VoxelUtils.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelWorld.h">
-      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="VRayHelper.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
@@ -386,9 +398,6 @@
     <ClInclude Include="LoadTaskBlockData.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskPlanet.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskSound.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -435,9 +444,6 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="SonarRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="OpaqueVoxelRenderStage.h">
@@ -488,12 +494,6 @@
     <ClInclude Include="ARProcessor.h">
       <Filter>SOA Files\Game\Tools\AR</Filter>
     </ClInclude>
-    <ClInclude Include="SpaceSystem.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceComponents.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="PhysicsBlockRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -539,6 +539,15 @@
     <ClInclude Include="TestDeferredScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
+    <ClInclude Include="SpaceSystemRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskSolarSystem.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="Atmosphere.h">
+      <Filter>SOA Files\BenPLZ</Filter>
+    </ClInclude>
     <ClInclude Include="TestBlockViewScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -559,6 +568,105 @@
     </ClInclude>
     <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseShaderCode.hpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetLoader.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainGenerator.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainMeshManager.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainPatch.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainGenTextures.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="Biome.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="AtmosphereComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="AxisRotationComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="NamePositionComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalGravityComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitComponentRenderer.h">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponentRenderer.h">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="AxisRotationComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalVoxelComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalVoxelComponent.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuSystemViewer.h">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuScreenEvents.hpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystem.h">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystem.h">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemFactories.h">
+      <Filter>SOA Files\ECS\Factories</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SoaController.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SoaEngine.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SoaState.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemComponents.h">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemEvents.hpp">
+      <Filter>SOA Files</Filter>
     </ClInclude>
     <ClInclude Include="MusicPlayer.h">
       <Filter>SOA Files\Sound\Music</Filter>
@@ -583,6 +691,15 @@
     </ClInclude>
     <ClInclude Include="OpenglSurfaceFactory.h">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClInclude>
+    <ClInclude Include="ParkourMoveUpdater.h">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemFactories.h">
+      <Filter>SOA Files\ECS\Factories</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalVoxelComponentTable.h">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -621,9 +738,6 @@
     </ClCompile>
     <ClCompile Include="ChunkUpdater.cpp">
       <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="CloseTerrainPatch.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Collision.cpp">
       <Filter>SOA Files\Game\Physics</Filter>
@@ -700,19 +814,10 @@
     <ClCompile Include="PhysicsEngine.cpp">
       <Filter>SOA Files\Game\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Planet.cpp">
-      <Filter>SOA Files\Game\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>SOA Files\Game\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="RegionFileManager.cpp">
       <Filter>SOA Files\Data</Filter>
     </ClCompile>
     <ClCompile Include="Rendering.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderUtils.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="SimplexNoise.cpp">
@@ -726,9 +831,6 @@
     </ClCompile>
     <ClCompile Include="TerrainGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainPatch.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Texture2d.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -744,9 +846,6 @@
     </ClCompile>
     <ClCompile Include="VoxelRay.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelWorld.cpp">
-      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="VRayHelper.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
@@ -829,9 +928,6 @@
     <ClCompile Include="OpaqueVoxelRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="PlanetRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
     <ClCompile Include="SonarRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
@@ -870,12 +966,6 @@
     </ClCompile>
     <ClCompile Include="ARProcessor.cpp">
       <Filter>SOA Files\Game\Tools\AR</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystem.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceComponents.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsBlockRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -919,6 +1009,13 @@
     <ClCompile Include="TestDeferredScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
+    <ClCompile Include="SpaceSystemRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="Atmosphere.cpp">
+      <Filter>SOA Files\BenPLZ</Filter>
+    </ClCompile>
+    <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
@@ -927,6 +1024,75 @@
     </ClCompile>
     <ClCompile Include="TestBlockViewScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetLoader.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainGenerator.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainMeshManager.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainPatch.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainGenTextures.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="AtmosphereComponent.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponent.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitComponentRenderer.cpp">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalVoxelComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="AxisRotationComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="AxisRotationComponent.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponentRenderer.cpp">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuSystemViewer.cpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemFactories.cpp">
+      <Filter>SOA Files\ECS\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SoaController.cpp">
+      <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SoaEngine.cpp">
+      <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SoaState.cpp">
+      <Filter>SOA Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="MusicPlayer.cpp">
       <Filter>SOA Files\Sound\Music</Filter>
@@ -945,6 +1111,21 @@
     </ClCompile>
     <ClCompile Include="OpenglSurfaceFactory.cpp">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </ClCompile>
+    <ClCompile Include="ParkourComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeMoveComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystemFactories.cpp">
+      <Filter>SOA Files\ECS\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalVoxelComponentTable.cpp">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

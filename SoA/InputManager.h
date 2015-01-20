@@ -20,7 +20,7 @@
 #include <Vorb/Events.hpp>
 #include <Vorb/ui/InputDispatcher.h>
 
-#define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.ini"
+#define DEFAULT_CONFIG_LOCATION "Data/KeyConfig.yml"
 
 /// Handles all the user input through the mouse, keyboard and gamepad.
 /// @author Frank McCoy
@@ -44,7 +44,7 @@ public:
     /// Constructor.
     InputManager();
 
-    /// Destructor.
+    /// Declassor.
     ~InputManager();
 
     /// Get the value of the current axis.
@@ -194,10 +194,10 @@ public:
     /// @param axisID: The id of the axis to remove the delegate from
     /// @param eventType: The event to remove the delegate from
     void unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f);
-private:
 
     /// The data for a single Axis.
-    struct Axis {
+    class Axis {
+    public:
         nString name; ///< The name of the axis.
         AxisType type; ///< The type of axis.
         VirtualKey defaultPositiveKey; ///< The default positive key.
@@ -211,16 +211,13 @@ private:
         Event<ui32> downEvent; ///< The event for when the positive key is pressed on a SINGLE_KEY axis.
     };
 
-    ///For use with ini file loading.
-    ///@param val: The value to find the ini id of.
-    ///@return The id for quick comparison with switch.
-    i32 getIniKey(const nString& val); 
+private:
 
     const nString _defaultConfigLocation; //"Data/KeyConfig.ini"
     
     std::vector<Axis*> _axes; ///< All the stored axes.
     std::unordered_map<nString, i32> _axisLookup; ///< A map of axis names to axis IDs for quick look up.
-    std::unordered_map<nString, i32> _iniKeys; ///< For use with ini file loading.
+
     bool _currentKeyStates[VKEY_HIGHEST_VALUE]; ///< The state of the keys and mouse buttons this frame.
     bool _previousKeyStates[VKEY_HIGHEST_VALUE]; ///< The state of the keys and mouse buttons last frame.
 

@@ -16,7 +16,7 @@ public:
 
     const nString& getCommand(const i32& index);
 private:
-    struct EventBinding {
+    class EventBinding {
     public:
         FuncNewCommand function;
         void* metaData;

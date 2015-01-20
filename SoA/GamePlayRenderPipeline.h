@@ -19,13 +19,13 @@
 #include <Vorb/graphics/IRenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 
-#include "GameRenderParams.h"
+#include "Camera.h"
 #include "GLProgramManager.h"
+#include "GameRenderParams.h"
 #include "NightVisionRenderStage.h"
 
 /// Forward declarations
 class App;
-class Camera;
 class ChunkGridRenderStage;
 class ChunkSlot;
 class CutoutVoxelRenderStage;
@@ -41,9 +41,11 @@ class PauseMenu;
 class PauseMenuRenderStage;
 class PdaRenderStage;
 class PhysicsBlockRenderStage;
-class PlanetRenderStage;
 class Player;
 class SkyboxRenderStage;
+class SoaState;
+class SpaceSystem;
+class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 
 class GamePlayRenderPipeline : public vg::IRenderPipeline {
@@ -53,20 +55,11 @@ public:
 
     /// Initializes the pipeline and passes dependencies
     /// @param viewport: The viewport to draw to.
-    /// @param chunkCamera: The camera used for voxel rendering.
-    /// @param worldCamera: The camera used for planet rendering.
-    /// @param app: Handle to the App
-    /// @param player: Handle to the Player
-    /// @param meshManager: Stores all needed meshes
-    /// @param pda: The PDA to render
-    /// @param glProgramManager: Contains all the needed GLPrograms
-    /// @param pauseMenu: The PauseMenu to render
-    /// @param chunkSlots: The chunk slots for debug rendering
-    void init(const ui32v4& viewport, Camera* chunkCamera,
-              const Camera* worldCamera, const App* app,
-              const Player* player, const MeshManager* meshManager,
-              const PDA* pda, const vg::GLProgramManager* glProgramManager,
-              const PauseMenu* pauseMenu, const std::vector<ChunkSlot>& chunkSlots);
+
+    void init(const ui32v4& viewport, const SoaState* soaState, const App* app,
+              const PDA* pda,
+              SpaceSystem* spaceSystem,
+              const PauseMenu* pauseMenu);
 
     /// Renders the pipeline
     virtual void render() override;
@@ -86,9 +79,10 @@ public:
     /// Cycle poly mode for voxels
     void cycleDrawMode();
 private:
+    void updateCameras();
+
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     PhysicsBlockRenderStage* _physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
-    PlanetRenderStage* _planetRenderStage = nullptr; ///< Renders the planets
     OpaqueVoxelRenderStage* _opaqueVoxelRenderStage = nullptr; ///< Renders opaque voxels
     CutoutVoxelRenderStage* _cutoutVoxelRenderStage = nullptr; ///< Renders cutout voxels
     ChunkGridRenderStage* _chunkGridRenderStage = nullptr;
@@ -99,6 +93,7 @@ private:
     PauseMenuRenderStage* _pauseMenuRenderStage = nullptr; ///< Renders the pause menu
     NightVisionRenderStage* _nightVisionRenderStage = nullptr; ///< Renders night vision
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
+    SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Render space and planets
 
     vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
@@ -106,15 +101,18 @@ private:
 
     GameRenderParams _gameRenderParams; ///< Shared rendering parameters for voxels
     
+    const SoaState* m_soaState = nullptr; ///< Game State
+
     // TODO: This is only for visualization purposes, must remove
     std::vector<NightVisionRenderParams> _nvParams; ///< Different night vision styles
     i32 _nvIndex = 0;
     VGEnum m_drawMode;
 
     ui32v4 _viewport; ///< Viewport to draw to
-    const Camera* _worldCamera = nullptr; ///< handle to world camera
-    const Camera* _chunkCamera = nullptr; ///< handle to chunk camera
+    Camera _worldCamera; ///< handle to world camera
+    Camera _chunkCamera; ///< handle to chunk camera
     const MeshManager* _meshManager; ///< Handle to the meshes
+    bool m_voxelsActive = false;
 };
 
 #endif // GamePlayRenderPipeline_h__

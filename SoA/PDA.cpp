@@ -12,7 +12,7 @@ PDA::~PDA() {
     // Empty
 }
 
-void PDA::init(GamePlayScreen* ownerScreen) {
+void PDA::init(GamePlayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager) {
     // Initialize the user interface
     _awesomiumInterface.init("UI/PDA/", 
                              "PDA_UI",
@@ -20,6 +20,7 @@ void PDA::init(GamePlayScreen* ownerScreen) {
                              ownerScreen->getWindowWidth(),
                              ownerScreen->getWindowHeight(),
                              ownerScreen);
+    m_glProgramManager = glProgramManager;
 }
 
 void PDA::open() {
@@ -37,7 +38,7 @@ void PDA::update() {
 }
 
 void PDA::draw() const {
-    _awesomiumInterface.draw(GameManager::glProgramManager->getProgram("Texture2D"));
+    _awesomiumInterface.draw(m_glProgramManager->getProgram("Texture2D"));
 }
 
 void PDA::destroy() {

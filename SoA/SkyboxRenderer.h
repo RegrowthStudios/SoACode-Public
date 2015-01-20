@@ -18,7 +18,8 @@
 
 #include "Texture2d.h"
 
-struct SkyboxVertex {
+class SkyboxVertex {
+public:
     f32v3 position;
     f32v2 texCoords;
 };

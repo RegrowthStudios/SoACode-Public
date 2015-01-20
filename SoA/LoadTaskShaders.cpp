@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "LoadTaskShaders.h"
 
+#include "GLProgramManager.h"
 #include "GameManager.h"
 
 void ProgramGenDelegate::invoke(Sender sender, void* userData) {
@@ -10,12 +11,14 @@ void ProgramGenDelegate::invoke(Sender sender, void* userData) {
         errorMessage = "Vertex shader for " + name + " failed to compile.";
         program->dispose();
         delete program;
+        program = nullptr;
         return;
     }
     if (!program->addShader(fs)) {
         errorMessage = "Fragment shader for " + name + " failed to compile.";
         program->dispose();
         delete program;
+        program = nullptr;
         return;
     }
     if (attr) program->setAttributes(*attr);
@@ -24,6 +27,7 @@ void ProgramGenDelegate::invoke(Sender sender, void* userData) {
         errorMessage = name + " failed to link.";
         program->dispose();
         delete program;
+        program = nullptr;
         return;
     }
     program->initAttributes();
@@ -55,8 +59,6 @@ ProgramGenDelegate* LoadTaskShaders::createProgram(nString name, const vg::Shade
 }
 
 void LoadTaskShaders::load() {
-    vg::GLProgramManager* glProgramManager = GameManager::glProgramManager;
-
     //***** Attribute Vectors ******
     // So that the same VAO can be used for multiple shaders,
     // it is advantageous to manually set the attributes so that
@@ -79,8 +81,6 @@ void LoadTaskShaders::load() {
     terrainAttribs.push_back("vColorSlope");
     terrainAttribs.push_back("vTexTempRainSpec");
 
-
-
     // Attributes for block shaders
     std::vector<nString> blockAttribs;
     blockAttribs.push_back("position_TextureType");
@@ -96,6 +96,23 @@ void LoadTaskShaders::load() {
     std::vector<nString> dd;
     dd.push_back("vPosition");
     dd.push_back("vUV");
+
+    // Attributes for spherical terrain
+    std::vector<nString> sphericalAttribs;
+    sphericalAttribs.push_back("vPosition");
+    sphericalAttribs.push_back("vTangent");
+    sphericalAttribs.push_back("vUV");
+    sphericalAttribs.push_back("vColor");
+    sphericalAttribs.push_back("vNormUV");
+    sphericalAttribs.push_back("vTemp_Hum");
+
+    // Attributes for spherical water
+    std::vector<nString> sphericalWaterAttribs;
+    sphericalWaterAttribs.push_back("vPosition");
+    sphericalWaterAttribs.push_back("vTangent");
+    sphericalWaterAttribs.push_back("vColor_Temp");
+    sphericalWaterAttribs.push_back("vUV");
+    sphericalWaterAttribs.push_back("vDepth");
 
     vio::IOManager iom;
 
@@ -184,6 +201,24 @@ void LoadTaskShaders::load() {
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/TreeBillboardShading/TreeBillboardShading.vert"),
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/TreeBillboardShading/TreeBillboardShading.frag")
         )->rpc, false);
+    m_glrpc->invoke(&createProgram("SphericalTerrain",
+        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalTerrain.vert"),
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalTerrain.frag"), 
+        &sphericalAttribs
+        )->rpc, false);
+    m_glrpc->invoke(&createProgram("SphericalWater",
+        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.vert"),
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.frag"),
+        &sphericalWaterAttribs
+        )->rpc, false);
+    m_glrpc->invoke(&createProgram("SimplexNoise",
+        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/Simplex.vert"),
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/Simplex.frag")
+        )->rpc, false);
+    m_glrpc->invoke(&createProgram("NormalMapGen",
+        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
+        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag")
+        )->rpc, false);
 
     // Create all shaders until finished
     for (size_t i = 0; i < m_numGenerators; i++) {
@@ -193,12 +228,14 @@ void LoadTaskShaders::load() {
         del.rpc.block();
 
         if (del.program) {
-            glProgramManager->addProgram(del.name, del.program);
+            m_glProgramManager->addProgram(del.name, del.program);
         } else {
+            i--;
             showMessage(del.errorMessage + " Check command output for more detail. Will attempt to reload.");
             m_glrpc->invoke(&del.rpc, false);
         }
     }
+    
 
     // Delete loaded files
     for (auto& code : m_filesToDelete) delete[] code;

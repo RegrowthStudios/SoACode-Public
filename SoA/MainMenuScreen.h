@@ -22,21 +22,28 @@
 #include <Vorb/VorbPreDecl.inl>
 
 #include "AwesomiumInterface.h"
-#include "MainMenuAPI.h"
 #include "LoadMonitor.h"
+#include "MainMenuAPI.h"
 #include "MainMenuRenderPipeline.h"
 
 class App;
-struct TerrainMeshMessage;
+
+class InputManager;
+class LoadScreen;
+class MainMenuSystemViewer;
+class SoaState;
+
 DECL_VSOUND(class, Engine)
 class AmbienceLibrary;
 class AmbiencePlayer;
 
 class MainMenuScreen : public IAppScreen<App>
 {
+    friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
-    CTOR_APP_SCREEN_DECL(MainMenuScreen, App);
+    MainMenuScreen(const App* app, const LoadScreen* loadScreen);
+    ~MainMenuScreen();
 
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;
@@ -52,8 +59,9 @@ public:
     virtual void draw(const GameTime& gameTime);
 
     // Getters
-    CinematicCamera& getCamera() { return _camera; }
-    vio::IOManager& getIOManager() { return _ioManager; }
+    CinematicCamera& getCamera() { return m_camera; }
+    vio::IOManager& getIOManager() { return m_ioManager; }
+    SoaState* getSoAState() const { return m_soaState; }
 
 private:
 
@@ -75,16 +83,25 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
-    vui::AwesomiumInterface<MainMenuAPI> _awesomiumInterface; ///< The user interface
+    const LoadScreen* m_loadScreen = nullptr;
+    SoaState* m_soaState = nullptr;
+
+    vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
     
-    vio::IOManager _ioManager; ///< Helper class for IO operations
+    vio::IOManager m_ioManager; ///< Helper class for IO operations
 
-    CinematicCamera _camera; ///< The camera that looks at the planet from space
+    InputManager* m_inputManager = nullptr;
 
-    std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
-    volatile bool _threadRunning; ///< True when the thread should be running
+    CinematicCamera m_camera; ///< The camera that looks at the planet from space
 
-    MainMenuRenderPipeline _renderPipeline; ///< This handles all rendering for the main menu
+    std::unique_ptr<MainMenuSystemViewer> m_mainMenuSystemViewer;
+
+    std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
+    volatile bool m_threadRunning; ///< True when the thread should be running
+
+    IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
+
+    MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
 
     // TODO: Remove to a client state
     vsound::Engine* m_engine;

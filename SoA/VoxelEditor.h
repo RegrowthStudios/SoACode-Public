@@ -1,9 +1,14 @@
 #pragma once
 #include <map>
+#include <Vorb/VorbPreDecl.inl>
 
+DECL_VG(class, GLProgram);
+
+class ChunkManager;
+class PhysicsEngine;
 class Item;
 
-struct EditorNode {
+class EditorNode {
     i32v3 position;
 };
 
@@ -13,7 +18,7 @@ class VoxelEditor {
 public:    
     VoxelEditor();
 
-    void editVoxels(Item *block);
+    void editVoxels(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block);
 
     void stopDragging();
 
@@ -27,12 +32,12 @@ public:
     const i32v3& getEndPosition() const { return _endPosition; }
 
     //Draws the guide lines
-    void drawGuides(const f64v3& cameraPos, const glm::mat4 &VP, int blockID);
+    void drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const glm::mat4 &VP, int blockID);
 
 private:
     
-    void placeAABox(Item *block);
-    void placeLine(Item *block);
+    void placeAABox(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block);
+    void placeLine(ChunkManager* chunkManager, Item *block);
 
     // v v v Just some ideas v v v
     // void placeBox();

@@ -27,25 +27,12 @@ void MesherInfo::init(int dataWidth, int dataLayer) {
     nzOverlayMethodParams.init(this, -1, dataLayer, -dataWidth, offsetof(BlockTextureFaces, BlockTextureFaces::nz) / sizeof(ui32) + NUM_FACES);
 }
 
-ChunkMesh::ChunkMesh(Chunk *ch) : vboID(0),
-    vaoID(0),
-    transVaoID(0),
-    transVboID(0),
-    transIndexID(0),
-    cutoutVaoID(0), 
-    cutoutVboID(0), 
-    waterVboID(0), 
-    vecIndex(UNINITIALIZED_INDEX),
-    distance(30.0f),
-    needsSort(true), 
-    inFrustum(false), 
-    position(ch->gridPosition)
-{}
-
-ChunkMeshData::ChunkMeshData(Chunk *ch) : chunk(ch), type(RenderTaskType::DEFAULT){
+ChunkMeshData::ChunkMeshData(ChunkMesh *cm) : chunkMesh(cm), type(RenderTaskType::DEFAULT) {
+    // Empty
 }
 
-ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), type(task->type) {
+ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), chunkMesh(task->chunkMesh), type(task->type) {
+    // Empty
 }
 
 void ChunkMeshData::addTransQuad(const i8v3& pos) {
@@ -61,4 +48,8 @@ void ChunkMeshData::addTransQuad(const i8v3& pos) {
     transQuadIndices[size] = transVertIndex;
 
     transVertIndex += 4;
+}
+
+ChunkMesh::ChunkMesh(const Chunk *ch) : position(ch->voxelPosition) {
+    // Empty
 }

@@ -12,11 +12,13 @@
 #include "GameManager.h"
 #include "TexturePackLoader.h"
 
+
 bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
     vio::IOManager iom; // TODO: Pass in a real boy
 
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
+
 
     GameBlockPostProcess bpp(&iom, GameManager::texturePackLoader, &CaPhysicsType::typesCache);
     pack->onBlockAddition += &bpp;

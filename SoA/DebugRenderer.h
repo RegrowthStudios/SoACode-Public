@@ -1,54 +1,12 @@
 #pragma once
 #include <chrono>
 
+#include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/GLProgram.h>
 
+DECL_VG(class, GLProgramManager);
+
 const static float GOLDEN_RATIO = 1.61803398875f;
-
-const static int NUM_ICOSOHEDRON_VERTICES = 12;
-const static glm::vec3 ICOSOHEDRON_VERTICES[12] = {
-    glm::vec3(-1.0f, GOLDEN_RATIO, 0.0f),
-    glm::vec3(1.0f, GOLDEN_RATIO, 0.0f),
-    glm::vec3(-1.0f, -GOLDEN_RATIO, 0.0f),
-    glm::vec3(1.0f, -GOLDEN_RATIO, 0.0f),
-
-    glm::vec3(0.0f, -1.0f, GOLDEN_RATIO),//4
-    glm::vec3(0.0f, 1.0f, GOLDEN_RATIO),
-    glm::vec3(0.0f, -1.0, -GOLDEN_RATIO),
-    glm::vec3(0.0f, 1.0f, -GOLDEN_RATIO),
-
-    glm::vec3(GOLDEN_RATIO, 0.0f, -1.0f),//8
-    glm::vec3(GOLDEN_RATIO, 0.0f, 1.0f),
-    glm::vec3(-GOLDEN_RATIO, 0.0f, -1.0f),
-    glm::vec3(-GOLDEN_RATIO, 0.0, 1.0f)
-};
-
-const static int NUM_ICOSOHEDRON_INDICES = 60;
-const static GLuint ICOSOHEDRON_INDICES[60] = {
-    0, 11, 5,
-    0, 5, 1,
-    0, 1, 7,
-    0, 7, 10,
-    0, 10, 11,
-
-    1, 5, 9,
-    5, 11, 4,
-    11, 10, 2,
-    10, 7, 6,
-    7, 1, 8,
-
-    3, 9, 4,
-    3, 4, 2,
-    3, 2, 6,
-    3, 6, 8,
-    3, 8, 9,
-
-    4, 9, 5,
-    2, 4, 11,
-    6, 2, 10,
-    8, 6, 7,
-    9, 8, 1
-};
 
 const static int NUM_CUBE_VERTICES = 8;
 const static glm::vec3 CUBE_VERTICES[8] = {
@@ -86,14 +44,16 @@ const static GLuint CUBE_INDICES[36] = {
     6, 2, 1,
 };
 
-struct SimpleMesh {
+class SimpleMesh {
+public:
     GLuint vertexBufferID;
     GLuint indexBufferID;
     int numVertices;
     int numIndices;
 };
 
-struct Icosphere {
+class Icosphere {
+public:
     glm::vec3 position;
     float radius;
     glm::vec4 color;
@@ -101,14 +61,16 @@ struct Icosphere {
     double timeTillDeletion; //ms
 };
 
-struct Cube {
+class Cube {
+public:
     glm::vec3 position;
     glm::vec3 size;
     glm::vec4 color;
     double timeTillDeletion; //ms
 };
 
-struct Line {
+class Line {
+public:
     glm::vec3 position1;
     glm::vec3 position2;
     glm::vec4 color;
@@ -117,19 +79,19 @@ struct Line {
 
 class DebugRenderer {
 public:
-    DebugRenderer();
+    DebugRenderer(const vg::GLProgramManager* glProgramManager);
     ~DebugRenderer();
 
-    void render(const glm::mat4 &vp, const glm::vec3& playerPos);
+    void render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w = f32m4(1.0));
 
     void drawIcosphere(const glm::vec3 &position, const float radius, const glm::vec4 &color, const int lod, const double duration = -1.0f);
     void drawCube(const glm::vec3 &position, const glm::vec3 &size, const glm::vec4 &color, const double duration = -1.0f);
     void drawLine(const glm::vec3 &startPoint, const glm::vec3 &endPoint, const glm::vec4 &color, const double duration = -1.0f);
 
 private:
-    void renderIcospheres(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT);
-    void renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT);
-    void renderLines(const glm::mat4 &v, const glm::vec3& playerPosp, const double deltaT);
+    void renderIcospheres(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
+    void renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
+    void renderLines(const glm::mat4 &v, const f32m4& w, const glm::vec3& playerPosp, const double deltaT);
 
     void createIcosphere(const int lod);
 
@@ -147,6 +109,9 @@ private:
 
     // Program that is currently in use
     vg::GLProgram* _program;
+    const vg::GLProgramManager* m_glProgramManager = nullptr;
+
+    static f32m4 _modelMatrix; ///< Reusable model matrix
 
     std::chrono::time_point<std::chrono::system_clock> _previousTimePoint;
     std::chrono::time_point<std::chrono::system_clock> _currentTimePoint;

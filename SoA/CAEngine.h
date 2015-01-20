@@ -10,6 +10,7 @@ DECL_VIO(class, IOManager)
 
 class ChunkManager;
 class Chunk;
+class PhysicsEngine;
 
 /// Resolution of CA updates in frames
 #define CA_TICK_RES 4
@@ -65,7 +66,7 @@ private:
 
 class CAEngine {
 public:
-    CAEngine();
+    CAEngine(ChunkManager* chunkManager, PhysicsEngine* physicsEngine);
     void setChunk(Chunk* chunk) { _chunk = chunk; }
     void updateSpawnerBlocks(bool powders);
     void updateLiquidBlocks(int caIndex);
@@ -81,6 +82,8 @@ private:
     i32 _highIndex;
     std::vector<ui16> _usedUpdateFlagList;
     bool _blockUpdateFlagList[CHUNK_SIZE];
-    Chunk* _chunk;
-    Chunk* _lockedChunk;
+    Chunk* _chunk = nullptr;
+    Chunk* _lockedChunk = nullptr;
+    ChunkManager* m_chunkManager = nullptr;
+    PhysicsEngine* m_physicsEngine = nullptr;
 };

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "FloraGenerator.h"
 
+
+#include "Biome.h"
 #include <Vorb/utils.h>
 
 #include "BlockData.h"
@@ -271,6 +273,7 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, flo
         // Move along Z axis
         directionalMove(blockIndex, chunkOffset, TREE_FRONT);
     }
+    return true;
 }
 
 bool FloraGenerator::makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>* nodes) {
@@ -336,6 +339,7 @@ bool FloraGenerator::makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x,
                 break;
         }
     }
+    return true;
 }
 
 void FloraGenerator::directionalMove(int& blockIndex, ui16& chunkOffset, TreeDir dir) {
@@ -483,15 +487,15 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
     int c = td.startc;
     int x = c%CHUNK_WIDTH;
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
-    srand(chunk->gridPosition.z*chunk->gridPosition.x - x*z - globalTreeSeed);
+    srand(chunk->voxelPosition.z*chunk->voxelPosition.x - x*z - globalTreeSeed);
 
-    float mod = ((PseudoRand(globalTreeSeed + chunk->gridPosition.x*CHUNK_SIZE + z - chunk->gridPosition.x, chunk->gridPosition.z*chunk->gridPosition.z - x*z - globalTreeSeed) + 1.0) / 2.0);
+    float mod = ((PseudoRand(globalTreeSeed + chunk->voxelPosition.x*CHUNK_SIZE + z - chunk->voxelPosition.x, chunk->voxelPosition.z*chunk->voxelPosition.z - x*z - globalTreeSeed) + 1.0) / 2.0);
     td.ageMod = mod;
     td.treeHeight = (int)(mod*(tt->trunkHeight.max - tt->trunkHeight.min) + tt->trunkHeight.min);
     td.droopyLength = mod * (tt->droopyLength.max - tt->droopyLength.min) + tt->droopyLength.min;
     td.branchStart = (int)(tt->branchStart*td.treeHeight);
     td.topLeafSize = mod * (tt->leafCapSize.max - tt->leafCapSize.min) + tt->leafCapSize.min;
-    td.trunkDir = (int)((PseudoRand(chunk->gridPosition.x + z - x, x*z - z*z + x - chunk->gridPosition.z) + 1.0)*2.0);
+    td.trunkDir = (int)((PseudoRand(chunk->voxelPosition.x + z - x, x*z - z*z + x - chunk->voxelPosition.z) + 1.0)*2.0);
     if (td.trunkDir == 4) td.trunkDir = 3;
     if (tt->isSlopeRandom == 0) {
         td.trunkStartSlope = mod*(tt->trunkStartSlope.max - tt->trunkStartSlope.min) + tt->trunkStartSlope.min;
@@ -525,29 +529,29 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
 }
 
 i32 FloraGenerator::getTreeIndex(Biome *biome, i32 x, i32 z) {
-    float noTreeChance = 1.0f - biome->treeChance;
-    float treeSum = 0.0f;
-    int index = -1;
+    //float noTreeChance = 1.0f - biome->treeChance;
+    //float treeSum = 0.0f;
+    //int index = -1;
 
-    for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
-        treeSum += biome->possibleTrees[i].probability; //precompute
-    }
+    //for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
+    //    treeSum += biome->possibleTrees[i].probability; //precompute
+    //}
 
-    float range = treeSum / biome->treeChance; //this gives us a an upperlimit for rand
-    float cutOff = range * noTreeChance; //this is the no tree chance in our rand range
-    float random = (PseudoRand(getPositionSeed(x, z)) + 1.0)*0.5*range; //get a random number for -1 to 1, and scales it to 0 to range
+    //float range = treeSum / biome->treeChance; //this gives us a an upperlimit for rand
+    //float cutOff = range * noTreeChance; //this is the no tree chance in our rand range
+    //float random = (PseudoRand(getPositionSeed(x, z)) + 1.0)*0.5*range; //get a random number for -1 to 1, and scales it to 0 to range
 
-    if (random < cutOff) { //this happens most of the time, so we check this first to return early!
-        return -1; //most of the time we finish here
-    }
+    //if (random < cutOff) { //this happens most of the time, so we check this first to return early!
+    //    return -1; //most of the time we finish here
+    //}
 
-    for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
-        cutOff += biome->possibleTrees[i].probability;
-        if (random < cutOff) {
-            return biome->possibleTrees[i].treeIndex;
-            break;
-        }
-    }
+    //for (Uint32 i = 0; i < biome->possibleTrees.size(); i++) {
+    //    cutOff += biome->possibleTrees[i].probability;
+    //    if (random < cutOff) {
+    //        return biome->possibleTrees[i].treeIndex;
+    //        break;
+    //    }
+    //}
     return -1;
 }
 

@@ -15,23 +15,23 @@
 #ifndef MESHMANAGER_H_
 #define MESHMANAGER_H_
 
-class TerrainMeshMessage;
+#include <Vorb/VorbPreDecl.inl>
+
 class ChunkMeshData;
 class ParticleMeshMessage;
 class PhysicsBlockMeshMessage;
 
-struct ChunkMesh;
-struct ParticleMesh;
+class ChunkMesh;
+class ParticleMesh;
 class PhysicsBlockMesh;
+class SphericalTerrainMesh;
+
+DECL_VG(class, GLProgramManager);
 
 class MeshManager
 {
 public:
-    MeshManager();
- 
-    /// Updates a terrain mesh
-    /// @param tmm: the TerrainMeshMessage, sent by the update thread
-    void updateTerrainMesh(TerrainMeshMessage* tmm);
+    MeshManager(const vg::GLProgramManager* glProgramManager);
 
     /// Updates a chunk mesh
     /// @param cmd: the ChunkMeshData sent by the update thread
@@ -47,7 +47,8 @@ public:
 
     /// Sorts the messages from front to back
     /// @param cameraPosition: The position of the camera to calculate distance from
-    void sortMeshes(const f64v3& cameraPosition);
+    /// @param sort: True when you want to sort meshes
+    void updateMeshes(const f64v3& cameraPosition, bool sort);
 
     /// Destroys all of the meshes and frees allocated memory
     void destroy();
@@ -72,7 +73,7 @@ private:
     std::vector <ChunkMesh *> _chunkMeshes;
     std::vector <ParticleMesh *> _particleMeshes;
     std::vector <PhysicsBlockMesh *> _physicsBlockMeshes;
-
+    const vg::GLProgramManager* m_glProgramManager = nullptr;
 };
 
 #endif // MESHMANAGER_H_

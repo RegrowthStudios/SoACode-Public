@@ -5,18 +5,21 @@
 
 #include "Actor.h"
 #include "BlockData.h"
-#include "VoxelMesher.h"
 #include "Chunk.h"
-#include "ChunkUpdater.h"
 #include "ChunkManager.h"
+#include "ChunkUpdater.h"
 #include "Frustum.h"
 #include "GameManager.h"
+#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
+#include "RenderUtils.h"
 #include "TerrainGenerator.h"
 #include "Texture2d.h"
-#include "MessageManager.h"
+#include "VoxelMesher.h"
+
+f32m4 PhysicsBlockBatch::worldMatrix(1.0);
 
 void PhysicsBlockMesh::createVao(const vg::GLProgram* glProgram) {
     if (vaoID == 0) {
@@ -122,7 +125,7 @@ int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0,
 
 const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20 };
 
-bool PhysicsBlock::update(Chunk*& lockedChunk)
+bool PhysicsBlock::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk*& lockedChunk)
 {
     if (done == 2) return true; //defer destruction by two frames for good measure
     if (done != 0) {
@@ -152,10 +155,10 @@ bool PhysicsBlock::update(Chunk*& lockedChunk)
     f64v3 worldPos = f64v3(position) + batch->_position;
 
     // Get the chunk position
-    i32v3 chPos = GameManager::chunkManager->getChunkPosition(worldPos);
+    i32v3 chPos = chunkManager->getChunkPosition(worldPos);
     
     // Get the chunk
-    Chunk* ch = GameManager::chunkManager->getChunk(chPos);
+    Chunk* ch = chunkManager->getChunk(chPos);
     if ((!ch) || ch->isAccessible == 0) return true;
 
     
@@ -177,13 +180,13 @@ bool PhysicsBlock::update(Chunk*& lockedChunk)
     // If we are colliding we need an air block
     if (colliding) {
         if (collideBlock.collide == false) {
-            if (Blocks[blockID].explosivePower) {
-                GameManager::physicsEngine->addExplosion(
-                    ExplosionNode(f64v3(position) + batch->_position,
-                    blockID));
-            } else {
+         //   if (Blocks[blockID].explosivePower) {
+         //       GameManager::physicsEngine->addExplosion(
+         //           ExplosionNode(f64v3(position) + batch->_position,
+         //           blockID));
+         //   } else {
                 ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
-            }
+         //   }
             // Mark this block as done so it can be removed in a few frames
             done = 1;
         }
@@ -200,13 +203,13 @@ bool PhysicsBlock::update(Chunk*& lockedChunk)
             color.b = Blocks[blockID].color.b;
             color.a = 255;
 
-            particleEngine.addParticles(BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
+            particleEngine.addParticles(chunkManager, BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
             return true;
         }
         
         // If colliding block is crushable, break that block
         if (collideBlock.isCrushable) {
-            ChunkUpdater::removeBlock(ch, lockedChunk, c, true);
+            ChunkUpdater::removeBlock(chunkManager, physicsEngine, ch, lockedChunk, c, true);
         } else {
             colliding = true;
         }
@@ -287,14 +290,15 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program
 {
     if (pbm == NULL) return;
     if (pbm->numBlocks == 0) return;
-    GlobalModelMatrix[3][0] = ((float)((double)pbm->bX - PlayerPos.x));
-    GlobalModelMatrix[3][1] = ((float)((double)pbm->bY - PlayerPos.y + 0.5));
-    GlobalModelMatrix[3][2] = ((float)((double)pbm->bZ - PlayerPos.z));
 
-    glm::mat4 MVP = VP * GlobalModelMatrix;
+    setMatrixTranslation(worldMatrix, (double)pbm->bX - PlayerPos.x,
+                         (double)pbm->bY - PlayerPos.y + 0.5,
+                         (double)pbm->bZ - PlayerPos.z);
+
+    glm::mat4 MVP = VP * worldMatrix;
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &GlobalModelMatrix[0][0]);
+    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(pbm->vaoID);
 
@@ -304,7 +308,7 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program
     glBindVertexArray(0);
 }
 
-bool PhysicsBlockBatch::update()
+bool PhysicsBlockBatch::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine)
 {
     size_t i = 0;
 
@@ -319,8 +323,8 @@ bool PhysicsBlockBatch::update()
 
     Chunk* lockedChunk = nullptr;
 
-    while (i < physicsBlocks.size()){
-        if (physicsBlocks[i].update(lockedChunk)){
+    while (i < physicsBlocks.size()) {
+        if (physicsBlocks[i].update(chunkManager, physicsEngine, lockedChunk)){
             physicsBlocks[i] = physicsBlocks.back();
             physicsBlocks.pop_back(); //dont need to increment i 
         } else{ //if it was successfully updated, add its data to the buffers

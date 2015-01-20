@@ -5,9 +5,9 @@
 
 #include "ChunkRenderer.h"
 
-std::vector <DistanceStruct> GeometrySorter::_distBuffer;
+std::vector <Distanceclass> GeometrySorter::_distBuffer;
 
-i32 convertData(DistanceStruct* data) {
+i32 convertData(Distanceclass* data) {
     return data->distance;
 }
 
@@ -15,7 +15,7 @@ inline i32 getSquaredDist(i32v3 vec) {
     return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
 }
 
-bool comparator(const DistanceStruct& i, const DistanceStruct& j) { 
+bool comparator(const Distanceclass& i, const Distanceclass& j) { 
     return (i.distance > j.distance); 
 }
 
@@ -31,7 +31,7 @@ void GeometrySorter::sortTransparentBlocks(ChunkMesh* cm, const i32v3& cameraPos
         _distBuffer[i].distance = getSquaredDist((cm->position - cameraPos) * 2 - i32v3(1) + i32v3(cm->transQuadPositions[i]));
     }
 
-   // radixSort<DistanceStruct, 8>(&(_distBuffer[0]), _distBuffer.size(), convertData, 31);
+   // radixSort<Distanceclass, 8>(&(_distBuffer[0]), _distBuffer.size(), convertData, 31);
     std::sort(_distBuffer.begin(), _distBuffer.end(), comparator);
 
     int startIndex;

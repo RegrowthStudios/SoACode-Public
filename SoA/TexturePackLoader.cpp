@@ -47,7 +47,9 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
         // Load the data
         std::vector<ui8>* pixelStore = new std::vector<ui8>();
-        vio::ImageIO().loadPng((_texturePackPath + it->first).c_str(), *pixelStore, width, height);
+        // TODO: Use iom to get a path
+        vpath texPath; _ioManager.resolvePath(_texturePackPath + it->first, texPath);
+        vio::ImageIO().loadPng(texPath.getString(), *pixelStore, width, height);
         if (pixelStore->size()) {
             // Add the data to the cache and get non-const reference to pixels
             Pixels* pixels = &(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).first->second);
@@ -171,27 +173,29 @@ ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
         // Load the color map into a buffer
         std::vector<ui8> buffer;
         ui32 width, height;
-        vio::ImageIO().loadPng(name.c_str(), buffer, width, height);
+        
+        // TODO: Same as above
+        vpath texPath; _ioManager.resolvePath(name, texPath);
+        vio::ImageIO().loadPng(texPath.getString(), buffer, width, height);
 
-        // Error checking
-        if (width != MAP_WIDTH) {
-            pError("Error color map " + name + " must have a width of " + std::to_string(MAP_WIDTH));
-            return _blockColorMaps.size() - 1;
-        }
-        if (height != MAP_WIDTH) {
-            pError("Error color map " + name + " must have a height of " + std::to_string(MAP_WIDTH));
-            return _blockColorMaps.size() - 1;
-        }
+        //// Error checking
+        //if (width != MAP_WIDTH) {
+        //    pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));
+        //    return _blockColorMaps.size() - 1;
+        //}
+        //if (height != MAP_WIDTH) {
+        //    pError("Error color map " + name + " must have a height of " + to_string(MAP_WIDTH));
+        //    return _blockColorMaps.size() - 1;
+        //}
 
-        // Set the data
-        for (int y = 0; y < MAP_WIDTH; y++){
-            for (int x = 0; x < MAP_WIDTH; x++) {
-                colorMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[(y * MAP_WIDTH + x) * 3],
-                                                                          buffer[(y * MAP_WIDTH + x) * 3 + 1],
-                                                                          buffer[(y * MAP_WIDTH + x) * 3 + 2]);
-            }
-        }
-
+        //// Set the data
+        //for (int y = 0; y < MAP_WIDTH; y++){
+        //    for (int x = 0; x < MAP_WIDTH; x++) {
+        //        colorMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[(y * MAP_WIDTH + x) * 3],
+        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 1],
+        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 2]);
+        //    }
+        //}
         return _blockColorMaps.size() - 1;
     }
 }
@@ -262,7 +266,7 @@ void TexturePackLoader::loadAllBlockTextures() {
     // Loop through all textures to load
     for (const nString& texturePath : _blockTexturesToLoad) {
 
-        // The struct we need to populate
+        // The class we need to populate
         BlockTextureData blockTextureLoadData = {};
         BlockTexture blockTexture;
 
@@ -452,13 +456,17 @@ void TexturePackLoader::mapTexturesToAtlases() {
 
 ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& height) {
 
+    if (filePath.empty()) return nullptr;
+
     // Check the cache
     auto& it = _pixelCache.find(filePath);
 
     if (it == _pixelCache.end()) {
         // Load the data
         std::vector<ui8>* pixelStore = new std::vector<ui8>();
-        vio::ImageIO().loadPng((_texturePackPath + filePath).c_str(), *pixelStore, width, height);
+
+        vpath texPath; _ioManager.resolvePath(_texturePackPath + filePath, texPath);
+        vio::ImageIO().loadPng(texPath.getString(), *pixelStore, width, height);
         if (pixelStore->size()) {
             // Add the data to the cache
             _pixelCache[filePath] = Pixels(pixelStore, width, height);

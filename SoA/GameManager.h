@@ -11,16 +11,13 @@ class ChunkSlot;
 class Player;
 class VoxelEditor;
 class Chunk;
-
-enum class GameStates { PLAY, PAUSE, INVENTORY, MAINMENU, ZOOMINGIN, ZOOMINGOUT, WORLDEDITOR, EXIT };
+class ChunkManager;
 
 //This is where the main game components are contained
 // TODO(Ben): Dependency injection.
 class GameManager
 {
 public:
-
-    static Player *player;
 
     static void initializeSystems();
     static void registerTexturesForLoad();
@@ -29,45 +26,24 @@ public:
     static void initializeSound();
     static void saveState();
     static void savePlayerState();
-    static int newGame(nString saveName);
-    static int loadGame(nString saveName);
-    static void loadPlanet(nString filePath);
-    static void initializePlanet(const glm::dvec3 cameraPos);
-    static void initializeVoxelWorld(Player *plyr = nullptr);
-    static void update();
-    static void updatePlanet(glm::dvec3 worldPosition, GLuint maxTicks);
-    static void drawMarkers();
 
-    static void addMarker(glm::dvec3 pos, nString name, glm::vec3 color);
-    static void clickDragRay(bool isBreakRay);
-    static void scanWSO();
+    static void clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay);
+    static void scanWSO(ChunkManager* chunkManager, Player* player);
     static void onQuit();
     static void endSession();
 
-    static class VoxelWorld* voxelWorld;
     static class VoxelEditor* voxelEditor;
-    static class PhysicsEngine* physicsEngine;
     static class SoundEngine* soundEngine;
-    static class ChunkManager* chunkManager;
-    static class InputManager* inputManager;
-    static class ChunkIOManager* chunkIOManager;
     static class MessageManager* messageManager;
-    static class TerrainGenerator* terrainGenerator;
 
     static bool gameInitialized;
     static float fogStart, fogEnd;
     static Uint32 maxLodTicks;
-    static std::vector <Marker> markers;
-    static class Planet* planet;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
-    static class DebugRenderer* debugRenderer;
-    static vg::GLProgramManager* glProgramManager;
     static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
     static class vg::TextureCache* textureCache;
 
-    static GameStates gameState;
-    static nString saveFilePath;
 private:
     static bool _systemsInitialized;
 

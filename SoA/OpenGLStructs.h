@@ -4,7 +4,7 @@
 #include "Constants.h"
 
 // 4324 53
-struct ColorVertex {
+class ColorVertex {
 public:
     f32v3 position;
     ubyte color[4];
@@ -19,9 +19,10 @@ enum class BlendType {
 KEG_ENUM_DECL(BlendType);
 
 // Size: 32 Bytes
-struct BlockVertex {
+class BlockVertex {
 public:
-    struct vPosition {  //3 bytes  << 1
+    class vPosition {  //3 bytes  << 1
+    public:
         ubyte x;
         ubyte y;
         ubyte z;
@@ -58,7 +59,7 @@ public:
     ui8 merge; //32
 };
 
-struct LiquidVertex {
+class LiquidVertex {
 public:
     // TODO: x and z can be bytes?
     f32v3 position; //12
@@ -70,23 +71,7 @@ public:
     ui8 sunlight; //24
 };
 
-struct TerrainVertex {
-public:
-    f32v3 location; //12
-    f32v2 tex; //20
-    f32v3 normal; //32
-    ui8 color[4]; //36
-    ColorRGB8 slopeColor; //39
-    ui8 pad1; //40
-    ColorRGB8 beachColor; //43
-    ui8 pad2; //44
-    ui8 textureUnit;
-    ui8 temperature;
-    ui8 rainfall;
-    ui8 specular; //48
-};
-
-struct PhysicsBlockVertex {
+class PhysicsBlockVertex {
 public:
     ui8 position[3]; //3
     ui8 blendMode; //4
@@ -107,7 +92,7 @@ public:
     i8 pad2; //20
 };
 
-struct Face {
+class Face {
 public:
     Face(i32 facen, i32 f1, i32 f2, i32 f3, i32 t1, i32 t2, i32 t3, i32 m) : facenum(facen) {
         vertexs[0] = f1;
@@ -139,7 +124,7 @@ public:
     i32 mat;
 };
 
-struct Material {
+class Material {
 public:
     Material(const char* na, f32 a, f32 n, f32 ni2, f32* d, f32* am,
         f32* s, i32 il, i32 t);
@@ -151,7 +136,7 @@ public:
     i32 texture;
 };
 
-struct TexCoord {
+class TexCoord {
 public:
     TexCoord(f32 a, f32 b);
 

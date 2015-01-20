@@ -4,11 +4,12 @@
 #include <Vorb/graphics/GLStates.h>
 #include <yaml-cpp/yaml.h>
 
-#include "Camera.h"
 #include "ChunkGridRenderStage.h"
+#include "ChunkManager.h"
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
 #include "Errors.h"
+#include "GameSystem.h"
 #include "HdrRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
 #include "MeshManager.h"
@@ -19,8 +20,10 @@
 #include "PauseMenuRenderStage.h"
 #include "PdaRenderStage.h"
 #include "PhysicsBlockRenderStage.h"
-#include "PlanetRenderStage.h"
 #include "SkyboxRenderStage.h"
+#include "SoAState.h"
+#include "SpaceSystem.h"
+#include "SpaceSystemRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
 
 #define DEVHUD_FONT_SIZE 32
@@ -30,20 +33,17 @@ GamePlayRenderPipeline::GamePlayRenderPipeline() :
     // Empty
 }
 
-void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
-                                  const Camera* worldCamera, const App* app,
-                                  const Player* player, const MeshManager* meshManager,
-                                  const PDA* pda, const vg::GLProgramManager* glProgramManager,
-                                  const PauseMenu* pauseMenu, const std::vector<ChunkSlot>& chunkSlots) {
+void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
+                                  const PDA* pda,
+                                  SpaceSystem* spaceSystem,
+                                  const PauseMenu* pauseMenu) {
     // Set the viewport
     _viewport = viewport;
 
-    // Grab mesh manager handle
-    _meshManager = meshManager;
+    m_soaState = soaState;
 
-    // Get the camera handles
-    _worldCamera = worldCamera;
-    _chunkCamera = chunkCamera;
+    // Grab mesh manager handle
+    _meshManager = soaState->meshManager.get();
 
     // Check to make sure we aren't leaking memory
     if (_skyboxRenderStage != nullptr) {
@@ -67,20 +67,32 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, Camera* chunkCamera,
     // Get window dimensions
     f32v2 windowDims(_viewport.z, _viewport.w);
 
+    _worldCamera.setAspectRatio(windowDims.x / windowDims.y);
+    _chunkCamera.setAspectRatio(windowDims.x / windowDims.y);
+
+    // Set up shared params
+    const vg::GLProgramManager* glProgramManager = soaState->glProgramManager.get();
+    _gameRenderParams.glProgramManager = glProgramManager;
+
     // Init render stages
-    _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), _worldCamera);
+    _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &_worldCamera);
     _physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, _meshManager->getPhysicsBlockMeshes(), glProgramManager->getProgram("PhysicsBlock"));
-    _planetRenderStage = new PlanetRenderStage(_worldCamera);
     _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
     _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
-    _chunkGridRenderStage = new ChunkGridRenderStage(&_gameRenderParams, chunkSlots);
+    _chunkGridRenderStage = new ChunkGridRenderStage(&_gameRenderParams);
     _transparentVoxelRenderStage = new TransparentVoxelRenderStage(&_gameRenderParams);
     _liquidVoxelRenderStage = new LiquidVoxelRenderStage(&_gameRenderParams);
-    _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, player, app, windowDims);
+    _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, app, windowDims);
     _pdaRenderStage = new PdaRenderStage(pda);
     _pauseMenuRenderStage = new PauseMenuRenderStage(pauseMenu);
     _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
-    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, _chunkCamera);
+    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, &_chunkCamera);
+    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(windowDims),
+                                                          spaceSystem, nullptr, &_worldCamera,
+                                                          glProgramManager->getProgram("BasicColor"),
+                                                          glProgramManager->getProgram("SphericalTerrain"),
+                                                          glProgramManager->getProgram("SphericalWater"),
+                                                          GameManager::textureCache->addTexture("Textures/selector.png").id);
 
     loadNightVision();
     // No post-process effects to begin with
@@ -93,8 +105,13 @@ GamePlayRenderPipeline::~GamePlayRenderPipeline() {
 }
 
 void GamePlayRenderPipeline::render() {
+    const GameSystem& gameSystem = m_soaState->gameSystem;
+    const SpaceSystem& spaceSystem = m_soaState->spaceSystem;
+
+    updateCameras();
     // Set up the gameRenderParams
-    _gameRenderParams.calculateParams(_worldCamera->getPosition(), _chunkCamera, &_meshManager->getChunkMeshes(), false);
+    _gameRenderParams.calculateParams(_worldCamera.getPosition(), &_chunkCamera,
+                                      &_meshManager->getChunkMeshes(), false);
     // Bind the FBO
     _hdrFrameBuffer->use();
   
@@ -102,22 +119,27 @@ void GamePlayRenderPipeline::render() {
 
     // worldCamera passes
     _skyboxRenderStage->draw();
-    _planetRenderStage->draw();
+    m_spaceSystemRenderStage->draw();
 
     // Clear the depth buffer so we can draw the voxel passes
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ZERO);
-    glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
-    _opaqueVoxelRenderStage->draw();
-    _physicsBlockRenderStage->draw();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    _cutoutVoxelRenderStage->draw();
-    _chunkGridRenderStage->draw();
-    _liquidVoxelRenderStage->draw();
-    _transparentVoxelRenderStage->draw();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (m_voxelsActive) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ZERO);
+        glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
+        _opaqueVoxelRenderStage->draw();
+        _physicsBlockRenderStage->draw();
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        _cutoutVoxelRenderStage->draw();
+
+        auto& voxcmp = gameSystem.voxelPositionCT.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
+        _chunkGridRenderStage->setChunks(&spaceSystem.m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunks());
+        _chunkGridRenderStage->draw();
+        _liquidVoxelRenderStage->draw();
+        _transparentVoxelRenderStage->draw();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -151,11 +173,6 @@ void GamePlayRenderPipeline::destroy() {
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
 
-    delete _planetRenderStage;
-    _planetRenderStage = nullptr;
-
-    delete _planetRenderStage;
-    _planetRenderStage = nullptr;
 
     delete _opaqueVoxelRenderStage;
     _opaqueVoxelRenderStage = nullptr;
@@ -253,4 +270,31 @@ void GamePlayRenderPipeline::cycleDrawMode() {
         m_drawMode = GL_FILL;
         break;
     }
+}
+
+void GamePlayRenderPipeline::updateCameras() {
+    const GameSystem* gs = &m_soaState->gameSystem;
+
+    float sNearClip = 20.0f; ///< temporary until dynamic clipping plane works
+
+    // Get the physics component
+    auto& phycmp = gs->physicsCT.getFromEntity(m_soaState->playerEntity);
+    if (phycmp.voxelPositionComponent) {
+        auto& vpcmp = gs->voxelPositionCT.get(phycmp.voxelPositionComponent);
+        _chunkCamera.setClippingPlane(1.0f, 999999.0f);
+        _chunkCamera.setPosition(vpcmp.position);
+        _chunkCamera.setOrientation(vpcmp.orientation);
+        _chunkCamera.update();
+        m_voxelsActive = true;
+        sNearClip = 0.25;
+    } else {
+        m_voxelsActive = false;
+    }
+
+    auto& spcmp = gs->spacePositionCT.get(phycmp.spacePositionComponent);
+    //printVec("POSITION: ", spcmp.position);
+    _worldCamera.setClippingPlane(sNearClip, 999999999.0f);
+    _worldCamera.setPosition(spcmp.position);
+    _worldCamera.setOrientation(spcmp.orientation);
+    _worldCamera.update();
 }

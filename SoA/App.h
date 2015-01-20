@@ -10,7 +10,6 @@ class InitScreen;
 class LoadScreen;
 class MainMenuScreen;
 class GamePlayScreen;
-class MeshManager;
 class TexturePackLoader;
 
 class App : public MainGame {
@@ -22,15 +21,13 @@ public:
     virtual void onExit();
 
     // Accessible Pointers To Screens
-    InitScreen* scrInit;
-    LoadScreen* scrLoad;
-    MainMenuScreen* scrMainMenu;
-    GamePlayScreen* scrGamePlay;
+    InitScreen* scrInit = nullptr;
+    LoadScreen* scrLoad = nullptr;
+    MainMenuScreen* scrMainMenu = nullptr;
+    GamePlayScreen* scrGamePlay = nullptr;
 
-    DevScreen* scrDev;
+    DevScreen* scrDev = nullptr;
     std::vector<IGameScreen*> scrTests;
-
-    MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
 };
 
 #endif // App_h_

@@ -2,12 +2,12 @@
 /// SpaceSystem.h
 /// Seed of Andromeda
 ///
-/// Created by Cristian Zaloj on 9 Nov 2014
+/// Created by Benjamin Arnold on 8 Dec 2014
 /// Copyright 2014 Regrowth Studios
 /// All Rights Reserved
 ///
 /// Summary:
-/// Let there be light!
+/// Implementation of a Star System with ECS
 ///
 
 #pragma once
@@ -15,30 +15,176 @@
 #ifndef SpaceSystem_h__
 #define SpaceSystem_h__
 
+#include "AxisRotationComponent.h"
+#include "NamePositionComponent.h"
+#include "OrbitComponent.h"
+#include "OrbitComponentUpdater.h"
+#include "SphericalGravityComponent.h"
+#include "SphericalTerrainComponent.h"
+#include "SphericalVoxelComponent.h"
+#include "SphericalVoxelComponentUpdater.h"
+#include "SphericalTerrainComponentUpdater.h"
+#include "AxisRotationComponentUpdater.h"
+#include "SphericalVoxelComponentTable.h"
+
+#include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/ecs/ECS.h>
 
-#include "SpaceComponents.h"
+#define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
+#define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
+#define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
+#define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
+#define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
+#define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 
-class CTableSpaceObject : public vcore::ComponentTable<SpaceObject> {
-public:
-    ui64 updates = 0;
+class App;
+class Binary;
+class Camera;
+class GameSystem;
+class GasGiantKegProperties;
+class PlanetKegProperties;
+class PlanetLoader;
+class SoaState;
+class SpriteBatch;
+class SpriteFont;
+class StarKegProperties;
+class SystemBodyKegProperties;
+
+namespace vorb {
+    namespace core {
+        namespace graphics {
+            class TextureRecycler;
+            class GLProgramManager;
+        }
+    }
+}
+
+enum class BodyType {
+    NONE,
+    PLANET,
+    STAR,
+    GAS_GIANT
 };
 
-class CTableSpaceQuadrant : public vcore::ComponentTable<SpaceQuadrant> {
+class SystemBody {
 public:
-    ui64 updates = 0;
+    ~SystemBody() { delete entity; }
+
+    nString name = "";
+    nString parentName = "";
+    SystemBody* parent = nullptr;
+    vcore::Entity* entity = nullptr;
+    BodyType type = BodyType::NONE;
 };
 
-#define SPACE_SYSTEM_CT_OBJECT_NAME "Object"
-#define SPACE_SYSTEM_CT_QUADRANT_NAME "Quadrant"
-
+//TODO(Ben): This should be POD, split it up
 class SpaceSystem : public vcore::ECS {
+    friend class SpaceSystemRenderStage;
+    friend class MainMenuSystemViewer;
 public:
     SpaceSystem();
+    ~SpaceSystem();
 
-    CTableSpaceObject tblObject;
-    CTableSpaceQuadrant tblQuadrants;
+    void init(vg::GLProgramManager* programManager);
+
+    /// Updates the space system
+    /// @param gameSystem: ECS for game entities
+    /// @param soaState: Game State
+    void update(const GameSystem* gameSystem, const SoaState* soaState, const f64v3& spacePos);
+    
+    /// Updates openGL specific stuff, should be called on render thread
+    void glUpdate();
+
+    /// Adds a solar system and all its bodies to the system
+    /// @param filePath: Path to the solar system directory
+    void addSolarSystem(const nString& filePath);
+
+    /// Targets a named body
+    /// @param name: Name of the body
+    void targetBody(const nString& name);
+    /// Targets an entity
+    /// @param eid: Entity ID
+    void targetBody(vcore::EntityID eid);
+
+    /// Goes to the next target
+    void nextTarget();
+
+    /// Goes to the previous target
+    void previousTarget();
+
+    /// Gets the position of the targeted entity
+    /// @return position
+    f64v3 getTargetPosition();
+
+    /// Gets the position of the targeted entity
+    /// @return radius
+    f64 getTargetRadius() {
+        return m_sphericalGravityCT.get(m_targetComponent).radius;
+    }
+
+    /// Gets the name of the targeted component
+    /// @return position
+    nString getTargetName() {
+        return m_namePositionCT.get(m_targetComponent).name;
+    }
+
+    vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
+    vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
+    vcore::ComponentTable<OrbitComponent> m_orbitCT;
+    vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
+    vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    SphericalVoxelComponentTable m_sphericalVoxelCT;
+
+protected:
+    bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
+
+    void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);
+
+    void addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body);
+
+    void addGasGiant(const SystemBodyKegProperties* sysProps, const GasGiantKegProperties* properties, SystemBody* body);
+
+    bool loadSystemProperties(const nString& dirPath);
+
+    void calculateOrbit(vcore::EntityID entity, f64 parentMass, bool isBinary);
+
+    void setOrbitProperties(vcore::ComponentID cmp, 
+                            const SystemBodyKegProperties* sysProps);
+
+    vcore::EntityID m_targetEntity = 1; ///< Current entity we are focusing on
+    vcore::ComponentID m_targetComponent = 1; ///< namePositionComponent of the targetEntity
+
+    vio::IOManager m_ioManager;
+
+    std::mutex m_mutex;
+
+    vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< For recycling normal maps
+    
+    PlanetLoader* m_planetLoader = nullptr;
+
+    vg::GLProgramManager* m_programManager = nullptr;
+
+    std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
+    std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies
+
+    SpriteBatch* m_spriteBatch = nullptr;
+    SpriteFont* m_spriteFont = nullptr;
+
+    std::map<nString, vcore::EntityID> m_bodyLookupMap;
+
+    nString m_dirPath; ///< Path to the main directory
+    nString m_systemDescription; ///< textual description of the system
+
+    /// Updaters
+    friend class OrbitComponentUpdater;
+    OrbitComponentUpdater m_orbitComponentUpdater;
+    friend class SphericalVoxelComponentUpdater;
+    SphericalVoxelComponentUpdater m_sphericalVoxelComponentUpdater;
+    friend class SphericalTerrainComponentUpdater;
+    SphericalTerrainComponentUpdater m_sphericalTerrainComponentUpdater;
+    friend class AxisRotationComponentUpdater;
+    AxisRotationComponentUpdater m_axisRotationComponentUpdater;
 };
 
 #endif // SpaceSystem_h__

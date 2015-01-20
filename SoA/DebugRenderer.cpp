@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <functional>
 
+#include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/RasterizerState.h>
 
 #include "GameManager.h"
@@ -11,9 +12,12 @@
 #include "global.h"
 #include "RenderUtils.h"
 
+f32m4 DebugRenderer::_modelMatrix(1.0);
+
 glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2);
 
-struct Vec3KeyFuncs {
+class Vec3KeyFuncs {
+public:
     size_t operator()(const glm::vec3& k)const {
         return std::hash<float>()(k.x) ^ std::hash<float>()(k.y) ^ std::hash<float>()(k.z);
     }
@@ -23,9 +27,10 @@ struct Vec3KeyFuncs {
     }
 };
 
-DebugRenderer::DebugRenderer():
+DebugRenderer::DebugRenderer(const vg::GLProgramManager* glProgramManager) :
     _cubeMesh(nullptr),
-    _lineMesh(nullptr)
+    _lineMesh(nullptr),
+    m_glProgramManager(glProgramManager)
 {}
 
 DebugRenderer::~DebugRenderer() {
@@ -46,7 +51,7 @@ DebugRenderer::~DebugRenderer() {
     }
 }
 
-void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos) {
+void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w /* = f32m4(1.0) */) {
     RasterizerState::CULL_NONE.set();
 
     _previousTimePoint = _currentTimePoint;
@@ -54,14 +59,14 @@ void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos) {
     std::chrono::duration<double> elapsedTime = _currentTimePoint - _previousTimePoint;
     double deltaT = elapsedTime.count();
 
-    _program = GameManager::glProgramManager->getProgram("BasicColor");
+    _program = m_glProgramManager->getProgram("BasicColor");
 
     _program->use();
     _program->enableVertexAttribArrays();
     
-    if(_icospheresToRender.size() > 0) renderIcospheres(vp, playerPos, deltaT);
-    if(_cubesToRender.size() > 0) renderCubes(vp, playerPos, deltaT);
-    if(_linesToRender.size() > 0) renderLines(vp, playerPos, deltaT);
+    if(_icospheresToRender.size() > 0) renderIcospheres(vp, w, playerPos, deltaT);
+    if(_cubesToRender.size() > 0) renderCubes(vp, w, playerPos, deltaT);
+    if(_linesToRender.size() > 0) renderLines(vp, w, playerPos, deltaT);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -111,16 +116,16 @@ void DebugRenderer::drawLine(const glm::vec3 &startPoint, const glm::vec3 &endPo
     _linesToRender.push_back(line);
 }
 
-void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     for(auto i = _icospheresToRender.begin(); i != _icospheresToRender.end(); i++) {
         SimpleMesh* mesh = _icosphereMeshes.at(i->lod);
         glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBufferID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBufferID);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
 
-        setModelMatrixTranslation(i->position, playerPos);
-        setModelMatrixScale(i->radius, i->radius, i->radius);
-        glm::mat4 mvp = vp * GlobalModelMatrix;
+        setMatrixTranslation(_modelMatrix, i->position, playerPos);
+        setMatrixScale(_modelMatrix, i->radius, i->radius, i->radius);
+        glm::mat4 mvp = vp * _modelMatrix * w;
 
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
@@ -128,18 +133,18 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const glm::vec3& playe
 
         i->timeTillDeletion -= deltaT;
     }
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
+
     _icospheresToRender.erase(std::remove_if(_icospheresToRender.begin(), _icospheresToRender.end(), [](const Icosphere& sphere) { return sphere.timeTillDeletion <= 0; }), _icospheresToRender.end());
 }
 
-void DebugRenderer::renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     glBindBuffer(GL_ARRAY_BUFFER, _cubeMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
     for(auto i = _cubesToRender.begin(); i != _cubesToRender.end(); i++) {
-        setModelMatrixTranslation(i->position, playerPos);
-        setModelMatrixScale(i->size);
-        glm::mat4 mvp = vp * GlobalModelMatrix;
+        setMatrixTranslation(_modelMatrix, i->position, playerPos);
+        setMatrixScale(_modelMatrix, i->size);
+        glm::mat4 mvp = vp * _modelMatrix * w;
 
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
@@ -149,108 +154,32 @@ void DebugRenderer::renderCubes(const glm::mat4 &vp, const glm::vec3& playerPos,
         i->timeTillDeletion -= deltaT;
     }
     _cubesToRender.erase(std::remove_if(_cubesToRender.begin(), _cubesToRender.end(), [](const Cube& cube) { return cube.timeTillDeletion <= 0; }), _cubesToRender.end());
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
 }
 
-void DebugRenderer::renderLines(const glm::mat4 &vp, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderLines(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     glBindBuffer(GL_ARRAY_BUFFER, _lineMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _lineMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
+    setMatrixScale(_modelMatrix, 1.0f, 1.0f, 1.0f);
     for(auto i = _linesToRender.begin(); i != _linesToRender.end(); i++) {
         glUniform4f(_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
-        setModelMatrixTranslation(i->position1, playerPos);
+        setMatrixTranslation(_modelMatrix, i->position1, playerPos);
         
-        glm::mat4 mvp = vp * GlobalModelMatrix;
+        glm::mat4 mvp = vp * _modelMatrix * w;
         glUniformMatrix4fv(_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
         glm::vec3 secondVertex = i->position2 - i->position1;
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(glm::vec3), sizeof(glm::vec3), &secondVertex);
         glDrawElements(GL_LINES, _lineMesh->numIndices, GL_UNSIGNED_INT, 0);
         i->timeTillDeletion -= deltaT;
     }
-    setModelMatrixScale(1.0f, 1.0f, 1.0f);
     _linesToRender.erase(std::remove_if(_linesToRender.begin(), _linesToRender.end(), [](const Line& line) { return line.timeTillDeletion <= 0; }), _linesToRender.end());
 }
 
 void DebugRenderer::createIcosphere(const int lod) {
-    std::vector<GLuint> oldIndices;
-    std::vector<GLuint> newIndices;
-    std::vector<glm::vec3> vertices;
-    std::unordered_map<glm::vec3, GLuint, Vec3KeyFuncs, Vec3KeyFuncs> vertexLookup;
-    for(GLuint i = 0; i < NUM_ICOSOHEDRON_INDICES; i++) {
-        if(i < NUM_ICOSOHEDRON_VERTICES) {
-            vertices.push_back(glm::normalize(ICOSOHEDRON_VERTICES[i]));
-            vertexLookup[glm::normalize(ICOSOHEDRON_VERTICES[i])] = i;
-        }
-        oldIndices.push_back(ICOSOHEDRON_INDICES[i]);
-    }
-    for(int i = 0; i < lod; i++) {
-        for(int j = 0; j < oldIndices.size(); j += 3) {
-            /*
-                            j
-                       mp12   mp13
-                    j+1    mp23   j+2
-            */
-            //Defined in counter clockwise order
-            glm::vec3 vertex1 = vertices[oldIndices[j + 0]];
-            glm::vec3 vertex2 = vertices[oldIndices[j + 1]];
-            glm::vec3 vertex3 = vertices[oldIndices[j + 2]];
-
-            glm::vec3 midPoint12 = findMidpoint(vertex1, vertex2);
-            glm::vec3 midPoint23 = findMidpoint(vertex2, vertex3);
-            glm::vec3 midPoint13 = findMidpoint(vertex1, vertex3);
-
-            GLuint mp12Index;
-            GLuint mp23Index;
-            GLuint mp13Index;
-
-            auto iter = vertexLookup.find(midPoint12);
-            if(iter != vertexLookup.end()) { //It is in the map
-                mp12Index = iter->second;
-            } else { //Not in the map
-                mp12Index = vertices.size();
-                vertices.push_back(midPoint12);
-                vertexLookup[midPoint12] = mp12Index;
-            }
-
-            iter = vertexLookup.find(midPoint23);
-            if(iter != vertexLookup.end()) { //It is in the map
-                mp23Index = iter->second;
-            } else { //Not in the map
-                mp23Index = vertices.size();
-                vertices.push_back(midPoint23);
-                vertexLookup[midPoint23] = mp23Index;
-            }
-
-            iter = vertexLookup.find(midPoint13);
-            if(iter != vertexLookup.end()) { //It is in the map
-                mp13Index = iter->second;
-            } else { //Not in the map
-                mp13Index = vertices.size();
-                vertices.push_back(midPoint13);
-                vertexLookup[midPoint13] = mp13Index;
-            }
-
-            newIndices.push_back(oldIndices[j]);
-            newIndices.push_back(mp12Index);
-            newIndices.push_back(mp13Index);
-
-            newIndices.push_back(mp12Index);
-            newIndices.push_back(oldIndices[j + 1]);
-            newIndices.push_back(mp23Index);
-
-            newIndices.push_back(mp13Index);
-            newIndices.push_back(mp23Index);
-            newIndices.push_back(oldIndices[j + 2]);
-
-            newIndices.push_back(mp12Index);
-            newIndices.push_back(mp23Index);
-            newIndices.push_back(mp13Index);
-        }
-        oldIndices.swap(newIndices);
-        newIndices.clear();
-    }
-    _icosphereMeshes[lod] = createMesh(vertices.data(), vertices.size(), oldIndices.data(), oldIndices.size());
+    std::vector<ui32> indices;
+    std::vector<f32v3> positions;
+    vmesh::generateIcosphereMesh(lod, indices, positions);
+    _icosphereMeshes[lod] = createMesh(positions.data(), positions.size(), indices.data(), indices.size());
 }
 
 inline glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2) {

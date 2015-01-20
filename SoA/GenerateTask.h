@@ -20,12 +20,14 @@
 #include "VoxPool.h"
 
 class Chunk;
-struct LoadData;
+class LoadData;
 
 #define GENERATE_TASK_ID 1
 
 // Represents A Chunk Load Task
-struct GenerateTask : public vcore::IThreadPoolTask<WorkerData> {
+
+class GenerateTask : public vcore::IThreadPoolTask<WorkerData> {
+
 public:
     GenerateTask() : vcore::IThreadPoolTask<WorkerData>(true, GENERATE_TASK_ID) {}
 

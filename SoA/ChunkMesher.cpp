@@ -3,6 +3,10 @@
 
 #include <random>
 
+
+#include "Biome.h"
+#include "BlockData.h"
+
 #include <Vorb/ThreadPool.h>
 #include <Vorb/utils.h>
 
@@ -11,7 +15,6 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "Options.h"
-#include "Planet.h"
 #include "RenderTask.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"
@@ -532,7 +535,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     ui8 temperature = chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
     ui8 depth = chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
 
-    ColorRGB8 color = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
+    ColorRGB8 color;// = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
 
     ui8 sunlight = _sunlightData[wc];
     ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
@@ -1334,7 +1337,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //store the render task so we can pass it to functions
     mi.task = renderTask;
     mi.chunkGridData = chunk->chunkGridData;
-    mi.position = chunk->gridPosition;
+    mi.position = chunk->voxelPosition;
 
     //Used in merging
     _currPrevRightQuads = 0;

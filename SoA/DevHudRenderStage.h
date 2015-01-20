@@ -19,12 +19,11 @@
 
 class SpriteBatch;
 class SpriteFont;
-class Player;
 class App;
 
 class DevHudRenderStage : public vg::IRenderStage{
 public:
-    DevHudRenderStage(const cString fontPath, i32 fontSize, const Player* player,
+    DevHudRenderStage(const cString fontPath, i32 fontSize,
                       const App* app, const f32v2& windowDims);
     ~DevHudRenderStage();
 
@@ -53,7 +52,6 @@ private:
 
     SpriteBatch* _spriteBatch; ///< For rendering 2D sprites
     SpriteFont* _spriteFont; ///< Font used by spritebatch
-    const Player* _player; ///< Handle to the player
     DevUiModes _mode; ///< The mode for rendering
     f32v2 _windowDims; ///< Dimensions of the window
     const App* _app; ///< Handle to the app

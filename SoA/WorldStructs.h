@@ -8,12 +8,13 @@
 #include "Texture2d.h"
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
+extern AccumulationTimer globalAccumulationTimer;
+extern AccumulationTimer globalRenderAccumulationTimer; ///< for easy global benchmarking
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
-const int UNLOADED_HEIGHT = INT_MAX; //sentinalized height. Nobody should get this high. If they do, damn.
-
-struct FixedSizeBillboardVertex{
+class FixedSizeBillboardVertex{
+public:
     glm::vec3 pos;
     GLubyte uv[2];
 };
@@ -34,8 +35,9 @@ public:
     void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);
 };
 
-struct NoiseInfo
+class NoiseInfo
 {
+public:
     NoiseInfo(){
         memset(this, 0, sizeof(NoiseInfo));
         modifier = NULL;
@@ -57,97 +59,34 @@ struct NoiseInfo
     GLint type;
 };
 
-struct BiomeTree
-{
-    BiomeTree(GLfloat prob, GLint index) : probability(prob), 
-                                           treeIndex(index)
-    {
-    }
-    GLfloat probability;
-    GLint treeIndex;
-};
-
-struct BiomeFlora
-{
-    BiomeFlora(GLfloat prob, GLint index) : probability(prob), 
-                                           floraIndex(index)
-    {
-    }
-    GLfloat probability;
-    GLint floraIndex;
-};
-
-struct Biome
-{
-    Biome();
-
-    GLint vecIndex;
-    GLint hasAltColor;
-    GLint looseSoilDepth; //TO ADD
-    GLint isBase; //ISBASE MUST BE LAST GLINT
-    GLubyte r, g, b, padding;
-    GLushort surfaceBlock;
-    GLushort underwaterBlock;
-    GLushort beachBlock;
-    GLushort padding2; //PADDING2 MUST BE LAST GLushort
-    GLfloat treeChance;
-    GLfloat applyBiomeAt;
-    GLfloat lowTemp, highTemp, tempSlopeLength;
-    GLfloat lowRain, highRain, rainSlopeLength;
-    GLfloat maxHeight, maxHeightSlopeLength;
-    GLfloat minTerrainMult; //MINTERRAINMULT MUST BE LAST GLfloat
-    nString name;
-    nString filename;
-
-    GLushort surfaceLayers[SURFACE_DEPTH]; //stores the top 50 layers corresponding to this biome
-    NoiseInfo distributionNoise;
-    std::vector<NoiseInfo> terrainNoiseList;
-    std::vector<Biome*> childBiomes;
-    std::vector<BiomeTree> possibleTrees;
-    std::vector<BiomeFlora> possibleFlora;
-};
-
 //flags
 const int PLATEAU = 0x1;
 const int VOLCANO = 0x2;
 const int TOOSTEEP = 0x4;
 
 
-struct LoadData
+class LoadData
 {
+public:
     LoadData()
     {
     }
-    LoadData(struct HeightData *hmap, class TerrainGenerator *gen)
+    LoadData(class HeightData *hmap)
     {
         heightMap = hmap;
-        generator = gen;
     }
     
-    inline void init(HeightData *hmap, TerrainGenerator *gen)
+    inline void init(HeightData *hmap)
     {
-        generator = gen;
+        heightMap = hmap;
     }
 
     HeightData *heightMap;
-    TerrainGenerator *generator;
 };
 
-struct HeightData
+class MineralData
 {
-    GLint height;
-    GLint temperature;
-    GLint rainfall;
-    GLint snowDepth;
-    GLint sandDepth;
-    GLint flags;
-    GLubyte depth;
-    Biome *biome = nullptr;
-    GLushort surfaceBlock;
-};
-
-struct MineralData
-{
+public:
     MineralData(GLint btype, GLint startheight, float startchance, GLint centerheight, float centerchance, GLint endheight, float endchance, GLint minsize, GLint maxsize)
     {
         blockType = btype;
@@ -164,8 +103,9 @@ struct MineralData
     GLfloat startChance, centerChance, endChance;
 };
 
-struct BillboardVertex
+class BillboardVertex
 {
+public:
     glm::vec3 pos;
     glm::vec2 uvMult;
     GLubyte texUnit;
@@ -177,8 +117,9 @@ struct BillboardVertex
     GLubyte padding[2]; //needs to be 4 byte aligned
 };
 
-struct PhysicsBlockPosLight
+class PhysicsBlockPosLight
 {
+public:
     f32v3 pos; //12
     ColorRGB8 color; //15
     GLubyte pad1; //16
@@ -188,8 +129,9 @@ struct PhysicsBlockPosLight
     GLubyte pad3[2]; //24
 };
 
-struct TreeVertex
+class TreeVertex
 {
+public:
     glm::vec2 pos; //8
     glm::vec3 center; //20
     GLubyte lr, lg, lb, size; //24

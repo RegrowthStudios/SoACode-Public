@@ -9,10 +9,6 @@ void printVec(nString desc, f32v3 vec);
 void printVec(nString desc, f32v4 vec);
 void printVec(nString desc, f64v3 vec);
 
-extern glm::mat4 GlobalModelMatrix;
-
-extern Biome blankBiome;
-
 #if defined(WIN32) || defined(WIN64)
 extern HGLRC mainHGLRC;
 #endif

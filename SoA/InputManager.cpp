@@ -1,25 +1,36 @@
 #include "stdafx.h"
 #include "InputManager.h"
 
-#include <sstream>
-
 #include <SDL\SDL_keyboard.h>
 #include <SDL\SDL_mouse.h>
+#include <Vorb/io/Keg.h>
+#include <yaml-cpp/yaml.h>
 
 #include "global.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "Inputs.h"
 
+KEG_ENUM_INIT_BEGIN(AxisType, InputManager::AxisType, e)
+e->addValue("dualKey", InputManager::AxisType::DUAL_KEY);
+e->addValue("joystickAxis", InputManager::AxisType::JOYSTICK_AXIS);
+e->addValue("joystickButton", InputManager::AxisType::JOYSTICK_BUTTON);
+e->addValue("none", InputManager::AxisType::NONE);
+e->addValue("singleKey", InputManager::AxisType::SINGLE_KEY);
+KEG_ENUM_INIT_END
+
+KEG_TYPE_INIT_BEGIN_DEF_VAR2(Axis, InputManager::Axis)
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("type", Keg::Value::custom("AxisType", offsetof(InputManager::Axis, type), true));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("defaultPositiveKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, defaultPositiveKey)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("defaultNegativeKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, defaultNegativeKey)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("positiveKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, positiveKey)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("negativeKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, negativeKey))); ///< The actual negative key.
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("joystickAxis", Keg::Value::basic(Keg::BasicType::I32, offsetof(InputManager::Axis, joystickAxis)));
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("joystickButton", Keg::Value::basic(Keg::BasicType::I32, offsetof(InputManager::Axis, joystickButton)));
+KEG_TYPE_INIT_END
+
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
-    _iniKeys["type"] = 0;
-    _iniKeys["defaultPositiveKey"] = 1;
-    _iniKeys["defaultNegativeKey"] = 2;
-    _iniKeys["positiveKey"] = 3;
-    _iniKeys["negativeKey"] = 4;
-    _iniKeys["joystickButton"] = 5;
-    _iniKeys["joystickAxis"] = 6;
     memset(_currentKeyStates, 0, sizeof(_currentKeyStates));
     memset(_previousKeyStates, 0, sizeof(_previousKeyStates));
 }
@@ -131,53 +142,34 @@ i32 InputManager::getAxisID(const nString& axisName) const {
     }
 }
 
-void InputManager::loadAxes(const nString& location) {
-    std::vector<std::vector<IniValue>> iniValues;
-    std::vector<nString> iniSections;
-    if (fileManager.loadIniFile(location, iniValues, iniSections))  return;
+void InputManager::loadAxes(const std::string &location) {
+    vio::IOManager ioManager; //TODO PASS IN
+    nString data;
+    ioManager.readFileToString(location.c_str(), data);
+   
+    if (data.length() == 0) {
+        fprintf(stderr, "Failed to load %s", location.c_str());
+        throw 33;
+    }
 
-    IniValue* iniVal;
-    int iniKey;
-    Axis* curAxis;
-    for (unsigned int i = 1; i < iniSections.size(); i++) {
-        if (getAxisID(iniSections[i]) >= 0) continue;
-        curAxis = new Axis;
-        curAxis->name = iniSections[i];
-        for (unsigned int j = 0; j < iniValues[i].size(); j++) {
-            iniVal = &iniValues[i][j];
-            iniKey = getIniKey(iniVal->key);
+    YAML::Node node = YAML::Load(data.c_str());
+    if (node.IsNull() || !node.IsMap()) {
+        perror(location.c_str());
+        throw 34;
+    }
 
-            switch (iniKey) {
-            case 0: // Type
-                curAxis->type = (AxisType)iniVal->getInt();
-                break;
-            case 1: // Default Positive Key
-                curAxis->defaultPositiveKey = (VirtualKey)iniVal->getInt();
-                break;
-            case 2: // Default Negative Key
-                curAxis->defaultNegativeKey = (VirtualKey)iniVal->getInt();
-                break;
-            case 3: // Positive Key
-                curAxis->positiveKey = (VirtualKey)iniVal->getInt();
-                break;
-            case 4: // Negative Key
-                curAxis->negativeKey = (VirtualKey)iniVal->getInt();
-                break;
-            case 5: // Joystick Button
-                curAxis->joystickButton = iniVal->getInt();
-                break;
-            case 6: // Joystick Axis
-                curAxis->joystickAxis = iniVal->getInt();
-                break;
-            }
-        }
-        if(curAxis->type == AxisType::SINGLE_KEY) {
+    // Manually parse yml file
+    for (auto& kvp : node) {
+        Axis* curAxis = new Axis();
+        curAxis->name = kvp.first.as<nString>();
+        Keg::parse((ui8*)curAxis, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Axis));
+     
+        if (curAxis->type == AxisType::SINGLE_KEY) {
             curAxis->upEvent = Event<ui32>();
             curAxis->downEvent = Event<ui32>();
         }
         _axisLookup[curAxis->name] = _axes.size();
         _axes.push_back(curAxis);
-        curAxis = NULL;
     }
 }
 
@@ -191,9 +183,9 @@ void InputManager::update() {
         switch(axis->type) {
         case SINGLE_KEY:
             if(!_previousKeyStates[axis->positiveKey] && _currentKeyStates[axis->positiveKey]) //Up
-                axis->upEvent(axis->positiveKey);
-            else if(_previousKeyStates[axis->positiveKey] && !_currentKeyStates[axis->positiveKey]) //Down
                 axis->downEvent(axis->positiveKey);
+            else if(_previousKeyStates[axis->positiveKey] && !_currentKeyStates[axis->positiveKey]) //Down
+                axis->upEvent(axis->positiveKey);
             break;
         default:
             break;
@@ -262,40 +254,11 @@ void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<
 }
 
 void InputManager::saveAxes(const nString &filePath) {
-    std::vector<nString> iniSections;
-    std::vector<std::vector<IniValue>> iniValues;
 
-    iniSections.push_back("");
-    iniValues.push_back(std::vector<IniValue>());
-    for (unsigned int i = 0; i < _axes.size(); i++) {
-        Axis* axis = _axes[i];
-        iniSections.push_back(axis->name);
-        std::vector<IniValue> values;
-
-        values.push_back(IniValue("type", std::to_string(axis->type)));
-        values.push_back(IniValue("defaultPositiveKey", std::to_string(axis->defaultPositiveKey)));
-        values.push_back(IniValue("defaultNegativeKey", std::to_string(axis->defaultNegativeKey)));
-        values.push_back(IniValue("positiveKey", std::to_string(axis->positiveKey)));
-        values.push_back(IniValue("negativeKey", std::to_string(axis->negativeKey)));
-        values.push_back(IniValue("joystickButton", std::to_string(axis->joystickAxis)));
-        values.push_back(IniValue("joystickAxis", std::to_string(axis->joystickButton)));
-
-        iniValues.push_back(values);
-    }
-    fileManager.saveIniFile(filePath, iniValues, iniSections);
 }
 
 void InputManager::saveAxes() {
     saveAxes(_defaultConfigLocation);
-}
-
-i32 InputManager::getIniKey(const nString &val) {
-    auto iter = _iniKeys.find(val);
-    if (iter != _iniKeys.end()) {
-        return iter->second;
-    } else {
-        return -1;
-    }
 }
 
 ui32 InputManager::getNegativeKey(const i32 axisID) {

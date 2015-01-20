@@ -1,7 +1,7 @@
 #pragma once
 
 //Used to tell neighbors to update light
-//struct LightMessage {
+//class LightMessage {
 //    LightMessage() {};
 //    LightMessage(ui16 BlockIndex, ui8 LightType, i8 LightValue) : blockIndex(BlockIndex), lightType(LightType), lightValue(LightValue) {}
 //    ui16 blockIndex;
@@ -9,29 +9,33 @@
 //    i8 lightValue;
 //};
 
-struct SunlightRemovalNode
+class SunlightRemovalNode
 {
+public:
     SunlightRemovalNode(ui16 BlockIndex, ui8 OldLightVal) : blockIndex(BlockIndex), oldLightVal(OldLightVal){}
     ui16 blockIndex;
     ui8 oldLightVal;
 };
 
-struct SunlightUpdateNode
+class SunlightUpdateNode
 {
+public:
     SunlightUpdateNode(ui16 BlockIndex, ui8 LightVal) : blockIndex(BlockIndex), lightVal(LightVal){}
     ui16 blockIndex;
     ui8 lightVal;
 };
 
-struct LampLightRemovalNode
+class LampLightRemovalNode
 {
+public:
     LampLightRemovalNode(ui16 BlockIndex, ui16 OldLightColor) : blockIndex(BlockIndex), oldLightColor(OldLightColor){}
     ui16 blockIndex;
     ui16 oldLightColor;
 };
 
-struct LampLightUpdateNode
+class LampLightUpdateNode
 {
+public:
     LampLightUpdateNode(ui16 BlockIndex, ui16 LightColor) : blockIndex(BlockIndex), lightColor(LightColor){}
     ui16 blockIndex;
     ui16 lightColor;

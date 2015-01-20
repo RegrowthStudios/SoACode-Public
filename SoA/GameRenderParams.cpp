@@ -5,8 +5,6 @@
 
 #include "Camera.h"
 #include "GameManager.h"
-#include "Planet.h"
-#include "Player.h"
 #include "Rendering.h"
 
 void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
@@ -16,14 +14,11 @@ void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
     chunkCamera = ChunkCamera;
     isUnderwater = IsUnderwater;
 
-    // Cache the VP to prevent needless multiplies
-    VP = chunkCamera->getProjectionMatrix() * chunkCamera->getViewMatrix();
-    
     chunkMeshes = ChunkMeshes;
 
     // Calculate fog
     glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);
-    float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCameraPos, 1.0))));
+    float theta = 1.0f; // glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCameraPos, 1.0))));
 
     calculateFog(theta, isUnderwater);
     calculateSunlight(theta);
@@ -60,9 +55,9 @@ void GameRenderParams::calculateSunlight(float theta) {
     #define SUN_COLOR_MAP_HEIGHT 64.0f
     #define SUN_THETA_OFF 0.06f
 
-    sunlightDirection = glm::normalize(f64v3(f64m4(glm::inverse(GameManager::player->worldRotationMatrix)) *
-        f64m4(GameManager::planet->invRotationMatrix) * f64v4(1.0, 0.0, 0.0, 1.0)));
-
+    /*   sunlightDirection = glm::normalize(f64v3(f64m4(glm::inverse(GameManager::player->worldRotationMatrix)) *
+           f64m4(GameManager::planet->invRotationMatrix) * f64v4(1.0, 0.0, 0.0, 1.0)));
+           */
     float sunTheta = MAX(0.0f, theta + SUN_THETA_OFF);
     if (sunTheta > 1) sunTheta = 1;
     sunlightIntensity = sunTheta * AMB_MULT + AMB_OFFSET;

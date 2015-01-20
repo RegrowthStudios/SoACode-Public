@@ -13,30 +13,28 @@
 VoxelEditor::VoxelEditor() : _currentTool(EDITOR_TOOLS::AABOX), _startPosition(INT_MAX), _endPosition(INT_MAX) {
 }
 
-void VoxelEditor::editVoxels(Item *block) {
+void VoxelEditor::editVoxels(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block) {
     if (_startPosition.x == INT_MAX || _endPosition.x == INT_MAX) {
         return;
     }
 
     switch (_currentTool) {
     case EDITOR_TOOLS::AABOX:
-        placeAABox(block);
+        placeAABox(chunkManager, physicsEngine, block);
         break;
     case EDITOR_TOOLS::LINE:
-        placeLine(block);
+        placeLine(chunkManager, block);
         break;
     }
 }
 
-void VoxelEditor::placeAABox(Item *block) {
+void VoxelEditor::placeAABox(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block) {
     Chunk* chunk = nullptr;
     int blockIndex = -1, blockID;
     int soundNum = 0;
     int yStart, yEnd;
     int zStart, zEnd;
     int xStart, xEnd;
-
-    ChunkManager* chunkManager = GameManager::chunkManager;
 
     i32v3 start = _startPosition;
     i32v3 end = _endPosition;
@@ -88,7 +86,7 @@ void VoxelEditor::placeAABox(Item *block) {
                         if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)){
                             if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
                             soundNum++;
-                            ChunkUpdater::removeBlock(chunk, lockedChunk, blockIndex, true);
+                            ChunkUpdater::removeBlock(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, true);
                         }
                     } else {
                         if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0))
@@ -118,7 +116,7 @@ void VoxelEditor::stopDragging() {
     _endPosition = i32v3(INT_MAX);
 }
 
-void VoxelEditor::placeLine(Item *block) {
+void VoxelEditor::placeLine(ChunkManager* chunkManager, Item *block) {
 
 }
 
@@ -126,7 +124,7 @@ bool VoxelEditor::isEditing() {
     return (_startPosition.x != INT_MAX && _endPosition.x != INT_MAX);
 }
 
-void VoxelEditor::drawGuides(const f64v3& cameraPos, const glm::mat4 &VP, int blockID)
+void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const glm::mat4 &VP, int blockID)
 {
     switch (_currentTool) {
         case EDITOR_TOOLS::AABOX:
@@ -140,12 +138,11 @@ void VoxelEditor::drawGuides(const f64v3& cameraPos, const glm::mat4 &VP, int bl
             const i32v3 size = glm::abs(_endPosition - _startPosition) + i32v3(1);
 
             if (blockID != 0){
-
-                DrawWireBox(startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(0.0, 0.0, 1.0, 1.0));
-                DrawWireBox(startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(0.0, 0.0, 1.0, 1.0));
+                DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(0.0, 0.0, 1.0, 1.0));
+                DrawWireBox(program, startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(0.0, 0.0, 1.0, 1.0));
             } else{
-                DrawWireBox(startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(1.0, 0.0, 0.0, 1.0));
-                DrawWireBox(startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(1.0, 0.0, 0.0, 1.0));
+                DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(1.0, 0.0, 0.0, 1.0));
+                DrawWireBox(program, startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(1.0, 0.0, 0.0, 1.0));
             }
             break;
     }

@@ -82,3 +82,4 @@ namespace vorb {
 
     }
 }
+namespace vvox = vorb::voxel;

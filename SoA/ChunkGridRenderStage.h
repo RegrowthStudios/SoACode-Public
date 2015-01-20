@@ -19,22 +19,22 @@
 #include <Vorb/graphics/IRenderStage.h>
 
 class GameRenderParams;
-class ChunkSlot;
+class Chunk;
 
 class ChunkGridRenderStage : public vg::IRenderStage {
 public:
     /// Constructor which injects dependencies
     /// @param gameRenderParams: Shared parameters for rendering voxels
     /// @param chunkSlots: The chunk slots that we need to render boxes for
-    ChunkGridRenderStage(const GameRenderParams* gameRenderParams, 
-                         const std::vector<ChunkSlot>& chunkSlots);
+    ChunkGridRenderStage(const GameRenderParams* gameRenderParams);
     ~ChunkGridRenderStage();
 
     // Draws the render stage
+    void setChunks(const std::vector<Chunk*>* chunks) { m_chunks = chunks; }
     virtual void draw() override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
-    const std::vector<ChunkSlot>& _chunkSlots;
+    const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
+    const std::vector<Chunk*>* m_chunks = nullptr;
 };
 
 #endif // ChunkGridRenderStage_h__

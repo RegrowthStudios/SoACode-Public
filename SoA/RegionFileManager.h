@@ -29,17 +29,20 @@
 #define COMPRESSION_ZLIB 0x10
 
 //All data is stored in byte arrays so we can force it to be saved in big-endian
-struct ChunkHeader {
+class ChunkHeader {
+public:
     ui8 compression[4];
     ui8 timeStamp[4];
     ui8 dataLength[4]; //length of the data
 };
 
-struct RegionFileHeader {
+class RegionFileHeader {
+public:
     ui8 lookupTable[REGION_SIZE * 4];
 };
 
-struct RegionFile {
+class RegionFile {
+public:
     RegionFileHeader header;
     nString region;
     FILE* file;
@@ -48,7 +51,8 @@ struct RegionFile {
     bool isHeaderDirty;
 };
 
-struct SaveVersion {
+class SaveVersion {
+public:
     ui8 regionVersion[4];
     ui8 chunkVersion[4];
 };
@@ -57,7 +61,7 @@ class Chunk;
 
 class RegionFileManager {
 public:
-    RegionFileManager();
+    RegionFileManager(const nString& saveDir);
     ~RegionFileManager();
 
     void clear();
@@ -124,6 +128,7 @@ private:
     std::map <nString, RegionFile*> _regionFileCache;
     std::deque <RegionFile*> _regionFileCacheQueue;
 
+    nString m_saveDir;
     RegionFile* _regionFile;
     ChunkHeader _chunkHeader;
 };

@@ -8,12 +8,14 @@
 #include "LoadBar.h"
 
 class App;
+class SoaState;
 class SpriteBatch;
 class SpriteFont;
 
 class LoadScreen : public IAppScreen<App> {
 public:
     CTOR_APP_SCREEN_DECL(LoadScreen, App);
+    ~LoadScreen();
 
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;
@@ -27,8 +29,14 @@ public:
     virtual void onEvent(const SDL_Event& e);
     virtual void update(const GameTime& gameTime);
     virtual void draw(const GameTime& gameTime);
+
+    SoaState* getSoAState() const { return m_soaState.get(); }
+
 private:
     void addLoadTask(const nString& name, const cString loadText, ILoadTask* task);
+
+    // Game state
+    std::unique_ptr<SoaState> m_soaState = nullptr;
 
     // Visualization Of Loading Tasks
     std::vector<LoadBar> _loadBars;
