@@ -3,7 +3,11 @@
 
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\glm.hpp>
+#include <Vorb/sound/SoundEngine.h>
+#include <Vorb/sound/SoundListener.h>
 
+#include "AmbienceLibrary.h"
+#include "AmbiencePlayer.h"
 #include "App.h"
 
 #include "DebugRenderer.h"
@@ -74,6 +78,17 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
                                                                     &m_camera, &m_soaState->spaceSystem, m_inputManager);
+    m_engine = new vsound::Engine;
+    m_engine->init();
+    m_ambLibrary = new AmbienceLibrary;
+    m_ambLibrary->addTrack("Menu", "Track1", "Data/Music/Abyss.mp3");
+    m_ambLibrary->addTrack("Menu", "Track2", "Data/Music/BGM Creepy.mp3");
+    m_ambLibrary->addTrack("Menu", "Track3", "Data/Music/BGM Unknown.mp3");
+    m_ambLibrary->addTrack("Menu", "Track4", "Data/Music/Stranded.mp3");
+    m_ambPlayer = new AmbiencePlayer;
+    m_ambPlayer->init(m_engine, m_ambLibrary);
+    m_ambPlayer->setToTrack("Menu", 50);
+
 
     // Initialize the user interface
     m_awesomiumInterface.init("UI/MainMenu/",
@@ -106,10 +121,17 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     m_awesomiumInterface.destroy();
     m_renderPipeline.destroy();
 
+
     m_inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
     delete m_onReloadShadersKeyDown;
 
     delete m_inputManager;
+
+    m_ambPlayer->dispose();
+    m_engine->dispose();
+    delete m_ambLibrary;
+    delete m_ambPlayer;
+    delete m_engine;
 }
 
 void MainMenuScreen::onEvent(const SDL_Event& e) {
@@ -152,6 +174,9 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     //}
 
     bdt += glSpeedFactor * 0.01;
+
+    m_ambPlayer->update((f32)gameTime.elapsed);
+    m_engine->update(vsound::Listener());
 }
 
 void MainMenuScreen::draw(const GameTime& gameTime) {

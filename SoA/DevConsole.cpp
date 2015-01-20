@@ -17,7 +17,7 @@ void DevConsole::removeListener(FuncNewCommand f) {
 }
 
 void DevConsole::write(const nString& s) {
-    _commands.push_back(s);
+    _commands.push(s);
     EventBinding eb;
     for (i32 i = 0; i < _commandListeners.size(); i++) {
         eb = _commandListeners[i];
@@ -26,5 +26,5 @@ void DevConsole::write(const nString& s) {
 }
 
 const nString& DevConsole::getCommand(const i32& index) {
-    return _commands[index];
+    return _commands.at(index);
 }

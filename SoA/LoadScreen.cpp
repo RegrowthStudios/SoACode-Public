@@ -21,8 +21,11 @@
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
-#include "ParticleEmitter.h"
 #include "SoaState.h"
+#include "MusicPlayer.h"
+#include "ParticleEmitter.h"
+#include "SoaFileSystem.h"
+
 #include "TexturePackLoader.h"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
@@ -56,6 +59,10 @@ void LoadScreen::destroy(const GameTime& gameTime) {
 }
 
 void LoadScreen::onEntry(const GameTime& gameTime) {
+    SoaFileSystem fs;
+    fs.init();
+    MusicPlayer mp;
+    mp.refreshLists(fs);
 
     m_soaState = std::make_unique<SoaState>();
     SoaEngine::initState(m_soaState.get());

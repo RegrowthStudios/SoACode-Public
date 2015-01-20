@@ -19,6 +19,7 @@
 
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/Random.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "AwesomiumInterface.h"
 #include "LoadMonitor.h"
@@ -26,11 +27,15 @@
 #include "MainMenuRenderPipeline.h"
 
 class App;
+
 class InputManager;
 class LoadScreen;
 class MainMenuSystemViewer;
 class SoaState;
-class TerrainMeshMessage;
+
+DECL_VSOUND(class, Engine)
+class AmbienceLibrary;
+class AmbiencePlayer;
 
 class MainMenuScreen : public IAppScreen<App>
 {
@@ -97,6 +102,11 @@ private:
     IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
 
     MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
+
+    // TODO: Remove to a client state
+    vsound::Engine* m_engine;
+    AmbienceLibrary* m_ambLibrary;
+    AmbiencePlayer* m_ambPlayer;
 };
 
 #endif // MAINMENUSCREEN_H_

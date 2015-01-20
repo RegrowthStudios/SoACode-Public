@@ -1,7 +1,7 @@
 #pragma once
-#include <boost\circular_buffer.hpp>
+#include <Vorb\RingBuffer.hpp>
 
-typedef boost::circular_buffer<nString> CommandRing;
+typedef vorb::ring_buffer<nString> CommandRing;
 typedef void(*FuncNewCommand)(void* metadata, const nString& command);
 
 
