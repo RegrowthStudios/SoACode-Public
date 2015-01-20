@@ -209,7 +209,6 @@ void MainMenuScreen::loadGame(const nString& fileName) {
     _state = ScreenState::CHANGE_NEXT;
 }
 
-
 void MainMenuScreen::newGame(const nString& fileName) {
 
     if (m_mainMenuSystemViewer->getSelectedCubeFace() == -1) {

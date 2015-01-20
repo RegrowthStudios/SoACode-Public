@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "BlockLoader.h"
 
-#include <boost/algorithm/string/replace.hpp>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/io/Keg.h>
 #include <yaml-cpp/yaml.h>
