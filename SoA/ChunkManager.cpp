@@ -533,6 +533,7 @@ void ChunkManager::processFinishedGenerateTask(GenerateTask* task) {
         //check to see if the top chunk has light that should end up in this chunk
         _voxelLightEngine->checkTopForSunlight(ch);
 
+        ch->needsNeighbors = true;
         if (ch->treesToLoad.size() || ch->plantsToLoad.size()) {
             ch->_state = ChunkStates::TREES;
             addToSetupList(ch);
@@ -601,6 +602,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
                 addToGenerateList(ch);            
             }
         } else {
+            ch->needsNeighbors = true;
             ch->_state = ChunkStates::MESH;
             addToMeshList(ch);
             ch->dirty = false;
@@ -1101,7 +1103,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
             chunk->inFrustum = true; // TODO(Ben): Pass in a frustum?
 
             // See if neighbors need to be added
-            if (chunk->numNeighbors != 6) {
+            if (chunk->numNeighbors != 6 && chunk->needsNeighbors) {
                 globalAccumulationTimer.start("Update Neighbors");
                 updateChunkNeighbors(chunk, intPosition);
                 globalAccumulationTimer.stop();
