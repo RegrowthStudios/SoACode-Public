@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Chunk.h"
 
-#include <boost\circular_buffer.hpp>
 #include <Vorb/ThreadPool.h>
 #include <Vorb/utils.h>
 

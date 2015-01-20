@@ -3,11 +3,9 @@
 
 #include <sys/stat.h>
 
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/replace.hpp>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/io/Keg.h>
+#include <Vorb/io/Directory.h>
 #include <Vorb/graphics/TextureCache.h>
 #include <ZLIB/ioapi.h>
 #include <ZLIB/unzip.h>
@@ -32,16 +30,6 @@
 #include "ZipFile.h"
 
 FileManager fileManager;
-
-i32 FileManager::deleteDirectory(const nString& rootDirectory) {
-    boost::system::error_code error;
-    i32 filesRemoved = boost::filesystem::remove_all(rootDirectory, error);
-#ifdef DEBUG
-    // Print Error Message For Debugging
-    if (error.value() != 0) printf("%s\n", error.message().c_str());
-#endif // DEBUG
-    return error.value();
-}
 
 FileManager::FileManager() {}
 
@@ -107,55 +95,6 @@ nString FileManager::loadTexturePackDescription(nString fileName) {
     }
 }
 
-i32 FileManager::makeSaveDirectories(nString filePath) {
-    boost::filesystem::create_directory("Saves");
-    boost::filesystem::create_directory(filePath);
-    boost::filesystem::create_directory(filePath + "/players");
-    boost::filesystem::create_directory(filePath + "/system");
-    boost::filesystem::create_directory(filePath + "/cache");
-    return 0;
-}
-i32 FileManager::createSaveFile(nString filePath) {
-    class stat statbuf;
-
-    if (boost::filesystem::exists(filePath)) {
-        return 2;
-    }
-
-    if (!boost::filesystem::create_directory(filePath)) {
-        perror(filePath.c_str()); pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Players").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Data").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/World").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Region").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Region/f0").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Region/f1").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Region/f2").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Region/f3").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Region/f4").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-    if (!boost::filesystem::create_directory((filePath + "/Region/f5").c_str())) {
-        pError("Failed to create directory in CreateSaveFile()"); return 1;
-    }
-}
 i32 FileManager::createWorldFile(nString filePath) {
     std::ofstream file(filePath + "world.txt");
     if (file.fail()) {
