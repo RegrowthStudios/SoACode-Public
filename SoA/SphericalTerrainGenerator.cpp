@@ -196,13 +196,13 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawDelegates[m_rawCounter] = data;
 
     // Get padded position
-    f32v3 cornerPos = data->startPos * KM_PER_VOXEL;
+    f32v3 cornerPos = data->startPos * 0.0f;
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
 
-    glUniform1f(unPatchWidth, (data->width * data->step) * KM_PER_VOXEL);
+    glUniform1f(unPatchWidth, (data->width * data->step) * 0.0f);
     m_quad.draw();
 
     // Bind PBO
@@ -407,6 +407,9 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
 }
 
 void SphericalTerrainGenerator::updateRawGeneration() {
+
+    float heightData[CHUNK_WIDTH][CHUNK_WIDTH][4];
+
     // Loop through all textures
     for (int i = 0; i < m_rawCounter; i++) {
 
@@ -415,7 +418,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         // Grab the pixel data from the PBO
         vg::GpuMemory::bindBuffer(m_rawPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-        memcpy(m_heightData, src, sizeof(m_heightData));
+        memcpy(heightData, src, sizeof(heightData));
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
         
@@ -423,9 +426,9 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         int c = 0;
         for (int y = 0; y < CHUNK_WIDTH; y++) {
             for (int x = 0; x < CHUNK_WIDTH; x++, c++) {
-                data->gridData->heightData[c].height = m_heightData[y][x]                                                                                                                                                                                                                                                                                       [0];
-                data->gridData->heightData[c].temperature = m_heightData[y][x][1];
-                data->gridData->heightData[c].rainfall = m_heightData[y][x][2];
+                data->gridData->heightData[c].height = heightData[y][x][0];
+                data->gridData->heightData[c].temperature = heightData[y][x][1];
+                data->gridData->heightData[c].rainfall = heightData[y][x][2];
                 //TODO(Ben): Biomes
                 data->gridData->heightData[c].biome = nullptr;
                 data->gridData->heightData[c].surfaceBlock = STONE;
