@@ -39,6 +39,9 @@ void MeshManager::updateChunkMesh(ChunkMeshData* cmd) {
     // Destroy meshes if main thread asks
     if (cm->needsDestroy) {
         if (cm->vecIndex != UNINITIALIZED_INDEX) {
+            if (cm->vecIndex > _chunkMeshes.size() || cm->vecIndex < 0) {
+                pError("cm->vecIndex > _chunkMeshes.size() " + std::to_string(cm->vecIndex));
+            }
             _chunkMeshes[cm->vecIndex] = _chunkMeshes.back();
             _chunkMeshes[cm->vecIndex]->vecIndex = cm->vecIndex;
             _chunkMeshes.pop_back();

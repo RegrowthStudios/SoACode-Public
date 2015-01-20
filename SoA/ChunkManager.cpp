@@ -66,9 +66,9 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
         const i32v3& mappings = CubeCoordinateMappings[mapData->face];
 
         // Set the data
-        gen.startPos = f32v3(mapData->jpos * mults.x,
+        gen.startPos = f32v3(mapData->jpos * mults.x * CHUNK_WIDTH,
                                 voxelRadius * mults.y,
-                                mapData->ipos * mults.z);
+                                mapData->ipos * mults.z * CHUNK_WIDTH);
         gen.coordMapping.x = vvox::FaceCoords[mapData->face][mapData->rotation][0];
         gen.coordMapping.y = vvox::FaceCoords[mapData->face][mapData->rotation][1];
         gen.coordMapping.z = vvox::FaceCoords[mapData->face][mapData->rotation][2];

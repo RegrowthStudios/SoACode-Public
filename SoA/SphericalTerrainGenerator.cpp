@@ -415,12 +415,15 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         // Grab the pixel data from the PBO
         vg::GpuMemory::bindBuffer(m_rawPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+        memcpy(m_heightData, src, sizeof(m_heightData));
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+        vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
         
         // Set the height data using the src
         int c = 0;
         for (int y = 0; y < CHUNK_WIDTH; y++) {
             for (int x = 0; x < CHUNK_WIDTH; x++, c++) {
-                data->gridData->heightData[c].height = m_heightData[y][x][0] * VOXELS_PER_M;
+                data->gridData->heightData[c].height = m_heightData[y][x]                                                                                                                                                                                                                                                                                       [0];
                 data->gridData->heightData[c].temperature = m_heightData[y][x][1];
                 data->gridData->heightData[c].rainfall = m_heightData[y][x][2];
                 //TODO(Ben): Biomes
@@ -432,9 +435,6 @@ void SphericalTerrainGenerator::updateRawGeneration() {
                 data->gridData->heightData[c].flags = 0;
             }
         }
-
-        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-        vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
 
         data->gridData->isLoaded = true;
         data->gridData->refCount--; //TODO(Ben): This will result in a memory leak since when it hits 0, it wont deallocate
