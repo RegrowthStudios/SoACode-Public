@@ -184,6 +184,7 @@ public:
     static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 
     int numNeighbors;
+    bool needsNeighbors = false;
     std::vector<bool> activeUpdateList;
     bool drawWater;
     bool hasLoadedSunlight;
