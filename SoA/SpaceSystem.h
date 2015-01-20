@@ -35,7 +35,7 @@
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
 #define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
-#define SPACE_SYSTEM_CT_SPHERICAL_GRAVITY_NAME "SphericalGravity"
+#define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
 
 class App;
 class Binary;
