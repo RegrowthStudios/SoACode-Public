@@ -256,13 +256,14 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
     m_renderPipeline.render();
     globalRenderAccumulationTimer.stop();
 
-    static int g = 0;
-    if (++g == 10) {
-        globalRenderAccumulationTimer.printAll(true);
-        globalRenderAccumulationTimer.clear();
-        std::cout << "\n";
-        g = 0;
-    }
+    // Uncomment to time rendering
+    /*  static int g = 0;
+      if (++g == 10) {
+      globalRenderAccumulationTimer.printAll(true);
+      globalRenderAccumulationTimer.clear();
+      std::cout << "\n";
+      g = 0;
+      }*/
 }
 
 void GamePlayScreen::unPause() { 
@@ -355,7 +356,7 @@ void GamePlayScreen::updateThreadFunc() {
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
         GameManager::soundEngine->update();
 
-        m_soaState->time += 0.0000001;
+        m_soaState->time += 0.00000000001;
         auto& npcmp = m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity);
         m_soaState->spaceSystem.update(&m_soaState->gameSystem, m_soaState,
                                        m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity).position);

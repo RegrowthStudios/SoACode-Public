@@ -139,8 +139,8 @@ private:
     /// TODO: THIS IS REUSABLE
     void generateIndices(VGIndexBuffer& ibo, bool ccw);
 
-    static const int PATCHES_PER_FRAME = 16;
-    static const int RAW_PER_FRAME = 8;
+    static const int PATCHES_PER_FRAME = 8;
+    static const int RAW_PER_FRAME = 3;
 
     // PATCH_WIDTH * 4 is for skirts
     static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4;
