@@ -135,13 +135,13 @@ void ChunkIOManager::readWriteChunks()
         // All tasks
         while (chunksToLoad.try_dequeue(ch) || chunksToSave.try_dequeue(ch)) {
             if (ch->getState() == ChunkStates::LOAD) {
-                if (_regionFileManager.tryLoadChunk(ch) == false) {
+                if (1 || _regionFileManager.tryLoadChunk(ch) == false) {
                     ch->loadStatus = 1;
                 }
 
                 finishedLoadChunks.enqueue(ch);
             } else { //save
-                _regionFileManager.saveChunk(ch);
+               // _regionFileManager.saveChunk(ch);
                 ch->inSaveThread = 0; //race condition?
             }
            

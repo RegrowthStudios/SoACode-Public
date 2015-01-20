@@ -227,7 +227,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     }
     m_soaState->spaceSystem.glUpdate();
 
-    m_soaState->meshManager->sortMeshes()
+    m_soaState->meshManager->updateMeshes(f64v3(0.0), false);
 
     globalRenderAccumulationTimer.start("B");
     // Update the input
