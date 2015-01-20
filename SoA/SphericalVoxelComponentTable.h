@@ -15,12 +15,14 @@
 #ifndef SphericalVoxelComponentTable_h__
 #define SphericalVoxelComponentTable_h__
 
-#include <Vorb/ComponentTable.hpp>
+#include <Vorb/ecs/ComponentTable.hpp>
 #include "SphericalVoxelComponent.h"
 
 class SphericalVoxelComponentTable : public vcore::ComponentTable<SphericalVoxelComponent> {
 public:
     virtual void disposeComponent(vcore::ComponentID cID, vcore::EntityID eID) override;
 };
+
+
 
 #endif // SphericalVoxelComponentTable_h__

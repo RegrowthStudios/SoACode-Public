@@ -22,6 +22,7 @@
 
 class GameSystem : public vcore::ECS {
 public:
+    GameSystem();
     vcore::ComponentTable<AabbCollidableComponent> aabbCollidableCT;
     vcore::ComponentTable<FreeMoveInputComponent> freeMoveInputCT;
     vcore::ComponentTable<PhysicsComponent> physicsCT;

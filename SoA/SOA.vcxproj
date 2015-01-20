@@ -472,6 +472,7 @@ EXIT 0</Command>
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GameSystem.cpp" />
     <ClCompile Include="GameSystemFactories.cpp" />
     <ClCompile Include="GameSystemUpdater.cpp" />
     <ClCompile Include="GenerateTask.cpp" />

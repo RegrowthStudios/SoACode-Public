@@ -17,7 +17,7 @@
 
 #include "IVoxelMapper.h"
 
-#include <Vorb/Entity.h>
+#include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;

@@ -143,7 +143,7 @@
     </Filter>
     <Filter Include="SOA Files\ECS\Factories">
       <UniqueIdentifier>{5a883327-0095-495a-b35f-f80c5fec3f94}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="SOA Files\Sound\Music">
       <UniqueIdentifier>{70862515-6514-4574-9caf-db361861ced8}</UniqueIdentifier>
     </Filter>
@@ -667,7 +667,7 @@
     </ClInclude>
     <ClInclude Include="GameSystemEvents.hpp">
       <Filter>SOA Files</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="MusicPlayer.h">
       <Filter>SOA Files\Sound\Music</Filter>
     </ClInclude>
@@ -1093,7 +1093,7 @@
     </ClCompile>
     <ClCompile Include="SoaState.cpp">
       <Filter>SOA Files\Game</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="MusicPlayer.cpp">
       <Filter>SOA Files\Sound\Music</Filter>
     </ClCompile>
@@ -1123,6 +1123,9 @@
     </ClCompile>
     <ClCompile Include="SphericalVoxelComponentTable.cpp">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
