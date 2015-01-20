@@ -197,13 +197,7 @@ void MainMenuScreen::initRenderPipeline() {
 void MainMenuScreen::loadGame(const nString& fileName) {
     std::cout << "Loading Game: " << fileName << std::endl;
 
-    // Make the save directories, in case they were deleted
-    fileManager.makeSaveDirectories(fileName);
-    if (!m_soaState->saveFileIom.directoryExists(fileName.c_str())) {
-        std::cout << "Could not set save file.\n";
-        return;
-    }
-    m_soaState->saveFileIom.setSearchDirectory(fileName.c_str());
+    initSaveIomanager(fileName);
 
     // Check the planet string
     nString planetName = fileManager.getWorldString(fileName + "/World/");
@@ -232,13 +226,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     std::cout << "Making new game: " << fileName << std::endl;
 
-    // Make the save directories, in case they were deleted
-    fileManager.makeSaveDirectories(fileName);
-    if (!m_soaState->saveFileIom.directoryExists(fileName.c_str())) {
-        std::cout << "Could not set save file.\n";
-        return;
-    }
-    m_soaState->saveFileIom.setSearchDirectory(fileName.c_str());
+    initSaveIomanager(fileName);  
 
     _state = ScreenState::CHANGE_NEXT;
 }
@@ -301,4 +289,19 @@ void MainMenuScreen::updateWorldCameraClip() {
 //    _camera.setClippingPlane(1.0f, 200.0f);
  //   _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     m_camera.updateProjection();
+}
+
+void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
+
+    vio::IOManager& ioManager = m_soaState->saveFileIom;
+    // Make sure the Saves and savePath directories exist
+    ioManager.setSearchDirectory("");
+    ioManager.makeDirectory("Saves");
+    ioManager.makeDirectory(savePath);
+
+    ioManager.setSearchDirectory(savePath);
+
+    ioManager.makeDirectory("players");
+    ioManager.makeDirectory("system");
+    ioManager.makeDirectory("cache");
 }

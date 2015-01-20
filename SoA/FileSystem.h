@@ -12,8 +12,6 @@ public:
     FileManager();
     
     i32 readZipFile(nString fileName);
-
-    i32 deleteDirectory(const nString& refcstrRootDirectory);
   
     nString loadTexturePackDescription(nString fileName);
 
@@ -22,8 +20,6 @@ public:
 
     nString getSaveFileNameDialog(const nString& prompt, const cString initialDir);
 
-    i32 makeSaveDirectories(nString filePath);
-    i32 createSaveFile(nString filePath);
     i32 createWorldFile(nString filePath);
     nString getWorldString(nString filePath);
     i32 getSaveListSize();
