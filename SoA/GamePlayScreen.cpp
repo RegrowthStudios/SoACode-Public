@@ -216,7 +216,7 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
 
 void GamePlayScreen::update(const GameTime& gameTime) {
 
-    globalRenderAccumulationTimer.start("A");
+    globalRenderAccumulationTimer.start("Space System");
 
     // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
     if (_app->getFps()) {
@@ -227,9 +227,11 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     }
     m_soaState->spaceSystem.glUpdate();
 
+    globalRenderAccumulationTimer.start("Update Meshes");
+
     m_soaState->meshManager->updateMeshes(f64v3(0.0), false);
 
-    globalRenderAccumulationTimer.start("B");
+    globalRenderAccumulationTimer.start("Process Messages");
     // Update the input
     handleInput();
 
@@ -249,16 +251,16 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 }
 
 void GamePlayScreen::draw(const GameTime& gameTime) {
-    globalRenderAccumulationTimer.start("C");
+    globalRenderAccumulationTimer.start("Draw");
     updateWorldCameraClip();
     m_renderPipeline.render();
     globalRenderAccumulationTimer.stop();
 
     static int g = 0;
     if (++g == 10) {
-        globalRenderAccumulationTimer.printAll(false);
-        std::cout << "\n";
+        globalRenderAccumulationTimer.printAll(true);
         globalRenderAccumulationTimer.clear();
+        std::cout << "\n";
         g = 0;
     }
 }

@@ -274,6 +274,9 @@ void GamePlayRenderPipeline::cycleDrawMode() {
 
 void GamePlayRenderPipeline::updateCameras() {
     const GameSystem* gs = &m_soaState->gameSystem;
+
+    float sNearClip = 20.0f; ///< temporary until dynamic clipping plane works
+
     // Get the physics component
     auto& phycmp = gs->physicsCT.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
@@ -283,13 +286,14 @@ void GamePlayRenderPipeline::updateCameras() {
         _chunkCamera.setOrientation(vpcmp.orientation);
         _chunkCamera.update();
         m_voxelsActive = true;
+        sNearClip = 0.25;
     } else {
         m_voxelsActive = false;
     }
 
     auto& spcmp = gs->spacePositionCT.get(phycmp.spacePositionComponent);
     //printVec("POSITION: ", spcmp.position);
-    _worldCamera.setClippingPlane(10.0f, 999999999.0f);
+    _worldCamera.setClippingPlane(sNearClip, 999999999.0f);
     _worldCamera.setPosition(spcmp.position);
     _worldCamera.setOrientation(spcmp.orientation);
     _worldCamera.update();

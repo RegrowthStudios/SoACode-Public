@@ -160,15 +160,17 @@ private:
     f32v3 m_startPos;
     bool m_ccw;
 
-    int m_patchCounter = 0;
-    TerrainGenTextures m_patchTextures[PATCHES_PER_FRAME];
-    TerrainGenDelegate* m_patchDelegates[PATCHES_PER_FRAME];
-    VGBuffer m_patchPbos[PATCHES_PER_FRAME];
+    int m_dBufferIndex = 0; ///< Index for double buffering
 
-    int m_rawCounter = 0;
-    TerrainGenTextures m_rawTextures[RAW_PER_FRAME];
-    RawGenDelegate* m_rawDelegates[RAW_PER_FRAME];
-    VGBuffer m_rawPbos[RAW_PER_FRAME];
+    int m_patchCounter[2];
+    TerrainGenTextures m_patchTextures[2][PATCHES_PER_FRAME];
+    TerrainGenDelegate* m_patchDelegates[2][PATCHES_PER_FRAME];
+    VGBuffer m_patchPbos[2][PATCHES_PER_FRAME];
+
+    int m_rawCounter[2];
+    TerrainGenTextures m_rawTextures[2][RAW_PER_FRAME];
+    RawGenDelegate* m_rawDelegates[2][RAW_PER_FRAME];
+    VGBuffer m_rawPbos[2][RAW_PER_FRAME];
 
     VGFramebuffer m_normalFbo = 0;
     ui32v2 m_heightMapDims;

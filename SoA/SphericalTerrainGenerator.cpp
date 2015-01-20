@@ -60,13 +60,21 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
     unWidth(m_normalProgram->getUniform("unWidth")),
     unTexelWidth(m_normalProgram->getUniform("unTexelWidth")) {
 
+    // Zero counters
+    m_patchCounter[0] = 0;
+    m_patchCounter[1] = 0;
+    m_rawCounter[0] = 0;
+    m_rawCounter[1] = 0;
+
     m_heightMapDims = ui32v2(PATCH_HEIGHTMAP_WIDTH);
     ui32v2 chunkDims = ui32v2(CHUNK_WIDTH);
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        m_patchTextures[i].init(m_heightMapDims);
+        m_patchTextures[0][i].init(m_heightMapDims);
+        m_patchTextures[1][i].init(m_heightMapDims);
     }
     for (int i = 0; i < RAW_PER_FRAME; i++) {
-        m_rawTextures[i].init(chunkDims);
+        m_rawTextures[0][i].init(chunkDims);
+        m_rawTextures[1][i].init(chunkDims);
     }
     m_quad.init();
 
@@ -87,26 +95,31 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
     }
 
     // Generate pixel buffer objects
-    for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        vg::GpuMemory::createBuffer(m_patchPbos[i]);
-        vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
-        glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(m_heightData), NULL, GL_STREAM_READ);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < PATCHES_PER_FRAME; j++) {
+            vg::GpuMemory::createBuffer(m_patchPbos[i][j]);
+            vg::GpuMemory::bindBuffer(m_patchPbos[i][j], vg::BufferTarget::PIXEL_PACK_BUFFER);
+            glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(m_heightData), NULL, GL_STREAM_READ);
+        }
     }
-    for (int i = 0; i < RAW_PER_FRAME; i++) {
-        vg::GpuMemory::createBuffer(m_rawPbos[i]);
-        vg::GpuMemory::bindBuffer(m_rawPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
-        glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(float) * 4 * CHUNK_LAYER, NULL, GL_STREAM_READ);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < RAW_PER_FRAME; j++) {
+            vg::GpuMemory::createBuffer(m_rawPbos[i][j]);
+            vg::GpuMemory::bindBuffer(m_rawPbos[i][j], vg::BufferTarget::PIXEL_PACK_BUFFER);
+            glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(float) * 4 * CHUNK_LAYER, NULL, GL_STREAM_READ);
+        }
     }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-
 }
 
 SphericalTerrainGenerator::~SphericalTerrainGenerator() {
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
-        vg::GpuMemory::freeBuffer(m_patchPbos[i]);
+        vg::GpuMemory::freeBuffer(m_patchPbos[0][i]);
+        vg::GpuMemory::freeBuffer(m_patchPbos[1][i]);
     }
     for (int i = 0; i < RAW_PER_FRAME; i++) {
-        vg::GpuMemory::freeBuffer(m_rawPbos[i]);
+        vg::GpuMemory::freeBuffer(m_rawPbos[0][i]);
+        vg::GpuMemory::freeBuffer(m_rawPbos[1][i]);
     }
     vg::GpuMemory::freeBuffer(m_cwIbo);
     vg::GpuMemory::freeBuffer(m_ccwIbo);
@@ -118,10 +131,10 @@ void SphericalTerrainGenerator::update() {
     // Need to disable alpha blending
     glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 
-    if (m_rawCounter) {
+    if (m_rawCounter[m_dBufferIndex]) {
         updateRawGeneration();
     }
-    if (m_patchCounter) {
+    if (m_patchCounter[m_dBufferIndex]) {
         updatePatchGeneration();
     }
     
@@ -152,10 +165,15 @@ void SphericalTerrainGenerator::update() {
   
     // Release pixel pack buffer
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+    // Change double buffer index
+    m_dBufferIndex = (m_dBufferIndex == 0) ? 1 : 0;
 }
 
 void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
   
+    int &patchCounter = m_patchCounter[m_dBufferIndex];
+
     // Check for early delete
     if (data->mesh->m_shouldDelete) {
         delete data->mesh;
@@ -163,8 +181,8 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
         return;
     }
 
-    m_patchTextures[m_patchCounter].use();
-    m_patchDelegates[m_patchCounter] = data;
+    m_patchTextures[m_dBufferIndex][patchCounter].use();
+    m_patchDelegates[m_dBufferIndex][patchCounter] = data;
 
     // Get padded position
     f32v3 cornerPos = data->startPos;
@@ -179,7 +197,7 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     m_quad.draw();
 
     // Bind PBO
-    vg::GpuMemory::bindBuffer(m_patchPbos[m_patchCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
+    vg::GpuMemory::bindBuffer(m_patchPbos[m_dBufferIndex][patchCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glReadPixels(0, 0, PATCH_HEIGHTMAP_WIDTH, PATCH_HEIGHTMAP_WIDTH, GL_RGBA, GL_FLOAT, 0);
 
@@ -187,13 +205,15 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 
     TerrainGenTextures::unuse();
 
-    m_patchCounter++;
+    patchCounter++;
 }
 
 void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
 
-    m_rawTextures[m_rawCounter].use();
-    m_rawDelegates[m_rawCounter] = data;
+    int &rawCounter = m_rawCounter[m_dBufferIndex];
+
+    m_rawTextures[m_dBufferIndex][rawCounter].use();
+    m_rawDelegates[m_dBufferIndex][rawCounter] = data;
 
     // Get padded position
     f32v3 cornerPos = data->startPos;
@@ -206,7 +226,7 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_quad.draw();
 
     // Bind PBO
-    vg::GpuMemory::bindBuffer(m_rawPbos[m_rawCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
+    vg::GpuMemory::bindBuffer(m_rawPbos[m_dBufferIndex][rawCounter], vg::BufferTarget::PIXEL_PACK_BUFFER);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glReadPixels(0, 0, data->width, data->width, GL_RGBA, GL_FLOAT, 0);
 
@@ -214,7 +234,7 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
 
     TerrainGenTextures::unuse();
 
-    m_rawCounter++;
+    rawCounter++;
 }
 
 void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
@@ -353,9 +373,9 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
     glViewport(0, 0, PATCH_NORMALMAP_WIDTH, PATCH_NORMALMAP_WIDTH);
 
     // Loop through all textures
-    for (int i = 0; i < m_patchCounter; i++) {
+    for (int i = 0; i < m_patchCounter[m_dBufferIndex]; i++) {
 
-        TerrainGenDelegate* data = m_patchDelegates[i];
+        TerrainGenDelegate* data = m_patchDelegates[m_dBufferIndex][i];
 
         // Check for early delete
         if (data->mesh->m_shouldDelete) {
@@ -377,14 +397,14 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
 
         // Grab the pixel data from the PBO
-        vg::GpuMemory::bindBuffer(m_patchPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        vg::GpuMemory::bindBuffer(m_patchPbos[m_dBufferIndex][i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
         memcpy(m_heightData, src, sizeof(m_heightData));
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
 
         // Bind texture for normal map gen
-        glBindTexture(GL_TEXTURE_2D, m_patchTextures[i].getTextureIDs().height_temp_hum);
+        glBindTexture(GL_TEXTURE_2D, m_patchTextures[m_dBufferIndex][i].getTextureIDs().height_temp_hum);
 
         // Set uniforms
         glUniform1f(unWidth, (data->width / PATCH_HEIGHTMAP_WIDTH) * M_PER_KM);
@@ -398,7 +418,7 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
 
         data->inUse = false;
     }
-    m_patchCounter = 0;
+    m_patchCounter[m_dBufferIndex] = 0;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -411,12 +431,12 @@ void SphericalTerrainGenerator::updateRawGeneration() {
     float heightData[CHUNK_WIDTH][CHUNK_WIDTH][4];
 
     // Loop through all textures
-    for (int i = 0; i < m_rawCounter; i++) {
+    for (int i = 0; i < m_rawCounter[m_dBufferIndex]; i++) {
 
-        RawGenDelegate* data = m_rawDelegates[i];
+        RawGenDelegate* data = m_rawDelegates[m_dBufferIndex][i];
 
         // Grab the pixel data from the PBO
-        vg::GpuMemory::bindBuffer(m_rawPbos[i], vg::BufferTarget::PIXEL_PACK_BUFFER);
+        vg::GpuMemory::bindBuffer(m_rawPbos[m_dBufferIndex][i], vg::BufferTarget::PIXEL_PACK_BUFFER);
         void* src = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
         memcpy(heightData, src, sizeof(heightData));
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
@@ -443,7 +463,7 @@ void SphericalTerrainGenerator::updateRawGeneration() {
         data->gridData->refCount--; //TODO(Ben): This will result in a memory leak since when it hits 0, it wont deallocate
         data->inUse = false;
     }
-    m_rawCounter = 0;
+    m_rawCounter[m_dBufferIndex] = 0;
 }
 
 // Thanks to tetryds for these
