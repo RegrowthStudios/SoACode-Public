@@ -590,12 +590,6 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="NamePositionComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="OrbitComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
     <ClInclude Include="SphericalGravityComponent.h">
       <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
@@ -613,9 +607,6 @@
     </ClInclude>
     <ClInclude Include="SphericalVoxelComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalVoxelComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
     <ClInclude Include="OrbitComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters</Filter>

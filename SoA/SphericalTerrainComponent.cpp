@@ -3,10 +3,8 @@
 
 #include <Vorb/utils.h>
 
-#include "AxisRotationComponent.h"
 #include "Camera.h"
 #include "Errors.h"
-#include "NamePositionComponent.h"
 #include "PlanetLoader.h"
 #include "SphericalTerrainMeshManager.h"
 
