@@ -21,6 +21,10 @@ class SpaceSystem;
 #include <Vorb/VorbPreDecl.inl>
 
 class SoaState;
+class PlanetGenData;
+
+DECL_VG(class GLProgram,
+        class TextureRecycler);
 DECL_VVOX(class VoxelMapData);
 
 namespace SpaceSystemFactories {
@@ -47,6 +51,15 @@ namespace SpaceSystemFactories {
                                                          f64 startAngle,
                                                          f64 angularSpeed);
     extern void removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Spherical terrain component
+    extern vcore::ComponentID addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                           vcore::ComponentID npComp,
+                                                           vcore::ComponentID arComp,
+                                                           f64 radius, PlanetGenData* planetGenData,
+                                                           vg::GLProgram* normalProgram,
+                                                           vg::TextureRecycler* normalMapRecycler);
+    extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
 #endif // SpaceSystemFactories_h__

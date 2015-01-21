@@ -16,12 +16,7 @@
 #define SpaceSystem_h__
 
 #include "SpaceSystemComponents.h"
-#include "NamePositionComponent.h"
-#include "OrbitComponent.h"
 #include "OrbitComponentUpdater.h"
-#include "SphericalGravityComponent.h"
-#include "SphericalTerrainComponent.h"
-#include "SphericalVoxelComponent.h"
 #include "SphericalVoxelComponentUpdater.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "AxisRotationComponentUpdater.h"

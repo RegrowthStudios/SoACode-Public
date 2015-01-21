@@ -590,12 +590,6 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalGravityComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainComponent.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
     <ClInclude Include="OrbitComponentRenderer.h">
       <Filter>SOA Files\ECS\Renderers</Filter>
     </ClInclude>
@@ -1027,9 +1021,6 @@
     </ClCompile>
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainComponent.cpp">
-      <Filter>SOA Files\ECS\Components</Filter>
     </ClCompile>
     <ClCompile Include="OrbitComponentRenderer.cpp">
       <Filter>SOA Files\ECS\Renderers</Filter>

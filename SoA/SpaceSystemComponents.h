@@ -18,15 +18,15 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
-class Camera;
-class Chunk;
 class ChunkIOManager;
 class ChunkManager;
 class ParticleEngine;
 class PhysicsEngine;
 class PlanetGenData;
+class PlanetGenData;
 class SphericalTerrainData;
 class SphericalTerrainGenerator;
+class SphericalTerrainMeshManager;
 
 DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);
@@ -84,6 +84,21 @@ struct SphericalVoxelComponent {
 
     f64 voxelRadius = 0; ///< Radius of the planet in voxels
     int refCount = 1;
+};
+
+struct SphericalTerrainComponent {
+    vcore::ComponentID namePositionComponent = 0;
+    vcore::ComponentID axisRotationComponent = 0;
+
+    TerrainRpcDispatcher* rpcDispatcher = nullptr;
+
+    SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches
+    SphericalTerrainData* sphericalTerrainData = nullptr;
+
+    SphericalTerrainMeshManager* meshManager = nullptr;
+    SphericalTerrainGenerator* generator = nullptr;
+
+    PlanetGenData* planetGenData = nullptr;
 };
 
 #endif // SpaceSystemComponents_h__

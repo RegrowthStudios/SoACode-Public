@@ -9,6 +9,7 @@
 #include "SpaceSystem.h"
 #include "VoxelPlanetMapper.h"
 
+#include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemFactories.h"
 
 vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
@@ -51,7 +52,9 @@ void SpaceSystemFactories::removeSphericalVoxelComponent(OUT SpaceSystem* spaceS
     spaceSystem->deleteComponent("SphericalVoxel", entity);
 }
 
-vcore::ComponentID SpaceSystemFactories::addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity, const f64q& axisRotation, f64 startAngle, f64 angularSpeed) {
+vcore::ComponentID SpaceSystemFactories::addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                                  const f64q& axisOrientation, f64 startAngle,
+                                                                  f64 angularSpeed) {
     vcore::ComponentID arCmpId = spaceSystem->addComponent("AxisRotation", entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
     arCmp.axisOrientation = axisOrientation;
@@ -59,5 +62,33 @@ vcore::ComponentID SpaceSystemFactories::addAxisRotationComponent(OUT SpaceSyste
 }
 
 void SpaceSystemFactories::removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
+    spaceSystem->deleteComponent("AxisRotation", entity);
+}
 
+vcore::ComponentID SpaceSystemFactories::addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                                      vcore::ComponentID npComp,
+                                                                      vcore::ComponentID arComp,
+                                                                      f64 radius, PlanetGenData* planetGenData,
+                                                                      vg::GLProgram* normalProgram,
+                                                                      vg::TextureRecycler* normalMapRecycler) {
+    vcore::ComponentID stCmpId = spaceSystem->addComponent("SphericalTerrain", entity);
+    auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(stCmpId);
+    
+    stCmp.namePositionComponent = npComp;
+    stCmp.axisRotationComponent = arComp;
+    stCmp.planetGenData = planetGenData;
+
+    stCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
+                                                  normalMapRecycler);
+    stCmp.generator = new SphericalTerrainGenerator(radius, stCmp.meshManager,
+                                              planetGenData,
+                                              normalProgram, normalMapRecycler);
+    stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.generator);
+
+    f64 patchWidth = (radius * 2.000) / PATCH_ROW;
+    stCmp.sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
+}
+
+void SpaceSystemFactories::removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
+    spaceSystem->deleteComponent("SphericalTerrain", entity);
 }
