@@ -10,6 +10,7 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainGenerator.h"
 #include "SphericalTerrainMeshManager.h"
+#include "SpaceSystemFactories.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/io/Keg.h>
@@ -336,7 +337,6 @@ void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const Plane
     const vcore::EntityID& id = body->entity->id;
 
     vcore::ComponentID npCmp = addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, id);
-    vcore::ComponentID arCmp = addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, id);
     vcore::ComponentID oCmp = addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, id);
     vcore::ComponentID stCmp = addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, id);
     vcore::ComponentID sgCmp = addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, id);

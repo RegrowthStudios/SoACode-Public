@@ -40,6 +40,13 @@ namespace SpaceSystemFactories {
                                                          const f64v3& gridPosition,
                                                          const SoaState* soaState);
     extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Axis rotation component
+    extern vcore::ComponentID addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                         const f64q& axisOrientation,
+                                                         f64 startAngle,
+                                                         f64 angularSpeed);
+    extern void removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
 #endif // SpaceSystemFactories_h__

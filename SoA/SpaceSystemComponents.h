@@ -1,27 +1,21 @@
 ///
-/// AxisRotationComponent.h
+/// SpaceSystemComponents.h
 /// Seed of Andromeda
 ///
-/// Created by Benjamin Arnold on 3 Dec 2014
+/// Created by Benjamin Arnold on 20 Jan 2015
 /// Copyright 2014 Regrowth Studios
 /// All Rights Reserved
 ///
 /// Summary:
-/// Defines a component for axis rotation
+/// Component definitions for SpaceSystem
 ///
 
 #pragma once
 
-#ifndef AxisRotationComponent_h__
-#define AxisRotationComponent_h__
+#ifndef SpaceSystemComponents_h__
+#define SpaceSystemComponents_h__
 
-#include "stdafx.h"
-
-class AxisRotationComponent {
-public:
-    /// Initializes the component
-    void init(f64 AngularSpeed_RS, f64 CurrentRotation, f64q AxisOrientation);
-
+struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
     f64q currentOrientation; ///< Current orientation with axis and rotation
     f64q invCurrentOrientation; ///< Inverse of currentOrientation
@@ -29,4 +23,4 @@ public:
     f64 currentRotation = 0.0; ///< Current rotation about axis in radians
 };
 
-#endif // AxisRotationComponent_h__
+#endif // SpaceSystemComponents_h__

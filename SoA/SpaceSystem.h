@@ -15,7 +15,7 @@
 #ifndef SpaceSystem_h__
 #define SpaceSystem_h__
 
-#include "AxisRotationComponent.h"
+#include "SpaceSystemComponents.h"
 #include "NamePositionComponent.h"
 #include "OrbitComponent.h"
 #include "OrbitComponentUpdater.h"

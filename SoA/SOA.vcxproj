@@ -273,10 +273,8 @@ EXIT 0</Command>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="Atmosphere.h" />
-    <ClInclude Include="AtmosphereComponent.h" />
     <ClInclude Include="AwesomiumInterface.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
-    <ClInclude Include="AxisRotationComponent.h" />
     <ClInclude Include="AxisRotationComponentUpdater.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockPack.h" />
@@ -345,6 +343,7 @@ EXIT 0</Command>
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SpaceSystemComponents.h" />
     <ClInclude Include="SpaceSystemFactories.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SphericalGravityComponent.h" />
@@ -454,9 +453,7 @@ EXIT 0</Command>
     <ClCompile Include="AmbienceStream.cpp" />
     <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="Atmosphere.cpp" />
-    <ClCompile Include="AtmosphereComponent.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
-    <ClCompile Include="AxisRotationComponent.cpp" />
     <ClCompile Include="AxisRotationComponentUpdater.cpp" />
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp" />
