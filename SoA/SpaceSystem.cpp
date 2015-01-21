@@ -56,29 +56,6 @@ void SpaceSystem::init(vg::GLProgramManager* programManager) {
     m_programManager = programManager;
 }
 
-void SpaceSystem::update(const GameSystem* gameSystem, const SoaState* soaState, const f64v3& spacePos) {
-
-    // Update planet rotation
-    m_axisRotationComponentUpdater.update(this, soaState->time);
-
-    // Update Spherical Terrain
-    m_sphericalTerrainComponentUpdater.update(this, spacePos);
-
-    // Update voxels
-    m_sphericalVoxelComponentUpdater.update(this, gameSystem, soaState);
-
-    m_mutex.lock();
-
-    // Update Orbits ( Do this last)
-    m_orbitComponentUpdater.update(this, soaState->time);
-
-    m_mutex.unlock();
-}
-
-void SpaceSystem::glUpdate() {
-    m_sphericalTerrainComponentUpdater.glUpdate(this);
-}
-
 void SpaceSystem::addSolarSystem(const nString& dirPath) {
     m_dirPath = dirPath;
     m_ioManager.setSearchDirectory((m_dirPath + "/").c_str());

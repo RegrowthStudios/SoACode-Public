@@ -16,11 +16,6 @@
 #define SpaceSystem_h__
 
 #include "SpaceSystemComponents.h"
-#include "OrbitComponentUpdater.h"
-#include "SphericalVoxelComponentUpdater.h"
-#include "SphericalTerrainComponentUpdater.h"
-#include "AxisRotationComponentUpdater.h"
-#include "SphericalVoxelComponentTable.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/ComponentTable.hpp>
@@ -64,14 +59,6 @@ public:
     ~SpaceSystem();
 
     void init(vg::GLProgramManager* programManager);
-
-    /// Updates the space system
-    /// @param gameSystem: ECS for game entities
-    /// @param soaState: Game State
-    void update(const GameSystem* gameSystem, const SoaState* soaState, const f64v3& spacePos);
-    
-    /// Updates openGL specific stuff, should be called on render thread
-    void glUpdate();
 
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
@@ -152,16 +139,6 @@ protected:
 
     nString m_dirPath; ///< Path to the main directory
     nString m_systemDescription; ///< textual description of the system
-
-    /// Updaters
-    friend class OrbitComponentUpdater;
-    OrbitComponentUpdater m_orbitComponentUpdater;
-    friend class SphericalVoxelComponentUpdater;
-    SphericalVoxelComponentUpdater m_sphericalVoxelComponentUpdater;
-    friend class SphericalTerrainComponentUpdater;
-    SphericalTerrainComponentUpdater m_sphericalTerrainComponentUpdater;
-    friend class AxisRotationComponentUpdater;
-    AxisRotationComponentUpdater m_axisRotationComponentUpdater;
 };
 
 #endif // SpaceSystem_h__

@@ -344,6 +344,7 @@ EXIT 0</Command>
     <ClInclude Include="SpaceSystemFactories.h" />
     <ClInclude Include="SpaceSystemLoadStructs.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
+    <ClInclude Include="SpaceSystemUpdater.h" />
     <ClInclude Include="SphericalTerrainComponentRenderer.h" />
     <ClInclude Include="SphericalTerrainComponentUpdater.h" />
     <ClInclude Include="SphericalTerrainGenerator.h" />
@@ -509,6 +510,7 @@ EXIT 0</Command>
     <ClCompile Include="SpaceSystemFactories.cpp" />
     <ClCompile Include="SpaceSystemLoadStructs.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
+    <ClCompile Include="SpaceSystemUpdater.cpp" />
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
     <ClCompile Include="SphericalTerrainGenerator.cpp" />

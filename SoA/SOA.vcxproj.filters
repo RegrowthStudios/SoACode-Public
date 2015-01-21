@@ -680,6 +680,9 @@
     <ClInclude Include="SpaceSystemLoadStructs.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="SpaceSystemUpdater.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1097,6 +1100,7 @@
     <ClCompile Include="SpaceSystemLoadStructs.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="SpaceSystemUpdater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
