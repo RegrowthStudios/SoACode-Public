@@ -84,6 +84,22 @@ namespace SpaceSystemFactories {
                                                            vg::GLProgram* normalProgram,
                                                            vg::TextureRecycler* normalMapRecycler);
     extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Spherical Gravity component
+    extern vcore::ComponentID addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                           f64 radius, f64 mass);
+    extern void removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Name Position component
+    extern vcore::ComponentID addNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                           const nString& name, const f64v3& position);
+    extern void removeNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Orbit component
+    extern vcore::ComponentID addOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                f64 eccentricity, f64 orbitalPeriod,
+                                                const ui8v4& pathColor, const f64q& orientation);
+    extern void removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
 #endif // SpaceSystemFactories_h__
