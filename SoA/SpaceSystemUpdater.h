@@ -19,7 +19,6 @@
 #include "SphericalVoxelComponentUpdater.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "AxisRotationComponentUpdater.h"
-#include "SphericalVoxelComponentTable.h"
 
 class SpaceSystem;
 class GameSystem;

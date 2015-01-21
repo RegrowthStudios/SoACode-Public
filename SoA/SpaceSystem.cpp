@@ -25,7 +25,6 @@
 
 #define M_PER_KM 1000.0
 
-
 SpaceSystem::SpaceSystem() : vcore::ECS() {
     // Add in component tables
     addComponentTable(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, &m_namePositionCT);
@@ -47,73 +46,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
 }
 
 SpaceSystem::~SpaceSystem() {
-    delete m_spriteBatch;
-    delete m_spriteFont;
-    delete m_planetLoader;
-}
-
-void SpaceSystem::init(vg::GLProgramManager* programManager) {
-    m_programManager = programManager;
-}
-
-void SpaceSystem::addSolarSystem(const nString& dirPath) {
-    m_dirPath = dirPath;
-    m_ioManager.setSearchDirectory((m_dirPath + "/").c_str());
-
-    // Load the system
-    loadSystemProperties(dirPath);
-
-    // Set up binary masses
-    for (auto& it : m_binaries) {
-        f64 mass = 0.0;
-        Binary* bin = it.second;
-
-        // Loop through all children
-        for (int i = 0; i < bin->bodies.getLength(); i++) {
-            // Find the body
-            auto& body = m_systemBodies.find(std::string(bin->bodies[i]));
-            if (body != m_systemBodies.end()) {
-                // Get the mass
-                mass += m_sphericalGravityCT.getFromEntity(body->second->entity->id).mass;
-            }
-        }
-        it.second->mass = mass;
-    }
-
-    // Set up parent connections and orbits
-    for (auto& it : m_systemBodies) {
-        SystemBody* body = it.second;
-        const nString& parent = body->parentName;
-        if (parent.length()) {
-            // Check for parent
-            auto& p = m_systemBodies.find(parent);
-            if (p != m_systemBodies.end()) {
-                body->parent = p->second;
-                
-                // Provide the orbit component with it's parent
-                m_orbitCT.getFromEntity(body->entity->id).parentNpId =
-                    m_namePositionCT.getComponentID(body->parent->entity->id);
-
-
-                // Calculate the orbit using parent mass
-                calculateOrbit(body->entity->id,
-                               m_sphericalGravityCT.getFromEntity(body->parent->entity->id).mass, false);
-            } else {
-                auto& b = m_binaries.find(parent);
-                if (b != m_binaries.end()) {
-                    f64 mass = b->second->mass;
-                    // If this body is part of the system, subtract it's mass
-                    if (b->second->containsBody(it.second)) {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(body->entity->id, mass, true);
-                    } else {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(body->entity->id, mass, false);
-                    }
-                }
-            }
-        }
-    }
+    // Empty
 }
 
 void SpaceSystem::targetBody(const nString& name) {
@@ -150,59 +83,6 @@ f64v3 SpaceSystem::getTargetPosition() {
     f64v3 pos = m_namePositionCT.get(m_targetComponent).position;
     m_mutex.unlock();
     return pos;
-}
-
-bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body) {
-    
-    #define KEG_CHECK if (error != Keg::Error::NONE) { \
-       fprintf(stderr, "Keg error %d for %s\n", (int)error, filePath); \
-        return false; \
-    }
-    
-    Keg::Error error;
-    nString data;
-    m_ioManager.readFileToString(filePath.c_str(), data);
-
-    YAML::Node node = YAML::Load(data.c_str());
-    if (node.IsNull() || !node.IsMap()) {
-        std::cout << "Failed to load " + filePath;
-        return false;
-    }
-
-    for (auto& kvp : node) {
-        nString type = kvp.first.as<nString>();
-        // Parse based on type
-        if (type == "planet") {
-            PlanetKegProperties properties;
-            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
-            KEG_CHECK;
-
-            // Use planet loader to load terrain and biomes
-            if (properties.generation.length()) {
-                properties.planetGenData = m_planetLoader->loadPlanet(properties.generation);
-            } else {
-                properties.planetGenData = m_planetLoader->getDefaultGenData();
-            }
-
-            addPlanet(sysProps, &properties, body);
-        } else if (type == "star") {
-            StarKegProperties properties;
-            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
-            addStar(sysProps, &properties, body);
-            KEG_CHECK;
-        } else if (type == "gasGiant") {
-            GasGiantKegProperties properties;
-            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
-            addGasGiant(sysProps, &properties, body);
-            KEG_CHECK;
-        }
-
-        m_bodyLookupMap[body->name] = body->entity->id;
-
-        //Only parse the first
-        break;
-    }
-    return true;
 }
 
 void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body) {
@@ -254,77 +134,6 @@ void SpaceSystem::addGasGiant(const SystemBodyKegProperties* sysProps, const Gas
     m_namePositionCT.get(npCmp).name = body->name;
 
     setOrbitProperties(oCmp, sysProps);
-}
-
-bool SpaceSystem::loadSystemProperties(const nString& dirPath) {
-    nString data;
-    m_ioManager.readFileToString("SystemProperties.yml", data);
-    
-    YAML::Node node = YAML::Load(data.c_str());
-    if (node.IsNull() || !node.IsMap()) {
-        fprintf(stderr, "Failed to load %s\n", (dirPath + "/SystemProperties.yml").c_str());
-        return false;
-    }
-
-    for (auto& kvp : node) {
-        nString name = kvp.first.as<nString>();
-        // Parse based on the name
-        if (name == "description") {
-            m_systemDescription = name;
-        } else if (name == "Binary") {
-            // Binary systems
-            Binary* newBinary = new Binary;
-            Keg::Error err = Keg::parse((ui8*)newBinary, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
-            if (err != Keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), dirPath.c_str());
-                return false;
-            }
-
-            m_binaries[newBinary->name] = newBinary;
-        } else {
-            // We assume this is just a generic SystemBody
-            SystemBodyKegProperties properties;
-            properties.pathColor = ui8v4(rand() % 255, rand() % 255, rand() % 255, 255);
-            Keg::Error err = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
-            if (err != Keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), dirPath.c_str());
-                return false;
-            }
-
-            if (properties.path.empty()) {
-                fprintf(stderr, "Missing path: for node %s in %s\n", name.c_str(), dirPath.c_str());
-                return false;
-            }
-            // Allocate the body
-            SystemBody* body = new SystemBody;
-            body->name = name;
-            body->parentName = properties.parent;
-            loadBodyProperties(properties.path, &properties, body);
-            m_systemBodies[name] = body;
-        }
-    }
-
-    return true;
-}
-
-void SpaceSystem::calculateOrbit(vcore::EntityID entity, f64 parentMass, bool isBinary) {
-    OrbitComponent& orbitC = m_orbitCT.getFromEntity(entity);
-
-    f64 per = orbitC.orbitalPeriod;
-    f64 mass = m_sphericalGravityCT.getFromEntity(entity).mass;
-    if (isBinary) parentMass -= mass;
-    orbitC.semiMajor = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
-                        (mass + parentMass), 1.0 / 3.0) / M_PER_KM;
-    orbitC.semiMinor = orbitC.semiMajor *
-        sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
-    orbitC.totalMass = mass + parentMass;
-    if (isBinary) {
-      //  orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
-      //      mass / (orbitC.totalMass);
-        orbitC.r1 = orbitC.semiMajor;
-    } else {
-        orbitC.r1 = orbitC.semiMajor * (1.0 - orbitC.eccentricity);
-    }
 }
 
 void SpaceSystem::setOrbitProperties(vcore::ComponentID cmp, const SystemBodyKegProperties* sysProps) {

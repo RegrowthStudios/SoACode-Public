@@ -16,6 +16,7 @@
 #define SpaceSystem_h__
 
 #include "SpaceSystemComponents.h"
+#include "SphericalVoxelComponentTable.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/ComponentTable.hpp>
@@ -58,8 +59,6 @@ public:
     SpaceSystem();
     ~SpaceSystem();
 
-    void init(vg::GLProgramManager* programManager);
-
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
@@ -100,18 +99,14 @@ public:
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
 
-protected:
-    bool loadBodyProperties(const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
+    nString systemDescription; ///< textual description of the system
 
+protected:
     void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);
 
     void addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body);
 
     void addGasGiant(const SystemBodyKegProperties* sysProps, const GasGiantKegProperties* properties, SystemBody* body);
-
-    bool loadSystemProperties(const nString& dirPath);
-
-    void calculateOrbit(vcore::EntityID entity, f64 parentMass, bool isBinary);
 
     void setOrbitProperties(vcore::ComponentID cmp, 
                             const SystemBodyKegProperties* sysProps);
@@ -126,19 +121,6 @@ protected:
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< For recycling normal maps
     
     PlanetLoader* m_planetLoader = nullptr;
-
-    vg::GLProgramManager* m_programManager = nullptr;
-
-    std::map<nString, Binary*> m_binaries; ///< Contains all binary systems
-    std::map<nString, SystemBody*> m_systemBodies; ///< Contains all system bodies
-
-    SpriteBatch* m_spriteBatch = nullptr;
-    SpriteFont* m_spriteFont = nullptr;
-
-    std::map<nString, vcore::EntityID> m_bodyLookupMap;
-
-    nString m_dirPath; ///< Path to the main directory
-    nString m_systemDescription; ///< textual description of the system
 };
 
 #endif // SpaceSystem_h__
