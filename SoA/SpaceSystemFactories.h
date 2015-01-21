@@ -23,8 +23,10 @@ class SpaceSystem;
 class SoaState;
 class PlanetGenData;
 
-DECL_VG(class GLProgram,
-        class TextureRecycler);
+DECL_VG(
+    class GLProgram;
+    class TextureRecycler;
+)
 DECL_VVOX(class VoxelMapData);
 
 namespace SpaceSystemFactories {
@@ -32,7 +34,12 @@ namespace SpaceSystemFactories {
     /* Entity Factories                                                     */
     /************************************************************************/
    
-    // TODO(Ben): Move SpaceSystem stuff here
+    /// Planet entity
+    extern vcore::EntityID createPlanet(OUT SpaceSystem* spaceSystem,
+                                        const SystemBodyKegProperties* sysProps,
+                                        const PlanetKegProperties* properties,
+                                        SystemBody* body);
+    extern void destroyPlanet(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
 
     /************************************************************************/
     /* Component Factories                                                  */

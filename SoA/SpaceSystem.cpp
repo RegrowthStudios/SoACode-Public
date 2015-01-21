@@ -30,17 +30,6 @@ KEG_ENUM_INIT_END
 
 #define M_PER_KM 1000.0
 
-class SystemBodyKegProperties {
-public:
-    nString parent = "";
-    nString path = "";
-    f64 eccentricity = 0.0;
-    f64 period = 0.0;
-    f64 startOrbit = 0.0;
-    f64v3 orbitNormal = f64v3(1.0, 0.0, 0.0);
-    ui8v4 pathColor = ui8v4(255);
-};
-
 KEG_TYPE_INIT_BEGIN_DEF_VAR(SystemBodyKegProperties)
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, parent);
 KEG_TYPE_INIT_ADD_MEMBER(SystemBodyKegProperties, STRING, path);
@@ -333,32 +322,7 @@ bool SpaceSystem::loadBodyProperties(const nString& filePath, const SystemBodyKe
 
 void SpaceSystem::addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body) {
 
-    body->entity = new vcore::Entity(addEntity());
-    const vcore::EntityID& id = body->entity->id;
-
-    vcore::ComponentID npCmp = addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, id);
-    vcore::ComponentID oCmp = addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, id);
-    vcore::ComponentID stCmp = addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, id);
-    vcore::ComponentID sgCmp = addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, id);
-
-    f64v3 up(0.0, 1.0, 0.0);
-    m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
-                                     0.0,
-                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
-
-    m_sphericalTerrainCT.get(stCmp).init(npCmp, arCmp, properties->diameter / 2.0,
-                                         properties->planetGenData,
-                                         m_programManager->getProgram("NormalMapGen"),
-                                         m_normalMapRecycler);
-
-    m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
-                                         properties->mass);
-
-
-    // Set the name
-    m_namePositionCT.get(npCmp).name = body->name;
-
-    setOrbitProperties(oCmp, sysProps);
+  
 }
 
 void SpaceSystem::addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body) {

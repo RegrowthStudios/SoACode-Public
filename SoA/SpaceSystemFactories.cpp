@@ -12,6 +12,45 @@
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemFactories.h"
 
+vcore::EntityID SpaceSystemFactories::createPlanet(OUT SpaceSystem* spaceSystem,
+                                    const SystemBodyKegProperties* sysProps,
+                                    const PlanetKegProperties* properties,
+                                    SystemBody* body) {
+    body->entity = new vcore::Entity(spaceSystem->addEntity());
+    const vcore::EntityID& id = body->entity->id;
+
+    const f64v3 up(0.0, 1.0, 0.0);
+    addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
+                             0.0, properties->angularSpeed);
+    vcore::ComponentID npCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, id);
+    vcore::ComponentID oCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, id);
+    vcore::ComponentID stCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, id);
+    vcore::ComponentID sgCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, id);
+
+    f64v3 up(0.0, 1.0, 0.0);
+    m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
+                                     0.0,
+                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
+
+    m_sphericalTerrainCT.get(stCmp).init(npCmp, arCmp, properties->diameter / 2.0,
+                                         properties->planetGenData,
+                                         m_programManager->getProgram("NormalMapGen"),
+                                         m_normalMapRecycler);
+
+    m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
+                                         properties->mass);
+
+
+    // Set the name
+    m_namePositionCT.get(npCmp).name = body->name;
+
+    setOrbitProperties(oCmp, sysProps);
+}
+
+void SpaceSystemFactories::destroyPlanet(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) {
+
+}
+
 vcore::ComponentID SpaceSystemFactories::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                     vcore::ComponentID sphericalTerrainComponent,
                                                                     const vvox::VoxelMapData* startingMapData,
