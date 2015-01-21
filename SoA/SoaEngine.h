@@ -18,7 +18,7 @@
 class GameSystem;
 class SoaState;
 class SpaceSystem;
-class SystemBody;
+struct SystemBody;
 struct SpaceSystemLoadParams;
 
 #pragma once

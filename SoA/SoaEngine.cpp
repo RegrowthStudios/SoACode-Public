@@ -17,7 +17,7 @@ struct SpaceSystemLoadParams {
     SpaceSystem* spaceSystem = nullptr;
     vio::IOManager ioManager;
     nString dirPath;
-    PlanetLoader planetLoader;
+    PlanetLoader planetLoader = PlanetLoader(&ioManager);
 
     std::map<nString, Binary*> binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
@@ -46,6 +46,9 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
             fs.write("Component \"%s\" added: %d -> Entity %d\n", namedTable.first.c_str(), cid, eid);
         });
     }
+
+    // TODO(Ben): This is temporary
+    state->spaceSystem.init(state->glProgramManager.get());
 
     SpaceSystemLoadParams spaceSystemLoadParams;
     spaceSystemLoadParams.dirPath = loadData.filePath;

@@ -20,8 +20,11 @@ class SpaceSystem;
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
-class SoaState;
 class PlanetGenData;
+class SoaState;
+struct PlanetKegProperties;
+struct SystemBody;
+struct SystemBodyKegProperties;
 
 DECL_VG(
     class GLProgram;
@@ -40,6 +43,20 @@ namespace SpaceSystemFactories {
                                         const PlanetKegProperties* properties,
                                         SystemBody* body);
     extern void destroyPlanet(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
+
+    /// Star entity
+    extern vcore::EntityID createStar(OUT SpaceSystem* spaceSystem,
+                                        const SystemBodyKegProperties* sysProps,
+                                        const PlanetKegProperties* properties,
+                                        SystemBody* body);
+    extern void destroyStar(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
+
+    /// GasGiant entity
+    extern vcore::EntityID createGasGiant(OUT SpaceSystem* spaceSystem,
+                                        const SystemBodyKegProperties* sysProps,
+                                        const PlanetKegProperties* properties,
+                                        SystemBody* body);
+    extern void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
 
     /************************************************************************/
     /* Component Factories                                                  */

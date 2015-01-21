@@ -17,7 +17,7 @@
 
 class SpaceSystem;
 class SphericalTerrainComponent;
-
+class SphericalTerrainMesh;
 
 #define LOAD_DIST 80000.0
 // Should be even

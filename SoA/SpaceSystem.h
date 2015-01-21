@@ -59,38 +59,12 @@ public:
     SpaceSystem();
     ~SpaceSystem();
 
+    /// TEMPORARY
+    void init(vg::GLProgramManager* glProgramManager) { this->glProgramManager = glProgramManager; }
+
     /// Adds a solar system and all its bodies to the system
     /// @param filePath: Path to the solar system directory
     void addSolarSystem(const nString& filePath);
-
-    /// Targets a named body
-    /// @param name: Name of the body
-    void targetBody(const nString& name);
-    /// Targets an entity
-    /// @param eid: Entity ID
-    void targetBody(vcore::EntityID eid);
-
-    /// Goes to the next target
-    void nextTarget();
-
-    /// Goes to the previous target
-    void previousTarget();
-
-    /// Gets the position of the targeted entity
-    /// @return position
-    f64v3 getTargetPosition();
-
-    /// Gets the position of the targeted entity
-    /// @return radius
-    f64 getTargetRadius() {
-        return m_sphericalGravityCT.get(m_targetComponent).radius;
-    }
-
-    /// Gets the name of the targeted component
-    /// @return position
-    nString getTargetName() {
-        return m_namePositionCT.get(m_targetComponent).name;
-    }
 
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
@@ -100,6 +74,8 @@ public:
     SphericalVoxelComponentTable m_sphericalVoxelCT;
 
     nString systemDescription; ///< textual description of the system
+    vg::GLProgramManager* glProgramManager; ///< TEMPORARY
+    vg::TextureRecycler* normalMapRecycler = nullptr; ///< For recycling normal maps
 
 protected:
     void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);
@@ -108,19 +84,7 @@ protected:
 
     void addGasGiant(const SystemBodyKegProperties* sysProps, const GasGiantKegProperties* properties, SystemBody* body);
 
-    void setOrbitProperties(vcore::ComponentID cmp, 
-                            const SystemBodyKegProperties* sysProps);
-
-    vcore::EntityID m_targetEntity = 1; ///< Current entity we are focusing on
-    vcore::ComponentID m_targetComponent = 1; ///< namePositionComponent of the targetEntity
-
     vio::IOManager m_ioManager;
-
-    std::mutex m_mutex;
-
-    vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< For recycling normal maps
-    
-    PlanetLoader* m_planetLoader = nullptr;
 };
 
 #endif // SpaceSystem_h__

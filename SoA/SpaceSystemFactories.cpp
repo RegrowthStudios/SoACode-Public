@@ -7,35 +7,48 @@
 #include "PhysicsEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
+#include "SphericalTerrainComponentUpdater.h"
+#include "SphericalTerrainGenerator.h"
 #include "VoxelPlanetMapper.h"
 
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemFactories.h"
+#include "SpaceSystemLoadStructs.h"
+
+void setOrbitProperties(OUT SpaceSystem* spaceSystem, vcore::ComponentID cmp, const SystemBodyKegProperties* sysProps) {
+    // Set basic properties
+    auto& orbitCmp = spaceSystem->m_orbitCT.get(cmp);
+    orbitCmp.eccentricity = sysProps->eccentricity;
+    orbitCmp.orbitalPeriod = sysProps->period;
+    orbitCmp.pathColor = sysProps->pathColor;
+
+    // Calculate orbit orientation from normal
+    const f64v3 right(1.0, 0.0, 0.0);
+    if (right == -sysProps->orbitNormal) {
+        f64v3 eulers(0.0, M_PI, 0.0);
+        orbitCmp.orientation = f64q(eulers);
+    } else if (right != sysProps->orbitNormal) {
+        orbitCmp.orientation = quatBetweenVectors(right, sysProps->orbitNormal);
+    }
+}
 
 vcore::EntityID SpaceSystemFactories::createPlanet(OUT SpaceSystem* spaceSystem,
                                     const SystemBodyKegProperties* sysProps,
                                     const PlanetKegProperties* properties,
                                     SystemBody* body) {
-    body->entity = new vcore::Entity(spaceSystem->addEntity());
-    const vcore::EntityID& id = body->entity->id;
+    body->entity = spaceSystem->addEntity();
+    const vcore::EntityID& id = body->entity;
 
     const f64v3 up(0.0, 1.0, 0.0);
     addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
                              0.0, properties->angularSpeed);
     vcore::ComponentID npCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, id);
     vcore::ComponentID oCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, id);
-    vcore::ComponentID stCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, id);
+    addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp, properties->diameter / 2.0,
+                                 properties->planetGenData,
+                                 spaceSystem->glProgramManager->getProgram("NormalMapGen"),
+                                 spaceSystem->normalMapRecycler)
     vcore::ComponentID sgCmp = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, id);
-
-    f64v3 up(0.0, 1.0, 0.0);
-    m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
-                                     0.0,
-                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
-
-    m_sphericalTerrainCT.get(stCmp).init(npCmp, arCmp, properties->diameter / 2.0,
-                                         properties->planetGenData,
-                                         m_programManager->getProgram("NormalMapGen"),
-                                         m_normalMapRecycler);
 
     m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
                                          properties->mass);
@@ -48,6 +61,67 @@ vcore::EntityID SpaceSystemFactories::createPlanet(OUT SpaceSystem* spaceSystem,
 }
 
 void SpaceSystemFactories::destroyPlanet(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) {
+
+}
+
+vcore::EntityID createStar(OUT SpaceSystem* spaceSystem,
+                                  const SystemBodyKegProperties* sysProps,
+                                  const PlanetKegProperties* properties,
+                                  SystemBody* body) {
+    body->entity = new vcore::Entity(addEntity());
+    const vcore::EntityID& id = body->entity->id;
+
+    vcore::ComponentID npCmp = addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, id);
+    vcore::ComponentID arCmp = addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, id);
+    vcore::ComponentID oCmp = addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, id);
+    vcore::ComponentID sgCmp = addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, id);
+
+    f64v3 up(0.0, 1.0, 0.0);
+    m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
+                                     0.0,
+                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
+
+    m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
+                                         properties->mass);
+
+    // Set the name
+    m_namePositionCT.get(npCmp).name = body->name;
+
+    setOrbitProperties(oCmp, sysProps);
+}
+
+void destroyStar(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) {
+
+}
+
+/// GasGiant entity
+vcore::EntityID createGasGiant(OUT SpaceSystem* spaceSystem,
+                                      const SystemBodyKegProperties* sysProps,
+                                      const PlanetKegProperties* properties,
+                                      SystemBody* body) {
+    body->entity = new vcore::Entity(addEntity());
+    const vcore::EntityID& id = body->entity->id;
+
+    vcore::ComponentID npCmp = addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, id);
+    vcore::ComponentID arCmp = addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, id);
+    vcore::ComponentID oCmp = addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, id);
+    vcore::ComponentID sgCmp = addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, id);
+
+    f64v3 up(0.0, 1.0, 0.0);
+    m_axisRotationCT.get(arCmp).init(properties->angularSpeed,
+                                     0.0,
+                                     quatBetweenVectors(up, glm::normalize(properties->axis)));
+
+    m_sphericalGravityCT.get(sgCmp).init(properties->diameter / 2.0,
+                                         properties->mass);
+
+    // Set the name
+    m_namePositionCT.get(npCmp).name = body->name;
+
+    setOrbitProperties(oCmp, sysProps);
+}
+
+void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) {
 
 }
 
