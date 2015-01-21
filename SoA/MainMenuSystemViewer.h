@@ -49,11 +49,30 @@ public:
         return &it->second;
     }
 
+    /// Targets a named body
+    /// @param name: Name of the body
+    void targetBody(const nString& name);
+    /// Targets an entity
+    /// @param eid: Entity ID
+    void targetBody(vcore::EntityID eid);
+
     /// Getters
     const f32v2& getSelectedGridPos() const { return m_selectedGridPos; }
     const int& getSelectedCubeFace() const { return m_selectedCubeFace; }
     vcore::EntityID getSelectedPlanet() const { return m_selectedPlanet; }
     const f64v3& getClickPos() const { return m_clickPos; }
+
+    /// Gets the position of the targeted entity
+    /// @return position
+    f64v3 getTargetPosition();
+
+    /// Gets the position of the targeted entity
+    /// @return radius
+    f64 getTargetRadius();
+
+    /// Gets the name of the targeted component
+    /// @return position
+    nString getTargetName();
 
     static const float MIN_SELECTOR_SIZE;
     static const float MAX_SELECTOR_SIZE;
@@ -72,6 +91,9 @@ private:
     nString currentBody = "";
 
     std::map <vcore::EntityID, BodyArData> bodyArData;
+
+    vcore::EntityID m_targetEntity = 1; ///< Current entity we are focusing on
+    vcore::ComponentID m_targetComponent = 1; ///< namePositionComponent of the targetEntity
 
     bool mouseButtons[2];
     f32v2 m_mouseCoords = f32v2(-1.0f);
