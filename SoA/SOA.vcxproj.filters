@@ -123,9 +123,6 @@
     <Filter Include="SOA Files\Screens\Test">
       <UniqueIdentifier>{07d56bf0-8858-45a6-bcf5-6fe4f58dc323}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\BenPLZ">
-      <UniqueIdentifier>{e615de38-47c4-4140-9c49-3bfe280752fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\Screens\StarSystem">
       <UniqueIdentifier>{1c1faa8a-6bbf-4bd3-a594-ba162a1a31a9}</UniqueIdentifier>
     </Filter>
@@ -545,9 +542,6 @@
     <ClInclude Include="LoadTaskSolarSystem.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="Atmosphere.h">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClInclude>
     <ClInclude Include="TestBlockViewScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -682,6 +676,9 @@
     </ClInclude>
     <ClInclude Include="SpaceSystemComponents.h">
       <Filter>SOA Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemLoadStructs.h">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -994,9 +991,6 @@
     <ClCompile Include="SpaceSystemRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="Atmosphere.cpp">
-      <Filter>SOA Files\BenPLZ</Filter>
-    </ClCompile>
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp">
       <Filter>SOA Files\Voxel</Filter>
@@ -1098,6 +1092,9 @@
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
     <ClCompile Include="GameSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystemLoadStructs.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>

@@ -55,24 +55,6 @@ namespace vorb {
     }
 }
 
-enum class BodyType {
-    NONE,
-    PLANET,
-    STAR,
-    GAS_GIANT
-};
-
-class SystemBody {
-public:
-    ~SystemBody() { delete entity; }
-
-    nString name = "";
-    nString parentName = "";
-    SystemBody* parent = nullptr;
-    vcore::Entity* entity = nullptr;
-    BodyType type = BodyType::NONE;
-};
-
 //TODO(Ben): This should be POD, split it up
 class SpaceSystem : public vcore::ECS {
     friend class SpaceSystemRenderStage;
