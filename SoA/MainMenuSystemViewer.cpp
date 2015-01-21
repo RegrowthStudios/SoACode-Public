@@ -228,7 +228,7 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radi
     }
 
     f32v3 gridHit = start + dir * min;
-    const float eps = 0.01;
+    const float eps = 0.01f;
 
     if (abs(gridHit.x - (-radius)) < eps) { //-X
         m_selectedCubeFace = (int)CubeFace::LEFT;

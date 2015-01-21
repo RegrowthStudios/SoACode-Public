@@ -15,11 +15,14 @@
 #ifndef SoAEngine_h__
 #define SoAEngine_h__
 
+#include <Vorb/ecs/Entity.h>
+
 class GameSystem;
 class SoaState;
 class SpaceSystem;
-struct SystemBody;
 struct SpaceSystemLoadParams;
+struct SystemBody;
+struct SystemBodyKegProperties;
 
 #pragma once
 class SoaEngine {
@@ -45,7 +48,8 @@ private:
 
     static bool loadSystemProperties(SpaceSystemLoadParams& pr);
 
-    static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body);
+    static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
+                                   const SystemBodyKegProperties* sysProps, SystemBody* body);
 
     static void calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary);
 

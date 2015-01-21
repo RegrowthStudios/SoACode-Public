@@ -15,8 +15,9 @@
 #ifndef SpaceSystemComponents_h__
 #define SpaceSystemComponents_h__
 
-#include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/ecs/Entity.h>
+#include <Vorb/graphics/gtypes.h>
 
 class ChunkIOManager;
 class ChunkManager;
@@ -27,6 +28,8 @@ class PlanetGenData;
 class SphericalTerrainData;
 class SphericalTerrainGenerator;
 class SphericalTerrainMeshManager;
+class SphericalTerrainPatch;
+class TerrainRpcDispatcher;
 
 DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);

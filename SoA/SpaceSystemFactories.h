@@ -22,7 +22,9 @@ class SpaceSystem;
 
 class PlanetGenData;
 class SoaState;
+struct GasGiantKegProperties;
 struct PlanetKegProperties;
+struct StarKegProperties;
 struct SystemBody;
 struct SystemBodyKegProperties;
 
@@ -47,14 +49,14 @@ namespace SpaceSystemFactories {
     /// Star entity
     extern vcore::EntityID createStar(OUT SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
-                                        const PlanetKegProperties* properties,
+                                        const StarKegProperties* properties,
                                         SystemBody* body);
     extern void destroyStar(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
 
     /// GasGiant entity
     extern vcore::EntityID createGasGiant(OUT SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
-                                        const PlanetKegProperties* properties,
+                                        const GasGiantKegProperties* properties,
                                         SystemBody* body);
     extern void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
 

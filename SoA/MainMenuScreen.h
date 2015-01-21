@@ -32,6 +32,7 @@ class InputManager;
 class LoadScreen;
 class MainMenuSystemViewer;
 class SoaState;
+class SpaceSystemUpdater;
 
 DECL_VSOUND(class, Engine)
 class AmbienceLibrary;
@@ -94,7 +95,9 @@ private:
 
     CinematicCamera m_camera; ///< The camera that looks at the planet from space
 
-    std::unique_ptr<MainMenuSystemViewer> m_mainMenuSystemViewer;
+    std::unique_ptr<MainMenuSystemViewer> m_mainMenuSystemViewer = nullptr;
+
+    std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
 
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running

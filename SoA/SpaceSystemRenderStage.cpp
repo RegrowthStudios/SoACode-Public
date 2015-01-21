@@ -16,14 +16,14 @@
 #include <Vorb/utils.h>
 
 #include "App.h"
-#include "AxisRotationComponent.h"
 #include "Camera.h"
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "GLProgramManager.h"
-#include "OrbitComponent.h"
-#include "RenderUtils.h"
 #include "MainMenuSystemViewer.h"
+#include "RenderUtils.h"
+#include "SpaceSystemComponents.h"
+#include "SphericalTerrainPatch.h"
 
 SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
@@ -59,7 +59,6 @@ void SpaceSystemRenderStage::draw() {
 void SpaceSystemRenderStage::drawBodies() {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    m_spaceSystem->m_mutex.lock();
 
     /* static DebugRenderer debugRenderer;
      
@@ -100,7 +99,6 @@ void SpaceSystemRenderStage::drawBodies() {
                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
     }
     m_waterProgram->unuse();
-    m_spaceSystem->m_mutex.unlock();
 
 
     DepthState::FULL.set();
@@ -117,7 +115,6 @@ void SpaceSystemRenderStage::drawPaths() {
     glLineWidth(3.0f);
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
-    m_spaceSystem->m_mutex.lock();
     for (auto& it : m_spaceSystem->m_orbitCT) {
 
         // Get the augmented reality data
@@ -136,7 +133,6 @@ void SpaceSystemRenderStage::drawPaths() {
                          m_camera->getPosition(), alpha);
         }
     }
-    m_spaceSystem->m_mutex.unlock();
     m_colorProgram->disableVertexAttribArrays();
     m_colorProgram->unuse();
     glDepthMask(GL_TRUE);

@@ -3,8 +3,7 @@
 
 #include "SpaceSystemComponents.h"
 #include "Camera.h"
-#include "NamePositionComponent.h"
-#include "SphericalTerrainComponent.h"
+#include "SpaceSystemComponents.h"
 #include "SphericalTerrainMeshManager.h"
 
 #include <glm/gtx/quaternion.hpp>

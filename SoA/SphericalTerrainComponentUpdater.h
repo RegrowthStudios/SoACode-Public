@@ -17,7 +17,11 @@
 
 class SpaceSystem;
 class SphericalTerrainComponent;
+class SphericalTerrainGenerator;
 class SphericalTerrainMesh;
+
+#include <Vorb/RPC.h>
+#include "SphericalTerrainPatch.h"
 
 #define LOAD_DIST 80000.0
 // Should be even

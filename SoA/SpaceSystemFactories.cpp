@@ -63,7 +63,7 @@ void SpaceSystemFactories::destroyPlanet(OUT SpaceSystem* gameSystem, vcore::Ent
 
 vcore::EntityID SpaceSystemFactories::createStar(OUT SpaceSystem* spaceSystem,
                                   const SystemBodyKegProperties* sysProps,
-                                  const PlanetKegProperties* properties,
+                                  const StarKegProperties* properties,
                                   SystemBody* body) {
     body->entity = spaceSystem->addEntity();
     const vcore::EntityID& id = body->entity;
@@ -89,7 +89,7 @@ void destroyStar(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) {
 /// GasGiant entity
 vcore::EntityID SpaceSystemFactories::createGasGiant(OUT SpaceSystem* spaceSystem,
                                       const SystemBodyKegProperties* sysProps,
-                                      const PlanetKegProperties* properties,
+                                      const GasGiantKegProperties* properties,
                                       SystemBody* body) {
     body->entity = spaceSystem->addEntity();
     const vcore::EntityID& id = body->entity;

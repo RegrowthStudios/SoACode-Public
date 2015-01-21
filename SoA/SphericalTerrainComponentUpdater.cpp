@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponentUpdater.h"
 
-#include "AxisRotationComponent.h"
-#include "NamePositionComponent.h"
 #include "SpaceSystem.h"
-#include "SphericalTerrainComponent.h"
+#include "SpaceSystemComponents.h"
+#include "SphericalTerrainGenerator.h"
 
 void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {

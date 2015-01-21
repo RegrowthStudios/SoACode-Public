@@ -41,6 +41,7 @@ class SpriteBatch;
 class SpriteFont;
 class StarKegProperties;
 class SystemBodyKegProperties;
+struct SystemBody;
 
 namespace vorb {
     namespace core {

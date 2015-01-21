@@ -16,7 +16,7 @@
 #define SphericalVoxelComponentTable_h__
 
 #include <Vorb/ecs/ComponentTable.hpp>
-#include "SphericalVoxelComponent.h"
+#include "SpaceSystemComponents.h"
 
 class SphericalVoxelComponentTable : public vcore::ComponentTable<SphericalVoxelComponent> {
 public:
