@@ -196,7 +196,7 @@ void SpaceSystemFactories::removeSphericalTerrainComponent(OUT SpaceSystem* spac
 
 vcore::ComponentID SpaceSystemFactories::addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                       f64 radius, f64 mass) {
-    vcore::ComponentID sgCmpId = spaceSystem->addComponent("SphericalTerrain", entity);
+    vcore::ComponentID sgCmpId = spaceSystem->addComponent("SphericalGravity", entity);
     auto& sgCmp = spaceSystem->m_sphericalGravityCT.get(sgCmpId);
     sgCmp.radius = radius;
     sgCmp.mass = mass;
