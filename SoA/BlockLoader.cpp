@@ -3,7 +3,6 @@
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/io/Keg.h>
-#include <yaml-cpp/yaml.h>
 
 #include "BlockPack.h"
 #include "Chunk.h"
@@ -44,25 +43,25 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     BlockPack& blocks = *pack;
 
     // Emit data
-    YAML::Emitter e;
-    e << YAML::BeginMap;
+    keg::YAMLWriter writer;
+    writer.push(keg::WriterParam::BEGIN_MAP);
     for (size_t i = 0; i < blocks.size(); i++) {
         if (blocks[i].active) {
             // TODO: Water is a special case. We have 100 water block IDs, but we only want to write water once.
             if (i >= LOWWATER && i != LOWWATER) continue;
 
             // Write the block name first
-            e << YAML::Key << blocks[i].name;
+            writer.push(keg::WriterParam::KEY) << blocks[i].name;
             // Write the block data now
-            e << YAML::Value;
-            e << YAML::BeginMap;
-            Keg::write((ui8*)&(blocks[i]), e, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
-            e << YAML::EndMap;
+            writer.push(keg::WriterParam::VALUE);
+            writer.push(keg::WriterParam::BEGIN_MAP);
+            Keg::write((ui8*)&(blocks[i]), writer, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+            writer.push(keg::WriterParam::END_MAP);
         }
     }
-    e << YAML::EndMap;
+    writer.push(keg::WriterParam::END_MAP);
 
-    file << e.c_str();
+    file << writer.c_str();
     file.flush();
     file.close();
     return true;
@@ -89,25 +88,31 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
     if (!data) return false;
 
     // Convert to YAML
-    YAML::Node node = YAML::Load(data);
-    if (node.IsNull() || !node.IsMap()) {
+    keg::YAMLReader reader;
+    reader.init(data);
+    keg::Node node = reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
         delete[] data;
+        reader.dispose();
         return false;
     }
 
     // Load all block nodes
     std::vector<Block> loadedBlocks;
-    for (auto& kvp : node) {
+    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         // Add a block
         loadedBlocks.emplace_back();
         Block& b = loadedBlocks.back();
 
         // Set name to key
-        b.name = kvp.first.as<nString>();
+        b.name = name;
         
         // Load data
-        Keg::parse((ui8*)&b, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
-    }
+        Keg::parse((ui8*)&b, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+    });
+    reader.forAllInMap(node, f);
+    delete f;
+    reader.dispose();
     delete[] data;
 
     // Add blocks to pack
