@@ -20,7 +20,18 @@ class SpaceSystem;
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
+class PlanetGenData;
 class SoaState;
+struct GasGiantKegProperties;
+struct PlanetKegProperties;
+struct StarKegProperties;
+struct SystemBody;
+struct SystemBodyKegProperties;
+
+DECL_VG(
+    class GLProgram;
+    class TextureRecycler;
+)
 DECL_VVOX(class VoxelMapData);
 
 namespace SpaceSystemFactories {
@@ -28,7 +39,26 @@ namespace SpaceSystemFactories {
     /* Entity Factories                                                     */
     /************************************************************************/
    
-    // TODO(Ben): Move SpaceSystem stuff here
+    /// Planet entity
+    extern vcore::EntityID createPlanet(OUT SpaceSystem* spaceSystem,
+                                        const SystemBodyKegProperties* sysProps,
+                                        const PlanetKegProperties* properties,
+                                        SystemBody* body);
+    extern void destroyPlanet(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
+
+    /// Star entity
+    extern vcore::EntityID createStar(OUT SpaceSystem* spaceSystem,
+                                        const SystemBodyKegProperties* sysProps,
+                                        const StarKegProperties* properties,
+                                        SystemBody* body);
+    extern void destroyStar(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
+
+    /// GasGiant entity
+    extern vcore::EntityID createGasGiant(OUT SpaceSystem* spaceSystem,
+                                        const SystemBodyKegProperties* sysProps,
+                                        const GasGiantKegProperties* properties,
+                                        SystemBody* body);
+    extern void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
 
     /************************************************************************/
     /* Component Factories                                                  */
@@ -40,6 +70,38 @@ namespace SpaceSystemFactories {
                                                          const f64v3& gridPosition,
                                                          const SoaState* soaState);
     extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Axis rotation component
+    extern vcore::ComponentID addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                         const f64q& axisOrientation,
+                                                         f64 startAngle,
+                                                         f64 angularSpeed);
+    extern void removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Spherical terrain component
+    extern vcore::ComponentID addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                           vcore::ComponentID npComp,
+                                                           vcore::ComponentID arComp,
+                                                           f64 radius, PlanetGenData* planetGenData,
+                                                           vg::GLProgram* normalProgram,
+                                                           vg::TextureRecycler* normalMapRecycler);
+    extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Spherical Gravity component
+    extern vcore::ComponentID addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                           f64 radius, f64 mass);
+    extern void removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Name Position component
+    extern vcore::ComponentID addNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                           const nString& name, const f64v3& position);
+    extern void removeNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Orbit component
+    extern vcore::ComponentID addOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                f64 eccentricity, f64 orbitalPeriod,
+                                                const ui8v4& pathColor, const f64q& orientation);
+    extern void removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
 #endif // SpaceSystemFactories_h__

@@ -2,6 +2,8 @@
 #include "OrbitComponentUpdater.h"
 #include "SpaceSystem.h"
 
+#include "Constants.h"
+
 void OrbitComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
     for (auto& it : spaceSystem->m_orbitCT) {
         auto& cmp = it.second;

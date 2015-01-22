@@ -24,7 +24,7 @@
 class GameSystem;
 class InputManager;
 class SpaceSystem;
-class VoxelPositionComponent;
+struct VoxelPositionComponent;
 class SoaState;
 DECL_VVOX(class VoxelPlanetMapData);
 

@@ -16,8 +16,8 @@
 #define OrbitComponentRenderer_h__
 
 class SpaceSystem;
-class OrbitComponent;
-class NamePositionComponent;
+struct OrbitComponent;
+struct NamePositionComponent;
 
 namespace vorb {
     namespace core {

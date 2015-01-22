@@ -9,7 +9,8 @@
 #include "Chunk.h"
 #include "Errors.h"
 #include "PlanetLoader.h"
-#include "SphericalTerrainComponent.h"
+#include "SpaceSystemComponents.h"
+#include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainMeshManager.h"
 
 #define M_PER_KM 1000.0f

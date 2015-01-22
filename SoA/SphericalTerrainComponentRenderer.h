@@ -15,9 +15,9 @@
 #ifndef SphericalTerrainComponentRenderer_h__
 #define SphericalTerrainComponentRenderer_h__
 
-class SphericalTerrainComponent;
-class NamePositionComponent;
-class AxisRotationComponent;
+struct SphericalTerrainComponent;
+struct NamePositionComponent;
+struct AxisRotationComponent;
 class Camera;
 
 namespace vorb {

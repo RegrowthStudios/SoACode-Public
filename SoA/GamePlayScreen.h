@@ -29,14 +29,15 @@
 
 class App;
 class GameStartState;
+class GameSystem;
+class GameSystemUpdater;
 class InputManager;
 class MainMenuScreen;
 class SoaState;
+class SpaceSystemUpdater;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
-class GameSystem;
-class GameSystemUpdater;
 
 template<typename... Params>
 class IDelegate;
@@ -129,6 +130,7 @@ private:
     bool m_inFocus; ///< true when the window is in focus
 
     SoaController controller;
+    std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
     std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
 
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
