@@ -45,7 +45,7 @@ const int MAX_LOD = 10;
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {
 public:
-    friend class SphericalTerrainComponent;
+    friend struct SphericalTerrainComponent;
 
     SphericalTerrainData(f64 radius,
                          f64 patchWidth) :
