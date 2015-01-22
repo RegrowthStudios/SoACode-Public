@@ -16,9 +16,9 @@
 
 struct SpaceSystemLoadParams {
     SpaceSystem* spaceSystem = nullptr;
-    vio::IOManager ioManager;
+    vio::IOManager* ioManager = nullptr;
     nString dirPath;
-    PlanetLoader planetLoader = PlanetLoader(&ioManager);
+    PlanetLoader* planetLoader = nullptr;
 
     std::map<nString, Binary*> binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
@@ -29,6 +29,9 @@ bool SoaEngine::initState(OUT SoaState* state) {
     state->glProgramManager = std::make_unique<vg::GLProgramManager>();
     state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
     state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
+    state->systemIoManager = std::make_unique<vio::IOManager>();
+    state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
+
     return true;
 }
 
@@ -54,6 +57,8 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     SpaceSystemLoadParams spaceSystemLoadParams;
     spaceSystemLoadParams.dirPath = loadData.filePath;
     spaceSystemLoadParams.spaceSystem = &state->spaceSystem;
+    spaceSystemLoadParams.ioManager = state->systemIoManager.get();
+    spaceSystemLoadParams.planetLoader = state->planetLoader.get();
 
     addSolarSystem(spaceSystemLoadParams);
 
@@ -75,7 +80,7 @@ void SoaEngine::destroyGameSystem(OUT SoaState* state) {
 }
 
 void SoaEngine::addSolarSystem(SpaceSystemLoadParams& pr) {
-    pr.ioManager.setSearchDirectory((pr.dirPath + "/").c_str());
+    pr.ioManager->setSearchDirectory((pr.dirPath + "/").c_str());
 
     // Load the system
     loadSystemProperties(pr);
@@ -135,7 +140,7 @@ void SoaEngine::addSolarSystem(SpaceSystemLoadParams& pr) {
 
 bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     nString data;
-    pr.ioManager.readFileToString("SystemProperties.yml", data);
+    pr.ioManager->readFileToString("SystemProperties.yml", data);
 
     YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
@@ -193,7 +198,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
 
     Keg::Error error;
     nString data;
-    pr.ioManager.readFileToString(filePath.c_str(), data);
+    pr.ioManager->readFileToString(filePath.c_str(), data);
 
     YAML::Node node = YAML::Load(data.c_str());
     if (node.IsNull() || !node.IsMap()) {
@@ -211,9 +216,9 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
-                properties.planetGenData = pr.planetLoader.loadPlanet(properties.generation);
+                properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation);
             } else {
-                properties.planetGenData = pr.planetLoader.getDefaultGenData();
+                properties.planetGenData = pr.planetLoader->getDefaultGenData();
             }
 
             SpaceSystemFactories::createPlanet(pr.spaceSystem, sysProps, &properties, body);
