@@ -638,9 +638,6 @@
     <ClInclude Include="GameSystemComponents.h">
       <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystemEvents.hpp">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="MusicPlayer.h">
       <Filter>SOA Files\Sound\Music</Filter>
     </ClInclude>
@@ -681,7 +678,10 @@
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
     <ClInclude Include="SpaceSystemUpdater.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\ECS\Updaters</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemEvents.hpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
