@@ -16,7 +16,7 @@
 #define SphericalTerrainComponentUpdater_h__
 
 class SpaceSystem;
-class SphericalTerrainComponent;
+struct SphericalTerrainComponent;
 class SphericalTerrainGenerator;
 class SphericalTerrainMesh;
 

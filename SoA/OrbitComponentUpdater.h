@@ -15,9 +15,9 @@
 #ifndef OrbitComponentUpdater_h__
 #define OrbitComponentUpdater_h__
 
-class OrbitComponent;
+struct OrbitComponent;
 class SpaceSystem;
-class NamePositionComponent;
+struct NamePositionComponent;
 
 class OrbitComponentUpdater {
 public:

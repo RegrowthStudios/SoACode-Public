@@ -15,14 +15,14 @@
 #ifndef SphericalVoxelComponentUpdater_h__
 #define SphericalVoxelComponentUpdater_h__
 
-class AxisRotationComponent;
+struct AxisRotationComponent;
 class Camera;
 class Chunk;
 class GameSystem;
-class NamePositionComponent;
+struct NamePositionComponent;
 class SoaState;
 class SpaceSystem;
-class SphericalVoxelComponent;
+struct SphericalVoxelComponent;
 
 class SphericalVoxelComponentUpdater {
 public:
