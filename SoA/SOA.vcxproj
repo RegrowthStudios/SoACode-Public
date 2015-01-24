@@ -69,7 +69,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)deps\win32\include;$(SolutionDir);$(SolutionDir)deps\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)deps\win32\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+    <TargetName>SoA</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)deps\win32\include;$(IncludePath)</IncludePath>

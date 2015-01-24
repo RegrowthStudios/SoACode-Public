@@ -74,7 +74,6 @@ PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
     // Empty
 }
 
-
 PlanetLoader::~PlanetLoader() {
 }
 
