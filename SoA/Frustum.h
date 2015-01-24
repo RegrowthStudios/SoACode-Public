@@ -18,9 +18,9 @@
 class Frustum {
 public:
     /// Updates the frustum with the projection and view matrix
-    /// @param projectionMatrix: Projection matrix of the camera
+    /// @param VP: View-Projection matrix of camera
     /// @param viewMatrix: View matrix of the camera
-    void update(const f32m4& projectionMatrix, const f32m4& viewMatrix);
+    void update(const f32m4& VP);
 
     /// Checks if a point is in the frustum
     /// @param pos: The position of the point

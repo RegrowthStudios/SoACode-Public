@@ -1,16 +1,10 @@
 #include "stdafx.h"
 #include "Frustum.h"
 
-void Frustum::update(const f32m4& projectionMatrix, const f32m4& viewMatrix) {
-    f32m4 model = projectionMatrix * viewMatrix;
-
-    f32 clip[16];
+void Frustum::update(const f32m4& VP) {
+    
+    const f32 *clip = &VP[0][0];
     f32 t;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            clip[i * 4 + j] = model[i][j];
-        }
-    }
 
     /* Extract the numbers for the RIGHT plane */
     _frustum[0][0] = clip[3] - clip[0];
