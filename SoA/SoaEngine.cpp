@@ -10,7 +10,6 @@
 #include "SpaceSystemLoadStructs.h"
 
 #include <Vorb/io/Keg.h>
-#include <yaml-cpp/yaml.h>
 
 #define M_PER_KM 1000.0
 
@@ -142,24 +141,27 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     nString data;
     pr.ioManager->readFileToString("SystemProperties.yml", data);
 
-    YAML::Node node = YAML::Load(data.c_str());
-    if (node.IsNull() || !node.IsMap()) {
+    keg::YAMLReader reader;
+    reader.init(data.c_str());
+    keg::Node node = reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
         fprintf(stderr, "Failed to load %s\n", (pr.dirPath + "/SystemProperties.yml").c_str());
+        reader.dispose();
         return false;
     }
 
-    for (auto& kvp : node) {
-        nString name = kvp.first.as<nString>();
+    bool goodParse = true;
+    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         // Parse based on the name
         if (name == "description") {
             pr.spaceSystem->systemDescription = name;
         } else if (name == "Binary") {
             // Binary systems
             Binary* newBinary = new Binary;
-            Keg::Error err = Keg::parse((ui8*)newBinary, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
+            Keg::Error err = Keg::parse((ui8*)newBinary, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
             if (err != Keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
-                return false;
+                goodParse = false;
             }
 
             pr.binaries[newBinary->name] = newBinary;
@@ -167,15 +169,15 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
             // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
             properties.pathColor = ui8v4(rand() % 255, rand() % 255, rand() % 255, 255);
-            Keg::Error err = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
+            Keg::Error err = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != Keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
-                return false;
+                goodParse = false;
             }
 
             if (properties.path.empty()) {
                 fprintf(stderr, "Missing path: for node %s in %s\n", name.c_str(), pr.dirPath.c_str());
-                return false;
+                goodParse = false;
             }
             // Allocate the body
             SystemBody* body = new SystemBody;
@@ -184,34 +186,45 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
             loadBodyProperties(pr, properties.path, &properties, body);
             pr.systemBodies[name] = body;
         }
-    }
+    });
+    reader.forAllInMap(node, f);
+    delete f;
+    reader.dispose();
 
-    return true;
+    return goodParse;
 }
 
 bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body) {
 
-#define KEG_CHECK if (error != Keg::Error::NONE) { \
-       fprintf(stderr, "Keg error %d for %s\n", (int)error, filePath); \
-        return false; \
+#define KEG_CHECK \
+    if (error != Keg::Error::NONE) { \
+        fprintf(stderr, "Keg error %d for %s\n", (int)error, filePath); \
+        goodParse = false; \
+        return;  \
     }
 
     Keg::Error error;
     nString data;
     pr.ioManager->readFileToString(filePath.c_str(), data);
 
-    YAML::Node node = YAML::Load(data.c_str());
-    if (node.IsNull() || !node.IsMap()) {
+    keg::YAMLReader reader;
+    reader.init(data.c_str());
+    keg::Node node = reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to load " + filePath;
+        reader.dispose();
         return false;
     }
 
-    for (auto& kvp : node) {
-        nString type = kvp.first.as<nString>();
+    bool goodParse = true;
+    bool foundOne = false;
+    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+        if (foundOne) return;
+
         // Parse based on type
         if (type == "planet") {
             PlanetKegProperties properties;
-            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
+            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
             KEG_CHECK;
 
             // Use planet loader to load terrain and biomes
@@ -224,12 +237,12 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             SpaceSystemFactories::createPlanet(pr.spaceSystem, sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;
-            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
+            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
             SpaceSystemFactories::createStar(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
-            error = Keg::parse((ui8*)&properties, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
+            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             SpaceSystemFactories::createGasGiant(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         }
@@ -237,9 +250,13 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         pr.bodyLookupMap[body->name] = body->entity;
 
         //Only parse the first
-        break;
-    }
-    return true;
+        foundOne = true;
+    });
+    reader.forAllInMap(node, f);
+    delete f;
+    reader.dispose();
+
+    return goodParse;
 }
 
 void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary) {

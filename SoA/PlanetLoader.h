@@ -62,11 +62,11 @@ private:
 
     void addBiomePixel(ui32 colorCode, int index);
 
-    void parseTerrainFuncs(TerrainFuncs* terrainFuncs, YAML::Node& node);
+    void parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader& reader, keg::Node node);
     
-    void parseLiquidColor(YAML::Node& node, PlanetGenData* genData);
+    void parseLiquidColor(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData);
     
-    void parseTerrainColor(YAML::Node& node, PlanetGenData* genData);
+    void parseTerrainColor(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData);
 
     vg::GLProgram* generateProgram(PlanetGenData* genData,
                                    TerrainFuncs& baseTerrainFuncs,

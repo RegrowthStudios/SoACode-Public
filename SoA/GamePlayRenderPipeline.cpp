@@ -2,7 +2,6 @@
 #include "GamePlayRenderPipeline.h"
 
 #include <Vorb/graphics/GLStates.h>
-#include <yaml-cpp/yaml.h>
 
 #include "ChunkGridRenderStage.h"
 #include "ChunkManager.h"
@@ -240,12 +239,15 @@ void GamePlayRenderPipeline::loadNightVision() {
     const cString nvData = iom.readFileToString("Data/NightVision.yml");
     if (nvData) {
         Array<NightVisionRenderParams> arr;
-        YAML::Node node = YAML::Load(nvData);
+        keg::YAMLReader reader;
+        reader.init(nvData);
+        keg::Node node = reader.getFirst();
         Keg::Value v = Keg::Value::array(0, Keg::Value::custom("NightVisionRenderParams", 0, false));
-        Keg::evalData((ui8*)&arr, &v, node, Keg::getGlobalEnvironment());
+        Keg::evalData((ui8*)&arr, &v, node, reader, Keg::getGlobalEnvironment());
         for (i32 i = 0; i < arr.getLength(); i++) {
             _nvParams.push_back(arr[i]);
         }
+        reader.dispose();
         delete[] nvData;
     }
     if (_nvParams.size() < 1) {

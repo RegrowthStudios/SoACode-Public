@@ -4,7 +4,6 @@
 #include <SDL\SDL_keyboard.h>
 #include <SDL\SDL_mouse.h>
 #include <Vorb/io/Keg.h>
-#include <yaml-cpp/yaml.h>
 
 #include "global.h"
 #include "FileSystem.h"
@@ -152,25 +151,31 @@ void InputManager::loadAxes(const std::string &location) {
         throw 33;
     }
 
-    YAML::Node node = YAML::Load(data.c_str());
-    if (node.IsNull() || !node.IsMap()) {
+    keg::YAMLReader reader;
+    reader.init(data.c_str());
+    keg::Node node = reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
         perror(location.c_str());
+        reader.dispose();
         throw 34;
     }
 
     // Manually parse yml file
-    for (auto& kvp : node) {
+    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         Axis* curAxis = new Axis();
-        curAxis->name = kvp.first.as<nString>();
-        Keg::parse((ui8*)curAxis, kvp.second, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Axis));
+        curAxis->name = name;
+        Keg::parse((ui8*)curAxis, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Axis));
      
         if (curAxis->type == AxisType::SINGLE_KEY) {
-            curAxis->upEvent = Event<ui32>();
-            curAxis->downEvent = Event<ui32>();
+            curAxis->upEvent = Event<ui32>(curAxis);
+            curAxis->downEvent = Event<ui32>(curAxis);
         }
         _axisLookup[curAxis->name] = _axes.size();
         _axes.push_back(curAxis);
-    }
+    });
+    reader.forAllInMap(node, f);
+    delete f;
+    reader.dispose();
 }
 
 void InputManager::loadAxes() {
