@@ -28,7 +28,7 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
     m_camera->setClippingPlane(10000.0f, 3000000000000.0f);
     m_camera->setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
 
-    m_spaceSystem->targetBody("Aldrin");
+    targetBody("Aldrin");
 
     // Register events
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
@@ -111,9 +111,35 @@ void MainMenuSystemViewer::update() {
     if (length == 0) length = 0.1;
     m_camera->setClippingPlane(length, m_camera->getFarClip());
     // Target closest point on sphere
-    m_camera->setTargetFocalPoint(m_spaceSystem->getTargetPosition() -
-                                 f64v3(glm::normalize(m_camera->getDirection())) * m_spaceSystem->getTargetRadius());
+    m_camera->setTargetFocalPoint(getTargetPosition() -
+                                 f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
+}
+
+void MainMenuSystemViewer::targetBody(const nString& name) {
+    for (auto& it : m_spaceSystem->m_namePositionCT) {
+        if (it.second.name == name) {
+            targetBody(it.first);
+            return;
+        }
+    }
+}
+
+void MainMenuSystemViewer::targetBody(vcore::EntityID eid) {
+    m_targetEntity = eid;
+    m_targetComponent = m_spaceSystem->m_namePositionCT.getComponentID(m_targetEntity);
+}
+
+f64v3 MainMenuSystemViewer::getTargetPosition() {
+    return m_spaceSystem->m_namePositionCT.get(m_targetComponent).position;
+}
+
+f64 MainMenuSystemViewer::getTargetRadius() {
+    return m_spaceSystem->m_sphericalGravityCT.get(m_targetComponent).radius;
+}
+
+nString MainMenuSystemViewer::getTargetName() {
+    return m_spaceSystem->m_namePositionCT.get(m_targetComponent).name;
 }
 
 void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButtonEvent& e) {
@@ -143,7 +169,7 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
         if (closestEntity) {
             m_selectedPlanet = closestEntity;
             pickStartLocation(closestEntity);
-            m_spaceSystem->targetBody(closestEntity);
+            targetBody(closestEntity);
         }
     } else {
         mouseButtons[1] = true;
@@ -228,7 +254,7 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radi
     }
 
     f32v3 gridHit = start + dir * min;
-    const float eps = 0.01;
+    const float eps = 0.01f;
 
     if (abs(gridHit.x - (-radius)) < eps) { //-X
         m_selectedCubeFace = (int)CubeFace::LEFT;

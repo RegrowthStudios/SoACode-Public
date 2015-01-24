@@ -3,10 +3,11 @@
 
 #include <Vorb/graphics/GLProgram.h>
 #include <glm/gtx/quaternion.hpp>
+#include <Vorb/graphics/GpuMemory.h>
 
-#include "NamePositionComponent.h"
-#include "OrbitComponent.h"
+#include "Constants.h"
 #include "RenderUtils.h"
+#include "SpaceSystemComponents.h"
 
 #define DEGREES 360
 #define VERTS_PER_DEGREE 8

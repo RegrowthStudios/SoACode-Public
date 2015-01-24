@@ -9,7 +9,8 @@
 #include "Chunk.h"
 #include "RPC.h"
 #include "RenderUtils.h"
-#include "SphericalTerrainComponent.h"
+#include "SpaceSystemComponents.h"
+#include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGenerator.h"
 #include "VoxelPlanetMapper.h"
 

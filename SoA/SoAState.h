@@ -18,13 +18,17 @@
 #include "SpaceSystem.h"
 #include "GameSystem.h"
 
+#include "PlanetLoader.h" //Why is this needed here??
+
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class DebugRenderer;
 class MeshManager;
-DECL_VG(class, GLProgramManager);
+class PlanetLoader;
+DECL_VG(class GLProgramManager);
+DECL_VIO(class IOManager);
 
 class SoaState {
 public:
@@ -39,6 +43,9 @@ public:
     std::unique_ptr<vg::GLProgramManager> glProgramManager;
     std::unique_ptr<DebugRenderer> debugRenderer;
     std::unique_ptr<MeshManager> meshManager;
+
+    std::unique_ptr<vio::IOManager> systemIoManager;
+    std::unique_ptr<PlanetLoader> planetLoader;
 
     vio::IOManager saveFileIom;
     bool isNewGame = true;

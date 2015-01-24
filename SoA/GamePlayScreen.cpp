@@ -32,6 +32,7 @@
 #include "SoaState.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
+#include "SpaceSystemUpdater.h"
 #include "SphericalTerrainPatch.h"
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
@@ -87,6 +88,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
 
     controller.startGame(m_soaState);
 
+    m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(&m_soaState->gameSystem, m_inputManager);
 
     // Initialize the PDA
@@ -225,7 +227,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
             glSpeedFactor = 3.0f;
         }
     }
-    m_soaState->spaceSystem.glUpdate();
+    m_spaceSystemUpdater->glUpdate(&m_soaState->spaceSystem);
 
     globalRenderAccumulationTimer.start("Update Meshes");
 
@@ -358,7 +360,8 @@ void GamePlayScreen::updateThreadFunc() {
 
         m_soaState->time += 0.00000000001;
         auto& npcmp = m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity);
-        m_soaState->spaceSystem.update(&m_soaState->gameSystem, m_soaState,
+
+        m_spaceSystemUpdater->update(&m_soaState->spaceSystem, &m_soaState->gameSystem, m_soaState,
                                        m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity).position);
 
         m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem, m_soaState);

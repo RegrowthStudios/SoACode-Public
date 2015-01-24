@@ -10,8 +10,8 @@
 #include "AmbiencePlayer.h"
 #include "App.h"
 
-#include "DebugRenderer.h"
 #include "ChunkManager.h"
+#include "DebugRenderer.h"
 #include "Errors.h"
 #include "FileSystem.h"
 #include "Frustum.h"
@@ -34,6 +34,7 @@
 #include "SoaEngine.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
+#include "SpaceSystemUpdater.h"
 #include "SphericalTerrainPatch.h"
 #include "VoxelEditor.h"
 
@@ -89,6 +90,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     m_ambPlayer->init(m_engine, m_ambLibrary);
     m_ambPlayer->setToTrack("Menu", 50);
 
+    m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
 
     // Initialize the user interface
     m_awesomiumInterface.init("UI/MainMenu/",
@@ -157,8 +159,8 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     m_mainMenuSystemViewer->update();
 
     m_soaState->time += 0.0000001;
-    m_soaState->spaceSystem.update(&m_soaState->gameSystem, m_soaState, m_camera.getPosition());
-    m_soaState->spaceSystem.glUpdate();
+    m_spaceSystemUpdater->update(&m_soaState->spaceSystem, &m_soaState->gameSystem, m_soaState, m_camera.getPosition());
+    m_spaceSystemUpdater->glUpdate(&m_soaState->spaceSystem);
 
     m_camera.update();
     m_inputManager->update(); // TODO: Remove

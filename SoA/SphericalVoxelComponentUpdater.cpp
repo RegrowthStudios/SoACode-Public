@@ -5,7 +5,7 @@
 #include "GameSystem.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
-#include "SphericalVoxelComponent.h"
+#include "SpaceSystemComponents.h"
 
 void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState) {
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
