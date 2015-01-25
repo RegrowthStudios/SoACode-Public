@@ -40,7 +40,7 @@ const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH;
 const int PATCH_NORMALMAP_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM + 2; // + 2 for padding
 const int PATCH_HEIGHTMAP_WIDTH = PATCH_NORMALMAP_WIDTH + 2; // + 2 for padding
 
-const int MAX_LOD = 10;
+const int MAX_LOD = 25; ///< Absolute maximum
 
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {

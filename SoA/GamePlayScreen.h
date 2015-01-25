@@ -61,15 +61,16 @@ enum DevUiModes {
 };
 
 class GamePlayScreen : public IAppScreen<App> {
-    friend class PdaAwesomiumAPI;
-    friend class OnPauseKeyDown;
+    friend class OnCycleDrawModeKeyDown;
     friend class OnFlyKeyDown;
-    friend class OnInventoryKeyDown;
-    friend class OnReloadUIKeyDown;
-    friend class OnReloadShadersKeyDown;
-    friend class OnHUDKeyDown;
     friend class OnGridKeyDown;
+    friend class OnHUDKeyDown;
+    friend class OnInventoryKeyDown;
+    friend class OnPauseKeyDown;
+    friend class OnReloadShadersKeyDown;
+    friend class OnReloadUIKeyDown;
     friend class PauseMenuAwesomiumAPI;
+    friend class PdaAwesomiumAPI;
 public:
     GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
     ~GamePlayScreen();
@@ -138,6 +139,7 @@ private:
 
     /// Delegates
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
+    IDelegate<ui32>* m_onCycleDrawMode = nullptr;
     IDelegate<ui32>* m_onPauseKeyDown = nullptr;
     IDelegate<ui32>* m_onFlyKeyDown = nullptr;
     IDelegate<ui32>* m_onGridKeyDown = nullptr;

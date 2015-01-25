@@ -168,14 +168,14 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * coordMults.y;
     m_worldPosition[coordMapping.z] = centerGridPos.y;
 
-    m_worldPosition = glm::normalize(m_worldPosition);
+    m_worldPosition = glm::normalize(m_worldPosition) * sphericalTerrainData->getRadius();
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     const float DIST_MIN = 3.0f;
     const float DIST_MAX = 3.1f;
 
-#define MIN_SIZE 0.016f
+#define MIN_SIZE 0.4096f
 
     // Calculate distance from camera
     if (hasMesh()) {
