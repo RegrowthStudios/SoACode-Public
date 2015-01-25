@@ -194,23 +194,16 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
 
 #define MIN_SIZE 0.4096f
     
+    f64v3 closestPoint;
     // Calculate distance from camera
     if (hasMesh()) {
-        // If we have a mesh, we ca use an accurate bounding box
-        f64v3 closestPoint;
+        // If we have a mesh, we can use an accurate bounding box    
         m_mesh->getClosestPoint(cameraPos, closestPoint);
         m_distance = glm::length(closestPoint - cameraPos);
-        // When its over the horizon, force to lowest LOD
-        if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
-            m_distance = 9999999999.0f;
-        }
     } else {
         // Approximate
         m_distance = glm::length(m_worldPosition - cameraPos);
-        // When its over the horizon, force to lowest LOD
-        if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
-            m_distance = 9999999999.0f;
-        }
+      
     }
     
     if (m_children) {
@@ -243,13 +236,25 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
             }
         }
     } else if (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
-        m_children = new SphericalTerrainPatch[4];
-        // Segment into 4 children
-        for (int z = 0; z < 2; z++) {
-            for (int x = 0; x < 2; x++) {
-                m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
-                                       m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
-                                       m_dispatcher);
+        // Only subdivide if we are visible over horizon
+        bool divide = true;
+        if (hasMesh()) {
+            if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
+                divide = false;
+            }
+        } else if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
+            divide = false;
+        }
+
+        if (divide) {
+            m_children = new SphericalTerrainPatch[4];
+            // Segment into 4 children
+            for (int z = 0; z < 2; z++) {
+                for (int x = 0; x < 2; x++) {
+                    m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
+                                                  m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
+                                                  m_dispatcher);
+                }
             }
         }
     } else if (!m_mesh) {
@@ -285,22 +290,26 @@ bool SphericalTerrainPatch::isRenderable() const {
 }
 
 bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
-#define DELTA 0.2f
-    int pLength = glm::length(relCamPos);
+#define DELTA 0.1f
+    f32 pLength = glm::length(relCamPos);
+    f32v3 ncp = relCamPos / pLength;
+
     if (pLength < planetRadius + 1.0f) pLength = planetRadius + 1.0f;
     f32 horizonAngle = acos(planetRadius / pLength);
-    f32 lodAngle = acos(glm::dot(glm::normalize(relCamPos), glm::normalize(point)));
-    if (lodAngle < horizonAngle + DELTA) return false;
-    return true;
+    f32 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
+    if (lodAngle >= horizonAngle + DELTA) return true;
+    return false;
 }
 bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
-#define DELTA 0.2
-    int pLength = glm::length(relCamPos);
+#define DELTA 0.1
+    f64 pLength = glm::length(relCamPos);
+    f64v3 ncp = relCamPos / pLength;
+
     if (pLength < planetRadius + 1.0) pLength = planetRadius + 1.0;
     f64 horizonAngle = acos(planetRadius / pLength);
-    f64 lodAngle = acos(glm::dot(glm::normalize(relCamPos), glm::normalize(point)));
-    if (lodAngle < horizonAngle + DELTA) return false;
-    return true;
+    f64 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
+    if (lodAngle >= horizonAngle + DELTA) return true;
+    return false;
 }
 
 void SphericalTerrainPatch::requestMesh() {
