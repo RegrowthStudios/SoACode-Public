@@ -20,6 +20,8 @@ vcore::EntityID GameSystemAssemblages::createPlayer(OUT GameSystem* gameSystem, 
 
     addFrustumComponent(gameSystem, id, fov, aspectRatio, znear, zfar);
 
+    addHeadComponent(gameSystem, id, 0.1f);
+
     return id;
 }
 
@@ -109,4 +111,15 @@ extern vcore::ComponentID GameSystemAssemblages::addFrustumComponent(OUT GameSys
 
 extern void GameSystemAssemblages::removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("Frustum", entity);
+}
+
+extern vcore::ComponentID GameSystemAssemblages::addHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity, float neckLength) {
+    vcore::ComponentID hid = gameSystem->addComponent("Head", entity);
+    auto& hcmp = gameSystem->headCT.get(hid);
+    hcmp.neckLength = neckLength;
+    return hid;
+}
+
+extern void GameSystemAssemblages::removeHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+    gameSystem->deleteComponent("Head", entity);
 }

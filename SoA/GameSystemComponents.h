@@ -90,4 +90,10 @@ struct FrustumComponent {
     Frustum frustum;
 };
 
+struct HeadComponent {
+    f32q relativeOrientation;
+    f32v3 relativePosition = f32v3(0.0f); ///< Position in voxel units
+    float neckLength = 0.0f; ///< Neck length in voxel units
+};
+
 #endif // GameSystemComponents_h__

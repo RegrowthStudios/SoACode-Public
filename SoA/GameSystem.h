@@ -30,6 +30,7 @@ public:
     vcore::ComponentTable<SpacePositionComponent> spacePositionCT;
     vcore::ComponentTable<VoxelPositionComponent> voxelPositionCT;
     vcore::ComponentTable<FrustumComponent> frustumCT;
+    vcore::ComponentTable<HeadComponent> headCT;
 };
 
 #endif // GameSystem_h__

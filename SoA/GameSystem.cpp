@@ -7,4 +7,6 @@ GameSystem::GameSystem() : vcore::ECS() {
     addComponentTable("Physics", &physicsCT);
     addComponentTable("SpacePosition", &spacePositionCT);
     addComponentTable("VoxelPosition", &voxelPositionCT);
+    addComponentTable("Frustum", &frustumCT);
+    addComponentTable("Head", &headCT);
 }

@@ -63,6 +63,10 @@ namespace GameSystemAssemblages {
     extern vcore::ComponentID addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                   float fov, float aspectRatio, float znear, float zfar);
     extern void removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
+    /// Head Component
+    extern vcore::ComponentID addHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                                  float neckLength);
+    extern void removeHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
 }
 
 #endif // GameSystemAssemblages_h__
