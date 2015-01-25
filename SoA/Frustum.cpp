@@ -80,10 +80,10 @@ void Frustum::update(const f32v3& position, const f32v3& dir, const f32v3& up) {
     Z = glm::normalize(position - dir);
 
     // X axis of camera with given "up" vector and Z axis
-    X = glm::normalize(up * Z);
+    X = glm::normalize(glm::cross(up, Z));
 
     // The real "up" vector is the cross product of Z and X
-    Y = Z * X;
+    Y = glm::cross(Z, X);
 
     // compute the centers of the near and far planes
     nc = position - Z * m_znear;
@@ -95,19 +95,19 @@ void Frustum::update(const f32v3& position, const f32v3& dir, const f32v3& up) {
     f32v3 aux, normal;
 
     aux = glm::normalize((nc + Y * m_nh) - position);
-    normal = aux * X;
+    normal = glm::cross(aux, X);
     m_planes[TOPP].setNormalAndPoint(normal, nc + Y * m_nh);
 
     aux = glm::normalize((nc - Y * m_nh) - position);
-    normal = X * aux;
+    normal = glm::cross(X, aux);
     m_planes[BOTTOMP].setNormalAndPoint(normal, nc - Y * m_nh);
 
     aux = glm::normalize((nc - X * m_nw) - position);
-    normal = aux * Y;
+    normal = glm::cross(aux, Y);
     m_planes[LEFTP].setNormalAndPoint(normal, nc - X * m_nw);
 
     aux = glm::normalize((nc + X * m_nw) - position);
-    normal = Y * aux;
+    normal = glm::cross(Y, aux);
     m_planes[RIGHTP].setNormalAndPoint(normal, nc + X * m_nw);
 }
 
