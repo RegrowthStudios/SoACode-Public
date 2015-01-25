@@ -17,7 +17,8 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
     static float dt = 0.0;
     dt += 0.001;
 
-    f64v3 rotRelativePos = f64v3(glm::inverse(rot) * f32v4(relativePos, 1.0f));
+    f32v3 rotpos = f32v3(glm::inverse(rot) * f32v4(relativePos, 1.0f));
+    f32v3 closestPoint;
 
     if (m_waterMeshes.size()) {
 
@@ -84,7 +85,9 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
                 m_meshes[i] = m_meshes.back();
                 m_meshes.pop_back();
             } else {
-                if (!SphericalTerrainPatch::isOverHorizon(rotRelativePos, m_meshes[i]->m_worldPosition,
+                /// Use bounding box to find closest point
+                m_meshes[i]->getClosestPoint(rotpos, closestPoint);
+                if (!SphericalTerrainPatch::isOverHorizon(rotpos, closestPoint,
                     m_planetGenData->radius)) {
                     m_meshes[i]->draw(relativePos, camera, rot, program);
                 }

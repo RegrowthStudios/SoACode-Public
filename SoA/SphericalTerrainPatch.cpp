@@ -49,7 +49,7 @@ void SphericalTerrainMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
 }
 
 void SphericalTerrainMesh::draw(const f64v3& cameraPos, const Camera* camera,
-                                const f32m4& rot, vg::GLProgram* program) {
+                                const f32m4& rot, vg::GLProgram* program) const {
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -cameraPos);
@@ -97,7 +97,7 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const Camera* camera,
 }
 
 void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const Camera* camera,
-                                     const f32m4& rot, vg::GLProgram* program) {
+                                     const f32m4& rot, vg::GLProgram* program) const {
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -cameraPos);
@@ -140,6 +140,23 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const Camera* camer
     //   glBindVertexArray(0);
 }
 
+void SphericalTerrainMesh::getClosestPoint(const f32v3& camPos, OUT f32v3& point) const {
+    point.x = (camPos.x <= m_worldPosition.x) ? m_worldPosition.x : ((camPos.x > m_worldPosition.x + m_boundingBox.x) ?
+                                                                     (m_worldPosition.x + m_boundingBox.x) : camPos.x);
+    point.y = (camPos.y <= m_worldPosition.y) ? m_worldPosition.y : ((camPos.y > m_worldPosition.y + m_boundingBox.y) ?
+                                                                     (m_worldPosition.y + m_boundingBox.y) : camPos.y);
+    point.z = (camPos.z <= m_worldPosition.z) ? m_worldPosition.z : ((camPos.z > m_worldPosition.z + m_boundingBox.z) ?
+                                                                     (m_worldPosition.z + m_boundingBox.z) : camPos.z);
+}
+void SphericalTerrainMesh::getClosestPoint(const f64v3& camPos, OUT f64v3& point) const {
+    point.x = (camPos.x <= m_worldPosition.x) ? m_worldPosition.x : ((camPos.x > m_worldPosition.x + m_boundingBox.x) ?
+                                                                     (m_worldPosition.x + m_boundingBox.x) : camPos.x);
+    point.y = (camPos.y <= m_worldPosition.y) ? m_worldPosition.y : ((camPos.y > m_worldPosition.y + m_boundingBox.y) ?
+                                                                     (m_worldPosition.y + m_boundingBox.y) : camPos.y);
+    point.z = (camPos.z <= m_worldPosition.z) ? m_worldPosition.z : ((camPos.z > m_worldPosition.z + m_boundingBox.z) ?
+                                                                     (m_worldPosition.z + m_boundingBox.z) : camPos.z);
+}
+
 
 SphericalTerrainPatch::~SphericalTerrainPatch() {
     destroy();
@@ -176,18 +193,24 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     const float DIST_MAX = 3.1f;
 
 #define MIN_SIZE 0.4096f
-
+    
     // Calculate distance from camera
     if (hasMesh()) {
-        m_worldPosition = m_mesh->m_worldPosition;
-        m_distance = glm::length(m_worldPosition - cameraPos);
+        // If we have a mesh, we ca use an accurate bounding box
+        f64v3 closestPoint;
+        m_mesh->getClosestPoint(cameraPos, closestPoint);
+        m_distance = glm::length(closestPoint - cameraPos);
+        // When its over the horizon, force to lowest LOD
+        if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
+            m_distance = 9999999999.0f;
+        }
     } else {
+        // Approximate
         m_distance = glm::length(m_worldPosition - cameraPos);
-    }
-
-    // When its over the horizon, force to lowest LOD
-    if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
-        m_distance = 9999999999.0f;
+        // When its over the horizon, force to lowest LOD
+        if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
+            m_distance = 9999999999.0f;
+        }
     }
     
     if (m_children) {
@@ -261,12 +284,21 @@ bool SphericalTerrainPatch::isRenderable() const {
     return false;
 }
 
-bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &closestPoint, f64 planetRadius) {
-#define DELTA 0.2
+bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
+#define DELTA 0.2f
     int pLength = glm::length(relCamPos);
     if (pLength < planetRadius + 1.0f) pLength = planetRadius + 1.0f;
+    f32 horizonAngle = acos(planetRadius / pLength);
+    f32 lodAngle = acos(glm::dot(glm::normalize(relCamPos), glm::normalize(point)));
+    if (lodAngle < horizonAngle + DELTA) return false;
+    return true;
+}
+bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
+#define DELTA 0.2
+    int pLength = glm::length(relCamPos);
+    if (pLength < planetRadius + 1.0) pLength = planetRadius + 1.0;
     f64 horizonAngle = acos(planetRadius / pLength);
-    f64 lodAngle = acos(glm::dot(glm::normalize(relCamPos), glm::normalize(closestPoint)));
+    f64 lodAngle = acos(glm::dot(glm::normalize(relCamPos), glm::normalize(point)));
     if (lodAngle < horizonAngle + DELTA) return false;
     return true;
 }

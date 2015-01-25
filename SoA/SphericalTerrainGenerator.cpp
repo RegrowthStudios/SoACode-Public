@@ -257,7 +257,10 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     f32v3 tmpPos;
     int xIndex;
     int zIndex;
-    
+    float minX = INT_MAX, maxX = INT_MIN;
+    float minY = INT_MAX, maxY = INT_MIN;
+    float minZ = INT_MAX, maxZ = INT_MIN;
+
     // Clear water index grid
     memset(waterIndexGrid, 0, sizeof(waterIndexGrid));
     memset(waterQuads, 0, sizeof(waterQuads));
@@ -316,17 +319,33 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
+            // Check bounding box
+            if (v.position.x < minX) {
+                minX = v.position.x;
+            } else if (v.position.x > maxX) {
+                maxX = v.position.x;
+            }
+            if (v.position.y < minY) {
+                minY = v.position.y;
+            } else if (v.position.y > maxY) {
+                maxY = v.position.y;
+            }
+            if (v.position.z < minZ) {
+                minZ = v.position.z;
+            } else if (v.position.z > maxZ) {
+                maxZ = v.position.z;
+            }
+
             v.color = m_planetGenData->terrainTint;
          //   v.color = DebugColors[(int)mesh->m_cubeFace];
-         //   v.color.r = (ui8)(m_heightData[zIndex][xIndex][3] * 31.875f);
-         //   v.color.g = 0.0;
-         //   v.color.b = 0.0;
+
             m_index++;
         }
     }
 
-    // TMP: Approximate position with middle
-    mesh->m_worldPosition = verts[m_index - PATCH_SIZE / 2].position;
+    // Get world position and bounding box
+    mesh->m_worldPosition = f32v3(minX, minY, minZ);
+    mesh->m_boundingBox = f32v3(maxX - minX, maxY - minY, maxZ - minZ);
 
     buildSkirts();
    
