@@ -297,7 +297,7 @@ EXIT 0</Command>
     <ClInclude Include="GameSystem.h" />
     <ClInclude Include="GameSystemComponents.h" />
     <ClInclude Include="GameSystemEvents.hpp" />
-    <ClInclude Include="GameSystemFactories.h" />
+    <ClInclude Include="GameSystemAssemblages.h" />
     <ClInclude Include="GameSystemUpdater.h" />
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
@@ -345,7 +345,7 @@ EXIT 0</Command>
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="SpaceSystemComponents.h" />
-    <ClInclude Include="SpaceSystemFactories.h" />
+    <ClInclude Include="SpaceSystemAssemblages.h" />
     <ClInclude Include="SpaceSystemLoadStructs.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SpaceSystemUpdater.h" />
@@ -469,7 +469,7 @@ EXIT 0</Command>
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
     <ClCompile Include="GameSystem.cpp" />
-    <ClCompile Include="GameSystemFactories.cpp" />
+    <ClCompile Include="GameSystemAssemblages.cpp" />
     <ClCompile Include="GameSystemUpdater.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="HardCodedIDs.cpp" />
@@ -511,7 +511,7 @@ EXIT 0</Command>
     <ClCompile Include="SkyboxRenderStage.cpp" />
     <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
-    <ClCompile Include="SpaceSystemFactories.cpp" />
+    <ClCompile Include="SpaceSystemAssemblages.cpp" />
     <ClCompile Include="SpaceSystemLoadStructs.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="SpaceSystemUpdater.cpp" />

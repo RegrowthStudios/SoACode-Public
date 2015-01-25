@@ -4,12 +4,12 @@
 #include "FreeMoveComponentUpdater.h"
 #include "GameSystem.h"
 #include "GameSystemEvents.hpp"
-#include "GameSystemFactories.h"
+#include "GameSystemAssemblages.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
-#include "SpaceSystemFactories.h"
+#include "SpaceSystemAssemblages.h"
 #include "SphericalTerrainPatch.h"
 
 #include <Vorb/FastConversion.inl>
@@ -39,7 +39,6 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
 
     m_onSuperSpeedKeyDown = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnSuperSpeedKeyDown(gameSystem));
     m_onSuperSpeedKeyUp = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::UP, (IDelegate<ui32>*)new OnSuperSpeedKeyUp(gameSystem));
-
 
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
         for (auto& it : gameSystem->freeMoveInputCT) {
@@ -91,7 +90,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
                     if (svid == 0) {
-                        svid = SpaceSystemFactories::addSphericalVoxelComponent(spaceSystem, sit.first,
+                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
                                                                                 &mapData, pos, soaState);
                     } else {
@@ -101,7 +100,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     f64q voxOrientation = glm::inverse(mapData.calculateVoxelToSpaceQuat(pos, stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
 
                     // We need to transition to the voxels
-                    vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
+                    vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
                     pycmp.voxelPositionComponent = vpid;
                 }
             }

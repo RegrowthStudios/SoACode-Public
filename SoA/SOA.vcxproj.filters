@@ -138,9 +138,6 @@
     <Filter Include="SOA Files\ECS\Systems">
       <UniqueIdentifier>{73eeb8a0-c66a-4fc2-bd59-edcbe41b3993}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\ECS\Factories">
-      <UniqueIdentifier>{5a883327-0095-495a-b35f-f80c5fec3f94}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\Sound\Music">
       <UniqueIdentifier>{70862515-6514-4574-9caf-db361861ced8}</UniqueIdentifier>
     </Filter>
@@ -152,6 +149,9 @@
     </Filter>
     <Filter Include="SOA Files\ECS\ComponentTables">
       <UniqueIdentifier>{f52bd506-1a48-4733-81fd-e5ccf12ec387}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\ECS\Assemblages">
+      <UniqueIdentifier>{5a883327-0095-495a-b35f-f80c5fec3f94}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -617,9 +617,6 @@
     <ClInclude Include="PhysicsComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystemFactories.h">
-      <Filter>SOA Files\ECS\Factories</Filter>
-    </ClInclude>
     <ClInclude Include="GameSystemUpdater.h">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
@@ -665,9 +662,6 @@
     <ClInclude Include="ParkourMoveUpdater.h">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClInclude>
-    <ClInclude Include="SpaceSystemFactories.h">
-      <Filter>SOA Files\ECS\Factories</Filter>
-    </ClInclude>
     <ClInclude Include="SphericalVoxelComponentTable.h">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClInclude>
@@ -682,6 +676,12 @@
     </ClInclude>
     <ClInclude Include="GameSystemEvents.hpp">
       <Filter>SOA Files\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemAssemblages.h">
+      <Filter>SOA Files\ECS\Assemblages</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemAssemblages.h">
+      <Filter>SOA Files\ECS\Assemblages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1046,9 +1046,6 @@
     <ClCompile Include="CollisionComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClCompile>
-    <ClCompile Include="GameSystemFactories.cpp">
-      <Filter>SOA Files\ECS\Factories</Filter>
-    </ClCompile>
     <ClCompile Include="GameSystemUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClCompile>
@@ -1088,9 +1085,6 @@
     <ClCompile Include="FreeMoveComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters</Filter>
     </ClCompile>
-    <ClCompile Include="SpaceSystemFactories.cpp">
-      <Filter>SOA Files\ECS\Factories</Filter>
-    </ClCompile>
     <ClCompile Include="SphericalVoxelComponentTable.cpp">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
@@ -1101,6 +1095,12 @@
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="SpaceSystemUpdater.cpp" />
+    <ClCompile Include="GameSystemAssemblages.cpp">
+      <Filter>SOA Files\ECS\Assemblages</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystemAssemblages.cpp">
+      <Filter>SOA Files\ECS\Assemblages</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

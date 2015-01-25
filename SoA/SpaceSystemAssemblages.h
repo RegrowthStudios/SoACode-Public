@@ -1,5 +1,5 @@
 ///
-/// SpaceSystemFactories.h
+/// SpaceSystemAssemblages.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 13 Jan 2015
@@ -7,13 +7,13 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Component and entity factories for SpaceSystem
+/// Component and entity assemblages for SpaceSystem
 ///
 
 #pragma once
 
-#ifndef SpaceSystemFactories_h__
-#define SpaceSystemFactories_h__
+#ifndef SpaceSystemAssemblages_h__
+#define SpaceSystemAssemblages_h__
 
 class SpaceSystem;
 
@@ -34,7 +34,7 @@ DECL_VG(
 )
 DECL_VVOX(class VoxelMapData);
 
-namespace SpaceSystemFactories {
+namespace SpaceSystemAssemblages {
     /************************************************************************/
     /* Entity Factories                                                     */
     /************************************************************************/
@@ -104,4 +104,4 @@ namespace SpaceSystemFactories {
     extern void removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
-#endif // SpaceSystemFactories_h__
+#endif // SpaceSystemAssemblages_h__

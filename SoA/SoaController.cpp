@@ -3,7 +3,7 @@
 
 #include <Vorb/ecs/Entity.h>
 
-#include "GameSystemFactories.h"
+#include "GameSystemAssemblages.h"
 #include "GameSystemUpdater.h"
 #include "SoaState.h"
 
@@ -17,7 +17,7 @@ void SoaController::startGame(OUT SoaState* state) {
 
     if (state->isNewGame) {
         // Create the player entity
-        state->playerEntity = GameSystemFactories::createPlayer(&state->gameSystem, state->startSpacePos,
+        state->playerEntity = GameSystemAssemblages::createPlayer(&state->gameSystem, state->startSpacePos,
                                           f64q(), 73.0f, f64v3(0.0));
         
         auto& svcmp = spaceSystem.m_sphericalVoxelCT.getFromEntity(state->startingPlanet);

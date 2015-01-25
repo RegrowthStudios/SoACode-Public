@@ -1,5 +1,5 @@
 ///
-/// GameSystemFactories.h
+/// GameSystemAssemblages.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 11 Jan 2015
@@ -7,13 +7,13 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Factory methods for GameSystem entities
+/// Component and entity assemblages for GameSystem
 ///
 
 #pragma once
 
-#ifndef GameSystemFactories_h__
-#define GameSystemFactories_h__
+#ifndef GameSystemAssemblages_h__
+#define GameSystemAssemblages_h__
 
 #include <Vorb/ecs/Entity.h>
 
@@ -21,7 +21,7 @@ class GameSystem;
 
 #include "GameSystemComponents.h"
 
-namespace GameSystemFactories {
+namespace GameSystemAssemblages {
     /************************************************************************/
     /* Entity Factories                                                     */
     /************************************************************************/
@@ -65,4 +65,4 @@ namespace GameSystemFactories {
     extern void removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
 }
 
-#endif // GameSystemFactories_h__
+#endif // GameSystemAssemblages_h__

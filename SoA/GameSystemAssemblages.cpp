@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "GameSystemFactories.h"
+#include "GameSystemAssemblages.h"
 
 #include <Vorb/ecs/ECS.h>
 
 #include "GameSystem.h"
 
-vcore::EntityID GameSystemFactories::createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
+vcore::EntityID GameSystemAssemblages::createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
                                                        const f64q& orientation, float massKg, const f64v3& initialVel,
                                                        float fov, float aspectRatio, float znear, float zfar) {
     vcore::EntityID id = gameSystem->addEntity();
@@ -23,11 +23,11 @@ vcore::EntityID GameSystemFactories::createPlayer(OUT GameSystem* gameSystem, co
     return id;
 }
 
-void GameSystemFactories::destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity) {
+void GameSystemAssemblages::destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity) {
     gameSystem->deleteEntity(playerEntity);
 }
 
-vcore::ComponentID GameSystemFactories::addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity,
+vcore::ComponentID GameSystemAssemblages::addFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                 vcore::ComponentID physicsComponent) {
     vcore::ComponentID vmCmpId = gameSystem->addComponent("FreeMove", entity);
     auto& vmCmp = gameSystem->freeMoveInputCT.get(vmCmpId);
@@ -35,11 +35,11 @@ vcore::ComponentID GameSystemFactories::addFreeMoveInput(OUT GameSystem* gameSys
     return vmCmpId;
 }
 
-void GameSystemFactories::removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+void GameSystemAssemblages::removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("FreeMove", entity);
 }
 
-vcore::ComponentID GameSystemFactories::addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,
+vcore::ComponentID GameSystemAssemblages::addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                           float massKg, const f64v3& initialVel,
                                                           vcore::ComponentID spacePositionComponent,
                                                           OPT vcore::ComponentID voxelPositionComponent /*= 0*/) {
@@ -52,11 +52,11 @@ vcore::ComponentID GameSystemFactories::addPhysics(OUT GameSystem* gameSystem, v
     return pCmpId;
 }
 
-void GameSystemFactories::removePhysics(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+void GameSystemAssemblages::removePhysics(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("Physics", entity);
 }
 
-vcore::ComponentID GameSystemFactories::addSpacePosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
+vcore::ComponentID GameSystemAssemblages::addSpacePosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                 const f64v3& position, const f64q& orientation) {
     vcore::ComponentID spCmpId = gameSystem->addComponent("SpacePosition", entity);
     auto& spCmp = gameSystem->spacePositionCT.get(spCmpId);
@@ -65,11 +65,11 @@ vcore::ComponentID GameSystemFactories::addSpacePosition(OUT GameSystem* gameSys
     return spCmpId;
 }
 
-void GameSystemFactories::removeSpacePosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+void GameSystemAssemblages::removeSpacePosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("Space Position", entity);
 }
 
-vcore::ComponentID GameSystemFactories::addAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity,
+vcore::ComponentID GameSystemAssemblages::addAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                  const f32v3& box, const f32v3& offset) {
     vcore::ComponentID abCmpId = gameSystem->addComponent("AABBCollidable", entity);
     auto& abCmp = gameSystem->aabbCollidableCT.get(abCmpId);
@@ -78,11 +78,11 @@ vcore::ComponentID GameSystemFactories::addAabbCollidable(OUT GameSystem* gameSy
     return abCmpId;
 }
 
-void GameSystemFactories::removeAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+void GameSystemAssemblages::removeAabbCollidable(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("AABBCollidable", entity);
 }
 
-vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
+vcore::ComponentID GameSystemAssemblages::addVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                 vcore::ComponentID parentVoxelComponent,
                                                                 const VoxelPosition& position, const f64q& orientation,
                                                                 vvox::VoxelPlanetMapData mapData) {
@@ -96,17 +96,17 @@ vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* gameSys
     return vpid;
 }
 
-void GameSystemFactories::removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+void GameSystemAssemblages::removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("VoxelPosition", entity);
 }
 
-extern vcore::ComponentID GameSystemFactories::addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity, float fov, float aspectRatio, float znear, float zfar) {
+extern vcore::ComponentID GameSystemAssemblages::addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity, float fov, float aspectRatio, float znear, float zfar) {
     vcore::ComponentID fid = gameSystem->addComponent("Frustum", entity);
     auto& fcmp = gameSystem->frustumCT.get(fid);
     fcmp.frustum.setCamInternals(fov, aspectRatio, znear, zfar);
     return fid;
 }
 
-extern void GameSystemFactories::removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+extern void GameSystemAssemblages::removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("Frustum", entity);
 }

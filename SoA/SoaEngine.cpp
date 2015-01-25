@@ -6,7 +6,7 @@
 #include "MeshManager.h"
 #include "PlanetLoader.h"
 #include "SoaState.h"
-#include "SpaceSystemFactories.h"
+#include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
 #include <Vorb/io/Keg.h>
@@ -234,16 +234,16 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
                 properties.planetGenData = pr.planetLoader->getDefaultGenData();
             }
 
-            SpaceSystemFactories::createPlanet(pr.spaceSystem, sysProps, &properties, body);
+            SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;
             error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
-            SpaceSystemFactories::createStar(pr.spaceSystem, sysProps, &properties, body);
+            SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
             error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
-            SpaceSystemFactories::createGasGiant(pr.spaceSystem, sysProps, &properties, body);
+            SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         }
 
