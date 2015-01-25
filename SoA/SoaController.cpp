@@ -31,8 +31,8 @@ void SoaController::startGame(OUT SoaState* state) {
         auto& arcmp = spaceSystem.m_axisRotationCT.getFromEntity(state->startingPlanet);
         auto& npcmp = spaceSystem.m_namePositionCT.getFromEntity(state->startingPlanet);
 
-        auto& vpcmp = gameSystem.voxelPositionCT.getFromEntity(state->playerEntity);
-        auto& spcmp = gameSystem.spacePositionCT.getFromEntity(state->playerEntity);
+        auto& vpcmp = gameSystem.voxelPosition.getFromEntity(state->playerEntity);
+        auto& spcmp = gameSystem.spacePosition.getFromEntity(state->playerEntity);
 
         f64v3 spacePos = state->startSpacePos;
 

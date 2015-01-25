@@ -10,16 +10,16 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
 
     f64v3 forward, right, up;
 
-    for (auto& it : gameSystem->freeMoveInputCT) {
+    for (auto& it : gameSystem->freeMoveInput) {
         auto& fmcmp = it.second;
-        auto& physcmp = gameSystem->physicsCT.get(fmcmp.physicsComponent);
+        auto& physcmp = gameSystem->physics.get(fmcmp.physicsComponent);
 
         f64q* orientation;
         // If there is a voxel component, we use voxel position
         if (physcmp.voxelPositionComponent) {
-            orientation = &gameSystem->voxelPositionCT.get(physcmp.voxelPositionComponent).orientation;
+            orientation = &gameSystem->voxelPosition.get(physcmp.voxelPositionComponent).orientation;
         } else {
-            orientation = &gameSystem->spacePositionCT.get(physcmp.spacePositionComponent).orientation;
+            orientation = &gameSystem->spacePosition.get(physcmp.spacePositionComponent).orientation;
         }
 
         f64 speed = (f64)fmcmp.speed;
@@ -65,14 +65,14 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
 
 void FreeMoveComponentUpdater::rotateFromMouse(GameSystem* gameSystem, FreeMoveInputComponent& cmp, float dx, float dy, float speed) {
 
-    auto& physcmp = gameSystem->physicsCT.get(cmp.physicsComponent);
+    auto& physcmp = gameSystem->physics.get(cmp.physicsComponent);
 
     f64q* orientation;
     // If there is a voxel component, we use voxel position
     if (physcmp.voxelPositionComponent) {
-        orientation = &gameSystem->voxelPositionCT.get(physcmp.voxelPositionComponent).orientation;
+        orientation = &gameSystem->voxelPosition.get(physcmp.voxelPositionComponent).orientation;
     } else {
-        orientation = &gameSystem->spacePositionCT.get(physcmp.spacePositionComponent).orientation;
+        orientation = &gameSystem->spacePosition.get(physcmp.spacePositionComponent).orientation;
     }
 
     f64v3 right = *orientation * f64v3(1.0, 0.0, 0.0);

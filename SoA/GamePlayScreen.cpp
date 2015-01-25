@@ -360,10 +360,10 @@ void GamePlayScreen::updateThreadFunc() {
         GameManager::soundEngine->update();
 
         m_soaState->time += 0.00000000001;
-        auto& npcmp = m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity);
+        auto& npcmp = m_soaState->gameSystem.spacePosition.getFromEntity(m_soaState->playerEntity);
 
         m_spaceSystemUpdater->update(&m_soaState->spaceSystem, &m_soaState->gameSystem, m_soaState,
-                                       m_soaState->gameSystem.spacePositionCT.getFromEntity(m_soaState->playerEntity).position);
+                                       m_soaState->gameSystem.spacePosition.getFromEntity(m_soaState->playerEntity).position);
 
         m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem, m_soaState);
 

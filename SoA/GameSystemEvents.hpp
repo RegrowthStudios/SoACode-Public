@@ -38,7 +38,7 @@ public:
     OnForwardKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveForward = true;
         }
     }
@@ -49,7 +49,7 @@ public:
     OnForwardKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveForward = false;
         }
     }
@@ -60,7 +60,7 @@ public:
     OnRightKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveRight = true;
         }
     }
@@ -71,7 +71,7 @@ public:
     OnRightKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveRight = false;
         }
     }
@@ -82,7 +82,7 @@ public:
     OnLeftKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveLeft = true;
         }
     }
@@ -93,7 +93,7 @@ public:
     OnLeftKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveLeft = false;
         }
     }
@@ -104,7 +104,7 @@ public:
     OnBackwardKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveBackward = true;
         }
     }
@@ -115,7 +115,7 @@ public:
     OnBackwardKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveBackward = false;
         }
     }
@@ -129,7 +129,7 @@ public:
     OnUpKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveUp = true;
         }
     }
@@ -140,7 +140,7 @@ public:
     OnUpKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveUp = false;
         }
     }
@@ -152,7 +152,7 @@ public:
     OnDownKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveDown = true;
         }
     }
@@ -163,7 +163,7 @@ public:
     OnDownKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryMoveDown = false;
         }
     }
@@ -176,7 +176,7 @@ public:
     OnLeftRollKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryRollLeft = true;
         }
     }
@@ -187,7 +187,7 @@ public:
     OnLeftRollKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryRollLeft = false;
         }
     }
@@ -199,7 +199,7 @@ public:
     OnRightRollKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryRollRight = true;
         }
     }
@@ -210,7 +210,7 @@ public:
     OnRightRollKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.tryRollRight = false;
         }
     }
@@ -222,7 +222,7 @@ public:
     OnSuperSpeedKeyDown(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.superSpeed = true;
         }
     }
@@ -233,7 +233,7 @@ public:
     OnSuperSpeedKeyUp(GameSystem* gameSystem) : GameSystemDelegate(gameSystem) {}
 
     virtual void invoke(Sender sender, ui32 key) override {
-        for (auto& it : m_gameSystem->freeMoveInputCT) {
+        for (auto& it : m_gameSystem->freeMoveInput) {
             it.second.superSpeed = false;
         }
     }
