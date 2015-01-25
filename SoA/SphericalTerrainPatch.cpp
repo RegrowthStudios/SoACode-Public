@@ -184,6 +184,11 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     } else {
         m_distance = glm::length(m_worldPosition - cameraPos);
     }
+
+    // When its over the horizon, force to lowest LOD
+    if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
+        m_distance = 9999999999.0f;
+    }
     
     if (m_children) {
    
