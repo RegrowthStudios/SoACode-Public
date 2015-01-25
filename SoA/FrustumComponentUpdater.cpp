@@ -24,8 +24,8 @@ void FrustumComponentUpdater::update(OUT GameSystem* gameSystem) {
             orientation = hCmp.relativeOrientation * orientation;
         }
 
-        up = orientation * f64v3(0.0, 1.0, 0.0);
-        dir = orientation * f64v3(0.0, 0.0, 1.0);
+        up = f64v3(0.0, 1.0, 0.0) * orientation;
+        dir = f64v3(0.0, 0.0, 1.0) * orientation;
 
         cmp.frustum.update(pos, dir, up);
     }

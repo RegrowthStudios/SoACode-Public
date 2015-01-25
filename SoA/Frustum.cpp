@@ -39,35 +39,35 @@ void Frustum::setCamInternals(float fov, float aspectRatio, float znear, float z
 
 void Frustum::updateFromWVP(const f32m4& WVP) {
     m_planes[NEARP].setCoefficients(
-        WVP[3][1] + WVP[4][1],
-        WVP[3][2] + WVP[4][2],
-        WVP[3][3] + WVP[4][3],
-        WVP[3][4] + WVP[4][4]);
+        WVP[0][2] + WVP[0][3],
+        WVP[1][2] + WVP[1][3],
+        WVP[2][2] + WVP[2][3],
+        WVP[3][2] + WVP[3][3]);
     m_planes[FARP].setCoefficients(
-        -WVP[3][1] + WVP[4][1],
-        -WVP[3][2] + WVP[4][2],
-        -WVP[3][3] + WVP[4][3],
-        -WVP[3][4] + WVP[4][4]);
+        -WVP[0][2] + WVP[0][3],
+        -WVP[1][2] + WVP[1][3],
+        -WVP[2][2] + WVP[2][3],
+        -WVP[3][2] + WVP[3][3]);
     m_planes[BOTTOMP].setCoefficients(
-        WVP[2][1] + WVP[4][1],
-        WVP[2][2] + WVP[4][2],
-        WVP[2][3] + WVP[4][3],
-        WVP[2][4] + WVP[4][4]);
+        WVP[0][1] + WVP[0][3],
+        WVP[1][1] + WVP[1][3],
+        WVP[2][1] + WVP[2][3],
+        WVP[3][1] + WVP[3][3]);
     m_planes[TOPP].setCoefficients(
-        -WVP[2][1] + WVP[4][1],
-        -WVP[2][2] + WVP[4][2],
-        -WVP[2][3] + WVP[4][3],
-        -WVP[2][4] + WVP[4][4]);
+        -WVP[0][1] + WVP[0][3],
+        -WVP[1][1] + WVP[1][3],
+        -WVP[2][1] + WVP[2][3],
+        -WVP[3][1] + WVP[3][3]);
     m_planes[LEFTP].setCoefficients(
-        WVP[1][1] + WVP[4][1],
-        WVP[1][2] + WVP[4][2],
-        WVP[1][3] + WVP[4][3],
-        WVP[1][4] + WVP[4][4]);
+        WVP[0][0] + WVP[0][3],
+        WVP[1][0] + WVP[1][3],
+        WVP[2][0] + WVP[2][3],
+        WVP[3][0] + WVP[3][3]);
     m_planes[RIGHTP].setCoefficients(
-        -WVP[1][1] + WVP[4][1],
-        -WVP[1][2] + WVP[4][2],
-        -WVP[1][3] + WVP[4][3],
-        -WVP[1][4] + WVP[4][4]);
+        -WVP[0][0] + WVP[0][3],
+        -WVP[1][0] + WVP[1][3],
+        -WVP[2][0] + WVP[2][3],
+        -WVP[3][0] + WVP[3][3]);
 }
 
 void Frustum::update(const f32v3& position, const f32v3& dir, const f32v3& up) {

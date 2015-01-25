@@ -104,9 +104,9 @@ void GameSystemAssemblages::removeVoxelPosition(OUT GameSystem* gameSystem, vcor
 
 extern vcore::ComponentID GameSystemAssemblages::addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                      f32 fov, f32 aspectRatio, f32 znear, f32 zfar,
-                                                                     vcore::ComponentID spacePosition = 0,
-                                                                     vcore::ComponentID voxelPosition = 0,
-                                                                     vcore::ComponentID head = 0) {
+                                                                     vcore::ComponentID spacePosition /* = 0 */,
+                                                                     vcore::ComponentID voxelPosition /* = 0 */,
+                                                                     vcore::ComponentID head /* = 0 */) {
     vcore::ComponentID fid = gameSystem->addComponent("Frustum", entity);
     auto& fcmp = gameSystem->frustum.get(fid);
     fcmp.frustum.setCamInternals(fov, aspectRatio, znear, zfar);
