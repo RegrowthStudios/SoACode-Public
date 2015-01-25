@@ -29,6 +29,7 @@ public:
     vcore::ComponentTable<PhysicsComponent> physicsCT;
     vcore::ComponentTable<SpacePositionComponent> spacePositionCT;
     vcore::ComponentTable<VoxelPositionComponent> voxelPositionCT;
+    vcore::ComponentTable<FrustumComponent> frustumCT;
 };
 
 #endif // GameSystem_h__

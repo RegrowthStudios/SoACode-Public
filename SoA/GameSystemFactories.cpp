@@ -6,7 +6,8 @@
 #include "GameSystem.h"
 
 vcore::EntityID GameSystemFactories::createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
-                                                       const f64q& orientation, float massKg, const f64v3& initialVel) {
+                                                       const f64q& orientation, float massKg, const f64v3& initialVel,
+                                                       float fov, float aspectRatio, float znear, float zfar) {
     vcore::EntityID id = gameSystem->addEntity();
 
     vcore::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation);
@@ -16,6 +17,8 @@ vcore::EntityID GameSystemFactories::createPlayer(OUT GameSystem* gameSystem, co
     addAabbCollidable(gameSystem, id, f32v3(1.7f, 3.7f, 1.7f), f32v3(0.0f));
 
     addFreeMoveInput(gameSystem, id, pyCmpId);
+
+    addFrustumComponent(gameSystem, id, fov, aspectRatio, znear, zfar);
 
     return id;
 }
@@ -95,4 +98,15 @@ vcore::ComponentID GameSystemFactories::addVoxelPosition(OUT GameSystem* gameSys
 
 void GameSystemFactories::removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity) {
     gameSystem->deleteComponent("VoxelPosition", entity);
+}
+
+extern vcore::ComponentID GameSystemFactories::addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity, float fov, float aspectRatio, float znear, float zfar) {
+    vcore::ComponentID fid = gameSystem->addComponent("Frustum", entity);
+    auto& fcmp = gameSystem->frustumCT.get(fid);
+    fcmp.frustum.setCamInternals(fov, aspectRatio, znear, zfar);
+    return fid;
+}
+
+extern void GameSystemFactories::removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity) {
+    gameSystem->deleteComponent("Frustum", entity);
 }

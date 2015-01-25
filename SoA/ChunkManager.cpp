@@ -188,7 +188,7 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
 
     globalMultiplePreciseTimer.start("Update Chunks");
 
-    updateChunks(position);
+    updateChunks(position, frustum);
 
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);

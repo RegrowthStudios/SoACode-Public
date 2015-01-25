@@ -11,6 +11,7 @@ void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const Game
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
 
         auto& playerPosCmp = gameSystem->voxelPositionCT.getFromEntity(soaState->playerEntity);
+        auto& playerFrustumCmp = gameSystem->fru
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
             it.second.chunkManager->update(playerPosCmp.position);
         }

@@ -48,7 +48,7 @@ void Camera::update() {
 
     if (updateFrustum) {
         m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
-        m_frustum.update(m_viewProjectionMatrix);
+        m_frustum.updateFromWVP(m_viewProjectionMatrix);
     }
 }
 

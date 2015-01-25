@@ -27,7 +27,8 @@ namespace GameSystemFactories {
     /************************************************************************/
     /// Player entity
     extern vcore::EntityID createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
-                                      const f64q& orientation, float massKg, const f64v3& initialVel);
+                                      const f64q& orientation, float massKg, const f64v3& initialVel,
+                                      float fov, float aspectRatio, float znear, float zfar);
     extern void destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity);
 
     /************************************************************************/
@@ -58,6 +59,10 @@ namespace GameSystemFactories {
                                                const f64q& orientation,
                                                vvox::VoxelPlanetMapData mapData);
     extern void removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity);
+    /// Frustum Component
+    extern vcore::ComponentID addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                                  float fov, float aspectRatio, float znear, float zfar);
+    extern void removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
 }
 
 #endif // GameSystemFactories_h__

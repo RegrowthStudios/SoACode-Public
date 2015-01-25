@@ -72,7 +72,7 @@ void Frustum::updateFromWVP(const f32m4& WVP) {
 
 void Frustum::update(const f32v3& position, const f32v3& dir, const f32v3& up) {
 
-    f32v3 dir, nc, fc, X, Y, Z;
+    f32v3 nc, fc, X, Y, Z;
 
     // Compute the Z axis of camera
     // This axis points in the opposite direction from 
