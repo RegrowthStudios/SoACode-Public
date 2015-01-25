@@ -3,6 +3,7 @@
 
 #include "GameSystem.h"
 
+#include "global.h"
 void FrustumComponentUpdater::update(OUT GameSystem* gameSystem) {
     f64q orientation;
     f32v3 up;
@@ -21,11 +22,11 @@ void FrustumComponentUpdater::update(OUT GameSystem* gameSystem) {
         }
         if (cmp.headComponent) {
             auto& hCmp = gameSystem->head.get(cmp.headComponent);
-            orientation = hCmp.relativeOrientation * orientation;
+            orientation = orientation * hCmp.relativeOrientation;
         }
 
-        up = f64v3(0.0, 1.0, 0.0) * orientation;
-        dir = f64v3(0.0, 0.0, 1.0) * orientation;
+        up = orientation * f64v3(0.0, 1.0, 0.0);
+        dir = orientation * f64v3(0.0, 0.0, 1.0);
 
         cmp.frustum.update(pos, dir, up);
     }
