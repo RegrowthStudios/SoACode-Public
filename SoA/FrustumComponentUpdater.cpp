@@ -7,7 +7,7 @@ void FrustumComponentUpdater::update(OUT GameSystem* gameSystem) {
     f64q orientation;
     f32v3 up;
     f32v3 dir;
-    f32v3 pos;
+    const f32v3 pos(0.0f); ///< Always treat as origin for precision
     for (auto& it : gameSystem->frustum) {
         auto& cmp = it.second;
         
@@ -15,16 +15,13 @@ void FrustumComponentUpdater::update(OUT GameSystem* gameSystem) {
         if (cmp.voxelPositionComponent) {
             auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPositionComponent);
             orientation = vpCmp.orientation;     
-            pos = vpCmp.position;
         } else {
             auto& spCmp = gameSystem->spacePosition.get(cmp.spacePositionComponent);
             orientation = spCmp.orientation;
-            pos = spCmp.position;
         }
         if (cmp.headComponent) {
             auto& hCmp = gameSystem->head.get(cmp.headComponent);
             orientation = hCmp.relativeOrientation * orientation;
-            pos += hCmp.relativePosition;
         }
 
         up = orientation * f64v3(0.0, 1.0, 0.0);
