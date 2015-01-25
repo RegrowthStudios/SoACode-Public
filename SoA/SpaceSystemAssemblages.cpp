@@ -158,6 +158,8 @@ vcore::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(OUT SpaceSys
     vcore::ComponentID arCmpId = spaceSystem->addComponent("AxisRotation", entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
     arCmp.axisOrientation = axisOrientation;
+    arCmp.currentRotation = startAngle;
+    arCmp.angularSpeed_RS = angularSpeed;
     return arCmpId;
 }
 
@@ -187,6 +189,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
 
     f64 patchWidth = (radius * 2.000) / PATCH_ROW;
     stCmp.sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
+
     return stCmpId;
 }
 

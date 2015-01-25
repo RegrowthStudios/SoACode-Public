@@ -234,6 +234,11 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
                 properties.planetGenData = pr.planetLoader->getDefaultGenData();
             }
 
+            // Set the radius for use later
+            if (properties.planetGenData) {
+                properties.planetGenData->radius = properties.diameter / 2.0;
+            }
+
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;

@@ -139,6 +139,8 @@ public:
     /// renderable.
     bool isRenderable() const;
 
+    static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &closestPoint, f64 planetRadius);
+
     static const int INDICES_PER_QUAD = 6;
     static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 private:

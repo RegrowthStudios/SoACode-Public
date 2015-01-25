@@ -16,23 +16,19 @@
 #define SphericalTerrainMeshManager_h__
 
 #include <RPC.h>
+#include <Vorb/VorbPreDecl.inl>
 
-class SphericalTerrainMesh;
-class PlanetGenData;
 class Camera;
-namespace vorb {
-    namespace core {
-        namespace graphics {
-            class TextureRecycler;
-            class GLProgram;
-        }
-    }
-}
-namespace vg = vorb::core::graphics;
+class PlanetGenData;
+class SphericalTerrainData;
+class SphericalTerrainMesh;
+
+DECL_VG(class TextureRecycler;
+        class GLProgram)
 
 class SphericalTerrainMeshManager {
 public:
-    SphericalTerrainMeshManager(PlanetGenData* planetGenData,
+    SphericalTerrainMeshManager(const PlanetGenData* planetGenData,
                                 vg::TextureRecycler* normalMapRecycler) :
         m_planetGenData(planetGenData),
         m_normalMapRecycler(normalMapRecycler) {
@@ -53,7 +49,7 @@ public:
     void addMesh(SphericalTerrainMesh* mesh);
 
 private:
-    PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
+    const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps
     std::vector<SphericalTerrainMesh*> m_meshes; ///< All meshes
     std::vector<SphericalTerrainMesh*> m_waterMeshes; ///< Meshes with water active

@@ -158,7 +158,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     
     m_mainMenuSystemViewer->update();
 
-    m_soaState->time += 0.0000001;
+    m_soaState->time += 0.000001;
     m_spaceSystemUpdater->update(&m_soaState->spaceSystem, &m_soaState->gameSystem, m_soaState, m_camera.getPosition());
     m_spaceSystemUpdater->glUpdate(&m_soaState->spaceSystem);
 

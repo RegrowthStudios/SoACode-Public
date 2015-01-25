@@ -256,6 +256,16 @@ bool SphericalTerrainPatch::isRenderable() const {
     return false;
 }
 
+bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &closestPoint, f64 planetRadius) {
+#define DELTA 0.2
+    int pLength = glm::length(relCamPos);
+    if (pLength < planetRadius + 1.0f) pLength = planetRadius + 1.0f;
+    f64 horizonAngle = acos(planetRadius / pLength);
+    f64 lodAngle = acos(glm::dot(glm::normalize(relCamPos), glm::normalize(closestPoint)));
+    if (lodAngle < horizonAngle + DELTA) return false;
+    return true;
+}
+
 void SphericalTerrainPatch::requestMesh() {
     // Try to generate a mesh
     const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
