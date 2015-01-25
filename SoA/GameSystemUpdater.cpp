@@ -49,12 +49,13 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 
-#define CHECK_FRAMES 2
+#define CHECK_FRAMES 6
 
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);
     collisionUpdater.update(gameSystem);
     freeMoveUpdater.update(gameSystem);
+    frustumUpdater.update(gameSystem);
 
     // Update voxel planet transitions every CHECK_FRAMES frames
     m_frameCounter++;

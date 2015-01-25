@@ -94,9 +94,9 @@ struct FrustumComponent {
 };
 
 struct HeadComponent {
-    f32q relativeOrientation;
-    f32v3 relativePosition = f32v3(0.0f); ///< Position in voxel units
-    float neckLength = 0.0f; ///< Neck length in voxel units
+    f64q relativeOrientation;
+    f64v3 relativePosition = f64v3(0.0); ///< Position in voxel units
+    f64 neckLength = 0.0; ///< Neck length in voxel units
 };
 
 #endif // GameSystemComponents_h__

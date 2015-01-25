@@ -6,8 +6,8 @@
 #include "GameSystem.h"
 
 vcore::EntityID GameSystemAssemblages::createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
-                                                       const f64q& orientation, float massKg, const f64v3& initialVel,
-                                                       float fov, float aspectRatio, float znear, float zfar) {
+                                                    const f64q& orientation, f32 massKg, const f64v3& initialVel,
+                                                    f32 fov, f32 aspectRatio, f32 znear, f32 zfar) {
     vcore::EntityID id = gameSystem->addEntity();
 
     vcore::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation);
@@ -42,7 +42,7 @@ void GameSystemAssemblages::removeFreeMoveInput(OUT GameSystem* gameSystem, vcor
 }
 
 vcore::ComponentID GameSystemAssemblages::addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,
-                                                          float massKg, const f64v3& initialVel,
+                                                     f32 massKg, const f64v3& initialVel,
                                                           vcore::ComponentID spacePositionComponent,
                                                           OPT vcore::ComponentID voxelPositionComponent /*= 0*/) {
     vcore::ComponentID pCmpId = gameSystem->addComponent("Physics", entity);
@@ -102,10 +102,17 @@ void GameSystemAssemblages::removeVoxelPosition(OUT GameSystem* gameSystem, vcor
     gameSystem->deleteComponent("VoxelPosition", entity);
 }
 
-extern vcore::ComponentID GameSystemAssemblages::addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity, float fov, float aspectRatio, float znear, float zfar) {
+extern vcore::ComponentID GameSystemAssemblages::addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                                                     f32 fov, f32 aspectRatio, f32 znear, f32 zfar,
+                                                                     vcore::ComponentID spacePosition = 0,
+                                                                     vcore::ComponentID voxelPosition = 0,
+                                                                     vcore::ComponentID head = 0) {
     vcore::ComponentID fid = gameSystem->addComponent("Frustum", entity);
     auto& fcmp = gameSystem->frustum.get(fid);
     fcmp.frustum.setCamInternals(fov, aspectRatio, znear, zfar);
+    fcmp.spacePositionComponent = spacePosition;
+    fcmp.voxelPositionComponent = voxelPosition;
+    fcmp.headComponent = head;
     return fid;
 }
 
@@ -113,7 +120,7 @@ extern void GameSystemAssemblages::removeFrustumComponent(OUT GameSystem* gameSy
     gameSystem->deleteComponent("Frustum", entity);
 }
 
-extern vcore::ComponentID GameSystemAssemblages::addHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity, float neckLength) {
+extern vcore::ComponentID GameSystemAssemblages::addHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity, f64 neckLength) {
     vcore::ComponentID hid = gameSystem->addComponent("Head", entity);
     auto& hcmp = gameSystem->head.get(hid);
     hcmp.neckLength = neckLength;

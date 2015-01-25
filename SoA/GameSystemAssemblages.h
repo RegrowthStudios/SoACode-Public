@@ -27,8 +27,8 @@ namespace GameSystemAssemblages {
     /************************************************************************/
     /// Player entity
     extern vcore::EntityID createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
-                                      const f64q& orientation, float massKg, const f64v3& initialVel,
-                                      float fov, float aspectRatio, float znear = 0.01, float zfar = 100000.0f);
+                                      const f64q& orientation, f32 massKg, const f64v3& initialVel,
+                                      f32 fov, f32 aspectRatio, f32 znear = 0.01, f32 zfar = 100000.0f);
     extern void destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity);
 
     /************************************************************************/
@@ -40,7 +40,7 @@ namespace GameSystemAssemblages {
     extern void removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Physics component
     extern vcore::ComponentID addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,
-                                         float massKg, const f64v3& initialVel,
+                                         f32 massKg, const f64v3& initialVel,
                                          vcore::ComponentID spacePositionComponent,
                                          OPT vcore::ComponentID voxelPositionComponent = 0);
     extern void removePhysics(OUT GameSystem* gameSystem, vcore::EntityID entity);
@@ -61,14 +61,14 @@ namespace GameSystemAssemblages {
     extern void removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Frustum Component
     extern vcore::ComponentID addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
-                                                  float fov, float aspectRatio, float znear, float zfar,
+                                                  f32 fov, f32 aspectRatio, f32 znear, f32 zfar,
                                                   vcore::ComponentID spacePosition = 0,
                                                   vcore::ComponentID voxelPosition = 0,
                                                   vcore::ComponentID head = 0);
     extern void removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Head Component
     extern vcore::ComponentID addHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
-                                               float neckLength);
+                                               f64 neckLength);
     extern void removeHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
 }
 
