@@ -288,6 +288,7 @@ EXIT 0</Command>
     <ClInclude Include="Computer.h" />
     <ClInclude Include="DevScreen.h" />
     <ClInclude Include="FloraTask.h" />
+    <ClInclude Include="FrustumComponentUpdater.h" />
     <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
@@ -325,8 +326,8 @@ EXIT 0</Command>
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
     <ClInclude Include="OrbitComponentUpdater.h" />
-    <ClInclude Include="ParkourMoveUpdater.h" />
     <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="ParkourComponentUpdater.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="PauseMenuAwesomiumAPI.h" />
     <ClInclude Include="PauseMenuRenderStage.h" />
@@ -465,6 +466,7 @@ EXIT 0</Command>
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="DevScreen.cpp" />
     <ClCompile Include="FloraTask.cpp" />
+    <ClCompile Include="FrustumComponentUpdater.cpp" />
     <ClCompile Include="GamePlayRenderPipeline.cpp" />
     <ClCompile Include="GamePlayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />

@@ -81,6 +81,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT) {
                 inVoxelRange = true;
                 if (!pycmp.voxelPositionComponent) {
+                    // We need to transition to a voxel component
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
                     vvox::VoxelPlanetMapData mapData;
@@ -102,6 +103,9 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // We need to transition to the voxels
                     vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
                     pycmp.voxelPositionComponent = vpid;
+                    
+                    // Update dependencies for frustum
+                    gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = vpid;
                 }
             }
         }
@@ -117,6 +121,9 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             if (svcmp.refCount == 0) {
                 spaceSystem->deleteComponent("SphericalVoxel", it.first);
             }
+
+            // Update dependencies for frustum
+            gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = 0;
         }
     }
 }

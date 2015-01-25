@@ -61,11 +61,14 @@ namespace GameSystemAssemblages {
     extern void removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Frustum Component
     extern vcore::ComponentID addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
-                                                  float fov, float aspectRatio, float znear, float zfar);
+                                                  float fov, float aspectRatio, float znear, float zfar,
+                                                  vcore::ComponentID spacePosition = 0,
+                                                  vcore::ComponentID voxelPosition = 0,
+                                                  vcore::ComponentID head = 0);
     extern void removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Head Component
     extern vcore::ComponentID addHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
-                                                  float neckLength);
+                                               float neckLength);
     extern void removeHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
 }
 

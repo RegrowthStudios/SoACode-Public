@@ -18,9 +18,9 @@ vcore::EntityID GameSystemAssemblages::createPlayer(OUT GameSystem* gameSystem, 
 
     addFreeMoveInput(gameSystem, id, pyCmpId);
 
-    addFrustumComponent(gameSystem, id, fov, aspectRatio, znear, zfar);
+    vcore::ComponentID hCmpId = addHeadComponent(gameSystem, id, 0.1f);
 
-    addHeadComponent(gameSystem, id, 0.1f);
+    addFrustumComponent(gameSystem, id, fov, aspectRatio, znear, zfar, spCmpId, 0, hCmpId);
 
     return id;
 }

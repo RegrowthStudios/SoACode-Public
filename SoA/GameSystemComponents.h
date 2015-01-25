@@ -80,13 +80,16 @@ struct VoxelPositionComponent {
 };
 
 struct PhysicsComponent {
-    vcore::ComponentID spacePositionComponent = 0;
-    vcore::ComponentID voxelPositionComponent = 0;
+    vcore::ComponentID spacePositionComponent = 0; ///< Optional
+    vcore::ComponentID voxelPositionComponent = 0; ///< Optional
     f64v3 velocity = f64v3(0.0);
     f32 mass;
 };
 
 struct FrustumComponent {
+    vcore::ComponentID spacePositionComponent = 0; ///< Optional
+    vcore::ComponentID voxelPositionComponent = 0; ///< Optional
+    vcore::ComponentID headComponent = 0; ///< Optional
     Frustum frustum;
 };
 

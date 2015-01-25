@@ -10,9 +10,11 @@
 void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState) {
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
 
-        // This is temporary hard coded player stuff
+        // TODO(Ben): This is temporary hard coded player stuff.
         auto& playerPosCmp = gameSystem->voxelPosition.getFromEntity(soaState->playerEntity);
         auto& playerFrustumCmp = gameSystem->frustum.getFromEntity(soaState->playerEntity);
+        
+
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
             it.second.chunkManager->update(playerPosCmp.position, &playerFrustumCmp.frustum);
         }
