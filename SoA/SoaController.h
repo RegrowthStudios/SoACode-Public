@@ -15,11 +15,16 @@
 #ifndef SoaController_h__
 #define SoaController_h__
 
+class App;
 class SoaState;
+
 class SoaController {
 public:
+    SoaController(const App* app);
     ~SoaController();
     void startGame(OUT SoaState* state);
+private:
+    const App* m_app = nullptr; ///< App for querying things like aspect ratio
 };
 
 #endif // SoaController_h__

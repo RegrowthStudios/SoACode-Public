@@ -45,6 +45,7 @@ GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScr
     m_updateThread(nullptr),
     m_threadRunning(false), 
     m_inFocus(true),
+    controller(app),
     m_onPauseKeyDown(nullptr),
     m_onFlyKeyDown(nullptr),
     m_onGridKeyDown(nullptr),

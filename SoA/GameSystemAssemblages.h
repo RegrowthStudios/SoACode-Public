@@ -28,7 +28,7 @@ namespace GameSystemAssemblages {
     /// Player entity
     extern vcore::EntityID createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
                                       const f64q& orientation, float massKg, const f64v3& initialVel,
-                                      float fov, float aspectRatio, float znear, float zfar);
+                                      float fov, float aspectRatio, float znear = 0.01, float zfar = 100000.0f);
     extern void destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity);
 
     /************************************************************************/

@@ -3,9 +3,16 @@
 
 #include <Vorb/ecs/Entity.h>
 
+#include "App.h"
 #include "GameSystemAssemblages.h"
 #include "GameSystemUpdater.h"
 #include "SoaState.h"
+#include "Options.h"
+
+SoaController::SoaController(const App* app) :
+    m_app(app) {
+    // Empty
+}
 
 SoaController::~SoaController() {
     // Empty
@@ -18,7 +25,7 @@ void SoaController::startGame(OUT SoaState* state) {
     if (state->isNewGame) {
         // Create the player entity
         state->playerEntity = GameSystemAssemblages::createPlayer(&state->gameSystem, state->startSpacePos,
-                                          f64q(), 73.0f, f64v3(0.0));
+                                          f64q(), 73.0f, f64v3(0.0), graphicsOptions.fov, m_app->getWindow().getAspectRatio());
         
         auto& svcmp = spaceSystem.m_sphericalVoxelCT.getFromEntity(state->startingPlanet);
         auto& arcmp = spaceSystem.m_axisRotationCT.getFromEntity(state->startingPlanet);
@@ -32,6 +39,6 @@ void SoaController::startGame(OUT SoaState* state) {
         spcmp.position = arcmp.currentOrientation * spacePos + npcmp.position;
         GameSystemUpdater::updateVoxelPlanetTransitions(&gameSystem, &spaceSystem, state);
     } else {
-
+        // TODO(Ben): This
     }
 }
