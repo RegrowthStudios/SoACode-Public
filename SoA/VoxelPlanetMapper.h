@@ -19,60 +19,80 @@
 namespace vorb {
 namespace voxel {
 
-//relative rotations for the face transitions
-//0 = top, 1 = left, 2 = right, 3 = front, 4 = back, 5 = bottom
-const int FaceTransitions[6][6] = { 
-    { 0, 1, -1, 0, 2, 0 }, //top
-    { -1, 0, 0, 0, 0, 1 }, //left
-    { 1, 0, 0, 0, 0, -1 }, //right
-    { 0, 0, 0, 0, 0, 0 }, //front
-    { 2, 0, 0, 0, 0, 2 }, //back
-    { 0, -1, 1, 0, 2, 0 } }; //bottom
+    enum Faces {
+        FACE_TOP = 0, FACE_LEFT, FACE_RIGHT,
+        FACE_FRONT, FACE_BACK, FACE_BOTTOM
+    };
 
-const int FaceNeighbors[6][4] = {
-    { 2, 4, 1, 3 }, //top
-    { 3, 0, 4, 5 }, //left
-    { 4, 0, 3, 5 }, //right
-    { 2, 0, 1, 5 }, //front
-    { 1, 0, 2, 5 }, //back
-    { 2, 3, 1, 4 } }; //bottom
+    /// Defines the effect that transitioning from face i to face j will have on
+    /// rotation. Simply add to rotation value modulo 4
+    /// Each rotation represents a clockwise turn.
+    /// [source][destination]
+    const int FACE_TRANSITIONS[6][6] = {
+        { 0,-1, 1, 0, 2, 0 }, // TOP
+        { 1, 0, 0, 0, 0,-1 }, // LEFT
+        {-1, 0, 0, 0, 0, 1 }, // RIGHT
+        { 0, 0, 0, 0, 0, 0 }, // FRONT
+        { 2, 0, 0, 0, 0, 2 }, // BACK
+        { 0, 1,-1, 0, 2, 0} }; // BOTTOM
 
-// 6 faces, 4 rotations, i j r
-//could just do rotation % 2 but repeating works fine
-const int FaceCoords[6][4][3] = {
-    { { 2, 0, 1 }, { 0, 2, 1 }, { 2, 0, 1 }, { 0, 2, 1 } },  //top
-    { { 1, 2, 0 }, { 2, 1, 0 }, { 1, 2, 0 }, { 2, 1, 0 } }, //left
-    { { 1, 2, 0 }, { 2, 1, 0 }, { 1, 2, 0 }, { 2, 1, 0 } }, //right
-    { { 1, 0, 2 }, { 0, 1, 2 }, { 1, 0, 2 }, { 0, 1, 2 } }, //front
-    { { 1, 0, 2 }, { 0, 1, 2 }, { 1, 0, 2 }, { 0, 1, 2 } }, //back
-    { { 2, 0, 1 }, { 0, 2, 1 }, { 2, 0, 1 }, { 0, 2, 1 } } }; //bottom
+    /// Neighbors, starting from +x and moving clockwise
+    /// [face][rotation]
+    const int FACE_NEIGHBORS[6][4] = {
+        { FACE_RIGHT, FACE_FRONT, FACE_LEFT, FACE_BACK }, // TOP
+        { FACE_FRONT, FACE_BOTTOM, FACE_BACK, FACE_TOP }, // LEFT
+        { FACE_BACK, FACE_BOTTOM, FACE_FRONT, FACE_TOP }, // RIGHT
+        { FACE_RIGHT, FACE_BOTTOM, FACE_LEFT, FACE_TOP }, // FRONT
+        { FACE_LEFT, FACE_BOTTOM, FACE_RIGHT, FACE_TOP }, // BACK
+        { FACE_RIGHT, FACE_BACK, FACE_LEFT, FACE_FRONT } }; // BOTTOM
 
-// 6 faces, 4 rotations, ioff joff
-//determined by taking the base case for i and j direction, and then rotating it 3 times, recording the new i j directions
-const int FaceSigns[6][4][2] = {
-    { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } }, //top
-    { { -1, 1 }, { 1, 1 }, { 1, -1 }, { -1, -1 } }, //left
-    { { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 } }, //right
-    { { -1, 1 }, { 1, 1 }, { 1, -1 }, { -1, -1 } }, //front
-    { { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 } }, //back
-    { { -1, 1 }, { 1, 1 }, { 1, -1 }, { -1, -1 } } }; //bottom
+    
+#define W_X 0
+#define W_Y 1
+#define W_Z 2
+#define TWICE(a) (a, a)
+    /// Maps face-space coordinate axis to world-space coordinates.
+    /// [face][rotation]
+    const i32v3 GRID_TO_WORLD[6][4] = {
+        { TWICE(i32v3(W_X, W_Y, W_Z), i32v3(W_Z, W_Y, W_X)) }, // TOP
+        { TWICE(i32v3(W_Z, W_X, W_Y), i32v3(W_Y, W_X, W_Z)) }, // LEFT
+        { TWICE(i32v3(W_Z, W_X, W_Y), i32v3(W_Y, W_X, W_Z)) }, // RIGHT
+        { TWICE(i32v3(W_X, W_Z, W_Y), i32v3(W_Y, W_Z, W_X)) }, // FRONT
+        { TWICE(i32v3(W_X, W_Z, W_Y), i32v3(W_Y, W_Z, W_X)) }, // BACK
+        { TWICE(i32v3(W_X, W_Y, W_Z), i32v3(W_Z, W_Y, W_X)) } }; // BOTTOM
+#undef TWICE   
+#undef W_X
+#undef W_Y
+#undef W_Z
 
-const int FaceRadialSign[6] = { 1, -1, 1, 1, -1, -1 };
+    /// Multiply by the face-space X,Z axis in order to get the correct direction
+    /// for its corresponding world-space axis
+    /// [face][rotation]
+    const i32v2 FACE_COORDINATE_MULTS[6][4] = {
+        { i32v2(1, -1), i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1) }, // TOP
+        { i32v2(1,  1), i32v2(-1, 1), i32v2(-1,  -1), i32v2(1, -1) }, // LEFT
+        { i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1), i32v2(1, 1) }, // RIGHT
+        { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) }, // FRONT
+        { i32v2(-1,  1), i32v2(-1, -1), i32v2(1, -1), i32v2(1, 1) }, // BACK
+        { i32v2(1,  1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) } }; // BOTTOM
+
+    /// Multiply by the face-space Y axis in order to get the correct direction
+    /// for its corresponding world space axis
+    /// [face]
+    const int FACE_Y_MULTS[6] = { 1, -1, 1, 1, -1, -1 };
 
 class VoxelPlanetMapData : public VoxelMapData
 {
 public:
     VoxelPlanetMapData() {};
-    VoxelPlanetMapData(int Face, int Ipos, int Jpos, int Rot){
+    VoxelPlanetMapData(int Face, const i32v2& pos, int Rot){
         face = Face;
-        ipos = Ipos;
-        jpos = Jpos;
+        chunkPos = pos;
         rotation = Rot;
     }
-    void set(int Face, int Ipos, int Jpos, int Rot) {
+    void set(int Face, const i32v2& pos, int Rot) {
         face = Face;
-        ipos = Ipos;
-        jpos = Jpos;
+        chunkPos = pos;
         rotation = Rot;
     }
     void getIterationConstants(OUT int& jStart, OUT int& jMult, OUT int& jEnd, OUT int& jInc, OUT int& kStart, OUT int& kMult, OUT int& kEnd, OUT int& kInc) {
@@ -116,108 +136,59 @@ public:
         }
     }
 
-    void getChunkGridPos(OUT int& iPos, OUT int& jPos) {
-        int idir = FaceSigns[face][rotation][0];
-        int jdir = FaceSigns[face][rotation][1];
+    void getGridSpacePos(OUT i32v2& gridPos) override {
+        const i32v2& mult = FACE_COORDINATE_MULTS[face][rotation];
        
-        iPos = ipos*idir;
-        jPos = jpos*jdir;
+        gridPos = chunkPos * mult;
 
         if (rotation % 2) { //when rotation%2 i and j must switch
-            int tmp = iPos;
-            iPos = jPos;
-            jPos = tmp;
+            std::swap(gridPos.x, gridPos.y);
         }
     }
 
-    f32v3 getWorldNormal(float radius) {
-        float i = FaceCoords[face][rotation][0];
-        float j = FaceCoords[face][rotation][1];
-        float r = FaceCoords[face][rotation][2];
-        float idir = FaceSigns[face][rotation][0];
-        float jdir = FaceSigns[face][rotation][1];
-        float rdir = FaceRadialSign[face];
-        f32v3 position;
-        position[i] = ipos * idir * CHUNK_WIDTH;
-        position[j] = jpos * jdir * CHUNK_WIDTH;
-        position[r] = radius * rdir;
-        return glm::normalize(position);
-    }
-    f64v3 getWorldNormal(f64 radius) {
-        f64 i = FaceCoords[face][rotation][0];
-        f64 j = FaceCoords[face][rotation][1];
-        f64 r = FaceCoords[face][rotation][2];
-        f64 idir = FaceSigns[face][rotation][0];
-        f64 jdir = FaceSigns[face][rotation][1];
-        f64 rdir = FaceRadialSign[face];
-        f64v3 position;
-        position[i] = ipos * idir * CHUNK_WIDTH;
-        position[j] = jpos * jdir * CHUNK_WIDTH;
-        position[r] = radius * rdir;
-        return glm::normalize(position);
-    }
+    /// Returns normalized world position
+    f64v3 getWorldNormal(f64 voxelWorldRadius) {
+        // Get grid-space position
+        i32v2 gridPos;
+        getGridSpacePos(gridPos);
 
-    void getVoxelGridPos(OUT int& iPos, OUT int& jPos) {
-        //used for tree coords
-        jPos = jpos * CHUNK_WIDTH * FaceSigns[face][rotation][0];
-        iPos = ipos * CHUNK_WIDTH * FaceSigns[face][rotation][1];
-        //swap em if rot%2
-        if (rotation % 2){
-            int tmp = iPos;
-            iPos = jPos;
-            jPos = tmp;
-        }
+        const i32v3& axisMapping = GRID_TO_WORLD[face][rotation];
+
+        f64v3 worldPosition;
+        worldPosition[axisMapping.x] = gridPos.x;
+        worldPosition[axisMapping.y] = voxelWorldRadius * FACE_Y_MULTS[face];
+        worldPosition[axisMapping.z] = gridPos.y;
+
+        return glm::normalize(worldPosition);
     }
 
     void getGenerationIterationConstants(OUT int& ipos, OUT int& jpos, OUT int& rpos, OUT int& idir, OUT int& jdir, OUT int& rdir) {
-        ipos = FaceCoords[face][rotation][0];
-        jpos = FaceCoords[face][rotation][1];
-        rpos = FaceCoords[face][rotation][2];
-        idir = FaceSigns[face][rotation][0];
-        jdir = FaceSigns[face][rotation][1];
-        rdir = FaceRadialSign[face];
+        /*     ipos = FaceCoords[face][rotation][0];
+             jpos = FaceCoords[face][rotation][1];
+             rpos = FaceCoords[face][rotation][2];
+             idir = FaceSigns[face][rotation][0];
+             jdir = FaceSigns[face][rotation][1];
+             rdir = FaceRadialSign[face];*/
     }
 
-    // TODO(Ben): This is jank, copied from old code
     f64q calculateVoxelToSpaceQuat(const f64v3& facePosition, f64 worldRadius) {
-
-        int ipos, rpos, jpos;
-        double incI, incJ, magnitude;
-        glm::dvec3 v1, v2, v3;
-        glm::vec3 tangent, biTangent;
-        //Imagine the cube unfolded. Each face is like the following image for calculating tangent and bitangent
-        // _____________
-        // |           |
-        // |        j  |
-        // |       --->|
-        // |     |i    |
-        // |_____V_____|
-        ipos = vvox::FaceCoords[face][rotation][0];
-        jpos = vvox::FaceCoords[face][rotation][1];
-        rpos = vvox::FaceCoords[face][rotation][2];
-        incI = vvox::FaceSigns[face][rotation][0];
-        incJ = vvox::FaceSigns[face][rotation][1];
-        v1[ipos] = incI * facePosition.z;
-        v1[jpos] = incJ * facePosition.x;
-        v1[rpos] = vvox::FaceRadialSign[face] * worldRadius;
-        f64v3 worldPosition = (facePosition.y + worldRadius)*glm::normalize(v1);
-
-        incI *= 100;
-        incJ *= 100;
-        v1 = worldPosition;
-        //need v2 and v3 for computing tangent and bitangent
-        v2[ipos] = (double)worldPosition[ipos];
-        v2[jpos] = (double)worldPosition[jpos] + incJ;
-        v2[rpos] = worldPosition[rpos];
-        v3[ipos] = (double)worldPosition[ipos] + incI;
-        v3[jpos] = (double)worldPosition[jpos];
-        v3[rpos] = worldPosition[rpos];
+        #define OFFSET 1000
+        f64v3 v1 = getWorldNormal(worldRadius);
+        // Temporarily offset to right
+        chunkPos.x += OFFSET;
+        f64v3 v2 = getWorldNormal(worldRadius);
+        chunkPos.x -= OFFSET;
+        // Temporarily offset to back
+        chunkPos.y += OFFSET;
+        f64v3 v3 = getWorldNormal(worldRadius);
+        chunkPos.y -= OFFSET;
+      
         //normalize them all
         v1 = glm::normalize(v1);
         v2 = glm::normalize(v2);
         v3 = glm::normalize(v3);
-        tangent = glm::vec3(glm::normalize(v2 - v1));
-        biTangent = glm::vec3(glm::normalize(v3 - v1));
+        f64v3 tangent = glm::normalize(v2 - v1);
+        f64v3 biTangent = glm::normalize(v3 - v1);
         f64m4 worldRotationMatrix;
         worldRotationMatrix[0] = f64v4(tangent, 0);
         worldRotationMatrix[1] = f64v4(v1, 0);
@@ -259,8 +230,7 @@ public:
        
 
         VoxelMapData* newMapData = new VoxelPlanetMapData(mapData->face,
-                                                          mapData->ipos,
-                                                          mapData->jpos,
+                                                          mapData->chunkPos,
                                                           mapData->rotation);
         offsetPosition(newMapData, ijOffset);
 
@@ -270,35 +240,34 @@ public:
     void offsetPosition(VoxelMapData* vmapData, const i32v2& ijOffset) {
         VoxelPlanetMapData* mapData = static_cast<VoxelPlanetMapData*>(vmapData);
 
-        mapData->ipos += ijOffset.x;
-        mapData->jpos += ijOffset.y;
+        mapData->chunkPos += ijOffset;
         int newFace = mapData->face;
+        
+        if (mapData->chunkPos.y < -_halfGridWidth) {
+            mapData->chunkPos.y += _gridWidth;
 
-        if (mapData->ipos < -_halfGridWidth) {
-            mapData->ipos += _gridWidth;
-
-            newFace = FaceNeighbors[mapData->face][(1 + mapData->rotation) % 4];
-            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            newFace = FACE_NEIGHBORS[mapData->face][(1 + mapData->rotation) % 4];
+            mapData->rotation += FACE_TRANSITIONS[mapData->face][newFace];
             if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
-        } else if (mapData->ipos > _halfGridWidth) {
-            mapData->ipos -= _gridWidth;
+        } else if (mapData->chunkPos.y > _halfGridWidth) {
+            mapData->chunkPos.y -= _gridWidth;
 
-            newFace = FaceNeighbors[mapData->face][(3 + mapData->rotation) % 4];
-            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            newFace = FACE_NEIGHBORS[mapData->face][(3 + mapData->rotation) % 4];
+            mapData->rotation += FACE_TRANSITIONS[mapData->face][newFace];
             if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
         }
 
-        if (mapData->jpos < -_halfGridWidth) {
-            mapData->jpos += _gridWidth;
+        if (mapData->chunkPos.x < -_halfGridWidth) {
+            mapData->chunkPos.x += _gridWidth;
 
-            newFace = FaceNeighbors[mapData->face][(2 + mapData->rotation) % 4];
-            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            newFace = FACE_NEIGHBORS[mapData->face][(2 + mapData->rotation) % 4];
+            mapData->rotation += FACE_TRANSITIONS[mapData->face][newFace];
             if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
-        } else if (mapData->jpos > _halfGridWidth) {
-            mapData->jpos -= _gridWidth;
+        } else if (mapData->chunkPos.x > _halfGridWidth) {
+            mapData->chunkPos.x -= _gridWidth;
 
-            newFace = FaceNeighbors[mapData->face][mapData->rotation];
-            mapData->rotation += FaceTransitions[mapData->face][newFace];
+            newFace = FACE_NEIGHBORS[mapData->face][mapData->rotation];
+            mapData->rotation += FACE_TRANSITIONS[mapData->face][newFace];
             if (mapData->rotation < 0){ mapData->rotation += 4; } else{ mapData->rotation %= 4; }
         }
 

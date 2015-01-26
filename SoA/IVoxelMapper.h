@@ -30,13 +30,8 @@ namespace vorb {
                 jMult = CHUNK_WIDTH;
                 kMult = 1;
             }
-            virtual void getChunkGridPos(int& iPos, int& jPos) {
-                iPos = ipos;
-                jPos = jpos;
-            }
-            virtual void getVoxelGridPos(int& iPos, int& jPos) {
-                iPos = ipos * CHUNK_WIDTH;
-                jPos = jpos * CHUNK_WIDTH;
+            virtual void getGridSpacePos(OUT i32v2& gridPos) {
+                gridPos = chunkPos;
             }
 
             virtual void getGenerationIterationConstants(int& ipos, int& jpos, int& rpos, int& idir, int& jdir, int& rdir) {
@@ -48,8 +43,7 @@ namespace vorb {
                 rdir = 1;
             }
 
-            int ipos; //front-back axis
-            int jpos; //left-right axis
+            i32v2 chunkPos;
         };
 
         class IVoxelMapper {
@@ -64,16 +58,14 @@ namespace vorb {
             }
 
             // Generates a new voxelMapData with ijOffset relative to the relative
-            virtual VoxelMapData* getNewRelativeData(const VoxelMapData* relative, const i32v2& ijOffset) {
+            virtual VoxelMapData* getNewRelativeData(const VoxelMapData* relative, const i32v2& offset) {
                 VoxelMapData* newData = new VoxelMapData();
-                newData->ipos = relative->ipos + ijOffset.x;
-                newData->jpos = relative->jpos + ijOffset.y;
+                newData->chunkPos += offset;
                 return newData;
             }
 
-            virtual void offsetPosition(VoxelMapData* mapData, const i32v2& ijOffset) {
-                mapData->ipos += ijOffset.x;
-                mapData->jpos += ijOffset.y;
+            virtual void offsetPosition(VoxelMapData* mapData, const i32v2& offset) {
+                mapData->chunkPos += offset;
             }
 
         protected:
