@@ -81,7 +81,7 @@ public:
     ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
                  SphericalTerrainGenerator* terrainGenerator,
                  const vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
-                 const f64v3& gridPosition, float planetVoxelRadius);
+                 const f64v3& gridPosition, float planetRadius);
     ~ChunkManager();
 
     enum InitFlags {
@@ -382,7 +382,7 @@ private:
 
     ChunkIOManager* m_chunkIo = nullptr;
 
-    float m_planetVoxelRadius = 0;
+    float m_planetRadius = 0; ///< Radius in km
 
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> _shortFixedSizeArrayRecycler; ///< For recycling voxel data
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> _byteFixedSizeArrayRecycler; ///< For recycling voxel data

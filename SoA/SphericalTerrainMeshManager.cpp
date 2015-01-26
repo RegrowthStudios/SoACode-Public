@@ -87,7 +87,6 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
             } else {
                 /// Use bounding box to find closest point
                 m_meshes[i]->getClosestPoint(rotpos, closestPoint);
-                closestPoint = rotpos;
                 if (!SphericalTerrainPatch::isOverHorizon(rotpos, closestPoint,
                     m_planetGenData->radius)) {
                     m_meshes[i]->draw(relativePos, camera, rot, program);

@@ -240,10 +240,10 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
         bool divide = true;
         if (hasMesh()) {
             if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
-                divide = false;
+           //     divide = false;
             }
         } else if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
-            divide = false;
+          //  divide = false;
         }
 
         if (divide) {

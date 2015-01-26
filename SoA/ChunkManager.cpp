@@ -50,8 +50,9 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
+#define KM_PER_VOXEL 0.0005f
 
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData, float voxelRadius) {
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData, float planetRadius) {
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];
@@ -61,19 +62,16 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
         gen.gridData = cgd;
         gen.rpc.data.f = &gen;
 
-        // Try to generate a mesh
-        const f32v3& mults = CubeCoordinateMults[mapData->face];
-        const i32v3& mappings = CubeCoordinateMappings[mapData->face];
 
         // Set the data
-        gen.startPos = f32v3(mapData->jpos * mults.x * CHUNK_WIDTH,
-                                voxelRadius * mults.y,
-                                mapData->ipos * mults.z * CHUNK_WIDTH);
+        gen.startPos = f32v3(mapData->jpos * vvox::FaceSigns[mapData->face][mapData->rotation][1] * CHUNK_WIDTH * KM_PER_VOXEL,
+                             planetRadius * vvox::FaceRadialSign[mapData->face],
+                             mapData->ipos * vvox::FaceSigns[mapData->face][mapData->rotation][0] * CHUNK_WIDTH * KM_PER_VOXEL);
         gen.coordMapping.x = vvox::FaceCoords[mapData->face][mapData->rotation][0];
         gen.coordMapping.y = vvox::FaceCoords[mapData->face][mapData->rotation][1];
         gen.coordMapping.z = vvox::FaceCoords[mapData->face][mapData->rotation][2];
         gen.width = 32;
-        gen.step = 1;
+        gen.step = KM_PER_VOXEL;
         // Invoke generator
         cgd->refCount++;
         m_generator->invokeRawGen(&gen.rpc);
@@ -88,7 +86,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
                            SphericalTerrainGenerator* terrainGenerator,
                            const vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
-                           const f64v3& gridPosition, float planetVoxelRadius) :
+                           const f64v3& gridPosition, float planetRadius) :
     _isStationary(0),
     _cameraVoxelMapData(nullptr),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
@@ -97,7 +95,7 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* vox
     m_terrainGenerator(terrainGenerator),
     m_physicsEngine(physicsEngine),
     m_chunkIo(chunkIo),
-    m_planetVoxelRadius(planetVoxelRadius) {
+    m_planetRadius(planetRadius) {
    
     // Set maximum container changes
     vvox::MAX_COMPRESSIONS_PER_FRAME = MAX_COMPRESSIONS_PER_FRAME;
@@ -586,7 +584,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                    (vvox::VoxelPlanetMapData*)ch->voxelMapData, m_planetVoxelRadius));
+                    (vvox::VoxelPlanetMapData*)ch->voxelMapData, m_planetRadius));
             }
 
             canGenerate = false;

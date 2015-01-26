@@ -220,14 +220,13 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawTextures[m_dBufferIndex][rawCounter].use();
     m_rawDelegates[m_dBufferIndex][rawCounter] = data;
 
-    // Get padded position
-    f32v3 cornerPos = data->startPos;
+    // Get scaled position
 
     // Send uniforms
-    glUniform3fv(unCornerPos, 1, &cornerPos[0]);
+    glUniform3fv(unCornerPos, 1, &data->startPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
 
-    glUniform1f(unPatchWidth, (data->width * data->step));
+    glUniform1f(unPatchWidth, (float)data->width * data->step);
     m_quad.draw();
 
     // Bind PBO
@@ -336,8 +335,8 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
                 maxZ = v.position.z;
             }
 
-            v.color = m_planetGenData->terrainTint;
-         //   v.color = DebugColors[(int)mesh->m_cubeFace];
+         //   v.color = m_planetGenData->terrainTint;
+            v.color = DebugColors[(int)mesh->m_cubeFace];
 
             m_index++;
         }
@@ -607,7 +606,7 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
 
         zIndex = z * PIXELS_PER_PATCH_NM + 1;
         xIndex = x * PIXELS_PER_PATCH_NM + 1;
-        float d = m_heightData[zIndex][xIndex][0];
+        float d = m_heightData[zIndex][xIndex][0] * KM_PER_M;
         if (d < 0) {
             v.depth = -d;
         } else {

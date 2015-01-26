@@ -18,8 +18,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
     f32m4 rotationMatrix = f32m4(glm::toMat4(arComponent->currentOrientation));
 
     f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
-    std::cout << arComponent->currentOrientation.x << " " << arComponent->currentOrientation.y << " " <<
-         arComponent->currentOrientation.z << " " << arComponent->currentOrientation.w << std::endl;
+    
     // Draw patches
     cmp.meshManager->draw(relativeCameraPos, camera,
                       rotationMatrix, terrainProgram, waterProgram);
