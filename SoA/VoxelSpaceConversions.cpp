@@ -1,11 +1,6 @@
 #include "stdafx.h"
 #include "VoxelSpaceConversions.h"
 
-enum Faces {
-    FACE_TOP = 0, FACE_LEFT, FACE_RIGHT,
-    FACE_FRONT, FACE_BACK, FACE_BOTTOM
-};
-
 /// Defines the effect that transitioning from face i to face j will have on
 /// rotation. Simply add to rotation value modulo 4
 /// Each rotation represents a clockwise turn.
@@ -120,8 +115,6 @@ extern f64v3 VoxelSpaceConversions::worldToVoxel(const f64v3& worldPosition, f64
         ((worldPosition.y > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.y);
     boxIntersect.z = (worldPosition.z <= -voxelWorldRadius) ? -voxelWorldRadius :
         ((worldPosition.z > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.z);
-
-
 
     if (boxIntersect.x == -voxelWorldRadius) {
 

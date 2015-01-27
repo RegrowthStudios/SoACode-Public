@@ -367,6 +367,7 @@ EXIT 0</Command>
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="LoadTaskGameManager.h" />
     <ClInclude Include="VoxelBits.h" />
+    <ClInclude Include="VoxelCoordinateSpaces.h" />
     <ClInclude Include="VoxelMesh.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="ChunkGenerator.h" />

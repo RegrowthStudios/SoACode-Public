@@ -1,4 +1,3 @@
-
 ///
 /// VoxelSpaceConversions.h
 /// Seed of Andromeda
@@ -17,6 +16,7 @@
 #define VoxelSpaceConversions_h__
 
 #include "Constants.h"
+#include "VoxelCoordinateSpaces.h"
 #include <Vorb/FastConversion.inl>
 
 /// Namespace for converting between the different coordinate spaces

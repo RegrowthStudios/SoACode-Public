@@ -695,6 +695,9 @@
     <ClInclude Include="VoxelSpaceConversions.h">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelCoordinateSpaces.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
