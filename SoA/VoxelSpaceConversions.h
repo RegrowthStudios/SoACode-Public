@@ -84,7 +84,6 @@ namespace VoxelSpaceConversions {
     ///   a relative orientation of 0
     /// @return the voxel position
     extern VoxelGridPosition3D worldToVoxelGrid(const f64v3& worldPosition, f64 voxelWorldRadius);
-
 }
 
 #endif // VoxelSpaceConversions_h__

@@ -82,33 +82,6 @@ public:
              rdir = FaceRadialSign[face];*/
     }
 
-    f64q calculateVoxelToSpaceQuat(const f64v3& facePosition, f64 worldRadius) {
-        #define OFFSET 1000
-        f64v3 v1 = getWorldNormal(worldRadius);
-        // Temporarily offset to right
-        chunkPos.x += OFFSET;
-        f64v3 v2 = getWorldNormal(worldRadius);
-        chunkPos.x -= OFFSET;
-        // Temporarily offset to back
-        chunkPos.y += OFFSET;
-        f64v3 v3 = getWorldNormal(worldRadius);
-        chunkPos.y -= OFFSET;
-      
-        //normalize them all
-        v1 = glm::normalize(v1);
-        v2 = glm::normalize(v2);
-        v3 = glm::normalize(v3);
-        f64v3 tangent = glm::normalize(v2 - v1);
-        f64v3 biTangent = glm::normalize(v3 - v1);
-        f64m4 worldRotationMatrix;
-        worldRotationMatrix[0] = f64v4(tangent, 0);
-        worldRotationMatrix[1] = f64v4(v1, 0);
-        worldRotationMatrix[2] = f64v4(biTangent, 0);
-        worldRotationMatrix[3] = f64v4(0, 0, 0, 1);
-      
-        return glm::quat_cast(worldRotationMatrix);
-    }
-
     // Used to get the directory path for chunks, based on which planet face
     nString getFilePath() {
         return "f" + std::to_string(face) + "/";

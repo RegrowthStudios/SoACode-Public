@@ -404,6 +404,7 @@ EXIT 0</Command>
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelSpaceConversions.h" />
+    <ClInclude Include="VoxelSpaceUtils.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="VoxelVertices.h" />
     <ClInclude Include="VoxPool.h" />
@@ -573,6 +574,7 @@ EXIT 0</Command>
     <ClCompile Include="VoxelPlanetMapper.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VoxelSpaceConversions.cpp" />
+    <ClCompile Include="VoxelSpaceUtils.cpp" />
     <ClCompile Include="VoxPool.cpp" />
     <ClCompile Include="VRayHelper.cpp" />
     <ClCompile Include="ChunkIOManager.cpp" />

@@ -1,29 +1,6 @@
 #include "stdafx.h"
 #include "VoxelSpaceConversions.h"
 
-/// Defines the effect that transitioning from face i to face j will have on
-/// rotation. Simply add to rotation value modulo 4
-/// Each rotation represents a clockwise turn.
-/// [source][destination]
-const int FACE_TRANSITIONS[6][6] = {
-    { 0, -1, 1, 0, 2, 0 }, // TOP
-    { 1, 0, 0, 0, 0, -1 }, // LEFT
-    { -1, 0, 0, 0, 0, 1 }, // RIGHT
-    { 0, 0, 0, 0, 0, 0 }, // FRONT
-    { 2, 0, 0, 0, 0, 2 }, // BACK
-    { 0, 1, -1, 0, 2, 0 } }; // BOTTOM
-
-/// Neighbors, starting from +x and moving clockwise
-/// [face][rotation]
-const int FACE_NEIGHBORS[6][4] = {
-    { FACE_RIGHT, FACE_FRONT, FACE_LEFT, FACE_BACK }, // TOP
-    { FACE_FRONT, FACE_BOTTOM, FACE_BACK, FACE_TOP }, // LEFT
-    { FACE_BACK, FACE_BOTTOM, FACE_FRONT, FACE_TOP }, // RIGHT
-    { FACE_RIGHT, FACE_BOTTOM, FACE_LEFT, FACE_TOP }, // FRONT
-    { FACE_LEFT, FACE_BOTTOM, FACE_RIGHT, FACE_TOP }, // BACK
-    { FACE_RIGHT, FACE_BACK, FACE_LEFT, FACE_FRONT } }; // BOTTOM
-
-
 #define W_X 0
 #define W_Y 1
 #define W_Z 2

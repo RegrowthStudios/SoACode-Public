@@ -698,6 +698,9 @@
     <ClInclude Include="VoxelCoordinateSpaces.h">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelSpaceUtils.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1122,6 +1125,9 @@
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClCompile>
     <ClCompile Include="VoxelSpaceConversions.cpp">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelSpaceUtils.cpp">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
   </ItemGroup>
