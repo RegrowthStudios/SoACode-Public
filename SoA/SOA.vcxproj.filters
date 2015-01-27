@@ -692,6 +692,9 @@
     <ClInclude Include="SphericalVoxelComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelSpaceConversions.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1114,6 +1117,9 @@
     </ClCompile>
     <ClCompile Include="SpaceSystemUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelSpaceConversions.cpp">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
