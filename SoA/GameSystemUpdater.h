@@ -17,6 +17,7 @@
 
 #include "CollisionComponentUpdater.h"
 #include "FreeMoveComponentUpdater.h"
+#include "FrustumComponentUpdater.h"
 #include "PhysicsComponentUpdater.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
@@ -45,6 +46,7 @@ private:
     PhysicsComponentUpdater physicsUpdater;
     CollisionComponentUpdater collisionUpdater;
     FreeMoveComponentUpdater freeMoveUpdater;
+    FrustumComponentUpdater frustumUpdater;
     /// Calculates voxel position from relative space position
     /// @param relPos: relative position of the entity against the world center
     /// @param radius: Radius of the world

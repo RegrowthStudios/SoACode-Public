@@ -158,7 +158,7 @@ bool sortChunksDescending(const Chunk* a, const Chunk* b) {
     return a->distance2 > b->distance2;
 }
 
-void ChunkManager::update(const f64v3& position) {
+void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
 
     timeBeginPeriod(1);
 
@@ -188,7 +188,7 @@ void ChunkManager::update(const f64v3& position) {
 
     globalMultiplePreciseTimer.start("Update Chunks");
 
-    updateChunks(position);
+    updateChunks(position, frustum);
 
     globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
@@ -382,7 +382,6 @@ void ChunkManager::destroy() {
 }
 
 void ChunkManager::saveAllChunks() {
-
     Chunk* chunk;
     for (i32 i = 0; i < m_chunks.size(); i++) { //update distances for all chunks
         chunk = m_chunks[i];
@@ -1045,7 +1044,7 @@ void ChunkManager::deleteAllChunks() {
     _freeList.clear();
 }
 
-void ChunkManager::updateChunks(const f64v3& position) {
+void ChunkManager::updateChunks(const f64v3& position, const Frustum* frustum) {
 
     Chunk* chunk;
 
@@ -1099,8 +1098,7 @@ void ChunkManager::updateChunks(const f64v3& position) {
         } else { //inside maximum range
 
             // Check if it is in the view frustum
-            //cs->inFrustum = camera->sphereInFrustum(f32v3(f64v3(cs->position) + f64v3(CHUNK_WIDTH / 2) - position), 28.0f);
-            chunk->inFrustum = true; // TODO(Ben): Pass in a frustum?
+            chunk->inFrustum = frustum->sphereInFrustum(f32v3(f64v3(chunk->voxelPosition + (CHUNK_WIDTH / 2)) - position), 28.0f); 
 
             // See if neighbors need to be added
             if (chunk->numNeighbors != 6 && chunk->needsNeighbors) {

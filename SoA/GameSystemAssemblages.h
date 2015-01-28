@@ -1,5 +1,5 @@
 ///
-/// GameSystemFactories.h
+/// GameSystemAssemblages.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 11 Jan 2015
@@ -7,13 +7,13 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Factory methods for GameSystem entities
+/// Component and entity assemblages for GameSystem
 ///
 
 #pragma once
 
-#ifndef GameSystemFactories_h__
-#define GameSystemFactories_h__
+#ifndef GameSystemAssemblages_h__
+#define GameSystemAssemblages_h__
 
 #include <Vorb/ecs/Entity.h>
 
@@ -21,13 +21,14 @@ class GameSystem;
 
 #include "GameSystemComponents.h"
 
-namespace GameSystemFactories {
+namespace GameSystemAssemblages {
     /************************************************************************/
     /* Entity Factories                                                     */
     /************************************************************************/
     /// Player entity
     extern vcore::EntityID createPlayer(OUT GameSystem* gameSystem, const f64v3& spacePosition,
-                                      const f64q& orientation, float massKg, const f64v3& initialVel);
+                                      const f64q& orientation, f32 massKg, const f64v3& initialVel,
+                                      f32 fov, f32 aspectRatio, f32 znear = 0.01, f32 zfar = 100000.0f);
     extern void destroyPlayer(OUT GameSystem* gameSystem, vcore::EntityID playerEntity);
 
     /************************************************************************/
@@ -39,7 +40,7 @@ namespace GameSystemFactories {
     extern void removeFreeMoveInput(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Physics component
     extern vcore::ComponentID addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,
-                                         float massKg, const f64v3& initialVel,
+                                         f32 massKg, const f64v3& initialVel,
                                          vcore::ComponentID spacePositionComponent,
                                          OPT vcore::ComponentID voxelPositionComponent = 0);
     extern void removePhysics(OUT GameSystem* gameSystem, vcore::EntityID entity);
@@ -58,6 +59,17 @@ namespace GameSystemFactories {
                                                const f64q& orientation,
                                                vvox::VoxelPlanetMapData mapData);
     extern void removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity);
+    /// Frustum Component
+    extern vcore::ComponentID addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                                  f32 fov, f32 aspectRatio, f32 znear, f32 zfar,
+                                                  vcore::ComponentID spacePosition = 0,
+                                                  vcore::ComponentID voxelPosition = 0,
+                                                  vcore::ComponentID head = 0);
+    extern void removeFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
+    /// Head Component
+    extern vcore::ComponentID addHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,
+                                               f64 neckLength);
+    extern void removeHeadComponent(OUT GameSystem* gameSystem, vcore::EntityID entity);
 }
 
-#endif // GameSystemFactories_h__
+#endif // GameSystemAssemblages_h__

@@ -132,7 +132,7 @@ void GamePlayRenderPipeline::render() {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _cutoutVoxelRenderStage->draw();
 
-        auto& voxcmp = gameSystem.voxelPositionCT.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
+        auto& voxcmp = gameSystem.voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
         _chunkGridRenderStage->setChunks(&spaceSystem.m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunks());
         _chunkGridRenderStage->draw();
         _liquidVoxelRenderStage->draw();
@@ -280,9 +280,9 @@ void GamePlayRenderPipeline::updateCameras() {
     float sNearClip = 20.0f; ///< temporary until dynamic clipping plane works
 
     // Get the physics component
-    auto& phycmp = gs->physicsCT.getFromEntity(m_soaState->playerEntity);
+    auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
-        auto& vpcmp = gs->voxelPositionCT.get(phycmp.voxelPositionComponent);
+        auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
         _chunkCamera.setClippingPlane(1.0f, 999999.0f);
         _chunkCamera.setPosition(vpcmp.position);
         _chunkCamera.setOrientation(vpcmp.orientation);
@@ -293,7 +293,7 @@ void GamePlayRenderPipeline::updateCameras() {
         m_voxelsActive = false;
     }
 
-    auto& spcmp = gs->spacePositionCT.get(phycmp.spacePositionComponent);
+    auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
     //printVec("POSITION: ", spcmp.position);
     _worldCamera.setClippingPlane(sNearClip, 999999999.0f);
     _worldCamera.setPosition(spcmp.position);

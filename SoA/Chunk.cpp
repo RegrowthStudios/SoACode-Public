@@ -62,8 +62,8 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
 	bottom = NULL;
 	front = NULL;
     needsNeighbors = false;
-	numNeighbors = 0;
-	distance2 = 999999.0;
+    numNeighbors = 0;
+    distance2 = 999999.0;
 	treesToLoad.clear();
 	blockUpdateIndex = 0;
     _levelOfDetail = 1;

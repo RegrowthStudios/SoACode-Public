@@ -17,6 +17,7 @@
 
 #include <Vorb/ecs/Entity.h>
 
+#include "Frustum.h"
 #include "VoxelPlanetMapper.h"
 
 struct AabbCollidableComponent {
@@ -79,10 +80,23 @@ struct VoxelPositionComponent {
 };
 
 struct PhysicsComponent {
-    vcore::ComponentID spacePositionComponent = 0;
-    vcore::ComponentID voxelPositionComponent = 0;
+    vcore::ComponentID spacePositionComponent = 0; ///< Optional
+    vcore::ComponentID voxelPositionComponent = 0; ///< Optional
     f64v3 velocity = f64v3(0.0);
     f32 mass;
+};
+
+struct FrustumComponent {
+    vcore::ComponentID spacePositionComponent = 0; ///< Optional
+    vcore::ComponentID voxelPositionComponent = 0; ///< Optional
+    vcore::ComponentID headComponent = 0; ///< Optional
+    Frustum frustum;
+};
+
+struct HeadComponent {
+    f64q relativeOrientation;
+    f64v3 relativePosition = f64v3(0.0); ///< Position in voxel units
+    f64 neckLength = 0.0; ///< Neck length in voxel units
 };
 
 #endif // GameSystemComponents_h__

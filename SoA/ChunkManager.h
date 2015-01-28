@@ -49,6 +49,7 @@ public:
 
 class ChunkSlot;
 class FloraTask;
+class Frustum;
 class GenerateTask;
 class GeneratedTreeNodes;
 class PhysicsEngine;
@@ -89,8 +90,9 @@ public:
     };
 
     /// Updates the chunks
-    /// @param camera: The camera that is rendering the voxels
-    void update(const f64v3& position);
+    /// @param position: The position of the observer
+    /// @param frustum: View frustum of observer
+    void update(const f64v3& position, const Frustum* frustum);
 
     /// Gets the 8 closest chunks to a point
     /// @param coord: the position in question
@@ -284,8 +286,9 @@ private:
     void deleteAllChunks();
 
     /// Updates all chunks
-    /// @param position: the camera position
-    void updateChunks(const f64v3& position);
+    /// @param position: the observer position
+    /// @param frustum: The view frustum of the observer
+    void updateChunks(const f64v3& position, const Frustum* frustum);
 
     /// Updates the neighbors for a chunk, possibly loading new chunks
     /// @param chunk: the chunk in question

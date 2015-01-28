@@ -4,12 +4,12 @@
 #include "FreeMoveComponentUpdater.h"
 #include "GameSystem.h"
 #include "GameSystemEvents.hpp"
-#include "GameSystemFactories.h"
+#include "GameSystemAssemblages.h"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
-#include "SpaceSystemFactories.h"
+#include "SpaceSystemAssemblages.h"
 #include "SphericalTerrainPatch.h"
 
 #include <Vorb/FastConversion.inl>
@@ -40,9 +40,8 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     m_onSuperSpeedKeyDown = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnSuperSpeedKeyDown(gameSystem));
     m_onSuperSpeedKeyUp = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::UP, (IDelegate<ui32>*)new OnSuperSpeedKeyUp(gameSystem));
 
-
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
-        for (auto& it : gameSystem->freeMoveInputCT) {
+        for (auto& it : gameSystem->freeMoveInput) {
             FreeMoveComponentUpdater::rotateFromMouse(gameSystem, it.second, -e.dx, e.dy, 0.1f);
         }
     });
@@ -50,12 +49,13 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 
-#define CHECK_FRAMES 2
+#define CHECK_FRAMES 6
 
     // Update entity tables
     physicsUpdater.update(gameSystem, spaceSystem);
     collisionUpdater.update(gameSystem);
     freeMoveUpdater.update(gameSystem);
+    frustumUpdater.update(gameSystem);
 
     // Update voxel planet transitions every CHECK_FRAMES frames
     m_frameCounter++;
@@ -67,10 +67,10 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 
 void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 #define LOAD_DIST_MULT 1.05
-    for (auto& it : gameSystem->spacePositionCT) {
+    for (auto& it : gameSystem->spacePosition) {
         bool inVoxelRange = false;
         auto& spcmp = it.second;
-        auto& pycmp = gameSystem->physicsCT.getFromEntity(it.first);
+        auto& pycmp = gameSystem->physics.getFromEntity(it.first);
         for (auto& sit : spaceSystem->m_sphericalTerrainCT) {
             auto& stcmp = sit.second;
             auto& npcmp = spaceSystem->m_namePositionCT.get(stcmp.namePositionComponent);
@@ -82,6 +82,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT) {
                 inVoxelRange = true;
                 if (!pycmp.voxelPositionComponent) {
+                    // We need to transition to a voxel component
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
                     vvox::VoxelPlanetMapData mapData;
@@ -91,7 +92,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
                     if (svid == 0) {
-                        svid = SpaceSystemFactories::addSphericalVoxelComponent(spaceSystem, sit.first,
+                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
                                                                                 &mapData, pos, soaState);
                     } else {
@@ -101,8 +102,11 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     f64q voxOrientation = glm::inverse(mapData.calculateVoxelToSpaceQuat(pos, stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
 
                     // We need to transition to the voxels
-                    vcore::ComponentID vpid = GameSystemFactories::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
+                    vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
                     pycmp.voxelPositionComponent = vpid;
+                    
+                    // Update dependencies for frustum
+                    gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = vpid;
                 }
             }
         }
@@ -118,6 +122,9 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             if (svcmp.refCount == 0) {
                 spaceSystem->deleteComponent("SphericalVoxel", it.first);
             }
+
+            // Update dependencies for frustum
+            gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = 0;
         }
     }
 }

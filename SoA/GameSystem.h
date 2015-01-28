@@ -20,15 +20,16 @@
 
 #include "GameSystemComponents.h"
 
-
 class GameSystem : public vcore::ECS {
 public:
     GameSystem();
-    vcore::ComponentTable<AabbCollidableComponent> aabbCollidableCT;
-    vcore::ComponentTable<FreeMoveInputComponent> freeMoveInputCT;
-    vcore::ComponentTable<PhysicsComponent> physicsCT;
-    vcore::ComponentTable<SpacePositionComponent> spacePositionCT;
-    vcore::ComponentTable<VoxelPositionComponent> voxelPositionCT;
+    vcore::ComponentTable<AabbCollidableComponent> aabbCollidable;
+    vcore::ComponentTable<FreeMoveInputComponent> freeMoveInput;
+    vcore::ComponentTable<PhysicsComponent> physics;
+    vcore::ComponentTable<SpacePositionComponent> spacePosition;
+    vcore::ComponentTable<VoxelPositionComponent> voxelPosition;
+    vcore::ComponentTable<FrustumComponent> frustum;
+    vcore::ComponentTable<HeadComponent> head;
 };
 
 #endif // GameSystem_h__

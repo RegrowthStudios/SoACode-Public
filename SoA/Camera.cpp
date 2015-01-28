@@ -48,7 +48,7 @@ void Camera::update() {
 
     if (updateFrustum) {
         m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
-        m_frustum.update(m_projectionMatrix, m_viewMatrix);
+        m_frustum.updateFromWVP(m_viewProjectionMatrix);
     }
 }
 
@@ -57,6 +57,7 @@ void Camera::updateView() {
 }
 
 void Camera::updateProjection() {
+    m_frustum.setCamInternals(m_fieldOfView, m_aspectRatio, m_zNear, m_zFar);
     m_projectionMatrix = glm::perspective(m_fieldOfView, m_aspectRatio, m_zNear, m_zFar);
 }
 

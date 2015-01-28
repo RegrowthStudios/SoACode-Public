@@ -7,15 +7,15 @@
 // TODO(Ben): Timestep
 void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem) {
 #define VOXELS_PER_KM 2000.0
-    for (auto& it : gameSystem->physicsCT) {
+    for (auto& it : gameSystem->physics) {
         auto& cmp = it.second;
         // Get the position component
-        auto& spcmp = gameSystem->spacePositionCT.get(cmp.spacePositionComponent);
+        auto& spcmp = gameSystem->spacePosition.get(cmp.spacePositionComponent);
         // Voxel position dictates space position
         if (cmp.voxelPositionComponent) {
             // NOTE: This is costly
 
-            auto& vpcmp = gameSystem->voxelPositionCT.get(cmp.voxelPositionComponent);
+            auto& vpcmp = gameSystem->voxelPosition.get(cmp.voxelPositionComponent);
             vpcmp.position += cmp.velocity;
 
             // Compute the space position and orientation from voxel position and orientation
