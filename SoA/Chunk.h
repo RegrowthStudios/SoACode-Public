@@ -42,7 +42,7 @@ class SphericalTerrainGenerator;
 
 class ChunkGridData {
 public:
-    ChunkGridData(const f32v2& pos, WorldCubeFace face, int rotation) {
+    ChunkGridData(const i32v2& pos, WorldCubeFace face, int rotation) {
         gridPosition.pos = pos;
         gridPosition.face = face;
         gridPosition.rotation = rotation;
@@ -211,7 +211,6 @@ public:
     std::vector <PlantData> plantsToLoad;
     std::vector <GLushort> spawnerBlocks;
     i32v3 voxelPosition;  // Position relative to the voxel grid
-    i32v3 chunkPosition; // floor(gridPosition / (float)CHUNK_WIDTH)
 
     int numBlocks;
     int minh;
@@ -242,7 +241,7 @@ public:
     Chunk *right, *left, *front, *back, *top, *bottom;
 
     ChunkGridData* chunkGridData;
-    ChunkGridPosition2D gridPosition;
+    ChunkGridPosition3D gridPosition;
 
     // Thread safety functions
     inline void lock() { _dataLock.lock(); }

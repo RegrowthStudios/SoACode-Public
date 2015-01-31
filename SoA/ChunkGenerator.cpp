@@ -20,10 +20,6 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
     timer.start();
     HeightData *heightMap = ld->heightMap;
 
-    // used for tree coords
-    int wz, wx;
-    chunk->voxelMapData->getVoxelGridPos(wz, wx);
-
     Biome *biome;
     chunk->numBlocks = 0;
     int temperature;
@@ -95,19 +91,19 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                     chunk->numBlocks++;
                     if (!sandDepth /* && biome->beachBlock != SAND */){
                         if (snowDepth < 7){
-                            TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
+             //               TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
                         }
                     }
                     if (!sandDepth && (h > 0 || h == 0 && data != SAND)){
                         if (snowDepth < 7){
-                            TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
+             //               TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
                         }
                     }
                 } else if (sandDepth && h == maph + sandDepth){ //tree layers
                     data = SAND;
                     chunk->numBlocks++;
                     if (snowDepth < 7 && h > 0){
-                        TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
+             //           TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
                     }
                 } else if (sandDepth && h - maph <= sandDepth){
                     data = SAND;
@@ -134,7 +130,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                 } else if (h == maph + 1 && h > 0){ //FLORA!
 
                     if (0  /*biome->possibleFlora.size() */){
-                        r = chunk->GetPlantType(x + wx, z + wz, biome);
+             //           r = chunk->GetPlantType(x + wx, z + wz, biome);
 
                //         if (r) chunk->plantsToLoad.emplace_back(GameManager::planet->floraTypeVec[r], c);
 

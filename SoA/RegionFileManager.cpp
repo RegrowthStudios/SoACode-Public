@@ -14,6 +14,7 @@
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
+#include "VoxelSpaceConversions.h"
 
 
 // Section tags
@@ -97,7 +98,7 @@ void RegionFileManager::clear() {
     _regionFile = nullptr;
 }
 
-bool RegionFileManager::openRegionFile(nString region, const ChunkGridPosition2D& gridPositio, bool create) {
+bool RegionFileManager::openRegionFile(nString region, const ChunkGridPosition3D& gridPosition, bool create) {
 
     nString filePath;
     class stat statbuf;
@@ -133,7 +134,7 @@ bool RegionFileManager::openRegionFile(nString region, const ChunkGridPosition2D
     } 
 
 
-    filePath = m_saveDir + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
+    filePath = m_saveDir + "/Region/" + region + ".soar";
    
     //open file if it exists
     FILE* file = fopen(filePath.c_str(), "rb+");
@@ -211,7 +212,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
     nString regionString = getRegionString(chunk);
 
     //Open the region file
-    if (!openRegionFile(regionString, chunk->voxelMapData, false)) return false;
+    if (!openRegionFile(regionString, chunk->gridPosition, false)) return false;
 
     //Get the chunk sector offset
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk);
@@ -266,7 +267,7 @@ bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     nString regionString = getRegionString(chunk);
 
-    if (!openRegionFile(regionString, chunk->voxelMapData, true)) return false;
+    if (!openRegionFile(regionString, chunk->gridPosition, true)) return false;
 
     ui32 tableOffset;
     ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
@@ -542,89 +543,91 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
 
 bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
 
-    ui8 lightVal;
+    // TODO(Ben): Fix
 
-    int blockIndex;
-    int jStart, jEnd, jInc;
-    int kStart, kEnd, kInc;
-    int jMult, kMult;
+    //ui8 lightVal;
 
-    chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //int blockIndex;
+    //int jStart, jEnd, jInc;
+    //int kStart, kEnd, kInc;
+    //int jMult, kMult;
 
-    chunk->numBlocks = 0;
+    //chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
-    if (rleUncompressArray(_blockIDBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //chunk->numBlocks = 0;
 
-    if (rleUncompressArray(_lampLightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //if (rleUncompressArray(_blockIDBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(_sunlightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //if (rleUncompressArray(_lampLightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(_tertiaryDataBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //if (rleUncompressArray(_sunlightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
+    //if (rleUncompressArray(_tertiaryDataBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
 
-    //Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
-    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    static std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
-    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    ////Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
+    //static std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    //static std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    //static std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
+    //static std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
 
-    //Make the size 0
-    blockIDNodes.clear();
-    lampLightNodes.clear();
-    sunlightNodes.clear();
-    tertiaryDataNodes.clear();
-     //   chunk->_blockIDContainer.initFromSortedArray()
+    ////Make the size 0
+    //blockIDNodes.clear();
+    //lampLightNodes.clear();
+    //sunlightNodes.clear();
+    //tertiaryDataNodes.clear();
+    // //   chunk->_blockIDContainer.initFromSortedArray()
 
-    ui16 blockID;
-    ui16 lampLight;
-    ui8 sunlight;
-    ui16 tertiaryData;
+    //ui16 blockID;
+    //ui16 lampLight;
+    //ui8 sunlight;
+    //ui16 tertiaryData;
 
-    //Add first nodes
-    blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _blockIDBuffer[0]));
-    lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _lampLightBuffer[0]));
-    sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
-    tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
+    ////Add first nodes
+    //blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _blockIDBuffer[0]));
+    //lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _lampLightBuffer[0]));
+    //sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
+    //tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
 
-    //Construct the node vectors
-    for (int i = 1; i < CHUNK_SIZE; i++) {
-        blockID = _blockIDBuffer[i];
-        lampLight = _lampLightBuffer[i];
-        sunlight = _sunlightBuffer[i];
-        tertiaryData = _tertiaryDataBuffer[i];
+    ////Construct the node vectors
+    //for (int i = 1; i < CHUNK_SIZE; i++) {
+    //    blockID = _blockIDBuffer[i];
+    //    lampLight = _lampLightBuffer[i];
+    //    sunlight = _sunlightBuffer[i];
+    //    tertiaryData = _tertiaryDataBuffer[i];
 
-        if (blockID != 0) chunk->numBlocks++;
-        
-        if (GETBLOCK(blockID).spawnerVal || GETBLOCK(blockID).sinkVal){
-            chunk->spawnerBlocks.push_back(i);
-        }
+    //    if (blockID != 0) chunk->numBlocks++;
+    //    
+    //    if (GETBLOCK(blockID).spawnerVal || GETBLOCK(blockID).sinkVal){
+    //        chunk->spawnerBlocks.push_back(i);
+    //    }
 
-        if (blockID == blockIDNodes.back().data) {
-            blockIDNodes.back().length++;
-        } else {
-            blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, blockID));
-        }
-        if (lampLight == lampLightNodes.back().data) {
-            lampLightNodes.back().length++;
-        } else {
-            lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, lampLight));
-        }
-        if (sunlight == sunlightNodes.back().data) {
-            sunlightNodes.back().length++;
-        } else {
-            sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(i, 1, sunlight));
-        }
-        if (tertiaryData == tertiaryDataNodes.back().data) {
-            tertiaryDataNodes.back().length++;
-        } else {
-            tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, tertiaryData));
-        }
-    }
+    //    if (blockID == blockIDNodes.back().data) {
+    //        blockIDNodes.back().length++;
+    //    } else {
+    //        blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, blockID));
+    //    }
+    //    if (lampLight == lampLightNodes.back().data) {
+    //        lampLightNodes.back().length++;
+    //    } else {
+    //        lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, lampLight));
+    //    }
+    //    if (sunlight == sunlightNodes.back().data) {
+    //        sunlightNodes.back().length++;
+    //    } else {
+    //        sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(i, 1, sunlight));
+    //    }
+    //    if (tertiaryData == tertiaryDataNodes.back().data) {
+    //        tertiaryDataNodes.back().length++;
+    //    } else {
+    //        tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, tertiaryData));
+    //    }
+    //}
   
-    chunk->_blockIDContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockIDNodes);
-    chunk->_lampLightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightNodes);
-    chunk->_sunlightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightNodes);
-    chunk->_tertiaryDataContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataNodes);
+    //chunk->_blockIDContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockIDNodes);
+    //chunk->_lampLightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightNodes);
+    //chunk->_sunlightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightNodes);
+    //chunk->_tertiaryDataContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataNodes);
 
     return true;
 }
@@ -735,55 +738,57 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
 
 bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
 
-    ui16* blockIDData;
-    ui8* sunlightData;
-    ui16* lampLightData;
-    ui16* tertiaryData;
+    // TODO(Ben): Fix
 
-    //Need to lock so that nobody modifies the interval tree out from under us
-    chunk->lock();
-    if (chunk->_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        blockIDData = _blockIDBuffer;
-        chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
-    } else {
-        blockIDData = chunk->_blockIDContainer.getDataArray();
-    }
-    if (chunk->_lampLightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        lampLightData = _lampLightBuffer;
-        chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
-    } else {
-        lampLightData = chunk->_lampLightContainer.getDataArray();
-    }
-    if (chunk->_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        sunlightData = _sunlightBuffer;
-        chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
-    } else {
-        sunlightData = chunk->_sunlightContainer.getDataArray();
-    }
-    if (chunk->_tertiaryDataContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        tertiaryData = _tertiaryDataBuffer;
-        chunk->_tertiaryDataContainer.uncompressIntoBuffer(tertiaryData);
-    } else {
-        tertiaryData = chunk->_tertiaryDataContainer.getDataArray();
-    }
-    chunk->unlock();
+    //ui16* blockIDData;
+    //ui8* sunlightData;
+    //ui16* lampLightData;
+    //ui16* tertiaryData;
 
-    _bufferSize = 0;
+    ////Need to lock so that nobody modifies the interval tree out from under us
+    //chunk->lock();
+    //if (chunk->_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    blockIDData = _blockIDBuffer;
+    //    chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
+    //} else {
+    //    blockIDData = chunk->_blockIDContainer.getDataArray();
+    //}
+    //if (chunk->_lampLightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    lampLightData = _lampLightBuffer;
+    //    chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
+    //} else {
+    //    lampLightData = chunk->_lampLightContainer.getDataArray();
+    //}
+    //if (chunk->_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    sunlightData = _sunlightBuffer;
+    //    chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
+    //} else {
+    //    sunlightData = chunk->_sunlightContainer.getDataArray();
+    //}
+    //if (chunk->_tertiaryDataContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    tertiaryData = _tertiaryDataBuffer;
+    //    chunk->_tertiaryDataContainer.uncompressIntoBuffer(tertiaryData);
+    //} else {
+    //    tertiaryData = chunk->_tertiaryDataContainer.getDataArray();
+    //}
+    //chunk->unlock();
 
-    // Set the tag
-    memcpy(_chunkBuffer, TAG_VOXELDATA_STR, 4);
-    _bufferSize += 4;
+    //_bufferSize = 0;
 
-    int jStart, jEnd, jInc;
-    int kStart, kEnd, kInc;
-    int jMult, kMult;
+    //// Set the tag
+    //memcpy(_chunkBuffer, TAG_VOXELDATA_STR, 4);
+    //_bufferSize += 4;
 
-    chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //int jStart, jEnd, jInc;
+    //int kStart, kEnd, kInc;
+    //int jMult, kMult;
 
-    rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
-    rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
-    rleCompressArray(sunlightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
-    rleCompressArray(tertiaryData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+
+    //rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //rleCompressArray(sunlightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //rleCompressArray(tertiaryData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
     return true;
 }
@@ -837,18 +842,18 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
 }
 
 ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
-    int ip, jp;
-    chunk->voxelMapData->getChunkGridPos(ip, jp);
+    
+    ChunkFacePosition3D gridPos = VoxelSpaceConversions::chunkGridToFace(chunk->gridPosition);
 
-    int ym = ((int)floor(chunk->voxelPosition.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
-    int im = ip % REGION_WIDTH;
-    int jm = jp % REGION_WIDTH;
+    int x = gridPos.pos.x % REGION_WIDTH;
+    int y = gridPos.pos.y % REGION_WIDTH;
+    int z = gridPos.pos.z % REGION_WIDTH;
 
     //modulus is weird in c++ for negative numbers
-    if (ym < 0) ym += REGION_WIDTH;
-    if (im < 0) im += REGION_WIDTH;
-    if (jm < 0) jm += REGION_WIDTH;
-    ui32 tableOffset = 4 * (jm + im * REGION_WIDTH + ym * REGION_LAYER);
+    if (x < 0) x += REGION_WIDTH;
+    if (y < 0) x += REGION_WIDTH;
+    if (z < 0) z += REGION_WIDTH;
+    ui32 tableOffset = 4 * (x + z * REGION_WIDTH + y * REGION_LAYER);
 
     //If the caller asked for the table offset, return it
     if (retTableOffset) *retTableOffset = tableOffset;
@@ -858,13 +863,9 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
 
 nString RegionFileManager::getRegionString(Chunk *ch)
 {
-    int ip, jp;
+    ChunkFacePosition3D gridPos = VoxelSpaceConversions::chunkGridToFace(ch->gridPosition);
 
-    if (ch->voxelMapData == nullptr) {
-        std::cout << "LOL";
-    }
-
-    ch->voxelMapData->getChunkGridPos(ip, jp);
-
-    return "r." + std::to_string(jp >> RSHIFT) + "." + std::to_string(fastFloor(ch->voxelPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + std::to_string(ip >> RSHIFT);
+    return "r." + std::to_string(fastFloor((float)gridPos.pos.x / REGION_WIDTH)) + "."
+        + std::to_string(fastFloor((float)gridPos.pos.y / REGION_WIDTH)) + "."
+        + std::to_string(fastFloor((float)gridPos.pos.z / REGION_WIDTH));
 }

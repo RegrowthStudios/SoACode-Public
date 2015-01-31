@@ -39,8 +39,18 @@ f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition2D& faceP
     rv.z = (float)FACE_COORDINATE_MULTS[facePosition.face][0].y;
     return rv;
 }
+f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition3D& facePosition) {
+    f32v3 rv;
+    rv.x = (float)FACE_COORDINATE_MULTS[facePosition.face][0].x;
+    rv.y = (float)FACE_Y_MULTS[facePosition.face];
+    rv.z = (float)FACE_COORDINATE_MULTS[facePosition.face][0].y;
+    return rv;
+}
 
-i32v3 getCoordinateMapping(const ChunkFacePosition2D& facePosition) {
+i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkFacePosition2D& facePosition) {
+    return GRID_TO_WORLD[facePosition.face];
+}
+i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkFacePosition3D& facePosition) {
     return GRID_TO_WORLD[facePosition.face];
 }
 

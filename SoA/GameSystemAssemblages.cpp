@@ -86,15 +86,14 @@ void GameSystemAssemblages::removeAabbCollidable(OUT GameSystem* gameSystem, vco
 
 vcore::ComponentID GameSystemAssemblages::addVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                                 vcore::ComponentID parentVoxelComponent,
-                                                                const VoxelPosition& position, const f64q& orientation,
-                                                                vvox::VoxelPlanetMapData mapData) {
+                                                                const f64q& orientation,
+                                                                const VoxelGridPosition3D& gridPosition) {
     // We need to transition to the voxels
     vcore::ComponentID vpid = gameSystem->addComponent("VoxelPosition", entity);
     auto& vpcmp = gameSystem->voxelPosition.get(vpid);
     vpcmp.parentVoxelComponent = parentVoxelComponent;
-    vpcmp.position = position;
+    vpcmp.gridPosition = gridPosition;
     vpcmp.orientation = orientation;
-    vpcmp.mapData = mapData;
     return vpid;
 }
 

@@ -40,6 +40,7 @@
 #include "VRayHelper.h"
 #include "VoxelLightEngine.h"
 #include "VoxelCoordinateSpaces.h"
+#include "VoxelSpaceUtils.h"
 #include "VoxelRay.h"
 
 const f32 skyR = 135.0f / 255.0f, skyG = 206.0f / 255.0f, skyB = 250.0f / 255.0f;
@@ -52,7 +53,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
 
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition2D& facePosition, float planetRadius) {
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float planetRadius) {
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];
@@ -86,13 +87,12 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGenerator* terrainGenerator,
-                           const ChunkGridPosition2D* startGridPos, ChunkIOManager* chunkIo,
+                           const ChunkGridPosition2D& startGridPos, ChunkIOManager* chunkIo,
                            const f64v3& gridPosition, float planetRadius) :
     _isStationary(0),
-    _cameraVoxelMapData(nullptr),
+    m_cameraGridPos(startGridPos),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
     _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS),
-    _voxelMapper(voxelMapper),
     m_terrainGenerator(terrainGenerator),
     m_physicsEngine(physicsEngine),
     m_chunkIo(chunkIo),
@@ -131,9 +131,6 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     _meshList.reserve(_csGridSize / 2);
     _loadList.reserve(_csGridSize / 2);
 
-    // Allocate the camera voxel map data so we can tell where on the grid the camera exists
-    _cameraVoxelMapData = _voxelMapper->getNewVoxelMapData(startingMapData);
-
     // Get the chunk position
     i32v3 chunkPosition;
     chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
@@ -141,7 +138,9 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
 
     // Make the first chunk
-    makeChunkAt(chunkPosition, startingMapData);
+    makeChunkAt(chunkPosition, startGridPos);
+
+    m_prevCameraChunkPos = m_cameraGridPos.pos;
 }
 
 ChunkManager::~ChunkManager() {
@@ -170,16 +169,16 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     i32v3 chunkPosition = getChunkPosition(position);
 
     i32v2 gridPosition(chunkPosition.x, chunkPosition.z);
-    static i32v2 oldGridPosition = gridPosition;
 
-    if (gridPosition != oldGridPosition) {
-        _voxelMapper->offsetPosition(_cameraVoxelMapData, i32v2(gridPosition.y - oldGridPosition.y, gridPosition.x - oldGridPosition.x));
+    if (gridPosition != m_prevCameraChunkPos) {
+        VoxelSpaceUtils::offsetChunkGridPosition(m_cameraGridPos,
+                                                 i32v2(gridPosition.y - m_prevCameraChunkPos.y, gridPosition.x - m_prevCameraChunkPos.x),
+                                                 m_planetRadius / CHUNK_WIDTH);
+        m_prevCameraChunkPos = gridPosition;
     }
 
-    oldGridPosition = gridPosition;
-
     if (getChunk(chunkPosition) == nullptr) {
-        makeChunkAt(chunkPosition, _cameraVoxelMapData);
+        makeChunkAt(chunkPosition, m_cameraGridPos);
     }
 
     sonarDt += 0.003f*physSpeedFactor;
@@ -585,7 +584,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                    (vvox::VoxelPlanetMapData*)ch->voxelMapData, m_planetRadius));
+                    VoxelSpaceConversions::chunkGridToFace(ch->gridPosition), m_planetRadius));
             }
 
             canGenerate = false;
@@ -655,7 +654,7 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
     _threadPool.addTask(generateTask);
 }
 
-void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D* relativeGridPos, const i32v2& ijOffset /* = i32v2(0) */) {
+void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D& relativeGridPos, const i32v2& ijOffset /* = i32v2(0) */) {
 
     // Get the voxel grid position
     i32v2 gridPos(chunkPosition.x, chunkPosition.z);
@@ -664,7 +663,8 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkGridPositi
     ChunkGridData* chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         // If its not allocated, make a new one with a new voxelMapData
-        chunkGridData = new ChunkGridData(relativeGridPos->pos + ijOffset, relativeGridPos->face, relativeGridPos->rotation);
+        chunkGridData = new ChunkGridData(relativeGridPos.pos + ijOffset,
+                                          relativeGridPos.face, relativeGridPos.rotation);
         _chunkGridDataMap[gridPos] = chunkGridData;
     } else {
         chunkGridData->refCount++;
@@ -976,14 +976,14 @@ void ChunkManager::freeChunk(Chunk* chunk) {
 
             _freeWaitingChunks.push_back(chunk);
         } else {
-            m_chunkMap.erase(chunk->chunkPosition);
+            m_chunkMap.erase(chunk->gridPosition.pos);
 
             chunk->clearNeighbors();
             // Reduce the ref count since the chunk no longer needs chunkGridData
             chunk->chunkGridData->refCount--;
             // Check to see if we should free the grid data
             if (chunk->chunkGridData->refCount == 0) {
-                i32v2 gridPosition(chunk->chunkPosition.x, chunk->chunkPosition.z);
+                i32v2 gridPosition(chunk->gridPosition.pos.x, chunk->gridPosition.pos.z);
                 _chunkGridDataMap.erase(gridPosition);
 
                 delete chunk->chunkGridData;
@@ -1164,13 +1164,13 @@ void ChunkManager::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
 }
 
 void ChunkManager::tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
-    i32v3 newPosition = chunk->chunkPosition + offset;
+    i32v3 newPosition = chunk->gridPosition.pos + offset;
    
     double dist2 = Chunk::getDistance2(newPosition * CHUNK_WIDTH, cameraPos);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
 
         i32v2 ijOffset(offset.z, offset.x);
-        makeChunkAt(newPosition, chunk->chunkGridData->voxelMapData, ijOffset);
+        makeChunkAt(newPosition, chunk->chunkGridData->gridPosition, ijOffset);
     }
 }
 

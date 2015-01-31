@@ -9,7 +9,6 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGenerator.h"
-#include "VoxelCoordinateSpaces.h"
 
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -114,7 +113,7 @@ void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) 
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                     vcore::ComponentID sphericalTerrainComponent,
-                                                                    const vvox::VoxelMapData* startingMapData,
+                                                                    const ChunkGridPosition2D& startGridPos,
                                                                     const f64v3& gridPosition,
                                                                     const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0
@@ -135,8 +134,8 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 
     svcmp.generator = stcmp.generator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine, svcmp.voxelPlanetMapper,
-                                          svcmp.generator, startingMapData,
+    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
+                                          svcmp.generator, startGridPos,
                                           svcmp.chunkIo,
                                           gridPosition, stcmp.sphericalTerrainData->getRadius());
     svcmp.particleEngine = new ParticleEngine();

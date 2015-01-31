@@ -11,8 +11,10 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "SphericalTerrainPatch.h"
+#include "VoxelSpaceUtils.h"
+#include "VoxelSpaceConversions.h"
 
-#include <Vorb/FastConversion.inl>
+#include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
 
 GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager) {
@@ -85,24 +87,27 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // We need to transition to a voxel component
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
-                    vvox::VoxelPlanetMapData mapData;
-                    f64v3 pos;
-                    computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), mapData, pos);
+                    ChunkGridPosition2D chunkGridPos;
+                    VoxelGridPosition3D vGridPos;
+                    computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), chunkGridPos, vGridPos.pos);
+                    vGridPos.face = chunkGridPos.face;
+                    vGridPos.rotation = chunkGridPos.rotation;
 
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
                     if (svid == 0) {
                         svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
-                                                                                &mapData, pos, soaState);
+                                                                                chunkGridPos, vGridPos.pos, soaState);
                     } else {
                         spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }
 
-                    f64q voxOrientation = glm::inverse(mapData.calculateVoxelToSpaceQuat(pos, stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
+                    f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(VoxelSpaceConversions::chunkGridToVoxelGrid(chunkGridPos),
+                        stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
 
                     // We need to transition to the voxels
-                    vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, it.first, svid, pos, voxOrientation, mapData);
+                    vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, it.first, svid, voxOrientation, vGridPos);
                     pycmp.voxelPositionComponent = vpid;
                     
                     // Update dependencies for frustum

@@ -64,7 +64,7 @@ public:
         }
     }
     /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition2D& facePosition, float voxelRadius);
+    bool dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float voxelRadius);
 private:
     static const int NUM_GENERATORS = 512;
     int counter = 0;
@@ -79,7 +79,7 @@ class ChunkManager {
 public:
     ChunkManager(PhysicsEngine* physicsEngine,
                  SphericalTerrainGenerator* terrainGenerator,
-                 const ChunkGridPosition2D* startGridPos, ChunkIOManager* chunkIo,
+                 const ChunkGridPosition2D& startGridPos, ChunkIOManager* chunkIo,
                  const f64v3& gridPosition, float planetRadius);
     ~ChunkManager();
 
@@ -230,7 +230,7 @@ private:
     /// @param chunkPosition: position to create the chunk at
     /// @param relativeGridPos: the gridPosition that this chunk is relative to.
     /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
-    void makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D* relativeGridPos, const i32v2& ijOffset = i32v2(0));
+    void makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D& relativeGridPos, const i32v2& ijOffset = i32v2(0));
 
     /// Updates the load list
     /// @param maxTicks: maximum time the function is allowed
@@ -360,7 +360,8 @@ private:
 
     /// Voxel mapping data at the camera
     /// TODO(Ben): This is temporary
-    ChunkGridPosition2D* m_cameraGridPos;
+    ChunkGridPosition2D m_cameraGridPos;
+    i32v2 m_prevCameraChunkPos;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData> _threadPool;

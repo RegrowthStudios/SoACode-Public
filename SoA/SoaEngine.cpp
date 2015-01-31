@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SoaEngine.h"
 
+#include "Constants.h"
 #include "DebugRenderer.h"
 #include "GLProgramManager.h"
 #include "MeshManager.h"

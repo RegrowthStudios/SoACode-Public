@@ -66,7 +66,7 @@ public:
 
     void clear();
 
-    bool openRegionFile(nString region, const ChunkGridPosition2D& gridPosition, bool create);
+    bool openRegionFile(nString region, const ChunkGridPosition3D& gridPosition, bool create);
 
     bool tryLoadChunk(Chunk* chunk);
     bool saveChunk(Chunk* chunk);

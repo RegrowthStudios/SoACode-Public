@@ -50,7 +50,7 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
 
     return glm::quat_cast(worldRotationMatrix);
 }
-f64q calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridPosition, f64 worldRadius) {
+f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridPosition, f64 worldRadius) {
 #define OFFSET 1000.0
 
     VoxelGridPosition3D gp2 = gridPosition;

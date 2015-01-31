@@ -16,7 +16,7 @@ void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const Game
         
 
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
-            it.second.chunkManager->update(playerPosCmp.position, &playerFrustumCmp.frustum);
+            it.second.chunkManager->update(playerPosCmp.gridPosition.pos, &playerFrustumCmp.frustum);
         }
     }
 }
@@ -41,9 +41,6 @@ void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
 
     delete cmp->particleEngine;
     cmp->particleEngine = nullptr;
-
-    delete cmp->voxelPlanetMapper;
-    cmp->voxelPlanetMapper = nullptr;
 }
 
 void SphericalVoxelComponentUpdater::destroyVoxels() {

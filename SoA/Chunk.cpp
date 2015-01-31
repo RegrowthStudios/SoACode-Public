@@ -50,7 +50,7 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
     _chunkListPtr = NULL;
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
-    chunkPosition = chunkPos;
+
     voxelPosition = chunkPos * CHUNK_WIDTH;
   
 	numBlocks = -1;
@@ -80,7 +80,9 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
     lastOwnerTask = nullptr;
 
     this->chunkGridData = chunkGridData;
-    voxelMapData = chunkGridData->voxelMapData;
+    gridPosition.face = chunkGridData->gridPosition.face;
+    gridPosition.rotation = chunkGridData->gridPosition.rotation;
+    gridPosition.pos = chunkPos;
 
     mesh = nullptr;
 }
@@ -90,7 +92,6 @@ std::vector<Chunk*> *dbgst;
 void Chunk::clear(bool clearDraw)
 {
     freeWaiting = false;
-    voxelMapData = nullptr;
     _blockIDContainer.clear();
     _lampLightContainer.clear();
     _sunlightContainer.clear();
@@ -762,7 +763,7 @@ void Chunk::detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap) {
 
     //left
     if (left == nullptr) {
-        it = chunkMap.find(chunkPosition + i32v3(-1, 0, 0));
+        it = chunkMap.find(gridPosition.pos + i32v3(-1, 0, 0));
         if (it != chunkMap.end()) {
             left = it->second;
             left->right = this;
@@ -772,7 +773,7 @@ void Chunk::detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap) {
     }
     //right
     if (right == nullptr) {
-        it = chunkMap.find(chunkPosition + i32v3(1, 0, 0));
+        it = chunkMap.find(gridPosition.pos + i32v3(1, 0, 0));
         if (it != chunkMap.end()) {
             right = it->second;
             right->left = this;
@@ -783,7 +784,7 @@ void Chunk::detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap) {
 
     //back
     if (back == nullptr) {
-        it = chunkMap.find(chunkPosition + i32v3(0, 0, -1));
+        it = chunkMap.find(gridPosition.pos + i32v3(0, 0, -1));
         if (it != chunkMap.end()) {
             back = it->second;
             back->front = this;
@@ -794,7 +795,7 @@ void Chunk::detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap) {
 
     //front
     if (front == nullptr) {
-        it = chunkMap.find(chunkPosition + i32v3(0, 0, 1));
+        it = chunkMap.find(gridPosition.pos + i32v3(0, 0, 1));
         if (it != chunkMap.end()) {
             front = it->second;
             front->back = this;
@@ -805,7 +806,7 @@ void Chunk::detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap) {
 
     //bottom
     if (bottom == nullptr) {
-        it = chunkMap.find(chunkPosition + i32v3(0, -1, 0));
+        it = chunkMap.find(gridPosition.pos + i32v3(0, -1, 0));
         if (it != chunkMap.end()) {
             bottom = it->second;
             bottom->top = this;
@@ -816,7 +817,7 @@ void Chunk::detectNeighbors(const std::unordered_map<i32v3, Chunk*>& chunkMap) {
 
     //top
     if (top == nullptr) {
-        it = chunkMap.find(chunkPosition + i32v3(0, 1, 0));
+        it = chunkMap.find(gridPosition.pos + i32v3(0, 1, 0));
         if (it != chunkMap.end()) {
             top = it->second;
             top->bottom = this;

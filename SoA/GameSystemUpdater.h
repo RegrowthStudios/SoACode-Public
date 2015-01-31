@@ -19,6 +19,7 @@
 #include "FreeMoveComponentUpdater.h"
 #include "FrustumComponentUpdater.h"
 #include "PhysicsComponentUpdater.h"
+#include "VoxelCoordinateSpaces.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
