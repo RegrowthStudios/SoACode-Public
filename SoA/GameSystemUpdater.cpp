@@ -129,7 +129,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
     }
 }
 
-void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos) {
+void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkGridPosition2D& gridPos, OUT f64v3& pos) {
 #define VOXELS_PER_KM 2000.0
 
     f64v3 voxelRelPos = relPos * VOXELS_PER_KM;
@@ -151,29 +151,29 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
     f32v3 gridHit = start + dir * min;
     const float eps = 2.0f;
 
-    mapData.rotation = 0;
+    gridPos.rotation = 0;
     if (abs(gridHit.x - (-voxelRadius)) < eps) { //-X
-        mapData.face = (int)CubeFace::LEFT;
+        gridPos.face = WorldCubeFace::FACE_LEFT;
         pos.z = -gridHit.y;
         pos.x = gridHit.z;
     } else if (abs(gridHit.x - voxelRadius) < eps) { //X
-        mapData.face = (int)CubeFace::RIGHT;
+        gridPos.face = WorldCubeFace::FACE_RIGHT;
         pos.z = -gridHit.y;
         pos.x = -gridHit.z;
     } else if (abs(gridHit.y - (-voxelRadius)) < eps) { //-Y
-        mapData.face = (int)CubeFace::BOTTOM;
+        gridPos.face = WorldCubeFace::FACE_BOTTOM;
         pos.z = -gridHit.z;
         pos.x = gridHit.x;
     } else if (abs(gridHit.y - voxelRadius) < eps) { //Y
-        mapData.face = (int)CubeFace::TOP;
+        gridPos.face = WorldCubeFace::FACE_TOP;
         pos.z = gridHit.z;
         pos.x = gridHit.x;
     } else if (abs(gridHit.z - (-voxelRadius)) < eps) { //-Z
-        mapData.face = (int)CubeFace::BACK;
+        gridPos.face = WorldCubeFace::FACE_BACK;
         pos.z = -gridHit.y;
         pos.x = -gridHit.x;
     } else if (abs(gridHit.z - voxelRadius) < eps) { //Z
-        mapData.face = (int)CubeFace::FRONT;
+        gridPos.face = WorldCubeFace::FACE_FRONT;
         pos.z = -gridHit.y;
         pos.x = gridHit.x;
     } else {
@@ -181,6 +181,6 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
         throw 44352;
     }
     pos.y = distance - voxelRadius;
-    mapData.ipos = fastFloor(pos.z / (float)CHUNK_WIDTH);
-    mapData.jpos = fastFloor(pos.x / (float)CHUNK_WIDTH);
+    gridPos.pos = f64v2(fastFloor(pos.x / (float)CHUNK_WIDTH),
+                        fastFloor(pos.z / (float)CHUNK_WIDTH));
 }

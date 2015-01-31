@@ -377,12 +377,6 @@
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelPlanetMapper.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
-    <ClInclude Include="IVoxelMapper.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
     <ClInclude Include="LoadMonitor.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
@@ -873,9 +867,6 @@
     </ClCompile>
     <ClCompile Include="VoxelMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelPlanetMapper.cpp">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
     <ClCompile Include="InitScreen.cpp">
       <Filter>SOA Files\Screens\Init</Filter>

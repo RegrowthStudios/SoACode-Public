@@ -10,15 +10,15 @@
 #include "Biome.h"
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
-#include "IVoxelMapper.h"
 #include "SmartVoxelContainer.hpp"
-#include "readerwriterqueue.h"
 #include "TerrainGenerator.h"
-#include "WorldStructs.h"
-
-#include "VoxelBits.h"
-#include "VoxelLightEngine.h"
 #include "VoxPool.h"
+#include "VoxelBits.h"
+#include "VoxelCoordinateSpaces.h"
+#include "VoxelLightEngine.h"
+#include "WorldStructs.h"
+#include "readerwriterqueue.h"
+#include "VoxelCoordinateSpaces.h"
 
 #include <Vorb/RPC.h>
 
@@ -42,11 +42,13 @@ class SphericalTerrainGenerator;
 
 class ChunkGridData {
 public:
-    ChunkGridData(vvox::VoxelMapData* VoxelMapData) : voxelMapData(VoxelMapData) { }
-    ~ChunkGridData() {
-        delete voxelMapData;
+    ChunkGridData(const f32v2& pos, WorldCubeFace face, int rotation) {
+        gridPosition.pos = pos;
+        gridPosition.face = face;
+        gridPosition.rotation = rotation;
     }
-    vvox::VoxelMapData* voxelMapData;
+
+    ChunkGridPosition2D gridPosition;
     HeightData heightData[CHUNK_LAYER];
     int refCount = 1;
     volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
@@ -239,7 +241,7 @@ public:
     Chunk *right, *left, *front, *back, *top, *bottom;
 
     ChunkGridData* chunkGridData;
-    vvox::VoxelMapData* voxelMapData;
+    ChunkGridPosition2D gridPosition;
 
     // Thread safety functions
     inline void lock() { _dataLock.lock(); }

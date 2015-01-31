@@ -31,7 +31,32 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
     VoxelGridPosition2D gp2 = gridPosition;
     gp2.pos.x += OFFSET;
     VoxelGridPosition2D gp3 = gridPosition;
-    gp3.pos.x += OFFSET;
+    gp3.pos.y += OFFSET;
+
+    f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+        VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
+    f64v3 v2 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+        VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
+    f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+        VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
+
+    f64v3 tangent = glm::normalize(v2 - v1);
+    f64v3 biTangent = glm::normalize(v3 - v1);
+    f64m4 worldRotationMatrix;
+    worldRotationMatrix[0] = f64v4(tangent, 0);
+    worldRotationMatrix[1] = f64v4(v1, 0);
+    worldRotationMatrix[2] = f64v4(biTangent, 0);
+    worldRotationMatrix[3] = f64v4(0, 0, 0, 1);
+
+    return glm::quat_cast(worldRotationMatrix);
+}
+f64q calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridPosition, f64 worldRadius) {
+#define OFFSET 1000.0
+
+    VoxelGridPosition3D gp2 = gridPosition;
+    gp2.pos.x += OFFSET;
+    VoxelGridPosition3D gp3 = gridPosition;
+    gp3.pos.z += OFFSET;
 
     f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);

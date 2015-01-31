@@ -23,6 +23,7 @@ namespace VoxelSpaceUtils {
     /// @param worldRadius: Radius of the world in voxels
     /// @return quaternion that describes the relative rotation
     extern f64q calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridPosition, f64 worldRadius);
+    extern f64q calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridPosition, f64 worldRadius);
 
     /// Offsets a chunk grid position and handles rotation
     /// @param gridPosition: The chunk grid position

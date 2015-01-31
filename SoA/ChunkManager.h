@@ -15,8 +15,7 @@
 #include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "GameManager.h"
-#include "IVoxelMapper.h"
-#include "VoxelPlanetMapper.h"
+#include "VoxelSpaceConversions.h"
 #include "VoxPool.h"
 #include "WorldStructs.h"
 
@@ -65,7 +64,7 @@ public:
         }
     }
     /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData, float voxelRadius);
+    bool dispatchHeightmapGen(ChunkGridData* cgd, ChunkFacePosition2D* facePosition, float voxelRadius);
 private:
     static const int NUM_GENERATORS = 512;
     int counter = 0;
@@ -78,9 +77,9 @@ private:
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
 public:
-    ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
+    ChunkManager(PhysicsEngine* physicsEngine,
                  SphericalTerrainGenerator* terrainGenerator,
-                 const vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
+                 const ChunkGridPosition2D* startGridPos, ChunkIOManager* chunkIo,
                  const f64v3& gridPosition, float planetRadius);
     ~ChunkManager();
 
@@ -229,9 +228,9 @@ private:
 
     /// Creates a chunk and any needed grid data at a given chunk position
     /// @param chunkPosition: position to create the chunk at
-    /// @param relativeMapData: the voxelMapData that this chunk is relative to.
+    /// @param relativeGridPos: the gridPosition that this chunk is relative to.
     /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
-    void makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset = i32v2(0));
+    void makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D* relativeGridPos, const i32v2& ijOffset = i32v2(0));
 
     /// Updates the load list
     /// @param maxTicks: maximum time the function is allowed
@@ -359,11 +358,9 @@ private:
     /// Stores information about chunks
     ChunkDiagnostics _chunkDiagnostics;
 
-    /// The current voxel mapping scheme
-    vvox::IVoxelMapper* _voxelMapper;
-
     /// Voxel mapping data at the camera
-    vvox::VoxelMapData* _cameraVoxelMapData;
+    /// TODO(Ben): This is temporary
+    ChunkGridPosition2D* m_cameraGridPos;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData> _threadPool;

@@ -306,7 +306,6 @@ EXIT 0</Command>
     <ClInclude Include="GLProgramManager.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="IAwesomiumInterface.h" />
-    <ClInclude Include="IVoxelMapper.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskShaders.h" />
@@ -402,7 +401,6 @@ EXIT 0</Command>
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="VoxelLightEngine.h" />
     <ClInclude Include="VoxelNavigation.inl" />
-    <ClInclude Include="VoxelPlanetMapper.h" />
     <ClInclude Include="VoxelSpaceConversions.h" />
     <ClInclude Include="VoxelSpaceUtils.h" />
     <ClInclude Include="VoxelUtils.h" />
@@ -571,7 +569,6 @@ EXIT 0</Command>
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
-    <ClCompile Include="VoxelPlanetMapper.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VoxelSpaceConversions.cpp" />
     <ClCompile Include="VoxelSpaceUtils.cpp" />

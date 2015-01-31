@@ -12,7 +12,7 @@
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGenerator.h"
-#include "VoxelPlanetMapper.h"
+#include "VoxelCoordinateSpaces.h"
 
 const f32v3 NormalMults[6] = {
     f32v3(1.0f, 1.0f, -1.0f), //TOP

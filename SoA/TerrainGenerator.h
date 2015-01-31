@@ -4,7 +4,6 @@
 #include "Biome.h"
 
 #include "global.h"
-#include "IVoxelMapper.h"
 
 const int FREEZETEMP = 50;
 

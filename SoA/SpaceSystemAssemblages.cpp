@@ -9,7 +9,7 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGenerator.h"
-#include "VoxelPlanetMapper.h"
+#include "VoxelCoordinateSpaces.h"
 
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -132,7 +132,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     svcmp.voxelRadius = stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
 
     svcmp.physicsEngine = new PhysicsEngine();
-    svcmp.voxelPlanetMapper = new vvox::VoxelPlanetMapper((i32)svcmp.voxelRadius / CHUNK_WIDTH);
+
     svcmp.generator = stcmp.generator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
     svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine, svcmp.voxelPlanetMapper,

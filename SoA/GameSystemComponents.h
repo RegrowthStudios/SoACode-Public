@@ -18,7 +18,7 @@
 #include <Vorb/ecs/Entity.h>
 
 #include "Frustum.h"
-#include "VoxelPlanetMapper.h"
+#include "VoxelCoordinateSpaces.h"
 
 struct AabbCollidableComponent {
     f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks
@@ -73,9 +73,8 @@ struct SpacePositionComponent {
 typedef f64v3 VoxelPosition;
 
 struct VoxelPositionComponent {
-    VoxelPosition position = VoxelPosition(0.0);
     f64q orientation;
-    vvox::VoxelPlanetMapData mapData;
+    VoxelGridPosition3D gridPosition;
     vcore::ComponentID parentVoxelComponent = 0;
 };
 

@@ -39,7 +39,7 @@
 
 #include "VRayHelper.h"
 #include "VoxelLightEngine.h"
-#include "VoxelPlanetMapper.h"
+#include "VoxelCoordinateSpaces.h"
 #include "VoxelRay.h"
 
 const f32 skyR = 135.0f / 255.0f, skyG = 206.0f / 255.0f, skyB = 250.0f / 255.0f;
@@ -52,7 +52,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
 
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::VoxelPlanetMapData* mapData, float planetRadius) {
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, ChunkFacePosition2D* facePosition, float planetRadius) {
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];
@@ -62,14 +62,14 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
         gen.gridData = cgd;
         gen.rpc.data.f = &gen;
 
-
         // Set the data
-        gen.startPos = f32v3(mapData->jpos * vvox::FaceSigns[mapData->face][mapData->rotation][1] * CHUNK_WIDTH * KM_PER_VOXEL,
+        gen.startPos = f32v3(facePosition->pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
                              planetRadius * vvox::FaceRadialSign[mapData->face],
-                             mapData->ipos * vvox::FaceSigns[mapData->face][mapData->rotation][0] * CHUNK_WIDTH * KM_PER_VOXEL);
+                             facePosition->pos.y * CHUNK_WIDTH * KM_PER_VOXEL);
         gen.coordMapping.x = vvox::FaceCoords[mapData->face][mapData->rotation][0];
         gen.coordMapping.y = vvox::FaceCoords[mapData->face][mapData->rotation][1];
         gen.coordMapping.z = vvox::FaceCoords[mapData->face][mapData->rotation][2];
+    
         gen.width = 32;
         gen.step = KM_PER_VOXEL;
         // Invoke generator
@@ -83,9 +83,9 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, vvox::V
     return false;
 }
 
-ChunkManager::ChunkManager(PhysicsEngine* physicsEngine, vvox::IVoxelMapper* voxelMapper,
+ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGenerator* terrainGenerator,
-                           const vvox::VoxelMapData* startingMapData, ChunkIOManager* chunkIo,
+                           const ChunkGridPosition2D* startGridPos, ChunkIOManager* chunkIo,
                            const f64v3& gridPosition, float planetRadius) :
     _isStationary(0),
     _cameraVoxelMapData(nullptr),
@@ -654,7 +654,7 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
     _threadPool.addTask(generateTask);
 }
 
-void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapData* relativeMapData, const i32v2& ijOffset /* = i32v2(0) */) {
+void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D* relativeGridPos, const i32v2& ijOffset /* = i32v2(0) */) {
 
     // Get the voxel grid position
     i32v2 gridPos(chunkPosition.x, chunkPosition.z);
@@ -663,7 +663,7 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const vvox::VoxelMapD
     ChunkGridData* chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         // If its not allocated, make a new one with a new voxelMapData
-        chunkGridData = new ChunkGridData(_voxelMapper->getNewRelativeData(relativeMapData, ijOffset));
+        chunkGridData = new ChunkGridData(relativeGridPos->pos + ijOffset, relativeGridPos->face, relativeGridPos->rotation);
         _chunkGridDataMap[gridPos] = chunkGridData;
     } else {
         chunkGridData->refCount++;

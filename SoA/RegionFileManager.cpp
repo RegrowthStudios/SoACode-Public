@@ -97,7 +97,7 @@ void RegionFileManager::clear() {
     _regionFile = nullptr;
 }
 
-bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxelMapData, bool create) {
+bool RegionFileManager::openRegionFile(nString region, const ChunkGridPosition2D& gridPositio, bool create) {
 
     nString filePath;
     class stat statbuf;
