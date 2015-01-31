@@ -52,7 +52,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
 
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, ChunkFacePosition2D* facePosition, float planetRadius) {
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition2D& facePosition, float planetRadius) {
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];
@@ -63,12 +63,13 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, ChunkFa
         gen.rpc.data.f = &gen;
 
         // Set the data
-        gen.startPos = f32v3(facePosition->pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
-                             planetRadius * vvox::FaceRadialSign[mapData->face],
-                             facePosition->pos.y * CHUNK_WIDTH * KM_PER_VOXEL);
-        gen.coordMapping.x = vvox::FaceCoords[mapData->face][mapData->rotation][0];
-        gen.coordMapping.y = vvox::FaceCoords[mapData->face][mapData->rotation][1];
-        gen.coordMapping.z = vvox::FaceCoords[mapData->face][mapData->rotation][2];
+        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
+                             planetRadius,
+                             facePosition.pos.y * CHUNK_WIDTH * KM_PER_VOXEL);
+
+        gen.coordinateMults = VoxelSpaceConversions::getCoordinateMults(facePosition);
+        
+        gen.coordMapping = VoxelSpaceConversions::getCoordinateMapping(facePosition);
     
         gen.width = 32;
         gen.step = KM_PER_VOXEL;

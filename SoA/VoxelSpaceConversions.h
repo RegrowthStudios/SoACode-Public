@@ -21,6 +21,12 @@
 
 /// Namespace for converting between the different voxel and chunk coordinate spaces
 namespace VoxelSpaceConversions {
+
+    /// Gets multipliers for converting face direction to world direction
+    extern f32v3 getCoordinateMults(const ChunkFacePosition2D& facePosition);
+    /// Gets coordinate mappings for converting face position to world position
+    extern i32v3 getCoordinateMapping(const ChunkFacePosition2D& facePosition);
+
     /// Converts from voxel grid-space to chunk grid-space
     /// Does not affect rotation or face
     /// @param voxelPosition: The voxel grid position

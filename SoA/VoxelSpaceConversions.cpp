@@ -17,8 +17,13 @@ const i32v3 GRID_TO_WORLD[6] = {
 #undef W_Y
 #undef W_Z
 
+/// Multiply by the face-space Y axis in order to get the correct direction
+/// for its corresponding world space axis
+/// [face]
+const int FACE_Y_MULTS[6] = { 1, -1, 1, 1, -1, -1 };
 /// Multiply by the grid-space X,Z axis in order to get the correct direction
 /// for its corresponding world-space axis
+/// [face][rotation]
 const i32v2 FACE_COORDINATE_MULTS[6][4] = {
     { i32v2(1, -1), i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1) }, // TOP
     { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) }, // LEFT
@@ -27,10 +32,17 @@ const i32v2 FACE_COORDINATE_MULTS[6][4] = {
     { i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1), i32v2(1, 1) }, // BACK
     { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) } }; // BOTTOM
 
-/// Multiply by the face-space Y axis in order to get the correct direction
-/// for its corresponding world space axis
-/// [face]
-const int FACE_Y_MULTS[6] = { 1, -1, 1, 1, -1, -1 };
+f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition2D& facePosition) {
+    f32v3 rv;
+    rv.x = (float)FACE_COORDINATE_MULTS[facePosition.face][0].x;
+    rv.y = (float)FACE_Y_MULTS[facePosition.face];
+    rv.z = (float)FACE_COORDINATE_MULTS[facePosition.face][0].y;
+    return rv;
+}
+
+i32v3 getCoordinateMapping(const ChunkFacePosition2D& facePosition) {
+    return GRID_TO_WORLD[facePosition.face];
+}
 
 ChunkGridPosition2D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelGridPosition2D& voxelPosition) {
     ChunkGridPosition2D gpos;
