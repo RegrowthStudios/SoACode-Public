@@ -2,6 +2,11 @@
 #include "VoxelSpaceUtils.h"
 #include "VoxelSpaceConversions.h"
 
+#include "global.h"
+
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 /// Defines the effect that transitioning from face i to face j will have on
 /// rotation. Simply add to rotation value modulo 4
 /// Each rotation represents a clockwise turn.
@@ -36,9 +41,9 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
 
 
     VoxelGridPosition2D gp2 = gridPosition;
-    gp2.pos.y += OFFSET;
+    gp2.pos.x += OFFSET;
     VoxelGridPosition2D gp3 = gridPosition;
-    gp3.pos.x += OFFSET;
+    gp3.pos.y -= OFFSET;
 
     f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
@@ -46,9 +51,11 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
         VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
     f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
-
+    printVec("ppp: ", f32v3(gridPosition.pos.x, gridPosition.pos.y, 0.0f));
+  
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
+
     f64m4 worldRotationMatrix;
     worldRotationMatrix[0] = f64v4(tangent, 0);
     worldRotationMatrix[1] = f64v4(v1, 0);
@@ -60,9 +67,9 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
 f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridPosition, f64 worldRadius) {
 
     VoxelGridPosition3D gp2 = gridPosition;
-    gp2.pos.z += OFFSET;
+    gp2.pos.x += OFFSET;
     VoxelGridPosition3D gp3 = gridPosition;
-    gp3.pos.x += OFFSET;
+    gp3.pos.z -= OFFSET;
 
     f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
@@ -70,9 +77,12 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridP
         VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
     f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
+    printVec("ppp: ", gridPosition.pos);
+    printVec("POS: ", v1);
 
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
+   
     f64m4 worldRotationMatrix;
     worldRotationMatrix[0] = f64v4(tangent, 0);
     worldRotationMatrix[1] = f64v4(v1, 0);

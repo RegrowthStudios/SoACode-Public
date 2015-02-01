@@ -240,8 +240,8 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
 
     static int g = 0;
     if (++g == 10) {
-        globalAccumulationTimer.printAll(false);
-        std::cout << "\n";
+     //   globalAccumulationTimer.printAll(false);
+      //  std::cout << "\n";
         globalAccumulationTimer.clear();
         g = 0;
     }
