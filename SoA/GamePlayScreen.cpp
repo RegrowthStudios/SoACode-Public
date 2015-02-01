@@ -126,12 +126,6 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     m_onDrawMode = m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
-        if (m_inFocus) {
-            // Pass mouse motion to the player
-           // m_player->mouseMove(e.dx, e.dy);
-        }
-    });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
