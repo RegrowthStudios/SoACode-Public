@@ -24,7 +24,7 @@ const int FACE_Y_MULTS[6] = { 1, -1, 1, 1, -1, -1 };
 /// Multiply by the grid-space X,Z axis in order to get the correct direction
 /// for its corresponding world-space axis
 /// [face][rotation]
-const i32v2 FACE_COORDINATE_MULTS[6][4] = {
+const i32v2 FACE_TO_WORLD_MULTS[6][4] = {
     { i32v2(1, -1), i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1) }, // TOP
     { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) }, // LEFT
     { i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1), i32v2(1, 1) }, // RIGHT
@@ -32,18 +32,25 @@ const i32v2 FACE_COORDINATE_MULTS[6][4] = {
     { i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1), i32v2(1, 1) }, // BACK
     { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) } }; // BOTTOM
 
+/// Multiply by the grid-space X,Z axis in order to get the correct position
+/// for its corresponding unrotated face-space position
+/// [rotation]
+const i32v2 GRID_TO_FACE_MULTS[4] = {
+    i32v2(1, 1), i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1)
+};
+
 f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition2D& facePosition) {
     f32v3 rv;
-    rv.x = (float)FACE_COORDINATE_MULTS[facePosition.face][0].x;
+    rv.x = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].x;
     rv.y = (float)FACE_Y_MULTS[facePosition.face];
-    rv.z = (float)FACE_COORDINATE_MULTS[facePosition.face][0].y;
+    rv.z = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].y;
     return rv;
 }
 f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition3D& facePosition) {
     f32v3 rv;
-    rv.x = (float)FACE_COORDINATE_MULTS[facePosition.face][0].x;
+    rv.x = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].x;
     rv.y = (float)FACE_Y_MULTS[facePosition.face];
-    rv.z = (float)FACE_COORDINATE_MULTS[facePosition.face][0].y;
+    rv.z = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].y;
     return rv;
 }
 
@@ -125,7 +132,7 @@ VoxelFacePosition3D VoxelSpaceConversions::chunkFaceToVoxelFace(const ChunkFaceP
 }
 
 VoxelFacePosition2D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPosition2D& gridPosition) {
-    const i32v2& mult = FACE_COORDINATE_MULTS[gridPosition.face][gridPosition.rotation];
+    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     VoxelFacePosition2D facePos;
     facePos.face = gridPosition.face;
@@ -138,7 +145,7 @@ VoxelFacePosition2D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPositi
     return facePos;
 }
 VoxelFacePosition3D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPosition3D& gridPosition) {
-    const i32v2& mult = FACE_COORDINATE_MULTS[gridPosition.face][gridPosition.rotation];
+    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     VoxelFacePosition3D facePos;
     facePos.face = gridPosition.face;
@@ -152,7 +159,7 @@ VoxelFacePosition3D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPositi
 }
 
 ChunkFacePosition2D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPosition2D& gridPosition) {
-    const i32v2& mult = FACE_COORDINATE_MULTS[gridPosition.face][gridPosition.rotation];
+    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     ChunkFacePosition2D facePos;
     facePos.face = gridPosition.face;
@@ -165,7 +172,7 @@ ChunkFacePosition2D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPositi
     return facePos;
 }
 ChunkFacePosition3D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPosition3D& gridPosition) {
-    const i32v2& mult = FACE_COORDINATE_MULTS[gridPosition.face][gridPosition.rotation];
+    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     ChunkFacePosition3D facePos;
     facePos.face = gridPosition.face;
@@ -194,21 +201,23 @@ f64v3 VoxelSpaceConversions::chunkFaceToWorld(const ChunkFacePosition3D& facePos
 
 f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition2D& facePosition, f64 voxelWorldRadius) {
     const i32v3& axisMapping = GRID_TO_WORLD[facePosition.face];
+    const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face][0];
 
     f64v3 worldPosition;
-    worldPosition[axisMapping.x] = facePosition.pos.x;
+    worldPosition[axisMapping.x] = facePosition.pos.x * mults.x;
     worldPosition[axisMapping.y] = voxelWorldRadius * FACE_Y_MULTS[facePosition.face];
-    worldPosition[axisMapping.z] = facePosition.pos.y;
+    worldPosition[axisMapping.z] = facePosition.pos.y * mults.y;
 
     return glm::normalize(worldPosition);
 }
 f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition3D& facePosition, f64 voxelWorldRadius) {
     const i32v3& axisMapping = GRID_TO_WORLD[facePosition.face];
+    const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face][0];
 
     f64v3 worldPosition;
-    worldPosition[axisMapping.x] = facePosition.pos.x;
+    worldPosition[axisMapping.x] = facePosition.pos.x * mults.x;
     worldPosition[axisMapping.y] = voxelWorldRadius * FACE_Y_MULTS[facePosition.face];
-    worldPosition[axisMapping.z] = facePosition.pos.z;
+    worldPosition[axisMapping.z] = facePosition.pos.z * mults.y;
 
     return glm::normalize(worldPosition);
 }
