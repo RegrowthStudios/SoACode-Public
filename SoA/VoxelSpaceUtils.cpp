@@ -34,7 +34,7 @@ const WorldCubeFace FACE_NEIGHBORS[6][4] = {
 //    VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius));
 //f64q q2 = quatBetweenVectors(f32v3(1.0, 0.0, 0.0), q1 * f32v3(1.0, 0.0, 0.0))
 
-#define OFFSET 10000.0
+#define OFFSET 1000.0
 
 /// This is basically a hack with normal mapping tangent space stuff
 f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridPosition, f64 worldRadius) {
@@ -43,7 +43,7 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
     VoxelGridPosition2D gp2 = gridPosition;
     gp2.pos.x += OFFSET;
     VoxelGridPosition2D gp3 = gridPosition;
-    gp3.pos.y -= OFFSET;
+    gp3.pos.y += OFFSET;
 
     f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
@@ -69,7 +69,7 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridP
     VoxelGridPosition3D gp2 = gridPosition;
     gp2.pos.x += OFFSET;
     VoxelGridPosition3D gp3 = gridPosition;
-    gp3.pos.z -= OFFSET;
+    gp3.pos.z += OFFSET;
 
     f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);

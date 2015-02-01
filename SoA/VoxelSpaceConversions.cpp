@@ -25,12 +25,12 @@ const int FACE_Y_MULTS[6] = { 1, -1, 1, 1, -1, -1 };
 /// for its corresponding world-space axis
 /// [face][rotation]
 const i32v2 FACE_TO_WORLD_MULTS[6][4] = {
-    { i32v2(1, -1), i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1) }, // TOP
-    { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) }, // LEFT
-    { i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1), i32v2(1, 1) }, // RIGHT
-    { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) }, // FRONT
-    { i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1), i32v2(1, 1) }, // BACK
-    { i32v2(1, 1), i32v2(-1, 1), i32v2(-1, -1), i32v2(1, -1) } }; // BOTTOM
+    { i32v2(1, 1), i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1) }, // TOP
+    { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) }, // LEFT
+    { i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1), i32v2(1, -1) }, // RIGHT
+    { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) }, // FRONT
+    { i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1), i32v2(1, -1) }, // BACK
+    { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) } }; // BOTTOM
 
 /// Multiply by the grid-space X,Z axis in order to get the correct position
 /// for its corresponding unrotated face-space position
