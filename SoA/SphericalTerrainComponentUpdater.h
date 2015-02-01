@@ -20,8 +20,9 @@ struct SphericalTerrainComponent;
 class SphericalTerrainGenerator;
 class SphericalTerrainMesh;
 
-#include <Vorb/RPC.h>
 #include "SphericalTerrainPatch.h"
+#include "VoxelCoordinateSpaces.h"
+#include <Vorb/RPC.h>
 
 #define LOAD_DIST 80000.0
 // Should be even
@@ -58,7 +59,7 @@ public:
                                              const i32v3& coordMapping,
                                              float width,
                                              int lod,
-                                             CubeFace cubeFace);
+                                             WorldCubeFace cubeFace);
 private:
     static const int NUM_GENERATORS = 1024;
     int counter = 0;

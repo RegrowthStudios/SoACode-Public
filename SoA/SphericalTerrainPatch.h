@@ -16,11 +16,10 @@
 #define SphericalTerrainPatch_h__
 
 #include "TerrainGenerator.h"
+#include "VoxelCoordinateSpaces.h"
 
 #include <Vorb/graphics/gtypes.h>
 #include <Vorb/graphics/GLProgram.h>
-
-enum class CubeFace { TOP, LEFT, RIGHT, FRONT, BACK, BOTTOM };
 
 class Camera;
 class MeshManager;
@@ -66,7 +65,7 @@ public:
     friend class SphericalTerrainPatch;
     friend class SphericalTerrainGenerator;
     friend class SphericalTerrainMeshManager;
-    SphericalTerrainMesh(CubeFace cubeFace) : m_cubeFace(cubeFace){}
+    SphericalTerrainMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {}
     ~SphericalTerrainMesh();
 
     /// Recycles the normal map
@@ -105,7 +104,7 @@ private:
 
     f32v3 m_worldPosition = f32v3(0.0);
     f32v3 m_boundingBox = f32v3(0.0f); ///< AABB bounding box
-    CubeFace m_cubeFace;
+    WorldCubeFace m_cubeFace;
 
     VGTexture m_normalMap = 0;
     int m_waterIndexCount = 0;
@@ -126,7 +125,7 @@ public:
     /// @param sphericalTerrainData: Shared data
     /// @param width: Width of the patch in KM
     void init(const f64v2& gridPosition,
-              CubeFace cubeFace,
+              WorldCubeFace cubeFace,
               int lod,
               const SphericalTerrainData* sphericalTerrainData,
               f64 width,
@@ -162,7 +161,7 @@ private:
     f64v3 m_worldPosition = f64v3(0.0); ///< Position relative to world
     f64 m_distance = 1000000000.0; ///< Distance from camera
     int m_lod = 0; ///< Level of detail
-    CubeFace m_cubeFace; ///< Which cube face grid it is on
+    WorldCubeFace m_cubeFace; ///< Which cube face grid it is on
 
     f64 m_width = 0.0; ///< Width of the patch in KM
 

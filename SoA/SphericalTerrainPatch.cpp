@@ -163,7 +163,7 @@ SphericalTerrainPatch::~SphericalTerrainPatch() {
 }
 
 void SphericalTerrainPatch::init(const f64v2& gridPosition,
-                                 CubeFace cubeFace,
+                                 WorldCubeFace cubeFace,
                                  int lod,
                                  const SphericalTerrainData* sphericalTerrainData,
                                  f64 width,

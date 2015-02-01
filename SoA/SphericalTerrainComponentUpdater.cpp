@@ -4,6 +4,7 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainGenerator.h"
+#include "VoxelCoordinateSpaces.h"
 
 void TerrainGenDelegate::invoke(Sender sender, void* userData) {
     generator->generateTerrain(this);
@@ -42,7 +43,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
                                                                const i32v3& coordMapping,
                                                                float width,
                                                                int lod,
-                                                               CubeFace cubeFace) {
+                                                               WorldCubeFace cubeFace) {
     SphericalTerrainMesh* mesh = nullptr;
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
@@ -88,7 +89,7 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
                 auto& p = cmp.patches[index++];
                 gridPos.x = (x - center) * patchWidth;
                 gridPos.y = (z - center) * patchWidth;
-                p.init(gridPos, static_cast<CubeFace>(face),
+                p.init(gridPos, static_cast<WorldCubeFace>(face),
                        0, cmp.sphericalTerrainData, patchWidth,
                        cmp.rpcDispatcher);
             }
