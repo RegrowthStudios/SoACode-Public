@@ -51,7 +51,6 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
         VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
     f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
-    printVec("ppp: ", f32v3(gridPosition.pos.x, gridPosition.pos.y, 0.0f));
   
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
@@ -77,8 +76,6 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridP
         VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
     f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
-    printVec("ppp: ", gridPosition.pos);
-    printVec("POS: ", v1);
 
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
