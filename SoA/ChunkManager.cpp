@@ -66,7 +66,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
         // Set the data
         gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
                              planetRadius,
-                             facePosition.pos.y * CHUNK_WIDTH * KM_PER_VOXEL);
+                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL);
 
         gen.coordinateMults = VoxelSpaceConversions::getCoordinateMults(facePosition);
         
@@ -168,12 +168,20 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     //Grid position is used to determine the _cameraVoxelMapData
     i32v3 chunkPosition = getChunkPosition(position);
 
+   // printVec("Pos1: ", f32v3(chunkPosition));
+
+   // printVec("Pos2: ", f32v3(m_chunks[0]->gridPosition.pos));
+   // printVec("Pos3: ", f32v3(m_cameraGridPos.pos.x, 0.0f, m_cameraGridPos.pos.y));
     i32v2 gridPosition(chunkPosition.x, chunkPosition.z);
 
     if (gridPosition != m_prevCameraChunkPos) {
+        std::cout << "SHIFTX: " << gridPosition.x - m_prevCameraChunkPos.x << std::endl;
+        std::cout << "SHIFTZ: " << gridPosition.y - m_prevCameraChunkPos.y << std::endl;
+        printVec("Pos3: ", f32v3(m_cameraGridPos.pos.x, 0.0f, m_cameraGridPos.pos.y));
         VoxelSpaceUtils::offsetChunkGridPosition(m_cameraGridPos,
-                                                 i32v2(gridPosition.y - m_prevCameraChunkPos.y, gridPosition.x - m_prevCameraChunkPos.x),
+                                                 i32v2(gridPosition.x - m_prevCameraChunkPos.x, gridPosition.y - m_prevCameraChunkPos.y),
                                                  m_planetRadius / CHUNK_WIDTH);
+        printVec("Pos3: ", f32v3(m_cameraGridPos.pos.x, 0.0f, m_cameraGridPos.pos.y));
         m_prevCameraChunkPos = gridPosition;
     }
 
