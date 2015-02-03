@@ -181,7 +181,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
 
     stCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
                                                   normalMapRecycler);
-    stCmp.generator = new SphericalTerrainGenerator(radius, stCmp.meshManager,
+    stCmp.generator = new SphericalTerrainGenerator(stCmp.meshManager,
                                               planetGenData,
                                               normalProgram, normalMapRecycler);
     stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.generator);

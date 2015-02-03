@@ -25,38 +25,16 @@
 #include "VoxelSpaceConversions.h"
 #include "SphericalTerrainPatch.h"
 #include "TerrainGenTextures.h"
+#include "TerrainPatchMesher.h"
 
 class TerrainGenDelegate;
 class RawGenDelegate;
 class PlanetGenData;
 DECL_VG(class TextureRecycler)
 
-class TerrainVertex {
-public:
-    f32v3 position; //12
-    f32v3 tangent; //24
-    f32v2 texCoords; //32
-    ColorRGB8 color; //35
-    ui8 padding; //36
-    ui8v2 normTexCoords; //38
-    ui8 temperature; //39
-    ui8 humidity; //40
-};
-
-class WaterVertex {
-public:
-    f32v3 position; //12
-    f32v3 tangent; //24
-    ColorRGB8 color; //27
-    ui8 temperature; //28
-    f32v2 texCoords; //36
-    float depth; //40
-};
-
 class SphericalTerrainGenerator {
 public:
-    SphericalTerrainGenerator(float radius,
-                              SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainGenerator(SphericalTerrainMeshManager* meshManager,
                               PlanetGenData* planetGenData,
                               vg::GLProgram* normalProgram,
                               vg::TextureRecycler* normalMapRecycler);
@@ -83,46 +61,8 @@ private:
 
     void updateRawGeneration();
 
-    /// Generates mesh using heightmap
-    void buildMesh(TerrainGenDelegate* data);
-
-    ui8 calculateTemperature(float range, float angle, float baseTemp);
-
-    ui8 calculateHumidity(float range, float angle, float baseHum);
-
-    float computeAngleFromNormal(const f32v3& normal);
-
-    void buildSkirts();
-
-    void addWater(int z, int x);
-
-    void tryAddWaterVertex(int z, int x);
-
-    void tryAddWaterQuad(int z, int x);
-
-    /// TODO: THIS IS REUSABLE
-    void generateIndices(VGIndexBuffer& ibo, bool ccw);
-
     static const int PATCHES_PER_FRAME = 8;
     static const int RAW_PER_FRAME = 3;
-
-    // PATCH_WIDTH * 4 is for skirts
-    static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4;
-    static TerrainVertex verts[VERTS_SIZE];
-    static WaterVertex waterVerts[VERTS_SIZE];
-    static ui16 waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
-    static ui16 waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
-    static bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
-
-    /// Meshing vars
-    int m_index;
-    int m_waterIndex;
-    int m_waterIndexCount;
-    float m_vertWidth;
-    float m_radius;
-    i32v3 m_coordMapping;
-    f32v3 m_startPos;
-    f32v2 m_coordMults;
 
     int m_dBufferIndex = 0; ///< Index for double buffering
 
@@ -139,8 +79,6 @@ private:
     VGFramebuffer m_normalFbo = 0;
     ui32v2 m_heightMapDims;
 
-    SphericalTerrainMeshManager* m_meshManager = nullptr;
-
     vcore::RPCManager m_patchRpcManager; /// RPC manager for mesh height maps
     vcore::RPCManager m_rawRpcManager; /// RPC manager for raw height data requests
 
@@ -149,8 +87,6 @@ private:
     vg::GLProgram* m_normalProgram = nullptr;
 
     vg::TextureRecycler* m_normalMapRecycler = nullptr;
-
-    static VGIndexBuffer m_sharedIbo; ///< Reusable CCW IBO
 
     VGUniform unCornerPos;
     VGUniform unCoordMults;
@@ -161,6 +97,8 @@ private:
     VGUniform unTexelWidth;
 
     vg::FullQuadVBO m_quad;
+
+    TerrainPatchMesher mesher;
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 };

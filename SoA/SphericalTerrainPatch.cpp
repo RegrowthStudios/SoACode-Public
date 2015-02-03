@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SphericalTerrainPatch.h"
+#include "TerrainPatchMesher.h"
 
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/TextureRecycler.hpp>
@@ -180,7 +181,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
 
     const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)m_cubeFace];
-    const i32v2& coordMults = VoxelSpaceConversions::GRID_TO_FACE_MULTS[(int)m_cubeFace];
+    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
 
     m_worldPosition[coordMapping.x] = centerGridPos.x * coordMults.x;
     m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
@@ -300,6 +301,7 @@ bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &p
     f32 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
     if (lodAngle >= horizonAngle + DELTA) return true;
     return false;
+#undef DELTA
 }
 bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
 #define DELTA 0.1
@@ -311,6 +313,7 @@ bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &p
     f64 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
     if (lodAngle >= horizonAngle + DELTA) return true;
     return false;
+#undef DELTA
 }
 
 void SphericalTerrainPatch::requestMesh() {
