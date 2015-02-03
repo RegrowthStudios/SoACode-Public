@@ -52,6 +52,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define NUM_BYTE_VOXEL_ARRAYS 1
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
+#define M_PER_VOXEL 0.5f
 
 bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float planetRadius) {
     // Check if there is a free generator
@@ -64,16 +65,16 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
         gen.rpc.data.f = &gen;
 
         // Set the data
-        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
-                             planetRadius,
-                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL);
+        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * M_PER_VOXEL,
+                             planetRadius * M_PER_VOXEL,
+                             facePosition.pos.z * CHUNK_WIDTH * M_PER_VOXEL);
 
         gen.coordinateMults = VoxelSpaceConversions::getCoordinateMults(facePosition);
         
         gen.coordMapping = VoxelSpaceConversions::getCoordinateMapping(facePosition);
     
         gen.width = 32;
-        gen.step = KM_PER_VOXEL;
+        gen.step = M_PER_VOXEL;
         // Invoke generator
         cgd->refCount++;
         m_generator->invokeRawGen(&gen.rpc);
@@ -175,8 +176,7 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     i32v2 gridPosition(chunkPosition.x, chunkPosition.z);
 
     if (gridPosition != m_prevCameraChunkPos) {
-        std::cout << "SHIFTX: " << gridPosition.x - m_prevCameraChunkPos.x << std::endl;
-        std::cout << "SHIFTZ: " << gridPosition.y - m_prevCameraChunkPos.y << std::endl;
+        std::cout << "SHIFTX: " << m_planetRadius / CHUNK_WIDTH << std::endl;
         printVec("Pos3: ", f32v3(m_cameraGridPos.pos.x, 0.0f, m_cameraGridPos.pos.y));
         VoxelSpaceUtils::offsetChunkGridPosition(m_cameraGridPos,
                                                  i32v2(gridPosition.x - m_prevCameraChunkPos.x, gridPosition.y - m_prevCameraChunkPos.y),
