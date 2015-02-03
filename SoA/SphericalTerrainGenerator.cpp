@@ -142,7 +142,7 @@ void SphericalTerrainGenerator::update() {
     m_dBufferIndex = (m_dBufferIndex == 0) ? 1 : 0;
 }
 
-void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
+void SphericalTerrainGenerator::generateTerrainPatch(TerrainGenDelegate* data) {
   
     int &patchCounter = m_patchCounter[m_dBufferIndex];
 

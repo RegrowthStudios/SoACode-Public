@@ -22,6 +22,7 @@ class PlanetGenData;
 class SphericalTerrainMeshManager;
 class TerrainGenDelegate;
 
+/// Vertex for terrain patch
 class TerrainVertex {
 public:
     f32v3 position; //12
@@ -34,6 +35,7 @@ public:
     ui8 humidity; //40
 };
 
+/// Water vertex for terrain patch
 class WaterVertex {
 public:
     f32v3 position; //12
@@ -51,38 +53,64 @@ public:
     ~SphericalTerrainPatchMesher();
 
     /// Generates mesh using heightmap
+    /// @param data: The delegate data
+    /// @param heightData: The heightmap data
     void buildMesh(TerrainGenDelegate* data, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
 
 private:
 
+    /// Calculates temperature based on angle with equator
+    /// @param range: The range to scale between
+    /// @angle: Angle from equator
+    /// @param baseTemp: Base temperature at equator
     ui8 calculateTemperature(float range, float angle, float baseTemp);
 
+    /// Calculates humidity based on angle with equator
+    /// @param range: The range to scale between
+    /// @angle: Angle from equator
+    /// @param baseTemp: Base humidity at equator
     ui8 calculateHumidity(float range, float angle, float baseHum);
 
+    /// Builds the skirts for a patch
     void buildSkirts();
 
+    /// Adds water at a given point
+    /// @param z: Z position
+    /// @Param x: X position
+    /// @param heightData: The heightmap data
     void addWater(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
 
+    /// Tries to add a water vertex at a given spot if one doesn't exist
+    /// @param z: Z position
+    /// @param x: X position
+    /// @param heightData: The heightmap data
     void tryAddWaterVertex(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
 
+    /// Tries to add a quad at a given spot if one doesnt exist
+    /// @param z: Z position
+    /// @param x: X position
     void tryAddWaterQuad(int z, int x);
 
-    void generateIndices(VGIndexBuffer& ibo);
+    /// Generates an index buffer.
+    /// @param ibo: The index buffer handle
+    void generateIndices(OUT VGIndexBuffer& ibo);
 
+    /// Computes angle with the equator based on the normal of position
+    /// @param normal: Normalized position on sphere
     float computeAngleFromNormal(const f32v3& normal);
 
     static VGIndexBuffer m_sharedIbo; ///< Reusable CCW IBO
 
     // PATCH_WIDTH * 4 is for skirts
-    static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4;
-    static TerrainVertex verts[VERTS_SIZE];
-    static WaterVertex waterVerts[VERTS_SIZE];
-    static ui16 waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
-    static ui16 waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
-    static bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
+    static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4; ///< Number of vertices per patch
+    static TerrainVertex verts[VERTS_SIZE]; ///< Vertices for terrain mesh
+    static WaterVertex waterVerts[VERTS_SIZE]; ///< Vertices for water mesh
+    static ui16 waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH]; ///< Caches water indices for reuse
+    static ui16 waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH]; ///< Buffer of indices to upload
+    static bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1]; ///< True when a quad is present at a spot
 
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
-    SphericalTerrainMeshManager* m_meshManager = nullptr;
+    SphericalTerrainMeshManager* m_meshManager = nullptr; ///< Manages the patch meshes
 
     /// Meshing helper vars
     int m_index;

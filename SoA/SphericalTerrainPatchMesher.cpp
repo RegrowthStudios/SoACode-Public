@@ -148,8 +148,8 @@ void SphericalTerrainPatchMesher::buildMesh(TerrainGenDelegate* data, float heig
                 maxZ = v.position.z;
             }
 
-            //   v.color = m_planetGenData->terrainTint;
-            v.color = DebugColors[(int)mesh->m_cubeFace];
+            v.color = m_planetGenData->terrainTint;
+            // v.color = DebugColors[(int)mesh->m_cubeFace];
 
             m_index++;
         }
@@ -336,7 +336,7 @@ void SphericalTerrainPatchMesher::tryAddWaterQuad(int z, int x) {
     }
 }
 
-void SphericalTerrainPatchMesher::generateIndices(VGIndexBuffer& ibo) {
+void SphericalTerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
     // Loop through each quad and set indices
     int vertIndex;
     int index = 0;

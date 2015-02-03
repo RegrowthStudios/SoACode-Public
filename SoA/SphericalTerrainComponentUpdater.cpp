@@ -7,7 +7,7 @@
 #include "VoxelCoordinateSpaces.h"
 
 void TerrainGenDelegate::invoke(Sender sender, void* userData) {
-    generator->generateTerrain(this);
+    generator->generateTerrainPatch(this);
 }
 
 void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {

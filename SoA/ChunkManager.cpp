@@ -64,10 +64,13 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
         gen.gridData = cgd;
         gen.rpc.data.f = &gen;
 
+        // Get scaled position
+        f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
+
         // Set the data
-        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * M_PER_VOXEL,
-                             planetRadius * M_PER_VOXEL,
-                             facePosition.pos.z * CHUNK_WIDTH * M_PER_VOXEL);
+        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * M_PER_VOXEL * coordMults.x,
+                             planetRadius * M_PER_VOXEL * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
+                             facePosition.pos.z * CHUNK_WIDTH * M_PER_VOXEL * coordMults.y);
 
         gen.cubeFace = facePosition.face;
 
@@ -174,12 +177,9 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     i32v2 gridPosition(chunkPosition.x, chunkPosition.z);
 
     if (gridPosition != m_prevCameraChunkPos) {
-        std::cout << "SHIFTX: " << m_planetRadius / CHUNK_WIDTH << std::endl;
-        printVec("Pos3: ", f32v3(m_cameraGridPos.pos.x, 0.0f, m_cameraGridPos.pos.y));
         VoxelSpaceUtils::offsetChunkGridPosition(m_cameraGridPos,
                                                  i32v2(gridPosition.x - m_prevCameraChunkPos.x, gridPosition.y - m_prevCameraChunkPos.y),
                                                  m_planetRadius / CHUNK_WIDTH);
-        printVec("Pos3: ", f32v3(m_cameraGridPos.pos.x, 0.0f, m_cameraGridPos.pos.y));
         m_prevCameraChunkPos = gridPosition;
     }
 
