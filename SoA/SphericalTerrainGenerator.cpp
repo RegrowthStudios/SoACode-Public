@@ -194,10 +194,13 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
     cornerPos[data->coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
     cornerPos[data->coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
 
+    cornerPos *= M_PER_KM;
+
+    printVec("A :", cornerPos);
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
-    glUniform1f(unPatchWidth, data->width);
+    glUniform1f(unPatchWidth, data->width * M_PER_KM);
 
     m_quad.draw();
 
@@ -225,6 +228,8 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &data->startPos[0]);
     glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
+
+    printVec("B :", data->startPos);
 
     glUniform1f(unPatchWidth, (float)data->width * data->step);
     m_quad.draw();
