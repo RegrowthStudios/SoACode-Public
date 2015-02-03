@@ -20,51 +20,16 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GBuffer.h>
 #include <Vorb/RPC.h>
+#include <Vorb/VorbPreDecl.inl>
 
+#include "VoxelSpaceConversions.h"
 #include "SphericalTerrainPatch.h"
 #include "TerrainGenTextures.h"
 
 class TerrainGenDelegate;
 class RawGenDelegate;
 class PlanetGenData;
-namespace vorb {
-    namespace core {
-        namespace graphics {
-            class TextureRecycler;
-        }
-    }
-}
-
-// Coordinate mapping for rotating 2d grid to quadcube positions
-const i32v3 CubeCoordinateMappings[6] = {
-    i32v3(0, 1, 2), //TOP
-    i32v3(1, 0, 2), //LEFT
-    i32v3(1, 0, 2), //RIGHT
-    i32v3(0, 2, 1), //FRONT
-    i32v3(0, 2, 1), //BACK
-    i32v3(0, 1, 2) //BOTTOM
-};
-
-// Vertex Winding
-// True when CCW
-const bool CubeWindings[6] = {
-    true,
-    true,
-    false,
-    false,
-    true,
-    false
-};
-
-// Multipliers for coordinate mappings
-const f32v3 CubeCoordinateMults[6] = {
-    f32v3(1.0f, 1.0f, -1.0f), //TOP
-    f32v3(1.0f, -1.0f, -1.0f), //LEFT
-    f32v3(1.0f, 1.0f, -1.0f), //RIGHT
-    f32v3(1.0f, 1.0f, -1.0f), //FRONT
-    f32v3(1.0f, -1.0f, -1.0f), //BACK
-    f32v3(1.0f, -1.0f, -1.0f) //BOTTOM
-};
+DECL_VG(class TextureRecycler)
 
 class TerrainVertex {
 public:
@@ -157,7 +122,7 @@ private:
     float m_radius;
     i32v3 m_coordMapping;
     f32v3 m_startPos;
-    bool m_ccw;
+    f32v2 m_coordMults;
 
     int m_dBufferIndex = 0; ///< Index for double buffering
 
@@ -185,10 +150,10 @@ private:
 
     vg::TextureRecycler* m_normalMapRecycler = nullptr;
 
-    static VGIndexBuffer m_cwIbo; ///< Reusable CW IBO
-    static VGIndexBuffer m_ccwIbo; ///< Reusable CCW IBO
+    static VGIndexBuffer m_sharedIbo; ///< Reusable CCW IBO
 
     VGUniform unCornerPos;
+    VGUniform unCoordMults;
     VGUniform unCoordMapping;
     VGUniform unPatchWidth;
     VGUniform unHeightMap;

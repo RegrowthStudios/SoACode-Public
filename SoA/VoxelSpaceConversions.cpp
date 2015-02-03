@@ -1,44 +1,6 @@
 #include "stdafx.h"
 #include "VoxelSpaceConversions.h"
 
-#define W_X 0
-#define W_Y 1
-#define W_Z 2
-/// Maps face-space coordinate axis to world-space coordinates.
-/// [face]
-const i32v3 GRID_TO_WORLD[6] = {
-      i32v3(W_X, W_Y, W_Z), // TOP
-      i32v3(W_Z, W_X, W_Y), // LEFT
-      i32v3(W_Z, W_X, W_Y), // RIGHT
-      i32v3(W_X, W_Z, W_Y), // FRONT
-      i32v3(W_X, W_Z, W_Y), // BACK
-      i32v3(W_X, W_Y, W_Z) }; // BOTTOM
-#undef W_X
-#undef W_Y
-#undef W_Z
-
-/// Multiply by the face-space Y axis in order to get the correct direction
-/// for its corresponding world space axis
-/// [face]
-const int FACE_Y_MULTS[6] = { 1, -1, 1, 1, -1, -1 };
-/// Multiply by the grid-space X,Z axis in order to get the correct direction
-/// for its corresponding world-space axis
-/// [face][rotation]
-const i32v2 FACE_TO_WORLD_MULTS[6][4] = {
-    { i32v2(1, 1), i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1) }, // TOP
-    { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) }, // LEFT
-    { i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1), i32v2(1, -1) }, // RIGHT
-    { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) }, // FRONT
-    { i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1), i32v2(1, -1) }, // BACK
-    { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) } }; // BOTTOM
-
-/// Multiply by the grid-space X,Z axis in order to get the correct position
-/// for its corresponding unrotated face-space position
-/// [rotation]
-const i32v2 GRID_TO_FACE_MULTS[4] = {
-    i32v2(1, 1), i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1)
-};
-
 f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition2D& facePosition) {
     f32v3 rv;
     rv.x = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].x;

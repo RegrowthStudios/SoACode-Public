@@ -63,8 +63,7 @@ public:
     vcore::RPC rpc;
 
     f32v3 startPos;
-    f32v3 coordinateMults;
-    i32v3 coordMapping;
+    WorldCubeFace cubeFace;
     int width;
     float step;
 

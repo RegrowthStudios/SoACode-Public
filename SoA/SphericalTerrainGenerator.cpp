@@ -41,8 +41,7 @@ ui16 SphericalTerrainGenerator::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
 ui16 SphericalTerrainGenerator::waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
 bool SphericalTerrainGenerator::waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
 
-VGIndexBuffer SphericalTerrainGenerator::m_cwIbo = 0; ///< Reusable CW IBO
-VGIndexBuffer SphericalTerrainGenerator::m_ccwIbo = 0; ///< Reusable CCW IBO
+VGIndexBuffer SphericalTerrainGenerator::m_sharedIbo = 0; ///< Reusable CCW IBO
 
 SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
                                                      SphericalTerrainMeshManager* meshManager,
@@ -56,6 +55,7 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
     m_normalProgram(normalProgram),
     m_normalMapRecycler(normalMapRecycler),
     unCornerPos(m_genProgram->getUniform("unCornerPos")),
+    unCoordMults(m_genProgram->getUniform("unCoordMults")),
     unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
     unPatchWidth(m_genProgram->getUniform("unPatchWidth")),
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
@@ -91,9 +91,8 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(float radius,
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Construct reusable index buffer objects
-    if (m_cwIbo == 0) {
-        generateIndices(m_cwIbo, false);
-        generateIndices(m_ccwIbo, true);
+    if (m_sharedIbo == 0) {
+        generateIndices(m_sharedIbo, true);
     }
 
     // Generate pixel buffer objects
@@ -123,8 +122,7 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
         vg::GpuMemory::freeBuffer(m_rawPbos[0][i]);
         vg::GpuMemory::freeBuffer(m_rawPbos[1][i]);
     }
-    vg::GpuMemory::freeBuffer(m_cwIbo);
-    vg::GpuMemory::freeBuffer(m_ccwIbo);
+    vg::GpuMemory::freeBuffer(m_sharedIbo);
     glDeleteFramebuffers(1, &m_normalFbo);
 }
 
@@ -191,15 +189,18 @@ void SphericalTerrainGenerator::generateTerrain(TerrainGenDelegate* data) {
 
     // Get padded position
     f32v3 cornerPos = data->startPos;
-    cornerPos[data->coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
-    cornerPos[data->coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
+    cornerPos[m_coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
+    cornerPos[m_coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
 
     cornerPos *= M_PER_KM;
+
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
 
     printVec("A :", cornerPos);
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
-    glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
+    glUniform2fv(unCoordMults, 1, &coordMults[0]);
+    glUniform3iv(unCoordMapping, 1, &m_coordMapping[0]);
     glUniform1f(unPatchWidth, data->width * M_PER_KM);
 
     m_quad.draw();
@@ -224,10 +225,13 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawDelegates[m_dBufferIndex][rawCounter] = data;
 
     // Get scaled position
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &data->startPos[0]);
-    glUniform3iv(unCoordMapping, 1, &data->coordMapping[0]);
+    glUniform2fv(unCoordMults, 1, &coordMults[0]);
+    i32v3 coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)data->cubeFace];
+    glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
 
     printVec("B :", data->startPos);
 
@@ -251,9 +255,9 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     SphericalTerrainMesh* mesh = data->mesh;
 
     // Grab mappings so we can rotate the 2D grid appropriately
-    m_coordMapping = data->coordMapping;
+    m_coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)data->cubeFace];
     m_startPos = data->startPos;
-    m_ccw = CubeWindings[(int)mesh->m_cubeFace];
+    m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
     
     float width = data->width;
     float h;
@@ -281,9 +285,9 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
             auto& v = verts[m_index];
 
             // Set the position based on which face we are on
-            v.position[m_coordMapping.x] = x * m_vertWidth + m_startPos.x;
+            v.position[m_coordMapping.x] = x * m_vertWidth * m_coordMults.x + m_startPos.x;
             v.position[m_coordMapping.y] = m_startPos.y;
-            v.position[m_coordMapping.z] = z * m_vertWidth + m_startPos.z;
+            v.position[m_coordMapping.z] = z * m_vertWidth * m_coordMults.y + m_startPos.z;
 
             // Get data from heightmap 
             zIndex = z * PIXELS_PER_PATCH_NM + 1;
@@ -359,12 +363,8 @@ void SphericalTerrainGenerator::buildMesh(TerrainGenDelegate* data) {
     vg::GpuMemory::uploadBufferData(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER,
                                     VERTS_SIZE * sizeof(TerrainVertex),
                                     verts);
-    // Reusable IBOs
-    if (m_ccw) {
-        mesh->m_ibo = m_ccwIbo;
-    } else {
-        mesh->m_ibo = m_cwIbo;
-    }
+    // Reusable IBO
+    mesh->m_ibo = m_sharedIbo;
 
     // Add water mesh
     if (m_waterIndexCount) {
@@ -597,9 +597,9 @@ void SphericalTerrainGenerator::tryAddWaterVertex(int z, int x) {
         waterIndexGrid[z][x] = m_waterIndex + 1;
         auto& v = waterVerts[m_waterIndex];
         // Set the position based on which face we are on
-        v.position[m_coordMapping.x] = x * mvw + m_startPos.x;
+        v.position[m_coordMapping.x] = x * mvw * m_coordMults.x + m_startPos.x;
         v.position[m_coordMapping.y] = m_startPos.y;
-        v.position[m_coordMapping.z] = z * mvw + m_startPos.z;
+        v.position[m_coordMapping.z] = z * mvw * m_coordMults.y + m_startPos.z;
    
         // Set texture coordinates
         v.texCoords.x = v.position[m_coordMapping.x] * UV_SCALE;
@@ -641,22 +641,12 @@ void SphericalTerrainGenerator::tryAddWaterQuad(int z, int x) {
     if (z < 0 || x < 0 || z >= PATCH_WIDTH - 1 || x >= PATCH_WIDTH - 1) return;
     if (!waterQuads[z][x]) {
         waterQuads[z][x] = true;
-
-        if (m_ccw) {
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
-        } else {
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x] - 1;
-            waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
-        }
+        waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
+        waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x] - 1;
+        waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
+        waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
+        waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1] - 1;
+        waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
     }
 }
 

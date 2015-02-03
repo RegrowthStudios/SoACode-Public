@@ -13,6 +13,7 @@
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGenerator.h"
 #include "VoxelCoordinateSpaces.h"
+#include "VoxelSpaceConversions.h"
 
 const f32v3 NormalMults[6] = {
     f32v3(1.0f, 1.0f, -1.0f), //TOP
@@ -178,12 +179,12 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     // Approximate the world position for now //TODO(Ben): Better
     f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
 
-    const i32v3& coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
-    const f32v3& coordMults = CubeCoordinateMults[(int)m_cubeFace];
+    const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)m_cubeFace];
+    const i32v2& coordMults = VoxelSpaceConversions::GRID_TO_FACE_MULTS[(int)m_cubeFace];
 
-    m_worldPosition[coordMapping.x] = centerGridPos.x;
-    m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * coordMults.y;
-    m_worldPosition[coordMapping.z] = centerGridPos.y;
+    m_worldPosition[coordMapping.x] = centerGridPos.x * coordMults.x;
+    m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    m_worldPosition[coordMapping.z] = centerGridPos.y * coordMults.y;
 
     m_worldPosition = glm::normalize(m_worldPosition) * sphericalTerrainData->getRadius();
 }
@@ -314,14 +315,12 @@ bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &p
 
 void SphericalTerrainPatch::requestMesh() {
     // Try to generate a mesh
-    const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
-    const i32v3& mappings = CubeCoordinateMappings[(int)m_cubeFace];
+    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
 
-    f32v3 startPos(m_gridPosition.x * mults.x,
-                   m_sphericalTerrainData->getRadius() * mults.y,
-                   m_gridPosition.y* mults.z);
+    f32v3 startPos(m_gridPosition.x * coordMults.x,
+                   m_sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
+                   m_gridPosition.y* coordMults.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
-                                              mappings,
                                               m_width,
                                               m_lod,
                                               m_cubeFace);

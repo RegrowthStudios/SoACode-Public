@@ -39,7 +39,7 @@ public:
     vcore::RPC rpc;
 
     f32v3 startPos;
-    i32v3 coordMapping;
+    WorldCubeFace cubeFace;
     float width;
 
     SphericalTerrainMesh* mesh = nullptr;
@@ -56,7 +56,6 @@ public:
     }
     /// @return a new mesh on success, nullptr on failure
     SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
-                                             const i32v3& coordMapping,
                                              float width,
                                              int lod,
                                              WorldCubeFace cubeFace);

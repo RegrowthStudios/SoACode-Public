@@ -69,10 +69,8 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
                              planetRadius * M_PER_VOXEL,
                              facePosition.pos.z * CHUNK_WIDTH * M_PER_VOXEL);
 
-        gen.coordinateMults = VoxelSpaceConversions::getCoordinateMults(facePosition);
-        
-        gen.coordMapping = VoxelSpaceConversions::getCoordinateMapping(facePosition);
-    
+        gen.cubeFace = facePosition.face;
+
         gen.width = 32;
         gen.step = M_PER_VOXEL;
         // Invoke generator

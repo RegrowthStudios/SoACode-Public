@@ -40,7 +40,6 @@ void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f6
 }
 
 SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
-                                                               const i32v3& coordMapping,
                                                                float width,
                                                                int lod,
                                                                WorldCubeFace cubeFace) {
@@ -54,7 +53,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         mesh = new SphericalTerrainMesh(cubeFace);
         // Set the data
         gen.startPos = startPos;
-        gen.coordMapping = coordMapping;
+        gen.cubeFace = cubeFace;
         gen.mesh = mesh;
         gen.width = width;
         // Invoke generator
