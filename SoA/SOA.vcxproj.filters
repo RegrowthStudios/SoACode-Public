@@ -695,7 +695,7 @@
     <ClInclude Include="VoxelSpaceUtils.h">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainPatchMesher.h">
+    <ClInclude Include="SphericalTerrainPatchMesher.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1124,7 +1124,7 @@
     <ClCompile Include="VoxelSpaceUtils.cpp">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainPatchMesher.cpp">
+    <ClCompile Include="SphericalTerrainPatchMesher.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>

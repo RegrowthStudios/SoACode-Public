@@ -25,7 +25,7 @@
 #include "VoxelSpaceConversions.h"
 #include "SphericalTerrainPatch.h"
 #include "TerrainGenTextures.h"
-#include "TerrainPatchMesher.h"
+#include "SphericalTerrainPatchMesher.h"
 
 class TerrainGenDelegate;
 class RawGenDelegate;
@@ -98,7 +98,7 @@ private:
 
     vg::FullQuadVBO m_quad;
 
-    TerrainPatchMesher mesher;
+    SphericalTerrainPatchMesher mesher;
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 };

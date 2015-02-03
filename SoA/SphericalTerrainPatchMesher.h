@@ -1,4 +1,20 @@
+///
+/// SphericalTerrainPatchMesher.h
+/// Seed of Andromeda
+///
+/// Created by Benjamin Arnold on 3 Feb 2015
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// Creates spherical terrain patch meshes
+///
+
 #pragma once
+
+#ifndef SphericalTerrainPatchMesher_h__
+#define SphericalTerrainPatchMesher_h__
+
 #include <Vorb/graphics/gtypes.h>
 #include "SphericalTerrainPatch.h"
 
@@ -28,11 +44,11 @@ public:
     float depth; //40
 };
 
-class TerrainPatchMesher {
+class SphericalTerrainPatchMesher {
 public:
-    TerrainPatchMesher(SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainPatchMesher(SphericalTerrainMeshManager* meshManager,
                        PlanetGenData* planetGenData);
-    ~TerrainPatchMesher();
+    ~SphericalTerrainPatchMesher();
 
     /// Generates mesh using heightmap
     void buildMesh(TerrainGenDelegate* data, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
@@ -51,8 +67,7 @@ private:
 
     void tryAddWaterQuad(int z, int x);
 
-    /// TODO: THIS IS REUSABLE
-    void generateIndices(VGIndexBuffer& ibo, bool ccw);
+    void generateIndices(VGIndexBuffer& ibo);
 
     float computeAngleFromNormal(const f32v3& normal);
 
@@ -80,3 +95,4 @@ private:
     f32v2 m_coordMults;
 };
 
+#endif // SphericalTerrainPatchMesher_h__

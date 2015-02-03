@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "SphericalTerrainPatch.h"
-#include "TerrainPatchMesher.h"
+#include "SphericalTerrainPatchMesher.h"
 
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/TextureRecycler.hpp>
