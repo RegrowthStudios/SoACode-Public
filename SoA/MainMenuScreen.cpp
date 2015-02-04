@@ -76,6 +76,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     m_camera.init(_app->getWindow().getAspectRatio());
 
     m_inputManager = new InputManager;
+    initInputs(m_inputManager);
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
@@ -105,6 +106,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     // Init rendering
     initRenderPipeline();
     m_onReloadShadersKeyDown = m_inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnMainMenuReloadShadersKeyDown(this));
+    m_onReloadSpaceSystemKeyDown = m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnMainMenuReloadSpaceSystemKeyDown(this));
 
     // Run the update thread for updating the planet
     m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
@@ -123,9 +125,12 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     m_awesomiumInterface.destroy();
     m_renderPipeline.destroy();
 
-
+    // TODO(Ben): This is terrible
     m_inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
     delete m_onReloadShadersKeyDown;
+
+    m_inputManager->unsubscribe(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, m_onReloadSpaceSystemKeyDown);
+    delete m_onReloadSpaceSystemKeyDown;
 
     delete m_inputManager;
 

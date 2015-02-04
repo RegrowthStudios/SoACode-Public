@@ -54,7 +54,6 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
         });
     }
 
-
     // TODO(Ben): This is temporary
     state->spaceSystem->init(state->glProgramManager.get());
 
@@ -80,7 +79,7 @@ void SoaEngine::destroyAll(OUT SoaState* state) {
 }
 
 void SoaEngine::destroyGameSystem(OUT SoaState* state) {
-
+    state->gameSystem.reset();
 }
 
 void SoaEngine::addSolarSystem(SpaceSystemLoadParams& pr) {
