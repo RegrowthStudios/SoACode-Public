@@ -336,6 +336,7 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PhysicsComponentUpdater.h" />
     <ClInclude Include="PlanetLoader.h" />
+    <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SoaController.h" />
     <ClInclude Include="SoaEngine.h" />

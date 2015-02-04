@@ -4,36 +4,6 @@
 #include "GLProgramManager.h"
 #include "GameManager.h"
 
-void ProgramGenDelegate::invoke(Sender sender, void* userData) {
-    std::cout << "Building shader: " << name << std::endl;
-    program = new vg::GLProgram(true);
-    if (!program->addShader(vs)) {
-        errorMessage = "Vertex shader for " + name + " failed to compile.";
-        program->dispose();
-        delete program;
-        program = nullptr;
-        return;
-    }
-    if (!program->addShader(fs)) {
-        errorMessage = "Fragment shader for " + name + " failed to compile.";
-        program->dispose();
-        delete program;
-        program = nullptr;
-        return;
-    }
-    if (attr) program->setAttributes(*attr);
-
-    if (!program->link()) {
-        errorMessage = name + " failed to link.";
-        program->dispose();
-        delete program;
-        program = nullptr;
-        return;
-    }
-    program->initAttributes();
-    program->initUniforms();
-}
-
 vg::ShaderSource LoadTaskShaders::createShaderCode(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines /*= nullptr*/) {
     vg::ShaderSource src;
     src.stage = stage;

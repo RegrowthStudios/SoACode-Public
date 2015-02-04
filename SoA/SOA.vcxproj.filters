@@ -159,6 +159,9 @@
     <Filter Include="SOA Files\ECS\Updaters\SpaceSystem">
       <UniqueIdentifier>{04e223d6-921c-418a-8fef-01869cbc81d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Rendering\Delegates">
+      <UniqueIdentifier>{8ba56a3b-89be-47d4-a283-21b82f6ebbfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -697,6 +700,9 @@
     </ClInclude>
     <ClInclude Include="SphericalTerrainPatchMesher.h">
       <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramGenDelegate.h">
+      <Filter>SOA Files\Rendering\Delegates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
