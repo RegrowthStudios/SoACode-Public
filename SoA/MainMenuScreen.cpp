@@ -78,7 +78,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     m_inputManager = new InputManager;
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                    &m_camera, &m_soaState->spaceSystem, m_inputManager);
+                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
@@ -159,8 +159,8 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     m_mainMenuSystemViewer->update();
 
     m_soaState->time += 0.0001;
-    m_spaceSystemUpdater->update(&m_soaState->spaceSystem, &m_soaState->gameSystem, m_soaState, m_camera.getPosition());
-    m_spaceSystemUpdater->glUpdate(&m_soaState->spaceSystem);
+    m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition());
+    m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
 
     m_camera.update();
     m_inputManager->update(); // TODO: Remove
@@ -192,7 +192,7 @@ void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
-                          &m_soaState->spaceSystem, m_mainMenuSystemViewer.get(),
+                          m_soaState->spaceSystem.get(), m_mainMenuSystemViewer.get(),
                           m_soaState->glProgramManager.get());
 }
 

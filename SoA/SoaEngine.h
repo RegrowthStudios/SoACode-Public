@@ -43,6 +43,8 @@ public:
 
     static void destroyGameSystem(OUT SoaState* state);
 
+    static void destroySpaceSystem(OUT SoaState* state);
+
 private:
     static void addSolarSystem(SpaceSystemLoadParams& pr);
 
@@ -53,7 +55,6 @@ private:
 
     static void calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary);
 
-    static void destroySpaceSystem(OUT SoaState* state);
 };
 
 #endif // SoAEngine_h__

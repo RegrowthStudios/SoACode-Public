@@ -41,6 +41,7 @@ class AmbiencePlayer;
 class MainMenuScreen : public IAppScreen<App>
 {
     friend class OnMainMenuReloadShadersKeyDown;
+    friend class OnMainMenuReloadSpaceSystemKeyDown;
     friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
     MainMenuScreen(const App* app, const LoadScreen* loadScreen);

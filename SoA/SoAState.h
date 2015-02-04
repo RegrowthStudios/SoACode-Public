@@ -34,8 +34,8 @@ class SoaState {
 public:
     ~SoaState();
 
-    SpaceSystem spaceSystem;
-    GameSystem gameSystem;
+    std::unique_ptr<SpaceSystem> spaceSystem;
+    std::unique_ptr<GameSystem> gameSystem;
 
     vcore::EntityID startingPlanet = 0;
     vcore::EntityID playerEntity = 0;

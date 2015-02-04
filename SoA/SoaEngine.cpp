@@ -40,23 +40,27 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     vpath path = "SoASpace.log";
     vfile file;
     path.asFile(&file);
+
+    state->spaceSystem = std::make_unique<SpaceSystem>();
+
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
-    pool.addAutoHook(&state->spaceSystem.onEntityAdded, [=] (Sender, vcore::EntityID eid) {
+    pool.addAutoHook(&state->spaceSystem->onEntityAdded, [=] (Sender, vcore::EntityID eid) {
         fs.write("Entity added: %d\n", eid);
     });
-    for (auto namedTable : state->spaceSystem.getComponents()) {
-        auto table = state->spaceSystem.getComponentTable(namedTable.first);
+    for (auto namedTable : state->spaceSystem->getComponents()) {
+        auto table = state->spaceSystem->getComponentTable(namedTable.first);
         pool.addAutoHook(&table->onEntityAdded, [=] (Sender, vcore::ComponentID cid, vcore::EntityID eid) {
             fs.write("Component \"%s\" added: %d -> Entity %d\n", namedTable.first.c_str(), cid, eid);
         });
     }
 
+
     // TODO(Ben): This is temporary
-    state->spaceSystem.init(state->glProgramManager.get());
+    state->spaceSystem->init(state->glProgramManager.get());
 
     SpaceSystemLoadParams spaceSystemLoadParams;
     spaceSystemLoadParams.dirPath = loadData.filePath;
-    spaceSystemLoadParams.spaceSystem = &state->spaceSystem;
+    spaceSystemLoadParams.spaceSystem = state->spaceSystem.get();
     spaceSystemLoadParams.ioManager = state->systemIoManager.get();
     spaceSystemLoadParams.planetLoader = state->planetLoader.get();
 
@@ -286,5 +290,5 @@ void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity,
 }
 
 void SoaEngine::destroySpaceSystem(OUT SoaState* state) {
-
+    state->spaceSystem.reset();
 }

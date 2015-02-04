@@ -104,8 +104,8 @@ GamePlayRenderPipeline::~GamePlayRenderPipeline() {
 }
 
 void GamePlayRenderPipeline::render() {
-    const GameSystem& gameSystem = m_soaState->gameSystem;
-    const SpaceSystem& spaceSystem = m_soaState->spaceSystem;
+    const GameSystem* gameSystem = m_soaState->gameSystem.get();
+    const SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
 
     updateCameras();
     // Set up the gameRenderParams
@@ -133,8 +133,8 @@ void GamePlayRenderPipeline::render() {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _cutoutVoxelRenderStage->draw();
 
-        auto& voxcmp = gameSystem.voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
-        _chunkGridRenderStage->setChunks(&spaceSystem.m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunks());
+        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
+        _chunkGridRenderStage->setChunks(&spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunks());
         _chunkGridRenderStage->draw();
         _liquidVoxelRenderStage->draw();
         _transparentVoxelRenderStage->draw();
@@ -276,7 +276,7 @@ void GamePlayRenderPipeline::cycleDrawMode() {
 }
 
 void GamePlayRenderPipeline::updateCameras() {
-    const GameSystem* gs = &m_soaState->gameSystem;
+    const GameSystem* gs = m_soaState->gameSystem.get();
 
     float sNearClip = 20.0f; ///< temporary until dynamic clipping plane works
 

@@ -19,15 +19,16 @@
 
 #include "MainMenuScreen.h"
 #include "LoadTaskShaders.h"
+#include "SoaEngine.h"
 
 class MainMenuScreenDelegate : IDelegate<ui32> {
 public:
     MainMenuScreenDelegate() {}
-    MainMenuScreenDelegate(MainMenuScreen* screen) : _screen(screen) {}
+    MainMenuScreenDelegate(MainMenuScreen* screen) : m_screen(screen) {}
 
     virtual void invoke(Sender sender, ui32 key) override = 0;
 protected:
-    MainMenuScreen* _screen;
+    MainMenuScreen* m_screen;
 };
 
 /// Delegate to handle when the Reload Shaders key down event
@@ -42,6 +43,16 @@ public:
         shaderTask.load();
         _screen->m_renderPipeline.destroy();
         _screen->initRenderPipeline();*/
+    }
+};
+
+class OnMainMenuReloadSpaceSystemKeyDown : MainMenuScreenDelegate {
+public:
+    OnMainMenuReloadSpaceSystemKeyDown() {}
+    OnMainMenuReloadSpaceSystemKeyDown(MainMenuScreen* screen) : MainMenuScreenDelegate(screen) {}
+
+    virtual void invoke(Sender sender, ui32 key) override {
+        SoaEngine::destroySpaceSystem(m_screen->m_soaState);
     }
 };
 

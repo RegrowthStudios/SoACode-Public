@@ -36,6 +36,7 @@
 #include "SphericalTerrainPatch.h"
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
+#include "SoaEngine.h"
 
 #define THREAD ThreadId::UPDATE
 
@@ -90,7 +91,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     controller.startGame(m_soaState);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
-    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(&m_soaState->gameSystem, m_inputManager);
+    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState->gameSystem.get(), m_inputManager);
 
     // Initialize the PDA
     m_pda.init(this, m_soaState->glProgramManager.get());
@@ -163,8 +164,7 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     m_inputManager->stopInput();
     m_hooks.dispose();
 
-    // Easy way to clear everything
-    m_soaState->gameSystem = GameSystem();
+    SoaEngine::destroyGameSystem(m_soaState);
     
     m_inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, m_onPauseKeyDown);
     delete m_onPauseKeyDown;
@@ -222,7 +222,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
             glSpeedFactor = 3.0f;
         }
     }
-    m_spaceSystemUpdater->glUpdate(&m_soaState->spaceSystem);
+    m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
 
     globalRenderAccumulationTimer.start("Update Meshes");
 
@@ -282,7 +282,7 @@ void GamePlayScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, m_soaState,
                           _app, &m_pda,
-                          &m_soaState->spaceSystem,
+                          m_soaState->spaceSystem.get(),
                           &m_pauseMenu);
 }
 
@@ -354,12 +354,12 @@ void GamePlayScreen::updateThreadFunc() {
         GameManager::soundEngine->update();
 
         m_soaState->time += 0.00000000001;
-        auto& npcmp = m_soaState->gameSystem.spacePosition.getFromEntity(m_soaState->playerEntity);
+        auto& npcmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
 
-        m_spaceSystemUpdater->update(&m_soaState->spaceSystem, &m_soaState->gameSystem, m_soaState,
-                                       m_soaState->gameSystem.spacePosition.getFromEntity(m_soaState->playerEntity).position);
+        m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState,
+                                       m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity).position);
 
-        m_gameSystemUpdater->update(&m_soaState->gameSystem, &m_soaState->spaceSystem, m_soaState);
+        m_gameSystemUpdater->update(m_soaState->gameSystem.get(), m_soaState->spaceSystem.get(), m_soaState);
 
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
