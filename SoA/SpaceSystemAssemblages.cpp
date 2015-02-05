@@ -9,7 +9,6 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGenerator.h"
-#include "VoxelPlanetMapper.h"
 
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -114,7 +113,7 @@ void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) 
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                     vcore::ComponentID sphericalTerrainComponent,
-                                                                    const vvox::VoxelMapData* startingMapData,
+                                                                    const ChunkGridPosition2D& startGridPos,
                                                                     const f64v3& gridPosition,
                                                                     const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0
@@ -132,13 +131,13 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     svcmp.voxelRadius = stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
 
     svcmp.physicsEngine = new PhysicsEngine();
-    svcmp.voxelPlanetMapper = new vvox::VoxelPlanetMapper((i32)svcmp.voxelRadius / CHUNK_WIDTH);
+
     svcmp.generator = stcmp.generator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine, svcmp.voxelPlanetMapper,
-                                          svcmp.generator, startingMapData,
+    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
+                                          svcmp.generator, startGridPos,
                                           svcmp.chunkIo,
-                                          gridPosition, svcmp.voxelRadius);
+                                          gridPosition, stcmp.sphericalTerrainData->getRadius() * 2000.0);
     svcmp.particleEngine = new ParticleEngine();
     
     svcmp.planetGenData = stcmp.planetGenData;
@@ -158,6 +157,8 @@ vcore::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(OUT SpaceSys
     vcore::ComponentID arCmpId = spaceSystem->addComponent("AxisRotation", entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
     arCmp.axisOrientation = axisOrientation;
+    arCmp.currentRotation = startAngle;
+    arCmp.angularSpeed_RS = angularSpeed;
     return arCmpId;
 }
 
@@ -180,13 +181,14 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
 
     stCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
                                                   normalMapRecycler);
-    stCmp.generator = new SphericalTerrainGenerator(radius, stCmp.meshManager,
+    stCmp.generator = new SphericalTerrainGenerator(stCmp.meshManager,
                                               planetGenData,
                                               normalProgram, normalMapRecycler);
     stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.generator);
 
     f64 patchWidth = (radius * 2.000) / PATCH_ROW;
     stCmp.sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
+
     return stCmpId;
 }
 

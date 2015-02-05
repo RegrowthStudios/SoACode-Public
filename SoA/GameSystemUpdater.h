@@ -19,6 +19,7 @@
 #include "FreeMoveComponentUpdater.h"
 #include "FrustumComponentUpdater.h"
 #include "PhysicsComponentUpdater.h"
+#include "VoxelCoordinateSpaces.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
@@ -50,9 +51,9 @@ private:
     /// Calculates voxel position from relative space position
     /// @param relPos: relative position of the entity against the world center
     /// @param radius: Radius of the world
-    /// @param mapData: Mapping data for spherical voxel position
+    /// @param gridPos: Mapping data for spherical voxel position
     /// @param pos: the resulting voxel grid relative position
-    static void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT vvox::VoxelPlanetMapData& mapData, OUT f64v3& pos);
+    static void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkGridPosition2D& gridPos, OUT f64v3& pos);
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 

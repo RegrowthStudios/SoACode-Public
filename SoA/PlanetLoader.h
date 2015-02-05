@@ -48,6 +48,7 @@ public:
     VGTexture baseBiomeLookupTexture = 0;
     std::vector<Biome> biomes;
     vg::GLProgram* program = nullptr;
+    f64 radius = 0.0;
 };
 
 class PlanetLoader {

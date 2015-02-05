@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SphericalTerrainPatch.h"
+#include "SphericalTerrainPatchMesher.h"
 
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/TextureRecycler.hpp>
@@ -12,7 +13,8 @@
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGenerator.h"
-#include "VoxelPlanetMapper.h"
+#include "VoxelCoordinateSpaces.h"
+#include "VoxelSpaceConversions.h"
 
 const f32v3 NormalMults[6] = {
     f32v3(1.0f, 1.0f, -1.0f), //TOP
@@ -49,7 +51,7 @@ void SphericalTerrainMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
 }
 
 void SphericalTerrainMesh::draw(const f64v3& cameraPos, const Camera* camera,
-                                const f32m4& rot, vg::GLProgram* program) {
+                                const f32m4& rot, vg::GLProgram* program) const {
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -cameraPos);
@@ -97,7 +99,7 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const Camera* camera,
 }
 
 void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const Camera* camera,
-                                     const f32m4& rot, vg::GLProgram* program) {
+                                     const f32m4& rot, vg::GLProgram* program) const {
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -cameraPos);
@@ -140,13 +142,30 @@ void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const Camera* camer
     //   glBindVertexArray(0);
 }
 
+void SphericalTerrainMesh::getClosestPoint(const f32v3& camPos, OUT f32v3& point) const {
+    point.x = (camPos.x <= m_worldPosition.x) ? m_worldPosition.x : ((camPos.x > m_worldPosition.x + m_boundingBox.x) ?
+                                                                     (m_worldPosition.x + m_boundingBox.x) : camPos.x);
+    point.y = (camPos.y <= m_worldPosition.y) ? m_worldPosition.y : ((camPos.y > m_worldPosition.y + m_boundingBox.y) ?
+                                                                     (m_worldPosition.y + m_boundingBox.y) : camPos.y);
+    point.z = (camPos.z <= m_worldPosition.z) ? m_worldPosition.z : ((camPos.z > m_worldPosition.z + m_boundingBox.z) ?
+                                                                     (m_worldPosition.z + m_boundingBox.z) : camPos.z);
+}
+void SphericalTerrainMesh::getClosestPoint(const f64v3& camPos, OUT f64v3& point) const {
+    point.x = (camPos.x <= m_worldPosition.x) ? m_worldPosition.x : ((camPos.x > m_worldPosition.x + m_boundingBox.x) ?
+                                                                     (m_worldPosition.x + m_boundingBox.x) : camPos.x);
+    point.y = (camPos.y <= m_worldPosition.y) ? m_worldPosition.y : ((camPos.y > m_worldPosition.y + m_boundingBox.y) ?
+                                                                     (m_worldPosition.y + m_boundingBox.y) : camPos.y);
+    point.z = (camPos.z <= m_worldPosition.z) ? m_worldPosition.z : ((camPos.z > m_worldPosition.z + m_boundingBox.z) ?
+                                                                     (m_worldPosition.z + m_boundingBox.z) : camPos.z);
+}
+
 
 SphericalTerrainPatch::~SphericalTerrainPatch() {
     destroy();
 }
 
 void SphericalTerrainPatch::init(const f64v2& gridPosition,
-                                 CubeFace cubeFace,
+                                 WorldCubeFace cubeFace,
                                  int lod,
                                  const SphericalTerrainData* sphericalTerrainData,
                                  f64 width,
@@ -161,28 +180,32 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     // Approximate the world position for now //TODO(Ben): Better
     f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
 
-    const i32v3& coordMapping = CubeCoordinateMappings[(int)m_cubeFace];
-    const f32v3& coordMults = CubeCoordinateMults[(int)m_cubeFace];
+    const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)m_cubeFace];
+    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
 
-    m_worldPosition[coordMapping.x] = centerGridPos.x;
-    m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * coordMults.y;
-    m_worldPosition[coordMapping.z] = centerGridPos.y;
+    m_worldPosition[coordMapping.x] = centerGridPos.x * coordMults.x;
+    m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    m_worldPosition[coordMapping.z] = centerGridPos.y * coordMults.y;
 
-    m_worldPosition = glm::normalize(m_worldPosition);
+    m_worldPosition = glm::normalize(m_worldPosition) * sphericalTerrainData->getRadius();
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     const float DIST_MIN = 3.0f;
     const float DIST_MAX = 3.1f;
 
-#define MIN_SIZE 0.016f
-
+#define MIN_SIZE 0.4096f
+    
+    f64v3 closestPoint;
     // Calculate distance from camera
     if (hasMesh()) {
-        m_worldPosition = m_mesh->m_worldPosition;
-        m_distance = glm::length(m_worldPosition - cameraPos);
+        // If we have a mesh, we can use an accurate bounding box    
+        m_mesh->getClosestPoint(cameraPos, closestPoint);
+        m_distance = glm::length(closestPoint - cameraPos);
     } else {
+        // Approximate
         m_distance = glm::length(m_worldPosition - cameraPos);
+      
     }
     
     if (m_children) {
@@ -215,13 +238,25 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
             }
         }
     } else if (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
-        m_children = new SphericalTerrainPatch[4];
-        // Segment into 4 children
-        for (int z = 0; z < 2; z++) {
-            for (int x = 0; x < 2; x++) {
-                m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
-                                       m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
-                                       m_dispatcher);
+        // Only subdivide if we are visible over horizon
+        bool divide = true;
+        if (hasMesh()) {
+            if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
+           //     divide = false;
+            }
+        } else if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
+          //  divide = false;
+        }
+
+        if (divide) {
+            m_children = new SphericalTerrainPatch[4];
+            // Segment into 4 children
+            for (int z = 0; z < 2; z++) {
+                for (int x = 0; x < 2; x++) {
+                    m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
+                                                  m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
+                                                  m_dispatcher);
+                }
             }
         }
     } else if (!m_mesh) {
@@ -256,16 +291,39 @@ bool SphericalTerrainPatch::isRenderable() const {
     return false;
 }
 
+bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
+#define DELTA 0.1f
+    f32 pLength = glm::length(relCamPos);
+    f32v3 ncp = relCamPos / pLength;
+
+    if (pLength < planetRadius + 1.0f) pLength = planetRadius + 1.0f;
+    f32 horizonAngle = acos(planetRadius / pLength);
+    f32 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
+    if (lodAngle >= horizonAngle + DELTA) return true;
+    return false;
+#undef DELTA
+}
+bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
+#define DELTA 0.1
+    f64 pLength = glm::length(relCamPos);
+    f64v3 ncp = relCamPos / pLength;
+
+    if (pLength < planetRadius + 1.0) pLength = planetRadius + 1.0;
+    f64 horizonAngle = acos(planetRadius / pLength);
+    f64 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
+    if (lodAngle >= horizonAngle + DELTA) return true;
+    return false;
+#undef DELTA
+}
+
 void SphericalTerrainPatch::requestMesh() {
     // Try to generate a mesh
-    const f32v3& mults = CubeCoordinateMults[(int)m_cubeFace];
-    const i32v3& mappings = CubeCoordinateMappings[(int)m_cubeFace];
+    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
 
-    f32v3 startPos(m_gridPosition.x * mults.x,
-                   m_sphericalTerrainData->getRadius() * mults.y,
-                   m_gridPosition.y* mults.z);
+    f32v3 startPos(m_gridPosition.x * coordMults.x,
+                   m_sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
+                   m_gridPosition.y* coordMults.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
-                                              mappings,
                                               m_width,
                                               m_lod,
                                               m_cubeFace);

@@ -74,8 +74,6 @@ struct SphericalVoxelComponent {
 
     SphericalTerrainGenerator* generator = nullptr;
 
-    vvox::VoxelPlanetMapper* voxelPlanetMapper = nullptr;
-
     PlanetGenData* planetGenData = nullptr;
     const SphericalTerrainData* sphericalTerrainData = nullptr;
 

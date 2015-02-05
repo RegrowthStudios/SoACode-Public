@@ -53,6 +53,7 @@ const nString NOISE_SRC_FRAG = R"(
 uniform sampler2D unBaseBiomes;
 uniform sampler2DArray unBiomes;
 uniform vec3 unCornerPos = vec3(0.0);
+uniform vec2 unCoordMults = vec2(1.0);
 uniform ivec3 unCoordMapping = ivec3(0);
 uniform float unPatchWidth = 10.0;
 
@@ -163,9 +164,9 @@ void main() {
     pOutput.a = 0.0f;
 
     vec3 pos;
-    pos[unCoordMapping.x] = unCornerPos.x + fPos.x * unPatchWidth;
+    pos[unCoordMapping.x] = unCornerPos.x + fPos.x * unPatchWidth * unCoordMults.x;
     pos[unCoordMapping.y] = unCornerPos.y;
-    pos[unCoordMapping.z] = unCornerPos.z + fPos.y * unPatchWidth;
+    pos[unCoordMapping.z] = unCornerPos.z + fPos.y * unPatchWidth * unCoordMults.y;
 )";
 #pragma endregion
 

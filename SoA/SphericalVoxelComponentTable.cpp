@@ -4,7 +4,6 @@
 #include "PhysicsEngine.h"
 #include "ChunkManager.h"
 #include "ChunkIOManager.h"
-#include "VoxelPlanetMapper.h"
 #include "ParticleEngine.h"
 
 void SphericalVoxelComponentTable::disposeComponent(vcore::ComponentID cID, vcore::EntityID eID) {
@@ -12,6 +11,5 @@ void SphericalVoxelComponentTable::disposeComponent(vcore::ComponentID cID, vcor
     delete cmp.physicsEngine;
     delete cmp.chunkManager;
     delete cmp.chunkIo;
-    delete cmp.voxelPlanetMapper;
     delete cmp.particleEngine;
 }

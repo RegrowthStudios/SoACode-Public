@@ -4,9 +4,10 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainGenerator.h"
+#include "VoxelCoordinateSpaces.h"
 
 void TerrainGenDelegate::invoke(Sender sender, void* userData) {
-    generator->generateTerrain(this);
+    generator->generateTerrainPatch(this);
 }
 
 void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
@@ -39,10 +40,9 @@ void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f6
 }
 
 SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
-                                                               const i32v3& coordMapping,
                                                                float width,
                                                                int lod,
-                                                               CubeFace cubeFace) {
+                                                               WorldCubeFace cubeFace) {
     SphericalTerrainMesh* mesh = nullptr;
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
@@ -53,7 +53,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         mesh = new SphericalTerrainMesh(cubeFace);
         // Set the data
         gen.startPos = startPos;
-        gen.coordMapping = coordMapping;
+        gen.cubeFace = cubeFace;
         gen.mesh = mesh;
         gen.width = width;
         // Invoke generator
@@ -88,7 +88,7 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
                 auto& p = cmp.patches[index++];
                 gridPos.x = (x - center) * patchWidth;
                 gridPos.y = (z - center) * patchWidth;
-                p.init(gridPos, static_cast<CubeFace>(face),
+                p.init(gridPos, static_cast<WorldCubeFace>(face),
                        0, cmp.sphericalTerrainData, patchWidth,
                        cmp.rpcDispatcher);
             }

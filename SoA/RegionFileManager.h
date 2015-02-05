@@ -6,7 +6,7 @@
 #include <Vorb/Vorb.h>
 
 #include "Constants.h"
-#include "IVoxelMapper.h"
+#include "VoxelCoordinateSpaces.h"
 
 //Size of a sector in bytes
 #define SECTOR_SIZE 512
@@ -66,7 +66,7 @@ public:
 
     void clear();
 
-    bool openRegionFile(nString region, vvox::VoxelMapData* voxelMapData, bool create);
+    bool openRegionFile(nString region, const ChunkGridPosition3D& gridPosition, bool create);
 
     bool tryLoadChunk(Chunk* chunk);
     bool saveChunk(Chunk* chunk);

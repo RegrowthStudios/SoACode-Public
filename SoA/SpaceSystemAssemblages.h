@@ -17,6 +17,7 @@
 
 class SpaceSystem;
 
+#include "VoxelCoordinateSpaces.h"
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
@@ -66,7 +67,7 @@ namespace SpaceSystemAssemblages {
     /// Spherical voxel component
     extern vcore::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                          vcore::ComponentID sphericalTerrainComponent,
-                                                         const vvox::VoxelMapData* startingMapData,
+                                                         const ChunkGridPosition2D& startGridPos,
                                                          const f64v3& gridPosition,
                                                          const SoaState* soaState);
     extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);

@@ -55,9 +55,8 @@ namespace GameSystemAssemblages {
     /// Voxel Position Component
     extern vcore::ComponentID addVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                vcore::ComponentID parentVoxelComponent,
-                                               const VoxelPosition& position,
                                                const f64q& orientation,
-                                               vvox::VoxelPlanetMapData mapData);
+                                               const VoxelGridPosition3D& gridPosition);
     extern void removeVoxelPosition(OUT GameSystem* gameSystem, vcore::EntityID entity);
     /// Frustum Component
     extern vcore::ComponentID addFrustumComponent(OUT GameSystem* gameSystem, vcore::EntityID entity,

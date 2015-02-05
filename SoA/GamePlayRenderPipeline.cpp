@@ -118,8 +118,9 @@ void GamePlayRenderPipeline::render() {
 
     // worldCamera passes
     _skyboxRenderStage->draw();
+    glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
     m_spaceSystemRenderStage->draw();
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     // Clear the depth buffer so we can draw the voxel passes
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -284,11 +285,11 @@ void GamePlayRenderPipeline::updateCameras() {
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
         _chunkCamera.setClippingPlane(1.0f, 999999.0f);
-        _chunkCamera.setPosition(vpcmp.position);
+        _chunkCamera.setPosition(vpcmp.gridPosition.pos);
         _chunkCamera.setOrientation(vpcmp.orientation);
         _chunkCamera.update();
         m_voxelsActive = true;
-        sNearClip = 0.25;
+        sNearClip = 0.05;
     } else {
         m_voxelsActive = false;
     }

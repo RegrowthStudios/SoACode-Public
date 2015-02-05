@@ -377,12 +377,6 @@
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelPlanetMapper.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
-    <ClInclude Include="IVoxelMapper.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
     <ClInclude Include="LoadMonitor.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
@@ -436,9 +430,6 @@
     </ClInclude>
     <ClInclude Include="PdaAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="GamePlayScreenEvents.hpp">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
     </ClInclude>
     <ClInclude Include="SkyboxRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
@@ -692,6 +683,18 @@
     <ClInclude Include="SphericalVoxelComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelSpaceConversions.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelCoordinateSpaces.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelSpaceUtils.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainPatchMesher.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -864,9 +867,6 @@
     </ClCompile>
     <ClCompile Include="VoxelMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelPlanetMapper.cpp">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
     <ClCompile Include="InitScreen.cpp">
       <Filter>SOA Files\Screens\Init</Filter>
@@ -1114,6 +1114,15 @@
     </ClCompile>
     <ClCompile Include="SpaceSystemUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelSpaceConversions.cpp">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelSpaceUtils.cpp">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainPatchMesher.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

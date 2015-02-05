@@ -16,11 +16,10 @@
 #define SphericalTerrainPatch_h__
 
 #include "TerrainGenerator.h"
+#include "VoxelCoordinateSpaces.h"
 
 #include <Vorb/graphics/gtypes.h>
 #include <Vorb/graphics/GLProgram.h>
-
-enum class CubeFace { TOP, LEFT, RIGHT, FRONT, BACK, BOTTOM };
 
 class Camera;
 class MeshManager;
@@ -40,7 +39,7 @@ const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH;
 const int PATCH_NORMALMAP_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM + 2; // + 2 for padding
 const int PATCH_HEIGHTMAP_WIDTH = PATCH_NORMALMAP_WIDTH + 2; // + 2 for padding
 
-const int MAX_LOD = 10;
+const int MAX_LOD = 25; ///< Absolute maximum
 
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {
@@ -63,10 +62,11 @@ private:
 
 class SphericalTerrainMesh {
 public:
-    friend class SphericalTerrainPatch;
     friend class SphericalTerrainGenerator;
     friend class SphericalTerrainMeshManager;
-    SphericalTerrainMesh(CubeFace cubeFace) : m_cubeFace(cubeFace){}
+    friend class SphericalTerrainPatch;
+    friend class SphericalTerrainPatchMesher;
+    SphericalTerrainMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {}
     ~SphericalTerrainMesh();
 
     /// Recycles the normal map
@@ -79,7 +79,7 @@ public:
     /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering
     void draw(const f64v3& relativePos, const Camera* camera,
-              const f32m4& rot, vg::GLProgram* program);
+              const f32m4& rot, vg::GLProgram* program) const;
    
     /// Draws the water mesh
     /// @param relativePos: Relative position of the camera
@@ -87,7 +87,13 @@ public:
     /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering
     void drawWater(const f64v3& relativePos, const Camera* camera,
-                   const f32m4& rot, vg::GLProgram* program);
+                   const f32m4& rot, vg::GLProgram* program) const;
+
+    /// Gets the point closest to the observer
+    /// @param camPos: Position of observer
+    /// @param point: Resulting point
+    void getClosestPoint(const f32v3& camPos, OUT f32v3& point) const;
+    void getClosestPoint(const f64v3& camPos, OUT f64v3& point) const;
 
 private:
     VGVertexArray m_vao = 0; ///< Vertex array object
@@ -97,8 +103,9 @@ private:
     VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
     VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
 
-    f64v3 m_worldPosition = f64v3(0.0);
-    CubeFace m_cubeFace;
+    f32v3 m_worldPosition = f32v3(0.0);
+    f32v3 m_boundingBox = f32v3(0.0f); ///< AABB bounding box
+    WorldCubeFace m_cubeFace;
 
     VGTexture m_normalMap = 0;
     int m_waterIndexCount = 0;
@@ -119,7 +126,7 @@ public:
     /// @param sphericalTerrainData: Shared data
     /// @param width: Width of the patch in KM
     void init(const f64v2& gridPosition,
-              CubeFace cubeFace,
+              WorldCubeFace cubeFace,
               int lod,
               const SphericalTerrainData* sphericalTerrainData,
               f64 width,
@@ -139,6 +146,13 @@ public:
     /// renderable.
     bool isRenderable() const;
 
+    /// Checks if the point is over the horizon
+    /// @param relCamPos: Relative observer position
+    /// @param point: The point to check
+    /// @param planetRadius: Radius of the planet
+    static bool isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius);
+    static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
+
     static const int INDICES_PER_QUAD = 6;
     static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 private:
@@ -146,10 +160,9 @@ private:
 
     f64v2 m_gridPosition = f64v2(0.0); ///< Position on 2D grid
     f64v3 m_worldPosition = f64v3(0.0); ///< Position relative to world
-    f32v3 m_boundingBox; ///< Bounding box that contains all points
     f64 m_distance = 1000000000.0; ///< Distance from camera
     int m_lod = 0; ///< Level of detail
-    CubeFace m_cubeFace; ///< Which cube face grid it is on
+    WorldCubeFace m_cubeFace; ///< Which cube face grid it is on
 
     f64 m_width = 0.0; ///< Width of the patch in KM
 

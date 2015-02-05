@@ -257,27 +257,27 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radi
     const float eps = 0.01f;
 
     if (abs(gridHit.x - (-radius)) < eps) { //-X
-        m_selectedCubeFace = (int)CubeFace::LEFT;
+        m_selectedCubeFace = (int)WorldCubeFace::FACE_LEFT;
         m_selectedGridPos.x = gridHit.z;
         m_selectedGridPos.y = gridHit.y;
     } else if (abs(gridHit.x - radius) < eps) { //X
-        m_selectedCubeFace = (int)CubeFace::RIGHT;
+        m_selectedCubeFace = (int)WorldCubeFace::FACE_RIGHT;
         m_selectedGridPos.x = gridHit.z;
         m_selectedGridPos.y = gridHit.y;
     } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
-        m_selectedCubeFace = (int)CubeFace::BOTTOM;
+        m_selectedCubeFace = (int)WorldCubeFace::FACE_BOTTOM;
         m_selectedGridPos.x = gridHit.x;
         m_selectedGridPos.y = gridHit.z;
     } else if (abs(gridHit.y - radius) < eps) { //Y
-        m_selectedCubeFace = (int)CubeFace::TOP;
+        m_selectedCubeFace = (int)WorldCubeFace::FACE_TOP;
         m_selectedGridPos.x = gridHit.x;
         m_selectedGridPos.y = gridHit.z;
     } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
-        m_selectedCubeFace = (int)CubeFace::BACK;
+        m_selectedCubeFace = (int)WorldCubeFace::FACE_BACK;
         m_selectedGridPos.x = gridHit.x;
         m_selectedGridPos.y = gridHit.y;
     } else if (abs(gridHit.z - radius) < eps) { //Z
-        m_selectedCubeFace = (int)CubeFace::FRONT;
+        m_selectedCubeFace = (int)WorldCubeFace::FACE_FRONT;
         m_selectedGridPos.x = gridHit.x;
         m_selectedGridPos.y = gridHit.y;
     }

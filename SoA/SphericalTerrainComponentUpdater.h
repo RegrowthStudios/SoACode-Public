@@ -20,8 +20,9 @@ struct SphericalTerrainComponent;
 class SphericalTerrainGenerator;
 class SphericalTerrainMesh;
 
-#include <Vorb/RPC.h>
 #include "SphericalTerrainPatch.h"
+#include "VoxelCoordinateSpaces.h"
+#include <Vorb/RPC.h>
 
 #define LOAD_DIST 80000.0
 // Should be even
@@ -38,7 +39,7 @@ public:
     vcore::RPC rpc;
 
     f32v3 startPos;
-    i32v3 coordMapping;
+    WorldCubeFace cubeFace;
     float width;
 
     SphericalTerrainMesh* mesh = nullptr;
@@ -55,10 +56,9 @@ public:
     }
     /// @return a new mesh on success, nullptr on failure
     SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
-                                             const i32v3& coordMapping,
                                              float width,
                                              int lod,
-                                             CubeFace cubeFace);
+                                             WorldCubeFace cubeFace);
 private:
     static const int NUM_GENERATORS = 1024;
     int counter = 0;

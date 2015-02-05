@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SoaEngine.h"
 
+#include "Constants.h"
 #include "DebugRenderer.h"
 #include "GLProgramManager.h"
 #include "MeshManager.h"
@@ -232,6 +233,11 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation);
             } else {
                 properties.planetGenData = pr.planetLoader->getDefaultGenData();
+            }
+
+            // Set the radius for use later
+            if (properties.planetGenData) {
+                properties.planetGenData->radius = properties.diameter / 2.0;
             }
 
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
