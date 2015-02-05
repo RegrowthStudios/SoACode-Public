@@ -8,6 +8,7 @@
 #include "GameSystemUpdater.h"
 #include "SoaState.h"
 #include "Options.h"
+#include "SoaEngine.h"
 
 SoaController::SoaController(const App* app) :
     m_app(app) {
@@ -19,6 +20,10 @@ SoaController::~SoaController() {
 }
 
 void SoaController::startGame(OUT SoaState* state) {
+    // Load game ECS
+    SoaEngine::GameSystemLoadData loadData;
+    SoaEngine::loadGameSystem(state, loadData);
+
     GameSystem* gameSystem = state->gameSystem.get();
     SpaceSystem* spaceSystem = state->spaceSystem.get();
 

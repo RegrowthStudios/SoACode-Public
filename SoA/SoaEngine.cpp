@@ -99,6 +99,8 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
 
 bool SoaEngine::loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData) {
     // TODO(Ben): Implement
+    state->gameSystem = std::make_unique<GameSystem>();
+    return true;
 }
 
 void SoaEngine::destroyAll(OUT SoaState* state) {
