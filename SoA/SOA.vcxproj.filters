@@ -431,9 +431,6 @@
     <ClInclude Include="PdaAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
-    <ClInclude Include="GamePlayScreenEvents.hpp">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
-    </ClInclude>
     <ClInclude Include="SkyboxRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
