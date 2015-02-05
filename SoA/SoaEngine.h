@@ -16,6 +16,7 @@
 #define SoAEngine_h__
 
 #include <Vorb/ecs/Entity.h>
+#include <Vorb/VorbPreDecl.inl>
 
 class GameSystem;
 class SoaState;
@@ -23,6 +24,8 @@ class SpaceSystem;
 struct SpaceSystemLoadParams;
 struct SystemBody;
 struct SystemBodyKegProperties;
+
+DECL_VCORE(class RPCManager)
 
 #pragma once
 class SoaEngine {
@@ -35,7 +38,7 @@ public:
     };
     static bool initState(OUT SoaState* state);
 
-    static bool loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData);
+    static bool loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc = nullptr);
 
     static bool loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData);
 

@@ -166,7 +166,7 @@ void LoadScreen::update(const GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
-        LoadTaskSolarSystem loadTaskSolarSystem("StarSystems/Trinity", m_soaState.get());
+        LoadTaskSolarSystem loadTaskSolarSystem(nullptr, "StarSystems/Trinity", m_soaState.get());
         loadTaskSolarSystem.load();
 
         _state = ScreenState::CHANGE_NEXT;

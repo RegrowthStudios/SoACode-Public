@@ -18,12 +18,7 @@ ProgramGenDelegate* LoadTaskShaders::createProgram(nString name, const vg::Shade
     ProgramGenDelegate& del = m_generators[m_numGenerators];
     m_numGenerators++;
 
-    del.name = name;
-    del.vs = vs;
-    del.fs = fs;
-    del.attr = attr;
-    del.rpc.data.f = &del;
-    del.rpc.data.userData = nullptr;
+    del.init(name, vs, fs, attr);
 
     return &del;
 }
@@ -180,14 +175,6 @@ void LoadTaskShaders::load() {
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.vert"),
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.frag"),
         &sphericalWaterAttribs
-        )->rpc, false);
-    m_glrpc->invoke(&createProgram("SimplexNoise",
-        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/Simplex.vert"),
-        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/Simplex.frag")
-        )->rpc, false);
-    m_glrpc->invoke(&createProgram("NormalMapGen",
-        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
-        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag")
         )->rpc, false);
 
     // Create all shaders until finished

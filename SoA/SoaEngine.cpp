@@ -9,8 +9,11 @@
 #include "SoaState.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
+#include "ProgramGenDelegate.h"
+#include "Errors.h"
 
 #include <Vorb/io/Keg.h>
+#include <Vorb/RPC.h>
 
 #define M_PER_KM 1000.0
 
@@ -30,18 +33,28 @@ bool SoaEngine::initState(OUT SoaState* state) {
     state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
     state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
     state->systemIoManager = std::make_unique<vio::IOManager>();
-    state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
 
     return true;
 }
+// TODO: A vorb helper would be nice.
+vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr) {
+    vg::ShaderSource src;
+    src.stage = stage;
+    if (defines) src.sources.push_back(defines);
+    const cString code = iom.readFileToString(path);
+    src.sources.push_back(code);
+    return src;
+}
 
-bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData) {
+bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
+
     AutoDelegatePool pool;
     vpath path = "SoASpace.log";
     vfile file;
     path.asFile(&file);
 
     state->spaceSystem = std::make_unique<SpaceSystem>();
+    state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
     pool.addAutoHook(&state->spaceSystem->onEntityAdded, [=] (Sender, vcore::EntityID eid) {
@@ -54,9 +67,26 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
         });
     }
 
-    // TODO(Ben): This is temporary
-    state->spaceSystem->init(state->glProgramManager.get());
+    // Load normal map gen shader
+    ProgramGenDelegate gen;
+    vio::IOManager iom;
+    gen.init("NormalMapGen", createShaderSource(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
+                  createShaderSource(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag"));
 
+    if (glrpc) {
+        glrpc->invoke(&gen.rpc, true);
+    } else {
+        gen.invoke(nullptr, nullptr);
+    }
+
+    if (gen.program == nullptr) {
+        std::cout << "Failed to load shader NormalMapGen " << gen.errorMessage;
+        throw(33);
+    }
+    /// Manage the program with a unique ptr
+    state->spaceSystem->normalMapGenProgram = std::unique_ptr<vg::GLProgram>(gen.program);
+
+    // Load system
     SpaceSystemLoadParams spaceSystemLoadParams;
     spaceSystemLoadParams.dirPath = loadData.filePath;
     spaceSystemLoadParams.spaceSystem = state->spaceSystem.get();

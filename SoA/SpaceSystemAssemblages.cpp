@@ -47,8 +47,8 @@ vcore::EntityID SpaceSystemAssemblages::createPlanet(OUT SpaceSystem* spaceSyste
 
     addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp, properties->diameter / 2.0,
                                  properties->planetGenData,
-                                 spaceSystem->glProgramManager->getProgram("NormalMapGen"),
-                                 spaceSystem->normalMapRecycler);
+                                 spaceSystem->normalMapGenProgram.get(),
+                                 spaceSystem->normalMapRecycler.get());
 
     addSphericalGravityComponent(spaceSystem, id, properties->diameter / 2.0, properties->mass);
 

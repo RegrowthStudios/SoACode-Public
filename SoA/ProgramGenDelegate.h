@@ -20,6 +20,15 @@
 
 class ProgramGenDelegate : public IDelegate < void* > {
 public:
+    void init(nString name, const vg::ShaderSource& vs, const vg::ShaderSource& fs, std::vector<nString>* attr = nullptr) {
+        this->name = name;
+        this->vs = vs;
+        this->fs = fs;
+        this->attr = attr;
+        rpc.data.f = this;
+        rpc.data.userData = nullptr;
+    }
+
     virtual void invoke(Sender sender, void* userData) override {
         std::cout << "Building shader: " << name << std::endl;
         program = new vg::GLProgram(true);

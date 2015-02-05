@@ -107,7 +107,6 @@ private:
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
-    IDelegate<ui32>* m_onReloadSpaceSystemKeyDown = nullptr;
 
     MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
 

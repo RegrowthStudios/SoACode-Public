@@ -8,14 +8,16 @@
 class LoadTaskSolarSystem : public ILoadTask {
     friend class LoadScreen;
 
-    LoadTaskSolarSystem(const nString& filePath, SoaState* state) :
+    LoadTaskSolarSystem(vcore::RPCManager* glrpc, const nString& filePath, SoaState* state) :
         soaState(state) {
+        this->glrpc = glrpc;
         loadData.filePath = filePath;
     }
     virtual void load() {
-        SoaEngine::loadSpaceSystem(soaState, loadData);
+        SoaEngine::loadSpaceSystem(soaState, loadData, glrpc);
     }
-    
+
+    vcore::RPCManager* glrpc = nullptr;
     SoaEngine::SpaceSystemLoadData loadData;
     SoaState* soaState;
 };

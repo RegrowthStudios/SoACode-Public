@@ -46,20 +46,4 @@ public:
     }
 };
 
-class OnMainMenuReloadSpaceSystemKeyDown : MainMenuScreenDelegate {
-public:
-    OnMainMenuReloadSpaceSystemKeyDown() {}
-    OnMainMenuReloadSpaceSystemKeyDown(MainMenuScreen* screen) : MainMenuScreenDelegate(screen) {}
-
-    virtual void invoke(Sender sender, ui32 key) override {
-        SoaEngine::destroySpaceSystem(m_screen->m_soaState);
-        SoaEngine::SpaceSystemLoadData loadData;
-        loadData.filePath = "StarSystems/Trinity";
-        SoaEngine::loadSpaceSystem(m_screen->m_soaState, loadData);
-        m_screen->m_renderPipeline.destroy();
-        m_screen->m_renderPipeline = MainMenuRenderPipeline();
-        m_screen->initRenderPipeline();
-    }
-};
-
 #endif // MainMenuScreenEvents_h__
