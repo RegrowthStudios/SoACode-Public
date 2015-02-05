@@ -356,9 +356,9 @@ vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
     fSource.reserve(fSource.size() + 8192);
 
     // Set initial values
-    fSource += N_HEIGHT + "=" + std::to_string(baseTerrainFuncs.baseHeight) + ";";
-    fSource += N_TEMP + "=" + std::to_string(tempTerrainFuncs.baseHeight) + ";";
-    fSource += N_HUM + "=" + std::to_string(humTerrainFuncs.baseHeight) + ";";
+    fSource += N_HEIGHT + "=" + std::to_string(baseTerrainFuncs.baseHeight) + ";\n";
+    fSource += N_TEMP + "=" + std::to_string(tempTerrainFuncs.baseHeight) + ";\n";
+    fSource += N_HUM + "=" + std::to_string(humTerrainFuncs.baseHeight) + ";\n";
 
     // Add all the noise functions
     addNoiseFunctions(fSource, N_HEIGHT, baseTerrainFuncs);
@@ -380,10 +380,22 @@ vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
     program->bindFragDataLocation(1, N_TEMP.c_str());
     program->bindFragDataLocation(2, N_HUM.c_str());
     program->link();
-    std::cout << fSource << std::endl;
     if (!program->getIsLinked()) {
-        showMessage("Failed to generate shader program");
+        // Insert line numbers
+        int lineNum = 1;
+        for (size_t i = 0; i < fSource.size(); i++) {
+            if (fSource[i] == '\n') {
+                fSource.insert(++i, std::to_string(lineNum) + ": ");
+                lineNum++;
+            }
+        }
+        // Print source
+        std::cout << fSource << std::endl;
+        // Show message
+        showMessage("Failed to generate GPU gen program. See command prompt for details\n");
         return nullptr;
+    } else {
+        std::cout << fSource << std::endl;
     }
 
     program->initAttributes();
@@ -397,43 +409,41 @@ void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, 
     // Conditional scaling code. Generates (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
 #define SCALE_CODE ((fn.low != -1.0f || fn.high != 1.0f) ? \
     fSource += variable + "+= (total / maxAmplitude) * (" + \
-        TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;" :\
-    fSource += variable + "+= total / maxAmplitude;")
+        TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n" :\
+    fSource += variable + "+= total / maxAmplitude;\n")
     
     for (auto& fn : funcs.funcs) {
         switch (fn.func) {
             case TerrainFunction::NOISE:
-                fSource += R"(
-                total = 0.0;
-                amplitude = 1.0;
-                maxAmplitude = 0.0;
-                frequency = )" + TS(fn.frequency) + R"(;
+                fSource = fSource + 
+                    "total = 0.0;\n" +
+                    "amplitude = 1.0;\n" +
+                    "maxAmplitude = 0.0;\n" +
+                    "frequency = " + TS(fn.frequency) + ";\n" +
 
-                for (int i = 0; i < )" + TS(fn.octaves) + R"(; i++) {
-                    total += snoise(pos * frequency) * amplitude;
+                    "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n" +
+                    "  total += snoise(pos * frequency) * amplitude;\n" +
 
-                    frequency *= 2.0;
-                    maxAmplitude += amplitude;
-                    amplitude *= )" + TS(fn.persistence) + R"(;
-                }
-                )";
+                    "  frequency *= 2.0;\n" +
+                    "  maxAmplitude += amplitude;\n" +
+                    "  amplitude *= " + TS(fn.persistence) + ";\n" +
+                    "}\n";
                 SCALE_CODE;
                 break;
             case TerrainFunction::RIDGED_NOISE:
-                fSource += R"(
-                total = 0.0;
-                amplitude = 1.0;
-                maxAmplitude = 0.0;
-                frequency = )" + TS(fn.frequency) + R"(;
+                fSource = fSource +
+                    "total = 0.0;\n" +
+                    "amplitude = 1.0;\n" +
+                    "maxAmplitude = 0.0;\n" +
+                    "frequency = " + TS(fn.frequency) + ";\n" +
 
-                for (int i = 0; i < )" + TS(fn.octaves) + R"(; i++) {
-                    total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;
+                    "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n" +
+                    "  total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;\n" +
 
-                    frequency *= 2.0;
-                    maxAmplitude += amplitude;
-                    amplitude *= )" + TS(fn.persistence) + R"(;
-                }
-                )";
+                    "  frequency *= 2.0;\n" +
+                    "  maxAmplitude += amplitude;\n" +
+                    "  amplitude *= " + TS(fn.persistence) + ";\n" +
+                    "}\n";
                 SCALE_CODE;
                 break;
             default:
@@ -445,9 +455,9 @@ void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, 
 void PlanetLoader::addBiomes(nString& fSource, PlanetGenData* genData) {
     
     // Base biome lookup
-    fSource += "float biomeIndex = texture(unBaseBiomes, " + N_TEMP_HUM_V2 + " / 255.0   ).x * 255.0f; ";
-    fSource += N_BIOME + " = biomeIndex;";
-    fSource += "float baseMult = 1.0;";
+    fSource += "float biomeIndex = texture(unBaseBiomes, " + N_TEMP_HUM_V2 + " / 255.0   ).x * 255.0f;\n ";
+    fSource += N_BIOME + " = biomeIndex;\n";
+    fSource += "float baseMult = 1.0;\n";
 
     for (int i = 0; i < genData->biomes.size(); i++) {
         // Add if
@@ -457,10 +467,11 @@ void PlanetLoader::addBiomes(nString& fSource, PlanetGenData* genData) {
             fSource += "else if ";
         }
         // Add conditional
-        fSource += "(biomeIndex <" + std::to_string((float)i + 0.01) + ") {";
+        fSource += "(biomeIndex <" + std::to_string((float)i + 0.01) + ") {\n";
         // Mult lookup
-        fSource += "baseMult = texture(unBiomes, vec3(" + N_TEMP + "," + N_HUM + "," + std::to_string(i) + ")).x;";
+        fSource += "  baseMult = texture(unBiomes, vec3(" + N_TEMP + "," + N_HUM + "," + std::to_string(i) + ")).x;\n";
         // Closing curly brace
-        fSource += "}";
+        fSource += "} ";
     }
+    fSource += '\n';
 }
