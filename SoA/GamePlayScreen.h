@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    /// Initializes event delegates
+    /// Initializes event delegates and InputManager
     void initInput();
 
     /// Initializes the rendering

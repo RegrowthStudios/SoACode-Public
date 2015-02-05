@@ -25,7 +25,6 @@
 #include "LoadScreen.h"
 #include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
-#include "MainMenuScreenEvents.hpp"
 #include "MainMenuSystemViewer.h"
 #include "MeshManager.h"
 #include "MessageManager.h"
@@ -75,8 +74,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
                              
     m_camera.init(_app->getWindow().getAspectRatio());
 
-    m_inputManager = new InputManager;
-    initInputs(m_inputManager);
+    initInput();
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
@@ -103,20 +101,6 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
 
     // Init rendering
     initRenderPipeline();
-    m_onReloadShadersKeyDown = m_inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnMainMenuReloadShadersKeyDown(this));
-    
-    // Reload star system event
-    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
-        SoaEngine::destroySpaceSystem(m_soaState);
-        SoaEngine::SpaceSystemLoadData loadData;
-        loadData.filePath = "StarSystems/Trinity";
-        SoaEngine::loadSpaceSystem(m_soaState, loadData);
-        m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                        &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
-        m_renderPipeline.destroy();
-        m_renderPipeline = MainMenuRenderPipeline();
-        initRenderPipeline();
-    });
 
     // Run the update thread for updating the planet
     m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
@@ -134,10 +118,6 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     delete m_updateThread;
     m_awesomiumInterface.destroy();
     m_renderPipeline.destroy();
-
-    // TODO(Ben): This is terrible
-    m_inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, m_onReloadShadersKeyDown);
-    delete m_onReloadShadersKeyDown;
 
     delete m_inputManager;
 
@@ -198,6 +178,24 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
     updateWorldCameraClip();
 
     m_renderPipeline.render();
+}
+
+void MainMenuScreen::initInput() {
+    m_inputManager = new InputManager;
+    initInputs(m_inputManager);
+
+    // Reload space system event
+    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+        SoaEngine::destroySpaceSystem(m_soaState);
+        SoaEngine::SpaceSystemLoadData loadData;
+        loadData.filePath = "StarSystems/Trinity";
+        SoaEngine::loadSpaceSystem(m_soaState, loadData);
+        m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+                                                                        &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+        m_renderPipeline.destroy();
+        m_renderPipeline = MainMenuRenderPipeline();
+        initRenderPipeline();
+    });
 }
 
 void MainMenuScreen::initRenderPipeline() {

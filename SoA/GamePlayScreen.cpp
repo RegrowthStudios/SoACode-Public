@@ -255,29 +255,11 @@ void GamePlayScreen::initRenderPipeline() {
 
 void GamePlayScreen::handleInput() {
 
-    // Block placement
-    if (isInGame()) {
-        //if (m_inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
-        //    if (!(m_player->leftEquippedItem)){
-        //        GameManager::clickDragRay(m_chunkManager, m_player, true);
-        //    } else if (m_player->leftEquippedItem->type == ITEM_BLOCK){
-        //        m_player->dragBlock = m_player->leftEquippedItem;
-        //        GameManager::clickDragRay(m_chunkManager, m_player, false);
-        //    }
-        //} else if (m_inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && m_inputManager->getKey(INPUT_BLOCK_DRAG))) {
-        //    if (!(m_player->rightEquippedItem)){
-        //        GameManager::clickDragRay(m_chunkManager, m_player, true);
-        //    } else if (m_player->rightEquippedItem->type == ITEM_BLOCK){
-        //        m_player->dragBlock = m_player->rightEquippedItem;
-        //        GameManager::clickDragRay(m_chunkManager, m_player, false);
-        //    }
-        //}
-    }
-
     // Update inputManager internal state
     m_inputManager->update();
 }
 
+// TODO(Ben): Collision
 //void GamePlayScreen::updatePlayer() {
 
    // m_player->update(m_inputManager, true, 0.0f, 0.0f);

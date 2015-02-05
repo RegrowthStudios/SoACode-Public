@@ -593,9 +593,6 @@
     <ClInclude Include="MainMenuSystemViewer.h">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenuScreenEvents.hpp">
-      <Filter>SOA Files\Screens\Menu</Filter>
-    </ClInclude>
     <ClInclude Include="SpaceSystem.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
