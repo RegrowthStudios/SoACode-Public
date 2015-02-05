@@ -31,6 +31,7 @@ namespace VoxelSpaceUtils {
     /// @param maxPos: Maximum grid position, for + and - direction
     extern void offsetChunkGridPosition(ChunkGridPosition2D& gridPosition, const i32v2& xzOffset, int maxPos);
 
+    // TODO(Ben): implement this with new stuff
     /* void getIterationConstants(OUT int& jStart, OUT int& jMult, OUT int& jEnd, OUT int& jInc, OUT int& kStart, OUT int& kMult, OUT int& kEnd, OUT int& kInc) {
         switch (rotation) { //we use rotation value to un-rotate the chunk data
             case 0: //no rotation

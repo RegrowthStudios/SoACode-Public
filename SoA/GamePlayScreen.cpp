@@ -16,7 +16,6 @@
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "GameManager.h"
-#include "GamePlayScreenEvents.hpp"
 #include "GameSystem.h"
 #include "GameSystemUpdater.h"
 #include "InputManager.h"
