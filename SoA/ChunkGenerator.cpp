@@ -14,6 +14,7 @@
 #include "GameManager.h"
 
 
+// TODO(Ben): rewrite this
 bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 {
     PreciseTimer timer;

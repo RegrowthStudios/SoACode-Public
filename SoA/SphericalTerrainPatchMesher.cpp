@@ -13,19 +13,14 @@
 #define KM_PER_M 0.001f
 #define M_PER_KM 1000
 
-const ColorRGB8 DebugColors[12] {
+/// Debug colors for rendering faces with unique color
+const ColorRGB8 DebugColors[6] {
     ColorRGB8(255, 0, 0), //TOP
         ColorRGB8(0, 255, 0), //LEFT
         ColorRGB8(0, 0, 255), //RIGHT
         ColorRGB8(255, 255, 0), //FRONT
         ColorRGB8(0, 255, 255), //BACK
-        ColorRGB8(255, 0, 255), //BOTTOM
-        ColorRGB8(255, 33, 55), //?
-        ColorRGB8(125, 125, 125), //?
-        ColorRGB8(255, 125, 125), //?
-        ColorRGB8(125, 255, 255), //?
-        ColorRGB8(125, 255, 125), //?
-        ColorRGB8(255, 125, 255) //?
+        ColorRGB8(255, 0, 255) //BOTTOM
 };
 
 TerrainVertex SphericalTerrainPatchMesher::verts[SphericalTerrainPatchMesher::VERTS_SIZE];

@@ -851,7 +851,7 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
 
     //modulus is weird in c++ for negative numbers
     if (x < 0) x += REGION_WIDTH;
-    if (y < 0) x += REGION_WIDTH;
+    if (y < 0) y += REGION_WIDTH;
     if (z < 0) z += REGION_WIDTH;
     ui32 tableOffset = 4 * (x + z * REGION_WIDTH + y * REGION_LAYER);
 

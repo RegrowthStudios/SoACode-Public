@@ -61,14 +61,6 @@ enum DevUiModes {
 };
 
 class GamePlayScreen : public IAppScreen<App> {
-    friend class OnCycleDrawModeKeyDown;
-    friend class OnFlyKeyDown;
-    friend class OnGridKeyDown;
-    friend class OnHUDKeyDown;
-    friend class OnInventoryKeyDown;
-    friend class OnPauseKeyDown;
-    friend class OnReloadShadersKeyDown;
-    friend class OnReloadUIKeyDown;
     friend class PauseMenuAwesomiumAPI;
     friend class PdaAwesomiumAPI;
 public:
@@ -99,6 +91,8 @@ public:
     }
 
 private:
+    /// Initializes event delegates
+    void initInput();
 
     /// Initializes the rendering
     void initRenderPipeline();
@@ -137,20 +131,7 @@ private:
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 
-    /// Delegates
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    IDelegate<ui32>* m_onCycleDrawMode = nullptr;
-    IDelegate<ui32>* m_onPauseKeyDown = nullptr;
-    IDelegate<ui32>* m_onFlyKeyDown = nullptr;
-    IDelegate<ui32>* m_onGridKeyDown = nullptr;
-    IDelegate<ui32>* m_onReloadTexturesKeyDown = nullptr;
-    IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
-    IDelegate<ui32>* m_onInventoryKeyDown = nullptr;
-    IDelegate<ui32>* m_onReloadUIKeyDown = nullptr;
-    IDelegate<ui32>* m_onHUDKeyDown = nullptr;
-    IDelegate<ui32>* m_onNightVisionToggle = nullptr;
-    IDelegate<ui32>* m_onNightVisionReload = nullptr;
-    IDelegate<ui32>* m_onDrawMode = nullptr;
     GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
     #define MESSAGES_PER_FRAME 300

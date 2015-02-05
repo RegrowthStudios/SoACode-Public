@@ -289,7 +289,6 @@ EXIT 0</Command>
     <ClInclude Include="DevScreen.h" />
     <ClInclude Include="FloraTask.h" />
     <ClInclude Include="FrustumComponentUpdater.h" />
-    <ClInclude Include="GamePlayScreenEvents.hpp" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
     <ClInclude Include="GamePlayRenderPipeline.h" />
