@@ -77,6 +77,8 @@ private:
 
     void addBiomes(nString& fSource, PlanetGenData* genData);
 
+    void dumpShaderCode(std::ostream& stream, nString source, bool addLineNumbers);
+
     class BiomeLookupTexture {
     public:
         int index;

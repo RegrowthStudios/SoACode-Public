@@ -381,21 +381,12 @@ vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
     program->bindFragDataLocation(2, N_HUM.c_str());
     program->link();
     if (!program->getIsLinked()) {
-        // Insert line numbers
-        int lineNum = 1;
-        for (size_t i = 0; i < fSource.size(); i++) {
-            if (fSource[i] == '\n') {
-                fSource.insert(++i, std::to_string(lineNum) + ": ");
-                lineNum++;
-            }
-        }
-        // Print source
-        std::cout << fSource << std::endl;
+        dumpShaderCode(std::cout, fSource, true);
         // Show message
         showMessage("Failed to generate GPU gen program. See command prompt for details\n");
         return nullptr;
     } else {
-        std::cout << fSource << std::endl;
+        dumpShaderCode(std::cout, fSource, true);
     }
 
     program->initAttributes();
@@ -474,4 +465,67 @@ void PlanetLoader::addBiomes(nString& fSource, PlanetGenData* genData) {
         fSource += "} ";
     }
     fSource += '\n';
+}
+
+void PlanetLoader::dumpShaderCode(std::ostream& stream, nString source, bool addLineNumbers) {
+
+    // Auto-formatting
+    int totalLines = 1;
+    int indentLevel = 0;
+    bool skipBrace = false;
+    const int TAB = 2;
+    for (size_t i = 0; i < source.size(); i++) {
+        // Detect braces for indentation change
+        if (source[i] == '{') {
+            indentLevel++;
+        } else if (source[i] == '}') {
+            indentLevel--;
+        } else if (source[i] == '\n') { // Add spaces as needed on newlines
+            totalLines++;
+            int t = ++i;
+            // Count spaces
+            while (i < source.size() && source[i] == ' ') i++;
+            if (i == source.size()) break;
+            // Check for case when next line starts with }
+            if (source[t] == '}') {
+                indentLevel--;
+                skipBrace = true;
+            }
+            int nSpaces = i - t;
+            // Make sure theres the right number of spaces
+            if (nSpaces < indentLevel * TAB) {
+                nString spaces = "";
+                for (int s = 0; s < indentLevel * TAB - nSpaces; s++) spaces += ' ';
+                source.insert(t, spaces);
+                i = t + spaces.length() - 1;
+            } else if (nSpaces > indentLevel * TAB) {
+                source.erase(t, nSpaces - indentLevel * TAB);
+                i = t - 1;
+            } else {
+                i = t - 1;
+            }
+            // Don't want to decrement indent twice
+            if (skipBrace) {
+                skipBrace = false;
+                i++;
+            }
+        }
+    }
+    // Insert line numbers
+    int width = log10(totalLines) + 1;
+    if (addLineNumbers) {
+        // See how much room we need for line numbers
+        int width = log10(totalLines) + 1;
+        char buf[32];
+        int lineNum = 1;
+        for (size_t i = 0; i < source.size(); i++) {
+            if (source[i] == '\n') {
+                sprintf(buf, "%*d| ", width, lineNum);
+                source.insert(++i, buf);
+                lineNum++;
+            }
+        }
+    }
+    // Print source
+    stream << source << std::endl;
 }
