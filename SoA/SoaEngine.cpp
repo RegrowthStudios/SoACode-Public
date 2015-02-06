@@ -11,6 +11,7 @@
 #include "SpaceSystemLoadStructs.h"
 #include "ProgramGenDelegate.h"
 #include "Errors.h"
+#include "PlanetData.h"
 
 #include <Vorb/io/Keg.h>
 #include <Vorb/RPC.h>

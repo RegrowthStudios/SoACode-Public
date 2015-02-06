@@ -320,6 +320,7 @@ EXIT 0</Command>
     <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
+    <ClInclude Include="NoiseShaderGenerator.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
     <ClInclude Include="OrbitComponentUpdater.h" />
@@ -333,6 +334,7 @@ EXIT 0</Command>
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PhysicsComponentUpdater.h" />
+    <ClInclude Include="PlanetData.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="SkyboxRenderer.h" />
@@ -491,6 +493,7 @@ EXIT 0</Command>
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
+    <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OrbitComponentRenderer.cpp" />
     <ClCompile Include="OrbitComponentUpdater.cpp" />
@@ -504,6 +507,7 @@ EXIT 0</Command>
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
+    <ClCompile Include="PlanetData.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SoaController.cpp" />

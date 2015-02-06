@@ -1,72 +1,12 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
+#include "PlanetData.h"
 
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/io/IOManager.h>
 
-#include "NoiseShaderCode.hpp"
 #include "Errors.h"
-
-enum class TerrainFunction {
-    NOISE,
-    RIDGED_NOISE
-};
-KEG_ENUM_INIT_BEGIN(TerrainFunction, TerrainFunction, e);
-e->addValue("noise", TerrainFunction::RIDGED_NOISE);
-e->addValue("ridgedNoise", TerrainFunction::RIDGED_NOISE);
-KEG_ENUM_INIT_END
-
-class TerrainFuncKegProperties {
-public:
-    TerrainFunction func;
-    int octaves = 1;
-    float persistence = 1.0f;
-    float frequency = 1.0f;
-    float low = -1.0f;
-    float high = 1.0f;
-};
-KEG_TYPE_INIT_BEGIN_DEF_VAR(TerrainFuncKegProperties)
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, I32, octaves);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, persistence);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, frequency);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, low);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, high);
-KEG_TYPE_INIT_END
-
-class LiquidColorKegProperties {
-public:
-    nString colorPath = "";
-    nString texturePath = "";
-    ColorRGB8 tint = ColorRGB8(255, 255, 255);
-    float depthScale = 1000.0f;
-    float freezeTemp = -1.0f;
-};
-KEG_TYPE_INIT_BEGIN_DEF_VAR(LiquidColorKegProperties)
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, STRING, colorPath);
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, STRING, texturePath);
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, UI8_V3, tint); 
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, F32, depthScale);
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, F32, freezeTemp);
-KEG_TYPE_INIT_END
-
-class TerrainColorKegProperties {
-public:
-    nString colorPath = "";
-    nString texturePath = "";
-    ColorRGB8 tint = ColorRGB8(255, 255, 255);
-};
-KEG_TYPE_INIT_BEGIN_DEF_VAR(TerrainColorKegProperties)
-KEG_TYPE_INIT_ADD_MEMBER(TerrainColorKegProperties, STRING, colorPath);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainColorKegProperties, STRING, texturePath);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainColorKegProperties, UI8_V3, tint);
-KEG_TYPE_INIT_END
-
-class TerrainFuncs {
-public:
-    std::vector<TerrainFuncKegProperties> funcs;
-    float baseHeight = 0.0f;
-};
 
 PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
     m_iom(ioManager),
@@ -121,10 +61,10 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     reader.dispose();
     
     // Generate the program
-    vg::GLProgram* program = generateProgram(genData,
-                                             baseTerrainFuncs,
-                                             tempTerrainFuncs,
-                                             humTerrainFuncs);
+    vg::GLProgram* program = m_shaderGenerator.generateProgram(genData,
+                                               baseTerrainFuncs,
+                                               tempTerrainFuncs,
+                                               humTerrainFuncs);
 
     if (program != nullptr) {
         genData->program = program;
@@ -140,34 +80,7 @@ PlanetGenData* PlanetLoader::getDefaultGenData() {
         // Allocate data
         m_defaultGenData = new PlanetGenData;
 
-        // Build string
-        nString fSource = NOISE_SRC_FRAG;
-        fSource.reserve(fSource.size() + 128);
-        // Use pos so uniforms don't get optimized out
-        fSource += N_HEIGHT + "= pos.x*0.000001;";
-        fSource += N_TEMP + "= 0;";
-        fSource += N_HUM + "= 0; }";
-
-        // Create the shader
-        vg::GLProgram* program = new vg::GLProgram;
-        program->init();
-        program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
-        program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
-        program->bindFragDataLocation(0, N_HEIGHT.c_str());
-        program->bindFragDataLocation(1, N_TEMP.c_str());
-        program->bindFragDataLocation(2, N_HUM.c_str());
-        program->link();
-
-        if (!program->getIsLinked()) {
-            std::cout << fSource << std::endl;
-            showMessage("Failed to generate default program");
-            return nullptr;
-        }
-
-        program->initAttributes();
-        program->initUniforms();
-
-        m_defaultGenData->program = program;
+        m_defaultGenData->program = m_shaderGenerator.getDefaultProgram();
 
     }
     return m_defaultGenData;
@@ -345,187 +258,4 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
         genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &SamplerState::LINEAR_WRAP_MIPMAP);
     }
     genData->terrainTint = kegProps.tint;
-}
-
-vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
-                                             TerrainFuncs& baseTerrainFuncs,
-                                             TerrainFuncs& tempTerrainFuncs,
-                                             TerrainFuncs& humTerrainFuncs) {
-    // Build initial string
-    nString fSource = NOISE_SRC_FRAG;
-    fSource.reserve(fSource.size() + 8192);
-
-    // Set initial values
-    fSource += N_HEIGHT + "=" + std::to_string(baseTerrainFuncs.baseHeight) + ";\n";
-    fSource += N_TEMP + "=" + std::to_string(tempTerrainFuncs.baseHeight) + ";\n";
-    fSource += N_HUM + "=" + std::to_string(humTerrainFuncs.baseHeight) + ";\n";
-
-    // Add all the noise functions
-    addNoiseFunctions(fSource, N_HEIGHT, baseTerrainFuncs);
-    addNoiseFunctions(fSource, N_TEMP, tempTerrainFuncs);
-    addNoiseFunctions(fSource, N_HUM, humTerrainFuncs);
-
-    // Add biome code
-    addBiomes(fSource, genData);
-
-    // Add final brace
-    fSource += "}";
-
-    // Create the shader
-    vg::GLProgram* program = new vg::GLProgram;
-    program->init();
-    program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
-    program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
-    program->bindFragDataLocation(0, N_HEIGHT.c_str());
-    program->bindFragDataLocation(1, N_TEMP.c_str());
-    program->bindFragDataLocation(2, N_HUM.c_str());
-    program->link();
-    if (!program->getIsLinked()) {
-        dumpShaderCode(std::cout, fSource, true);
-        // Show message
-        showMessage("Failed to generate GPU gen program. See command prompt for details\n");
-        return nullptr;
-    } else {
-        dumpShaderCode(std::cout, fSource, true);
-    }
-
-    program->initAttributes();
-    program->initUniforms();
-
-    return program;
-}
-
-void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs) {
-#define TS(x) (std::to_string(x))
-    // Conditional scaling code. Generates (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
-#define SCALE_CODE ((fn.low != -1.0f || fn.high != 1.0f) ? \
-    fSource += variable + "+= (total / maxAmplitude) * (" + \
-        TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n" :\
-    fSource += variable + "+= total / maxAmplitude;\n")
-    
-    for (auto& fn : funcs.funcs) {
-        switch (fn.func) {
-            case TerrainFunction::NOISE:
-                fSource = fSource + 
-                    "total = 0.0;\n" +
-                    "amplitude = 1.0;\n" +
-                    "maxAmplitude = 0.0;\n" +
-                    "frequency = " + TS(fn.frequency) + ";\n" +
-
-                    "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n" +
-                    "  total += snoise(pos * frequency) * amplitude;\n" +
-
-                    "  frequency *= 2.0;\n" +
-                    "  maxAmplitude += amplitude;\n" +
-                    "  amplitude *= " + TS(fn.persistence) + ";\n" +
-                    "}\n";
-                SCALE_CODE;
-                break;
-            case TerrainFunction::RIDGED_NOISE:
-                fSource = fSource +
-                    "total = 0.0;\n" +
-                    "amplitude = 1.0;\n" +
-                    "maxAmplitude = 0.0;\n" +
-                    "frequency = " + TS(fn.frequency) + ";\n" +
-
-                    "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n" +
-                    "  total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;\n" +
-
-                    "  frequency *= 2.0;\n" +
-                    "  maxAmplitude += amplitude;\n" +
-                    "  amplitude *= " + TS(fn.persistence) + ";\n" +
-                    "}\n";
-                SCALE_CODE;
-                break;
-            default:
-                break;
-        }
-    }
-}
-
-void PlanetLoader::addBiomes(nString& fSource, PlanetGenData* genData) {
-    
-    // Base biome lookup
-    fSource += "float biomeIndex = texture(unBaseBiomes, " + N_TEMP_HUM_V2 + " / 255.0   ).x * 255.0f;\n ";
-    fSource += N_BIOME + " = biomeIndex;\n";
-    fSource += "float baseMult = 1.0;\n";
-
-    for (int i = 0; i < genData->biomes.size(); i++) {
-        // Add if
-        if (i == 0) {
-            fSource += "if ";
-        } else {
-            fSource += "else if ";
-        }
-        // Add conditional
-        fSource += "(biomeIndex <" + std::to_string((float)i + 0.01) + ") {\n";
-        // Mult lookup
-        fSource += "  baseMult = texture(unBiomes, vec3(" + N_TEMP + "," + N_HUM + "," + std::to_string(i) + ")).x;\n";
-        // Closing curly brace
-        fSource += "} ";
-    }
-    fSource += '\n';
-}
-
-void PlanetLoader::dumpShaderCode(std::ostream& stream, nString source, bool addLineNumbers) {
-
-    // Auto-formatting
-    int totalLines = 1;
-    int indentLevel = 0;
-    bool skipBrace = false;
-    const int TAB = 2;
-    for (size_t i = 0; i < source.size(); i++) {
-        // Detect braces for indentation change
-        if (source[i] == '{') {
-            indentLevel++;
-        } else if (source[i] == '}') {
-            indentLevel--;
-        } else if (source[i] == '\n') { // Add spaces as needed on newlines
-            totalLines++;
-            int t = ++i;
-            // Count spaces
-            while (i < source.size() && source[i] == ' ') i++;
-            if (i == source.size()) break;
-            // Check for case when next line starts with }
-            if (source[t] == '}') {
-                indentLevel--;
-                skipBrace = true;
-            }
-            int nSpaces = i - t;
-            // Make sure theres the right number of spaces
-            if (nSpaces < indentLevel * TAB) {
-                nString spaces = "";
-                for (int s = 0; s < indentLevel * TAB - nSpaces; s++) spaces += ' ';
-                source.insert(t, spaces);
-                i = t + spaces.length() - 1;
-            } else if (nSpaces > indentLevel * TAB) {
-                source.erase(t, nSpaces - indentLevel * TAB);
-                i = t - 1;
-            } else {
-                i = t - 1;
-            }
-            // Don't want to decrement indent twice
-            if (skipBrace) {
-                skipBrace = false;
-                i++;
-            }
-        }
-    }
-    // Insert line numbers
-    int width = log10(totalLines) + 1;
-    if (addLineNumbers) {
-        // See how much room we need for line numbers
-        int width = log10(totalLines) + 1;
-        char buf[32];
-        int lineNum = 1;
-        for (size_t i = 0; i < source.size(); i++) {
-            if (source[i] == '\n') {
-                sprintf(buf, "%*d| ", width, lineNum);
-                source.insert(++i, buf);
-                lineNum++;
-            }
-        }
-    }
-    // Print source
-    stream << source << std::endl;
 }

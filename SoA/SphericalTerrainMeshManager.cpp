@@ -9,6 +9,7 @@
 #include <Vorb/TextureRecycler.hpp>
 
 #include "SphericalTerrainPatch.h"
+#include "PlanetData.h"
 
 void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* camera,
                                        const f32m4& rot,

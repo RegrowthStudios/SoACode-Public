@@ -23,33 +23,15 @@
 #include <Vorb/graphics/TextureCache.h>
 #include <Vorb/VorbPreDecl.inl>
 
-#include "Biome.h"
+#include "NoiseShaderGenerator.h"
 
 DECL_VIO(class, IOManager);
 
-class TerrainFuncs;
+struct TerrainFuncs;
+struct PlanetGenData;
 
 #define LOOKUP_TEXTURE_WIDTH 256
 #define LOOKUP_TEXTURE_SIZE 65536
-
-class PlanetGenData {
-public:
-    vg::Texture terrainColorMap = 0;
-    vg::Texture liquidColorMap = 0;
-    vg::Texture terrainTexture = 0;
-    vg::Texture liquidTexture = 0;
-    ColorRGB8 liquidTint = ColorRGB8(255, 255, 255);
-    ColorRGB8 terrainTint = ColorRGB8(255, 255, 255);
-    float liquidDepthScale = 1000.0f;
-    float liquidFreezeTemp = -1.0f;
-    float tempLatitudeFalloff = 0.0f;
-    float humLatitudeFalloff = 0.0f;
-    VGTexture biomeArrayTexture = 0;
-    VGTexture baseBiomeLookupTexture = 0;
-    std::vector<Biome> biomes;
-    vg::GLProgram* program = nullptr;
-    f64 radius = 0.0;
-};
 
 class PlanetLoader {
 public:
@@ -69,16 +51,6 @@ private:
     
     void parseTerrainColor(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData);
 
-    vg::GLProgram* generateProgram(PlanetGenData* genData,
-                                   TerrainFuncs& baseTerrainFuncs,
-                                   TerrainFuncs& tempTerrainFuncs,
-                                   TerrainFuncs& humTerrainFuncs);
-    void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);
-
-    void addBiomes(nString& fSource, PlanetGenData* genData);
-
-    void dumpShaderCode(std::ostream& stream, nString source, bool addLineNumbers);
-
     class BiomeLookupTexture {
     public:
         int index;
@@ -94,6 +66,8 @@ private:
     vio::IOManager* m_iom = nullptr;
 
     vg::TextureCache m_textureCache;
+
+    NoiseShaderGenerator m_shaderGenerator;
 };
 
 #endif // PlanetLoader_h__

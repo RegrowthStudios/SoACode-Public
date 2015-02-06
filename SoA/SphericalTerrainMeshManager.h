@@ -19,7 +19,7 @@
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;
-class PlanetGenData;
+struct PlanetGenData;
 class SphericalTerrainData;
 class SphericalTerrainMesh;
 

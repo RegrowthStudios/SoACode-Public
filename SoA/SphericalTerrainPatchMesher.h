@@ -18,7 +18,7 @@
 #include <Vorb/graphics/gtypes.h>
 #include "SphericalTerrainPatch.h"
 
-class PlanetGenData;
+struct PlanetGenData;
 class SphericalTerrainMeshManager;
 class TerrainGenDelegate;
 

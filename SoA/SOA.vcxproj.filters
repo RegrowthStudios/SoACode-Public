@@ -698,6 +698,12 @@
     <ClInclude Include="ProgramGenDelegate.h">
       <Filter>SOA Files\Rendering\Delegates</Filter>
     </ClInclude>
+    <ClInclude Include="NoiseShaderGenerator.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetData.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp">
@@ -1125,6 +1131,10 @@
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
     <ClCompile Include="SphericalTerrainPatchMesher.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseShaderGenerator.cpp" />
+    <ClCompile Include="PlanetData.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>

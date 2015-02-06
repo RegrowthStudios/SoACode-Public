@@ -29,7 +29,7 @@
 
 class TerrainGenDelegate;
 class RawGenDelegate;
-class PlanetGenData;
+struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
 class SphericalTerrainGenerator {
