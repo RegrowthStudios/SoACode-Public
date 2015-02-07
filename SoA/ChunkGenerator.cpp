@@ -19,7 +19,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 {
     PreciseTimer timer;
     timer.start();
-    HeightData *heightMap = ld->heightMap;
+    const HeightData *heightMap = ld->heightMap;
 
     Biome *biome;
     chunk->numBlocks = 0;
@@ -28,10 +28,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
     double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
     // Grab the handles to the arrays
-    ui16* blockIDArray = chunk->_blockIDContainer._dataArray;
-    ui16* lampLightArray = chunk->_lampLightContainer._dataArray;
-    ui8* sunLightArray = chunk->_sunlightContainer._dataArray;
-    ui16* tertiaryDataArray = chunk->_tertiaryDataContainer._dataArray;
+    std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockDataArray;
+    std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightDataArray;
+    std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightDataArray;
+    std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataArray;
 
     int c = 0;
     int flags;
@@ -48,7 +48,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
     chunk->minh = chunk->voxelPosition.y - heightMap[CHUNK_LAYER / 2].height; //pick center height as the overall height for minerals
 
-    ui16 data;
+    ui16 blockData;
     ui16 lampData;
     ui8 sunlightData;
     ui16 tertiaryData;
@@ -60,7 +60,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
                 hindex = (c%CHUNK_LAYER);
 
-                data = 0;
+                blockData = 0;
                 sunlightData = 0;
                 lampData = 0;
                 tertiaryData = 0;
@@ -81,51 +81,51 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                 if ((h <= maph - 1) && (!tooSteep /*|| maph - h > (biome->looseSoilDepth - 1) */)){ //ROCK LAYERS check for loose soil too
                     if ((h - (maph - 1)) > -SURFACE_DEPTH){ //SURFACE LAYERS
                         if (nh >= SURFACE_DEPTH) exit(1);
-                        data = STONE;// biome->surfaceLayers[nh];
+                        blockData = STONE;// biome->surfaceLayers[nh];
                         chunk->numBlocks++;
                     } else{ //VERY LOW
-                        data = STONE;
+                        blockData = STONE;
                         chunk->numBlocks++;
                     }
                 } else if (h == maph && !tooSteep){ //surface
-                    data = heightMap[hindex].surfaceBlock;
+                    blockData = heightMap[hindex].surfaceBlock;
                     chunk->numBlocks++;
                     if (!sandDepth /* && biome->beachBlock != SAND */){
                         if (snowDepth < 7){
              //               TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
                         }
                     }
-                    if (!sandDepth && (h > 0 || h == 0 && data != SAND)){
+                    if (!sandDepth && (h > 0 || h == 0 && blockData != SAND)){
                         if (snowDepth < 7){
              //               TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
                         }
                     }
                 } else if (sandDepth && h == maph + sandDepth){ //tree layers
-                    data = SAND;
+                    blockData = SAND;
                     chunk->numBlocks++;
                     if (snowDepth < 7 && h > 0){
              //           TryEnqueueTree(chunk, biome, x + wx, z + wz, c);
                     }
                 } else if (sandDepth && h - maph <= sandDepth){
-                    data = SAND;
+                    blockData = SAND;
                     chunk->numBlocks++;
                 } else if (snowDepth && h - maph <= sandDepth + snowDepth){
-                    data = SNOW;
+                    blockData = SNOW;
                     chunk->numBlocks++;
                 } else if (h < 0){ //
 
                     if (temperature < h + FREEZETEMP){ //underwater glacial mass
-                        data = ICE;
+                        blockData = ICE;
                     } else{
-                        data = FULLWATER;
+                        blockData = FULLWATER;
 
                     }
                     chunk->numBlocks++;
                 } else if (h == 0 && maph < h){ //shoreline
                     if (temperature < FREEZETEMP){
-                        data = ICE;
+                        blockData = ICE;
                     } else{
-                        data = FULLWATER - 60;
+                        blockData = FULLWATER - 60;
                     }
                     chunk->numBlocks++;
                 } else if (h == maph + 1 && h > 0){ //FLORA!
@@ -137,13 +137,13 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
 
                          sunlightData = MAXLIGHT;
-                         data = NONE;
+                         blockData = NONE;
 
                          chunk->sunExtendList.push_back(c);
 
                     } else{
                          sunlightData = MAXLIGHT;
-                         data = NONE;
+                         blockData = NONE;
 
                        
                          chunk->sunExtendList.push_back(c);
@@ -151,16 +151,16 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                 } else if (h == maph + 1)
                 {
                      sunlightData = MAXLIGHT;
-                     data = NONE;
+                     blockData = NONE;
 
                      chunk->sunExtendList.push_back(c);
                     
                 } else if (maph < 0 && temperature < FREEZETEMP && h < (FREEZETEMP - temperature)){ //above ground glacier activity
-                    data = ICE;
+                    blockData = ICE;
                     chunk->numBlocks++;
                 } else{
                     sunlightData = MAXLIGHT;
-                    data = NONE;
+                    blockData = NONE;
                     if (h == 1){
                          chunk->sunExtendList.push_back(c);
                     }
@@ -168,7 +168,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
                 nh = h - (maph + snowDepth + sandDepth);
                 if (maph < 0) nh += 6; //add six layers of rock when underground to prevent water walls
-                if (data != NONE && (GETBLOCKID(data) < LOWWATER) && nh <= 1){
+                if (blockData != NONE && (GETBLOCKID(blockData) < LOWWATER) && nh <= 1){
 
                     if (needsCave == 3){
           //              generator.CalculateCaveDensity( chunk->gridPosition, (double *)CaveDensity1, 9, 0, 5, 0.6, 0.0004);
@@ -186,36 +186,64 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
                             //frozen caves
                             if (temperature <FREEZETEMP && (ti < 0.908 || ti > 0.922 || tj < 0.903 || tj > 0.938)){
-                                data = ICE;
+                                blockData = ICE;
                             } else{
-                                data = NONE;
+                                blockData = NONE;
                                 chunk->numBlocks--;
                             }
 
                         }
                     }
                 }
-                if (GETBLOCK(data).spawnerVal || GETBLOCK(data).sinkVal){
+                if (GETBLOCK(blockData).spawnerVal || GETBLOCK(blockData).sinkVal){
                     chunk->spawnerBlocks.push_back(c); 
                 }
 
-                blockIDArray[c] = data;
-                lampLightArray[c] = lampData;
-                sunLightArray[c] = sunlightData;
-                tertiaryDataArray[c] = tertiaryData;
+                // Set up the data arrays
+                if (blockDataArray.size() == 0) {
+                    blockDataArray.emplace_back(c, 1, blockData);
+                    lampLightDataArray.emplace_back(c, 1, lampData);
+                    sunlightDataArray.emplace_back(c, 1, sunlightData);
+                    tertiaryDataArray.emplace_back(c, 1, tertiaryData);
+                } else {
+                    if (blockData == blockDataArray.back().data) {
+                        blockDataArray.back().length++;
+                    } else {
+                        blockDataArray.emplace_back(c, 1, blockData);
+                    }
+                    if (lampData == lampLightDataArray.back().data) {
+                        lampLightDataArray.back().length++;
+                    } else {
+                        lampLightDataArray.emplace_back(c, 1, lampData);
+                    }
+                    if (sunlightData == sunlightDataArray.back().data) {
+                        sunlightDataArray.back().length++;
+                    } else {
+                        sunlightDataArray.emplace_back(c, 1, sunlightData);
+                    }
+                    if (tertiaryData == tertiaryDataArray.back().data) {
+                        tertiaryDataArray.back().length++;
+                    } else {
+                        tertiaryDataArray.emplace_back(c, 1, tertiaryData);
+                    }
+                }
             }
         }
         if (pnum == chunk->numBlocks && maph - h < 0){
-
-            for ( ; c < CHUNK_SIZE; c++) {
-                blockIDArray[c] = 0;
-                lampLightArray[c] = 0;
-                sunLightArray[c] = MAXLIGHT;
-                tertiaryDataArray[c] = 0;
-            }
+            // TODO(Ben): test this
+            blockDataArray.back().length += CHUNK_SIZE - c;
+            lampLightDataArray.back().length += CHUNK_SIZE - c;
+            sunlightDataArray.back().length += CHUNK_SIZE - c;
+            tertiaryDataArray.back().length += CHUNK_SIZE - c; 
             break;
         }
     }
+
+    // Set up interval trees
+    chunk->_blockIDContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray);
+    chunk->_lampLightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightDataArray);
+    chunk->_sunlightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightDataArray);
+    chunk->_tertiaryDataContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray);
 
     if (chunk->numBlocks){
         LoadMinerals(chunk);

@@ -62,6 +62,8 @@ public:
     void invokePatchTerrainGen(vcore::RPC* so) {
         m_patchRpcManager.invoke(so, false);
     }
+
+    const PlanetGenData* getPlanetGenData() { return m_planetGenData; }
 private:
     /// Updates terrain patch generation
     void updatePatchGeneration();

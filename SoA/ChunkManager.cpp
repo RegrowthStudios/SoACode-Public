@@ -105,7 +105,6 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     m_physicsEngine->setChunkManager(this);
 
     NoChunkFade = 0;
-    planet = NULL;
     _poccx = _poccy = _poccz = -1;
     _voxelLightEngine = new VoxelLightEngine();
 
@@ -646,14 +645,8 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
         generateTask = new GenerateTask;
     }
 
-    // Init the containers
-    chunk->_blockIDContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-    chunk->_lampLightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-    chunk->_sunlightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-    chunk->_tertiaryDataContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-
     // Initialize the task
-    generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData));
+    generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, m_terrainGenerator->getPlanetGenData()));
     chunk->lastOwnerTask = generateTask;
     // Add the task
     _threadPool.addTask(generateTask);

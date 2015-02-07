@@ -40,7 +40,6 @@ struct TerrainColorKegProperties {
 };
 KEG_TYPE_DECL(TerrainColorKegProperties);
 
-
 enum class TerrainFunction {
     NOISE,
     RIDGED_NOISE

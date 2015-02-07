@@ -191,14 +191,10 @@ public:
     /// TODO(Ben): Implement this
     std::deque< std::deque<class CloseTerrainPatch*> > closeTerrainPatches;
 
-    /// Pointer to the current planet /// TODO(Ben): move this somewhere else?
-    class Planet* planet;
-
     /// Setters
     void setIsStationary(bool isStationary) {
         _isStationary = isStationary;
     }
-
 
     /// Getters
     PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }

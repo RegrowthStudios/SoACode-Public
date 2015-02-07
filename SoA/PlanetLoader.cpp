@@ -281,4 +281,11 @@ void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, Pla
     });
     reader.forAllInMap(node, f);
     delete f;
+
+    // Set starts for binary search application
+    int start = 0;
+    for (auto& l : genData->blockLayers) {
+        l.start = start;
+        start += l.width;
+    }
 }
