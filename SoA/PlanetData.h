@@ -61,6 +61,7 @@ struct PlanetGenData {
     VGTexture biomeArrayTexture = 0;
     VGTexture baseBiomeLookupTexture = 0;
     std::vector<Biome> biomes;
+    std::vector<BlockLayer> blockLayers;
     vg::GLProgram* program = nullptr;
     f64 radius = 0.0;
 };

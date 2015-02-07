@@ -55,6 +55,8 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
             parseTerrainFuncs(&tempTerrainFuncs, reader, value);
         } else if (type == "humidity") {
             parseTerrainFuncs(&humTerrainFuncs, reader, value);
+        } else if (type == "blockLayers") {
+            parseBlockLayers(reader, value, genData);
         }
     });
     reader.forAllInMap(node, f);
@@ -258,4 +260,25 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
         genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &SamplerState::LINEAR_WRAP_MIPMAP);
     }
     genData->terrainTint = kegProps.tint;
+}
+
+void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData) {
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        std::cout << "Failed to parse node in parseBlockLayers. Should be MAP";
+        return;
+    }
+
+    auto f = createDelegate<const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+        // Add a block
+        genData->blockLayers.emplace_back();
+        BlockLayer& l = genData->blockLayers.back();
+
+        // Set name to key
+        l.block = name;
+
+        // Load data
+        Keg::parse((ui8*)&l, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockLayer));
+    });
+    reader.forAllInMap(node, f);
+    delete f;
 }

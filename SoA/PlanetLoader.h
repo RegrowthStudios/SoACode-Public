@@ -51,6 +51,8 @@ private:
     
     void parseTerrainColor(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData);
 
+    void parseBlockLayers(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData);
+
     class BiomeLookupTexture {
     public:
         int index;

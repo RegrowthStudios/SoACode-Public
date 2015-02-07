@@ -34,10 +34,18 @@ public:
     i32 floraIndex;
 };
 
+struct BlockLayer {
+    ui32 start;
+    ui32 width;
+    nString block;
+};
+KEG_TYPE_DECL(BlockLayer);
+
 class Biome {
 public:
     nString displayName;
     ColorRGB8 mapColor;
+    Array<BlockLayer> blockLayers;
 };
 KEG_TYPE_DECL(Biome);
 
