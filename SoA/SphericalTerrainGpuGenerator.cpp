@@ -36,7 +36,7 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshM
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
     unWidth(m_normalProgram->getUniform("unWidth")),
     unTexelWidth(m_normalProgram->getUniform("unTexelWidth")),
-    mesher(meshManager, planetGenData) {
+    m_mesher(meshManager, planetGenData) {
 
     // Zero counters
     m_patchCounter[0] = 0;
@@ -269,7 +269,7 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         m_quad.draw();
 
         // And finally build the mesh
-        mesher.buildMesh(data, m_heightData);
+        m_mesher.buildMesh(data, m_heightData);
 
         data->inUse = false;
     }

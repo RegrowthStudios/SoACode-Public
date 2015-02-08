@@ -701,6 +701,9 @@
     <ClInclude Include="SphericalTerrainGpuGenerator.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
+    <ClInclude Include="SphericalTerrainCpuGenerator.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1129,6 +1132,9 @@
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="SphericalTerrainGpuGenerator.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainCpuGenerator.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
