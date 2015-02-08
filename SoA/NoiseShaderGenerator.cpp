@@ -99,7 +99,7 @@ vg::GLProgram* NoiseShaderGenerator::getDefaultProgram(vcore::RPCManager* glrpc 
     return gen.program;
 }
 
-void NoiseShaderGenerator::addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs) {
+void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString& variable, const TerrainFuncs& funcs) {
 #define TS(x) (std::to_string(x))
     // Conditional scaling code. Generates (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
 #define SCALE_CODE ((fn.low != -1.0f || fn.high != 1.0f) ? \
@@ -147,7 +147,7 @@ void NoiseShaderGenerator::addNoiseFunctions(nString& fSource, const nString& va
     }
 }
 
-void NoiseShaderGenerator::addBiomes(nString& fSource, PlanetGenData* genData) {
+void NoiseShaderGenerator::addBiomes(OUT nString& fSource, PlanetGenData* genData) {
 
     // Base biome lookup
     fSource += "float biomeIndex = texture(unBaseBiomes, " + N_TEMP_HUM_V2 + " / 255.0   ).x * 255.0f;\n ";

@@ -27,18 +27,36 @@ struct TerrainFuncs;
 
 class NoiseShaderGenerator {
 public:
+    /// Generates a shader program for generation
+    /// @param genData; The planet generation data
+    /// @Param baseTerrainFuncs: Terrain functions for base terrain
+    /// @param tempTerrainFuncs: Terrain functions for temperature distribution
+    /// @param humTerrainFuncs: Terrain functions for humidity distribution
+    /// @param glrpc: Optional RPC for loading in non-render thread
+    /// @return glProgram. Caller should handle resource destruction
     CALLER_DELETE vg::GLProgram* generateProgram(PlanetGenData* genData,
                                    TerrainFuncs& baseTerrainFuncs,
                                    TerrainFuncs& tempTerrainFuncs,
                                    TerrainFuncs& humTerrainFuncs,
                                    vcore::RPCManager* glrpc = nullptr);
-
+    /// Generates a default shader program for generation
+    /// @param glrpc: Optional RPC for loading in non-render thread
+    /// @return glProgram. Caller should handle resource destruction
     CALLER_DELETE vg::GLProgram* getDefaultProgram(vcore::RPCManager* glrpc = nullptr);
 private:
-    void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);
-
-    void addBiomes(nString& fSource, PlanetGenData* genData);
-
+    /// Adds noise functions to the shader code
+    /// @param fSource: Source to be modified
+    /// @param variable: The variable that the function should modify
+    /// @param funcs: The terrain functions to add
+    void addNoiseFunctions(OUT nString& fSource, const nString& variable, const TerrainFuncs& funcs);
+    /// Adds biome code to the shader code
+    /// @param fsource: The source to be modified
+    /// @param genData: The planet generation data
+    void addBiomes(OUT nString& fSource, PlanetGenData* genData);
+    /// Dumps the shader code to an output stream. Also formats the code.
+    /// @param stream: Stream to write to
+    /// @param source: Shader code source to write
+    /// @param addLineNumbers: Determines if line numbers should be added to the code
     void dumpShaderCode(std::ostream& stream, nString source, bool addLineNumbers);
 };
 
