@@ -107,7 +107,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
-    baseBiomeLookupTexture.resize(LOOKUP_TEXTURE_SIZE, 0);
+    m_baseBiomeLookupTextureData.resize(LOOKUP_TEXTURE_SIZE, 0);
 
     Keg::Error error;
 
@@ -148,7 +148,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     if (m_biomeLookupMap.size()) {
 
         // Generate base biome lookup texture
-        genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(baseBiomeLookupTexture.data(),
+        genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),
                                                                    LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
                                                                    &SamplerState::POINT_CLAMP,
                                                                    vg::TextureInternalFormat::R8,
@@ -170,7 +170,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     }
     // Free memory
     std::map<ui32, BiomeLookupTexture>().swap(m_biomeLookupMap);
-    std::vector<ui8>().swap(baseBiomeLookupTexture);
+    std::vector<ui8>().swap(m_baseBiomeLookupTextureData);
 }
 
 void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
@@ -178,11 +178,11 @@ void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
     if (it == m_biomeLookupMap.end()) {
         BiomeLookupTexture& tex = m_biomeLookupMap[colorCode];
         tex.index = m_biomeCount;
-        baseBiomeLookupTexture[index] = m_biomeCount;
+        m_baseBiomeLookupTextureData[index] = m_biomeCount;
         tex.data[index] = 255;
         m_biomeCount++;
     } else {
-        baseBiomeLookupTexture[index] = m_biomeCount - 1;
+        m_baseBiomeLookupTextureData[index] = m_biomeCount - 1;
         it->second.data[index] = 255;
     }
 }
