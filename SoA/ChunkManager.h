@@ -57,7 +57,7 @@ class VoxelLightEngine;
 
 class HeightmapGenRpcDispatcher {
 public:
-    HeightmapGenRpcDispatcher(SphericalTerrainGenerator* generator) :
+    HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
         m_generator(generator) {
         for (int i = 0; i < NUM_GENERATORS; i++) {
             m_generators[i].generator = m_generator;
@@ -69,7 +69,7 @@ private:
     static const int NUM_GENERATORS = 512;
     int counter = 0;
 
-    SphericalTerrainGenerator* m_generator = nullptr;
+    SphericalTerrainGpuGenerator* m_generator = nullptr;
 
     RawGenDelegate m_generators[NUM_GENERATORS];
 };
@@ -78,7 +78,7 @@ private:
 class ChunkManager {
 public:
     ChunkManager(PhysicsEngine* physicsEngine,
-                 SphericalTerrainGenerator* terrainGenerator,
+                 SphericalTerrainGpuGenerator* terrainGenerator,
                  const ChunkGridPosition2D& startGridPos, ChunkIOManager* chunkIo,
                  const f64v3& gridPosition, float planetRadius);
     ~ChunkManager();
@@ -366,7 +366,7 @@ private:
     std::unique_ptr<HeightmapGenRpcDispatcher> heightmapGenRpcDispatcher = nullptr;
 
     /// Generates voxel heightmaps
-    SphericalTerrainGenerator* m_terrainGenerator = nullptr;
+    SphericalTerrainGpuGenerator* m_terrainGenerator = nullptr;
 
     int _numCaTasks = 0; ///< The number of CA tasks currently being processed
 

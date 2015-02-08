@@ -32,13 +32,13 @@ class RawGenDelegate;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
-class SphericalTerrainGenerator {
+class SphericalTerrainGpuGenerator {
 public:
-    SphericalTerrainGenerator(SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
                               PlanetGenData* planetGenData,
                               vg::GLProgram* normalProgram,
                               vg::TextureRecycler* normalMapRecycler);
-    ~SphericalTerrainGenerator();
+    ~SphericalTerrainGpuGenerator();
 
     /// Updates the generator. Call from OpenGL thread
     void update();

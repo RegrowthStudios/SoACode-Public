@@ -17,7 +17,7 @@
 
 class SpaceSystem;
 struct SphericalTerrainComponent;
-class SphericalTerrainGenerator;
+class SphericalTerrainGpuGenerator;
 class SphericalTerrainMesh;
 
 #include "SphericalTerrainPatch.h"
@@ -43,12 +43,12 @@ public:
     float width;
 
     SphericalTerrainMesh* mesh = nullptr;
-    SphericalTerrainGenerator* generator = nullptr;
+    SphericalTerrainGpuGenerator* generator = nullptr;
 };
 
 class TerrainRpcDispatcher {
 public:
-    TerrainRpcDispatcher(SphericalTerrainGenerator* generator) :
+    TerrainRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
         m_generator(generator) {
         for (int i = 0; i < NUM_GENERATORS; i++) {
             m_generators[i].generator = m_generator;
@@ -63,7 +63,7 @@ private:
     static const int NUM_GENERATORS = 1024;
     int counter = 0;
 
-    SphericalTerrainGenerator* m_generator = nullptr;
+    SphericalTerrainGpuGenerator* m_generator = nullptr;
 
     TerrainGenDelegate m_generators[NUM_GENERATORS];
 };

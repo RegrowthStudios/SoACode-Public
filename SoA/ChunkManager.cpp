@@ -32,7 +32,7 @@
 #include "PhysicsEngine.h"
 #include "RenderTask.h"
 #include "Sound.h"
-#include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 #include "SmartVoxelContainer.hpp"
 
 #include "SphericalTerrainPatch.h"
@@ -87,7 +87,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
 }
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
-                           SphericalTerrainGenerator* terrainGenerator,
+                           SphericalTerrainGpuGenerator* terrainGenerator,
                            const ChunkGridPosition2D& startGridPos, ChunkIOManager* chunkIo,
                            const f64v3& gridPosition, float planetRadius) :
     _isStationary(0),

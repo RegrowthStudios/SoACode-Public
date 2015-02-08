@@ -62,7 +62,7 @@ private:
 
 class SphericalTerrainMesh {
 public:
-    friend class SphericalTerrainGenerator;
+    friend class SphericalTerrainGpuGenerator;
     friend class SphericalTerrainMeshManager;
     friend class SphericalTerrainPatch;
     friend class SphericalTerrainPatchMesher;

@@ -8,7 +8,7 @@
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -219,7 +219,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
 
     stCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
                                                   normalMapRecycler);
-    stCmp.generator = new SphericalTerrainGenerator(stCmp.meshManager,
+    stCmp.generator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
                                               planetGenData,
                                               normalProgram, normalMapRecycler);
     stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.generator);

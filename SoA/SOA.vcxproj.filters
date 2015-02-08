@@ -563,9 +563,6 @@
     <ClInclude Include="PlanetLoader.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainGenerator.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="SphericalTerrainMeshManager.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
@@ -700,6 +697,9 @@
     </ClInclude>
     <ClInclude Include="LoadTaskStarSystem.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainGpuGenerator.h">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1019,9 +1019,6 @@
     <ClCompile Include="PlanetLoader.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainGenerator.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="SphericalTerrainMeshManager.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
@@ -1129,6 +1126,9 @@
     </ClCompile>
     <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="PlanetData.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainGpuGenerator.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>

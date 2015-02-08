@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 
 #include <Vorb/Timing.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -19,9 +19,9 @@
 #define VOXELS_PER_M 2.0f
 #define VOXELS_PER_KM 2000.0f
 
-float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
+float SphericalTerrainGpuGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 
-SphericalTerrainGenerator::SphericalTerrainGenerator(SphericalTerrainMeshManager* meshManager,
+SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
                                                      PlanetGenData* planetGenData,
                                                      vg::GLProgram* normalProgram,
                                                      vg::TextureRecycler* normalMapRecycler) :
@@ -84,7 +84,7 @@ SphericalTerrainGenerator::SphericalTerrainGenerator(SphericalTerrainMeshManager
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
 
-SphericalTerrainGenerator::~SphericalTerrainGenerator() {
+SphericalTerrainGpuGenerator::~SphericalTerrainGpuGenerator() {
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
         vg::GpuMemory::freeBuffer(m_patchPbos[0][i]);
         vg::GpuMemory::freeBuffer(m_patchPbos[1][i]);
@@ -96,7 +96,7 @@ SphericalTerrainGenerator::~SphericalTerrainGenerator() {
     glDeleteFramebuffers(1, &m_normalFbo);
 }
 
-void SphericalTerrainGenerator::update() {
+void SphericalTerrainGpuGenerator::update() {
 
     // Need to disable alpha blending
     glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
@@ -143,7 +143,7 @@ void SphericalTerrainGenerator::update() {
     m_dBufferIndex = (m_dBufferIndex == 0) ? 1 : 0;
 }
 
-void SphericalTerrainGenerator::generateTerrainPatch(TerrainGenDelegate* data) {
+void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data) {
   
     int &patchCounter = m_patchCounter[m_dBufferIndex];
 
@@ -185,7 +185,7 @@ void SphericalTerrainGenerator::generateTerrainPatch(TerrainGenDelegate* data) {
     patchCounter++;
 }
 
-void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
+void SphericalTerrainGpuGenerator::generateRawHeightmap(RawGenDelegate* data) {
 
     int &rawCounter = m_rawCounter[m_dBufferIndex];
 
@@ -216,7 +216,7 @@ void SphericalTerrainGenerator::generateRawHeightmap(RawGenDelegate* data) {
     rawCounter++;
 }
 
-void SphericalTerrainGenerator::updatePatchGeneration() {
+void SphericalTerrainGpuGenerator::updatePatchGeneration() {
     // Normal map generation
     m_normalProgram->enableVertexAttribArrays();
     m_normalProgram->use();
@@ -281,7 +281,7 @@ void SphericalTerrainGenerator::updatePatchGeneration() {
     m_normalProgram->unuse();
 }
 
-void SphericalTerrainGenerator::updateRawGeneration() {
+void SphericalTerrainGpuGenerator::updateRawGeneration() {
 
     float heightData[CHUNK_WIDTH][CHUNK_WIDTH][4];
 
