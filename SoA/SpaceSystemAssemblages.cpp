@@ -14,6 +14,11 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
+// TEMPORARY
+#include "GameManager.h"
+#include "TexturePackLoader.h"
+#include "PlanetData.h"
+
 vcore::ComponentID makeOrbitFromProps(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                         const SystemBodyKegProperties* sysProps) {
     
@@ -144,6 +149,39 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     svcmp.sphericalTerrainData = stcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;
     
+    // TODO(Ben): This isn't a good place for this
+    ColorRGB8* cmap = GameManager::texturePackLoader->getColorMap("biome");
+    ui32 index = GameManager::texturePackLoader->getColorMapIndex("biome");
+    glBindTexture(GL_TEXTURE_2D, stcmp.planetGenData->terrainColorMap.id);
+    if (stcmp.planetGenData->terrainColorMap.width != 256 ||
+        stcmp.planetGenData->terrainColorMap.height != 256) {
+        std::cerr << "Terrain color map needs to be 256x256";
+    }
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, cmap);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // BEWARE HACKY CRAP
+    for (int i = 0; i < Blocks.size(); i++) {
+        if (Blocks[i].pxTexInfo.base.useMapColor == "biome") {
+            Blocks[i].pxTexInfo.base.colorMapIndex = index;
+        }
+        if (Blocks[i].pxTexInfo.overlay.useMapColor == "biome") {
+            Blocks[i].pxTexInfo.overlay.colorMapIndex = index;
+        }
+        if (Blocks[i].pyTexInfo.base.useMapColor == "biome") {
+            Blocks[i].pyTexInfo.base.colorMapIndex = index;
+        }
+        if (Blocks[i].pyTexInfo.overlay.useMapColor == "biome") {
+            Blocks[i].pyTexInfo.overlay.colorMapIndex = index;
+        }
+        if (Blocks[i].pzTexInfo.base.useMapColor == "biome") {
+            Blocks[i].pzTexInfo.base.colorMapIndex = index;
+        }
+        if (Blocks[i].pzTexInfo.overlay.useMapColor == "biome") {
+            Blocks[i].pzTexInfo.overlay.colorMapIndex = index;
+        }
+    }
+
     return svCmpId;
 }
 
