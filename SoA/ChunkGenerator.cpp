@@ -80,11 +80,19 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
 
                 if (tooSteep) dh += 3; // If steep, increase depth
 
+                // TODO: Modulate dh with noise
+
                 // Check for underground
                 if (dh >= 0) {
                     chunk->numBlocks++;
                     // TODO(Ben): Optimize
                     blockData = calculateBlockLayer(dh, genData).block;
+                    // Check for surface block replacement
+                    if (dh == 0) {
+                        if (blockData == genData->blockLayers[0].block && genData->surfaceBlock) {
+                            blockData = genData->surfaceBlock;
+                        }
+                    }
                 } else {
                     // Above ground
                     blockData = NONE;

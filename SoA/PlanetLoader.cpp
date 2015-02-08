@@ -58,6 +58,10 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
             parseTerrainFuncs(&humTerrainFuncs, reader, value);
         } else if (type == "blockLayers") {
             parseBlockLayers(reader, value, genData);
+        } else if (type == "liquidBlock") {
+            genData->liquidBlock = Blocks[keg::convert<nString>(value)].ID;
+        } else if (type == "surfaceBlock") {
+            genData->surfaceBlock = Blocks[keg::convert<nString>(value)].ID;
         }
     });
     reader.forAllInMap(node, f);
