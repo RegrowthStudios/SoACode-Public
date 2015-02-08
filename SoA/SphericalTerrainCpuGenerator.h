@@ -26,6 +26,9 @@ public:
                                  PlanetGenData* planetGenData);
     ~SphericalTerrainCpuGenerator();
 
+    /// Generates a terrain patch
+    void generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
+
 private:
     SphericalTerrainPatchMesher m_mesher; ///< Creates patch meshes
 };

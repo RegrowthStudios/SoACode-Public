@@ -13,3 +13,7 @@ SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(SphericalTerrainMeshM
 SphericalTerrainCpuGenerator::~SphericalTerrainCpuGenerator() {
     // Empty
 }
+
+void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) {
+
+}
