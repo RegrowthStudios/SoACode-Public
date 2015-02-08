@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 #include "PlanetData.h"
+#include "BlockPack.h"
 
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -274,7 +275,7 @@ void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, Pla
         BlockLayer& l = genData->blockLayers.back();
 
         // Set name to key
-        l.block = name;
+        l.block = Blocks[name].ID;
 
         // Load data
         Keg::parse((ui8*)&l, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockLayer));
