@@ -33,9 +33,6 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
 
     PlanetGenData* genData = new PlanetGenData;
 
-    TerrainFuncs baseTerrainFuncs;
-    TerrainFuncs tempTerrainFuncs;
-    TerrainFuncs humTerrainFuncs;
     nString biomePath = "";
 
     auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
@@ -51,11 +48,11 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
         } else if (type == "humLatitudeFalloff") {
             genData->humLatitudeFalloff = keg::convert<f32>(value);
         } else if (type == "baseHeight") {
-            parseTerrainFuncs(&baseTerrainFuncs, reader, value);
+            parseTerrainFuncs(&genData->baseTerrainFuncs, reader, value);
         } else if (type == "temperature") {
-            parseTerrainFuncs(&tempTerrainFuncs, reader, value);
+            parseTerrainFuncs(&genData->tempTerrainFuncs, reader, value);
         } else if (type == "humidity") {
-            parseTerrainFuncs(&humTerrainFuncs, reader, value);
+            parseTerrainFuncs(&genData->humTerrainFuncs, reader, value);
         } else if (type == "blockLayers") {
             parseBlockLayers(reader, value, genData);
         } else if (type == "liquidBlock") {
@@ -68,11 +65,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     reader.dispose();
     
     // Generate the program
-    vg::GLProgram* program = m_shaderGenerator.generateProgram(genData,
-                                               baseTerrainFuncs,
-                                               tempTerrainFuncs,
-                                               humTerrainFuncs,
-                                               glrpc);
+    vg::GLProgram* program = m_shaderGenerator.generateProgram(genData, glrpc);
 
     if (program != nullptr) {
         genData->program = program;

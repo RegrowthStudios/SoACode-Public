@@ -16,7 +16,7 @@
 #define CpuNoise_h__
 
 namespace CpuNoise {
-    extern float ashimaSimplex3D(f32v3 v);
+    extern float rawAshimaSimplex3D(f32v3 v);
 }
 
 #endif // CpuNoise_h__

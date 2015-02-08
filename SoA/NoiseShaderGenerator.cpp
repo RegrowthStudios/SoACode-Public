@@ -9,23 +9,20 @@
 #include <Vorb/graphics/GLProgram.h>
 
 vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
-                                             TerrainFuncs& baseTerrainFuncs,
-                                             TerrainFuncs& tempTerrainFuncs,
-                                             TerrainFuncs& humTerrainFuncs,
-                                             vcore::RPCManager* glrpc /* = nullptr */) {
+                                                     vcore::RPCManager* glrpc /* = nullptr */) {
     // Build initial string
     nString fSource = NOISE_SRC_FRAG;
     fSource.reserve(fSource.size() + 8192);
 
     // Set initial values
-    fSource += N_HEIGHT + "=" + std::to_string(baseTerrainFuncs.baseHeight) + ";\n";
-    fSource += N_TEMP + "=" + std::to_string(tempTerrainFuncs.baseHeight) + ";\n";
-    fSource += N_HUM + "=" + std::to_string(humTerrainFuncs.baseHeight) + ";\n";
+    fSource += N_HEIGHT + "=" + std::to_string(genData->baseTerrainFuncs.baseHeight) + ";\n";
+    fSource += N_TEMP + "=" + std::to_string(genData->tempTerrainFuncs.baseHeight) + ";\n";
+    fSource += N_HUM + "=" + std::to_string(genData->humTerrainFuncs.baseHeight) + ";\n";
 
     // Add all the noise functions
-    addNoiseFunctions(fSource, N_HEIGHT, baseTerrainFuncs);
-    addNoiseFunctions(fSource, N_TEMP, tempTerrainFuncs);
-    addNoiseFunctions(fSource, N_HUM, humTerrainFuncs);
+    addNoiseFunctions(fSource, N_HEIGHT, genData->baseTerrainFuncs);
+    addNoiseFunctions(fSource, N_TEMP, genData->tempTerrainFuncs);
+    addNoiseFunctions(fSource, N_HUM, genData->humTerrainFuncs);
 
     // Add biome code
     addBiomes(fSource, genData);

@@ -29,7 +29,7 @@ f32v4 taylorInvSqrt(f32v4 r) {
     return 1.79284291400159f - 0.85373472095314f * r;
 }
 
-float CpuNoise::ashimaSimplex3D(f32v3 v) {
+float CpuNoise::rawAshimaSimplex3D(f32v3 v) {
     const f32v2  C = f32v2(1.0f / 6.0f, 1.0f / 3.0f);
     const f32v4  D = f32v4(0.0f, 0.5f, 1.0f, 2.0f);
 

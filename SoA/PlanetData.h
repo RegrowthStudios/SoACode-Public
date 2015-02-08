@@ -46,6 +46,21 @@ enum class TerrainFunction {
 };
 KEG_ENUM_DECL(TerrainFunction);
 
+struct TerrainFuncKegProperties {
+    TerrainFunction func;
+    int octaves = 1;
+    float persistence = 1.0f;
+    float frequency = 1.0f;
+    float low = -1.0f;
+    float high = 1.0f;
+};
+KEG_TYPE_DECL(TerrainFuncKegProperties);
+
+struct TerrainFuncs {
+    std::vector<TerrainFuncKegProperties> funcs;
+    float baseHeight = 0.0f;
+};
+
 struct PlanetGenData {
     vg::Texture terrainColorMap = 0;
     vg::Texture liquidColorMap = 0;
@@ -66,23 +81,12 @@ struct PlanetGenData {
     vg::GLProgram* program = nullptr;
     f64 radius = 0.0;
 
+    TerrainFuncs baseTerrainFuncs;
+    TerrainFuncs tempTerrainFuncs;
+    TerrainFuncs humTerrainFuncs;
+
     std::map <nString, ui32> blockColorMapLookupTable; ///< For looking up the index for the block color maps
     std::vector <ColorRGB8*> blockColorMaps; ///< Storage for the block color maps
-};
-
-struct TerrainFuncKegProperties {
-    TerrainFunction func;
-    int octaves = 1;
-    float persistence = 1.0f;
-    float frequency = 1.0f;
-    float low = -1.0f;
-    float high = 1.0f;
-};
-KEG_TYPE_DECL(TerrainFuncKegProperties);
-
-struct TerrainFuncs {
-    std::vector<TerrainFuncKegProperties> funcs;
-    float baseHeight = 0.0f;
 };
 
 #endif // PlanetData_h__
