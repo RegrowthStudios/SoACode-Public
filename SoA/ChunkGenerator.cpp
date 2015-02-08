@@ -94,9 +94,16 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                         }
                     }
                 } else {
-                    // Above ground
-                    blockData = NONE;
-                    sunlightData = 31;
+                    // Above heightmap
+
+                    // Liquid
+                    if (h < 0 && genData->liquidBlock) {
+                        blockData = genData->liquidBlock;
+                        // TODO(Ben): Precalculate light here based on depth?
+                    } else {
+                        blockData = NONE;
+                        sunlightData = 31;
+                    }
                 }
                 
                 if (GETBLOCK(blockData).spawnerVal || GETBLOCK(blockData).sinkVal){

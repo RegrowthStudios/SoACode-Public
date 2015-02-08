@@ -67,9 +67,9 @@ public:
     static void destroySpaceSystem(OUT SoaState* state);
 
 private:
-    /// Loads and adds a solar system to the SpaceSystem
+    /// Loads and adds a star system to the SpaceSystem
     /// @param pr: params
-    static void addSolarSystem(SpaceSystemLoadParams& pr);
+    static void addStarSystem(SpaceSystemLoadParams& pr);
 
     /// Loads and adds system properties to the params
     /// @param pr: params

@@ -308,7 +308,7 @@ EXIT 0</Command>
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskShaders.h" />
-    <ClInclude Include="LoadTaskSolarSystem.h" />
+    <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
@@ -414,7 +414,6 @@ EXIT 0</Command>
     <ClInclude Include="WSOData.h" />
     <ClInclude Include="Inputs.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Actor.h" />
     <ClInclude Include="atomicops.h" />
     <ClInclude Include="BlockData.h" />
     <ClInclude Include="Camera.h" />
@@ -550,7 +549,6 @@ EXIT 0</Command>
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="FragFile.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="BlockData.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Chunk.cpp" />

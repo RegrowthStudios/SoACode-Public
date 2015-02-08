@@ -16,7 +16,7 @@
 #include "LoadTaskBlockData.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskShaders.h"
-#include "LoadTaskSolarSystem.h"
+#include "LoadTaskStarSystem.h"
 #include "LoadTaskSound.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
@@ -166,8 +166,8 @@ void LoadScreen::update(const GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
-        LoadTaskSolarSystem loadTaskSolarSystem(nullptr, "StarSystems/Trinity", m_soaState.get());
-        loadTaskSolarSystem.load();
+        LoadTaskStarSystem loadTaskStarSystem(nullptr, "StarSystems/Trinity", m_soaState.get());
+        loadTaskStarSystem.load();
 
         _state = ScreenState::CHANGE_NEXT;
         loadedTextures = true;

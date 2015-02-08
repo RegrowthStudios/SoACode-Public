@@ -92,7 +92,7 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     spaceSystemLoadParams.ioManager = state->systemIoManager.get();
     spaceSystemLoadParams.planetLoader = state->planetLoader.get();
 
-    addSolarSystem(spaceSystemLoadParams);
+    addStarSystem(spaceSystemLoadParams);
 
     pool.dispose();
     return true;
@@ -117,7 +117,7 @@ void SoaEngine::destroyGameSystem(OUT SoaState* state) {
     state->gameSystem.reset();
 }
 
-void SoaEngine::addSolarSystem(OUT SpaceSystemLoadParams& pr) {
+void SoaEngine::addStarSystem(OUT SpaceSystemLoadParams& pr) {
     pr.ioManager->setSearchDirectory((pr.dirPath + "/").c_str());
 
     // Load the system
