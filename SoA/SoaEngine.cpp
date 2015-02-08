@@ -233,7 +233,9 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
     return goodParse;
 }
 
-bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath, const SystemBodyKegProperties* sysProps, OUT SystemBody* body) {
+bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
+                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body,
+                                   vcore::RPCManager* glrpc /* = nullptr */) {
 
 #define KEG_CHECK \
     if (error != Keg::Error::NONE) { \
@@ -268,9 +270,9 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
-                properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation);
+                properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, glrpc);
             } else {
-                properties.planetGenData = pr.planetLoader->getDefaultGenData();
+                properties.planetGenData = pr.planetLoader->getDefaultGenData(glrpc);
             }
 
             // Set the radius for use later

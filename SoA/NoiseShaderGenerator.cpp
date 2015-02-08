@@ -3,13 +3,16 @@
 #include "NoiseShaderCode.hpp"
 #include "PlanetData.h"
 #include "Errors.h"
+#include "ProgramGenDelegate.h"
 
+#include <Vorb/RPC.h>
 #include <Vorb/graphics/GLProgram.h>
 
 vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
                                              TerrainFuncs& baseTerrainFuncs,
                                              TerrainFuncs& tempTerrainFuncs,
-                                             TerrainFuncs& humTerrainFuncs) {
+                                             TerrainFuncs& humTerrainFuncs,
+                                             vcore::RPCManager* glrpc /* = nullptr */) {
     // Build initial string
     nString fSource = NOISE_SRC_FRAG;
     fSource.reserve(fSource.size() + 8192);
@@ -30,31 +33,36 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
     // Add final brace
     fSource += "}";
 
-    // Create the shader
-    vg::GLProgram* program = new vg::GLProgram;
-    program->init();
-    program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
-    program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
-    program->bindFragDataLocation(0, N_HEIGHT.c_str());
-    program->bindFragDataLocation(1, N_TEMP.c_str());
-    program->bindFragDataLocation(2, N_HUM.c_str());
-    program->link();
-    if (!program->getIsLinked()) {
-        dumpShaderCode(std::cout, fSource, true);
-        // Show message
-        showMessage("Failed to generate GPU gen program. See command prompt for details\n");
-        return nullptr;
+    // Generate the shader
+    ProgramGenDelegate gen;
+    vg::ShaderSource vertSource, fragSource;
+    vertSource.sources.push_back(NOISE_SRC_VERT.c_str());
+    vertSource.stage = vg::ShaderType::VERTEX_SHADER;
+    fragSource.sources.push_back(fSource.c_str());
+    fragSource.stage = vg::ShaderType::FRAGMENT_SHADER;
+    std::vector<nString> attr;
+    attr.push_back(N_HEIGHT.c_str());
+    attr.push_back(N_TEMP.c_str());
+    attr.push_back(N_HUM.c_str());
+
+    gen.init("TerrainGen", vertSource, fragSource, &attr);
+
+    if (glrpc) {
+        glrpc->invoke(&gen.rpc, true);
     } else {
-        dumpShaderCode(std::cout, fSource, true);
+        gen.invoke(nullptr, nullptr);
     }
 
-    program->initAttributes();
-    program->initUniforms();
+    // Check if we should use an RPC
+    if (gen.program == nullptr) {
+        dumpShaderCode(std::cout, fSource, true);
+        std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
+    }
 
-    return program;
+    return gen.program;
 }
 
-vg::GLProgram* NoiseShaderGenerator::getDefaultProgram() {
+vg::GLProgram* NoiseShaderGenerator::getDefaultProgram(vcore::RPCManager* glrpc /* = nullptr */) {
     // Build string
     nString fSource = NOISE_SRC_FRAG;
     fSource.reserve(fSource.size() + 128);
@@ -63,25 +71,32 @@ vg::GLProgram* NoiseShaderGenerator::getDefaultProgram() {
     fSource += N_TEMP + "= 0;";
     fSource += N_HUM + "= 0; }";
 
-    // Create the shader
-    vg::GLProgram* program = new vg::GLProgram;
-    program->init();
-    program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
-    program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
-    program->bindFragDataLocation(0, N_HEIGHT.c_str());
-    program->bindFragDataLocation(1, N_TEMP.c_str());
-    program->bindFragDataLocation(2, N_HUM.c_str());
-    program->link();
+    // Generate the shader
+    ProgramGenDelegate gen;
+    vg::ShaderSource vertSource, fragSource;
+    vertSource.sources.push_back(NOISE_SRC_VERT.c_str());
+    vertSource.stage = vg::ShaderType::VERTEX_SHADER;
+    fragSource.sources.push_back(fSource.c_str());
+    fragSource.stage = vg::ShaderType::FRAGMENT_SHADER;
+    std::vector<nString> attr;
+    attr.push_back(N_HEIGHT.c_str());
+    attr.push_back(N_TEMP.c_str());
+    attr.push_back(N_HUM.c_str());
 
-    if (!program->getIsLinked()) {
-        std::cout << fSource << std::endl;
-        showMessage("Failed to generate default program");
-        return nullptr;
+    gen.init("TerrainGen", vertSource, fragSource, &attr);
+
+    // Check if we should use an RPC
+    if (glrpc) {
+        glrpc->invoke(&gen.rpc, true);
+    } else {
+        gen.invoke(nullptr, nullptr);
     }
 
-    program->initAttributes();
-    program->initUniforms();
-    return program;
+    if (gen.program == nullptr) {
+        dumpShaderCode(std::cout, fSource, true);
+        std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
+    }
+    return gen.program;
 }
 
 void NoiseShaderGenerator::addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs) {

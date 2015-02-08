@@ -63,6 +63,9 @@ struct PlanetGenData {
     std::vector<BlockLayer> blockLayers;
     vg::GLProgram* program = nullptr;
     f64 radius = 0.0;
+
+    std::map <nString, ui32> blockColorMapLookupTable; ///< For looking up the index for the block color maps
+    std::vector <ColorRGB8*> blockColorMaps; ///< Storage for the block color maps
 };
 
 struct TerrainFuncKegProperties {

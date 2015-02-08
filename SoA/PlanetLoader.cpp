@@ -18,7 +18,7 @@ PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
 PlanetLoader::~PlanetLoader() {
 }
 
-PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
+PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManager* glrpc /* = nullptr */) {
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
@@ -67,7 +67,8 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     vg::GLProgram* program = m_shaderGenerator.generateProgram(genData,
                                                baseTerrainFuncs,
                                                tempTerrainFuncs,
-                                               humTerrainFuncs);
+                                               humTerrainFuncs,
+                                               glrpc);
 
     if (program != nullptr) {
         genData->program = program;
@@ -77,13 +78,13 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     return nullptr;
 }
 
-PlanetGenData* PlanetLoader::getDefaultGenData() {
+PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
     if (!m_defaultGenData) {
         // Allocate data
         m_defaultGenData = new PlanetGenData;
 
-        m_defaultGenData->program = m_shaderGenerator.getDefaultProgram();
+        m_defaultGenData->program = m_shaderGenerator.getDefaultProgram(glrpc);
 
     }
     return m_defaultGenData;

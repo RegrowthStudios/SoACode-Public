@@ -178,6 +178,7 @@ ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
         vpath texPath; _ioManager.resolvePath(name, texPath);
         vio::ImageIO().loadPng(texPath.getString(), buffer, width, height);
 
+        // TODO: Implement
         //// Error checking
         //if (width != MAP_WIDTH) {
         //    pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));

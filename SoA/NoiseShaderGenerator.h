@@ -21,6 +21,7 @@
 #include "Biome.h"
 
 DECL_VG(class GLProgram)
+DECL_VCORE(class RPCManager);
 struct PlanetGenData;
 struct TerrainFuncs;
 
@@ -29,9 +30,10 @@ public:
     CALLER_DELETE vg::GLProgram* generateProgram(PlanetGenData* genData,
                                    TerrainFuncs& baseTerrainFuncs,
                                    TerrainFuncs& tempTerrainFuncs,
-                                   TerrainFuncs& humTerrainFuncs);
+                                   TerrainFuncs& humTerrainFuncs,
+                                   vcore::RPCManager* glrpc = nullptr);
 
-    CALLER_DELETE vg::GLProgram* getDefaultProgram();
+    CALLER_DELETE vg::GLProgram* getDefaultProgram(vcore::RPCManager* glrpc = nullptr);
 private:
     void addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs);
 

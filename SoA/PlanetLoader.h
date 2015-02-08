@@ -25,7 +25,8 @@
 
 #include "NoiseShaderGenerator.h"
 
-DECL_VIO(class, IOManager);
+DECL_VIO(class IOManager);
+DECL_VCORE(class RPCManager);
 
 struct TerrainFuncs;
 struct PlanetGenData;
@@ -38,8 +39,8 @@ public:
     PlanetLoader(vio::IOManager* ioManager);
     ~PlanetLoader();
 
-    PlanetGenData* loadPlanet(const nString& filePath);
-    PlanetGenData* getDefaultGenData();
+    PlanetGenData* loadPlanet(const nString& filePath, vcore::RPCManager* glrpc = nullptr);
+    PlanetGenData* getDefaultGenData(vcore::RPCManager* glrpc = nullptr);
 private:
     void loadBiomes(const nString& filePath, PlanetGenData* genData);
 
