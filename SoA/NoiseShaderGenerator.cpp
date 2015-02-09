@@ -104,6 +104,7 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
         TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n" :\
     fSource += variable + "+= total / maxAmplitude;\n")
 
+    // NOTE: Make sure this implementation matches SphericalTerrainCpuGenerator::getNoiseValue()
     for (auto& fn : funcs.funcs) {
         switch (fn.func) {
             case TerrainFunction::NOISE:

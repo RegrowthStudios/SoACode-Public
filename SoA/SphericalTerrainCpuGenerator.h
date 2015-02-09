@@ -19,7 +19,8 @@
 #include "SphericalTerrainPatch.h"
 #include "SphericalTerrainPatchMesher.h"
 
-#pragma once
+class TerrainFuncs;
+
 class SphericalTerrainCpuGenerator {
 public:
     SphericalTerrainCpuGenerator(SphericalTerrainMeshManager* meshManager,
@@ -27,10 +28,21 @@ public:
     ~SphericalTerrainCpuGenerator();
 
     /// Generates a terrain patch
+    /// @param mesh: The mesh handle
+    /// @param startPos: Starting position
+    /// @param cubeFace: The world cube face
+    /// @param width: Width of the patch
     void generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
 
 private:
+    /// Gets noise value using terrainFuncs
+    /// @param pos: Position to sample noise from
+    /// @Param funcs: The terrain functions to use
+    /// @return the noise value
+    float getNoiseValue(const f32v3& pos, const TerrainFuncs& funcs);
+
     SphericalTerrainPatchMesher m_mesher; ///< Creates patch meshes
+    const PlanetGenData* m_genData = nullptr; ///< Planet generation data
 };
 
 #endif // SphericalTerrainCpuGenerator_h__

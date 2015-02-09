@@ -269,7 +269,7 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         m_quad.draw();
 
         // And finally build the mesh
-        m_mesher.buildMesh(data, m_heightData);
+        m_mesher.buildMesh(data->mesh, data->startPos, data->cubeFace, data->width, m_heightData);
 
         data->inUse = false;
     }
