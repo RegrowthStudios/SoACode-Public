@@ -9,6 +9,7 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainGpuGenerator.h"
+#include "SphericalTerrainCpuGenerator.h"
 
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -137,7 +138,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 
     svcmp.physicsEngine = new PhysicsEngine();
 
-    svcmp.generator = stcmp.generator;
+    svcmp.generator = stcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
     svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
                                           svcmp.generator, startGridPos,
@@ -219,10 +220,12 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
 
     stCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
                                                   normalMapRecycler);
-    stCmp.generator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
+    stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
                                               planetGenData,
                                               normalProgram, normalMapRecycler);
-    stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.generator);
+    stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
+                                                       planetGenData);
+    stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
 
     f64 patchWidth = (radius * 2.000) / PATCH_ROW;
     stCmp.sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);

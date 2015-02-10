@@ -26,6 +26,7 @@ class PhysicsEngine;
 struct PlanetGenData;
 struct PlanetGenData;
 class SphericalTerrainData;
+class SphericalTerrainCpuGenerator;
 class SphericalTerrainGpuGenerator;
 class SphericalTerrainMeshManager;
 class SphericalTerrainPatch;
@@ -97,7 +98,8 @@ struct SphericalTerrainComponent {
     SphericalTerrainData* sphericalTerrainData = nullptr;
 
     SphericalTerrainMeshManager* meshManager = nullptr;
-    SphericalTerrainGpuGenerator* generator = nullptr;
+    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
+    SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
 };

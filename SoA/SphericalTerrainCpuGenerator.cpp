@@ -29,6 +29,7 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
     int xIndex;
     // TODO(Ben): If we want to do MT CPU gen we cant use static buffers
     static float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
+    memset(heightData, 0, sizeof(heightData));
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {
 
@@ -92,6 +93,7 @@ float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const Terrai
                 SCALE_CODE;
                 break;
             default:
+                break;
         }
     }
     return rv;

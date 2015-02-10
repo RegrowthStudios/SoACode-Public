@@ -30,8 +30,8 @@ f32v4 taylorInvSqrt(f32v4 r) {
 }
 
 float CpuNoise::rawAshimaSimplex3D(f32v3 v) {
-    const f32v2  C = f32v2(1.0f / 6.0f, 1.0f / 3.0f);
-    const f32v4  D = f32v4(0.0f, 0.5f, 1.0f, 2.0f);
+    const f32v2 C = f32v2(1.0f / 6.0f, 1.0f / 3.0f);
+    const f32v4 D = f32v4(0.0f, 0.5f, 1.0f, 2.0f);
 
     // First corner
     f32v3 cyyy(C.y, C.y, C.y);
@@ -64,7 +64,7 @@ float CpuNoise::rawAshimaSimplex3D(f32v3 v) {
     // Gradients: 7x7 points over a square, mapped onto an octahedron.
     // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
     float n_ = 0.142857142857f; // 1.0/7.0
-    f32v3  ns = n_ * f32v3(D.w, D.y, D.z) - f32v3(D.x, D.z, D.z);
+    f32v3 ns = n_ * f32v3(D.w, D.y, D.z) - f32v3(D.x, D.z, D.x);
 
     f32v4 j = p - 49.0f * glm::floor(p * ns.z * ns.z);  //  mod(p,7*7)
 
