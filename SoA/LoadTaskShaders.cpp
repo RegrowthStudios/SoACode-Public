@@ -4,36 +4,6 @@
 #include "GLProgramManager.h"
 #include "GameManager.h"
 
-void ProgramGenDelegate::invoke(Sender sender, void* userData) {
-    std::cout << "Building shader: " << name << std::endl;
-    program = new vg::GLProgram(true);
-    if (!program->addShader(vs)) {
-        errorMessage = "Vertex shader for " + name + " failed to compile.";
-        program->dispose();
-        delete program;
-        program = nullptr;
-        return;
-    }
-    if (!program->addShader(fs)) {
-        errorMessage = "Fragment shader for " + name + " failed to compile.";
-        program->dispose();
-        delete program;
-        program = nullptr;
-        return;
-    }
-    if (attr) program->setAttributes(*attr);
-
-    if (!program->link()) {
-        errorMessage = name + " failed to link.";
-        program->dispose();
-        delete program;
-        program = nullptr;
-        return;
-    }
-    program->initAttributes();
-    program->initUniforms();
-}
-
 vg::ShaderSource LoadTaskShaders::createShaderCode(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines /*= nullptr*/) {
     vg::ShaderSource src;
     src.stage = stage;
@@ -48,12 +18,7 @@ ProgramGenDelegate* LoadTaskShaders::createProgram(nString name, const vg::Shade
     ProgramGenDelegate& del = m_generators[m_numGenerators];
     m_numGenerators++;
 
-    del.name = name;
-    del.vs = vs;
-    del.fs = fs;
-    del.attr = attr;
-    del.rpc.data.f = &del;
-    del.rpc.data.userData = nullptr;
+    del.init(name, vs, fs, attr);
 
     return &del;
 }
@@ -210,14 +175,6 @@ void LoadTaskShaders::load() {
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.vert"),
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.frag"),
         &sphericalWaterAttribs
-        )->rpc, false);
-    m_glrpc->invoke(&createProgram("SimplexNoise",
-        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/Simplex.vert"),
-        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/Simplex.frag")
-        )->rpc, false);
-    m_glrpc->invoke(&createProgram("NormalMapGen",
-        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
-        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag")
         )->rpc, false);
 
     // Create all shaders until finished

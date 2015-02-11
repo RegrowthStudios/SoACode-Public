@@ -4,6 +4,7 @@
 #include "SphericalTerrainGenerator.h"
 
 #include <Vorb/TextureRecycler.hpp>
+#include <Vorb/graphics/GLProgram.h>
 
 SpaceSystem::SpaceSystem() : vcore::ECS() {
     // Add in component tables
@@ -15,7 +16,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, &m_sphericalVoxelCT);
    
     #define MAX_NORMAL_MAPS 512U
-    normalMapRecycler = new vg::TextureRecycler((ui32)PATCH_NORMALMAP_WIDTH,
+    normalMapRecycler = std::make_unique<vg::TextureRecycler>((ui32)PATCH_NORMALMAP_WIDTH,
                                                   (ui32)PATCH_NORMALMAP_WIDTH,
                                                   &SamplerState::POINT_CLAMP,
                                                   0,
@@ -24,5 +25,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
 }
 
 SpaceSystem::~SpaceSystem() {
-    // Empty
+    if (normalMapGenProgram) {
+        normalMapGenProgram->dispose();
+    }
 }

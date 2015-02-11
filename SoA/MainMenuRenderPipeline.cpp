@@ -63,7 +63,7 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
 }
 
 void MainMenuRenderPipeline::render() {
- 
+    
     // Bind the FBO
     _hdrFrameBuffer->use();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
@@ -105,11 +105,9 @@ void MainMenuRenderPipeline::destroy() {
     delete m_spaceSystemRenderStage;
     m_spaceSystemRenderStage = nullptr;
 
-    _hdrFrameBuffer->dispose();
     delete _hdrFrameBuffer;
     _hdrFrameBuffer = nullptr;
 
-    _swapChain->dispose();
     delete _swapChain;
     _swapChain = nullptr;
 

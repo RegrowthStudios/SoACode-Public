@@ -21,6 +21,7 @@
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/ecs/ECS.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
@@ -43,14 +44,8 @@ class StarKegProperties;
 class SystemBodyKegProperties;
 struct SystemBody;
 
-namespace vorb {
-    namespace core {
-        namespace graphics {
-            class TextureRecycler;
-            class GLProgramManager;
-        }
-    }
-}
+DECL_VG(class TextureRecycler)
+DECL_VG(class GLProgram)
 
 //TODO(Ben): This should be POD, split it up
 class SpaceSystem : public vcore::ECS {
@@ -60,13 +55,6 @@ public:
     SpaceSystem();
     ~SpaceSystem();
 
-    /// TEMPORARY
-    void init(vg::GLProgramManager* glProgramManager) { this->glProgramManager = glProgramManager; }
-
-    /// Adds a solar system and all its bodies to the system
-    /// @param filePath: Path to the solar system directory
-    void addSolarSystem(const nString& filePath);
-
     vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
     vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
@@ -75,8 +63,8 @@ public:
     SphericalVoxelComponentTable m_sphericalVoxelCT;
 
     nString systemDescription; ///< textual description of the system
-    vg::GLProgramManager* glProgramManager; ///< TEMPORARY
-    vg::TextureRecycler* normalMapRecycler = nullptr; ///< For recycling normal maps
+    std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
+    std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
 
 protected:
     void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);

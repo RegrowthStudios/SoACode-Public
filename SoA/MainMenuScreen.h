@@ -40,7 +40,6 @@ class AmbiencePlayer;
 
 class MainMenuScreen : public IAppScreen<App>
 {
-    friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
     MainMenuScreen(const App* app, const LoadScreen* loadScreen);
@@ -65,6 +64,9 @@ public:
     SoaState* getSoAState() const { return m_soaState; }
 
 private:
+
+    /// Initializes event delegates and InputManager
+    void initInput();
 
     /// Initializes the rendering
     void initRenderPipeline();
@@ -104,8 +106,6 @@ private:
 
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
-
-    IDelegate<ui32>* m_onReloadShadersKeyDown = nullptr;
 
     MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
 

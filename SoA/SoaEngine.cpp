@@ -9,8 +9,11 @@
 #include "SoaState.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
+#include "ProgramGenDelegate.h"
+#include "Errors.h"
 
 #include <Vorb/io/Keg.h>
+#include <Vorb/RPC.h>
 
 #define M_PER_KM 1000.0
 
@@ -25,38 +28,66 @@ struct SpaceSystemLoadParams {
     std::map<nString, vcore::EntityID> bodyLookupMap;
 };
 
-bool SoaEngine::initState(OUT SoaState* state) {
+void SoaEngine::initState(OUT SoaState* state) {
     state->glProgramManager = std::make_unique<vg::GLProgramManager>();
     state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
     state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
     state->systemIoManager = std::make_unique<vio::IOManager>();
-    state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
-
-    return true;
+}
+// TODO: A vorb helper would be nice.
+vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr) {
+    vg::ShaderSource src;
+    src.stage = stage;
+    if (defines) src.sources.push_back(defines);
+    const cString code = iom.readFileToString(path);
+    src.sources.push_back(code);
+    return src;
 }
 
-bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData) {
+bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
+
     AutoDelegatePool pool;
     vpath path = "SoASpace.log";
     vfile file;
     path.asFile(&file);
+
+    state->spaceSystem = std::make_unique<SpaceSystem>();
+    state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
+
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
-    pool.addAutoHook(&state->spaceSystem.onEntityAdded, [=] (Sender, vcore::EntityID eid) {
+    pool.addAutoHook(&state->spaceSystem->onEntityAdded, [=] (Sender, vcore::EntityID eid) {
         fs.write("Entity added: %d\n", eid);
     });
-    for (auto namedTable : state->spaceSystem.getComponents()) {
-        auto table = state->spaceSystem.getComponentTable(namedTable.first);
+    for (auto namedTable : state->spaceSystem->getComponents()) {
+        auto table = state->spaceSystem->getComponentTable(namedTable.first);
         pool.addAutoHook(&table->onEntityAdded, [=] (Sender, vcore::ComponentID cid, vcore::EntityID eid) {
             fs.write("Component \"%s\" added: %d -> Entity %d\n", namedTable.first.c_str(), cid, eid);
         });
     }
 
-    // TODO(Ben): This is temporary
-    state->spaceSystem.init(state->glProgramManager.get());
+    // Load normal map gen shader
+    ProgramGenDelegate gen;
+    vio::IOManager iom;
+    gen.init("NormalMapGen", createShaderSource(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
+                  createShaderSource(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag"));
 
+    if (glrpc) {
+        glrpc->invoke(&gen.rpc, true);
+    } else {
+        gen.invoke(nullptr, nullptr);
+    }
+
+    if (gen.program == nullptr) {
+        std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
+        return false;
+    }
+    /// Manage the program with a unique ptr
+    state->spaceSystem->normalMapGenProgram = std::unique_ptr<vg::GLProgram>(gen.program);
+
+    // Load system
     SpaceSystemLoadParams spaceSystemLoadParams;
     spaceSystemLoadParams.dirPath = loadData.filePath;
-    spaceSystemLoadParams.spaceSystem = &state->spaceSystem;
+    spaceSystemLoadParams.spaceSystem = state->spaceSystem.get();
     spaceSystemLoadParams.ioManager = state->systemIoManager.get();
     spaceSystemLoadParams.planetLoader = state->planetLoader.get();
 
@@ -67,19 +98,25 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
 }
 
 bool SoaEngine::loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData) {
+    // TODO(Ben): Implement
+    state->gameSystem = std::make_unique<GameSystem>();
     return true;
 }
 
 void SoaEngine::destroyAll(OUT SoaState* state) {
+    state->glProgramManager.reset();
+    state->debugRenderer.reset();
+    state->meshManager.reset();
+    state->systemIoManager.reset();
     destroyGameSystem(state);
     destroySpaceSystem(state);
 }
 
 void SoaEngine::destroyGameSystem(OUT SoaState* state) {
-
+    state->gameSystem.reset();
 }
 
-void SoaEngine::addSolarSystem(SpaceSystemLoadParams& pr) {
+void SoaEngine::addSolarSystem(OUT SpaceSystemLoadParams& pr) {
     pr.ioManager->setSearchDirectory((pr.dirPath + "/").c_str());
 
     // Load the system
@@ -138,7 +175,7 @@ void SoaEngine::addSolarSystem(SpaceSystemLoadParams& pr) {
     }
 }
 
-bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
+bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
     nString data;
     pr.ioManager->readFileToString("SystemProperties.yml", data);
 
@@ -195,7 +232,7 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     return goodParse;
 }
 
-bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath, const SystemBodyKegProperties* sysProps, SystemBody* body) {
+bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath, const SystemBodyKegProperties* sysProps, OUT SystemBody* body) {
 
 #define KEG_CHECK \
     if (error != Keg::Error::NONE) { \
@@ -286,5 +323,5 @@ void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity,
 }
 
 void SoaEngine::destroySpaceSystem(OUT SoaState* state) {
-
+    state->spaceSystem.reset();
 }
