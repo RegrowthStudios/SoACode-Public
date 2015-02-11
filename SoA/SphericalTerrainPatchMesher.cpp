@@ -87,6 +87,19 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
             v.position[m_coordMapping.y] = m_startPos.y;
             v.position[m_coordMapping.z] = z * m_vertWidth * m_coordMults.y + m_startPos.z;
 
+            // Set color
+            v.color = m_planetGenData->terrainTint;
+            // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for face colors
+
+            // TODO(Ben): This is temporary debugging stuff
+            const float delta = 1.0f;
+            if (abs(v.position[m_coordMapping.x]) >= m_radius - delta
+                || abs(v.position[m_coordMapping.z]) >= m_radius - delta) {
+                v.color.r = 255;
+                v.color.g = 0;
+                v.color.b = 0;
+            }
+
             // Get data from heightmap 
             zIndex = z * PIXELS_PER_PATCH_NM + 1;
             xIndex = x * PIXELS_PER_PATCH_NM + 1;
@@ -141,9 +154,6 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
             } else if (v.position.z > maxZ) {
                 maxZ = v.position.z;
             }
-
-            v.color = m_planetGenData->terrainTint;
-            // v.color = DebugColors[(int)mesh->m_cubeFace];
 
             m_index++;
         }
