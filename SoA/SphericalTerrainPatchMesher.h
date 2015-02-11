@@ -20,7 +20,6 @@
 
 struct PlanetGenData;
 class SphericalTerrainMeshManager;
-class TerrainGenDelegate;
 
 /// Vertex for terrain patch
 class TerrainVertex {
@@ -53,9 +52,13 @@ public:
     ~SphericalTerrainPatchMesher();
 
     /// Generates mesh using heightmap
-    /// @param data: The delegate data
+    /// @param mesh: The mesh handle
+    /// @param startPos: Starting position
+    /// @param cubeFace: The world cube face
+    /// @param width: Width of the patch
     /// @param heightData: The heightmap data
-    void buildMesh(TerrainGenDelegate* data, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
+    void buildMesh(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace,
+                   float width, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
 
 private:
 

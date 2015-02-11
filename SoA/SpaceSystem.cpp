@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "SpaceSystem.h"
-#include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 
 #include <Vorb/TextureRecycler.hpp>
 #include <Vorb/graphics/GLProgram.h>

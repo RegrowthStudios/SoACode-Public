@@ -13,7 +13,7 @@ extern AccumulationTimer globalRenderAccumulationTimer; ///< for easy global ben
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
-class PlanetGenData;
+struct PlanetGenData;
 
 class FixedSizeBillboardVertex{
 public:
@@ -37,33 +37,7 @@ public:
     void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);
 };
 
-class NoiseInfo
-{
-public:
-    NoiseInfo(){
-        memset(this, 0, sizeof(NoiseInfo));
-        modifier = NULL;
-        name = "UNNAMED";
-    }
-    ~NoiseInfo(){
-        if (modifier) delete modifier;
-        modifier = NULL;
-    }
-    double persistence;
-    double frequency;
-    double lowBound;
-    double upBound;
-    double scale;
-    GLint octaves;
-    GLint composition;
-    NoiseInfo *modifier;
-    nString name;
-    GLint type;
-};
-
 //flags
-const int PLATEAU = 0x1;
-const int VOLCANO = 0x2;
 const int TOOSTEEP = 0x4;
 
 class HeightData;

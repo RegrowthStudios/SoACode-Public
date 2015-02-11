@@ -3,7 +3,8 @@
 
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
-#include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
+#include "SphericalTerrainCpuGenerator.h"
 #include "VoxelCoordinateSpaces.h"
 
 void TerrainGenDelegate::invoke(Sender sender, void* userData) {
@@ -67,7 +68,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
 
 void SphericalTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
-        it.second.generator->update();
+        it.second.gpuGenerator->update();
     }
 }
 

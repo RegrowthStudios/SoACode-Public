@@ -286,6 +286,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="CpuNoise.h" />
     <ClInclude Include="DevScreen.h" />
     <ClInclude Include="FloraTask.h" />
     <ClInclude Include="FrustumComponentUpdater.h" />
@@ -352,7 +353,8 @@ EXIT 0</Command>
     <ClInclude Include="SpaceSystemUpdater.h" />
     <ClInclude Include="SphericalTerrainComponentRenderer.h" />
     <ClInclude Include="SphericalTerrainComponentUpdater.h" />
-    <ClInclude Include="SphericalTerrainGenerator.h" />
+    <ClInclude Include="SphericalTerrainCpuGenerator.h" />
+    <ClInclude Include="SphericalTerrainGpuGenerator.h" />
     <ClInclude Include="SphericalTerrainMeshManager.h" />
     <ClInclude Include="SphericalVoxelComponentTable.h" />
     <ClInclude Include="SphericalVoxelComponentUpdater.h" />
@@ -464,6 +466,7 @@ EXIT 0</Command>
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="CpuNoise.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="DevScreen.cpp" />
@@ -523,7 +526,8 @@ EXIT 0</Command>
     <ClCompile Include="SpaceSystemUpdater.cpp" />
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
-    <ClCompile Include="SphericalTerrainGenerator.cpp" />
+    <ClCompile Include="SphericalTerrainCpuGenerator.cpp" />
+    <ClCompile Include="SphericalTerrainGpuGenerator.cpp" />
     <ClCompile Include="SphericalTerrainMeshManager.cpp" />
     <ClCompile Include="SphericalVoxelComponentTable.cpp" />
     <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />

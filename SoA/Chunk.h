@@ -38,7 +38,7 @@ class CaPhysicsType;
 class ChunkMesher;
 class LightMessage;
 class RenderTask;
-class SphericalTerrainGenerator;
+class SphericalTerrainGpuGenerator;
 
 class ChunkGridData {
 public:
@@ -69,7 +69,7 @@ public:
 
     ChunkGridData* gridData = nullptr;
 
-    SphericalTerrainGenerator* generator = nullptr;
+    SphericalTerrainGpuGenerator* generator = nullptr;
 };
 
 class Chunk{

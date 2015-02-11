@@ -49,16 +49,15 @@ SphericalTerrainPatchMesher::~SphericalTerrainPatchMesher() {
     vg::GpuMemory::freeBuffer(m_sharedIbo);
 }
 
-void SphericalTerrainPatchMesher::buildMesh(TerrainGenDelegate* data, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
+void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
+                                            float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
 
-    SphericalTerrainMesh* mesh = data->mesh;
 
     // Grab mappings so we can rotate the 2D grid appropriately
-    m_coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)data->cubeFace];
-    m_startPos = data->startPos;
-    m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
+    m_coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)cubeFace];
+    m_startPos = startPos;
+    m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace][0]);
 
-    float width = data->width;
     float h;
     float angle;
     f32v3 tmpPos;

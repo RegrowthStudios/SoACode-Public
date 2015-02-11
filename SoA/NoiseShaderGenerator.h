@@ -29,15 +29,9 @@ class NoiseShaderGenerator {
 public:
     /// Generates a shader program for generation
     /// @param genData; The planet generation data
-    /// @Param baseTerrainFuncs: Terrain functions for base terrain
-    /// @param tempTerrainFuncs: Terrain functions for temperature distribution
-    /// @param humTerrainFuncs: Terrain functions for humidity distribution
     /// @param glrpc: Optional RPC for loading in non-render thread
     /// @return glProgram. Caller should handle resource destruction
     CALLER_DELETE vg::GLProgram* generateProgram(PlanetGenData* genData,
-                                   TerrainFuncs& baseTerrainFuncs,
-                                   TerrainFuncs& tempTerrainFuncs,
-                                   TerrainFuncs& humTerrainFuncs,
                                    vcore::RPCManager* glrpc = nullptr);
     /// Generates a default shader program for generation
     /// @param glrpc: Optional RPC for loading in non-render thread

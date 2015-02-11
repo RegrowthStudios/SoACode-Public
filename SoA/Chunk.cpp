@@ -19,7 +19,7 @@
 #include "Rendering.h"
 #include "SimplexNoise.h"
 #include "Sound.h"
-#include "SphericalTerrainGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 #include "TerrainGenerator.h"
 #include "VoxelUtils.h"
 #include "readerwriterqueue.h"

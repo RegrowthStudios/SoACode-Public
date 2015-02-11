@@ -26,7 +26,8 @@ class PhysicsEngine;
 struct PlanetGenData;
 struct PlanetGenData;
 class SphericalTerrainData;
-class SphericalTerrainGenerator;
+class SphericalTerrainCpuGenerator;
+class SphericalTerrainGpuGenerator;
 class SphericalTerrainMeshManager;
 class SphericalTerrainPatch;
 class TerrainRpcDispatcher;
@@ -72,7 +73,7 @@ struct SphericalVoxelComponent {
     ChunkIOManager* chunkIo = nullptr;
     ParticleEngine* particleEngine = nullptr;
 
-    SphericalTerrainGenerator* generator = nullptr;
+    SphericalTerrainGpuGenerator* generator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
     const SphericalTerrainData* sphericalTerrainData = nullptr;
@@ -97,7 +98,8 @@ struct SphericalTerrainComponent {
     SphericalTerrainData* sphericalTerrainData = nullptr;
 
     SphericalTerrainMeshManager* meshManager = nullptr;
-    SphericalTerrainGenerator* generator = nullptr;
+    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
+    SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
 };

@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Generates spherical terrain and meshes for a planet. 
+/// Generates spherical terrain data and meshes for a planet the GPU. 
 /// Each planet should own one.
 ///
 
@@ -32,13 +32,13 @@ class RawGenDelegate;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
-class SphericalTerrainGenerator {
+class SphericalTerrainGpuGenerator {
 public:
-    SphericalTerrainGenerator(SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
                               PlanetGenData* planetGenData,
                               vg::GLProgram* normalProgram,
                               vg::TextureRecycler* normalMapRecycler);
-    ~SphericalTerrainGenerator();
+    ~SphericalTerrainGpuGenerator();
 
     /// Updates the generator. Call from OpenGL thread
     void update();
@@ -108,7 +108,7 @@ private:
 
     vg::FullQuadVBO m_quad; ///< Quad for rendering
 
-    SphericalTerrainPatchMesher mesher; ///< Creates patch meshes
+    SphericalTerrainPatchMesher m_mesher; ///< Creates patch meshes
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]; ///< Stores height data
 };
