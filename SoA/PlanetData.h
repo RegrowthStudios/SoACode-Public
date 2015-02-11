@@ -66,8 +66,8 @@ struct PlanetGenData {
     vg::Texture liquidColorMap = 0;
     vg::Texture terrainTexture = 0;
     vg::Texture liquidTexture = 0;
-    ColorRGB8 liquidTint = ColorRGB8(255, 255, 255);
-    ColorRGB8 terrainTint = ColorRGB8(255, 255, 255);
+    color3 liquidTint = color3(255, 255, 255);
+    color3 terrainTint = color3(255, 255, 255);
     float liquidDepthScale = 1000.0f;
     float liquidFreezeTemp = -1.0f;
     float tempLatitudeFalloff = 0.0f;
@@ -86,7 +86,7 @@ struct PlanetGenData {
     TerrainFuncs humTerrainFuncs;
 
     std::map <nString, ui32> blockColorMapLookupTable; ///< For looking up the index for the block color maps
-    std::vector <ColorRGB8*> blockColorMaps; ///< Storage for the block color maps
+    std::vector <color3*> blockColorMaps; ///< Storage for the block color maps
 };
 
 #endif // PlanetData_h__
