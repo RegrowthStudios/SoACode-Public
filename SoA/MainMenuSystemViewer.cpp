@@ -9,8 +9,8 @@
 #include "SphericalTerrainPatch.h"
 #include "SphericalTerrainCpuGenerator.h"
 
-const float MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
-const float MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
+const f32 MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
+const f32 MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
 
 #define KM_PER_VOXEL 0.0005f
 
@@ -45,19 +45,19 @@ MainMenuSystemViewer::~MainMenuSystemViewer() {
 }
 
 void MainMenuSystemViewer::update() {
-    const float HOVER_SPEED = 0.08f;
-    const float HOVER_SIZE_INC = 7.0f;
+    const f32 HOVER_SPEED = 0.08f;
+    const f32 HOVER_SIZE_INC = 7.0f;
 
     for (auto& it : m_spaceSystem->m_namePositionCT) {
         vcore::ComponentID componentID;
 
         f64v3 relativePos = it.second.position - m_camera->getPosition();
         f64 distance = glm::length(relativePos);
-        float radiusPixels;
-        float radius;
+        f32 radiusPixels;
+        f32 radius;
 
         BodyArData& data = bodyArData[it.first];
-        float hoverTime = data.hoverTime;
+        f32 hoverTime = data.hoverTime;
 
         if (m_camera->pointInFrustum(f32v3(relativePos))) {
             data.inFrustum = true;
@@ -66,7 +66,7 @@ void MainMenuSystemViewer::update() {
             f32v2 xyScreenCoords(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
             // Get a smooth interpolator with hermite
-            float interpolator = hermite(hoverTime);
+            f32 interpolator = hermite(hoverTime);
 
             // See if it has a radius
             componentID = m_spaceSystem->m_sphericalGravityCT.getComponentID(it.first);
@@ -83,7 +83,7 @@ void MainMenuSystemViewer::update() {
                                 (m_viewport.y / 2.0f);
             }
 
-            float selectorSize = radiusPixels * 2.0f + 3.0f;
+            f32 selectorSize = radiusPixels * 2.0f + 3.0f;
             if (selectorSize < MIN_SELECTOR_SIZE) selectorSize = MIN_SELECTOR_SIZE;
 
             // Interpolate size
@@ -110,7 +110,7 @@ void MainMenuSystemViewer::update() {
     }
 
     // Connect camera to target planet
-    float length = m_camera->getFocalLength() / 10.0;
+    f32 length = m_camera->getFocalLength() / 10.0;
     if (length == 0) length = 0.1;
     m_camera->setClippingPlane(length, m_camera->getFarClip());
     // Target closest point on sphere
@@ -200,10 +200,10 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
 
 #define MOUSE_SPEED 0.1f
     if (mouseButtons[0]) {
-        m_camera->rotateFromMouse((float)-e.dx, (float)-e.dy, MOUSE_SPEED);
+        m_camera->rotateFromMouse((f32)-e.dx, (f32)-e.dy, MOUSE_SPEED);
     }
     if (mouseButtons[1]) {
-        m_camera->rollFromMouse((float)e.dx, MOUSE_SPEED);
+        m_camera->rollFromMouse((f32)e.dx, MOUSE_SPEED);
     }
 }
 
@@ -219,11 +219,11 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
 
     cid = m_spaceSystem->m_sphericalGravityCT.getComponentID(eid);
     if (!cid) return;
-    float radius = m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
+    f32 radius = m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
 
     // Compute the intersection
     f32v3 normal, hitpoint;
-    float distance;
+    f32 distance;
     if (IntersectionUtils::sphereIntersect(pickRay, f32v3(0.0f), pos, radius, hitpoint, distance, normal)) {
         hitpoint -= pos;
         cid = m_spaceSystem->m_axisRotationCT.getComponentID(eid);
@@ -233,7 +233,7 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
         }
 
         // Compute face and grid position
-        float rheight;
+        f32 rheight;
         computeGridPosition(hitpoint, radius, rheight);
 
         m_clickPos = f64v3(hitpoint + glm::normalize(hitpoint) * rheight);
@@ -245,9 +245,9 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
 }
 
 // TODO(Ben): I think this isn't needed
-void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radius, OUT float& height) {
+void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, f32 radius, OUT f32& height) {
     f32v3 cornerPos[2];
-    float min;
+    f32 min;
     f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
     f32v3 dir = -glm::normalize(hitpoint);
     cornerPos[0] = f32v3(-radius, -radius, -radius);
@@ -258,7 +258,7 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radi
     }
 
     f32v3 gridHit = start + dir * min;
-    const float eps = 0.01f;
+    const f32 eps = 0.01f;
 
     if (abs(gridHit.x - (-radius)) < eps) { //-X
         m_selectedCubeFace = WorldCubeFace::FACE_LEFT;

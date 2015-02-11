@@ -37,8 +37,8 @@ public:
     void update();
 
     struct BodyArData {
-        float hoverTime = 0.0f;
-        float selectorSize = 0.0f;
+        f32 hoverTime = 0.0f;
+        f32 selectorSize = 0.0f;
         bool inFrustum = false;
         vcore::EntityID hoverEntity = 0;
         bool isHovering = false;
@@ -76,8 +76,8 @@ public:
     /// @return position
     nString getTargetName();
 
-    static const float MIN_SELECTOR_SIZE;
-    static const float MAX_SELECTOR_SIZE;
+    static const f32 MIN_SELECTOR_SIZE;
+    static const f32 MAX_SELECTOR_SIZE;
 
 private:
     // Events
@@ -88,7 +88,7 @@ private:
     void onMouseMotion(Sender sender, const vui::MouseMotionEvent& e);
 
     void pickStartLocation(vcore::EntityID eid);
-    void computeGridPosition(const f32v3& hitpoint, float radius, OUT float& height);
+    void computeGridPosition(const f32v3& hitpoint, f32 radius, OUT f32& height);
 
     nString currentBody = "";
 

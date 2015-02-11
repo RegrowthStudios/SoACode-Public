@@ -27,8 +27,8 @@ struct LiquidColorKegProperties {
     nString colorPath = "";
     nString texturePath = "";
     ColorRGB8 tint = ColorRGB8(255, 255, 255);
-    float depthScale = 1000.0f;
-    float freezeTemp = -1.0f;
+    f32 depthScale = 1000.0f;
+    f32 freezeTemp = -1.0f;
 };
 KEG_TYPE_DECL(LiquidColorKegProperties);
 
@@ -49,16 +49,16 @@ KEG_ENUM_DECL(TerrainFunction);
 struct TerrainFuncKegProperties {
     TerrainFunction func;
     int octaves = 1;
-    float persistence = 1.0f;
-    float frequency = 1.0f;
-    float low = -1.0f;
-    float high = 1.0f;
+    f32 persistence = 1.0f;
+    f32 frequency = 1.0f;
+    f32 low = -1.0f;
+    f32 high = 1.0f;
 };
 KEG_TYPE_DECL(TerrainFuncKegProperties);
 
 struct TerrainFuncs {
     std::vector<TerrainFuncKegProperties> funcs;
-    float baseHeight = 0.0f;
+    f32 baseHeight = 0.0f;
 };
 
 struct PlanetGenData {
@@ -68,10 +68,10 @@ struct PlanetGenData {
     vg::Texture liquidTexture = 0;
     color3 liquidTint = color3(255, 255, 255);
     color3 terrainTint = color3(255, 255, 255);
-    float liquidDepthScale = 1000.0f;
-    float liquidFreezeTemp = -1.0f;
-    float tempLatitudeFalloff = 0.0f;
-    float humLatitudeFalloff = 0.0f;
+    f32 liquidDepthScale = 1000.0f;
+    f32 liquidFreezeTemp = -1.0f;
+    f32 tempLatitudeFalloff = 0.0f;
+    f32 humLatitudeFalloff = 0.0f;
     VGTexture biomeArrayTexture = 0;
     VGTexture baseBiomeLookupTexture = 0;
     std::vector<Biome> biomes;
