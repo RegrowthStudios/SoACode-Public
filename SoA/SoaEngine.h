@@ -67,9 +67,9 @@ public:
     static void destroySpaceSystem(OUT SoaState* state);
 
 private:
-    /// Loads and adds a solar system to the SpaceSystem
+    /// Loads and adds a star system to the SpaceSystem
     /// @param pr: params
-    static void addSolarSystem(SpaceSystemLoadParams& pr);
+    static void addStarSystem(SpaceSystemLoadParams& pr);
 
     /// Loads and adds system properties to the params
     /// @param pr: params
@@ -81,9 +81,11 @@ private:
     /// @param filePath: Path to body
     /// @param sysProps: Keg properties for the system
     /// @param body: The body to fill
+    /// @param glrpc: Optional RPCManager.
     /// @return true on success
     static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body);
+                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body,
+                                   vcore::RPCManager* glrpc = nullptr);
 
     static void calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary);
 

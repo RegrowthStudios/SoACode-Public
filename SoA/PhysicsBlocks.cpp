@@ -3,7 +3,6 @@
 
 #include <Vorb/utils.h>
 
-#include "Actor.h"
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkManager.h"

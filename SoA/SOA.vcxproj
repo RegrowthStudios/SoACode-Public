@@ -308,7 +308,7 @@ EXIT 0</Command>
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskShaders.h" />
-    <ClInclude Include="LoadTaskSolarSystem.h" />
+    <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
@@ -320,6 +320,7 @@ EXIT 0</Command>
     <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
+    <ClInclude Include="NoiseShaderGenerator.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
     <ClInclude Include="OrbitComponentUpdater.h" />
@@ -333,6 +334,7 @@ EXIT 0</Command>
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PhysicsComponentUpdater.h" />
+    <ClInclude Include="PlanetData.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="SkyboxRenderer.h" />
@@ -412,7 +414,6 @@ EXIT 0</Command>
     <ClInclude Include="WSOData.h" />
     <ClInclude Include="Inputs.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Actor.h" />
     <ClInclude Include="atomicops.h" />
     <ClInclude Include="BlockData.h" />
     <ClInclude Include="Camera.h" />
@@ -491,6 +492,7 @@ EXIT 0</Command>
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
+    <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OrbitComponentRenderer.cpp" />
     <ClCompile Include="OrbitComponentUpdater.cpp" />
@@ -504,6 +506,7 @@ EXIT 0</Command>
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
+    <ClCompile Include="PlanetData.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SoaController.cpp" />
@@ -546,7 +549,6 @@ EXIT 0</Command>
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="FragFile.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="BlockData.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Chunk.cpp" />

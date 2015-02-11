@@ -8,7 +8,7 @@
 
 #include "Chunk.h"
 #include "Errors.h"
-#include "PlanetLoader.h"
+#include "PlanetData.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainMeshManager.h"
@@ -17,6 +17,7 @@
 #define KM_PER_M 0.001f
 #define KM_PER_VOXEL 0.0005f
 #define VOXELS_PER_M 2.0f
+#define VOXELS_PER_KM 2000.0f
 
 float SphericalTerrainGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 
@@ -162,15 +163,13 @@ void SphericalTerrainGenerator::generateTerrainPatch(TerrainGenDelegate* data) {
     cornerPos[coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
     cornerPos[coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
 
-    cornerPos *= M_PER_KM;
-
     f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
-    glUniform1f(unPatchWidth, data->width * M_PER_KM);
+    glUniform1f(unPatchWidth, data->width);
 
     m_quad.draw();
 

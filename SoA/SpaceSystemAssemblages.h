@@ -21,7 +21,7 @@ class SpaceSystem;
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
-class PlanetGenData;
+struct PlanetGenData;
 class SoaState;
 struct GasGiantKegProperties;
 struct PlanetKegProperties;

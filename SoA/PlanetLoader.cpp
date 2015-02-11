@@ -1,72 +1,13 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
+#include "PlanetData.h"
+#include "BlockPack.h"
 
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/io/IOManager.h>
 
-#include "NoiseShaderCode.hpp"
 #include "Errors.h"
-
-enum class TerrainFunction {
-    NOISE,
-    RIDGED_NOISE
-};
-KEG_ENUM_INIT_BEGIN(TerrainFunction, TerrainFunction, e);
-e->addValue("noise", TerrainFunction::RIDGED_NOISE);
-e->addValue("ridgedNoise", TerrainFunction::RIDGED_NOISE);
-KEG_ENUM_INIT_END
-
-class TerrainFuncKegProperties {
-public:
-    TerrainFunction func;
-    int octaves = 1;
-    float persistence = 1.0f;
-    float frequency = 1.0f;
-    float low = -1.0f;
-    float high = 1.0f;
-};
-KEG_TYPE_INIT_BEGIN_DEF_VAR(TerrainFuncKegProperties)
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, I32, octaves);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, persistence);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, frequency);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, low);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, high);
-KEG_TYPE_INIT_END
-
-class LiquidColorKegProperties {
-public:
-    nString colorPath = "";
-    nString texturePath = "";
-    ColorRGB8 tint = ColorRGB8(255, 255, 255);
-    float depthScale = 1000.0f;
-    float freezeTemp = -1.0f;
-};
-KEG_TYPE_INIT_BEGIN_DEF_VAR(LiquidColorKegProperties)
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, STRING, colorPath);
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, STRING, texturePath);
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, UI8_V3, tint); 
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, F32, depthScale);
-KEG_TYPE_INIT_ADD_MEMBER(LiquidColorKegProperties, F32, freezeTemp);
-KEG_TYPE_INIT_END
-
-class TerrainColorKegProperties {
-public:
-    nString colorPath = "";
-    nString texturePath = "";
-    ColorRGB8 tint = ColorRGB8(255, 255, 255);
-};
-KEG_TYPE_INIT_BEGIN_DEF_VAR(TerrainColorKegProperties)
-KEG_TYPE_INIT_ADD_MEMBER(TerrainColorKegProperties, STRING, colorPath);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainColorKegProperties, STRING, texturePath);
-KEG_TYPE_INIT_ADD_MEMBER(TerrainColorKegProperties, UI8_V3, tint);
-KEG_TYPE_INIT_END
-
-class TerrainFuncs {
-public:
-    std::vector<TerrainFuncKegProperties> funcs;
-    float baseHeight = 0.0f;
-};
 
 PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
     m_iom(ioManager),
@@ -77,7 +18,7 @@ PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
 PlanetLoader::~PlanetLoader() {
 }
 
-PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
+PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManager* glrpc /* = nullptr */) {
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
@@ -115,16 +56,23 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
             parseTerrainFuncs(&tempTerrainFuncs, reader, value);
         } else if (type == "humidity") {
             parseTerrainFuncs(&humTerrainFuncs, reader, value);
+        } else if (type == "blockLayers") {
+            parseBlockLayers(reader, value, genData);
+        } else if (type == "liquidBlock") {
+            genData->liquidBlock = Blocks[keg::convert<nString>(value)].ID;
+        } else if (type == "surfaceBlock") {
+            genData->surfaceBlock = Blocks[keg::convert<nString>(value)].ID;
         }
     });
     reader.forAllInMap(node, f);
     reader.dispose();
     
     // Generate the program
-    vg::GLProgram* program = generateProgram(genData,
-                                             baseTerrainFuncs,
-                                             tempTerrainFuncs,
-                                             humTerrainFuncs);
+    vg::GLProgram* program = m_shaderGenerator.generateProgram(genData,
+                                               baseTerrainFuncs,
+                                               tempTerrainFuncs,
+                                               humTerrainFuncs,
+                                               glrpc);
 
     if (program != nullptr) {
         genData->program = program;
@@ -134,40 +82,13 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath) {
     return nullptr;
 }
 
-PlanetGenData* PlanetLoader::getDefaultGenData() {
+PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
     if (!m_defaultGenData) {
         // Allocate data
         m_defaultGenData = new PlanetGenData;
 
-        // Build string
-        nString fSource = NOISE_SRC_FRAG;
-        fSource.reserve(fSource.size() + 128);
-        // Use pos so uniforms don't get optimized out
-        fSource += N_HEIGHT + "= pos.x*0.000001;";
-        fSource += N_TEMP + "= 0;";
-        fSource += N_HUM + "= 0; }";
-
-        // Create the shader
-        vg::GLProgram* program = new vg::GLProgram;
-        program->init();
-        program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
-        program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
-        program->bindFragDataLocation(0, N_HEIGHT.c_str());
-        program->bindFragDataLocation(1, N_TEMP.c_str());
-        program->bindFragDataLocation(2, N_HUM.c_str());
-        program->link();
-
-        if (!program->getIsLinked()) {
-            std::cout << fSource << std::endl;
-            showMessage("Failed to generate default program");
-            return nullptr;
-        }
-
-        program->initAttributes();
-        program->initUniforms();
-
-        m_defaultGenData->program = program;
+        m_defaultGenData->program = m_shaderGenerator.getDefaultProgram(glrpc);
 
     }
     return m_defaultGenData;
@@ -186,7 +107,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
-    baseBiomeLookupTexture.resize(LOOKUP_TEXTURE_SIZE, 0);
+    m_baseBiomeLookupTextureData.resize(LOOKUP_TEXTURE_SIZE, 0);
 
     Keg::Error error;
 
@@ -227,7 +148,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     if (m_biomeLookupMap.size()) {
 
         // Generate base biome lookup texture
-        genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(baseBiomeLookupTexture.data(),
+        genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),
                                                                    LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
                                                                    &SamplerState::POINT_CLAMP,
                                                                    vg::TextureInternalFormat::R8,
@@ -249,7 +170,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     }
     // Free memory
     std::map<ui32, BiomeLookupTexture>().swap(m_biomeLookupMap);
-    std::vector<ui8>().swap(baseBiomeLookupTexture);
+    std::vector<ui8>().swap(m_baseBiomeLookupTextureData);
 }
 
 void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
@@ -257,11 +178,11 @@ void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
     if (it == m_biomeLookupMap.end()) {
         BiomeLookupTexture& tex = m_biomeLookupMap[colorCode];
         tex.index = m_biomeCount;
-        baseBiomeLookupTexture[index] = m_biomeCount;
+        m_baseBiomeLookupTextureData[index] = m_biomeCount;
         tex.data[index] = 255;
         m_biomeCount++;
     } else {
-        baseBiomeLookupTexture[index] = m_biomeCount - 1;
+        m_baseBiomeLookupTextureData[index] = m_biomeCount - 1;
         it->second.data[index] = 255;
     }
 }
@@ -347,120 +268,30 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
     genData->terrainTint = kegProps.tint;
 }
 
-vg::GLProgram* PlanetLoader::generateProgram(PlanetGenData* genData,
-                                             TerrainFuncs& baseTerrainFuncs,
-                                             TerrainFuncs& tempTerrainFuncs,
-                                             TerrainFuncs& humTerrainFuncs) {
-    // Build initial string
-    nString fSource = NOISE_SRC_FRAG;
-    fSource.reserve(fSource.size() + 8192);
-
-    // Set initial values
-    fSource += N_HEIGHT + "=" + std::to_string(baseTerrainFuncs.baseHeight) + ";";
-    fSource += N_TEMP + "=" + std::to_string(tempTerrainFuncs.baseHeight) + ";";
-    fSource += N_HUM + "=" + std::to_string(humTerrainFuncs.baseHeight) + ";";
-
-    // Add all the noise functions
-    addNoiseFunctions(fSource, N_HEIGHT, baseTerrainFuncs);
-    addNoiseFunctions(fSource, N_TEMP, tempTerrainFuncs);
-    addNoiseFunctions(fSource, N_HUM, humTerrainFuncs);
-
-    // Add biome code
-    addBiomes(fSource, genData);
-
-    // Add final brace
-    fSource += "}";
-
-    // Create the shader
-    vg::GLProgram* program = new vg::GLProgram;
-    program->init();
-    program->addShader(vg::ShaderType::VERTEX_SHADER, NOISE_SRC_VERT.c_str());
-    program->addShader(vg::ShaderType::FRAGMENT_SHADER, fSource.c_str());
-    program->bindFragDataLocation(0, N_HEIGHT.c_str());
-    program->bindFragDataLocation(1, N_TEMP.c_str());
-    program->bindFragDataLocation(2, N_HUM.c_str());
-    program->link();
-    std::cout << fSource << std::endl;
-    if (!program->getIsLinked()) {
-        showMessage("Failed to generate shader program");
-        return nullptr;
+void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData) {
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        std::cout << "Failed to parse node in parseBlockLayers. Should be MAP";
+        return;
     }
 
-    program->initAttributes();
-    program->initUniforms();
+    auto f = createDelegate<const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+        // Add a block
+        genData->blockLayers.emplace_back();
+        BlockLayer& l = genData->blockLayers.back();
 
-    return program;
-}
+        // Set name to key
+        l.block = Blocks[name].ID;
 
-void PlanetLoader::addNoiseFunctions(nString& fSource, const nString& variable, const TerrainFuncs& funcs) {
-#define TS(x) (std::to_string(x))
-    // Conditional scaling code. Generates (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
-#define SCALE_CODE ((fn.low != -1.0f || fn.high != 1.0f) ? \
-    fSource += variable + "+= (total / maxAmplitude) * (" + \
-        TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;" :\
-    fSource += variable + "+= total / maxAmplitude;")
-    
-    for (auto& fn : funcs.funcs) {
-        switch (fn.func) {
-            case TerrainFunction::NOISE:
-                fSource += R"(
-                total = 0.0;
-                amplitude = 1.0;
-                maxAmplitude = 0.0;
-                frequency = )" + TS(fn.frequency) + R"(;
+        // Load data
+        Keg::parse((ui8*)&l, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockLayer));
+    });
+    reader.forAllInMap(node, f);
+    delete f;
 
-                for (int i = 0; i < )" + TS(fn.octaves) + R"(; i++) {
-                    total += snoise(pos * frequency) * amplitude;
-
-                    frequency *= 2.0;
-                    maxAmplitude += amplitude;
-                    amplitude *= )" + TS(fn.persistence) + R"(;
-                }
-                )";
-                SCALE_CODE;
-                break;
-            case TerrainFunction::RIDGED_NOISE:
-                fSource += R"(
-                total = 0.0;
-                amplitude = 1.0;
-                maxAmplitude = 0.0;
-                frequency = )" + TS(fn.frequency) + R"(;
-
-                for (int i = 0; i < )" + TS(fn.octaves) + R"(; i++) {
-                    total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;
-
-                    frequency *= 2.0;
-                    maxAmplitude += amplitude;
-                    amplitude *= )" + TS(fn.persistence) + R"(;
-                }
-                )";
-                SCALE_CODE;
-                break;
-            default:
-                break;
-        }
-    }
-}
-
-void PlanetLoader::addBiomes(nString& fSource, PlanetGenData* genData) {
-    
-    // Base biome lookup
-    fSource += "float biomeIndex = texture(unBaseBiomes, " + N_TEMP_HUM_V2 + " / 255.0   ).x * 255.0f; ";
-    fSource += N_BIOME + " = biomeIndex;";
-    fSource += "float baseMult = 1.0;";
-
-    for (int i = 0; i < genData->biomes.size(); i++) {
-        // Add if
-        if (i == 0) {
-            fSource += "if ";
-        } else {
-            fSource += "else if ";
-        }
-        // Add conditional
-        fSource += "(biomeIndex <" + std::to_string((float)i + 0.01) + ") {";
-        // Mult lookup
-        fSource += "baseMult = texture(unBiomes, vec3(" + N_TEMP + "," + N_HUM + "," + std::to_string(i) + ")).x;";
-        // Closing curly brace
-        fSource += "}";
+    // Set starts for binary search application
+    int start = 0;
+    for (auto& l : genData->blockLayers) {
+        l.start = start;
+        start += l.width;
     }
 }

@@ -13,6 +13,8 @@ extern AccumulationTimer globalRenderAccumulationTimer; ///< for easy global ben
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
 
+class PlanetGenData;
+
 class FixedSizeBillboardVertex{
 public:
     glm::vec3 pos;
@@ -64,6 +66,7 @@ const int PLATEAU = 0x1;
 const int VOLCANO = 0x2;
 const int TOOSTEEP = 0x4;
 
+class HeightData;
 
 class LoadData
 {
@@ -71,17 +74,20 @@ public:
     LoadData()
     {
     }
-    LoadData(class HeightData *hmap)
+    LoadData(const HeightData* hmap, const PlanetGenData* gData)
     {
         heightMap = hmap;
+        genData = gData;
     }
     
-    inline void init(HeightData *hmap)
+    inline void init(const HeightData* hmap, const PlanetGenData* gData)
     {
         heightMap = hmap;
+        genData = gData;
     }
 
-    HeightData *heightMap;
+    const HeightData* heightMap;
+    const PlanetGenData* genData;
 };
 
 class MineralData

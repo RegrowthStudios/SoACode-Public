@@ -194,7 +194,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
     const float DIST_MIN = 3.0f;
     const float DIST_MAX = 3.1f;
 
-#define MIN_SIZE 0.4096f
+    const float MIN_SIZE = 0.4096f;
     
     f64v3 closestPoint;
     // Calculate distance from camera
@@ -292,7 +292,7 @@ bool SphericalTerrainPatch::isRenderable() const {
 }
 
 bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
-#define DELTA 0.1f
+    const float DELTA = 0.1f;
     f32 pLength = glm::length(relCamPos);
     f32v3 ncp = relCamPos / pLength;
 
@@ -301,10 +301,9 @@ bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &p
     f32 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
     if (lodAngle >= horizonAngle + DELTA) return true;
     return false;
-#undef DELTA
 }
 bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
-#define DELTA 0.1
+    const float DELTA = 0.1;
     f64 pLength = glm::length(relCamPos);
     f64v3 ncp = relCamPos / pLength;
 
@@ -313,7 +312,6 @@ bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &p
     f64 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
     if (lodAngle >= horizonAngle + DELTA) return true;
     return false;
-#undef DELTA
 }
 
 void SphericalTerrainPatch::requestMesh() {

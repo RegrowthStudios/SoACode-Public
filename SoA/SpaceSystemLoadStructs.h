@@ -15,7 +15,7 @@
 #ifndef SpaceSystemLoadStructs_h__
 #define SpaceSystemLoadStructs_h__
 
-class PlanetGenData;
+struct PlanetGenData;
 
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/Entity.h>

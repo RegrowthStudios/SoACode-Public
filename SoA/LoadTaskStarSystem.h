@@ -5,10 +5,10 @@
 #include "SoaEngine.h"
 
 // Sample Dependency Task
-class LoadTaskSolarSystem : public ILoadTask {
+class LoadTaskStarSystem : public ILoadTask {
     friend class LoadScreen;
 
-    LoadTaskSolarSystem(vcore::RPCManager* glrpc, const nString& filePath, SoaState* state) :
+    LoadTaskStarSystem(vcore::RPCManager* glrpc, const nString& filePath, SoaState* state) :
         soaState(state) {
         this->glrpc = glrpc;
         loadData.filePath = filePath;

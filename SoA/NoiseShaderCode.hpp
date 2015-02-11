@@ -82,7 +82,7 @@ vec4 taylorInvSqrt(vec4 r)
 
 float snoise(vec3 v)
 { 
-  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+  const vec2  C = vec2(1.0/6.0, 1.0/3.0);
   const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
 
 // First corner
@@ -133,15 +133,15 @@ float snoise(vec3 v)
   vec4 s1 = floor(b1)*2.0 + 1.0;
   vec4 sh = -step(h, vec4(0.0));
 
-  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
-  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
 
   vec3 p0 = vec3(a0.xy,h.x);
   vec3 p1 = vec3(a0.zw,h.y);
   vec3 p2 = vec3(a1.xy,h.z);
   vec3 p3 = vec3(a1.zw,h.w);
 
-//Normalize gradients
+  //Normalize gradients
   vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
   p0 *= norm.x;
   p1 *= norm.y;
@@ -156,10 +156,10 @@ float snoise(vec3 v)
 }
 
 void main() {
-    float total;
+float total;
     float amplitude;
     float maxAmplitude;
-    float frequency;
+float frequency;
 
     pOutput.a = 0.0f;
 

@@ -52,7 +52,6 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define NUM_BYTE_VOXEL_ARRAYS 1
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
-#define M_PER_VOXEL 0.5f
 
 bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float planetRadius) {
     // Check if there is a free generator
@@ -68,14 +67,14 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
         f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
 
         // Set the data
-        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * M_PER_VOXEL * coordMults.x,
-                             planetRadius * M_PER_VOXEL * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
-                             facePosition.pos.z * CHUNK_WIDTH * M_PER_VOXEL * coordMults.y);
+        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
+                             planetRadius * KM_PER_VOXEL * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
+                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.y);
 
         gen.cubeFace = facePosition.face;
 
         gen.width = 32;
-        gen.step = M_PER_VOXEL;
+        gen.step = KM_PER_VOXEL;
         // Invoke generator
         cgd->refCount++;
         m_generator->invokeRawGen(&gen.rpc);
@@ -106,7 +105,6 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     m_physicsEngine->setChunkManager(this);
 
     NoChunkFade = 0;
-    planet = NULL;
     _poccx = _poccy = _poccz = -1;
     _voxelLightEngine = new VoxelLightEngine();
 
@@ -647,14 +645,8 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
         generateTask = new GenerateTask;
     }
 
-    // Init the containers
-    chunk->_blockIDContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-    chunk->_lampLightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-    chunk->_sunlightContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-    chunk->_tertiaryDataContainer.init(vvox::VoxelStorageState::FLAT_ARRAY);
-
     // Initialize the task
-    generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData));
+    generateTask->init(chunk, new LoadData(chunk->chunkGridData->heightData, m_terrainGenerator->getPlanetGenData()));
     chunk->lastOwnerTask = generateTask;
     // Add the task
     _threadPool.addTask(generateTask);

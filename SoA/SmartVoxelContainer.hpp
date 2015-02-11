@@ -97,6 +97,7 @@ namespace vorb {
                 _quietFrames = 0;
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
                     _dataTree.createFromSortedArray(data);
+                    _dataTree.checkTreeValidity();
                 } else {
                     _dataArray = _arrayRecycler->create();
                     int index = 0;
