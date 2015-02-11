@@ -33,6 +33,7 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshM
     unCoordMults(m_genProgram->getUniform("unCoordMults")),
     unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
     unPatchWidth(m_genProgram->getUniform("unPatchWidth")),
+    unRadius(m_genProgram->getUniform("unRadius")),
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
     unWidth(m_normalProgram->getUniform("unWidth")),
     unTexelWidth(m_normalProgram->getUniform("unTexelWidth")),
@@ -170,6 +171,7 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
     glUniform1f(unPatchWidth, data->width);
+    glUniform1f(unRadius, m_planetGenData->radius);
 
     m_quad.draw();
 
@@ -200,6 +202,7 @@ void SphericalTerrainGpuGenerator::generateRawHeightmap(RawGenDelegate* data) {
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
+    glUniform1f(unRadius, m_planetGenData->radius);
 
     glUniform1f(unPatchWidth, (float)data->width * data->step);
     m_quad.draw();

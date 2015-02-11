@@ -102,6 +102,7 @@ private:
     VGUniform unCoordMults;
     VGUniform unCoordMapping;
     VGUniform unPatchWidth;
+    VGUniform unRadius;
     VGUniform unHeightMap;
     VGUniform unWidth;
     VGUniform unTexelWidth;

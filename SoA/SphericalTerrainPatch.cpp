@@ -204,8 +204,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
         m_distance = glm::length(closestPoint - cameraPos);
     } else {
         // Approximate
-        m_distance = glm::length(m_worldPosition - cameraPos);
-      
+        m_distance = glm::length(m_worldPosition - cameraPos); 
     }
     
     if (m_children) {
