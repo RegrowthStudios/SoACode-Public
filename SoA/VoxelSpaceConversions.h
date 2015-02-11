@@ -55,75 +55,54 @@ namespace VoxelSpaceConversions {
 
 
     /// Gets multipliers for converting face direction to world direction
-    extern f32v3 getCoordinateMults(const ChunkFacePosition2D& facePosition);
-    extern f32v3 getCoordinateMults(const ChunkFacePosition3D& facePosition);
+    extern f32v3 getCoordinateMults(const ChunkPosition2D& facePosition);
+    extern f32v3 getCoordinateMults(const ChunkPosition3D& facePosition);
     /// Gets coordinate mappings for converting face position to world position
-    extern i32v3 getCoordinateMapping(const ChunkFacePosition2D& facePosition);
-    extern i32v3 getCoordinateMapping(const ChunkFacePosition3D& facePosition);
+    extern i32v3 getCoordinateMapping(const ChunkPosition2D& facePosition);
+    extern i32v3 getCoordinateMapping(const ChunkPosition3D& facePosition);
 
-    /// Converts from voxel grid-space to chunk grid-space
+    /// Converts from voxel-space to chunk-space
     /// Does not affect rotation or face
     /// @param voxelPosition: The voxel grid position
     /// @return the chunk grid position
-    extern ChunkPosition2D voxelGridToChunkGrid(const VoxelPosition2D& voxelPosition);
-    extern ChunkPosition3D voxelGridToChunkGrid(const VoxelPosition3D& voxelPosition);
-    /// Converts from chunk grid-space to voxel grid-space
+    extern ChunkPosition2D voxelToChunk(const VoxelPosition2D& voxelPosition);
+    extern ChunkPosition3D voxelToChunk(const VoxelPosition3D& voxelPosition);
+    /// Converts from chunk-space to voxel-space
     /// Does not affect rotation or face
     /// @param gridPosition: The chunk grid position
     /// @return the voxel position
-    extern VoxelPosition2D chunkGridToVoxelGrid(const ChunkPosition2D& gridPosition);
-    extern VoxelPosition3D chunkGridToVoxelGrid(const ChunkPosition3D& gridPosition);
-    /// Converts from voxel grid-space to chunk grid-space
-    /// Does not affect rotation or face
-    /// @param voxelPosition: The voxel grid position
-    /// @return the chunk grid position
-    extern ChunkFacePosition2D voxelFaceToChunkFace(const VoxelFacePosition2D& voxelPosition);
-    extern ChunkFacePosition3D voxelFaceToChunkFace(const VoxelFacePosition3D& voxelPosition);
-    /// Converts from chunk face-space to voxel face-space
-    /// Does not affect rotation or face
-    /// @param gridPosition: The voxel face position
-    /// @return the voxel position
-    extern VoxelFacePosition2D chunkFaceToVoxelFace(const ChunkFacePosition2D& gridPosition);
-    extern VoxelFacePosition3D chunkFaceToVoxelFace(const ChunkFacePosition3D& gridPosition);
-    /// Converts from grid-space to face-space
-    /// @param gridPosition: The voxel face position
-    /// @return the face position
-    extern VoxelFacePosition2D voxelGridToFace(const VoxelPosition2D& gridPosition);
-    extern VoxelFacePosition3D voxelGridToFace(const VoxelPosition3D& gridPosition);
-    /// Converts from grid-space to face-space
-    /// @param gridPosition: The chunk face position
-    /// @return the face position
-    extern ChunkFacePosition2D chunkGridToFace(const ChunkPosition2D& gridPosition);
-    extern ChunkFacePosition3D chunkGridToFace(const ChunkPosition3D& gridPosition);
+    extern VoxelPosition2D chunkToVoxel(const ChunkPosition2D& gridPosition);
+    extern VoxelPosition3D chunkToVoxel(const ChunkPosition3D& gridPosition);
+   
     /// Converts from face-space to world-space
     /// @param facePosition: The face position
     /// @param voxelWorldRadius: Radius of the world in units of voxels
     /// @return the world position
-    extern f64v3 voxelFaceToWorld(const VoxelFacePosition2D& facePosition, f64 voxelWorldRadius);
-    extern f64v3 voxelFaceToWorld(const VoxelFacePosition3D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 voxelToWorld(const VoxelPosition2D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 voxelToWorld(const VoxelPosition3D& facePosition, f64 voxelWorldRadius);
     /// Converts from face-space to world-space
     /// @param facePosition: The face position
     /// @param voxelWorldRadius: Radius of the world in units of voxels
     /// @return the world position
-    extern f64v3 chunkFaceToWorld(const ChunkFacePosition2D& facePosition, f64 voxelWorldRadius);
-    extern f64v3 chunkFaceToWorld(const ChunkFacePosition3D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 chunkToWorld(const ChunkPosition2D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 chunkToWorld(const ChunkPosition3D& facePosition, f64 voxelWorldRadius);
     /// Converts from face-space to normalized world-space
     /// @param facePosition: The face position
     /// @param voxelWorldRadius: Radius of the world in units of voxels
     /// @return the normalized world position
-    extern f64v3 voxelFaceToWorldNormalized(const VoxelFacePosition2D& facePosition, f64 voxelWorldRadius);
-    extern f64v3 voxelFaceToWorldNormalized(const VoxelFacePosition3D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 voxelToWorldNormalized(const VoxelPosition2D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 voxelToWorldNormalized(const VoxelPosition3D& facePosition, f64 voxelWorldRadius);
     /// Converts from face-space to normalized world-space
     /// @param facePosition: The face position
     /// @param voxelWorldRadius: Radius of the world in units of voxels
     /// @return the normalized world position
-    extern f64v3 chunkFaceToWorldNormalized(const ChunkFacePosition2D& facePosition, f64 voxelWorldRadius);
-    extern f64v3 chunkFaceToWorldNormalized(const ChunkFacePosition3D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 chunkToWorldNormalized(const ChunkPosition2D& facePosition, f64 voxelWorldRadius);
+    extern f64v3 chunkToWorldNormalized(const ChunkPosition3D& facePosition, f64 voxelWorldRadius);
     /// Converts from world-space to unrotated voxel-space
     /// @param worldSpace: World position in units of voxels. @pre should rotated so that the planet has
     ///   a relative orientation of 0
     /// @return the voxel position
-    extern VoxelPosition3D worldToVoxelGrid(const f64v3& worldPosition, f64 voxelWorldRadius);
+    extern VoxelPosition3D worldToVoxel(const f64v3& worldPosition, f64 voxelWorldRadius);
 }
 
 #endif // VoxelSpaceConversions_h__

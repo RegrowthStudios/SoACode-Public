@@ -81,7 +81,6 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
 
     this->chunkGridData = chunkGridData;
     gridPosition.face = chunkGridData->gridPosition.face;
-    gridPosition.rotation = chunkGridData->gridPosition.rotation;
     gridPosition.pos = chunkPos;
 
     mesh = nullptr;

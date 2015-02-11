@@ -103,7 +103,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                         spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }
 
-                    f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(VoxelSpaceConversions::chunkGridToVoxelGrid(chunkGridPos),
+                    f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(VoxelSpaceConversions::chunkToVoxel(chunkGridPos),
                         stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
 
                     // We need to transition to the voxels

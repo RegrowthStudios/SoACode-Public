@@ -45,11 +45,11 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition2D& gridPosit
     VoxelPosition2D gp3 = gridPosition;
     gp3.pos.y += OFFSET;
 
-    f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+    f64v3 v1 = VoxelSpaceConversions::voxelToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
-    f64v3 v2 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+    f64v3 v2 = VoxelSpaceConversions::voxelToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
-    f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+    f64v3 v3 = VoxelSpaceConversions::voxelToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
   
     f64v3 tangent = glm::normalize(v2 - v1);
@@ -70,11 +70,11 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosit
     VoxelPosition3D gp3 = gridPosition;
     gp3.pos.z += OFFSET;
 
-    f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+    f64v3 v1 = VoxelSpaceConversions::voxelToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
-    f64v3 v2 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+    f64v3 v2 = VoxelSpaceConversions::voxelToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
-    f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
+    f64v3 v3 = VoxelSpaceConversions::voxelToWorldNormalized(
         VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
 
     f64v3 tangent = glm::normalize(v2 - v1);

@@ -26,7 +26,7 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSyst
             auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
 
             VoxelFacePosition3D facePos = VoxelSpaceConversions::voxelGridToFace(vpcmp.gridPosition);
-            f64v3 spacePos = VoxelSpaceConversions::voxelFaceToWorld(facePos, svcmp.voxelRadius) / VOXELS_PER_KM;
+            f64v3 spacePos = VoxelSpaceConversions::voxelToWorld(facePos, svcmp.voxelRadius) / VOXELS_PER_KM;
 
             spcmp.position = arcmp.currentOrientation * spacePos + npcmp.position;
             // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
