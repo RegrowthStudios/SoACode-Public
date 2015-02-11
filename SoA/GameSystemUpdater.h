@@ -53,7 +53,7 @@ private:
     /// @param radius: Radius of the world
     /// @param gridPos: Mapping data for spherical voxel position
     /// @param pos: the resulting voxel grid relative position
-    static void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkGridPosition2D& gridPos, OUT f64v3& pos);
+    static void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkPosition2D& gridPos, OUT f64v3& pos);
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 

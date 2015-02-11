@@ -22,7 +22,7 @@ SphericalTerrainCpuGenerator::~SphericalTerrainCpuGenerator() {
 void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) {
 
     f32v3 pos;
-    const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)cubeFace];
+    const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
     const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace][0]);
     
     const float VERT_WIDTH = width / PATCH_WIDTH;

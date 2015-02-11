@@ -48,7 +48,7 @@ public:
         gridPosition.rotation = rotation;
     }
 
-    ChunkGridPosition2D gridPosition;
+    ChunkPosition2D gridPosition;
     HeightData heightData[CHUNK_LAYER];
     int refCount = 1;
     volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
@@ -240,7 +240,7 @@ public:
     Chunk *right, *left, *front, *back, *top, *bottom;
 
     ChunkGridData* chunkGridData;
-    ChunkGridPosition3D gridPosition;
+    ChunkPosition3D gridPosition;
 
     // Thread safety functions
     inline void lock() { _dataLock.lock(); }

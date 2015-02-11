@@ -159,7 +159,7 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
 
     // Get padded position
     f32v3 cornerPos = data->startPos;
-    const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)data->cubeFace];
+    const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     cornerPos[coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
     cornerPos[coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
 
@@ -198,7 +198,7 @@ void SphericalTerrainGpuGenerator::generateRawHeightmap(RawGenDelegate* data) {
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &data->startPos[0]);
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
-    i32v3 coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)data->cubeFace];
+    i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
 
     glUniform1f(unPatchWidth, (float)data->width * data->step);

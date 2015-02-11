@@ -74,7 +74,7 @@ typedef f64v3 VoxelPosition;
 
 struct VoxelPositionComponent {
     f64q orientation;
-    VoxelGridPosition3D gridPosition;
+    VoxelPosition3D gridPosition;
     vcore::ComponentID parentVoxelComponent = 0;
 };
 

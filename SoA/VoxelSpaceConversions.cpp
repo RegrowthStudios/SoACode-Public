@@ -17,22 +17,22 @@ f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition3D& faceP
 }
 
 i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkFacePosition2D& facePosition) {
-    return GRID_TO_WORLD[facePosition.face];
+    return VOXEL_TO_WORLD[facePosition.face];
 }
 i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkFacePosition3D& facePosition) {
-    return GRID_TO_WORLD[facePosition.face];
+    return VOXEL_TO_WORLD[facePosition.face];
 }
 
-ChunkGridPosition2D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelGridPosition2D& voxelPosition) {
-    ChunkGridPosition2D gpos;
+ChunkPosition2D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelPosition2D& voxelPosition) {
+    ChunkPosition2D gpos;
     gpos.face = voxelPosition.face;
     gpos.rotation = voxelPosition.rotation;
     gpos.pos.x = fastFloor(voxelPosition.pos.x / CHUNK_WIDTH);
     gpos.pos.y = fastFloor(voxelPosition.pos.y / CHUNK_WIDTH);
     return gpos;
 }
-ChunkGridPosition3D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelGridPosition3D& voxelPosition) {
-    ChunkGridPosition3D gpos;
+ChunkPosition3D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelPosition3D& voxelPosition) {
+    ChunkPosition3D gpos;
     gpos.face = voxelPosition.face;
     gpos.rotation = voxelPosition.rotation;
     gpos.pos.x = fastFloor(voxelPosition.pos.x / CHUNK_WIDTH);
@@ -41,16 +41,16 @@ ChunkGridPosition3D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelGridP
     return gpos;
 }
 
-VoxelGridPosition2D VoxelSpaceConversions::chunkGridToVoxelGrid(const ChunkGridPosition2D& gridPosition) {
-    VoxelGridPosition2D vpos;
+VoxelPosition2D VoxelSpaceConversions::chunkGridToVoxelGrid(const ChunkPosition2D& gridPosition) {
+    VoxelPosition2D vpos;
     vpos.face = gridPosition.face;
     vpos.rotation = gridPosition.rotation;
     vpos.pos.x = gridPosition.pos.x * CHUNK_WIDTH;
     vpos.pos.y = gridPosition.pos.y * CHUNK_WIDTH;
     return vpos;
 }
-VoxelGridPosition3D VoxelSpaceConversions::chunkGridToVoxelGrid(const ChunkGridPosition3D& gridPosition) {
-    VoxelGridPosition3D vpos;
+VoxelPosition3D VoxelSpaceConversions::chunkGridToVoxelGrid(const ChunkPosition3D& gridPosition) {
+    VoxelPosition3D vpos;
     vpos.face = gridPosition.face;
     vpos.rotation = gridPosition.rotation;
     vpos.pos.x = gridPosition.pos.x * CHUNK_WIDTH;
@@ -93,7 +93,7 @@ VoxelFacePosition3D VoxelSpaceConversions::chunkFaceToVoxelFace(const ChunkFaceP
     return vpos;
 }
 
-VoxelFacePosition2D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPosition2D& gridPosition) {
+VoxelFacePosition2D VoxelSpaceConversions::voxelGridToFace(const VoxelPosition2D& gridPosition) {
     const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     VoxelFacePosition2D facePos;
@@ -106,7 +106,7 @@ VoxelFacePosition2D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPositi
 
     return facePos;
 }
-VoxelFacePosition3D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPosition3D& gridPosition) {
+VoxelFacePosition3D VoxelSpaceConversions::voxelGridToFace(const VoxelPosition3D& gridPosition) {
     const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     VoxelFacePosition3D facePos;
@@ -120,7 +120,7 @@ VoxelFacePosition3D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPositi
     return facePos;
 }
 
-ChunkFacePosition2D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPosition2D& gridPosition) {
+ChunkFacePosition2D VoxelSpaceConversions::chunkGridToFace(const ChunkPosition2D& gridPosition) {
     const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     ChunkFacePosition2D facePos;
@@ -133,7 +133,7 @@ ChunkFacePosition2D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPositi
 
     return facePos;
 }
-ChunkFacePosition3D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPosition3D& gridPosition) {
+ChunkFacePosition3D VoxelSpaceConversions::chunkGridToFace(const ChunkPosition3D& gridPosition) {
     const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
 
     ChunkFacePosition3D facePos;
@@ -162,7 +162,7 @@ f64v3 VoxelSpaceConversions::chunkFaceToWorld(const ChunkFacePosition3D& facePos
 }
 
 f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition2D& facePosition, f64 voxelWorldRadius) {
-    const i32v3& axisMapping = GRID_TO_WORLD[facePosition.face];
+    const i32v3& axisMapping = VOXEL_TO_WORLD[facePosition.face];
     const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face][0];
 
     f64v3 worldPosition;
@@ -173,7 +173,7 @@ f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition2
     return glm::normalize(worldPosition);
 }
 f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition3D& facePosition, f64 voxelWorldRadius) {
-    const i32v3& axisMapping = GRID_TO_WORLD[facePosition.face];
+    const i32v3& axisMapping = VOXEL_TO_WORLD[facePosition.face];
     const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face][0];
 
     f64v3 worldPosition;
@@ -191,9 +191,9 @@ f64v3 VoxelSpaceConversions::chunkFaceToWorldNormalized(const ChunkFacePosition3
     return voxelFaceToWorldNormalized(chunkFaceToVoxelFace(facePosition), voxelWorldRadius);
 }
 
-VoxelGridPosition3D VoxelSpaceConversions::worldToVoxelGrid(const f64v3& worldPosition, f64 voxelWorldRadius) {
+VoxelPosition3D VoxelSpaceConversions::worldToVoxelGrid(const f64v3& worldPosition, f64 voxelWorldRadius) {
     f64v3 boxIntersect;
-    VoxelGridPosition3D gpos;
+    VoxelPosition3D gpos;
 
     // Get closest point to the cube
     boxIntersect.x = (worldPosition.x <= -voxelWorldRadius) ? -voxelWorldRadius :

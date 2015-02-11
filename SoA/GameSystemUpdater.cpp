@@ -87,8 +87,8 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // We need to transition to a voxel component
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
-                    ChunkGridPosition2D chunkGridPos;
-                    VoxelGridPosition3D vGridPos;
+                    ChunkPosition2D chunkGridPos;
+                    VoxelPosition3D vGridPos;
                     computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), chunkGridPos, vGridPos.pos);
                     vGridPos.face = chunkGridPos.face;
                     vGridPos.rotation = chunkGridPos.rotation;
@@ -134,7 +134,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
     }
 }
 
-void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkGridPosition2D& gridPos, OUT f64v3& pos) {
+void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkPosition2D& gridPos, OUT f64v3& pos) {
 #define VOXELS_PER_KM 2000.0
 
     f64v3 voxelRelPos = relPos * VOXELS_PER_KM;

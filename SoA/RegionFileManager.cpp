@@ -98,7 +98,7 @@ void RegionFileManager::clear() {
     _regionFile = nullptr;
 }
 
-bool RegionFileManager::openRegionFile(nString region, const ChunkGridPosition3D& gridPosition, bool create) {
+bool RegionFileManager::openRegionFile(nString region, const ChunkPosition3D& gridPosition, bool create) {
 
     nString filePath;
     class stat statbuf;

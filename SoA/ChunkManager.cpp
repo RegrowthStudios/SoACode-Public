@@ -88,7 +88,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGpuGenerator* terrainGenerator,
-                           const ChunkGridPosition2D& startGridPos, ChunkIOManager* chunkIo,
+                           const ChunkPosition2D& startGridPos, ChunkIOManager* chunkIo,
                            const f64v3& gridPosition, float planetRadius) :
     _isStationary(0),
     m_cameraGridPos(startGridPos),
@@ -652,7 +652,7 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
     _threadPool.addTask(generateTask);
 }
 
-void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D& relativeGridPos, const i32v2& ijOffset /* = i32v2(0) */) {
+void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkPosition2D& relativeGridPos, const i32v2& ijOffset /* = i32v2(0) */) {
 
     // Get the voxel grid position
     i32v2 gridPos(chunkPosition.x, chunkPosition.z);

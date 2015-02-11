@@ -119,7 +119,7 @@ void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) 
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                     vcore::ComponentID sphericalTerrainComponent,
-                                                                    const ChunkGridPosition2D& startGridPos,
+                                                                    const ChunkPosition2D& startGridPos,
                                                                     const f64v3& gridPosition,
                                                                     const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0

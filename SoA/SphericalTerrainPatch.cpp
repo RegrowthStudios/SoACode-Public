@@ -180,7 +180,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     // Approximate the world position for now //TODO(Ben): Better
     f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
 
-    const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)m_cubeFace];
+    const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
 
     m_worldPosition[coordMapping.x] = centerGridPos.x * coordMults.x;

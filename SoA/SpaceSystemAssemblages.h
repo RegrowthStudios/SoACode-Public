@@ -67,7 +67,7 @@ namespace SpaceSystemAssemblages {
     /// Spherical voxel component
     extern vcore::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                          vcore::ComponentID sphericalTerrainComponent,
-                                                         const ChunkGridPosition2D& startGridPos,
+                                                         const ChunkPosition2D& startGridPos,
                                                          const f64v3& gridPosition,
                                                          const SoaState* soaState);
     extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
