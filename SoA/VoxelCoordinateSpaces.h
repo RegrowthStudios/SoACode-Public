@@ -17,7 +17,8 @@
 
 enum WorldCubeFace {
     FACE_TOP = 0, FACE_LEFT, FACE_RIGHT,
-    FACE_FRONT, FACE_BACK, FACE_BOTTOM
+    FACE_FRONT, FACE_BACK, FACE_BOTTOM,
+    FACE_NONE
 };
 
 struct ChunkGridPosition2D {

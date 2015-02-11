@@ -18,6 +18,7 @@
 
 #include "SphericalTerrainPatch.h"
 #include "SphericalTerrainPatchMesher.h"
+#include "VoxelCoordinateSpaces.h"
 
 class TerrainFuncs;
 
@@ -27,12 +28,17 @@ public:
                                  PlanetGenData* planetGenData);
     ~SphericalTerrainCpuGenerator();
 
-    /// Generates a terrain patch
+    /// Generates a terrain patch: NOTE: This is only here for testing purposes. GPUgen is vastly superior
     /// @param mesh: The mesh handle
     /// @param startPos: Starting position
     /// @param cubeFace: The world cube face
     /// @param width: Width of the patch
     void generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
+
+    /// Gets the height at a specific face position.
+    /// @param facePosition: The position to query
+    /// @return height in meters.
+    float getTerrainHeight(const VoxelFacePosition2D& facePosition);
 
 private:
     /// Gets noise value using terrainFuncs

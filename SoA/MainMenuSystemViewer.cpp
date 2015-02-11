@@ -7,9 +7,12 @@
 #include "Camera.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainPatch.h"
+#include "SphericalTerrainCpuGenerator.h"
 
 const float MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
 const float MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
+
+#define KM_PER_VOXEL 0.0005f
 
 MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera,
                                            SpaceSystem* spaceSystem, InputManager* inputManager) :
@@ -229,10 +232,11 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
             hitpoint = f32v3(glm::inverse(rot) * f64v3(hitpoint));
         }
 
-        m_clickPos = f64v3(hitpoint);
-
         // Compute face and grid position
-        computeGridPosition(hitpoint, radius);
+        float rheight;
+        computeGridPosition(hitpoint, radius, rheight);
+
+        m_clickPos = f64v3(hitpoint + glm::normalize(hitpoint) * rheight);
 
         auto& data = bodyArData[eid];
         data.selectedPos = hitpoint;
@@ -241,7 +245,7 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
 }
 
 // TODO(Ben): I think this isn't needed
-void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radius) {
+void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radius, OUT float& height) {
     f32v3 cornerPos[2];
     float min;
     f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
@@ -257,28 +261,35 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, float radi
     const float eps = 0.01f;
 
     if (abs(gridHit.x - (-radius)) < eps) { //-X
-        m_selectedCubeFace = (int)WorldCubeFace::FACE_LEFT;
+        m_selectedCubeFace = WorldCubeFace::FACE_LEFT;
         m_selectedGridPos.x = gridHit.z;
-        m_selectedGridPos.y = gridHit.y;
+        m_selectedGridPos.z = gridHit.y;
     } else if (abs(gridHit.x - radius) < eps) { //X
-        m_selectedCubeFace = (int)WorldCubeFace::FACE_RIGHT;
+        m_selectedCubeFace = WorldCubeFace::FACE_RIGHT;
         m_selectedGridPos.x = gridHit.z;
-        m_selectedGridPos.y = gridHit.y;
+        m_selectedGridPos.z = gridHit.y;
     } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
-        m_selectedCubeFace = (int)WorldCubeFace::FACE_BOTTOM;
+        m_selectedCubeFace = WorldCubeFace::FACE_BOTTOM;
         m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.y = gridHit.z;
+        m_selectedGridPos.z = gridHit.z;
     } else if (abs(gridHit.y - radius) < eps) { //Y
-        m_selectedCubeFace = (int)WorldCubeFace::FACE_TOP;
+        m_selectedCubeFace = WorldCubeFace::FACE_TOP;
         m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.y = gridHit.z;
+        m_selectedGridPos.z = gridHit.z;
     } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
-        m_selectedCubeFace = (int)WorldCubeFace::FACE_BACK;
+        m_selectedCubeFace = WorldCubeFace::FACE_BACK;
         m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.y = gridHit.y;
+        m_selectedGridPos.z = gridHit.y;
     } else if (abs(gridHit.z - radius) < eps) { //Z
-        m_selectedCubeFace = (int)WorldCubeFace::FACE_FRONT;
+        m_selectedCubeFace = WorldCubeFace::FACE_FRONT;
         m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.y = gridHit.y;
+        m_selectedGridPos.z = gridHit.y;
     }
+
+    // Get height at click
+    VoxelFacePosition2D facePos;
+    facePos.pos = f64v2(gridHit);
+    facePos.face = m_selectedCubeFace;
+    height = m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->getTerrainHeight(facePos) * KM_PER_VOXEL;
+    m_selectedGridPos.y = height;
 }

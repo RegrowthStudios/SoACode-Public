@@ -21,6 +21,8 @@
 #include <Vorb/ui/MouseInputDispatcher.h>
 #include <Vorb/ecs/ECS.h>
 
+#include "VoxelCoordinateSpaces.h"
+
 class CinematicCamera;
 class InputManager;
 class SpaceSystem;
@@ -57,7 +59,7 @@ public:
     void targetBody(vcore::EntityID eid);
 
     /// Getters
-    const f32v2& getSelectedGridPos() const { return m_selectedGridPos; }
+    const f32v3& getSelectedGridPos() const { return m_selectedGridPos; }
     const int& getSelectedCubeFace() const { return m_selectedCubeFace; }
     vcore::EntityID getSelectedPlanet() const { return m_selectedPlanet; }
     const f64v3& getClickPos() const { return m_clickPos; }
@@ -86,7 +88,7 @@ private:
     void onMouseMotion(Sender sender, const vui::MouseMotionEvent& e);
 
     void pickStartLocation(vcore::EntityID eid);
-    void computeGridPosition(const f32v3& hitpoint, float radius);
+    void computeGridPosition(const f32v3& hitpoint, float radius, OUT float& height);
 
     nString currentBody = "";
 
@@ -100,8 +102,8 @@ private:
     f32v2 m_viewport;
     f64v3 m_clickPos = f64v3(0.0);
 
-    f32v2 m_selectedGridPos = f32v2(0.0f);
-    int m_selectedCubeFace = -1;
+    f32v3 m_selectedGridPos = f32v3(0.0f);
+    WorldCubeFace m_selectedCubeFace = WorldCubeFace::FACE_NONE;
 
     vcore::EntityID m_selectedPlanet = 0;
 

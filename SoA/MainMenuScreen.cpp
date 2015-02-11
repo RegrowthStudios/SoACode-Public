@@ -227,11 +227,8 @@ void MainMenuScreen::newGame(const nString& fileName) {
         return;
     }
 
-    const f32v2& selectedGridPos = m_mainMenuSystemViewer->getSelectedGridPos();
-
     m_soaState->isNewGame = true;
     m_soaState->startFace = m_mainMenuSystemViewer->getSelectedCubeFace();
-    m_soaState->startGridPos = f32v3(selectedGridPos.x, 0.0f, selectedGridPos.y);
     m_soaState->startSpacePos = m_mainMenuSystemViewer->getClickPos();
     m_soaState->startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
 

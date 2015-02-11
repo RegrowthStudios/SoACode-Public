@@ -5,6 +5,8 @@
 #include "VoxelSpaceConversions.h"
 #include "CpuNoise.h"
 
+#define KM_PER_VOXEL 0.0005f
+
 SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(SphericalTerrainMeshManager* meshManager,
                                                            PlanetGenData* planetGenData) :
     m_mesher(meshManager, planetGenData),
@@ -49,6 +51,18 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
     }
 
     m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData);
+}
+
+float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelFacePosition2D& facePosition) {
+    // Get scaled position
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
+
+    // Set the data
+    f32v3 pos(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
+              m_genData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
+              facePosition.pos.y * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.y);
+
+    return getNoiseValue(pos, m_genData->baseTerrainFuncs);
 }
 
 float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const TerrainFuncs& funcs) {
