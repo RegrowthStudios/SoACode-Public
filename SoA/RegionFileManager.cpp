@@ -843,7 +843,7 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
 
 ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
     
-    ChunkFacePosition3D gridPos = VoxelSpaceConversions::chunkGridToFace(chunk->gridPosition);
+    const ChunkPosition3D& gridPos = chunk->gridPosition;
 
     int x = gridPos.pos.x % REGION_WIDTH;
     int y = gridPos.pos.y % REGION_WIDTH;
@@ -863,7 +863,7 @@ ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset)
 
 nString RegionFileManager::getRegionString(Chunk *ch)
 {
-    ChunkFacePosition3D gridPos = VoxelSpaceConversions::chunkGridToFace(ch->gridPosition);
+    const ChunkPosition3D& gridPos = ch->gridPosition;
 
     return "r." + std::to_string(fastFloor((float)gridPos.pos.x / REGION_WIDTH)) + "."
         + std::to_string(fastFloor((float)gridPos.pos.y / REGION_WIDTH)) + "."

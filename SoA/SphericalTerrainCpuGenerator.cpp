@@ -53,7 +53,7 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
     m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData);
 }
 
-float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelFacePosition2D& facePosition) {
+float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelPosition2D& facePosition) {
     // Get scaled position
     f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
 

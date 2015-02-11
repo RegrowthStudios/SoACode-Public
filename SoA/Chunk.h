@@ -42,10 +42,9 @@ class SphericalTerrainGpuGenerator;
 
 class ChunkGridData {
 public:
-    ChunkGridData(const i32v2& pos, WorldCubeFace face, int rotation) {
+    ChunkGridData(const i32v2& pos, WorldCubeFace face) {
         gridPosition.pos = pos;
         gridPosition.face = face;
-        gridPosition.rotation = rotation;
     }
 
     ChunkPosition2D gridPosition;

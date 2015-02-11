@@ -38,7 +38,7 @@ public:
     /// Gets the height at a specific face position.
     /// @param facePosition: The position to query
     /// @return height in meters.
-    float getTerrainHeight(const VoxelFacePosition2D& facePosition);
+    float getTerrainHeight(const VoxelPosition2D& facePosition);
 
 private:
     /// Gets noise value using terrainFuncs

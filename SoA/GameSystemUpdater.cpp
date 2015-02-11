@@ -91,7 +91,6 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     VoxelPosition3D vGridPos;
                     computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), chunkGridPos, vGridPos.pos);
                     vGridPos.face = chunkGridPos.face;
-                    vGridPos.rotation = chunkGridPos.rotation;
 
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
@@ -156,7 +155,6 @@ void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OU
     f32v3 gridHit = start + dir * min;
     const float eps = 2.0f;
 
-    gridPos.rotation = 0;
     if (abs(gridHit.x - (-voxelRadius)) < eps) { //-X
         gridPos.face = WorldCubeFace::FACE_LEFT;
         pos.z = -gridHit.y;

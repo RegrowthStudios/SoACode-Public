@@ -46,11 +46,11 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition2D& gridPosit
     gp3.pos.y += OFFSET;
 
     f64v3 v1 = VoxelSpaceConversions::voxelToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
+        gridPosition, worldRadius);
     f64v3 v2 = VoxelSpaceConversions::voxelToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
+        gp2, worldRadius);
     f64v3 v3 = VoxelSpaceConversions::voxelToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
+        gp3, worldRadius);
   
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
@@ -71,11 +71,11 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosit
     gp3.pos.z += OFFSET;
 
     f64v3 v1 = VoxelSpaceConversions::voxelToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
+        gridPosition, worldRadius);
     f64v3 v2 = VoxelSpaceConversions::voxelToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
+        gp2, worldRadius);
     f64v3 v3 = VoxelSpaceConversions::voxelToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
+        gp3, worldRadius);
 
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
@@ -93,33 +93,34 @@ void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkPosition2D& gridPosition,
     gridPosition.pos += xzOffset;
     WorldCubeFace newFace = gridPosition.face;
 
-    if (gridPosition.pos.y < -maxPos) { // BOTTOM SIDE
-        gridPosition.pos.y += maxPos;
+    //TODO(Ben): New transition logic
+    //if (gridPosition.pos.y < -maxPos) { // BOTTOM SIDE
+    //    gridPosition.pos.y += maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][(1 + gridPosition.rotation) % 4];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    } else if (gridPosition.pos.y > maxPos) { // TOP SIDE
-        gridPosition.pos.y -= maxPos;
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][(1 + gridPosition.rotation) % 4];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //} else if (gridPosition.pos.y > maxPos) { // TOP SIDE
+    //    gridPosition.pos.y -= maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][(3 + gridPosition.rotation) % 4];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    }
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][(3 + gridPosition.rotation) % 4];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //}
 
-    if (gridPosition.pos.x < -maxPos) { // LEFT SIDE
-        gridPosition.pos.x += maxPos;
+    //if (gridPosition.pos.x < -maxPos) { // LEFT SIDE
+    //    gridPosition.pos.x += maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][(2 + gridPosition.rotation) % 4];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    } else if (gridPosition.pos.x > maxPos) { // RIGHT SIDE
-        gridPosition.pos.x -= maxPos;
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][(2 + gridPosition.rotation) % 4];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //} else if (gridPosition.pos.x > maxPos) { // RIGHT SIDE
+    //    gridPosition.pos.x -= maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][gridPosition.rotation];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    }
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][gridPosition.rotation];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //}
 
     gridPosition.face = newFace;
 }

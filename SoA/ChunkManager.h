@@ -64,7 +64,7 @@ public:
         }
     }
     /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float voxelRadius);
+    bool dispatchHeightmapGen(ChunkGridData* cgd, const ChunkPosition3D& facePosition, float voxelRadius);
 private:
     static const int NUM_GENERATORS = 512;
     int counter = 0;

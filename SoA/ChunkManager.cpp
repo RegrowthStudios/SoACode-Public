@@ -53,7 +53,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
 
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float planetRadius) {
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkPosition3D& facePosition, float planetRadius) {
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];
@@ -588,7 +588,7 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                    VoxelSpaceConversions::chunkGridToFace(ch->gridPosition), m_planetRadius));
+                    ch->gridPosition, m_planetRadius));
             }
 
             canGenerate = false;
@@ -662,7 +662,7 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkPosition2D
     if (chunkGridData == nullptr) {
         // If its not allocated, make a new one with a new voxelMapData
         chunkGridData = new ChunkGridData(relativeGridPos.pos + ijOffset,
-                                          relativeGridPos.face, relativeGridPos.rotation);
+                                          relativeGridPos.face);
         _chunkGridDataMap[gridPos] = chunkGridData;
     } else {
         chunkGridData->refCount++;
