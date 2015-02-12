@@ -50,19 +50,14 @@ void SphericalTerrainMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
     }
 }
 
-void SphericalTerrainMesh::draw(const f64v3& cameraPos, const Camera* camera,
+void SphericalTerrainMesh::draw(const f64v3& relativePos, const Camera* camera,
                                 const f32m4& rot, vg::GLProgram* program) const {
     // Set up matrix
     f32m4 W(1.0);
-    setMatrixTranslation(W, -cameraPos);
+    setMatrixTranslation(W, -relativePos);
 
     f32m4 WVP = camera->getViewProjectionMatrix() * W * rot;
     W *= rot;
-
-    // TODO(Ben): GOT A CRASH HERE!
-    if ((int)m_cubeFace < 0 || (int)m_cubeFace > 6) {
-        pError("m_cubeFace is invalid in draw!");
-    }
 
     glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
@@ -98,11 +93,11 @@ void SphericalTerrainMesh::draw(const f64v3& cameraPos, const Camera* camera,
  //   glBindVertexArray(0);
 }
 
-void SphericalTerrainMesh::drawWater(const f64v3& cameraPos, const Camera* camera,
+void SphericalTerrainMesh::drawWater(const f64v3& relativePos, const Camera* camera,
                                      const f32m4& rot, vg::GLProgram* program) const {
     // Set up matrix
     f32m4 W(1.0);
-    setMatrixTranslation(W, -cameraPos);
+    setMatrixTranslation(W, -relativePos);
     W *= rot;
     f32m4 WVP = camera->getViewProjectionMatrix() * W;
 

@@ -42,6 +42,7 @@ public:
     f32v3 startPos;
     WorldCubeFace cubeFace;
     float width;
+    bool isSpherical;
 
     SphericalTerrainMesh* mesh = nullptr;
     SphericalTerrainGpuGenerator* generator = nullptr;

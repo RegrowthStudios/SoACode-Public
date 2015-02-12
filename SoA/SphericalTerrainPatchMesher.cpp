@@ -50,11 +50,16 @@ SphericalTerrainPatchMesher::~SphericalTerrainPatchMesher() {
 }
 
 void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
-                                            float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
+                                            float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
+                                            bool isSpherical) {
 
-
+    m_isSpherical = isSpherical;
     // Grab mappings so we can rotate the 2D grid appropriately
-    m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
+    if (m_isSpherical) {
+        m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
+    } else {
+        m_coordMapping = i32v3(0, 1, 2);
+    }
     m_startPos = startPos;
     m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace][0]);
 
@@ -120,7 +125,11 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
 
             // Spherify it!
             f32v3 normal = glm::normalize(v.position);
-            v.position = normal * (m_radius + h);
+            if (m_isSpherical) {
+                v.position = normal * (m_radius + h);
+            } else {
+                v.position.y += h;
+            }
 
             angle = computeAngleFromNormal(normal);
 
@@ -297,7 +306,9 @@ void SphericalTerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightDa
 
         // Spherify it!
         f32v3 normal = glm::normalize(v.position);
-        v.position = normal * m_radius;
+        if (m_isSpherical) {
+            v.position = normal * m_radius;
+        }
 
         zIndex = z * PIXELS_PER_PATCH_NM + 1;
         xIndex = x * PIXELS_PER_PATCH_NM + 1;

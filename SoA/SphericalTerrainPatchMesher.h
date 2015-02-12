@@ -57,8 +57,10 @@ public:
     /// @param cubeFace: The world cube face
     /// @param width: Width of the patch
     /// @param heightData: The heightmap data
+    /// @param isSpherical: True when this is a spherical mesh
     void buildMesh(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace,
-                   float width, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
+                   float width, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
+                   bool isSpherical);
 
 private:
 
@@ -124,6 +126,7 @@ private:
     i32v3 m_coordMapping;
     f32v3 m_startPos;
     f32v2 m_coordMults;
+    bool m_isSpherical;
 };
 
 #endif // SphericalTerrainPatchMesher_h__

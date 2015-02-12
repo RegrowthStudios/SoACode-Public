@@ -57,6 +57,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         gen.cubeFace = cubeFace;
         gen.mesh = mesh;
         gen.width = width;
+        gen.isSpherical = true;
         // Invoke generator
         m_generator->invokePatchTerrainGen(&gen.rpc);
         // Go to next generator

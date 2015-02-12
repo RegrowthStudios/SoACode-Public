@@ -50,7 +50,7 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
         }
     }
 
-    m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData);
+    m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData, true);
 }
 
 float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelPosition2D& facePosition) {

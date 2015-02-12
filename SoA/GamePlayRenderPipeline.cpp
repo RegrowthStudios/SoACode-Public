@@ -35,6 +35,7 @@ GamePlayRenderPipeline::GamePlayRenderPipeline() :
 void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
                                   const PDA* pda,
                                   SpaceSystem* spaceSystem,
+                                  GameSystem* gameSystem,
                                   const PauseMenu* pauseMenu) {
     // Set the viewport
     _viewport = viewport;
@@ -87,7 +88,9 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, &_chunkCamera);
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(windowDims),
-                                                          spaceSystem, nullptr, &_worldCamera,
+                                                          spaceSystem,
+                                                          gameSystem,
+                                                          nullptr, &_worldCamera,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),
                                                           glProgramManager->getProgram("SphericalWater"),

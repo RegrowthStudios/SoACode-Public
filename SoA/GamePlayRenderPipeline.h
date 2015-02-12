@@ -30,6 +30,7 @@ class ChunkGridRenderStage;
 class ChunkSlot;
 class CutoutVoxelRenderStage;
 class DevHudRenderStage;
+class GameSystem;
 class HdrRenderStage;
 class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
@@ -59,6 +60,7 @@ public:
     void init(const ui32v4& viewport, const SoaState* soaState, const App* app,
               const PDA* pda,
               SpaceSystem* spaceSystem,
+              GameSystem* gameSystem,
               const PauseMenu* pauseMenu);
 
     /// Renders the pipeline

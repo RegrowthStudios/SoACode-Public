@@ -250,6 +250,7 @@ void GamePlayScreen::initRenderPipeline() {
     m_renderPipeline.init(viewport, m_soaState,
                           _app, &m_pda,
                           m_soaState->spaceSystem.get(),
+                          m_soaState->gameSystem.get(),
                           &m_pauseMenu);
 }
 
