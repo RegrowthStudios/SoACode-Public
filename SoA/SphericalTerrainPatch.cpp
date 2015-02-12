@@ -101,11 +101,6 @@ void SphericalTerrainMesh::drawWater(const f64v3& relativePos, const Camera* cam
     W *= rot;
     f32m4 WVP = camera->getViewProjectionMatrix() * W;
 
-    // TODO(Ben): GOT A CRASH HERE!
-    if ((int)m_cubeFace < 0 || (int)m_cubeFace > 6) {
-        pError("m_cubeFace is invalid in drawWater!");
-    }
-
     glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
@@ -172,7 +167,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     m_width = width;
     m_dispatcher = dispatcher;
 
-    // Approximate the world position for now //TODO(Ben): Better
+    
     f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
 
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
@@ -181,7 +176,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     m_worldPosition[coordMapping.x] = centerGridPos.x * coordMults.x;
     m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
     m_worldPosition[coordMapping.z] = centerGridPos.y * coordMults.y;
-
+    // Approximate the world position for now //TODO(Ben): Better
     m_worldPosition = glm::normalize(m_worldPosition) * sphericalTerrainData->getRadius();
 }
 

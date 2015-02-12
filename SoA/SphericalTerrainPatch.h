@@ -62,6 +62,7 @@ public:
     friend class SphericalTerrainMeshManager;
     friend class SphericalTerrainPatch;
     friend class SphericalTerrainPatchMesher;
+    friend class FarTerrainPatch;
     SphericalTerrainMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {}
     ~SphericalTerrainMesh();
 

@@ -18,54 +18,6 @@
 
 #include "SphericalTerrainPatch.h"
 
-class FarTerrainMesh {
-public:
-    friend class FarTerrainPatch;
-    FarTerrainMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {};
-    ~FarTerrainMesh();
-
-    /// Recycles the normal map
-    /// @param recycler: Recycles the texture
-    void recycleNormalMap(vg::TextureRecycler* recycler);
-
-    /// Draws the terrain mesh
-    /// @param cameraPos: Relative position of the camera
-    /// @param camera: The camera
-    /// @param program: Shader program for rendering
-    void draw(const f64v3& relativePos, const Camera* camera,
-              vg::GLProgram* program) const;
-
-    /// Draws the water mesh
-    /// @param relativePos: Relative position of the camera
-    /// @param camera: The camera
-    /// @param program: Shader program for rendering
-    void drawWater(const f64v3& relativePos, const Camera* camera,
-                   vg::GLProgram* program) const;
-
-    /// Gets the point closest to the observer
-    /// @param camPos: Position of observer
-    /// @param point: Resulting point
-    void getClosestPoint(const f32v3& camPos, OUT f32v3& point) const;
-    void getClosestPoint(const f64v3& camPos, OUT f64v3& point) const;
-
-private:
-    VGVertexArray m_vao = 0; ///< Vertex array object
-    VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
-    VGIndexBuffer m_ibo = 0; ///< Shared Index buffer object. DONT FREE THIS
-
-    VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
-    VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
-
-    f32v3 m_worldPosition = f32v3(0.0);
-    f32v3 m_boundingBox = f32v3(0.0f); ///< AABB bounding box
-    WorldCubeFace m_cubeFace;
-
-    VGTexture m_normalMap = 0;
-    int m_waterIndexCount = 0;
-
-    volatile bool m_shouldDelete = false; ///< True when the mesh should be deleted
-    bool m_isRenderable = false; ///< True when there is a complete mesh
-};
 
 class FarTerrainPatch {
     FarTerrainPatch() {};
@@ -117,7 +69,7 @@ private:
     f64 m_width = 0.0; ///< Width of the patch in KM
 
     TerrainRpcDispatcher* m_dispatcher = nullptr;
-    FarTerrainMesh* m_mesh = nullptr;
+    SphericalTerrainMesh* m_mesh = nullptr;
 
     const SphericalTerrainData* m_sphericalTerrainData = nullptr; ///< Shared data pointer
     FarTerrainPatch* m_children = nullptr; ///< Pointer to array of 4 children

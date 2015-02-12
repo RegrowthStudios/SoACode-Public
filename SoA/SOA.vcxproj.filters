@@ -713,6 +713,9 @@
     <ClInclude Include="FarTerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
+    <ClInclude Include="TerrainRpcDispatcher.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1151,6 +1154,9 @@
     </ClCompile>
     <ClCompile Include="FarTerrainPatch.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainRpcDispatcher.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
