@@ -25,6 +25,7 @@
 class App;
 class MainMenuSystemViewer;
 class SpaceSystem;
+class GameSystem;
 class SpriteBatch;
 class SpriteFont;
 
@@ -32,6 +33,7 @@ class SpaceSystemRenderStage : public vg::IRenderStage {
 public:
     SpaceSystemRenderStage(ui32v2 viewport,
                            SpaceSystem* spaceSystem,
+                           GameSystem* gameSystem,
                            const MainMenuSystemViewer* systemViewer,
                            const Camera* camera,
                            vg::GLProgram* colorProgram,
@@ -63,6 +65,7 @@ private:
 
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
+    GameSystem* m_gameSystem = nullptr;
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_camera = nullptr;
     vg::GLProgram* m_colorProgram = nullptr;

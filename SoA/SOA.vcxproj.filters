@@ -710,6 +710,9 @@
     <ClInclude Include="CpuNoise.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
+    <ClInclude Include="FarTerrainPatch.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1145,6 +1148,9 @@
     </ClCompile>
     <ClCompile Include="CpuNoise.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="FarTerrainPatch.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -27,6 +27,7 @@
 
 SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
+                                               GameSystem* gameSystem,
                                                const MainMenuSystemViewer* systemViewer,
                                                const Camera* camera,
                                                vg::GLProgram* colorProgram,
@@ -35,6 +36,7 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                VGTexture selectorTexture) :
     m_viewport(viewport),
     m_spaceSystem(spaceSystem),
+    m_gameSystem(gameSystem),
     m_mainMenuSystemViewer(systemViewer),
     m_camera(camera),
     m_colorProgram(colorProgram),
