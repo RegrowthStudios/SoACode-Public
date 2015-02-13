@@ -94,10 +94,13 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
 
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
+                    // For now, add and remove SphericalVoxel and FarTerrain component together
                     if (svid == 0) {
                         svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
                                                                                 chunkGridPos, vGridPos.pos, soaState);
+                        SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first,
+                                                                       &stcmp);
                     } else {
                         spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }

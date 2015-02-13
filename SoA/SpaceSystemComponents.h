@@ -104,4 +104,17 @@ struct SphericalTerrainComponent {
     PlanetGenData* planetGenData = nullptr;
 };
 
+struct FarTerrainComponent {
+    TerrainRpcDispatcher* rpcDispatcher = nullptr;
+
+    SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches
+    SphericalTerrainData* sphericalTerrainData = nullptr;
+
+    SphericalTerrainMeshManager* meshManager = nullptr;
+    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
+    SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
+
+    PlanetGenData* planetGenData = nullptr;
+};
+
 #endif // SpaceSystemComponents_h__

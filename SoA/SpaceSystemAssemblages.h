@@ -28,6 +28,7 @@ struct PlanetKegProperties;
 struct StarKegProperties;
 struct SystemBody;
 struct SystemBodyKegProperties;
+struct SphericalTerrainComponent;
 
 DECL_VG(
     class GLProgram;
@@ -87,6 +88,11 @@ namespace SpaceSystemAssemblages {
                                                            vg::GLProgram* normalProgram,
                                                            vg::TextureRecycler* normalMapRecycler);
     extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Spherical terrain component
+    extern vcore::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                           SphericalTerrainComponent* parentComponent);
+    extern void removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
     /// Spherical Gravity component
     extern vcore::ComponentID addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,

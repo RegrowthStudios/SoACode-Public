@@ -12,6 +12,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_AXISROTATION_NAME, &m_axisRotationCT);
     addComponentTable(SPACE_SYSTEM_CT_ORBIT_NAME, &m_orbitCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, &m_sphericalTerrainCT);
+    addComponentTable(SPACE_SYSTEM_CT_FARTERRAIN_NAME, &m_farTerrainCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, &m_sphericalGravityCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, &m_sphericalVoxelCT);
    

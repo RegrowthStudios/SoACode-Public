@@ -237,6 +237,27 @@ void SpaceSystemAssemblages::removeSphericalTerrainComponent(OUT SpaceSystem* sp
     spaceSystem->deleteComponent("SphericalTerrain", entity);
 }
 
+/// Spherical terrain component
+vcore::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                 SphericalTerrainComponent* parentComponent) {
+    vcore::ComponentID ftCmpId = spaceSystem->addComponent("SphericalTerrain", entity);
+    auto& ftCmp = spaceSystem->m_sphericalTerrainCT.get(ftCmpId);
+
+    ftCmp.planetGenData = parentComponent->planetGenData;
+
+    ftCmp.meshManager = parentComponent->meshManager;
+    ftCmp.gpuGenerator = parentComponent->gpuGenerator;
+    ftCmp.cpuGenerator = parentComponent->cpuGenerator;
+    ftCmp.rpcDispatcher = parentComponent->rpcDispatcher;
+    ftCmp.sphericalTerrainData = parentComponent->sphericalTerrainData;
+
+    return ftCmpId;
+}
+
+void removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
+    spaceSystem->deleteComponent("FarTerrain", entity);
+}
+
 vcore::ComponentID SpaceSystemAssemblages::addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                       f64 radius, f64 mass) {
     vcore::ComponentID sgCmpId = spaceSystem->addComponent("SphericalGravity", entity);
