@@ -19,6 +19,8 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
 
+#include "VoxelCoordinateSpaces.h"
+
 class ChunkIOManager;
 class ChunkManager;
 class FarTerrainPatch;
@@ -114,6 +116,8 @@ struct FarTerrainComponent {
     SphericalTerrainMeshManager* meshManager = nullptr;
     SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
+
+    WorldCubeFace face = FACE_NONE;
 
     PlanetGenData* planetGenData = nullptr;
 };

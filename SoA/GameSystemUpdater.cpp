@@ -101,7 +101,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                                                                                 chunkGridPos, vGridPos.pos, soaState);
                         // TODO(Ben): FarTerrain should be clientSide only
                         SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first,
-                                                                       &stcmp);
+                                                                       &stcmp, vGridPos.face);
                     } else {
                         spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }

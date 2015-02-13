@@ -91,7 +91,8 @@ namespace SpaceSystemAssemblages {
 
     /// Spherical terrain component
     extern vcore::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                     SphericalTerrainComponent* parentComponent);
+                                                     SphericalTerrainComponent* parentComponent,
+                                                     WorldCubeFace face);
     extern void removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
     /// Spherical Gravity component

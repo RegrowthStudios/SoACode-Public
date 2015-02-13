@@ -9,6 +9,8 @@
 #include "VoxelCoordinateSpaces.h"
 #include "FarTerrainPatch.h"
 
+const int SINGLE_FACE_PATCHES = TOTAL_PATCHES / NUM_FACES;
+
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
         FarTerrainComponent& cmp = it.second;
@@ -25,7 +27,7 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
             }
 
             // Update patches
-            for (int i = 0; i < TOTAL_PATCHES; i++) {
+            for (int i = 0; i < SINGLE_FACE_PATCHES; i++) {
                 cmp.patches[i].update(relativeCameraPos);
             }
         } else {
@@ -42,23 +44,23 @@ void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp) {
     const f64& patchWidth = cmp.sphericalTerrainData->getPatchWidth();
 
     // Allocate top level patches
-    cmp.patches = new FarTerrainPatch[TOTAL_PATCHES];
+    cmp.patches = new FarTerrainPatch[SINGLE_FACE_PATCHES];
 
     int center = PATCH_ROW / 2;
     f64v2 gridPos;
     int index = 0;
 
     // Init all the top level patches for each of the 6 grids
-    for (int face = 0; face < NUM_FACES; face++) {
-        for (int z = 0; z < PATCH_ROW; z++) {
-            for (int x = 0; x < PATCH_ROW; x++) {
-                auto& p = cmp.patches[index++];
-                gridPos.x = (x - center) * patchWidth;
-                gridPos.y = (z - center) * patchWidth;
-                p.init(gridPos, static_cast<WorldCubeFace>(face),
-                       0, cmp.sphericalTerrainData, patchWidth,
-                       cmp.rpcDispatcher);
-            }
+
+    for (int z = 0; z < PATCH_ROW; z++) {
+        for (int x = 0; x < PATCH_ROW; x++) {
+            auto& p = cmp.patches[index++];
+            gridPos.x = (x - center) * patchWidth;
+            gridPos.y = (z - center) * patchWidth;
+            p.init(gridPos, static_cast<WorldCubeFace>(cmp.face),
+                   0, cmp.sphericalTerrainData, patchWidth,
+                   cmp.rpcDispatcher);
         }
     }
+    
 }
