@@ -155,5 +155,5 @@ void FarTerrainPatch::requestMesh() {
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               m_width,
                                               m_lod,
-                                              m_cubeFace);
+                                              m_cubeFace, false);
 }

@@ -20,6 +20,7 @@
 
 
 class FarTerrainPatch {
+public:
     FarTerrainPatch() {};
     ~FarTerrainPatch();
 

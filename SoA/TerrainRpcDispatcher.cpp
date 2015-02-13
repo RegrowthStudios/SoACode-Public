@@ -11,7 +11,8 @@ void TerrainGenDelegate::invoke(Sender sender, void* userData) {
 SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
                                                                float width,
                                                                int lod,
-                                                               WorldCubeFace cubeFace) {
+                                                               WorldCubeFace cubeFace,
+                                                               bool isSpherical) {
     SphericalTerrainMesh* mesh = nullptr;
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
@@ -25,7 +26,7 @@ SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& star
         gen.cubeFace = cubeFace;
         gen.mesh = mesh;
         gen.width = width;
-        gen.isSpherical = true;
+        gen.isSpherical = isSpherical;
         // Invoke generator
         m_generator->invokePatchTerrainGen(&gen.rpc);
         // Go to next generator

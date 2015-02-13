@@ -7,6 +7,7 @@
 #include "SphericalTerrainGpuGenerator.h"
 #include "SphericalTerrainCpuGenerator.h"
 #include "VoxelCoordinateSpaces.h"
+#include "FarTerrainPatch.h"
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
@@ -41,7 +42,7 @@ void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp) {
     const f64& patchWidth = cmp.sphericalTerrainData->getPatchWidth();
 
     // Allocate top level patches
-    cmp.patches = new SphericalTerrainPatch[TOTAL_PATCHES];
+    cmp.patches = new FarTerrainPatch[TOTAL_PATCHES];
 
     int center = PATCH_ROW / 2;
     f64v2 gridPos;

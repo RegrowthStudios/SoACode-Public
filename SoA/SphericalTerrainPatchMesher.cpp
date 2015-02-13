@@ -57,11 +57,14 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
     // Grab mappings so we can rotate the 2D grid appropriately
     if (m_isSpherical) {
         m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
+        m_startPos = startPos;
+        m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace][0]);
     } else {
         m_coordMapping = i32v3(0, 1, 2);
+        m_startPos = f32v3(startPos.x, 0.0f, startPos.z);
+        m_coordMults = f32v2(1.0f);
     }
-    m_startPos = startPos;
-    m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace][0]);
+   
 
     float h;
     float angle;

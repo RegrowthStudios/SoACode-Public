@@ -21,16 +21,17 @@
 
 class ChunkIOManager;
 class ChunkManager;
+class FarTerrainPatch;
 class ParticleEngine;
 class PhysicsEngine;
-struct PlanetGenData;
-struct PlanetGenData;
-class SphericalTerrainData;
 class SphericalTerrainCpuGenerator;
+class SphericalTerrainData;
 class SphericalTerrainGpuGenerator;
 class SphericalTerrainMeshManager;
 class SphericalTerrainPatch;
 class TerrainRpcDispatcher;
+struct PlanetGenData;
+struct PlanetGenData;
 
 DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);
@@ -107,7 +108,7 @@ struct SphericalTerrainComponent {
 struct FarTerrainComponent {
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
-    SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches
+    FarTerrainPatch* patches = nullptr; ///< Buffer for top level patches
     SphericalTerrainData* sphericalTerrainData = nullptr;
 
     SphericalTerrainMeshManager* meshManager = nullptr;
