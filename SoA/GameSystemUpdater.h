@@ -44,10 +44,6 @@ public:
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
     static void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
 private:
-    PhysicsComponentUpdater physicsUpdater;
-    CollisionComponentUpdater collisionUpdater;
-    FreeMoveComponentUpdater freeMoveUpdater;
-    FrustumComponentUpdater frustumUpdater;
     /// Calculates voxel position from relative space position
     /// @param relPos: relative position of the entity against the world center
     /// @param radius: Radius of the world
@@ -77,6 +73,12 @@ private:
     IDelegate<ui32>* m_onDownKeyUp = nullptr;
     IDelegate<ui32>* m_onSuperSpeedKeyDown = nullptr;
     IDelegate<ui32>* m_onSuperSpeedKeyUp = nullptr;
+
+    /// Updaters
+    PhysicsComponentUpdater m_physicsUpdater;
+    CollisionComponentUpdater m_collisionUpdater;
+    FreeMoveComponentUpdater m_freeMoveUpdater;
+    FrustumComponentUpdater m_frustumUpdater;
 };
 
 #endif // GameSystemUpdater_h__

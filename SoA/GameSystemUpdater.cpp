@@ -54,10 +54,10 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 #define CHECK_FRAMES 6
 
     // Update entity tables
-    physicsUpdater.update(gameSystem, spaceSystem);
-    collisionUpdater.update(gameSystem);
-    freeMoveUpdater.update(gameSystem);
-    frustumUpdater.update(gameSystem);
+    m_physicsUpdater.update(gameSystem, spaceSystem);
+    m_collisionUpdater.update(gameSystem);
+    m_freeMoveUpdater.update(gameSystem);
+    m_frustumUpdater.update(gameSystem);
 
     // Update voxel planet transitions every CHECK_FRAMES frames
     m_frameCounter++;
@@ -99,6 +99,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                         svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
                                                                                 chunkGridPos, vGridPos.pos, soaState);
+                        // TODO(Ben): FarTerrain should be clientSide only
                         SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first,
                                                                        &stcmp);
                     } else {
@@ -128,6 +129,8 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             svcmp.refCount--;
             if (svcmp.refCount == 0) {
                 spaceSystem->deleteComponent("SphericalVoxel", it.first);
+                // TODO(Ben): FarTerrain should be clientSide only
+                spaceSystem->deleteComponent("FarTerrain", it.first);
             }
 
             // Update dependencies for frustum
