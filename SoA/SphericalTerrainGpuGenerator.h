@@ -63,6 +63,8 @@ public:
         m_patchRpcManager.invoke(so, false);
     }
 
+    vg::GLProgram* getNormalProgram() { return m_normalProgram; }
+    vg::TextureRecycler* getNormalMapRecycler() { return m_normalMapRecycler; }
     const PlanetGenData* getPlanetGenData() { return m_planetGenData; }
 private:
     /// Updates terrain patch generation

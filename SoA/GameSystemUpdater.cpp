@@ -3,16 +3,17 @@
 
 #include "FreeMoveComponentUpdater.h"
 #include "GameSystem.h"
-#include "GameSystemEvents.hpp"
 #include "GameSystemAssemblages.h"
+#include "GameSystemEvents.hpp"
 #include "InputManager.h"
 #include "Inputs.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
+#include "SphericalTerrainGpuGenerator.h"
 #include "SphericalTerrainPatch.h"
-#include "VoxelSpaceUtils.h"
 #include "VoxelSpaceConversions.h"
+#include "VoxelSpaceUtils.h"
 
 #include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
@@ -100,8 +101,12 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                                                                                 spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
                                                                                 chunkGridPos, vGridPos.pos, soaState);
                         // TODO(Ben): FarTerrain should be clientSide only
-                        SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first,
-                                                                       &stcmp, vGridPos.face);
+                        SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first, sit.second.planetGenData,
+                                                                       sit.second.gpuGenerator->getNormalProgram(),
+                                                                       sit.second.gpuGenerator->getNormalMapRecycler(),
+                                                                       vGridPos.face);
+                        // Replace spherical terrain component with far
+                        SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, sit.first);
                     } else {
                         spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }
@@ -124,13 +129,23 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             gameSystem->deleteComponent("VoxelPosition", it.first);
             pycmp.voxelPositionComponent = 0;
             
+            // Build a new spherical terrain component
+            auto& ftcmp = spaceSystem->m_farTerrainCT.getFromEntity(it.first);
+            SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, it.first, 
+                                                                 spaceSystem->m_namePositionCT.getComponentID(it.first),
+                                                                 spaceSystem->m_axisRotationCT.getComponentID(it.first),
+                                                                 ftcmp.planetGenData,
+                                                                 ftcmp.gpuGenerator->getNormalProgram(),
+                                                                 ftcmp.gpuGenerator->getNormalMapRecycler());
+            // TODO(Ben): FarTerrain should be clientSide only
+            // Replace far terrain component with spherical
+            SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
+
             vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
             auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svid);
             svcmp.refCount--;
             if (svcmp.refCount == 0) {
-                spaceSystem->deleteComponent("SphericalVoxel", it.first);
-                // TODO(Ben): FarTerrain should be clientSide only
-                spaceSystem->deleteComponent("FarTerrain", it.first);
+                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
             }
 
             // Update dependencies for frustum

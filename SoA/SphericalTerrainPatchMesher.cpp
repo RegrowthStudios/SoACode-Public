@@ -64,7 +64,7 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
         m_startPos = f32v3(startPos.x, 0.0f, startPos.z);
         m_coordMults = f32v2(1.0f);
     }
-   
+    
     float h;
     float angle;
     f32v3 tmpPos;
