@@ -70,6 +70,8 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 
 void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 #define LOAD_DIST_MULT 1.05
+
+    std::vector<vcore::EntityID> stComponentsToRemove;
     for (auto& it : gameSystem->spacePosition) {
         bool inVoxelRange = false;
         auto& spcmp = it.second;
@@ -97,16 +99,20 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
                     // For now, add and remove SphericalVoxel and FarTerrain component together
                     if (svid == 0) {
-                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first,
-                                                                                spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
-                                                                                chunkGridPos, vGridPos.pos, soaState);
                         // TODO(Ben): FarTerrain should be clientSide only
-                        SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first, sit.second.planetGenData,
+                        auto ftCmpId = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first, sit.second.planetGenData,
                                                                        sit.second.gpuGenerator->getNormalProgram(),
                                                                        sit.second.gpuGenerator->getNormalMapRecycler(),
                                                                        vGridPos.face);
+                        
+                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, ftCmpId,
+                                                                                  sit.second.axisRotationComponent, sit.second.namePositionComponent,
+                                                                                spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
+                                                                                chunkGridPos, vGridPos.pos, soaState);
+                      
                         // Replace spherical terrain component with far
-                        SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, sit.first);
+                        // We defer this so that we can continue to iterate through the component table
+                        stComponentsToRemove.push_back(sit.first);
                     } else {
                         spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }
@@ -150,6 +156,11 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
 
             // Update dependencies for frustum
             gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = 0;
+        }
+
+        // Remove any components that need to be deallocated
+        for (auto& id : stComponentsToRemove) {
+            SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, id);
         }
     }
 }

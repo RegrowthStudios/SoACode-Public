@@ -83,7 +83,7 @@ struct SphericalVoxelComponent {
 
     const vio::IOManager* saveFileIom = nullptr;
 
-    vcore::ComponentID sphericalTerrainComponent = 0;
+    vcore::ComponentID farTerrainComponent = 0;
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
 

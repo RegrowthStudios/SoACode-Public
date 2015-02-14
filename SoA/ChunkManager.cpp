@@ -959,6 +959,11 @@ void ChunkManager::updateCaPhysics() {
     }
 }
 
+void ChunkManager::setTerrainGenerator(SphericalTerrainGpuGenerator* generator) {
+    m_terrainGenerator = generator;
+    heightmapGenRpcDispatcher = std::make_unique<HeightmapGenRpcDispatcher>(m_terrainGenerator);
+}
+
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
         

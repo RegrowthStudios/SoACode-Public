@@ -28,6 +28,9 @@ class FarTerrainComponentUpdater {
 public:
     void update(SpaceSystem* spaceSystem, const f64v3& cameraPos);
 
+    /// Updates openGL specific stuff. Call on render thread
+    void glUpdate(SpaceSystem* spaceSystem);
+
 private:
     void initPatches(FarTerrainComponent& cmp);
 };

@@ -118,7 +118,9 @@ void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) 
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                                    vcore::ComponentID sphericalTerrainComponent,
+                                                                    vcore::ComponentID farTerrainComponent,
+                                                                    vcore::ComponentID axisRotationComponent,
+                                                                    vcore::ComponentID namePositionComponent,
                                                                     const ChunkPosition2D& startGridPos,
                                                                     const f64v3& gridPosition,
                                                                     const SoaState* soaState) {
@@ -127,35 +129,35 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
-    auto& stcmp = spaceSystem->m_sphericalTerrainCT.get(sphericalTerrainComponent);
+    auto& ftcmp = spaceSystem->m_sphericalTerrainCT.get(farTerrainComponent);
 
     // Get component handles
-    svcmp.axisRotationComponent = stcmp.axisRotationComponent;
-    svcmp.namePositionComponent = stcmp.namePositionComponent;
-    svcmp.sphericalTerrainComponent = sphericalTerrainComponent;
+    svcmp.axisRotationComponent = axisRotationComponent;
+    svcmp.namePositionComponent = namePositionComponent;
+    svcmp.farTerrainComponent = farTerrainComponent;
 
-    svcmp.voxelRadius = stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
+    svcmp.voxelRadius = ftcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
 
     svcmp.physicsEngine = new PhysicsEngine();
 
-    svcmp.generator = stcmp.gpuGenerator;
+    svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
     svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
                                           svcmp.generator, startGridPos,
                                           svcmp.chunkIo,
-                                          gridPosition, stcmp.sphericalTerrainData->getRadius() * 2000.0);
+                                          gridPosition, ftcmp.sphericalTerrainData->getRadius() * 2000.0);
     svcmp.particleEngine = new ParticleEngine();
     
-    svcmp.planetGenData = stcmp.planetGenData;
-    svcmp.sphericalTerrainData = stcmp.sphericalTerrainData;
+    svcmp.planetGenData = ftcmp.planetGenData;
+    svcmp.sphericalTerrainData = ftcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;
     
     // TODO(Ben): This isn't a good place for this
     ColorRGB8* cmap = GameManager::texturePackLoader->getColorMap("biome");
     ui32 index = GameManager::texturePackLoader->getColorMapIndex("biome");
-    glBindTexture(GL_TEXTURE_2D, stcmp.planetGenData->terrainColorMap.id);
-    if (stcmp.planetGenData->terrainColorMap.width != 256 ||
-        stcmp.planetGenData->terrainColorMap.height != 256) {
+    glBindTexture(GL_TEXTURE_2D, ftcmp.planetGenData->terrainColorMap.id);
+    if (ftcmp.planetGenData->terrainColorMap.width != 256 ||
+        ftcmp.planetGenData->terrainColorMap.height != 256) {
         std::cerr << "Terrain color map needs to be 256x256";
     }
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, cmap);
@@ -280,6 +282,7 @@ void SpaceSystemAssemblages::removeFarTerrainComponent(OUT SpaceSystem* spaceSys
     delete ftcmp.cpuGenerator;
     delete ftcmp.rpcDispatcher;
     delete ftcmp.sphericalTerrainData;
+    if (ftcmp.patches) delete[] ftcmp.patches;
     spaceSystem->deleteComponent("FarTerrain", entity);
 }
 

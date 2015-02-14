@@ -101,6 +101,15 @@ void SphericalTerrainMeshManager::drawSphericalMeshes(const f64v3& relativePos, 
     }
 }
 
+SphericalTerrainMeshManager::~SphericalTerrainMeshManager() {
+    for (auto& i : m_meshes) {
+        delete i;
+    }
+    for (auto& i : m_farMeshes) {
+        delete i;
+    }
+}
+
 void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh, bool isSpherical) {
     if (isSpherical) {
         m_meshes.push_back(mesh);

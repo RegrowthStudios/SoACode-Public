@@ -26,4 +26,5 @@ void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* 
 
 void SpaceSystemUpdater::glUpdate(OUT SpaceSystem* spaceSystem) {
     m_sphericalTerrainComponentUpdater.glUpdate(spaceSystem);
+    m_farTerrainComponentUpdater.glUpdate(spaceSystem);
 }

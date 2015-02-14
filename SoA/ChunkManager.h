@@ -196,6 +196,7 @@ public:
         _isStationary = isStationary;
     }
 
+    void setTerrainGenerator(SphericalTerrainGpuGenerator* generator);
     /// Getters
     PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 

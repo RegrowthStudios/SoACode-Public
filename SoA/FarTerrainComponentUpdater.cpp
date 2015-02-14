@@ -39,6 +39,12 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
     }
 }
 
+void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
+    for (auto& it : spaceSystem->m_sphericalTerrainCT) {
+        it.second.gpuGenerator->update();
+    }
+}
+
 void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp) {
     const f64& patchWidth = cmp.sphericalTerrainData->getPatchWidth();
 

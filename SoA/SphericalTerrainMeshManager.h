@@ -34,6 +34,7 @@ public:
         m_normalMapRecycler(normalMapRecycler) {
         // Empty
     }
+    ~SphericalTerrainMeshManager();
     /// Draws the meshes
     /// @param relativePos: Relative position of the camera
     /// @param Camera: The camera
