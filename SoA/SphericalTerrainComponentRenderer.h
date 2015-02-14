@@ -31,6 +31,7 @@ namespace vg = vorb::core::graphics;
 
 class SphericalTerrainComponentRenderer {
 public:
+    ~SphericalTerrainComponentRenderer();
     void draw(SphericalTerrainComponent& cmp,
               const Camera* camera,
               const Camera* voxelCamera,
@@ -38,6 +39,12 @@ public:
               vg::GLProgram* waterProgram,
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
+
+private:
+    void buildFarTerrainShaders();
+
+    vg::GLProgram* m_farTerrainProgram = nullptr;
+    vg::GLProgram* m_farWaterProgram = nullptr;
 };
 
 #endif // SphericalTerrainComponentRenderer_h__
