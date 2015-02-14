@@ -307,7 +307,8 @@ void GamePlayScreen::updateThreadFunc() {
         auto& npcmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
 
         m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState,
-                                       m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity).position);
+                                       m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity).position,
+                                       m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);
 
         m_gameSystemUpdater->update(m_soaState->gameSystem.get(), m_soaState->spaceSystem.get(), m_soaState);
 

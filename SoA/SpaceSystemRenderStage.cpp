@@ -30,6 +30,7 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                GameSystem* gameSystem,
                                                const MainMenuSystemViewer* systemViewer,
                                                const Camera* camera,
+                                               const Camera* voxelCamera,
                                                vg::GLProgram* colorProgram,
                                                vg::GLProgram* terrainProgram,
                                                vg::GLProgram* waterProgram,
@@ -39,6 +40,7 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
     m_gameSystem(gameSystem),
     m_mainMenuSystemViewer(systemViewer),
     m_camera(camera),
+    m_voxelCamera(voxelCamera),
     m_colorProgram(colorProgram),
     m_terrainProgram(terrainProgram),
     m_waterProgram(waterProgram),
@@ -73,7 +75,8 @@ void SpaceSystemRenderStage::drawBodies() {
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
 
-        m_sphericalTerrainComponentRenderer.draw(cmp, m_camera, 
+        m_sphericalTerrainComponentRenderer.draw(cmp, m_camera,
+                                                 m_voxelCamera,
                  m_terrainProgram, m_waterProgram,
                  &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));

@@ -10,14 +10,13 @@
 #include "FarTerrainPatch.h"
 
 const int SINGLE_FACE_PATCHES = TOTAL_PATCHES / NUM_FACES;
+#define KM_PER_VOXEL 0.0005
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
         FarTerrainComponent& cmp = it.second;
-        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.getFromEntity(it.first);
-        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
         /// Calculate camera distance
-        f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
+        f64v3 relativeCameraPos = cameraPos * KM_PER_VOXEL;
         f64 distance = glm::length(relativeCameraPos);
 
         if (distance <= LOAD_DIST) {

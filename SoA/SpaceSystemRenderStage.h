@@ -36,6 +36,7 @@ public:
                            GameSystem* gameSystem,
                            const MainMenuSystemViewer* systemViewer,
                            const Camera* camera,
+                           const Camera* voxelCamera,
                            vg::GLProgram* colorProgram,
                            vg::GLProgram* terrainProgram,
                            vg::GLProgram* waterProgram,
@@ -68,6 +69,7 @@ private:
     GameSystem* m_gameSystem = nullptr;
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_camera = nullptr;
+    const Camera* m_voxelCamera = nullptr;
     vg::GLProgram* m_colorProgram = nullptr;
     vg::GLProgram* m_terrainProgram = nullptr;
     vg::GLProgram* m_waterProgram = nullptr;

@@ -33,6 +33,7 @@ class SphericalTerrainComponentRenderer {
 public:
     void draw(SphericalTerrainComponent& cmp,
               const Camera* camera,
+              const Camera* voxelCamera,
               vg::GLProgram* terrainProgram,
               vg::GLProgram* waterProgram,
               const NamePositionComponent* npComponent,

@@ -11,7 +11,7 @@
 #include "SphericalTerrainPatch.h"
 #include "PlanetData.h"
 
-void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* camera,
+void SphericalTerrainMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
                                        const f32m4& rot,
                                        vg::GLProgram* program, vg::GLProgram* waterProgram) {
     
@@ -101,11 +101,106 @@ void SphericalTerrainMeshManager::draw(const f64v3& relativePos, const Camera* c
     }
 }
 
-void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh) {
-
-    m_meshes.push_back(mesh);
-    if (mesh->m_wvbo) {
-        m_waterMeshes.push_back(mesh);
+void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh, bool isSpherical) {
+    if (isSpherical) {
+        m_meshes.push_back(mesh);
+        if (mesh->m_wvbo) {
+            m_waterMeshes.push_back(mesh);
+        }
+    } else {
+        m_farMeshes.push_back(mesh);
+        if (mesh->m_wvbo) {
+            m_farWaterMeshes.push_back(mesh);
+        }
     }
     mesh->m_isRenderable = true;
+
+}
+
+void SphericalTerrainMeshManager::drawFarMeshes(const f64v3& relativePos, const Camera* camera, vg::GLProgram* program, vg::GLProgram* waterProgram) {
+    static float dt = 0.0;
+    dt += 0.001;
+
+    glm::mat4 rot(1.0f); // no rotation
+
+    f32v3 closestPoint;
+
+    if (m_farWaterMeshes.size()) {
+
+        waterProgram->use();
+        waterProgram->enableVertexAttribArrays();
+
+        // Bind textures
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidColorMap.id);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidTexture.id);
+
+        glUniform1f(waterProgram->getUniform("unDt"), dt);
+        glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
+        glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
+
+        for (int i = 0; i < m_farWaterMeshes.size();) {
+            if (m_farWaterMeshes[i]->m_shouldDelete) {
+                // Only delete here if m_wvbo is 0. See comment [15] in below block
+                if (m_farWaterMeshes[i]->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m_farWaterMeshes[i]->m_wvbo);
+                } else {
+                    delete m_farWaterMeshes[i];
+                }
+
+                m_farWaterMeshes[i] = m_farWaterMeshes.back();
+                m_farWaterMeshes.pop_back();
+
+            } else {
+                m_farWaterMeshes[i]->drawWater(relativePos, camera, rot, waterProgram);
+                i++;
+            }
+        }
+
+        waterProgram->disableVertexAttribArrays();
+        waterProgram->unuse();
+
+    }
+
+    if (m_farMeshes.size()) {
+
+        // Bind textures
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainColorMap.id);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainTexture.id);
+        glActiveTexture(GL_TEXTURE0);
+        program->use();
+        program->enableVertexAttribArrays();
+
+        for (int i = 0; i < m_farMeshes.size();) {
+            if (m_farMeshes[i]->m_shouldDelete) {
+                m_farMeshes[i]->recycleNormalMap(m_normalMapRecycler);
+
+                // [15] If m_wvbo is 1, then chunk was marked for delete between
+                // Drawing water and terrain. So we free m_wvbo to mark it
+                // for delete on the next pass through m_farWaterMeshes
+                if (m_farMeshes[i]->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m_farMeshes[i]->m_wvbo);
+                } else {
+                    delete m_farMeshes[i];
+                }
+
+                m_farMeshes[i] = m_farMeshes.back();
+                m_farMeshes.pop_back();
+            } else {
+                /// Use bounding box to find closest point
+            //    m_farMeshes[i]->getClosestPoint(rotpos, closestPoint);
+            //    if (!SphericalTerrainPatch::isOverHorizon(rotpos, closestPoint,
+            //        m_planetGenData->radius)) {
+                m_farMeshes[i]->draw(relativePos, camera, rot, program);
+            //    }
+                i++;
+            }
+        }
+
+        program->disableVertexAttribArrays();
+        program->unuse();
+    }
 }

@@ -54,7 +54,7 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
     _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, camera);
     // TODO(Ben): Use texture pack iomanager
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport.z, _viewport.w),
-                                                          spaceSystem, nullptr, systemViewer, camera,
+                                                          spaceSystem, nullptr, systemViewer, camera, nullptr,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),
                                                           glProgramManager->getProgram("SphericalWater"),

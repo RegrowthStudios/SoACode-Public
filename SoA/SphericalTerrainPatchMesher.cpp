@@ -65,7 +65,6 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
         m_coordMults = f32v2(1.0f);
     }
    
-
     float h;
     float angle;
     f32v3 tmpPos;
@@ -202,7 +201,7 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
     }
 
     // Finally, add to the mesh manager
-    m_meshManager->addMesh(mesh);
+    m_meshManager->addMesh(mesh, isSpherical);
 
 
     // TODO: Using a VAO makes it not work??
@@ -232,8 +231,12 @@ void SphericalTerrainPatchMesher::buildSkirts() {
         // Copy the vertices from the top edge
         v = verts[i];
         // Extrude downward
-        float len = glm::length(v.position) - SKIRT_DEPTH;
-        v.position = glm::normalize(v.position) * len;
+        if (m_isSpherical) {
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
+        } else {
+            v.position.y -= SKIRT_DEPTH;
+        }
         m_index++;
     }
     // Left Skirt
@@ -242,8 +245,12 @@ void SphericalTerrainPatchMesher::buildSkirts() {
         // Copy the vertices from the left edge
         v = verts[i * PATCH_WIDTH];
         // Extrude downward
-        float len = glm::length(v.position) - SKIRT_DEPTH;
-        v.position = glm::normalize(v.position) * len;
+        if (m_isSpherical) {
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
+        } else {
+            v.position.y -= SKIRT_DEPTH;
+        }
         m_index++;
     }
     // Right Skirt
@@ -252,8 +259,12 @@ void SphericalTerrainPatchMesher::buildSkirts() {
         // Copy the vertices from the right edge
         v = verts[i * PATCH_WIDTH + PATCH_WIDTH - 1];
         // Extrude downward
-        float len = glm::length(v.position) - SKIRT_DEPTH;
-        v.position = glm::normalize(v.position) * len;
+        if (m_isSpherical) {
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
+        } else {
+            v.position.y -= SKIRT_DEPTH;
+        }
         m_index++;
     }
     // Bottom Skirt
@@ -262,8 +273,12 @@ void SphericalTerrainPatchMesher::buildSkirts() {
         // Copy the vertices from the bottom edge
         v = verts[PATCH_SIZE - PATCH_WIDTH + i];
         // Extrude downward
-        float len = glm::length(v.position) - SKIRT_DEPTH;
-        v.position = glm::normalize(v.position) * len;
+        if (m_isSpherical) {
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
+        } else {
+            v.position.y -= SKIRT_DEPTH;
+        }
         m_index++;
     }
 }

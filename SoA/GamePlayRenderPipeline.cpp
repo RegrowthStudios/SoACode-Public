@@ -91,6 +91,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
                                                           spaceSystem,
                                                           gameSystem,
                                                           nullptr, &_worldCamera,
+                                                          &_chunkCamera,
                                                           glProgramManager->getProgram("BasicColor"),
                                                           glProgramManager->getProgram("SphericalTerrain"),
                                                           glProgramManager->getProgram("SphericalWater"),

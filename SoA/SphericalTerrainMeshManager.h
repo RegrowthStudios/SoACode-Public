@@ -40,19 +40,24 @@ public:
     /// @param rot: Rotation matrix
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
-    void draw(const f64v3& relativePos, const Camera* camera,
+    void drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
               const f32m4& rot,
               vg::GLProgram* program, vg::GLProgram* waterProgram);
+    void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
+                       vg::GLProgram* program, vg::GLProgram* waterProgram);
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add
-    void addMesh(SphericalTerrainMesh* mesh);
+    void addMesh(SphericalTerrainMesh* mesh, bool isSpherical);
 
 private:
+
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps
     std::vector<SphericalTerrainMesh*> m_meshes; ///< All meshes
     std::vector<SphericalTerrainMesh*> m_waterMeshes; ///< Meshes with water active
+    std::vector<SphericalTerrainMesh*> m_farMeshes; ///< All meshes
+    std::vector<SphericalTerrainMesh*> m_farWaterMeshes; ///< Meshes with water active
 };
 
 #endif // SphericalTerrainMeshManager_h__
