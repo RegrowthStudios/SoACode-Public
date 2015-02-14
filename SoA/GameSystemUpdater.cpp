@@ -105,10 +105,9 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                                                                        sit.second.gpuGenerator->getNormalMapRecycler(),
                                                                        vGridPos.face);
                         
-                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, ftCmpId,
+                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first, ftCmpId,
                                                                                   sit.second.axisRotationComponent, sit.second.namePositionComponent,
-                                                                                spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
-                                                                                chunkGridPos, vGridPos.pos, soaState);
+                                                                                  chunkGridPos, vGridPos.pos, soaState);
                       
                         // Replace spherical terrain component with far
                         // We defer this so that we can continue to iterate through the component table

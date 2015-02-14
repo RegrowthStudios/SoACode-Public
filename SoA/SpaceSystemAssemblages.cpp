@@ -129,7 +129,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
-    auto& ftcmp = spaceSystem->m_sphericalTerrainCT.get(farTerrainComponent);
+    auto& ftcmp = spaceSystem->m_farTerrainCT.get(farTerrainComponent);
 
     // Get component handles
     svcmp.axisRotationComponent = axisRotationComponent;

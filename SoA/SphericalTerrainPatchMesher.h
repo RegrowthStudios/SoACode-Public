@@ -33,7 +33,6 @@ public:
     ui8 temperature; //39
     ui8 humidity; //40
 };
-
 /// Water vertex for terrain patch
 class WaterVertex {
 public:
