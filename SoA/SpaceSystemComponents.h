@@ -105,6 +105,7 @@ struct SphericalTerrainComponent {
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
+    bool active = true;
 };
 
 struct FarTerrainComponent {

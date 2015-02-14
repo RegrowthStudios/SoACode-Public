@@ -93,9 +93,7 @@ namespace SpaceSystemAssemblages {
 
     /// Spherical terrain component
     extern vcore::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                     PlanetGenData* planetGenData,
-                                                     vg::GLProgram* normalProgram,
-                                                     vg::TextureRecycler* normalMapRecycler,
+                                                     SphericalTerrainComponent& parentCmp,
                                                      WorldCubeFace face);
     extern void removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 

@@ -717,7 +717,7 @@
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
     <ClInclude Include="FarTerrainComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1162,7 +1162,7 @@
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
     <ClCompile Include="FarTerrainComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

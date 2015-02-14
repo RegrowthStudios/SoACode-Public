@@ -40,7 +40,7 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
 }
 
 void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
-    for (auto& it : spaceSystem->m_sphericalTerrainCT) {
+    for (auto& it : spaceSystem->m_farTerrainCT) {
         it.second.gpuGenerator->update();
     }
 }

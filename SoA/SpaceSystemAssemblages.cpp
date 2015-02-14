@@ -248,26 +248,17 @@ void SpaceSystemAssemblages::removeSphericalTerrainComponent(OUT SpaceSystem* sp
 
 /// Spherical terrain component
 vcore::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                                  PlanetGenData* planetGenData,
-                                                                  vg::GLProgram* normalProgram,
-                                                                  vg::TextureRecycler* normalMapRecycler,
+                                                                  SphericalTerrainComponent& parentCmp,
                                                                   WorldCubeFace face) {
     vcore::ComponentID ftCmpId = spaceSystem->addComponent("FarTerrain", entity);
     auto& ftCmp = spaceSystem->m_farTerrainCT.get(ftCmpId);
 
-    ftCmp.planetGenData = planetGenData;
-
-    ftCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
-                                                        normalMapRecycler);
-    ftCmp.gpuGenerator = new SphericalTerrainGpuGenerator(ftCmp.meshManager,
-                                                          planetGenData,
-                                                          normalProgram, normalMapRecycler);
-    ftCmp.cpuGenerator = new SphericalTerrainCpuGenerator(ftCmp.meshManager,
-                                                          planetGenData);
-    ftCmp.rpcDispatcher = new TerrainRpcDispatcher(ftCmp.gpuGenerator, ftCmp.cpuGenerator);
-
-    f64 patchWidth = (planetGenData->radius * 2.000) / PATCH_ROW;
-    ftCmp.sphericalTerrainData = new SphericalTerrainData(planetGenData->radius, patchWidth);
+    ftCmp.planetGenData = parentCmp.planetGenData;
+    ftCmp.meshManager = parentCmp.meshManager;
+    ftCmp.gpuGenerator = parentCmp.gpuGenerator;
+    ftCmp.cpuGenerator = parentCmp.cpuGenerator;
+    ftCmp.rpcDispatcher = parentCmp.rpcDispatcher;
+    ftCmp.sphericalTerrainData = parentCmp.sphericalTerrainData;
 
     ftCmp.face = face;
 
@@ -277,11 +268,6 @@ vcore::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(OUT SpaceSyste
 void SpaceSystemAssemblages::removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
     auto& ftcmp = spaceSystem->m_farTerrainCT.getFromEntity(entity);
 
-    delete ftcmp.meshManager;
-    delete ftcmp.gpuGenerator;
-    delete ftcmp.cpuGenerator;
-    delete ftcmp.rpcDispatcher;
-    delete ftcmp.sphericalTerrainData;
     if (ftcmp.patches) delete[] ftcmp.patches;
     spaceSystem->deleteComponent("FarTerrain", entity);
 }
