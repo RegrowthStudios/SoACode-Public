@@ -30,7 +30,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
         glDisable(GL_CULL_FACE);
         f64v3 relativeCameraPos = voxelCamera->getPosition() * KM_PER_VOXEL;
         // Draw far patches
-        cmp.meshManager->drawFarMeshes(relativeCameraPos, voxelCamera,
+        cmp.meshManager->drawFarMeshes(f64v3(0.0, 1000.0, 0.0), voxelCamera,
                                        terrainProgram, waterProgram);
     }
 }
