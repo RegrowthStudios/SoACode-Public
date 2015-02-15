@@ -98,7 +98,7 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
             // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for face colors
 
             // TODO(Ben): This is temporary debugging stuff
-            const float delta = 1.0f;
+            const float delta = 100.0f;
             if (abs(v.position[m_coordMapping.x]) >= m_radius - delta
                 || abs(v.position[m_coordMapping.z]) >= m_radius - delta) {
                 v.color.r = 255;
@@ -125,10 +125,12 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
             v.normTexCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
 
             // Spherify it!
-            f32v3 normal = glm::normalize(v.position);
+            f32v3 normal;
             if (m_isSpherical) {
+                normal = glm::normalize(v.position);
                 v.position = normal * (m_radius + h);
             } else {
+                normal = glm::normalize(f32v3(v.position.x, m_radius, v.position.z));
                 v.position.y += h;
             }
 

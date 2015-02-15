@@ -25,7 +25,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
                                              vg::GLProgram* waterProgram,
                                              const NamePositionComponent* npComponent,
                                              const AxisRotationComponent* arComponent) {
-    if (cmp.patches && !voxelCamera) {
+    if (cmp.patches) {
         f32m4 rotationMatrix = f32m4(glm::toMat4(arComponent->currentOrientation));
 
         f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
@@ -35,7 +35,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
                                              rotationMatrix, terrainProgram, waterProgram);
     }
 
-    if (voxelCamera) {
+    if (0 && voxelCamera) {
         // Lazy shader init
         if (!m_farTerrainProgram) {
             buildFarTerrainShaders();

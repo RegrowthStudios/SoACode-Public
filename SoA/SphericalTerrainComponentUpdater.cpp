@@ -18,7 +18,7 @@ void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f6
         f64 distance = glm::length(relativeCameraPos);
 
         // If inactive, force patch deletion
-        if (!it.second.active) distance = LOAD_DIST * 10.0;
+      //  if (!it.second.active) distance = LOAD_DIST * 10.0;
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed
