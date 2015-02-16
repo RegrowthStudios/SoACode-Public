@@ -25,12 +25,22 @@ float SphericalTerrainGpuGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HE
 
 HeightmapGenRpcDispatcher::HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
     m_generator(generator) {
-    for (int i = 0; i < NUM_GENERATORS; i++) {
-        m_generators[i].generator = m_generator;
-    }
+    // Empty    
+}
+
+HeightmapGenRpcDispatcher::~HeightmapGenRpcDispatcher() {
+    delete[] m_generators;
 }
 
 bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
+    // Lazy init
+    if (!m_generators) {
+        m_generators = new RawGenDelegate[NUM_GENERATORS];
+        for (int i = 0; i < NUM_GENERATORS; i++) {
+            m_generators[i].generator = m_generator;
+        }
+    }
+    
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];

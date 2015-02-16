@@ -55,6 +55,7 @@ public:
 class HeightmapGenRpcDispatcher {
 public:
     HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator);
+    ~HeightmapGenRpcDispatcher();
     /// @return a new mesh on success, nullptr on failure
     bool dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
 private:
@@ -63,7 +64,7 @@ private:
 
     SphericalTerrainGpuGenerator* m_generator = nullptr;
 
-    RawGenDelegate m_generators[NUM_GENERATORS];
+    RawGenDelegate *m_generators = nullptr;
 };
 
 class SphericalTerrainGpuGenerator {
