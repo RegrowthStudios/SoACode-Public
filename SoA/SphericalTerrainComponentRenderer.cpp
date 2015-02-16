@@ -35,7 +35,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
                                              rotationMatrix, terrainProgram, waterProgram);
     }
 
-    if (0 && voxelCamera) {
+    if (voxelCamera) {
         // Lazy shader init
         if (!m_farTerrainProgram) {
             buildFarTerrainShaders();
@@ -44,7 +44,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
         f64v3 relativeCameraPos = voxelCamera->getPosition() * KM_PER_VOXEL;
         // Draw far patches
         cmp.meshManager->drawFarMeshes(relativeCameraPos, voxelCamera,
-                                       m_farTerrainProgram, waterProgram);
+                                       m_farTerrainProgram, m_farWaterProgram);
     }
 }
 
@@ -61,6 +61,7 @@ void SphericalTerrainComponentRenderer::buildFarTerrainShaders() {
     vio::IOManager iom;
     nString vertSource;
     nString fragSource;
+
     iom.readFileToString("Shaders/SphericalTerrain/FarTerrain.vert", vertSource);
     iom.readFileToString("Shaders/SphericalTerrain/FarTerrain.frag", fragSource);
     m_farTerrainProgram = new vg::GLProgram(true);
@@ -76,4 +77,18 @@ void SphericalTerrainComponentRenderer::buildFarTerrainShaders() {
     glUniform1i(m_farTerrainProgram->getUniform("unTexture"), 2);
     glUniform1f(m_farTerrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
     m_farTerrainProgram->unuse();
+
+    iom.readFileToString("Shaders/SphericalTerrain/FarWater.vert", vertSource);
+    iom.readFileToString("Shaders/SphericalTerrain/FarWater.frag", fragSource);
+    m_farWaterProgram = new vg::GLProgram(true);
+    m_farWaterProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
+    m_farWaterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
+    m_farWaterProgram->setAttributes(sphericalAttribs);
+    m_farWaterProgram->link();
+    m_farWaterProgram->initUniforms();
+
+    m_farWaterProgram->use();
+    glUniform1i(m_farWaterProgram->getUniform("unNormalMap"), 0);
+    glUniform1i(m_farWaterProgram->getUniform("unColorMap"), 1);
+    m_farWaterProgram->unuse();
 }
