@@ -244,7 +244,6 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
     }
 }
 
-// TODO(Ben): I think this isn't needed
 void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, f32 radius, OUT f32& height) {
     f32v3 cornerPos[2];
     f32 min;

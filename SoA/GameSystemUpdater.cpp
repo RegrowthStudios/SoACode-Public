@@ -18,6 +18,9 @@
 #include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
 
+#define KM_PER_VOXEL 0.0005
+#define VOXELS_PER_KM 2000.0
+
 GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager) {
 
     // Hook up wasd events
@@ -74,6 +77,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
     for (auto& it : gameSystem->spacePosition) {
         bool inVoxelRange = false;
         auto& spcmp = it.second;
+        printVec("POS: ", spcmp.position);
         auto& pycmp = gameSystem->physics.getFromEntity(it.first);
         for (auto& sit : spaceSystem->m_sphericalTerrainCT) {
             if (!sit.second.gpuGenerator) continue; /// Have to check for deleted component
@@ -90,11 +94,8 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // We need to transition to a voxel component
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
-                    ChunkPosition2D chunkGridPos;
-                    VoxelPosition3D vGridPos;
-                    computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), chunkGridPos, vGridPos.pos);
-                    vGridPos.face = chunkGridPos.face;
-
+                    VoxelPosition3D vGridPos = VoxelSpaceConversions::worldToVoxel(rotcmp.invCurrentOrientation * relPos * VOXELS_PER_KM, stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM);
+                   
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
                     // For now, add and remove SphericalVoxel and FarTerrain component together
@@ -105,14 +106,14 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                         
                         svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, it.first, ftCmpId,
                                                                                   sit.second.axisRotationComponent, sit.second.namePositionComponent,
-                                                                                  chunkGridPos, vGridPos.pos, soaState);
+                                                                                  vGridPos, soaState);
                       
                         sit.second.active = false;
                     } else {
                         spaceSystem->m_sphericalVoxelCT.get(svid).refCount++;
                     }
 
-                    f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(VoxelSpaceConversions::chunkToVoxel(chunkGridPos),
+                    f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(vGridPos,
                         stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
 
                     // We need to transition to the voxels
@@ -149,7 +150,6 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
 }
 
 void GameSystemUpdater::computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkPosition2D& gridPos, OUT f64v3& pos) {
-#define VOXELS_PER_KM 2000.0
 
     f64v3 voxelRelPos = relPos * VOXELS_PER_KM;
     f32 voxelRadius = (float)(radius * VOXELS_PER_KM);

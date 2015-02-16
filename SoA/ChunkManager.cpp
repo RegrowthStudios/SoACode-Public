@@ -55,10 +55,9 @@ const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGpuGenerator* terrainGenerator,
-                           const ChunkPosition2D& startGridPos, ChunkIOManager* chunkIo,
-                           const f64v3& gridPosition, float planetRadius) :
+                           const VoxelPosition3D& startVoxelPos, ChunkIOManager* chunkIo,
+                           float planetRadius) :
     _isStationary(0),
-    m_cameraGridPos(startGridPos),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
     _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS),
     m_terrainGenerator(terrainGenerator),
@@ -66,6 +65,11 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     m_chunkIo(chunkIo),
     m_planetRadius(planetRadius) {
    
+    ChunkPosition3D cpos3d = VoxelSpaceConversions::voxelToChunk(startVoxelPos);
+    m_cameraGridPos.pos.x = cpos3d.pos.x;
+    m_cameraGridPos.pos.y = cpos3d.pos.y;
+    m_cameraGridPos.face = cpos3d.face;
+
     // Set maximum container changes
     vvox::MAX_COMPRESSIONS_PER_FRAME = MAX_COMPRESSIONS_PER_FRAME;
 
@@ -100,12 +104,12 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
 
     // Get the chunk position
     i32v3 chunkPosition;
-    chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
-    chunkPosition.y = fastFloor(gridPosition.y / (double)CHUNK_WIDTH);
-    chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
+    chunkPosition.x = fastFloor(startVoxelPos.pos.x / (double)CHUNK_WIDTH);
+    chunkPosition.y = fastFloor(startVoxelPos.pos.y / (double)CHUNK_WIDTH);
+    chunkPosition.z = fastFloor(startVoxelPos.pos.z / (double)CHUNK_WIDTH);
 
     // Make the first chunk
-    makeChunkAt(chunkPosition, startGridPos);
+    makeChunkAt(chunkPosition, m_cameraGridPos);
 
     m_prevCameraChunkPos = m_cameraGridPos.pos;
 }

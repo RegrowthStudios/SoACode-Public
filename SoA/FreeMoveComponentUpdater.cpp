@@ -6,6 +6,8 @@
 
 #include "GameSystem.h"
 
+#define KM_PER_VOXEL 0.0005
+
 void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
 
     f64v3 forward, right, up;
@@ -15,14 +17,15 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
         auto& physcmp = gameSystem->physics.get(fmcmp.physicsComponent);
 
         f64q* orientation;
+        f64 speed = (f64)fmcmp.speed;
         // If there is a voxel component, we use voxel position
         if (physcmp.voxelPositionComponent) {
             orientation = &gameSystem->voxelPosition.get(physcmp.voxelPositionComponent).orientation;
         } else {
             orientation = &gameSystem->spacePosition.get(physcmp.spacePositionComponent).orientation;
+            speed *= KM_PER_VOXEL;
         }
-
-        f64 speed = (f64)fmcmp.speed;
+ 
         if (fmcmp.superSpeed) {
             speed *= 1000.0; // temporary
         }

@@ -62,8 +62,8 @@ class ChunkManager {
 public:
     ChunkManager(PhysicsEngine* physicsEngine,
                  SphericalTerrainGpuGenerator* terrainGenerator,
-                 const ChunkPosition2D& startGridPos, ChunkIOManager* chunkIo,
-                 const f64v3& gridPosition, float planetRadius);
+                 const VoxelPosition3D& startVoxelPos, ChunkIOManager* chunkIo,
+                 float planetRadius);
     ~ChunkManager();
 
     enum InitFlags {

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "VoxelSpaceConversions.h"
+#include <Vorb/utils.h>
 
 f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkPosition2D& facePosition) {
     f32v3 rv;
@@ -99,51 +100,73 @@ f64v3 VoxelSpaceConversions::chunkToWorldNormalized(const ChunkPosition3D& faceP
     return voxelToWorldNormalized(chunkToVoxel(facePosition), voxelWorldRadius);
 }
 
+VoxelPosition3D computeGridPosition(const f32v3& hitpoint, f32 radius) {
+    f32v3 cornerPos[2];
+    f32 min;
+    f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
+    f32v3 dir = -glm::normalize(hitpoint);
+    cornerPos[0] = f32v3(-radius, -radius, -radius);
+    cornerPos[1] = f32v3(radius, radius, radius);
+    if (!IntersectionUtils::boxIntersect(cornerPos, dir,
+        start, min)) {
+        std::cerr << "Failed to find grid position from click\n";
+    }
+
+    f32v3 gridHit = start + dir * min;
+    const f32 eps = 32.0f;
+
+    VoxelPosition3D gridPos;
+
+    if (abs(gridHit.x - (-radius)) < eps) { //-X
+        gridPos.face = WorldCubeFace::FACE_LEFT;
+        gridPos.pos.x = gridHit.z;
+        gridPos.pos.z = gridHit.y;
+    } else if (abs(gridHit.x - radius) < eps) { //X
+        gridPos.face = WorldCubeFace::FACE_RIGHT;
+        gridPos.pos.x = gridHit.z;
+        gridPos.pos.z = gridHit.y;
+    } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
+        gridPos.face = WorldCubeFace::FACE_BOTTOM;
+        gridPos.pos.x = gridHit.x;
+        gridPos.pos.z = gridHit.z;
+    } else if (abs(gridHit.y - radius) < eps) { //Y
+        gridPos.face = WorldCubeFace::FACE_TOP;
+        gridPos.pos.x = gridHit.x;
+        gridPos.pos.z = gridHit.z;
+    } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
+        gridPos.face = WorldCubeFace::FACE_BACK;
+        gridPos.pos.x = gridHit.x;
+        gridPos.pos.z = gridHit.y;
+    } else if (abs(gridHit.z - radius) < eps) { //Z
+        gridPos.face = WorldCubeFace::FACE_FRONT;
+        gridPos.pos.x = gridHit.x;
+        gridPos.pos.z = gridHit.y;
+    } else {
+        std::cerr << "ERROR: Failed to pick voxel position in computeGridPosition.\n";
+    }
+
+    return gridPos;
+}
+
 VoxelPosition3D VoxelSpaceConversions::worldToVoxel(const f64v3& worldPosition, f64 voxelWorldRadius) {
     f64v3 boxIntersect;
-    VoxelPosition3D gpos;
-
-    // Get closest point to the cube
-    boxIntersect.x = (worldPosition.x <= -voxelWorldRadius) ? -voxelWorldRadius :
-        ((worldPosition.x > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.x);
-    boxIntersect.y = (worldPosition.y <= -voxelWorldRadius) ? -voxelWorldRadius :
-        ((worldPosition.y > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.y);
-    boxIntersect.z = (worldPosition.z <= -voxelWorldRadius) ? -voxelWorldRadius :
-        ((worldPosition.z > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.z);
 
     f64 height = glm::length(worldPosition - glm::normalize(boxIntersect) * voxelWorldRadius);
 
-    if (boxIntersect.x == -voxelWorldRadius) {
-        gpos.face = FACE_LEFT;
-        gpos.pos.x = boxIntersect.z;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
-    } else if (boxIntersect.x == voxelWorldRadius) {
-        gpos.face = FACE_RIGHT;
-        gpos.pos.x = -boxIntersect.z;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
-    } else if (boxIntersect.y == -voxelWorldRadius) {
-        gpos.face = FACE_BOTTOM;
-        gpos.pos.x = boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.z;
-    } else if (boxIntersect.y == voxelWorldRadius) {
-        gpos.face = FACE_TOP;
-        gpos.pos.x = boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = -boxIntersect.z;
-    } else if (boxIntersect.z == -voxelWorldRadius) {
-        gpos.face = FACE_BACK;
-        gpos.pos.x = -boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
-    } else if (boxIntersect.z == voxelWorldRadius) {
-        gpos.face = FACE_FRONT;
-        gpos.pos.x = boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
+    f64v3 wpoint = glm::normalize(worldPosition) * voxelWorldRadius * 2.0;
+
+    // Compute the intersection
+    f32v3 normal, hitpoint;
+    f32 distance;
+
+    VoxelPosition3D gridPos;
+    if (IntersectionUtils::sphereIntersect(-f32v3(glm::normalize(wpoint)), f32v3(0.0f), -f32v3(wpoint), voxelWorldRadius, hitpoint, distance, normal)) {
+        hitpoint += wpoint;
+
+        // Compute face and grid position
+        gridPos = computeGridPosition(hitpoint, voxelWorldRadius);
+        gridPos.pos.y = glm::length(worldPosition - glm::normalize(worldPosition) * voxelWorldRadius);
     }
 
-    return gpos;
+    return gridPos;
 }

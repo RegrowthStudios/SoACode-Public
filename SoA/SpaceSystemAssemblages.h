@@ -70,8 +70,7 @@ namespace SpaceSystemAssemblages {
                                                          vcore::ComponentID farTerrainComponent,
                                                          vcore::ComponentID axisRotationComponent,
                                                          vcore::ComponentID namePositionComponent,
-                                                         const ChunkPosition2D& startGridPos,
-                                                         const f64v3& gridPosition,
+                                                         const VoxelPosition3D& startVoxelPos,
                                                          const SoaState* soaState);
     extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
