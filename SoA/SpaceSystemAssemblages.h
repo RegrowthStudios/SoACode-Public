@@ -67,6 +67,7 @@ namespace SpaceSystemAssemblages {
     /************************************************************************/
     /// Spherical voxel component
     extern vcore::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                         vcore::ComponentID sphericalTerrainComponent,
                                                          vcore::ComponentID farTerrainComponent,
                                                          vcore::ComponentID axisRotationComponent,
                                                          vcore::ComponentID namePositionComponent,

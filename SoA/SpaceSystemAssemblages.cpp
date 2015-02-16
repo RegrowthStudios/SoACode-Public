@@ -119,11 +119,12 @@ void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) 
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                                    vcore::ComponentID farTerrainComponent,
-                                                                    vcore::ComponentID axisRotationComponent,
-                                                                    vcore::ComponentID namePositionComponent,
-                                                                    const VoxelPosition3D& startVoxelPos,
-                                                                    const SoaState* soaState) {
+                                                                      vcore::ComponentID sphericalTerrainComponent,
+                                                                      vcore::ComponentID farTerrainComponent,
+                                                                      vcore::ComponentID axisRotationComponent,
+                                                                      vcore::ComponentID namePositionComponent,
+                                                                      const VoxelPosition3D& startVoxelPos,
+                                                                      const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0
     
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
@@ -132,6 +133,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     auto& ftcmp = spaceSystem->m_farTerrainCT.get(farTerrainComponent);
 
     // Get component handles
+    svcmp.sphericalTerrainComponent = sphericalTerrainComponent;
     svcmp.axisRotationComponent = axisRotationComponent;
     svcmp.namePositionComponent = namePositionComponent;
     svcmp.farTerrainComponent = farTerrainComponent;

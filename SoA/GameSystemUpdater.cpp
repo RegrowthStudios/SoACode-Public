@@ -73,7 +73,7 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 
 void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 #define LOAD_DIST_MULT 1.05
-
+    // TODO(Ben): There is some client specific stuff mixed in with server stuff.
     // TODO(Ben): This is n^2 and therefore expensive
     for (auto& it : gameSystem->spacePosition) {
         bool inVoxelRange = false;
@@ -94,18 +94,20 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                 if (!pycmp.voxelPositionComponent) {
                     // We need to transition to a voxel component
                     // Calculate voxel position
-                    auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
+                    auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
                     VoxelPosition3D vGridPos = VoxelSpaceConversions::worldToVoxel(rotcmp.invCurrentOrientation * relPos * VOXELS_PER_KM, stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM);
                     std::cout << (int)vGridPos.face << std::endl;
                     // Check for the spherical voxel component
-                    vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
+                    vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
                     // For now, add and remove SphericalVoxel and FarTerrain component together
                     if (svid == 0) {
                         // TODO(Ben): FarTerrain should be clientSide only
-                        auto ftCmpId = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, it.first, sit.second,
+                        auto ftCmpId = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first, sit.second,
                                                                        vGridPos.face);
                         
-                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, it.first, ftCmpId,
+                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first,
+                                                                                  spaceSystem->m_sphericalTerrainCT.getComponentID(sit.first),
+                                                                                  ftCmpId,
                                                                                   sit.second.axisRotationComponent, sit.second.namePositionComponent,
                                                                                   vGridPos, soaState);
                       
@@ -124,25 +126,39 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // Update dependencies for frustum
                     gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = vpid;
                 }
+            } else {
+                sit.second.active = true;
             }
         }
 
         // If we are in range of no planets, delete voxel position component
         if (!inVoxelRange && pycmp.voxelPositionComponent) {
-            // We need to transition to space
-            gameSystem->deleteComponent("VoxelPosition", it.first);
-            pycmp.voxelPositionComponent = 0;
-            
-            auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(it.first);
-            stCmp.active = true;
 
-            vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
-            auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svid);
+            // Get voxel position handle
+            auto& vpCmp = gameSystem->voxelPosition.get(pycmp.voxelPositionComponent);
+            // Get parent spherical voxel
+            auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(vpCmp.parentVoxelComponent);
+            // Hacky search for entity....
+            vcore::EntityID planetEntity;
+            for (auto& sit = spaceSystem->m_sphericalVoxelCT.begin(); sit != spaceSystem->m_sphericalVoxelCT.end(); sit++) {
+                if (sit->second.namePositionComponent == svcmp.namePositionComponent) {
+                    planetEntity = sit->first;
+                    break;
+                }
+            }
+
             svcmp.refCount--;
             if (svcmp.refCount == 0) {
-                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
-                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
+                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, planetEntity);
+                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, planetEntity);
+
+                auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(planetEntity);
+                stCmp.active = true;
             }
+
+            // Delete the voxelPositionComponent
+            pycmp.voxelPositionComponent = 0;
+            gameSystem->deleteComponent("VoxelPosition", it.first);
 
             // Update dependencies for frustum
             gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = 0;
