@@ -29,8 +29,42 @@
 
 class TerrainGenDelegate;
 class RawGenDelegate;
+class ChunkGridData;
+class SphericalTerrainGpuGenerator;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
+
+class RawGenDelegate : public IDelegate < void* > {
+public:
+    virtual void invoke(Sender sender, void* userData) override;
+    void release();
+    volatile bool inUse = false;
+
+    vcore::RPC rpc;
+
+    f32v3 startPos;
+    WorldCubeFace cubeFace;
+    int width;
+    float step;
+
+    std::shared_ptr<ChunkGridData> gridData = nullptr;
+
+    SphericalTerrainGpuGenerator* generator = nullptr;
+};
+
+class HeightmapGenRpcDispatcher {
+public:
+    HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator);
+    /// @return a new mesh on success, nullptr on failure
+    bool dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
+private:
+    static const int NUM_GENERATORS = 512;
+    int counter = 0;
+
+    SphericalTerrainGpuGenerator* m_generator = nullptr;
+
+    RawGenDelegate m_generators[NUM_GENERATORS];
+};
 
 class SphericalTerrainGpuGenerator {
 public:
@@ -66,6 +100,9 @@ public:
     vg::GLProgram* getNormalProgram() { return m_normalProgram; }
     vg::TextureRecycler* getNormalMapRecycler() { return m_normalMapRecycler; }
     const PlanetGenData* getPlanetGenData() { return m_planetGenData; }
+
+    HeightmapGenRpcDispatcher heightmapGenRpcDispatcher;
+
 private:
     /// Updates terrain patch generation
     void updatePatchGeneration();

@@ -31,9 +31,9 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "RenderTask.h"
+#include "SmartVoxelContainer.hpp"
 #include "Sound.h"
 #include "SphericalTerrainGpuGenerator.h"
-#include "SmartVoxelContainer.hpp"
 
 #include "SphericalTerrainPatch.h"
 
@@ -52,38 +52,6 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define NUM_BYTE_VOXEL_ARRAYS 1
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
-
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
-    // Check if there is a free generator
-    if (!m_generators[counter].inUse) {
-        auto& gen = m_generators[counter];
-        // Mark the generator as in use
-        gen.inUse = true;
-        cgd->wasRequestSent = true;
-        gen.gridData = cgd;
-        gen.rpc.data.f = &gen;
-
-        // Get scaled position
-        f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
-
-        // Set the data
-        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
-                             planetRadius * KM_PER_VOXEL * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
-                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.y);
-
-        gen.cubeFace = facePosition.face;
-
-        gen.width = 32;
-        gen.step = KM_PER_VOXEL;
-        // Invoke generator
-        m_generator->invokeRawGen(&gen.rpc);
-        // Go to next generator
-        counter++;
-        if (counter == NUM_GENERATORS) counter = 0;
-        return true;
-    }
-    return false;
-}
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGpuGenerator* terrainGenerator,
@@ -110,7 +78,7 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
 
-    heightmapGenRpcDispatcher = std::make_unique<HeightmapGenRpcDispatcher>(m_terrainGenerator);
+    heightmapGenRpcDispatcher = &(terrainGenerator->heightmapGenRpcDispatcher);
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
@@ -341,8 +309,6 @@ void ChunkManager::destroy() {
    
     // Clear the chunk IO thread
     m_chunkIo->clear();
-
-    heightmapGenRpcDispatcher.reset();
 
     // Destroy the thread pool
     _threadPool.destroy();
@@ -957,7 +923,7 @@ void ChunkManager::updateCaPhysics() {
 
 void ChunkManager::setTerrainGenerator(SphericalTerrainGpuGenerator* generator) {
     m_terrainGenerator = generator;
-    heightmapGenRpcDispatcher = std::make_unique<HeightmapGenRpcDispatcher>(m_terrainGenerator);
+    heightmapGenRpcDispatcher = &generator->heightmapGenRpcDispatcher;
 }
 
 void ChunkManager::freeChunk(Chunk* chunk) {

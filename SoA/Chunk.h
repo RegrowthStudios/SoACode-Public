@@ -54,24 +54,6 @@ public:
     volatile bool isLoaded = false;
 };
 
-class RawGenDelegate : public IDelegate < void* > {
-public:
-    virtual void invoke(Sender sender, void* userData) override;
-    void release();
-    volatile bool inUse = false;
-
-    vcore::RPC rpc;
-
-    f32v3 startPos;
-    WorldCubeFace cubeFace;
-    int width;
-    float step;
-
-    std::shared_ptr<ChunkGridData> gridData = nullptr;
-
-    SphericalTerrainGpuGenerator* generator = nullptr;
-};
-
 class Chunk{
 public:
 

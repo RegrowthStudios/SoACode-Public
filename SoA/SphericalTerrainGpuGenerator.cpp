@@ -21,6 +21,47 @@
 
 float SphericalTerrainGpuGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 
+#define KM_PER_VOXEL 0.0005f
+
+HeightmapGenRpcDispatcher::HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
+    m_generator(generator) {
+    for (int i = 0; i < NUM_GENERATORS; i++) {
+        m_generators[i].generator = m_generator;
+    }
+}
+
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
+    // Check if there is a free generator
+    if (!m_generators[counter].inUse) {
+        auto& gen = m_generators[counter];
+        // Mark the generator as in use
+        gen.inUse = true;
+        cgd->wasRequestSent = true;
+        gen.gridData = cgd;
+        gen.rpc.data.f = &gen;
+
+        // Get scaled position
+        f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
+
+        // Set the data
+        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
+                             planetRadius * KM_PER_VOXEL * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
+                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.y);
+
+        gen.cubeFace = facePosition.face;
+
+        gen.width = 32;
+        gen.step = KM_PER_VOXEL;
+        // Invoke generator
+        m_generator->invokeRawGen(&gen.rpc);
+        // Go to next generator
+        counter++;
+        if (counter == NUM_GENERATORS) counter = 0;
+        return true;
+    }
+    return false;
+}
+
 SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
                                                      PlanetGenData* planetGenData,
                                                      vg::GLProgram* normalProgram,
@@ -37,7 +78,8 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshM
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
     unWidth(m_normalProgram->getUniform("unWidth")),
     unTexelWidth(m_normalProgram->getUniform("unTexelWidth")),
-    m_mesher(meshManager, planetGenData) {
+    m_mesher(meshManager, planetGenData),
+    heightmapGenRpcDispatcher(this) {
 
     // Zero counters
     m_patchCounter[0] = 0;

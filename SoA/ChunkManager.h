@@ -23,6 +23,8 @@ const i32 lodStep = 1;
 
 extern ui32 strtTimer;
 
+class HeightmapGenRpcDispatcher;
+
 // Message used when placing blocks
 class PlaceBlocksMessage {
 
@@ -54,25 +56,6 @@ class GeneratedTreeNodes;
 class PhysicsEngine;
 class RenderTask;
 class VoxelLightEngine;
-
-class HeightmapGenRpcDispatcher {
-public:
-    HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
-        m_generator(generator) {
-        for (int i = 0; i < NUM_GENERATORS; i++) {
-            m_generators[i].generator = m_generator;
-        }
-    }
-    /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
-private:
-    static const int NUM_GENERATORS = 512;
-    int counter = 0;
-
-    SphericalTerrainGpuGenerator* m_generator = nullptr;
-
-    RawGenDelegate m_generators[NUM_GENERATORS];
-};
 
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
@@ -364,7 +347,7 @@ private:
     vcore::ThreadPool<WorkerData> _threadPool;
 
     /// Dispatches asynchronous generation requests
-    std::unique_ptr<HeightmapGenRpcDispatcher> heightmapGenRpcDispatcher = nullptr;
+    HeightmapGenRpcDispatcher* heightmapGenRpcDispatcher = nullptr;
 
     /// Generates voxel heightmaps
     SphericalTerrainGpuGenerator* m_terrainGenerator = nullptr;
