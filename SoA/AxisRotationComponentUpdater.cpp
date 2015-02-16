@@ -8,7 +8,7 @@ void AxisRotationComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
     for (auto& it : spaceSystem->m_axisRotationCT) {
         auto& cmp = it.second;
         // Calculate rotation
-        cmp.currentRotation = cmp.angularSpeed_RS * time;
+     //   cmp.currentRotation = cmp.angularSpeed_RS * time;
 
         // Calculate the axis rotation quat
         f64v3 eulerAngles(0, cmp.currentRotation, 0);

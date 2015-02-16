@@ -95,7 +95,7 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
 
             // Set color
             v.color = m_planetGenData->terrainTint;
-            // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for face colors
+            v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for face colors
 
             // TODO(Ben): This is temporary debugging stuff
             const float delta = 100.0f;

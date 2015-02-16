@@ -171,7 +171,7 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
     f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
 
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
-    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
+    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
 
     m_worldPosition[coordMapping.x] = centerGridPos.x * coordMults.x;
     m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
@@ -305,7 +305,7 @@ bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &p
 
 void SphericalTerrainPatch::requestMesh() {
     // Try to generate a mesh
-    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
+    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
 
     f32v3 startPos(m_gridPosition.x * coordMults.x,
                    m_sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],

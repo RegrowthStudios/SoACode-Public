@@ -8,7 +8,7 @@
 
 // TODO(Ben): Timestep
 void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem) {
-#define VOXELS_PER_KM 2000.0
+#define KM_PER_VOXEL 0.0005
     for (auto& it : gameSystem->physics) {
         auto& cmp = it.second;
         // Get the position component
@@ -25,7 +25,7 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSyst
             auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
             auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
 
-            f64v3 spacePos = VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) / VOXELS_PER_KM;
+            f64v3 spacePos = VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) * KM_PER_VOXEL;
 
             spcmp.position = arcmp.currentOrientation * spacePos + npcmp.position;
             // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it

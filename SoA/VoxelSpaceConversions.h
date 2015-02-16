@@ -44,14 +44,14 @@ namespace VoxelSpaceConversions {
     const int FACE_Y_MULTS[6] = { 1, -1, 1, 1, -1, -1 };
     /// Multiply by the voxel-space X,Z axis in order to get the correct direction
     /// for its corresponding world-space axis
-    /// [face][rotation]
-    const i32v2 FACE_TO_WORLD_MULTS[6][4] = {
-        { i32v2(1, 1), i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1) }, // TOP
-        { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) }, // LEFT
-        { i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1), i32v2(1, -1) }, // RIGHT
-        { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) }, // FRONT
-        { i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1), i32v2(1, -1) }, // BACK
-        { i32v2(1, -1), i32v2(-1, -1), i32v2(-1, 1), i32v2(1, 1) } }; // BOTTOM
+    /// [face]
+    const i32v2 FACE_TO_WORLD_MULTS[6] = {
+        i32v2(1, 1), // TOP
+        i32v2(1, -1), // LEFT
+        i32v2(-1, -1), // RIGHT
+        i32v2(1, -1), // FRONT
+        i32v2(-1, -1), // BACK
+        i32v2(1, -1) }; // BOTTOM
 
 
     /// Gets multipliers for converting face direction to world direction

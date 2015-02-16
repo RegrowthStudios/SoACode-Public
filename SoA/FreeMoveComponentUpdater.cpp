@@ -27,7 +27,7 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
         }
  
         if (fmcmp.superSpeed) {
-            speed *= 1000.0; // temporary
+            speed *= 10000.0; // temporary
         }
         // Calculate velocity vector from inputs and speed
         physcmp.velocity = f64v3(0.0);

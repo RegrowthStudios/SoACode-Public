@@ -35,7 +35,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
                                              rotationMatrix, terrainProgram, waterProgram);
     }
 
-    if (voxelCamera) {
+    if (0 && voxelCamera) {
         // Lazy shader init
         if (!m_farTerrainProgram) {
             buildFarTerrainShaders();

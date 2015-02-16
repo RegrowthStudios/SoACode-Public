@@ -74,10 +74,11 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 #define LOAD_DIST_MULT 1.05
 
+    // TODO(Ben): This is n^2 and therefore expensive
     for (auto& it : gameSystem->spacePosition) {
         bool inVoxelRange = false;
         auto& spcmp = it.second;
-        printVec("POS: ", spcmp.position);
+       // printVec("POS: ", spcmp.position);
         auto& pycmp = gameSystem->physics.getFromEntity(it.first);
         for (auto& sit : spaceSystem->m_sphericalTerrainCT) {
             if (!sit.second.gpuGenerator) continue; /// Have to check for deleted component
@@ -95,7 +96,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
                     VoxelPosition3D vGridPos = VoxelSpaceConversions::worldToVoxel(rotcmp.invCurrentOrientation * relPos * VOXELS_PER_KM, stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM);
-                   
+                    std::cout << (int)vGridPos.face << std::endl;
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
                     // For now, add and remove SphericalVoxel and FarTerrain component together

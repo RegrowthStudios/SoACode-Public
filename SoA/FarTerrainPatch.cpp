@@ -147,7 +147,7 @@ bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, 
 
 void FarTerrainPatch::requestMesh() {
     // Try to generate a mesh
-    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace][0];
+    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
 
     f32v3 startPos(m_gridPosition.x * coordMults.x,
                    m_sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
