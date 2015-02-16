@@ -44,13 +44,6 @@ public:
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
     static void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
 private:
-    /// Calculates voxel position from relative space position
-    /// @param relPos: relative position of the entity against the world center
-    /// @param radius: Radius of the world
-    /// @param gridPos: Mapping data for spherical voxel position
-    /// @param pos: the resulting voxel grid relative position
-    static void computeVoxelPosition(const f64v3& relPos, f32 radius, OUT ChunkPosition2D& gridPos, OUT f64v3& pos);
-
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 
     /// Delegates

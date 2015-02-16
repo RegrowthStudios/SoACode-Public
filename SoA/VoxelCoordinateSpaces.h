@@ -27,7 +27,7 @@ struct ChunkPosition2D {
 };
 
 struct ChunkPosition3D {
-    i32v3 pos = i32v3(0);
+    i32v3 pos;
     WorldCubeFace face = FACE_TOP;
 };
 

@@ -207,10 +207,8 @@ private:
     void addGenerateTask(Chunk* chunk);
 
     /// Creates a chunk and any needed grid data at a given chunk position
-    /// @param chunkPosition: position to create the chunk at
-    /// @param relativeGridPos: the gridPosition that this chunk is relative to.
-    /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
-    void makeChunkAt(const i32v3& chunkPosition, const ChunkPosition2D& relativeGridPos, const i32v2& ijOffset = i32v2(0));
+    /// @param chunkPosition: the ChunkPosition
+    void makeChunkAt(const ChunkPosition3D& chunkPosition);
 
     /// Updates the load list
     /// @param maxTicks: maximum time the function is allowed

@@ -68,7 +68,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData);
+    void init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);

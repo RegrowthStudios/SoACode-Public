@@ -102,14 +102,8 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     _meshList.reserve(_csGridSize / 2);
     _loadList.reserve(_csGridSize / 2);
 
-    // Get the chunk position
-    i32v3 chunkPosition;
-    chunkPosition.x = fastFloor(startVoxelPos.pos.x / (double)CHUNK_WIDTH);
-    chunkPosition.y = fastFloor(startVoxelPos.pos.y / (double)CHUNK_WIDTH);
-    chunkPosition.z = fastFloor(startVoxelPos.pos.z / (double)CHUNK_WIDTH);
-
     // Make the first chunk
-    makeChunkAt(chunkPosition, m_cameraGridPos);
+    makeChunkAt(VoxelSpaceConversions::voxelToChunk(startVoxelPos));
 
     m_prevCameraChunkPos = m_cameraGridPos.pos;
 }
@@ -153,7 +147,10 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     }
 
     if (getChunk(chunkPosition) == nullptr) {
-        makeChunkAt(chunkPosition, m_cameraGridPos);
+        ChunkPosition3D cPos;
+        cPos.pos = chunkPosition;
+        cPos.face = m_cameraGridPos.face;
+        makeChunkAt(cPos);
     }
 
     sonarDt += 0.003f*physSpeedFactor;
@@ -618,17 +615,17 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
     _threadPool.addTask(generateTask);
 }
 
-void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkPosition2D& relativeGridPos, const i32v2& ijOffset /* = i32v2(0) */) {
+void ChunkManager::makeChunkAt(const ChunkPosition3D& chunkPosition) {
 
     // Get the voxel grid position
-    i32v2 gridPos(chunkPosition.x, chunkPosition.z);
+    i32v2 gridPos(chunkPosition.pos.x, chunkPosition.pos.z);
 
     // Check and see if the grid data is already allocated here
     std::shared_ptr<ChunkGridData> chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         // If its not allocated, make a new one with a new voxelMapData
-        chunkGridData = std::make_shared<ChunkGridData>(relativeGridPos.pos + ijOffset,
-                                                        relativeGridPos.face);
+        chunkGridData = std::make_shared<ChunkGridData>(gridPos,
+                                                        chunkPosition.face);
         _chunkGridDataMap[gridPos] = chunkGridData;
     } else {
         chunkGridData->refCount++;
@@ -644,7 +641,7 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkPosition2D
     addToLoadList(chunk);
 
     // Add the chunkSlot to the hashmap keyed on the chunk Position
-    m_chunkMap[chunkPosition] = chunk;
+    m_chunkMap[chunkPosition.pos] = chunk;
 
     // Connect to any neighbors
     chunk->detectNeighbors(m_chunkMap);
@@ -1132,13 +1129,12 @@ void ChunkManager::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
 }
 
 void ChunkManager::tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
-    i32v3 newPosition = chunk->gridPosition.pos + offset;
+    ChunkPosition3D newPosition = chunk->gridPosition;
+    newPosition.pos += offset;
    
-    double dist2 = Chunk::getDistance2(newPosition * CHUNK_WIDTH, cameraPos);
+    double dist2 = Chunk::getDistance2(newPosition.pos * CHUNK_WIDTH, cameraPos);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
-
-        i32v2 ijOffset(offset.z, offset.x);
-        makeChunkAt(newPosition, chunk->chunkGridData->gridPosition, ijOffset);
+        makeChunkAt(newPosition);
     }
 }
 
