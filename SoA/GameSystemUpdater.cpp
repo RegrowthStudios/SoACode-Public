@@ -58,9 +58,9 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 #define CHECK_FRAMES 6
 
     // Update entity tables
+    m_freeMoveUpdater.update(gameSystem);
     m_physicsUpdater.update(gameSystem, spaceSystem);
     m_collisionUpdater.update(gameSystem);
-    m_freeMoveUpdater.update(gameSystem);
     m_frustumUpdater.update(gameSystem);
 
     // Update voxel planet transitions every CHECK_FRAMES frames
@@ -78,7 +78,6 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
     for (auto& it : gameSystem->spacePosition) {
         bool inVoxelRange = false;
         auto& spcmp = it.second;
-       // printVec("POS: ", spcmp.position);
         auto& pycmp = gameSystem->physics.getFromEntity(it.first);
         for (auto& sit : spaceSystem->m_sphericalTerrainCT) {
             if (!sit.second.gpuGenerator) continue; /// Have to check for deleted component

@@ -5,6 +5,7 @@
 #include "SpaceSystem.h"
 #include "VoxelSpaceConversions.h"
 #include "VoxelSpaceUtils.h"
+#include "global.h"
 
 // TODO(Ben): Timestep
 void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem) {
