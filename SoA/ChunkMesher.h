@@ -71,7 +71,7 @@ private:
     int dataSize;
 
     Chunk* chunk; ///< The chunk we are currently meshing;
-    ChunkGridData* chunkGridData; ///< current grid data
+    std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
 
     int wSize;
     // Voxel data arrays

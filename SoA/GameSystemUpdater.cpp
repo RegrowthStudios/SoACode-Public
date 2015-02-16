@@ -89,21 +89,21 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                 if (!pycmp.voxelPositionComponent) {
                     // We need to transition to a voxel component
                     // Calculate voxel position
-                    auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
+                    auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
                     ChunkPosition2D chunkGridPos;
                     VoxelPosition3D vGridPos;
                     computeVoxelPosition(rotcmp.invCurrentOrientation * relPos, (f32)stcmp.sphericalTerrainData->getRadius(), chunkGridPos, vGridPos.pos);
                     vGridPos.face = chunkGridPos.face;
 
                     // Check for the spherical voxel component
-                    vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
+                    vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(it.first);
                     // For now, add and remove SphericalVoxel and FarTerrain component together
                     if (svid == 0) {
                         // TODO(Ben): FarTerrain should be clientSide only
-                        auto ftCmpId = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, sit.first, sit.second,
+                        auto ftCmpId = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, it.first, sit.second,
                                                                        vGridPos.face);
                         
-                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, sit.first, ftCmpId,
+                        svid = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, it.first, ftCmpId,
                                                                                   sit.second.axisRotationComponent, sit.second.namePositionComponent,
                                                                                   chunkGridPos, vGridPos.pos, soaState);
                       
@@ -139,6 +139,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             svcmp.refCount--;
             if (svcmp.refCount == 0) {
                 SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
+                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
             }
 
             // Update dependencies for frustum

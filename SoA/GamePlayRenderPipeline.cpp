@@ -288,7 +288,7 @@ void GamePlayRenderPipeline::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        _chunkCamera.setClippingPlane(1.0f, 999999.0f);
+        _chunkCamera.setClippingPlane(0.2f, 10000.0f);
         _chunkCamera.setPosition(vpcmp.gridPosition.pos);
         _chunkCamera.setOrientation(vpcmp.orientation);
         _chunkCamera.update();

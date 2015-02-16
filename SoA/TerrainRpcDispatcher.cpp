@@ -7,6 +7,10 @@ void TerrainGenDelegate::invoke(Sender sender, void* userData) {
     generator->generateTerrainPatch(this);
 }
 
+void TerrainGenDelegate::release() {
+    inUse = false;
+}
+
 
 SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
                                                                float width,

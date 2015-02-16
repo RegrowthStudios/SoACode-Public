@@ -48,8 +48,8 @@ public:
     }
 
     ChunkPosition2D gridPosition;
-    HeightData heightData[CHUNK_LAYER];
     int refCount = 1;
+    HeightData heightData[CHUNK_LAYER];
     volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
     volatile bool isLoaded = false;
 };
@@ -57,6 +57,7 @@ public:
 class RawGenDelegate : public IDelegate < void* > {
 public:
     virtual void invoke(Sender sender, void* userData) override;
+    void release();
     volatile bool inUse = false;
 
     vcore::RPC rpc;
@@ -66,7 +67,7 @@ public:
     int width;
     float step;
 
-    ChunkGridData* gridData = nullptr;
+    std::shared_ptr<ChunkGridData> gridData = nullptr;
 
     SphericalTerrainGpuGenerator* generator = nullptr;
 };
@@ -85,7 +86,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &chunkPos, ChunkGridData* chunkGridData);
+    void init(const i32v3 &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
@@ -238,7 +239,7 @@ public:
 
     Chunk *right, *left, *front, *back, *top, *bottom;
 
-    ChunkGridData* chunkGridData;
+    std::shared_ptr<ChunkGridData> chunkGridData;
     ChunkPosition3D gridPosition;
 
     // Thread safety functions

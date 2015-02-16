@@ -3,13 +3,14 @@
 
 #include "ChunkIOManager.h"
 #include "ChunkManager.h"
+#include "FarTerrainPatch.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "SphericalTerrainCpuGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 
 #include "SphericalTerrainMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -189,7 +190,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 }
 
 void SpaceSystemAssemblages::removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("SphericalVoxel", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
@@ -269,6 +270,8 @@ void SpaceSystemAssemblages::removeFarTerrainComponent(OUT SpaceSystem* spaceSys
     auto& ftcmp = spaceSystem->m_farTerrainCT.getFromEntity(entity);
 
     if (ftcmp.patches) delete[] ftcmp.patches;
+    ftcmp.patches = nullptr;
+    ftcmp.gpuGenerator = nullptr;
     spaceSystem->deleteComponent("FarTerrain", entity);
 }
 

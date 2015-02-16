@@ -25,6 +25,7 @@ class SphericalTerrainMesh;
 class TerrainGenDelegate : public IDelegate < void* > {
 public:
     virtual void invoke(Sender sender, void* userData) override;
+    void release();
     volatile bool inUse = false;
 
     vcore::RPC rpc;

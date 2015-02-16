@@ -59,7 +59,7 @@ public:
     BlockTextureMethodParams nzBaseMethodParams, nzOverlayMethodParams;
 
     RenderTask* task;
-    ChunkGridData* chunkGridData;
+    std::shared_ptr<ChunkGridData> chunkGridData;
     i32v3 position;
 };
 

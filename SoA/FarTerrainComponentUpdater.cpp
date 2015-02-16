@@ -13,6 +13,8 @@ const int SINGLE_FACE_PATCHES = TOTAL_PATCHES / NUM_FACES;
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
+        if (!it.second.gpuGenerator) break;
+
         FarTerrainComponent& cmp = it.second;
         /// Calculate camera distance
         f64v3 relativeCameraPos = cameraPos;
@@ -40,7 +42,7 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
 
 void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
-        it.second.gpuGenerator->update();
+        if (it.second.gpuGenerator) it.second.gpuGenerator->update();
     }
 }
 

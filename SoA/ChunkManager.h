@@ -64,7 +64,7 @@ public:
         }
     }
     /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(ChunkGridData* cgd, const ChunkPosition3D& facePosition, float voxelRadius);
+    bool dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
 private:
     static const int NUM_GENERATORS = 512;
     int counter = 0;
@@ -129,7 +129,7 @@ public:
     /// Gets the grid data at a given chunk grid position
     /// @param gridPos: The chunk grid position, units are of chunk length
     /// Returns nullptr if no chunkGridData is found, otherwise returns a chunkGridData
-    ChunkGridData* getChunkGridData(const i32v2& gridPos);
+    std::shared_ptr<ChunkGridData> getChunkGridData(const i32v2& gridPos);
 
     /// Clears everything, freeing all memory. Should be called when ending a game
     void destroy();
@@ -337,7 +337,7 @@ private:
     std::vector<Chunk*> m_generateList;
 
     /// Indexed by (x,z)
-    std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
+    std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > _chunkGridDataMap;
 
     std::vector<GeneratedTreeNodes*> _treesToPlace; ///< List of tree batches we need to place
 

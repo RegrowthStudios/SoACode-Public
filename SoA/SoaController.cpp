@@ -41,7 +41,7 @@ void SoaController::startGame(OUT SoaState* state) {
 
         f64v3 spacePos = state->startSpacePos;
 
-        spcmp.position = arcmp.currentOrientation * spacePos + npcmp.position;
+        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 260.0 + npcmp.position;
         GameSystemUpdater::updateVoxelPlanetTransitions(gameSystem, spaceSystem, state);
     } else {
         // TODO(Ben): This

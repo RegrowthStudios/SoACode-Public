@@ -151,7 +151,7 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     // Check for early delete
     if (data->mesh->m_shouldDelete) {
         delete data->mesh;
-        data->inUse = false;
+        data->release();
         return;
     }
 
@@ -238,7 +238,7 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         // Check for early delete
         if (data->mesh->m_shouldDelete) {
             delete data->mesh;
-            data->inUse = false;
+            data->release();
             continue;
         }
 
@@ -274,7 +274,7 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         // And finally build the mesh
         m_mesher.buildMesh(data->mesh, data->startPos, data->cubeFace, data->width, m_heightData, data->isSpherical);
 
-        data->inUse = false;
+        data->release();
     }
     m_patchCounter[m_dBufferIndex] = 0;
 
@@ -318,8 +318,7 @@ void SphericalTerrainGpuGenerator::updateRawGeneration() {
         }
 
         data->gridData->isLoaded = true;
-        data->gridData->refCount--; //TODO(Ben): This will result in a memory leak since when it hits 0, it wont deallocate
-        data->inUse = false;
+        data->release();
     }
     m_rawCounter[m_dBufferIndex] = 0;
 }

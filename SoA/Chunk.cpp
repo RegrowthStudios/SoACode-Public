@@ -32,11 +32,16 @@ void RawGenDelegate::invoke(Sender sender, void* userData) {
     generator->generateRawHeightmap(this);
 }
 
+void RawGenDelegate::release() {
+    inUse = false;
+    gridData.reset();
+}
+
 //1735
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
+void Chunk::init(const i32v3 &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData) {
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
 	freeWaiting = 0;

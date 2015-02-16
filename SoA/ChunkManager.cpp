@@ -53,7 +53,7 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 #define KM_PER_VOXEL 0.0005f
 
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkPosition3D& facePosition, float planetRadius) {
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];
@@ -76,7 +76,6 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const C
         gen.width = 32;
         gen.step = KM_PER_VOXEL;
         // Invoke generator
-        cgd->refCount++;
         m_generator->invokeRawGen(&gen.rpc);
         // Go to next generator
         counter++;
@@ -300,7 +299,7 @@ i32 ChunkManager::getBlockFromDir(f64v3& dir, f64v3& pos) {
 i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
     //player biome
     i32v2 gridPosition(fastFloor(posX / (float)CHUNK_WIDTH) * CHUNK_WIDTH, fastFloor(posZ / (float)CHUNK_WIDTH) * CHUNK_WIDTH);
-    ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
+    std::shared_ptr<ChunkGridData> chunkGridData = getChunkGridData(gridPosition);
     if (chunkGridData) {
         if (!chunkGridData->isLoaded) return 1;
         hd = chunkGridData->heightData[(posZ%CHUNK_WIDTH) * CHUNK_WIDTH + posX%CHUNK_WIDTH];
@@ -332,7 +331,7 @@ const Chunk* ChunkManager::getChunk(const i32v3& chunkPos) const {
     return it->second;
 }
 
-ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
+std::shared_ptr<ChunkGridData> ChunkManager::getChunkGridData(const i32v2& gridPos) {
     auto it = _chunkGridDataMap.find(gridPos);
     if (it == _chunkGridDataMap.end()) return nullptr;
     return it->second;
@@ -361,10 +360,7 @@ void ChunkManager::destroy() {
         freeChunk(m_chunks[i]);
     }
 
-    for (auto it = _chunkGridDataMap.begin(); it != _chunkGridDataMap.end(); it++) {
-        delete it->second;
-    }
-    _chunkGridDataMap.clear();
+    std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> >().swap(_chunkGridDataMap);
 
     for (size_t i = 0; i < _freeWaitingChunks.size(); i++) { //kill the residual waiting threads too
         _freeWaitingChunks[i]->inSaveThread = nullptr;
@@ -581,14 +577,14 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         if (ch->freeWaiting) continue;
 
         //If the heightmap has not been generated, generate it.
-        ChunkGridData* chunkGridData = ch->chunkGridData;
+        std::shared_ptr<ChunkGridData>& chunkGridData = ch->chunkGridData;
         
         //TODO(Ben): Beware of race here.
         if (!chunkGridData->isLoaded) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                    ch->gridPosition, m_planetRadius));
+                       ch->gridPosition, m_planetRadius));
             }
 
             canGenerate = false;
@@ -658,11 +654,11 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkPosition2D
     i32v2 gridPos(chunkPosition.x, chunkPosition.z);
 
     // Check and see if the grid data is already allocated here
-    ChunkGridData* chunkGridData = getChunkGridData(gridPos);
+    std::shared_ptr<ChunkGridData> chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         // If its not allocated, make a new one with a new voxelMapData
-        chunkGridData = new ChunkGridData(relativeGridPos.pos + ijOffset,
-                                          relativeGridPos.face);
+        chunkGridData = std::make_shared<ChunkGridData>(relativeGridPos.pos + ijOffset,
+                                                        relativeGridPos.face);
         _chunkGridDataMap[gridPos] = chunkGridData;
     } else {
         chunkGridData->refCount++;
@@ -988,8 +984,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             if (chunk->chunkGridData->refCount == 0) {
                 i32v2 gridPosition(chunk->gridPosition.pos.x, chunk->gridPosition.pos.z);
                 _chunkGridDataMap.erase(gridPosition);
-
-                delete chunk->chunkGridData;
+                chunk->chunkGridData.reset();
             }
             // Completely clear the chunk and then recycle it 
             chunk->clear();
