@@ -23,7 +23,7 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
 
     f32v3 pos;
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
-    const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace][0]);
+    const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace]);
     
     const float VERT_WIDTH = width / PATCH_WIDTH;
 
@@ -55,7 +55,7 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
 
 float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelPosition2D& facePosition) {
     // Get scaled position
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
 
     // Set the data
     f32v3 pos(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,

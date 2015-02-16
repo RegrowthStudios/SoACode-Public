@@ -51,7 +51,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridDa
         gen.rpc.data.f = &gen;
 
         // Get scaled position
-        f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
+        f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
 
         // Set the data
         gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
@@ -216,7 +216,7 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     cornerPos[coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
     cornerPos[coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
 
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
@@ -247,7 +247,7 @@ void SphericalTerrainGpuGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawDelegates[m_dBufferIndex][rawCounter] = data;
 
     // Get scaled position
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &data->startPos[0]);
