@@ -88,9 +88,9 @@ public:
 
     /// Gets the point closest to the observer
     /// @param camPos: Position of observer
-    /// @param point: Resulting point
-    void getClosestPoint(const f32v3& camPos, OUT f32v3& point) const;
-    void getClosestPoint(const f64v3& camPos, OUT f64v3& point) const;
+    /// @return the closest point on the aabb
+    f32v3 getClosestPoint(const f32v3& camPos) const;
+    f64v3 getClosestPoint(const f64v3& camPos) const;
 
 private:
     VGVertexArray m_vao = 0; ///< Vertex array object
@@ -100,8 +100,8 @@ private:
     VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
     VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
 
-    f32v3 m_worldPosition = f32v3(0.0);
-    f32v3 m_boundingBox = f32v3(0.0f); ///< AABB bounding box
+    f32v3 m_aabbPos = f32v3(0.0); ///< Bounding box origin
+    f32v3 m_aabbDims = f32v3(0.0f); ///< AABB bounding box dims
     WorldCubeFace m_cubeFace;
 
     VGTexture m_normalMap = 0;
@@ -153,10 +153,16 @@ public:
     static const int INDICES_PER_QUAD = 6;
     static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 private:
+    /// Requests a mesh via RPC
     void requestMesh();
+    /// Calculates the closest point to the camera, as well as distance
+    /// @param cameraPos: position of the observer
+    /// @return closest point on the AABB
+    f64v3 calculateClosestPointAndDist(const f64v3& cameraPos);
 
-    f64v2 m_gridPosition = f64v2(0.0); ///< Position on 2D grid
-    f64v3 m_worldPosition = f64v3(0.0); ///< Position relative to world
+    f64v2 m_gridPos = f64v2(0.0); ///< Position on 2D grid
+    f64v3 m_aabbPos = f64v3(0.0); ///< Position relative to world
+    f64v3 m_aabbDims = f64v3(0.0);
     f64 m_distance = 1000000000.0; ///< Distance from camera
     int m_lod = 0; ///< Level of detail
     WorldCubeFace m_cubeFace; ///< Which cube face grid it is on

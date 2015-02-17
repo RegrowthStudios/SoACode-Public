@@ -132,11 +132,11 @@ void SphericalTerrainMesh::drawWater(const f64v3& relativePos, const Camera* cam
     //   glBindVertexArray(0);
 }
 
-void SphericalTerrainMesh::getClosestPoint(const f32v3& camPos, OUT f32v3& point) const {
-    getClosestPointOnAABB(camPos, m_worldPosition, m_boundingBox, point);
+f32v3 SphericalTerrainMesh::getClosestPoint(const f32v3& camPos) const {
+    return getClosestPointOnAABB(camPos, m_aabbPos, m_aabbDims);
 }
-void SphericalTerrainMesh::getClosestPoint(const f64v3& camPos, OUT f64v3& point) const {
-    getClosestPointOnAABB(camPos, f64v3(m_worldPosition), f64v3(m_boundingBox), point);
+f64v3 SphericalTerrainMesh::getClosestPoint(const f64v3& camPos) const {
+    return getClosestPointOnAABB(camPos, f64v3(m_aabbPos), f64v3(m_aabbDims));
 }
 
 
@@ -150,24 +150,58 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
                                  const SphericalTerrainData* sphericalTerrainData,
                                  f64 width,
                                  TerrainRpcDispatcher* dispatcher) {
-    m_gridPosition = gridPosition;
+    m_gridPos = gridPosition;
     m_cubeFace = cubeFace;
     m_lod = lod;
     m_sphericalTerrainData = sphericalTerrainData;
     m_width = width;
     m_dispatcher = dispatcher;
 
-    
-    f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
-
+    // Construct an approximate AABB
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
+    f64v3 corners[4];
+    corners[0][coordMapping.x] = gridPosition.x * coordMults.x;
+    corners[0][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[0][coordMapping.z] = gridPosition.y * coordMults.y;
+    corners[0] = glm::normalize(corners[0]) * m_sphericalTerrainData->getRadius();
+    corners[1][coordMapping.x] = gridPosition.x * coordMults.x;
+    corners[1][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[1][coordMapping.z] = (gridPosition.y + m_width) * coordMults.y;
+    corners[1] = glm::normalize(corners[1]) * m_sphericalTerrainData->getRadius();
+    corners[2][coordMapping.x] = (gridPosition.x + m_width) * coordMults.x;
+    corners[2][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[2][coordMapping.z] = (gridPosition.y + m_width) * coordMults.y;
+    corners[2] = glm::normalize(corners[2]) * m_sphericalTerrainData->getRadius();
+    corners[3][coordMapping.x] = (gridPosition.x + m_width) * coordMults.x;
+    corners[3][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[3][coordMapping.z] = gridPosition.y * coordMults.y;
+    corners[3] = glm::normalize(corners[3]) * m_sphericalTerrainData->getRadius();
 
-    m_worldPosition[coordMapping.x] = centerGridPos.x * coordMults.x;
-    m_worldPosition[coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
-    m_worldPosition[coordMapping.z] = centerGridPos.y * coordMults.y;
-    // Approximate the world position for now //TODO(Ben): Better
-    m_worldPosition = glm::normalize(m_worldPosition) * sphericalTerrainData->getRadius();
+    f64 minX = INT_MAX, maxX = INT_MIN;
+    f64 minY = INT_MAX, maxY = INT_MIN;
+    f64 minZ = INT_MAX, maxZ = INT_MIN;
+    for (int i = 0; i < 4; i++) {
+        auto& c = corners[i];
+        if (c.x < minX) {
+            minX = c.x;
+        } else if (c.x > maxX) {
+            maxX = c.x;
+        }
+        if (c.y < minY) {
+            minY = c.y;
+        } else if (c.y > maxY) {
+            maxY = c.y;
+        }
+        if (c.z < minZ) {
+            minZ = c.z;
+        } else if (c.z > maxZ) {
+            maxZ = c.z;
+        }
+    }
+    // Get world position and bounding box
+    m_aabbPos = f32v3(minX, minY, minZ);
+    m_aabbDims = f32v3(maxX - minX, maxY - minY, maxZ - minZ);
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
@@ -176,19 +210,10 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
 
     const float MIN_SIZE = 0.4096f;
     
-    f64v3 closestPoint;
     // Calculate distance from camera
-    if (hasMesh()) {
-        // If we have a mesh, we can use an accurate bounding box    
-        m_mesh->getClosestPoint(cameraPos, closestPoint);
-        m_distance = glm::length(closestPoint - cameraPos);
-    } else {
-        // Approximate
-        m_distance = glm::length(m_worldPosition - cameraPos); 
-    }
+    f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
     
     if (m_children) {
-   
         if (m_distance > m_width * DIST_MAX) {
             if (!m_mesh) {
                 requestMesh();
@@ -217,22 +242,13 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
             }
         }
     } else if (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
-        // Only subdivide if we are visible over horizon
-        bool divide = true;
-        if (hasMesh()) {
-            if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
-                divide = false;
-            }
-        } else if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
-            divide = false;
-        }
-
-        if (divide) {
+        // Check if we are over horizon. If we are, don't divide.
+        if (!isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
             m_children = new SphericalTerrainPatch[4];
             // Segment into 4 children
             for (int z = 0; z < 2; z++) {
                 for (int x = 0; x < 2; x++) {
-                    m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
+                    m_children[(z << 1) + x].init(m_gridPos + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
                                                   m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
                                                   m_dispatcher);
                 }
@@ -297,11 +313,20 @@ void SphericalTerrainPatch::requestMesh() {
     // Try to generate a mesh
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
 
-    f32v3 startPos(m_gridPosition.x * coordMults.x,
+    f32v3 startPos(m_gridPos.x * coordMults.x,
                    m_sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
-                   m_gridPosition.y* coordMults.y);
+                   m_gridPos.y* coordMults.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               m_width,
                                               m_lod,
                                               m_cubeFace, true);
+}
+f64v3 SphericalTerrainPatch::calculateClosestPointAndDist(const f64v3& cameraPos) {
+    if (hasMesh()) {
+        // If we have a mesh, we can use it's accurate bounding box    
+        m_mesh->getClosestPoint(cameraPos, closestPoint);
+    } else {
+        getClosestPointOnAABB(cameraPos, m_aabbPos, m_aabbDims, closestPoint);
+    }
+    m_distance = glm::length(closestPoint - cameraPos);
 }

@@ -172,8 +172,8 @@ void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, cons
     }
 
     // Get world position and bounding box
-    mesh->m_worldPosition = f32v3(minX, minY, minZ);
-    mesh->m_boundingBox = f32v3(maxX - minX, maxY - minY, maxZ - minZ);
+    mesh->m_aabbPos = f32v3(minX, minY, minZ);
+    mesh->m_aabbDims = f32v3(maxX - minX, maxY - minY, maxZ - minZ);
 
     buildSkirts();
 
