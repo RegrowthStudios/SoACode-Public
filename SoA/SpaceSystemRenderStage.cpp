@@ -71,7 +71,7 @@ void SpaceSystemRenderStage::drawBodies() {
     m_waterProgram->use();
     glUniform1i(m_waterProgram->getUniform("unNormalMap"), 0);
     glUniform1i(m_waterProgram->getUniform("unColorMap"), 1);
-
+    m_waterProgram->unuse();
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
 
@@ -81,7 +81,6 @@ void SpaceSystemRenderStage::drawBodies() {
                  &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
     }
-    m_waterProgram->unuse();
 
     DepthState::FULL.set();
 }

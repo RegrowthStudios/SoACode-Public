@@ -149,6 +149,7 @@ void SphericalTerrainMeshManager::drawFarMeshes(const f64v3& relativePos, const 
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
         glUniform1f(waterProgram->getUniform("unRadius"), 4200.0f); // TODO(Ben): Use real radius
+       
         for (int i = 0; i < m_farWaterMeshes.size();) {
             if (m_farWaterMeshes[i]->m_shouldDelete) {
                 // Only delete here if m_wvbo is 0. See comment [15] in below block

@@ -58,6 +58,14 @@ void SphericalTerrainComponentRenderer::buildFarTerrainShaders() {
     sphericalAttribs.push_back("vNormUV");
     sphericalAttribs.push_back("vTemp_Hum");
 
+    // Attributes for spherical water
+    std::vector<nString> sphericalWaterAttribs;
+    sphericalWaterAttribs.push_back("vPosition");
+    sphericalWaterAttribs.push_back("vTangent");
+    sphericalWaterAttribs.push_back("vColor_Temp");
+    sphericalWaterAttribs.push_back("vUV");
+    sphericalWaterAttribs.push_back("vDepth");
+
     vio::IOManager iom;
     nString vertSource;
     nString fragSource;
@@ -83,7 +91,7 @@ void SphericalTerrainComponentRenderer::buildFarTerrainShaders() {
     m_farWaterProgram = new vg::GLProgram(true);
     m_farWaterProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_farWaterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
-    m_farWaterProgram->setAttributes(sphericalAttribs);
+    m_farWaterProgram->setAttributes(sphericalWaterAttribs);
     m_farWaterProgram->link();
     m_farWaterProgram->initUniforms();
 
