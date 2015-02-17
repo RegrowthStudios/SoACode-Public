@@ -448,7 +448,7 @@ void PhysicsEngine::explosionRay(ChunkManager* chunkManager, const f64v3 &pos, f
                     if (lockedChunk) lockedChunk->unlock();
                     return;
                 }
-                rayToBlock = dir * vr.getDistanceTraversed();
+                rayToBlock = dir * (f32)vr.getDistanceTraversed();
                 ChunkUpdater::removeBlock(chunkManager, chunkManager->getPhysicsEngine(), currentChunk, lockedChunk, voxelIndex, 1, 0.4*force, rayToBlock);
                 if (Blocks[blockID].explosivePower){
                     _deferredExplosions.push(ExplosionNode(pos + f64v3(rayToBlock), blockID));

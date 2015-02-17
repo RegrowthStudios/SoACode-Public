@@ -85,7 +85,7 @@ void TerrainPatchMesh::draw(const f64v3& relativePos, const Camera* camera,
                           offsetptr(TerrainVertex, temperature));
 
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glDrawElements(GL_TRIANGLES, SphericalTerrainPatch::INDICES_PER_PATCH, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, PATCH_INDICES, GL_UNSIGNED_SHORT, 0);
     //   glBindVertexArray(0);
 }
 

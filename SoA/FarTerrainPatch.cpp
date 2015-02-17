@@ -74,7 +74,7 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
                 m_mesh = nullptr;
             }
         }
-    } else if (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
+    } else if (m_lod < PATCH_MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
         // Only subdivide if we are visible over horizon
         bool divide = true;
         if (hasMesh()) {

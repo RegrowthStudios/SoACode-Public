@@ -27,7 +27,7 @@ TerrainVertex SphericalTerrainPatchMesher::verts[SphericalTerrainPatchMesher::VE
 WaterVertex SphericalTerrainPatchMesher::waterVerts[SphericalTerrainPatchMesher::VERTS_SIZE];
 
 ui16 SphericalTerrainPatchMesher::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
-ui16 SphericalTerrainPatchMesher::waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH];
+ui16 SphericalTerrainPatchMesher::waterIndices[PATCH_INDICES];
 bool SphericalTerrainPatchMesher::waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
 
 VGIndexBuffer SphericalTerrainPatchMesher::m_sharedIbo = 0; ///< Reusable CCW IBO
@@ -64,14 +64,14 @@ void SphericalTerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f3
     }
     m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace]);
     
-    float h;
-    float angle;
+    f32 h;
+    f32 angle;
     f32v3 tmpPos;
     int xIndex;
     int zIndex;
-    float minX = INT_MAX, maxX = INT_MIN;
-    float minY = INT_MAX, maxY = INT_MIN;
-    float minZ = INT_MAX, maxZ = INT_MIN;
+    f32 minX = (f32)INT_MAX, maxX = (f32)INT_MIN;
+    f32 minY = (f32)INT_MAX, maxY = (f32)INT_MIN;
+    f32 minZ = (f32)INT_MAX, maxZ = (f32)INT_MIN;
 
     // Clear water index grid
     memset(waterIndexGrid, 0, sizeof(waterIndexGrid));
@@ -107,8 +107,8 @@ void SphericalTerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f3
             }
 
             // Get data from heightmap 
-            zIndex = z * PIXELS_PER_PATCH_NM + 1;
-            xIndex = x * PIXELS_PER_PATCH_NM + 1;
+            zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
+            xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
             h = heightData[zIndex][xIndex][0] * KM_PER_M;
 
             // Water indexing
@@ -332,8 +332,8 @@ void SphericalTerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightDa
             normal = glm::normalize(f32v3(v.position.x, m_radius, v.position.z));
         }
 
-        zIndex = z * PIXELS_PER_PATCH_NM + 1;
-        xIndex = x * PIXELS_PER_PATCH_NM + 1;
+        zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
+        xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
         float d = heightData[zIndex][xIndex][0] * KM_PER_M;
         if (d < 0) {
             v.depth = -d;
@@ -378,7 +378,7 @@ void SphericalTerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
     int vertIndex;
     int index = 0;
     int skirtIndex = PATCH_SIZE;
-    ui16 indices[SphericalTerrainPatch::INDICES_PER_PATCH];
+    ui16 indices[PATCH_INDICES];
     
     // Main vertices
     for (int z = 0; z < PATCH_WIDTH - 1; z++) {
@@ -455,7 +455,7 @@ void SphericalTerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
     vg::GpuMemory::createBuffer(ibo);
     vg::GpuMemory::bindBuffer(ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
-                                    SphericalTerrainPatch::INDICES_PER_PATCH * sizeof(ui16),
+                                    PATCH_INDICES * sizeof(ui16),
                                     indices);
 }
 

@@ -110,8 +110,8 @@ void MainMenuSystemViewer::update() {
     }
 
     // Connect camera to target planet
-    f32 length = m_camera->getFocalLength() / 10.0;
-    if (length == 0) length = 0.1;
+    f32 length = m_camera->getFocalLength() / 10.0f;
+    if (length == 0) length = 0.1f;
     m_camera->setClippingPlane(length, m_camera->getFarClip());
     // Target closest point on sphere
     m_camera->setTargetFocalPoint(getTargetPosition() -

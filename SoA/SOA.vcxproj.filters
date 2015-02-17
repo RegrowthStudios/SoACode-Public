@@ -165,6 +165,9 @@
     <Filter Include="SOA Files\Game\Universe\Generation">
       <UniqueIdentifier>{f35809b6-67de-47ce-990b-6b313f00bfac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Rendering\Universe">
+      <UniqueIdentifier>{cbcce115-6609-45f8-8bf5-9f86d0c7358f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -434,9 +437,6 @@
     <ClInclude Include="PdaAwesomiumAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
-    <ClInclude Include="SkyboxRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="TransparentVoxelRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -560,9 +560,6 @@
     <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Screens</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainMeshManager.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="SphericalTerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
@@ -677,9 +674,6 @@
     <ClInclude Include="VoxelSpaceUtils.h">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainPatchMesher.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="ProgramGenDelegate.h">
       <Filter>SOA Files\Rendering\Delegates</Filter>
     </ClInclude>
@@ -719,8 +713,20 @@
     <ClInclude Include="FarTerrainComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClInclude>
+    <ClInclude Include="SphericalTerrainPatchMesher.h">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainMeshManager.h">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
     <ClInclude Include="TerrainPatchMesh.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyboxRenderer.h">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainPatchConstants.h">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -928,9 +934,6 @@
     <ClCompile Include="PdaAwesomiumAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
-    <ClCompile Include="SkyboxRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="CutoutVoxelRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
@@ -1037,9 +1040,6 @@
     <ClCompile Include="TestBlockViewScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainMeshManager.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="SphericalTerrainPatch.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
@@ -1136,9 +1136,6 @@
     <ClCompile Include="VoxelSpaceUtils.cpp">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainPatchMesher.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="PlanetData.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
@@ -1167,7 +1164,18 @@
     <ClCompile Include="FarTerrainComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainPatchMesh.cpp" />
+    <ClCompile Include="SphericalTerrainPatchMesher.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainMeshManager.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPatchMesh.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxRenderer.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

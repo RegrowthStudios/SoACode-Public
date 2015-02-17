@@ -148,6 +148,10 @@ void SphericalTerrainPatch::destroy() {
     m_children = nullptr;
 }
 
+bool SphericalTerrainPatch::hasMesh() const {
+    return (m_mesh && m_mesh->m_isRenderable);
+}
+
 bool SphericalTerrainPatch::isRenderable() const {
     if (hasMesh()) return true;
     if (m_children) {
@@ -160,7 +164,7 @@ bool SphericalTerrainPatch::isRenderable() const {
 }
 
 bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
-    const float DELTA = 0.1f;
+    const f32 DELTA = 0.1f;
     f32 pLength = glm::length(relCamPos);
     f32v3 ncp = relCamPos / pLength;
 
@@ -171,7 +175,7 @@ bool SphericalTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &p
     return false;
 }
 bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
-    const float DELTA = 0.1;
+    const f64 DELTA = 0.1;
     f64 pLength = glm::length(relCamPos);
     f64v3 ncp = relCamPos / pLength;
 
@@ -183,7 +187,7 @@ bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &p
 }
 
 bool SphericalTerrainPatch::canSubdivide() const {
-    return (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE);
+    return (m_lod < PATCH_MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE);
 }
 
 void SphericalTerrainPatch::requestMesh() {

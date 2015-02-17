@@ -39,8 +39,8 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT TerrainPatchMesh* me
             pos[coordMapping.y] = startPos.y;
             pos[coordMapping.z] = startPos.z + z * VERT_WIDTH * coordMults.y;
 
-            zIndex = z * PIXELS_PER_PATCH_NM + 1;
-            xIndex = x * PIXELS_PER_PATCH_NM + 1;
+            zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
+            xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
 
             heightData[zIndex][xIndex][0] = getNoiseValue(pos, m_genData->baseTerrainFuncs);
             heightData[zIndex][xIndex][1] = getNoiseValue(pos, m_genData->tempTerrainFuncs);

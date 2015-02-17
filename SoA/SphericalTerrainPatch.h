@@ -17,20 +17,13 @@
 
 #include "TerrainGenerator.h"
 #include "VoxelCoordinateSpaces.h"
+#include "TerrainPatchConstants.h"
 
 #include <Vorb/graphics/gtypes.h>
 
 class TerrainRpcDispatcher;
 class TerrainGenDelegate;
 class TerrainPatchMesh;
-
-const int PIXELS_PER_PATCH_NM = 4;
-const int PATCH_WIDTH = 33;
-const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH;
-const int PATCH_NORMALMAP_WIDTH = (PATCH_WIDTH - 1) * PIXELS_PER_PATCH_NM + 2; // + 2 for padding
-const int PATCH_HEIGHTMAP_WIDTH = PATCH_NORMALMAP_WIDTH + 2; // + 2 for padding
-
-const int MAX_LOD = 25; ///< Absolute maximum
 
 // Shared terrain data for spherical planet terrain
 class SphericalTerrainData {
@@ -77,7 +70,7 @@ public:
     void destroy();
 
     /// @return true if it has a generated mesh
-    bool hasMesh() const { return (m_mesh && m_mesh->m_isRenderable); }
+    bool hasMesh() const;
 
     /// @return true if it has a mesh, or all of its children are
     /// renderable.

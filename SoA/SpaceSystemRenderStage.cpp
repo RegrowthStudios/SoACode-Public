@@ -122,8 +122,8 @@ void SpaceSystemRenderStage::drawPaths() {
 
 void SpaceSystemRenderStage::drawHud() {
 
-    const float ROTATION_FACTOR = M_PI * 2.0f + M_PI / 4;
-    static float dt = 0.0;
+    const f32 ROTATION_FACTOR = (f32)(M_PI * 2.0 + M_PI / 4.0);
+    static f32 dt = 0.0;
     dt += 0.01;
 
     // Lazily load spritebatch
@@ -147,7 +147,7 @@ void SpaceSystemRenderStage::drawHud() {
         f64v3 relativePos = position - m_camera->getPosition();
         color4 textColor;
 
-        float hoverTime = bodyArData->hoverTime;
+        f32 hoverTime = bodyArData->hoverTime;
 
         if (bodyArData->inFrustum) {
 
@@ -156,7 +156,7 @@ void SpaceSystemRenderStage::drawHud() {
             f32v2 xyScreenCoords(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
             // Get a smooth interpolator with hermite
-            float interpolator = hermite(hoverTime);
+            f32 interpolator = hermite(hoverTime);
             
             // Find its orbit path color and do color interpolation
             componentID = m_spaceSystem->m_orbitCT.getComponentID(it.first);
@@ -168,7 +168,7 @@ void SpaceSystemRenderStage::drawHud() {
                 textColor.lerp(color::White, color::Aquamarine, interpolator);
             }
 
-            float selectorSize = bodyArData->selectorSize;
+            f32 selectorSize = bodyArData->selectorSize;
           
             // Only render if it isn't too big
             if (selectorSize < MainMenuSystemViewer::MAX_SELECTOR_SIZE) {

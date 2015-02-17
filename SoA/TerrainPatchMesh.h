@@ -15,9 +15,11 @@
 #ifndef TerrainPatchMesh_h__
 #define TerrainPatchMesh_h__
 
-#include "VoxelCoordinateSpaces.h"
 #include <Vorb/graphics/gtypes.h>
 #include <Vorb/VorbPreDecl.inl>
+
+#include "VoxelCoordinateSpaces.h"
+#include "TerrainPatchConstants.h"
 
 class Camera;
 DECL_VG(class TextureRecycler);
@@ -81,9 +83,6 @@ public:
     /// @return the closest point on the aabb
     f32v3 getClosestPoint(const f32v3& camPos) const;
     f64v3 getClosestPoint(const f64v3& camPos) const;
-
-    static const int INDICES_PER_QUAD = 6;
-    static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 private:
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object

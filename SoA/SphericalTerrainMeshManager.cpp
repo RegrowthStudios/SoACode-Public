@@ -8,6 +8,7 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/TextureRecycler.hpp>
 
+#include "TerrainPatchMesh.h"
 #include "SphericalTerrainPatch.h"
 #include "PlanetData.h"
 

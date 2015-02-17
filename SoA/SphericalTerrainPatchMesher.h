@@ -87,7 +87,7 @@ private:
     static TerrainVertex verts[VERTS_SIZE]; ///< Vertices for terrain mesh
     static WaterVertex waterVerts[VERTS_SIZE]; ///< Vertices for water mesh
     static ui16 waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH]; ///< Caches water indices for reuse
-    static ui16 waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH]; ///< Buffer of indices to upload
+    static ui16 waterIndices[PATCH_INDICES]; ///< Buffer of indices to upload
     static bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1]; ///< True when a quad is present at a spot
 
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
