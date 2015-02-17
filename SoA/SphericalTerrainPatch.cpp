@@ -25,6 +25,11 @@ const f32v3 NormalMults[6] = {
     f32v3(1.0f, 1.0f, 1.0f) //BOTTOM
 };
 
+// TODO(Ben): These constants are fairly arbitrary
+const float DIST_MIN = 3.0f;
+const float DIST_MAX = 3.1f;
+const float MIN_SIZE = 0.4096f;
+
 SphericalTerrainMesh::~SphericalTerrainMesh() {
     if (m_vbo) {
         vg::GpuMemory::freeBuffer(m_vbo);
@@ -205,10 +210,6 @@ void SphericalTerrainPatch::init(const f64v2& gridPosition,
 }
 
 void SphericalTerrainPatch::update(const f64v3& cameraPos) {
-    const float DIST_MIN = 3.0f;
-    const float DIST_MAX = 3.1f;
-
-    const float MIN_SIZE = 0.4096f;
     
     // Calculate distance from camera
     f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
@@ -241,7 +242,7 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
                 m_mesh = nullptr;
             }
         }
-    } else if (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE) {
+    } else if (canSubdivide()) {
         // Check if we are over horizon. If we are, don't divide.
         if (!isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
             m_children = new SphericalTerrainPatch[4];
@@ -309,6 +310,10 @@ bool SphericalTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &p
     return false;
 }
 
+bool SphericalTerrainPatch::canSubdivide() const {
+    return (m_lod < MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE);
+}
+
 void SphericalTerrainPatch::requestMesh() {
     // Try to generate a mesh
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
@@ -321,12 +326,15 @@ void SphericalTerrainPatch::requestMesh() {
                                               m_lod,
                                               m_cubeFace, true);
 }
+
 f64v3 SphericalTerrainPatch::calculateClosestPointAndDist(const f64v3& cameraPos) {
+    f64v3 closestPoint;
     if (hasMesh()) {
         // If we have a mesh, we can use it's accurate bounding box    
-        m_mesh->getClosestPoint(cameraPos, closestPoint);
+        closestPoint = m_mesh->getClosestPoint(cameraPos);
     } else {
-        getClosestPointOnAABB(cameraPos, m_aabbPos, m_aabbDims, closestPoint);
+        closestPoint = getClosestPointOnAABB(cameraPos, m_aabbPos, m_aabbDims);
     }
     m_distance = glm::length(closestPoint - cameraPos);
+    return closestPoint;
 }

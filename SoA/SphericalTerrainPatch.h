@@ -150,6 +150,9 @@ public:
     static bool isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius);
     static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
 
+    /// Returns true if the patch can subdivide
+    bool canSubdivide() const;
+
     static const int INDICES_PER_QUAD = 6;
     static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 private:

@@ -7,8 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Defines a class for a patch of far-terrain, not to be confused
-/// with spherical terrain.
+/// Defines a class for a patch of far-terrain
 ///
 
 #pragma once
@@ -17,7 +16,6 @@
 #define FarTerrainPatch_h__
 
 #include "SphericalTerrainPatch.h"
-
 
 class FarTerrainPatch {
 public:
@@ -56,10 +54,18 @@ public:
     static bool isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius);
     static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
 
+    /// Returns true if the patch can subdivide
+    bool canSubdivide() const;
+
     static const int INDICES_PER_QUAD = 6;
     static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 private:
+    /// Requests a mesh via RPC
     void requestMesh();
+    /// Calculates the closest point to the camera, as well as distance
+    /// @param cameraPos: position of the observer
+    /// @return closest point on the AABB
+    f64v3 calculateClosestPointAndDist(const f64v3& cameraPos);
 
     f64v2 m_gridPosition = f64v2(0.0); ///< Position on 2D grid
     f64v3 m_worldPosition = f64v3(0.0); ///< Position relative to world
