@@ -362,6 +362,7 @@ EXIT 0</Command>
     <ClInclude Include="SphericalVoxelComponentUpdater.h" />
     <ClInclude Include="TerrainGenTextures.h" />
     <ClInclude Include="SphericalTerrainPatchMesher.h" />
+    <ClInclude Include="TerrainPatchMesh.h" />
     <ClInclude Include="TerrainRpcDispatcher.h" />
     <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
@@ -538,6 +539,7 @@ EXIT 0</Command>
     <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
     <ClCompile Include="TerrainGenTextures.cpp" />
     <ClCompile Include="SphericalTerrainPatchMesher.cpp" />
+    <ClCompile Include="TerrainPatchMesh.cpp" />
     <ClCompile Include="TerrainRpcDispatcher.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />

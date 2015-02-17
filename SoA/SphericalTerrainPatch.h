@@ -19,15 +19,10 @@
 #include "VoxelCoordinateSpaces.h"
 
 #include <Vorb/graphics/gtypes.h>
-#include <Vorb/graphics/GLProgram.h>
-#include <Vorb/VorbPreDecl.inl>
 
-class Camera;
-class MeshManager;
 class TerrainRpcDispatcher;
 class TerrainGenDelegate;
-
-DECL_VG(class TextureRecycler)
+class TerrainPatchMesh;
 
 const int PIXELS_PER_PATCH_NM = 4;
 const int PATCH_WIDTH = 33;
@@ -54,61 +49,6 @@ public:
 private:
     f64 m_radius; ///< Radius of the planet in KM
     f64 m_patchWidth; ///< Width of a patch in KM
-};
-
-class SphericalTerrainMesh {
-public:
-    friend class SphericalTerrainGpuGenerator;
-    friend class SphericalTerrainMeshManager;
-    friend class SphericalTerrainPatch;
-    friend class SphericalTerrainPatchMesher;
-    friend class FarTerrainPatch;
-    SphericalTerrainMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {}
-    ~SphericalTerrainMesh();
-
-    /// Recycles the normal map
-    /// @param recycler: Recycles the texture
-    void recycleNormalMap(vg::TextureRecycler* recycler);
-
-    /// Draws the terrain mesh
-    /// @param cameraPos: Relative position of the camera
-    /// @param camera: The camera
-    /// @param rot: Rotation matrix
-    /// @param program: Shader program for rendering
-    void draw(const f64v3& relativePos, const Camera* camera,
-              const f32m4& rot, vg::GLProgram* program) const;
-   
-    /// Draws the water mesh
-    /// @param relativePos: Relative position of the camera
-    /// @param camera: The camera
-    /// @param rot: Rotation matrix
-    /// @param program: Shader program for rendering
-    void drawWater(const f64v3& relativePos, const Camera* camera,
-                   const f32m4& rot, vg::GLProgram* program) const;
-
-    /// Gets the point closest to the observer
-    /// @param camPos: Position of observer
-    /// @return the closest point on the aabb
-    f32v3 getClosestPoint(const f32v3& camPos) const;
-    f64v3 getClosestPoint(const f64v3& camPos) const;
-
-private:
-    VGVertexArray m_vao = 0; ///< Vertex array object
-    VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
-    VGIndexBuffer m_ibo = 0; ///< Shared Index buffer object. DONT FREE THIS
-
-    VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
-    VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
-
-    f32v3 m_aabbPos = f32v3(0.0); ///< Bounding box origin
-    f32v3 m_aabbDims = f32v3(0.0f); ///< AABB bounding box dims
-    WorldCubeFace m_cubeFace;
-
-    VGTexture m_normalMap = 0;
-    int m_waterIndexCount = 0;
-
-    volatile bool m_shouldDelete = false; ///< True when the mesh should be deleted
-    bool m_isRenderable = false; ///< True when there is a complete mesh
 };
 
 // TODO(Ben): Sorting, Horizon Culling, Atmosphere, Frustum Culling, Bugfixes,
@@ -152,9 +92,6 @@ public:
 
     /// Returns true if the patch can subdivide
     bool canSubdivide() const;
-
-    static const int INDICES_PER_QUAD = 6;
-    static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
 protected:
     /// Requests a mesh via RPC
     virtual void requestMesh();
@@ -173,7 +110,7 @@ protected:
     f64 m_width = 0.0; ///< Width of the patch in KM
 
     TerrainRpcDispatcher* m_dispatcher = nullptr;
-    SphericalTerrainMesh* m_mesh = nullptr;
+    TerrainPatchMesh* m_mesh = nullptr;
 
     const SphericalTerrainData* m_sphericalTerrainData = nullptr; ///< Shared data pointer
     SphericalTerrainPatch* m_children = nullptr; ///< Pointer to array of 4 children

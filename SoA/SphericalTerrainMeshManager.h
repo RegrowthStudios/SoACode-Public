@@ -21,7 +21,7 @@
 class Camera;
 struct PlanetGenData;
 class SphericalTerrainData;
-class SphericalTerrainMesh;
+class TerrainPatchMesh;
 
 DECL_VG(class TextureRecycler;
         class GLProgram)
@@ -49,16 +49,16 @@ public:
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add
-    void addMesh(SphericalTerrainMesh* mesh, bool isSpherical);
+    void addMesh(TerrainPatchMesh* mesh, bool isSpherical);
 
 private:
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps
-    std::vector<SphericalTerrainMesh*> m_meshes; ///< All meshes
-    std::vector<SphericalTerrainMesh*> m_waterMeshes; ///< Meshes with water active
-    std::vector<SphericalTerrainMesh*> m_farMeshes; ///< All meshes
-    std::vector<SphericalTerrainMesh*> m_farWaterMeshes; ///< Meshes with water active
+    std::vector<TerrainPatchMesh*> m_meshes; ///< All meshes
+    std::vector<TerrainPatchMesh*> m_waterMeshes; ///< Meshes with water active
+    std::vector<TerrainPatchMesh*> m_farMeshes; ///< All meshes
+    std::vector<TerrainPatchMesh*> m_farWaterMeshes; ///< Meshes with water active
 };
 
 #endif // SphericalTerrainMeshManager_h__

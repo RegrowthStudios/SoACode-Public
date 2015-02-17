@@ -12,19 +12,19 @@ void TerrainGenDelegate::release() {
 }
 
 
-SphericalTerrainMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
+TerrainPatchMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos,
                                                                float width,
                                                                int lod,
                                                                WorldCubeFace cubeFace,
                                                                bool isSpherical) {
-    SphericalTerrainMesh* mesh = nullptr;
+    TerrainPatchMesh* mesh = nullptr;
     // Check if there is a free generator
     if (!m_generators[counter].inUse) {
         auto& gen = m_generators[counter];
         // Mark the generator as in use
         gen.inUse = true;
         gen.rpc.data.f = &gen;
-        mesh = new SphericalTerrainMesh(cubeFace);
+        mesh = new TerrainPatchMesh(cubeFace);
         // Set the data
         gen.startPos = startPos;
         gen.cubeFace = cubeFace;

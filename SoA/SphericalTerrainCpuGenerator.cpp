@@ -19,7 +19,7 @@ SphericalTerrainCpuGenerator::~SphericalTerrainCpuGenerator() {
     // Empty
 }
 
-void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) {
+void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) {
 
     f32v3 pos;
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];

@@ -20,7 +20,7 @@
 
 class SphericalTerrainGpuGenerator;
 class SphericalTerrainCpuGenerator;
-class SphericalTerrainMesh;
+class TerrainPatchMesh;
 
 class TerrainGenDelegate : public IDelegate < void* > {
 public:
@@ -35,7 +35,7 @@ public:
     float width;
     bool isSpherical;
 
-    SphericalTerrainMesh* mesh = nullptr;
+    TerrainPatchMesh* mesh = nullptr;
     SphericalTerrainGpuGenerator* generator = nullptr;
 };
 
@@ -50,7 +50,7 @@ public:
         }
     }
     /// @return a new mesh on success, nullptr on failure
-    SphericalTerrainMesh* dispatchTerrainGen(const f32v3& startPos,
+    TerrainPatchMesh* dispatchTerrainGen(const f32v3& startPos,
                                              float width,
                                              int lod,
                                              WorldCubeFace cubeFace,

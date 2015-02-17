@@ -110,7 +110,7 @@ SphericalTerrainMeshManager::~SphericalTerrainMeshManager() {
     }
 }
 
-void SphericalTerrainMeshManager::addMesh(SphericalTerrainMesh* mesh, bool isSpherical) {
+void SphericalTerrainMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) {
     if (isSpherical) {
         m_meshes.push_back(mesh);
         if (mesh->m_wvbo) {

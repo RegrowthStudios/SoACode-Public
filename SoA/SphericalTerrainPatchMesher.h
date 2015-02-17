@@ -16,33 +16,10 @@
 #define SphericalTerrainPatchMesher_h__
 
 #include <Vorb/graphics/gtypes.h>
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatchMesh.h"
 
 struct PlanetGenData;
 class SphericalTerrainMeshManager;
-
-/// Vertex for terrain patch
-class TerrainVertex {
-public:
-    f32v3 position; //12
-    f32v3 tangent; //24
-    f32v2 texCoords; //32
-    ColorRGB8 color; //35
-    ui8 padding; //36
-    ui8v2 normTexCoords; //38
-    ui8 temperature; //39
-    ui8 humidity; //40
-};
-/// Water vertex for terrain patch
-class WaterVertex {
-public:
-    f32v3 position; //12
-    f32v3 tangent; //24
-    ColorRGB8 color; //27
-    ui8 temperature; //28
-    f32v2 texCoords; //36
-    float depth; //40
-};
 
 class SphericalTerrainPatchMesher {
 public:
@@ -57,7 +34,7 @@ public:
     /// @param width: Width of the patch
     /// @param heightData: The heightmap data
     /// @param isSpherical: True when this is a spherical mesh
-    void buildMesh(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace,
+    void buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace,
                    float width, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
                    bool isSpherical);
 

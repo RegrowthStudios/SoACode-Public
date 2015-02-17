@@ -33,7 +33,7 @@ public:
     /// @param startPos: Starting position
     /// @param cubeFace: The world cube face
     /// @param width: Width of the patch
-    void generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
+    void generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
 
     /// Gets the height at a specific face position.
     /// @param facePosition: The position to query

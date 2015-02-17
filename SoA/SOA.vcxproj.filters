@@ -719,6 +719,9 @@
     <ClInclude Include="FarTerrainComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClInclude>
+    <ClInclude Include="TerrainPatchMesh.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1164,6 +1167,7 @@
     <ClCompile Include="FarTerrainComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClCompile>
+    <ClCompile Include="TerrainPatchMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

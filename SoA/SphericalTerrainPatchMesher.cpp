@@ -49,7 +49,7 @@ SphericalTerrainPatchMesher::~SphericalTerrainPatchMesher() {
     vg::GpuMemory::freeBuffer(m_sharedIbo);
 }
 
-void SphericalTerrainPatchMesher::buildMesh(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
+void SphericalTerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
                                             float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
                                             bool isSpherical) {
 
