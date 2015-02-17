@@ -133,20 +133,10 @@ void SphericalTerrainMesh::drawWater(const f64v3& relativePos, const Camera* cam
 }
 
 void SphericalTerrainMesh::getClosestPoint(const f32v3& camPos, OUT f32v3& point) const {
-    point.x = (camPos.x <= m_worldPosition.x) ? m_worldPosition.x : ((camPos.x > m_worldPosition.x + m_boundingBox.x) ?
-                                                                     (m_worldPosition.x + m_boundingBox.x) : camPos.x);
-    point.y = (camPos.y <= m_worldPosition.y) ? m_worldPosition.y : ((camPos.y > m_worldPosition.y + m_boundingBox.y) ?
-                                                                     (m_worldPosition.y + m_boundingBox.y) : camPos.y);
-    point.z = (camPos.z <= m_worldPosition.z) ? m_worldPosition.z : ((camPos.z > m_worldPosition.z + m_boundingBox.z) ?
-                                                                     (m_worldPosition.z + m_boundingBox.z) : camPos.z);
+    getClosestPointOnAABB(camPos, m_worldPosition, m_boundingBox, point);
 }
 void SphericalTerrainMesh::getClosestPoint(const f64v3& camPos, OUT f64v3& point) const {
-    point.x = (camPos.x <= m_worldPosition.x) ? m_worldPosition.x : ((camPos.x > m_worldPosition.x + m_boundingBox.x) ?
-                                                                     (m_worldPosition.x + m_boundingBox.x) : camPos.x);
-    point.y = (camPos.y <= m_worldPosition.y) ? m_worldPosition.y : ((camPos.y > m_worldPosition.y + m_boundingBox.y) ?
-                                                                     (m_worldPosition.y + m_boundingBox.y) : camPos.y);
-    point.z = (camPos.z <= m_worldPosition.z) ? m_worldPosition.z : ((camPos.z > m_worldPosition.z + m_boundingBox.z) ?
-                                                                     (m_worldPosition.z + m_boundingBox.z) : camPos.z);
+    getClosestPointOnAABB(camPos, f64v3(m_worldPosition), f64v3(m_boundingBox), point);
 }
 
 
@@ -231,10 +221,10 @@ void SphericalTerrainPatch::update(const f64v3& cameraPos) {
         bool divide = true;
         if (hasMesh()) {
             if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
-           //     divide = false;
+                divide = false;
             }
         } else if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
-          //  divide = false;
+            divide = false;
         }
 
         if (divide) {

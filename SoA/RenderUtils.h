@@ -73,4 +73,27 @@ inline void setMatrixScale(f32m4& matrix, const float scaleX, const float scaleY
     matrix[2][2] = scaleZ;
 }
 
+/// Gets the closest point on the AABB to the position
+/// @param pos: Position to query nearest point in relation to
+/// @param aabbPos: Position of the -x,-y,-z corner of the aabb
+/// @param aabbDims: Dimensions of the aabb
+inline void getClosestPointOnAABB(const f32v3& pos, const f32v3& aabbPos,
+                                  const f32v3& aabbDims, OUT f32v3& point) {
+    point.x = (pos.x <= aabbPos.x) ? aabbPos.x : ((pos.x > aabbPos.x + aabbDims.x) ?
+                                                  (aabbPos.x + aabbDims.x) : pos.x);
+    point.y = (pos.y <= aabbPos.y) ? aabbPos.y : ((pos.y > aabbPos.y + aabbDims.y) ?
+                                                  (aabbPos.y + aabbDims.y) : pos.y);
+    point.z = (pos.z <= aabbPos.z) ? aabbPos.z : ((pos.z > aabbPos.z + aabbDims.z) ?
+                                                  (aabbPos.z + aabbDims.z) : pos.z);
+}
+inline void getClosestPointOnAABB(const f64v3& pos, const f64v3& aabbPos,
+                                  const f64v3& aabbDims, OUT f64v3& point) {
+    point.x = (pos.x <= aabbPos.x) ? aabbPos.x : ((pos.x > aabbPos.x + aabbDims.x) ?
+                                                  (aabbPos.x + aabbDims.x) : pos.x);
+    point.y = (pos.y <= aabbPos.y) ? aabbPos.y : ((pos.y > aabbPos.y + aabbDims.y) ?
+                                                  (aabbPos.y + aabbDims.y) : pos.y);
+    point.z = (pos.z <= aabbPos.z) ? aabbPos.z : ((pos.z > aabbPos.z + aabbDims.z) ?
+                                                  (aabbPos.z + aabbDims.z) : pos.z);
+}
+
 #endif // RenderUtils_h__
