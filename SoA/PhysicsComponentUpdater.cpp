@@ -9,7 +9,6 @@
 
 // TODO(Ben): Timestep
 void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem) {
-#define KM_PER_VOXEL 0.0005
     for (auto& it : gameSystem->physics) {
         auto& cmp = it.second;
         // Get the position component

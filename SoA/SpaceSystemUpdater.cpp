@@ -3,8 +3,6 @@
 
 #include "SoAState.h"
 
-#define KM_PER_VOXEL 0.0005
-
 void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* gameSystem,
                                 const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos) {
 

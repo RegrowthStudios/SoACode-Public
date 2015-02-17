@@ -18,9 +18,6 @@
 #include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
 
-#define KM_PER_VOXEL 0.0005
-#define VOXELS_PER_KM 2000.0
-
 GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager) {
 
     // Hook up wasd events

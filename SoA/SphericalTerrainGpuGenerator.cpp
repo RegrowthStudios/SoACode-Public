@@ -13,15 +13,8 @@
 #include "SphericalTerrainComponentUpdater.h"
 #include "TerrainPatchMeshManager.h"
 
-#define M_PER_KM 1000.0f
-#define KM_PER_M 0.001f
-#define KM_PER_VOXEL 0.0005f
-#define VOXELS_PER_M 2.0f
-#define VOXELS_PER_KM 2000.0f
 
 float SphericalTerrainGpuGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
-
-#define KM_PER_VOXEL 0.0005f
 
 HeightmapGenRpcDispatcher::HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
     m_generator(generator) {

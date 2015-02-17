@@ -5,8 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "GameSystem.h"
-
-#define KM_PER_VOXEL 0.0005
+#include "Constants.h"
 
 void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
 

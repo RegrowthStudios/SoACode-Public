@@ -5,8 +5,6 @@
 #include "VoxelSpaceConversions.h"
 #include "CpuNoise.h"
 
-#define KM_PER_VOXEL 0.0005f
-
 SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
                                                            PlanetGenData* planetGenData) :
     m_mesher(meshManager, planetGenData),

@@ -10,17 +10,14 @@
 #include <Vorb/graphics/GraphicsDevice.h>
 #include <Vorb/TextureRecycler.hpp>
 
-#define KM_PER_M 0.001f
-#define M_PER_KM 1000
-
 /// Debug colors for rendering faces with unique color
-const ColorRGB8 DebugColors[6] {
-    ColorRGB8(255, 0, 0), //TOP
-        ColorRGB8(0, 255, 0), //LEFT
-        ColorRGB8(0, 0, 255), //RIGHT
-        ColorRGB8(255, 255, 0), //FRONT
-        ColorRGB8(0, 255, 255), //BACK
-        ColorRGB8(255, 0, 255) //BOTTOM
+const color3 DebugColors[6] {
+      color3(255, 0, 0), //TOP
+      color3(0, 255, 0), //LEFT
+      color3(0, 0, 255), //RIGHT
+      color3(255, 255, 0), //FRONT
+      color3(0, 255, 255), //BACK
+      color3(255, 0, 255) //BOTTOM
 };
 
 TerrainVertex TerrainPatchMesher::verts[TerrainPatchMesher::VERTS_SIZE];
@@ -95,7 +92,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
             // Set color
             v.color = m_planetGenData->terrainTint;
-            v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for face colors
+            // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
 
             // TODO(Ben): This is temporary debugging stuff
             const float delta = 100.0f;

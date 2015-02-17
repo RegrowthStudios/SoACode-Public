@@ -51,7 +51,6 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
-#define KM_PER_VOXEL 0.0005f
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGpuGenerator* terrainGenerator,

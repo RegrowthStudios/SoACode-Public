@@ -11,8 +11,6 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <glm/gtx/quaternion.hpp>
 
-#define KM_PER_VOXEL 0.0005
-
 SphericalTerrainComponentRenderer::~SphericalTerrainComponentRenderer() {
     if (m_farTerrainProgram) {
         delete m_farTerrainProgram;
