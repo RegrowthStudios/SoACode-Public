@@ -3,27 +3,8 @@
 
 #include <SDL/SDL.h>
 
-void printVec(nString desc, f32v3 vec)
-{
-    std::cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << std::endl;
-}
-void printVec(nString desc, f32v4 vec)
-{
-    std::cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << " " << vec.w << std::endl;
-}
-void printVec(nString desc, f64v3 vec)
-{
-    std::cout << desc << " " << vec.x << " " << vec.y << " " << vec.z << std::endl;
-}
-
 GLushort boxDrawIndices[6] = {0,1,2,2,3,0};
 GLfloat boxUVs[8] = {0, 1, 0, 0, 1, 0, 1, 1};
-
-HGLRC mainHGLRC;
-SDL_Window* mainWindow = NULL;
-
-std::mutex mainContextLock;
-SDL_GLContext mainOpenGLContext;
 
 float maxPhysicsFps = 62.5f;
 bool NoChunkFade;

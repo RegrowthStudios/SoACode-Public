@@ -44,7 +44,7 @@ private:
     f64 m_patchWidth; ///< Width of a patch in KM
 };
 
-// TODO(Ben): Sorting, Horizon Culling, Atmosphere, Frustum Culling, Bugfixes,
+// TODO(Ben): Sorting, Atmosphere, Frustum Culling
 // fix redundant quality changes
 class TerrainPatch {
 public:

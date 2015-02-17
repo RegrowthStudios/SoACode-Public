@@ -345,6 +345,7 @@ EXIT 0</Command>
     <ClInclude Include="SoaEngine.h" />
     <ClInclude Include="SoaState.h" />
     <ClInclude Include="SoaFileSystem.h" />
+    <ClInclude Include="soaUtils.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceSystem.h" />

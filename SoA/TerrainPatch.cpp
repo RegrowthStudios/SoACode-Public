@@ -165,24 +165,30 @@ bool TerrainPatch::isRenderable() const {
 
 bool TerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
     const f32 DELTA = 0.1f;
-    f32 pLength = glm::length(relCamPos);
-    f32v3 ncp = relCamPos / pLength;
+    f32 camHeight = glm::length(relCamPos);
+    f32v3 normalizedCamPos = relCamPos / camHeight;
 
-    if (pLength < planetRadius + 1.0f) pLength = planetRadius + 1.0f;
-    f32 horizonAngle = acos(planetRadius / pLength);
-    f32 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
+    // Limit the camera depth
+    if (camHeight < planetRadius + 1.0f) camHeight = planetRadius + 1.0f;
+
+    f32 horizonAngle = acos(planetRadius / camHeight);
+    f32 lodAngle = acos(glm::dot(normalizedCamPos, glm::normalize(point)));
     if (lodAngle >= horizonAngle + DELTA) return true;
     return false;
 }
 bool TerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
     const f64 DELTA = 0.1;
-    f64 pLength = glm::length(relCamPos);
-    f64v3 ncp = relCamPos / pLength;
+    f64 camHeight = glm::length(relCamPos);
+    f64v3 normalizedCamPos = relCamPos / camHeight;
 
-    if (pLength < planetRadius + 1.0) pLength = planetRadius + 1.0;
-    f64 horizonAngle = acos(planetRadius / pLength);
-    f64 lodAngle = acos(glm::dot(ncp, glm::normalize(point)));
-    if (lodAngle >= horizonAngle + DELTA) return true;
+    // Limit the camera depth
+    if (camHeight < planetRadius + 1.0) camHeight = planetRadius + 1.0;
+
+    f64 horizonAngle = acos(planetRadius / camHeight);
+    f64 lodAngle = acos(glm::dot(normalizedCamPos, glm::normalize(point)));
+    if (lodAngle >= horizonAngle + DELTA) {
+        return true;
+    }
     return false;
 }
 

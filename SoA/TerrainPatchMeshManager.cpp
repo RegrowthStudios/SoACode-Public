@@ -19,8 +19,8 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
     static float dt = 0.0;
     dt += 0.001;
 
-    f32v3 rotpos = f32v3(glm::inverse(rot) * f32v4(relativePos, 1.0f));
-    f32v3 closestPoint;
+    f64v3 rotpos = f64v3(glm::inverse(rot) * f32v4(relativePos, 1.0f));
+    f64v3 closestPoint;
 
     if (m_waterMeshes.size()) {
 
@@ -50,6 +50,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
                 m_waterMeshes.pop_back();
               
             } else {
+                // TODO(Ben): Horizon culling for water too
                 m_waterMeshes[i]->drawWater(relativePos, camera, rot, waterProgram);
                 i++;
             }
@@ -59,7 +60,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         waterProgram->unuse();
 
     }
-
+    std::cout << "BEGIN\n\n\n";
     if (m_meshes.size()) {
 
         // Bind textures
@@ -89,9 +90,13 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
             } else {
                 /// Use bounding box to find closest point
                 closestPoint = m_meshes[i]->getClosestPoint(rotpos);
+                
                 if (!TerrainPatch::isOverHorizon(rotpos, closestPoint,
                     m_planetGenData->radius)) {
                     m_meshes[i]->draw(relativePos, camera, rot, program);
+                } else {
+                    printVec("CP: ", closestPoint);
+                    printVec("PS: ", m_meshes[i]->m_aabbPos);
                 }
                 i++;
             }
