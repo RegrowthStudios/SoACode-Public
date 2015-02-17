@@ -324,9 +324,12 @@ void SphericalTerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightDa
         v.texCoords.y = v.position[m_coordMapping.z] * UV_SCALE;
 
         // Spherify it!
-        f32v3 normal = glm::normalize(v.position);
+        f32v3 normal;
         if (m_isSpherical) {
+            normal = glm::normalize(v.position);
             v.position = normal * m_radius;
+        } else {
+            normal = glm::normalize(f32v3(v.position.x, m_radius, v.position.z));
         }
 
         zIndex = z * PIXELS_PER_PATCH_NM + 1;
