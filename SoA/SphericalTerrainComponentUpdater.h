@@ -25,10 +25,10 @@ struct SphericalTerrainComponent;
 
 #define LOAD_DIST 80000.0
 // Should be even
-#define PATCH_ROW 2  
+#define ST_PATCH_ROW 2  
 #define NUM_FACES 6
-const int PATCHES_PER_FACE = (PATCH_ROW * PATCH_ROW);
-const int TOTAL_PATCHES = PATCHES_PER_FACE * NUM_FACES;
+const int ST_PATCHES_PER_FACE = (ST_PATCH_ROW * ST_PATCH_ROW);
+const int ST_TOTAL_PATCHES = ST_PATCHES_PER_FACE * NUM_FACES;
 
 class SphericalTerrainComponentUpdater {
 public:

@@ -27,7 +27,7 @@ void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f6
             }
 
             // Update patches
-            for (int i = 0; i < TOTAL_PATCHES; i++) {
+            for (int i = 0; i < ST_TOTAL_PATCHES; i++) {
                 cmp.patches[i].update(relativeCameraPos);
             }
         } else {
@@ -50,16 +50,16 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
     const f64& patchWidth = cmp.sphericalTerrainData->getPatchWidth();
 
     // Allocate top level patches
-    cmp.patches = new SphericalTerrainPatch[TOTAL_PATCHES];
+    cmp.patches = new SphericalTerrainPatch[ST_TOTAL_PATCHES];
 
-    int center = PATCH_ROW / 2;
+    int center = ST_PATCH_ROW / 2;
     f64v2 gridPos;
     int index = 0;
 
     // Init all the top level patches for each of the 6 grids
     for (int face = 0; face < NUM_FACES; face++) {
-        for (int z = 0; z < PATCH_ROW; z++) {
-            for (int x = 0; x < PATCH_ROW; x++) {
+        for (int z = 0; z < ST_PATCH_ROW; z++) {
+            for (int x = 0; x < ST_PATCH_ROW; x++) {
                 auto& p = cmp.patches[index++];
                 gridPos.x = (x - center) * patchWidth;
                 gridPos.y = (z - center) * patchWidth;

@@ -231,7 +231,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
                                                        planetGenData);
     stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
 
-    f64 patchWidth = (planetGenData->radius * 2.000) / PATCH_ROW;
+    f64 patchWidth = (planetGenData->radius * 2.000) / ST_PATCH_ROW;
     stCmp.sphericalTerrainData = new SphericalTerrainData(planetGenData->radius, patchWidth);
 
     return stCmpId;
