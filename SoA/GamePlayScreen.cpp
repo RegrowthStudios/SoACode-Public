@@ -32,7 +32,7 @@
 #include "Sound.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
 #include "SoaEngine.h"

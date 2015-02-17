@@ -11,7 +11,7 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "SphericalTerrainGpuGenerator.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "VoxelSpaceConversions.h"
 #include "VoxelSpaceUtils.h"
 

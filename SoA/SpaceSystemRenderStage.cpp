@@ -23,7 +23,7 @@
 #include "MainMenuSystemViewer.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 
 SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                SpaceSystem* spaceSystem,

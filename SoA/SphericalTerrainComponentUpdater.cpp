@@ -50,7 +50,7 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
     const f64& patchWidth = cmp.sphericalTerrainData->getPatchWidth();
 
     // Allocate top level patches
-    cmp.patches = new SphericalTerrainPatch[ST_TOTAL_PATCHES];
+    cmp.patches = new TerrainPatch[ST_TOTAL_PATCHES];
 
     int center = ST_PATCH_ROW / 2;
     f64v2 gridPos;

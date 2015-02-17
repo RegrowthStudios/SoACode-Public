@@ -23,9 +23,9 @@
 #include <Vorb/VorbPreDecl.inl>
 
 #include "VoxelSpaceConversions.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "TerrainGenTextures.h"
-#include "SphericalTerrainPatchMesher.h"
+#include "TerrainPatchMesher.h"
 
 class TerrainGenDelegate;
 class RawGenDelegate;
@@ -69,7 +69,7 @@ private:
 
 class SphericalTerrainGpuGenerator {
 public:
-    SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainGpuGenerator(TerrainPatchMeshManager* meshManager,
                               PlanetGenData* planetGenData,
                               vg::GLProgram* normalProgram,
                               vg::TextureRecycler* normalMapRecycler);
@@ -149,7 +149,7 @@ private:
 
     vg::FullQuadVBO m_quad; ///< Quad for rendering
 
-    SphericalTerrainPatchMesher m_mesher; ///< Creates patch meshes
+    TerrainPatchMesher m_mesher; ///< Creates patch meshes
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]; ///< Stores height data
 };

@@ -51,9 +51,9 @@ public:
 class TerrainPatchMesh {
 public:
     friend class SphericalTerrainGpuGenerator;
-    friend class SphericalTerrainMeshManager;
-    friend class SphericalTerrainPatch;
-    friend class SphericalTerrainPatchMesher;
+    friend class TerrainPatchMeshManager;
+    friend class TerrainPatch;
+    friend class TerrainPatchMesher;
     friend class FarTerrainPatch;
     TerrainPatchMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {}
     ~TerrainPatchMesh();

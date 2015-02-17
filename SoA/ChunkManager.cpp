@@ -35,7 +35,7 @@
 #include "Sound.h"
 #include "SphericalTerrainGpuGenerator.h"
 
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 
 #include "VRayHelper.h"
 #include "VoxelLightEngine.h"

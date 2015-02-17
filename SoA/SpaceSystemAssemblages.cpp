@@ -12,7 +12,7 @@
 #include "SphericalTerrainCpuGenerator.h"
 #include "SphericalTerrainGpuGenerator.h"
 
-#include "SphericalTerrainMeshManager.h"
+#include "TerrainPatchMeshManager.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
@@ -222,7 +222,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
     stCmp.axisRotationComponent = arComp;
     stCmp.planetGenData = planetGenData;
 
-    stCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
+    stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
                                                   normalMapRecycler);
     stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
                                               planetGenData,
@@ -232,7 +232,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
     stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
 
     f64 patchWidth = (planetGenData->radius * 2.000) / ST_PATCH_ROW;
-    stCmp.sphericalTerrainData = new SphericalTerrainData(planetGenData->radius, patchWidth);
+    stCmp.sphericalTerrainData = new TerrainPatchData(planetGenData->radius, patchWidth);
 
     return stCmpId;
 }

@@ -15,9 +15,9 @@
 #ifndef FarTerrainPatch_h__
 #define FarTerrainPatch_h__
 
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 
-class FarTerrainPatch : public SphericalTerrainPatch {
+class FarTerrainPatch : public TerrainPatch {
 public:
     FarTerrainPatch() {};
     ~FarTerrainPatch();
@@ -29,7 +29,7 @@ public:
     virtual void init(const f64v2& gridPosition,
               WorldCubeFace cubeFace,
               int lod,
-              const SphericalTerrainData* sphericalTerrainData,
+              const TerrainPatchData* sphericalTerrainData,
               f64 width,
               TerrainRpcDispatcher* dispatcher) override;
 

@@ -7,7 +7,7 @@
 
 #define KM_PER_VOXEL 0.0005f
 
-SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(SphericalTerrainMeshManager* meshManager,
+SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
                                                            PlanetGenData* planetGenData) :
     m_mesher(meshManager, planetGenData),
     m_genData(planetGenData) {

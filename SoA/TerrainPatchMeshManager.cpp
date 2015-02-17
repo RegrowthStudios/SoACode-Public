@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SphericalTerrainMeshManager.h"
+#include "TerrainPatchMeshManager.h"
 
 #include "Errors.h"
 #include "PlanetLoader.h"
@@ -9,10 +9,10 @@
 #include <Vorb/TextureRecycler.hpp>
 
 #include "TerrainPatchMesh.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "PlanetData.h"
 
-void SphericalTerrainMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
+void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
                                        const f32m4& rot,
                                        vg::GLProgram* program, vg::GLProgram* waterProgram) {
     
@@ -89,7 +89,7 @@ void SphericalTerrainMeshManager::drawSphericalMeshes(const f64v3& relativePos, 
             } else {
                 /// Use bounding box to find closest point
                 closestPoint = m_meshes[i]->getClosestPoint(rotpos);
-                if (!SphericalTerrainPatch::isOverHorizon(rotpos, closestPoint,
+                if (!TerrainPatch::isOverHorizon(rotpos, closestPoint,
                     m_planetGenData->radius)) {
                     m_meshes[i]->draw(relativePos, camera, rot, program);
                 }
@@ -102,7 +102,7 @@ void SphericalTerrainMeshManager::drawSphericalMeshes(const f64v3& relativePos, 
     }
 }
 
-SphericalTerrainMeshManager::~SphericalTerrainMeshManager() {
+TerrainPatchMeshManager::~TerrainPatchMeshManager() {
     for (auto& i : m_meshes) {
         delete i;
     }
@@ -111,7 +111,7 @@ SphericalTerrainMeshManager::~SphericalTerrainMeshManager() {
     }
 }
 
-void SphericalTerrainMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) {
+void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) {
     if (isSpherical) {
         m_meshes.push_back(mesh);
         if (mesh->m_wvbo) {
@@ -127,7 +127,7 @@ void SphericalTerrainMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpheric
 
 }
 
-void SphericalTerrainMeshManager::drawFarMeshes(const f64v3& relativePos, const Camera* camera, vg::GLProgram* program, vg::GLProgram* waterProgram) {
+void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Camera* camera, vg::GLProgram* program, vg::GLProgram* waterProgram) {
     static float dt = 0.0;
     dt += 0.001;
 

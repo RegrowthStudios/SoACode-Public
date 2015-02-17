@@ -560,9 +560,6 @@
     <ClInclude Include="IAwesomiumAPI.h">
       <Filter>SOA Files\Screens</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainPatch.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
@@ -713,12 +710,6 @@
     <ClInclude Include="FarTerrainComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainPatchMesher.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainMeshManager.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="TerrainPatchMesh.h">
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClInclude>
@@ -726,6 +717,15 @@
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClInclude>
     <ClInclude Include="TerrainPatchConstants.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainPatchMesher.h">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainPatchMeshManager.h">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1040,9 +1040,6 @@
     <ClCompile Include="TestBlockViewScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainPatch.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="OrbitComponentRenderer.cpp">
       <Filter>SOA Files\ECS\Renderers</Filter>
     </ClCompile>
@@ -1164,17 +1161,20 @@
     <ClCompile Include="FarTerrainComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainPatchMesher.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainMeshManager.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainPatchMesh.cpp">
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClCompile>
     <ClCompile Include="SkyboxRenderer.cpp">
       <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPatchMesher.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPatchMeshManager.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPatch.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

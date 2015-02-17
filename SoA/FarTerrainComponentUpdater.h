@@ -18,7 +18,7 @@
 class SpaceSystem;
 struct FarTerrainComponent;
 
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "TerrainRpcDispatcher.h"
 #include "VoxelCoordinateSpaces.h"
 #include "SphericalTerrainComponentUpdater.h"

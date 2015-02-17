@@ -1,5 +1,5 @@
 ///
-/// SphericalTerrainPatchMesher.h
+/// TerrainPatchMesher.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 3 Feb 2015
@@ -7,25 +7,25 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Creates spherical terrain patch meshes
+/// Creates terrain patch meshes
 ///
 
 #pragma once
 
-#ifndef SphericalTerrainPatchMesher_h__
-#define SphericalTerrainPatchMesher_h__
+#ifndef TerrainPatchMesher_h__
+#define TerrainPatchMesher_h__
 
 #include <Vorb/graphics/gtypes.h>
 #include "TerrainPatchMesh.h"
 
 struct PlanetGenData;
-class SphericalTerrainMeshManager;
+class TerrainPatchMeshManager;
 
-class SphericalTerrainPatchMesher {
+class TerrainPatchMesher {
 public:
-    SphericalTerrainPatchMesher(SphericalTerrainMeshManager* meshManager,
+    TerrainPatchMesher(TerrainPatchMeshManager* meshManager,
                        PlanetGenData* planetGenData);
-    ~SphericalTerrainPatchMesher();
+    ~TerrainPatchMesher();
 
     /// Generates mesh using heightmap
     /// @param mesh: The mesh handle
@@ -91,7 +91,7 @@ private:
     static bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1]; ///< True when a quad is present at a spot
 
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
-    SphericalTerrainMeshManager* m_meshManager = nullptr; ///< Manages the patch meshes
+    TerrainPatchMeshManager* m_meshManager = nullptr; ///< Manages the patch meshes
 
     /// Meshing helper vars
     int m_index;
@@ -105,4 +105,4 @@ private:
     bool m_isSpherical;
 };
 
-#endif // SphericalTerrainPatchMesher_h__
+#endif // TerrainPatchMesher_h__

@@ -16,15 +16,15 @@
 #ifndef SphericalTerrainCpuGenerator_h__
 #define SphericalTerrainCpuGenerator_h__
 
-#include "SphericalTerrainPatch.h"
-#include "SphericalTerrainPatchMesher.h"
+#include "TerrainPatch.h"
+#include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
 
 class TerrainFuncs;
 
 class SphericalTerrainCpuGenerator {
 public:
-    SphericalTerrainCpuGenerator(SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
                                  PlanetGenData* planetGenData);
     ~SphericalTerrainCpuGenerator();
 
@@ -47,7 +47,7 @@ private:
     /// @return the noise value
     float getNoiseValue(const f32v3& pos, const TerrainFuncs& funcs);
 
-    SphericalTerrainPatchMesher m_mesher; ///< Creates patch meshes
+    TerrainPatchMesher m_mesher; ///< Creates patch meshes
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data
 };
 

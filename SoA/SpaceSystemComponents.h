@@ -27,10 +27,10 @@ class FarTerrainPatch;
 class ParticleEngine;
 class PhysicsEngine;
 class SphericalTerrainCpuGenerator;
-class SphericalTerrainData;
+class TerrainPatchData;
 class SphericalTerrainGpuGenerator;
-class SphericalTerrainMeshManager;
-class SphericalTerrainPatch;
+class TerrainPatchMeshManager;
+class TerrainPatch;
 class TerrainRpcDispatcher;
 struct PlanetGenData;
 struct PlanetGenData;
@@ -79,7 +79,7 @@ struct SphericalVoxelComponent {
     SphericalTerrainGpuGenerator* generator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
-    const SphericalTerrainData* sphericalTerrainData = nullptr;
+    const TerrainPatchData* sphericalTerrainData = nullptr;
 
     const vio::IOManager* saveFileIom = nullptr;
 
@@ -98,10 +98,10 @@ struct SphericalTerrainComponent {
 
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
-    SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches
-    SphericalTerrainData* sphericalTerrainData = nullptr;
+    TerrainPatch* patches = nullptr; ///< Buffer for top level patches
+    TerrainPatchData* sphericalTerrainData = nullptr;
 
-    SphericalTerrainMeshManager* meshManager = nullptr;
+    TerrainPatchMeshManager* meshManager = nullptr;
     SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
@@ -113,9 +113,9 @@ struct FarTerrainComponent {
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
     FarTerrainPatch* patches = nullptr; ///< Buffer for top level patches
-    SphericalTerrainData* sphericalTerrainData = nullptr;
+    TerrainPatchData* sphericalTerrainData = nullptr;
 
-    SphericalTerrainMeshManager* meshManager = nullptr;
+    TerrainPatchMeshManager* meshManager = nullptr;
     SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 

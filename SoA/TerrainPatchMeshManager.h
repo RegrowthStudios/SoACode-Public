@@ -1,5 +1,5 @@
 ///
-/// SphericalTerrainMeshManager.h
+/// TerrainPatchMeshManager.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 17 Dec 2014
@@ -9,32 +9,33 @@
 /// Summary:
 /// Simple container for terrain meshes. Each planet gets one
 ///
+#include "TerrainPatch.h"
 
 #pragma once
 
-#ifndef SphericalTerrainMeshManager_h__
-#define SphericalTerrainMeshManager_h__
+#ifndef TerrainPatchMeshManager_h__
+#define TerrainPatchMeshManager_h__
 
 #include <RPC.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;
 struct PlanetGenData;
-class SphericalTerrainData;
+class TerrainPatchData;
 class TerrainPatchMesh;
 
 DECL_VG(class TextureRecycler;
         class GLProgram)
 
-class SphericalTerrainMeshManager {
+class TerrainPatchMeshManager {
 public:
-    SphericalTerrainMeshManager(const PlanetGenData* planetGenData,
+    TerrainPatchMeshManager(const PlanetGenData* planetGenData,
                                 vg::TextureRecycler* normalMapRecycler) :
         m_planetGenData(planetGenData),
         m_normalMapRecycler(normalMapRecycler) {
         // Empty
     }
-    ~SphericalTerrainMeshManager();
+    ~TerrainPatchMeshManager();
     /// Draws the meshes
     /// @param relativePos: Relative position of the camera
     /// @param Camera: The camera
@@ -61,4 +62,4 @@ private:
     std::vector<TerrainPatchMesh*> m_farWaterMeshes; ///< Meshes with water active
 };
 
-#endif // SphericalTerrainMeshManager_h__
+#endif // TerrainPatchMeshManager_h__

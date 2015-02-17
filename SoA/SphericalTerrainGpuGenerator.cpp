@@ -11,7 +11,7 @@
 #include "PlanetData.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainMeshManager.h"
+#include "TerrainPatchMeshManager.h"
 
 #define M_PER_KM 1000.0f
 #define KM_PER_M 0.001f
@@ -72,7 +72,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridDa
     return false;
 }
 
-SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
+SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(TerrainPatchMeshManager* meshManager,
                                                      PlanetGenData* planetGenData,
                                                      vg::GLProgram* normalProgram,
                                                      vg::TextureRecycler* normalMapRecycler) :

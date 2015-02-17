@@ -9,7 +9,7 @@
 #include "RenderUtils.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelSpaceConversions.h"
-#include "SphericalTerrainPatchMesher.h"
+#include "TerrainPatchMesher.h"
 #include "TerrainRpcDispatcher.h"
 
 const f32v3 NormalMults[6] = {
@@ -25,7 +25,7 @@ FarTerrainPatch::~FarTerrainPatch() {
     destroy();
 }
 
-void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, int lod, const SphericalTerrainData* sphericalTerrainData, f64 width, TerrainRpcDispatcher* dispatcher) {
+void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, int lod, const TerrainPatchData* sphericalTerrainData, f64 width, TerrainRpcDispatcher* dispatcher) {
     m_gridPos = gridPosition;
     m_cubeFace = cubeFace;
     m_lod = lod;

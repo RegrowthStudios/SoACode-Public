@@ -4,8 +4,8 @@
 #include "Camera.h"
 #include "SpaceSystemComponents.h"
 #include "SpaceSystemComponents.h"
-#include "SphericalTerrainMeshManager.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatchMeshManager.h"
+#include "TerrainPatch.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/graphics/GLProgram.h>

@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "SphericalTerrainPatchMesher.h"
+#include "TerrainPatchMesher.h"
 
 #include "VoxelSpaceConversions.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainMeshManager.h"
+#include "TerrainPatchMeshManager.h"
 #include "PlanetData.h"
 
 #include <Vorb/graphics/GpuMemory.h>
@@ -23,17 +23,17 @@ const ColorRGB8 DebugColors[6] {
         ColorRGB8(255, 0, 255) //BOTTOM
 };
 
-TerrainVertex SphericalTerrainPatchMesher::verts[SphericalTerrainPatchMesher::VERTS_SIZE];
-WaterVertex SphericalTerrainPatchMesher::waterVerts[SphericalTerrainPatchMesher::VERTS_SIZE];
+TerrainVertex TerrainPatchMesher::verts[TerrainPatchMesher::VERTS_SIZE];
+WaterVertex TerrainPatchMesher::waterVerts[TerrainPatchMesher::VERTS_SIZE];
 
-ui16 SphericalTerrainPatchMesher::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
-ui16 SphericalTerrainPatchMesher::waterIndices[PATCH_INDICES];
-bool SphericalTerrainPatchMesher::waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
+ui16 TerrainPatchMesher::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
+ui16 TerrainPatchMesher::waterIndices[PATCH_INDICES];
+bool TerrainPatchMesher::waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
 
-VGIndexBuffer SphericalTerrainPatchMesher::m_sharedIbo = 0; ///< Reusable CCW IBO
+VGIndexBuffer TerrainPatchMesher::m_sharedIbo = 0; ///< Reusable CCW IBO
 
 
-SphericalTerrainPatchMesher::SphericalTerrainPatchMesher(SphericalTerrainMeshManager* meshManager,
+TerrainPatchMesher::TerrainPatchMesher(TerrainPatchMeshManager* meshManager,
                                        PlanetGenData* planetGenData) :
     m_meshManager(meshManager),
     m_planetGenData(planetGenData) {
@@ -45,11 +45,11 @@ SphericalTerrainPatchMesher::SphericalTerrainPatchMesher(SphericalTerrainMeshMan
     m_radius = m_planetGenData->radius;
 }
 
-SphericalTerrainPatchMesher::~SphericalTerrainPatchMesher() {
+TerrainPatchMesher::~TerrainPatchMesher() {
     vg::GpuMemory::freeBuffer(m_sharedIbo);
 }
 
-void SphericalTerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
+void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
                                             float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
                                             bool isSpherical) {
 
@@ -210,21 +210,21 @@ void SphericalTerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f3
 }
 
 // Thanks to tetryds for these
-ui8 SphericalTerrainPatchMesher::calculateTemperature(float range, float angle, float baseTemp) {
+ui8 TerrainPatchMesher::calculateTemperature(float range, float angle, float baseTemp) {
     float tempFalloff = 1.0f - pow(cos(angle), 2.0f * angle);
     float temp = baseTemp - tempFalloff * range;
     return (ui8)(glm::clamp(temp, 0.0f, 255.0f));
 }
 
 // Thanks to tetryds for these
-ui8 SphericalTerrainPatchMesher::calculateHumidity(float range, float angle, float baseHum) {
+ui8 TerrainPatchMesher::calculateHumidity(float range, float angle, float baseHum) {
     float cos3x = cos(3.0f * angle);
     float humFalloff = 1.0f - (-0.25f * angle + 1.0f) * (cos3x * cos3x);
     float hum = baseHum - humFalloff * range;
     return (ui8)(glm::clamp(hum, 0.0f, 255.0f));
 }
 
-void SphericalTerrainPatchMesher::buildSkirts() {
+void TerrainPatchMesher::buildSkirts() {
     const float SKIRT_DEPTH = m_vertWidth * 3.0f;
     // Top Skirt
     for (int i = 0; i < PATCH_WIDTH; i++) {
@@ -284,7 +284,7 @@ void SphericalTerrainPatchMesher::buildSkirts() {
     }
 }
 
-void SphericalTerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
+void TerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
     // Try add all adjacent vertices if needed
     tryAddWaterVertex(z - 1, x - 1, heightData);
     tryAddWaterVertex(z - 1, x, heightData);
@@ -303,7 +303,7 @@ void SphericalTerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_
     tryAddWaterQuad(z, x);
 }
 
-void SphericalTerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
+void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
     // TEMPORARY? Add slight offset so we don't need skirts
     float mvw = m_vertWidth * 1.005;
     const float UV_SCALE = 0.04;
@@ -360,7 +360,7 @@ void SphericalTerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightDa
     }
 }
 
-void SphericalTerrainPatchMesher::tryAddWaterQuad(int z, int x) {
+void TerrainPatchMesher::tryAddWaterQuad(int z, int x) {
     if (z < 0 || x < 0 || z >= PATCH_WIDTH - 1 || x >= PATCH_WIDTH - 1) return;
     if (!waterQuads[z][x]) {
         waterQuads[z][x] = true;
@@ -373,7 +373,7 @@ void SphericalTerrainPatchMesher::tryAddWaterQuad(int z, int x) {
     }
 }
 
-void SphericalTerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
+void TerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
     // Loop through each quad and set indices
     int vertIndex;
     int index = 0;
@@ -459,7 +459,7 @@ void SphericalTerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
                                     indices);
 }
 
-float SphericalTerrainPatchMesher::computeAngleFromNormal(const f32v3& normal) {
+float TerrainPatchMesher::computeAngleFromNormal(const f32v3& normal) {
     // Compute angle
     if (normal.y == 1.0f || normal.y == -1.0f) {
         return M_PI / 2.0;

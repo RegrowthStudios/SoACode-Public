@@ -6,7 +6,7 @@
 
 #include "Camera.h"
 #include "SpaceSystem.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "SphericalTerrainCpuGenerator.h"
 
 const f32 MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
