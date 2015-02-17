@@ -26,7 +26,7 @@ FarTerrainPatch::~FarTerrainPatch() {
 }
 
 void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, int lod, const SphericalTerrainData* sphericalTerrainData, f64 width, TerrainRpcDispatcher* dispatcher) {
-    m_gridPosition = gridPosition;
+    m_gridPos = gridPosition;
     m_cubeFace = cubeFace;
     m_lod = lod;
     m_sphericalTerrainData = sphericalTerrainData;
@@ -34,7 +34,7 @@ void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, in
     m_dispatcher = dispatcher;
 
     f64v2 centerGridPos = gridPosition + f64v2(width / 2.0);
-    m_worldPosition = f64v3(m_gridPosition.x, 0, m_gridPosition.y);
+    m_aabbPos = f64v3(m_gridPos.x, 0, m_gridPos.y);
 }
 
 void FarTerrainPatch::update(const f64v3& cameraPos) {
@@ -43,16 +43,7 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
 
     const float MIN_SIZE = 0.4096f;
 
-    f64v3 closestPoint;
-    // Calculate distance from camera
-    if (hasMesh()) {
-        // If we have a mesh, we can use an accurate bounding box    
-        m_mesh->getClosestPoint(cameraPos, closestPoint);
-        m_distance = glm::length(closestPoint - cameraPos);
-    } else {
-        // Approximate
-        m_distance = glm::length(m_worldPosition - cameraPos);
-    }
+    f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
 
     if (m_children) {
 
@@ -90,7 +81,7 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
             if (isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
                 //     divide = false;
             }
-        } else if (isOverHorizon(cameraPos, m_worldPosition, m_sphericalTerrainData->getRadius())) {
+        } else if (isOverHorizon(cameraPos, m_aabbPos, m_sphericalTerrainData->getRadius())) {
             //  divide = false;
         }
 
@@ -99,7 +90,7 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
             // Segment into 4 children
             for (int z = 0; z < 2; z++) {
                 for (int x = 0; x < 2; x++) {
-                    m_children[(z << 1) + x].init(m_gridPosition + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
+                    m_children[(z << 1) + x].init(m_gridPos + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
                                                   m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
                                                   m_dispatcher);
                 }
@@ -117,41 +108,13 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
     }
 }
 
-void FarTerrainPatch::destroy() {
-    if (m_mesh) {
-        m_mesh->m_shouldDelete = true;
-        m_mesh = nullptr;
-    }
-    delete[] m_children;
-    m_children = nullptr;
-}
-
-bool FarTerrainPatch::isRenderable() const {
-    if (hasMesh()) return true;
-    if (m_children) {
-        for (int i = 0; i < 4; i++) {
-            if (!m_children[i].isRenderable()) return false;
-        }
-        return true;
-    }
-    return false;
-}
-
-bool FarTerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
-    return false; //TODO(Ben): Is this needed, if so implement
-}
-
-bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
-    return false; //TODO(Ben): Is this needed, if so implement
-}
-
 void FarTerrainPatch::requestMesh() {
     // Try to generate a mesh
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
 
-    f32v3 startPos(m_gridPosition.x * coordMults.x,
+    f32v3 startPos(m_gridPos.x * coordMults.x,
                    m_sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
-                   m_gridPosition.y* coordMults.y);
+                   m_gridPos.y* coordMults.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               m_width,
                                               m_lod,

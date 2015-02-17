@@ -122,7 +122,7 @@ public:
     /// @param gridPosition: Position on the 2d face grid
     /// @param sphericalTerrainData: Shared data
     /// @param width: Width of the patch in KM
-    void init(const f64v2& gridPosition,
+    virtual void init(const f64v2& gridPosition,
               WorldCubeFace cubeFace,
               int lod,
               const SphericalTerrainData* sphericalTerrainData,
@@ -131,7 +131,7 @@ public:
 
     /// Updates the patch
     /// @param cameraPos: Position of the camera
-    void update(const f64v3& cameraPos);
+    virtual void update(const f64v3& cameraPos);
 
     /// Frees resources
     void destroy();
@@ -155,9 +155,9 @@ public:
 
     static const int INDICES_PER_QUAD = 6;
     static const int INDICES_PER_PATCH = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD;
-private:
+protected:
     /// Requests a mesh via RPC
-    void requestMesh();
+    virtual void requestMesh();
     /// Calculates the closest point to the camera, as well as distance
     /// @param cameraPos: position of the observer
     /// @return closest point on the AABB
