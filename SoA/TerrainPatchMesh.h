@@ -91,8 +91,10 @@ private:
     VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
     VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
 
-    f32v3 m_aabbPos = f32v3(0.0); ///< Bounding box origin
-    f32v3 m_aabbDims = f32v3(0.0f); ///< AABB bounding box dims
+    f32v3 m_aabbPos = f32v3(0.0f); ///< Bounding box origin
+    f32v3 m_aabbDims = f32v3(0.0f); ///< Bounding box dims
+    f32v3 m_aabbCenter = f32v3(0.0f); ///< Center of the bounding box
+    f32 m_boundingSphereRadius = 0.0f; ///< Radius of sphere for frustum checks
     WorldCubeFace m_cubeFace;
 
     VGTexture m_normalMap = 0;

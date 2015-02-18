@@ -40,20 +40,21 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
 
         for (int i = 0; i < m_waterMeshes.size();) {
-            if (m_waterMeshes[i]->m_shouldDelete) {
+            auto& m = m_waterMeshes[i];
+            if (m->m_shouldDelete) {
                 // Only delete here if m_wvbo is 0. See comment [15] in below block
-                if (m_waterMeshes[i]->m_wvbo) {
-                    vg::GpuMemory::freeBuffer(m_waterMeshes[i]->m_wvbo);
+                if (m->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m->m_wvbo);
                 } else {
-                    delete m_waterMeshes[i];
+                    delete m;
                 }
 
-                m_waterMeshes[i] = m_waterMeshes.back();
+                m = m_waterMeshes.back();
                 m_waterMeshes.pop_back();
               
             } else {
-                // TODO(Ben): Horizon culling for water too
-                m_waterMeshes[i]->drawWater(relativePos, camera, rot, waterProgram);
+                // TODO(Ben): Horizon and frustum culling for water too
+                m->drawWater(relativePos, camera, rot, waterProgram);
                 i++;
             }
         }
@@ -62,7 +63,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         waterProgram->unuse();
 
     }
-    std::cout << "BEGIN\n\n\n";
+
     if (m_meshes.size()) {
 
         // Bind textures
@@ -75,27 +76,36 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         program->enableVertexAttribArrays();
 
         for (int i = 0; i < m_meshes.size();) {
-            if (m_meshes[i]->m_shouldDelete) {
-                m_meshes[i]->recycleNormalMap(m_normalMapRecycler);
+            auto& m = m_meshes[i];
+            if (m->m_shouldDelete) {
+                m->recycleNormalMap(m_normalMapRecycler);
 
                 // [15] If m_wvbo is 1, then chunk was marked for delete between
                 // Drawing water and terrain. So we free m_wvbo to mark it
                 // for delete on the next pass through m_waterMeshes
-                if (m_meshes[i]->m_wvbo) {
-                    vg::GpuMemory::freeBuffer(m_meshes[i]->m_wvbo);
+                if (m->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m->m_wvbo);
                 } else {
-                    delete m_meshes[i];
+                    delete m;
                 }
 
-                m_meshes[i] = m_meshes.back();
+                m = m_meshes.back();
                 m_meshes.pop_back();
             } else {
                 /// Use bounding box to find closest point
-                closestPoint = m_meshes[i]->getClosestPoint(rotpos);
+                closestPoint = m->getClosestPoint(rotpos);
                 
+                // Check horizon culling first, it's more likely to cull spherical patches
                 if (!TerrainPatch::isOverHorizon(rotpos, closestPoint,
                     m_planetGenData->radius)) {
-                    m_meshes[i]->draw(relativePos, camera, rot, program);
+                    // Check frustum culling
+                    // TODO(Ben): There could be a way to reduce the number of frustum checks
+                    // via caching or checking a parent
+                    f32v3 relSpherePos = m->m_aabbCenter - f32v3(rotpos);
+                    if (camera->sphereInFrustum(relSpherePos,
+                        m->m_boundingSphereRadius)) {
+                        m->draw(relativePos, camera, rot, program);
+                    }
                 }
                 i++;
             }
@@ -156,19 +166,20 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
         glUniform1f(waterProgram->getUniform("unRadius"), 4200.0f); // TODO(Ben): Use real radius
        
         for (int i = 0; i < m_farWaterMeshes.size();) {
-            if (m_farWaterMeshes[i]->m_shouldDelete) {
+            auto& m = m_farWaterMeshes[i];
+            if (m->m_shouldDelete) {
                 // Only delete here if m_wvbo is 0. See comment [15] in below block
-                if (m_farWaterMeshes[i]->m_wvbo) {
-                    vg::GpuMemory::freeBuffer(m_farWaterMeshes[i]->m_wvbo);
+                if (m->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m->m_wvbo);
                 } else {
-                    delete m_farWaterMeshes[i];
+                    delete m;
                 }
 
-                m_farWaterMeshes[i] = m_farWaterMeshes.back();
+                m = m_farWaterMeshes.back();
                 m_farWaterMeshes.pop_back();
 
             } else {
-                m_farWaterMeshes[i]->drawWater(relativePos, camera, rot, waterProgram);
+                m->drawWater(relativePos, camera, rot, waterProgram);
                 i++;
             }
         }
@@ -191,27 +202,34 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
         glUniform1f(program->getUniform("unRadius"), 4200.0f); // TODO(Ben): Use real radius
 
         for (int i = 0; i < m_farMeshes.size();) {
-            if (m_farMeshes[i]->m_shouldDelete) {
-                m_farMeshes[i]->recycleNormalMap(m_normalMapRecycler);
+            auto& m = m_farMeshes[i];
+            if (m->m_shouldDelete) {
+                m->recycleNormalMap(m_normalMapRecycler);
 
                 // [15] If m_wvbo is 1, then chunk was marked for delete between
                 // Drawing water and terrain. So we free m_wvbo to mark it
                 // for delete on the next pass through m_farWaterMeshes
-                if (m_farMeshes[i]->m_wvbo) {
-                    vg::GpuMemory::freeBuffer(m_farMeshes[i]->m_wvbo);
+                if (m->m_wvbo) {
+                    vg::GpuMemory::freeBuffer(m->m_wvbo);
                 } else {
-                    delete m_farMeshes[i];
+                    delete m;
                 }
 
-                m_farMeshes[i] = m_farMeshes.back();
+                m = m_farMeshes.back();
                 m_farMeshes.pop_back();
             } else {
-                /// Use bounding box to find closest point
-                closestPoint = m_farMeshes[i]->getClosestPoint(relativePos);
-
-                if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,
-                    m_planetGenData->radius)) {
-                    m_farMeshes[i]->draw(relativePos, camera, rot, program);
+                // Check frustum culling
+                // TODO(Ben): There could be a way to reduce the number of frustum checks
+                // via caching or checking a parent
+                // Check frustum culling first, it's more likely to cull far patches
+                f32v3 relSpherePos = m->m_aabbCenter - f32v3(relativePos);
+                if (camera->sphereInFrustum(relSpherePos, m->m_boundingSphereRadius)) {
+                    /// Use bounding box to find closest point
+                    closestPoint = m->getClosestPoint(relativePos);
+                    if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,
+                        m_planetGenData->radius)) {
+                        m->draw(relativePos, camera, rot, program);
+                    }
                 }
                 i++;
             }

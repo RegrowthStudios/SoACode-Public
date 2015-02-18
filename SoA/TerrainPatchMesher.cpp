@@ -163,6 +163,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     // Get AABB
     mesh->m_aabbPos = f32v3(minX, minY, minZ);
     mesh->m_aabbDims = f32v3(maxX - minX, maxY - minY, maxZ - minZ);
+    mesh->m_aabbCenter = mesh->m_aabbPos + mesh->m_aabbDims * 0.5f;
+    // Calculate bounding sphere for culling
+    mesh->m_boundingSphereRadius = glm::length(mesh->m_aabbCenter - mesh->m_aabbPos);
 
     buildSkirts();
 
