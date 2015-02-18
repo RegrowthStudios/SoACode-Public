@@ -31,7 +31,7 @@ void TerrainPatch::init(const f64v2& gridPosition,
     m_gridPos = gridPosition;
     m_cubeFace = cubeFace;
     m_lod = lod;
-    m_sphericalTerrainData = sphericalTerrainData;
+    m_terrainPatchData = sphericalTerrainData;
     m_width = width;
     m_dispatcher = dispatcher;
 
@@ -40,21 +40,21 @@ void TerrainPatch::init(const f64v2& gridPosition,
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
     f64v3 corners[4];
     corners[0][coordMapping.x] = gridPosition.x * coordMults.x;
-    corners[0][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[0][coordMapping.y] = m_terrainPatchData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
     corners[0][coordMapping.z] = gridPosition.y * coordMults.y;
-    corners[0] = glm::normalize(corners[0]) * m_sphericalTerrainData->getRadius();
+    corners[0] = glm::normalize(corners[0]) * m_terrainPatchData->radius;
     corners[1][coordMapping.x] = gridPosition.x * coordMults.x;
-    corners[1][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[1][coordMapping.y] = m_terrainPatchData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
     corners[1][coordMapping.z] = (gridPosition.y + m_width) * coordMults.y;
-    corners[1] = glm::normalize(corners[1]) * m_sphericalTerrainData->getRadius();
+    corners[1] = glm::normalize(corners[1]) * m_terrainPatchData->radius;
     corners[2][coordMapping.x] = (gridPosition.x + m_width) * coordMults.x;
-    corners[2][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[2][coordMapping.y] = m_terrainPatchData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
     corners[2][coordMapping.z] = (gridPosition.y + m_width) * coordMults.y;
-    corners[2] = glm::normalize(corners[2]) * m_sphericalTerrainData->getRadius();
+    corners[2] = glm::normalize(corners[2]) * m_terrainPatchData->radius;
     corners[3][coordMapping.x] = (gridPosition.x + m_width) * coordMults.x;
-    corners[3][coordMapping.y] = sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+    corners[3][coordMapping.y] = m_terrainPatchData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
     corners[3][coordMapping.z] = gridPosition.y * coordMults.y;
-    corners[3] = glm::normalize(corners[3]) * m_sphericalTerrainData->getRadius();
+    corners[3] = glm::normalize(corners[3]) * m_terrainPatchData->radius;
 
     f64 minX = INT_MAX, maxX = INT_MIN;
     f64 minY = INT_MAX, maxY = INT_MIN;
@@ -108,13 +108,13 @@ void TerrainPatch::update(const f64v3& cameraPos) {
         }
     } else if (canSubdivide()) {
         // Check if we are over horizon. If we are, don't divide.
-        if (!isOverHorizon(cameraPos, closestPoint, m_sphericalTerrainData->getRadius())) {
+        if (!isOverHorizon(cameraPos, closestPoint, m_terrainPatchData->radius)) {
             m_children = new TerrainPatch[4];
             // Segment into 4 children
             for (int z = 0; z < 2; z++) {
                 for (int x = 0; x < 2; x++) {
                     m_children[(z << 1) + x].init(m_gridPos + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
-                                                  m_cubeFace, m_lod + 1, m_sphericalTerrainData, m_width / 2.0,
+                                                  m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0,
                                                   m_dispatcher);
                 }
             }
@@ -193,7 +193,7 @@ void TerrainPatch::requestMesh() {
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
 
     f32v3 startPos(m_gridPos.x * coordMults.x,
-                   m_sphericalTerrainData->getRadius() * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
+                   m_terrainPatchData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
                    m_gridPos.y* coordMults.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               m_width,

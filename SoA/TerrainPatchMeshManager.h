@@ -21,7 +21,7 @@
 
 class Camera;
 struct PlanetGenData;
-class TerrainPatchData;
+struct TerrainPatchData;
 class TerrainPatchMesh;
 
 DECL_VG(class TextureRecycler;

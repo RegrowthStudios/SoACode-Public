@@ -138,7 +138,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     svcmp.namePositionComponent = namePositionComponent;
     svcmp.farTerrainComponent = farTerrainComponent;
 
-    svcmp.voxelRadius = ftcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
+    svcmp.voxelRadius = ftcmp.sphericalTerrainData->radius * VOXELS_PER_KM;
 
     svcmp.physicsEngine = new PhysicsEngine();
 
@@ -147,7 +147,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
                                           svcmp.generator, startVoxelPos,
                                           svcmp.chunkIo,
-                                          ftcmp.sphericalTerrainData->getRadius() * 2000.0);
+                                          ftcmp.sphericalTerrainData->radius * 2000.0);
     svcmp.particleEngine = new ParticleEngine();
     
     svcmp.planetGenData = ftcmp.planetGenData;

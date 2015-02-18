@@ -27,7 +27,7 @@ class FarTerrainPatch;
 class ParticleEngine;
 class PhysicsEngine;
 class SphericalTerrainCpuGenerator;
-class TerrainPatchData;
+struct TerrainPatchData;
 class SphericalTerrainGpuGenerator;
 class TerrainPatchMeshManager;
 class TerrainPatch;

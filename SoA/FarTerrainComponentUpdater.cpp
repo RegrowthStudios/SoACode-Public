@@ -24,7 +24,7 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
                 initPatches(cmp, cameraPos);
             } else {
                 // Check to see if the grid should shift
-                const f64& patchWidth = (cmp.sphericalTerrainData->getRadius() * 2.000) / FT_PATCH_ROW;
+                const f64& patchWidth = (cmp.sphericalTerrainData->radius * 2.000) / FT_PATCH_ROW;
                 i32v2 newCenter(fastFloor(cameraPos.x / patchWidth), fastFloor(cameraPos.z / patchWidth));
                 checkGridShift(cmp, newCenter);
             }
@@ -50,7 +50,7 @@ void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
 }
 
 void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp, const f64v3& cameraPos) {
-    const f64& patchWidth = (cmp.sphericalTerrainData->getRadius() * 2.000) / FT_PATCH_ROW;
+    const f64& patchWidth = (cmp.sphericalTerrainData->radius * 2.000) / FT_PATCH_ROW;
 
     // Allocate top level patches
     cmp.patches = new FarTerrainPatch[FT_TOTAL_PATCHES];
@@ -80,7 +80,7 @@ void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp, const f64
 
 void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const i32v2& newCenter) {
     f64v2 gridPos;
-    const f64& patchWidth = (cmp.sphericalTerrainData->getRadius() * 2.000) / FT_PATCH_ROW;
+    const f64& patchWidth = (cmp.sphericalTerrainData->radius * 2.000) / FT_PATCH_ROW;
     // X shift
     if (newCenter.x > cmp.center.x) { // +X shift
         // Shift center

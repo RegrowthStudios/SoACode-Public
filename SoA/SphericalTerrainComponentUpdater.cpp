@@ -47,7 +47,7 @@ void SphericalTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
 }
 
 void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cmp) {
-    const f64& patchWidth = cmp.sphericalTerrainData->getPatchWidth();
+    const f64& patchWidth = cmp.sphericalTerrainData->patchWidth;
 
     // Allocate top level patches
     cmp.patches = new TerrainPatch[ST_TOTAL_PATCHES];

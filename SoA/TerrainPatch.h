@@ -26,22 +26,17 @@ class TerrainGenDelegate;
 class TerrainPatchMesh;
 
 // Shared data for terrain patches
-class TerrainPatchData {
-public:
+struct TerrainPatchData { // TODO(Ben): probably dont need this
     friend struct SphericalTerrainComponent;
 
-    TerrainPatchData(f64 radius,
-                         f64 patchWidth) :
-        m_radius(radius),
-        m_patchWidth(patchWidth) {
+    TerrainPatchData(f64 radius, f64 patchWidth) :
+        radius(radius),
+        patchWidth(patchWidth) {
         // Empty
     }
 
-    const f64& getRadius() const { return m_radius; }
-    const f64& getPatchWidth() const { return m_patchWidth; }
-private:
-    f64 m_radius; ///< Radius of the planet in KM
-    f64 m_patchWidth; ///< Width of a patch in KM
+    f64 radius; ///< Radius of the planet in KM
+    f64 patchWidth; ///< Width of a patch in KM
 };
 
 // TODO(Ben): Sorting, Atmosphere, Frustum Culling
@@ -105,7 +100,7 @@ protected:
     TerrainRpcDispatcher* m_dispatcher = nullptr;
     TerrainPatchMesh* m_mesh = nullptr;
 
-    const TerrainPatchData* m_sphericalTerrainData = nullptr; ///< Shared data pointer
+    const TerrainPatchData* m_terrainPatchData = nullptr; ///< Shared data pointer
     TerrainPatch* m_children = nullptr; ///< Pointer to array of 4 children
 };
 

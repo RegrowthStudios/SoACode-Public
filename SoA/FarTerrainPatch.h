@@ -26,7 +26,7 @@ public:
     /// @param gridPosition: Position on the 2d face grid
     /// @param sphericalTerrainData: Shared data
     /// @param width: Width of the patch in KM
-    virtual void init(const f64v2& gridPosition,
+    void init(const f64v2& gridPosition,
               WorldCubeFace cubeFace,
               int lod,
               const TerrainPatchData* sphericalTerrainData,
@@ -35,10 +35,10 @@ public:
 
     /// Updates the patch
     /// @param cameraPos: Position of the camera
-    virtual void update(const f64v3& cameraPos) override;
+    void update(const f64v3& cameraPos) override;
 protected:
     /// Requests a mesh via RPC
-    virtual void requestMesh() override;
+    void requestMesh() override;
 };
 
 #endif // FarTerrainPatch_h__

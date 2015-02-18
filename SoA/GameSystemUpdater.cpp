@@ -85,13 +85,13 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
             f64v3 relPos = spcmp.position - npcmp.position;
             f64 distance = glm::length(spcmp.position - npcmp.position);
             // Check for voxel transition
-            if (distance < stcmp.sphericalTerrainData->getRadius() * LOAD_DIST_MULT) {
+            if (distance < stcmp.sphericalTerrainData->radius * LOAD_DIST_MULT) {
                 inVoxelRange = true;
                 if (!pycmp.voxelPositionComponent) {
                     // We need to transition to a voxel component
                     // Calculate voxel position
                     auto& rotcmp = spaceSystem->m_axisRotationCT.getFromEntity(sit.first);
-                    VoxelPosition3D vGridPos = VoxelSpaceConversions::worldToVoxel(rotcmp.invCurrentOrientation * relPos * VOXELS_PER_KM, stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM);
+                    VoxelPosition3D vGridPos = VoxelSpaceConversions::worldToVoxel(rotcmp.invCurrentOrientation * relPos * VOXELS_PER_KM, stcmp.sphericalTerrainData->radius * VOXELS_PER_KM);
                     std::cout << (int)vGridPos.face << std::endl;
                     // Check for the spherical voxel component
                     vcore::ComponentID svid = spaceSystem->m_sphericalVoxelCT.getComponentID(sit.first);
@@ -113,7 +113,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     }
 
                     f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(vGridPos,
-                        stcmp.sphericalTerrainData->getRadius() * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
+                        stcmp.sphericalTerrainData->radius * 2000.0)) * rotcmp.invCurrentOrientation * spcmp.orientation;
 
                     // We need to transition to the voxels
                     vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, it.first, svid, voxOrientation, vGridPos);
