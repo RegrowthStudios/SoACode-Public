@@ -24,13 +24,12 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
                                              const NamePositionComponent* npComponent,
                                              const AxisRotationComponent* arComponent) {
     if (cmp.patches) {
-        f32m4 rotationMatrix = f32m4(glm::toMat4(arComponent->currentOrientation));
-
         f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
         // Draw spherical patches
         cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
-                                             rotationMatrix, terrainProgram, waterProgram);
+                                             arComponent->currentOrientation,
+                                             terrainProgram, waterProgram);
     }
 
     if (voxelCamera) {
@@ -67,16 +66,16 @@ void SphericalTerrainComponentRenderer::buildFarTerrainShaders() {
     vio::IOManager iom;
     nString vertSource;
     nString fragSource;
-
+    // Build terrain shader
     iom.readFileToString("Shaders/SphericalTerrain/FarTerrain.vert", vertSource);
-    iom.readFileToString("Shaders/SphericalTerrain/FarTerrain.frag", fragSource);
+    iom.readFileToString("Shaders/SphericalTerrain/SphericalTerrain.frag", fragSource);
     m_farTerrainProgram = new vg::GLProgram(true);
     m_farTerrainProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_farTerrainProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farTerrainProgram->setAttributes(sphericalAttribs);
     m_farTerrainProgram->link();
     m_farTerrainProgram->initUniforms();
-
+    // Set constant uniforms
     m_farTerrainProgram->use();
     glUniform1i(m_farTerrainProgram->getUniform("unNormalMap"), 0);
     glUniform1i(m_farTerrainProgram->getUniform("unColorMap"), 1);
@@ -84,15 +83,16 @@ void SphericalTerrainComponentRenderer::buildFarTerrainShaders() {
     glUniform1f(m_farTerrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
     m_farTerrainProgram->unuse();
 
+    // Build water shader
     iom.readFileToString("Shaders/SphericalTerrain/FarWater.vert", vertSource);
-    iom.readFileToString("Shaders/SphericalTerrain/FarWater.frag", fragSource);
+    iom.readFileToString("Shaders/SphericalTerrain/SphericalWater.frag", fragSource);
     m_farWaterProgram = new vg::GLProgram(true);
     m_farWaterProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_farWaterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farWaterProgram->setAttributes(sphericalWaterAttribs);
     m_farWaterProgram->link();
     m_farWaterProgram->initUniforms();
-
+    // Set constant uniforms
     m_farWaterProgram->use();
     glUniform1i(m_farWaterProgram->getUniform("unNormalMap"), 0);
     glUniform1i(m_farWaterProgram->getUniform("unColorMap"), 1);

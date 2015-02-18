@@ -39,11 +39,11 @@ public:
     /// Draws the meshes
     /// @param relativePos: Relative position of the camera
     /// @param Camera: The camera
-    /// @param rot: Rotation matrix
+    /// @param orientation: Orientation quaternion
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
     void drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
-              const f32m4& rot,
+              const f64q& orientation,
               vg::GLProgram* program, vg::GLProgram* waterProgram);
     void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
                        vg::GLProgram* program, vg::GLProgram* waterProgram);

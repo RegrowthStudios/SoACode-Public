@@ -5,6 +5,8 @@
 #include "PlanetLoader.h"
 #include "Camera.h"
 
+#include <glm/gtx/quaternion.hpp>
+
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/TextureRecycler.hpp>
 
@@ -15,26 +17,31 @@
 #include "soaUtils.h"
 
 void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
-                                       const f32m4& rot,
-                                       vg::GLProgram* program, vg::GLProgram* waterProgram) {
+                                       const f64q& orientation, vg::GLProgram* program,
+                                       vg::GLProgram* waterProgram) {
     
     static float dt = 0.0;
     dt += 0.001;
 
-    f64v3 rotpos = f64v3(glm::inverse(rot) * f32v4(relativePos, 1.0f));
-    f64v3 closestPoint;
+    const f64v3 rotpos = glm::inverse(orientation) * relativePos;
+    // Convert f64q to f32q
+    f32q orientationF32;
+    orientationF32.x = (f32)orientation.x;
+    orientationF32.y = (f32)orientation.y;
+    orientationF32.z = (f32)orientation.z;
+    orientationF32.w = (f32)orientation.w;
+    // Convert to matrix
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
 
     if (m_waterMeshes.size()) {
-
-        waterProgram->use();
-        waterProgram->enableVertexAttribArrays();
-
         // Bind textures
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidColorMap.id);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidTexture.id);
-
+        waterProgram->use();
+        waterProgram->enableVertexAttribArrays();
+        // Set uniforms
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
@@ -54,18 +61,15 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
               
             } else {
                 // TODO(Ben): Horizon and frustum culling for water too
-                m->drawWater(relativePos, camera, rot, waterProgram);
+                m->drawWater(relativePos, camera, rotationMatrix, waterProgram);
                 i++;
             }
         }
-
         waterProgram->disableVertexAttribArrays();
         waterProgram->unuse();
-
     }
 
     if (m_meshes.size()) {
-
         // Bind textures
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainColorMap.id);
@@ -93,7 +97,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
                 m_meshes.pop_back();
             } else {
                 /// Use bounding box to find closest point
-                closestPoint = m->getClosestPoint(rotpos);
+                f64v3 closestPoint = m->getClosestPoint(rotpos);
                 
                 // Check horizon culling first, it's more likely to cull spherical patches
                 if (!TerrainPatch::isOverHorizon(rotpos, closestPoint,
@@ -101,10 +105,10 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
                     // Check frustum culling
                     // TODO(Ben): There could be a way to reduce the number of frustum checks
                     // via caching or checking a parent
-                    f32v3 relSpherePos = m->m_aabbCenter - f32v3(rotpos);
+                    f32v3 relSpherePos = orientationF32 * m->m_aabbCenter - f32v3(relativePos);
                     if (camera->sphereInFrustum(relSpherePos,
                         m->m_boundingSphereRadius)) {
-                        m->draw(relativePos, camera, rot, program);
+                        m->draw(relativePos, camera, rotationMatrix, program);
                     }
                 }
                 i++;
@@ -147,19 +151,15 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
 
     glm::mat4 rot(1.0f); // no rotation
 
-    f64v3 closestPoint;
-
     if (m_farWaterMeshes.size()) {
-
-        waterProgram->use();
-        waterProgram->enableVertexAttribArrays();
-
         // Bind textures
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidColorMap.id);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidTexture.id);
-
+        waterProgram->use();
+        waterProgram->enableVertexAttribArrays();
+        // Set uniforms
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
@@ -183,14 +183,11 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
                 i++;
             }
         }
-
         waterProgram->disableVertexAttribArrays();
         waterProgram->unuse();
-
     }
 
     if (m_farMeshes.size()) {
-
         // Bind textures
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainColorMap.id);
@@ -225,7 +222,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
                 f32v3 relSpherePos = m->m_aabbCenter - f32v3(relativePos);
                 if (camera->sphereInFrustum(relSpherePos, m->m_boundingSphereRadius)) {
                     /// Use bounding box to find closest point
-                    closestPoint = m->getClosestPoint(relativePos);
+                    f64v3 closestPoint = m->getClosestPoint(relativePos);
                     if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,
                         m_planetGenData->radius)) {
                         m->draw(relativePos, camera, rot, program);
