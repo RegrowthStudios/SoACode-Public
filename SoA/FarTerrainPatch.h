@@ -36,6 +36,12 @@ public:
     /// Updates the patch
     /// @param cameraPos: Position of the camera
     void update(const f64v3& cameraPos) override;
+
+    /// Checks if the point is over the horizon
+    /// @param relCamPos: Relative observer position
+    /// @param point: The point to check
+    /// @param planetRadius: Radius of the planet
+    static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
 protected:
     /// Requests a mesh via RPC
     void requestMesh() override;

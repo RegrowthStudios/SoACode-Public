@@ -10,6 +10,7 @@
 
 #include "TerrainPatchMesh.h"
 #include "TerrainPatch.h"
+#include "FarTerrainPatch.h"
 #include "PlanetData.h"
 #include "soaUtils.h"
 
@@ -136,7 +137,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
 
     glm::mat4 rot(1.0f); // no rotation
 
-    f32v3 closestPoint;
+    f64v3 closestPoint;
 
     if (m_farWaterMeshes.size()) {
 
@@ -206,15 +207,15 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
                 m_farMeshes.pop_back();
             } else {
                 /// Use bounding box to find closest point
-            //    m_farMeshes[i]->getClosestPoint(rotpos, closestPoint);
-            //    if (!SphericalTerrainPatch::isOverHorizon(rotpos, closestPoint,
-            //        m_planetGenData->radius)) {
-                m_farMeshes[i]->draw(relativePos, camera, rot, program);
-            //    }
+                closestPoint = m_farMeshes[i]->getClosestPoint(relativePos);
+
+                if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,
+                    m_planetGenData->radius)) {
+                    m_farMeshes[i]->draw(relativePos, camera, rot, program);
+                }
                 i++;
             }
         }
-
         program->disableVertexAttribArrays();
         program->unuse();
     }

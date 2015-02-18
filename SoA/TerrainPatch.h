@@ -75,7 +75,6 @@ public:
     /// @param relCamPos: Relative observer position
     /// @param point: The point to check
     /// @param planetRadius: Radius of the planet
-    static bool isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius);
     static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
 
     /// Returns true if the patch can subdivide

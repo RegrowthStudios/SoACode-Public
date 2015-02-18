@@ -97,6 +97,28 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
     }
 }
 
+bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
+    const f64 DELTA = 0.1;
+
+    // Position of point relative to sphere tip
+    f64v3 spherePoint = point - f64v3(relCamPos.x, -planetRadius, relCamPos.z);
+    // We assume the camera is at the tip of the sphere
+    f64v3 sphereCamPos(0, relCamPos.y + planetRadius, 0);
+
+    f64 camHeight = glm::length(sphereCamPos);
+    f64v3 normalizedCamPos = sphereCamPos / camHeight;
+
+    // Limit the camera depth
+    if (camHeight < planetRadius + 1.0) camHeight = planetRadius + 1.0;
+
+    f64 horizonAngle = acos(planetRadius / camHeight);
+    f64 lodAngle = acos(glm::dot(normalizedCamPos, glm::normalize(spherePoint)));
+    if (lodAngle >= horizonAngle + DELTA) {
+        return true;
+    }
+    return false;
+}
+
 void FarTerrainPatch::requestMesh() {
     // Try to generate a mesh
     const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];

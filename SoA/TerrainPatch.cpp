@@ -155,19 +155,6 @@ bool TerrainPatch::isRenderable() const {
     return false;
 }
 
-bool TerrainPatch::isOverHorizon(const f32v3 &relCamPos, const f32v3 &point, f32 planetRadius) {
-    const f32 DELTA = 0.1f;
-    f32 camHeight = glm::length(relCamPos);
-    f32v3 normalizedCamPos = relCamPos / camHeight;
-
-    // Limit the camera depth
-    if (camHeight < planetRadius + 1.0f) camHeight = planetRadius + 1.0f;
-
-    f32 horizonAngle = acos(planetRadius / camHeight);
-    f32 lodAngle = acos(glm::dot(normalizedCamPos, glm::normalize(point)));
-    if (lodAngle >= horizonAngle + DELTA) return true;
-    return false;
-}
 bool TerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
     const f64 DELTA = 0.1;
     f64 camHeight = glm::length(relCamPos);
