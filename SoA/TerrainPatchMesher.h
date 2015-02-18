@@ -103,6 +103,7 @@ private:
     f32v3 m_startPos;
     f32v2 m_coordMults;
     bool m_isSpherical;
+    WorldCubeFace m_cubeFace;
 };
 
 #endif // TerrainPatchMesher_h__

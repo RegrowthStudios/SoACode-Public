@@ -51,15 +51,16 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                                             bool isSpherical) {
 
     m_isSpherical = isSpherical;
+    m_cubeFace = cubeFace;
     // Grab mappings so we can rotate the 2D grid appropriately
     if (m_isSpherical) {
-        m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
+        m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
         m_startPos = startPos;
     } else {
         m_coordMapping = i32v3(0, 1, 2);
         m_startPos = f32v3(startPos.x, 0.0f, startPos.z);
     }
-    m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace]);
+    m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
     
     f32 h;
     f32 angle;
@@ -127,7 +128,11 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                 normal = glm::normalize(v.position);
                 v.position = normal * (m_radius + h);
             } else {
-                normal = glm::normalize(f32v3(v.position.x, m_radius, v.position.z));
+                const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
+                tmpPos[trueMapping.x] = v.position.x;
+                tmpPos[trueMapping.y] = m_radius;
+                tmpPos[trueMapping.z] = v.position.z;
+                normal = glm::normalize(tmpPos);
                 v.position.y += h;
             }
 
@@ -166,9 +171,8 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     mesh->m_aabbCenter = mesh->m_aabbPos + mesh->m_aabbDims * 0.5f;
     // Calculate bounding sphere for culling
     mesh->m_boundingSphereRadius = glm::length(mesh->m_aabbCenter - mesh->m_aabbPos);
-
+    // Build the skirts for crack hiding
     buildSkirts();
-
     // Generate the buffers and upload data
     vg::GpuMemory::createBuffer(mesh->m_vbo);
     vg::GpuMemory::bindBuffer(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER);
@@ -195,7 +199,6 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
     // Finally, add to the mesh manager
     m_meshManager->addMesh(mesh, isSpherical);
-
 
     // TODO: Using a VAO makes it not work??
     //    glBindVertexArray(0);
@@ -321,7 +324,12 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
             normal = glm::normalize(v.position);
             v.position = normal * m_radius;
         } else {
-            normal = glm::normalize(f32v3(v.position.x, m_radius, v.position.z));
+            const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
+            f32v3 tmpPos;
+            tmpPos[trueMapping.x] = v.position.x;
+            tmpPos[trueMapping.y] = m_radius;
+            tmpPos[trueMapping.z] = v.position.z;
+            normal = glm::normalize(tmpPos);
         }
 
         zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
