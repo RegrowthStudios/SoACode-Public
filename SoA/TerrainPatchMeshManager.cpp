@@ -114,7 +114,6 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
                 i++;
             }
         }
-
         program->disableVertexAttribArrays();
         program->unuse();
     }

@@ -168,9 +168,8 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
 
         // If we selected an entity, then do the target picking
         if (closestEntity) {
-            m_selectedPlanet = closestEntity;
-            pickStartLocation(closestEntity);
             targetBody(closestEntity);
+            pickStartLocation(closestEntity);
         }
     } else {
         mouseButtons[1] = true;
@@ -206,6 +205,11 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
 }
 
 void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
+    // Check to see if it even has terrain by checking if it has a generator
+    if (!m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator) return;
+    // Select the planet
+    m_selectedPlanet = eid;
+
     f32v2 ndc = f32v2((m_mouseCoords.x / m_viewport.x) * 2.0f - 1.0f,
         1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
     f32v3 pickRay = m_camera->getPickRay(ndc);
