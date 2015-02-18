@@ -11,6 +11,7 @@
 #include "SphericalTerrainGpuGenerator.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelSpaceConversions.h"
+#include "soaUtils.h"
 
 // TODO(Ben): These constants are fairly arbitrary
 const float DIST_MIN = 3.0f;
@@ -60,21 +61,12 @@ void TerrainPatch::init(const f64v2& gridPosition,
     f64 minZ = INT_MAX, maxZ = INT_MIN;
     for (int i = 0; i < 4; i++) {
         auto& c = corners[i];
-        if (c.x < minX) {
-            minX = c.x;
-        } else if (c.x > maxX) {
-            maxX = c.x;
-        }
-        if (c.y < minY) {
-            minY = c.y;
-        } else if (c.y > maxY) {
-            maxY = c.y;
-        }
-        if (c.z < minZ) {
-            minZ = c.z;
-        } else if (c.z > maxZ) {
-            maxZ = c.z;
-        }
+        if (c.x < minX) minX = c.x;
+        if (c.x > maxX) maxX = c.x;
+        if (c.y < minY) minY = c.y;
+        if (c.y > maxY) maxY = c.y;
+        if (c.z < minZ) minZ = c.z;
+        if (c.z > maxZ) maxZ = c.z;
     }
     // Get world position and bounding box
     m_aabbPos = f32v3(minX, minY, minZ);

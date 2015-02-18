@@ -11,6 +11,7 @@
 #include "TerrainPatchMesh.h"
 #include "TerrainPatch.h"
 #include "PlanetData.h"
+#include "soaUtils.h"
 
 void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
                                        const f32m4& rot,
@@ -94,9 +95,6 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
                 if (!TerrainPatch::isOverHorizon(rotpos, closestPoint,
                     m_planetGenData->radius)) {
                     m_meshes[i]->draw(relativePos, camera, rot, program);
-                } else {
-                    printVec("CP: ", closestPoint);
-                    printVec("PS: ", m_meshes[i]->m_aabbPos);
                 }
                 i++;
             }

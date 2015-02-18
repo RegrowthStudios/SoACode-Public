@@ -7,6 +7,7 @@
 
 #include "Camera.h"
 #include "RenderUtils.h"
+#include "soaUtils.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelSpaceConversions.h"
 

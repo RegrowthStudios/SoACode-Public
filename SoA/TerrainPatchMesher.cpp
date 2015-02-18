@@ -148,27 +148,19 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
             // Check bounding box
-            if (v.position.x < minX) {
-                minX = v.position.x;
-            } else if (v.position.x > maxX) {
-                maxX = v.position.x;
-            }
-            if (v.position.y < minY) {
-                minY = v.position.y;
-            } else if (v.position.y > maxY) {
-                maxY = v.position.y;
-            }
-            if (v.position.z < minZ) {
-                minZ = v.position.z;
-            } else if (v.position.z > maxZ) {
-                maxZ = v.position.z;
-            }
+            // TODO(Ben): Worry about water too!
+            if (v.position.x < minX) minX = v.position.x;
+            if (v.position.x > maxX) maxX = v.position.x;
+            if (v.position.y < minY) minY = v.position.y;
+            if (v.position.y > maxY) maxY = v.position.y;
+            if (v.position.z < minZ) minZ = v.position.z;
+            if (v.position.z > maxZ) maxZ = v.position.z;
 
             m_index++;
         }
     }
 
-    // Get world position and bounding box
+    // Get AABB
     mesh->m_aabbPos = f32v3(minX, minY, minZ);
     mesh->m_aabbDims = f32v3(maxX - minX, maxY - minY, maxZ - minZ);
 

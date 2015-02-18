@@ -49,7 +49,7 @@ private:
 class TerrainPatch {
 public:
     TerrainPatch() { };
-    ~TerrainPatch();
+    virtual ~TerrainPatch();
     
     /// Initializes the patch
     /// @param gridPosition: Position on the 2d face grid
