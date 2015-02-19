@@ -43,13 +43,10 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridDa
         gen.gridData = cgd;
         gen.rpc.data.f = &gen;
 
-        // Get scaled position
-        f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
-
         // Set the data
-        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
-                             planetRadius * KM_PER_VOXEL * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
-                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.y);
+        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
+                             planetRadius * KM_PER_VOXEL,
+                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL);
 
         gen.cubeFace = facePosition.face;
 
@@ -203,13 +200,21 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     m_patchTextures[m_dBufferIndex][patchCounter].use();
     m_patchDelegates[m_dBufferIndex][patchCounter] = data;
 
-    // Get padded position
+   
     f32v3 cornerPos = data->startPos;
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
+    const f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
+
+    // Map to world space
+    cornerPos.x *= coordMults.x;
+    cornerPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)data->cubeFace];
+    cornerPos.z *= coordMults.y;
+
+    // Get padded position
     cornerPos[coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
     cornerPos[coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
 
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
+    
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
@@ -239,11 +244,16 @@ void SphericalTerrainGpuGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawTextures[m_dBufferIndex][rawCounter].use();
     m_rawDelegates[m_dBufferIndex][rawCounter] = data;
 
-    // Get scaled position
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
+    f32v3 cornerPos = data->startPos;
+    const f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
+
+    // Map to world space
+    cornerPos.x *= coordMults.x;
+    cornerPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)data->cubeFace];
+    cornerPos.z *= coordMults.y;
 
     // Send uniforms
-    glUniform3fv(unCornerPos, 1, &data->startPos[0]);
+    glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);

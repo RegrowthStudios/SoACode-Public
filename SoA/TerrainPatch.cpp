@@ -176,12 +176,10 @@ bool TerrainPatch::canSubdivide() const {
 }
 
 void TerrainPatch::requestMesh() {
-    // Try to generate a mesh
-    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
-
-    f32v3 startPos(m_gridPos.x * coordMults.x,
-                   m_terrainPatchData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
-                   m_gridPos.y* coordMults.y);
+   
+    f32v3 startPos(m_gridPos.x,
+                   m_terrainPatchData->radius,
+                   m_gridPos.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               m_width,
                                               m_lod,

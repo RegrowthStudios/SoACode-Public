@@ -99,6 +99,7 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
 
 bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
     const f64 DELTA = 0.1;
+    return false;
 
     // Position of point relative to sphere tip
     f64v3 spherePoint = point - f64v3(relCamPos.x, -planetRadius, relCamPos.z);
@@ -120,12 +121,10 @@ bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, 
 }
 
 void FarTerrainPatch::requestMesh() {
-    // Try to generate a mesh
-    const i32v2& coordMults = VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace];
 
-    f32v3 startPos(m_gridPos.x * coordMults.x,
-                   m_terrainPatchData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace],
-                   m_gridPos.y* coordMults.y);
+    f32v3 startPos(m_gridPos.x,
+                   m_terrainPatchData->radius,
+                   m_gridPos.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
                                               m_width,
                                               m_lod,

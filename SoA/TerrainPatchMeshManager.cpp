@@ -219,7 +219,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
                 // via caching or checking a parent
                 // Check frustum culling first, it's more likely to cull far patches
                 f32v3 relSpherePos = m->m_aabbCenter - f32v3(relativePos);
-                if (camera->sphereInFrustum(relSpherePos, m->m_boundingSphereRadius)) {
+                if (1 || camera->sphereInFrustum(relSpherePos, m->m_boundingSphereRadius)) {
                     /// Use bounding box to find closest point
                     f64v3 closestPoint = m->getClosestPoint(relativePos);
                     if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,

@@ -56,11 +56,13 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     if (m_isSpherical) {
         m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
         m_startPos = startPos;
+        m_startPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
+        m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
     } else {
         m_coordMapping = i32v3(0, 1, 2);
         m_startPos = f32v3(startPos.x, 0.0f, startPos.z);
+        m_coordMults = f32v2(1.0f);
     }
-    m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
     
     f32 h;
     f32 angle;
@@ -87,9 +89,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             auto& v = verts[m_index];
 
             // Set the position based on which face we are on
-            v.position[m_coordMapping.x] = x * m_vertWidth * m_coordMults.x + m_startPos.x;
+            v.position[m_coordMapping.x] = (x * m_vertWidth + m_startPos.x) * m_coordMults.x;
             v.position[m_coordMapping.y] = m_startPos.y;
-            v.position[m_coordMapping.z] = z * m_vertWidth * m_coordMults.y + m_startPos.z;
+            v.position[m_coordMapping.z] = (z * m_vertWidth + m_startPos.z) * m_coordMults.y;
 
             // Set color
             v.color = m_planetGenData->terrainTint;

@@ -83,6 +83,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
     const f64& patchWidth = (cmp.sphericalTerrainData->radius * 2.000) / FT_PATCH_ROW;
     // X shift
     if (newCenter.x > cmp.center.x) { // +X shift
+        std::cout << "+X Shift\n";
         // Shift center
         cmp.center.x++;
         // Destroy and re-init the leftmost column of chunks
@@ -103,6 +104,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
         if (cmp.origin.x >= FT_PATCH_ROW) cmp.origin.x = 0;
         return;
     } else if (newCenter.x < cmp.center.x) { // -X shift
+        std::cout << "-X Shift\n";
         // Shift center
         cmp.center.x--;
         // Destroy and re-init the rightmost column of chunks
@@ -126,6 +128,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
 
     // Z shift
     if (newCenter.y > cmp.center.y) { // +Z shift
+        std::cout << "+Z Shift\n";
         // Shift center
         cmp.center.y++;
         // Destroy and re-init the leftmost column of chunks
@@ -145,6 +148,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
         // Origin is % FT_PATCH_ROW
         if (cmp.origin.y >= FT_PATCH_ROW) cmp.origin.y = 0;
     } else if (newCenter.y < cmp.center.y) { // -Z shift
+        std::cout << "-Z Shift\n";
         // Shift center
         cmp.center.y--;
         // Destroy and re-init the rightmost column of chunks
