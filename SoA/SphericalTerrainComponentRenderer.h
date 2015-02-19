@@ -37,6 +37,7 @@ public:
               const Camera* voxelCamera,
               vg::GLProgram* terrainProgram,
               vg::GLProgram* waterProgram,
+              const f32v3& lightDir,
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
 

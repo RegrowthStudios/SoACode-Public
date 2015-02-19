@@ -99,7 +99,6 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
 
 bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius) {
     const f64 DELTA = 0.1;
-    return false;
 
     // Position of point relative to sphere tip
     f64v3 spherePoint = point - f64v3(relCamPos.x, -planetRadius, relCamPos.z);

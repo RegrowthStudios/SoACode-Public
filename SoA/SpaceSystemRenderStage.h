@@ -59,6 +59,12 @@ private:
     /// @param colorProgram: glProgram for basic color
     void drawPaths();
 
+    /// Gets light source relative to a component
+    /// @param cmp: Spherical terrain component to query for
+    /// @return world space position of nearest star
+    f64v3 getBrightestLightPos(SphericalTerrainComponent& cmp);
+
+    /// Renders the HUD
     void drawHud();
 
     SpriteBatch* m_spriteBatch = nullptr;

@@ -197,7 +197,7 @@ void SpaceSystemAssemblages::removeSphericalVoxelComponent(OUT SpaceSystem* spac
 vcore::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                   const f64q& axisOrientation, f64 startAngle,
                                                                   f64 angularSpeed) {
-    vcore::ComponentID arCmpId = spaceSystem->addComponent("AxisRotation", entity);
+    vcore::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
     arCmp.axisOrientation = axisOrientation;
     arCmp.currentRotation = startAngle;
@@ -206,7 +206,7 @@ vcore::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(OUT SpaceSys
 }
 
 void SpaceSystemAssemblages::removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("AxisRotation", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
@@ -215,7 +215,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
                                                                       PlanetGenData* planetGenData,
                                                                       vg::GLProgram* normalProgram,
                                                                       vg::TextureRecycler* normalMapRecycler) {
-    vcore::ComponentID stCmpId = spaceSystem->addComponent("SphericalTerrain", entity);
+    vcore::ComponentID stCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
     auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(stCmpId);
     
     stCmp.namePositionComponent = npComp;
@@ -245,14 +245,14 @@ void SpaceSystemAssemblages::removeSphericalTerrainComponent(OUT SpaceSystem* sp
     delete stcmp.cpuGenerator;
     delete stcmp.rpcDispatcher;
     delete stcmp.sphericalTerrainData;
-    spaceSystem->deleteComponent("SphericalTerrain", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
 }
 
 /// Spherical terrain component
 vcore::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                   SphericalTerrainComponent& parentCmp,
                                                                   WorldCubeFace face) {
-    vcore::ComponentID ftCmpId = spaceSystem->addComponent("FarTerrain", entity);
+    vcore::ComponentID ftCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_FARTERRAIN_NAME, entity);
     auto& ftCmp = spaceSystem->m_farTerrainCT.get(ftCmpId);
 
     ftCmp.planetGenData = parentCmp.planetGenData;
@@ -273,12 +273,12 @@ void SpaceSystemAssemblages::removeFarTerrainComponent(OUT SpaceSystem* spaceSys
     if (ftcmp.patches) delete[] ftcmp.patches;
     ftcmp.patches = nullptr;
     ftcmp.gpuGenerator = nullptr;
-    spaceSystem->deleteComponent("FarTerrain", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_FARTERRAIN_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                       f64 radius, f64 mass) {
-    vcore::ComponentID sgCmpId = spaceSystem->addComponent("SphericalGravity", entity);
+    vcore::ComponentID sgCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, entity);
     auto& sgCmp = spaceSystem->m_sphericalGravityCT.get(sgCmpId);
     sgCmp.radius = radius;
     sgCmp.mass = mass;
@@ -286,12 +286,12 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalGravityComponent(OUT Spac
 }
 
 void SpaceSystemAssemblages::removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("SphericalGravity", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                   const nString& name, const f64v3& position) {
-    vcore::ComponentID npCmpId = spaceSystem->addComponent("NamePosition", entity);
+    vcore::ComponentID npCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, entity);
     auto& npCmp = spaceSystem->m_namePositionCT.get(npCmpId);
     npCmp.name = name;
     npCmp.position = position;
@@ -299,13 +299,13 @@ vcore::ComponentID SpaceSystemAssemblages::addNamePositionComponent(OUT SpaceSys
 }
 
 void SpaceSystemAssemblages::removeNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("NamePosition", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                            f64 eccentricity, f64 orbitalPeriod,
                                                            const ui8v4& pathColor, const f64q& orientation) {
-    vcore::ComponentID oCmpId = spaceSystem->addComponent("Orbit", entity);
+    vcore::ComponentID oCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
     auto& oCmp = spaceSystem->m_orbitCT.get(oCmpId);
     oCmp.eccentricity = eccentricity;
     oCmp.orbitalPeriod = orbitalPeriod;
@@ -315,5 +315,14 @@ vcore::ComponentID SpaceSystemAssemblages::addOrbitComponent(OUT SpaceSystem* sp
 }
 
 void SpaceSystemAssemblages::removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("Orbit", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
+}
+
+vcore::ComponentID SpaceSystemAssemblages::addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity, vcore::ComponentID npComp, color3 color, f32 intensity) {
+    vcore::ComponentID slCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPACELIGHT_NAME, entity);
+    auto& slCmp = spaceSystem
+}
+
+void SpaceSystemAssemblages::removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPACELIGHT_NAME, entity);
 }

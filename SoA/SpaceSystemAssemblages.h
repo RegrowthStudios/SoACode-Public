@@ -112,6 +112,11 @@ namespace SpaceSystemAssemblages {
                                                 f64 eccentricity, f64 orbitalPeriod,
                                                 const ui8v4& pathColor, const f64q& orientation);
     extern void removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Space Light Component
+    extern vcore::ComponentID addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                     vcore::ComponentID npComp, color3 color, f32 intensity);
+    extern void removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
 #endif // SpaceSystemAssemblages_h__

@@ -51,6 +51,12 @@ struct NamePositionComponent {
     nString name; ///< Name of the entity
 };
 
+struct SpaceLightComonent {
+    vcore::ComponentID parentNpId; ///< Component ID of parent NamePosition component
+    color3 color; ///< Color of the light
+    f32 intensity; ///< Intensity of the light
+};
+
 struct OrbitComponent {
     f64 semiMajor = 0.0; ///< Semi-major of the ellipse
     f64 semiMinor = 0.0; ///< Semi-minor of the ellipse

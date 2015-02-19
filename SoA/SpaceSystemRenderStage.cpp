@@ -119,6 +119,10 @@ void SpaceSystemRenderStage::drawPaths() {
     glDepthMask(GL_TRUE);
 }
 
+f64v3 SpaceSystemRenderStage::getBrightestLightPos(SphericalTerrainComponent& cmp) {
+    
+}
+
 
 void SpaceSystemRenderStage::drawHud() {
 

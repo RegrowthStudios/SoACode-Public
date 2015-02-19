@@ -15,6 +15,7 @@ SpaceSystem::SpaceSystem() : vcore::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_FARTERRAIN_NAME, &m_farTerrainCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, &m_sphericalGravityCT);
     addComponentTable(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, &m_sphericalVoxelCT);
+    addComponentTable(SPACE_SYSTEM_CT_SPACELIGHT_NAME, &m_spaceLightCT);
    
     #define MAX_NORMAL_MAPS 512U
     normalMapRecycler = std::make_unique<vg::TextureRecycler>((ui32)PATCH_NORMALMAP_WIDTH,
