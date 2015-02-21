@@ -108,18 +108,15 @@ void TerrainPatch::update(const f64v3& cameraPos) {
             }
         }
     } else if (canSubdivide()) {
-        // Check if we are over horizon. If we are, don't divide.
-        if (!isOverHorizon(cameraPos, closestPoint, m_terrainPatchData->radius)) {
-            m_children = new TerrainPatch[4];
-            // Segment into 4 children
-            for (int z = 0; z < 2; z++) {
-                for (int x = 0; x < 2; x++) {
-                    m_children[(z << 1) + x].init(m_gridPos + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
-                                                  m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0,
-                                                  m_dispatcher);
-                }
+        m_children = new TerrainPatch[4];
+        // Segment into 4 children
+        for (int z = 0; z < 2; z++) {
+            for (int x = 0; x < 2; x++) {
+                m_children[(z << 1) + x].init(m_gridPos + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
+                                                m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0,
+                                                m_dispatcher);
             }
-        }
+        } 
     } else if (!m_mesh) {
         requestMesh();
     }

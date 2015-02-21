@@ -132,7 +132,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             } else {
                 const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
                 tmpPos[trueMapping.x] = v.position.x;
-                tmpPos[trueMapping.y] = m_startPos.y;
+                tmpPos[trueMapping.y] = m_radius * (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
                 tmpPos[trueMapping.z] = v.position.z;
                 normal = glm::normalize(tmpPos);
                 v.position.y += h;
@@ -329,7 +329,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
             const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
             f32v3 tmpPos;
             tmpPos[trueMapping.x] = v.position.x;
-            tmpPos[trueMapping.y] = m_startPos.y;
+            tmpPos[trueMapping.y] = m_radius * (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
             tmpPos[trueMapping.z] = v.position.z;
             normal = glm::normalize(tmpPos);
         }

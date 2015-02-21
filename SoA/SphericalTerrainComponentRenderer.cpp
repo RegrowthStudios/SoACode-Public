@@ -7,9 +7,11 @@
 #include "TerrainPatchMeshManager.h"
 #include "TerrainPatch.h"
 
+#include <glm/gtx/quaternion.hpp>
+
 #include <Vorb/io/IOManager.h>
 #include <Vorb/graphics/GLProgram.h>
-#include <glm/gtx/quaternion.hpp>
+#include <Vorb/utils.h>
 
 SphericalTerrainComponentRenderer::~SphericalTerrainComponentRenderer() {
     if (m_farTerrainProgram) {
@@ -25,16 +27,24 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
                                              const SpaceLightComponent* spComponent,
                                              const NamePositionComponent* npComponent,
                                              const AxisRotationComponent* arComponent) {
-    if (cmp.patches) {
-        f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
 
+    f32v3 lightDir = f32v3(glm::normalize(lightPos - npComponent->position));
+    f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
+    if (cmp.patches) {
+        
         // Draw spherical patches
         cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
                                              arComponent->currentOrientation,
-                                             terrainProgram, waterProgram);
+                                             terrainProgram, waterProgram,
+                                             lightDir);
     }
 
     if (voxelCamera) {
+        const f32v3 up(0.0f, 1.0f, 0.0f);
+        const f32v3 normalizedPos = f32v3(glm::normalize(arComponent->currentOrientation * relativeCameraPos));
+        // Calculate relative light position
+        // TODO(Ben): Worry if they are exactly the same
+        lightDir = f32v3(glm::inverse(arComponent->currentOrientation) * f64v3(lightDir));
         // Lazy shader init
         if (!m_farTerrainProgram) {
             buildFarTerrainShaders();
@@ -43,7 +53,8 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
         f64v3 relativeCameraPos = voxelCamera->getPosition() * KM_PER_VOXEL;
         // Draw far patches
         cmp.meshManager->drawFarMeshes(relativeCameraPos, voxelCamera,
-                                       m_farTerrainProgram, m_farWaterProgram);
+                                       m_farTerrainProgram, m_farWaterProgram,
+                                       lightDir);
     }
 }
 

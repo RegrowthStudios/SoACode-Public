@@ -42,11 +42,14 @@ public:
     /// @param orientation: Orientation quaternion
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
+    /// @param lightDir: Normalized direction to light source
     void drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
               const f64q& orientation,
-              vg::GLProgram* program, vg::GLProgram* waterProgram);
+              vg::GLProgram* program, vg::GLProgram* waterProgram,
+              const f32v3& lightDir);
     void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
-                       vg::GLProgram* program, vg::GLProgram* waterProgram);
+                       vg::GLProgram* program, vg::GLProgram* waterProgram,
+                       const f32v3& lightDir);
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add

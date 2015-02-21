@@ -302,7 +302,7 @@ void GamePlayScreen::updateThreadFunc() {
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
         GameManager::soundEngine->update();
 
-        m_soaState->time += 0.00000000001;
+        m_soaState->time += 0.00001;
         auto& npcmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
 
         m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState,
