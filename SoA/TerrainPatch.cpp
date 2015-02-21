@@ -79,6 +79,7 @@ void TerrainPatch::update(const f64v3& cameraPos) {
     f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
     
     if (m_children) {
+        // Check for out of range
         if (m_distance > m_width * DIST_MAX) {
             if (!m_mesh) {
                 requestMesh();

@@ -132,7 +132,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             } else {
                 const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
                 tmpPos[trueMapping.x] = v.position.x;
-                tmpPos[trueMapping.y] = m_radius;
+                tmpPos[trueMapping.y] = m_startPos.y;
                 tmpPos[trueMapping.z] = v.position.z;
                 normal = glm::normalize(tmpPos);
                 v.position.y += h;
@@ -312,9 +312,9 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
         waterIndexGrid[z][x] = m_waterIndex + 1;
         auto& v = waterVerts[m_waterIndex];
         // Set the position based on which face we are on
-        v.position[m_coordMapping.x] = x * mvw * m_coordMults.x + m_startPos.x;
+        v.position[m_coordMapping.x] = (x * mvw + m_startPos.x) * m_coordMults.x;
         v.position[m_coordMapping.y] = m_startPos.y;
-        v.position[m_coordMapping.z] = z * mvw * m_coordMults.y + m_startPos.z;
+        v.position[m_coordMapping.z] = (z * mvw + m_startPos.z) * m_coordMults.y;
 
         // Set texture coordinates
         v.texCoords.x = v.position[m_coordMapping.x] * UV_SCALE;
@@ -329,7 +329,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
             const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
             f32v3 tmpPos;
             tmpPos[trueMapping.x] = v.position.x;
-            tmpPos[trueMapping.y] = m_radius;
+            tmpPos[trueMapping.y] = m_startPos.y;
             tmpPos[trueMapping.z] = v.position.z;
             normal = glm::normalize(tmpPos);
         }

@@ -200,7 +200,6 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     m_patchTextures[m_dBufferIndex][patchCounter].use();
     m_patchDelegates[m_dBufferIndex][patchCounter] = data;
 
-   
     f32v3 cornerPos = data->startPos;
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     const f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
@@ -213,8 +212,6 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     // Get padded position
     cornerPos[coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
     cornerPos[coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
-
-    
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
