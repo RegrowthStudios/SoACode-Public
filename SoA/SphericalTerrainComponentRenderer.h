@@ -15,9 +15,10 @@
 #ifndef SphericalTerrainComponentRenderer_h__
 #define SphericalTerrainComponentRenderer_h__
 
-struct SphericalTerrainComponent;
-struct NamePositionComponent;
 struct AxisRotationComponent;
+struct NamePositionComponent;
+struct SpaceLightComponent;
+struct SphericalTerrainComponent;
 class Camera;
 
 namespace vorb {
@@ -37,7 +38,8 @@ public:
               const Camera* voxelCamera,
               vg::GLProgram* terrainProgram,
               vg::GLProgram* waterProgram,
-              const f32v3& lightDir,
+              const f64v3& lightPos,
+              const SpaceLightComponent* spComponent,
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
 

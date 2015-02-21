@@ -51,7 +51,7 @@ struct NamePositionComponent {
     nString name; ///< Name of the entity
 };
 
-struct SpaceLightComonent {
+struct SpaceLightComponent {
     vcore::ComponentID parentNpId; ///< Component ID of parent NamePosition component
     color3 color; ///< Color of the light
     f32 intensity; ///< Intensity of the light

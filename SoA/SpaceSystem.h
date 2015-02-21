@@ -63,7 +63,7 @@ public:
     vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
     vcore::ComponentTable<FarTerrainComponent> m_farTerrainCT;
-    vcore::ComponentTable<SpaceLightComonent> m_spaceLightCT;
+    vcore::ComponentTable<SpaceLightComponent> m_spaceLightCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
 
     nString systemDescription; ///< textual description of the system

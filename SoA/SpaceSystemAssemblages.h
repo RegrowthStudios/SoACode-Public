@@ -115,7 +115,7 @@ namespace SpaceSystemAssemblages {
 
     /// Space Light Component
     extern vcore::ComponentID addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                     vcore::ComponentID npComp, color3 color, f32 intensity);
+                                                     vcore::ComponentID npCmp, color3 color, f32 intensity);
     extern void removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 

@@ -318,9 +318,13 @@ void SpaceSystemAssemblages::removeOrbitComponent(OUT SpaceSystem* spaceSystem, 
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
 }
 
-vcore::ComponentID SpaceSystemAssemblages::addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity, vcore::ComponentID npComp, color3 color, f32 intensity) {
+vcore::ComponentID SpaceSystemAssemblages::addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity, vcore::ComponentID npCmp, color3 color, f32 intensity) {
     vcore::ComponentID slCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPACELIGHT_NAME, entity);
-    auto& slCmp = spaceSystem
+    auto& slCmp = spaceSystem->m_spaceLightCT.get(slCmpId);
+    slCmp.color = color;
+    slCmp.intensity = intensity;
+    slCmp.parentNpId = npCmp;
+    return slCmpId;
 }
 
 void SpaceSystemAssemblages::removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {

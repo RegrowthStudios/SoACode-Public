@@ -72,14 +72,22 @@ void SpaceSystemRenderStage::drawBodies() {
     glUniform1i(m_waterProgram->getUniform("unNormalMap"), 0);
     glUniform1i(m_waterProgram->getUniform("unColorMap"), 1);
     m_waterProgram->unuse();
+
+
+    f64v3 lightPos;
+
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
 
+        SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
+
         m_sphericalTerrainComponentRenderer.draw(cmp, m_camera,
                                                  m_voxelCamera,
-                 m_terrainProgram, m_waterProgram,
-                 &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
-                 &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
+                                                 m_terrainProgram, m_waterProgram,
+                                                 lightPos,
+                                                 lightCmp,
+                                                 &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
+                                                 &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
     }
 
     DepthState::FULL.set();
@@ -119,8 +127,19 @@ void SpaceSystemRenderStage::drawPaths() {
     glDepthMask(GL_TRUE);
 }
 
-f64v3 SpaceSystemRenderStage::getBrightestLightPos(SphericalTerrainComponent& cmp) {
-    
+SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos) {
+    SpaceLightComponent* rv = nullptr;
+    f64 closestDist = 9999999999999999.0;
+    for (auto& it : m_spaceSystem->m_spaceLightCT) {
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(it.second.parentNpId);
+        // TODO(Ben): Optimize out sqrt
+        f64 dist = glm::length(npCmp.position - m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent).position);
+        if (dist < closestDist) {
+            closestDist = dist;
+            rv = &it.second;
+        }
+    }
+    return rv;
 }
 
 
