@@ -24,7 +24,7 @@
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
-class GameSystem;
+class SoaState;
 class SpaceSystem;
 struct VoxelPositionComponent;
 class SoaState;
@@ -32,7 +32,7 @@ DECL_VVOX(class VoxelPlanetMapData);
 
 class GameSystemUpdater {
 public:
-    GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager);
+    GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager);
     ~GameSystemUpdater();
     /// Updates the game system, and also updates voxel components for space system
     /// planet transitions.
@@ -77,6 +77,7 @@ private:
     FreeMoveComponentUpdater m_freeMoveUpdater;
     FrustumComponentUpdater m_frustumUpdater;
 
+    const SoaState* m_soaState = nullptr;
     InputManager* m_inputManager = nullptr;
 };
 

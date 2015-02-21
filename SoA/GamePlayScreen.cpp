@@ -43,8 +43,7 @@ GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScr
     IAppScreen<App>(app),
     m_mainMenuScreen(mainMenuScreen),
     m_updateThread(nullptr),
-    m_threadRunning(false), 
-    m_inFocus(true),
+    m_threadRunning(false),
     controller(app) {
     // Empty
 }
@@ -81,7 +80,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     controller.startGame(m_soaState);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
-    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState->gameSystem.get(), m_inputManager);
+    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputManager);
 
     // Initialize the PDA
     m_pda.init(this, m_soaState->glProgramManager.get());
@@ -172,7 +171,7 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
 void GamePlayScreen::unPause() { 
     m_pauseMenu.close(); 
     SDL_SetRelativeMouseMode(SDL_TRUE);
-    m_inFocus = true;
+    m_soaState->isInputEnabled = true;
 }
 
 i32 GamePlayScreen::getWindowWidth() const {
@@ -190,7 +189,7 @@ void GamePlayScreen::initInput() {
 
     m_inputManager->subscribeFunctor(INPUT_PAUSE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        m_inFocus = false;
+        m_soaState->isInputEnabled = false;
     });
     m_inputManager->subscribeFunctor(INPUT_GRID, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.toggleChunkGrid();
@@ -199,12 +198,12 @@ void GamePlayScreen::initInput() {
         if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
-            m_inFocus = true;
+            m_soaState->isInputEnabled = true;
             SDL_StartTextInput();
         } else {
             m_pda.open();
             SDL_SetRelativeMouseMode(SDL_FALSE);
-            m_inFocus = false;
+            m_soaState->isInputEnabled = false;
             SDL_StopTextInput();
         }
     });
@@ -225,7 +224,7 @@ void GamePlayScreen::initInput() {
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
-            m_inFocus = true;
+            m_soaState->isInputEnabled = true;
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
@@ -234,11 +233,11 @@ void GamePlayScreen::initInput() {
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const vui::MouseEvent& e) {
-        m_inFocus = true;
+        m_soaState->isInputEnabled = true;
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        m_inFocus = false;
+        m_soaState->isInputEnabled = false;
     });
 
     m_inputManager->startInput();

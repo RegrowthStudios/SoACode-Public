@@ -16,10 +16,14 @@
 #include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
 
-GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager) :
+GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager) :
+    m_soaState(soaState),
     m_inputManager(inputManager) {
+
+    GameSystem* gameSystem = soaState->gameSystem.get();
     // Forward event
     addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryMoveForward = true;
         }
@@ -31,6 +35,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Left event
     addEvent(INPUT_LEFT, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryMoveLeft = true;
         }
@@ -42,6 +47,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Right event
     addEvent(INPUT_RIGHT, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryMoveRight = true;
         }
@@ -53,6 +59,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Backward event
     addEvent(INPUT_BACKWARD, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryMoveBackward = true;
         }
@@ -64,6 +71,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Jump event
     addEvent(INPUT_JUMP, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryMoveUp = true;
         }
@@ -75,6 +83,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Crouch event
     addEvent(INPUT_CROUCH, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryMoveDown = true;
         }
@@ -86,6 +95,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Left roll event
     addEvent(INPUT_LEFT_ROLL, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryRollLeft = true;
         }
@@ -97,6 +107,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Right roll event
     addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.tryRollRight = true;
         }
@@ -108,6 +119,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
     // Mega speed event
     addEvent(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             it.second.superSpeed = true;
         }
@@ -119,6 +131,7 @@ GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* i
     });
 
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
+        if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             FreeMoveComponentUpdater::rotateFromMouse(gameSystem, it.second, -e.dx, e.dy, 0.1f);
         }

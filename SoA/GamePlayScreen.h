@@ -122,8 +122,6 @@ private:
 
     PauseMenu m_pauseMenu; ///< The Pause Menu
 
-    bool m_inFocus; ///< true when the window is in focus
-
     SoaController controller;
     std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
     std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
