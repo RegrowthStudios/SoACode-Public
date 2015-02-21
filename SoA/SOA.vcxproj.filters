@@ -623,9 +623,6 @@
     <ClInclude Include="SpaceSystemLoadStructs.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystemEvents.hpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="GameSystemAssemblages.h">
       <Filter>SOA Files\ECS\Assemblages</Filter>
     </ClInclude>

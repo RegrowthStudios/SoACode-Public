@@ -18,13 +18,13 @@
 #include "CollisionComponentUpdater.h"
 #include "FreeMoveComponentUpdater.h"
 #include "FrustumComponentUpdater.h"
+#include "InputManager.h"
 #include "PhysicsComponentUpdater.h"
 #include "VoxelCoordinateSpaces.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
 class GameSystem;
-class InputManager;
 class SpaceSystem;
 struct VoxelPositionComponent;
 class SoaState;
@@ -33,6 +33,7 @@ DECL_VVOX(class VoxelPlanetMapData);
 class GameSystemUpdater {
 public:
     GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager);
+    ~GameSystemUpdater();
     /// Updates the game system, and also updates voxel components for space system
     /// planet transitions.
     /// @param gameSystem: Game ECS
@@ -44,34 +45,39 @@ public:
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
     static void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
 private:
+    /// Struct that holds event info for destruction
+    struct EventData {
+        EventData(i32 aid, InputManager::EventType etype, IDelegate<ui32>* F) :
+            axisID(aid), eventType(etype), f(F) {
+            // Empty
+        }
+        i32 axisID;
+        InputManager::EventType eventType;
+        IDelegate<ui32>* f;
+    };
+    /// Adds an event and tracks it for destruction
+    /// @param axisID: The axis to subscribe the functor to.
+    /// @param eventType: The event to subscribe the functor to.
+    /// @param f: The functor to subscribe to the axes' event.
+    template<typename F>
+    void addEvent(i32 axisID, InputManager::EventType eventType, F f) {
+        IDelegate<ui32>* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
+        if (rv) m_events.emplace_back(axisID, eventType, rv);
+    }
+
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 
     /// Delegates
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    IDelegate<ui32>* m_onForwardKeyDown = nullptr;
-    IDelegate<ui32>* m_onForwardKeyUp = nullptr;
-    IDelegate<ui32>* m_onRightKeyDown = nullptr;
-    IDelegate<ui32>* m_onRightKeyUp = nullptr;
-    IDelegate<ui32>* m_onLeftKeyDown = nullptr;
-    IDelegate<ui32>* m_onLeftKeyUp = nullptr;
-    IDelegate<ui32>* m_onBackwardKeyDown = nullptr;
-    IDelegate<ui32>* m_onBackwardKeyUp = nullptr;
-    IDelegate<ui32>* m_onLeftRollKeyDown = nullptr;
-    IDelegate<ui32>* m_onLeftRollKeyUp = nullptr;
-    IDelegate<ui32>* m_onRightRollKeyDown = nullptr;
-    IDelegate<ui32>* m_onRightRollKeyUp = nullptr;
-    IDelegate<ui32>* m_onUpKeyDown = nullptr;
-    IDelegate<ui32>* m_onUpKeyUp = nullptr;
-    IDelegate<ui32>* m_onDownKeyDown = nullptr;
-    IDelegate<ui32>* m_onDownKeyUp = nullptr;
-    IDelegate<ui32>* m_onSuperSpeedKeyDown = nullptr;
-    IDelegate<ui32>* m_onSuperSpeedKeyUp = nullptr;
+    std::vector<EventData> m_events;
 
     /// Updaters
     PhysicsComponentUpdater m_physicsUpdater;
     CollisionComponentUpdater m_collisionUpdater;
     FreeMoveComponentUpdater m_freeMoveUpdater;
     FrustumComponentUpdater m_frustumUpdater;
+
+    InputManager* m_inputManager = nullptr;
 };
 
 #endif // GameSystemUpdater_h__

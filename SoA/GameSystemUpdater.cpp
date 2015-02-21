@@ -4,8 +4,6 @@
 #include "FreeMoveComponentUpdater.h"
 #include "GameSystem.h"
 #include "GameSystemAssemblages.h"
-#include "GameSystemEvents.hpp"
-#include "InputManager.h"
 #include "Inputs.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
@@ -18,36 +16,119 @@
 #include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
 
-GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager) {
-
-    // Hook up wasd events
-    m_onForwardKeyDown = inputManager->subscribe(INPUT_FORWARD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnForwardKeyDown(gameSystem));
-    m_onForwardKeyUp = inputManager->subscribe(INPUT_FORWARD, InputManager::EventType::UP, (IDelegate<ui32>*)new OnForwardKeyUp(gameSystem));
-    m_onLeftKeyDown = inputManager->subscribe(INPUT_LEFT, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnLeftKeyDown(gameSystem));
-    m_onLeftKeyUp = inputManager->subscribe(INPUT_LEFT, InputManager::EventType::UP, (IDelegate<ui32>*)new OnLeftKeyUp(gameSystem));
-    m_onRightKeyDown = inputManager->subscribe(INPUT_RIGHT, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnRightKeyDown(gameSystem));
-    m_onRightKeyUp = inputManager->subscribe(INPUT_RIGHT, InputManager::EventType::UP, (IDelegate<ui32>*)new OnRightKeyUp(gameSystem));
-    m_onBackwardKeyDown = inputManager->subscribe(INPUT_BACKWARD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnBackwardKeyDown(gameSystem));
-    m_onBackwardKeyUp = inputManager->subscribe(INPUT_BACKWARD, InputManager::EventType::UP, (IDelegate<ui32>*)new OnBackwardKeyUp(gameSystem));
-   
-    m_onUpKeyDown = inputManager->subscribe(INPUT_JUMP, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnUpKeyDown(gameSystem));
-    m_onUpKeyUp = inputManager->subscribe(INPUT_JUMP, InputManager::EventType::UP, (IDelegate<ui32>*)new OnUpKeyUp(gameSystem));
-    m_onDownKeyDown = inputManager->subscribe(INPUT_CROUCH, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnDownKeyDown(gameSystem));
-    m_onDownKeyUp = inputManager->subscribe(INPUT_CROUCH, InputManager::EventType::UP, (IDelegate<ui32>*)new OnDownKeyUp(gameSystem));
-
-    m_onLeftRollKeyDown = inputManager->subscribe(INPUT_LEFT_ROLL, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnLeftRollKeyDown(gameSystem));
-    m_onLeftRollKeyUp = inputManager->subscribe(INPUT_LEFT_ROLL, InputManager::EventType::UP, (IDelegate<ui32>*)new OnLeftRollKeyUp(gameSystem));
-    m_onRightRollKeyDown = inputManager->subscribe(INPUT_RIGHT_ROLL, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnRightRollKeyDown(gameSystem));
-    m_onRightRollKeyUp = inputManager->subscribe(INPUT_RIGHT_ROLL, InputManager::EventType::UP, (IDelegate<ui32>*)new OnRightRollKeyUp(gameSystem));
-
-    m_onSuperSpeedKeyDown = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnSuperSpeedKeyDown(gameSystem));
-    m_onSuperSpeedKeyUp = inputManager->subscribe(INPUT_MEGA_SPEED, InputManager::EventType::UP, (IDelegate<ui32>*)new OnSuperSpeedKeyUp(gameSystem));
+GameSystemUpdater::GameSystemUpdater(OUT GameSystem* gameSystem, InputManager* inputManager) :
+    m_inputManager(inputManager) {
+    // Forward event
+    addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveForward = true;
+        }
+    });
+    addEvent(INPUT_FORWARD, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveForward = false;
+        }
+    });
+    // Left event
+    addEvent(INPUT_LEFT, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveLeft = true;
+        }
+    });
+    addEvent(INPUT_LEFT, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveLeft = false;
+        }
+    });
+    // Right event
+    addEvent(INPUT_RIGHT, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveRight = true;
+        }
+    });
+    addEvent(INPUT_RIGHT, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveRight = false;
+        }
+    });
+    // Backward event
+    addEvent(INPUT_BACKWARD, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveBackward = true;
+        }
+    });
+    addEvent(INPUT_BACKWARD, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveBackward = false;
+        }
+    });
+    // Jump event
+    addEvent(INPUT_JUMP, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveUp = true;
+        }
+    });
+    addEvent(INPUT_JUMP, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveUp = false;
+        }
+    });
+    // Crouch event
+    addEvent(INPUT_CROUCH, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveDown = true;
+        }
+    });
+    addEvent(INPUT_CROUCH, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryMoveDown = false;
+        }
+    });
+    // Left roll event
+    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryRollLeft = true;
+        }
+    });
+    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryRollLeft = false;
+        }
+    });
+    // Right roll event
+    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryRollRight = true;
+        }
+    });
+    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.tryRollRight = false;
+        }
+    });
+    // Mega speed event
+    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.superSpeed = true;
+        }
+    });
+    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
+        for (auto& it : gameSystem->freeMoveInput) {
+            it.second.superSpeed = false;
+        }
+    });
 
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
         for (auto& it : gameSystem->freeMoveInput) {
             FreeMoveComponentUpdater::rotateFromMouse(gameSystem, it.second, -e.dx, e.dy, 0.1f);
         }
     });
+}
+
+GameSystemUpdater::~GameSystemUpdater() {
+    for (auto& evnt : m_events) {
+        m_inputManager->unsubscribe(evnt.axisID, evnt.eventType, evnt.f);
+    }
 }
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {

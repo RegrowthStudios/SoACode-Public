@@ -299,7 +299,6 @@ EXIT 0</Command>
     <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GameSystem.h" />
     <ClInclude Include="GameSystemComponents.h" />
-    <ClInclude Include="GameSystemEvents.hpp" />
     <ClInclude Include="GameSystemAssemblages.h" />
     <ClInclude Include="GameSystemUpdater.h" />
     <ClInclude Include="HardCodedIDs.h" />
