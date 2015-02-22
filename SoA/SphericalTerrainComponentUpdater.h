@@ -16,6 +16,7 @@
 #define SphericalTerrainComponentUpdater_h__
 
 class SpaceSystem;
+class SoaState;
 struct SphericalTerrainComponent;
 
 #include "TerrainPatch.h"
@@ -32,7 +33,7 @@ const int ST_TOTAL_PATCHES = ST_PATCHES_PER_FACE * NUM_FACES;
 
 class SphericalTerrainComponentUpdater {
 public:
-    void update(SpaceSystem* spaceSystem, const f64v3& cameraPos);
+    void update(const SoaState* state, const f64v3& cameraPos);
 
     /// Updates openGL specific stuff. Call on render thread
     void glUpdate(SpaceSystem* spaceSystem);

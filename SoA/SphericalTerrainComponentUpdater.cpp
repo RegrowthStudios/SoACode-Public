@@ -1,16 +1,20 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponentUpdater.h"
 
+#include "SoaState.h"
 #include "SpaceSystem.h"
+#include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "SphericalTerrainCpuGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 #include "VoxelCoordinateSpaces.h"
 
-void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
+void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3& cameraPos) {
+
+    SpaceSystem* spaceSystem = state->spaceSystem.get();
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
       
-        SphericalTerrainComponent& cmp = it.second;
+        SphericalTerrainComponent& stCmp = it.second;
         const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.getFromEntity(it.first);
         const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
         /// Calculate camera distance
@@ -22,19 +26,44 @@ void SphericalTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f6
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed
-            if (!cmp.patches) {
-                initPatches(cmp);
+            if (!stCmp.patches) {
+                initPatches(stCmp);
             }
 
             // Update patches
             for (int i = 0; i < ST_TOTAL_PATCHES; i++) {
-                cmp.patches[i].update(relativeCameraPos);
+                stCmp.patches[i].update(relativeCameraPos);
             }
         } else {
             // Out of range, delete everything
-            if (cmp.patches) {
-                delete[] cmp.patches;
-                cmp.patches = nullptr;
+            if (stCmp.patches) {
+                delete[] stCmp.patches;
+                stCmp.patches = nullptr;
+            }
+        }
+
+        // Handle voxel component
+        if (stCmp.needsVoxelComponent) {
+            // Check for creating a new component
+            if (!stCmp.sphericalVoxelComponent) {
+                // TODO(Ben): FarTerrain should be clientSide only
+                // Add far terrain component (CLIENT SIDE)
+                stCmp.farTerrainComponent = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, it.first, stCmp,
+                                                                                           stCmp.startVoxelPosition.face);
+                // Add spherical voxel component (SERVER SIDE)
+                stCmp.sphericalVoxelComponent = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, it.first,
+                                                                                                   spaceSystem->m_sphericalTerrainCT.getComponentID(it.first),
+                                                                                                   stCmp.farTerrainComponent,
+                                                                                                   stCmp.axisRotationComponent,
+                                                                                                   stCmp.namePositionComponent,
+                                                                                                   stCmp.startVoxelPosition, state);
+            }
+        } else {
+            // Check for deleting components
+            // TODO(Ben): We need to do refcounting for MP!
+            if (stCmp.sphericalVoxelComponent) {
+                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
+                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
             }
         }
     }

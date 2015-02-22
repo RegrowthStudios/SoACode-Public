@@ -86,6 +86,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
     spCmp.position += pyCmp.velocity; // * timestep
 
     // Check transition to planet
+    // TODO(Ben): This assumes a single player entity!
     if (spCmp.parentSphericalTerrainId) {
         auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
         auto& npCmp = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
@@ -93,21 +94,23 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
         f64 distance = glm::length(spCmp.position);
         if (distance < stCmp.sphericalTerrainData->radius * LOAD_DIST_MULT) {
             // Mark the terrain component as needing voxels
-            stCmp.active = false;
-            stCmp.needsVoxelComponent = true;
-            // Check if we need to create the voxelPosition component
-            if (!pyCmp.voxelPositionComponent && stCmp.sphericalVoxelComponent) {
-                // Calculate the voxel position from the world position
+            if (!stCmp.needsVoxelComponent) {
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
-                VoxelPosition3D vGridPos = VoxelSpaceConversions::worldToVoxel(arCmp.invCurrentOrientation * spCmp.position * VOXELS_PER_KM,
+                stCmp.startVoxelPosition = VoxelSpaceConversions::worldToVoxel(arCmp.invCurrentOrientation * spCmp.position * VOXELS_PER_KM,
                                                                                stCmp.sphericalTerrainData->radius * VOXELS_PER_KM);
+                stCmp.active = false;
+                stCmp.needsVoxelComponent = true;
+            } else if (!pyCmp.voxelPositionComponent && stCmp.sphericalVoxelComponent) { // Check if we need to create the voxelPosition component
+                auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
                 // Calculate voxel relative orientation
-                f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(vGridPos,
+                f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(stCmp.startVoxelPosition,
                     stCmp.sphericalTerrainData->radius * 2000.0)) * arCmp.invCurrentOrientation * spCmp.orientation;
 
                 // Make the voxel position component
                 vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, entity,
-                                                                                  stCmp.sphericalVoxelComponent, voxOrientation, vGridPos);
+                                                                                  stCmp.sphericalVoxelComponent,
+                                                                                  voxOrientation,
+                                                                                  stCmp.startVoxelPosition);
                 pyCmp.voxelPositionComponent = vpid;
                 
                 // TODO(Ben): Calculate velocity change properly
