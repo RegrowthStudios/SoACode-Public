@@ -39,11 +39,6 @@ public:
     /// @param gameSystem: Game ECS
     /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
     void update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
-    /// Checks to see if there should be any voxel planet transitions, and possibly
-    /// adds or removes spherical voxel components from SpaceSystem
-    /// @param gameSystem: Game ECS
-    /// @param spaceSystem: Space ECS. Only SphericalVoxelComponents are modified.
-    static void updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState);
 private:
     /// Struct that holds event info for destruction
     struct EventData {

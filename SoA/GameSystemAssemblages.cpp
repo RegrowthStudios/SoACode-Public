@@ -12,7 +12,8 @@ vcore::EntityID GameSystemAssemblages::createPlayer(GameSystem* gameSystem, cons
                                                     f32 znear, f32 zfar) {
     vcore::EntityID id = gameSystem->addEntity();
 
-    vcore::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation, parentGravComponent);
+    vcore::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation,
+                                                  parentGravComponent, parentSphericalTerrainComponent);
 
     vcore::ComponentID pyCmpId = addPhysics(gameSystem, id, massKg, initialVel, spCmpId);
 

@@ -10,7 +10,7 @@ void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* 
     m_axisRotationComponentUpdater.update(spaceSystem, soaState->time);
 
     // Update Spherical Terrain
-    m_sphericalTerrainComponentUpdater.update(spaceSystem, spacePos);
+    m_sphericalTerrainComponentUpdater.update(soaState, spacePos);
 
     // Update far terrain
     m_farTerrainComponentUpdater.update(spaceSystem, voxelPos * KM_PER_VOXEL);
