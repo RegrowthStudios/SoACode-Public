@@ -728,6 +728,9 @@
     <ClInclude Include="soaUtils.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="FarTerrainComponentRenderer.h">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1177,6 +1180,9 @@
     </ClCompile>
     <ClCompile Include="NoiseShaderGenerator.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="FarTerrainComponentRenderer.cpp">
+      <Filter>SOA Files\ECS\Renderers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,7 @@
 
 // TODO(Ben): This is temporary for gravity
 #define FPS 60.0
-// Exit is slightly bigger to prevent precision induced oscillation
+// Exit is slightly bigger to prevent oscillation
 #define ENTRY_RADIUS_MULT 1.05
 #define EXIT_RADIUS_MULT 1.051
 
@@ -51,13 +51,13 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
     // Apply gravity
-    //if (spCmp.parentGravityId) {
-    //    auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
-    //    f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
-    //    f64 fgrav = M_G * gravCmp.mass / (height * height);
-    //    // We don't account mass since we only calculate force on the object
-    //    pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
-    //}
+    if (spCmp.parentGravityId) {
+        auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
+        f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
+        f64 fgrav = M_G * gravCmp.mass / (height * height);
+        // We don't account mass since we only calculate force on the object
+        pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
+    }
 
     // Update position
     vpcmp.gridPosition.pos += pyCmp.velocity;
@@ -69,7 +69,6 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
 
     // Check transition to Space
     // TODO(Ben): This assumes a single player entity!
-
     if (spCmp.parentSphericalTerrainId) {
         auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
 

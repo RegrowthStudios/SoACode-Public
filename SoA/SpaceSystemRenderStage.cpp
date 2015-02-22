@@ -74,19 +74,36 @@ void SpaceSystemRenderStage::drawBodies() {
     m_waterProgram->unuse();
 
     f64v3 lightPos;
+    // For caching light for far terrain
+    std::map<vcore::EntityID, SpaceLightComponent*> lightCache;
 
+    // Render spherical terrain
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
 
         SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
+        lightCache[it.first] = lightCmp;
 
         m_sphericalTerrainComponentRenderer.draw(cmp, m_camera,
-                                                 m_voxelCamera,
                                                  m_terrainProgram, m_waterProgram,
                                                  lightPos,
                                                  lightCmp,
                                                  &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                                                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
+    }
+
+    // Render far terrain
+    if (m_voxelCamera) {
+        for (auto& it : m_spaceSystem->m_farTerrainCT) {
+            auto& cmp = it.second;
+
+            SpaceLightComponent* lightCmp = lightCache[it.first];
+
+            m_farTerrainComponentRenderer.draw(cmp, m_voxelCamera,
+                                               lightPos,
+                                               lightCmp,
+                                               &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
+        }
     }
 
     DepthState::FULL.set();

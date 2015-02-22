@@ -288,6 +288,7 @@ EXIT 0</Command>
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CpuNoise.h" />
     <ClInclude Include="DevScreen.h" />
+    <ClInclude Include="FarTerrainComponentRenderer.h" />
     <ClInclude Include="FarTerrainComponentUpdater.h" />
     <ClInclude Include="FarTerrainPatch.h" />
     <ClInclude Include="FloraTask.h" />
@@ -475,6 +476,7 @@ EXIT 0</Command>
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="DevScreen.cpp" />
+    <ClCompile Include="FarTerrainComponentRenderer.cpp" />
     <ClCompile Include="FarTerrainComponentUpdater.cpp" />
     <ClCompile Include="FarTerrainPatch.cpp" />
     <ClCompile Include="FloraTask.cpp" />

@@ -19,6 +19,7 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ecs/ECS.h>
 
+#include "FarTerrainComponentRenderer.h"
 #include "OrbitComponentRenderer.h"
 #include "SphericalTerrainComponentRenderer.h"
 
@@ -84,6 +85,7 @@ private:
 
     OrbitComponentRenderer m_orbitComponentRenderer;
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
+    FarTerrainComponentRenderer m_farTerrainComponentRenderer;
 };
 
 #endif // SpaceSystemRenderStage_h__
