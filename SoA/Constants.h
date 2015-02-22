@@ -44,6 +44,7 @@ const i32 OBJECT_LIST_SIZE = 24096;
 const f64 KM_PER_M = 0.001;
 const f64 M_PER_KM = 1000.0;
 const f64 KM_PER_VOXEL = 0.0005;
+const f64 M_PER_VOXEL = 0.5;
 const f64 VOXELS_PER_M = 2.0;
 const f64 VOXELS_PER_KM = 2000.0;
 

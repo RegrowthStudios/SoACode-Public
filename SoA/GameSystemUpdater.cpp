@@ -165,7 +165,6 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
 void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
 #define LOAD_DIST_MULT 1.05
     // TODO(Ben): There is some client specific stuff mixed in with server stuff.
-    // TODO(Ben): This is n^2 and therefore expensive
     for (auto& it : gameSystem->spacePosition) {
         bool inVoxelRange = false;
         auto& spcmp = it.second;

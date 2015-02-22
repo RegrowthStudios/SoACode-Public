@@ -66,6 +66,8 @@ struct FreeMoveInputComponent {
 };
 
 struct SpacePositionComponent {
+    vcore::ComponentID parentGravityId = 0; ///< Gravity component of parent system body
+    vcore::ComponentID parentSphericalTerrainId = 0; ///< ST component of parent system body
     f64v3 position = f64v3(0.0);
     f64q orientation;
 };

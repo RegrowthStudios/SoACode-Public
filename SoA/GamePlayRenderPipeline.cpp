@@ -24,6 +24,7 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
+#include "soaUtils.h"
 
 #define DEVHUD_FONT_SIZE 32
 
@@ -281,6 +282,7 @@ void GamePlayRenderPipeline::cycleDrawMode() {
 
 void GamePlayRenderPipeline::updateCameras() {
     const GameSystem* gs = m_soaState->gameSystem.get();
+    const SpaceSystem* ss = m_soaState->spaceSystem.get();
 
     float sNearClip = 20.0f; ///< temporary until dynamic clipping plane works
 
@@ -297,11 +299,19 @@ void GamePlayRenderPipeline::updateCameras() {
     } else {
         m_voxelsActive = false;
     }
-
+    // Player is relative to a planet, so add position if needed
     auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
+    if (spcmp.parentGravityId) {
+        auto& parentSgCmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityId);
+        auto& parentNpCmp = ss->m_namePositionCT.get(parentSgCmp.namePositionComponent);
+        // TODO(Ben): Could get better precision by not using + parentNpCmp.position here?
+        _worldCamera.setPosition(spcmp.position + parentNpCmp.position);
+    } else {
+        _worldCamera.setPosition(spcmp.position);
+    }
     //printVec("POSITION: ", spcmp.position);
     _worldCamera.setClippingPlane(sNearClip, 999999999.0f);
-    _worldCamera.setPosition(spcmp.position);
+   
     _worldCamera.setOrientation(spcmp.orientation);
     _worldCamera.update();
 }

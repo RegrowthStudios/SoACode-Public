@@ -25,6 +25,7 @@ public:
     void update(SpaceSystem* spaceSystem, f64 time);
 
     /// Calculates current orbital speed in km/s
+    /// TODO(Ben): I am not sure that this is behaving right
     static f64 calculateOrbitalSpeed(SpaceSystem* spaceSystem, const OrbitComponent& oCmp,
                                      const SphericalGravityComponent& sgCmp);
 

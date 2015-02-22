@@ -34,29 +34,18 @@ void SoaController::startGame(OUT SoaState* state) {
         auto& arcmp = spaceSystem->m_axisRotationCT.getFromEntity(state->startingPlanet);
         auto& npcmp = spaceSystem->m_namePositionCT.getFromEntity(state->startingPlanet);
 
-        // Set initial velocity based on the planet
-        OrbitComponentUpdater updater;
-        f64 nextTime = state->time + state->timeStep * 60.0;
-        updater.update(state->spaceSystem.get(), nextTime);
-        f64v3 nextPos = npcmp.position;
-        updater.update(state->spaceSystem.get(), state->time);
-        f64 orbitalSpeed = updater.calculateOrbitalSpeed(state->spaceSystem.get(),
-                                                         spaceSystem->m_orbitCT.getFromEntity(state->startingPlanet),
-                                                         spaceSystem->m_sphericalGravityCT.getFromEntity(state->startingPlanet));
-        std::cout << orbitalSpeed << " " << glm::length(nextPos - npcmp.position) / 60.0 << std::endl;
-        f64v3 velocity = glm::normalize(nextPos - npcmp.position) * orbitalSpeed;
-
-        // Create the player entity
+        // Create the player entity and make the initial planet his parent
         state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem.get(), state->startSpacePos,
                                                                   f64q(), 73.0f,
-                                                                  velocity, graphicsOptions.fov, m_app->getWindow().getAspectRatio());
+                                                                  f64v3(0.0), graphicsOptions.fov, m_app->getWindow().getAspectRatio(),
+                                                                  spaceSystem->m_sphericalGravityCT.getComponentID(state->startingPlanet));
 
         auto& vpcmp = gameSystem->voxelPosition.getFromEntity(state->playerEntity);
         auto& spcmp = gameSystem->spacePosition.getFromEntity(state->playerEntity);
 
         f64v3 spacePos = state->startSpacePos;
 
-        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 360.0 + npcmp.position;
+        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 360.0;
         GameSystemUpdater::updateVoxelPlanetTransitions(gameSystem, spaceSystem, state);
     } else {
         // TODO(Ben): This
