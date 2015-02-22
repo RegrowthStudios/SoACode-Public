@@ -112,6 +112,8 @@ void MainMenuSystemViewer::update() {
     if (length == 0) length = 0.1f;
     m_camera->setClippingPlane(length, m_camera->getFarClip());
     // Target closest point on sphere
+    m_camera->setFocalPoint(getTargetPosition() -
+                            f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
     m_camera->setTargetFocalPoint(getTargetPosition() -
                                  f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 

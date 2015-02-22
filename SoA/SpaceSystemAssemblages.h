@@ -79,7 +79,7 @@ namespace SpaceSystemAssemblages {
     extern vcore::ComponentID addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                          const f64q& axisOrientation,
                                                          f64 startAngle,
-                                                         f64 angularSpeed);
+                                                         f64 rotationalPeriod);
     extern void removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
     /// Spherical terrain component

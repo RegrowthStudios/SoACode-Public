@@ -2,13 +2,16 @@
 #include "AxisRotationComponentUpdater.h"
 
 #include "SpaceSystem.h"
+#include "Constants.h"
 #include <glm/gtc/quaternion.hpp>
 
 void AxisRotationComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
     for (auto& it : spaceSystem->m_axisRotationCT) {
         auto& cmp = it.second;
         // Calculate rotation
-        cmp.currentRotation = cmp.angularSpeed_RS * time;
+        if (cmp.period) {
+            cmp.currentRotation = (time / cmp.period) * 2.0 * M_PI;
+        }
 
         // Calculate the axis rotation quat
         f64v3 eulerAngles(0, cmp.currentRotation, 0);

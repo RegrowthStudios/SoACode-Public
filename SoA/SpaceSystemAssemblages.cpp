@@ -21,6 +21,8 @@
 #include "TexturePackLoader.h"
 #include "PlanetData.h"
 
+#define SEC_PER_DAY 86400.0
+
 vcore::ComponentID makeOrbitFromProps(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                         const SystemBodyKegProperties* sysProps) {
     
@@ -47,7 +49,7 @@ vcore::EntityID SpaceSystemAssemblages::createPlanet(OUT SpaceSystem* spaceSyste
 
     const f64v3 up(0.0, 1.0, 0.0);
     vcore::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                             0.0, properties->angularSpeed);
+                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
 
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
@@ -76,7 +78,7 @@ vcore::EntityID SpaceSystemAssemblages::createStar(OUT SpaceSystem* spaceSystem,
 
     const f64v3 up(0.0, 1.0, 0.0);
     vcore::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                                                        0.0, properties->angularSpeed);
+                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
 
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
@@ -102,7 +104,7 @@ vcore::EntityID SpaceSystemAssemblages::createGasGiant(OUT SpaceSystem* spaceSys
 
     const f64v3 up(0.0, 1.0, 0.0);
     vcore::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                                                        0.0, properties->angularSpeed);
+                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
 
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
@@ -196,12 +198,12 @@ void SpaceSystemAssemblages::removeSphericalVoxelComponent(OUT SpaceSystem* spac
 
 vcore::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                   const f64q& axisOrientation, f64 startAngle,
-                                                                  f64 angularSpeed) {
+                                                                  f64 rotationalPeriod) {
     vcore::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
     arCmp.axisOrientation = axisOrientation;
     arCmp.currentRotation = startAngle;
-    arCmp.angularSpeed_RS = angularSpeed;
+    arCmp.period = rotationalPeriod;
     return arCmpId;
 }
 
