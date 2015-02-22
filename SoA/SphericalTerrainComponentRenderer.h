@@ -30,15 +30,16 @@ public:
     ~SphericalTerrainComponentRenderer();
     void draw(SphericalTerrainComponent& cmp,
               const Camera* camera,
-              vg::GLProgram* terrainProgram,
-              vg::GLProgram* waterProgram,
               const f64v3& lightPos,
               const SpaceLightComponent* spComponent,
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
 
 private:
+    void buildShaders();
 
+    vg::GLProgram* m_terrainProgram = nullptr;
+    vg::GLProgram* m_waterProgram = nullptr;
 };
 
 #endif // SphericalTerrainComponentRenderer_h__

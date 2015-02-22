@@ -94,8 +94,6 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
                                                           nullptr, &_worldCamera,
                                                           &_chunkCamera,
                                                           glProgramManager->getProgram("BasicColor"),
-                                                          glProgramManager->getProgram("SphericalTerrain"),
-                                                          glProgramManager->getProgram("SphericalWater"),
                                                           GameManager::textureCache->addTexture("Textures/selector.png").id);
 
     loadNightVision();

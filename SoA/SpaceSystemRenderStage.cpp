@@ -32,8 +32,6 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                const Camera* camera,
                                                const Camera* voxelCamera,
                                                vg::GLProgram* colorProgram,
-                                               vg::GLProgram* terrainProgram,
-                                               vg::GLProgram* waterProgram,
                                                VGTexture selectorTexture) :
     m_viewport(viewport),
     m_spaceSystem(spaceSystem),
@@ -42,8 +40,6 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
     m_camera(camera),
     m_voxelCamera(voxelCamera),
     m_colorProgram(colorProgram),
-    m_terrainProgram(terrainProgram),
-    m_waterProgram(waterProgram),
     m_selectorTexture(selectorTexture) {
     // Empty
 }
@@ -62,16 +58,6 @@ void SpaceSystemRenderStage::draw() {
 
 void SpaceSystemRenderStage::drawBodies() {
     glEnable(GL_CULL_FACE);
-    glActiveTexture(GL_TEXTURE0);
-    m_terrainProgram->use();
-    glUniform1i(m_terrainProgram->getUniform("unNormalMap"), 0);
-    glUniform1i(m_terrainProgram->getUniform("unColorMap"), 1);
-    glUniform1i(m_terrainProgram->getUniform("unTexture"), 2);
-    glUniform1f(m_terrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
-    m_waterProgram->use();
-    glUniform1i(m_waterProgram->getUniform("unNormalMap"), 0);
-    glUniform1i(m_waterProgram->getUniform("unColorMap"), 1);
-    m_waterProgram->unuse();
 
     f64v3 lightPos;
     // For caching light for far terrain
@@ -85,7 +71,6 @@ void SpaceSystemRenderStage::drawBodies() {
         lightCache[it.first] = lightCmp;
 
         m_sphericalTerrainComponentRenderer.draw(cmp, m_camera,
-                                                 m_terrainProgram, m_waterProgram,
                                                  lightPos,
                                                  lightCmp,
                                                  &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),

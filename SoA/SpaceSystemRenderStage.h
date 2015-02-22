@@ -19,9 +19,9 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ecs/ECS.h>
 
-#include "FarTerrainComponentRenderer.h"
 #include "OrbitComponentRenderer.h"
 #include "SphericalTerrainComponentRenderer.h"
+#include "FarTerrainComponentRenderer.h"
 
 class App;
 class MainMenuSystemViewer;
@@ -39,8 +39,6 @@ public:
                            const Camera* camera,
                            const Camera* voxelCamera,
                            vg::GLProgram* colorProgram,
-                           vg::GLProgram* terrainProgram,
-                           vg::GLProgram* waterProgram,
                            VGTexture selectorTexture);
     ~SpaceSystemRenderStage();
 
@@ -79,8 +77,6 @@ private:
     const Camera* m_camera = nullptr;
     const Camera* m_voxelCamera = nullptr;
     vg::GLProgram* m_colorProgram = nullptr;
-    vg::GLProgram* m_terrainProgram = nullptr;
-    vg::GLProgram* m_waterProgram = nullptr;
     VGTexture m_selectorTexture = 0;
 
     OrbitComponentRenderer m_orbitComponentRenderer;

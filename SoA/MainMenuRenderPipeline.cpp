@@ -56,8 +56,6 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport.z, _viewport.w),
                                                           spaceSystem, nullptr, systemViewer, camera, nullptr,
                                                           glProgramManager->getProgram("BasicColor"),
-                                                          glProgramManager->getProgram("SphericalTerrain"),
-                                                          glProgramManager->getProgram("SphericalWater"),
                                                           GameManager::textureCache->addTexture("Textures/selector.png").id);
 
 }

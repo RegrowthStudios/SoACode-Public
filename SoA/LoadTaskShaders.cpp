@@ -62,23 +62,6 @@ void LoadTaskShaders::load() {
     dd.push_back("vPosition");
     dd.push_back("vUV");
 
-    // Attributes for spherical terrain
-    std::vector<nString> sphericalAttribs;
-    sphericalAttribs.push_back("vPosition");
-    sphericalAttribs.push_back("vTangent");
-    sphericalAttribs.push_back("vUV");
-    sphericalAttribs.push_back("vColor");
-    sphericalAttribs.push_back("vNormUV");
-    sphericalAttribs.push_back("vTemp_Hum");
-
-    // Attributes for spherical water
-    std::vector<nString> sphericalWaterAttribs;
-    sphericalWaterAttribs.push_back("vPosition");
-    sphericalWaterAttribs.push_back("vTangent");
-    sphericalWaterAttribs.push_back("vColor_Temp");
-    sphericalWaterAttribs.push_back("vUV");
-    sphericalWaterAttribs.push_back("vDepth");
-
     vio::IOManager iom;
 
     m_glrpc->invoke(&createProgram("BasicColor",
@@ -165,16 +148,6 @@ void LoadTaskShaders::load() {
     m_glrpc->invoke(&createProgram("TreeBillboard",
         createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/TreeBillboardShading/TreeBillboardShading.vert"),
         createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/TreeBillboardShading/TreeBillboardShading.frag")
-        )->rpc, false);
-    m_glrpc->invoke(&createProgram("SphericalTerrain",
-        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalTerrain.vert"),
-        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalTerrain.frag"), 
-        &sphericalAttribs
-        )->rpc, false);
-    m_glrpc->invoke(&createProgram("SphericalWater",
-        createShaderCode(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.vert"),
-        createShaderCode(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/SphericalTerrain/SphericalWater.frag"),
-        &sphericalWaterAttribs
         )->rpc, false);
 
     // Create all shaders until finished
