@@ -43,8 +43,8 @@ void GameSystemAssemblages::removeFreeMoveInput(OUT GameSystem* gameSystem, vcor
 
 vcore::ComponentID GameSystemAssemblages::addPhysics(OUT GameSystem* gameSystem, vcore::EntityID entity,
                                                      f32 massKg, const f64v3& initialVel,
-                                                          vcore::ComponentID spacePositionComponent,
-                                                          OPT vcore::ComponentID voxelPositionComponent /*= 0*/) {
+                                                     vcore::ComponentID spacePositionComponent,
+                                                     OPT vcore::ComponentID voxelPositionComponent /*= 0*/) {
     vcore::ComponentID pCmpId = gameSystem->addComponent("Physics", entity);
     auto& pCmp = gameSystem->physics.get(pCmpId);
     pCmp.spacePositionComponent = spacePositionComponent;

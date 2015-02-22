@@ -23,7 +23,7 @@ public:
     /// Updates physics components
     /// @param gameSystem: Game ECS
     /// @param spaceSystem: Space ECS.
-    void update(OUT GameSystem* gameSystem, const SpaceSystem* spaceSystem);
+    void update(OUT GameSystem* gameSystem, SpaceSystem* spaceSystem);
 };
 
 #endif // PhysicsComponentUpdater_h__

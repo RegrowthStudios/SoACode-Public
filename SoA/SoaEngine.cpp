@@ -312,7 +312,7 @@ void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity,
     f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
     if (isBinary) parentMass -= mass;
     orbitC.semiMajor = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
-                           (mass + parentMass), 1.0 / 3.0) / M_PER_KM;
+                           (mass + parentMass), 1.0 / 3.0);
     orbitC.semiMinor = orbitC.semiMajor *
         sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
     orbitC.totalMass = mass + parentMass;

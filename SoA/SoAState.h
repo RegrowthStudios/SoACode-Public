@@ -53,6 +53,7 @@ public:
     int startFace = 0;
     f64 time = 0.0;
     bool isInputEnabled = true;
+    float timeStep = 0.016f;
 };
 
 #endif // SoAState_h__

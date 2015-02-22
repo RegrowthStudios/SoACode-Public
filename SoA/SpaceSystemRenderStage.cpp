@@ -54,7 +54,7 @@ SpaceSystemRenderStage::~SpaceSystemRenderStage() {
 
 void SpaceSystemRenderStage::draw() {
     drawBodies();
-    if (m_mainMenuSystemViewer) {
+    if (1 || m_mainMenuSystemViewer) { // TODO(Ben): 1 || is temporary
         drawPaths();
         drawHud();
     }
@@ -96,6 +96,7 @@ void SpaceSystemRenderStage::drawBodies() {
 void SpaceSystemRenderStage::drawPaths() {
 
     DepthState::READ.set();
+    float alpha;
 
     // Draw paths
     m_colorProgram->use();
@@ -105,13 +106,17 @@ void SpaceSystemRenderStage::drawPaths() {
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
     for (auto& it : m_spaceSystem->m_orbitCT) {
-
+        
         // Get the augmented reality data
-        const MainMenuSystemViewer::BodyArData* bodyArData = m_mainMenuSystemViewer->finBodyAr(it.first);
-        if (bodyArData == nullptr) continue;
+        if (m_mainMenuSystemViewer) {
+            const MainMenuSystemViewer::BodyArData* bodyArData = m_mainMenuSystemViewer->finBodyAr(it.first);
+            if (bodyArData == nullptr) continue;
 
-        // Interpolated alpha
-        float alpha = 0.15 + 0.85 * hermite(bodyArData->hoverTime);
+            // Interpolated alpha
+            alpha = 0.15 + 0.85 * hermite(bodyArData->hoverTime);
+        } else {
+            alpha = 0.15;
+        }
 
         auto& cmp = it.second;
         if (cmp.parentNpId) {
@@ -144,6 +149,8 @@ SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(SphericalTerrainC
 
 
 void SpaceSystemRenderStage::drawHud() {
+    // Currently we need a viewer for this
+    if (!m_mainMenuSystemViewer) return;
 
     const f32 ROTATION_FACTOR = (f32)(M_PI * 2.0 + M_PI / 4.0);
     static f32 dt = 0.0;

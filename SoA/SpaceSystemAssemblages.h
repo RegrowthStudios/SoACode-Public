@@ -99,7 +99,7 @@ namespace SpaceSystemAssemblages {
 
     /// Spherical Gravity component
     extern vcore::ComponentID addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                           f64 radius, f64 mass);
+                                                           vcore::ComponentID npComp, f64 radius, f64 mass);
     extern void removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
     /// Name Position component

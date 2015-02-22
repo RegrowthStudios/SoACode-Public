@@ -71,6 +71,7 @@ struct OrbitComponent {
 };
 
 struct SphericalGravityComponent {
+    vcore::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
     f64 radius = 0.0; ///< Radius in KM
     f64 mass = 0.0; ///< Mass in KG
 };

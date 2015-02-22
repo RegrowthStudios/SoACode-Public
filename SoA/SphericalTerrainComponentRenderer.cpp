@@ -40,8 +40,8 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
     }
 
     if (voxelCamera) {
-        const f32v3 up(0.0f, 1.0f, 0.0f);
-        const f32v3 normalizedPos = f32v3(glm::normalize(arComponent->currentOrientation * relativeCameraPos));
+      //  const f32v3 up(0.0f, 1.0f, 0.0f);
+      //  const f32v3 normalizedPos = f32v3(glm::normalize(arComponent->currentOrientation * relativeCameraPos));
         // Calculate relative light position
         // TODO(Ben): Worry if they are exactly the same
         lightDir = f32v3(glm::inverse(arComponent->currentOrientation) * f64v3(lightDir));

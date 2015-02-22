@@ -10,48 +10,48 @@
 void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
 
     f64v3 forward, right, up;
+    const f64 acceleration = 200.0;
 
     for (auto& it : gameSystem->freeMoveInput) {
         auto& fmcmp = it.second;
         auto& physcmp = gameSystem->physics.get(fmcmp.physicsComponent);
 
         f64q* orientation;
-        f64 speed = (f64)fmcmp.speed;
+        f64 acceleration = (f64)fmcmp.speed;
         // If there is a voxel component, we use voxel position
         if (physcmp.voxelPositionComponent) {
             orientation = &gameSystem->voxelPosition.get(physcmp.voxelPositionComponent).orientation;
         } else {
             orientation = &gameSystem->spacePosition.get(physcmp.spacePositionComponent).orientation;
-            speed *= KM_PER_VOXEL;
+            acceleration *= KM_PER_VOXEL;
         }
  
         if (fmcmp.superSpeed) {
-            speed *= 20000.0; // temporary
+            acceleration *= 20.0; // temporary
         }
         // Calculate velocity vector from inputs and speed
-        physcmp.velocity = f64v3(0.0);
         if (fmcmp.tryMoveForward) {
             forward = *orientation * f64v3(0.0, 0.0, 1.0);
-            physcmp.velocity += forward * speed;
+            physcmp.velocity += forward * acceleration;
         } else if (fmcmp.tryMoveBackward) {
             forward = *orientation * f64v3(0.0, 0.0, 1.0);
-            physcmp.velocity -= forward * speed;
+            physcmp.velocity -= forward * acceleration;
         }
 
         if (fmcmp.tryMoveRight) {
             right = *orientation * f64v3(-1.0, 0.0, 0.0);
-            physcmp.velocity += right * speed;
+            physcmp.velocity += right * acceleration;
         } else if (fmcmp.tryMoveLeft) {
             right = *orientation * f64v3(-1.0, 0.0, 0.0);
-            physcmp.velocity -= right * speed;
+            physcmp.velocity -= right * acceleration;
         }
 
         if (fmcmp.tryMoveUp) {
             up = *orientation * f64v3(0.0, 1.0, 0.0);
-            physcmp.velocity += up * speed;
+            physcmp.velocity += up * acceleration;
         } else if (fmcmp.tryMoveDown) {
             up = *orientation * f64v3(0.0, 1.0, 0.0);
-            physcmp.velocity -= up * speed;
+            physcmp.velocity -= up * acceleration;
         }
 
         #define ROLL_SPEED 0.7

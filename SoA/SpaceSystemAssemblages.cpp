@@ -35,7 +35,7 @@ vcore::ComponentID makeOrbitFromProps(OUT SpaceSystem* spaceSystem, vcore::Entit
     }
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, entity, sysProps->eccentricity,
-                                                   sysProps->period, sysProps->pathColor, orientation);
+                                                     sysProps->period, sysProps->pathColor, orientation);
 }
 
 vcore::EntityID SpaceSystemAssemblages::createPlanet(OUT SpaceSystem* spaceSystem,
@@ -57,7 +57,7 @@ vcore::EntityID SpaceSystemAssemblages::createPlanet(OUT SpaceSystem* spaceSyste
                                  spaceSystem->normalMapGenProgram.get(),
                                  spaceSystem->normalMapRecycler.get());
 
-    addSphericalGravityComponent(spaceSystem, id, properties->diameter / 2.0, properties->mass);
+    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
     return id;
@@ -81,7 +81,7 @@ vcore::EntityID SpaceSystemAssemblages::createStar(OUT SpaceSystem* spaceSystem,
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addSphericalGravityComponent(spaceSystem, id, properties->diameter / 2.0, properties->mass);
+    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
 
@@ -107,7 +107,7 @@ vcore::EntityID SpaceSystemAssemblages::createGasGiant(OUT SpaceSystem* spaceSys
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addSphericalGravityComponent(spaceSystem, id, properties->diameter / 2.0, properties->mass);
+    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
 
@@ -277,9 +277,10 @@ void SpaceSystemAssemblages::removeFarTerrainComponent(OUT SpaceSystem* spaceSys
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                                      f64 radius, f64 mass) {
+                                                                        vcore::ComponentID npComp, f64 radius, f64 mass) {
     vcore::ComponentID sgCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, entity);
     auto& sgCmp = spaceSystem->m_sphericalGravityCT.get(sgCmpId);
+    sgCmp.namePositionComponent = npComp;
     sgCmp.radius = radius;
     sgCmp.mass = mass;
     return sgCmpId;

@@ -44,6 +44,8 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     position.y = 0.0;
     position.z = cmp.semiMajor * sqrt(1.0 - cmp.eccentricity * cmp.eccentricity) *
         sin(eccentricAnomaly);
+
+    // If this planet has a parent, add parent's position
     if (parentNpComponent) {
         npComponent->position = cmp.orientation * position + parentNpComponent->position;
     } else {

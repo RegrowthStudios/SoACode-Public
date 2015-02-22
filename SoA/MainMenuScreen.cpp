@@ -150,9 +150,10 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     
     m_mainMenuSystemViewer->update();
 
-    m_soaState->time += 0.0000;
+    m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
+    std::cout << m_soaState->time << std::endl;
 
     m_camera.update();
     m_inputManager->update(); // TODO: Remove
