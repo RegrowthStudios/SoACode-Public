@@ -358,6 +358,7 @@ EXIT 0</Command>
     <ClInclude Include="SphericalTerrainComponentUpdater.h" />
     <ClInclude Include="SphericalTerrainCpuGenerator.h" />
     <ClInclude Include="SphericalTerrainGpuGenerator.h" />
+    <ClInclude Include="SystemARRenderer.h" />
     <ClInclude Include="TerrainPatchMeshManager.h" />
     <ClInclude Include="SphericalVoxelComponentTable.h" />
     <ClInclude Include="SphericalVoxelComponentUpdater.h" />
@@ -537,6 +538,7 @@ EXIT 0</Command>
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
     <ClCompile Include="SphericalTerrainCpuGenerator.cpp" />
     <ClCompile Include="SphericalTerrainGpuGenerator.cpp" />
+    <ClCompile Include="SystemARRenderer.cpp" />
     <ClCompile Include="TerrainPatchMeshManager.cpp" />
     <ClCompile Include="SphericalVoxelComponentTable.cpp" />
     <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />

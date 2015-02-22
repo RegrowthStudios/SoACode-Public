@@ -68,6 +68,7 @@ void SphericalTerrainComponentRenderer::buildShaders() {
     m_terrainProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_terrainProgram->setAttributes(sphericalAttribs);
     m_terrainProgram->link();
+    m_terrainProgram->initAttributes();
     m_terrainProgram->initUniforms();
     // Set constant uniforms
     m_terrainProgram->use();
@@ -85,6 +86,7 @@ void SphericalTerrainComponentRenderer::buildShaders() {
     m_waterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_waterProgram->setAttributes(sphericalWaterAttribs);
     m_waterProgram->link();
+    m_waterProgram->initAttributes();
     m_waterProgram->initUniforms();
     // Set constant uniforms
     m_waterProgram->use();

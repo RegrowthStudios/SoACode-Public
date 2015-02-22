@@ -731,6 +731,9 @@
     <ClInclude Include="FarTerrainComponentRenderer.h">
       <Filter>SOA Files\ECS\Renderers</Filter>
     </ClInclude>
+    <ClInclude Include="SystemARRenderer.h">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1183,6 +1186,9 @@
     </ClCompile>
     <ClCompile Include="FarTerrainComponentRenderer.cpp">
       <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemARRenderer.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

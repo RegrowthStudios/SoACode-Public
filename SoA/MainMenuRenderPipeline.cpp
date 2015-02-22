@@ -55,7 +55,6 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
     // TODO(Ben): Use texture pack iomanager
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport.z, _viewport.w),
                                                           spaceSystem, nullptr, systemViewer, camera, nullptr,
-                                                          glProgramManager->getProgram("BasicColor"),
                                                           GameManager::textureCache->addTexture("Textures/selector.png").id);
 
 }

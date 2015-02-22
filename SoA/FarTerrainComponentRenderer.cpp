@@ -20,21 +20,19 @@ void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
                                        const f64v3& lightPos,
                                        const SpaceLightComponent* spComponent,
                                        const AxisRotationComponent* arComponent) {
-    if (camera) {
-        // Calculate relative light position
-        f32v3 lightDir = f32v3(glm::inverse(arComponent->currentOrientation) * f64v3(lightDir));
-        // Lazy shader init
-        if (!m_farTerrainProgram) {
-            buildShaders();
-        }
-        glDisable(GL_CULL_FACE);
-        f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
-        // Draw far patches
-        cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
-                                       m_farTerrainProgram, m_farWaterProgram,
-                                       lightDir);
-        glEnable(GL_CULL_FACE);
+    // Calculate relative light position
+    f32v3 lightDir = f32v3(glm::inverse(arComponent->currentOrientation) * f64v3(lightDir));
+    // Lazy shader init
+    if (!m_farTerrainProgram) {
+        buildShaders();
     }
+    glDisable(GL_CULL_FACE);
+    f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
+    // Draw far patches
+    cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
+                                    m_farTerrainProgram, m_farWaterProgram,
+                                    lightDir);
+    glEnable(GL_CULL_FACE);
 }
 
 void FarTerrainComponentRenderer::buildShaders() {
@@ -66,6 +64,7 @@ void FarTerrainComponentRenderer::buildShaders() {
     m_farTerrainProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farTerrainProgram->setAttributes(sphericalAttribs);
     m_farTerrainProgram->link();
+    m_farTerrainProgram->initAttributes();
     m_farTerrainProgram->initUniforms();
     // Set constant uniforms
     m_farTerrainProgram->use();
@@ -83,6 +82,7 @@ void FarTerrainComponentRenderer::buildShaders() {
     m_farWaterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farWaterProgram->setAttributes(sphericalWaterAttribs);
     m_farWaterProgram->link();
+    m_farWaterProgram->initAttributes();
     m_farWaterProgram->initUniforms();
     // Set constant uniforms
     m_farWaterProgram->use();

@@ -16,12 +16,12 @@
 #define SpaceSystemRenderStage_h__
 
 #include <Vorb/graphics/IRenderStage.h>
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ecs/ECS.h>
+#include <Vorb/VorbPreDecl.inl>
 
-#include "OrbitComponentRenderer.h"
 #include "SphericalTerrainComponentRenderer.h"
 #include "FarTerrainComponentRenderer.h"
+#include "SystemARRenderer.h"
 
 class App;
 class MainMenuSystemViewer;
@@ -38,7 +38,6 @@ public:
                            const MainMenuSystemViewer* systemViewer,
                            const Camera* camera,
                            const Camera* voxelCamera,
-                           vg::GLProgram* colorProgram,
                            VGTexture selectorTexture);
     ~SpaceSystemRenderStage();
 
@@ -53,22 +52,11 @@ private:
     /// @param waterProgram: Program for rendering water
     void drawBodies();
 
-    /// Renders the space paths
-    /// @param camera: Camera for rendering
-    /// @param colorProgram: glProgram for basic color
-    void drawPaths();
-
     /// Gets light source relative to a component
     /// @param cmp: Spherical terrain component to query for
     /// @param pos: Position of brightest light
     /// @return brightest light source relative to cmp
     SpaceLightComponent* getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos);
-
-    /// Renders the HUD
-    void drawHud();
-
-    SpriteBatch* m_spriteBatch = nullptr;
-    SpriteFont* m_spriteFont = nullptr;
 
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
@@ -76,10 +64,9 @@ private:
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_camera = nullptr;
     const Camera* m_voxelCamera = nullptr;
-    vg::GLProgram* m_colorProgram = nullptr;
     VGTexture m_selectorTexture = 0;
 
-    OrbitComponentRenderer m_orbitComponentRenderer;
+    SystemARRenderer m_systemARRenderer;
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
 };
