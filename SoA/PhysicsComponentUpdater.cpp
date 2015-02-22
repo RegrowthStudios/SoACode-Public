@@ -14,19 +14,21 @@
 
 // TODO(Ben): This is temporary for gravity
 #define FPS 60.0
+// Exit is slightly bigger to prevent precision induced oscillation
+#define ENTRY_RADIUS_MULT 1.05
+#define EXIT_RADIUS_MULT 1.051
 
 // TODO(Ben): Timestep
 void PhysicsComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem) {
   
     for (auto& it : gameSystem->physics) {
         auto& cmp = it.second;
-
         // Voxel position dictates space position
         if (cmp.voxelPositionComponent) {
             updateVoxelPhysics(gameSystem, spaceSystem, cmp, it.first);
         } else {
             updateSpacePhysics(gameSystem, spaceSystem, cmp, it.first);
-        }
+        } 
     }
 }
 
@@ -39,7 +41,7 @@ f64v3 PhysicsComponentUpdater::calculateGravityAcceleration(f64v3 relativePositi
 
 void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
                                                  PhysicsComponent& pyCmp, vcore::EntityID entity) {
-    
+
     // Get the position component
     auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
 
@@ -57,20 +59,35 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     //    pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
     //}
 
+    // Update position
     vpcmp.gridPosition.pos += pyCmp.velocity;
-    printVec("Pos :", vpcmp.gridPosition.pos);
-    f64v3 spacePos = VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) * KM_PER_VOXEL;
 
     // Compute the relative space position and orientation from voxel position and orientation
-    spCmp.position = arcmp.currentOrientation * spacePos;
+    spCmp.position = arcmp.currentOrientation * VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) * KM_PER_VOXEL;
     // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
     spCmp.orientation = arcmp.currentOrientation * VoxelSpaceUtils::calculateVoxelToSpaceQuat(vpcmp.gridPosition, svcmp.voxelRadius) * vpcmp.orientation;
+
+    // Check transition to Space
+    // TODO(Ben): This assumes a single player entity!
+
+    if (spCmp.parentSphericalTerrainId) {
+        auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
+
+        f64 distance = glm::length(spCmp.position);
+        if (distance > stCmp.sphericalTerrainData->radius * EXIT_RADIUS_MULT) {
+            // We need to transition to space
+            pyCmp.voxelPositionComponent = 0;
+            // TODO(Ben): Orient this
+            pyCmp.velocity = f64v3(0.0);
+            GameSystemAssemblages::removeVoxelPosition(gameSystem, entity);
+            stCmp.active = true;
+            stCmp.needsVoxelComponent = false;
+        }
+    }
 }
 
 void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
                                                  PhysicsComponent& pyCmp, vcore::EntityID entity) {
-
-#define LOAD_DIST_MULT 1.05
 
     // Get the position component
     auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
@@ -94,7 +111,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
         auto& npCmp = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
 
         f64 distance = glm::length(spCmp.position);
-        if (distance < stCmp.sphericalTerrainData->radius * LOAD_DIST_MULT) {
+        if (distance <= stCmp.sphericalTerrainData->radius * ENTRY_RADIUS_MULT) {
             // Mark the terrain component as needing voxels
             if (!stCmp.needsVoxelComponent) {
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
@@ -122,9 +139,6 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                 // Update dependencies for frustum
                 gameSystem->frustum.getFromEntity(entity).voxelPositionComponent = vpid;
             }
-        } else {
-            stCmp.active = true;
-            stCmp.needsVoxelComponent = false;
         }
     }
 }
