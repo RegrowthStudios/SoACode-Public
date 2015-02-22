@@ -8,6 +8,7 @@
 #include "VoxelSpaceConversions.h"
 #include "VoxelSpaceUtils.h"
 #include "global.h"
+#include "soaUtils.h"
 
 #include <Vorb/utils.h>
 
@@ -48,15 +49,16 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
     // Apply gravity
-    if (spCmp.parentGravityId) {
-        auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
-        f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
-        f64 fgrav = M_G * gravCmp.mass / (height * height);
-        // We don't account mass since we only calculate force on the object
-        pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
-    }
+    //if (spCmp.parentGravityId) {
+    //    auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
+    //    f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
+    //    f64 fgrav = M_G * gravCmp.mass / (height * height);
+    //    // We don't account mass since we only calculate force on the object
+    //    pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
+    //}
 
     vpcmp.gridPosition.pos += pyCmp.velocity;
+    printVec("Pos :", vpcmp.gridPosition.pos);
     f64v3 spacePos = VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) * KM_PER_VOXEL;
 
     // Compute the relative space position and orientation from voxel position and orientation
@@ -93,7 +95,6 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
         f64 distance = glm::length(spCmp.position);
         if (distance < stCmp.sphericalTerrainData->radius * LOAD_DIST_MULT) {
-            std::cout << "TRANSITION\n";
             // Mark the terrain component as needing voxels
             if (!stCmp.needsVoxelComponent) {
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
@@ -105,7 +106,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
                 // Calculate voxel relative orientation
                 f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(stCmp.startVoxelPosition,
-                    stCmp.sphericalTerrainData->radius * 2000.0)) * arCmp.invCurrentOrientation * spCmp.orientation;
+                    stCmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * arCmp.invCurrentOrientation * spCmp.orientation;
 
                 // Make the voxel position component
                 vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, entity,

@@ -55,6 +55,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp, con
         cmp.meshManager->drawFarMeshes(relativeCameraPos, voxelCamera,
                                        m_farTerrainProgram, m_farWaterProgram,
                                        lightDir);
+        glEnable(GL_CULL_FACE);
     }
 }
 

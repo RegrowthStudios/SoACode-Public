@@ -73,7 +73,6 @@ void SpaceSystemRenderStage::drawBodies() {
     glUniform1i(m_waterProgram->getUniform("unColorMap"), 1);
     m_waterProgram->unuse();
 
-
     f64v3 lightPos;
 
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {

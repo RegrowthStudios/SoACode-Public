@@ -41,12 +41,11 @@ void SoaController::startGame(OUT SoaState* state) {
                                                                   spaceSystem->m_sphericalGravityCT.getComponentID(state->startingPlanet),
                                                                   spaceSystem->m_sphericalTerrainCT.getComponentID(state->startingPlanet));
 
-        auto& vpcmp = gameSystem->voxelPosition.getFromEntity(state->playerEntity);
         auto& spcmp = gameSystem->spacePosition.getFromEntity(state->playerEntity);
 
-        f64v3 spacePos = state->startSpacePos;
+        const f64v3& spacePos = state->startSpacePos;
 
-        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 360.0;
+        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 260.0;
     } else {
         // TODO(Ben): This
     }
