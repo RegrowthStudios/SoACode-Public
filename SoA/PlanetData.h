@@ -53,6 +53,7 @@ struct TerrainFuncKegProperties {
     f32 frequency = 1.0f;
     f32 low = -1.0f;
     f32 high = 1.0f;
+    Array<TerrainFuncKegProperties> children;
 };
 KEG_TYPE_DECL(TerrainFuncKegProperties);
 

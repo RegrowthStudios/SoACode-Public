@@ -15,13 +15,18 @@
 #ifndef OrbitComponentUpdater_h__
 #define OrbitComponentUpdater_h__
 
-struct OrbitComponent;
 class SpaceSystem;
 struct NamePositionComponent;
+struct OrbitComponent;
+struct SphericalGravityComponent;
 
 class OrbitComponentUpdater {
 public:
     void update(SpaceSystem* spaceSystem, f64 time);
+
+    /// Calculates current orbital speed in km/s
+    static f64 calculateOrbitalSpeed(SpaceSystem* spaceSystem, const OrbitComponent& oCmp,
+                                     const SphericalGravityComponent& sgCmp);
 
 private:
     /// Updates the position based on time and parent position

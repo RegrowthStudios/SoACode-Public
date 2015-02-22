@@ -34,15 +34,18 @@ void SoaController::startGame(OUT SoaState* state) {
         auto& arcmp = spaceSystem->m_axisRotationCT.getFromEntity(state->startingPlanet);
         auto& npcmp = spaceSystem->m_namePositionCT.getFromEntity(state->startingPlanet);
 
-        // Hacky way to Set initial velocity based on the planet
-        /*OrbitComponentUpdater updater;
+        // Set initial velocity based on the planet
+        OrbitComponentUpdater updater;
         f64 nextTime = state->time + state->timeStep * 60.0;
         updater.update(state->spaceSystem.get(), nextTime);
         f64v3 nextPos = npcmp.position;
         updater.update(state->spaceSystem.get(), state->time);
-        f64v3 velocity = (nextPos - npcmp.position) / 60.0;*/
+        f64 orbitalSpeed = updater.calculateOrbitalSpeed(state->spaceSystem.get(),
+                                                         spaceSystem->m_orbitCT.getFromEntity(state->startingPlanet),
+                                                         spaceSystem->m_sphericalGravityCT.getFromEntity(state->startingPlanet));
+        std::cout << orbitalSpeed << " " << glm::length(nextPos - npcmp.position) / 60.0 << std::endl;
+        f64v3 velocity = glm::normalize(nextPos - npcmp.position) * orbitalSpeed;
 
-        f64v3 velocity(0.0);
         // Create the player entity
         state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem.get(), state->startSpacePos,
                                                                   f64q(), 73.0f,

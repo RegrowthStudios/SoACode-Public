@@ -36,7 +36,6 @@ void PhysicsComponentUpdater::update(OUT GameSystem* gameSystem, SpaceSystem* sp
             // TODO(Ben): Optimize and fix
 #define PLAYER_MASS 80.0
 #define FPS 60.0
-            std::cout << std::endl;
             for (auto& it : spaceSystem->m_sphericalGravityCT) {
                 const f64v3& pos = spaceSystem->m_namePositionCT.get(it.second.namePositionComponent).position;
                 f64v3 distVec = pos - spcmp.position;

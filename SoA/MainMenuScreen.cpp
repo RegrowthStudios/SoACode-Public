@@ -153,7 +153,6 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
-    std::cout << m_soaState->time << std::endl;
 
     m_camera.update();
     m_inputManager->update(); // TODO: Remove
@@ -191,8 +190,10 @@ void MainMenuScreen::initInput() {
         SoaEngine::SpaceSystemLoadData loadData;
         loadData.filePath = "StarSystems/Trinity";
         SoaEngine::loadSpaceSystem(m_soaState, loadData);
+        CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
         m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
                                                                         &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+        m_camera = tmp; // Restore old camera
         m_renderPipeline.destroy();
         m_renderPipeline = MainMenuRenderPipeline();
         initRenderPipeline();
@@ -245,9 +246,6 @@ void MainMenuScreen::updateThreadFunc() {
 
     m_threadRunning = true;
 
-    Message message;
-
-    MessageManager* messageManager = GameManager::messageManager;
     /*
     messageManager->waitForMessage(THREAD, MessageID::DONE, message);
     if (message.id == MessageID::QUIT) {
@@ -265,20 +263,6 @@ void MainMenuScreen::updateThreadFunc() {
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
         GameManager::soundEngine->update();
 
-        while (messageManager->tryDeque(THREAD, message)) {
-            // Process the message
-            switch (message.id) {
-                case MessageID::NEW_PLANET:
-                    messageManager->enqueue(THREAD, Message(MessageID::NEW_PLANET, NULL));
-                    messageManager->enqueue(THREAD, Message(MessageID::DONE, NULL));
-                    messageManager->waitForMessage(THREAD, MessageID::DONE, message);
-                    break;
-            }
-        }
-
-      //  f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
-     
-        
         physicsFps = fpsLimiter.endFrame();
     }
 }

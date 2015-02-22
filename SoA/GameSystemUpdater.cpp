@@ -213,7 +213,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
                     vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, it.first, svid, voxOrientation, vGridPos);
                     pycmp.voxelPositionComponent = vpid;
                     pycmp.velocity = voxOrientation * pycmp.velocity;
-                    pycmp.velocity *= VOXELS_PER_KM;
+                    pycmp.velocity *= 0; // VOXELS_PER_KM;
                     
                     // Update dependencies for frustum
                     gameSystem->frustum.getFromEntity(it.first).voxelPositionComponent = vpid;
@@ -250,7 +250,7 @@ void GameSystemUpdater::updateVoxelPlanetTransitions(OUT GameSystem* gameSystem,
 
             // Delete the voxelPositionComponent
             pycmp.voxelPositionComponent = 0;
-            pycmp.velocity *= KM_PER_VOXEL;
+            pycmp.velocity *= KM_PER_VOXEL; // Add parent velocity
             gameSystem->deleteComponent("VoxelPosition", it.first);
 
             // Update dependencies for frustum
