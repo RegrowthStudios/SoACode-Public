@@ -26,4 +26,5 @@ KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, persistence);
 KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, frequency);
 KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, low);
 KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, high);
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("children", Keg::Value::array(offsetof(TerrainFuncKegProperties, children), Keg::Value::custom("TerrainFuncKegProperties", 0, false)));
 KEG_TYPE_INIT_END

@@ -102,6 +102,7 @@ struct SphericalVoxelComponent {
 struct SphericalTerrainComponent {
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
+    vcore::ComponentID sphericalVoxelComponent = 0;
 
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
@@ -113,6 +114,7 @@ struct SphericalTerrainComponent {
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
+    bool needsVoxelComponent = false;
     bool active = true;
 };
 

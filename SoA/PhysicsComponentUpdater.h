@@ -17,13 +17,28 @@
 
 class GameSystem;
 class SpaceSystem;
+struct PhysicsComponent;
+
+#include <Vorb/ecs/ECS.h>
 
 class PhysicsComponentUpdater {
 public:
     /// Updates physics components
     /// @param gameSystem: Game ECS
     /// @param spaceSystem: Space ECS.
-    void update(OUT GameSystem* gameSystem, SpaceSystem* spaceSystem);
+    void update(GameSystem* gameSystem, SpaceSystem* spaceSystem);
+
+    /// Calculates the acceleration vector due to gravity
+    /// @relativePosition: Relative position of object to attractor
+    /// @mass: Mass of the attractor
+    /// @return the acceleration vector
+    static f64v3 calculateGravityAcceleration(f64v3 relativePosition, f64 mass);
+private:
+    void updateVoxelPhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
+                            PhysicsComponent& pyCmp, vcore::EntityID entity);
+    void updateSpacePhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
+                            PhysicsComponent& pyCmp, vcore::EntityID entity);
+    
 };
 
 #endif // PhysicsComponentUpdater_h__
