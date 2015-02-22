@@ -93,6 +93,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
         f64 distance = glm::length(spCmp.position);
         if (distance < stCmp.sphericalTerrainData->radius * LOAD_DIST_MULT) {
+            std::cout << "TRANSITION\n";
             // Mark the terrain component as needing voxels
             if (!stCmp.needsVoxelComponent) {
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);

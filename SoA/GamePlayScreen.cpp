@@ -297,19 +297,25 @@ void GamePlayScreen::updateThreadFunc() {
 
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
+        SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
+        GameSystem* gameSystem = m_soaState->gameSystem.get();
 
         GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
         GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
         GameManager::soundEngine->update();
 
         m_soaState->time += m_soaState->timeStep;
-        auto& npcmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
-
-        m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState,
-                                       m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity).position,
+        // TODO(Ben): Don't hardcode for a single player
+        auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
+        auto parentNpCmpId = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId).namePositionComponent;
+        auto& parentNpCmp = spaceSystem->m_namePositionCT.get(parentNpCmpId);
+        // Calculate non-relative space position
+        f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
+        m_spaceSystemUpdater->update(spaceSystem, gameSystem, m_soaState,
+                                       trueSpacePosition,
                                        m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);
 
-        m_gameSystemUpdater->update(m_soaState->gameSystem.get(), m_soaState->spaceSystem.get(), m_soaState);
+        m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
 
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
