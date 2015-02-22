@@ -289,10 +289,6 @@ void GamePlayScreen::updateThreadFunc() {
     FpsLimiter fpsLimiter;
     fpsLimiter.init(maxPhysicsFps);
 
-    MessageManager* messageManager = GameManager::messageManager;
-
-    Message message;
-
     static int saveStateTicks = SDL_GetTicks();
 
     while (m_threadRunning) {
@@ -327,50 +323,6 @@ void GamePlayScreen::updateThreadFunc() {
     }
 }
 
-void GamePlayScreen::processMessages() {
-
-    TerrainMeshMessage* tmm;
-    int j = 0,k = 0;
-    MeshManager* meshManager = m_soaState->meshManager.get();
-    ChunkMesh* cm;
-    PreciseTimer timer;
-    timer.start();
-    int numMessages = GameManager::messageManager->tryDequeMultiple(ThreadId::RENDERING, messageBuffer, MESSAGES_PER_FRAME);
-    std::set<ChunkMesh*> updatedMeshes; // Keep track of which meshes we have already seen so we can ignore older duplicates
-    for (int i = numMessages - 1; i >= 0; i--) {
-        Message& message = messageBuffer[i];
-        switch (message.id) {
-            case MessageID::CHUNK_MESH:
-                j++;
-                cm = ((ChunkMeshData *)(message.data))->chunkMesh;
-                if (updatedMeshes.find(cm) == updatedMeshes.end()) {
-                    k++;
-                    updatedMeshes.insert(cm);
-                    meshManager->updateChunkMesh((ChunkMeshData *)(message.data));
-                } else {
-                    delete message.data;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    for (int i = 0; i < numMessages; i++) {
-        Message& message = messageBuffer[i];
-        switch (message.id) {
-            case MessageID::PARTICLE_MESH:
-                meshManager->updateParticleMesh((ParticleMeshMessage *)(message.data));
-                break;
-            case MessageID::PHYSICS_BLOCK_MESH:
-                meshManager->updatePhysicsBlockMesh((PhysicsBlockMeshMessage *)(message.data));
-                break;
-            default:
-                break;
-        }
-    }
-}
-
 void GamePlayScreen::updateWorldCameraClip() {
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
@@ -385,30 +337,4 @@ void GamePlayScreen::updateWorldCameraClip() {
     // The world camera has a dynamic clipping plane
     //m_player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     //m_player->getWorldCamera().updateProjection();
-}
-
-bool GamePlayScreen::loadPlayerFile(Player* player) {
-    //loadMarkers(player);
-    
-    std::vector<ui8> data;
-//    if (!m_gameStartState->saveFileIom.readFileToData(("Players/" + player->getName() + ".dat").c_str(), data)) {
-        //file doesnt exist so set spawn to random
-  //      srand(time(NULL));
-//        int spawnFace = rand() % 4 + 1;
-//        player->voxelMapData.face = spawnFace;
- //       return 0;
- //   }
-
-    int byte = 0;
- //   player->facePosition.x = BufferUtils::extractFloat(data.data(), (byte++) * 4);
- //   player->facePosition.y = BufferUtils::extractFloat(data.data(), (byte++) * 4);
- //   player->facePosition.z = BufferUtils::extractFloat(data.data(), (byte++) * 4);
- //   player->voxelMapData.face = BufferUtils::extractInt(data.data(), (byte++) * 4);
- //   player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
-  //  player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
-  //  player->isFlying = BufferUtils::extractBool(data.data(), byte * 4);
-
- //   player->voxelMapData.ipos = fastFloor(player->facePosition.z / (double)CHUNK_WIDTH);
-  //  player->voxelMapData.jpos = fastFloor(player->facePosition.x / (double)CHUNK_WIDTH);
-    return 1;
 }

@@ -14,7 +14,6 @@ FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
     delete m_farWaterProgram;
 }
 
-
 void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
                                        const Camera* camera,
                                        const f64v3& lightPos,

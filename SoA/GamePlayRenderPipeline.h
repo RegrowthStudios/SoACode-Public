@@ -111,8 +111,9 @@ private:
     VGEnum m_drawMode;
 
     ui32v4 _viewport; ///< Viewport to draw to
-    Camera _worldCamera; ///< handle to world camera
-    Camera _chunkCamera; ///< handle to chunk camera
+    Camera m_spaceCamera; ///< handle to world camera
+    Camera m_farTerrainCamera; ///< Camera for far terrain only
+    Camera m_voxelCamera; ///< handle to voxel camera
     const MeshManager* _meshManager; ///< Handle to the meshes
     bool m_voxelsActive = false;
 };

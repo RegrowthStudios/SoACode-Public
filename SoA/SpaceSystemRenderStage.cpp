@@ -18,15 +18,15 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
                                                GameSystem* gameSystem,
                                                const MainMenuSystemViewer* systemViewer,
-                                               const Camera* camera,
-                                               const Camera* voxelCamera,
+                                               const Camera* spaceCamera,
+                                               const Camera* farTerrainCamera,
                                                VGTexture selectorTexture) :
     m_viewport(viewport),
     m_spaceSystem(spaceSystem),
     m_gameSystem(gameSystem),
     m_mainMenuSystemViewer(systemViewer),
-    m_camera(camera),
-    m_voxelCamera(voxelCamera),
+    m_spaceCamera(spaceCamera),
+    m_farTerrainCamera(farTerrainCamera),
     m_selectorTexture(selectorTexture) {
     // Empty
 }
@@ -37,7 +37,7 @@ SpaceSystemRenderStage::~SpaceSystemRenderStage() {
 
 void SpaceSystemRenderStage::draw() {
     drawBodies();
-    m_systemARRenderer.draw(m_spaceSystem, m_camera,
+    m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
                             m_viewport);
    
@@ -57,7 +57,7 @@ void SpaceSystemRenderStage::drawBodies() {
         SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
         lightCache[it.first] = lightCmp;
 
-        m_sphericalTerrainComponentRenderer.draw(cmp, m_camera,
+        m_sphericalTerrainComponentRenderer.draw(cmp, m_spaceCamera,
                                                  lightPos,
                                                  lightCmp,
                                                  &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
@@ -65,13 +65,13 @@ void SpaceSystemRenderStage::drawBodies() {
     }
 
     // Render far terrain
-    if (m_voxelCamera) {
+    if (m_farTerrainCamera) {
         for (auto& it : m_spaceSystem->m_farTerrainCT) {
             auto& cmp = it.second;
 
             SpaceLightComponent* lightCmp = lightCache[it.first];
 
-            m_farTerrainComponentRenderer.draw(cmp, m_voxelCamera,
+            m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
                                                lightPos,
                                                lightCmp,
                                                &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));

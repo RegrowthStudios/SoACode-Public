@@ -104,14 +104,8 @@ private:
     /// loading the planet in the background.
     void updateThreadFunc();
 
-    /// Processes messages from the update->render thread
-    void processMessages();
-
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
-
-    /// Loads the player save file
-    bool loadPlayerFile(Player* player);
 
     const MainMenuScreen* m_mainMenuScreen = nullptr;
     SoaState* m_soaState = nullptr;

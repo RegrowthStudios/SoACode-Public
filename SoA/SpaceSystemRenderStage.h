@@ -36,8 +36,8 @@ public:
                            SpaceSystem* spaceSystem,
                            GameSystem* gameSystem,
                            const MainMenuSystemViewer* systemViewer,
-                           const Camera* camera,
-                           const Camera* voxelCamera,
+                           const Camera* spaceCamera,
+                           const Camera* farTerrainCamera,
                            VGTexture selectorTexture);
     ~SpaceSystemRenderStage();
 
@@ -62,8 +62,8 @@ private:
     SpaceSystem* m_spaceSystem = nullptr;
     GameSystem* m_gameSystem = nullptr;
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
-    const Camera* m_camera = nullptr;
-    const Camera* m_voxelCamera = nullptr;
+    const Camera* m_spaceCamera = nullptr;
+    const Camera* m_farTerrainCamera = nullptr;
     VGTexture m_selectorTexture = 0;
 
     SystemARRenderer m_systemARRenderer;

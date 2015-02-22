@@ -68,15 +68,15 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     // Get window dimensions
     f32v2 windowDims(_viewport.z, _viewport.w);
 
-    _worldCamera.setAspectRatio(windowDims.x / windowDims.y);
-    _chunkCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_voxelCamera.setAspectRatio(windowDims.x / windowDims.y);
 
     // Set up shared params
     const vg::GLProgramManager* glProgramManager = soaState->glProgramManager.get();
     _gameRenderParams.glProgramManager = glProgramManager;
 
     // Init render stages
-    _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &_worldCamera);
+    _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &m_spaceCamera);
     _physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, _meshManager->getPhysicsBlockMeshes(), glProgramManager->getProgram("PhysicsBlock"));
     _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
     _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
@@ -87,12 +87,12 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     _pdaRenderStage = new PdaRenderStage(pda);
     _pauseMenuRenderStage = new PauseMenuRenderStage(pauseMenu);
     _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
-    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, &_chunkCamera);
+    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, &m_voxelCamera);
     m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(windowDims),
                                                           spaceSystem,
                                                           gameSystem,
-                                                          nullptr, &_worldCamera,
-                                                          &_chunkCamera,
+                                                          nullptr, &m_spaceCamera,
+                                                          &m_farTerrainCamera,
                                                           GameManager::textureCache->addTexture("Textures/selector.png").id);
 
     loadNightVision();
@@ -111,7 +111,7 @@ void GamePlayRenderPipeline::render() {
 
     updateCameras();
     // Set up the gameRenderParams
-    _gameRenderParams.calculateParams(_worldCamera.getPosition(), &_chunkCamera,
+    _gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_voxelCamera,
                                       &_meshManager->getChunkMeshes(), false);
     // Bind the FBO
     _hdrFrameBuffer->use();
@@ -287,10 +287,16 @@ void GamePlayRenderPipeline::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        _chunkCamera.setClippingPlane(0.2f, 10000.0f);
-        _chunkCamera.setPosition(vpcmp.gridPosition.pos);
-        _chunkCamera.setOrientation(vpcmp.orientation);
-        _chunkCamera.update();
+        m_voxelCamera.setClippingPlane(0.2f, 10000.0f);
+        m_voxelCamera.setPosition(vpcmp.gridPosition.pos);
+        m_voxelCamera.setOrientation(vpcmp.orientation);
+        m_voxelCamera.update();
+
+        // Far terrain camera is exactly like voxel camera except for clip plane
+        m_farTerrainCamera = m_voxelCamera;
+        m_farTerrainCamera.setClippingPlane(1.0f, 100000.0f);
+        m_farTerrainCamera.update();
+
         m_voxelsActive = true;
         sNearClip = 0.05;
     } else {
@@ -302,13 +308,13 @@ void GamePlayRenderPipeline::updateCameras() {
         auto& parentSgCmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityId);
         auto& parentNpCmp = ss->m_namePositionCT.get(parentSgCmp.namePositionComponent);
         // TODO(Ben): Could get better precision by not using + parentNpCmp.position here?
-        _worldCamera.setPosition(spcmp.position + parentNpCmp.position);
+        m_spaceCamera.setPosition(spcmp.position + parentNpCmp.position);
     } else {
-        _worldCamera.setPosition(spcmp.position);
+        m_spaceCamera.setPosition(spcmp.position);
     }
     //printVec("POSITION: ", spcmp.position);
-    _worldCamera.setClippingPlane(sNearClip, 999999999.0f);
+    m_spaceCamera.setClippingPlane(sNearClip, 999999999.0f);
    
-    _worldCamera.setOrientation(spcmp.orientation);
-    _worldCamera.update();
+    m_spaceCamera.setOrientation(spcmp.orientation);
+    m_spaceCamera.update();
 }
