@@ -22,6 +22,7 @@
 #include "AwesomiumInterface.h"
 #include "GamePlayRenderPipeline.h"
 #include "LoadMonitor.h"
+#include "MTRenderStateManager.h"
 #include "MessageManager.h"
 #include "PDA.h"
 #include "PauseMenu.h"
@@ -129,8 +130,7 @@ private:
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
-    #define MESSAGES_PER_FRAME 300
-    Message messageBuffer[MESSAGES_PER_FRAME];
+    MTRenderStateManager m_renderStateManager;
 };
 
 #endif // GAMEPLAYSCREEN_H_

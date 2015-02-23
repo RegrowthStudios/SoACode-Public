@@ -40,10 +40,10 @@ void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, in
 }
 
 void FarTerrainPatch::update(const f64v3& cameraPos) {
-    const float DIST_MIN = 3.0f;
-    const float DIST_MAX = 3.1f;
+    static const float DIST_MIN = 3.0f;
+    static const float DIST_MAX = 3.1f;
 
-    const float MIN_SIZE = 0.4096f;
+    static const float MIN_SIZE = 0.4096f;
 
     f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
 
