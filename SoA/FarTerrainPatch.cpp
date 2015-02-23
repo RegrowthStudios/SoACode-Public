@@ -120,7 +120,6 @@ bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, 
 }
 
 void FarTerrainPatch::requestMesh() {
-
     f32v3 startPos(m_gridPos.x,
                    m_terrainPatchData->radius,
                    m_gridPos.y);
