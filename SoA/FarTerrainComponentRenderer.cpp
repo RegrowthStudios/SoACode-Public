@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatchMeshManager.h"
+#include "VoxelSpaceUtils.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/graphics/GLProgram.h>
@@ -16,11 +17,17 @@ FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
 
 void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
                                        const Camera* camera,
-                                       const f64v3& lightPos,
+                                       const f64v3& lightDir,
                                        const SpaceLightComponent* spComponent,
                                        const AxisRotationComponent* arComponent) {
+    // Get voxel position for quaternion calculation
+    VoxelPosition3D pos;
+    pos.pos = camera->getPosition();
+    pos.face = cmp.face;
     // Calculate relative light position
-    f32v3 lightDir = f32v3(glm::inverse(arComponent->currentOrientation) * f64v3(lightDir));
+    f64v3 relLightDir = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(pos, cmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * lightDir;
+    relLightDir = glm::inverse(arComponent->currentOrientation) * relLightDir;
+
     // Lazy shader init
     if (!m_farTerrainProgram) {
         buildShaders();
@@ -30,7 +37,7 @@ void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
     // Draw far patches
     cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
                                     m_farTerrainProgram, m_farWaterProgram,
-                                    lightDir);
+                                    f32v3(relLightDir));
     glEnable(GL_CULL_FACE);
 }
 

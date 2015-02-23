@@ -30,7 +30,7 @@ public:
     ~SphericalTerrainComponentRenderer();
     void draw(SphericalTerrainComponent& cmp,
               const Camera* camera,
-              const f64v3& lightPos,
+              const f32v3& lightDir,
               const SpaceLightComponent* spComponent,
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);

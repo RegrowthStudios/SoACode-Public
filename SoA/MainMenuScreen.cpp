@@ -37,8 +37,6 @@
 #include "TerrainPatch.h"
 #include "VoxelEditor.h"
 
-#define THREAD ThreadId::UPDATE
-
 MainMenuScreen::MainMenuScreen(const App* app, const LoadScreen* loadScreen) :
     IAppScreen<App>(app),
     m_loadScreen(loadScreen),

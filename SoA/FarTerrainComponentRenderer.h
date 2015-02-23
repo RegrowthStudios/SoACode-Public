@@ -31,7 +31,7 @@ public:
     ~FarTerrainComponentRenderer();
     void draw(FarTerrainComponent& cmp,
               const Camera* camera,
-              const f64v3& lightPos,
+              const f64v3& lightDir,
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent* arComponent);
 

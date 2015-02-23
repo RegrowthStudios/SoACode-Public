@@ -19,8 +19,6 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
         f64v3 relativeCameraPos = cameraPos;
         f64 distance = glm::length(relativeCameraPos);
 
-        printVec("Position: ", cameraPos);
-
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed
             if (!cmp.patches) {

@@ -37,7 +37,7 @@
 #include "VoxelEditor.h"
 #include "SoaEngine.h"
 
-#define THREAD ThreadId::UPDATE
+#define MT_RENDER
 
 GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
@@ -138,7 +138,9 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     handleInput();
 
     // TODO(Ben): This is temporary
+#ifndef MT_RENDER
     updateECS();
+#endif
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -314,8 +316,11 @@ void GamePlayScreen::updateThreadFunc() {
 
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
+
         // TODO(Ben): Figure out how to make this work for MT
-        //updateECS()
+#ifdef MT_RENDER
+        updateECS();
+#endif
 
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {

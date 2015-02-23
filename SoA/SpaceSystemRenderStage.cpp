@@ -14,6 +14,15 @@
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
 
+const f64q FACE_ORIENTATIONS[6] = {
+    f64q(f64v3(0.0, 0.0, 0.0)), // TOP
+    f64q(f64v3(0.0, 0.0, -M_PI / 2.0)), // LEFT
+    f64q(f64v3(0.0, 0.0, M_PI / 2.0)), // RIGHT
+    f64q(f64v3(M_PI / 2.0, 0.0, 0.0)), // FRONT
+    f64q(f64v3(-M_PI / 2.0, 0.0, 0.0)), // BACK
+    f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
+};
+
 SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
                                                GameSystem* gameSystem,
@@ -48,19 +57,22 @@ void SpaceSystemRenderStage::drawBodies() {
 
     f64v3 lightPos;
     // For caching light for far terrain
-    std::map<vcore::EntityID, SpaceLightComponent*> lightCache;
+    std::map<vcore::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
 
     // Render spherical terrain
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.getFromEntity(it.first);
 
         SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
-        lightCache[it.first] = lightCmp;
+        lightCache[it.first] = std::make_pair(lightPos, lightCmp);
+
+        f32v3 lightDir(glm::normalize(lightPos - npCmp.position));
 
         m_sphericalTerrainComponentRenderer.draw(cmp, m_spaceCamera,
-                                                 lightPos,
+                                                 lightDir,
                                                  lightCmp,
-                                                 &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
+                                                 &npCmp,
                                                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
     }
 
@@ -68,13 +80,16 @@ void SpaceSystemRenderStage::drawBodies() {
     if (m_farTerrainCamera) {
         for (auto& it : m_spaceSystem->m_farTerrainCT) {
             auto& cmp = it.second;
+            auto& npCmp = m_spaceSystem->m_namePositionCT.getFromEntity(it.first);
+
             if (!cmp.meshManager) continue;
 
-            SpaceLightComponent* lightCmp = lightCache[it.first];
+            auto& l = lightCache[it.first];
+            f64v3 lightDir = glm::normalize(l.first - npCmp.position);
 
             m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
-                                               lightPos,
-                                               lightCmp,
+                                               lightDir,
+                                               l.second,
                                                &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
         }
     }
