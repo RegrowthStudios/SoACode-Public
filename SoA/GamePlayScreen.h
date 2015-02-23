@@ -103,6 +103,9 @@ private:
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
+    
+    /// Updates the Entity component system
+    void updateECS();
 
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();

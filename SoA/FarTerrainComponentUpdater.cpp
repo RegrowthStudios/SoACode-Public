@@ -8,6 +8,7 @@
 #include "SphericalTerrainCpuGenerator.h"
 #include "VoxelCoordinateSpaces.h"
 #include "FarTerrainPatch.h"
+#include "soaUtils.h"
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
@@ -17,6 +18,8 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
         /// Calculate camera distance
         f64v3 relativeCameraPos = cameraPos;
         f64 distance = glm::length(relativeCameraPos);
+
+        printVec("Position: ", cameraPos);
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed

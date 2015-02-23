@@ -68,6 +68,7 @@ void SpaceSystemRenderStage::drawBodies() {
     if (m_farTerrainCamera) {
         for (auto& it : m_spaceSystem->m_farTerrainCT) {
             auto& cmp = it.second;
+            if (!cmp.meshManager) continue;
 
             SpaceLightComponent* lightCmp = lightCache[it.first];
 
