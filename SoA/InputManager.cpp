@@ -301,4 +301,3 @@ InputManager::AxisType InputManager::getAxisType(const i32 axisID) {
     if(axisID < 0 || axisID >= _axes.size()) return AxisType::NONE;
     return _axes.at(axisID)->type;
 }
-

@@ -15,10 +15,11 @@
 #ifndef SpaceSystemUpdater_h__
 #define SpaceSystemUpdater_h__
 
-#include "OrbitComponentUpdater.h"
-#include "SphericalVoxelComponentUpdater.h"
-#include "SphericalTerrainComponentUpdater.h"
 #include "AxisRotationComponentUpdater.h"
+#include "FarTerrainComponentUpdater.h"
+#include "OrbitComponentUpdater.h"
+#include "SphericalTerrainComponentUpdater.h"
+#include "SphericalVoxelComponentUpdater.h"
 
 class SpaceSystem;
 class GameSystem;
@@ -27,7 +28,7 @@ class SoaState;
 class SpaceSystemUpdater {
 public:
     void update(OUT SpaceSystem* spaceSystem, const GameSystem* gameSystem,
-                const SoaState* soaState, const f64v3& spacePos);
+                const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos);
 
     /// Updates OpenGL specific stuff, should be called on render thread
     void glUpdate(OUT SpaceSystem* spaceSystem);
@@ -42,6 +43,7 @@ private:
     SphericalTerrainComponentUpdater m_sphericalTerrainComponentUpdater;
     friend class AxisRotationComponentUpdater;
     AxisRotationComponentUpdater m_axisRotationComponentUpdater;
+    FarTerrainComponentUpdater m_farTerrainComponentUpdater;
 };
 
 #endif // SpaceSystemUpdater_h__

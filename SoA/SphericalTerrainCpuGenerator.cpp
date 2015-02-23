@@ -5,9 +5,7 @@
 #include "VoxelSpaceConversions.h"
 #include "CpuNoise.h"
 
-#define KM_PER_VOXEL 0.0005f
-
-SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(SphericalTerrainMeshManager* meshManager,
+SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
                                                            PlanetGenData* planetGenData) :
     m_mesher(meshManager, planetGenData),
     m_genData(planetGenData) {
@@ -19,11 +17,11 @@ SphericalTerrainCpuGenerator::~SphericalTerrainCpuGenerator() {
     // Empty
 }
 
-void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) {
+void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) {
 
     f32v3 pos;
-    const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)cubeFace];
-    const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace][0]);
+    const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
+    const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace]);
     
     const float VERT_WIDTH = width / PATCH_WIDTH;
 
@@ -39,8 +37,8 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
             pos[coordMapping.y] = startPos.y;
             pos[coordMapping.z] = startPos.z + z * VERT_WIDTH * coordMults.y;
 
-            zIndex = z * PIXELS_PER_PATCH_NM + 1;
-            xIndex = x * PIXELS_PER_PATCH_NM + 1;
+            zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
+            xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
 
             heightData[zIndex][xIndex][0] = getNoiseValue(pos, m_genData->baseTerrainFuncs);
             heightData[zIndex][xIndex][1] = getNoiseValue(pos, m_genData->tempTerrainFuncs);
@@ -50,12 +48,12 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT SphericalTerrainMesh
         }
     }
 
-    m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData);
+    m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData, true);
 }
 
-float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelFacePosition2D& facePosition) {
+float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelPosition2D& facePosition) {
     // Get scaled position
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
 
     // Set the data
     f32v3 pos(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,

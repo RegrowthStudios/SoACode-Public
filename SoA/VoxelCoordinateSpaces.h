@@ -21,46 +21,22 @@ enum WorldCubeFace {
     FACE_NONE
 };
 
-struct ChunkGridPosition2D {
-    i32v2 pos = i32v2(0);
-    WorldCubeFace face = FACE_TOP;
-    int rotation = 0;
-};
-
-struct ChunkGridPosition3D {
-    i32v3 pos = i32v3(0);
-    WorldCubeFace face = FACE_TOP;
-    int rotation = 0;
-};
-
-struct VoxelGridPosition2D {
-    f64v2 pos = f64v2(0.0);
-    WorldCubeFace face = FACE_TOP;
-    int rotation = 0;
-};
-
-struct VoxelGridPosition3D {
-    f64v3 pos = f64v3(0.0);
-    WorldCubeFace face = FACE_TOP;
-    int rotation = 0;
-};
-
-struct ChunkFacePosition2D {
+struct ChunkPosition2D {
     i32v2 pos = i32v2(0);
     WorldCubeFace face = FACE_TOP;
 };
 
-struct ChunkFacePosition3D {
-    i32v3 pos = i32v3(0);
+struct ChunkPosition3D {
+    i32v3 pos;
     WorldCubeFace face = FACE_TOP;
 };
 
-struct VoxelFacePosition2D {
+struct VoxelPosition2D {
     f64v2 pos = f64v2(0.0);
     WorldCubeFace face = FACE_TOP;
 };
 
-struct VoxelFacePosition3D {
+struct VoxelPosition3D {
     f64v3 pos = f64v3(0.0);
     WorldCubeFace face = FACE_TOP;
 };

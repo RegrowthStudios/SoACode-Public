@@ -23,18 +23,53 @@
 #include <Vorb/VorbPreDecl.inl>
 
 #include "VoxelSpaceConversions.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "TerrainGenTextures.h"
-#include "SphericalTerrainPatchMesher.h"
+#include "TerrainPatchMesher.h"
 
 class TerrainGenDelegate;
 class RawGenDelegate;
+class ChunkGridData;
+class SphericalTerrainGpuGenerator;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
+class RawGenDelegate : public IDelegate < void* > {
+public:
+    virtual void invoke(Sender sender, void* userData) override;
+    void release();
+    volatile bool inUse = false;
+
+    vcore::RPC rpc;
+
+    f32v3 startPos;
+    WorldCubeFace cubeFace;
+    int width;
+    float step;
+
+    std::shared_ptr<ChunkGridData> gridData = nullptr;
+
+    SphericalTerrainGpuGenerator* generator = nullptr;
+};
+
+class HeightmapGenRpcDispatcher {
+public:
+    HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator);
+    ~HeightmapGenRpcDispatcher();
+    /// @return a new mesh on success, nullptr on failure
+    bool dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
+private:
+    static const int NUM_GENERATORS = 512;
+    int counter = 0;
+
+    SphericalTerrainGpuGenerator* m_generator = nullptr;
+
+    RawGenDelegate *m_generators = nullptr;
+};
+
 class SphericalTerrainGpuGenerator {
 public:
-    SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainGpuGenerator(TerrainPatchMeshManager* meshManager,
                               PlanetGenData* planetGenData,
                               vg::GLProgram* normalProgram,
                               vg::TextureRecycler* normalMapRecycler);
@@ -63,7 +98,12 @@ public:
         m_patchRpcManager.invoke(so, false);
     }
 
+    vg::GLProgram* getNormalProgram() { return m_normalProgram; }
+    vg::TextureRecycler* getNormalMapRecycler() { return m_normalMapRecycler; }
     const PlanetGenData* getPlanetGenData() { return m_planetGenData; }
+
+    HeightmapGenRpcDispatcher heightmapGenRpcDispatcher;
+
 private:
     /// Updates terrain patch generation
     void updatePatchGeneration();
@@ -102,13 +142,14 @@ private:
     VGUniform unCoordMults;
     VGUniform unCoordMapping;
     VGUniform unPatchWidth;
+    VGUniform unRadius;
     VGUniform unHeightMap;
     VGUniform unWidth;
     VGUniform unTexelWidth;
 
     vg::FullQuadVBO m_quad; ///< Quad for rendering
 
-    SphericalTerrainPatchMesher m_mesher; ///< Creates patch meshes
+    TerrainPatchMesher m_mesher; ///< Creates patch meshes
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]; ///< Stores height data
 };

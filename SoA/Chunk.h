@@ -42,34 +42,16 @@ class SphericalTerrainGpuGenerator;
 
 class ChunkGridData {
 public:
-    ChunkGridData(const i32v2& pos, WorldCubeFace face, int rotation) {
+    ChunkGridData(const i32v2& pos, WorldCubeFace face) {
         gridPosition.pos = pos;
         gridPosition.face = face;
-        gridPosition.rotation = rotation;
     }
 
-    ChunkGridPosition2D gridPosition;
-    HeightData heightData[CHUNK_LAYER];
+    ChunkPosition2D gridPosition;
     int refCount = 1;
+    HeightData heightData[CHUNK_LAYER];
     volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
     volatile bool isLoaded = false;
-};
-
-class RawGenDelegate : public IDelegate < void* > {
-public:
-    virtual void invoke(Sender sender, void* userData) override;
-    volatile bool inUse = false;
-
-    vcore::RPC rpc;
-
-    f32v3 startPos;
-    WorldCubeFace cubeFace;
-    int width;
-    float step;
-
-    ChunkGridData* gridData = nullptr;
-
-    SphericalTerrainGpuGenerator* generator = nullptr;
 };
 
 class Chunk{
@@ -86,7 +68,7 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
 
-    void init(const i32v3 &chunkPos, ChunkGridData* chunkGridData);
+    void init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
@@ -239,8 +221,8 @@ public:
 
     Chunk *right, *left, *front, *back, *top, *bottom;
 
-    ChunkGridData* chunkGridData;
-    ChunkGridPosition3D gridPosition;
+    std::shared_ptr<ChunkGridData> chunkGridData;
+    ChunkPosition3D gridPosition;
 
     // Thread safety functions
     inline void lock() { _dataLock.lock(); }

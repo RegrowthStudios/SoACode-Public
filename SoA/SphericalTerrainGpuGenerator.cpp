@@ -11,17 +11,58 @@
 #include "PlanetData.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainMeshManager.h"
+#include "TerrainPatchMeshManager.h"
 
-#define M_PER_KM 1000.0f
-#define KM_PER_M 0.001f
-#define KM_PER_VOXEL 0.0005f
-#define VOXELS_PER_M 2.0f
-#define VOXELS_PER_KM 2000.0f
 
 float SphericalTerrainGpuGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 
-SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshManager* meshManager,
+HeightmapGenRpcDispatcher::HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
+    m_generator(generator) {
+    // Empty    
+}
+
+HeightmapGenRpcDispatcher::~HeightmapGenRpcDispatcher() {
+    delete[] m_generators;
+}
+
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
+    // Lazy init
+    if (!m_generators) {
+        m_generators = new RawGenDelegate[NUM_GENERATORS];
+        for (int i = 0; i < NUM_GENERATORS; i++) {
+            m_generators[i].generator = m_generator;
+        }
+    }
+    
+    // Check if there is a free generator
+    if (!m_generators[counter].inUse) {
+        auto& gen = m_generators[counter];
+        // Mark the generator as in use
+        gen.inUse = true;
+        cgd->wasRequestSent = true;
+        gen.gridData = cgd;
+        gen.rpc.data.f = &gen;
+
+        // Set the data
+        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
+                             planetRadius * KM_PER_VOXEL,
+                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL);
+
+        gen.cubeFace = facePosition.face;
+
+        gen.width = 32;
+        gen.step = KM_PER_VOXEL;
+        // Invoke generator
+        m_generator->invokeRawGen(&gen.rpc);
+        // Go to next generator
+        counter++;
+        if (counter == NUM_GENERATORS) counter = 0;
+        return true;
+    }
+    return false;
+}
+
+SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(TerrainPatchMeshManager* meshManager,
                                                      PlanetGenData* planetGenData,
                                                      vg::GLProgram* normalProgram,
                                                      vg::TextureRecycler* normalMapRecycler) :
@@ -33,10 +74,12 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(SphericalTerrainMeshM
     unCoordMults(m_genProgram->getUniform("unCoordMults")),
     unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
     unPatchWidth(m_genProgram->getUniform("unPatchWidth")),
+    unRadius(m_genProgram->getUniform("unRadius")),
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
     unWidth(m_normalProgram->getUniform("unWidth")),
     unTexelWidth(m_normalProgram->getUniform("unTexelWidth")),
-    m_mesher(meshManager, planetGenData) {
+    m_mesher(meshManager, planetGenData),
+    heightmapGenRpcDispatcher(this) {
 
     // Zero counters
     m_patchCounter[0] = 0;
@@ -150,26 +193,32 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     // Check for early delete
     if (data->mesh->m_shouldDelete) {
         delete data->mesh;
-        data->inUse = false;
+        data->release();
         return;
     }
 
     m_patchTextures[m_dBufferIndex][patchCounter].use();
     m_patchDelegates[m_dBufferIndex][patchCounter] = data;
 
-    // Get padded position
     f32v3 cornerPos = data->startPos;
-    const i32v3& coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)data->cubeFace];
+    const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
+    const f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
+
+    // Map to world space
+    cornerPos.x *= coordMults.x;
+    cornerPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)data->cubeFace];
+    cornerPos.z *= coordMults.y;
+
+    // Get padded position
     cornerPos[coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
     cornerPos[coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
-
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
 
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
     glUniform1f(unPatchWidth, data->width);
+    glUniform1f(unRadius, m_planetGenData->radius);
 
     m_quad.draw();
 
@@ -192,14 +241,20 @@ void SphericalTerrainGpuGenerator::generateRawHeightmap(RawGenDelegate* data) {
     m_rawTextures[m_dBufferIndex][rawCounter].use();
     m_rawDelegates[m_dBufferIndex][rawCounter] = data;
 
-    // Get scaled position
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace][0]);
+    f32v3 cornerPos = data->startPos;
+    const f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
+
+    // Map to world space
+    cornerPos.x *= coordMults.x;
+    cornerPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)data->cubeFace];
+    cornerPos.z *= coordMults.y;
 
     // Send uniforms
-    glUniform3fv(unCornerPos, 1, &data->startPos[0]);
+    glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
-    i32v3 coordMapping = VoxelSpaceConversions::GRID_TO_WORLD[(int)data->cubeFace];
+    i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
+    glUniform1f(unRadius, m_planetGenData->radius);
 
     glUniform1f(unPatchWidth, (float)data->width * data->step);
     m_quad.draw();
@@ -235,7 +290,7 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         // Check for early delete
         if (data->mesh->m_shouldDelete) {
             delete data->mesh;
-            data->inUse = false;
+            data->release();
             continue;
         }
 
@@ -269,9 +324,9 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         m_quad.draw();
 
         // And finally build the mesh
-        m_mesher.buildMesh(data->mesh, data->startPos, data->cubeFace, data->width, m_heightData);
+        m_mesher.buildMesh(data->mesh, data->startPos, data->cubeFace, data->width, m_heightData, data->isSpherical);
 
-        data->inUse = false;
+        data->release();
     }
     m_patchCounter[m_dBufferIndex] = 0;
 
@@ -315,8 +370,7 @@ void SphericalTerrainGpuGenerator::updateRawGeneration() {
         }
 
         data->gridData->isLoaded = true;
-        data->gridData->refCount--; //TODO(Ben): This will result in a memory leak since when it hits 0, it wont deallocate
-        data->inUse = false;
+        data->release();
     }
     m_rawCounter[m_dBufferIndex] = 0;
 }

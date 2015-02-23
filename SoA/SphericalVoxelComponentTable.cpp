@@ -12,4 +12,5 @@ void SphericalVoxelComponentTable::disposeComponent(vcore::ComponentID cID, vcor
     delete cmp.chunkManager;
     delete cmp.chunkIo;
     delete cmp.particleEngine;
+    cmp = _components[0].second;
 }

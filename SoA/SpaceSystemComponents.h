@@ -19,18 +19,21 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
 
+#include "VoxelCoordinateSpaces.h"
+
 class ChunkIOManager;
 class ChunkManager;
+class FarTerrainPatch;
 class ParticleEngine;
 class PhysicsEngine;
-struct PlanetGenData;
-struct PlanetGenData;
-class SphericalTerrainData;
 class SphericalTerrainCpuGenerator;
+struct TerrainPatchData;
 class SphericalTerrainGpuGenerator;
-class SphericalTerrainMeshManager;
-class SphericalTerrainPatch;
+class TerrainPatchMeshManager;
+class TerrainPatch;
 class TerrainRpcDispatcher;
+struct PlanetGenData;
+struct PlanetGenData;
 
 DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);
@@ -39,13 +42,19 @@ struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
     f64q currentOrientation; ///< Current orientation with axis and rotation
     f64q invCurrentOrientation; ///< Inverse of currentOrientation
-    f64 angularSpeed_RS = 0.0; ///< Rotational speed about axis in radians per second
+    f64 period = 0.0; ///< Period of rotation in seconds
     f64 currentRotation = 0.0; ///< Current rotation about axis in radians
 };
 
 struct NamePositionComponent {
     f64v3 position; ///< Position in space, in KM
     nString name; ///< Name of the entity
+};
+
+struct SpaceLightComponent {
+    vcore::ComponentID parentNpId; ///< Component ID of parent NamePosition component
+    color3 color; ///< Color of the light
+    f32 intensity; ///< Intensity of the light
 };
 
 struct OrbitComponent {
@@ -62,6 +71,7 @@ struct OrbitComponent {
 };
 
 struct SphericalGravityComponent {
+    vcore::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
     f64 radius = 0.0; ///< Radius in KM
     f64 mass = 0.0; ///< Mass in KG
 };
@@ -76,11 +86,12 @@ struct SphericalVoxelComponent {
     SphericalTerrainGpuGenerator* generator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
-    const SphericalTerrainData* sphericalTerrainData = nullptr;
+    const TerrainPatchData* sphericalTerrainData = nullptr;
 
     const vio::IOManager* saveFileIom = nullptr;
 
     vcore::ComponentID sphericalTerrainComponent = 0;
+    vcore::ComponentID farTerrainComponent = 0;
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
 
@@ -91,17 +102,39 @@ struct SphericalVoxelComponent {
 struct SphericalTerrainComponent {
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
+    vcore::ComponentID sphericalVoxelComponent = 0;
+    vcore::ComponentID farTerrainComponent = 0;
 
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
-    SphericalTerrainPatch* patches = nullptr; ///< Buffer for top level patches
-    SphericalTerrainData* sphericalTerrainData = nullptr;
+    TerrainPatch* patches = nullptr; ///< Buffer for top level patches
+    TerrainPatchData* sphericalTerrainData = nullptr;
 
-    SphericalTerrainMeshManager* meshManager = nullptr;
+    TerrainPatchMeshManager* meshManager = nullptr;
     SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
+    VoxelPosition3D startVoxelPosition;
+    bool needsVoxelComponent = false;
+    bool active = true;
+};
+
+struct FarTerrainComponent {
+    TerrainRpcDispatcher* rpcDispatcher = nullptr;
+
+    FarTerrainPatch* patches = nullptr; ///< Buffer for top level patches
+    TerrainPatchData* sphericalTerrainData = nullptr;
+
+    TerrainPatchMeshManager* meshManager = nullptr;
+    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
+    SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
+
+    WorldCubeFace face = FACE_NONE;
+
+    PlanetGenData* planetGenData = nullptr;
+    i32v2 center = i32v2(0); ///< Center, in units of patch width, where camera is
+    i32v2 origin = i32v2(0); ///< Specifies which patch is the origin (back left corner) on the grid
 };
 
 #endif // SpaceSystemComponents_h__

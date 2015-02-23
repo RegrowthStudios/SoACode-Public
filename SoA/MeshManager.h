@@ -24,7 +24,7 @@ class PhysicsBlockMeshMessage;
 class ChunkMesh;
 class ParticleMesh;
 class PhysicsBlockMesh;
-class SphericalTerrainMesh;
+class TerrainPatchMesh;
 
 DECL_VG(class, GLProgramManager);
 

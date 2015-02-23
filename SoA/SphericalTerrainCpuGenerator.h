@@ -16,15 +16,15 @@
 #ifndef SphericalTerrainCpuGenerator_h__
 #define SphericalTerrainCpuGenerator_h__
 
-#include "SphericalTerrainPatch.h"
-#include "SphericalTerrainPatchMesher.h"
+#include "TerrainPatch.h"
+#include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
 
 class TerrainFuncs;
 
 class SphericalTerrainCpuGenerator {
 public:
-    SphericalTerrainCpuGenerator(SphericalTerrainMeshManager* meshManager,
+    SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
                                  PlanetGenData* planetGenData);
     ~SphericalTerrainCpuGenerator();
 
@@ -33,12 +33,12 @@ public:
     /// @param startPos: Starting position
     /// @param cubeFace: The world cube face
     /// @param width: Width of the patch
-    void generateTerrainPatch(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
+    void generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
 
     /// Gets the height at a specific face position.
     /// @param facePosition: The position to query
     /// @return height in meters.
-    float getTerrainHeight(const VoxelFacePosition2D& facePosition);
+    float getTerrainHeight(const VoxelPosition2D& facePosition);
 
 private:
     /// Gets noise value using terrainFuncs
@@ -47,7 +47,7 @@ private:
     /// @return the noise value
     float getNoiseValue(const f32v3& pos, const TerrainFuncs& funcs);
 
-    SphericalTerrainPatchMesher m_mesher; ///< Creates patch meshes
+    TerrainPatchMesher m_mesher; ///< Creates patch meshes
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data
 };
 

@@ -15,28 +15,31 @@
 #ifndef SphericalTerrainComponentRenderer_h__
 #define SphericalTerrainComponentRenderer_h__
 
-struct SphericalTerrainComponent;
-struct NamePositionComponent;
+#include <Vorb/VorbPreDecl.inl>
+
 struct AxisRotationComponent;
+struct NamePositionComponent;
+struct SpaceLightComponent;
+struct SphericalTerrainComponent;
 class Camera;
 
-namespace vorb {
-    namespace core {
-        namespace graphics {
-            class GLProgram;
-        }
-    }
-}
-namespace vg = vorb::core::graphics;
+DECL_VG(class GLProgram);
 
 class SphericalTerrainComponentRenderer {
 public:
+    ~SphericalTerrainComponentRenderer();
     void draw(SphericalTerrainComponent& cmp,
               const Camera* camera,
-              vg::GLProgram* terrainProgram,
-              vg::GLProgram* waterProgram,
+              const f32v3& lightDir,
+              const SpaceLightComponent* spComponent,
               const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
+
+private:
+    void buildShaders();
+
+    vg::GLProgram* m_terrainProgram = nullptr;
+    vg::GLProgram* m_waterProgram = nullptr;
 };
 
 #endif // SphericalTerrainComponentRenderer_h__

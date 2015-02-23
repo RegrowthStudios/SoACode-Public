@@ -86,8 +86,8 @@ void ChunkGridRenderStage::draw() {
             numVertices += 8;
             if (chunk->getState() != ChunkStates::INACTIVE) {
                 // Build the vertices
-                const float gmin = 0.00001;
-                const float gmax = 31.9999;
+                const f32 gmin = 0.00001f;
+                const f32 gmax = 31.9999f;
                 vertices[0].position = f32v3(gmin, gmin, gmin) + posOffset;
                 vertices[1].position = f32v3(gmax, gmin, gmin) + posOffset;
                 vertices[2].position = f32v3(gmin, gmin, gmax) + posOffset;

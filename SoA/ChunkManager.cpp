@@ -31,11 +31,11 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "RenderTask.h"
+#include "SmartVoxelContainer.hpp"
 #include "Sound.h"
 #include "SphericalTerrainGpuGenerator.h"
-#include "SmartVoxelContainer.hpp"
 
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 
 #include "VRayHelper.h"
 #include "VoxelLightEngine.h"
@@ -51,47 +51,12 @@ const i32 CTERRAIN_PATCH_WIDTH = 5;
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
 const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
-#define KM_PER_VOXEL 0.0005f
-
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float planetRadius) {
-    // Check if there is a free generator
-    if (!m_generators[counter].inUse) {
-        auto& gen = m_generators[counter];
-        // Mark the generator as in use
-        gen.inUse = true;
-        cgd->wasRequestSent = true;
-        gen.gridData = cgd;
-        gen.rpc.data.f = &gen;
-
-        // Get scaled position
-        f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face][0]);
-
-        // Set the data
-        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
-                             planetRadius * KM_PER_VOXEL * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
-                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.y);
-
-        gen.cubeFace = facePosition.face;
-
-        gen.width = 32;
-        gen.step = KM_PER_VOXEL;
-        // Invoke generator
-        cgd->refCount++;
-        m_generator->invokeRawGen(&gen.rpc);
-        // Go to next generator
-        counter++;
-        if (counter == NUM_GENERATORS) counter = 0;
-        return true;
-    }
-    return false;
-}
 
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGpuGenerator* terrainGenerator,
-                           const ChunkGridPosition2D& startGridPos, ChunkIOManager* chunkIo,
-                           const f64v3& gridPosition, float planetRadius) :
+                           const VoxelPosition3D& startVoxelPos, ChunkIOManager* chunkIo,
+                           float planetRadius) :
     _isStationary(0),
-    m_cameraGridPos(startGridPos),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
     _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS),
     m_terrainGenerator(terrainGenerator),
@@ -99,6 +64,11 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     m_chunkIo(chunkIo),
     m_planetRadius(planetRadius) {
    
+    ChunkPosition3D cpos3d = VoxelSpaceConversions::voxelToChunk(startVoxelPos);
+    m_cameraGridPos.pos.x = cpos3d.pos.x;
+    m_cameraGridPos.pos.y = cpos3d.pos.y;
+    m_cameraGridPos.face = cpos3d.face;
+
     // Set maximum container changes
     vvox::MAX_COMPRESSIONS_PER_FRAME = MAX_COMPRESSIONS_PER_FRAME;
 
@@ -111,7 +81,7 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     // Clear Out The Chunk Diagnostics
     memset(&_chunkDiagnostics, 0, sizeof(ChunkDiagnostics));
 
-    heightmapGenRpcDispatcher = std::make_unique<HeightmapGenRpcDispatcher>(m_terrainGenerator);
+    heightmapGenRpcDispatcher = &(terrainGenerator->heightmapGenRpcDispatcher);
 
     // Initialize the threadpool for chunk loading
     initializeThreadPool();
@@ -131,14 +101,8 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     _meshList.reserve(_csGridSize / 2);
     _loadList.reserve(_csGridSize / 2);
 
-    // Get the chunk position
-    i32v3 chunkPosition;
-    chunkPosition.x = fastFloor(gridPosition.x / (double)CHUNK_WIDTH);
-    chunkPosition.y = fastFloor(gridPosition.y / (double)CHUNK_WIDTH);
-    chunkPosition.z = fastFloor(gridPosition.z / (double)CHUNK_WIDTH);
-
     // Make the first chunk
-    makeChunkAt(chunkPosition, startGridPos);
+    makeChunkAt(VoxelSpaceConversions::voxelToChunk(startVoxelPos));
 
     m_prevCameraChunkPos = m_cameraGridPos.pos;
 }
@@ -182,7 +146,10 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     }
 
     if (getChunk(chunkPosition) == nullptr) {
-        makeChunkAt(chunkPosition, m_cameraGridPos);
+        ChunkPosition3D cPos;
+        cPos.pos = chunkPosition;
+        cPos.face = m_cameraGridPos.face;
+        makeChunkAt(cPos);
     }
 
     sonarDt += 0.003f*physSpeedFactor;
@@ -300,7 +267,7 @@ i32 ChunkManager::getBlockFromDir(f64v3& dir, f64v3& pos) {
 i32 ChunkManager::getPositionHeightData(i32 posX, i32 posZ, HeightData& hd) {
     //player biome
     i32v2 gridPosition(fastFloor(posX / (float)CHUNK_WIDTH) * CHUNK_WIDTH, fastFloor(posZ / (float)CHUNK_WIDTH) * CHUNK_WIDTH);
-    ChunkGridData* chunkGridData = getChunkGridData(gridPosition);
+    std::shared_ptr<ChunkGridData> chunkGridData = getChunkGridData(gridPosition);
     if (chunkGridData) {
         if (!chunkGridData->isLoaded) return 1;
         hd = chunkGridData->heightData[(posZ%CHUNK_WIDTH) * CHUNK_WIDTH + posX%CHUNK_WIDTH];
@@ -332,7 +299,7 @@ const Chunk* ChunkManager::getChunk(const i32v3& chunkPos) const {
     return it->second;
 }
 
-ChunkGridData* ChunkManager::getChunkGridData(const i32v2& gridPos) {
+std::shared_ptr<ChunkGridData> ChunkManager::getChunkGridData(const i32v2& gridPos) {
     auto it = _chunkGridDataMap.find(gridPos);
     if (it == _chunkGridDataMap.end()) return nullptr;
     return it->second;
@@ -342,8 +309,6 @@ void ChunkManager::destroy() {
    
     // Clear the chunk IO thread
     m_chunkIo->clear();
-
-    heightmapGenRpcDispatcher.reset();
 
     // Destroy the thread pool
     _threadPool.destroy();
@@ -361,10 +326,7 @@ void ChunkManager::destroy() {
         freeChunk(m_chunks[i]);
     }
 
-    for (auto it = _chunkGridDataMap.begin(); it != _chunkGridDataMap.end(); it++) {
-        delete it->second;
-    }
-    _chunkGridDataMap.clear();
+    std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> >().swap(_chunkGridDataMap);
 
     for (size_t i = 0; i < _freeWaitingChunks.size(); i++) { //kill the residual waiting threads too
         _freeWaitingChunks[i]->inSaveThread = nullptr;
@@ -581,14 +543,14 @@ void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
         if (ch->freeWaiting) continue;
 
         //If the heightmap has not been generated, generate it.
-        ChunkGridData* chunkGridData = ch->chunkGridData;
+        std::shared_ptr<ChunkGridData>& chunkGridData = ch->chunkGridData;
         
         //TODO(Ben): Beware of race here.
         if (!chunkGridData->isLoaded) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                    VoxelSpaceConversions::chunkGridToFace(ch->gridPosition), m_planetRadius));
+                       ch->gridPosition, m_planetRadius));
             }
 
             canGenerate = false;
@@ -652,17 +614,17 @@ void ChunkManager::addGenerateTask(Chunk* chunk) {
     _threadPool.addTask(generateTask);
 }
 
-void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D& relativeGridPos, const i32v2& ijOffset /* = i32v2(0) */) {
+void ChunkManager::makeChunkAt(const ChunkPosition3D& chunkPosition) {
 
     // Get the voxel grid position
-    i32v2 gridPos(chunkPosition.x, chunkPosition.z);
+    i32v2 gridPos(chunkPosition.pos.x, chunkPosition.pos.z);
 
     // Check and see if the grid data is already allocated here
-    ChunkGridData* chunkGridData = getChunkGridData(gridPos);
+    std::shared_ptr<ChunkGridData> chunkGridData = getChunkGridData(gridPos);
     if (chunkGridData == nullptr) {
         // If its not allocated, make a new one with a new voxelMapData
-        chunkGridData = new ChunkGridData(relativeGridPos.pos + ijOffset,
-                                          relativeGridPos.face, relativeGridPos.rotation);
+        chunkGridData = std::make_shared<ChunkGridData>(gridPos,
+                                                        chunkPosition.face);
         _chunkGridDataMap[gridPos] = chunkGridData;
     } else {
         chunkGridData->refCount++;
@@ -678,7 +640,7 @@ void ChunkManager::makeChunkAt(const i32v3& chunkPosition, const ChunkGridPositi
     addToLoadList(chunk);
 
     // Add the chunkSlot to the hashmap keyed on the chunk Position
-    m_chunkMap[chunkPosition] = chunk;
+    m_chunkMap[chunkPosition.pos] = chunk;
 
     // Connect to any neighbors
     chunk->detectNeighbors(m_chunkMap);
@@ -959,6 +921,11 @@ void ChunkManager::updateCaPhysics() {
     }
 }
 
+void ChunkManager::setTerrainGenerator(SphericalTerrainGpuGenerator* generator) {
+    m_terrainGenerator = generator;
+    heightmapGenRpcDispatcher = &generator->heightmapGenRpcDispatcher;
+}
+
 void ChunkManager::freeChunk(Chunk* chunk) {
     if (chunk) {
         
@@ -983,8 +950,7 @@ void ChunkManager::freeChunk(Chunk* chunk) {
             if (chunk->chunkGridData->refCount == 0) {
                 i32v2 gridPosition(chunk->gridPosition.pos.x, chunk->gridPosition.pos.z);
                 _chunkGridDataMap.erase(gridPosition);
-
-                delete chunk->chunkGridData;
+                chunk->chunkGridData.reset();
             }
             // Completely clear the chunk and then recycle it 
             chunk->clear();
@@ -1162,13 +1128,12 @@ void ChunkManager::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
 }
 
 void ChunkManager::tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
-    i32v3 newPosition = chunk->gridPosition.pos + offset;
+    ChunkPosition3D newPosition = chunk->gridPosition;
+    newPosition.pos += offset;
    
-    double dist2 = Chunk::getDistance2(newPosition * CHUNK_WIDTH, cameraPos);
+    double dist2 = Chunk::getDistance2(newPosition.pos * CHUNK_WIDTH, cameraPos);
     if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
-
-        i32v2 ijOffset(offset.z, offset.x);
-        makeChunkAt(newPosition, chunk->chunkGridData->gridPosition, ijOffset);
+        makeChunkAt(newPosition);
     }
 }
 

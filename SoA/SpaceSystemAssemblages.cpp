@@ -3,15 +3,16 @@
 
 #include "ChunkIOManager.h"
 #include "ChunkManager.h"
+#include "FarTerrainPatch.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "SphericalTerrainCpuGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
 
-#include "SphericalTerrainMeshManager.h"
+#include "TerrainPatchMeshManager.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
@@ -19,6 +20,8 @@
 #include "GameManager.h"
 #include "TexturePackLoader.h"
 #include "PlanetData.h"
+
+#define SEC_PER_DAY 86400.0
 
 vcore::ComponentID makeOrbitFromProps(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                         const SystemBodyKegProperties* sysProps) {
@@ -34,7 +37,7 @@ vcore::ComponentID makeOrbitFromProps(OUT SpaceSystem* spaceSystem, vcore::Entit
     }
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, entity, sysProps->eccentricity,
-                                                   sysProps->period, sysProps->pathColor, orientation);
+                                                     sysProps->period, sysProps->pathColor, orientation);
 }
 
 vcore::EntityID SpaceSystemAssemblages::createPlanet(OUT SpaceSystem* spaceSystem,
@@ -46,17 +49,17 @@ vcore::EntityID SpaceSystemAssemblages::createPlanet(OUT SpaceSystem* spaceSyste
 
     const f64v3 up(0.0, 1.0, 0.0);
     vcore::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                             0.0, properties->angularSpeed);
+                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
 
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp, properties->diameter / 2.0,
+    addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp,
                                  properties->planetGenData,
                                  spaceSystem->normalMapGenProgram.get(),
                                  spaceSystem->normalMapRecycler.get());
 
-    addSphericalGravityComponent(spaceSystem, id, properties->diameter / 2.0, properties->mass);
+    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
     return id;
@@ -75,12 +78,12 @@ vcore::EntityID SpaceSystemAssemblages::createStar(OUT SpaceSystem* spaceSystem,
 
     const f64v3 up(0.0, 1.0, 0.0);
     vcore::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                                                        0.0, properties->angularSpeed);
+                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
 
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addSphericalGravityComponent(spaceSystem, id, properties->diameter / 2.0, properties->mass);
+    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
 
@@ -101,12 +104,12 @@ vcore::EntityID SpaceSystemAssemblages::createGasGiant(OUT SpaceSystem* spaceSys
 
     const f64v3 up(0.0, 1.0, 0.0);
     vcore::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                                                        0.0, properties->angularSpeed);
+                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
 
     f64v3 tmpPos(0.0);
     vcore::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addSphericalGravityComponent(spaceSystem, id, properties->diameter / 2.0, properties->mass);
+    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
 
@@ -118,44 +121,47 @@ void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity) 
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                                    vcore::ComponentID sphericalTerrainComponent,
-                                                                    const ChunkGridPosition2D& startGridPos,
-                                                                    const f64v3& gridPosition,
-                                                                    const SoaState* soaState) {
+                                                                      vcore::ComponentID sphericalTerrainComponent,
+                                                                      vcore::ComponentID farTerrainComponent,
+                                                                      vcore::ComponentID axisRotationComponent,
+                                                                      vcore::ComponentID namePositionComponent,
+                                                                      const VoxelPosition3D& startVoxelPos,
+                                                                      const SoaState* soaState) {
 #define VOXELS_PER_KM 2000.0
     
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
-    auto& stcmp = spaceSystem->m_sphericalTerrainCT.get(sphericalTerrainComponent);
+    auto& ftcmp = spaceSystem->m_farTerrainCT.get(farTerrainComponent);
 
     // Get component handles
-    svcmp.axisRotationComponent = stcmp.axisRotationComponent;
-    svcmp.namePositionComponent = stcmp.namePositionComponent;
     svcmp.sphericalTerrainComponent = sphericalTerrainComponent;
+    svcmp.axisRotationComponent = axisRotationComponent;
+    svcmp.namePositionComponent = namePositionComponent;
+    svcmp.farTerrainComponent = farTerrainComponent;
 
-    svcmp.voxelRadius = stcmp.sphericalTerrainData->getRadius() * VOXELS_PER_KM;
+    svcmp.voxelRadius = ftcmp.sphericalTerrainData->radius * VOXELS_PER_KM;
 
     svcmp.physicsEngine = new PhysicsEngine();
 
-    svcmp.generator = stcmp.gpuGenerator;
+    svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
     svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
-                                          svcmp.generator, startGridPos,
+                                          svcmp.generator, startVoxelPos,
                                           svcmp.chunkIo,
-                                          gridPosition, stcmp.sphericalTerrainData->getRadius() * 2000.0);
+                                          ftcmp.sphericalTerrainData->radius * 2000.0);
     svcmp.particleEngine = new ParticleEngine();
     
-    svcmp.planetGenData = stcmp.planetGenData;
-    svcmp.sphericalTerrainData = stcmp.sphericalTerrainData;
+    svcmp.planetGenData = ftcmp.planetGenData;
+    svcmp.sphericalTerrainData = ftcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;
     
     // TODO(Ben): This isn't a good place for this
     ColorRGB8* cmap = GameManager::texturePackLoader->getColorMap("biome");
     ui32 index = GameManager::texturePackLoader->getColorMapIndex("biome");
-    glBindTexture(GL_TEXTURE_2D, stcmp.planetGenData->terrainColorMap.id);
-    if (stcmp.planetGenData->terrainColorMap.width != 256 ||
-        stcmp.planetGenData->terrainColorMap.height != 256) {
+    glBindTexture(GL_TEXTURE_2D, ftcmp.planetGenData->terrainColorMap.id);
+    if (ftcmp.planetGenData->terrainColorMap.width != 256 ||
+        ftcmp.planetGenData->terrainColorMap.height != 256) {
         std::cerr << "Terrain color map needs to be 256x256";
     }
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, cmap);
@@ -187,38 +193,38 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 }
 
 void SpaceSystemAssemblages::removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("SphericalVoxel", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                   const f64q& axisOrientation, f64 startAngle,
-                                                                  f64 angularSpeed) {
-    vcore::ComponentID arCmpId = spaceSystem->addComponent("AxisRotation", entity);
+                                                                  f64 rotationalPeriod) {
+    vcore::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
     arCmp.axisOrientation = axisOrientation;
     arCmp.currentRotation = startAngle;
-    arCmp.angularSpeed_RS = angularSpeed;
+    arCmp.period = rotationalPeriod;
     return arCmpId;
 }
 
 void SpaceSystemAssemblages::removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("AxisRotation", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                       vcore::ComponentID npComp,
                                                                       vcore::ComponentID arComp,
-                                                                      f64 radius, PlanetGenData* planetGenData,
+                                                                      PlanetGenData* planetGenData,
                                                                       vg::GLProgram* normalProgram,
                                                                       vg::TextureRecycler* normalMapRecycler) {
-    vcore::ComponentID stCmpId = spaceSystem->addComponent("SphericalTerrain", entity);
+    vcore::ComponentID stCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
     auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(stCmpId);
     
     stCmp.namePositionComponent = npComp;
     stCmp.axisRotationComponent = arComp;
     stCmp.planetGenData = planetGenData;
 
-    stCmp.meshManager = new SphericalTerrainMeshManager(planetGenData,
+    stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
                                                   normalMapRecycler);
     stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
                                               planetGenData,
@@ -227,32 +233,68 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(OUT Spac
                                                        planetGenData);
     stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
 
-    f64 patchWidth = (radius * 2.000) / PATCH_ROW;
-    stCmp.sphericalTerrainData = new SphericalTerrainData(radius, patchWidth);
+    f64 patchWidth = (planetGenData->radius * 2.000) / ST_PATCH_ROW;
+    stCmp.sphericalTerrainData = new TerrainPatchData(planetGenData->radius, patchWidth);
 
     return stCmpId;
 }
 
 void SpaceSystemAssemblages::removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("SphericalTerrain", entity);
+    auto& stcmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(entity);
+
+    delete stcmp.meshManager;
+    delete stcmp.gpuGenerator;
+    delete stcmp.cpuGenerator;
+    delete stcmp.rpcDispatcher;
+    delete stcmp.sphericalTerrainData;
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
+}
+
+/// Spherical terrain component
+vcore::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                                  SphericalTerrainComponent& parentCmp,
+                                                                  WorldCubeFace face) {
+    vcore::ComponentID ftCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_FARTERRAIN_NAME, entity);
+    auto& ftCmp = spaceSystem->m_farTerrainCT.get(ftCmpId);
+
+    ftCmp.planetGenData = parentCmp.planetGenData;
+    ftCmp.meshManager = parentCmp.meshManager;
+    ftCmp.gpuGenerator = parentCmp.gpuGenerator;
+    ftCmp.cpuGenerator = parentCmp.cpuGenerator;
+    ftCmp.rpcDispatcher = parentCmp.rpcDispatcher;
+    ftCmp.sphericalTerrainData = parentCmp.sphericalTerrainData;
+
+    ftCmp.face = face;
+
+    return ftCmpId;
+}
+
+void SpaceSystemAssemblages::removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
+    auto& ftcmp = spaceSystem->m_farTerrainCT.getFromEntity(entity);
+
+    if (ftcmp.patches) delete[] ftcmp.patches;
+    ftcmp.patches = nullptr;
+    ftcmp.gpuGenerator = nullptr;
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_FARTERRAIN_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                                      f64 radius, f64 mass) {
-    vcore::ComponentID sgCmpId = spaceSystem->addComponent("SphericalGravity", entity);
+                                                                        vcore::ComponentID npComp, f64 radius, f64 mass) {
+    vcore::ComponentID sgCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, entity);
     auto& sgCmp = spaceSystem->m_sphericalGravityCT.get(sgCmpId);
+    sgCmp.namePositionComponent = npComp;
     sgCmp.radius = radius;
     sgCmp.mass = mass;
     return sgCmpId;
 }
 
 void SpaceSystemAssemblages::removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("SphericalGravity", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                                   const nString& name, const f64v3& position) {
-    vcore::ComponentID npCmpId = spaceSystem->addComponent("NamePosition", entity);
+    vcore::ComponentID npCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, entity);
     auto& npCmp = spaceSystem->m_namePositionCT.get(npCmpId);
     npCmp.name = name;
     npCmp.position = position;
@@ -260,13 +302,13 @@ vcore::ComponentID SpaceSystemAssemblages::addNamePositionComponent(OUT SpaceSys
 }
 
 void SpaceSystemAssemblages::removeNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("NamePosition", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, entity);
 }
 
 vcore::ComponentID SpaceSystemAssemblages::addOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                            f64 eccentricity, f64 orbitalPeriod,
                                                            const ui8v4& pathColor, const f64q& orientation) {
-    vcore::ComponentID oCmpId = spaceSystem->addComponent("Orbit", entity);
+    vcore::ComponentID oCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
     auto& oCmp = spaceSystem->m_orbitCT.get(oCmpId);
     oCmp.eccentricity = eccentricity;
     oCmp.orbitalPeriod = orbitalPeriod;
@@ -276,5 +318,18 @@ vcore::ComponentID SpaceSystemAssemblages::addOrbitComponent(OUT SpaceSystem* sp
 }
 
 void SpaceSystemAssemblages::removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
-    spaceSystem->deleteComponent("Orbit", entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
+}
+
+vcore::ComponentID SpaceSystemAssemblages::addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity, vcore::ComponentID npCmp, color3 color, f32 intensity) {
+    vcore::ComponentID slCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPACELIGHT_NAME, entity);
+    auto& slCmp = spaceSystem->m_spaceLightCT.get(slCmpId);
+    slCmp.color = color;
+    slCmp.intensity = intensity;
+    slCmp.parentNpId = npCmp;
+    return slCmpId;
+}
+
+void SpaceSystemAssemblages::removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity) {
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPACELIGHT_NAME, entity);
 }

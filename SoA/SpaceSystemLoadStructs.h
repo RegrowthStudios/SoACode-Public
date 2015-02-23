@@ -52,7 +52,8 @@ struct PlanetKegProperties {
     f64 density = 0.0;
     f64 mass = 0.0;
     f64v3 axis;
-    f64 angularSpeed = 0.0;
+    f64 angularSpeed = 0.0; // TODO(Ben): Remove
+    f64 rotationalPeriod = 0.0;
     nString displayName = "";
     nString generation = "";
     PlanetGenData* planetGenData = nullptr;
@@ -66,6 +67,7 @@ struct StarKegProperties {
     f64 mass = 0.0;
     f64v3 axis;
     f64 angularSpeed = 0.0;
+    f64 rotationalPeriod = 0.0;
     nString displayName = "";
 };
 KEG_TYPE_DECL(StarKegProperties);
@@ -86,6 +88,7 @@ struct GasGiantKegProperties {
     f64 mass = 0.0;
     f64v3 axis;
     f64 angularSpeed = 0.0;
+    f64 rotationalPeriod = 0.0;
     nString displayName = "";
 };
 KEG_TYPE_DECL(GasGiantKegProperties);

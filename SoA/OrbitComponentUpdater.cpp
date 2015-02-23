@@ -16,6 +16,22 @@ void OrbitComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
     }
 }
 
+
+f64 OrbitComponentUpdater::calculateOrbitalSpeed(SpaceSystem* spaceSystem, const OrbitComponent& oCmp,
+                                                 const SphericalGravityComponent& sgCmp) {
+    auto& npCmp = spaceSystem->m_namePositionCT.get(sgCmp.namePositionComponent);
+
+    f64 distance;
+    if (oCmp.parentNpId) {
+        auto& pNpCmp = spaceSystem->m_namePositionCT.get(oCmp.parentNpId);
+        distance = glm::length(npCmp.position - pNpCmp.position);
+    } else {
+        distance = glm::length(npCmp.position);
+    }
+
+    return sqrt(M_G * sgCmp.mass * (2.0 / distance - 1.0 / oCmp.semiMajor));
+}
+
 void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, NamePositionComponent* npComponent,
                                               NamePositionComponent* parentNpComponent /* = nullptr */) {
 
@@ -44,6 +60,8 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     position.y = 0.0;
     position.z = cmp.semiMajor * sqrt(1.0 - cmp.eccentricity * cmp.eccentricity) *
         sin(eccentricAnomaly);
+
+    // If this planet has a parent, add parent's position
     if (parentNpComponent) {
         npComponent->position = cmp.orientation * position + parentNpComponent->position;
     } else {

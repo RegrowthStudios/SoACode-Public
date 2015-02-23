@@ -6,13 +6,11 @@
 
 #include "Camera.h"
 #include "SpaceSystem.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "SphericalTerrainCpuGenerator.h"
 
 const f32 MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
 const f32 MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
-
-#define KM_PER_VOXEL 0.0005f
 
 MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera,
                                            SpaceSystem* spaceSystem, InputManager* inputManager) :
@@ -110,10 +108,12 @@ void MainMenuSystemViewer::update() {
     }
 
     // Connect camera to target planet
-    f32 length = m_camera->getFocalLength() / 10.0;
-    if (length == 0) length = 0.1;
+    f32 length = m_camera->getFocalLength() / 10.0f;
+    if (length == 0) length = 0.1f;
     m_camera->setClippingPlane(length, m_camera->getFarClip());
     // Target closest point on sphere
+    m_camera->setFocalPoint(getTargetPosition() -
+                            f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
     m_camera->setTargetFocalPoint(getTargetPosition() -
                                  f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
@@ -170,9 +170,8 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
 
         // If we selected an entity, then do the target picking
         if (closestEntity) {
-            m_selectedPlanet = closestEntity;
-            pickStartLocation(closestEntity);
             targetBody(closestEntity);
+            pickStartLocation(closestEntity);
         }
     } else {
         mouseButtons[1] = true;
@@ -208,6 +207,11 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
 }
 
 void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
+    // Check to see if it even has terrain by checking if it has a generator
+    if (!m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator) return;
+    // Select the planet
+    m_selectedPlanet = eid;
+
     f32v2 ndc = f32v2((m_mouseCoords.x / m_viewport.x) * 2.0f - 1.0f,
         1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
     f32v3 pickRay = m_camera->getPickRay(ndc);
@@ -244,7 +248,6 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
     }
 }
 
-// TODO(Ben): I think this isn't needed
 void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, f32 radius, OUT f32& height) {
     f32v3 cornerPos[2];
     f32 min;
@@ -287,7 +290,7 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, f32 radius
     }
 
     // Get height at click
-    VoxelFacePosition2D facePos;
+    VoxelPosition2D facePos;
     facePos.pos = f64v2(gridHit);
     facePos.face = m_selectedCubeFace;
     height = m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->getTerrainHeight(facePos) * KM_PER_VOXEL;

@@ -23,6 +23,7 @@ KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, density);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, mass);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64_V3, axis);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, angularSpeed);
+KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, F64, rotationalPeriod);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, STRING, displayName);
 KEG_TYPE_INIT_ADD_MEMBER(PlanetKegProperties, STRING, generation);
 KEG_TYPE_INIT_END

@@ -16,7 +16,9 @@ void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const Game
         
 
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
-            it.second.chunkManager->update(playerPosCmp.gridPosition.pos, &playerFrustumCmp.frustum);
+            if (it.second.chunkManager) {
+                it.second.chunkManager->update(playerPosCmp.gridPosition.pos, &playerFrustumCmp.frustum);
+            }
         }
     }
 }

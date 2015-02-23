@@ -32,19 +32,18 @@
 #include "Sound.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
 #include "SoaEngine.h"
 
-#define THREAD ThreadId::UPDATE
+#define MT_RENDER
 
 GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
     m_mainMenuScreen(mainMenuScreen),
     m_updateThread(nullptr),
-    m_threadRunning(false), 
-    m_inFocus(true),
+    m_threadRunning(false),
     controller(app) {
     // Empty
 }
@@ -81,7 +80,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     controller.startGame(m_soaState);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
-    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState->gameSystem.get(), m_inputManager);
+    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputManager);
 
     // Initialize the PDA
     m_pda.init(this, m_soaState->glProgramManager.get());
@@ -138,19 +137,42 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     // Update the input
     handleInput();
 
+    // TODO(Ben): This is temporary
+#ifndef MT_RENDER
+    updateECS();
+#endif
+
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
 
     // Updates the Pause Menu
     if (m_pauseMenu.isOpen()) m_pauseMenu.update();
 
-    // Sort all meshes // TODO(Ben): There is redundancy here
-    //_app->meshManager->sortMeshes(m_player->headPosition);
 
-    // Process any updates from the render thread
-    processMessages();
 
     globalRenderAccumulationTimer.stop();
+}
+
+void GamePlayScreen::updateECS() {
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
+    GameSystem* gameSystem = m_soaState->gameSystem.get();
+
+    GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
+    GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
+    GameManager::soundEngine->update();
+
+    m_soaState->time += m_soaState->timeStep;
+    // TODO(Ben): Don't hardcode for a single player
+    auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
+    auto parentNpCmpId = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId).namePositionComponent;
+    auto& parentNpCmp = spaceSystem->m_namePositionCT.get(parentNpCmpId);
+    // Calculate non-relative space position
+    f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
+    m_spaceSystemUpdater->update(spaceSystem, gameSystem, m_soaState,
+                                 trueSpacePosition,
+                                 m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);
+
+    m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
 }
 
 void GamePlayScreen::draw(const GameTime& gameTime) {
@@ -172,7 +194,7 @@ void GamePlayScreen::draw(const GameTime& gameTime) {
 void GamePlayScreen::unPause() { 
     m_pauseMenu.close(); 
     SDL_SetRelativeMouseMode(SDL_TRUE);
-    m_inFocus = true;
+    m_soaState->isInputEnabled = true;
 }
 
 i32 GamePlayScreen::getWindowWidth() const {
@@ -190,7 +212,7 @@ void GamePlayScreen::initInput() {
 
     m_inputManager->subscribeFunctor(INPUT_PAUSE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        m_inFocus = false;
+        m_soaState->isInputEnabled = false;
     });
     m_inputManager->subscribeFunctor(INPUT_GRID, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.toggleChunkGrid();
@@ -199,12 +221,12 @@ void GamePlayScreen::initInput() {
         if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
-            m_inFocus = true;
+            m_soaState->isInputEnabled = true;
             SDL_StartTextInput();
         } else {
             m_pda.open();
             SDL_SetRelativeMouseMode(SDL_FALSE);
-            m_inFocus = false;
+            m_soaState->isInputEnabled = false;
             SDL_StopTextInput();
         }
     });
@@ -225,7 +247,7 @@ void GamePlayScreen::initInput() {
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
-            m_inFocus = true;
+            m_soaState->isInputEnabled = true;
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
@@ -234,11 +256,11 @@ void GamePlayScreen::initInput() {
         }
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const vui::MouseEvent& e) {
-        m_inFocus = true;
+        m_soaState->isInputEnabled = true;
     });
     m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        m_inFocus = false;
+        m_soaState->isInputEnabled = false;
     });
 
     m_inputManager->startInput();
@@ -250,6 +272,7 @@ void GamePlayScreen::initRenderPipeline() {
     m_renderPipeline.init(viewport, m_soaState,
                           _app, &m_pda,
                           m_soaState->spaceSystem.get(),
+                          m_soaState->gameSystem.get(),
                           &m_pauseMenu);
 }
 
@@ -289,26 +312,15 @@ void GamePlayScreen::updateThreadFunc() {
     FpsLimiter fpsLimiter;
     fpsLimiter.init(maxPhysicsFps);
 
-    MessageManager* messageManager = GameManager::messageManager;
-
-    Message message;
-
     static int saveStateTicks = SDL_GetTicks();
 
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
 
-        GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-        GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-        GameManager::soundEngine->update();
-
-        m_soaState->time += 0.00000000001;
-        auto& npcmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
-
-        m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState,
-                                       m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity).position);
-
-        m_gameSystemUpdater->update(m_soaState->gameSystem.get(), m_soaState->spaceSystem.get(), m_soaState);
+        // TODO(Ben): Figure out how to make this work for MT
+#ifdef MT_RENDER
+        updateECS();
+#endif
 
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
@@ -316,51 +328,8 @@ void GamePlayScreen::updateThreadFunc() {
       //      savePlayerState();
         }
 
-        physicsFps = fpsLimiter.endFrame();
-    }
-}
-
-void GamePlayScreen::processMessages() {
-
-    TerrainMeshMessage* tmm;
-    int j = 0,k = 0;
-    MeshManager* meshManager = m_soaState->meshManager.get();
-    ChunkMesh* cm;
-    PreciseTimer timer;
-    timer.start();
-    int numMessages = GameManager::messageManager->tryDequeMultiple(ThreadId::RENDERING, messageBuffer, MESSAGES_PER_FRAME);
-    std::set<ChunkMesh*> updatedMeshes; // Keep track of which meshes we have already seen so we can ignore older duplicates
-    for (int i = numMessages - 1; i >= 0; i--) {
-        Message& message = messageBuffer[i];
-        switch (message.id) {
-            case MessageID::CHUNK_MESH:
-                j++;
-                cm = ((ChunkMeshData *)(message.data))->chunkMesh;
-                if (updatedMeshes.find(cm) == updatedMeshes.end()) {
-                    k++;
-                    updatedMeshes.insert(cm);
-                    meshManager->updateChunkMesh((ChunkMeshData *)(message.data));
-                } else {
-                    delete message.data;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    for (int i = 0; i < numMessages; i++) {
-        Message& message = messageBuffer[i];
-        switch (message.id) {
-            case MessageID::PARTICLE_MESH:
-                meshManager->updateParticleMesh((ParticleMeshMessage *)(message.data));
-                break;
-            case MessageID::PHYSICS_BLOCK_MESH:
-                meshManager->updatePhysicsBlockMesh((PhysicsBlockMeshMessage *)(message.data));
-                break;
-            default:
-                break;
-        }
+        fpsLimiter.endFrame();
+       // physicsFps = fpsLimiter.endFrame();
     }
 }
 
@@ -378,30 +347,4 @@ void GamePlayScreen::updateWorldCameraClip() {
     // The world camera has a dynamic clipping plane
     //m_player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     //m_player->getWorldCamera().updateProjection();
-}
-
-bool GamePlayScreen::loadPlayerFile(Player* player) {
-    //loadMarkers(player);
-    
-    std::vector<ui8> data;
-//    if (!m_gameStartState->saveFileIom.readFileToData(("Players/" + player->getName() + ".dat").c_str(), data)) {
-        //file doesnt exist so set spawn to random
-  //      srand(time(NULL));
-//        int spawnFace = rand() % 4 + 1;
-//        player->voxelMapData.face = spawnFace;
- //       return 0;
- //   }
-
-    int byte = 0;
- //   player->facePosition.x = BufferUtils::extractFloat(data.data(), (byte++) * 4);
- //   player->facePosition.y = BufferUtils::extractFloat(data.data(), (byte++) * 4);
- //   player->facePosition.z = BufferUtils::extractFloat(data.data(), (byte++) * 4);
- //   player->voxelMapData.face = BufferUtils::extractInt(data.data(), (byte++) * 4);
- //   player->getChunkCamera().setYawAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
-  //  player->getChunkCamera().setPitchAngle(BufferUtils::extractFloat(data.data(), (byte++) * 4));
-  //  player->isFlying = BufferUtils::extractBool(data.data(), byte * 4);
-
- //   player->voxelMapData.ipos = fastFloor(player->facePosition.z / (double)CHUNK_WIDTH);
-  //  player->voxelMapData.jpos = fastFloor(player->facePosition.x / (double)CHUNK_WIDTH);
-    return 1;
 }

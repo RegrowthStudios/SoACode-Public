@@ -22,14 +22,14 @@ namespace VoxelSpaceUtils {
     /// @param gridPosition: Voxel grid position
     /// @param worldRadius: Radius of the world in voxels
     /// @return quaternion that describes the relative rotation
-    extern f64q calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridPosition, f64 worldRadius);
-    extern f64q calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridPosition, f64 worldRadius);
+    extern f64q calculateVoxelToSpaceQuat(const VoxelPosition2D& gridPosition, f64 worldRadius);
+    extern f64q calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosition, f64 worldRadius);
 
     /// Offsets a chunk grid position and handles rotation
     /// @param gridPosition: The chunk grid position
     /// @param xzOffset: The offset to apply, in chunks
     /// @param maxPos: Maximum grid position, for + and - direction
-    extern void offsetChunkGridPosition(ChunkGridPosition2D& gridPosition, const i32v2& xzOffset, int maxPos);
+    extern void offsetChunkGridPosition(ChunkPosition2D& gridPosition, const i32v2& xzOffset, int maxPos);
 
     // TODO(Ben): implement this with new stuff
     /* void getIterationConstants(OUT int& jStart, OUT int& jMult, OUT int& jEnd, OUT int& jInc, OUT int& kStart, OUT int& kMult, OUT int& kEnd, OUT int& kInc) {

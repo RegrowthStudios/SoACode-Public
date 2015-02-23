@@ -23,6 +23,8 @@ const i32 lodStep = 1;
 
 extern ui32 strtTimer;
 
+class HeightmapGenRpcDispatcher;
+
 // Message used when placing blocks
 class PlaceBlocksMessage {
 
@@ -55,32 +57,13 @@ class PhysicsEngine;
 class RenderTask;
 class VoxelLightEngine;
 
-class HeightmapGenRpcDispatcher {
-public:
-    HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
-        m_generator(generator) {
-        for (int i = 0; i < NUM_GENERATORS; i++) {
-            m_generators[i].generator = m_generator;
-        }
-    }
-    /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(ChunkGridData* cgd, const ChunkFacePosition3D& facePosition, float voxelRadius);
-private:
-    static const int NUM_GENERATORS = 512;
-    int counter = 0;
-
-    SphericalTerrainGpuGenerator* m_generator = nullptr;
-
-    RawGenDelegate m_generators[NUM_GENERATORS];
-};
-
 // ChunkManager will keep track of all chunks and their states, and will update them.
 class ChunkManager {
 public:
     ChunkManager(PhysicsEngine* physicsEngine,
                  SphericalTerrainGpuGenerator* terrainGenerator,
-                 const ChunkGridPosition2D& startGridPos, ChunkIOManager* chunkIo,
-                 const f64v3& gridPosition, float planetRadius);
+                 const VoxelPosition3D& startVoxelPos, ChunkIOManager* chunkIo,
+                 float planetRadius);
     ~ChunkManager();
 
     enum InitFlags {
@@ -129,7 +112,7 @@ public:
     /// Gets the grid data at a given chunk grid position
     /// @param gridPos: The chunk grid position, units are of chunk length
     /// Returns nullptr if no chunkGridData is found, otherwise returns a chunkGridData
-    ChunkGridData* getChunkGridData(const i32v2& gridPos);
+    std::shared_ptr<ChunkGridData> getChunkGridData(const i32v2& gridPos);
 
     /// Clears everything, freeing all memory. Should be called when ending a game
     void destroy();
@@ -196,6 +179,7 @@ public:
         _isStationary = isStationary;
     }
 
+    void setTerrainGenerator(SphericalTerrainGpuGenerator* generator);
     /// Getters
     PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 
@@ -223,10 +207,8 @@ private:
     void addGenerateTask(Chunk* chunk);
 
     /// Creates a chunk and any needed grid data at a given chunk position
-    /// @param chunkPosition: position to create the chunk at
-    /// @param relativeGridPos: the gridPosition that this chunk is relative to.
-    /// @param ijOffset the ij grid offset from the relative map data. Defauts to no offset
-    void makeChunkAt(const i32v3& chunkPosition, const ChunkGridPosition2D& relativeGridPos, const i32v2& ijOffset = i32v2(0));
+    /// @param chunkPosition: the ChunkPosition
+    void makeChunkAt(const ChunkPosition3D& chunkPosition);
 
     /// Updates the load list
     /// @param maxTicks: maximum time the function is allowed
@@ -336,7 +318,7 @@ private:
     std::vector<Chunk*> m_generateList;
 
     /// Indexed by (x,z)
-    std::unordered_map<i32v2, ChunkGridData*> _chunkGridDataMap;
+    std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > _chunkGridDataMap;
 
     std::vector<GeneratedTreeNodes*> _treesToPlace; ///< List of tree batches we need to place
 
@@ -356,14 +338,14 @@ private:
 
     /// Voxel mapping data at the camera
     /// TODO(Ben): This is temporary
-    ChunkGridPosition2D m_cameraGridPos;
+    ChunkPosition2D m_cameraGridPos;
     i32v2 m_prevCameraChunkPos;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData> _threadPool;
 
     /// Dispatches asynchronous generation requests
-    std::unique_ptr<HeightmapGenRpcDispatcher> heightmapGenRpcDispatcher = nullptr;
+    HeightmapGenRpcDispatcher* heightmapGenRpcDispatcher = nullptr;
 
     /// Generates voxel heightmaps
     SphericalTerrainGpuGenerator* m_terrainGenerator = nullptr;

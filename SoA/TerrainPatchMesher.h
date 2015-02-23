@@ -1,5 +1,5 @@
 ///
-/// SphericalTerrainPatchMesher.h
+/// TerrainPatchMesher.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 3 Feb 2015
@@ -7,49 +7,25 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Creates spherical terrain patch meshes
+/// Creates terrain patch meshes
 ///
 
 #pragma once
 
-#ifndef SphericalTerrainPatchMesher_h__
-#define SphericalTerrainPatchMesher_h__
+#ifndef TerrainPatchMesher_h__
+#define TerrainPatchMesher_h__
 
 #include <Vorb/graphics/gtypes.h>
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatchMesh.h"
 
 struct PlanetGenData;
-class SphericalTerrainMeshManager;
+class TerrainPatchMeshManager;
 
-/// Vertex for terrain patch
-class TerrainVertex {
+class TerrainPatchMesher {
 public:
-    f32v3 position; //12
-    f32v3 tangent; //24
-    f32v2 texCoords; //32
-    ColorRGB8 color; //35
-    ui8 padding; //36
-    ui8v2 normTexCoords; //38
-    ui8 temperature; //39
-    ui8 humidity; //40
-};
-
-/// Water vertex for terrain patch
-class WaterVertex {
-public:
-    f32v3 position; //12
-    f32v3 tangent; //24
-    ColorRGB8 color; //27
-    ui8 temperature; //28
-    f32v2 texCoords; //36
-    float depth; //40
-};
-
-class SphericalTerrainPatchMesher {
-public:
-    SphericalTerrainPatchMesher(SphericalTerrainMeshManager* meshManager,
+    TerrainPatchMesher(TerrainPatchMeshManager* meshManager,
                        PlanetGenData* planetGenData);
-    ~SphericalTerrainPatchMesher();
+    ~TerrainPatchMesher();
 
     /// Generates mesh using heightmap
     /// @param mesh: The mesh handle
@@ -57,8 +33,10 @@ public:
     /// @param cubeFace: The world cube face
     /// @param width: Width of the patch
     /// @param heightData: The heightmap data
-    void buildMesh(OUT SphericalTerrainMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace,
-                   float width, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]);
+    /// @param isSpherical: True when this is a spherical mesh
+    void buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace,
+                   float width, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
+                   bool isSpherical);
 
 private:
 
@@ -109,11 +87,11 @@ private:
     static TerrainVertex verts[VERTS_SIZE]; ///< Vertices for terrain mesh
     static WaterVertex waterVerts[VERTS_SIZE]; ///< Vertices for water mesh
     static ui16 waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH]; ///< Caches water indices for reuse
-    static ui16 waterIndices[SphericalTerrainPatch::INDICES_PER_PATCH]; ///< Buffer of indices to upload
+    static ui16 waterIndices[PATCH_INDICES]; ///< Buffer of indices to upload
     static bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1]; ///< True when a quad is present at a spot
 
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
-    SphericalTerrainMeshManager* m_meshManager = nullptr; ///< Manages the patch meshes
+    TerrainPatchMeshManager* m_meshManager = nullptr; ///< Manages the patch meshes
 
     /// Meshing helper vars
     int m_index;
@@ -124,6 +102,8 @@ private:
     i32v3 m_coordMapping;
     f32v3 m_startPos;
     f32v2 m_coordMults;
+    bool m_isSpherical;
+    WorldCubeFace m_cubeFace;
 };
 
-#endif // SphericalTerrainPatchMesher_h__
+#endif // TerrainPatchMesher_h__

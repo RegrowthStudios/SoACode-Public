@@ -56,6 +56,7 @@ uniform vec3 unCornerPos = vec3(0.0);
 uniform vec2 unCoordMults = vec2(1.0);
 uniform ivec3 unCoordMapping = ivec3(0);
 uniform float unPatchWidth = 10.0;
+uniform float unRadius;
 
 // Inputs
 in vec2 fPos;
@@ -167,6 +168,7 @@ float frequency;
     pos[unCoordMapping.x] = unCornerPos.x + fPos.x * unPatchWidth * unCoordMults.x;
     pos[unCoordMapping.y] = unCornerPos.y;
     pos[unCoordMapping.z] = unCornerPos.z + fPos.y * unPatchWidth * unCoordMults.y;
+    pos = normalize(pos) * unRadius;
 )";
 #pragma endregion
 

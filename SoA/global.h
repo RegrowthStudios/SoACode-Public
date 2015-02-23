@@ -5,15 +5,6 @@
 
 #include "WorldStructs.h"
 
-void printVec(nString desc, f32v3 vec);
-void printVec(nString desc, f32v4 vec);
-void printVec(nString desc, f64v3 vec);
-
-#if defined(WIN32) || defined(WIN64)
-extern HGLRC mainHGLRC;
-#endif
-extern SDL_Window* mainWindow;
-
 extern bool NoChunkFade;
 extern bool isMouseIn;
 
@@ -72,9 +63,6 @@ extern float glSpeedFactor;
 extern float maxPhysicsFps;
 extern bool isWaterUpdating;
 extern bool isFancyTrees;
-
-extern std::mutex mainContextLock;
-extern void * mainOpenGLContext;
 
 extern bool MouseButtons[10];
 extern bool sonarActive;

@@ -1,74 +1,38 @@
 #include "stdafx.h"
 #include "VoxelSpaceConversions.h"
+#include <Vorb/utils.h>
 
-f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition2D& facePosition) {
+f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkPosition2D& facePosition) {
     f32v3 rv;
-    rv.x = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].x;
+    rv.x = (float)FACE_TO_WORLD_MULTS[facePosition.face].x;
     rv.y = (float)FACE_Y_MULTS[facePosition.face];
-    rv.z = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].y;
+    rv.z = (float)FACE_TO_WORLD_MULTS[facePosition.face].y;
     return rv;
 }
-f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkFacePosition3D& facePosition) {
+f32v3 VoxelSpaceConversions::getCoordinateMults(const ChunkPosition3D& facePosition) {
     f32v3 rv;
-    rv.x = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].x;
+    rv.x = (float)FACE_TO_WORLD_MULTS[facePosition.face].x;
     rv.y = (float)FACE_Y_MULTS[facePosition.face];
-    rv.z = (float)FACE_TO_WORLD_MULTS[facePosition.face][0].y;
+    rv.z = (float)FACE_TO_WORLD_MULTS[facePosition.face].y;
     return rv;
 }
 
-i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkFacePosition2D& facePosition) {
-    return GRID_TO_WORLD[facePosition.face];
+i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkPosition2D& facePosition) {
+    return VOXEL_TO_WORLD[facePosition.face];
 }
-i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkFacePosition3D& facePosition) {
-    return GRID_TO_WORLD[facePosition.face];
-}
-
-ChunkGridPosition2D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelGridPosition2D& voxelPosition) {
-    ChunkGridPosition2D gpos;
-    gpos.face = voxelPosition.face;
-    gpos.rotation = voxelPosition.rotation;
-    gpos.pos.x = fastFloor(voxelPosition.pos.x / CHUNK_WIDTH);
-    gpos.pos.y = fastFloor(voxelPosition.pos.y / CHUNK_WIDTH);
-    return gpos;
-}
-ChunkGridPosition3D VoxelSpaceConversions::voxelGridToChunkGrid(const VoxelGridPosition3D& voxelPosition) {
-    ChunkGridPosition3D gpos;
-    gpos.face = voxelPosition.face;
-    gpos.rotation = voxelPosition.rotation;
-    gpos.pos.x = fastFloor(voxelPosition.pos.x / CHUNK_WIDTH);
-    gpos.pos.y = fastFloor(voxelPosition.pos.y / CHUNK_WIDTH);
-    gpos.pos.z = fastFloor(voxelPosition.pos.z / CHUNK_WIDTH);
-    return gpos;
+i32v3 VoxelSpaceConversions::getCoordinateMapping(const ChunkPosition3D& facePosition) {
+    return VOXEL_TO_WORLD[facePosition.face];
 }
 
-VoxelGridPosition2D VoxelSpaceConversions::chunkGridToVoxelGrid(const ChunkGridPosition2D& gridPosition) {
-    VoxelGridPosition2D vpos;
-    vpos.face = gridPosition.face;
-    vpos.rotation = gridPosition.rotation;
-    vpos.pos.x = gridPosition.pos.x * CHUNK_WIDTH;
-    vpos.pos.y = gridPosition.pos.y * CHUNK_WIDTH;
-    return vpos;
-}
-VoxelGridPosition3D VoxelSpaceConversions::chunkGridToVoxelGrid(const ChunkGridPosition3D& gridPosition) {
-    VoxelGridPosition3D vpos;
-    vpos.face = gridPosition.face;
-    vpos.rotation = gridPosition.rotation;
-    vpos.pos.x = gridPosition.pos.x * CHUNK_WIDTH;
-    vpos.pos.y = gridPosition.pos.y * CHUNK_WIDTH;
-    vpos.pos.z = gridPosition.pos.z * CHUNK_WIDTH;
-    return vpos;
-}
-
-ChunkFacePosition2D VoxelSpaceConversions::voxelFaceToChunkFace(const VoxelFacePosition2D& voxelPosition) {
-    ChunkFacePosition2D gpos;
+ChunkPosition2D VoxelSpaceConversions::voxelToChunk(const VoxelPosition2D& voxelPosition) {
+    ChunkPosition2D gpos;
     gpos.face = voxelPosition.face;
     gpos.pos.x = fastFloor(voxelPosition.pos.x / CHUNK_WIDTH);
     gpos.pos.y = fastFloor(voxelPosition.pos.y / CHUNK_WIDTH);
     return gpos;
 }
-
-ChunkFacePosition3D VoxelSpaceConversions::voxelFaceToChunkFace(const VoxelFacePosition3D& voxelPosition) {
-    ChunkFacePosition3D gpos;
+ChunkPosition3D VoxelSpaceConversions::voxelToChunk(const VoxelPosition3D& voxelPosition) {
+    ChunkPosition3D gpos;
     gpos.face = voxelPosition.face;
     gpos.pos.x = fastFloor(voxelPosition.pos.x / CHUNK_WIDTH);
     gpos.pos.y = fastFloor(voxelPosition.pos.y / CHUNK_WIDTH);
@@ -76,16 +40,15 @@ ChunkFacePosition3D VoxelSpaceConversions::voxelFaceToChunkFace(const VoxelFaceP
     return gpos;
 }
 
-VoxelFacePosition2D VoxelSpaceConversions::chunkFaceToVoxelFace(const ChunkFacePosition2D& gridPosition) {
-    VoxelFacePosition2D vpos;
+VoxelPosition2D VoxelSpaceConversions::chunkToVoxel(const ChunkPosition2D& gridPosition) {
+    VoxelPosition2D vpos;
     vpos.face = gridPosition.face;
     vpos.pos.x = gridPosition.pos.x * CHUNK_WIDTH;
     vpos.pos.y = gridPosition.pos.y * CHUNK_WIDTH;
     return vpos;
 }
-
-VoxelFacePosition3D VoxelSpaceConversions::chunkFaceToVoxelFace(const ChunkFacePosition3D& gridPosition) {
-    VoxelFacePosition3D vpos;
+VoxelPosition3D VoxelSpaceConversions::chunkToVoxel(const ChunkPosition3D& gridPosition) {
+    VoxelPosition3D vpos;
     vpos.face = gridPosition.face;
     vpos.pos.x = gridPosition.pos.x * CHUNK_WIDTH;
     vpos.pos.y = gridPosition.pos.y * CHUNK_WIDTH;
@@ -93,77 +56,23 @@ VoxelFacePosition3D VoxelSpaceConversions::chunkFaceToVoxelFace(const ChunkFaceP
     return vpos;
 }
 
-VoxelFacePosition2D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPosition2D& gridPosition) {
-    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
-
-    VoxelFacePosition2D facePos;
-    facePos.face = gridPosition.face;
-    facePos.pos = gridPosition.pos * f64v2(mult);
-
-    if (gridPosition.rotation % 2) { //when rotation%2 x and z must switch
-        std::swap(facePos.pos.x, facePos.pos.y);
-    }
-
-    return facePos;
+f64v3 VoxelSpaceConversions::voxelToWorld(const VoxelPosition2D& facePosition, f64 voxelWorldRadius) {
+    return voxelToWorldNormalized(facePosition, voxelWorldRadius) * voxelWorldRadius;
 }
-VoxelFacePosition3D VoxelSpaceConversions::voxelGridToFace(const VoxelGridPosition3D& gridPosition) {
-    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
-
-    VoxelFacePosition3D facePos;
-    facePos.face = gridPosition.face;
-    facePos.pos = f64v3(gridPosition.pos.x * mult.x, gridPosition.pos.y, gridPosition.pos.z * mult.y);
-
-    if (gridPosition.rotation % 2) { //when rotation%2 x and z must switch
-        std::swap(facePos.pos.x, facePos.pos.z);
-    }
-
-    return facePos;
+f64v3 VoxelSpaceConversions::voxelToWorld(const VoxelPosition3D& facePosition, f64 voxelWorldRadius) {
+    return voxelToWorldNormalized(facePosition, voxelWorldRadius) * (voxelWorldRadius + facePosition.pos.y);
 }
 
-ChunkFacePosition2D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPosition2D& gridPosition) {
-    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
-
-    ChunkFacePosition2D facePos;
-    facePos.face = gridPosition.face;
-    facePos.pos = gridPosition.pos * mult;
-
-    if (gridPosition.rotation % 2) { //when rotation%2 x and z must switch
-        std::swap(facePos.pos.x, facePos.pos.y);
-    }
-
-    return facePos;
+f64v3 VoxelSpaceConversions::chunkToWorld(const ChunkPosition2D& facePosition, f64 voxelWorldRadius) {
+    return chunkToWorldNormalized(facePosition, voxelWorldRadius) * voxelWorldRadius;
 }
-ChunkFacePosition3D VoxelSpaceConversions::chunkGridToFace(const ChunkGridPosition3D& gridPosition) {
-    const i32v2& mult = GRID_TO_FACE_MULTS[gridPosition.rotation];
-
-    ChunkFacePosition3D facePos;
-    facePos.face = gridPosition.face;
-    facePos.pos = i32v3(gridPosition.pos.x * mult.x, gridPosition.pos.y, gridPosition.pos.z * mult.y);
-
-    if (gridPosition.rotation % 2) { //when rotation%2 x and z must switch
-        std::swap(facePos.pos.x, facePos.pos.z);
-    }
-
-    return facePos;
+f64v3 VoxelSpaceConversions::chunkToWorld(const ChunkPosition3D& facePosition, f64 voxelWorldRadius) {
+    return chunkToWorldNormalized(facePosition, voxelWorldRadius) * (voxelWorldRadius + facePosition.pos.y * CHUNK_WIDTH);
 }
 
-f64v3 VoxelSpaceConversions::voxelFaceToWorld(const VoxelFacePosition2D& facePosition, f64 voxelWorldRadius) {
-    return voxelFaceToWorldNormalized(facePosition, voxelWorldRadius) * voxelWorldRadius;
-}
-f64v3 VoxelSpaceConversions::voxelFaceToWorld(const VoxelFacePosition3D& facePosition, f64 voxelWorldRadius) {
-    return voxelFaceToWorldNormalized(facePosition, voxelWorldRadius) * (voxelWorldRadius + facePosition.pos.y);
-}
-
-f64v3 VoxelSpaceConversions::chunkFaceToWorld(const ChunkFacePosition2D& facePosition, f64 voxelWorldRadius) {
-    return chunkFaceToWorldNormalized(facePosition, voxelWorldRadius) * voxelWorldRadius;
-}
-f64v3 VoxelSpaceConversions::chunkFaceToWorld(const ChunkFacePosition3D& facePosition, f64 voxelWorldRadius) {
-    return chunkFaceToWorldNormalized(facePosition, voxelWorldRadius) * (voxelWorldRadius + facePosition.pos.y * CHUNK_WIDTH);
-}
-
-f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition2D& facePosition, f64 voxelWorldRadius) {
-    const i32v3& axisMapping = GRID_TO_WORLD[facePosition.face];
-    const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face][0];
+f64v3 VoxelSpaceConversions::voxelToWorldNormalized(const VoxelPosition2D& facePosition, f64 voxelWorldRadius) {
+    const i32v3& axisMapping = VOXEL_TO_WORLD[facePosition.face];
+    const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face];
 
     f64v3 worldPosition;
     worldPosition[axisMapping.x] = facePosition.pos.x * mults.x;
@@ -172,9 +81,9 @@ f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition2
 
     return glm::normalize(worldPosition);
 }
-f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition3D& facePosition, f64 voxelWorldRadius) {
-    const i32v3& axisMapping = GRID_TO_WORLD[facePosition.face];
-    const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face][0];
+f64v3 VoxelSpaceConversions::voxelToWorldNormalized(const VoxelPosition3D& facePosition, f64 voxelWorldRadius) {
+    const i32v3& axisMapping = VOXEL_TO_WORLD[facePosition.face];
+    const i32v2& mults = FACE_TO_WORLD_MULTS[facePosition.face];
 
     f64v3 worldPosition;
     worldPosition[axisMapping.x] = facePosition.pos.x * mults.x;
@@ -184,58 +93,75 @@ f64v3 VoxelSpaceConversions::voxelFaceToWorldNormalized(const VoxelFacePosition3
     return glm::normalize(worldPosition);
 }
 
-f64v3 VoxelSpaceConversions::chunkFaceToWorldNormalized(const ChunkFacePosition2D& facePosition, f64 voxelWorldRadius) {
-    return voxelFaceToWorldNormalized(chunkFaceToVoxelFace(facePosition), voxelWorldRadius);
+f64v3 VoxelSpaceConversions::chunkToWorldNormalized(const ChunkPosition2D& facePosition, f64 voxelWorldRadius) {
+    return voxelToWorldNormalized(chunkToVoxel(facePosition), voxelWorldRadius);
 }
-f64v3 VoxelSpaceConversions::chunkFaceToWorldNormalized(const ChunkFacePosition3D& facePosition, f64 voxelWorldRadius) {
-    return voxelFaceToWorldNormalized(chunkFaceToVoxelFace(facePosition), voxelWorldRadius);
+f64v3 VoxelSpaceConversions::chunkToWorldNormalized(const ChunkPosition3D& facePosition, f64 voxelWorldRadius) {
+    return voxelToWorldNormalized(chunkToVoxel(facePosition), voxelWorldRadius);
 }
 
-VoxelGridPosition3D VoxelSpaceConversions::worldToVoxelGrid(const f64v3& worldPosition, f64 voxelWorldRadius) {
-    f64v3 boxIntersect;
-    VoxelGridPosition3D gpos;
-
-    // Get closest point to the cube
-    boxIntersect.x = (worldPosition.x <= -voxelWorldRadius) ? -voxelWorldRadius :
-        ((worldPosition.x > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.x);
-    boxIntersect.y = (worldPosition.y <= -voxelWorldRadius) ? -voxelWorldRadius :
-        ((worldPosition.y > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.y);
-    boxIntersect.z = (worldPosition.z <= -voxelWorldRadius) ? -voxelWorldRadius :
-        ((worldPosition.z > voxelWorldRadius) ? (voxelWorldRadius) : worldPosition.z);
-
-    f64 height = glm::length(worldPosition - glm::normalize(boxIntersect) * voxelWorldRadius);
-
-    if (boxIntersect.x == -voxelWorldRadius) {
-        gpos.face = FACE_LEFT;
-        gpos.pos.x = boxIntersect.z;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
-    } else if (boxIntersect.x == voxelWorldRadius) {
-        gpos.face = FACE_RIGHT;
-        gpos.pos.x = -boxIntersect.z;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
-    } else if (boxIntersect.y == -voxelWorldRadius) {
-        gpos.face = FACE_BOTTOM;
-        gpos.pos.x = boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.z;
-    } else if (boxIntersect.y == voxelWorldRadius) {
-        gpos.face = FACE_TOP;
-        gpos.pos.x = boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = -boxIntersect.z;
-    } else if (boxIntersect.z == -voxelWorldRadius) {
-        gpos.face = FACE_BACK;
-        gpos.pos.x = -boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
-    } else if (boxIntersect.z == voxelWorldRadius) {
-        gpos.face = FACE_FRONT;
-        gpos.pos.x = boxIntersect.x;
-        gpos.pos.y = height;
-        gpos.pos.z = boxIntersect.y;
+VoxelPosition3D computeGridPosition(const f32v3& hitpoint, f32 radius) {
+    f32v3 cornerPos[2];
+    f32 min;
+    f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
+    f32v3 dir = -glm::normalize(hitpoint);
+    cornerPos[0] = f32v3(-radius, -radius, -radius);
+    cornerPos[1] = f32v3(radius, radius, radius);
+    if (!IntersectionUtils::boxIntersect(cornerPos, dir,
+        start, min)) {
+        std::cerr << "ERROR: Failed to find grid position in computeGridPosition.\n";
     }
 
-    return gpos;
+    f32v3 gridHit = start + dir * min;
+    const f32 eps = 32.0f;
+
+    VoxelPosition3D gridPos;
+
+    if (abs(gridHit.x - (-radius)) < eps) { //-X
+        gridPos.face = WorldCubeFace::FACE_LEFT;
+        gridPos.pos.x = gridHit.z;
+        gridPos.pos.z = -gridHit.y;
+    } else if (abs(gridHit.x - radius) < eps) { //X
+        gridPos.face = WorldCubeFace::FACE_RIGHT;
+        gridPos.pos.x = -gridHit.z;
+        gridPos.pos.z = -gridHit.y;
+    } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
+        gridPos.face = WorldCubeFace::FACE_BOTTOM;
+        gridPos.pos.x = gridHit.x;
+        gridPos.pos.z = -gridHit.z;
+    } else if (abs(gridHit.y - radius) < eps) { //Y
+        gridPos.face = WorldCubeFace::FACE_TOP;
+        gridPos.pos.x = gridHit.x;
+        gridPos.pos.z = gridHit.z;
+    } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
+        gridPos.face = WorldCubeFace::FACE_BACK;
+        gridPos.pos.x = -gridHit.x;
+        gridPos.pos.z = -gridHit.y;
+    } else if (abs(gridHit.z - radius) < eps) { //Z
+        gridPos.face = WorldCubeFace::FACE_FRONT;
+        gridPos.pos.x = gridHit.x;
+        gridPos.pos.z = -gridHit.y;
+    } else {
+        std::cerr << "ERROR: Failed to pick voxel position in computeGridPosition.\n";
+    }
+
+    return gridPos;
+}
+
+VoxelPosition3D VoxelSpaceConversions::worldToVoxel(const f64v3& worldPosition, f64 voxelWorldRadius) {
+    f64v3 wpoint = glm::normalize(worldPosition) * voxelWorldRadius * 2.0;
+
+    // Compute the intersection
+    f32v3 normal, hitpoint;
+    f32 distance;
+
+    VoxelPosition3D gridPos;
+    if (IntersectionUtils::sphereIntersect(-f32v3(glm::normalize(wpoint)), f32v3(wpoint), f32v3(0.0f), voxelWorldRadius, hitpoint, distance, normal)) {
+     
+        // Compute face and grid position
+        gridPos = computeGridPosition(hitpoint, voxelWorldRadius);
+        gridPos.pos.y = glm::length(worldPosition) - voxelWorldRadius;
+    }
+
+    return gridPos;
 }

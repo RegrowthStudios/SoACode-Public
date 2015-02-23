@@ -37,20 +37,20 @@ const WorldCubeFace FACE_NEIGHBORS[6][4] = {
 #define OFFSET 1000.0
 
 /// This is basically a hack with normal mapping tangent space stuff
-f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridPosition, f64 worldRadius) {
+f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition2D& gridPosition, f64 worldRadius) {
 
 
-    VoxelGridPosition2D gp2 = gridPosition;
+    VoxelPosition2D gp2 = gridPosition;
     gp2.pos.x += OFFSET;
-    VoxelGridPosition2D gp3 = gridPosition;
+    VoxelPosition2D gp3 = gridPosition;
     gp3.pos.y += OFFSET;
 
-    f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
-    f64v3 v2 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
-    f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
+    f64v3 v1 = VoxelSpaceConversions::voxelToWorldNormalized(
+        gridPosition, worldRadius);
+    f64v3 v2 = VoxelSpaceConversions::voxelToWorldNormalized(
+        gp2, worldRadius);
+    f64v3 v3 = VoxelSpaceConversions::voxelToWorldNormalized(
+        gp3, worldRadius);
   
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
@@ -63,19 +63,19 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition2D& gridP
 
     return glm::quat_cast(worldRotationMatrix);
 }
-f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridPosition, f64 worldRadius) {
+f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosition, f64 worldRadius) {
 
-    VoxelGridPosition3D gp2 = gridPosition;
+    VoxelPosition3D gp2 = gridPosition;
     gp2.pos.x += OFFSET;
-    VoxelGridPosition3D gp3 = gridPosition;
+    VoxelPosition3D gp3 = gridPosition;
     gp3.pos.z += OFFSET;
 
-    f64v3 v1 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gridPosition), worldRadius);
-    f64v3 v2 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp2), worldRadius);
-    f64v3 v3 = VoxelSpaceConversions::voxelFaceToWorldNormalized(
-        VoxelSpaceConversions::voxelGridToFace(gp3), worldRadius);
+    f64v3 v1 = VoxelSpaceConversions::voxelToWorldNormalized(
+        gridPosition, worldRadius);
+    f64v3 v2 = VoxelSpaceConversions::voxelToWorldNormalized(
+        gp2, worldRadius);
+    f64v3 v3 = VoxelSpaceConversions::voxelToWorldNormalized(
+        gp3, worldRadius);
 
     f64v3 tangent = glm::normalize(v2 - v1);
     f64v3 biTangent = glm::normalize(v3 - v1);
@@ -89,37 +89,38 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelGridPosition3D& gridP
     return glm::quat_cast(worldRotationMatrix);
 }
 
-void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkGridPosition2D& gridPosition, const i32v2& xzOffset, int maxPos) {
+void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkPosition2D& gridPosition, const i32v2& xzOffset, int maxPos) {
     gridPosition.pos += xzOffset;
     WorldCubeFace newFace = gridPosition.face;
 
-    if (gridPosition.pos.y < -maxPos) { // BOTTOM SIDE
-        gridPosition.pos.y += maxPos;
+    //TODO(Ben): New transition logic
+    //if (gridPosition.pos.y < -maxPos) { // BOTTOM SIDE
+    //    gridPosition.pos.y += maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][(1 + gridPosition.rotation) % 4];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    } else if (gridPosition.pos.y > maxPos) { // TOP SIDE
-        gridPosition.pos.y -= maxPos;
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][(1 + gridPosition.rotation) % 4];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //} else if (gridPosition.pos.y > maxPos) { // TOP SIDE
+    //    gridPosition.pos.y -= maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][(3 + gridPosition.rotation) % 4];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    }
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][(3 + gridPosition.rotation) % 4];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //}
 
-    if (gridPosition.pos.x < -maxPos) { // LEFT SIDE
-        gridPosition.pos.x += maxPos;
+    //if (gridPosition.pos.x < -maxPos) { // LEFT SIDE
+    //    gridPosition.pos.x += maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][(2 + gridPosition.rotation) % 4];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    } else if (gridPosition.pos.x > maxPos) { // RIGHT SIDE
-        gridPosition.pos.x -= maxPos;
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][(2 + gridPosition.rotation) % 4];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //} else if (gridPosition.pos.x > maxPos) { // RIGHT SIDE
+    //    gridPosition.pos.x -= maxPos;
 
-        newFace = FACE_NEIGHBORS[gridPosition.face][gridPosition.rotation];
-        gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
-        if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
-    }
+    //    newFace = FACE_NEIGHBORS[gridPosition.face][gridPosition.rotation];
+    //    gridPosition.rotation += FACE_TRANSITIONS[gridPosition.face][newFace];
+    //    if (gridPosition.rotation < 0) { gridPosition.rotation += 4; } else { gridPosition.rotation %= 4; }
+    //}
 
     gridPosition.face = newFace;
 }

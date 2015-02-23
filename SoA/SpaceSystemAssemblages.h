@@ -28,6 +28,7 @@ struct PlanetKegProperties;
 struct StarKegProperties;
 struct SystemBody;
 struct SystemBodyKegProperties;
+struct SphericalTerrainComponent;
 
 DECL_VG(
     class GLProgram;
@@ -67,8 +68,10 @@ namespace SpaceSystemAssemblages {
     /// Spherical voxel component
     extern vcore::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                          vcore::ComponentID sphericalTerrainComponent,
-                                                         const ChunkGridPosition2D& startGridPos,
-                                                         const f64v3& gridPosition,
+                                                         vcore::ComponentID farTerrainComponent,
+                                                         vcore::ComponentID axisRotationComponent,
+                                                         vcore::ComponentID namePositionComponent,
+                                                         const VoxelPosition3D& startVoxelPos,
                                                          const SoaState* soaState);
     extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
@@ -76,21 +79,27 @@ namespace SpaceSystemAssemblages {
     extern vcore::ComponentID addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                          const f64q& axisOrientation,
                                                          f64 startAngle,
-                                                         f64 angularSpeed);
+                                                         f64 rotationalPeriod);
     extern void removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
     /// Spherical terrain component
     extern vcore::ComponentID addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
                                                            vcore::ComponentID npComp,
                                                            vcore::ComponentID arComp,
-                                                           f64 radius, PlanetGenData* planetGenData,
+                                                           PlanetGenData* planetGenData,
                                                            vg::GLProgram* normalProgram,
                                                            vg::TextureRecycler* normalMapRecycler);
     extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
+    /// Spherical terrain component
+    extern vcore::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                     SphericalTerrainComponent& parentCmp,
+                                                     WorldCubeFace face);
+    extern void removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
     /// Spherical Gravity component
     extern vcore::ComponentID addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                           f64 radius, f64 mass);
+                                                           vcore::ComponentID npComp, f64 radius, f64 mass);
     extern void removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 
     /// Name Position component
@@ -103,6 +112,11 @@ namespace SpaceSystemAssemblages {
                                                 f64 eccentricity, f64 orbitalPeriod,
                                                 const ui8v4& pathColor, const f64q& orientation);
     extern void removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+
+    /// Space Light Component
+    extern vcore::ComponentID addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+                                                     vcore::ComponentID npCmp, color3 color, f32 intensity);
+    extern void removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
 }
 
 #endif // SpaceSystemAssemblages_h__

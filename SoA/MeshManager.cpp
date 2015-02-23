@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MeshManager.h"
 
-#include "SphericalTerrainPatch.h"
+#include "TerrainPatch.h"
 #include "ChunkMesh.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"

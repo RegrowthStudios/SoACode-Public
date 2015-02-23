@@ -103,15 +103,12 @@ private:
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
-
-    /// Processes messages from the update->render thread
-    void processMessages();
+    
+    /// Updates the Entity component system
+    void updateECS();
 
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
-
-    /// Loads the player save file
-    bool loadPlayerFile(Player* player);
 
     const MainMenuScreen* m_mainMenuScreen = nullptr;
     SoaState* m_soaState = nullptr;
@@ -121,8 +118,6 @@ private:
     PDA m_pda; ///< The PDA
 
     PauseMenu m_pauseMenu; ///< The Pause Menu
-
-    bool m_inFocus; ///< true when the window is in focus
 
     SoaController controller;
     std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;

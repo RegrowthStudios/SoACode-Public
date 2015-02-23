@@ -32,11 +32,16 @@ void RawGenDelegate::invoke(Sender sender, void* userData) {
     generator->generateRawHeightmap(this);
 }
 
+void RawGenDelegate::release() {
+    inUse = false;
+    gridData.reset();
+}
+
 //1735
 //1500
 double surfaceDensity[9][5][5];
 
-void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
+void Chunk::init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData) {
 	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
 	loadStatus = 0;
 	freeWaiting = 0;
@@ -51,7 +56,7 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
 	setupWaitingTime = 0;
 	treeTryTicks = 0;
 
-    voxelPosition = chunkPos * CHUNK_WIDTH;
+    voxelPosition = chunkPos.pos * CHUNK_WIDTH;
   
 	numBlocks = -1;
 	_state = ChunkStates::LOAD;
@@ -80,9 +85,7 @@ void Chunk::init(const i32v3 &chunkPos, ChunkGridData* chunkGridData) {
     lastOwnerTask = nullptr;
 
     this->chunkGridData = chunkGridData;
-    gridPosition.face = chunkGridData->gridPosition.face;
-    gridPosition.rotation = chunkGridData->gridPosition.rotation;
-    gridPosition.pos = chunkPos;
+    gridPosition = chunkPos;
 
     mesh = nullptr;
 }

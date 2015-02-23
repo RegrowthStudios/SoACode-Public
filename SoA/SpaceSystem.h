@@ -27,8 +27,10 @@
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
 #define SPACE_SYSTEM_CT_ORBIT_NAME "Orbit"
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
+#define SPACE_SYSTEM_CT_FARTERRAIN_NAME "FarTerrain"
 #define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
 #define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
+#define SPACE_SYSTEM_CT_SPACELIGHT_NAME "SpaceLight"
 
 class App;
 class Binary;
@@ -60,6 +62,8 @@ public:
     vcore::ComponentTable<OrbitComponent> m_orbitCT;
     vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
     vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    vcore::ComponentTable<FarTerrainComponent> m_farTerrainCT;
+    vcore::ComponentTable<SpaceLightComponent> m_spaceLightCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
 
     nString systemDescription; ///< textual description of the system
