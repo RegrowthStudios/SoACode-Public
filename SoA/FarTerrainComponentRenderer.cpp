@@ -42,7 +42,8 @@ void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
     // Draw far patches
     cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
                                     m_farTerrainProgram, m_farWaterProgram,
-                                    f32v3(relLightDir));
+                                    f32v3(relLightDir),
+                                    cmp.alpha);
     glEnable(GL_CULL_FACE);
 }
 

@@ -118,6 +118,7 @@ struct SphericalTerrainComponent {
     VoxelPosition3D startVoxelPosition;
     bool needsVoxelComponent = false;
     bool active = true;
+    float alpha = 1.0f; ///< Alpha blending coefficient
 };
 
 struct FarTerrainComponent {
@@ -135,6 +136,7 @@ struct FarTerrainComponent {
     PlanetGenData* planetGenData = nullptr;
     i32v2 center = i32v2(0); ///< Center, in units of patch width, where camera is
     i32v2 origin = i32v2(0); ///< Specifies which patch is the origin (back left corner) on the grid
+    float alpha = 1.0f; ///< Alpha blending coefficient
 };
 
 #endif // SpaceSystemComponents_h__

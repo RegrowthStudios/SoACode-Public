@@ -39,7 +39,8 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
         cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
                                              arComponent->currentOrientation,
                                              m_terrainProgram, m_waterProgram,
-                                             lightDir);
+                                             lightDir,
+                                             cmp.alpha);
     }
 }
 

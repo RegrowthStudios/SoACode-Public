@@ -19,7 +19,8 @@
 void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
                                        const f64q& orientation, vg::GLProgram* program,
                                        vg::GLProgram* waterProgram,
-                                       const f32v3& lightDir) {
+                                       const f32v3& lightDir,
+                                       float alpha) {
     
     static float dt = 0.0;
     dt += 0.001;
@@ -47,6 +48,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
         glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
 
         for (int i = 0; i < m_waterMeshes.size();) {
             auto& m = m_waterMeshes[i];
@@ -81,6 +83,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         program->use();
         program->enableVertexAttribArrays();
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform1f(program->getUniform("unAlpha"), alpha);
 
         for (int i = 0; i < m_meshes.size();) {
             auto& m = m_meshes[i];
@@ -149,7 +152,8 @@ void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) 
 
 void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Camera* camera,
                                             vg::GLProgram* program, vg::GLProgram* waterProgram,
-                                            const f32v3& lightDir) {
+                                            const f32v3& lightDir,
+                                            float alpha) {
     static float dt = 0.0;
     dt += 0.001;
 
@@ -169,6 +173,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
         glUniform1f(waterProgram->getUniform("unRadius"), 4200.0f); // TODO(Ben): Use real radius
         glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
 
         for (int i = 0; i < m_farWaterMeshes.size();) {
             auto& m = m_farWaterMeshes[i];
@@ -203,6 +208,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
         program->enableVertexAttribArrays();
         glUniform1f(program->getUniform("unRadius"), 4200.0f); // TODO(Ben): Use real radius
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform1f(program->getUniform("unAlpha"), alpha);
 
         for (int i = 0; i < m_farMeshes.size();) {
             auto& m = m_farMeshes[i];
