@@ -13,8 +13,12 @@
 #include <Vorb/utils.h>
 
 SphericalTerrainComponentRenderer::~SphericalTerrainComponentRenderer() {
-    delete m_terrainProgram;
-    delete m_waterProgram;
+    if (m_terrainProgram) {
+        m_terrainProgram->dispose();
+        m_waterProgram->dispose();
+        delete m_terrainProgram;
+        delete m_waterProgram;
+    }
 }
 
 void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,

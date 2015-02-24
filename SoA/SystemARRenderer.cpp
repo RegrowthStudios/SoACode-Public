@@ -30,7 +30,10 @@ void main() {
 )";
 
 SystemARRenderer::~SystemARRenderer() {
-    delete m_colorProgram;
+    if (m_colorProgram) {
+        m_colorProgram->dispose();
+        delete m_colorProgram;
+    }
 }
 
 void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,

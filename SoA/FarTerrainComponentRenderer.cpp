@@ -11,8 +11,13 @@
 #include <Vorb/utils.h>
 
 FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
-    delete m_farTerrainProgram;
-    delete m_farWaterProgram;
+    if (m_farTerrainProgram) {
+        m_farTerrainProgram->dispose();
+        m_farWaterProgram->dispose();
+        delete m_farTerrainProgram;
+        delete m_farWaterProgram;
+    }
+    
 }
 
 void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
