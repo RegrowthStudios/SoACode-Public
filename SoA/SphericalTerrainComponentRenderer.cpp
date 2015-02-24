@@ -20,8 +20,8 @@ SphericalTerrainComponentRenderer::~SphericalTerrainComponentRenderer() {
 void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const Camera* camera,
                                              const f32v3& lightDir,
+                                             const f64v3& position,
                                              const SpaceLightComponent* spComponent,
-                                             const NamePositionComponent* npComponent,
                                              const AxisRotationComponent* arComponent) {
 
     if (cmp.patches) {
@@ -30,7 +30,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
             buildShaders();
         }
         
-        f64v3 relativeCameraPos = camera->getPosition() - npComponent->position;
+        f64v3 relativeCameraPos = camera->getPosition() - position;
         // Draw spherical patches
         cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
                                              arComponent->currentOrientation,

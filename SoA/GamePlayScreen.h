@@ -108,6 +108,9 @@ private:
     /// Updates the Entity component system
     void updateECS();
 
+    /// Updates multithreaded render state
+    void updateMTRenderState();
+
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
@@ -131,6 +134,7 @@ private:
     GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
     MTRenderStateManager m_renderStateManager;
+    const MTRenderState* m_prevRenderState = nullptr;
 };
 
 #endif // GAMEPLAYSCREEN_H_

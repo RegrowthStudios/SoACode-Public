@@ -140,6 +140,7 @@ void GamePlayScreen::update(const GameTime& gameTime) {
     // TODO(Ben): This is temporary
 #ifndef MT_RENDER
     updateECS();
+    updateMTRenderState();
 #endif
 
     // Update the PDA
@@ -175,9 +176,35 @@ void GamePlayScreen::updateECS() {
     m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
 }
 
+void GamePlayScreen::updateMTRenderState() {
+    MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
+
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
+    // Set all space positions
+    for (auto& it : spaceSystem->m_namePositionCT) {
+        state->spaceBodyPositions[it.first] = it.second.position;
+    }
+    // Set camera position
+    auto& spCmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
+    state->spaceCameraPos = spCmp.position;
+    state->spaceCameraOrientation = spCmp.orientation;
+
+    m_renderStateManager.finishUpdating();
+}
+
 void GamePlayScreen::draw(const GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
     updateWorldCameraClip();
+
+    const MTRenderState* renderState;
+    // Don't render the same state twice.
+    while ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
+        Sleep(0);
+    }
+    m_prevRenderState = renderState;
+
+    // Set renderState and draw everything
+    m_renderPipeline.setRenderState(renderState);
     m_renderPipeline.render();
     globalRenderAccumulationTimer.stop();
 
@@ -320,6 +347,7 @@ void GamePlayScreen::updateThreadFunc() {
         // TODO(Ben): Figure out how to make this work for MT
 #ifdef MT_RENDER
         updateECS();
+        updateMTRenderState();
 #endif
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {

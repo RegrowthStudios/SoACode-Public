@@ -21,15 +21,18 @@
 
 class MTRenderStateManager {
 public:
+    /// Gets the state for updating. Only call once per frame.
     MTRenderState* getRenderStateForUpdate();
+    /// Marks state as finished updating. Only call once per frame,
+    /// must call for every call to getRenderStateForUpdate.
     void finishUpdating();
-
-    MTRenderState* getRenderStateForRender();
+    /// Gets the state for rendering. Only call once per frame.
+    const MTRenderState* getRenderStateForRender();
 private:
-    int m_updating = 0;
-    int m_lastUpdated = 0;
-    int m_rendering = 0;
-    MTRenderState m_renderState[3];
+    int m_updating = 0; ///< Currently updating state
+    int m_lastUpdated = 0; ///< Most recently updated state
+    int m_rendering = 0; ///< Currently rendering state
+    MTRenderState m_renderState[3]; ///< Triple-buffered state
     std::mutex m_lock;
 };
 

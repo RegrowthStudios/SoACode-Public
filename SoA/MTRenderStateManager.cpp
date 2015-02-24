@@ -21,7 +21,7 @@ void MTRenderStateManager::finishUpdating() {
     m_lastUpdated = m_updating;
 }
 
-MTRenderState* MTRenderStateManager::getRenderStateForRender() {
+const MTRenderState* MTRenderStateManager::getRenderStateForRender() {
     std::lock_guard<std::mutex> lock(m_lock);
     // If we haven't updated again, return the same one
     if (m_rendering == m_lastUpdated) return &m_renderState[m_rendering];
