@@ -11,13 +11,14 @@
 #include "soaUtils.h"
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
+
     for (auto& it : spaceSystem->m_farTerrainCT) {
+
         FarTerrainComponent& cmp = it.second;
         if (!cmp.gpuGenerator) break;
 
         /// Calculate camera distance
-        f64v3 relativeCameraPos = cameraPos;
-        f64 distance = glm::length(relativeCameraPos);
+        f64 distance = glm::length(cameraPos);
 
         cmp.alpha += TERRAIN_ALPHA_STEP;
         if (cmp.alpha > 1.0f) cmp.alpha = 1.0f;
@@ -35,7 +36,7 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
 
             // Update patches
             for (int i = 0; i < FT_TOTAL_PATCHES; i++) {
-                cmp.patches[i].update(relativeCameraPos);
+                cmp.patches[i].update(cameraPos);
             }
         } else {
             // Out of range, delete everything

@@ -25,15 +25,13 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
             stCmp.alpha -= TERRAIN_ALPHA_STEP;
             if (stCmp.alpha < 0.0f) {
                 stCmp.alpha = 0.0f;
-                stCmp.active = false;
+                // Force it to unload
+                distance = LOAD_DIST * 10.0;
             }
         } else {
             stCmp.alpha += TERRAIN_ALPHA_STEP;
             if (stCmp.alpha > 1.0f) stCmp.alpha = 1.0f;
         }
-
-        // If inactive, force patch deletion
-        if (!stCmp.active) distance = LOAD_DIST * 10.0;
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed
@@ -82,7 +80,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
 void SphericalTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
-        if (it.second.active) it.second.gpuGenerator->update();
+        if (it.second.alpha > 0.0f) it.second.gpuGenerator->update();
     }
 }
 
