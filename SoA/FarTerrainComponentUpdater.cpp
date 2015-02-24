@@ -2,12 +2,13 @@
 #include "FarTerrainComponentUpdater.h"
 
 
-#include "SpaceSystem.h"
-#include "SpaceSystemComponents.h"
-#include "SphericalTerrainGpuGenerator.h"
-#include "SphericalTerrainCpuGenerator.h"
-#include "VoxelCoordinateSpaces.h"
 #include "FarTerrainPatch.h"
+#include "SpaceSystem.h"
+#include "SpaceSystemAssemblages.h"
+#include "SpaceSystemComponents.h"
+#include "SphericalTerrainCpuGenerator.h"
+#include "SphericalTerrainGpuGenerator.h"
+#include "VoxelCoordinateSpaces.h"
 #include "soaUtils.h"
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
@@ -20,8 +21,18 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
         /// Calculate camera distance
         f64 distance = glm::length(cameraPos);
 
-        cmp.alpha += TERRAIN_ALPHA_STEP;
-        if (cmp.alpha > 1.0f) cmp.alpha = 1.0f;
+        // Update fading in and out
+        if (cmp.shouldFade) {
+            cmp.alpha -= TERRAIN_ALPHA_STEP;
+            if (cmp.alpha <= 0.0f) {
+                // We are faded out, so deallocate
+                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
+                continue;
+            }
+        } else {
+            cmp.alpha += TERRAIN_ALPHA_STEP;
+            if (cmp.alpha > 1.0f) cmp.alpha = 1.0f;
+        }
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed

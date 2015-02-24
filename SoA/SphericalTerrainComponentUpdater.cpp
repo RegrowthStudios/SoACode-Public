@@ -71,8 +71,14 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
             // Check for deleting components
             // TODO(Ben): We need to do refcounting for MP!
             if (stCmp.sphericalVoxelComponent) {
+                // Mark far terrain for fadeout
+                auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
+                ftCmp.shouldFade = true;
+                ftCmp.alpha = TERRAIN_DEC_START_ALPHA;
+                // Remove spherical voxel
                 SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
-                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
+                stCmp.sphericalVoxelComponent = 0;
+                stCmp.farTerrainComponent = 0;
             }
         }
     }
