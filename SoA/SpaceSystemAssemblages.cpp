@@ -265,6 +265,7 @@ vcore::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(OUT SpaceSyste
     ftCmp.sphericalTerrainData = parentCmp.sphericalTerrainData;
 
     ftCmp.face = face;
+    ftCmp.alpha = TERRAIN_INC_START_ALPHA;
 
     return ftCmpId;
 }

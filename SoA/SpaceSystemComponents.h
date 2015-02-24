@@ -38,6 +38,12 @@ struct PlanetGenData;
 DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);
 
+/// For far and spherical terrain patch blending on transitions
+const float TERRAIN_ALPHA_BEFORE_FADE = 2.0f;
+const float TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + 2.0f;
+const float TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
+const float TERRAIN_ALPHA_STEP = 0.01f;
+
 struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
     f64q currentOrientation; ///< Current orientation with axis and rotation

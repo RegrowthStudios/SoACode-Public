@@ -36,11 +36,13 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
         
         f64v3 relativeCameraPos = camera->getPosition() - position;
         // Draw spherical patches
-        cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
-                                             arComponent->currentOrientation,
-                                             m_terrainProgram, m_waterProgram,
-                                             lightDir,
-                                             cmp.alpha);
+        if (cmp.alpha > 0.0f) {
+            cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
+                                                 arComponent->currentOrientation,
+                                                 m_terrainProgram, m_waterProgram,
+                                                 lightDir,
+                                                 glm::min(cmp.alpha, 1.0f));
+        }
     }
 }
 

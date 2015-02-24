@@ -21,8 +21,19 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
         f64 distance = glm::length(relativeCameraPos);
 
+        if (stCmp.needsVoxelComponent) {
+            stCmp.alpha -= TERRAIN_ALPHA_STEP;
+            if (stCmp.alpha < 0.0f) {
+                stCmp.alpha = 0.0f;
+                stCmp.active = false;
+            }
+        } else {
+            stCmp.alpha += TERRAIN_ALPHA_STEP;
+            if (stCmp.alpha > 1.0f) stCmp.alpha = 1.0f;
+        }
+
         // If inactive, force patch deletion
-        if (!it.second.active) distance = LOAD_DIST * 10.0;
+        if (!stCmp.active) distance = LOAD_DIST * 10.0;
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed

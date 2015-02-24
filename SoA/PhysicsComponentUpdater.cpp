@@ -79,8 +79,8 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
             // TODO(Ben): Orient this
             pyCmp.velocity = f64v3(0.0);
             GameSystemAssemblages::removeVoxelPosition(gameSystem, entity);
-            stCmp.active = true;
             stCmp.needsVoxelComponent = false;
+            stCmp.alpha = 0.0f;
         }
     }
 }
@@ -116,8 +116,8 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
                 stCmp.startVoxelPosition = VoxelSpaceConversions::worldToVoxel(arCmp.invCurrentOrientation * spCmp.position * VOXELS_PER_KM,
                                                                                stCmp.sphericalTerrainData->radius * VOXELS_PER_KM);
-              //  stCmp.active = false;
                 stCmp.needsVoxelComponent = true;
+                stCmp.alpha = TERRAIN_DEC_START_ALPHA;
             } else if (!pyCmp.voxelPositionComponent && stCmp.sphericalVoxelComponent) { // Check if we need to create the voxelPosition component
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
                 // Calculate voxel relative orientation

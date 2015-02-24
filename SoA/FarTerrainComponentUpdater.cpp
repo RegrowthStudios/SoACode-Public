@@ -12,12 +12,15 @@
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
-        if (!it.second.gpuGenerator) break;
-
         FarTerrainComponent& cmp = it.second;
+        if (!cmp.gpuGenerator) break;
+
         /// Calculate camera distance
         f64v3 relativeCameraPos = cameraPos;
         f64 distance = glm::length(relativeCameraPos);
+
+        cmp.alpha += TERRAIN_ALPHA_STEP;
+        if (cmp.alpha > 1.0f) cmp.alpha = 1.0f;
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed
