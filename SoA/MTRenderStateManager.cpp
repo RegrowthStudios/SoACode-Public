@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MTRenderStateManager.h"
 
-// Increments i in modulo 3
+// Increments i in modulo 3 for triple buffering
 void incrementMod3(OUT int& i) {
     i = (i + 1) % 3;
 }
@@ -18,6 +18,7 @@ MTRenderState* MTRenderStateManager::getRenderStateForUpdate() {
 
 void MTRenderStateManager::finishUpdating() {
     std::lock_guard<std::mutex> lock(m_lock);
+    // Mark the currently updating buffer as the last updated
     m_lastUpdated = m_updating;
 }
 

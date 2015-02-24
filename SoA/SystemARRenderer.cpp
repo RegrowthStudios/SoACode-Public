@@ -34,6 +34,12 @@ SystemARRenderer::~SystemARRenderer() {
         m_colorProgram->dispose();
         delete m_colorProgram;
     }
+    if (m_spriteBatch) {
+        m_spriteBatch->dispose();
+        m_spriteFont->dispose();
+        delete m_spriteBatch;
+        delete m_spriteFont;
+    }
 }
 
 void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,

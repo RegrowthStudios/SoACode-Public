@@ -108,7 +108,7 @@ private:
     /// Updates the Entity component system
     void updateECS();
 
-    /// Updates multithreaded render state
+    /// Updates multi-threaded render state
     void updateMTRenderState();
 
     /// Updates the dynamic clipping plane for the world camera
@@ -133,8 +133,8 @@ private:
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
-    MTRenderStateManager m_renderStateManager;
-    const MTRenderState* m_prevRenderState = nullptr;
+    MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
+    const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw
 };
 
 #endif // GAMEPLAYSCREEN_H_

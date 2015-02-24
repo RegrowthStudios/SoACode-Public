@@ -20,11 +20,11 @@
 #include <map>
 
 /// Not every bit of render state needs to be in MTRenderState. Only things
-/// that are sensitive, such as fast moving planets.
+/// that are sensitive, such as fast moving planets and the camera.
 struct MTRenderState {
-    f64q spaceCameraOrientation;
-    f64v3 spaceCameraPos;
-    std::map<vcore::EntityID, f64v3> spaceBodyPositions; ///< Keyed on entity
+    f64q spaceCameraOrientation; ///< Orientation in space
+    f64v3 spaceCameraPos; ///< Position in space, relative to parent body
+    std::map<vcore::EntityID, f64v3> spaceBodyPositions; ///< Space entity positions
 };
 
 #endif // MTRenderState_h__
