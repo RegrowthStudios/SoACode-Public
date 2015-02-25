@@ -24,9 +24,10 @@
 #include "SystemARRenderer.h"
 
 class App;
+class GameSystem;
+class MTRenderState;
 class MainMenuSystemViewer;
 class SpaceSystem;
-class GameSystem;
 class SpriteBatch;
 class SpriteFont;
 
@@ -43,6 +44,8 @@ public:
 
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
 
+    /// Call this every frame before render
+    void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
     virtual void draw() override;
 private:
@@ -65,6 +68,7 @@ private:
     const Camera* m_spaceCamera = nullptr;
     const Camera* m_farTerrainCamera = nullptr;
     VGTexture m_selectorTexture = 0;
+    const MTRenderState* m_renderState = nullptr;
 
     SystemARRenderer m_systemARRenderer;
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;

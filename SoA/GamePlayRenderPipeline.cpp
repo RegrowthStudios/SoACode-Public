@@ -11,6 +11,7 @@
 #include "GameSystem.h"
 #include "HdrRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
+#include "MTRenderState.h"
 #include "MeshManager.h"
 #include "NightVisionRenderStage.h"
 #include "OpaqueVoxelRenderStage.h"
@@ -101,6 +102,10 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     _chunkGridRenderStage->setIsVisible(false);
 }
 
+void GamePlayRenderPipeline::setRenderState(const MTRenderState* renderState) {
+    m_renderState = renderState;
+}
+
 GamePlayRenderPipeline::~GamePlayRenderPipeline() {
     destroy();
 }
@@ -121,6 +126,7 @@ void GamePlayRenderPipeline::render() {
     // worldCamera passes
     _skyboxRenderStage->draw();
     glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
+    m_spaceSystemRenderStage->setRenderState(m_renderState);
     m_spaceSystemRenderStage->draw();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     // Clear the depth buffer so we can draw the voxel passes
@@ -308,13 +314,13 @@ void GamePlayRenderPipeline::updateCameras() {
         auto& parentSgCmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityId);
         auto& parentNpCmp = ss->m_namePositionCT.get(parentSgCmp.namePositionComponent);
         // TODO(Ben): Could get better precision by not using + parentNpCmp.position here?
-        m_spaceCamera.setPosition(spcmp.position + parentNpCmp.position);
+        m_spaceCamera.setPosition(m_renderState->spaceCameraPos + parentNpCmp.position);
     } else {
-        m_spaceCamera.setPosition(spcmp.position);
+        m_spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
     //printVec("POSITION: ", spcmp.position);
     m_spaceCamera.setClippingPlane(sNearClip, 999999999.0f);
    
-    m_spaceCamera.setOrientation(spcmp.orientation);
+    m_spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
     m_spaceCamera.update();
 }

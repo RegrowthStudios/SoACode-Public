@@ -31,8 +31,8 @@ public:
     void draw(SphericalTerrainComponent& cmp,
               const Camera* camera,
               const f32v3& lightDir,
+              const f64v3& position,
               const SpaceLightComponent* spComponent,
-              const NamePositionComponent* npComponent,
               const AxisRotationComponent* arComponent);
 
 private:

@@ -34,6 +34,7 @@ class GameSystem;
 class HdrRenderStage;
 class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
+class MTRenderState;
 class MeshManager;
 class NightVisionRenderStage;
 class OpaqueVoxelRenderStage;
@@ -63,7 +64,11 @@ public:
               GameSystem* gameSystem,
               const PauseMenu* pauseMenu);
 
-    /// Renders the pipeline
+    /// Call this every frame before render
+    void setRenderState(const MTRenderState* renderState);
+
+    /// Renders the pipeline.
+    /// Make sure to call setRenderState first.
     virtual void render() override;
 
     /// Frees all resources
@@ -115,6 +120,7 @@ private:
     Camera m_farTerrainCamera; ///< Camera for far terrain only
     Camera m_voxelCamera; ///< handle to voxel camera
     const MeshManager* _meshManager; ///< Handle to the meshes
+    const MTRenderState* m_renderState = nullptr; ///< The current MT render state
     bool m_voxelsActive = false;
 };
 

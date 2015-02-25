@@ -320,6 +320,8 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="MTRenderState.h" />
+    <ClInclude Include="MTRenderStateManager.h" />
     <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
@@ -503,6 +505,7 @@ EXIT 0</Command>
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="NoiseShaderGenerator.cpp" />

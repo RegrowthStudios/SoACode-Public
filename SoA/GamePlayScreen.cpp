@@ -37,8 +37,6 @@
 #include "VoxelEditor.h"
 #include "SoaEngine.h"
 
-#define MT_RENDER
-
 GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
     m_mainMenuScreen(mainMenuScreen),
@@ -116,6 +114,7 @@ void GamePlayScreen::onEvent(const SDL_Event& e) {
     // Empty
 }
 
+/// This update function runs on the render thread
 void GamePlayScreen::update(const GameTime& gameTime) {
 
     globalRenderAccumulationTimer.start("Space System");
@@ -135,12 +134,8 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 
     globalRenderAccumulationTimer.start("Process Messages");
     // Update the input
+    // TODO(Ben): Is this the right thread to use this on?
     handleInput();
-
-    // TODO(Ben): This is temporary
-#ifndef MT_RENDER
-    updateECS();
-#endif
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -175,9 +170,35 @@ void GamePlayScreen::updateECS() {
     m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
 }
 
+void GamePlayScreen::updateMTRenderState() {
+    MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
+
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
+    // Set all space positions
+    for (auto& it : spaceSystem->m_namePositionCT) {
+        state->spaceBodyPositions[it.first] = it.second.position;
+    }
+    // Set camera position
+    auto& spCmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
+    state->spaceCameraPos = spCmp.position;
+    state->spaceCameraOrientation = spCmp.orientation;
+
+    m_renderStateManager.finishUpdating();
+}
+
 void GamePlayScreen::draw(const GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
     updateWorldCameraClip();
+
+    const MTRenderState* renderState;
+    // Don't render the same state twice.
+    while ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
+        Sleep(0);
+    }
+    m_prevRenderState = renderState;
+
+    // Set renderState and draw everything
+    m_renderPipeline.setRenderState(renderState);
     m_renderPipeline.render();
     globalRenderAccumulationTimer.stop();
 
@@ -304,8 +325,9 @@ void GamePlayScreen::handleInput() {
   //  }
 
   //  delete[] chunks;
-//}
+//}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 
+/// This is the update thread
 void GamePlayScreen::updateThreadFunc() {
     m_threadRunning = true;
 
@@ -317,19 +339,15 @@ void GamePlayScreen::updateThreadFunc() {
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
 
-        // TODO(Ben): Figure out how to make this work for MT
-#ifdef MT_RENDER
         updateECS();
-#endif
-
+        updateMTRenderState();
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
             saveStateTicks = SDL_GetTicks();
       //      savePlayerState();
         }
 
-        fpsLimiter.endFrame();
-       // physicsFps = fpsLimiter.endFrame();
+        physicsFps = fpsLimiter.endFrame();
     }
 }
 

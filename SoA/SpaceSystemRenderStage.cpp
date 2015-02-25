@@ -9,6 +9,7 @@
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "GLProgramManager.h"
+#include "MTRenderState.h"
 #include "MainMenuSystemViewer.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
@@ -44,6 +45,10 @@ SpaceSystemRenderStage::~SpaceSystemRenderStage() {
     // Empty
 }
 
+void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
+    m_renderState = renderState;
+}
+
 void SpaceSystemRenderStage::draw() {
     drawBodies();
     m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
@@ -58,21 +63,33 @@ void SpaceSystemRenderStage::drawBodies() {
     f64v3 lightPos;
     // For caching light for far terrain
     std::map<vcore::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
-
+    const f64v3* pos;
     // Render spherical terrain
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.getFromEntity(it.first);
 
+        // If we are using MTRenderState, get position from it
+        if (m_renderState) {
+            auto& sit = m_renderState->spaceBodyPositions.find(it.first);
+            if (sit != m_renderState->spaceBodyPositions.end()) {
+                pos = &sit->second;
+            } else {
+                continue;
+            }
+        } else {
+            pos = &npCmp.position;
+        }
+
         SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
-        f32v3 lightDir(glm::normalize(lightPos - npCmp.position));
+        f32v3 lightDir(glm::normalize(lightPos - *pos));
 
         m_sphericalTerrainComponentRenderer.draw(cmp, m_spaceCamera,
                                                  lightDir,
+                                                 *pos,
                                                  lightCmp,
-                                                 &npCmp,
                                                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
     }
 
