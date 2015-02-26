@@ -45,7 +45,7 @@ void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
     cmp->particleEngine = nullptr;
 }
 
-void SphericalVoxelComponentUpdater::destroyVoxels() {
+void SphericalVoxelComponentUpdater::updateComponent(SphericalVoxelComponent& svc, const f64v3& position, const Frustum* frustum) {
 
 }
 

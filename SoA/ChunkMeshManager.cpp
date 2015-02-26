@@ -53,7 +53,6 @@ void ChunkMeshManager::destroy() {
     std::vector<ChunkMesh*>().swap(m_chunkMeshes);
 }
 
-
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
     // Block Vertices
     if (vboID == 0) {

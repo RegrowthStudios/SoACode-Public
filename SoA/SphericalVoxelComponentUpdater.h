@@ -33,7 +33,7 @@ public:
     /// Updates openGL specific stuff. Call on render thread
     void glUpdate(SpaceSystem* spaceSystem);
 private:
-    void destroyVoxels();
+    void updateComponent(SphericalVoxelComponent& svc, const f64v3& position, const Frustum* frustum);
     void updatePhysics(const Camera* camera);
 };
 

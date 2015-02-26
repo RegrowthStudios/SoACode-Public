@@ -740,6 +740,12 @@
     <ClInclude Include="ChunkMeshManager.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkListManager.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkMemoryManager.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1199,6 +1205,8 @@
     <ClCompile Include="ChunkMeshManager.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
+    <ClCompile Include="ChunkListManager.cpp" />
+    <ClCompile Include="ChunkMemoryManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

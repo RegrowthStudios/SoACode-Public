@@ -56,7 +56,6 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            const VoxelPosition3D& startVoxelPos, ChunkIOManager* chunkIo,
                            float planetRadius,
                            ChunkMeshManager* chunkMeshManager) :
-    _isStationary(0),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
     _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS),
     m_terrainGenerator(terrainGenerator),
@@ -729,8 +728,6 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
         }
 
         if (chunk->inFrustum && trySetMeshDependencies(chunk)) {     
-           
-            chunk->occlude = 0;
 
             // Allocate mesh if needed
             if (chunk->mesh == nullptr) {
@@ -895,11 +892,6 @@ void ChunkManager::updateCaPhysics() {
             }
         }
     }
-}
-
-void ChunkManager::setTerrainGenerator(SphericalTerrainGpuGenerator* generator) {
-    m_terrainGenerator = generator;
-    heightmapGenRpcDispatcher = &generator->heightmapGenRpcDispatcher;
 }
 
 void ChunkManager::freeChunk(Chunk* chunk) {
@@ -1076,7 +1068,6 @@ void ChunkManager::updateChunks(const f64v3& position, const Frustum* frustum) {
             globalAccumulationTimer.stop();
         }
     }
-
 }
 
 void ChunkManager::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
@@ -1142,52 +1133,52 @@ void ChunkManager::caveOcclusion(const f64v3& ppos) {
 //0 1 2
 //7   3
 //6 5 4
-
+// TODO(Ben): Implement again
 void ChunkManager::recursiveFloodFill(bool left, bool right, bool front, bool back, bool top, bool bottom, Chunk* chunk) {
-    if (chunk->_state == ChunkStates::LOAD || chunk->occlude == 0) return;
-    chunk->occlude = 0;
-    if (left && chunk->left && chunk->leftBlocked == 0) {
-        if (chunk->left->rightBlocked == 0) {
-            recursiveFloodFill(left, 0, front, back, top, bottom, chunk->left);
-        } else {
-            chunk->left->occlude = 0;
-        }
-    }
-    if (right && chunk->right && chunk->rightBlocked == 0) {
-        if (chunk->right->leftBlocked == 0) {
-            recursiveFloodFill(0, right, front, back, top, bottom, chunk->right);
-        } else {
-            chunk->right->occlude = 0;
-        }
-    }
-    if (front && chunk->front && chunk->frontBlocked == 0) {
-        if (chunk->front->backBlocked == 0) {
-            recursiveFloodFill(left, right, front, 0, top, bottom, chunk->front);
-        } else {
-            chunk->front->occlude = 0;
-        }
-    }
-    if (back && chunk->back && chunk->backBlocked == 0) {
-        if (chunk->back->frontBlocked == 0) {
-            recursiveFloodFill(left, right, 0, back, top, bottom, chunk->back);
-        } else {
-            chunk->back->occlude = 0;
-        }
-    }
-    if (top && chunk->top && chunk->topBlocked == 0) {
-        if (chunk->top->bottomBlocked == 0) {
-            recursiveFloodFill(left, right, front, back, top, 0, chunk->top);
-        } else {
-            chunk->top->occlude = 0;
-        }
-    }
-    if (bottom && chunk->bottom && chunk->bottomBlocked == 0) {
-        if (chunk->bottom->topBlocked == 0) {
-            recursiveFloodFill(left, right, front, back, 0, bottom, chunk->bottom);
-        } else {
-            chunk->bottom->occlude = 0;
-        }
-    }
+    /* if (chunk->_state == ChunkStates::LOAD || chunk->occlude == 0) return;
+     chunk->occlude = 0;
+     if (left && chunk->left && chunk->leftBlocked == 0) {
+     if (chunk->left->rightBlocked == 0) {
+     recursiveFloodFill(left, 0, front, back, top, bottom, chunk->left);
+     } else {
+     chunk->left->occlude = 0;
+     }
+     }
+     if (right && chunk->right && chunk->rightBlocked == 0) {
+     if (chunk->right->leftBlocked == 0) {
+     recursiveFloodFill(0, right, front, back, top, bottom, chunk->right);
+     } else {
+     chunk->right->occlude = 0;
+     }
+     }
+     if (front && chunk->front && chunk->frontBlocked == 0) {
+     if (chunk->front->backBlocked == 0) {
+     recursiveFloodFill(left, right, front, 0, top, bottom, chunk->front);
+     } else {
+     chunk->front->occlude = 0;
+     }
+     }
+     if (back && chunk->back && chunk->backBlocked == 0) {
+     if (chunk->back->frontBlocked == 0) {
+     recursiveFloodFill(left, right, 0, back, top, bottom, chunk->back);
+     } else {
+     chunk->back->occlude = 0;
+     }
+     }
+     if (top && chunk->top && chunk->topBlocked == 0) {
+     if (chunk->top->bottomBlocked == 0) {
+     recursiveFloodFill(left, right, front, back, top, 0, chunk->top);
+     } else {
+     chunk->top->occlude = 0;
+     }
+     }
+     if (bottom && chunk->bottom && chunk->bottomBlocked == 0) {
+     if (chunk->bottom->topBlocked == 0) {
+     recursiveFloodFill(left, right, front, back, 0, bottom, chunk->bottom);
+     } else {
+     chunk->bottom->occlude = 0;
+     }
+     }*/
 }
 
 void ChunkManager::printOwnerList(Chunk* chunk) {

@@ -170,17 +170,6 @@ public:
     /// Updates the cellular automata physics
     void updateCaPhysics();
 
-    /// ***** Public variables ******
-
-    /// TODO(Ben): Implement this
-    std::deque< std::deque<class CloseTerrainPatch*> > closeTerrainPatches;
-
-    /// Setters
-    void setIsStationary(bool isStationary) {
-        _isStationary = isStationary;
-    }
-
-    void setTerrainGenerator(SphericalTerrainGpuGenerator* generator);
     /// Getters
     PhysicsEngine* getPhysicsEngine() { return m_physicsEngine; }
 
@@ -327,12 +316,6 @@ private:
     #define MAX_CACHED_TASKS 50
     std::vector<RenderTask*> _freeRenderTasks; ///< For recycling render tasks
     std::vector<GenerateTask*> _freeGenerateTasks; ///< For recycling generateTasks
-
-    /// Used by cave occlusion
-    i32 _poccx, _poccy, _poccz;
-
-    /// True if the chunk world should never move
-    bool _isStationary;
 
     /// Stores information about chunks
     ChunkDiagnostics _chunkDiagnostics;

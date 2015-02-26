@@ -106,14 +106,13 @@ public:
     /// @param shortRecycler: Recycler for ui16 data arrays
     /// @param byteRecycler: Recycler for ui8 data arrays
     Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 
-          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler,
-          int numCaTypes) : 
+          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) : 
           _blockIDContainer(shortRecycler), 
           _sunlightContainer(byteRecycler),
           _lampLightContainer(shortRecycler),
           _tertiaryDataContainer(shortRecycler) {
-        blockUpdateList.resize(numCaTypes * 2);
-        activeUpdateList.resize(numCaTypes);
+        blockUpdateList.resize(CaPhysicsType::getNumCaTypes() * 2);
+        activeUpdateList.resize(CaPhysicsType::getNumCaTypes());
         // Empty
     }
     ~Chunk(){
@@ -171,11 +170,9 @@ public:
     bool needsNeighbors = false;
     std::vector<bool> activeUpdateList;
     bool drawWater;
-    bool hasLoadedSunlight;
-    bool occlude; //this needs a new name
-    bool topBlocked, leftBlocked, rightBlocked, bottomBlocked, frontBlocked, backBlocked;
     bool dirty;
     int loadStatus;
+    // TODO(Ben): Bitfield?
     volatile bool inLoadThread;
     volatile bool inSaveThread;
     volatile bool isAccessible;
