@@ -43,8 +43,21 @@ MainMenuSystemViewer::~MainMenuSystemViewer() {
 }
 
 void MainMenuSystemViewer::update() {
+
     const f32 HOVER_SPEED = 0.08f;
     const f32 HOVER_SIZE_INC = 7.0f;
+
+    // Connect camera to target planet
+    f32 length = m_camera->getFocalLength() / 10.0f;
+    if (length == 0) length = 0.1f;
+    m_camera->setClippingPlane(length, m_camera->getFarClip());
+    // Target closest point on sphere
+    m_camera->setFocalPoint(getTargetPosition() -
+                            f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
+    m_camera->setTargetFocalPoint(getTargetPosition() -
+                                  f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
+
+    m_camera->update();
 
     for (auto& it : m_spaceSystem->m_namePositionCT) {
         vcore::ComponentID componentID;
@@ -106,16 +119,6 @@ void MainMenuSystemViewer::update() {
             data.inFrustum = false;
         }
     }
-
-    // Connect camera to target planet
-    f32 length = m_camera->getFocalLength() / 10.0f;
-    if (length == 0) length = 0.1f;
-    m_camera->setClippingPlane(length, m_camera->getFarClip());
-    // Target closest point on sphere
-    m_camera->setFocalPoint(getTargetPosition() -
-                            f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
-    m_camera->setTargetFocalPoint(getTargetPosition() -
-                                 f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
 }
 

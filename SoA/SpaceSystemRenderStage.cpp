@@ -101,8 +101,20 @@ void SpaceSystemRenderStage::drawBodies() {
 
             if (!cmp.meshManager) continue;
 
+            // If we are using MTRenderState, get position from it
+            if (m_renderState) {
+                auto& sit = m_renderState->spaceBodyPositions.find(it.first);
+                if (sit != m_renderState->spaceBodyPositions.end()) {
+                    pos = &sit->second;
+                } else {
+                    continue;
+                }
+            } else {
+                pos = &npCmp.position;
+            }
+
             auto& l = lightCache[it.first];
-            f64v3 lightDir = glm::normalize(l.first - npCmp.position);
+            f64v3 lightDir = glm::normalize(l.first - *pos);
 
             m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
                                                lightDir,

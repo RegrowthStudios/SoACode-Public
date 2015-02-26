@@ -17,6 +17,7 @@
 
 #include "TerrainPatch.h"
 
+// TODO(Ben): Linear fade to prevent LOD popping
 class FarTerrainPatch : public TerrainPatch {
 public:
     FarTerrainPatch() {};
