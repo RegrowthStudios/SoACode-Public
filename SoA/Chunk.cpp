@@ -36,10 +36,6 @@ void RawGenDelegate::release() {
     gridData.reset();
 }
 
-//1735
-//1500
-double surfaceDensity[9][5][5];
-
 void Chunk::init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData) {
 	loadStatus = 0;
 	freeWaiting = 0;
@@ -78,7 +74,6 @@ void Chunk::init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>
 
 	spawnerBlocks.clear();
 	drawWater = 0;
-	occlude = 0;
     lastOwnerTask = nullptr;
 
     this->chunkGridData = chunkGridData;

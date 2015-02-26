@@ -40,6 +40,8 @@ class LightMessage;
 class RenderTask;
 class SphericalTerrainGpuGenerator;
 
+typedef int ChunkID;
+
 class ChunkGridData {
 public:
     ChunkGridData(const i32v2& pos, WorldCubeFace face) {
@@ -105,8 +107,10 @@ public:
     /// Constructor
     /// @param shortRecycler: Recycler for ui16 data arrays
     /// @param byteRecycler: Recycler for ui8 data arrays
-    Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 
+    Chunk(ChunkID cID,
+          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
           vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) : 
+          id(cID),
           _blockIDContainer(shortRecycler), 
           _sunlightContainer(byteRecycler),
           _lampLightContainer(shortRecycler),
@@ -226,6 +230,8 @@ public:
     inline void unlock() { _dataLock.unlock(); }
     std::mutex& getDataLock() { return _dataLock; }
 
+    ChunkID getID() const { return id; }
+
 private:
 
     /// _dataLock guards chunk data.
@@ -238,6 +244,8 @@ private:
     std::vector <Chunk*>* _chunkListPtr;
 
     ChunkStates _state;
+
+    ChunkID id;
 
     //The data that defines the voxels
     vvox::SmartVoxelContainer<ui16> _blockIDContainer;

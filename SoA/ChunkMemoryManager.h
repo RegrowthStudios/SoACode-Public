@@ -17,8 +17,6 @@
 
 #include "Chunk.h"
 
-typedef int ChunkID;
-
 class ChunkMemoryManager {
 public:
     // Reserves internal memory
