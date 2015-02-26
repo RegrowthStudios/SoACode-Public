@@ -76,9 +76,12 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
                 ftCmp.shouldFade = true;
                 ftCmp.alpha = TERRAIN_DEC_START_ALPHA;
                 // Remove spherical voxel
+                PreciseTimer timer;
+                timer.start();
                 SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
                 stCmp.sphericalVoxelComponent = 0;
                 stCmp.farTerrainComponent = 0;
+                std::cout << "Remove Spherical Voxel: " << timer.stop();
             }
         }
     }
