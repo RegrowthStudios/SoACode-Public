@@ -34,7 +34,6 @@ public:
 
     static class VoxelEditor* voxelEditor;
     static class SoundEngine* soundEngine;
-    static class MessageManager* messageManager;
 
     static bool gameInitialized;
     static float fogStart, fogEnd;

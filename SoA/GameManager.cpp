@@ -39,7 +39,6 @@ Uint32 GameManager::maxLodTicks = 8;
 
 VoxelEditor* GameManager::voxelEditor = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
-MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 TexturePackLoader* GameManager::texturePackLoader = nullptr;

@@ -1038,9 +1038,7 @@ void ChunkManager::updateChunks(const f64v3& position, const Frustum* frustum) {
 
         globalAccumulationTimer.start("Update Containers");
         if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
-#ifndef DEBUG //Compressing containers is hilariously slow in debug mode
             chunk->updateContainers();
-#endif
         }
         globalAccumulationTimer.stop();
         if (chunk->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
