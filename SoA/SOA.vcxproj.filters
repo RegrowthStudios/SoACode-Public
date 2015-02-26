@@ -737,6 +737,9 @@
     <ClInclude Include="MTRenderStateManager.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkMeshManager.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1192,6 +1195,9 @@
     </ClCompile>
     <ClCompile Include="MTRenderStateManager.cpp">
       <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkMeshManager.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

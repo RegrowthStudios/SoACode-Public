@@ -12,7 +12,6 @@
 #include "Errors.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "MessageManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "RenderTask.h"
@@ -129,9 +128,6 @@ void Chunk::clearBuffers()
 	if (mesh){
         // Will signify that it needs to be destroyed in render thread
         mesh->needsDestroy = true;
-        GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                             Message(MessageID::CHUNK_MESH,
-                                             (void *)new ChunkMeshData(mesh)));
         mesh = nullptr;
 	}
 }

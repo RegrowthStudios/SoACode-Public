@@ -63,6 +63,9 @@ void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 
 void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 {
+    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+    if (chunkMeshes.empty()) return;
+
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
 
     vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Block");
@@ -124,11 +127,15 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
     mz = (int)position.z;
     ChunkMesh *cm;
 
-    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
-
     for (int i = chunkMeshes.size() - 1; i >= 0; i--)
     {
         cm = chunkMeshes[i];
+
+        // Check for deallocation
+        if (cm->needsDestroy) {
+
+        }
+
         const glm::ivec3 &cmPos = cm->position;
 
         //calculate distance

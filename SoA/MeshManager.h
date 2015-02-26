@@ -33,10 +33,6 @@ class MeshManager
 public:
     MeshManager(const vg::GLProgramManager* glProgramManager);
 
-    /// Updates a chunk mesh
-    /// @param cmd: the ChunkMeshData sent by the update thread
-    void updateChunkMesh(ChunkMeshData* cmd);
-
     /// Updates a particle mesh
     /// @param pmm: The ParticleMeshMessage sent by the update thread
     void updateParticleMesh(ParticleMeshMessage* pmm);
@@ -54,7 +50,6 @@ public:
     void destroy();
 
     // Getters
-    const std::vector <ChunkMesh*>& getChunkMeshes() const { return _chunkMeshes; }
     const std::vector <ParticleMesh*>& getParticleMeshes() const { return _particleMeshes; }
     const std::vector <PhysicsBlockMesh*>& getPhysicsBlockMeshes() const { return _physicsBlockMeshes; }
 
@@ -70,7 +65,6 @@ private:
     /// @param size: the size of this block
     void recursiveSortMeshList(std::vector <ChunkMesh*> &v, int start, int size);
 
-    std::vector <ChunkMesh *> _chunkMeshes;
     std::vector <ParticleMesh *> _particleMeshes;
     std::vector <PhysicsBlockMesh *> _physicsBlockMeshes;
     const vg::GLProgramManager* m_glProgramManager = nullptr;
