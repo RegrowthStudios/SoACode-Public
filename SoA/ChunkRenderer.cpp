@@ -137,7 +137,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
         // Check for lazy deallocation
         if (cm->needsDestroy) {
-            cmm->deleteMesh(cm);
+            cmm->deleteMesh(cm, i);
             continue;
         }
 

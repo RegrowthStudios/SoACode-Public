@@ -8,7 +8,7 @@
 #define MAX_UPDATES_PER_FRAME 100
 
 ChunkMeshManager::ChunkMeshManager() : 
-    m_chunkMeshes(MAX_UPDATES_PER_FRAME, nullptr) {
+    m_updateBuffer(MAX_UPDATES_PER_FRAME, nullptr) {
     // Empty
 }
 
@@ -24,7 +24,7 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
         }
     }
 
-    updateMeshDistances(cameraPosition);
+  //  updateMeshDistances(cameraPosition);
     if (shouldSort) {
         // TODO(Ben): std::sort
     }
@@ -35,7 +35,9 @@ void ChunkMeshManager::deleteMesh(ChunkMesh* mesh, int index /* = -1 */) {
         m_chunkMeshes[index] = m_chunkMeshes.back();
         m_chunkMeshes.pop_back();
     }
-    delete mesh;
+    if (mesh->refCount == 0) {
+        delete mesh;
+    }
 }
 
 void ChunkMeshManager::addMeshForUpdate(ChunkMeshData* meshData) {
@@ -73,6 +75,8 @@ inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usag
 void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
     ChunkMesh *cm = meshData->chunkMesh;
 
+    cm->refCount--;
+
     // Destroy if need be
     if (cm->needsDestroy) {
         if (!cm->inMeshList) {
@@ -81,8 +85,6 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
         delete meshData;
         return;
     }
-
-    cm->refCount--;
 
     //store the index data for sorting in the chunk mesh
     cm->transQuadIndices.swap(meshData->transQuadIndices);
@@ -170,15 +172,18 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
     }
 
     //If this mesh isn't in use anymore, delete it
-    if ((cm->vboID == 0 && cm->waterVboID == 0 && cm->transVboID == 0 && cm->cutoutVboID == 0) || cm->needsDestroy) {
-        if (cm->inMeshList) {
-            // If its already in the list, mark it for lazy deallocation
-            cm->needsDestroy = true;
-        } else {
-            // Otherwise just delete it
-            deleteMesh(cm);
-        }
-    } else if (!cm->inMeshList) {
+    //if ((cm->vboID == 0 && cm->waterVboID == 0 && cm->transVboID == 0 && cm->cutoutVboID == 0) || cm->needsDestroy) {
+    //    if (cm->inMeshList) {
+    //        // If its already in the list, mark it for lazy deallocation
+    //        cm->needsDestroy = true;
+    //    } else {
+    //        // Otherwise just delete it
+    //        deleteMesh(cm);
+    //    }
+    //}
+
+    // TODO(Ben): We are adding empty meshes here
+    if (!cm->inMeshList) {
         m_chunkMeshes.push_back(cm);
         cm->inMeshList = true;
     }
