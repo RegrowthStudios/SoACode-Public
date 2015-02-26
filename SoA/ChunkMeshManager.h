@@ -19,18 +19,30 @@
 class ChunkMesh;
 class ChunkMeshData;
 
+#include "concurrentqueue.h"
+
 class ChunkMeshManager {
 public:
     ChunkMeshManager();
     ~ChunkMeshManager();
-
-    /// Uploads a mesh and adds for tracking if needed
-    void uploadMesh(ChunkMeshData* meshData);
+    /// Updates the meshManager, uploading any needed meshes
+    void update();
     /// Deletes and removes a mesh
     void deleteMesh(ChunkMesh* mesh);
+    /// Adds a mesh for updating
+    void addMeshForUpdate(ChunkMeshData* meshData);
+    /// Destroys all meshes
+    void destroy();
+
+    const std::vector <ChunkMesh *>& getChunkMeshes() { return m_chunkMeshes; }
 
 private:
-    std::vector <ChunkMesh *> m_chunkMeshes;
+    /// Uploads a mesh and adds to list if needed
+    void updateMesh(ChunkMeshData* meshData);
+
+    std::vector <ChunkMesh*> m_chunkMeshes;
+    std::vector <ChunkMeshData*> m_updateBuffer;
+    moodycamel::ConcurrentQueue<ChunkMeshData*> m_meshQueue;
 };
 
 #endif // ChunkMeshManager_h__

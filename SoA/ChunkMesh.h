@@ -117,6 +117,7 @@ class ChunkMesh
 {
 public:
     ChunkMesh(const Chunk *ch);
+    ~ChunkMesh();
 
     ChunkMeshRenderData meshInfo;
 

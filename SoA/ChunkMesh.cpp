@@ -53,3 +53,33 @@ void ChunkMeshData::addTransQuad(const i8v3& pos) {
 ChunkMesh::ChunkMesh(const Chunk *ch) : position(ch->voxelPosition) {
     // Empty
 }
+
+ChunkMesh::~ChunkMesh() {
+    if (vboID != 0) {
+        glDeleteBuffers(1, &(vboID));
+    }
+    if (vaoID != 0) {
+        glDeleteVertexArrays(1, &(vaoID));
+    }
+    if (transVaoID != 0) {
+        glDeleteVertexArrays(1, &(transVaoID));
+    }
+    if (transVboID != 0) {
+        glDeleteBuffers(1, &(transVboID));
+    }
+    if (transIndexID != 0) {
+        glDeleteBuffers(1, &(transIndexID));
+    }
+    if (cutoutVaoID != 0) {
+        glDeleteVertexArrays(1, &(cutoutVaoID));
+    }
+    if (cutoutVboID != 0) {
+        glDeleteBuffers(1, &(cutoutVboID));
+    }
+    if (waterVaoID != 0) {
+        glDeleteBuffers(1, &(waterVaoID));
+    }
+    if (waterVboID != 0) {
+        glDeleteBuffers(1, &(waterVboID));
+    }
+}

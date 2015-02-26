@@ -7,14 +7,15 @@
 
 class ChunkMesh;
 class Camera;
+class ChunkMeshManager;
 
 DECL_VG(class, GLProgramManager);
 
 class GameRenderParams {
 public:
     void calculateParams(const f64v3& worldCameraPos,
-                         const Camera* ChunkCamera, 
-                         const std::vector<ChunkMesh*>* ChunkMeshes,
+                         const Camera* ChunkCamera,
+                         ChunkMeshManager* ChunkMeshmanager,
                          bool IsUnderwater);
 
     f32v3 sunlightDirection;
@@ -25,7 +26,7 @@ public:
     float fogStart;
     float lightActive;
     const Camera* chunkCamera;
-    const std::vector <ChunkMesh *>* chunkMeshes;
+    ChunkMeshManager* chunkMeshmanager;
     bool isUnderwater;
     const vg::GLProgramManager* glProgramManager = nullptr;
 private:

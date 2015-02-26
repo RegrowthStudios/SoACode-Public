@@ -3,6 +3,7 @@
 
 #include "Camera.h"
 #include "Chunk.h"
+#include "ChunkMeshManager.h"
 #include "Frustum.h"
 #include "GLProgramManager.h"
 #include "GameManager.h"
@@ -20,6 +21,10 @@ f32m4 ChunkRenderer::worldMatrix(1.0);
 
 void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 {
+    ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    if (chunkMeshes.empty()) return;
+
     //*********************Blocks*******************
     
     vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Sonar");
@@ -46,8 +51,6 @@ void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
-    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
-
     for (unsigned int i = 0; i < chunkMeshes.size(); i++)
     {
         ChunkRenderer::drawChunkBlocks(chunkMeshes[i], program, 
@@ -63,7 +66,8 @@ void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 
 void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 {
-    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
+    ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
     if (chunkMeshes.empty()) return;
 
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
@@ -131,9 +135,10 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
     {
         cm = chunkMeshes[i];
 
-        // Check for deallocation
+        // Check for lazy deallocation
         if (cm->needsDestroy) {
-
+            cmm->deleteMesh(cm);
+            continue;
         }
 
         const glm::ivec3 &cmPos = cm->position;
@@ -166,6 +171,10 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
 void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 {
+    ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    if (chunkMeshes.empty()) return;
+
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
 
     vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Cutout");
@@ -228,8 +237,6 @@ void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
     mz = (int)position.z;
     ChunkMesh *cm;
 
-    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
-
     for (int i = chunkMeshes.size() - 1; i >= 0; i--)
     {
         cm = chunkMeshes[i];
@@ -247,6 +254,10 @@ void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 
 void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderParams)
 {
+    ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    if (chunkMeshes.empty()) return;
+
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
 
     vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Transparency");
@@ -313,8 +324,6 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
         oldPos = intPosition;
     }
 
-    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
-
     for (int i = 0; i < chunkMeshes.size(); i++)
     {
         cm = chunkMeshes[i];
@@ -350,6 +359,10 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 
 void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
 {
+    ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    if (chunkMeshes.empty()) return;
+
     vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Water");
     program->use();
 
@@ -381,8 +394,6 @@ void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
     glDepthMask(GL_FALSE);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    const std::vector <ChunkMesh *>& chunkMeshes = *(gameRenderParams->chunkMeshes);
 
     for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
     {

@@ -5,12 +5,49 @@
 #include "RenderTask.h"
 #include "ChunkRenderer.h"
 
-ChunkMeshManager::ChunkMeshManager() {
-}
+#define MAX_UPDATES_PER_FRAME 100
 
+ChunkMeshManager::ChunkMeshManager() : 
+    m_chunkMeshes(MAX_UPDATES_PER_FRAME, nullptr) {
+    // Empty
+}
 
 ChunkMeshManager::~ChunkMeshManager() {
+    destroy();
 }
+
+void ChunkMeshManager::update() {
+    size_t numUpdates;
+    if (numUpdates = m_meshQueue.try_dequeue_bulk(m_updateBuffer.begin(), MAX_UPDATES_PER_FRAME)) {
+        for (int i = 0; i < numUpdates; i++) {
+            updateMesh(m_updateBuffer[i]);
+        }
+    }
+}
+
+void ChunkMeshManager::deleteMesh(ChunkMesh* mesh) {
+    if (mesh->vecIndex != UNINITIALIZED_INDEX) {
+        m_chunkMeshes[mesh->vecIndex] = m_chunkMeshes.back();
+        m_chunkMeshes[mesh->vecIndex]->vecIndex = mesh->vecIndex;
+        m_chunkMeshes.pop_back();
+        mesh->vecIndex = UNINITIALIZED_INDEX;
+    }
+    delete mesh;
+}
+
+void ChunkMeshManager::addMeshForUpdate(ChunkMeshData* meshData) {
+    m_meshQueue.enqueue(meshData);
+}
+
+void ChunkMeshManager::destroy() {
+
+    // Free all chunk meshes
+    for (ChunkMesh* cm : m_chunkMeshes) {
+        delete cm;
+    }
+    std::vector<ChunkMesh*>().swap(m_chunkMeshes);
+}
+
 
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
     // Block Vertices
@@ -30,7 +67,7 @@ inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usag
     return true;
 }
 
-void ChunkMeshManager::uploadMesh(ChunkMeshData* meshData) {
+void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
     ChunkMesh *cm = meshData->chunkMesh;
 
     // Destroy if need be
@@ -136,14 +173,4 @@ void ChunkMeshManager::uploadMesh(ChunkMeshData* meshData) {
     }
 
     delete meshData;
-}
-
-void ChunkMeshManager::deleteMesh(ChunkMesh* mesh) {
-    if (mesh->vecIndex != UNINITIALIZED_INDEX) {
-        m_chunkMeshes[mesh->vecIndex] = m_chunkMeshes.back();
-        m_chunkMeshes[mesh->vecIndex]->vecIndex = mesh->vecIndex;
-        m_chunkMeshes.pop_back();
-        mesh->vecIndex = UNINITIALIZED_INDEX;
-    }
-    delete mesh;
 }
