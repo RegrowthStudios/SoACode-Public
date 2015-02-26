@@ -63,7 +63,8 @@ public:
     ChunkManager(PhysicsEngine* physicsEngine,
                  SphericalTerrainGpuGenerator* terrainGenerator,
                  const VoxelPosition3D& startVoxelPos, ChunkIOManager* chunkIo,
-                 float planetRadius);
+                 float planetRadius,
+                 ChunkMeshManager* chunkMeshManager);
     ~ChunkManager();
 
     enum InitFlags {
@@ -357,6 +358,7 @@ private:
     PhysicsEngine* m_physicsEngine = nullptr;
 
     ChunkIOManager* m_chunkIo = nullptr;
+    ChunkMeshManager* m_chunkMeshManager = nullptr;
 
     float m_planetRadius = 0; ///< Radius in km
 

@@ -23,7 +23,6 @@
 #include "GamePlayRenderPipeline.h"
 #include "LoadMonitor.h"
 #include "MTRenderStateManager.h"
-#include "MessageManager.h"
 #include "PDA.h"
 #include "PauseMenu.h"
 #include "SoaController.h"

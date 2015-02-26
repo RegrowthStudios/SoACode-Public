@@ -4,7 +4,6 @@
 #include "Animation.h"
 #include "ChunkManager.h"
 #include "GameManager.h"
-#include "MessageManager.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
@@ -173,156 +172,157 @@ void ParticleBatch::addParticles(int num, glm::dvec3 pos, ParticleEmitter *emitt
 }
 
 int ParticleBatch::update() {
+    // TODO(Ben): Re-implement
+    /* glm::quat quaternion;
+     glm::dvec3 pos;
+     int n = 0;
+     float psize;
+     if(size == 0) return 0;
 
-    glm::quat quaternion;
-    glm::dvec3 pos;
-    int n = 0;
-    float psize;
-    if(size == 0) return 0;
+     for(int i = 0; i < maxParticles; i++) {
+     if(lifes[i] > 0) {
+     lifes[i] -= 0.01f * physSpeedFactor;
+     if(lifes[i] < 1.0) {
+     if(lifes[i] < 0) {
+     size--;
+     continue;
+     }
+     psize = particles[i].size * 0.0875 * lifes[i];
+     } else {
+     psize = particles[i].size * 0.0875;
+     }
 
-    for(int i = 0; i < maxParticles; i++) {
-        if(lifes[i] > 0) {
-            lifes[i] -= 0.01f * physSpeedFactor;
-            if(lifes[i] < 1.0) {
-                if(lifes[i] < 0) {
-                    size--;
-                    continue;
-                }
-                psize = particles[i].size * 0.0875 * lifes[i];
-            } else {
-                psize = particles[i].size * 0.0875;
-            }
+     particles[i].update(position);
 
-            particles[i].update(position);
+     vboBVerts[n].pos = particles[i].position;
+     vboBVerts[n].light[0] = particles[i].light[0];
+     vboBVerts[n].light[1] = particles[i].light[1];
 
-            vboBVerts[n].pos = particles[i].position;
-            vboBVerts[n].light[0] = particles[i].light[0];
-            vboBVerts[n].light[1] = particles[i].light[1];
+     vboBVerts[n].texUnit = particles[i].texUnit;
+     vboBVerts[n].texID = particles[i].texID;
 
-            vboBVerts[n].texUnit = particles[i].texUnit;
-            vboBVerts[n].texID = particles[i].texID;
+     memcpy(vboBVerts[n].color, particles[i].color, 4);
+     vboBVerts[n].size = psize;
 
-            memcpy(vboBVerts[n].color, particles[i].color, 4);
-            vboBVerts[n].size = psize;
+     n++;
 
-            n++;
+     }
 
-        }
+     }
+     if(n == 0) return 0;
+     ParticleMeshMessage *pmm = new ParticleMeshMessage;
 
-    }
-    if(n == 0) return 0;
-    ParticleMeshMessage *pmm = new ParticleMeshMessage;
+     if(mesh == NULL) {
+     mesh = new ParticleMesh;
+     }
+     pmm->size = n;
+     pmm->X = position.x;
+     pmm->Y = position.y;
+     pmm->Z = position.z;
+     pmm->mesh = mesh;
+     pmm->verts.resize(n);
+     memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    if(mesh == NULL) {
-        mesh = new ParticleMesh;
-    }
-    pmm->size = n;
-    pmm->X = position.x;
-    pmm->Y = position.y;
-    pmm->Z = position.z;
-    pmm->mesh = mesh;
-    pmm->verts.resize(n);
-    memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
-
-    GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                         Message(MessageID::PARTICLE_MESH,
-                                         (void *)pmm));
-
+     GameManager::messageManager->enqueue(ThreadId::UPDATE,
+     Message(MessageID::PARTICLE_MESH,
+     (void *)pmm));
+     */
 
     return 0;
 }
 
 int ParticleBatch::updateAnimated() {
 
-    glm::quat quaternion;
-    glm::dvec3 pos;
-    int n = 0;
-    float deg;
-    int anim;
-    int timePassed;
-    int textureCounter = 0;
-    Animation *animation;
-    if(size == 0) return 0;
-    std::vector <int> usedTexUnits;
+    // TODO(Ben): Re-implement
+    //glm::quat quaternion;
+    //glm::dvec3 pos;
+    //int n = 0;
+    //float deg;
+    //int anim;
+    //int timePassed;
+    //int textureCounter = 0;
+    //Animation *animation;
+    //if(size == 0) return 0;
+    //std::vector <int> usedTexUnits;
 
-    for(int i = 0; i < maxParticles; i++) {
-        if(lifes[i] > 0) {
+    //for(int i = 0; i < maxParticles; i++) {
+    //    if(lifes[i] > 0) {
 
-            particles[i].update();
-            ParticleType &pt = particleTypes[particles[i].texUnit];
+    //        particles[i].update();
+    //        ParticleType &pt = particleTypes[particles[i].texUnit];
 
-            animation = pt.animation;
-            deg = 1.0f / (animation->duration * 0.0625f);
+    //        animation = pt.animation;
+    //        deg = 1.0f / (animation->duration * 0.0625f);
 
-            lifes[i] -= deg * physSpeedFactor;
+    //        lifes[i] -= deg * physSpeedFactor;
 
-            if(lifes[i] < 0) {
-                size--;
-                continue;
-            }
-            timePassed = (1.0 - lifes[i]) * animation->duration;
-            if(timePassed > animation->fadeOutBegin) {
-                particles[i].color[3] = (1.0f - (timePassed - animation->fadeOutBegin) / (float)(animation->duration - animation->fadeOutBegin)) * 255;
-            }
+    //        if(lifes[i] < 0) {
+    //            size--;
+    //            continue;
+    //        }
+    //        timePassed = (1.0 - lifes[i]) * animation->duration;
+    //        if(timePassed > animation->fadeOutBegin) {
+    //            particles[i].color[3] = (1.0f - (timePassed - animation->fadeOutBegin) / (float)(animation->duration - animation->fadeOutBegin)) * 255;
+    //        }
 
-            if(animation->repetitions > 0) {
-                anim = (int)((1.0 - lifes[i]) * animation->frames * animation->repetitions) % animation->frames;
-            } else {
-                anim = (1.0 - lifes[i]) * animation->frames;
-            }
+    //        if(animation->repetitions > 0) {
+    //            anim = (int)((1.0 - lifes[i]) * animation->frames * animation->repetitions) % animation->frames;
+    //        } else {
+    //            anim = (1.0 - lifes[i]) * animation->frames;
+    //        }
 
-            //For alpha blend sorting
-            //particles[i].distance = glm::length((position + glm::dvec3(particles[i].position)) - player->headPosition);
+    //        //For alpha blend sorting
+    //        //particles[i].distance = glm::length((position + glm::dvec3(particles[i].position)) - player->headPosition);
 
-            vboBVerts[n].pos = particles[i].position;
-            vboBVerts[n].light[0] = 255;
-            vboBVerts[n].light[1] = 0;
+    //        vboBVerts[n].pos = particles[i].position;
+    //        vboBVerts[n].light[0] = 255;
+    //        vboBVerts[n].light[1] = 0;
 
-            if(pt.tmpTexUnit == -1) {
-                usedTexUnits.push_back(particles[i].texUnit); //store the particle type so we can revert tmptexunit
-                pt.tmpTexUnit = textureCounter;
-                vboBVerts[n].texUnit = textureCounter++; //it takes up the next tex unit space
-            } else {
-                vboBVerts[n].texUnit = pt.tmpTexUnit;
-            }
+    //        if(pt.tmpTexUnit == -1) {
+    //            usedTexUnits.push_back(particles[i].texUnit); //store the particle type so we can revert tmptexunit
+    //            pt.tmpTexUnit = textureCounter;
+    //            vboBVerts[n].texUnit = textureCounter++; //it takes up the next tex unit space
+    //        } else {
+    //            vboBVerts[n].texUnit = pt.tmpTexUnit;
+    //        }
 
-            vboBVerts[n].texID = anim;
+    //        vboBVerts[n].texID = anim;
 
-            memcpy(vboBVerts[n].color, particles[i].color, 4);
-            vboBVerts[n].size = particles[i].size;
-            vboBVerts[n].xMod = pt.animation->xFrames;
-            vboBVerts[n].uvMult = glm::vec2(1.0f / pt.animation->xFrames, 1.0f / pt.animation->yFrames);
+    //        memcpy(vboBVerts[n].color, particles[i].color, 4);
+    //        vboBVerts[n].size = particles[i].size;
+    //        vboBVerts[n].xMod = pt.animation->xFrames;
+    //        vboBVerts[n].uvMult = glm::vec2(1.0f / pt.animation->xFrames, 1.0f / pt.animation->yFrames);
 
-            n++;
-        }
+    //        n++;
+    //    }
 
-    }
+    //}
 
-    //std::sort(&particles[0], &particles[maxParticles-1]);
+    ////std::sort(&particles[0], &particles[maxParticles-1]);
 
-    ParticleMeshMessage *pmm = new ParticleMeshMessage;
+    //ParticleMeshMessage *pmm = new ParticleMeshMessage;
 
-    if(mesh == NULL) {
-        mesh = new ParticleMesh;
-        mesh->animated = 1;
-    }
+    //if(mesh == NULL) {
+    //    mesh = new ParticleMesh;
+    //    mesh->animated = 1;
+    //}
 
-    for(size_t i = 0; i < usedTexUnits.size(); i++) {
-        particleTypes[usedTexUnits[i]].tmpTexUnit = -1; //revert the tmp variable
-    }
+    //for(size_t i = 0; i < usedTexUnits.size(); i++) {
+    //    particleTypes[usedTexUnits[i]].tmpTexUnit = -1; //revert the tmp variable
+    //}
 
-    pmm->usedParticles.swap(usedTexUnits);
-    pmm->size = n;
-    pmm->X = position.x;
-    pmm->Y = position.y;
-    pmm->Z = position.z;
-    pmm->mesh = mesh;
-    pmm->verts.resize(n);
-    memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
+    //pmm->usedParticles.swap(usedTexUnits);
+    //pmm->size = n;
+    //pmm->X = position.x;
+    //pmm->Y = position.y;
+    //pmm->Z = position.z;
+    //pmm->mesh = mesh;
+    //pmm->verts.resize(n);
+    //memcpy(&(pmm->verts[0]), vboBVerts, n * sizeof(BillboardVertex));
 
-    GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                         Message(MessageID::PARTICLE_MESH,
-                                         (void *)pmm));
+    //GameManager::messageManager->enqueue(ThreadId::UPDATE,
+    //                                     Message(MessageID::PARTICLE_MESH,
+    //                                     (void *)pmm));
 
     return 0;
 }

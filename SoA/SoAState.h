@@ -24,6 +24,7 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
+class ChunkMeshManager;
 class DebugRenderer;
 class MeshManager;
 class PlanetLoader;
@@ -43,6 +44,7 @@ public:
     std::unique_ptr<vg::GLProgramManager> glProgramManager;
     std::unique_ptr<DebugRenderer> debugRenderer;
     std::unique_ptr<MeshManager> meshManager;
+    std::unique_ptr<ChunkMeshManager> chunkMeshManager;
 
     std::unique_ptr<vio::IOManager> systemIoManager;
     std::unique_ptr<PlanetLoader> planetLoader;

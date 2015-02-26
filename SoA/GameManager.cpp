@@ -16,7 +16,6 @@
 #include "FileSystem.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
@@ -48,7 +47,6 @@ void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
         voxelEditor = new VoxelEditor();
         soundEngine = new SoundEngine();
-        messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);

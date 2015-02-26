@@ -22,7 +22,7 @@ f32m4 ChunkRenderer::worldMatrix(1.0);
 void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 {
     ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     if (chunkMeshes.empty()) return;
 
     //*********************Blocks*******************
@@ -67,7 +67,7 @@ void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 {
     ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     if (chunkMeshes.empty()) return;
 
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
@@ -172,7 +172,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 {
     ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     if (chunkMeshes.empty()) return;
 
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
@@ -255,7 +255,7 @@ void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
 void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderParams)
 {
     ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     if (chunkMeshes.empty()) return;
 
     const f64v3& position = gameRenderParams->chunkCamera->getPosition();
@@ -360,7 +360,7 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
 {
     ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes;
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     if (chunkMeshes.empty()) return;
 
     vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Water");

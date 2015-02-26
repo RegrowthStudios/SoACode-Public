@@ -10,6 +10,7 @@
 #include "App.h"
 #include "ChunkManager.h"
 #include "ChunkMesh.h"
+#include "ChunkMeshManager.h"
 #include "ChunkMesher.h"
 #include "ChunkRenderer.h"
 #include "Collision.h"
@@ -23,11 +24,11 @@
 #include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
-#include "MessageManager.h"
 #include "Options.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
 #include "RenderTask.h"
+#include "SoaEngine.h"
 #include "SoaState.h"
 #include "Sound.h"
 #include "SpaceSystem.h"
@@ -35,7 +36,6 @@
 #include "TerrainPatch.h"
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
-#include "SoaEngine.h"
 
 GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
@@ -130,7 +130,8 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 
     globalRenderAccumulationTimer.start("Update Meshes");
 
-    m_soaState->meshManager->updateMeshes(f64v3(0.0), false);
+    // TODO(Ben): Move to glUpdate for voxel component
+    m_soaState->chunkMeshManager->update(f64v3(0.0), false);
 
     globalRenderAccumulationTimer.start("Process Messages");
     // Update the input
@@ -142,8 +143,6 @@ void GamePlayScreen::update(const GameTime& gameTime) {
 
     // Updates the Pause Menu
     if (m_pauseMenu.isOpen()) m_pauseMenu.update();
-
-
 
     globalRenderAccumulationTimer.stop();
 }

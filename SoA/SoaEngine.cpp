@@ -1,17 +1,18 @@
 #include "stdafx.h"
 #include "SoaEngine.h"
 
+#include "ChunkMeshManager.h"
 #include "Constants.h"
 #include "DebugRenderer.h"
+#include "Errors.h"
 #include "GLProgramManager.h"
 #include "MeshManager.h"
+#include "PlanetData.h"
 #include "PlanetLoader.h"
+#include "ProgramGenDelegate.h"
 #include "SoaState.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
-#include "ProgramGenDelegate.h"
-#include "Errors.h"
-#include "PlanetData.h"
 
 #include <Vorb/io/Keg.h>
 #include <Vorb/RPC.h>
@@ -33,6 +34,7 @@ void SoaEngine::initState(OUT SoaState* state) {
     state->glProgramManager = std::make_unique<vg::GLProgramManager>();
     state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
     state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
+    state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
     state->systemIoManager = std::make_unique<vio::IOManager>();
 }
 // TODO: A vorb helper would be nice.

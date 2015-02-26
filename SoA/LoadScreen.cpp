@@ -8,6 +8,7 @@
 
 #include "App.h"
 #include "BlockPack.h"
+#include "ChunkMeshManager.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "GameManager.h"
@@ -16,15 +17,15 @@
 #include "LoadTaskBlockData.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskShaders.h"
-#include "LoadTaskStarSystem.h"
 #include "LoadTaskSound.h"
+#include "LoadTaskStarSystem.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
-#include "SoaState.h"
 #include "MusicPlayer.h"
 #include "ParticleEmitter.h"
 #include "SoaFileSystem.h"
+#include "SoaState.h"
 
 #include "TexturePackLoader.h"
 

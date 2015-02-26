@@ -26,9 +26,9 @@ public:
     ChunkMeshManager();
     ~ChunkMeshManager();
     /// Updates the meshManager, uploading any needed meshes
-    void update();
+    void update(const f64v3& cameraPosition, bool shouldSort);
     /// Deletes and removes a mesh
-    void deleteMesh(ChunkMesh* mesh);
+    void deleteMesh(ChunkMesh* mesh, int index = -1);
     /// Adds a mesh for updating
     void addMeshForUpdate(ChunkMeshData* meshData);
     /// Destroys all meshes
@@ -39,6 +39,8 @@ public:
 private:
     /// Uploads a mesh and adds to list if needed
     void updateMesh(ChunkMeshData* meshData);
+
+    void updateMeshDistances(const f64v3& cameraPosition);
 
     std::vector <ChunkMesh*> m_chunkMeshes;
     std::vector <ChunkMeshData*> m_updateBuffer;

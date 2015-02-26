@@ -26,7 +26,6 @@
 #include "FloraTask.h"
 #include "Frustum.h"
 #include "GenerateTask.h"
-#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
@@ -55,7 +54,8 @@ const ui32 MAX_COMPRESSIONS_PER_FRAME = 512;
 ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
                            SphericalTerrainGpuGenerator* terrainGenerator,
                            const VoxelPosition3D& startVoxelPos, ChunkIOManager* chunkIo,
-                           float planetRadius) :
+                           float planetRadius,
+                           ChunkMeshManager* chunkMeshManager) :
     _isStationary(0),
     _shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
     _byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS),
@@ -105,6 +105,7 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     makeChunkAt(VoxelSpaceConversions::voxelToChunk(startVoxelPos));
 
     m_prevCameraChunkPos = m_cameraGridPos.pos;
+    m_chunkMeshManager = chunkMeshManager;
 }
 
 ChunkManager::~ChunkManager() {
@@ -122,20 +123,11 @@ bool sortChunksDescending(const Chunk* a, const Chunk* b) {
 
 void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
 
-    timeBeginPeriod(1);
-
-    globalMultiplePreciseTimer.setDesiredSamples(10);
-    globalMultiplePreciseTimer.start("Update");
-
     static i32 k = 0;
 
     //Grid position is used to determine the _cameraVoxelMapData
     i32v3 chunkPosition = getChunkPosition(position);
 
-   // printVec("Pos1: ", f32v3(chunkPosition));
-
-   // printVec("Pos2: ", f32v3(m_chunks[0]->gridPosition.pos));
-   // printVec("Pos3: ", f32v3(m_cameraGridPos.pos.x, 0.0f, m_cameraGridPos.pos.y));
     i32v2 gridPosition(chunkPosition.x, chunkPosition.z);
 
     if (gridPosition != m_prevCameraChunkPos) {
@@ -155,14 +147,9 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     sonarDt += 0.003f*physSpeedFactor;
     if (sonarDt > 1.0f) sonarDt = 0.0f;
 
-    globalMultiplePreciseTimer.start("Update Chunks");
-
     updateChunks(position, frustum);
 
-    globalMultiplePreciseTimer.start("Update Load List");
     updateLoadList(4);
-        
-    globalMultiplePreciseTimer.start("Sort");
 
     if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
         std::sort(_setupList.begin(), _setupList.end(), sortChunksDescending);
@@ -172,23 +159,16 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
     }
     k++;
    // std::cout << "TASKS " << _threadPool.getFinishedTasksSizeApprox() << std::endl;
-    globalMultiplePreciseTimer.start("Loaded Chunks");
     updateLoadedChunks(4);
-    globalMultiplePreciseTimer.start("Trees To Place List");
     updateTreesToPlace(3);
-    globalMultiplePreciseTimer.start("Mesh List");
     updateMeshList(4);
-    globalMultiplePreciseTimer.start("Setup List");
     updateSetupList(4);
-
     updateGenerateList();
 
     //This doesn't function correctly
     //caveOcclusion(position);
 
-    globalMultiplePreciseTimer.start("Thread Waiting");
     Chunk* ch;
-
     for (size_t i = 0; i < _freeWaitingChunks.size();) {
         ch = _freeWaitingChunks[i];
         if (ch->inSaveThread == false && ch->inLoadThread == false && 
@@ -202,12 +182,8 @@ void ChunkManager::update(const f64v3& position, const Frustum* frustum) {
         }
     }
 
-    globalMultiplePreciseTimer.start("Finished Tasks");
     processFinishedTasks();
     //change the parameter to true to print out the timings
-    globalMultiplePreciseTimer.end(false);
-
-    timeEndPeriod(1);
 
     static int g = 0;
     if (++g == 10) {
@@ -770,9 +746,9 @@ i32 ChunkManager::updateMeshList(ui32 maxTicks) {
             }
 
             if (chunk->_state == ChunkStates::MESH) {
-                newRenderTask->init(chunk, RenderTaskType::DEFAULT);
+                newRenderTask->init(chunk, RenderTaskType::DEFAULT, m_chunkMeshManager);
             } else {
-                newRenderTask->init(chunk, RenderTaskType::LIQUID);
+                newRenderTask->init(chunk, RenderTaskType::LIQUID, m_chunkMeshManager);
             }
 
             chunk->lastOwnerTask = newRenderTask;
@@ -908,7 +884,7 @@ void ChunkManager::updateCaPhysics() {
             for (int i = 0; i < m_chunks.size(); i++) {
                 chunk = m_chunks[i];
                 if (chunk && chunk->numNeighbors == 6 && chunk->hasCaUpdates(typesToUpdate)) {
-                    caTask = new CellularAutomataTask(this, m_physicsEngine, chunk, chunk->inFrustum);
+                    caTask = new CellularAutomataTask(this, m_physicsEngine, chunk, nullptr/*chunk->inFrustum*/);
                     for (auto& type : typesToUpdate) {
                         caTask->addCaTypeToUpdate(type);
                     }

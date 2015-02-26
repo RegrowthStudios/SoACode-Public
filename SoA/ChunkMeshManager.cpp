@@ -16,21 +16,24 @@ ChunkMeshManager::~ChunkMeshManager() {
     destroy();
 }
 
-void ChunkMeshManager::update() {
+void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
     size_t numUpdates;
     if (numUpdates = m_meshQueue.try_dequeue_bulk(m_updateBuffer.begin(), MAX_UPDATES_PER_FRAME)) {
         for (int i = 0; i < numUpdates; i++) {
             updateMesh(m_updateBuffer[i]);
         }
     }
+
+    updateMeshDistances(cameraPosition);
+    if (shouldSort) {
+        // TODO(Ben): std::sort
+    }
 }
 
-void ChunkMeshManager::deleteMesh(ChunkMesh* mesh) {
-    if (mesh->vecIndex != UNINITIALIZED_INDEX) {
-        m_chunkMeshes[mesh->vecIndex] = m_chunkMeshes.back();
-        m_chunkMeshes[mesh->vecIndex]->vecIndex = mesh->vecIndex;
+void ChunkMeshManager::deleteMesh(ChunkMesh* mesh, int index /* = -1 */) {
+    if (index != -1) {
+        m_chunkMeshes[index] = m_chunkMeshes.back();
         m_chunkMeshes.pop_back();
-        mesh->vecIndex = UNINITIALIZED_INDEX;
     }
     delete mesh;
 }
@@ -72,7 +75,9 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 
     // Destroy if need be
     if (cm->needsDestroy) {
-        deleteMesh(cm);
+        if (!cm->inMeshList) {
+            deleteMesh(cm);
+        }
         delete meshData;
         return;
     }
@@ -166,11 +171,40 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 
     //If this mesh isn't in use anymore, delete it
     if ((cm->vboID == 0 && cm->waterVboID == 0 && cm->transVboID == 0 && cm->cutoutVboID == 0) || cm->needsDestroy) {
-        deleteMesh(cm);
-    } else if (cm->vecIndex == UNINITIALIZED_INDEX) {
-        cm->vecIndex = m_chunkMeshes.size();
+        if (cm->inMeshList) {
+            // If its already in the list, mark it for lazy deallocation
+            cm->needsDestroy = true;
+        } else {
+            // Otherwise just delete it
+            deleteMesh(cm);
+        }
+    } else if (!cm->inMeshList) {
         m_chunkMeshes.push_back(cm);
+        cm->inMeshList = true;
     }
 
     delete meshData;
+}
+
+void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
+    ChunkMesh *cm;
+    int mx, my, mz;
+    double dx, dy, dz;
+    double cx, cy, cz;
+
+    mx = (int)cameraPosition.x;
+    my = (int)cameraPosition.y;
+    mz = (int)cameraPosition.z;
+
+    for (int i = 0; i < m_chunkMeshes.size(); i++) { //update distances for all chunk meshes
+        cm = m_chunkMeshes[i];
+        const glm::ivec3 &cmPos = cm->position;
+        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
+        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
+        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
+        dx = cx - mx;
+        dy = cy - my;
+        dz = cz - mz;
+        cm->distance2 = dx*dx + dy*dy + dz*dz;
+    }
 }
