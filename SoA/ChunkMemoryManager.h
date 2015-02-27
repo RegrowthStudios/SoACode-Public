@@ -29,7 +29,9 @@ public:
     // The reference will become invalid
     // if getNewChunk() needs to allocate new
     // memory.
-    Chunk& getChunk(ChunkID chunkID);
+    inline Chunk& getChunk(ChunkID chunkID) {
+        return m_chunkMemory[chunkID];
+    }
 private:
     std::vector<Chunk> m_chunkMemory; ///< All chunks
     std::vector<ChunkID> m_freeChunks; ///< List of free chunks

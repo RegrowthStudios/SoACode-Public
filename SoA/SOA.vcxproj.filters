@@ -746,6 +746,9 @@
     <ClInclude Include="ChunkMemoryManager.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkGrid.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1207,6 +1210,7 @@
     </ClCompile>
     <ClCompile Include="ChunkListManager.cpp" />
     <ClCompile Include="ChunkMemoryManager.cpp" />
+    <ClCompile Include="ChunkGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

@@ -8,6 +8,7 @@
 #include <Vorb/IThreadPoolTask.h>
 
 #include "Biome.h"
+#include "CAEngine.h"
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "SmartVoxelContainer.hpp"
@@ -15,10 +16,10 @@
 #include "VoxPool.h"
 #include "VoxelBits.h"
 #include "VoxelCoordinateSpaces.h"
+#include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
 #include "WorldStructs.h"
 #include "readerwriterqueue.h"
-#include "VoxelCoordinateSpaces.h"
 
 #include <Vorb/RPC.h>
 
