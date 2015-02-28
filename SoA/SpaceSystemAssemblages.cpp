@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "SpaceSystemAssemblages.h"
 
+#include "ChunkGrid.h"
 #include "ChunkIOManager.h"
-#include "ChunkManager.h"
+#include "ChunkListManager.h"
+#include "ChunkMemoryManager.h"
 #include "FarTerrainPatch.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
@@ -146,11 +148,23 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 
     svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
-                                          svcmp.generator, startVoxelPos,
-                                          svcmp.chunkIo,
-                                          ftcmp.sphericalTerrainData->radius * 2000.0,
-                                          soaState->chunkMeshManager.get());
+    svcmp.chunkGrid = new ChunkGrid();
+    svcmp.chunkListManager = new ChunkListManager();
+    svcmp.chunkMemoryManager = new ChunkMemoryManager();
+    svcmp.chunkMeshManager = soaState->chunkMeshManager.get();
+
+    // Set up threadpool
+    // Check the hardware concurrency
+    size_t hc = std::thread::hardware_concurrency();
+    // Remove two threads for the render thread and main thread
+    if (hc > 1) hc--;
+    if (hc > 1) hc--;
+
+    // Initialize the threadpool with hc threads
+    svcmp.threadPool.init(hc);
+    // Give some time for the threads to spin up
+    SDL_Delay(100);
+
     svcmp.particleEngine = new ParticleEngine();
     
     svcmp.planetGenData = ftcmp.planetGenData;

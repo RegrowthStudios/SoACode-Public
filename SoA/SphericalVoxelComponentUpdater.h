@@ -17,8 +17,11 @@
 
 class Camera;
 class Chunk;
+class FloraTask;
 class Frustum;
 class GameSystem;
+class GenerateTask;
+class RenderTask;
 class SoaState;
 class SpaceSystem;
 struct AxisRotationComponent;

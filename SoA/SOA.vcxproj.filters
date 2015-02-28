@@ -194,9 +194,6 @@
     <ClInclude Include="ChunkIOManager.h">
       <Filter>SOA Files\Data</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkManager.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="ChunkMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -771,9 +768,6 @@
     </ClCompile>
     <ClCompile Include="ChunkIOManager.cpp">
       <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkManager.cpp">
-      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="ChunkMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>

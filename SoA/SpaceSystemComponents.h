@@ -19,13 +19,16 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
 
+#include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
+#include "VoxelLightEngine.h"
 
 class ChunkGrid;
 class ChunkIOManager;
 class ChunkListManager;
 class ChunkManager;
 class ChunkMemoryManager;
+class ChunkMeshManager;
 class FarTerrainPatch;
 class ParticleEngine;
 class PhysicsEngine;
@@ -93,7 +96,9 @@ struct SphericalVoxelComponent {
     ChunkListManager* chunkListManager = nullptr;
     ChunkMemoryManager* chunkMemoryManager = nullptr;
     ChunkIOManager* chunkIo = nullptr;
+    ChunkMeshManager* chunkMeshManager = nullptr;
     ParticleEngine* particleEngine = nullptr;
+    VoxelLightEngine voxelLightEngine;
 
     SphericalTerrainGpuGenerator* generator = nullptr;
 
@@ -106,6 +111,9 @@ struct SphericalVoxelComponent {
     vcore::ComponentID farTerrainComponent = 0;
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
+
+    /// The threadpool for generating chunks and meshes
+    vcore::ThreadPool<WorkerData> threadPool;
 
     int numCaTasks = 0; /// TODO(Ben): Explore alternative
 

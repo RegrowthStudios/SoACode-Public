@@ -211,7 +211,7 @@ void SphericalVoxelComponentUpdater::updateLoadedChunks(ui32 maxTicks) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!m_cmp->generator->heightmapGenRpcDispatcher.dispatchHeightmapGen(chunkGridData,
-                    ch->gridPosition, m_cmp->planetGenData->radius));
+                    ch->gridPosition, m_cmp->planetGenData->radius * VOXELS_PER_KM));
             }
 
             canGenerate = false;
@@ -361,7 +361,7 @@ i32 SphericalVoxelComponentUpdater::updateSetupList(ui32 maxTicks) {
                     FloraTask* floraTask = new FloraTask;
                     floraTask->init(chunk);
                     chunk->lastOwnerTask = floraTask;
-                    _threadPool.addTask(floraTask);
+                    m_cmp->threadPool.addTask(floraTask);
                     // Remove from the setup list
                     setupList[i] = setupList.back();
                     setupList.pop_back();
@@ -423,13 +423,13 @@ i32 SphericalVoxelComponentUpdater::updateMeshList(ui32 maxTicks) {
 
             if (chunk->_state == ChunkStates::MESH) {
                 newRenderTask->init(chunk, RenderTaskType::DEFAULT,
-                                    m_chunkMeshManager);
+                                    m_cmp->chunkMeshManager);
             } else {
-                newRenderTask->init(chunk, RenderTaskType::LIQUID, m_chunkMeshManager);
+                newRenderTask->init(chunk, RenderTaskType::LIQUID, m_cmp->chunkMeshManager);
             }
 
             chunk->lastOwnerTask = newRenderTask;
-            _threadPool.addTask(newRenderTask);
+            m_cmp->threadPool.addTask(newRenderTask);
 
             // Remove from the mesh list
             meshList[i] = meshList.back();
@@ -468,7 +468,7 @@ void SphericalVoxelComponentUpdater::processFinishedTasks() {
     // Stores tasks for bulk deque
     vcore::IThreadPoolTask<WorkerData>* taskBuffer[MAX_TASKS];
 
-    size_t numTasks = _threadPool.getFinishedTasks(taskBuffer, MAX_TASKS);
+    size_t numTasks = m_cmp->threadPool.getFinishedTasks(taskBuffer, MAX_TASKS);
 
     vcore::IThreadPoolTask<WorkerData>* task;
     Chunk* chunk;
@@ -517,7 +517,7 @@ void SphericalVoxelComponentUpdater::processFinishedGenerateTask(GenerateTask* t
     if (!(ch->freeWaiting)) {
 
         //check to see if the top chunk has light that should end up in this chunk
-        _voxelLightEngine->checkTopForSunlight(ch);
+        m_cmp->voxelLightEngine.checkTopForSunlight(ch);
 
         ch->needsNeighbors = true;
         if (ch->treesToLoad.size() || ch->plantsToLoad.size()) {
@@ -547,7 +547,7 @@ void SphericalVoxelComponentUpdater::processFinishedFloraTask(FloraTask* task) {
         // If the task wasn't successful, add it back to the task queue so it can try again.
         task->setIsFinished(false);
         chunk->lastOwnerTask = task;
-        _threadPool.addTask(task);
+        m_cmp->threadPool.addTask(task);
     }
 }
 
@@ -561,7 +561,7 @@ void SphericalVoxelComponentUpdater::addGenerateTask(Chunk* chunk) {
                        m_cmp->generator->getPlanetGenData()));
     chunk->lastOwnerTask = generateTask;
     // Add the task
-    _threadPool.addTask(generateTask);
+    m_cmp->threadPool.addTask(generateTask);
 }
 
 void SphericalVoxelComponentUpdater::placeTreeNodes(GeneratedTreeNodes* nodes) {

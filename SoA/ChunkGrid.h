@@ -24,7 +24,7 @@ class ChunkGrid {
 public:
     friend class SphericalVoxelComponentUpdater;
 
-    ChunkGrid();
+    ~ChunkGrid();
 
     void addChunk(Chunk* chunk);
 

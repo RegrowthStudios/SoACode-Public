@@ -4,11 +4,8 @@
 #include "ChunkMemoryManager.h"
 
 
-ChunkGrid::ChunkGrid() {
-    // Empty
-}
-
 ChunkGrid::~ChunkGrid() {
+    // Empty
 }
 
 void ChunkGrid::addChunk(Chunk* chunk) {
