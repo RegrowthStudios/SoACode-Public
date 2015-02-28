@@ -21,19 +21,21 @@
 
 #include "VoxelCoordinateSpaces.h"
 
+class ChunkGrid;
 class ChunkIOManager;
+class ChunkListManager;
 class ChunkManager;
+class ChunkMemoryManager;
 class FarTerrainPatch;
 class ParticleEngine;
 class PhysicsEngine;
 class SphericalTerrainCpuGenerator;
-struct TerrainPatchData;
 class SphericalTerrainGpuGenerator;
-class TerrainPatchMeshManager;
 class TerrainPatch;
+class TerrainPatchMeshManager;
 class TerrainRpcDispatcher;
 struct PlanetGenData;
-struct PlanetGenData;
+struct TerrainPatchData;
 
 DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);
@@ -84,8 +86,12 @@ struct SphericalGravityComponent {
 
 // TODO(Ben): std::unique_ptr?
 struct SphericalVoxelComponent {
+    friend class SphericalVoxelComponentUpdater;
+
     PhysicsEngine* physicsEngine = nullptr;
-    ChunkManager* chunkManager = nullptr;
+    ChunkGrid* chunkGrid = nullptr;
+    ChunkListManager* chunkListManager = nullptr;
+    ChunkMemoryManager* chunkMemoryManager = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ParticleEngine* particleEngine = nullptr;
 

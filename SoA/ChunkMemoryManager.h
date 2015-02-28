@@ -20,11 +20,11 @@
 class ChunkMemoryManager {
 public:
     // Reserves internal memory
-    void reserve(int numChunks);
+    void setSize(size_t numChunks);
     // Gets a new chunk ID
-    ChunkID getNewChunk();
+    Chunk* getNewChunk();
     // Frees a chunk
-    void freeChunk(ChunkID chunkID);
+    void freeChunk(Chunk* chunk);
     // Gets a chunk from an ID
     // The reference will become invalid
     // if getNewChunk() needs to allocate new
@@ -34,6 +34,7 @@ public:
     }
 private:
     std::vector<Chunk> m_chunkMemory; ///< All chunks
+    size_t m_maxSize = 0;
     std::vector<ChunkID> m_freeChunks; ///< List of free chunks
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> m_shortFixedSizeArrayRecycler; ///< For recycling voxel data
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> m_byteFixedSizeArrayRecycler; ///< For recycling voxel data

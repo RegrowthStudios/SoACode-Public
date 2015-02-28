@@ -187,12 +187,6 @@ private:
     /// Processes a flora task that is finished
     void processFinishedFloraTask(FloraTask* task);
 
-    /// Updates all chunks that have been loaded
-    void updateLoadedChunks(ui32 maxTicks);
-
-    /// Updates all chunks that are ready to be generated
-    void updateGenerateList();
-
     /// Adds a generate task to the threadpool
     void addGenerateTask(Chunk* chunk);
 

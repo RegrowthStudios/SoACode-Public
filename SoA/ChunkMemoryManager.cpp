@@ -1,21 +1,31 @@
 #include "stdafx.h"
 #include "ChunkMemoryManager.h"
 
-void ChunkMemoryManager::reserve(int numChunks) {
-    m_chunkMemory.reserve(numChunks);
+
+void ChunkMemoryManager::setSize(size_t numChunks) {
+    m_maxSize = numChunks;
+    // Allocate memory
+    m_chunkMemory.resize(m_maxSize);
+    for (int i = 0; i < m_maxSize; i++) {
+        m_chunkMemory[i] = Chunk(i, &m_shortFixedSizeArrayRecycler,
+                                 &m_byteFixedSizeArrayRecycler);
+    }
+    // Set free chunks list
+    m_freeChunks.resize(m_maxSize);
+    for (int i = 0; i < m_maxSize; i++) {
+        m_freeChunks[i] = i;
+    }
 }
 
-ChunkID ChunkMemoryManager::getNewChunk() {
+Chunk* ChunkMemoryManager::getNewChunk() {
     if (m_freeChunks.size()) {
         ChunkID id = m_freeChunks.back();
         m_freeChunks.pop_back();
-        return id;
+        return &m_chunkMemory[id];
     }
-    m_chunkMemory.emplace_back(m_shortFixedSizeArrayRecycler,
-                               m_byteFixedSizeArrayRecycler);
-    return m_chunkMemory.size() - 1;
+    return nullptr;
 }
 
-void ChunkMemoryManager::freeChunk(ChunkID chunkID) {
-    m_freeChunks.push_back(chunkID);
+void ChunkMemoryManager::freeChunk(Chunk* chunk) {
+    m_freeChunks.push_back(chunk->getID());
 }

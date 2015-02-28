@@ -33,8 +33,37 @@ public:
     /// Updates openGL specific stuff. Call on render thread
     void glUpdate(SpaceSystem* spaceSystem);
 private:
+
     void updateComponent(SphericalVoxelComponent& svc, const f64v3& position, const Frustum* frustum);
+
+    /// Updates all chunks
+    /// @param position: the observer position
+    /// @param frustum: The view frustum of the observer
+    void updateChunks(SphericalVoxelComponent& svc, const f64v3& position, const Frustum* frustum);
+
     void updatePhysics(const Camera* camera);
+
+    /// Updates all chunks that have been loaded
+    void updateLoadedChunks(ui32 maxTicks);
+
+    /// Updates all chunks that are ready to be generated
+    void updateGenerateList();
+
+    /// Updates the treesToPlace list
+    /// @param maxTicks: maximum time the function is allowed
+    void updateTreesToPlace(ui32 maxTicks);
+
+    /// Updates the load list
+    /// @param maxTicks: maximum time the function is allowed
+    void updateLoadList(ui32 maxTicks);
+
+    /// Updates the setup list
+    /// @param maxTicks: maximum time the function is allowed
+    i32 updateSetupList(ui32 maxTicks);
+
+    /// Updates the mesh list
+    /// @param maxTicks: maximum time the function is allowed
+    i32 updateMeshList(ui32 maxTicks);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__
