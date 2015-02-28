@@ -626,9 +626,7 @@ void SphericalVoxelComponentUpdater::freeChunk(Chunk* chunk) {
         if (chunk->inSaveThread || chunk->inLoadThread || chunk->_chunkListPtr || chunk->lastOwnerTask ||
             (chunk->mesh && chunk->mesh->refCount)) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
-            chunk->freeWaiting = true;
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
-
             m_cmp->chunkListManager->addToFreeWaitList(chunk);
         } else {
             m_cmp->chunkGrid->removeChunk(chunk);

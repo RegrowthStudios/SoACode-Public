@@ -59,18 +59,19 @@ public:
 
 class Chunk{
 public:
-    friend class ChunkMemoryManager;
-    friend class ChunkManager;
-    friend class EditorTree;
-    friend class ChunkMesher;
-    friend class ChunkIOManager;
     friend class CAEngine;
     friend class ChunkGenerator;
+    friend class ChunkIOManager;
+    friend class ChunkListManager;
+    friend class ChunkManager;
+    friend class ChunkMemoryManager;
+    friend class ChunkMesher;
     friend class ChunkUpdater;
-    friend class VoxelLightEngine;
+    friend class EditorTree;
     friend class PhysicsEngine;
     friend class RegionFileManager;
     friend class SphericalVoxelComponentUpdater;
+    friend class VoxelLightEngine;
 
     Chunk() {
         blockUpdateList.resize(CaPhysicsType::getNumCaTypes() * 2);
