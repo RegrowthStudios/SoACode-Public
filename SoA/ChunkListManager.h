@@ -31,19 +31,21 @@ public:
     /// Adds a chunk to the generateList
     /// @param chunk: the chunk to add
     void addToGenerateList(Chunk* chunk);
+    /// Adds a chunk to the freeWait list
+    void addToFreeWaitList(Chunk* chunk);
 
     void sortLists();
 
     /// Stack of chunks needing setup
-    std::vector<ChunkID> setupList;
+    std::vector<Chunk*> setupList;
     /// Stack of chunks that need to be meshed on the threadPool
-    std::vector<ChunkID> meshList;
+    std::vector<Chunk*> meshList;
     /// Stack of chunks that need to be sent to the IO thread
-    std::vector<ChunkID> loadList;
+    std::vector<Chunk*> loadList;
     /// Stack of chunks needing generation
-    std::vector<ChunkID> generateList;
+    std::vector<Chunk*> generateList;
     /// Chunks waiting to be freed
-    std::vector<ChunkID> freeWaitingChunks;
+    std::vector<Chunk*> freeWaitingChunks;
 };
 
 #endif // ChunkListManager_h__

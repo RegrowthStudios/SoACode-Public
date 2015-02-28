@@ -37,6 +37,7 @@ enum class CA_ALGORITHM {
 class CellularAutomataTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
     friend class ChunkManager;
+    friend class SphericalVoxelComponentUpdater;
     /// Constructs the task
     CellularAutomataTask(ChunkManager* chunkManager,
                          PhysicsEngine* physicsEngine,

@@ -15,14 +15,17 @@
 #ifndef SphericalVoxelComponentUpdater_h__
 #define SphericalVoxelComponentUpdater_h__
 
-struct AxisRotationComponent;
 class Camera;
 class Chunk;
+class Frustum;
 class GameSystem;
-struct NamePositionComponent;
 class SoaState;
 class SpaceSystem;
+struct AxisRotationComponent;
+struct NamePositionComponent;
 struct SphericalVoxelComponent;
+
+#include "VoxelCoordinateSpaces.h"
 
 class SphericalVoxelComponentUpdater {
 public:
@@ -34,12 +37,14 @@ public:
     void glUpdate(SpaceSystem* spaceSystem);
 private:
 
-    void updateComponent(SphericalVoxelComponent& svc, const f64v3& position, const Frustum* frustum);
+    SphericalVoxelComponent* m_cmp = nullptr; ///< Component we are updating
+
+    void updateComponent(const f64v3& position, const Frustum* frustum);
 
     /// Updates all chunks
     /// @param position: the observer position
     /// @param frustum: The view frustum of the observer
-    void updateChunks(SphericalVoxelComponent& svc, const f64v3& position, const Frustum* frustum);
+    void updateChunks(const f64v3& position, const Frustum* frustum);
 
     void updatePhysics(const Camera* camera);
 
@@ -64,6 +69,49 @@ private:
     /// Updates the mesh list
     /// @param maxTicks: maximum time the function is allowed
     i32 updateMeshList(ui32 maxTicks);
+
+    /// Creates a chunk and any needed grid data at a given chunk position
+    /// @param chunkPosition: the ChunkPosition
+    void makeChunkAt(const ChunkPosition3D& chunkPosition);
+
+    /// Gets all finished tasks from threadpool
+    void processFinishedTasks();
+
+    /// Processes a generate task that is finished
+    void processFinishedGenerateTask(GenerateTask* task);
+
+    /// Processes a flora task that is finished
+    void processFinishedFloraTask(FloraTask* task);
+
+    /// Adds a generate task to the threadpool
+    void addGenerateTask(Chunk* chunk);
+
+    /// Places a batch of tree nodes
+    /// @param nodes: the nodes to place
+    void placeTreeNodes(GeneratedTreeNodes* nodes);
+
+    /// Frees a chunk from the world. 
+    /// The chunk may be recycled, or it may need to wait for some threads
+    /// to finish processing on it.
+    /// @param chunk: the chunk to free
+    void freeChunk(Chunk* chunk);
+
+    /// Updates the neighbors for a chunk, possibly loading new chunks
+    /// @param chunk: the chunk in question
+    /// @param cameraPos: camera position
+    void updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos);
+
+    /// Tries to load a chunk neighbor if it is in range
+    /// @param chunk: relative chunk
+    /// @param cameraPos: the camera position
+    /// @param offset: the offset, must be unit length.
+    void tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset);
+
+    /// True when the chunk can be sent to mesh thread. Will set neighbor dependencies
+    bool trySetMeshDependencies(Chunk* chunk);
+
+    /// Removes all mesh dependencies
+    void tryRemoveMeshDependencies(Chunk* chunk);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

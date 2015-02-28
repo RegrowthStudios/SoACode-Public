@@ -19,16 +19,19 @@
 
 class ChunkMemoryManager {
 public:
-    // Reserves internal memory
+    friend class SphericalVoxelComponentUpdater;
+
+    /// Reserves internal memory
+    /// Calling this may invalidate all chunk pointers!
     void setSize(size_t numChunks);
-    // Gets a new chunk ID
+    /// Gets a new chunk ID
     Chunk* getNewChunk();
-    // Frees a chunk
+    /// Frees a chunk
     void freeChunk(Chunk* chunk);
-    // Gets a chunk from an ID
-    // The reference will become invalid
-    // if getNewChunk() needs to allocate new
-    // memory.
+    /// Gets a chunk from an ID
+    /// The reference will become invalid
+    /// if getNewChunk() needs to allocate new
+    /// memory.
     inline Chunk& getChunk(ChunkID chunkID) {
         return m_chunkMemory[chunkID];
     }

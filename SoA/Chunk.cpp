@@ -36,7 +36,7 @@ void RawGenDelegate::release() {
     gridData.reset();
 }
 
-void Chunk::init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData) {
+void Chunk::init(const ChunkPosition3D &chunkPos) {
 	loadStatus = 0;
 	freeWaiting = 0;
     isAccessible = false;
@@ -76,7 +76,6 @@ void Chunk::init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>
 	drawWater = 0;
     lastOwnerTask = nullptr;
 
-    this->chunkGridData = chunkGridData;
     gridPosition = chunkPos;
 
     mesh = nullptr;

@@ -70,8 +70,9 @@ public:
     friend class VoxelLightEngine;
     friend class PhysicsEngine;
     friend class RegionFileManager;
+    friend class SphericalVoxelComponentUpdater;
 
-    void init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData);
+    void init(const ChunkPosition3D &chunkPos);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
@@ -172,7 +173,7 @@ public:
     static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 
     int numNeighbors;
-    bool needsNeighbors = false;
+    bool needsNeighbors = false; // could just use -1 numNeighbors?
     std::vector<bool> activeUpdateList;
     bool drawWater;
     bool dirty;

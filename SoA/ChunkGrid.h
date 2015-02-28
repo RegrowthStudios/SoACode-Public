@@ -22,13 +22,13 @@ class GeneratedTreeNodes;
 
 class ChunkGrid {
 public:
-    ChunkGrid(ChunkMemoryManager* chunkMemoryManager);
+    friend class SphericalVoxelComponentUpdater;
+
+    ChunkGrid();
 
     void addChunk(Chunk* chunk);
-    void addChunk(ChunkID chunkID);
 
     void removeChunk(Chunk* chunk);
-    void removeChunk(ChunkID chunkID);
 
     /// Gets a chunk at a given floating point position
     /// @param position: The position
@@ -44,17 +44,20 @@ public:
     /// @param chunkPos: The chunk grid position, units are of chunk length
     /// Returns nullptr if no chunk is found, otherwise returns the chunk
     const Chunk* getChunk(const i32v3& chunkPos) const;
+
+    std::shared_ptr<ChunkGridData> getChunkGridData(const i32v2& gridPos) {
+        auto it = m_chunkGridDataMap.find(gridPos);
+        if (it == m_chunkGridDataMap.end()) return nullptr;
+        return it->second;
+    }
+
+    std::vector<GeneratedTreeNodes*> treesToPlace; ///< List of tree batches we need to place
 private:
-    std::vector<ChunkID> m_chunks; // TODO(Ben): Is this needed here?
+    std::vector<Chunk*> m_chunks; // TODO(Ben): Is this needed here?
     /// hashmap of chunks
-    std::unordered_map<i32v3, ChunkID> m_chunkMap;
+    std::unordered_map<i32v3, Chunk*> m_chunkMap;
     /// Indexed by (x,z)
     std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > m_chunkGridDataMap;
-
-    std::vector<GeneratedTreeNodes*> m_treesToPlace; ///< List of tree batches we need to place
-
-    ChunkMemoryManager* m_chunkMemoryManager = nullptr;
-
 };
 
 #endif // ChunkGrid_h__

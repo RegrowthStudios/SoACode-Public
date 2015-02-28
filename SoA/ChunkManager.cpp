@@ -74,7 +74,6 @@ ChunkManager::ChunkManager(PhysicsEngine* physicsEngine,
     m_physicsEngine->setChunkManager(this);
 
     NoChunkFade = 0;
-    _poccx = _poccy = _poccz = -1;
     _voxelLightEngine = new VoxelLightEngine();
 
     // Clear Out The Chunk Diagnostics
@@ -503,73 +502,6 @@ void ChunkManager::processFinishedFloraTask(FloraTask* task) {
     }
 }
 
-//add the loaded chunks to the setup list
-void ChunkManager::updateLoadedChunks(ui32 maxTicks) {
-
-    ui32 startTicks = SDL_GetTicks();
-    Chunk* ch;
-    //IO load chunks
-    while (m_chunkIo->finishedLoadChunks.try_dequeue(ch)) {
-
-        bool canGenerate = true;
-        ch->inLoadThread = 0;
-        
-        // Don't do anything if the chunk should be freed
-        if (ch->freeWaiting) continue;
-
-        //If the heightmap has not been generated, generate it.
-        std::shared_ptr<ChunkGridData>& chunkGridData = ch->chunkGridData;
-        
-        //TODO(Ben): Beware of race here.
-        if (!chunkGridData->isLoaded) {
-            if (!chunkGridData->wasRequestSent) {
-                // Keep trying to send it until it succeeds
-                while (!heightmapGenRpcDispatcher->dispatchHeightmapGen(chunkGridData,
-                       ch->gridPosition, m_planetRadius));
-            }
-
-            canGenerate = false;
-        }
-
-        // If it is not saved. Generate it!
-        if (ch->loadStatus == 1) {
-            // If we can generate immediately, then do so. Otherwise we wait
-            if (canGenerate) {
-                addGenerateTask(ch);
-            } else {
-                addToGenerateList(ch);            
-            }
-        } else {
-            ch->needsNeighbors = true;
-            ch->_state = ChunkStates::MESH;
-            addToMeshList(ch);
-            ch->dirty = false;
-            ch->isAccessible = true;
-        }
-        
-        if (SDL_GetTicks() - startTicks > maxTicks) break;
-    }
-}
-
-void ChunkManager::updateGenerateList() {
-    Chunk *chunk;
-    for (i32 i = m_generateList.size() - 1; i >= 0; i--) {
-        chunk = m_generateList[i];
-        // Check if the chunk is waiting to be freed
-        if (chunk->freeWaiting) {
-            // Remove from the setup list
-            m_generateList[i] = m_generateList.back();
-            m_generateList.pop_back();
-            chunk->clearChunkListPtr();
-            continue;
-        } else if (chunk->chunkGridData->isLoaded) {
-            addGenerateTask(chunk);
-            m_generateList[i] = m_generateList.back();
-            m_generateList.pop_back();
-            chunk->clearChunkListPtr();
-        }
-    }
-}
 
 void ChunkManager::addGenerateTask(Chunk* chunk) {
 

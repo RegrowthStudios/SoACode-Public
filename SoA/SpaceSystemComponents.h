@@ -107,6 +107,8 @@ struct SphericalVoxelComponent {
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
 
+    int numCaTasks = 0; /// TODO(Ben): Explore alternative
+
     f64 voxelRadius = 0; ///< Radius of the planet in voxels
     int refCount = 1;
 };
