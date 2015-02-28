@@ -59,7 +59,7 @@ public:
 
 class Chunk{
 public:
-
+    friend class ChunkMemoryManager;
     friend class ChunkManager;
     friend class EditorTree;
     friend class ChunkMesher;
@@ -71,6 +71,21 @@ public:
     friend class PhysicsEngine;
     friend class RegionFileManager;
     friend class SphericalVoxelComponentUpdater;
+
+    Chunk() {
+        blockUpdateList.resize(CaPhysicsType::getNumCaTypes() * 2);
+        activeUpdateList.resize(CaPhysicsType::getNumCaTypes());
+    }
+
+    void set(ChunkID cID,
+             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
+             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) {
+        id = cID;
+        _blockIDContainer.setArrayRecycler(shortRecycler);
+        _sunlightContainer.setArrayRecycler(byteRecycler);
+        _lampLightContainer.setArrayRecycler(shortRecycler);
+        _tertiaryDataContainer.setArrayRecycler(shortRecycler);
+    }
 
     void init(const ChunkPosition3D &chunkPos);
 
@@ -106,21 +121,6 @@ public:
 
     bool hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate);
 
-    /// Constructor
-    /// @param shortRecycler: Recycler for ui16 data arrays
-    /// @param byteRecycler: Recycler for ui8 data arrays
-    Chunk(ChunkID cID,
-          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
-          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) : 
-          id(cID),
-          _blockIDContainer(shortRecycler), 
-          _sunlightContainer(byteRecycler),
-          _lampLightContainer(shortRecycler),
-          _tertiaryDataContainer(shortRecycler) {
-        blockUpdateList.resize(CaPhysicsType::getNumCaTypes() * 2);
-        activeUpdateList.resize(CaPhysicsType::getNumCaTypes());
-        // Empty
-    }
     ~Chunk(){
         clearBuffers();
     }

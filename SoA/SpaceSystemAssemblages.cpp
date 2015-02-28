@@ -161,7 +161,8 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     if (hc > 1) hc--;
 
     // Initialize the threadpool with hc threads
-    svcmp.threadPool.init(hc);
+    svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
+    svcmp.threadPool->init(hc);
     // Give some time for the threads to spin up
     SDL_Delay(100);
 

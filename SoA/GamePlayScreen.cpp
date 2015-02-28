@@ -6,9 +6,9 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/utils.h>
 
 #include "App.h"
-#include "ChunkManager.h"
 #include "ChunkMesh.h"
 #include "ChunkMeshManager.h"
 #include "ChunkMesher.h"

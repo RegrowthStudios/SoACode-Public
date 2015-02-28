@@ -19,7 +19,7 @@
 #include <Vorb/graphics/IRenderStage.h>
 
 class GameRenderParams;
-class Chunk;
+class ChunkMemoryManager;
 
 class ChunkGridRenderStage : public vg::IRenderStage {
 public:
@@ -30,11 +30,11 @@ public:
     ~ChunkGridRenderStage();
 
     // Draws the render stage
-    void setChunks(const std::vector<Chunk*>* chunks) { m_chunks = chunks; }
+    void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }
     virtual void draw() override;
 private:
     const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
-    const std::vector<Chunk*>* m_chunks = nullptr;
+    const ChunkMemoryManager* m_chunkMemoryManager = nullptr;
 };
 
 #endif // ChunkGridRenderStage_h__

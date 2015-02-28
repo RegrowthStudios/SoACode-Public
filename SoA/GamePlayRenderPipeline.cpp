@@ -4,7 +4,7 @@
 #include <Vorb/graphics/GLStates.h>
 
 #include "ChunkGridRenderStage.h"
-#include "ChunkManager.h"
+#include "ChunkMemoryManager.h"
 #include "ChunkMeshManager.h"
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
@@ -143,7 +143,7 @@ void GamePlayRenderPipeline::render() {
         _cutoutVoxelRenderStage->draw();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
-        _chunkGridRenderStage->setChunks(&spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunks());
+        _chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
         _chunkGridRenderStage->draw();
         _liquidVoxelRenderStage->draw();
         _transparentVoxelRenderStage->draw();

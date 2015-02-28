@@ -21,8 +21,11 @@ class ChunkMemoryManager {
 public:
     friend class SphericalVoxelComponentUpdater;
 
+    ChunkMemoryManager();
+    ~ChunkMemoryManager();
+
     /// Reserves internal memory
-    /// Calling this may invalidate all chunk pointers!
+    /// Calling this will invalidate all chunks!
     void setSize(size_t numChunks);
     /// Gets a new chunk ID
     Chunk* getNewChunk();
@@ -35,8 +38,10 @@ public:
     inline Chunk& getChunk(ChunkID chunkID) {
         return m_chunkMemory[chunkID];
     }
+    const size_t& getMaxSize() const { return m_maxSize; }
+    const Chunk* getChunkMemory(OUT size_t& size) const { size = m_maxSize; return m_chunkMemory; }
 private:
-    std::vector<Chunk> m_chunkMemory; ///< All chunks
+    Chunk* m_chunkMemory = nullptr; ///< All chunks
     size_t m_maxSize = 0;
     std::vector<ChunkID> m_freeChunks; ///< List of free chunks
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> m_shortFixedSizeArrayRecycler; ///< For recycling voxel data

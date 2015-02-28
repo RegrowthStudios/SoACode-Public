@@ -5,7 +5,6 @@
 
 #include "BlockPack.h"
 #include "Chunk.h"
-#include "ChunkManager.h"
 #include "ChunkUpdater.h"
 #include "GameManager.h"
 #include "ParticleEngine.h"

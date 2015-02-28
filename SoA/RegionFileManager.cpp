@@ -163,7 +163,7 @@ bool RegionFileManager::openRegionFile(nString region, const ChunkPosition3D& gr
     _regionFileCache[region] = _regionFile;
     _regionFileCacheQueue.push_back(_regionFile);
 
-    _regionFile->fileDescriptor = fileno(_regionFile->file); //get file descriptor for truncate if needed
+    _regionFile->fileDescriptor = _fileno(_regionFile->file); //get file descriptor for truncate if needed
 
     if (fstat(_regionFile->fileDescriptor, &statbuf) != 0) {
         pError("Stat call failed for region file open"); //get the file stats

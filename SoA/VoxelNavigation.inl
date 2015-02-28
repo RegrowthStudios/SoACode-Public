@@ -1,5 +1,5 @@
 ///
-/// VoxelNavigator.inl
+/// VoxelNavigation.inl
 /// Vorb
 ///
 /// Created by Benjamin Arnold on 26 Nov 2014
@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef VoxelNavigation_inl__
-#define VoxelNavigation_inl__
+//#ifndef VoxelNavigation_inl__
+//#define VoxelNavigation_inl__
 
 // TODO(Ben): Generalize Chunk and voxel stuff
 // TODO(Cristian): Try to tell Ben that we can't quite generalize everything...
@@ -213,4 +213,4 @@ namespace vorb {
 }
 namespace vvox = vorb::voxel;
 
-#endif // VoxelNavigation_inl__
+//#endif // VoxelNavigation_inl__

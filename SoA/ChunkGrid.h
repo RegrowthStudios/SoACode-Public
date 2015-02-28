@@ -51,6 +51,8 @@ public:
         return it->second;
     }
 
+    const i16* getIDQuery(const i32v3& start, const i32v3& end) const;
+
     std::vector<GeneratedTreeNodes*> treesToPlace; ///< List of tree batches we need to place
 private:
     std::vector<Chunk*> m_chunks; // TODO(Ben): Is this needed here?

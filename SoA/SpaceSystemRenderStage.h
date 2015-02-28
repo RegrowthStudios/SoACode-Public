@@ -25,7 +25,7 @@
 
 class App;
 class GameSystem;
-class MTRenderState;
+struct MTRenderState;
 class MainMenuSystemViewer;
 class SpaceSystem;
 class SpriteBatch;

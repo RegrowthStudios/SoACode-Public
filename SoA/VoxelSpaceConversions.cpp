@@ -40,6 +40,22 @@ ChunkPosition3D VoxelSpaceConversions::voxelToChunk(const VoxelPosition3D& voxel
     return gpos;
 }
 
+i32v3 VoxelSpaceConversions::voxelToChunk(const i32v3& voxelPosition) {
+    i32v3 gpos;
+    gpos.x = fastFloor(voxelPosition.x / (float)CHUNK_WIDTH);
+    gpos.y = fastFloor(voxelPosition.y / (float)CHUNK_WIDTH);
+    gpos.z = fastFloor(voxelPosition.z / (float)CHUNK_WIDTH);
+    return gpos;
+}
+
+i32v3 VoxelSpaceConversions::voxelToChunk(const f64v3& voxelPosition) {
+    i32v3 gpos;
+    gpos.x = fastFloor(voxelPosition.x / CHUNK_WIDTH);
+    gpos.y = fastFloor(voxelPosition.y / CHUNK_WIDTH);
+    gpos.z = fastFloor(voxelPosition.z / CHUNK_WIDTH);
+    return gpos;
+}
+
 VoxelPosition2D VoxelSpaceConversions::chunkToVoxel(const ChunkPosition2D& gridPosition) {
     VoxelPosition2D vpos;
     vpos.face = gridPosition.face;

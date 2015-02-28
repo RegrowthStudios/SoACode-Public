@@ -2,7 +2,6 @@
 #include "ParticleBatch.h"
 
 #include "Animation.h"
-#include "ChunkManager.h"
 #include "GameManager.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
@@ -44,44 +43,44 @@ int ParticleBatch::findUnusedParticle() {
 }
 
 void ParticleBatch::addParticles(ChunkManager* chunkManager, int num, f64v3 pos, int tex, double force, float life, GLubyte billSize, GLubyte color[4], f32v3 extraForce) {
-#define POS_OFFSET 10000.0
-    
-    if(size + num >= maxParticles) return;
-    f64v3 spos;
-    f64v3 dpos;
-
-    if(size == 0) { //new origin
-        // We offset by POS_OFFSET so we can guarentee the batch will always be positive
-        position = f64v3(chunkManager->getChunkPosition(pos - POS_OFFSET) * CHUNK_WIDTH);
-    } else {
-        dpos = position - pos;
-    }
-
-    int j;
-    for(int i = 0; i < num; i++) {
-        j = findUnusedParticle();
-        if(j == -1) { //no spots left
-            size += i;
-            return;
-        }
-
-        spos.x = (rand() % 100) * .01;
-        spos.y = (rand() % 100) * .01;
-        spos.z = (rand() % 100) * .01;
-        particles[j].velocity = (spos - 0.5) * force + glm::dvec3(extraForce);
-        particles[j].position = spos - dpos + 0.25;
-        particles[j].texUnit = (GLubyte)(tex / 256);
-        particles[j].texID = (GLubyte)(tex % 256);
-        particles[j].size = billSize;
-        memcpy(particles[j].color, color, 4);
-        particles[j].light[0] = 0;
-        particles[j].light[1] = 0;
-        particles[j].isYCollidable = 0;
-        particles[j].pc = 65535;
-
-        lifes[j] = life;
-    }
-    size += num;
+//#define POS_OFFSET 10000.0
+//    
+//    if(size + num >= maxParticles) return;
+//    f64v3 spos;
+//    f64v3 dpos;
+//
+//    if(size == 0) { //new origin
+//        // We offset by POS_OFFSET so we can guarentee the batch will always be positive
+//        position = f64v3(chunkManager->getChunkPosition(pos - POS_OFFSET) * CHUNK_WIDTH);
+//    } else {
+//        dpos = position - pos;
+//    }
+//
+//    int j;
+//    for(int i = 0; i < num; i++) {
+//        j = findUnusedParticle();
+//        if(j == -1) { //no spots left
+//            size += i;
+//            return;
+//        }
+//
+//        spos.x = (rand() % 100) * .01;
+//        spos.y = (rand() % 100) * .01;
+//        spos.z = (rand() % 100) * .01;
+//        particles[j].velocity = (spos - 0.5) * force + glm::dvec3(extraForce);
+//        particles[j].position = spos - dpos + 0.25;
+//        particles[j].texUnit = (GLubyte)(tex / 256);
+//        particles[j].texID = (GLubyte)(tex % 256);
+//        particles[j].size = billSize;
+//        memcpy(particles[j].color, color, 4);
+//        particles[j].light[0] = 0;
+//        particles[j].light[1] = 0;
+//        particles[j].isYCollidable = 0;
+//        particles[j].pc = 65535;
+//
+//        lifes[j] = life;
+//    }
+//    size += num;
 }
 
 //This is a documentation comment

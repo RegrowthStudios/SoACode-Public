@@ -35,7 +35,7 @@ class GameSystem;
 class HdrRenderStage;
 class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
-class MTRenderState;
+struct MTRenderState;
 class MeshManager;
 class NightVisionRenderStage;
 class OpaqueVoxelRenderStage;

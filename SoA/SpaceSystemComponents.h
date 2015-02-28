@@ -113,7 +113,7 @@ struct SphericalVoxelComponent {
     vcore::ComponentID axisRotationComponent = 0;
 
     /// The threadpool for generating chunks and meshes
-    vcore::ThreadPool<WorkerData> threadPool;
+    vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 
     int numCaTasks = 0; /// TODO(Ben): Explore alternative
 

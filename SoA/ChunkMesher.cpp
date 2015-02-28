@@ -1347,7 +1347,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     //create a new chunk mesh data container
     if (chunkMeshData != NULL){
-        ERROR("Tried to create mesh with in use chunkMeshData!");
+        pError("Tried to create mesh with in use chunkMeshData!");
         return 0;
     }
 
@@ -1538,7 +1538,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
 {
 	if (chunkMeshData != NULL){
-		ERROR("Tried to create mesh with in use chunkMeshData!");
+		pError("Tried to create mesh with in use chunkMeshData!");
 		return 0;
 	}
     chunkMeshData = new ChunkMeshData(renderTask);

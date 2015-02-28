@@ -5,7 +5,6 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "ChunkManager.h"
 #include "ChunkUpdater.h"
 #include "Frustum.h"
 #include "GameManager.h"
@@ -125,98 +124,98 @@ const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 
 
 bool PhysicsBlock::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk*& lockedChunk)
 {
-    if (done == 2) return true; //defer destruction by two frames for good measure
-    if (done != 0) {
-        done++;
-        return false;
-    }
+    //if (done == 2) return true; //defer destruction by two frames for good measure
+    //if (done != 0) {
+    //    done++;
+    //    return false;
+    //}
 
-    i32& blockID = batch->_blockID;
+    //i32& blockID = batch->_blockID;
 
-    if (globalDebug2 == 0) return false;
+    //if (globalDebug2 == 0) return false;
 
-    // If we are colliding, we reverse motion until we hit an air block
-    if (colliding) {
-        position -= velocity * physSpeedFactor;
-        velocity.y -= 0.01f; // make it move upwards so it doesn't fall forever
-        if (velocity.y < -0.5f) velocity.y = -0.5f;
-    } else {
-        // Update Motion
-        velocity.y -= batch->_gravity * physSpeedFactor;
-        if (velocity.y < -1.0f) velocity.y = -1.0f;
-        velocity.z *= batch->_friction;
-        velocity.x *= batch->_friction;
-        position += velocity * physSpeedFactor;   
-    }
+    //// If we are colliding, we reverse motion until we hit an air block
+    //if (colliding) {
+    //    position -= velocity * physSpeedFactor;
+    //    velocity.y -= 0.01f; // make it move upwards so it doesn't fall forever
+    //    if (velocity.y < -0.5f) velocity.y = -0.5f;
+    //} else {
+    //    // Update Motion
+    //    velocity.y -= batch->_gravity * physSpeedFactor;
+    //    if (velocity.y < -1.0f) velocity.y = -1.0f;
+    //    velocity.z *= batch->_friction;
+    //    velocity.x *= batch->_friction;
+    //    position += velocity * physSpeedFactor;   
+    //}
 
-    // Get world position
-    f64v3 worldPos = f64v3(position) + batch->_position;
+    //// Get world position
+    //f64v3 worldPos = f64v3(position) + batch->_position;
 
-    // Get the chunk position
-    i32v3 chPos = chunkManager->getChunkPosition(worldPos);
-    
-    // Get the chunk
-    Chunk* ch = chunkManager->getChunk(chPos);
-    if ((!ch) || ch->isAccessible == 0) return true;
+    //// Get the chunk position
+    //i32v3 chPos = chunkManager->getChunkPosition(worldPos);
+    //
+    //// Get the chunk
+    //Chunk* ch = chunkManager->getChunk(chPos);
+    //if ((!ch) || ch->isAccessible == 0) return true;
 
-    
-    f32v3 relativePos(worldPos.x - chPos.x * CHUNK_WIDTH,
-                      worldPos.y - chPos.y * CHUNK_WIDTH,
-                      worldPos.z - chPos.z * CHUNK_WIDTH);
+    //
+    //f32v3 relativePos(worldPos.x - chPos.x * CHUNK_WIDTH,
+    //                  worldPos.y - chPos.y * CHUNK_WIDTH,
+    //                  worldPos.z - chPos.z * CHUNK_WIDTH);
 
-    // Grab block index coords
-    int bx = (int)relativePos.x % CHUNK_WIDTH;
-    int by = (int)relativePos.y % CHUNK_WIDTH;
-    int bz = (int)relativePos.z % CHUNK_WIDTH;
+    //// Grab block index coords
+    //int bx = (int)relativePos.x % CHUNK_WIDTH;
+    //int by = (int)relativePos.y % CHUNK_WIDTH;
+    //int bz = (int)relativePos.z % CHUNK_WIDTH;
 
-    int c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
+    //int c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
 
-    // Get the colliding block
-    i32 collideID = ch->getBlockIDSafe(lockedChunk, c);
-    Block& collideBlock = Blocks[collideID];
+    //// Get the colliding block
+    //i32 collideID = ch->getBlockIDSafe(lockedChunk, c);
+    //Block& collideBlock = Blocks[collideID];
 
-    // If we are colliding we need an air block
-    if (colliding) {
-        if (collideBlock.collide == false) {
-         //   if (Blocks[blockID].explosivePower) {
-         //       GameManager::physicsEngine->addExplosion(
-         //           ExplosionNode(f64v3(position) + batch->_position,
-         //           blockID));
-         //   } else {
-                ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
-         //   }
-            // Mark this block as done so it can be removed in a few frames
-            done = 1;
-        }
-        return false;
-    }
+    //// If we are colliding we need an air block
+    //if (colliding) {
+    //    if (collideBlock.collide == false) {
+    //     //   if (Blocks[blockID].explosivePower) {
+    //     //       GameManager::physicsEngine->addExplosion(
+    //     //           ExplosionNode(f64v3(position) + batch->_position,
+    //     //           blockID));
+    //     //   } else {
+    //            ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
+    //     //   }
+    //        // Mark this block as done so it can be removed in a few frames
+    //        done = 1;
+    //    }
+    //    return false;
+    //}
 
-    // Check if its collidable
-    if (collideBlock.collide) {
-        // If physics block crushable, like leaves, just break it.
-        if (Blocks[blockID].isCrushable) {
-            glm::vec4 color;
-            color.r = Blocks[blockID].color.r;
-            color.g = Blocks[blockID].color.g;
-            color.b = Blocks[blockID].color.b;
-            color.a = 255;
+    //// Check if its collidable
+    //if (collideBlock.collide) {
+    //    // If physics block crushable, like leaves, just break it.
+    //    if (Blocks[blockID].isCrushable) {
+    //        glm::vec4 color;
+    //        color.r = Blocks[blockID].color.r;
+    //        color.g = Blocks[blockID].color.g;
+    //        color.b = Blocks[blockID].color.b;
+    //        color.a = 255;
 
-            particleEngine.addParticles(chunkManager, BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
-            return true;
-        }
-        
-        // If colliding block is crushable, break that block
-        if (collideBlock.isCrushable) {
-            ChunkUpdater::removeBlock(chunkManager, physicsEngine, ch, lockedChunk, c, true);
-        } else {
-            colliding = true;
-        }
-    } else {
-        // Grab light data from grid
-        // TODO(Ben): Get Lamp Light
-        light[LIGHT] = 0;
-        light[SUNLIGHT] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
-    }
+    //        particleEngine.addParticles(chunkManager, BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
+    //        return true;
+    //    }
+    //    
+    //    // If colliding block is crushable, break that block
+    //    if (collideBlock.isCrushable) {
+    //        ChunkUpdater::removeBlock(chunkManager, physicsEngine, ch, lockedChunk, c, true);
+    //    } else {
+    //        colliding = true;
+    //    }
+    //} else {
+    //    // Grab light data from grid
+    //    // TODO(Ben): Get Lamp Light
+    //    light[LIGHT] = 0;
+    //    light[SUNLIGHT] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
+    //}
 
     return false;
 }

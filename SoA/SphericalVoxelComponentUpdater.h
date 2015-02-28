@@ -21,6 +21,7 @@ class FloraTask;
 class Frustum;
 class GameSystem;
 class GenerateTask;
+class GeneratedTreeNodes;
 class RenderTask;
 class SoaState;
 class SpaceSystem;
