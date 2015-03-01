@@ -79,7 +79,6 @@ public:
         clearBuffers();
     }
 
-
     void set(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
              vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) {
         _blockIDContainer.setArrayRecycler(shortRecycler);
