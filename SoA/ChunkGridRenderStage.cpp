@@ -9,6 +9,7 @@
 #include "ChunkMemoryManager.h"
 #include "Frustum.h"
 #include "GameRenderParams.h"
+#include "soaUtils.h"
 
 ChunkGridRenderStage::ChunkGridRenderStage(const GameRenderParams* gameRenderParams) :
     m_gameRenderParams(gameRenderParams) {
@@ -26,8 +27,8 @@ void ChunkGridRenderStage::draw() {
     if (!_isVisible) return;
     if (!m_chunkMemoryManager) return;
 
-    size_t maxSize;
-    const Chunk* chunks = m_chunkMemoryManager->getChunkMemory(maxSize);
+  
+    const std::vector<Chunk*>& chunks = m_chunkMemoryManager->getActiveChunks();
 
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
@@ -37,7 +38,7 @@ void ChunkGridRenderStage::draw() {
     vcore::Mesh mesh;
     mesh.init(vg::PrimitiveType::LINES, true);
     // Reserve the number of vertices and indices we think we will need
-    mesh.reserve(maxSize * 8, maxSize * 24);
+    mesh.reserve(chunks.size() * 8, chunks.size() * 24);
     // Build the mesh
     ColorRGBA8 color;
     // Used to build each grid
@@ -46,14 +47,15 @@ void ChunkGridRenderStage::draw() {
     int numVertices = 0;
 
     f32v3 posOffset;
-   
-    for (i32 i = 0; i < maxSize; i++) {
-        const Chunk& chunk = chunks[i];
-        posOffset = f32v3(f64v3(chunk.voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());
 
-        if (((chunk.mesh && chunk.mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
+    for (i32 i = 0; i < chunks.size(); i++) {
+        const Chunk* chunk = chunks[i];
+        posOffset = f32v3(f64v3(chunk->voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());
+        printVec("POS: ", chunk->voxelPosition);
 
-            switch (chunk.getState()) {
+        if (((chunk->mesh && chunk->mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
+
+            switch (chunk->getState()) {
                 case ChunkStates::GENERATE:
                     color = ColorRGBA8(255, 0, 255, 255);
                     break;
@@ -88,8 +90,9 @@ void ChunkGridRenderStage::draw() {
                 indices[i] = numVertices + elementBuffer[i];
             }
             numVertices += 8;
-            if (chunk.getState() != ChunkStates::INACTIVE) {
+            if (chunk->getState() != ChunkStates::INACTIVE) {
                 // Build the vertices
+                printVec("POS: ", chunk->voxelPosition);
                 const f32 gmin = 0.00001f;
                 const f32 gmax = 31.9999f;
                 vertices[0].position = f32v3(gmin, gmin, gmin) + posOffset;

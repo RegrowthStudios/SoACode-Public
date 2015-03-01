@@ -126,53 +126,51 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
         std::cout << "SAVING\n";
         saveTicks = SDL_GetTicks();
     }
+    const std::vector<Chunk*>& chunks = m_cmp->chunkMemoryManager->getActiveChunks();
+    for (auto& chunk : chunks) { //update distances for all chunks
 
-    for (size_t i = 0; i < m_cmp->chunkMemoryManager->getMaxSize(); i++) { //update distances for all chunks
+        chunk->calculateDistance2(intPosition);
 
-        Chunk& chunk = m_cmp->chunkMemoryManager->m_chunkMemory[i];
-
-        chunk.calculateDistance2(intPosition);
-
-        if (chunk._state > ChunkStates::TREES && !chunk.lastOwnerTask) {
-            chunk.updateContainers();
+        if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
+            chunk->updateContainers();
         }
-        if (chunk.distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
+        if (chunk->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
 
             // Only remove it if it isn't needed by its neighbors
-            if (!chunk.lastOwnerTask && !chunk.chunkDependencies) {
-                if (chunk.dirty && chunk._state > ChunkStates::TREES) {
-                    m_cmp->chunkIo->addToSaveList(&chunk);
+            if (!chunk->lastOwnerTask && !chunk->chunkDependencies) {
+                if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
+                    m_cmp->chunkIo->addToSaveList(chunk);
                 }
 
-                freeChunk(&chunk);
+                freeChunk(chunk);
 
             }
         } else { //inside maximum range
 
             // Check if it is in the view frustum
-            chunk.inFrustum = frustum->sphereInFrustum(f32v3(f64v3(chunk.voxelPosition + (CHUNK_WIDTH / 2)) - position), 28.0f);
+            chunk->inFrustum = frustum->sphereInFrustum(f32v3(f64v3(chunk->voxelPosition + (CHUNK_WIDTH / 2)) - position), 28.0f);
 
             // See if neighbors need to be added
-            if (chunk.numNeighbors != 6 && chunk.needsNeighbors) {
-                updateChunkNeighbors(&chunk, intPosition);
+            if (chunk->numNeighbors != 6 && chunk->needsNeighbors) {
+                updateChunkNeighbors(chunk, intPosition);
             }
             // Calculate the LOD as a power of two
-            int newLOD = (int)(sqrt(chunk.distance2) / graphicsOptions.voxelLODThreshold) + 1;
+            int newLOD = (int)(sqrt(chunk->distance2) / graphicsOptions.voxelLODThreshold) + 1;
             //  newLOD = 2;
             if (newLOD > 6) newLOD = 6;
-            if (newLOD != chunk.getLevelOfDetail()) {
-                chunk.setLevelOfDetail(newLOD);
-                chunk.changeState(ChunkStates::MESH);
+            if (newLOD != chunk->getLevelOfDetail()) {
+                chunk->setLevelOfDetail(newLOD);
+                chunk->changeState(ChunkStates::MESH);
             }
 
-            if (isWaterUpdating && chunk.mesh != nullptr) ChunkUpdater::randomBlockUpdates(m_cmp->physicsEngine,
-                                                                                           &chunk);
+            if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(m_cmp->physicsEngine,
+                                                                                           chunk);
             // Check to see if it needs to be added to the mesh list
-            if (!chunk._chunkListPtr && !chunk.lastOwnerTask) {
-                switch (chunk._state) {
+            if (!chunk->_chunkListPtr && !chunk->lastOwnerTask) {
+                switch (chunk->_state) {
                     case ChunkStates::WATERMESH:
                     case ChunkStates::MESH:
-                        m_cmp->chunkListManager->addToMeshList(&chunk);
+                        m_cmp->chunkListManager->addToMeshList(chunk);
                         break;
                     default:
                         break;
@@ -180,8 +178,8 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
             }
 
             // save if its been a minute
-            if (save && chunk.dirty) {
-                m_cmp->chunkIo->addToSaveList(&chunk);
+            if (save && chunk->dirty) {
+                m_cmp->chunkIo->addToSaveList(chunk);
             }
         }
     }

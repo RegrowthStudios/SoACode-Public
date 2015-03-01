@@ -249,6 +249,7 @@ private:
     ChunkStates _state;
 
     ChunkID id;
+    int m_iterIndex = -1;
 
     //The data that defines the voxels
     vvox::SmartVoxelContainer<ui16> _blockIDContainer;

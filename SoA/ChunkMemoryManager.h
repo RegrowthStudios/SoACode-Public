@@ -39,8 +39,12 @@ public:
         return m_chunkMemory[chunkID];
     }
     const size_t& getMaxSize() const { return m_maxSize; }
+
+    const std::vector<Chunk*>& getActiveChunks() const { return m_activeChunks; }
+
     const Chunk* getChunkMemory(OUT size_t& size) const { size = m_maxSize; return m_chunkMemory; }
 private:
+    std::vector<Chunk*> m_activeChunks;
     Chunk* m_chunkMemory = nullptr; ///< All chunks
     size_t m_maxSize = 0;
     std::vector<ChunkID> m_freeChunks; ///< List of free chunks

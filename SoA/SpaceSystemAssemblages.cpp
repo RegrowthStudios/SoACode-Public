@@ -129,8 +129,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
                                                                       vcore::ComponentID namePositionComponent,
                                                                       const VoxelPosition3D& startVoxelPos,
                                                                       const SoaState* soaState) {
-#define VOXELS_PER_KM 2000.0
-    
+
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
@@ -151,6 +150,9 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     svcmp.chunkGrid = new ChunkGrid();
     svcmp.chunkListManager = new ChunkListManager();
     svcmp.chunkMemoryManager = new ChunkMemoryManager();
+    // TODO(Ben): Move this somewhere else
+    const size_t MAX_VOXEL_RENDER_DISTANCE = 1024;
+    svcmp.chunkMemoryManager->setSize(pow(MAX_VOXEL_RENDER_DISTANCE * 2u / CHUNK_WIDTH, 3u));
     svcmp.chunkMeshManager = soaState->chunkMeshManager.get();
 
     // Set up threadpool
