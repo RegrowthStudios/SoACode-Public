@@ -12,39 +12,30 @@ ChunkMemoryManager::ChunkMemoryManager() :
 }
 
 ChunkMemoryManager::~ChunkMemoryManager() {
-    delete[] m_chunkMemory;
-}
-
-void ChunkMemoryManager::setSize(size_t numChunks) {
-    m_maxSize = numChunks;
-
-    delete[] m_chunkMemory;
-    m_chunkMemory = new Chunk[m_maxSize];
-    m_activeChunks.reserve(m_maxSize);
-
-    std::cout << "Allocating chunk array to " << sizeof(Chunk) * m_maxSize / 1024.0 / 1024.0 << " MB\n";
-
-    for (int i = 0; i < m_maxSize; i++) {
-        m_chunkMemory[i].set(i, &m_shortFixedSizeArrayRecycler,
-                                 &m_byteFixedSizeArrayRecycler);
-    }
-    // Set free chunks list
-    m_freeChunks.resize(m_maxSize);
-    for (int i = 0; i < m_maxSize; i++) {
-        // We reverse order since its a stack and we pull from the top
-        m_freeChunks[i] = m_maxSize - i - 1;
+    for (auto& page : m_chunkPages) {
+        delete page;
     }
 }
 
 Chunk* ChunkMemoryManager::getNewChunk() {
-    if (m_freeChunks.size()) {
-        ChunkID id = m_freeChunks.back();
-        m_freeChunks.pop_back();
-        m_chunkMemory[id].m_iterIndex = m_activeChunks.size();
-        m_activeChunks.push_back(&m_chunkMemory[id]);
-        return &m_chunkMemory[id];
+    // TODO(Ben): limit
+    // Allocate chunk pages if needed
+    if (m_freeChunks.empty()) {
+        ChunkPage* page = new ChunkPage();
+        m_chunkPages.push_back(page);
+        // Add chunks to free chunks lists
+        for (int i = 0; i < CHUNK_PAGE_SIZE; i++) {
+            Chunk* chunk = &page->chunks[CHUNK_PAGE_SIZE - i - 1];
+            chunk->set(&m_shortFixedSizeArrayRecycler, &m_byteFixedSizeArrayRecycler);
+            m_freeChunks.push_back(chunk);
+        }
     }
-    return nullptr;
+    // Grab a free chunk
+    Chunk* chunk = m_freeChunks.back();
+    m_freeChunks.pop_back();
+    chunk->m_iterIndex = m_activeChunks.size();
+    m_activeChunks.push_back(chunk);
+    return chunk;
 }
 
 void ChunkMemoryManager::freeChunk(Chunk* chunk) {
@@ -53,5 +44,5 @@ void ChunkMemoryManager::freeChunk(Chunk* chunk) {
     m_activeChunks[chunk->m_iterIndex]->m_iterIndex = chunk->m_iterIndex;
     m_activeChunks.pop_back();
     chunk->m_iterIndex = -1;
-    m_freeChunks.push_back(chunk->getID());
+    m_freeChunks.push_back(chunk);
 }

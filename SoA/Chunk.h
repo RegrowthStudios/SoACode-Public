@@ -41,8 +41,6 @@ class LightMessage;
 class RenderTask;
 class SphericalTerrainGpuGenerator;
 
-typedef int ChunkID;
-
 class ChunkGridData {
 public:
     ChunkGridData(const i32v2& pos, WorldCubeFace face) {
@@ -77,11 +75,13 @@ public:
         blockUpdateList.resize(CaPhysicsType::getNumCaTypes() * 2);
         activeUpdateList.resize(CaPhysicsType::getNumCaTypes());
     }
+    ~Chunk() {
+        clearBuffers();
+    }
 
-    void set(ChunkID cID,
-             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
+
+    void set(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
              vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) {
-        id = cID;
         _blockIDContainer.setArrayRecycler(shortRecycler);
         _sunlightContainer.setArrayRecycler(byteRecycler);
         _lampLightContainer.setArrayRecycler(shortRecycler);
@@ -121,10 +121,6 @@ public:
     void clearChunkListPtr();
 
     bool hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate);
-
-    ~Chunk(){
-        clearBuffers();
-    }
 
     static std::vector<MineralData*> possibleMinerals;
     
@@ -190,7 +186,7 @@ public:
 
     vorb::core::IThreadPoolTask<WorkerData>* lastOwnerTask; ///< Pointer to task that is working on us
 
-    ChunkMesh *mesh;
+    ChunkMesh *mesh = nullptr;
 
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
@@ -233,8 +229,6 @@ public:
     inline void unlock() { _dataLock.unlock(); }
     std::mutex& getDataLock() { return _dataLock; }
 
-    ChunkID getID() const { return id; }
-
 private:
 
     /// _dataLock guards chunk data.
@@ -248,7 +242,6 @@ private:
 
     ChunkStates _state;
 
-    ChunkID id;
     int m_iterIndex = -1;
 
     //The data that defines the voxels

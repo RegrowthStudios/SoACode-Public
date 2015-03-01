@@ -24,6 +24,7 @@ class ChunkGrid {
 public:
     friend class SphericalVoxelComponentUpdater;
 
+    ChunkGrid(WorldCubeFace face) : m_face(face) {}
     ~ChunkGrid();
 
     void addChunk(Chunk* chunk);
@@ -52,6 +53,7 @@ public:
     }
 
     const i16* getIDQuery(const i32v3& start, const i32v3& end) const;
+    WorldCubeFace getFace() const { return m_face; }
 
     std::vector<GeneratedTreeNodes*> treesToPlace; ///< List of tree batches we need to place
 private:
@@ -60,6 +62,8 @@ private:
     std::unordered_map<i32v3, Chunk*> m_chunkMap;
     /// Indexed by (x,z)
     std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > m_chunkGridDataMap;
+
+    WorldCubeFace m_face = FACE_NONE;
 };
 
 #endif // ChunkGrid_h__

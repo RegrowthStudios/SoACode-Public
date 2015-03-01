@@ -27,7 +27,6 @@ void ChunkGridRenderStage::draw() {
     if (!_isVisible) return;
     if (!m_chunkMemoryManager) return;
 
-  
     const std::vector<Chunk*>& chunks = m_chunkMemoryManager->getActiveChunks();
 
     // Element pattern
@@ -51,8 +50,7 @@ void ChunkGridRenderStage::draw() {
     for (i32 i = 0; i < chunks.size(); i++) {
         const Chunk* chunk = chunks[i];
         posOffset = f32v3(f64v3(chunk->voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());
-        printVec("POS: ", chunk->voxelPosition);
-
+  
         if (((chunk->mesh && chunk->mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
 
             switch (chunk->getState()) {
@@ -92,7 +90,6 @@ void ChunkGridRenderStage::draw() {
             numVertices += 8;
             if (chunk->getState() != ChunkStates::INACTIVE) {
                 // Build the vertices
-                printVec("POS: ", chunk->voxelPosition);
                 const f32 gmin = 0.00001f;
                 const f32 gmax = 31.9999f;
                 vertices[0].position = f32v3(gmin, gmin, gmin) + posOffset;

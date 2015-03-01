@@ -60,6 +60,15 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
     sonarDt += 0.003f*physSpeedFactor;
     if (sonarDt > 1.0f) sonarDt = 0.0f;
 
+    // Always make a chunk at camera location
+    i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(position);
+    if (m_cmp->chunkGrid->getChunk(chunkPosition) == nullptr) {
+        ChunkPosition3D cPos;
+        cPos.pos = chunkPosition;
+        cPos.face = m_cmp->chunkGrid->getFace();
+        makeChunkAt(cPos);
+    }
+
     updateChunks(position, frustum);
 
     updateLoadList(4);
@@ -127,8 +136,9 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
         saveTicks = SDL_GetTicks();
     }
     const std::vector<Chunk*>& chunks = m_cmp->chunkMemoryManager->getActiveChunks();
-    for (auto& chunk : chunks) { //update distances for all chunks
 
+    for (int i = (int)chunks.size() - 1; i >= 0; i--) { //update distances for all chunks
+        Chunk* chunk = chunks[i];
         chunk->calculateDistance2(intPosition);
 
         if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
@@ -472,7 +482,6 @@ void SphericalVoxelComponentUpdater::processFinishedTasks() {
 
     vcore::IThreadPoolTask<WorkerData>* task;
     Chunk* chunk;
-
     for (size_t i = 0; i < numTasks; i++) {
         task = taskBuffer[i];
 

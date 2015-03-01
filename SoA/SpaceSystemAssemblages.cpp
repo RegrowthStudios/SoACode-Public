@@ -147,12 +147,9 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 
     svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkGrid = new ChunkGrid();
+    svcmp.chunkGrid = new ChunkGrid(startVoxelPos.face);
     svcmp.chunkListManager = new ChunkListManager();
     svcmp.chunkMemoryManager = new ChunkMemoryManager();
-    // TODO(Ben): Move this somewhere else
-    const size_t MAX_VOXEL_RENDER_DISTANCE = 1024;
-    svcmp.chunkMemoryManager->setSize(pow(MAX_VOXEL_RENDER_DISTANCE * 2u / CHUNK_WIDTH, 3u));
     svcmp.chunkMeshManager = soaState->chunkMeshManager.get();
 
     // Set up threadpool
@@ -165,6 +162,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
     // Initialize the threadpool with hc threads
     svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
     svcmp.threadPool->init(hc);
+    svcmp.chunkIo->beginThread();
     // Give some time for the threads to spin up
     SDL_Delay(100);
 

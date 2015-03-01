@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Handles memory management for chunks
+/// Paged memory management system for chunks
 ///
 
 #pragma once
@@ -24,30 +24,22 @@ public:
     ChunkMemoryManager();
     ~ChunkMemoryManager();
 
-    /// Reserves internal memory
-    /// Calling this will invalidate all chunks!
-    void setSize(size_t numChunks);
     /// Gets a new chunk ID
     Chunk* getNewChunk();
     /// Frees a chunk
     void freeChunk(Chunk* chunk);
-    /// Gets a chunk from an ID
-    /// The reference will become invalid
-    /// if getNewChunk() needs to allocate new
-    /// memory.
-    inline Chunk& getChunk(ChunkID chunkID) {
-        return m_chunkMemory[chunkID];
-    }
-    const size_t& getMaxSize() const { return m_maxSize; }
 
     const std::vector<Chunk*>& getActiveChunks() const { return m_activeChunks; }
-
-    const Chunk* getChunkMemory(OUT size_t& size) const { size = m_maxSize; return m_chunkMemory; }
 private:
-    std::vector<Chunk*> m_activeChunks;
-    Chunk* m_chunkMemory = nullptr; ///< All chunks
-    size_t m_maxSize = 0;
-    std::vector<ChunkID> m_freeChunks; ///< List of free chunks
+    static const size_t CHUNK_PAGE_SIZE = 2048;
+    struct ChunkPage {
+        Chunk chunks[CHUNK_PAGE_SIZE];
+    };
+
+    // TODO(BEN): limit number of pages that can be allocated
+    std::vector<Chunk*> m_activeChunks; ///< List of currently active chunks
+    std::vector<Chunk*> m_freeChunks; ///< List of inactive chunks
+    std::vector<ChunkPage*> m_chunkPages; ///< All pages
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> m_shortFixedSizeArrayRecycler; ///< For recycling voxel data
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> m_byteFixedSizeArrayRecycler; ///< For recycling voxel data
 };
