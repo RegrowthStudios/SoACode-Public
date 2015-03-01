@@ -46,7 +46,7 @@ void ChunkGridRenderStage::draw() {
     int numVertices = 0;
 
     f32v3 posOffset;
-
+    // TODO(Ben): Got a race condition here that causes rare crash
     for (i32 i = 0; i < chunks.size(); i++) {
         const Chunk* chunk = chunks[i];
         posOffset = f32v3(f64v3(chunk->voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());

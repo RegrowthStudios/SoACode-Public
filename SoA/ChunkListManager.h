@@ -32,8 +32,9 @@ public:
     /// @param chunk: the chunk to add
     void addToGenerateList(Chunk* chunk);
     /// Adds a chunk to the freeWait list
+    /// @param chunk: the chunk to add
     void addToFreeWaitList(Chunk* chunk);
-
+    /// Sorts all lists in descending order of distance
     void sortLists();
 
     /// Stack of chunks needing setup

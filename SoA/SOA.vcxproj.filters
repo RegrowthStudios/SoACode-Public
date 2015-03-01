@@ -737,14 +737,14 @@
     <ClInclude Include="ChunkMeshManager.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkGrid.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
     <ClInclude Include="ChunkListManager.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="ChunkMemoryManager.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkGrid.h">
-      <Filter>SOA Files</Filter>
+      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1202,9 +1202,15 @@
     <ClCompile Include="ChunkMeshManager.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="ChunkListManager.cpp" />
-    <ClCompile Include="ChunkMemoryManager.cpp" />
-    <ClCompile Include="ChunkGrid.cpp" />
+    <ClCompile Include="ChunkGrid.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkListManager.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkMemoryManager.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

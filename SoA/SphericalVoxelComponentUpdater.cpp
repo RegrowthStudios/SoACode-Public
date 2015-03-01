@@ -55,8 +55,6 @@ void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
 }
 
 void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, const Frustum* frustum) {
-    static i32 k = 0;
-
     sonarDt += 0.003f*physSpeedFactor;
     if (sonarDt > 1.0f) sonarDt = 0.0f;
 
@@ -73,11 +71,12 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
 
     updateLoadList(4);
 
-    if (k >= 8 || (k >= 4 && physSpeedFactor >= 2.0)) {
+    // TODO(Ben): There are better ways to do this
+    if (m_cmp->updateCount >= 8 || (m_cmp->updateCount >= 4 && physSpeedFactor >= 2.0)) {
         m_cmp->chunkListManager->sortLists();
-        k = 0;
+        m_cmp->updateCount = 0;
     }
-    k++;
+    m_cmp->updateCount++;
     // std::cout << "TASKS " << _threadPool.getFinishedTasksSizeApprox() << std::endl;
     updateLoadedChunks(4);
     updateTreesToPlace(3);
@@ -647,9 +646,7 @@ void SphericalVoxelComponentUpdater::freeChunk(Chunk* chunk) {
     }
 }
 
-// TODO(Ben): CHUNK UPDATER?
 void SphericalVoxelComponentUpdater::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
-
     if (chunk->left == nullptr) {
         tryLoadChunkNeighbor(chunk, cameraPos, i32v3(-1, 0, 0));
     }

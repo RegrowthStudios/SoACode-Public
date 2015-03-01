@@ -81,8 +81,6 @@ void Chunk::init(const ChunkPosition3D &chunkPos) {
     mesh = nullptr;
 }
 
-std::vector<Chunk*> *dbgst;
-
 void Chunk::clear(bool clearDraw)
 {
     freeWaiting = false;

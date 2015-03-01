@@ -27,8 +27,12 @@ public:
     ChunkGrid(WorldCubeFace face) : m_face(face) {}
     ~ChunkGrid();
 
+    /// Adds a chunk to the grid
+    /// @param chunk: The chunk to add
     void addChunk(Chunk* chunk);
 
+    /// Removes a chunk from the grid
+    /// @param chunk: The chunk to remove
     void removeChunk(Chunk* chunk);
 
     /// Gets a chunk at a given floating point position
@@ -46,22 +50,24 @@ public:
     /// Returns nullptr if no chunk is found, otherwise returns the chunk
     const Chunk* getChunk(const i32v3& chunkPos) const;
 
+    /// Gets a chunkGridData for a specific 2D position
+    /// @param gridPos: The grid position for the data
     std::shared_ptr<ChunkGridData> getChunkGridData(const i32v2& gridPos) {
         auto it = m_chunkGridDataMap.find(gridPos);
         if (it == m_chunkGridDataMap.end()) return nullptr;
         return it->second;
     }
 
+    /// Queries for a list of block IDs
     const i16* getIDQuery(const i32v3& start, const i32v3& end) const;
+
+    /// Gets the world cube face for this grid
     WorldCubeFace getFace() const { return m_face; }
 
     std::vector<GeneratedTreeNodes*> treesToPlace; ///< List of tree batches we need to place
 private:
-    std::vector<Chunk*> m_chunks; // TODO(Ben): Is this needed here?
-    /// hashmap of chunks
-    std::unordered_map<i32v3, Chunk*> m_chunkMap;
-    /// Indexed by (x,z)
-    std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > m_chunkGridDataMap;
+    std::unordered_map<i32v3, Chunk*> m_chunkMap; ///< hashmap of chunks
+    std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > m_chunkGridDataMap; ///< 2D grid specific data
 
     WorldCubeFace m_face = FACE_NONE;
 };

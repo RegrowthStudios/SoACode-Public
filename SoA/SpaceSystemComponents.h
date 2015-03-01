@@ -119,6 +119,7 @@ struct SphericalVoxelComponent {
 
     f64 voxelRadius = 0; ///< Radius of the planet in voxels
     int refCount = 1;
+    ui32 updateCount = 0;
 };
 
 struct SphericalTerrainComponent {
