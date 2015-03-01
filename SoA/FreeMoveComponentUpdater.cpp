@@ -24,7 +24,7 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
             acceleration = 1.0;
             orientation = &gameSystem->voxelPosition.get(physcmp.voxelPositionComponent).orientation;
             if (fmcmp.superSpeed) {
-                acceleration *= 2000.0; // temporary
+                acceleration *= 500.0; // temporary
             }
         } else {
             orientation = &gameSystem->spacePosition.get(physcmp.spacePositionComponent).orientation;

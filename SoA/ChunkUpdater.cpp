@@ -12,7 +12,7 @@
 #include "VoxelNavigation.inl"
 #include "VoxelUtils.h"
 
-void ChunkUpdater::randomBlockUpdates(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk)
+void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk)
 {
     if (!chunk->isAccessible) return;
     int blockIndex, blockIndex2, blockID;
@@ -55,7 +55,8 @@ void ChunkUpdater::randomBlockUpdates(ChunkManager* chunkManager, PhysicsEngine*
             newState = ChunkStates::WATERMESH;
             ChunkUpdater::addBlockToUpdateList(chunk, lockedChunk, blockIndex);
         } else if (blockID == FIRE) {
-            updateFireBlock(chunkManager, physicsEngine, chunk, blockIndex);
+            // TODO(Ben): Update
+            //updateFireBlock(chunkManager, physicsEngine, chunk, blockIndex);
             needsSetup = true;
             newState = ChunkStates::MESH;
         } else if (blockID == DIRTGRASS){

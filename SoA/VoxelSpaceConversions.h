@@ -67,6 +67,8 @@ namespace VoxelSpaceConversions {
     /// @return the chunk grid position
     extern ChunkPosition2D voxelToChunk(const VoxelPosition2D& voxelPosition);
     extern ChunkPosition3D voxelToChunk(const VoxelPosition3D& voxelPosition);
+    extern i32v3 voxelToChunk(const i32v3& voxelPosition);
+    extern i32v3 voxelToChunk(const f64v3& voxelPosition);
     /// Converts from chunk-space to voxel-space
     /// Does not affect rotation or face
     /// @param gridPosition: The chunk grid position

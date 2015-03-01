@@ -1,5 +1,5 @@
 ///
-/// VoxelNavigator.inl
+/// VoxelNavigation.inl
 /// Vorb
 ///
 /// Created by Benjamin Arnold on 26 Nov 2014

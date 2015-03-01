@@ -194,9 +194,6 @@
     <ClInclude Include="ChunkIOManager.h">
       <Filter>SOA Files\Data</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkManager.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="ChunkMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -485,9 +482,6 @@
     <ClInclude Include="NightVisionRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="MessageManager.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
     <ClInclude Include="ARProcessor.h">
       <Filter>SOA Files\Game\Tools\AR</Filter>
     </ClInclude>
@@ -740,6 +734,18 @@
     <ClInclude Include="MTRenderStateManager.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkMeshManager.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkGrid.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkListManager.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkMemoryManager.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -762,9 +768,6 @@
     </ClCompile>
     <ClCompile Include="ChunkIOManager.cpp">
       <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkManager.cpp">
-      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="ChunkMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -950,9 +953,6 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="LiquidVoxelRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="MessageManager.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="OpaqueVoxelRenderStage.cpp">
@@ -1198,6 +1198,18 @@
     </ClCompile>
     <ClCompile Include="MTRenderStateManager.cpp">
       <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkMeshManager.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkGrid.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkListManager.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkMemoryManager.cpp">
+      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

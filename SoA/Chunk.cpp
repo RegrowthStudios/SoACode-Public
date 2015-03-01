@@ -12,7 +12,6 @@
 #include "Errors.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "MessageManager.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "RenderTask.h"
@@ -37,15 +36,9 @@ void RawGenDelegate::release() {
     gridData.reset();
 }
 
-//1735
-//1500
-double surfaceDensity[9][5][5];
-
-void Chunk::init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData) {
-	topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 0;
+void Chunk::init(const ChunkPosition3D &chunkPos) {
 	loadStatus = 0;
 	freeWaiting = 0;
-	hasLoadedSunlight = 0;
     isAccessible = false;
     inLoadThread = false;
     inSaveThread = false;
@@ -81,16 +74,12 @@ void Chunk::init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>
 
 	spawnerBlocks.clear();
 	drawWater = 0;
-	occlude = 0;
     lastOwnerTask = nullptr;
 
-    this->chunkGridData = chunkGridData;
     gridPosition = chunkPos;
 
     mesh = nullptr;
 }
-
-std::vector<Chunk*> *dbgst;
 
 void Chunk::clear(bool clearDraw)
 {
@@ -129,9 +118,6 @@ void Chunk::clearBuffers()
 	if (mesh){
         // Will signify that it needs to be destroyed in render thread
         mesh->needsDestroy = true;
-        GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                             Message(MessageID::CHUNK_MESH,
-                                             (void *)new ChunkMeshData(mesh)));
         mesh = nullptr;
 	}
 }
@@ -189,77 +175,77 @@ int Chunk::GetPlantType(int x, int z, Biome *biome)
 // Used for flood fill occlusion testing. Currently not used.
 void Chunk::CheckEdgeBlocks()
 {
-    int x, y, z;
-    topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 1;
-    //top
-    y = CHUNK_WIDTH - 1;
-    for (x = 0; x < CHUNK_WIDTH; x++){
-        for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
-                topBlocked = 0;
-                z = CHUNK_WIDTH;
-                x = CHUNK_WIDTH;
-            }
-        }
-    }
-    //left
-    x = 0;
-    for (y = 0; y < CHUNK_WIDTH; y++){
-        for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
-                leftBlocked = 0;
-                z = CHUNK_WIDTH;
-                y = CHUNK_WIDTH;
-            }
-        }
-    }
-    //right
-    x = CHUNK_WIDTH - 1;
-    for (y = 0; y < CHUNK_WIDTH; y++){
-        for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
-                rightBlocked = 0;
-                z = CHUNK_WIDTH;
-                y = CHUNK_WIDTH;
-            }
-        }
-    }
+    //int x, y, z;
+    //topBlocked = leftBlocked = rightBlocked = bottomBlocked = frontBlocked = backBlocked = 1;
+    ////top
+    //y = CHUNK_WIDTH - 1;
+    //for (x = 0; x < CHUNK_WIDTH; x++){
+    //    for (z = 0; z < CHUNK_WIDTH; z++){
+    //        if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
+    //            topBlocked = 0;
+    //            z = CHUNK_WIDTH;
+    //            x = CHUNK_WIDTH;
+    //        }
+    //    }
+    //}
+    ////left
+    //x = 0;
+    //for (y = 0; y < CHUNK_WIDTH; y++){
+    //    for (z = 0; z < CHUNK_WIDTH; z++){
+    //        if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
+    //            leftBlocked = 0;
+    //            z = CHUNK_WIDTH;
+    //            y = CHUNK_WIDTH;
+    //        }
+    //    }
+    //}
+    ////right
+    //x = CHUNK_WIDTH - 1;
+    //for (y = 0; y < CHUNK_WIDTH; y++){
+    //    for (z = 0; z < CHUNK_WIDTH; z++){
+    //        if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
+    //            rightBlocked = 0;
+    //            z = CHUNK_WIDTH;
+    //            y = CHUNK_WIDTH;
+    //        }
+    //    }
+    //}
 
-    //bottom
-    y = 0;
-    for (x = 0; x < CHUNK_WIDTH; x++){
-        for (z = 0; z < CHUNK_WIDTH; z++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
-                bottomBlocked = 0;
-                z = CHUNK_WIDTH;
-                x = CHUNK_WIDTH;
-            }
-        }
-    }
+    ////bottom
+    //y = 0;
+    //for (x = 0; x < CHUNK_WIDTH; x++){
+    //    for (z = 0; z < CHUNK_WIDTH; z++){
+    //        if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
+    //            bottomBlocked = 0;
+    //            z = CHUNK_WIDTH;
+    //            x = CHUNK_WIDTH;
+    //        }
+    //    }
+    //}
 
-    //front
-    z = CHUNK_WIDTH - 1;
-    for (x = 0; x < CHUNK_WIDTH; x++){
-        for (y = 0; y < CHUNK_WIDTH; y++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
-                frontBlocked = 0;
-                y = CHUNK_WIDTH;
-                x = CHUNK_WIDTH;
-            }
-        }
-    }
+    ////front
+    //z = CHUNK_WIDTH - 1;
+    //for (x = 0; x < CHUNK_WIDTH; x++){
+    //    for (y = 0; y < CHUNK_WIDTH; y++){
+    //        if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
+    //            frontBlocked = 0;
+    //            y = CHUNK_WIDTH;
+    //            x = CHUNK_WIDTH;
+    //        }
+    //    }
+    //}
 
-    //back
-    z = 0;
-    for (x = 0; x < CHUNK_WIDTH; x++){
-        for (y = 0; y < CHUNK_WIDTH; y++){
-            if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
-                backBlocked = 0;
-                y = CHUNK_WIDTH;
-                x = CHUNK_WIDTH;
-            }
-        }
-    }
+    ////back
+    //z = 0;
+    //for (x = 0; x < CHUNK_WIDTH; x++){
+    //    for (y = 0; y < CHUNK_WIDTH; y++){
+    //        if (getBlock(y*CHUNK_LAYER + z*CHUNK_WIDTH + x).occlude == BlockOcclusion::NONE){
+    //            backBlocked = 0;
+    //            y = CHUNK_WIDTH;
+    //            x = CHUNK_WIDTH;
+    //        }
+    //    }
+    //}
 }
 
 void Chunk::setupMeshData(ChunkMesher* chunkMesher) {

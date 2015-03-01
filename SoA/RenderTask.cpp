@@ -7,7 +7,7 @@
 #include "ChunkMesher.h"
 #include "VoxelLightEngine.h"
 #include "GameManager.h"
-#include "MessageManager.h"
+#include "ChunkMeshManager.h"
 
 void RenderTask::execute(WorkerData* workerData) {
 
@@ -34,17 +34,17 @@ void RenderTask::execute(WorkerData* workerData) {
             break;
     }
 
-    GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                         Message(MessageID::CHUNK_MESH,
-                                         (void *)workerData->chunkMesher->chunkMeshData));
+
+    meshManager->addMeshForUpdate(workerData->chunkMesher->chunkMeshData);
 
     workerData->chunkMesher->chunkMeshData = nullptr;
 }
 
-void RenderTask::init(Chunk* ch, RenderTaskType cType) {
+void RenderTask::init(Chunk* ch, RenderTaskType cType, ChunkMeshManager* meshManager) {
     type = cType;
     chunk = ch;
     chunkMesh = chunk->mesh;
+    this->meshManager = meshManager;
     chunkMesh->refCount++;
 }
 

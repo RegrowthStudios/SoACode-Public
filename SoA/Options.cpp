@@ -8,7 +8,6 @@
 #include "GameManager.h"
 #include "InputManager.h"
 
-
 KEG_TYPE_INIT_BEGIN_DEF_VAR(GraphicsOptions)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("enableParticles", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(GraphicsOptions, enableParticles)));
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("fov", Keg::Value::basic(Keg::BasicType::F32, offsetof(GraphicsOptions, fov)));

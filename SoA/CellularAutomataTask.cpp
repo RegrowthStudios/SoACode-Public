@@ -3,12 +3,14 @@
 
 #include "CAEngine.h"
 #include "Chunk.h"
+#include "ChunkMeshManager.h"
 #include "RenderTask.h"
 #include "VoxPool.h"
 
 CellularAutomataTask::CellularAutomataTask(ChunkManager* chunkManager,
                                            PhysicsEngine* physicsEngine,
-                                           Chunk* chunk, bool makeMesh) : 
+                                           Chunk* chunk,
+                                           OPT ChunkMeshManager* meshManager) :
     IThreadPoolTask(true, CA_TASK_ID),
     m_chunkManager(chunkManager),
     m_physicsEngine(physicsEngine),
@@ -18,10 +20,10 @@ CellularAutomataTask::CellularAutomataTask(ChunkManager* chunkManager,
 
     typesToUpdate.reserve(2);
 
-    if (makeMesh) {
+    if (meshManager) {
         chunk->queuedForMesh = true;
         renderTask = new RenderTask();
-        renderTask->init(_chunk, RenderTaskType::DEFAULT);
+        renderTask->init(_chunk, RenderTaskType::DEFAULT, meshManager);
     }
 }
 

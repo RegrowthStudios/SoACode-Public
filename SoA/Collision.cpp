@@ -3,12 +3,10 @@
 
 #include <Vorb/utils.h>
 
+#include "Chunk.h"
 #include "BlockPack.h"
-#include "Chunkmanager.h"
-#include "VoxelNavigation.inl"
 
 void blockCollision(Player* player, Chunk* chunk, Chunk* lockedChunk, ui16 blockType, i32 c, f64 bdx, f64 bdy, f64 bdz, f64 dx, f64 dy, f64 dz);
-
 
 //This method could be easily implemented as a recursive function, but is more efficient if unfolded
 //TODO(Ben) This is laughable. 

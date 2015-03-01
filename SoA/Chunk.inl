@@ -1,9 +1,7 @@
 #pragma once
-#include "Chunk.h"
 #include "global.h"
 #include "BlockPack.h"
 #include "VoxelNavigation.inl"
-
 
 inline void Chunk::changeState(ChunkStates State)
 {

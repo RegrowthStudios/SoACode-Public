@@ -9,12 +9,12 @@
 
 void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
                                        const Camera* ChunkCamera,
-                                       const std::vector<ChunkMesh*>* ChunkMeshes,
+                                       ChunkMeshManager* ChunkMeshmanager,
                                        bool IsUnderwater) {
     chunkCamera = ChunkCamera;
     isUnderwater = IsUnderwater;
 
-    chunkMeshes = ChunkMeshes;
+    chunkMeshmanager = ChunkMeshmanager;
 
     // Calculate fog
     glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);

@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "SpaceSystemAssemblages.h"
 
+#include "ChunkGrid.h"
 #include "ChunkIOManager.h"
-#include "ChunkManager.h"
+#include "ChunkListManager.h"
+#include "ChunkMemoryManager.h"
 #include "FarTerrainPatch.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
@@ -127,8 +129,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
                                                                       vcore::ComponentID namePositionComponent,
                                                                       const VoxelPosition3D& startVoxelPos,
                                                                       const SoaState* soaState) {
-#define VOXELS_PER_KM 2000.0
-    
+
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
@@ -146,10 +147,25 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 
     svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkManager = new ChunkManager(svcmp.physicsEngine,
-                                          svcmp.generator, startVoxelPos,
-                                          svcmp.chunkIo,
-                                          ftcmp.sphericalTerrainData->radius * 2000.0);
+    svcmp.chunkGrid = new ChunkGrid(startVoxelPos.face);
+    svcmp.chunkListManager = new ChunkListManager();
+    svcmp.chunkMemoryManager = new ChunkMemoryManager();
+    svcmp.chunkMeshManager = soaState->chunkMeshManager.get();
+
+    // Set up threadpool
+    // Check the hardware concurrency
+    size_t hc = std::thread::hardware_concurrency();
+    // Remove two threads for the render thread and main thread
+    if (hc > 1) hc--;
+    if (hc > 1) hc--;
+
+    // Initialize the threadpool with hc threads
+    svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
+    svcmp.threadPool->init(hc);
+    svcmp.chunkIo->beginThread();
+    // Give some time for the threads to spin up
+    SDL_Delay(100);
+
     svcmp.particleEngine = new ParticleEngine();
     
     svcmp.planetGenData = ftcmp.planetGenData;
@@ -265,6 +281,7 @@ vcore::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(OUT SpaceSyste
     ftCmp.sphericalTerrainData = parentCmp.sphericalTerrainData;
 
     ftCmp.face = face;
+    ftCmp.alpha = TERRAIN_INC_START_ALPHA;
 
     return ftCmpId;
 }

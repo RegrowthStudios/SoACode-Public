@@ -33,10 +33,6 @@ class MeshManager
 public:
     MeshManager(const vg::GLProgramManager* glProgramManager);
 
-    /// Updates a chunk mesh
-    /// @param cmd: the ChunkMeshData sent by the update thread
-    void updateChunkMesh(ChunkMeshData* cmd);
-
     /// Updates a particle mesh
     /// @param pmm: The ParticleMeshMessage sent by the update thread
     void updateParticleMesh(ParticleMeshMessage* pmm);
@@ -45,32 +41,15 @@ public:
     /// @param pbmm: The PhysicsBlockMeshMessage sent by the update thread
     void updatePhysicsBlockMesh(PhysicsBlockMeshMessage* pbmm);
 
-    /// Sorts the messages from front to back
-    /// @param cameraPosition: The position of the camera to calculate distance from
-    /// @param sort: True when you want to sort meshes
-    void updateMeshes(const f64v3& cameraPosition, bool sort);
-
     /// Destroys all of the meshes and frees allocated memory
     void destroy();
 
     // Getters
-    const std::vector <ChunkMesh*>& getChunkMeshes() const { return _chunkMeshes; }
     const std::vector <ParticleMesh*>& getParticleMeshes() const { return _particleMeshes; }
     const std::vector <PhysicsBlockMesh*>& getPhysicsBlockMeshes() const { return _physicsBlockMeshes; }
 
 private:
 
-    /// Updates the distance field for the meshes
-    /// @param cameraPosition: The position of the camera to calculate distance from
-    void updateMeshDistances(const f64v3& cameraPosition);
-
-    /// Sorts a mesh list recursively with quicksort
-    /// @param v: the chunk list
-    /// @param start: the start for this sort
-    /// @param size: the size of this block
-    void recursiveSortMeshList(std::vector <ChunkMesh*> &v, int start, int size);
-
-    std::vector <ChunkMesh *> _chunkMeshes;
     std::vector <ParticleMesh *> _particleMeshes;
     std::vector <PhysicsBlockMesh *> _physicsBlockMeshes;
     const vg::GLProgramManager* m_glProgramManager = nullptr;

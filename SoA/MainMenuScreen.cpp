@@ -10,7 +10,6 @@
 #include "AmbiencePlayer.h"
 #include "App.h"
 
-#include "ChunkManager.h"
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "FileSystem.h"
@@ -27,7 +26,6 @@
 #include "MainMenuScreen.h"
 #include "MainMenuSystemViewer.h"
 #include "MeshManager.h"
-#include "MessageManager.h"
 #include "Options.h"
 #include "SoAState.h"
 #include "SoaEngine.h"
@@ -145,14 +143,13 @@ void MainMenuScreen::onEvent(const SDL_Event& e) {
 void MainMenuScreen::update(const GameTime& gameTime) {
 
     m_awesomiumInterface.update();
-    
-    m_mainMenuSystemViewer->update();
 
     m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
+    m_mainMenuSystemViewer->update();
+   
 
-    m_camera.update();
     m_inputManager->update(); // TODO: Remove
 
     // Check for shader reload

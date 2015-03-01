@@ -22,6 +22,7 @@
 class CaPhysicsType;
 class Chunk;
 class ChunkManager;
+class ChunkMeshManager;
 class PhysicsEngine;
 class RenderTask;
 
@@ -36,12 +37,12 @@ enum class CA_ALGORITHM {
 class CellularAutomataTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
     friend class ChunkManager;
+    friend class SphericalVoxelComponentUpdater;
     /// Constructs the task
-    /// @param chunk: The the chunk to update
-    /// @param flags: Combination of CA_FLAG
     CellularAutomataTask(ChunkManager* chunkManager,
                          PhysicsEngine* physicsEngine,
-                         Chunk* chunk, bool makeMesh);
+                         Chunk* chunk,
+                         OPT ChunkMeshManager* meshManager);
 
     /// Adds a caPhysicsType for update
     void addCaTypeToUpdate(CaPhysicsType* caType) {
@@ -58,6 +59,7 @@ private:
     Chunk* _chunk = nullptr; ///< The chunk we are updating
     ChunkManager* m_chunkManager = nullptr;
     PhysicsEngine* m_physicsEngine = nullptr;
+    ChunkMeshManager* meshManager = nullptr;
 };
 
 #endif // CellularAutomataTask_h__

@@ -11,12 +11,10 @@
 #include "CAEngine.h"
 #include "Chunk.h"
 #include "ChunkIOManager.h"
-#include "ChunkManager.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "InputManager.h"
 #include "Inputs.h"
-#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
@@ -39,7 +37,6 @@ Uint32 GameManager::maxLodTicks = 8;
 
 VoxelEditor* GameManager::voxelEditor = nullptr;
 SoundEngine *GameManager::soundEngine = nullptr;
-MessageManager* GameManager::messageManager = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
@@ -49,7 +46,6 @@ void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
         voxelEditor = new VoxelEditor();
         soundEngine = new SoundEngine();
-        messageManager = new MessageManager();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);

@@ -47,11 +47,19 @@ namespace vorb {
             friend class ChunkGenerator;
 
             /// Constructor
+            SmartVoxelContainer() { }
             /// @param arrayRecycler: Pointer to a recycler. Template parameters must be
             /// <CHUNK_SIZE, T>
             SmartVoxelContainer(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* arrayRecycler) :
                  _arrayRecycler(arrayRecycler) {
                 // Empty
+            }
+            
+            /// Sets the array recycler
+            /// @param arrayRecycler: Pointer to a recycler. Template parameters must be
+            /// <CHUNK_SIZE, T>
+            void setArrayRecycler(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* arrayRecycler) {
+                _arrayRecycler = arrayRecycler;
             }
 
             /// Gets the element at index
@@ -217,7 +225,7 @@ namespace vorb {
 
             VoxelStorageState _state = VoxelStorageState::FLAT_ARRAY; ///< Current data structure state
 
-            vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* _arrayRecycler; ///< For recycling the voxel arrays
+            vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* _arrayRecycler = nullptr; ///< For recycling the voxel arrays
         };
     }
 }

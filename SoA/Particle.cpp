@@ -4,7 +4,6 @@
 #include <Vorb/utils.h>
 
 #include "Chunk.h"
-#include "ChunkManager.h"
 #include "ParticleEngine.h"
 
 std::vector <ParticleType> particleTypes;

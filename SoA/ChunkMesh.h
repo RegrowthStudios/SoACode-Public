@@ -12,8 +12,6 @@ enum class MeshType {
     FLAT 
 };
 
-#define UNINITIALIZED_INDEX -1
-
 enum class RenderTaskType;
 
 class Block;
@@ -117,6 +115,7 @@ class ChunkMesh
 {
 public:
     ChunkMesh(const Chunk *ch);
+    ~ChunkMesh();
 
     ChunkMeshRenderData meshInfo;
 
@@ -134,7 +133,7 @@ public:
     bool needsSort = true;
     bool needsDestroy = false;
     volatile int refCount = 0;
-    int vecIndex = UNINITIALIZED_INDEX;
+    bool inMeshList = false;
 
     //*** Transparency info for sorting ***
     GLuint transIndexID = 0;

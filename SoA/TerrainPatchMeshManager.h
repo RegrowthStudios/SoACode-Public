@@ -46,10 +46,12 @@ public:
     void drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
               const f64q& orientation,
               vg::GLProgram* program, vg::GLProgram* waterProgram,
-              const f32v3& lightDir);
+              const f32v3& lightDir,
+              float alpha);
     void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
                        vg::GLProgram* program, vg::GLProgram* waterProgram,
-                       const f32v3& lightDir);
+                       const f32v3& lightDir,
+                       float alpha);
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add

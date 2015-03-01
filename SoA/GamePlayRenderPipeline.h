@@ -27,6 +27,7 @@
 /// Forward declarations
 class App;
 class ChunkGridRenderStage;
+class ChunkMeshManager;
 class ChunkSlot;
 class CutoutVoxelRenderStage;
 class DevHudRenderStage;
@@ -34,7 +35,7 @@ class GameSystem;
 class HdrRenderStage;
 class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
-class MTRenderState;
+struct MTRenderState;
 class MeshManager;
 class NightVisionRenderStage;
 class OpaqueVoxelRenderStage;
@@ -119,7 +120,7 @@ private:
     Camera m_spaceCamera; ///< handle to world camera
     Camera m_farTerrainCamera; ///< Camera for far terrain only
     Camera m_voxelCamera; ///< handle to voxel camera
-    const MeshManager* _meshManager; ///< Handle to the meshes
+    ChunkMeshManager* _meshManager; ///< Handle to the meshes
     const MTRenderState* m_renderState = nullptr; ///< The current MT render state
     bool m_voxelsActive = false;
 };

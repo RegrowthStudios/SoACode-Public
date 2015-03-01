@@ -8,7 +8,7 @@ enum class ChunkStates;
 
 class ChunkUpdater {
 public:
-    static void randomBlockUpdates(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk);
+    static void randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk);
     static void placeBlock(Chunk* chunk, Chunk*& lockedChunk,  int blockIndex, int blockType) {
         placeBlockNoUpdate(chunk, blockIndex, blockType);
         addBlockToUpdateList(chunk, lockedChunk, blockIndex);

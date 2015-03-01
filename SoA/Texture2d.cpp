@@ -8,7 +8,6 @@
 #include <TTF/SDL_ttf.h>
 
 #include "BlockData.h"
-#include "ChunkManager.h"
 #include "Errors.h"
 #include "Options.h"
 #include "FileSystem.h"

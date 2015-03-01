@@ -8,6 +8,7 @@
 #include <Vorb/IThreadPoolTask.h>
 
 #include "Biome.h"
+#include "CAEngine.h"
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "SmartVoxelContainer.hpp"
@@ -15,10 +16,10 @@
 #include "VoxPool.h"
 #include "VoxelBits.h"
 #include "VoxelCoordinateSpaces.h"
+#include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
 #include "WorldStructs.h"
 #include "readerwriterqueue.h"
-#include "VoxelCoordinateSpaces.h"
 
 #include <Vorb/RPC.h>
 
@@ -56,19 +57,38 @@ public:
 
 class Chunk{
 public:
-
-    friend class ChunkManager;
-    friend class EditorTree;
-    friend class ChunkMesher;
-    friend class ChunkIOManager;
     friend class CAEngine;
     friend class ChunkGenerator;
+    friend class ChunkIOManager;
+    friend class ChunkListManager;
+    friend class ChunkManager;
+    friend class ChunkMemoryManager;
+    friend class ChunkMesher;
     friend class ChunkUpdater;
-    friend class VoxelLightEngine;
+    friend class EditorTree;
     friend class PhysicsEngine;
     friend class RegionFileManager;
+    friend class SphericalVoxelComponentUpdater;
+    friend class VoxelLightEngine;
 
-    void init(const ChunkPosition3D &chunkPos, std::shared_ptr<ChunkGridData>& chunkGridData);
+    Chunk() {
+        blockUpdateList.resize(CaPhysicsType::getNumCaTypes() * 2);
+        activeUpdateList.resize(CaPhysicsType::getNumCaTypes());
+    }
+    ~Chunk() {
+        clearBuffers();
+    }
+
+
+    void set(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
+             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) {
+        _blockIDContainer.setArrayRecycler(shortRecycler);
+        _sunlightContainer.setArrayRecycler(byteRecycler);
+        _lampLightContainer.setArrayRecycler(shortRecycler);
+        _tertiaryDataContainer.setArrayRecycler(shortRecycler);
+    }
+
+    void init(const ChunkPosition3D &chunkPos);
 
     void updateContainers() {
         _blockIDContainer.update(_dataLock);
@@ -101,24 +121,6 @@ public:
     void clearChunkListPtr();
 
     bool hasCaUpdates(const std::vector <CaPhysicsType*>& typesToUpdate);
-
-    /// Constructor
-    /// @param shortRecycler: Recycler for ui16 data arrays
-    /// @param byteRecycler: Recycler for ui8 data arrays
-    Chunk(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler, 
-          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler,
-          int numCaTypes) : 
-          _blockIDContainer(shortRecycler), 
-          _sunlightContainer(byteRecycler),
-          _lampLightContainer(shortRecycler),
-          _tertiaryDataContainer(shortRecycler) {
-        blockUpdateList.resize(numCaTypes * 2);
-        activeUpdateList.resize(numCaTypes);
-        // Empty
-    }
-    ~Chunk(){
-        clearBuffers();
-    }
 
     static std::vector<MineralData*> possibleMinerals;
     
@@ -168,14 +170,12 @@ public:
     static double getDistance2(const i32v3& pos, const i32v3& cameraPos);
 
     int numNeighbors;
-    bool needsNeighbors = false;
+    bool needsNeighbors = false; // could just use -1 numNeighbors?
     std::vector<bool> activeUpdateList;
     bool drawWater;
-    bool hasLoadedSunlight;
-    bool occlude; //this needs a new name
-    bool topBlocked, leftBlocked, rightBlocked, bottomBlocked, frontBlocked, backBlocked;
     bool dirty;
     int loadStatus;
+    // TODO(Ben): Bitfield?
     volatile bool inLoadThread;
     volatile bool inSaveThread;
     volatile bool isAccessible;
@@ -186,7 +186,7 @@ public:
 
     vorb::core::IThreadPoolTask<WorkerData>* lastOwnerTask; ///< Pointer to task that is working on us
 
-    ChunkMesh *mesh;
+    ChunkMesh *mesh = nullptr;
 
     std::vector <TreeData> treesToLoad;
     std::vector <PlantData> plantsToLoad;
@@ -241,6 +241,8 @@ private:
     std::vector <Chunk*>* _chunkListPtr;
 
     ChunkStates _state;
+
+    int m_iterIndex = -1;
 
     //The data that defines the voxels
     vvox::SmartVoxelContainer<ui16> _blockIDContainer;

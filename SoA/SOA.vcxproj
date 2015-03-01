@@ -283,7 +283,11 @@ EXIT 0</Command>
     <ClInclude Include="BlockPack.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="CellularAutomataTask.h" />
+    <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="ChunkListManager.h" />
+    <ClInclude Include="ChunkMemoryManager.h" />
+    <ClInclude Include="ChunkMeshManager.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CpuNoise.h" />
@@ -319,7 +323,6 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
-    <ClInclude Include="MessageManager.h" />
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
     <ClInclude Include="MusicPlayer.h" />
@@ -429,7 +432,6 @@ EXIT 0</Command>
     <ClInclude Include="BlockData.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Chunk.h" />
-    <ClInclude Include="ChunkManager.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Errors.h" />
@@ -472,7 +474,11 @@ EXIT 0</Command>
     <ClCompile Include="BlockPack.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
+    <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
+    <ClCompile Include="ChunkListManager.cpp" />
+    <ClCompile Include="ChunkMemoryManager.cpp" />
+    <ClCompile Include="ChunkMeshManager.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CpuNoise.cpp" />
@@ -504,7 +510,6 @@ EXIT 0</Command>
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
-    <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
@@ -598,7 +603,6 @@ EXIT 0</Command>
     <ClCompile Include="VoxPool.cpp" />
     <ClCompile Include="VRayHelper.cpp" />
     <ClCompile Include="ChunkIOManager.cpp" />
-    <ClCompile Include="ChunkManager.cpp" />
     <ClCompile Include="ChunkMesher.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Errors.cpp" />

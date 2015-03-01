@@ -2,10 +2,11 @@
 #include "VRayHelper.h"
 
 #include "Chunk.h"
-#include "ChunkManager.h"
+#include "ChunkGrid.h"
 #include "VoxelRay.h"
+#include "VoxelSpaceConversions.h"
 
-const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkManager* cm, PredBlockID f) {
+const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid* cg, PredBlockID f) {
 
     // Set the ray coordinates
     VoxelRay vr(pos, f64v3(dir));
@@ -17,7 +18,7 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
     query.distance = vr.getDistanceTraversed();
 
     // A minimum chunk position for determining voxel coords using only positive numbers
-    i32v3 relativeChunkSpot = cm->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
+    i32v3 relativeChunkSpot = VoxelSpaceConversions::voxelToChunk(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
     // Chunk position
@@ -31,10 +32,10 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
     // Loop Traversal
     while (query.distance < maxDistance) {
        
-        chunkPos = cm->getChunkPosition(query.location);
+        chunkPos = VoxelSpaceConversions::voxelToChunk(query.location);
 
         relativeLocation = query.location - relativeChunkSpot;
-        query.chunk = cm->getChunk(chunkPos);
+        query.chunk = cg->getChunk(chunkPos);
       
         if (query.chunk && query.chunk->isAccessible) {
             // Check for if we need to lock the next chunk
@@ -67,7 +68,7 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
     if (prevChunk) prevChunk->unlock();
     return query;
 }
-const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkManager* cm, PredBlockID f) {
+const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid* cg, PredBlockID f) {
     // First Convert To Voxel Coordinates
     VoxelRay vr(pos, f64v3(dir));
 
@@ -79,7 +80,7 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
     query.outer.distance = query.inner.distance;
 
     // A minimum chunk position for determining voxel coords using only positive numbers
-    i32v3 relativeChunkSpot = cm->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
+    i32v3 relativeChunkSpot = VoxelSpaceConversions::voxelToChunk(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
     i32v3 chunkPos;
@@ -92,9 +93,9 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
     // Loop Traversal
     while (query.inner.distance < maxDistance) {
 
-        chunkPos = cm->getChunkPosition(query.inner.location);
+        chunkPos = VoxelSpaceConversions::voxelToChunk(query.inner.location);
 
-        query.inner.chunk = cm->getChunk(chunkPos);
+        query.inner.chunk = cg->getChunk(chunkPos);
        
         if (query.inner.chunk && query.inner.chunk->isAccessible) {
             // Check for if we need to lock the next chunk

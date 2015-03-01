@@ -4,7 +4,8 @@
 #include <Vorb/graphics/GLStates.h>
 
 #include "ChunkGridRenderStage.h"
-#include "ChunkManager.h"
+#include "ChunkMemoryManager.h"
+#include "ChunkMeshManager.h"
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
 #include "Errors.h"
@@ -45,7 +46,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     m_soaState = soaState;
 
     // Grab mesh manager handle
-    _meshManager = soaState->meshManager.get();
+    _meshManager = soaState->chunkMeshManager.get();
 
     // Check to make sure we aren't leaking memory
     if (_skyboxRenderStage != nullptr) {
@@ -78,7 +79,7 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
 
     // Init render stages
     _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &m_spaceCamera);
-    _physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, _meshManager->getPhysicsBlockMeshes(), glProgramManager->getProgram("PhysicsBlock"));
+    //_physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, _meshManager->getPhysicsBlockMeshes(), glProgramManager->getProgram("PhysicsBlock"));
     _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
     _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
     _chunkGridRenderStage = new ChunkGridRenderStage(&_gameRenderParams);
@@ -117,7 +118,7 @@ void GamePlayRenderPipeline::render() {
     updateCameras();
     // Set up the gameRenderParams
     _gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_voxelCamera,
-                                      &_meshManager->getChunkMeshes(), false);
+                                      _meshManager, false);
     // Bind the FBO
     _hdrFrameBuffer->use();
   
@@ -137,12 +138,12 @@ void GamePlayRenderPipeline::render() {
         glBlendFunc(GL_ONE, GL_ZERO);
         glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
         _opaqueVoxelRenderStage->draw();
-        _physicsBlockRenderStage->draw();
+       // _physicsBlockRenderStage->draw();
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _cutoutVoxelRenderStage->draw();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
-        _chunkGridRenderStage->setChunks(&spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkManager->getChunks());
+        _chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
         _chunkGridRenderStage->draw();
         _liquidVoxelRenderStage->draw();
         _transparentVoxelRenderStage->draw();

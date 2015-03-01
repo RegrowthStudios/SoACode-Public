@@ -5,11 +5,9 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "ChunkManager.h"
 #include "ChunkUpdater.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "MessageManager.h"
 #include "Options.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
@@ -126,98 +124,98 @@ const GLushort boxIndices[36] = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 
 
 bool PhysicsBlock::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk*& lockedChunk)
 {
-    if (done == 2) return true; //defer destruction by two frames for good measure
-    if (done != 0) {
-        done++;
-        return false;
-    }
+    //if (done == 2) return true; //defer destruction by two frames for good measure
+    //if (done != 0) {
+    //    done++;
+    //    return false;
+    //}
 
-    i32& blockID = batch->_blockID;
+    //i32& blockID = batch->_blockID;
 
-    if (globalDebug2 == 0) return false;
+    //if (globalDebug2 == 0) return false;
 
-    // If we are colliding, we reverse motion until we hit an air block
-    if (colliding) {
-        position -= velocity * physSpeedFactor;
-        velocity.y -= 0.01f; // make it move upwards so it doesn't fall forever
-        if (velocity.y < -0.5f) velocity.y = -0.5f;
-    } else {
-        // Update Motion
-        velocity.y -= batch->_gravity * physSpeedFactor;
-        if (velocity.y < -1.0f) velocity.y = -1.0f;
-        velocity.z *= batch->_friction;
-        velocity.x *= batch->_friction;
-        position += velocity * physSpeedFactor;   
-    }
+    //// If we are colliding, we reverse motion until we hit an air block
+    //if (colliding) {
+    //    position -= velocity * physSpeedFactor;
+    //    velocity.y -= 0.01f; // make it move upwards so it doesn't fall forever
+    //    if (velocity.y < -0.5f) velocity.y = -0.5f;
+    //} else {
+    //    // Update Motion
+    //    velocity.y -= batch->_gravity * physSpeedFactor;
+    //    if (velocity.y < -1.0f) velocity.y = -1.0f;
+    //    velocity.z *= batch->_friction;
+    //    velocity.x *= batch->_friction;
+    //    position += velocity * physSpeedFactor;   
+    //}
 
-    // Get world position
-    f64v3 worldPos = f64v3(position) + batch->_position;
+    //// Get world position
+    //f64v3 worldPos = f64v3(position) + batch->_position;
 
-    // Get the chunk position
-    i32v3 chPos = chunkManager->getChunkPosition(worldPos);
-    
-    // Get the chunk
-    Chunk* ch = chunkManager->getChunk(chPos);
-    if ((!ch) || ch->isAccessible == 0) return true;
+    //// Get the chunk position
+    //i32v3 chPos = chunkManager->getChunkPosition(worldPos);
+    //
+    //// Get the chunk
+    //Chunk* ch = chunkManager->getChunk(chPos);
+    //if ((!ch) || ch->isAccessible == 0) return true;
 
-    
-    f32v3 relativePos(worldPos.x - chPos.x * CHUNK_WIDTH,
-                      worldPos.y - chPos.y * CHUNK_WIDTH,
-                      worldPos.z - chPos.z * CHUNK_WIDTH);
+    //
+    //f32v3 relativePos(worldPos.x - chPos.x * CHUNK_WIDTH,
+    //                  worldPos.y - chPos.y * CHUNK_WIDTH,
+    //                  worldPos.z - chPos.z * CHUNK_WIDTH);
 
-    // Grab block index coords
-    int bx = (int)relativePos.x % CHUNK_WIDTH;
-    int by = (int)relativePos.y % CHUNK_WIDTH;
-    int bz = (int)relativePos.z % CHUNK_WIDTH;
+    //// Grab block index coords
+    //int bx = (int)relativePos.x % CHUNK_WIDTH;
+    //int by = (int)relativePos.y % CHUNK_WIDTH;
+    //int bz = (int)relativePos.z % CHUNK_WIDTH;
 
-    int c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
+    //int c = bx + by*CHUNK_LAYER + bz*CHUNK_WIDTH;
 
-    // Get the colliding block
-    i32 collideID = ch->getBlockIDSafe(lockedChunk, c);
-    Block& collideBlock = Blocks[collideID];
+    //// Get the colliding block
+    //i32 collideID = ch->getBlockIDSafe(lockedChunk, c);
+    //Block& collideBlock = Blocks[collideID];
 
-    // If we are colliding we need an air block
-    if (colliding) {
-        if (collideBlock.collide == false) {
-         //   if (Blocks[blockID].explosivePower) {
-         //       GameManager::physicsEngine->addExplosion(
-         //           ExplosionNode(f64v3(position) + batch->_position,
-         //           blockID));
-         //   } else {
-                ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
-         //   }
-            // Mark this block as done so it can be removed in a few frames
-            done = 1;
-        }
-        return false;
-    }
+    //// If we are colliding we need an air block
+    //if (colliding) {
+    //    if (collideBlock.collide == false) {
+    //     //   if (Blocks[blockID].explosivePower) {
+    //     //       GameManager::physicsEngine->addExplosion(
+    //     //           ExplosionNode(f64v3(position) + batch->_position,
+    //     //           blockID));
+    //     //   } else {
+    //            ChunkUpdater::placeBlock(ch, lockedChunk, c, batch->blockType);
+    //     //   }
+    //        // Mark this block as done so it can be removed in a few frames
+    //        done = 1;
+    //    }
+    //    return false;
+    //}
 
-    // Check if its collidable
-    if (collideBlock.collide) {
-        // If physics block crushable, like leaves, just break it.
-        if (Blocks[blockID].isCrushable) {
-            glm::vec4 color;
-            color.r = Blocks[blockID].color.r;
-            color.g = Blocks[blockID].color.g;
-            color.b = Blocks[blockID].color.b;
-            color.a = 255;
+    //// Check if its collidable
+    //if (collideBlock.collide) {
+    //    // If physics block crushable, like leaves, just break it.
+    //    if (Blocks[blockID].isCrushable) {
+    //        glm::vec4 color;
+    //        color.r = Blocks[blockID].color.r;
+    //        color.g = Blocks[blockID].color.g;
+    //        color.b = Blocks[blockID].color.b;
+    //        color.a = 255;
 
-            particleEngine.addParticles(chunkManager, BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
-            return true;
-        }
-        
-        // If colliding block is crushable, break that block
-        if (collideBlock.isCrushable) {
-            ChunkUpdater::removeBlock(chunkManager, physicsEngine, ch, lockedChunk, c, true);
-        } else {
-            colliding = true;
-        }
-    } else {
-        // Grab light data from grid
-        // TODO(Ben): Get Lamp Light
-        light[LIGHT] = 0;
-        light[SUNLIGHT] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
-    }
+    //        particleEngine.addParticles(chunkManager, BPARTICLES, worldPos, 0, 0.1, 300, 1, color, Blocks[blockID].base.px, 2.0f, 4);
+    //        return true;
+    //    }
+    //    
+    //    // If colliding block is crushable, break that block
+    //    if (collideBlock.isCrushable) {
+    //        ChunkUpdater::removeBlock(chunkManager, physicsEngine, ch, lockedChunk, c, true);
+    //    } else {
+    //        colliding = true;
+    //    }
+    //} else {
+    //    // Grab light data from grid
+    //    // TODO(Ben): Get Lamp Light
+    //    light[LIGHT] = 0;
+    //    light[SUNLIGHT] = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - ch->getSunlight(c))));
+    //}
 
     return false;
 }
@@ -225,64 +223,68 @@ bool PhysicsBlock::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngi
 //temp and rain for dirtgrass
 PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) : blockType(BlockType), _mesh(NULL), _numBlocks(0)
 {
-    physicsBlocks.reserve(512);
 
-    PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
-    std::vector <PhysicsBlockVertex> &verts = pbmm->verts;
-    verts.resize(36);
+    // TODO(Ben): Re-implement
+    //physicsBlocks.reserve(512);
 
-    _gravity = GRAVITY;
-    _friction = 0.985f;
-    _blockID = GETBLOCKID(BlockType);
+    //PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
+    //std::vector <PhysicsBlockVertex> &verts = pbmm->verts;
+    //verts.resize(36);
 
-    double v = 0.0;
-    bool tree = 0;
+    //_gravity = GRAVITY;
+    //_friction = 0.985f;
+    //_blockID = GETBLOCKID(BlockType);
 
-    int flags = GETFLAGS(BlockType) >> 12;
+    //double v = 0.0;
+    //bool tree = 0;
 
-    int index = 0;
-    const Block &block = Blocks[_blockID];
+    //int flags = GETFLAGS(BlockType) >> 12;
 
-    //front
-    VoxelMesher::makePhysicsBlockFace(verts, 0, index, block.pzTexInfo);
-    index += 6;
-    //right
-    VoxelMesher::makePhysicsBlockFace(verts, 12, index, block.pxTexInfo);
-    index += 6;
-    //top
+    //int index = 0;
+    //const Block &block = Blocks[_blockID];
 
-    VoxelMesher::makePhysicsBlockFace(verts, 24, index, block.pyTexInfo);
-    index += 6;
-    //left
+    ////front
+    //VoxelMesher::makePhysicsBlockFace(verts, 0, index, block.pzTexInfo);
+    //index += 6;
+    ////right
+    //VoxelMesher::makePhysicsBlockFace(verts, 12, index, block.pxTexInfo);
+    //index += 6;
+    ////top
 
-    VoxelMesher::makePhysicsBlockFace(verts, 36, index, block.nxTexInfo);
-    index += 6;
-    //bottom
+    //VoxelMesher::makePhysicsBlockFace(verts, 24, index, block.pyTexInfo);
+    //index += 6;
+    ////left
 
-    VoxelMesher::makePhysicsBlockFace(verts, 48, index, block.nyTexInfo);
-    index += 6;
-    //back
+    //VoxelMesher::makePhysicsBlockFace(verts, 36, index, block.nxTexInfo);
+    //index += 6;
+    ////bottom
 
-    VoxelMesher::makePhysicsBlockFace(verts, 60, index, block.nzTexInfo);
-    index += 6;
+    //VoxelMesher::makePhysicsBlockFace(verts, 48, index, block.nyTexInfo);
+    //index += 6;
+    ////back
 
-    _mesh = new PhysicsBlockMesh;
-    pbmm->mesh = _mesh;
-    
-    GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                         Message(MessageID::PHYSICS_BLOCK_MESH,
-                                         (void *)pbmm));
+    //VoxelMesher::makePhysicsBlockFace(verts, 60, index, block.nzTexInfo);
+    //index += 6;
+
+    //_mesh = new PhysicsBlockMesh;
+    //pbmm->mesh = _mesh;
+    //
+    //GameManager::messageManager->enqueue(ThreadId::UPDATE,
+    //                                     Message(MessageID::PHYSICS_BLOCK_MESH,
+    //                                     (void *)pbmm));
 }
 
 PhysicsBlockBatch::~PhysicsBlockBatch()
 {
-    if (_mesh != NULL){
-        PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
-        pbmm->mesh = _mesh;
-        GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                             Message(MessageID::PHYSICS_BLOCK_MESH,
-                                             (void *)pbmm));
-    }
+
+    // TODO(Ben): Re-implement
+    /* if (_mesh != NULL){
+         PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
+         pbmm->mesh = _mesh;
+         GameManager::messageManager->enqueue(ThreadId::UPDATE,
+         Message(MessageID::PHYSICS_BLOCK_MESH,
+         (void *)pbmm));
+         }*/
 }
 
 void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
@@ -309,63 +311,65 @@ void PhysicsBlockBatch::draw(PhysicsBlockMesh *pbm, const vg::GLProgram* program
 
 bool PhysicsBlockBatch::update(ChunkManager* chunkManager, PhysicsEngine* physicsEngine)
 {
-    size_t i = 0;
 
-    PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
-    std::vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
-    verts.resize(physicsBlocks.size());
-    
-    ColorRGB8 color, overlayColor;
+    // TODO(Ben): Re-implement
+    //size_t i = 0;
 
-    //need to fix this so that color is correct
-    Blocks[blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[blockType].pzTexInfo);
+    //PhysicsBlockMeshMessage *pbmm = new PhysicsBlockMeshMessage;
+    //std::vector <PhysicsBlockPosLight> &verts = pbmm->posLight;
+    //verts.resize(physicsBlocks.size());
+    //
+    //ColorRGB8 color, overlayColor;
 
-    Chunk* lockedChunk = nullptr;
+    ////need to fix this so that color is correct
+    //Blocks[blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[blockType].pzTexInfo);
 
-    while (i < physicsBlocks.size()) {
-        if (physicsBlocks[i].update(chunkManager, physicsEngine, lockedChunk)){
-            physicsBlocks[i] = physicsBlocks.back();
-            physicsBlocks.pop_back(); //dont need to increment i 
-        } else{ //if it was successfully updated, add its data to the buffers
-            verts[i].pos = physicsBlocks[i].position;
+    //Chunk* lockedChunk = nullptr;
 
-            // TODO(Color) can be instanced
-            verts[i].color = color;
-            verts[i].overlayColor = overlayColor;
+    //while (i < physicsBlocks.size()) {
+    //    if (physicsBlocks[i].update(chunkManager, physicsEngine, lockedChunk)){
+    //        physicsBlocks[i] = physicsBlocks.back();
+    //        physicsBlocks.pop_back(); //dont need to increment i 
+    //    } else{ //if it was successfully updated, add its data to the buffers
+    //        verts[i].pos = physicsBlocks[i].position;
 
-            verts[i].light[0] = physicsBlocks[i].light[0];
-            verts[i].light[1] = physicsBlocks[i].light[1];
-            i++;
-        }
-    }
-    if (lockedChunk) lockedChunk->unlock();
+    //        // TODO(Color) can be instanced
+    //        verts[i].color = color;
+    //        verts[i].overlayColor = overlayColor;
 
-    _numBlocks = i;
-    verts.resize(_numBlocks); //chop off extras
+    //        verts[i].light[0] = physicsBlocks[i].light[0];
+    //        verts[i].light[1] = physicsBlocks[i].light[1];
+    //        i++;
+    //    }
+    //}
+    //if (lockedChunk) lockedChunk->unlock();
 
-    if (_numBlocks == 0){
-        if (_mesh != NULL){
-            pbmm->mesh = _mesh;
-            GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                                 Message(MessageID::PHYSICS_BLOCK_MESH,
-                                                 (void *)pbmm));
-            _mesh = NULL;
-        }
-        return 1;
-    }
+    //_numBlocks = i;
+    //verts.resize(_numBlocks); //chop off extras
 
-    pbmm->bX = _position.x;
-    pbmm->bY = _position.y;
-    pbmm->bZ = _position.z;
-    pbmm->numBlocks = _numBlocks;
-    if (_mesh == NULL){
-        pError("AHHHHH WHAT? Physics block mesh null!?");
-    }
-    pbmm->mesh = _mesh;
+    //if (_numBlocks == 0){
+    //    if (_mesh != NULL){
+    //        pbmm->mesh = _mesh;
+    //        GameManager::messageManager->enqueue(ThreadId::UPDATE,
+    //                                             Message(MessageID::PHYSICS_BLOCK_MESH,
+    //                                             (void *)pbmm));
+    //        _mesh = NULL;
+    //    }
+    //    return 1;
+    //}
 
-    GameManager::messageManager->enqueue(ThreadId::UPDATE,
-                                         Message(MessageID::PHYSICS_BLOCK_MESH,
-                                         (void *)pbmm));
+    //pbmm->bX = _position.x;
+    //pbmm->bY = _position.y;
+    //pbmm->bZ = _position.z;
+    //pbmm->numBlocks = _numBlocks;
+    //if (_mesh == NULL){
+    //    pError("AHHHHH WHAT? Physics block mesh null!?");
+    //}
+    //pbmm->mesh = _mesh;
+
+    //GameManager::messageManager->enqueue(ThreadId::UPDATE,
+    //                                     Message(MessageID::PHYSICS_BLOCK_MESH,
+    //                                     (void *)pbmm));
 
     return 0;
 }

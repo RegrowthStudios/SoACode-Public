@@ -21,8 +21,17 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
         f64 distance = glm::length(relativeCameraPos);
 
-        // If inactive, force patch deletion
-        if (!it.second.active) distance = LOAD_DIST * 10.0;
+        if (stCmp.needsVoxelComponent) {
+            stCmp.alpha -= TERRAIN_ALPHA_STEP;
+            if (stCmp.alpha < 0.0f) {
+                stCmp.alpha = 0.0f;
+                // Force it to unload
+                distance = LOAD_DIST * 10.0;
+            }
+        } else {
+            stCmp.alpha += TERRAIN_ALPHA_STEP;
+            if (stCmp.alpha > 1.0f) stCmp.alpha = 1.0f;
+        }
 
         if (distance <= LOAD_DIST) {
             // In range, allocate if needed
@@ -62,8 +71,17 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
             // Check for deleting components
             // TODO(Ben): We need to do refcounting for MP!
             if (stCmp.sphericalVoxelComponent) {
+                // Mark far terrain for fadeout
+                auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
+                ftCmp.shouldFade = true;
+                ftCmp.alpha = TERRAIN_DEC_START_ALPHA;
+                // Remove spherical voxel
+                PreciseTimer timer;
+                timer.start();
                 SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
-                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
+                stCmp.sphericalVoxelComponent = 0;
+                stCmp.farTerrainComponent = 0;
+                std::cout << "Remove Spherical Voxel: " << timer.stop();
             }
         }
     }
@@ -71,7 +89,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
 void SphericalTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
-        if (it.second.active) it.second.gpuGenerator->update();
+        if (it.second.alpha > 0.0f) it.second.gpuGenerator->update();
     }
 }
 

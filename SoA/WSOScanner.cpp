@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "WSOScanner.h"
 
-#include "ChunkManager.h"
 #include "WSO.h"
 #include "WSOAtlas.h"
 #include "WSOData.h"
+#include "ChunkGrid.h"
 
 // Scan A Radius Of (WSO_MAX_SIZE - 1) From The Center Block
 const int WSO_QUERY_SIZE = WSO_MAX_SIZE * 2 - 1;
@@ -58,9 +58,9 @@ bool checkForWSO(const i16* query, const WSOData* data, i32v3& offset) {
     // Could Not Find A Single One
     return false;
 }
-std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkManager* cm) {
+std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkGrid* cg) {
     // Get A Piece Of The World
-    const i16* query = getQuery(position, cm);
+    const i16* query = getQuery(position, cg);
 
     std::vector<WSO*> wsos;
 
@@ -85,9 +85,9 @@ std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkManager* cm) 
     return wsos;
 }
 
-const i16* WSOScanner::getQuery(const i32v3& position, ChunkManager* cm) {
+const i16* WSOScanner::getQuery(const i32v3& position, ChunkGrid* cg) {
     // Get The Query Based Off Of The Max Size Of The WSO
     const i32v3 minPos = position - i32v3(WSO_MAX_SIZE - 1);
     const i32v3 maxPos = position + i32v3(WSO_MAX_SIZE - 1);
-    return cm->getIDQuery(minPos, maxPos);
+    return cg->getIDQuery(minPos, maxPos);
 }

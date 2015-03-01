@@ -19,24 +19,35 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
 
+#include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
+#include "VoxelLightEngine.h"
 
+class ChunkGrid;
 class ChunkIOManager;
+class ChunkListManager;
 class ChunkManager;
+class ChunkMemoryManager;
+class ChunkMeshManager;
 class FarTerrainPatch;
 class ParticleEngine;
 class PhysicsEngine;
 class SphericalTerrainCpuGenerator;
-struct TerrainPatchData;
 class SphericalTerrainGpuGenerator;
-class TerrainPatchMeshManager;
 class TerrainPatch;
+class TerrainPatchMeshManager;
 class TerrainRpcDispatcher;
 struct PlanetGenData;
-struct PlanetGenData;
+struct TerrainPatchData;
 
 DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);
+
+/// For far and spherical terrain patch blending on transitions
+const float TERRAIN_ALPHA_BEFORE_FADE = 3.0f;
+const float TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + 2.0f;
+const float TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
+const float TERRAIN_ALPHA_STEP = 0.05f;
 
 struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
@@ -78,10 +89,16 @@ struct SphericalGravityComponent {
 
 // TODO(Ben): std::unique_ptr?
 struct SphericalVoxelComponent {
+    friend class SphericalVoxelComponentUpdater;
+
     PhysicsEngine* physicsEngine = nullptr;
-    ChunkManager* chunkManager = nullptr;
+    ChunkGrid* chunkGrid = nullptr;
+    ChunkListManager* chunkListManager = nullptr;
+    ChunkMemoryManager* chunkMemoryManager = nullptr;
     ChunkIOManager* chunkIo = nullptr;
+    ChunkMeshManager* chunkMeshManager = nullptr;
     ParticleEngine* particleEngine = nullptr;
+    VoxelLightEngine voxelLightEngine;
 
     SphericalTerrainGpuGenerator* generator = nullptr;
 
@@ -95,8 +112,14 @@ struct SphericalVoxelComponent {
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
 
+    /// The threadpool for generating chunks and meshes
+    vcore::ThreadPool<WorkerData>* threadPool = nullptr;
+
+    int numCaTasks = 0; /// TODO(Ben): Explore alternative
+
     f64 voxelRadius = 0; ///< Radius of the planet in voxels
     int refCount = 1;
+    ui32 updateCount = 0;
 };
 
 struct SphericalTerrainComponent {
@@ -117,7 +140,7 @@ struct SphericalTerrainComponent {
     PlanetGenData* planetGenData = nullptr;
     VoxelPosition3D startVoxelPosition;
     bool needsVoxelComponent = false;
-    bool active = true;
+    float alpha = 0.0f; ///< Alpha blending coefficient
 };
 
 struct FarTerrainComponent {
@@ -135,6 +158,8 @@ struct FarTerrainComponent {
     PlanetGenData* planetGenData = nullptr;
     i32v2 center = i32v2(0); ///< Center, in units of patch width, where camera is
     i32v2 origin = i32v2(0); ///< Specifies which patch is the origin (back left corner) on the grid
+    float alpha = 1.0f; ///< Alpha blending coefficient
+    bool shouldFade = false; ///< When this is true we fade out
 };
 
 #endif // SpaceSystemComponents_h__
