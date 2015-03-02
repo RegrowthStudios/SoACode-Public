@@ -25,8 +25,6 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
         if (cmp.shouldFade) {
             cmp.alpha -= TERRAIN_ALPHA_STEP;
             if (cmp.alpha <= 0.0f) {
-                // We are faded out, so deallocate
-                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
                 continue;
             }
         } else {

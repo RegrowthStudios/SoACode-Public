@@ -131,6 +131,9 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
                                                                       const SoaState* soaState) {
 
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
+    if (svCmpId == 0) {
+        return 0;
+    }
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
 
     auto& ftcmp = spaceSystem->m_farTerrainCT.get(farTerrainComponent);

@@ -73,15 +73,16 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
             if (stCmp.sphericalVoxelComponent) {
                 // Mark far terrain for fadeout
                 auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
-                ftCmp.shouldFade = true;
-                ftCmp.alpha = TERRAIN_DEC_START_ALPHA;
-                // Remove spherical voxel
-                PreciseTimer timer;
-                timer.start();
-                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
-                stCmp.sphericalVoxelComponent = 0;
-                stCmp.farTerrainComponent = 0;
-                std::cout << "Remove Spherical Voxel: " << timer.stop();
+                if (!ftCmp.shouldFade) {
+                    ftCmp.shouldFade = true;
+                    ftCmp.alpha = TERRAIN_DEC_START_ALPHA;
+                } else if (ftCmp.alpha < 0.0f) {
+                    // We are faded out, so deallocate
+                    SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
+                    SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
+                    stCmp.sphericalVoxelComponent = 0;
+                    stCmp.farTerrainComponent = 0;
+                }
             }
         }
     }
