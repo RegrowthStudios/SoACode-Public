@@ -36,7 +36,7 @@ public:
         // Empty
     }
     ~TerrainPatchMeshManager();
-    /// Draws the meshes
+    /// Draws the spherical meshes
     /// @param relativePos: Relative position of the camera
     /// @param Camera: The camera
     /// @param orientation: Orientation quaternion
@@ -48,10 +48,18 @@ public:
               vg::GLProgram* program, vg::GLProgram* waterProgram,
               const f32v3& lightDir,
               float alpha);
+    /// Draws the far meshes
+    /// @param relativePos: Relative position of the camera
+    /// @param Camera: The camera
+    /// @param orientation: Orientation quaternion
+    /// @param program: Shader program for rendering terrain
+    /// @param waterProgram: Shader program for rendering water
+    /// @param lightDir: Normalized direction to light source
+    /// @param radius: Radius of the planet in KM
     void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
                        vg::GLProgram* program, vg::GLProgram* waterProgram,
                        const f32v3& lightDir,
-                       float alpha);
+                       float alpha, float radius);
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add

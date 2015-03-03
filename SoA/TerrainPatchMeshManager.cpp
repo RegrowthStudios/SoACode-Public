@@ -153,7 +153,7 @@ void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) 
 void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Camera* camera,
                                             vg::GLProgram* program, vg::GLProgram* waterProgram,
                                             const f32v3& lightDir,
-                                            float alpha) {
+                                            float alpha, float radius) {
     static float dt = 0.0;
     dt += 0.001;
 
@@ -171,7 +171,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
-        glUniform1f(waterProgram->getUniform("unRadius"), 4200.0f); // TODO(Ben): Use real radius
+        glUniform1f(waterProgram->getUniform("unRadius"), radius);
         glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
 
@@ -206,7 +206,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
         glActiveTexture(GL_TEXTURE0);
         program->use();
         program->enableVertexAttribArrays();
-        glUniform1f(program->getUniform("unRadius"), 4200.0f); // TODO(Ben): Use real radius
+        glUniform1f(program->getUniform("unRadius"), radius); // TODO(Ben): Use real radius
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
 

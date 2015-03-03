@@ -2,6 +2,7 @@
 #include "FarTerrainComponentRenderer.h"
 
 #include "Camera.h"
+#include "PlanetData.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatchMeshManager.h"
 #include "VoxelSpaceUtils.h"
@@ -44,7 +45,8 @@ void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
         cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
                                        m_farTerrainProgram, m_farWaterProgram,
                                        f32v3(relLightDir),
-                                       glm::min(cmp.alpha, 1.0f));
+                                       glm::min(cmp.alpha, 1.0f),
+                                       cmp.planetGenData->radius);
     }
     glEnable(GL_CULL_FACE);
 }
