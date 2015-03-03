@@ -18,6 +18,7 @@
 class GameSystem;
 class SpaceSystem;
 struct PhysicsComponent;
+struct VoxelPositionComponent;
 
 #include <Vorb/ecs/ECS.h>
 
@@ -39,6 +40,10 @@ private:
                             PhysicsComponent& pyCmp, vcore::EntityID entity);
     void updateSpacePhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
                             PhysicsComponent& pyCmp, vcore::EntityID entity);
+    void transitionPosX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius);
+    void transitionNegX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius);
+    void transitionPosZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius);
+    void transitionNegZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius);
     
 };
 

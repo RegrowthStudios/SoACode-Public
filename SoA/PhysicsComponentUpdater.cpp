@@ -62,33 +62,43 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
     // Apply gravity
-    if (spCmp.parentGravityId) {
-        auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
-        f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
-        f64 fgrav = M_G * gravCmp.mass / (height * height);
-        // We don't account mass since we only calculate force on the object
-        pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
+if (spCmp.parentGravityId) {
+    auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
+    f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
+    f64 fgrav = M_G * gravCmp.mass / (height * height);
+    // We don't account mass since we only calculate force on the object
+    pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
+}
+
+// Update position
+vpcmp.gridPosition.pos += pyCmp.velocity;
+// Check transition to new face
+if (vpcmp.gridPosition.pos.x < -svcmp.voxelRadius) {
+    std::cout << "-X transition";
+} else if (vpcmp.gridPosition.pos.x > svcmp.voxelRadius) {
+    std::cout << "+X transition";
+} else if (vpcmp.gridPosition.pos.z < -svcmp.voxelRadius) {
+    std::cout << "-Z transition";
+} else if (vpcmp.gridPosition.pos.z > svcmp.voxelRadius) {
+    std::cout << "+Z transition";
+}
+
+// Compute the relative space position and orientation from voxel position and orientation
+spCmp.position = arcmp.currentOrientation * VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) * KM_PER_VOXEL;
+// TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
+spCmp.orientation = arcmp.currentOrientation * VoxelSpaceUtils::calculateVoxelToSpaceQuat(vpcmp.gridPosition, svcmp.voxelRadius) * vpcmp.orientation;
+
+// Check transition to Space
+// TODO(Ben): This assumes a single player entity!
+if (spCmp.parentSphericalTerrainId) {
+    auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
+
+    f64 distance = glm::length(spCmp.position);
+    if (distance > stCmp.sphericalTerrainData->radius * EXIT_RADIUS_MULT && stCmp.needsVoxelComponent) {
+        stCmp.needsVoxelComponent = false;
+        stCmp.alpha = 0.0f;
     }
-
-    // Update position
-    vpcmp.gridPosition.pos += pyCmp.velocity;
-
-    // Compute the relative space position and orientation from voxel position and orientation
-    spCmp.position = arcmp.currentOrientation * VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) * KM_PER_VOXEL;
-    // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
-    spCmp.orientation = arcmp.currentOrientation * VoxelSpaceUtils::calculateVoxelToSpaceQuat(vpcmp.gridPosition, svcmp.voxelRadius) * vpcmp.orientation;
-
-    // Check transition to Space
-    // TODO(Ben): This assumes a single player entity!
-    if (spCmp.parentSphericalTerrainId) {
-        auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
-
-        f64 distance = glm::length(spCmp.position);
-        if (distance > stCmp.sphericalTerrainData->radius * EXIT_RADIUS_MULT && stCmp.needsVoxelComponent) {
-            stCmp.needsVoxelComponent = false;
-            stCmp.alpha = 0.0f;
-        }
-    }
+}
 }
 
 void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
@@ -125,7 +135,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                 stCmp.needsVoxelComponent = true;
                 stCmp.alpha = TERRAIN_DEC_START_ALPHA;
             } else if (!pyCmp.voxelPositionComponent && stCmp.sphericalVoxelComponent) { // Check if we need to create the voxelPosition component
-   
+
                 auto& arCmp = spaceSystem->m_axisRotationCT.getFromEntity(stCmp.axisRotationComponent);
                 // Calculate voxel relative orientation
                 f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(stCmp.startVoxelPosition,
@@ -137,7 +147,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                                                                                   voxOrientation,
                                                                                   stCmp.startVoxelPosition);
                 pyCmp.voxelPositionComponent = vpid;
-                
+
                 // TODO(Ben): Calculate velocity change properly
                 //pyCmp.velocity = voxOrientation * pyCmp.velocity;
                 pyCmp.velocity = f64v3(0); // VOXELS_PER_KM;
@@ -148,3 +158,159 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
         }
     }
 }
+
+#define VOXEL_PUSH CHUNK_WIDTH
+
+void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+    // Push in by a chunk
+    float rad = voxelRadius - VOXEL_PUSH;
+    // We could use lookup tables for this, but this is easier
+    switch (vpCmp.gridPosition.face) {
+        case FACE_TOP:
+            vpCmp.gridPosition.face = FACE_RIGHT;
+            vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.z;
+            vpCmp.gridPosition.pos.z = -rad;
+            break;
+        case FACE_LEFT:
+            vpCmp.gridPosition.face = FACE_FRONT;
+            vpCmp.gridPosition.pos.x = -rad;
+            break;
+        case FACE_RIGHT:
+            vpCmp.gridPosition.face = FACE_BACK;
+            vpCmp.gridPosition.pos.x = -rad;
+            break;
+        case FACE_FRONT:
+            vpCmp.gridPosition.face = FACE_RIGHT;
+            vpCmp.gridPosition.pos.x = -rad;
+            break;
+        case FACE_BACK:
+            vpCmp.gridPosition.face = FACE_LEFT;
+            vpCmp.gridPosition.pos.x = -rad;
+            break;
+        case FACE_BOTTOM:
+            vpCmp.gridPosition.face = FACE_RIGHT;
+            vpCmp.gridPosition.pos.x = vpCmp.gridPosition.pos.z;
+            vpCmp.gridPosition.pos.z = rad;
+            break;
+        default:
+            std::cerr << "Invalid face in PhysicsComponentUpdater::transitionPosX\n";
+            break;
+    }
+}
+
+void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+    // Push in by a chunk
+    float rad = voxelRadius - VOXEL_PUSH;
+    // We could use lookup tables for this, but this is easier
+    switch (vpCmp.gridPosition.face) {
+        case FACE_TOP:
+            vpCmp.gridPosition.face = FACE_LEFT;
+            vpCmp.gridPosition.pos.x = vpCmp.gridPosition.pos.z;
+            vpCmp.gridPosition.pos.z = -rad;
+            break;
+        case FACE_LEFT:
+            vpCmp.gridPosition.face = FACE_BACK;
+            vpCmp.gridPosition.pos.x = rad;
+            break;
+        case FACE_RIGHT:
+            vpCmp.gridPosition.face = FACE_FRONT;
+            vpCmp.gridPosition.pos.x = rad;
+            break;
+        case FACE_FRONT:
+            vpCmp.gridPosition.face = FACE_LEFT;
+            vpCmp.gridPosition.pos.x = rad;
+            break;
+        case FACE_BACK:
+            vpCmp.gridPosition.face = FACE_RIGHT;
+            vpCmp.gridPosition.pos.x = rad;
+            break;
+        case FACE_BOTTOM:
+            vpCmp.gridPosition.face = FACE_LEFT;
+            vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.z;
+            vpCmp.gridPosition.pos.z = rad;
+            break;
+        default:
+            std::cerr << "Invalid face in PhysicsComponentUpdater::transitionPosX\n";
+            break;
+    }
+}
+
+void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+    // Push in by a chunk
+    float rad = voxelRadius - VOXEL_PUSH;
+    // We could use lookup tables for this, but this is easier
+    switch (vpCmp.gridPosition.face) {
+        case FACE_TOP:
+            vpCmp.gridPosition.face = FACE_FRONT;
+            vpCmp.gridPosition.pos.z = -rad;
+            break;
+        case FACE_LEFT:
+            vpCmp.gridPosition.face = FACE_BOTTOM;
+            vpCmp.gridPosition.pos.z = -vpCmp.gridPosition.pos.x;
+            vpCmp.gridPosition.pos.x = -rad;
+            break;
+        case FACE_RIGHT:
+            vpCmp.gridPosition.face = FACE_BOTTOM;
+            vpCmp.gridPosition.pos.z = vpCmp.gridPosition.pos.x;
+            vpCmp.gridPosition.pos.x = rad;
+            break;
+        case FACE_FRONT:
+            vpCmp.gridPosition.face = FACE_BOTTOM;
+            vpCmp.gridPosition.pos.z = -rad;
+            break;
+        case FACE_BACK:
+            vpCmp.gridPosition.face = FACE_BOTTOM;
+            vpCmp.gridPosition.pos.z = -rad;
+            vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
+            break;
+        case FACE_BOTTOM:
+            vpCmp.gridPosition.face = FACE_BACK;
+            vpCmp.gridPosition.pos.z = -rad;
+            vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
+            break;
+        default:
+            std::cerr << "Invalid face in PhysicsComponentUpdater::transitionPosX\n";
+            break;
+    }
+}
+
+void PhysicsComponentUpdater::transitionNegZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+    // Push in by a chunk
+    float rad = voxelRadius - VOXEL_PUSH;
+    // We could use lookup tables for this, but this is easier
+    switch (vpCmp.gridPosition.face) {
+        case FACE_TOP:
+            vpCmp.gridPosition.face = FACE_BACK;
+            vpCmp.gridPosition.pos.z = -rad;
+            vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
+            break;
+        case FACE_LEFT:
+            vpCmp.gridPosition.face = FACE_TOP;
+            vpCmp.gridPosition.pos.z = vpCmp.gridPosition.pos.x;
+            vpCmp.gridPosition.pos.x = -rad;
+            break;
+        case FACE_RIGHT:
+            vpCmp.gridPosition.face = FACE_TOP;
+            vpCmp.gridPosition.pos.z = -vpCmp.gridPosition.pos.x;
+            vpCmp.gridPosition.pos.x = rad;
+            break;
+        case FACE_FRONT:
+            vpCmp.gridPosition.face = FACE_TOP;
+            vpCmp.gridPosition.pos.z = rad;
+            break;
+        case FACE_BACK:
+            vpCmp.gridPosition.face = FACE_TOP;
+            vpCmp.gridPosition.pos.z = -rad;
+            vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
+            break;
+        case FACE_BOTTOM:
+            vpCmp.gridPosition.face = FACE_FRONT;
+            vpCmp.gridPosition.pos.z = rad;
+            break;
+        default:
+            std::cerr << "Invalid face in PhysicsComponentUpdater::transitionPosX\n";
+            break;
+    }
+}
+
+#undef VOXEL_PUSH
