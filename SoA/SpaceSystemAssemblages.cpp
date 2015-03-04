@@ -127,7 +127,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
                                                                       vcore::ComponentID farTerrainComponent,
                                                                       vcore::ComponentID axisRotationComponent,
                                                                       vcore::ComponentID namePositionComponent,
-                                                                      const VoxelPosition3D& startVoxelPos,
+                                                                      WorldCubeFace worldFace,
                                                                       const SoaState* soaState) {
 
     vcore::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
@@ -150,7 +150,7 @@ vcore::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(OUT SpaceS
 
     svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkGrid = new ChunkGrid(startVoxelPos.face);
+    svcmp.chunkGrid = new ChunkGrid(worldFace);
     svcmp.chunkListManager = new ChunkListManager();
     svcmp.chunkMemoryManager = new ChunkMemoryManager();
     svcmp.chunkMeshManager = soaState->chunkMeshManager.get();

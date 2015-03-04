@@ -112,6 +112,8 @@ struct SphericalVoxelComponent {
     vcore::ComponentID namePositionComponent = 0;
     vcore::ComponentID axisRotationComponent = 0;
 
+    // WorldCubeFace transitionFace = FACE_NONE;
+
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 
@@ -140,6 +142,7 @@ struct SphericalTerrainComponent {
     PlanetGenData* planetGenData = nullptr;
     VoxelPosition3D startVoxelPosition;
     bool needsVoxelComponent = false;
+    WorldCubeFace transitionFace = FACE_NONE;
     float alpha = 0.0f; ///< Alpha blending coefficient
 };
 
@@ -158,6 +161,7 @@ struct FarTerrainComponent {
     PlanetGenData* planetGenData = nullptr;
     i32v2 center = i32v2(0); ///< Center, in units of patch width, where camera is
     i32v2 origin = i32v2(0); ///< Specifies which patch is the origin (back left corner) on the grid
+    WorldCubeFace transitionFace = FACE_NONE;
     float alpha = 1.0f; ///< Alpha blending coefficient
     bool shouldFade = false; ///< When this is true we fade out
 };

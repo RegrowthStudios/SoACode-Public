@@ -31,6 +31,7 @@ void ChunkGrid::addChunk(Chunk* chunk) {
 void ChunkGrid::removeChunk(Chunk* chunk) {
     // Remove from lookup hashmap
     m_chunkMap.erase(chunk->gridPosition.pos);
+
     // Reduce the ref count since the chunk no longer needs chunkGridData
     chunk->chunkGridData->refCount--;
     // Check to see if we should free the grid data
