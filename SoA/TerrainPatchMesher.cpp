@@ -95,7 +95,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
             // Set color
             v.color = m_planetGenData->terrainTint;
-            // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
+             v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
 
             // TODO(Ben): This is temporary debugging stuff
             const float delta = 100.0f;

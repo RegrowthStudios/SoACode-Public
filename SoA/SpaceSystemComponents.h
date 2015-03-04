@@ -44,7 +44,7 @@ DECL_VVOX(class, VoxelPlanetMapper);
 DECL_VIO(class, IOManager);
 
 /// For far and spherical terrain patch blending on transitions
-const float TERRAIN_ALPHA_BEFORE_FADE = 3.0f;
+const float TERRAIN_ALPHA_BEFORE_FADE = 8.0f;
 const float TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + 2.0f;
 const float TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
 const float TERRAIN_ALPHA_STEP = 0.05f;

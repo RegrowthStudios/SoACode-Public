@@ -56,7 +56,6 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
         return;
     }
 
-
     auto& vpcmp = gameSystem->voxelPosition.get(pyCmp.voxelPositionComponent);
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(vpcmp.parentVoxelComponent);
     auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
@@ -109,8 +108,6 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
                 stCmp.alpha = 0.0f;
             }
         } else if (didTransition) {
-            std::cout << "TRANNY\n";
-            fflush(stdout);
             stCmp.transitionFace = vpcmp.gridPosition.face;
         }
     } else {
@@ -185,6 +182,7 @@ void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, Phys
     // We could use lookup tables for this, but this is easier
     switch (vpCmp.gridPosition.face) {
         case FACE_TOP:
+            vpCmp.orientation = f64q(f64v3(0.0, -M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_RIGHT;
             vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.z;
             vpCmp.gridPosition.pos.z = -rad;
@@ -206,6 +204,7 @@ void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, Phys
             vpCmp.gridPosition.pos.x = -rad;
             break;
         case FACE_BOTTOM:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_RIGHT;
             vpCmp.gridPosition.pos.x = vpCmp.gridPosition.pos.z;
             vpCmp.gridPosition.pos.z = rad;
@@ -222,6 +221,7 @@ void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, Phys
     // We could use lookup tables for this, but this is easier
     switch (vpCmp.gridPosition.face) {
         case FACE_TOP:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_LEFT;
             vpCmp.gridPosition.pos.x = vpCmp.gridPosition.pos.z;
             vpCmp.gridPosition.pos.z = -rad;
@@ -243,6 +243,7 @@ void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, Phys
             vpCmp.gridPosition.pos.x = rad;
             break;
         case FACE_BOTTOM:
+            vpCmp.orientation = f64q(f64v3(0.0, -M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_LEFT;
             vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.z;
             vpCmp.gridPosition.pos.z = rad;
@@ -263,11 +264,13 @@ void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, Phys
             vpCmp.gridPosition.pos.z = -rad;
             break;
         case FACE_LEFT:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_BOTTOM;
             vpCmp.gridPosition.pos.z = -vpCmp.gridPosition.pos.x;
             vpCmp.gridPosition.pos.x = -rad;
             break;
         case FACE_RIGHT:
+            vpCmp.orientation = f64q(f64v3(0.0, -M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_BOTTOM;
             vpCmp.gridPosition.pos.z = vpCmp.gridPosition.pos.x;
             vpCmp.gridPosition.pos.x = rad;
@@ -277,11 +280,13 @@ void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, Phys
             vpCmp.gridPosition.pos.z = -rad;
             break;
         case FACE_BACK:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_BOTTOM;
             vpCmp.gridPosition.pos.z = -rad;
             vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
             break;
         case FACE_BOTTOM:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_BACK;
             vpCmp.gridPosition.pos.z = -rad;
             vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
@@ -298,16 +303,19 @@ void PhysicsComponentUpdater::transitionNegZ(VoxelPositionComponent& vpCmp, Phys
     // We could use lookup tables for this, but this is easier
     switch (vpCmp.gridPosition.face) {
         case FACE_TOP:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_BACK;
             vpCmp.gridPosition.pos.z = -rad;
             vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
             break;
         case FACE_LEFT:
+            vpCmp.orientation = f64q(f64v3(0.0, -M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_TOP;
             vpCmp.gridPosition.pos.z = vpCmp.gridPosition.pos.x;
             vpCmp.gridPosition.pos.x = -rad;
             break;
         case FACE_RIGHT:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI / 2.0, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_TOP;
             vpCmp.gridPosition.pos.z = -vpCmp.gridPosition.pos.x;
             vpCmp.gridPosition.pos.x = rad;
@@ -317,6 +325,7 @@ void PhysicsComponentUpdater::transitionNegZ(VoxelPositionComponent& vpCmp, Phys
             vpCmp.gridPosition.pos.z = rad;
             break;
         case FACE_BACK:
+            vpCmp.orientation = f64q(f64v3(0.0, M_PI, 0.0)) * vpCmp.orientation;
             vpCmp.gridPosition.face = FACE_TOP;
             vpCmp.gridPosition.pos.z = -rad;
             vpCmp.gridPosition.pos.x = -vpCmp.gridPosition.pos.x;
