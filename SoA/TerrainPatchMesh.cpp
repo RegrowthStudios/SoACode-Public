@@ -11,17 +11,6 @@
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelSpaceConversions.h"
 
-/// Used for the unNormMult uniform for terrain to
-/// reverse normal map directions
-const f32v3 NormalMults[6] = {
-    f32v3(1.0f, 1.0f, -1.0f), //TOP
-    f32v3(1.0f, 1.0f, -1.0f), //LEFT
-    f32v3(1.0f, 1.0f, 1.0f), //RIGHT
-    f32v3(1.0f, 1.0f, 1.0f), //FRONT
-    f32v3(1.0f, 1.0f, -1.0f), //BACK
-    f32v3(1.0f, 1.0f, 1.0f) //BOTTOM
-};
-
 TerrainPatchMesh::~TerrainPatchMesh() {
     if (m_vbo) {
         vg::GpuMemory::freeBuffer(m_vbo);
@@ -56,7 +45,6 @@ void TerrainPatchMesh::draw(const f64v3& relativePos, const Camera* camera,
     f32m4 WVP = camera->getViewProjectionMatrix() * W * rot;
     W *= rot;
 
-    glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
 
@@ -98,7 +86,6 @@ void TerrainPatchMesh::drawWater(const f64v3& relativePos, const Camera* camera,
     W *= rot;
     f32m4 WVP = camera->getViewProjectionMatrix() * W;
 
-    glUniform3fv(program->getUniform("unNormMult"), 1, &NormalMults[(int)m_cubeFace][0]);
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
 

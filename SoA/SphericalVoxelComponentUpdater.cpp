@@ -55,6 +55,18 @@ void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
 }
 
 void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, const Frustum* frustum) {
+
+
+    //TODO(Ben): Maybe do this?
+    //// Check for face transition
+    //if (m_cmp->transitionFace != FACE_NONE) {
+    //    // Free all chunks
+
+    //    // Set new grid face
+    //    m_cmp->chunkGrid->m_face = m_cmp->transitionFace;
+    //    m_cmp->transitionFace = FACE_NONE;
+    //}
+
     sonarDt += 0.003f*physSpeedFactor;
     if (sonarDt > 1.0f) sonarDt = 0.0f;
 
@@ -94,9 +106,10 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
         if (ch->inSaveThread == false && ch->inLoadThread == false &&
             !ch->lastOwnerTask && !ch->_chunkListPtr && ch->chunkDependencies == 0 &&
             !(ch->mesh && ch->mesh->refCount)) {
-            freeChunk(freeWaitingChunks[i]);
+            Chunk* c = freeWaitingChunks[i];
             freeWaitingChunks[i] = freeWaitingChunks.back();
             freeWaitingChunks.pop_back();
+            freeChunk(c);
         } else {
             i++;
         }
@@ -138,6 +151,8 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
 
     for (int i = (int)chunks.size() - 1; i >= 0; i--) { //update distances for all chunks
         Chunk* chunk = chunks[i];
+        if (chunk->freeWaiting) continue;
+
         chunk->calculateDistance2(intPosition);
 
         if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
@@ -152,7 +167,6 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
                 }
 
                 freeChunk(chunk);
-
             }
         } else { //inside maximum range
 
@@ -633,8 +647,11 @@ void SphericalVoxelComponentUpdater::freeChunk(Chunk* chunk) {
             (chunk->mesh && chunk->mesh->refCount)) {
             // Mark the chunk as waiting to be finished with threads and add to threadWaiting list
             chunk->distance2 = 0; // make its distance 0 so it gets processed first in the lists and gets removed
+
             m_cmp->chunkListManager->addToFreeWaitList(chunk);
         } else {
+
+
             m_cmp->chunkGrid->removeChunk(chunk);
 
             chunk->clearNeighbors();

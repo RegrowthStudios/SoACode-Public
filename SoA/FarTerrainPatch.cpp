@@ -13,15 +13,6 @@
 #include "VoxelSpaceConversions.h"
 #include "soaUtils.h"
 
-const f32v3 NormalMults[6] = {
-    f32v3(1.0f, 1.0f, -1.0f), //TOP
-    f32v3(1.0f, 1.0f, -1.0f), //LEFT
-    f32v3(1.0f, 1.0f, 1.0f), //RIGHT
-    f32v3(1.0f, 1.0f, 1.0f), //FRONT
-    f32v3(1.0f, 1.0f, -1.0f), //BACK
-    f32v3(1.0f, 1.0f, 1.0f) //BOTTOM
-};
-
 FarTerrainPatch::~FarTerrainPatch() {
     destroy();
 }

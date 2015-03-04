@@ -144,9 +144,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[zIndex][xIndex][2]);
 
             // Compute tangent
-            tmpPos[m_coordMapping.x] = (x + 1) * m_vertWidth * m_coordMults.x + m_startPos.x;
+            tmpPos[m_coordMapping.x] = ((x + 1) * m_vertWidth + m_startPos.x) * m_coordMults.x;
             tmpPos[m_coordMapping.y] = m_startPos.y;
-            tmpPos[m_coordMapping.z] = z * m_vertWidth * m_coordMults.y + m_startPos.z;
+            tmpPos[m_coordMapping.z] = (z * m_vertWidth + m_startPos.z) * m_coordMults.y;
             tmpPos = glm::normalize(tmpPos) * (m_radius + h);
             v.tangent = glm::normalize(tmpPos - v.position);
 
@@ -347,9 +347,9 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
 
         // Compute tangent
         f32v3 tmpPos;
-        tmpPos[m_coordMapping.x] = (x + 1) * mvw * m_coordMults.x + m_startPos.x;
+        tmpPos[m_coordMapping.x] = ((x + 1) * mvw + m_startPos.x) * m_coordMults.x;
         tmpPos[m_coordMapping.y] = m_startPos.y;
-        tmpPos[m_coordMapping.z] = z * mvw * m_coordMults.y + m_startPos.z;
+        tmpPos[m_coordMapping.z] = (z * mvw + m_startPos.z) * m_coordMults.y;
         tmpPos = glm::normalize(tmpPos) * m_radius;
         v.tangent = glm::normalize(tmpPos - v.position);
 

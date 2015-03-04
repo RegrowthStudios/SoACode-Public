@@ -65,7 +65,27 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
                                                                                                    stCmp.farTerrainComponent,
                                                                                                    stCmp.axisRotationComponent,
                                                                                                    stCmp.namePositionComponent,
-                                                                                                   stCmp.startVoxelPosition, state);
+                                                                                                   stCmp.startVoxelPosition.face,
+                                                                                                   state);
+            }
+
+            // Far terrain face transition
+            if (stCmp.transitionFace != FACE_NONE) {
+                // TODO(Ben): maybe tell voxels to switch to new face
+                //spaceSystem->m_sphericalVoxelCT.get(stCmp.sphericalVoxelComponent).transitionFace = stCmp.transitionFace;
+                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
+                // Add spherical voxel component (SERVER SIDE)
+                stCmp.sphericalVoxelComponent = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, it.first,
+                                                                                                   spaceSystem->m_sphericalTerrainCT.getComponentID(it.first),
+                                                                                                   stCmp.farTerrainComponent,
+                                                                                                   stCmp.axisRotationComponent,
+                                                                                                   stCmp.namePositionComponent,
+                                                                                                   stCmp.startVoxelPosition.face,
+                                                                                                   state);
+                // Reload the terrain
+                auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
+                ftCmp.transitionFace = stCmp.transitionFace;
+                stCmp.transitionFace = FACE_NONE;
             }
         } else {
             // Check for deleting components
@@ -73,15 +93,17 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
             if (stCmp.sphericalVoxelComponent) {
                 // Mark far terrain for fadeout
                 auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
-                ftCmp.shouldFade = true;
-                ftCmp.alpha = TERRAIN_DEC_START_ALPHA;
-                // Remove spherical voxel
-                PreciseTimer timer;
-                timer.start();
-                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
-                stCmp.sphericalVoxelComponent = 0;
-                stCmp.farTerrainComponent = 0;
-                std::cout << "Remove Spherical Voxel: " << timer.stop();
+
+                if (!ftCmp.shouldFade) {
+                    ftCmp.shouldFade = true;
+                    ftCmp.alpha = TERRAIN_DEC_START_ALPHA;
+                } else if (ftCmp.alpha < 0.0f) {
+                    // We are faded out, so deallocate
+                    SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
+                    SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
+                    stCmp.sphericalVoxelComponent = 0;
+                    stCmp.farTerrainComponent = 0;
+                }
             }
         }
     }

@@ -25,13 +25,21 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
         if (cmp.shouldFade) {
             cmp.alpha -= TERRAIN_ALPHA_STEP;
             if (cmp.alpha <= 0.0f) {
-                // We are faded out, so deallocate
-                SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, it.first);
                 continue;
             }
         } else {
             cmp.alpha += TERRAIN_ALPHA_STEP;
             if (cmp.alpha > 1.0f) cmp.alpha = 1.0f;
+        }
+
+        // Check for transitioning to a new grid face
+        if (cmp.transitionFace != FACE_NONE) {
+            cmp.face = cmp.transitionFace;
+            cmp.transitionFace = FACE_NONE;
+            if (cmp.patches) {
+                delete[] cmp.patches;
+                cmp.patches = nullptr;
+            }
         }
 
         if (distance <= LOAD_DIST) {
