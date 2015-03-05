@@ -72,7 +72,9 @@ struct PlanetGenData {
     f32 liquidDepthScale = 1000.0f;
     f32 liquidFreezeTemp = -1.0f;
     f32 tempLatitudeFalloff = 0.0f;
+    f32 tempHeightFalloff = 0.0f;
     f32 humLatitudeFalloff = 0.0f;
+    f32 humHeightFalloff = 0.0f;
     VGTexture biomeArrayTexture = 0;
     VGTexture baseBiomeLookupTexture = 0;
     std::vector<Biome> biomes;

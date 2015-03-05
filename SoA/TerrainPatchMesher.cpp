@@ -95,7 +95,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
             // Set color
             v.color = m_planetGenData->terrainTint;
-             v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
+            // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
 
             // TODO(Ben): This is temporary debugging stuff
             const float delta = 100.0f;
@@ -140,8 +140,8 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
             angle = computeAngleFromNormal(normal);
 
-            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[zIndex][xIndex][1]);
-            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[zIndex][xIndex][2]);
+            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[zIndex][xIndex][1] - glm::max(0.0f, m_planetGenData->tempHeightFalloff * h));
+            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[zIndex][xIndex][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));
 
             // Compute tangent
             tmpPos[m_coordMapping.x] = ((x + 1) * m_vertWidth + m_startPos.x) * m_coordMults.x;

@@ -47,6 +47,10 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
             genData->tempLatitudeFalloff = keg::convert<f32>(value);
         } else if (type == "humLatitudeFalloff") {
             genData->humLatitudeFalloff = keg::convert<f32>(value);
+        } else if (type == "tempHeightFalloff") {
+            genData->tempHeightFalloff = keg::convert<f32>(value);
+        } else if (type == "humHeightFalloff") {
+            genData->humHeightFalloff = keg::convert<f32>(value);
         } else if (type == "baseHeight") {
             parseTerrainFuncs(&genData->baseTerrainFuncs, reader, value);
         } else if (type == "temperature") {
