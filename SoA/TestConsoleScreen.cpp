@@ -13,11 +13,11 @@ i32 TestConsoleScreen::getPreviousScreen() const {
 void TestConsoleScreen::build() {
     // Empty
 }
-void TestConsoleScreen::destroy(const GameTime& gameTime) {
+void TestConsoleScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void TestConsoleScreen::onEntry(const GameTime& gameTime) {
+void TestConsoleScreen::onEntry(const vui::GameTime& gameTime) {
     m_delegatePool.addAutoHook(&m_console.onStream[DEV_CONSOLE_STREAM_OUT], [&] (Sender sender, const cString s) {
         printf("Out:   %s\n", s);
     });
@@ -37,17 +37,14 @@ void TestConsoleScreen::onEntry(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void TestConsoleScreen::onExit(const GameTime& gameTime) {
+void TestConsoleScreen::onExit(const vui::GameTime& gameTime) {
     m_text.stop();
     m_delegatePool.dispose();
 }
 
-void TestConsoleScreen::onEvent(const SDL_Event& e) {
+void TestConsoleScreen::update(const vui::GameTime& gameTime) {
     // Empty
 }
-void TestConsoleScreen::update(const GameTime& gameTime) {
-    // Empty
-}
-void TestConsoleScreen::draw(const GameTime& gameTime) {
+void TestConsoleScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

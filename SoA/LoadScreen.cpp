@@ -55,11 +55,11 @@ i32 LoadScreen::getPreviousScreen() const {
 void LoadScreen::build() {
     // Empty
 }
-void LoadScreen::destroy(const GameTime& gameTime) {
+void LoadScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void LoadScreen::onEntry(const GameTime& gameTime) {
+void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     SoaFileSystem fs;
     fs.init();
     MusicPlayer mp;
@@ -94,7 +94,7 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void LoadScreen::onExit(const GameTime& gameTime) {
+void LoadScreen::onExit(const vui::GameTime& gameTime) {
     _sf->dispose();
     delete _sf;
     _sf = nullptr;
@@ -117,10 +117,7 @@ void LoadScreen::onExit(const GameTime& gameTime) {
     RasterizerState::CULL_CLOCKWISE.set();
 }
 
-void LoadScreen::onEvent(const SDL_Event& e) {
-    // Empty
-}
-void LoadScreen::update(const GameTime& gameTime) {
+void LoadScreen::update(const vui::GameTime& gameTime) {
     static ui64 fCounter = 0;
 
     for (ui32 i = 0; i < _loadTasks.size(); i++) {
@@ -176,7 +173,7 @@ void LoadScreen::update(const GameTime& gameTime) {
         
     }
 }
-void LoadScreen::draw(const GameTime& gameTime) {
+void LoadScreen::draw(const vui::GameTime& gameTime) {
     const GameWindow* w = &_game->getWindow();
 
     glClearDepth(1.0);

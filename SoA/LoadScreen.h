@@ -3,16 +3,16 @@
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/Random.h>
 #include <Vorb/RPC.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "LoadMonitor.h"
 #include "LoadBar.h"
 
 class App;
 class SoaState;
-class SpriteBatch;
-class SpriteFont;
+DECL_VG(class SpriteBatch; class SpriteFont);
 
-class LoadScreen : public IAppScreen<App> {
+class LoadScreen : public vui::IAppScreen<App> {
 public:
     CTOR_APP_SCREEN_DECL(LoadScreen, App);
     ~LoadScreen();
@@ -21,14 +21,13 @@ public:
     virtual i32 getPreviousScreen() const;
 
     virtual void build();
-    virtual void destroy(const GameTime& gameTime);
+    virtual void destroy(const vui::GameTime& gameTime);
 
-    virtual void onEntry(const GameTime& gameTime);
-    virtual void onExit(const GameTime& gameTime);
+    virtual void onEntry(const vui::GameTime& gameTime);
+    virtual void onExit(const vui::GameTime& gameTime);
 
-    virtual void onEvent(const SDL_Event& e);
-    virtual void update(const GameTime& gameTime);
-    virtual void draw(const GameTime& gameTime);
+    virtual void update(const vui::GameTime& gameTime);
+    virtual void draw(const vui::GameTime& gameTime);
 
     SoaState* getSoAState() const { return m_soaState.get(); }
 
@@ -40,8 +39,8 @@ private:
 
     // Visualization Of Loading Tasks
     std::vector<LoadBar> _loadBars;
-    SpriteBatch* _sb;
-    SpriteFont* _sf;
+    vg::SpriteBatch* _sb;
+    vg::SpriteFont* _sf;
 
     // Loading Tasks
     LoadMonitor _monitor;

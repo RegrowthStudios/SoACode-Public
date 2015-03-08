@@ -164,11 +164,11 @@ i32 TestBlockView::getPreviousScreen() const {
 void TestBlockView::build() {
     // Empty
 }
-void TestBlockView::destroy(const GameTime& gameTime) {
+void TestBlockView::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void TestBlockView::onEntry(const GameTime& gameTime) {
+void TestBlockView::onEntry(const vui::GameTime& gameTime) {
     m_hooks.addAutoHook(&m_blocks.onBlockAddition, [&] (Sender s, ui16 id) {
         printf("Loaded Block: %s = %d\n", m_blocks[id].name.c_str(), id);
     });
@@ -203,17 +203,14 @@ void TestBlockView::onEntry(const GameTime& gameTime) {
     glClearDepth(1.0);
 
 }
-void TestBlockView::onExit(const GameTime& gameTime) {
+void TestBlockView::onExit(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void TestBlockView::onEvent(const SDL_Event& e) {
+void TestBlockView::update(const vui::GameTime& gameTime) {
     // Empty
 }
-void TestBlockView::update(const GameTime& gameTime) {
-    // Empty
-}
-void TestBlockView::draw(const GameTime& gameTime) {
+void TestBlockView::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_program.use();

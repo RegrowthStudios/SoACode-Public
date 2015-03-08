@@ -63,11 +63,11 @@ void GamePlayScreen::build() {
     // Empty
 }
 
-void GamePlayScreen::destroy(const GameTime& gameTime) {
+void GamePlayScreen::destroy(const vui::GameTime& gameTime) {
     // Destruction happens in onExit
 }
 
-void GamePlayScreen::onEntry(const GameTime& gameTime) {
+void GamePlayScreen::onEntry(const vui::GameTime& gameTime) {
 
     initInput();
 
@@ -95,7 +95,7 @@ void GamePlayScreen::onEntry(const GameTime& gameTime) {
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
-void GamePlayScreen::onExit(const GameTime& gameTime) {
+void GamePlayScreen::onExit(const vui::GameTime& gameTime) {
 
     m_inputManager->stopInput();
     m_hooks.dispose();
@@ -110,12 +110,9 @@ void GamePlayScreen::onExit(const GameTime& gameTime) {
     m_pauseMenu.destroy();
 }
 
-void GamePlayScreen::onEvent(const SDL_Event& e) {
-    // Empty
-}
 
 /// This update function runs on the render thread
-void GamePlayScreen::update(const GameTime& gameTime) {
+void GamePlayScreen::update(const vui::GameTime& gameTime) {
 
     globalRenderAccumulationTimer.start("Space System");
 
@@ -185,7 +182,7 @@ void GamePlayScreen::updateMTRenderState() {
     m_renderStateManager.finishUpdating();
 }
 
-void GamePlayScreen::draw(const GameTime& gameTime) {
+void GamePlayScreen::draw(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
     updateWorldCameraClip();
 

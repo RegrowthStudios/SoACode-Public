@@ -60,7 +60,7 @@ enum DevUiModes {
     DEVUIMODE_ALL
 };
 
-class GamePlayScreen : public IAppScreen<App> {
+class GamePlayScreen : public vui::IAppScreen<App> {
     friend class PauseMenuAwesomiumAPI;
     friend class PdaAwesomiumAPI;
 public:
@@ -71,14 +71,13 @@ public:
     virtual i32 getPreviousScreen() const override;
 
     virtual void build() override;
-    virtual void destroy(const GameTime& gameTime) override;
+    virtual void destroy(const vui::GameTime& gameTime) override;
 
-    virtual void onEntry(const GameTime& gameTime) override;
-    virtual void onExit(const GameTime& gameTime) override;
+    virtual void onEntry(const vui::GameTime& gameTime) override;
+    virtual void onExit(const vui::GameTime& gameTime) override;
 
-    virtual void onEvent(const SDL_Event& e) override;
-    virtual void update(const GameTime& gameTime) override;
-    virtual void draw(const GameTime& gameTime) override;
+    virtual void update(const vui::GameTime& gameTime) override;
+    virtual void draw(const vui::GameTime& gameTime) override;
 
     void unPause();
 

@@ -12,8 +12,8 @@
 // Number cells per row/column in a single grid
 const ui32 CELLS = 20;
 
-DepthState dsLightPoint(true, DepthFunction::GREATER_EQUAL, false);
-DepthState dsLightDirectional(true, DepthFunction::NOT_EQUAL, false);
+vg::DepthState dsLightPoint(true, vg::DepthFunction::GREATER, false);
+vg::DepthState dsLightDirectional(true, vg::DepthFunction::NOTEQUAL, false);
 
 struct DefVertex {
 public:
@@ -36,11 +36,11 @@ i32 TestDeferredScreen::getPreviousScreen() const {
 void TestDeferredScreen::build() {
     // Empty
 }
-void TestDeferredScreen::destroy(const GameTime& gameTime) {
+void TestDeferredScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void TestDeferredScreen::onEntry(const GameTime& gameTime) {
+void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     buildGeometry();
     buildLightMaps();
 
@@ -129,7 +129,7 @@ void TestDeferredScreen::onEntry(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void TestDeferredScreen::onExit(const GameTime& gameTime) {
+void TestDeferredScreen::onExit(const vui::GameTime& gameTime) {
     glDeleteBuffers(1, &m_verts);
     glDeleteBuffers(1, &m_inds);
     m_deferredPrograms.dispose();
@@ -138,13 +138,10 @@ void TestDeferredScreen::onExit(const GameTime& gameTime) {
     m_gbuffer.dispose();
 }
 
-void TestDeferredScreen::onEvent(const SDL_Event& e) {
+void TestDeferredScreen::update(const vui::GameTime& gameTime) {
     // Empty
 }
-void TestDeferredScreen::update(const GameTime& gameTime) {
-    // Empty
-}
-void TestDeferredScreen::draw(const GameTime& gameTime) {
+void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     /************************************************************************/
     /* Deferred pass                                                        */
     /************************************************************************/

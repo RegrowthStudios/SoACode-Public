@@ -59,11 +59,11 @@ void MainMenuScreen::build() {
     // Empty
 }
 
-void MainMenuScreen::destroy(const GameTime& gameTime) {
+void MainMenuScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void MainMenuScreen::onEntry(const GameTime& gameTime) {
+void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Get the state handle
     m_soaState = m_loadScreen->getSoAState();
@@ -104,7 +104,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     m_inputManager->startInput();
 }
 
-void MainMenuScreen::onExit(const GameTime& gameTime) {
+void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_inputManager->stopInput();
 
     m_mainMenuSystemViewer.reset();
@@ -124,23 +124,7 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     delete m_engine;
 }
 
-void MainMenuScreen::onEvent(const SDL_Event& e) {
-
-    // Check for reloading the UI
-    if (m_inputManager->getKeyDown(INPUT_RELOAD_UI)) {
-        std::cout << "\n\nReloading MainMenu UI...\n\n";
-        m_awesomiumInterface.destroy();
-        m_awesomiumInterface.init("UI/MainMenu/",
-                                 "MainMenu_UI", 
-                                 "index.html",
-                                 _app->getWindow().getWidth(),
-                                 _app->getWindow().getHeight(),
-                                 this);
-    }
-
-}
-
-void MainMenuScreen::update(const GameTime& gameTime) {
+void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
     m_awesomiumInterface.update();
 
@@ -168,7 +152,7 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     m_engine->update(vsound::Listener());
 }
 
-void MainMenuScreen::draw(const GameTime& gameTime) {
+void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 
     updateWorldCameraClip();
 

@@ -34,11 +34,11 @@ class MainMenuSystemViewer;
 class SoaState;
 class SpaceSystemUpdater;
 
-DECL_VSOUND(class, Engine)
+DECL_VSOUND(class Engine)
 class AmbienceLibrary;
 class AmbiencePlayer;
 
-class MainMenuScreen : public IAppScreen<App>
+class MainMenuScreen : public vui::IAppScreen<App>
 {
     friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
 public:
@@ -49,14 +49,13 @@ public:
     virtual i32 getPreviousScreen() const;
 
     virtual void build();
-    virtual void destroy(const GameTime& gameTime);
+    virtual void destroy(const vui::GameTime& gameTime);
 
-    virtual void onEntry(const GameTime& gameTime);
-    virtual void onExit(const GameTime& gameTime);
+    virtual void onEntry(const vui::GameTime& gameTime);
+    virtual void onExit(const vui::GameTime& gameTime);
 
-    virtual void onEvent(const SDL_Event& e);
-    virtual void update(const GameTime& gameTime);
-    virtual void draw(const GameTime& gameTime);
+    virtual void update(const vui::GameTime& gameTime);
+    virtual void draw(const vui::GameTime& gameTime);
 
     // Getters
     CinematicCamera& getCamera() { return m_camera; }

@@ -20,7 +20,7 @@
 #include "AwesomiumInterface.h"
 #include "PauseMenuAwesomiumAPI.h"
 
-DECL_VG(class, GLProgramManager);
+DECL_VG(class GLProgramManager);
 
 class PauseMenu {
 public:
