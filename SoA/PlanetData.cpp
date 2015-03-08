@@ -17,10 +17,11 @@ KEG_TYPE_INIT_END
 
 KEG_ENUM_INIT_BEGIN(TerrainFunction, TerrainFunction, e);
 e->addValue("noise", TerrainFunction::RIDGED_NOISE);
-e->addValue("ridgedNoise", TerrainFunction::RIDGED_NOISE);
+e->addValue("ridged", TerrainFunction::RIDGED_NOISE);
 KEG_ENUM_INIT_END
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(TerrainFuncKegProperties)
+KEG_TYPE_INIT_DEF_VAR_NAME->addValue("type", Keg::Value::custom("TerrainFunction", offsetof(TerrainFuncKegProperties, func), true));
 KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, I32, octaves);
 KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, persistence);
 KEG_TYPE_INIT_ADD_MEMBER(TerrainFuncKegProperties, F32, frequency);

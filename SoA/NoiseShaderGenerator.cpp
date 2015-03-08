@@ -20,9 +20,10 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
     fSource += N_HUM + "=" + std::to_string(genData->humTerrainFuncs.baseHeight) + ";\n";
 
     // Add all the noise functions
-    addNoiseFunctions(fSource, N_HEIGHT, genData->baseTerrainFuncs);
-    addNoiseFunctions(fSource, N_TEMP, genData->tempTerrainFuncs);
-    addNoiseFunctions(fSource, N_HUM, genData->humTerrainFuncs);
+    modCounter = 0;
+    addNoiseFunctions(fSource, N_HEIGHT, genData->baseTerrainFuncs.funcs, "");
+    addNoiseFunctions(fSource, N_TEMP, genData->tempTerrainFuncs.funcs, "");
+    addNoiseFunctions(fSource, N_HUM, genData->humTerrainFuncs.funcs, "");
 
     // Add biome code
     addBiomes(fSource, genData);
@@ -55,6 +56,7 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
         dumpShaderCode(std::cout, fSource, true);
         std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
     }
+    dumpShaderCode(std::cout, fSource, true);
 
     return gen.program;
 }
@@ -96,16 +98,24 @@ vg::GLProgram* NoiseShaderGenerator::getDefaultProgram(vcore::RPCManager* glrpc 
     return gen.program;
 }
 
-void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString& variable, const TerrainFuncs& funcs) {
+void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString& variable,
+                                             const Array<TerrainFuncKegProperties>& funcs, const nString& modifier) {
+
+   
+    nString modVar = "m" + std::to_string(++modCounter);
+    fSource += "float " + modVar + " = 0.0; ";
+
 #define TS(x) (std::to_string(x))
     // Conditional scaling code. Generates (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
 #define SCALE_CODE ((fn.low != -1.0f || fn.high != 1.0f) ? \
-    fSource += variable + "+= (total / maxAmplitude) * (" + \
+    fSource += modVar + "+= (total / maxAmplitude) * (" + \
         TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n" :\
-    fSource += variable + "+= total / maxAmplitude;\n")
+    fSource += modVar + "+= total / maxAmplitude;\n")
 
     // NOTE: Make sure this implementation matches SphericalTerrainCpuGenerator::getNoiseValue()
-    for (auto& fn : funcs.funcs) {
+    for (int f = 0; f < funcs.getLength(); f++) {
+        auto& fn = funcs[f];
+        std::cout << "LOL: " << fn.children.getLength() << std::endl;
         switch (fn.func) {
             case TerrainFunction::NOISE:
                 fSource = fSource +
@@ -141,6 +151,23 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
                 break;
             default:
                 break;
+        }
+        // If we have children, we need to clamp from 0 to 1
+        if (fn.children.getLength()) {
+            fSource += modVar + " = clamp(" + modVar + ", 0.0, 1.0);";
+            if (modifier.length()) {
+                fSource += modVar + " *= " + modifier + ";";
+            }
+
+            if (fn.children.getLength()) {
+                std::cout << "Here: " << fn.children.getLength() << std::endl;
+                addNoiseFunctions(fSource, variable, fn.children, modVar);
+            }
+        } else {
+            if (modifier.length()) {
+                fSource += modVar + " *= " + modifier + ";";
+            }
+            fSource += variable + " += " + modVar + ";";
         }
     }
 }

@@ -139,7 +139,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             }
 
             angle = computeAngleFromNormal(normal);
-
+            // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
             v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[zIndex][xIndex][1] - glm::max(0.0f, m_planetGenData->tempHeightFalloff * h));
             v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[zIndex][xIndex][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));
 

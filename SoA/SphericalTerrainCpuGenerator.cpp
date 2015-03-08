@@ -74,7 +74,8 @@ float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const Terrai
     float frequency;
 
     // NOTE: Make sure this implementation matches NoiseShaderGenerator::addNoiseFunctions()
-    for (auto& fn : funcs.funcs) {
+    for (int f = 0; f < funcs.funcs.getLength(); f++) {
+        auto& fn = funcs.funcs[f];
         switch (fn.func) {
             case TerrainFunction::NOISE:
                 total = 0.0f;

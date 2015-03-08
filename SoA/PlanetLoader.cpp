@@ -191,6 +191,7 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader
     }
 
     Keg::Error error;
+    std::vector<TerrainFuncKegProperties> vecFuncs; // Temporary vector
 
     auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
         if (type == "base") {
@@ -198,20 +199,19 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader
             return;
         }
 
-        terrainFuncs->funcs.push_back(TerrainFuncKegProperties());
-        if (type == "noise") {
-            terrainFuncs->funcs.back().func = TerrainFunction::NOISE;
-        } else if (type == "ridgedNoise") {
-            terrainFuncs->funcs.back().func = TerrainFunction::RIDGED_NOISE;
-        }
+        vecFuncs.push_back(TerrainFuncKegProperties());
 
-        error = Keg::parse((ui8*)&terrainFuncs->funcs.back(), value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
+
+        error = Keg::parse((ui8*)&vecFuncs.back(), value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
         if (error != Keg::Error::NONE) {
             fprintf(stderr, "Keg error %d in parseTerrainFuncs()\n", (int)error); 
             return;
         }
     });
     reader.forAllInMap(node, f);
+    // Convert vector to Array
+    terrainFuncs->funcs.setData(vecFuncs.data(), vecFuncs.size());
+
     delete f;
 }
 

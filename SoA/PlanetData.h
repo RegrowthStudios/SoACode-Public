@@ -47,7 +47,7 @@ enum class TerrainFunction {
 KEG_ENUM_DECL(TerrainFunction);
 
 struct TerrainFuncKegProperties {
-    TerrainFunction func;
+    TerrainFunction func = TerrainFunction::NOISE;
     int octaves = 1;
     f32 persistence = 1.0f;
     f32 frequency = 1.0f;
@@ -58,7 +58,7 @@ struct TerrainFuncKegProperties {
 KEG_TYPE_DECL(TerrainFuncKegProperties);
 
 struct TerrainFuncs {
-    std::vector<TerrainFuncKegProperties> funcs;
+    Array<TerrainFuncKegProperties> funcs;
     f32 baseHeight = 0.0f;
 };
 
