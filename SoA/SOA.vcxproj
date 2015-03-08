@@ -110,7 +110,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -124,7 +124,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;ws2_32.lib;Winmm.lib;Vorb-d.lib;fmodexL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>awesomium.lib;Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -148,7 +148,7 @@ EXIT 0</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -161,7 +161,7 @@ EXIT 0</Command>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;ws2_32.lib;Winmm.lib;Vorb-d.lib;fmodexL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>awesomium.lib;Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -190,7 +190,7 @@ EXIT 0</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -205,7 +205,7 @@ EXIT 0</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;ws2_32.lib;Winmm.lib;Vorb.lib;fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>awesomium.lib;Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
@@ -235,7 +235,7 @@ EXIT 0</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -250,7 +250,7 @@ EXIT 0</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;ws2_32.lib;Winmm.lib;Vorb.lib;fmodex64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>awesomium.lib;Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
