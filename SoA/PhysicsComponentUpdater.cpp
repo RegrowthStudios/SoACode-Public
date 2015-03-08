@@ -40,7 +40,7 @@ f64v3 PhysicsComponentUpdater::calculateGravityAcceleration(f64v3 relativePositi
 }
 
 void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
-                                                 PhysicsComponent& pyCmp, vcore::EntityID entity) {
+                                                 PhysicsComponent& pyCmp, vecs::EntityID entity) {
 
 
     // Get the position component
@@ -117,7 +117,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
 }
 
 void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
-                                                 PhysicsComponent& pyCmp, vcore::EntityID entity) {
+                                                 PhysicsComponent& pyCmp, vecs::EntityID entity) {
 
     // Get the position component
     auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
@@ -157,7 +157,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                     stCmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * arCmp.invCurrentOrientation * spCmp.orientation;
 
                 // Make the voxel position component
-                vcore::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, entity,
+                vecs::ComponentID vpid = GameSystemAssemblages::addVoxelPosition(gameSystem, entity,
                                                                                   stCmp.sphericalVoxelComponent,
                                                                                   voxOrientation,
                                                                                   stCmp.startVoxelPosition);

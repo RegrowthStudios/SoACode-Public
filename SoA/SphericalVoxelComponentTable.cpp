@@ -8,7 +8,7 @@
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 
-void SphericalVoxelComponentTable::disposeComponent(vcore::ComponentID cID, vcore::EntityID eID) {
+void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
     SphericalVoxelComponent& cmp = _components[cID].second;
     cmp.threadPool->destroy();
     delete cmp.threadPool;

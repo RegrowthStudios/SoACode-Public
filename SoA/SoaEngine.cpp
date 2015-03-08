@@ -27,7 +27,7 @@ struct SpaceSystemLoadParams {
 
     std::map<nString, Binary*> binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
-    std::map<nString, vcore::EntityID> bodyLookupMap;
+    std::map<nString, vecs::EntityID> bodyLookupMap;
 };
 
 void SoaEngine::initState(OUT SoaState* state) {
@@ -58,12 +58,12 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
-    pool.addAutoHook(&state->spaceSystem->onEntityAdded, [=] (Sender, vcore::EntityID eid) {
+    pool.addAutoHook(&state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
         fs.write("Entity added: %d\n", eid);
     });
     for (auto namedTable : state->spaceSystem->getComponents()) {
         auto table = state->spaceSystem->getComponentTable(namedTable.first);
-        pool.addAutoHook(&table->onEntityAdded, [=] (Sender, vcore::ComponentID cid, vcore::EntityID eid) {
+        pool.addAutoHook(&table->onEntityAdded, [=] (Sender, vecs::ComponentID cid, vecs::EntityID eid) {
             fs.write("Component \"%s\" added: %d -> Entity %d\n", namedTable.first.c_str(), cid, eid);
         });
     }
@@ -307,7 +307,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
     return goodParse;
 }
 
-void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary) {
+void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary) {
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
 
     f64 per = orbitC.orbitalPeriod;

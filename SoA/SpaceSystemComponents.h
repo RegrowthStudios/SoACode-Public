@@ -63,7 +63,7 @@ struct NamePositionComponent {
 };
 
 struct SpaceLightComponent {
-    vcore::ComponentID parentNpId; ///< Component ID of parent NamePosition component
+    vecs::ComponentID parentNpId; ///< Component ID of parent NamePosition component
     color3 color; ///< Color of the light
     f32 intensity; ///< Intensity of the light
 };
@@ -77,12 +77,12 @@ struct OrbitComponent {
     f64 r1 = 0.0; ///< Closest distance to focal point
     f64q orientation = f64q(0.0, 0.0, 0.0, 0.0); ///< Orientation of the orbit path
     ui8v4 pathColor = ui8v4(255); ///< Color of the path
-    vcore::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
+    vecs::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
     VGBuffer vbo = 0; ///< vbo for the ellipse
 };
 
 struct SphericalGravityComponent {
-    vcore::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
+    vecs::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
     f64 radius = 0.0; ///< Radius in KM
     f64 mass = 0.0; ///< Mass in KG
 };
@@ -107,10 +107,10 @@ struct SphericalVoxelComponent {
 
     const vio::IOManager* saveFileIom = nullptr;
 
-    vcore::ComponentID sphericalTerrainComponent = 0;
-    vcore::ComponentID farTerrainComponent = 0;
-    vcore::ComponentID namePositionComponent = 0;
-    vcore::ComponentID axisRotationComponent = 0;
+    vecs::ComponentID sphericalTerrainComponent = 0;
+    vecs::ComponentID farTerrainComponent = 0;
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
 
     // WorldCubeFace transitionFace = FACE_NONE;
 
@@ -125,10 +125,10 @@ struct SphericalVoxelComponent {
 };
 
 struct SphericalTerrainComponent {
-    vcore::ComponentID namePositionComponent = 0;
-    vcore::ComponentID axisRotationComponent = 0;
-    vcore::ComponentID sphericalVoxelComponent = 0;
-    vcore::ComponentID farTerrainComponent = 0;
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
+    vecs::ComponentID sphericalVoxelComponent = 0;
+    vecs::ComponentID farTerrainComponent = 0;
 
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 

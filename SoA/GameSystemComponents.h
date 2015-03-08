@@ -40,7 +40,7 @@ struct ParkourInputComponent {
         };
         ui8 moveFlags = 0;
     };
-    vcore::ComponentID physicsComponent;
+    vecs::ComponentID physicsComponent;
     float acceleration;
     float maxSpeed;
 };
@@ -61,13 +61,13 @@ struct FreeMoveInputComponent {
         };
         ui16 moveFlags = 0;
     };
-    vcore::ComponentID physicsComponent = 0;
+    vecs::ComponentID physicsComponent = 0;
     float speed = 0.3f;
 };
 
 struct SpacePositionComponent {
-    vcore::ComponentID parentGravityId = 0; ///< Gravity component of parent system body
-    vcore::ComponentID parentSphericalTerrainId = 0; ///< ST component of parent system body
+    vecs::ComponentID parentGravityId = 0; ///< Gravity component of parent system body
+    vecs::ComponentID parentSphericalTerrainId = 0; ///< ST component of parent system body
     f64v3 position = f64v3(0.0);
     f64q orientation;
 };
@@ -77,20 +77,20 @@ typedef f64v3 VoxelPosition;
 struct VoxelPositionComponent {
     f64q orientation;
     VoxelPosition3D gridPosition;
-    vcore::ComponentID parentVoxelComponent = 0;
+    vecs::ComponentID parentVoxelComponent = 0;
 };
 
 struct PhysicsComponent {
-    vcore::ComponentID spacePositionComponent = 0; ///< Optional
-    vcore::ComponentID voxelPositionComponent = 0; ///< Optional
+    vecs::ComponentID spacePositionComponent = 0; ///< Optional
+    vecs::ComponentID voxelPositionComponent = 0; ///< Optional
     f64v3 velocity = f64v3(0.0);
     f32 mass;
 };
 
 struct FrustumComponent {
-    vcore::ComponentID spacePositionComponent = 0; ///< Optional
-    vcore::ComponentID voxelPositionComponent = 0; ///< Optional
-    vcore::ComponentID headComponent = 0; ///< Optional
+    vecs::ComponentID spacePositionComponent = 0; ///< Optional
+    vecs::ComponentID voxelPositionComponent = 0; ///< Optional
+    vecs::ComponentID headComponent = 0; ///< Optional
     Frustum frustum;
 };
 

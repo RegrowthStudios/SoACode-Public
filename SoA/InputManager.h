@@ -26,6 +26,8 @@
 /// @author Frank McCoy
 class InputManager {
 public:
+    typedef Delegate<Sender, ui32> Listener;
+
     /// All possible axis types.
     enum AxisType {
         DUAL_KEY, ///< A axis which consists of a positive and negative key.
@@ -175,7 +177,7 @@ public:
     /// @param eventType: The event to subscribe the funtor to.
     /// @param f: The delegate to subscribe to the axes' event.
     /// @return The newly made delegate.
-    IDelegate<ui32>* subscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f);
+    Listener* subscribe(const i32 axisID, EventType eventType, Listener* f);
 
     /// Subscribes a functor to one of the axes' events.
     /// Returns nullptr if axisID is invalid or eventType is invalid.
@@ -185,15 +187,15 @@ public:
     /// @param f: The functor to subscribe to the axes' event.
     /// @return The newly made delegate.
     template<typename F>
-    IDelegate<ui32>* subscribeFunctor(const i32 axisID, EventType eventType, F f) {
-        return subscribe(axisID, eventType, new Delegate<F, ui32>(f));
+    Listener* subscribeFunctor(const i32 axisID, EventType eventType, F f) {
+        return subscribe(axisID, eventType, makeFunctor<Sender, ui32>(f));
     }
 
     /// Unsubscribes a delegate from a Axes' event.
     /// @see Event::remove
     /// @param axisID: The id of the axis to remove the delegate from
     /// @param eventType: The event to remove the delegate from
-    void unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f);
+    void unsubscribe(const i32 axisID, EventType eventType, Listener* f);
 
     /// The data for a single Axis.
     class Axis {
@@ -212,6 +214,10 @@ public:
     };
 
 private:
+    void onMouseButtonDown(Sender, const vui::MouseButtonEvent& e);
+    void onMouseButtonUp(Sender, const vui::MouseButtonEvent& e);
+    void onKeyDown(Sender, const vui::KeyEvent& e);
+    void onKeyUp(Sender, const vui::KeyEvent& e);
 
     const nString _defaultConfigLocation; //"Data/KeyConfig.ini"
     

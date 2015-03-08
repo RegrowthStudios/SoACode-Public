@@ -42,81 +42,81 @@ namespace SpaceSystemAssemblages {
     /************************************************************************/
    
     /// Planet entity
-    extern vcore::EntityID createPlanet(OUT SpaceSystem* spaceSystem,
+    extern vecs::EntityID createPlanet(OUT SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
                                         const PlanetKegProperties* properties,
                                         SystemBody* body);
-    extern void destroyPlanet(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
+    extern void destroyPlanet(OUT SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /// Star entity
-    extern vcore::EntityID createStar(OUT SpaceSystem* spaceSystem,
+    extern vecs::EntityID createStar(OUT SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
                                         const StarKegProperties* properties,
                                         SystemBody* body);
-    extern void destroyStar(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
+    extern void destroyStar(OUT SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /// GasGiant entity
-    extern vcore::EntityID createGasGiant(OUT SpaceSystem* spaceSystem,
+    extern vecs::EntityID createGasGiant(OUT SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
                                         const GasGiantKegProperties* properties,
                                         SystemBody* body);
-    extern void destroyGasGiant(OUT SpaceSystem* gameSystem, vcore::EntityID planetEntity);
+    extern void destroyGasGiant(OUT SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /************************************************************************/
     /* Component Factories                                                  */
     /************************************************************************/
     /// Spherical voxel component
-    extern vcore::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                         vcore::ComponentID sphericalTerrainComponent,
-                                                         vcore::ComponentID farTerrainComponent,
-                                                         vcore::ComponentID axisRotationComponent,
-                                                         vcore::ComponentID namePositionComponent,
+    extern vecs::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                         vecs::ComponentID sphericalTerrainComponent,
+                                                         vecs::ComponentID farTerrainComponent,
+                                                         vecs::ComponentID axisRotationComponent,
+                                                         vecs::ComponentID namePositionComponent,
                                                          WorldCubeFace worldFace,
                                                          const SoaState* soaState);
-    extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern void removeSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Axis rotation component
-    extern vcore::ComponentID addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+    extern vecs::ComponentID addAxisRotationComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                          const f64q& axisOrientation,
                                                          f64 startAngle,
                                                          f64 rotationalPeriod);
-    extern void removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern void removeAxisRotationComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical terrain component
-    extern vcore::ComponentID addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                           vcore::ComponentID npComp,
-                                                           vcore::ComponentID arComp,
+    extern vecs::ComponentID addSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                           vecs::ComponentID npComp,
+                                                           vecs::ComponentID arComp,
                                                            PlanetGenData* planetGenData,
                                                            vg::GLProgram* normalProgram,
                                                            vg::TextureRecycler* normalMapRecycler);
-    extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical terrain component
-    extern vcore::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+    extern vecs::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                      SphericalTerrainComponent& parentCmp,
                                                      WorldCubeFace face);
-    extern void removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern void removeFarTerrainComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical Gravity component
-    extern vcore::ComponentID addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                           vcore::ComponentID npComp, f64 radius, f64 mass);
-    extern void removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern vecs::ComponentID addSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                           vecs::ComponentID npComp, f64 radius, f64 mass);
+    extern void removeSphericalGravityComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Name Position component
-    extern vcore::ComponentID addNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+    extern vecs::ComponentID addNamePositionComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                            const nString& name, const f64v3& position);
-    extern void removeNamePositionComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern void removeNamePositionComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Orbit component
-    extern vcore::ComponentID addOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
+    extern vecs::ComponentID addOrbitComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                 f64 eccentricity, f64 orbitalPeriod,
                                                 const ui8v4& pathColor, const f64q& orientation);
-    extern void removeOrbitComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern void removeOrbitComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Space Light Component
-    extern vcore::ComponentID addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity,
-                                                     vcore::ComponentID npCmp, color3 color, f32 intensity);
-    extern void removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vcore::EntityID entity);
+    extern vecs::ComponentID addSpaceLightComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                     vecs::ComponentID npCmp, color3 color, f32 intensity);
+    extern void removeSpaceLightComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 }
 
 #endif // SpaceSystemAssemblages_h__

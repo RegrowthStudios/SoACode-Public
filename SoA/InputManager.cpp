@@ -10,24 +10,26 @@
 #include "GameManager.h"
 #include "Inputs.h"
 
-KEG_ENUM_INIT_BEGIN(AxisType, InputManager::AxisType, e)
-e->addValue("dualKey", InputManager::AxisType::DUAL_KEY);
-e->addValue("joystickAxis", InputManager::AxisType::JOYSTICK_AXIS);
-e->addValue("joystickButton", InputManager::AxisType::JOYSTICK_BUTTON);
-e->addValue("none", InputManager::AxisType::NONE);
-e->addValue("singleKey", InputManager::AxisType::SINGLE_KEY);
-KEG_ENUM_INIT_END
+KEG_ENUM_DECL(AxisType);
+KEG_ENUM_DEF(AxisType, InputManager::AxisType, e) {
+    e.addValue("dualKey", InputManager::AxisType::DUAL_KEY);
+    e.addValue("joystickAxis", InputManager::AxisType::JOYSTICK_AXIS);
+    e.addValue("joystickButton", InputManager::AxisType::JOYSTICK_BUTTON);
+    e.addValue("none", InputManager::AxisType::NONE);
+    e.addValue("singleKey", InputManager::AxisType::SINGLE_KEY);
+}
 
-KEG_TYPE_INIT_BEGIN_DEF_VAR2(Axis, InputManager::Axis)
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("type", Keg::Value::custom("AxisType", offsetof(InputManager::Axis, type), true));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("defaultPositiveKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, defaultPositiveKey)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("defaultNegativeKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, defaultNegativeKey)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("positiveKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, positiveKey)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("negativeKey", Keg::Value::basic(Keg::BasicType::UI32, offsetof(InputManager::Axis, negativeKey))); ///< The actual negative key.
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("joystickAxis", Keg::Value::basic(Keg::BasicType::I32, offsetof(InputManager::Axis, joystickAxis)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("joystickButton", Keg::Value::basic(Keg::BasicType::I32, offsetof(InputManager::Axis, joystickButton)));
-KEG_TYPE_INIT_END
-
+KEG_TYPE_DECL(Axis);
+KEG_TYPE_DEF(Axis, InputManager::Axis, kt) {
+    using namespace keg;
+    kt.addValue("type", Value::custom(offsetof(InputManager::Axis, type), "AxisType", true));
+    kt.addValue("defaultPositiveKey", Value::basic(offsetof(InputManager::Axis, defaultPositiveKey), BasicType::UI32));
+    kt.addValue("defaultNegativeKey", Value::basic(offsetof(InputManager::Axis, defaultNegativeKey), BasicType::UI32));
+    kt.addValue("positiveKey", Value::basic(offsetof(InputManager::Axis, positiveKey), BasicType::UI32));
+    kt.addValue("negativeKey", Value::basic(offsetof(InputManager::Axis, negativeKey), BasicType::UI32)); ///< The actual negative key.
+    kt.addValue("joystickAxis", Value::basic(offsetof(InputManager::Axis, joystickAxis), BasicType::I32));
+    kt.addValue("joystickButton", Value::basic(offsetof(InputManager::Axis, joystickButton), BasicType::I32));
+}
 InputManager::InputManager() :
 _defaultConfigLocation(DEFAULT_CONFIG_LOCATION) {
     memset(_currentKeyStates, 0, sizeof(_currentKeyStates));
@@ -161,10 +163,10 @@ void InputManager::loadAxes(const std::string &location) {
     }
 
     // Manually parse yml file
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         Axis* curAxis = new Axis();
         curAxis->name = name;
-        Keg::parse((ui8*)curAxis, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Axis));
+        keg::parse((ui8*)curAxis, value, reader, keg::getGlobalEnvironment(), &KEG_GET_TYPE(Axis));
      
         if (curAxis->type == AxisType::SINGLE_KEY) {
             curAxis->upEvent = Event<ui32>(curAxis);
@@ -200,61 +202,39 @@ void InputManager::update() {
 }
 
 void InputManager::startInput() {
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=] (Sender sender, const vui::MouseButtonEvent& e) {
-        switch (e.button) {
-        case vui::MouseButton::LEFT:
-            _currentKeyStates[SDL_BUTTON_LEFT] = true;
-            break;
-        case vui::MouseButton::RIGHT:
-            _currentKeyStates[SDL_BUTTON_RIGHT] = true;
-            break;
-        default:
-            break;
-        }
-    });
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=] (Sender sender, const vui::MouseButtonEvent& e) {
-        switch (e.button) {
-        case vui::MouseButton::LEFT:
-            _currentKeyStates[SDL_BUTTON_LEFT] = false;
-            break;
-        case vui::MouseButton::RIGHT:
-            _currentKeyStates[SDL_BUTTON_RIGHT] = false;
-            break;
-        default:
-            break;
-        }
-    });
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [=] (Sender sender, const vui::KeyEvent& e) {
-        _currentKeyStates[e.keyCode] = true;
-    });
-    m_inputHooks.addAutoHook(&vui::InputDispatcher::key.onKeyUp, [=] (Sender sender, const vui::KeyEvent& e) {
-        _currentKeyStates[e.keyCode] = false;
-    });
+    vui::InputDispatcher::mouse.onButtonDown += makeDelegate(*this, &InputManager::onMouseButtonDown);
+    vui::InputDispatcher::mouse.onButtonUp += makeDelegate(*this, &InputManager::onMouseButtonDown);
+    vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &InputManager::onKeyDown);
+    vui::InputDispatcher::key.onKeyUp += makeDelegate(*this, &InputManager::onKeyUp);
 }
-
 void InputManager::stopInput() {
-    m_inputHooks.dispose();
+    vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(*this, &InputManager::onMouseButtonDown);
+    vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(*this, &InputManager::onMouseButtonDown);
+    vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &InputManager::onKeyDown);
+    vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputManager::onKeyUp);
 }
 
-IDelegate<ui32>* InputManager::subscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f) {
+InputManager::Listener* InputManager::subscribe(const i32 axisID, EventType eventType, InputManager::Listener* f) {
     if(axisID < 0 || axisID >= _axes.size() || f == nullptr || _axes[axisID]->type != AxisType::SINGLE_KEY) return nullptr;
-    switch(eventType) {
+    switch (eventType) {
     case UP:
-        return _axes[axisID]->upEvent.add(f);
+        _axes[axisID]->upEvent.add(*f);
+        return f;
     case DOWN:
         std::cout << "subscribing" << axisID << std::endl;
-        return _axes[axisID]->downEvent.add(f);
+        _axes[axisID]->downEvent.add(*f);
+        return f;
     }
     return nullptr;
 }
 
-void InputManager::unsubscribe(const i32 axisID, EventType eventType, IDelegate<ui32>* f) {
+void InputManager::unsubscribe(const i32 axisID, EventType eventType, InputManager::Listener* f) {
     if(axisID < 0 || axisID >= _axes.size() || f == nullptr || _axes[axisID]->type != AxisType::SINGLE_KEY) return;
     switch(eventType) {
     case UP:
-        _axes[axisID]->upEvent.remove(f);
+        _axes[axisID]->upEvent.remove(*f);
     case DOWN:
-        _axes[axisID]->downEvent.remove(f);
+        _axes[axisID]->downEvent.remove(*f);
     }
 }
 
@@ -300,4 +280,35 @@ void InputManager::setNegativeKeyToDefault(const i32 axisID) {
 InputManager::AxisType InputManager::getAxisType(const i32 axisID) {
     if(axisID < 0 || axisID >= _axes.size()) return AxisType::NONE;
     return _axes.at(axisID)->type;
+}
+
+void InputManager::onMouseButtonDown(Sender, const vui::MouseButtonEvent& e) {
+    switch (e.button) {
+    case vui::MouseButton::LEFT:
+        _currentKeyStates[SDL_BUTTON_LEFT] = true;
+        break;
+    case vui::MouseButton::RIGHT:
+        _currentKeyStates[SDL_BUTTON_RIGHT] = true;
+        break;
+    default:
+        break;
+    }
+}
+void InputManager::onMouseButtonUp(Sender, const vui::MouseButtonEvent& e) {
+    switch (e.button) {
+    case vui::MouseButton::LEFT:
+        _currentKeyStates[SDL_BUTTON_LEFT] = false;
+        break;
+    case vui::MouseButton::RIGHT:
+        _currentKeyStates[SDL_BUTTON_RIGHT] = false;
+        break;
+    default:
+        break;
+    }
+}
+void InputManager::onKeyDown(Sender, const vui::KeyEvent& e) {
+    _currentKeyStates[e.keyCode] = true;
+}
+void InputManager::onKeyUp(Sender, const vui::KeyEvent& e) {
+    _currentKeyStates[e.keyCode] = false;
 }

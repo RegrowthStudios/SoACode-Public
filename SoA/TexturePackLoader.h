@@ -58,7 +58,7 @@ public:
     /// @param filePath: The path of the texture
     /// @param ss: The sampler state for loading the texture
     void registerTexture(const nString& filePath,
-                         SamplerState* ss = &SamplerState::LINEAR_CLAMP_MIPMAP) {
+                         vg::SamplerState* ss = &vg::SamplerState::LINEAR_CLAMP_MIPMAP) {
         _texturesToLoad[filePath] = ss;
     }
 
@@ -167,15 +167,15 @@ private:
     class TextureToUpload {
     public:
         TextureToUpload() : pixels(nullptr), samplerState(nullptr) {};
-        TextureToUpload(Pixels* p, SamplerState* ss) :
+        TextureToUpload(Pixels* p, vg::SamplerState* ss) :
             pixels(p), samplerState(ss) {
             // Empty
         }
         Pixels* pixels;
-        SamplerState* samplerState;
+        vg::SamplerState* samplerState;
     };
 
-    std::map <nString, SamplerState*> _texturesToLoad; ///< Map of all unique non-block texture paths to load
+    std::map <nString, vg::SamplerState*> _texturesToLoad; ///< Map of all unique non-block texture paths to load
     std::map <nString, TextureToUpload> _texturesToUpload; ///< Map of textures to upload
 
     std::set <nString> _blockTexturesToLoad; ///< Set of all unique block texture paths to load

@@ -60,7 +60,7 @@ void MainMenuSystemViewer::update() {
     m_camera->update();
 
     for (auto& it : m_spaceSystem->m_namePositionCT) {
-        vcore::ComponentID componentID;
+        vecs::ComponentID componentID;
 
         f64v3 relativePos = it.second.position - m_camera->getPosition();
         f64 distance = glm::length(relativePos);
@@ -131,7 +131,7 @@ void MainMenuSystemViewer::targetBody(const nString& name) {
     }
 }
 
-void MainMenuSystemViewer::targetBody(vcore::EntityID eid) {
+void MainMenuSystemViewer::targetBody(vecs::EntityID eid) {
     m_targetEntity = eid;
     m_targetComponent = m_spaceSystem->m_namePositionCT.getComponentID(m_targetEntity);
 }
@@ -155,7 +155,7 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
         mouseButtons[0] = true;
         // Target a body if we clicked on one
         f64 closestDist = 99999999999999999999999999999.0;
-        vcore::EntityID closestEntity = 0;
+        vecs::EntityID closestEntity = 0;
         for (auto& it : bodyArData) {
             if (it.second.isHovering) {
 
@@ -209,7 +209,7 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
     }
 }
 
-void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
+void MainMenuSystemViewer::pickStartLocation(vecs::EntityID eid) {
     // Check to see if it even has terrain by checking if it has a generator
     if (!m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator) return;
     // Select the planet
@@ -219,7 +219,7 @@ void MainMenuSystemViewer::pickStartLocation(vcore::EntityID eid) {
         1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
     f32v3 pickRay = m_camera->getPickRay(ndc);
 
-    vcore::ComponentID cid = m_spaceSystem->m_namePositionCT.getComponentID(eid);
+    vecs::ComponentID cid = m_spaceSystem->m_namePositionCT.getComponentID(eid);
     if (!cid) return;
     f64v3 centerPos = m_spaceSystem->m_namePositionCT.get(cid).position;
     f32v3 pos = f32v3(centerPos - m_camera->getPosition());

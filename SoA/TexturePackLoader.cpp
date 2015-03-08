@@ -315,16 +315,16 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
     nString data;
     _ioManager.readFileToString(fileName.c_str(), data);
     if (data.length()) {
-        if (Keg::parse(rv, data.c_str(), "BlockTexture") == Keg::Error::NONE) {
-            if (rv->base.weights.getLength() > 0) {
+        if (keg::parse(rv, data.c_str(), "BlockTexture") == keg::Error::NONE) {
+            if (rv->base.weights.size() > 0) {
                 rv->base.totalWeight = 0;
-                for (i32 i = 0; i < rv->base.weights.getLength(); i++) {
+                for (i32 i = 0; i < rv->base.weights.size(); i++) {
                     rv->base.totalWeight += rv->base.weights[i];
                 }
             }
-            if (rv->overlay.weights.getLength() > 0) {
+            if (rv->overlay.weights.size() > 0) {
                 rv->overlay.totalWeight = 0;
-                for (i32 i = 0; i < rv->overlay.weights.getLength(); i++) {
+                for (i32 i = 0; i < rv->overlay.weights.size(); i++) {
                     rv->overlay.totalWeight += rv->overlay.weights[i];
                 }
             }

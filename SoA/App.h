@@ -12,7 +12,7 @@ class MainMenuScreen;
 class GamePlayScreen;
 class TexturePackLoader;
 
-class App : public MainGame {
+class App : public vui::MainGame {
 public:
     virtual ~App();
 
@@ -27,7 +27,7 @@ public:
     GamePlayScreen* scrGamePlay = nullptr;
 
     DevScreen* scrDev = nullptr;
-    std::vector<IGameScreen*> scrTests;
+    std::vector<vui::IGameScreen*> scrTests;
 };
 
 #endif // App_h_

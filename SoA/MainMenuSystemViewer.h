@@ -40,12 +40,12 @@ public:
         f32 hoverTime = 0.0f;
         f32 selectorSize = 0.0f;
         bool inFrustum = false;
-        vcore::EntityID hoverEntity = 0;
+        vecs::EntityID hoverEntity = 0;
         bool isHovering = false;
         bool isLandSelected = false;
         f32v3 selectedPos;
     };
-    const BodyArData* finBodyAr(vcore::EntityID eid) const {
+    const BodyArData* finBodyAr(vecs::EntityID eid) const {
         auto& it = bodyArData.find(eid);
         if (it == bodyArData.end()) return nullptr;
         return &it->second;
@@ -56,12 +56,12 @@ public:
     void targetBody(const nString& name);
     /// Targets an entity
     /// @param eid: Entity ID
-    void targetBody(vcore::EntityID eid);
+    void targetBody(vecs::EntityID eid);
 
     /// Getters
     const f32v3& getSelectedGridPos() const { return m_selectedGridPos; }
     const int& getSelectedCubeFace() const { return m_selectedCubeFace; }
-    vcore::EntityID getSelectedPlanet() const { return m_selectedPlanet; }
+    vecs::EntityID getSelectedPlanet() const { return m_selectedPlanet; }
     const f64v3& getClickPos() const { return m_clickPos; }
 
     /// Gets the position of the targeted entity
@@ -87,15 +87,15 @@ private:
     void onMouseWheel(Sender sender, const vui::MouseWheelEvent& e);
     void onMouseMotion(Sender sender, const vui::MouseMotionEvent& e);
 
-    void pickStartLocation(vcore::EntityID eid);
+    void pickStartLocation(vecs::EntityID eid);
     void computeGridPosition(const f32v3& hitpoint, f32 radius, OUT f32& height);
 
     nString currentBody = "";
 
-    std::map <vcore::EntityID, BodyArData> bodyArData;
+    std::map <vecs::EntityID, BodyArData> bodyArData;
 
-    vcore::EntityID m_targetEntity = 1; ///< Current entity we are focusing on
-    vcore::ComponentID m_targetComponent = 1; ///< namePositionComponent of the targetEntity
+    vecs::EntityID m_targetEntity = 1; ///< Current entity we are focusing on
+    vecs::ComponentID m_targetComponent = 1; ///< namePositionComponent of the targetEntity
 
     bool mouseButtons[2];
     f32v2 m_mouseCoords = f32v2(-1.0f);
@@ -105,7 +105,7 @@ private:
     f32v3 m_selectedGridPos = f32v3(0.0f);
     WorldCubeFace m_selectedCubeFace = WorldCubeFace::FACE_NONE;
 
-    vcore::EntityID m_selectedPlanet = 0;
+    vecs::EntityID m_selectedPlanet = 0;
 
     CinematicCamera* m_camera = nullptr;
     SpaceSystem* m_spaceSystem = nullptr;

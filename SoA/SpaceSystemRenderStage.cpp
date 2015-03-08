@@ -62,7 +62,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
     f64v3 lightPos;
     // For caching light for far terrain
-    std::map<vcore::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
+    std::map<vecs::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
     const f64v3* pos;
     // Render spherical terrain
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {

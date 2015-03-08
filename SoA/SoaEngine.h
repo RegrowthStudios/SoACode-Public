@@ -87,7 +87,7 @@ private:
                                    const SystemBodyKegProperties* sysProps, OUT SystemBody* body,
                                    vcore::RPCManager* glrpc = nullptr);
 
-    static void calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary);
+    static void calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary);
 
 };
 

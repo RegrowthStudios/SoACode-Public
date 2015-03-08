@@ -137,7 +137,7 @@ void SystemARRenderer::drawHUD() {
         const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
         if (bodyArData == nullptr) continue;
 
-        vcore::ComponentID componentID;
+        vecs::ComponentID componentID;
 
         f64v3 position = it.second.position;
         f64v3 relativePos = position - m_camera->getPosition();

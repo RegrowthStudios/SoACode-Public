@@ -12,52 +12,47 @@
 #include "Texture2d.h"
 #include "ZipFile.h"
 
-KEG_ENUM_INIT_BEGIN(MeshType, MeshType, e)
-e->addValue("none", MeshType::NONE);
-e->addValue("cube", MeshType::BLOCK);
-e->addValue("leaves", MeshType::LEAVES);
-e->addValue("triangle", MeshType::FLORA);
-e->addValue("cross", MeshType::CROSSFLORA);
-e->addValue("liquid", MeshType::LIQUID);
-e->addValue("flat", MeshType::FLAT);
-KEG_ENUM_INIT_END
-
-KEG_ENUM_INIT_BEGIN(ConnectedTextureMethods, ConnectedTextureMethods, e)
-e->addValue("none", ConnectedTextureMethods::NONE);
-e->addValue("connect", ConnectedTextureMethods::CONNECTED);
-e->addValue("random", ConnectedTextureMethods::RANDOM);
-e->addValue("repeat", ConnectedTextureMethods::REPEAT);
-e->addValue("grass", ConnectedTextureMethods::GRASS);
-e->addValue("horizontal", ConnectedTextureMethods::HORIZONTAL);
-e->addValue("vertical", ConnectedTextureMethods::VERTICAL);
-e->addValue("flora", ConnectedTextureMethods::FLORA);
-KEG_ENUM_INIT_END
-
-KEG_ENUM_INIT_BEGIN(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e)
-e->addValue("none", ConnectedTextureSymmetry::NONE);
-e->addValue("opposite", ConnectedTextureSymmetry::OPPOSITE);
-e->addValue("all", ConnectedTextureSymmetry::ALL);
-KEG_ENUM_INIT_END
-
-KEG_ENUM_INIT_BEGIN(BlockOcclusion, BlockOcclusion, e);
-e->addValue("none", BlockOcclusion::NONE);
-e->addValue("self", BlockOcclusion::SELF);
-e->addValue("selfOnly", BlockOcclusion::SELF_ONLY);
-e->addValue("all", BlockOcclusion::ALL);
-KEG_ENUM_INIT_END
-
-KEG_ENUM_INIT_BEGIN(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e);
-e->addValue("none", ConnectedTextureReducedMethod::NONE);
-e->addValue("top", ConnectedTextureReducedMethod::TOP);
-e->addValue("bottom", ConnectedTextureReducedMethod::BOTTOM);
-KEG_ENUM_INIT_END
-
-KEG_ENUM_INIT_BEGIN(BlendType, BlendType, e)
-e->addValue("add", BlendType::ADD);
-e->addValue("multiply", BlendType::MULTIPLY);
-e->addValue("replace", BlendType::ALPHA);
-e->addValue("subtract", BlendType::SUBTRACT);
-KEG_ENUM_INIT_END
+KEG_ENUM_DEF(MeshType, MeshType, e) {
+    e.addValue("none", MeshType::NONE);
+    e.addValue("cube", MeshType::BLOCK);
+    e.addValue("leaves", MeshType::LEAVES);
+    e.addValue("triangle", MeshType::FLORA);
+    e.addValue("cross", MeshType::CROSSFLORA);
+    e.addValue("liquid", MeshType::LIQUID);
+    e.addValue("flat", MeshType::FLAT);
+}
+KEG_ENUM_DEF(ConnectedTextureMethods, ConnectedTextureMethods, e) {
+    e.addValue("none", ConnectedTextureMethods::NONE);
+    e.addValue("connect", ConnectedTextureMethods::CONNECTED);
+    e.addValue("random", ConnectedTextureMethods::RANDOM);
+    e.addValue("repeat", ConnectedTextureMethods::REPEAT);
+    e.addValue("grass", ConnectedTextureMethods::GRASS);
+    e.addValue("horizontal", ConnectedTextureMethods::HORIZONTAL);
+    e.addValue("vertical", ConnectedTextureMethods::VERTICAL);
+    e.addValue("flora", ConnectedTextureMethods::FLORA);
+}
+KEG_ENUM_DEF(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e) {
+    e.addValue("none", ConnectedTextureSymmetry::NONE);
+    e.addValue("opposite", ConnectedTextureSymmetry::OPPOSITE);
+    e.addValue("all", ConnectedTextureSymmetry::ALL);
+}
+KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {
+    e.addValue("none", BlockOcclusion::NONE);
+    e.addValue("self", BlockOcclusion::SELF);
+    e.addValue("selfOnly", BlockOcclusion::SELF_ONLY);
+    e.addValue("all", BlockOcclusion::ALL);
+}
+KEG_ENUM_DEF(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e) {
+    e.addValue("none", ConnectedTextureReducedMethod::NONE);
+    e.addValue("top", ConnectedTextureReducedMethod::TOP);
+    e.addValue("bottom", ConnectedTextureReducedMethod::BOTTOM);
+}
+KEG_ENUM_DEF(BlendType, BlendType, e) {
+    e.addValue("add", BlendType::ADD);
+    e.addValue("multiply", BlendType::MULTIPLY);
+    e.addValue("replace", BlendType::ALPHA);
+    e.addValue("subtract", BlendType::SUBTRACT);
+}
 
 KEG_TYPE_INIT_BEGIN_DEF_VAR(BlockTextureLayer)
 KEG_TYPE_INIT_DEF_VAR_NAME->addValue("method", Keg::Value::custom("ConnectedTextureMethods", offsetof(BlockTextureLayer, method), true));

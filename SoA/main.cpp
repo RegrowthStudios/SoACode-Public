@@ -4,6 +4,10 @@
 #include <SDL/SDL_syswm.h>
 #endif
 #include <Vorb/Vorb.h>
+#define VORB_IMPL_UI_SDL
+#define VORB_IMPL_SOUND_FMOD
+#define VORB_IMPL_FONT_SDL
+#include <Vorb/VorbLibs.h>
 
 #include "App.h"
 
@@ -18,10 +22,7 @@ int main(int argc, char **argv) {
 #endif
 
     // Run the game
-    MainGame* mg = new App;
-    mg->run();
-    delete mg;
-    mg = nullptr;
+    { App().run(); }
 
     // Dispose Vorb modules
     vorb::dispose(vorb::InitParam::ALL);
