@@ -169,22 +169,22 @@ void TestBlockView::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestBlockView::onEntry(const vui::GameTime& gameTime) {
-    m_hooks.addAutoHook(&m_blocks.onBlockAddition, [&] (Sender s, ui16 id) {
+    m_hooks.addAutoHook(m_blocks.onBlockAddition, [&] (Sender s, ui16 id) {
         printf("Loaded Block: %s = %d\n", m_blocks[id].name.c_str(), id);
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::window.onFile, [&] (Sender s, const vui::WindowFileEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::window.onFile, [&] (Sender s, const vui::WindowFileEvent& e) {
         loadBlocks(e.file);
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (Sender s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&] (Sender s, const vui::MouseMotionEvent& e) {
         if (m_movingCamera) {
             m_mRotation = glm::rotate(f32m4(), 1.2f * e.dx, f32v3(0.0f, 1.0f, 0.0f)) * m_mRotation;
             m_mRotation = glm::rotate(f32m4(), 1.2f * e.dy, f32v3(1.0f, 0.0f, 0.0f)) * m_mRotation;
         }
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::MIDDLE) m_movingCamera = true;
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::MIDDLE) m_movingCamera = false;
     });
 

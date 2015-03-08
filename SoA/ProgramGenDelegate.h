@@ -18,18 +18,9 @@
 #include <Vorb/RPC.h>
 #include <Vorb/graphics/GLProgram.h>
 
-class ProgramGenDelegate : public IDelegate < void* > {
+class ProgramGenDelegate {
 public:
-    void init(nString name, const vg::ShaderSource& vs, const vg::ShaderSource& fs, std::vector<nString>* attr = nullptr) {
-        this->name = name;
-        this->vs = vs;
-        this->fs = fs;
-        this->attr = attr;
-        rpc.data.f = this;
-        rpc.data.userData = nullptr;
-    }
-
-    virtual void invoke(Sender sender, void* userData) override {
+    virtual void invoke(Sender sender, void* userData) {
         std::cout << "Building shader: " << name << std::endl;
         program = new vg::GLProgram(true);
         if (!program->addShader(vs)) {
@@ -59,12 +50,26 @@ public:
         program->initUniforms();
     }
 
+    ProgramGenDelegate() {
+        del = makeDelegate(*this, &ProgramGenDelegate::invoke);
+        rpc.data.f = &del;
+    }
+
+    void init(nString name, const vg::ShaderSource& vs, const vg::ShaderSource& fs, std::vector<nString>* attr = nullptr) {
+        this->name = name;
+        this->vs = vs;
+        this->fs = fs;
+        this->attr = attr;
+        rpc.data.userData = nullptr;
+    }
+
     nString name;
     vg::ShaderSource vs;
     vg::ShaderSource fs;
     std::vector<nString>* attr = nullptr;
 
     vcore::RPC rpc;
+    Delegate<Sender, void*> del;
 
     vg::GLProgram* program = nullptr;
     nString errorMessage;

@@ -38,9 +38,9 @@ public:
     /// @param s: Screen
     void addScreen(VirtualKey vKey, vui::IGameScreen* s);
 private:
-    std::map<VirtualKey, IGameScreen*> m_screenMapping; ///< Stores available screen targets
+    std::map<VirtualKey, vui::IGameScreen*> m_screenMapping; ///< Stores available screen targets
     AutoDelegatePool m_delegatePool; ///< Input hooks reservoir
-    IGameScreen* m_nextScreen = nullptr; ///< The next screen
+    vui::IGameScreen* m_nextScreen = nullptr; ///< The next screen
 };
 
 #endif // DevScreen_h__

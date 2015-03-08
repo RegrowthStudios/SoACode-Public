@@ -34,13 +34,20 @@ class SphericalTerrainGpuGenerator;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
-class RawHeightGenerator : public IDelegate <Sender sender, void* userData> {
+class RawHeightGenerator {
 public:
-    virtual void invoke(Sender sender, void* userData) override;
+    void invoke(Sender sender, void* userData);
+
+    RawHeightGenerator() {
+        del = makeDelegate(*this, &RawHeightGenerator::invoke);
+        rpc.data.f = &del;
+    }
+
     void release();
     volatile bool inUse = false;
 
     vcore::RPC rpc;
+    Delegate<Sender, void*> del;
 
     f32v3 startPos;
     WorldCubeFace cubeFace;

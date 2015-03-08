@@ -19,8 +19,8 @@ void DevScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void DevScreen::onEntry(const vui::GameTime& gameTime) {
-    m_delegatePool.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [&] (Sender sender, const vui::KeyEvent& e) {
-        auto kvp = m_screenMapping.find(e.keyCode);
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender sender, const vui::KeyEvent& e) {
+        auto kvp = m_screenMapping.find((VirtualKey)e.keyCode);
         if (kvp == m_screenMapping.end()) return;
         m_nextScreen = kvp->second;
     });

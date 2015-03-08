@@ -32,10 +32,10 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
     targetBody("Aldrin");
 
     // Register events
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
 }
 
 MainMenuSystemViewer::~MainMenuSystemViewer() {

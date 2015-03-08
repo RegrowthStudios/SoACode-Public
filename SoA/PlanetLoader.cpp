@@ -6,6 +6,7 @@
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/io/IOManager.h>
+#include <Vorb/Events.hpp>
 
 #include "Errors.h"
 
@@ -35,7 +36,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
 
     nString biomePath = "";
 
-    auto f = Delegate<const nString&, keg::Node>::create([&](const nString& type, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "biomes") {
             loadBiomes(keg::convert<nString>(value), genData);
@@ -109,7 +110,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     keg::Error error;
 
     // Load yaml data
-    auto f = Delegate::create<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "baseLookupMap") {
             vpath texPath;
@@ -193,14 +194,13 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader
     keg::Error error;
     std::vector<TerrainFuncKegProperties> vecFuncs; // Temporary vector
 
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         if (type == "base") {
             terrainFuncs->baseHeight += keg::convert<f32>(value);
             return;
         }
 
         vecFuncs.push_back(TerrainFuncKegProperties());
-
 
         error = keg::parse((ui8*)&vecFuncs.back(), value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
         if (error != keg::Error::NONE) {
@@ -271,7 +271,7 @@ void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, Pla
         return;
     }
 
-    auto f = createDelegate<const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
         // Add a block
         genData->blockLayers.emplace_back();
         BlockLayer& l = genData->blockLayers.back();

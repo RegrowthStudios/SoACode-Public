@@ -58,12 +58,12 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
-    pool.addAutoHook(&state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
+    pool.addAutoHook(state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
         fs.write("Entity added: %d\n", eid);
     });
     for (auto namedTable : state->spaceSystem->getComponents()) {
         auto table = state->spaceSystem->getComponentTable(namedTable.first);
-        pool.addAutoHook(&table->onEntityAdded, [=] (Sender, vecs::ComponentID cid, vecs::EntityID eid) {
+        pool.addAutoHook(table->onEntityAdded, [=] (Sender, vecs::ComponentID cid, vecs::EntityID eid) {
             fs.write("Component \"%s\" added: %d -> Entity %d\n", namedTable.first.c_str(), cid, eid);
         });
     }
@@ -192,7 +192,7 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
     }
 
     bool goodParse = true;
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
         // Parse based on the name
         if (name == "description") {
             pr.spaceSystem->systemDescription = name;
@@ -261,7 +261,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
 
     bool goodParse = true;
     bool foundOne = false;
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         if (foundOne) return;
 
         // Parse based on type

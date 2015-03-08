@@ -18,7 +18,7 @@ KEG_ENUM_DEF(TreeLeafShape, TreeLeafShape, kt) {
     kt.addValue("mushroom", TreeLeafShape::MUSHROOM);
 }
 
-KEG_ENUM_DEF(TreeBranchingProps, TreeBranchingProps, kt) {
+KEG_TYPE_DEF_SAME_NAME(TreeBranchingProps, kt) {
     using namespace keg;
     kt.addValue("width", Value::basic(offsetof(TreeBranchingProps, width), BasicType::I32_V2));
     kt.addValue("length", Value::basic(offsetof(TreeBranchingProps, length), BasicType::I32_V2));

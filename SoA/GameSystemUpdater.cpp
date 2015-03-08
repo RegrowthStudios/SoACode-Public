@@ -130,7 +130,7 @@ GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputManager* input
         }
     });
 
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : gameSystem->freeMoveInput) {
             FreeMoveComponentUpdater::rotateFromMouse(gameSystem, it.second, -e.dx, e.dy, 0.1f);

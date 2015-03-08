@@ -18,7 +18,6 @@ void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScree
     ADDFUNC(getInventory);
     ADDFUNC(print);
     ADDFUNC(selectItem);
-  
 }
 
 void PdaAwesomiumAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {

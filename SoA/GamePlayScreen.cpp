@@ -261,21 +261,21 @@ void GamePlayScreen::initInput() {
     m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
             m_soaState->isInputEnabled = true;
         }
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
             //TODO(Ben): Edit voxels
         }
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const vui::MouseEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const vui::MouseEvent& e) {
         m_soaState->isInputEnabled = true;
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_soaState->isInputEnabled = false;
     });

@@ -110,7 +110,7 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     }
     m_quad.init(0);
 
-    m_hooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [&] (Sender s, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender s, const vui::KeyEvent& e) {
         switch (e.keyCode) {
         case VKEY_I: if(m_roughness < 0.96) m_roughness += 0.05f; break;
         case VKEY_J: if (m_roughness > 0.04) m_roughness -= 0.05f; break;

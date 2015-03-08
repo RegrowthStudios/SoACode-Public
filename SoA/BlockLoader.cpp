@@ -18,12 +18,12 @@ bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
     CaPhysicsType::clearTypes();
 
     GameBlockPostProcess bpp(&iom, GameManager::texturePackLoader, &CaPhysicsType::typesCache);
-    pack->onBlockAddition += &bpp;
+    pack->onBlockAddition += bpp.del;
     if (!BlockLoader::load(&iom, filePath.c_str(), pack)) {
-        pack->onBlockAddition -= &bpp;
+        pack->onBlockAddition -= bpp.del;
         return false;
     }
-    pack->onBlockAddition -= &bpp;
+    pack->onBlockAddition -= bpp.del;
 
     // Set up the water blocks
     std::vector<Block> waterBlocks;
@@ -98,7 +98,7 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
 
     // Load all block nodes
     std::vector<Block> loadedBlocks;
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         // Add a block
         loadedBlocks.emplace_back();
         Block& b = loadedBlocks.back();
@@ -125,7 +125,7 @@ GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, TexturePac
     m_iom(iom),
     m_texPackLoader(tpl),
     m_caCache(caCache) {
-    // Empty
+    del = makeDelegate(*this, &GameBlockPostProcess::invoke);
 }
 
 void GameBlockPostProcess::invoke(Sender s, ui16 id) {

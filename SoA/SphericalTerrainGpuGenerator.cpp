@@ -50,7 +50,6 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridDa
         gen.inUse = true;
         cgd->wasRequestSent = true;
         gen.gridData = cgd;
-        gen.rpc.data.f = &gen;
 
         // Set the data
         gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
