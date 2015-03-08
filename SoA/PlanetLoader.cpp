@@ -7,6 +7,7 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/Events.hpp>
+#include <Vorb/io/YAML.h>
 
 #include "Errors.h"
 

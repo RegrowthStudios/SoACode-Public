@@ -31,6 +31,7 @@
 #define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
 #define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 #define SPACE_SYSTEM_CT_SPACELIGHT_NAME "SpaceLight"
+#define SPACE_SYSTEM_CT_ATMOSPHERE_NAME "Atmosphere"
 
 class App;
 class Binary;
@@ -64,6 +65,7 @@ public:
     vecs::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
     vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;
     vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
+    vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
 
     nString systemDescription; ///< textual description of the system

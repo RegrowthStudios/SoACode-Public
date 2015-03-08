@@ -63,8 +63,13 @@ namespace SpaceSystemAssemblages {
     extern void destroyGasGiant(OUT SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /************************************************************************/
-    /* Component Factories                                                  */
+    /* Component Assemblages                                                */
     /************************************************************************/
+    /// Atmosphere component
+    extern vecs::ComponentID addAtmosphereComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                    vecs::ComponentID namePositionComponent, f64 radius);
+    extern void removeAtmosphereComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
+
     /// Spherical voxel component
     extern vecs::ComponentID addSphericalVoxelComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                          vecs::ComponentID sphericalTerrainComponent,
