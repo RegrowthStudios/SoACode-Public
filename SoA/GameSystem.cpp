@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GameSystem.h"
 
-GameSystem::GameSystem() : vcore::ECS() {
+GameSystem::GameSystem() : vecs::ECS() {
     addComponentTable("AABBCollidable", &aabbCollidable);
     addComponentTable("FreeMove", &freeMoveInput);
     addComponentTable("Physics", &physics);

@@ -135,44 +135,25 @@ private:
 
     /// Does error checking and postprocessing to the layer and adds it to 
     /// _blockTextureLayers and _layersToLoad.
-    /// @param layer: The block texture layer to process
-    /// @param width: The width of the texture in pixels
-    /// @param height: The height of the texture in pixels
     /// @return Pointer to the BlockTextureLayer that gets stored
-    BlockTextureLayer* postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height);
+    BlockTextureLayer* postProcessLayer(vg::BitmapResource& bitmap, BlockTextureLayer& layer);
 
     /// Maps all the layers in _blockTextureLayers to an atlas array
     void mapTexturesToAtlases();
 
     /// Gets the pixels for an image by loading it or grabbing it from cache.
-    /// @param filePath: The texture path
-    /// @param width: Texture width gets stored here
-    /// @param height: Texture height gets stored here
-    /// @return Pointer to the pixel data
-    ui8* getPixels(const nString& filePath, ui32& width, ui32& height);
-
-    /// class used for cacheing pixels
-    class Pixels {
-    public:
-        Pixels() : data(nullptr), width(0), height(0) {};
-        Pixels(std::vector<ui8>* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
-            // Empty
-        }
-        std::vector<ui8>* data;
-        ui32 width;
-        ui32 height;
-    };
+    vg::BitmapResource getPixels(const nString& filePath);
 
     /// class used for storing texture upload state
     class TextureToUpload {
     public:
-        TextureToUpload() : pixels(nullptr), samplerState(nullptr) {};
-        TextureToUpload(Pixels* p, vg::SamplerState* ss) :
-            pixels(p), samplerState(ss) {
+        TextureToUpload() { };
+        TextureToUpload(vg::BitmapResource rs, vg::SamplerState* ss) :
+            bitmap(rs), samplerState(ss) {
             // Empty
         }
-        Pixels* pixels;
-        vg::SamplerState* samplerState;
+        vg::BitmapResource bitmap;
+        vg::SamplerState* samplerState = nullptr;
     };
 
     std::map <nString, vg::SamplerState*> _texturesToLoad; ///< Map of all unique non-block texture paths to load
@@ -186,7 +167,7 @@ private:
 
     std::map <nString, BlockTextureData> _blockTextureLoadDatas; ///< Map of all texture datas we need to load
 
-    std::map <nString, Pixels> _pixelCache; ///< Cache of texture pixel data
+    std::map <nString, vg::BitmapResource> _pixelCache; ///< Cache of texture pixel data
 
     TextureAtlasStitcher _textureAtlasStitcher; ///< Class responsible for doing the mapping to the atlas array
 

@@ -35,7 +35,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
 
     nString biomePath = "";
 
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto f = Delegate<const nString&, keg::Node>::create([&](const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "biomes") {
             loadBiomes(keg::convert<nString>(value), genData);
@@ -106,19 +106,19 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
 
     m_baseBiomeLookupTextureData.resize(LOOKUP_TEXTURE_SIZE, 0);
 
-    Keg::Error error;
+    keg::Error error;
 
     // Load yaml data
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto f = Delegate::create<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "baseLookupMap") {
-            std::vector<ui8> data;
-            ui32 rWidth, rHeight;
-            vpath texPath; m_iom->resolvePath(keg::convert<nString>(value), texPath);
-            if (!vio::ImageIO().loadPng(texPath.getString(), data, rWidth, rHeight)) {
+            vpath texPath;
+            m_iom->resolvePath(keg::convert<nString>(value), texPath);
+            vg::BitmapResource bitmap = vg::ImageIO().load(texPath.getString());
+            if (!bitmap.data) {
                 pError("Failed to load " + keg::convert<nString>(value));
             }
-            if (rWidth != 256 || rHeight != 256) {
+            if (bitmap.width != 256 || bitmap.height != 256) {
                 pError("loadBiomes() error: width and height of " + keg::convert<nString>(value) + " must be 256");
             }
 
@@ -131,8 +131,8 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
             // It is a biome
             genData->biomes.emplace_back();
             
-            error = Keg::parse((ui8*)&genData->biomes.back(), value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Biome));
-            if (error != Keg::Error::NONE) {
+            error = keg::parse((ui8*)&genData->biomes.back(), value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Biome));
+            if (error != keg::Error::NONE) {
                 fprintf(stderr, "Keg error %d in loadBiomes()\n", (int)error);
                 return;
             }
@@ -147,7 +147,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         // Generate base biome lookup texture
         genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),
                                                                    LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
-                                                                   &SamplerState::POINT_CLAMP,
+                                                                   &vg::SamplerState::POINT_CLAMP,
                                                                    vg::TextureInternalFormat::R8,
                                                                    vg::TextureFormat::RED, 0);
         // Generate array textures
@@ -190,7 +190,7 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader
         return;
     }
 
-    Keg::Error error;
+    keg::Error error;
     std::vector<TerrainFuncKegProperties> vecFuncs; // Temporary vector
 
     auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
@@ -202,8 +202,8 @@ void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader
         vecFuncs.push_back(TerrainFuncKegProperties());
 
 
-        error = Keg::parse((ui8*)&vecFuncs.back(), value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
-        if (error != Keg::Error::NONE) {
+        error = keg::parse((ui8*)&vecFuncs.back(), value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
+        if (error != keg::Error::NONE) {
             fprintf(stderr, "Keg error %d in parseTerrainFuncs()\n", (int)error); 
             return;
         }
@@ -223,18 +223,18 @@ void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, Pla
 
     LiquidColorKegProperties kegProps;
 
-    Keg::Error error;
-    error = Keg::parse((ui8*)&kegProps, node, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(LiquidColorKegProperties));
-    if (error != Keg::Error::NONE) {
+    keg::Error error;
+    error = keg::parse((ui8*)&kegProps, node, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(LiquidColorKegProperties));
+    if (error != keg::Error::NONE) {
         fprintf(stderr, "Keg error %d in parseLiquidColor()\n", (int)error);
         return;
     }
 
     if (kegProps.colorPath.size()) {
-        genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &SamplerState::LINEAR_CLAMP);
+        genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_CLAMP);
     }
     if (kegProps.texturePath.size()) {
-        genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &SamplerState::LINEAR_WRAP_MIPMAP);
+        genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
     genData->liquidFreezeTemp = kegProps.freezeTemp;
     genData->liquidDepthScale = kegProps.depthScale;
@@ -249,18 +249,18 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
 
     TerrainColorKegProperties kegProps;
 
-    Keg::Error error;
-    error = Keg::parse((ui8*)&kegProps, node, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainColorKegProperties));
-    if (error != Keg::Error::NONE) {
+    keg::Error error;
+    error = keg::parse((ui8*)&kegProps, node, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainColorKegProperties));
+    if (error != keg::Error::NONE) {
         fprintf(stderr, "Keg error %d in parseLiquidColor()\n", (int)error);
         return;
     }
 
     if (kegProps.colorPath.size()) {
-        genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, &SamplerState::LINEAR_CLAMP);
+        genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_CLAMP);
     }
     if (kegProps.texturePath.size()) {
-        genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &SamplerState::LINEAR_WRAP_MIPMAP);
+        genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
     genData->terrainTint = kegProps.tint;
 }
@@ -280,7 +280,7 @@ void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, Pla
         l.block = Blocks[name].ID;
 
         // Load data
-        Keg::parse((ui8*)&l, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockLayer));
+        keg::parse((ui8*)&l, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockLayer));
     });
     reader.forAllInMap(node, f);
     delete f;

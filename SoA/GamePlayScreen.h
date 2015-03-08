@@ -40,7 +40,6 @@ class SpriteFont;
 class TerrainMeshMessage;
 
 template<typename... Params>
-class IDelegate;
 class GamePlayScreenDelegate;
 class OnPauseKeyDown;
 class OnFlyKeyDown;

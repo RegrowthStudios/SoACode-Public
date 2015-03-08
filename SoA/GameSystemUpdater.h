@@ -42,13 +42,13 @@ public:
 private:
     /// Struct that holds event info for destruction
     struct EventData {
-        EventData(i32 aid, InputManager::EventType etype, IDelegate<ui32>* F) :
+        EventData(i32 aid, InputManager::EventType etype, Delegate<ui32>* F) :
             axisID(aid), eventType(etype), f(F) {
             // Empty
         }
         i32 axisID;
         InputManager::EventType eventType;
-        IDelegate<ui32>* f;
+        Delegate<ui32>* f;
     };
     /// Adds an event and tracks it for destruction
     /// @param axisID: The axis to subscribe the functor to.
@@ -56,7 +56,7 @@ private:
     /// @param f: The functor to subscribe to the axes' event.
     template<typename F>
     void addEvent(i32 axisID, InputManager::EventType eventType, F f) {
-        IDelegate<ui32>* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
+        Delegate<ui32>* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
         if (rv) m_events.emplace_back(axisID, eventType, rv);
     }
 

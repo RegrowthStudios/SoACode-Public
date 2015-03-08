@@ -10,12 +10,13 @@
 
 DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize,
                                      const App* app, const f32v2& windowDims) :
-    _spriteBatch(new SpriteBatch(true, true)),
-    _spriteFont(new SpriteFont(fontPath, fontSize)),
+                                     _spriteBatch(new vg::SpriteBatch(true, true)),
+                                     _spriteFont(new vg::SpriteFont()),
     _mode(DevUiModes::HANDS),
     _app(app),
     _windowDims(windowDims),
     _fontHeight(_spriteFont->getFontHeight()) {
+    _spriteFont->init(fontPath, fontSize);
     // Empty
 }
 
@@ -25,13 +26,6 @@ DevHudRenderStage::~DevHudRenderStage() {
 }
 
 void DevHudRenderStage::draw() {
-
-    // Lazily load spritebatch
-    if (!_spriteBatch) {
-        _spriteBatch = new SpriteBatch(true, true);
-        _spriteFont = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
-    }
-
     // Reset the yOffset
     _yOffset = 0;
 

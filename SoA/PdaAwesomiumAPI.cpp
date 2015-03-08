@@ -3,7 +3,7 @@
 
 #include "GamePlayScreen.h"
 
-void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
+void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &PdaAwesomiumAPI::##a)
@@ -21,7 +21,7 @@ void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ow
   
 }
 
-void PdaAwesomiumAPI::setOwnerScreen(IGameScreen* ownerScreen) {
+void PdaAwesomiumAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<GamePlayScreen*>(ownerScreen);
 }
 

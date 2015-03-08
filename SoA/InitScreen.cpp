@@ -92,7 +92,7 @@ void InitScreen::checkRequirements() {
     } \
     pos.y += rectSize.y;
 
-    const GraphicsDeviceProperties gdProps = GraphicsDevice::getCurrent()->getProperties();
+    const vg::GraphicsDeviceProperties gdProps = vg::GraphicsDevice::getCurrent()->getProperties();
     _sb->begin();
     if (gdProps.glVersionMajor < 3) INIT_BRANCH("OpenGL Version");
     if (!GLEW_VERSION_2_1) INIT_BRANCH("GLEW 2.1");
@@ -108,7 +108,7 @@ void InitScreen::checkRequirements() {
         _sb->drawString(_font, "Application Will Now Exit", pos + textOff, textSize, 1.0f, color::White, 0.0f);
     }
     _sb->drawString(_font, "Press Any Key To Continue", f32v2(10.0f, w->getHeight() - 30.0f), 24.0f, 1.0f, color::LightGray, 0.0f);
-    _sb->end(SpriteSortMode::TEXTURE);
+    _sb->end(vg::SpriteSortMode::TEXTURE);
 
 #ifdef DEBUG
     printf("System Met Minimum Requirements\n");

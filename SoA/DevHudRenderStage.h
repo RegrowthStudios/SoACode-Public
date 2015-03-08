@@ -16,9 +16,11 @@
 #define DevHudRenderStage_h__
 
 #include <Vorb/graphics/IRenderStage.h>
+#include <Vorb/VorbPreDecl.inl>
 
-class SpriteBatch;
-class SpriteFont;
+DECL_VG(class SpriteBatch;
+        class SpriteFont)
+
 class App;
 
 class DevHudRenderStage : public vg::IRenderStage{
@@ -50,8 +52,8 @@ private:
     void drawFps();
     void drawPosition();
 
-    SpriteBatch* _spriteBatch; ///< For rendering 2D sprites
-    SpriteFont* _spriteFont; ///< Font used by spritebatch
+    vg::SpriteBatch* _spriteBatch; ///< For rendering 2D sprites
+    vg::SpriteFont* _spriteFont; ///< Font used by spritebatch
     DevUiModes _mode; ///< The mode for rendering
     f32v2 _windowDims; ///< Dimensions of the window
     const App* _app; ///< Handle to the app

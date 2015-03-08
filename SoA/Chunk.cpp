@@ -27,15 +27,6 @@ GLuint Chunk::vboIndicesID = 0;
 
 std::vector<MineralData*> Chunk::possibleMinerals;
 
-void RawGenDelegate::invoke(Sender sender, void* userData) {
-    generator->generateRawHeightmap(this);
-}
-
-void RawGenDelegate::release() {
-    inUse = false;
-    gridData.reset();
-}
-
 void Chunk::init(const ChunkPosition3D &chunkPos) {
 	loadStatus = 0;
 	freeWaiting = 0;

@@ -22,10 +22,10 @@
 class Camera;
 class MainMenuSystemViewer;
 class SpaceSystem;
-class SpriteBatch;
-class SpriteFont;
 
-DECL_VG(class GLProgram);
+DECL_VG(class GLProgram;
+        class SpriteBatch;
+        class SpriteFont)
 
 class SystemARRenderer {
 public:
@@ -42,8 +42,8 @@ private:
     void drawHUD();
 
     vg::GLProgram* m_colorProgram = nullptr;
-    SpriteBatch* m_spriteBatch = nullptr;
-    SpriteFont* m_spriteFont = nullptr;
+    vg::SpriteBatch* m_spriteBatch = nullptr;
+    vg::SpriteFont* m_spriteFont = nullptr;
 
     // Helper variables to avoid passing
     SpaceSystem* m_spaceSystem = nullptr;

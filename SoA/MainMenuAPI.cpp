@@ -4,7 +4,7 @@
 #include "MainMenuScreen.h"
 #include "GameManager.h"
 
-void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
+void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &MainMenuAPI::##a)
@@ -28,7 +28,7 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerS
     ADDFUNC(newSaveGame);
 }
 
-void MainMenuAPI::setOwnerScreen(IGameScreen* ownerScreen) {
+void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<MainMenuScreen*>(ownerScreen);
 }
 

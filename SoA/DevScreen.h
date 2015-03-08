@@ -17,6 +17,7 @@
 
 #include <Vorb/Events.hpp>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/ui/KeyboardEventDispatcher.h>
 
 class DevScreen : public vui::IGameScreen {
 public:

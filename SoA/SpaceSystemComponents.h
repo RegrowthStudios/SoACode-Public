@@ -40,8 +40,8 @@ class TerrainRpcDispatcher;
 struct PlanetGenData;
 struct TerrainPatchData;
 
-DECL_VVOX(class, VoxelPlanetMapper);
-DECL_VIO(class, IOManager);
+DECL_VVOX(class VoxelPlanetMapper);
+DECL_VIO(class IOManager);
 
 /// For far and spherical terrain patch blending on transitions
 const float TERRAIN_ALPHA_BEFORE_FADE = 8.0f;

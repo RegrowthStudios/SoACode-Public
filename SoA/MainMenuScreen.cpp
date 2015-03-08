@@ -200,7 +200,7 @@ void MainMenuScreen::loadGame(const nString& fileName) {
         return;
     }
 
-    _state = ScreenState::CHANGE_NEXT;
+    _state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::newGame(const nString& fileName) {
@@ -218,7 +218,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     initSaveIomanager(fileName);  
 
-    _state = ScreenState::CHANGE_NEXT;
+    _state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::updateThreadFunc() {

@@ -9,7 +9,7 @@ class ChunkMesh;
 class Camera;
 class ChunkMeshManager;
 
-DECL_VG(class, GLProgramManager);
+DECL_VG(class GLProgramManager);
 
 class GameRenderParams {
 public:

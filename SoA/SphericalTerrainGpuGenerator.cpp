@@ -14,6 +14,15 @@
 #include "TerrainPatchMeshManager.h"
 
 
+void RawHeightGenerator::invoke(Sender s, void* data) {
+    generator->generateRawHeightmap(this);
+}
+
+void RawHeightGenerator::release() {
+    inUse = false;
+    gridData.reset();
+}
+
 float SphericalTerrainGpuGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 
 HeightmapGenRpcDispatcher::HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
@@ -28,7 +37,7 @@ HeightmapGenRpcDispatcher::~HeightmapGenRpcDispatcher() {
 bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
     // Lazy init
     if (!m_generators) {
-        m_generators = new RawGenDelegate[NUM_GENERATORS];
+        m_generators = new RawHeightGenerator[NUM_GENERATORS];
         for (int i = 0; i < NUM_GENERATORS; i++) {
             m_generators[i].generator = m_generator;
         }
@@ -159,7 +168,7 @@ void SphericalTerrainGpuGenerator::update() {
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(m_genProgram->getUniform("unBaseBiomes"), 0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->baseBiomeLookupTexture);
-        nString glVendor = GraphicsDevice::getCurrent()->getProperties().glVendor;
+        nString glVendor = vg::GraphicsDevice::getCurrent()->getProperties().glVendor;
         if (glVendor.find("Intel") != nString::npos) {
             glActiveTexture(GL_TEXTURE1);
             glUniform1i(m_genProgram->getUniform("unBiomes"), 1);
@@ -234,7 +243,7 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     patchCounter++;
 }
 
-void SphericalTerrainGpuGenerator::generateRawHeightmap(RawGenDelegate* data) {
+void SphericalTerrainGpuGenerator::generateRawHeightmap(RawHeightGenerator* data) {
 
     int &rawCounter = m_rawCounter[m_dBufferIndex];
 
@@ -343,7 +352,7 @@ void SphericalTerrainGpuGenerator::updateRawGeneration() {
     // Loop through all textures
     for (int i = 0; i < m_rawCounter[m_dBufferIndex]; i++) {
 
-        RawGenDelegate* data = m_rawDelegates[m_dBufferIndex][i];
+        RawHeightGenerator* data = m_rawDelegates[m_dBufferIndex][i];
 
         // Grab the pixel data from the PBO
         vg::GpuMemory::bindBuffer(m_rawPbos[m_dBufferIndex][i], vg::BufferTarget::PIXEL_PACK_BUFFER);

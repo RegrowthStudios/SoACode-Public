@@ -6,7 +6,7 @@
 #include "App.h"
 #include "GamePlayScreen.h"
 
-void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
+void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &PauseMenuAwesomiumAPI::##a)
@@ -23,7 +23,7 @@ void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScre
     ADDFUNC(print);
 }
 
-void PauseMenuAwesomiumAPI::setOwnerScreen(IGameScreen* ownerScreen) {
+void PauseMenuAwesomiumAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<GamePlayScreen*>(ownerScreen);
 }
 

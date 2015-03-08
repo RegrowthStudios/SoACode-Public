@@ -54,64 +54,64 @@ KEG_ENUM_DEF(BlendType, BlendType, e) {
     e.addValue("subtract", BlendType::SUBTRACT);
 }
 
-KEG_TYPE_INIT_BEGIN_DEF_VAR(BlockTextureLayer)
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("method", Keg::Value::custom("ConnectedTextureMethods", offsetof(BlockTextureLayer, method), true));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("reducedMethod", Keg::Value::custom("ConnectedTextureReducedMethod", offsetof(BlockTextureLayer, reducedMethod), true));
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32_V2, size);
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("symmetry", Keg::Value::custom("ConnectedTextureSymmetry", offsetof(BlockTextureLayer, symmetry), true));
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, BOOL, innerSeams);
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, BOOL, transparency);
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("height", Keg::Value::basic(Keg::BasicType::UI32, offsetof(BlockTextureLayer, floraHeight)));
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, STRING, useMapColor);
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32, totalWeight);
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32, numTiles);
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("weights", Keg::Value::array(offsetof(BlockTextureLayer, weights), Keg::BasicType::I32));
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, I32, textureIndex);
-KEG_TYPE_INIT_ADD_MEMBER(BlockTextureLayer, STRING, path);
-KEG_TYPE_INIT_END
+KEG_TYPE_DEF_SAME_NAME(BlockTextureLayer, kt) {
+    kt.addValue("method", keg::Value::custom(offsetof(BlockTextureLayer, method), "ConnectedTextureMethods", true));
+    kt.addValue("reducedMethod", keg::Value::custom(offsetof(BlockTextureLayer, reducedMethod), "ConnectedTextureReducedMethod", true));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, size, I32_V2);
+    kt.addValue("symmetry", keg::Value::custom(offsetof(BlockTextureLayer, symmetry), "ConnectedTextureSymmetry", true));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, innerSeams, BOOL);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, transparency, BOOL);
+    kt.addValue("height", keg::Value::basic(offsetof(BlockTextureLayer, floraHeight), keg::BasicType::UI32));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, useMapColor, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, totalWeight, I32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, numTiles, I32);
+    kt.addValue("weights", keg::Value::array(offsetof(BlockTextureLayer, weights), keg::BasicType::I32));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, textureIndex, I32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, path, STRING);
+}
 
-KEG_TYPE_INIT_BEGIN_DEF_VAR(BlockTexture)
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("base", Keg::Value::custom("BlockTextureLayer", offsetof(BlockTexture, base)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("overlay", Keg::Value::custom("BlockTextureLayer", offsetof(BlockTexture, overlay)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("blendMode", Keg::Value::custom("BlendType", offsetof(BlockTexture, blendMode), true));
-KEG_TYPE_INIT_END
+KEG_TYPE_DEF_SAME_NAME(BlockTexture, kt) {
+    kt.addValue("base", keg::Value::custom(offsetof(BlockTexture, base), "BlockTextureLayer"));
+    kt.addValue("overlay", keg::Value::custom(offsetof(BlockTexture, overlay), "BlockTextureLayer"));
+    kt.addValue("blendMode", keg::Value::custom(offsetof(BlockTexture, blendMode), "BlendType", true));
+}
 
-KEG_TYPE_INIT_BEGIN_DEF_VAR(Block)
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("ID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, ID)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("burnTransformID", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, burnTransformID)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waveEffect", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waveEffect)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColor", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, lightColor)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("caPhysics", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, caFilePath)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterMeshLevel", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, waterMeshLevel)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("floatingAction", Keg::Value::basic(Keg::BasicType::I16, offsetof(Block, floatingAction)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("occlusion", Keg::Value::custom("BlockOcclusion", offsetof(Block, occlude), true));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("spawnerVal", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, spawnerVal)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("sinkVal", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, sinkVal)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionRays", Keg::Value::basic(Keg::BasicType::UI16, offsetof(Block, explosionRays)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("meshType", Keg::Value::custom("MeshType", offsetof(Block, meshType), true));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("moveMod", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, moveMod)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionResistance", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosionResistance)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionPower", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosivePower)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("flammability", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, flammability)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("explosionPowerLoss", Keg::Value::basic(Keg::BasicType::F32, offsetof(Block, explosionPowerLoss)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("lightColorFilter", Keg::Value::basic(Keg::BasicType::F32_V3, offsetof(Block, colorFilter)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("color", Keg::Value::basic(Keg::BasicType::UI8_V3, offsetof(Block, color)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("emitter", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, emitterName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("movesPowder", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, powderMove)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("collide", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, collide)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("waterBreak", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, waterBreak)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("scatterSunRays", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, blockLight)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("useable", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, useable)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("allowsLight", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, allowLight)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("crushable", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, isCrushable)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("supportive", Keg::Value::basic(Keg::BasicType::BOOL, offsetof(Block, isSupportive)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureLeft", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, leftTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureRight", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, rightTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureFront", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, frontTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureBack", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, backTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureTop", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, topTexName)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("textureBottom", Keg::Value::basic(Keg::BasicType::STRING, offsetof(Block, bottomTexName)));
-KEG_TYPE_INIT_END
+KEG_TYPE_DEF_SAME_NAME(Block, kt) {
+    kt.addValue("ID", keg::Value::basic(offsetof(Block, ID), keg::BasicType::UI16));
+    kt.addValue("burnTransformID", keg::Value::basic(offsetof(Block, burnTransformID), keg::BasicType::UI16));
+    kt.addValue("waveEffect", keg::Value::basic(offsetof(Block, waveEffect), keg::BasicType::I16));
+    kt.addValue("lightColor", keg::Value::basic(offsetof(Block, lightColor), keg::BasicType::UI8_V3));
+    kt.addValue("caPhysics", keg::Value::basic(offsetof(Block, caFilePath), keg::BasicType::STRING));
+    kt.addValue("waterMeshLevel", keg::Value::basic(offsetof(Block, waterMeshLevel), keg::BasicType::I16));
+    kt.addValue("floatingAction", keg::Value::basic(offsetof(Block, floatingAction), keg::BasicType::I16));
+    kt.addValue("occlusion", keg::Value::custom(offsetof(Block, occlude), "BlockOcclusion", true));
+    kt.addValue("spawnerVal", keg::Value::basic(offsetof(Block, spawnerVal), keg::BasicType::UI16));
+    kt.addValue("sinkVal", keg::Value::basic(offsetof(Block, sinkVal), keg::BasicType::UI16));
+    kt.addValue("explosionRays", keg::Value::basic(offsetof(Block, explosionRays), keg::BasicType::UI16));
+    kt.addValue("meshType", keg::Value::custom(offsetof(Block, meshType), "MeshType", true));
+    kt.addValue("moveMod", keg::Value::basic(offsetof(Block, moveMod), keg::BasicType::F32));
+    kt.addValue("explosionResistance", keg::Value::basic(offsetof(Block, explosionResistance), keg::BasicType::F32));
+    kt.addValue("explosionPower", keg::Value::basic(offsetof(Block, explosivePower), keg::BasicType::F32));
+    kt.addValue("flammability", keg::Value::basic(offsetof(Block, flammability), keg::BasicType::F32));
+    kt.addValue("explosionPowerLoss", keg::Value::basic(offsetof(Block, explosionPowerLoss), keg::BasicType::F32, ));
+    kt.addValue("lightColorFilter", keg::Value::basic(offsetof(Block, colorFilter), keg::BasicType::F32_V3));
+    kt.addValue("color", keg::Value::basic(offsetof(Block, color), keg::BasicType::UI8_V3));
+    kt.addValue("emitter", keg::Value::basic(offsetof(Block, emitterName), keg::BasicType::STRING));
+    kt.addValue("movesPowder", keg::Value::basic(offsetof(Block, powderMove), keg::BasicType::BOOL));
+    kt.addValue("collide", keg::Value::basic(offsetof(Block, collide), keg::BasicType::BOOL));
+    kt.addValue("waterBreak", keg::Value::basic(offsetof(Block, waterBreak), keg::BasicType::BOOL));
+    kt.addValue("scatterSunRays", keg::Value::basic(offsetof(Block, blockLight), keg::BasicType::BOOL));
+    kt.addValue("useable", keg::Value::basic(offsetof(Block, useable), keg::BasicType::BOOL));
+    kt.addValue("allowsLight", keg::Value::basic(offsetof(Block, allowLight), keg::BasicType::BOOL));
+    kt.addValue("crushable", keg::Value::basic(offsetof(Block, isCrushable), keg::BasicType::BOOL));
+    kt.addValue("supportive", keg::Value::basic(offsetof(Block, isSupportive), keg::BasicType::BOOL));
+    kt.addValue("textureLeft", keg::Value::basic(offsetof(Block, leftTexName), keg::BasicType::STRING));
+    kt.addValue("textureRight", keg::Value::basic(offsetof(Block, rightTexName), keg::BasicType::STRING));
+    kt.addValue("textureFront", keg::Value::basic(offsetof(Block, frontTexName), keg::BasicType::STRING));
+    kt.addValue("textureBack", keg::Value::basic(offsetof(Block, backTexName), keg::BasicType::STRING));
+    kt.addValue("textureTop", keg::Value::basic(offsetof(Block, topTexName), keg::BasicType::STRING));
+    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, bottomTexName), keg::BasicType::STRING));
+}
 
 std::vector <int> TextureUnitIndices;
 
@@ -133,7 +133,7 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     LCHECK(symmetry);
     LCHECK(reducedMethod);
     LCHECK(useMapColor);
-    LCHECK(weights.getLength());
+    LCHECK(weights.size());
     LCHECK(totalWeight);
     LCHECK(numTiles);
     LCHECK(innerSeams);

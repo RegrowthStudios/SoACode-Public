@@ -14,7 +14,7 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
-#include <Vorb/io/Keg.h>
+#include <Vorb/io/keg.h>
 #include <Vorb/RPC.h>
 
 #define M_PER_KM 1000.0
@@ -131,7 +131,7 @@ void SoaEngine::addStarSystem(OUT SpaceSystemLoadParams& pr) {
         Binary* bin = it.second;
 
         // Loop through all children
-        for (int i = 0; i < bin->bodies.getLength(); i++) {
+        for (int i = 0; i < bin->bodies.size(); i++) {
             // Find the body
             auto& body = pr.systemBodies.find(std::string(bin->bodies[i]));
             if (body != pr.systemBodies.end()) {
@@ -199,8 +199,8 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
         } else if (name == "Binary") {
             // Binary systems
             Binary* newBinary = new Binary;
-            Keg::Error err = Keg::parse((ui8*)newBinary, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
-            if (err != Keg::Error::NONE) {
+            keg::Error err = keg::parse((ui8*)newBinary, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
+            if (err != keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
                 goodParse = false;
             }
@@ -210,8 +210,8 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
             // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
             properties.pathColor = ui8v4(rand() % 255, rand() % 255, rand() % 255, 255);
-            Keg::Error err = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
-            if (err != Keg::Error::NONE) {
+            keg::Error err = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
+            if (err != keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
                 goodParse = false;
             }
@@ -240,13 +240,13 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
                                    vcore::RPCManager* glrpc /* = nullptr */) {
 
 #define KEG_CHECK \
-    if (error != Keg::Error::NONE) { \
-        fprintf(stderr, "Keg error %d for %s\n", (int)error, filePath); \
+    if (error != keg::Error::NONE) { \
+        fprintf(stderr, "keg error %d for %s\n", (int)error, filePath); \
         goodParse = false; \
         return;  \
     }
 
-    Keg::Error error;
+    keg::Error error;
     nString data;
     pr.ioManager->readFileToString(filePath.c_str(), data);
 
@@ -267,7 +267,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         // Parse based on type
         if (type == "planet") {
             PlanetKegProperties properties;
-            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
+            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
             KEG_CHECK;
 
             // Use planet loader to load terrain and biomes
@@ -285,12 +285,12 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;
-            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
+            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
             SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
-            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
+            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         }

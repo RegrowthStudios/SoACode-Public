@@ -123,7 +123,7 @@ void SpaceSystemRenderStage::drawBodies() {
         }
     }
 
-    DepthState::FULL.set();
+    vg::DepthState::FULL.set();
 }
 
 SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos) {

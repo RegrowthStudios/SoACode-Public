@@ -9,8 +9,8 @@
 #include "LoadMonitor.h"
 #include "ProgramGenDelegate.h"
 
-DECL_VG(class, GLProgramManager);
-DECL_VIO(class, IOManager);
+DECL_VG(class GLProgramManager);
+DECL_VIO(class IOManager);
 
 class OnReloadShaderKeyDown;
 

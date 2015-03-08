@@ -20,7 +20,7 @@
 #include <Vorb/IO.h>
 
 class SoaFileSystem;
-DECL_VSOUND(class, Engine)
+DECL_VSOUND(class Engine)
 
 class MusicPlayer {
 public:

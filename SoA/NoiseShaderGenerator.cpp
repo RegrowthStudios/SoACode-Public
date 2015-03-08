@@ -113,9 +113,9 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
     fSource += modVar + "+= total / maxAmplitude;\n")
 
     // NOTE: Make sure this implementation matches SphericalTerrainCpuGenerator::getNoiseValue()
-    for (int f = 0; f < funcs.getLength(); f++) {
+    for (int f = 0; f < funcs.size(); f++) {
         auto& fn = funcs[f];
-        std::cout << "LOL: " << fn.children.getLength() << std::endl;
+        std::cout << "LOL: " << fn.children.size() << std::endl;
         switch (fn.func) {
             case TerrainFunction::NOISE:
                 fSource = fSource +
@@ -153,18 +153,18 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
                 break;
         }
         // If we have children, we need to clamp from 0 to 1
-        if (fn.children.getLength()) {
+        if (fn.children.size()) {
             fSource += modVar + " = clamp(" + modVar + ", 0.0, 1.0);";
             if (modifier.length()) {
                 fSource += modVar + " *= " + modifier + ";";
             }
 
-            if (fn.children.getLength()) {
-                std::cout << "Here: " << fn.children.getLength() << std::endl;
+            if (fn.children.size()) {
+                std::cout << "Here: " << fn.children.size() << std::endl;
                 addNoiseFunctions(fSource, variable, fn.children, modVar);
             }
         } else {
-            if (modifier.length()) {
+            if (modifier.size()) {
                 fSource += modVar + " *= " + modifier + ";";
             }
             fSource += variable + " += " + modVar + ";";

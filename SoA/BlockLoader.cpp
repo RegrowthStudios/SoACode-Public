@@ -17,7 +17,6 @@ bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
-
     GameBlockPostProcess bpp(&iom, GameManager::texturePackLoader, &CaPhysicsType::typesCache);
     pack->onBlockAddition += &bpp;
     if (!BlockLoader::load(&iom, filePath.c_str(), pack)) {
@@ -55,7 +54,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
             // Write the block data now
             writer.push(keg::WriterParam::VALUE);
             writer.push(keg::WriterParam::BEGIN_MAP);
-            Keg::write((ui8*)&(blocks[i]), writer, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+            keg::write((ui8*)&(blocks[i]), writer, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
             writer.push(keg::WriterParam::END_MAP);
         }
     }
@@ -108,7 +107,7 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
         b.name = name;
         
         // Load data
-        Keg::parse((ui8*)&b, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+        keg::parse((ui8*)&b, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
     });
     reader.forAllInMap(node, f);
     delete f;

@@ -62,13 +62,13 @@ void App::onInit() {
     // Load the graphical options
     loadOptions("Data/Options.yml");
 
-    SamplerState::initPredefined();
+    vg::SamplerState::initPredefined();
 }
 
 void App::onExit() {
     // Delete cache if it exists
 
-    SpriteBatch::disposeProgram();
+    vg::SpriteBatch::disposeProgram();
 }
 
 App::~App() {

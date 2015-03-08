@@ -14,17 +14,17 @@
 CaPhysicsTypeDict CaPhysicsType::typesCache;
 CaPhysicsTypeList CaPhysicsType::typesArray;
 
-KEG_ENUM_INIT_BEGIN(CA_ALGORITHM, CA_ALGORITHM, e)
-e->addValue("none", CA_ALGORITHM::NONE);
-e->addValue("liquid", CA_ALGORITHM::LIQUID);
-e->addValue("powder", CA_ALGORITHM::POWDER);
-KEG_ENUM_INIT_END
+KEG_ENUM_DEF(CA_ALGORITHM, CA_ALGORITHM, kt) {
+    kt.addValue("none", CA_ALGORITHM::NONE);
+    kt.addValue("liquid", CA_ALGORITHM::LIQUID);
+    kt.addValue("powder", CA_ALGORITHM::POWDER);
+}
 
-KEG_TYPE_INIT_BEGIN_DEF_VAR(CaPhysicsData)
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("updateRate", Keg::Value::basic(Keg::BasicType::UI32, offsetof(CaPhysicsData, updateRate)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("liquidLevels", Keg::Value::basic(Keg::BasicType::UI32, offsetof(CaPhysicsData, liquidLevels)));
-KEG_TYPE_INIT_DEF_VAR_NAME->addValue("algorithm", Keg::Value::custom("CA_ALGORITHM", offsetof(CaPhysicsData, alg), true));
-KEG_TYPE_INIT_END
+KEG_TYPE_DEF_SAME_NAME(CaPhysicsData, kt) {
+    kt.addValue("updateRate", keg::Value::basic(offsetof(CaPhysicsData, updateRate), keg::BasicType::UI32));
+    kt.addValue("liquidLevels", keg::Value::basic(offsetof(CaPhysicsData, liquidLevels), keg::BasicType::UI32));
+    kt.addValue("algorithm", keg::Value::custom(offsetof(CaPhysicsData, alg), "CA_ALGORITHM", true));
+}
 
 bool CaPhysicsType::update() {
     _ticks++;
@@ -41,7 +41,7 @@ bool CaPhysicsType::loadFromYml(const nString& filePath, const vio::IOManager* i
     nString fileData;
     ioManager->readFileToString(filePath.c_str(), fileData);
     if (fileData.length()) {
-        if (Keg::parse(&_data, fileData.c_str(), "CaPhysicsData") == Keg::Error::NONE) {
+        if (keg::parse(&_data, fileData.c_str(), "CaPhysicsData") == keg::Error::NONE) {
             CaPhysicsType::typesCache[filePath] = this;
             _caIndex = typesArray.size();
             typesArray.push_back(this);

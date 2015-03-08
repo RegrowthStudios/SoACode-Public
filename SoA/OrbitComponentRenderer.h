@@ -15,18 +15,13 @@
 #ifndef OrbitComponentRenderer_h__
 #define OrbitComponentRenderer_h__
 
+#include <Vorb/VorbPreDecl.inl>
+
 class SpaceSystem;
 struct OrbitComponent;
 struct NamePositionComponent;
 
-namespace vorb {
-    namespace core {
-        namespace graphics {
-            class GLProgram;
-        }
-    }
-}
-namespace vg = vorb::core::graphics;
+DECL_VG(class GLProgram)
 
 class OrbitComponentRenderer {
 public:

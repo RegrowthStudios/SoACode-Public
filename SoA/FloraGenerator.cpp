@@ -10,72 +10,72 @@
 #include "ChunkUpdater.h"
 #include "WorldStructs.h"
 
-KEG_ENUM_INIT_BEGIN(TreeLeafShape, TreeLeafShape, type)
-type->addValue("unknown", TreeLeafShape::UNKNOWN);
-type->addValue("round", TreeLeafShape::ROUND);
-type->addValue("cluster", TreeLeafShape::CLUSTER);
-type->addValue("pine", TreeLeafShape::PINE);
-type->addValue("mushroom", TreeLeafShape::MUSHROOM);
-KEG_ENUM_INIT_END
+KEG_ENUM_DEF(TreeLeafShape, TreeLeafShape, kt) {
+    kt.addValue("unknown", TreeLeafShape::UNKNOWN);
+    kt.addValue("round", TreeLeafShape::ROUND);
+    kt.addValue("cluster", TreeLeafShape::CLUSTER);
+    kt.addValue("pine", TreeLeafShape::PINE);
+    kt.addValue("mushroom", TreeLeafShape::MUSHROOM);
+}
 
-KEG_TYPE_INIT_BEGIN(TreeBranchingProps, TreeBranchingProps, type)
-using namespace Keg;
-type->addValue("width", Value::basic(BasicType::I32_V2, offsetof(TreeBranchingProps, width)));
-type->addValue("length", Value::basic(BasicType::I32_V2, offsetof(TreeBranchingProps, length)));
-type->addValue("chance", Value::basic(BasicType::F32_V2, offsetof(TreeBranchingProps, chance)));
-type->addValue("direction", Value::basic(BasicType::I32, offsetof(TreeBranchingProps, direction)));
-KEG_TYPE_INIT_END
+KEG_ENUM_DEF(TreeBranchingProps, TreeBranchingProps, kt) {
+    using namespace keg;
+    kt.addValue("width", Value::basic(offsetof(TreeBranchingProps, width), BasicType::I32_V2));
+    kt.addValue("length", Value::basic(offsetof(TreeBranchingProps, length), BasicType::I32_V2));
+    kt.addValue("chance", Value::basic(offsetof(TreeBranchingProps, chance), BasicType::F32_V2));
+    kt.addValue("direction", Value::basic(offsetof(TreeBranchingProps, direction), BasicType::I32));
+}
 
-KEG_TYPE_INIT_BEGIN(TreeType, TreeType, type)
-using namespace Keg;
-type->addValue("name", Value::basic(BasicType::STRING, offsetof(TreeType, name)));
-type->addValue("idCore", Value::basic(BasicType::I32, offsetof(TreeType, idCore)));
-type->addValue("idLeaves", Value::basic(BasicType::I32, offsetof(TreeType, idLeaves)));
-type->addValue("idBark", Value::basic(BasicType::I32, offsetof(TreeType, idOuter)));
-type->addValue("idRoot", Value::basic(BasicType::I32, offsetof(TreeType, idRoot)));
-type->addValue("idSpecialBlock", Value::basic(BasicType::I32, offsetof(TreeType, idSpecial)));
+KEG_TYPE_DEF_SAME_NAME(TreeType, kt) {
+    using namespace keg;
+    kt.addValue("name", Value::basic(offsetof(TreeType, name), BasicType::STRING));
+    kt.addValue("idCore", Value::basic(offsetof(TreeType, idCore), BasicType::I32));
+    kt.addValue("idLeaves", Value::basic(offsetof(TreeType, idLeaves), BasicType::I32));
+    kt.addValue("idBark", Value::basic(offsetof(TreeType, idOuter), BasicType::I32));
+    kt.addValue("idRoot", Value::basic(offsetof(TreeType, idRoot), BasicType::I32));
+    kt.addValue("idSpecialBlock", Value::basic(offsetof(TreeType, idSpecial), BasicType::I32));
 
-type->addValue("trunkHeight", Value::basic(BasicType::I32_V2, offsetof(TreeType, trunkHeight)));
-type->addValue("trunkHeightBase", Value::basic(BasicType::I32_V2, offsetof(TreeType, trunkBaseHeight)));
+    kt.addValue("trunkHeight", Value::basic(offsetof(TreeType, trunkHeight), BasicType::I32_V2));
+    kt.addValue("trunkHeightBase", Value::basic(offsetof(TreeType, trunkBaseHeight), BasicType::I32_V2));
 
-type->addValue("trunkWidthBase", Value::basic(BasicType::I32_V2, offsetof(TreeType, trunkBaseWidth)));
-type->addValue("trunkWidthMid", Value::basic(BasicType::I32_V2, offsetof(TreeType, trunkMidWidth)));
-type->addValue("trunkWidthTop", Value::basic(BasicType::I32_V2, offsetof(TreeType, trunkTopWidth)));
-type->addValue("trunkCoreWidth", Value::basic(BasicType::I32, offsetof(TreeType, coreWidth)));
+    kt.addValue("trunkWidthBase", Value::basic(offsetof(TreeType, trunkBaseWidth), BasicType::I32_V2));
+    kt.addValue("trunkWidthMid", Value::basic(offsetof(TreeType, trunkMidWidth), BasicType::I32_V2));
+    kt.addValue("trunkWidthTop", Value::basic(offsetof(TreeType, trunkTopWidth), BasicType::I32_V2));
+    kt.addValue("trunkCoreWidth", Value::basic(offsetof(TreeType, coreWidth), BasicType::I32));
 
-type->addValue("trunkSlopeEnd", Value::basic(BasicType::I32_V2, offsetof(TreeType, trunkEndSlope)));
-type->addValue("trunkSlopeStart", Value::basic(BasicType::I32_V2, offsetof(TreeType, trunkStartSlope)));
+    kt.addValue("trunkSlopeEnd", Value::basic(offsetof(TreeType, trunkEndSlope), BasicType::I32_V2));
+    kt.addValue("trunkSlopeStart", Value::basic(offsetof(TreeType, trunkStartSlope), BasicType::I32_V2));
 
-type->addValue("branchingPropsBottom", Value::custom("TreeBranchingProps", offsetof(TreeType, branchingPropsBottom)));
-type->addValue("branchingPropsTop", Value::custom("TreeBranchingProps", offsetof(TreeType, branchingPropsTop)));
+    kt.addValue("branchingPropsBottom", Value::custom(offsetof(TreeType, branchingPropsBottom), "TreeBranchingProps"));
+    kt.addValue("branchingPropsTop", Value::custom(offsetof(TreeType, branchingPropsTop), "TreeBranchingProps"));
 
-type->addValue("droopyLeavesLength", Value::basic(BasicType::I32_V2, offsetof(TreeType, droopyLength)));
-type->addValue("leafCapSize", Value::basic(BasicType::I32_V2, offsetof(TreeType, leafCapSize)));
+    kt.addValue("droopyLeavesLength", Value::basic(offsetof(TreeType, droopyLength), BasicType::I32_V2));
+    kt.addValue("leafCapSize", Value::basic(offsetof(TreeType, leafCapSize), BasicType::I32_V2));
 
-type->addValue("leafCapShape", Value::custom("TreeLeafShape", offsetof(TreeType, leafCapShape), true));
-type->addValue("branchLeafShape", Value::custom("TreeLeafShape", offsetof(TreeType, branchLeafShape), true));
+    kt.addValue("leafCapShape", Value::custom(offsetof(TreeType, leafCapShape), "TreeLeafShape", true));
+    kt.addValue("branchLeafShape", Value::custom(offsetof(TreeType, branchLeafShape), "TreeLeafShape", true));
 
-type->addValue("branchLeafSizeMod", Value::basic(BasicType::I32, offsetof(TreeType, branchLeafSizeMod)));
-type->addValue("branchLeafYMod", Value::basic(BasicType::I32, offsetof(TreeType, branchLeafYMod)));
+    kt.addValue("branchLeafSizeMod", Value::basic(offsetof(TreeType, branchLeafSizeMod), BasicType::I32));
+    kt.addValue("branchLeafYMod", Value::basic(offsetof(TreeType, branchLeafYMod), BasicType::I32));
 
-type->addValue("droopyLeavesSlope", Value::basic(BasicType::I32, offsetof(TreeType, droopyLeavesSlope)));
-type->addValue("droopyLeavesDSlope", Value::basic(BasicType::I32, offsetof(TreeType, droopyLeavesDSlope)));
+    kt.addValue("droopyLeavesSlope", Value::basic(offsetof(TreeType, droopyLeavesSlope), BasicType::I32));
+    kt.addValue("droopyLeavesDSlope", Value::basic(offsetof(TreeType, droopyLeavesDSlope), BasicType::I32));
 
-type->addValue("mushroomCapCurlLength", Value::basic(BasicType::I32, offsetof(TreeType, mushroomCapCurlLength)));
-type->addValue("mushroomCapGillThickness", Value::basic(BasicType::I32, offsetof(TreeType, mushroomCapGillThickness)));
-type->addValue("mushroomCapStretchMod", Value::basic(BasicType::I32, offsetof(TreeType, mushroomCapLengthMod)));
-type->addValue("mushroomCapThickness", Value::basic(BasicType::I32, offsetof(TreeType, mushroomCapThickness)));
+    kt.addValue("mushroomCapCurlLength", Value::basic(offsetof(TreeType, mushroomCapCurlLength), BasicType::I32));
+    kt.addValue("mushroomCapGillThickness", Value::basic(offsetof(TreeType, mushroomCapGillThickness), BasicType::I32));
+    kt.addValue("mushroomCapStretchMod", Value::basic(offsetof(TreeType, mushroomCapLengthMod), BasicType::I32));
+    kt.addValue("mushroomCapThickness", Value::basic(offsetof(TreeType, mushroomCapThickness), BasicType::I32));
 
-type->addValue("branchChanceCapMod", Value::basic(BasicType::F32, offsetof(TreeType, capBranchChanceMod)));
-type->addValue("trunkChangeDirChance", Value::basic(BasicType::F32, offsetof(TreeType, trunkChangeDirChance)));
-type->addValue("rootDepth", Value::basic(BasicType::F32, offsetof(TreeType, rootDepthMult)));
-type->addValue("branchStart", Value::basic(BasicType::F32, offsetof(TreeType, branchStart)));
+    kt.addValue("branchChanceCapMod", Value::basic(offsetof(TreeType, capBranchChanceMod), BasicType::F32));
+    kt.addValue("trunkChangeDirChance", Value::basic(offsetof(TreeType, trunkChangeDirChance), BasicType::F32));
+    kt.addValue("rootDepth", Value::basic(offsetof(TreeType, rootDepthMult), BasicType::F32));
+    kt.addValue("branchStart", Value::basic(offsetof(TreeType, branchStart), BasicType::F32));
 
-type->addValue("hasThickCapBranches", Value::basic(BasicType::BOOL, offsetof(TreeType, hasThickCapBranches)));
-type->addValue("droopyLeavesActive", Value::basic(BasicType::BOOL, offsetof(TreeType, hasDroopyLeaves)));
-type->addValue("mushroomCapInverted", Value::basic(BasicType::BOOL, offsetof(TreeType, isMushroomCapInverted)));
-type->addValue("isSlopeRandom", Value::basic(BasicType::BOOL, offsetof(TreeType, isSlopeRandom)));
-KEG_TYPE_INIT_END
+    kt.addValue("hasThickCapBranches", Value::basic(offsetof(TreeType, hasThickCapBranches), BasicType::BOOL));
+    kt.addValue("droopyLeavesActive", Value::basic(offsetof(TreeType, hasDroopyLeaves), BasicType::BOOL));
+    kt.addValue("mushroomCapInverted", Value::basic(offsetof(TreeType, isMushroomCapInverted), BasicType::BOOL));
+    kt.addValue("isSlopeRandom", Value::basic(offsetof(TreeType, isSlopeRandom), BasicType::BOOL));
+}
 
 bool FloraGenerator::generateTree(const TreeData& treeData, Chunk* startChunk) {
     _treeData = &treeData;

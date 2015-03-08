@@ -69,8 +69,9 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     SoaEngine::initState(m_soaState.get());
 
     // Make LoadBar Resources
-    _sb = new SpriteBatch(true, true);
-    _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
+    _sb = new vg::SpriteBatch(true, true);
+    _sf = new vg::SpriteFont();
+    _sf->init("Fonts/orbitron_bold-webfont.ttf", 32);
 
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
@@ -114,7 +115,7 @@ void LoadScreen::onExit(const vui::GameTime& gameTime) {
     std::vector<ILoadTask*>().swap(_loadTasks);
 
     // Restore default rasterizer state
-    RasterizerState::CULL_CLOCKWISE.set();
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 }
 
 void LoadScreen::update(const vui::GameTime& gameTime) {
@@ -167,14 +168,14 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
         LoadTaskStarSystem loadTaskStarSystem(nullptr, "StarSystems/Trinity", m_soaState.get());
         loadTaskStarSystem.load();
 
-        _state = ScreenState::CHANGE_NEXT;
+        _state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
         
         
     }
 }
 void LoadScreen::draw(const vui::GameTime& gameTime) {
-    const GameWindow* w = &_game->getWindow();
+    const vui::GameWindow* w = &_game->getWindow();
 
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -184,9 +185,9 @@ void LoadScreen::draw(const vui::GameTime& gameTime) {
         _loadBars[i].draw(_sb, _sf, 0, 0.8f);
     }
 
-    _sb->end(SpriteSortMode::BACK_TO_FRONT);
+    _sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
 
-    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
     checkGlError("Draw()");
     
 }

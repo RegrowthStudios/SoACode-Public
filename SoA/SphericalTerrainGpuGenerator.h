@@ -20,6 +20,7 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GBuffer.h>
 #include <Vorb/RPC.h>
+#include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
 #include "VoxelSpaceConversions.h"
@@ -28,13 +29,12 @@
 #include "TerrainPatchMesher.h"
 
 class TerrainGenDelegate;
-class RawGenDelegate;
 class ChunkGridData;
 class SphericalTerrainGpuGenerator;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
-class RawGenDelegate : public IDelegate < void* > {
+class RawHeightGenerator : public IDelegate <Sender sender, void* userData> {
 public:
     virtual void invoke(Sender sender, void* userData) override;
     void release();
@@ -64,7 +64,7 @@ private:
 
     SphericalTerrainGpuGenerator* m_generator = nullptr;
 
-    RawGenDelegate *m_generators = nullptr;
+    RawHeightGenerator *m_generators = nullptr;
 };
 
 class SphericalTerrainGpuGenerator {
@@ -84,7 +84,7 @@ public:
 
     /// Generates a raw heightmap
     /// @param data: The delegate data
-    void generateRawHeightmap(RawGenDelegate* data);
+    void generateRawHeightmap(RawHeightGenerator* data);
 
     /// Invokes a raw heighmap generation with RPC
     /// @so: The RPC
@@ -122,7 +122,7 @@ private:
 
     int m_rawCounter[2]; ///< Double buffered raw counter
     TerrainGenTextures m_rawTextures[2][RAW_PER_FRAME]; ///< Double buffered textures for raw gen
-    RawGenDelegate* m_rawDelegates[2][RAW_PER_FRAME]; ///< Double buffered delegates for raw gen
+    RawHeightGenerator* m_rawDelegates[2][RAW_PER_FRAME]; ///< Double buffered delegates for raw gen
     VGBuffer m_rawPbos[2][RAW_PER_FRAME]; ///< Double bufferd PBOs for raw gen
 
     VGFramebuffer m_normalFbo = 0; ///< FBO for normal map generation

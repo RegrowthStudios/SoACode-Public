@@ -67,8 +67,8 @@ void TestMappingScreen::draw(const vui::GameTime& gameTime) {
 
     f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 100.0f) * glm::lookAt(f32v3(0, 0, 10), f32v3(0, 0, 0), f32v3(0, 1, 0)) ;
 
-    DepthState::FULL.set();
-    RasterizerState::CULL_CLOCKWISE.set();
+    vg::DepthState::FULL.set();
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 
     m_program.use();
     m_program.enableVertexAttribArrays();

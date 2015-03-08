@@ -24,7 +24,7 @@
 
 class GamePlayScreen;
 
-DECL_VG(class, GLProgramManager);
+DECL_VG(class GLProgramManager);
 
 enum class PdaState { BIOMETRICS, INVENTORY, DATA, CODEX, COMMUNICATIONS, SCANNER };
 

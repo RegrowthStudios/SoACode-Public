@@ -4,7 +4,7 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class, GLProgramManager);
+DECL_VG(class GLProgramManager);
 
 const static float GOLDEN_RATIO = 1.61803398875f;
 

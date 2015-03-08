@@ -77,7 +77,7 @@ void SystemARRenderer::buildShader() {
 
 void SystemARRenderer::drawPaths() {
 
-    DepthState::READ.set();
+    vg::DepthState::READ.set();
     float alpha;
 
     // Draw paths
@@ -124,8 +124,9 @@ void SystemARRenderer::drawHUD() {
 
     // Lazily load spritebatch
     if (!m_spriteBatch) {
-        m_spriteBatch = new SpriteBatch(true, true);
-        m_spriteFont = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
+        m_spriteBatch = new vg::SpriteBatch(true, true);
+        m_spriteFont = new vg::SpriteFont();
+        m_spriteFont->init("Fonts/orbitron_bold-webfont.ttf", 32);
     }
 
     m_spriteBatch->begin();
@@ -218,8 +219,8 @@ void SystemARRenderer::drawHUD() {
     }
 
     m_spriteBatch->end();
-    m_spriteBatch->renderBatch(m_viewport, nullptr, &DepthState::READ);
+    m_spriteBatch->renderBatch(m_viewport, nullptr, &vg::DepthState::READ);
 
     // Restore depth state
-    DepthState::FULL.set();
+    vg::DepthState::FULL.set();
 }
