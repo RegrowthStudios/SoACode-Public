@@ -276,6 +276,7 @@ EXIT 0</Command>
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
+    <ClInclude Include="AtmosphereComponentRenderer.h" />
     <ClInclude Include="AwesomiumInterface.h" />
     <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="AxisRotationComponentUpdater.h" />
@@ -468,6 +469,7 @@ EXIT 0</Command>
     <ClCompile Include="AmbiencePlayer.cpp" />
     <ClCompile Include="AmbienceStream.cpp" />
     <ClCompile Include="ARProcessor.cpp" />
+    <ClCompile Include="AtmosphereComponentRenderer.cpp" />
     <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="AxisRotationComponentUpdater.cpp" />
     <ClCompile Include="Biome.cpp" />

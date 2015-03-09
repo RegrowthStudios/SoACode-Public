@@ -21,7 +21,7 @@ FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
     
 }
 
-void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
+void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        const Camera* camera,
                                        const f64v3& lightDir,
                                        const SpaceLightComponent* spComponent,

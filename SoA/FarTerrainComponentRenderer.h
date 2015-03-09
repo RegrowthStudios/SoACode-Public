@@ -29,7 +29,7 @@ DECL_VG(class GLProgram);
 class FarTerrainComponentRenderer {
 public:
     ~FarTerrainComponentRenderer();
-    void draw(FarTerrainComponent& cmp,
+    void draw(const FarTerrainComponent& cmp,
               const Camera* camera,
               const f64v3& lightDir,
               const SpaceLightComponent* spComponent,
