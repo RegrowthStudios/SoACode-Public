@@ -42,7 +42,10 @@ KEG_TYPE_DECL(TerrainColorKegProperties);
 
 enum class TerrainFunction {
     NOISE,
-    RIDGED_NOISE
+    RIDGED_NOISE,
+    ABS_NOISE,
+    SQUARED_NOISE,
+    CUBED_NOISE
 };
 KEG_ENUM_DECL(TerrainFunction);
 

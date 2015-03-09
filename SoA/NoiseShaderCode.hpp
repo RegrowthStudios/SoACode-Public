@@ -160,7 +160,8 @@ void main() {
 float total;
     float amplitude;
     float maxAmplitude;
-float frequency;
+    float frequency;
+    float tmp;
 
     pOutput.a = 0.0f;
 

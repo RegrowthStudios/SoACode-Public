@@ -111,56 +111,54 @@ char getOpChar(TerrainOp op) {
 void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString& variable,
                                              const Array<TerrainFuncKegProperties>& funcs, const nString& modifier,
                                              const TerrainOp& op) {
+#define TS(x) (std::to_string(x))
 
     // Each call to addNoiseFunctions gets its own h variable
     nString h = "h" + std::to_string(++m_funcCounter);
     fSource += "float " + h + " = 0.0; ";
 
-#define TS(x) (std::to_string(x))
-    // Conditional scaling code. Generates (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
-#define SCALE_CODE ((fn.low != -1.0f || fn.high != 1.0f) ? \
-    fSource += h + "+= (total / maxAmplitude) * (" + \
-        TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n" :\
-    fSource += h + "+= total / maxAmplitude;\n")
-
     // NOTE: Make sure this implementation matches SphericalTerrainCpuGenerator::getNoiseValue()
     for (int f = 0; f < funcs.size(); f++) {
         auto& fn = funcs[f];
+
+        fSource = fSource +
+            "total = 0.0;\n" +
+            "amplitude = 1.0;\n" +
+            "maxAmplitude = 0.0;\n" +
+            "frequency = " + TS(fn.frequency) + ";\n" +
+
+            "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n";
         switch (fn.func) {
             case TerrainFunction::NOISE:
-                fSource = fSource +
-                    "total = 0.0;\n" +
-                    "amplitude = 1.0;\n" +
-                    "maxAmplitude = 0.0;\n" +
-                    "frequency = " + TS(fn.frequency) + ";\n" +
-
-                    "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n" +
-                    "  total += snoise(pos * frequency) * amplitude;\n" +
-
-                    "  frequency *= 2.0;\n" +
-                    "  maxAmplitude += amplitude;\n" +
-                    "  amplitude *= " + TS(fn.persistence) + ";\n" +
-                    "}\n";
-                SCALE_CODE;
+                fSource += "total += snoise(pos * frequency) * amplitude;\n";
                 break;
             case TerrainFunction::RIDGED_NOISE:
-                fSource = fSource +
-                    "total = 0.0;\n" +
-                    "amplitude = 1.0;\n" +
-                    "maxAmplitude = 0.0;\n" +
-                    "frequency = " + TS(fn.frequency) + ";\n" +
-
-                    "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n" +
-                    "  total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;\n" +
-
-                    "  frequency *= 2.0;\n" +
-                    "  maxAmplitude += amplitude;\n" +
-                    "  amplitude *= " + TS(fn.persistence) + ";\n" +
-                    "}\n";
-                SCALE_CODE;
+                fSource += "total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;\n";
                 break;
-            default:
+            case TerrainFunction::ABS_NOISE:
+                fSource += "total += abs(snoise(pos * frequency)) * amplitude;\n";
                 break;
+            case TerrainFunction::SQUARED_NOISE:
+                fSource += "tmp = snoise(pos * frequency);\n";
+                fSource += "total += tmp * tmp * amplitude;\n";
+                break;
+            case TerrainFunction::CUBED_NOISE:
+                fSource += "tmp = snoise(pos * frequency);\n";
+                fSource += "total += tmp * tmp * tmp * amplitude;\n";
+                break;
+        }
+        fSource = fSource + 
+            "  frequency *= 2.0;\n" +
+            "  maxAmplitude += amplitude;\n" +
+            "  amplitude *= " + TS(fn.persistence) + ";\n" +
+            "}\n";
+        // Conditional scaling. 
+        if (fn.low != -1.0f || fn.high != 1.0f) {
+            // (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
+            fSource += h + "+= (total / maxAmplitude) * (" +
+                TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n";
+        } else {
+            fSource += h + "+= total / maxAmplitude;\n";
         }
 
         // Optional clamp if both fields are not 0.0f
