@@ -221,7 +221,6 @@ InputManager::Listener* InputManager::subscribe(const i32 axisID, EventType even
         _axes[axisID]->upEvent.add(*f);
         return f;
     case DOWN:
-        std::cout << "subscribing" << axisID << std::endl;
         _axes[axisID]->downEvent.add(*f);
         return f;
     }

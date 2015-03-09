@@ -164,7 +164,7 @@ void MainMenuScreen::initInput() {
     initInputs(m_inputManager);
 
     // Reload space system event
-    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [&](Sender s, ui32 a) {
         SoaEngine::destroySpaceSystem(m_soaState);
         SoaEngine::SpaceSystemLoadData loadData;
         loadData.filePath = "StarSystems/Trinity";

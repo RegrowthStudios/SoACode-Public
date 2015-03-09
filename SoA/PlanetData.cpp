@@ -16,7 +16,7 @@ KEG_TYPE_DEF_SAME_NAME(TerrainColorKegProperties, kt) {
 }
 
 KEG_ENUM_DEF(TerrainFunction, TerrainFunction, kt) {
-    kt.addValue("noise", TerrainFunction::RIDGED_NOISE);
+    kt.addValue("noise", TerrainFunction::NOISE);
     kt.addValue("ridged", TerrainFunction::RIDGED_NOISE);
 }
 
