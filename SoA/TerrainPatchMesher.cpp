@@ -336,7 +336,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
 
         zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
         xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-        float d = heightData[zIndex][xIndex][0] * KM_PER_M;
+        float d = heightData[zIndex][xIndex][0];
         if (d < 0) {
             v.depth = -d;
         } else {
