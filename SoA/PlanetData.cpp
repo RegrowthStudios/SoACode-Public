@@ -15,9 +15,12 @@ KEG_TYPE_DEF_SAME_NAME(TerrainColorKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainColorKegProperties, tint, UI8_V3);
 }
 
-KEG_ENUM_DEF(TerrainFunction, TerrainFunction, kt) {
-    kt.addValue("noise", TerrainFunction::NOISE);
-    kt.addValue("ridged", TerrainFunction::RIDGED_NOISE);
+KEG_ENUM_DEF(TerrainWaveform, TerrainWaveform, kt) {
+    kt.addValue("noise", TerrainWaveform::NOISE);
+    kt.addValue("ridged", TerrainWaveform::RIDGED_NOISE);
+    kt.addValue("abs", TerrainWaveform::ABS_NOISE);
+    kt.addValue("squared", TerrainWaveform::SQUARED_NOISE);
+    kt.addValue("cubed", TerrainWaveform::CUBED_NOISE);
 }
 
 KEG_ENUM_DEF(TerrainOp, TerrainOp, kt) {

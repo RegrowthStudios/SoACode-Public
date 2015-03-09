@@ -129,20 +129,20 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
 
             "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n";
         switch (fn.func) {
-            case TerrainFunction::NOISE:
+            case TerrainWaveform::NOISE:
                 fSource += "total += snoise(pos * frequency) * amplitude;\n";
                 break;
-            case TerrainFunction::RIDGED_NOISE:
+            case TerrainWaveform::RIDGED_NOISE:
                 fSource += "total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;\n";
                 break;
-            case TerrainFunction::ABS_NOISE:
+            case TerrainWaveform::ABS_NOISE:
                 fSource += "total += abs(snoise(pos * frequency)) * amplitude;\n";
                 break;
-            case TerrainFunction::SQUARED_NOISE:
+            case TerrainWaveform::SQUARED_NOISE:
                 fSource += "tmp = snoise(pos * frequency);\n";
                 fSource += "total += tmp * tmp * amplitude;\n";
                 break;
-            case TerrainFunction::CUBED_NOISE:
+            case TerrainWaveform::CUBED_NOISE:
                 fSource += "tmp = snoise(pos * frequency);\n";
                 fSource += "total += tmp * tmp * tmp * amplitude;\n";
                 break;

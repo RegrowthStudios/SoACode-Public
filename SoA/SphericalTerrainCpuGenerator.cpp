@@ -77,7 +77,7 @@ float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const NoiseB
     for (int f = 0; f < funcs.funcs.size(); f++) {
         auto& fn = funcs.funcs[f];
         switch (fn.func) {
-            case TerrainFunction::NOISE:
+            case TerrainWaveform::NOISE:
                 total = 0.0f;
                 amplitude = 1.0f;
                 maxAmplitude = 0.0f;
@@ -91,7 +91,7 @@ float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const NoiseB
                 }
                 SCALE_CODE;
                 break;
-            case TerrainFunction::RIDGED_NOISE:
+            case TerrainWaveform::RIDGED_NOISE:
                 total = 0.0f;
                 amplitude = 1.0f;
                 maxAmplitude = 0.0f;
