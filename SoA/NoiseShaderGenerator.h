@@ -24,6 +24,7 @@ DECL_VG(class GLProgram)
 DECL_VCORE(class RPCManager);
 struct PlanetGenData;
 struct TerrainFuncKegProperties;
+enum class TerrainOp;
 
 class NoiseShaderGenerator {
 public:
@@ -43,8 +44,10 @@ private:
     /// @param variable: The variable that the function should modify
     /// @param funcs: The terrain functions to add
     /// @param modifier: Modifier string
+    /// @param op: Operation to be applied via modifier
     void addNoiseFunctions(OUT nString& fSource, const nString& variable,
-                           const Array<TerrainFuncKegProperties>& funcs, const nString& modifier);
+                           const Array<TerrainFuncKegProperties>& funcs, const nString& modifier,
+                           const TerrainOp& op);
     /// Adds biome code to the shader code
     /// @param fsource: The source to be modified
     /// @param genData: The planet generation data
@@ -54,7 +57,7 @@ private:
     /// @param source: Shader code source to write
     /// @param addLineNumbers: Determines if line numbers should be added to the code
     void dumpShaderCode(std::ostream& stream, nString source, bool addLineNumbers);
-    int modCounter = 0;
+    int m_funcCounter = 0;
 };
 
 #endif // NoiseShaderGenerator_h__

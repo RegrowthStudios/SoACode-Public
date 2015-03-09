@@ -46,13 +46,23 @@ enum class TerrainFunction {
 };
 KEG_ENUM_DECL(TerrainFunction);
 
+enum class TerrainOp {
+    ADD = 0,
+    SUB,
+    MUL,
+    DIV
+};
+KEG_ENUM_DECL(TerrainOp);
+
 struct TerrainFuncKegProperties {
     TerrainFunction func = TerrainFunction::NOISE;
+    TerrainOp op = TerrainOp::ADD;
     int octaves = 1;
     f32 persistence = 1.0f;
     f32 frequency = 1.0f;
     f32 low = -1.0f;
     f32 high = 1.0f;
+    f32v2 clamp = f32v2(0.0f);
     Array<TerrainFuncKegProperties> children;
 };
 KEG_TYPE_DECL(TerrainFuncKegProperties);
