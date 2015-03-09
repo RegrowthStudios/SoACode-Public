@@ -106,8 +106,8 @@ void AtmosphereComponentRenderer::buildShaders() {
     nString vertSource;
     nString fragSource;
     // Build terrain shader
-    iom.readFileToString("Shaders/SphericalTerrain/Sky.vert", vertSource);
-    iom.readFileToString("Shaders/SphericalTerrain/Sky.frag", fragSource);
+    iom.readFileToString("Shaders/AtmosphereShading/Sky.vert", vertSource);
+    iom.readFileToString("Shaders/AtmosphereShading/Sky.frag", fragSource);
     m_program = new vg::GLProgram(true);
     m_program->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_program->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());

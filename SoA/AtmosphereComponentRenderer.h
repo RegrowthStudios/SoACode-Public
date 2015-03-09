@@ -18,11 +18,14 @@
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/gtypes.h>
 
 DECL_VG(class GLProgram)
 
 struct AtmosphereComponent;
+struct SpaceLightComponent;
 class SpaceSystem;
+class Camera;
 
 class AtmosphereComponentRenderer {
 public:

@@ -111,6 +111,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     keg::Error error;
 
     // Load yaml data
+    int i = 0;
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "baseLookupMap") {
@@ -126,7 +127,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
 
             for (int i = 0; i < LOOKUP_TEXTURE_SIZE; i++) {
                 int index = i * 4;
-                ui32 colorCode = ((ui32)data[index] << 16) | ((ui32)data[index + 1] << 8) | (ui32)data[index + 2];
+                ui32 colorCode = ((ui32)bitmap.bytesUI8[index] << 16) | ((ui32)bitmap.bytesUI8[index + 1] << 8) | (ui32)bitmap.bytesUI8[index + 2];
                 addBiomePixel(colorCode, i);
             }
         } else {
@@ -186,34 +187,17 @@ void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
     }
 }
 
-void PlanetLoader::parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader& reader, keg::Node node) {
+void PlanetLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::YAMLReader& reader, keg::Node node) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
     }
 
-    keg::Error error;
-    std::vector<TerrainFuncKegProperties> vecFuncs; // Temporary vector
-
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
-        if (type == "base") {
-            terrainFuncs->baseHeight += keg::convert<f32>(value);
-            return;
-        }
-
-        vecFuncs.push_back(TerrainFuncKegProperties());
-
-        error = keg::parse((ui8*)&vecFuncs.back(), value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainFuncKegProperties));
-        if (error != keg::Error::NONE) {
-            fprintf(stderr, "Keg error %d in parseTerrainFuncs()\n", (int)error); 
-            return;
-        }
-    });
-    reader.forAllInMap(node, f);
-    // Convert vector to Array
-    terrainFuncs->funcs.setData(vecFuncs.data(), vecFuncs.size());
-
-    delete f;
+    keg::Error error = keg::parse((ui8*)terrainFuncs, node, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(NoiseBase));
+    if (error != keg::Error::NONE) {
+        fprintf(stderr, "Keg error %d in parseTerrainFuncs()\n", (int)error);
+        return;
+    }
 }
 
 void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData) {

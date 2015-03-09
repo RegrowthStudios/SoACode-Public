@@ -15,9 +15,9 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
     fSource.reserve(fSource.size() + 8192);
 
     // Set initial values
-    fSource += N_HEIGHT + "=" + std::to_string(genData->baseTerrainFuncs.baseHeight) + ";\n";
-    fSource += N_TEMP + "=" + std::to_string(genData->tempTerrainFuncs.baseHeight) + ";\n";
-    fSource += N_HUM + "=" + std::to_string(genData->humTerrainFuncs.baseHeight) + ";\n";
+    fSource += N_HEIGHT + "=" + std::to_string(genData->baseTerrainFuncs.base) + ";\n";
+    fSource += N_TEMP + "=" + std::to_string(genData->tempTerrainFuncs.base) + ";\n";
+    fSource += N_HUM + "=" + std::to_string(genData->humTerrainFuncs.base) + ";\n";
 
     // Add all the noise functions
     modCounter = 0;
@@ -115,7 +115,6 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
     // NOTE: Make sure this implementation matches SphericalTerrainCpuGenerator::getNoiseValue()
     for (int f = 0; f < funcs.size(); f++) {
         auto& fn = funcs[f];
-        std::cout << "LOL: " << fn.children.size() << std::endl;
         switch (fn.func) {
             case TerrainFunction::NOISE:
                 fSource = fSource +
@@ -160,7 +159,6 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
             }
 
             if (fn.children.size()) {
-                std::cout << "Here: " << fn.children.size() << std::endl;
                 addNoiseFunctions(fSource, variable, fn.children, modVar);
             }
         } else {

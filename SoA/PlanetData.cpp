@@ -29,3 +29,7 @@ KEG_TYPE_DEF_SAME_NAME(TerrainFuncKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncKegProperties, high, F32);
     kt.addValue("children", keg::Value::array(offsetof(TerrainFuncKegProperties, children), keg::Value::custom(0, "TerrainFuncKegProperties", false)));
 }
+KEG_TYPE_DEF_SAME_NAME(NoiseBase, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, NoiseBase, base, F32);
+    kt.addValue("funcs", keg::Value::array(offsetof(NoiseBase, funcs), keg::Value::custom(0, "TerrainFuncKegProperties", false)));
+}

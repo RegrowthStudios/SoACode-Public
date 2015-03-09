@@ -57,10 +57,11 @@ struct TerrainFuncKegProperties {
 };
 KEG_TYPE_DECL(TerrainFuncKegProperties);
 
-struct TerrainFuncs {
+struct NoiseBase {
+    f32 base = 0.0f;
     Array<TerrainFuncKegProperties> funcs;
-    f32 baseHeight = 0.0f;
 };
+KEG_TYPE_DECL(NoiseBase);
 
 struct PlanetGenData {
     vg::Texture terrainColorMap = 0;
@@ -84,9 +85,9 @@ struct PlanetGenData {
     vg::GLProgram* program = nullptr;
     f64 radius = 0.0;
 
-    TerrainFuncs baseTerrainFuncs;
-    TerrainFuncs tempTerrainFuncs;
-    TerrainFuncs humTerrainFuncs;
+    NoiseBase baseTerrainFuncs;
+    NoiseBase tempTerrainFuncs;
+    NoiseBase humTerrainFuncs;
 
     std::map <nString, ui32> blockColorMapLookupTable; ///< For looking up the index for the block color maps
     std::vector <color3*> blockColorMaps; ///< Storage for the block color maps

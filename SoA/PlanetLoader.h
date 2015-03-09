@@ -27,7 +27,7 @@
 DECL_VIO(class IOManager);
 DECL_VCORE(class RPCManager);
 
-struct TerrainFuncs;
+struct NoiseBase;
 struct PlanetGenData;
 
 #define LOOKUP_TEXTURE_WIDTH 256
@@ -62,7 +62,7 @@ private:
     /// @param terrainFuncs: The functions to parse
     /// @param reader: The YAML reader
     /// @param node: The YAML node
-    void parseTerrainFuncs(TerrainFuncs* terrainFuncs, keg::YAMLReader& reader, keg::Node node);
+    void parseTerrainFuncs(NoiseBase* terrainFuncs, keg::YAMLReader& reader, keg::Node node);
     /// Parses liquid color data
     /// @param reader: The YAML reader
     /// @param node: The YAML node
