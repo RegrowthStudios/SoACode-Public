@@ -3,12 +3,14 @@
 
 #include "SpaceSystem.h"
 #include "RenderUtils.h"
+#include "soaUtils.h"
 
 #include "Camera.h"
 #include <Vorb/io/IOManager.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/graphics/RasterizerState.h>
 
 #define ICOSPHERE_SUBDIVISIONS 6
 
@@ -33,8 +35,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
                                        const Camera* camera,
                                        const f32v3& relCamPos,
                                        const f32v3& lightDir,
-                                       const SpaceLightComponent* spComponent,
-                                       f32 planetRadius) {
+                                       const SpaceLightComponent* spComponent) {
     // Lazily construct buffer and shaders
     if (!m_program) {
         buildShaders();
@@ -44,47 +45,55 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     m_program->use();
     m_program->enableVertexAttribArrays();
 
+    f32 innerRad = aCmp.planetRadius;
+
     // Set up matrix
     f32m4 WVP(1.0);
     setMatrixScale(WVP, f32v3(aCmp.radius));
     setMatrixTranslation(WVP, -relCamPos);
     WVP = camera->getViewProjectionMatrix() * WVP;
 
-    static const f32v3 invWavelength(1.0f / 0.65f, 1.0f / 0.57f, 1.0f / 0.475f);
+    static const f32v3 invWavelength4(1.0f / powf(0.65f, 4.0f),
+                                      1.0f / powf(0.57f, 4.0f),
+                                      1.0f / powf(0.475f, 4.0f));
     static const float KR = 0.0025f;
     static const float KM = 0.0020f;
-    static const float ESUN = 25.0f;
+    static const float ESUN = 30.0f;
     static const float KR_ESUN = KR * ESUN;
     static const float KM_ESUN = KM * ESUN;
     static const float KR_4PI = KR * 4.0f * M_PI;
     static const float KM_4PI = KM * 4.0f * M_PI;
-    static const float G = 0.99;
-    static const float SCALE_DEPTH = 25.0f;
+    static const float G = -0.99f;
+    static const float SCALE_DEPTH = 0.25f;
 
-    f32 camHeight2 = relCamPos.x * relCamPos.x + relCamPos.y * relCamPos.y + relCamPos.z * relCamPos.z;
+    f32 camHeight = glm::length(relCamPos);
+    f32 camHeight2 = camHeight * camHeight;
+
+    if (camHeight > aCmp.radius) {
+        vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
+    }
 
     // Upload uniforms
     glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
     glUniform3fv(m_program->getUniform("unLightPos"), 1, &lightDir[0]);
-    glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &invWavelength[0]);
+    glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &invWavelength4[0]);
     glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight2);
     glUniform1f(m_program->getUniform("unOuterRadius"), aCmp.radius);
     glUniform1f(m_program->getUniform("unOuterRadius2"), aCmp.radius * aCmp.radius);
-    glUniform1f(m_program->getUniform("unInnerRadius"), planetRadius);
-    glUniform1f(m_program->getUniform("unInnerRadius2"), planetRadius * planetRadius);
+    glUniform1f(m_program->getUniform("unInnerRadius"), innerRad);
     glUniform1f(m_program->getUniform("unKrESun"), KR_ESUN);
     glUniform1f(m_program->getUniform("unKmESun"), KM_ESUN);
     glUniform1f(m_program->getUniform("unKr4PI"), KR_4PI);
     glUniform1f(m_program->getUniform("unKm4PI"), KM_4PI);
-    float scale = 1.0f / (aCmp.radius - planetRadius);
+    float scale = 1.0f / (aCmp.radius - innerRad);
     glUniform1f(m_program->getUniform("unScale"), scale);
     glUniform1f(m_program->getUniform("unScaleDepth"), SCALE_DEPTH);
     glUniform1f(m_program->getUniform("unScaleOverScaleDepth"), scale / SCALE_DEPTH);
     glUniform1i(m_program->getUniform("unNumSamples"), 3);
     glUniform1f(m_program->getUniform("unNumSamplesF"), 3.0f);
     glUniform1f(m_program->getUniform("unG"), G);
-    glUniform1f(m_program->getUniform("unG"), G * G);
+    glUniform1f(m_program->getUniform("unG2"), G * G);
 
     // Bind buffers
     glBindBuffer(GL_ARRAY_BUFFER, m_icoVbo);
@@ -95,6 +104,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
 
     m_program->disableVertexAttribArrays();
     m_program->unuse();
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 }
 
 void AtmosphereComponentRenderer::buildShaders() {
@@ -116,10 +126,9 @@ void AtmosphereComponentRenderer::buildShaders() {
     m_program->initAttributes();
     m_program->initUniforms();
     // Set constant uniforms
-    m_program->use();
-    //glUniform1i(m_farTerrainProgram->getUniform("unNormalMap"), 0);
-    
-    m_program->unuse();
+   // m_program->use();
+   
+   // m_program->unuse();
 }
 
 void AtmosphereComponentRenderer::buildMesh() {

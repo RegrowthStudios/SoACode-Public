@@ -36,8 +36,7 @@ public:
               const Camera* camera,
               const f32v3& relCamPos,
               const f32v3& lightDir,
-              const SpaceLightComponent* spComponent,
-              f32 planetRadius);
+              const SpaceLightComponent* spComponent);
 private:
     void buildShaders();
     void buildMesh();

@@ -61,9 +61,10 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                  spaceSystem->normalMapGenProgram.get(),
                                  spaceSystem->normalMapRecycler.get());
 
-    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
+    f64 planetRadius = properties->diameter / 2.0;
+    addSphericalGravityComponent(spaceSystem, id, npCmp, planetRadius, properties->mass);
 
-    addAtmosphereComponent(spaceSystem, id, npCmp, (properties->diameter / 2.0) * 1.1);
+    addAtmosphereComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 1.025));
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
     return id;
@@ -125,10 +126,12 @@ void SpaceSystemAssemblages::destroyGasGiant(SpaceSystem* gameSystem, vecs::Enti
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                vecs::ComponentID namePositionComponent, f64 radius) {
+                                                                 vecs::ComponentID namePositionComponent, f32 planetRadius,
+                                                                 f32 radius) {
     vecs::ComponentID aCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, entity);
     auto& aCmp = spaceSystem->m_atmosphereCT.get(aCmpId);
     aCmp.namePositionComponent = namePositionComponent;
+    aCmp.planetRadius = planetRadius;
     aCmp.radius = radius;
     return aCmpId;
 }

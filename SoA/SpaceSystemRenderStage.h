@@ -21,6 +21,7 @@
 
 #include "SphericalTerrainComponentRenderer.h"
 #include "FarTerrainComponentRenderer.h"
+#include "AtmosphereComponentRenderer.h"
 #include "SystemARRenderer.h"
 
 class App;
@@ -61,6 +62,10 @@ private:
     /// @return brightest light source relative to cmp
     SpaceLightComponent* getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos);
 
+    /// Gets the position of a body using MTRenderState if needed
+    /// @return pointer to the position
+    const f64v3* getBodyPosition(NamePositionComponent& npCmp, vecs::EntityID eid);
+
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
     GameSystem* m_gameSystem = nullptr;
@@ -73,6 +78,7 @@ private:
     SystemARRenderer m_systemARRenderer;
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
+    AtmosphereComponentRenderer m_atmosphereComponentRenderer;
 };
 
 #endif // SpaceSystemRenderStage_h__

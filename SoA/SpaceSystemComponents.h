@@ -51,7 +51,8 @@ const float TERRAIN_ALPHA_STEP = 0.05f;
 
 struct AtmosphereComponent {
     vecs::ComponentID namePositionComponent = 0;
-    f64 radius;
+    f32 planetRadius;
+    f32 radius;
 };
 
 struct AxisRotationComponent {

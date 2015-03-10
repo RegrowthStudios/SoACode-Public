@@ -3,6 +3,7 @@
 #include "SpaceSystemRenderStage.h"
 
 #include <Vorb/graphics/DepthState.h>
+#include <Vorb/graphics/RasterizerState.h>
 
 #include "App.h"
 #include "Camera.h"
@@ -14,6 +15,7 @@
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
+
 
 const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(0.0, 0.0, 0.0)), // TOP
@@ -70,16 +72,7 @@ void SpaceSystemRenderStage::drawBodies() {
         auto& npCmp = m_spaceSystem->m_namePositionCT.getFromEntity(it.first);
 
         // If we are using MTRenderState, get position from it
-        if (m_renderState) {
-            auto& sit = m_renderState->spaceBodyPositions.find(it.first);
-            if (sit != m_renderState->spaceBodyPositions.end()) {
-                pos = &sit->second;
-            } else {
-                continue;
-            }
-        } else {
-            pos = &npCmp.position;
-        }
+        pos = getBodyPosition(npCmp, it.first);
 
         SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
@@ -93,6 +86,22 @@ void SpaceSystemRenderStage::drawBodies() {
                                                  &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
     }
 
+    // Render atmospheres
+    for (auto& it : m_spaceSystem->m_atmosphereCT) {
+        auto& atCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
+        f32v3 relCamPos(m_spaceCamera->getPosition() - npCmp.position);
+        if (glm::length(relCamPos) < 50000.0f) {
+            auto& l = lightCache[it.first];
+
+            pos = getBodyPosition(npCmp, it.first);
+
+            f32v3 lightDir(glm::normalize(l.first - *pos));
+
+            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera, relCamPos, lightDir, l.second);
+        }
+    }
+
     // Render far terrain
     if (m_farTerrainCamera) {
         for (auto& it : m_spaceSystem->m_farTerrainCT) {
@@ -101,17 +110,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
             if (!cmp.meshManager) continue;
 
-            // If we are using MTRenderState, get position from it
-            if (m_renderState) {
-                auto& sit = m_renderState->spaceBodyPositions.find(it.first);
-                if (sit != m_renderState->spaceBodyPositions.end()) {
-                    pos = &sit->second;
-                } else {
-                    continue;
-                }
-            } else {
-                pos = &npCmp.position;
-            }
+            pos = getBodyPosition(npCmp, it.first);
 
             auto& l = lightCache[it.first];
             f64v3 lightDir = glm::normalize(l.first - *pos);
@@ -139,4 +138,20 @@ SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(SphericalTerrainC
         }
     }
     return rv;
+}
+
+const f64v3* SpaceSystemRenderStage::getBodyPosition(NamePositionComponent& npCmp, vecs::EntityID eid) {
+    const f64v3* pos;
+    // If we are using MTRenderState, get position from it
+    if (m_renderState) {
+        auto& sit = m_renderState->spaceBodyPositions.find(eid);
+        if (sit != m_renderState->spaceBodyPositions.end()) {
+            pos = &sit->second;
+        } else {
+            return nullptr;
+        }
+    } else {
+        pos = &npCmp.position;
+    }
+    return pos;
 }

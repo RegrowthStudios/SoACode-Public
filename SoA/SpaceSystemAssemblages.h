@@ -67,7 +67,8 @@ namespace SpaceSystemAssemblages {
     /************************************************************************/
     /// Atmosphere component
     extern vecs::ComponentID addAtmosphereComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                    vecs::ComponentID namePositionComponent, f64 radius);
+                                                    vecs::ComponentID namePositionComponent, f32 planetRadius,
+                                                    f32 radius);
     extern void removeAtmosphereComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical voxel component
