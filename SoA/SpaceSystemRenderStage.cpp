@@ -62,6 +62,8 @@ void SpaceSystemRenderStage::draw() {
 void SpaceSystemRenderStage::drawBodies() {
     glEnable(GL_CULL_FACE);
 
+    // TODO(Ben): Try to optimize out getFromEntity
+
     f64v3 lightPos;
     // For caching light for far terrain
     std::map<vecs::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
@@ -69,7 +71,7 @@ void SpaceSystemRenderStage::drawBodies() {
     // Render spherical terrain
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.getFromEntity(it.first);
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent);
 
         // If we are using MTRenderState, get position from it
         pos = getBodyPosition(npCmp, it.first);
@@ -83,7 +85,8 @@ void SpaceSystemRenderStage::drawBodies() {
                                                  lightDir,
                                                  *pos,
                                                  lightCmp,
-                                                 &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
+                                                 &m_spaceSystem->m_axisRotationCT.get(cmp.axisRotationComponent),
+                                                 &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
 
     // Render atmospheres
@@ -148,6 +151,7 @@ const f64v3* SpaceSystemRenderStage::getBodyPosition(NamePositionComponent& npCm
         if (sit != m_renderState->spaceBodyPositions.end()) {
             pos = &sit->second;
         } else {
+            std::cout << "Could not find spaceBodyPosition\n";
             return nullptr;
         }
     } else {

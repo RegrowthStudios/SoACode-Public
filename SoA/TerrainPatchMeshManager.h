@@ -23,6 +23,7 @@ class Camera;
 struct PlanetGenData;
 struct TerrainPatchData;
 class TerrainPatchMesh;
+struct AtmosphereComponent;
 
 DECL_VG(class TextureRecycler;
         class GLProgram)
@@ -47,7 +48,8 @@ public:
               const f64q& orientation,
               vg::GLProgram* program, vg::GLProgram* waterProgram,
               const f32v3& lightDir,
-              float alpha);
+              float alpha,
+              const AtmosphereComponent* aCmp);
     /// Draws the far meshes
     /// @param relativePos: Relative position of the camera
     /// @param Camera: The camera

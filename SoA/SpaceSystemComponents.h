@@ -19,6 +19,7 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
 
+#include "Constants.h"
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
@@ -53,6 +54,18 @@ struct AtmosphereComponent {
     vecs::ComponentID namePositionComponent = 0;
     f32 planetRadius;
     f32 radius;
+    f32 kr = 0.0025f;
+    f32 km = 0.0020f;
+    f32 esun = 30.0f; // TODO(Ben): This should be dynamic
+    f32 krEsun = kr * esun;
+    f32 kmEsun = km * esun;
+    f32 kr4PI = kr * 4.0f * M_PI;
+    f32 km4PI = km * 4.0f * M_PI;
+    f32 g = -0.99f;
+    f32 scaleDepth = 0.25f;
+    f32v3 invWavelength4 = f32v3(1.0f / powf(0.65f, 4.0f),
+                                 1.0f / powf(0.57f, 4.0f),
+                                 1.0f / powf(0.475f, 4.0f));
 };
 
 struct AxisRotationComponent {

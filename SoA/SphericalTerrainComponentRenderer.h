@@ -21,6 +21,7 @@ struct AxisRotationComponent;
 struct NamePositionComponent;
 struct SpaceLightComponent;
 struct SphericalTerrainComponent;
+struct AtmosphereComponent;
 class Camera;
 
 DECL_VG(class GLProgram);
@@ -33,7 +34,8 @@ public:
               const f32v3& lightDir,
               const f64v3& position,
               const SpaceLightComponent* spComponent,
-              const AxisRotationComponent* arComponent);
+              const AxisRotationComponent* arComponent,
+              const AtmosphereComponent* aComponent);
 
 private:
     void buildShaders();

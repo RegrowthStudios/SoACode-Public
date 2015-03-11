@@ -97,14 +97,14 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             v.color = m_planetGenData->terrainTint;
             // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
 
-            // TODO(Ben): This is temporary debugging stuff
-            const float delta = 100.0f;
+            // TODO(Ben): This is temporary edge debugging stuff
+           /* const float delta = 100.0f;
             if (abs(v.position[m_coordMapping.x]) >= m_radius - delta
                 || abs(v.position[m_coordMapping.z]) >= m_radius - delta) {
                 v.color.r = 255;
                 v.color.g = 0;
                 v.color.b = 0;
-            }
+            }*/
 
             // Get data from heightmap 
             zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;

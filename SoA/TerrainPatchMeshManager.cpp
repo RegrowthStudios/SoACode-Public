@@ -10,17 +10,19 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/TextureRecycler.hpp>
 
-#include "TerrainPatchMesh.h"
-#include "TerrainPatch.h"
 #include "FarTerrainPatch.h"
 #include "PlanetData.h"
+#include "SpaceSystemComponents.h"
+#include "TerrainPatch.h"
+#include "TerrainPatchMesh.h"
 #include "soaUtils.h"
 
 void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
                                        const f64q& orientation, vg::GLProgram* program,
                                        vg::GLProgram* waterProgram,
                                        const f32v3& lightDir,
-                                       float alpha) {
+                                       float alpha,
+                                       const AtmosphereComponent* aCmp) {
     
     static float dt = 0.0;
     dt += 0.001;
@@ -49,6 +51,29 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
         glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
+        // Set up scattering uniforms
+        if (aCmp) {
+            f32v3 relPosF(relativePos);
+            float camHeight = glm::length(relPosF);
+            glUniform3fv(waterProgram->getUniform("unCameraPos"), 1, &relPosF[0]);
+            glUniform3fv(waterProgram->getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
+            glUniform1f(waterProgram->getUniform("unCameraHeight2"), camHeight * camHeight);
+            glUniform1f(waterProgram->getUniform("unInnerRadius"), aCmp->planetRadius);
+            glUniform1f(waterProgram->getUniform("unOuterRadius"), aCmp->radius);
+            glUniform1f(waterProgram->getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
+            glUniform1f(waterProgram->getUniform("unKrESun"), aCmp->krEsun);
+            glUniform1f(waterProgram->getUniform("unKmESun"), aCmp->kmEsun);
+            glUniform1f(waterProgram->getUniform("unKr4PI"), aCmp->kr4PI);
+            glUniform1f(waterProgram->getUniform("unKm4PI"), aCmp->km4PI);
+            float scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
+            glUniform1f(waterProgram->getUniform("unScale"), scale);
+            glUniform1f(waterProgram->getUniform("unScaleDepth"), aCmp->scaleDepth);
+            glUniform1f(waterProgram->getUniform("unScaleOverScaleDepth"), scale / aCmp->scaleDepth);
+            glUniform1i(waterProgram->getUniform("unNumSamples"), 3);
+            glUniform1f(waterProgram->getUniform("unNumSamplesF"), 3.0f);
+            glUniform1f(waterProgram->getUniform("unG"), aCmp->g);
+            glUniform1f(waterProgram->getUniform("unG2"), aCmp->g * aCmp->g);
+        }
 
         for (int i = 0; i < m_waterMeshes.size();) {
             auto& m = m_waterMeshes[i];
@@ -84,6 +109,29 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
         program->enableVertexAttribArrays();
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
+        // Set up scattering uniforms
+        if (aCmp) {
+            f32v3 relPosF(relativePos);
+            float camHeight = glm::length(relPosF);
+            glUniform3fv(program->getUniform("unCameraPos"), 1, &relPosF[0]);
+            glUniform3fv(program->getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
+            glUniform1f(program->getUniform("unCameraHeight2"), camHeight * camHeight);
+            glUniform1f(program->getUniform("unInnerRadius"), aCmp->planetRadius);
+            glUniform1f(program->getUniform("unOuterRadius"), aCmp->radius);
+            glUniform1f(program->getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
+            glUniform1f(program->getUniform("unKrESun"), aCmp->krEsun);
+            glUniform1f(program->getUniform("unKmESun"), aCmp->kmEsun);
+            glUniform1f(program->getUniform("unKr4PI"), aCmp->kr4PI);
+            glUniform1f(program->getUniform("unKm4PI"), aCmp->km4PI);
+            float scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
+            glUniform1f(program->getUniform("unScale"), scale);
+            glUniform1f(program->getUniform("unScaleDepth"), aCmp->scaleDepth);
+            glUniform1f(program->getUniform("unScaleOverScaleDepth"), scale / aCmp->scaleDepth);
+            glUniform1i(program->getUniform("unNumSamples"), 3);
+            glUniform1f(program->getUniform("unNumSamplesF"), 3.0f);
+            glUniform1f(program->getUniform("unG"), aCmp->g);
+            glUniform1f(program->getUniform("unG2"), aCmp->g * aCmp->g);
+        }
 
         for (int i = 0; i < m_meshes.size();) {
             auto& m = m_meshes[i];

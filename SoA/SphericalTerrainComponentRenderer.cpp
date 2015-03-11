@@ -26,7 +26,8 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const f32v3& lightDir,
                                              const f64v3& position,
                                              const SpaceLightComponent* spComponent,
-                                             const AxisRotationComponent* arComponent) {
+                                             const AxisRotationComponent* arComponent,
+                                             const AtmosphereComponent* aComponent) {
 
     if (cmp.patches) {
         // Lazy shader init
@@ -41,7 +42,8 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                                  arComponent->currentOrientation,
                                                  m_terrainProgram, m_waterProgram,
                                                  lightDir,
-                                                 glm::min(cmp.alpha, 1.0f));
+                                                 glm::min(cmp.alpha, 1.0f),
+                                                 aComponent);
         }
     }
 }
