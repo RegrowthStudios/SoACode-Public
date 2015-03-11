@@ -45,7 +45,8 @@ enum class TerrainWaveform {
     RIDGED_NOISE,
     ABS_NOISE,
     SQUARED_NOISE,
-    CUBED_NOISE
+    CUBED_NOISE,
+    CONSTANT
 };
 KEG_ENUM_DECL(TerrainWaveform);
 

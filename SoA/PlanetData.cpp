@@ -21,6 +21,7 @@ KEG_ENUM_DEF(TerrainWaveform, TerrainWaveform, kt) {
     kt.addValue("abs", TerrainWaveform::ABS_NOISE);
     kt.addValue("squared", TerrainWaveform::SQUARED_NOISE);
     kt.addValue("cubed", TerrainWaveform::CUBED_NOISE);
+    kt.addValue("constant", TerrainWaveform::CONSTANT);
 }
 
 KEG_ENUM_DEF(TerrainOp, TerrainOp, kt) {
