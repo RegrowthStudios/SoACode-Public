@@ -53,9 +53,9 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 
 void SpaceSystemRenderStage::draw() {
     drawBodies();
-    m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
+   /* m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
-                            m_viewport);
+                            m_viewport);*/
    
 }
 

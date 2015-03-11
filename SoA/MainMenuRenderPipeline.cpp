@@ -83,7 +83,7 @@ void MainMenuRenderPipeline::render() {
     glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
     _hdrRenderStage->draw();
 
-    _awesomiumRenderStage->draw();
+   // _awesomiumRenderStage->draw();
 
     // Check for errors, just in case
     checkGlError("MainMenuRenderPipeline::render()");

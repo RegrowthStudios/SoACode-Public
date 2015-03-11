@@ -40,15 +40,16 @@ struct TerrainColorKegProperties {
 };
 KEG_TYPE_DECL(TerrainColorKegProperties);
 
-enum class TerrainWaveform {
+enum class TerrainStage {
     NOISE,
     RIDGED_NOISE,
     ABS_NOISE,
     SQUARED_NOISE,
     CUBED_NOISE,
-    CONSTANT
+    CONSTANT,
+    PASS_THROUGH
 };
-KEG_ENUM_DECL(TerrainWaveform);
+KEG_ENUM_DECL(TerrainStage);
 
 enum class TerrainOp {
     ADD = 0,
@@ -59,7 +60,7 @@ enum class TerrainOp {
 KEG_ENUM_DECL(TerrainOp);
 
 struct TerrainFuncKegProperties {
-    TerrainWaveform func = TerrainWaveform::NOISE;
+    TerrainStage func = TerrainStage::NOISE;
     TerrainOp op = TerrainOp::ADD;
     int octaves = 1;
     f32 persistence = 1.0f;

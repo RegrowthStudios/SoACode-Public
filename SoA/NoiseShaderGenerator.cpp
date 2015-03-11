@@ -112,18 +112,39 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
                                              const Array<TerrainFuncKegProperties>& funcs, const nString& modifier,
                                              const TerrainOp& op) {
 #define TS(x) (std::to_string(x))
-
+    
+    TerrainOp nextOp;
     // NOTE: Make sure this implementation matches SphericalTerrainCpuGenerator::getNoiseValue()
     for (int f = 0; f < funcs.size(); f++) {
         auto& fn = funcs[f];
 
         // Each function gets its own h variable
-        nString h = "h" + std::to_string(++m_funcCounter);
+        nString h = "h" + TS(++m_funcCounter);
 
-        // Check if its a constant or a function
-        if (fn.func == TerrainWaveform::CONSTANT) {
+        // Check if its not a noise function
+        if (fn.func == TerrainStage::CONSTANT) {
             fSource += "float " + h + " = " + TS(fn.low) + ";\n";
-        } else {
+            // Apply parent before clamping
+            if (modifier.length()) {
+                fSource += h + getOpChar(op) + "=" + modifier + ";\n";
+            }
+            // Optional clamp if both fields are not 0.0f
+            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+            }
+            nextOp = fn.op;
+        } else if (fn.func == TerrainStage::PASS_THROUGH) {
+            h = modifier;
+            // Apply parent before clamping
+            if (modifier.length()) {
+                fSource += h + getOpChar(fn.op) + "=" + TS(fn.low) + ";\n";
+            }
+            // Optional clamp if both fields are not 0.0f
+            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+            }
+            nextOp = op;
+        } else { // It's a noise function
             fSource = fSource +
                 "total = 0.0;\n" +
                 "amplitude = 1.0;\n" +
@@ -132,20 +153,20 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
 
                 "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n";
             switch (fn.func) {
-                case TerrainWaveform::NOISE:
+                case TerrainStage::NOISE:
                     fSource += "total += snoise(pos * frequency) * amplitude;\n";
                     break;
-                case TerrainWaveform::RIDGED_NOISE:
+                case TerrainStage::RIDGED_NOISE:
                     fSource += "total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;\n";
                     break;
-                case TerrainWaveform::ABS_NOISE:
+                case TerrainStage::ABS_NOISE:
                     fSource += "total += abs(snoise(pos * frequency)) * amplitude;\n";
                     break;
-                case TerrainWaveform::SQUARED_NOISE:
+                case TerrainStage::SQUARED_NOISE:
                     fSource += "tmp = snoise(pos * frequency);\n";
                     fSource += "total += tmp * tmp * amplitude;\n";
                     break;
-                case TerrainWaveform::CUBED_NOISE:
+                case TerrainStage::CUBED_NOISE:
                     fSource += "tmp = snoise(pos * frequency);\n";
                     fSource += "total += tmp * tmp * tmp * amplitude;\n";
                     break;
@@ -164,20 +185,21 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
             } else {
                 fSource += "total / maxAmplitude;\n";
             }
-
             // Optional clamp if both fields are not 0.0f
             if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
                 fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
             }
+            // Apply modifier from parent if needed
+            if (modifier.length()) {
+                fSource += h + getOpChar(op) + "=" + modifier + ";\n";
+            }
+            nextOp = fn.op;
         }
-        // Apply modifier from parent if needed
-        if (modifier.length()) {
-            fSource += h + getOpChar(op) + "=" + modifier + ";\n";
-        }
+       
         // If we have children, we need to clamp from 0 to 1
         if (fn.children.size()) {
             // Recursively call children with operation
-            addNoiseFunctions(fSource, variable, fn.children, h, fn.op);
+            addNoiseFunctions(fSource, variable, fn.children, h, nextOp);
         } else {
             // Modify the final terrain height
             fSource += variable + getOpChar(fn.op) + "=" + h + ";\n";
