@@ -121,7 +121,7 @@ void SpaceSystemRenderStage::drawBodies() {
             auto& l = lightCache[it.first];
             f64v3 lightDir = glm::normalize(l.first - *pos);
 
-            m_farTerrainComponentRenderer.draw(cmp, m_spaceCamera,
+            m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
                                                lightDir,
                                                l.second,
                                                &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first),
