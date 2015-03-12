@@ -121,7 +121,8 @@ void SpaceSystemRenderStage::drawBodies() {
             m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
                                                lightDir,
                                                l.second,
-                                               &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first));
+                                               &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first),
+                                               &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
         }
     }
 
@@ -151,8 +152,7 @@ const f64v3* SpaceSystemRenderStage::getBodyPosition(NamePositionComponent& npCm
         if (sit != m_renderState->spaceBodyPositions.end()) {
             pos = &sit->second;
         } else {
-            std::cout << "Could not find spaceBodyPosition\n";
-            return nullptr;
+            pos = &npCmp.position;
         }
     } else {
         pos = &npCmp.position;

@@ -25,7 +25,8 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        const Camera* camera,
                                        const f64v3& lightDir,
                                        const SpaceLightComponent* spComponent,
-                                       const AxisRotationComponent* arComponent) {
+                                       const AxisRotationComponent* arComponent,
+                                       const AtmosphereComponent* aComponent) {
     // Get voxel position for quaternion calculation
     VoxelPosition3D pos;
     pos.pos = camera->getPosition();
@@ -46,7 +47,8 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        m_farTerrainProgram, m_farWaterProgram,
                                        f32v3(relLightDir),
                                        glm::min(cmp.alpha, 1.0f),
-                                       cmp.planetGenData->radius);
+                                       cmp.planetGenData->radius,
+                                       aComponent);
     }
     glEnable(GL_CULL_FACE);
 }

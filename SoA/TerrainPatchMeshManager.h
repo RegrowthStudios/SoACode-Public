@@ -44,6 +44,7 @@ public:
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
     /// @param lightDir: Normalized direction to light source
+    /// @param aCmp: Atmosphere component for rendering
     void drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
               const f64q& orientation,
               vg::GLProgram* program, vg::GLProgram* waterProgram,
@@ -58,16 +59,19 @@ public:
     /// @param waterProgram: Shader program for rendering water
     /// @param lightDir: Normalized direction to light source
     /// @param radius: Radius of the planet in KM
+    /// @param aCmp: Atmosphere component for rendering
     void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
                        vg::GLProgram* program, vg::GLProgram* waterProgram,
                        const f32v3& lightDir,
-                       float alpha, float radius);
+                       float alpha, float radius,
+                       const AtmosphereComponent* aCmp);
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add
     void addMesh(TerrainPatchMesh* mesh, bool isSpherical);
 
 private:
+    void setScatterUniforms(vg::GLProgram* program, const f64v3& relPos, const AtmosphereComponent* aCmp);
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps

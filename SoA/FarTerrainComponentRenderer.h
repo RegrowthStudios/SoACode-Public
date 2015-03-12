@@ -17,12 +17,13 @@
 
 #include <Vorb/VorbPreDecl.inl>
 
+class Camera;
+struct AtmosphereComponent;
 struct AxisRotationComponent;
+struct FarTerrainComponent;
 struct NamePositionComponent;
 struct SpaceLightComponent;
 struct SphericalTerrainComponent;
-struct FarTerrainComponent;
-class Camera;
 
 DECL_VG(class GLProgram);
 
@@ -33,7 +34,8 @@ public:
               const Camera* camera,
               const f64v3& lightDir,
               const SpaceLightComponent* spComponent,
-              const AxisRotationComponent* arComponent);
+              const AxisRotationComponent* arComponent,
+              const AtmosphereComponent* aComponent);
 
 private:
     void buildShaders();
