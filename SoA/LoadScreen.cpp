@@ -17,7 +17,6 @@
 #include "LoadTaskBlockData.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskShaders.h"
-#include "LoadTaskSound.h"
 #include "LoadTaskStarSystem.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
@@ -78,9 +77,6 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
   
     addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc, m_soaState->glProgramManager.get()));
     _monitor.setDep("Shaders", "GameManager");
-
-    addLoadTask("Sound", "Sound", new LoadTaskSound);
-    _monitor.setDep("Sound", "GameManager");
 
     addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     _monitor.setDep("BlockData", "GameManager");

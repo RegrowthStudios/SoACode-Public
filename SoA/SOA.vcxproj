@@ -314,10 +314,8 @@ EXIT 0</Command>
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
-    <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
-    <ClInclude Include="LoadTaskSound.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
     <ClInclude Include="MainMenuRenderPipeline.h" />
@@ -381,7 +379,6 @@ EXIT 0</Command>
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />
-    <ClInclude Include="LoadTaskGameManager.h" />
     <ClInclude Include="VoxelBits.h" />
     <ClInclude Include="VoxelCoordinateSpaces.h" />
     <ClInclude Include="VoxelMesh.h" />
@@ -453,7 +450,6 @@ EXIT 0</Command>
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="SimplexNoise.h" />
-    <ClInclude Include="Sound.h" />
     <ClInclude Include="TerrainGenerator.h" />
     <ClInclude Include="Texture2d.h" />
     <ClInclude Include="FloraGenerator.h" />
@@ -618,7 +614,6 @@ EXIT 0</Command>
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
-    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="TerrainGenerator.cpp" />
     <ClCompile Include="Texture2d.cpp" />
     <ClCompile Include="WorldStructs.cpp" />

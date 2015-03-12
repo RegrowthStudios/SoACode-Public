@@ -17,7 +17,6 @@
 #include "RenderTask.h"
 #include "Rendering.h"
 #include "SimplexNoise.h"
-#include "Sound.h"
 #include "SphericalTerrainGpuGenerator.h"
 #include "TerrainGenerator.h"
 #include "VoxelUtils.h"

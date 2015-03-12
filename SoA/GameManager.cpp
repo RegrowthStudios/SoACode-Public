@@ -19,7 +19,6 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"
-#include "Sound.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"
 #include "VRayHelper.h"
@@ -36,7 +35,6 @@ float GameManager::fogStart, GameManager::fogEnd;
 Uint32 GameManager::maxLodTicks = 8;
 
 VoxelEditor* GameManager::voxelEditor = nullptr;
-SoundEngine *GameManager::soundEngine = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
@@ -45,7 +43,6 @@ vg::TextureCache* GameManager::textureCache = nullptr;
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
         voxelEditor = new VoxelEditor();
-        soundEngine = new SoundEngine();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
@@ -107,11 +104,6 @@ void GameManager::getTextureHandles() {
     BlankTextureID = textureCache->addTexture("Textures/blank.png", &vg::SamplerState::POINT_CLAMP);
     explosionTexture = textureCache->addTexture("Textures/explosion.png");
     fireTexture = textureCache->addTexture("Textures/fire.png");
-}
-
-void GameManager::initializeSound() {
-    soundEngine->Initialize();
-    soundEngine->LoadAllSounds();
 }
 
 void GameManager::saveState() {

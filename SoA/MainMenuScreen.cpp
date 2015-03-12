@@ -29,7 +29,6 @@
 #include "Options.h"
 #include "SoAState.h"
 #include "SoaEngine.h"
-#include "Sound.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
@@ -237,10 +236,6 @@ void MainMenuScreen::updateThreadFunc() {
     while (m_threadRunning) {
 
         fpsLimiter.beginFrame();
-
-        GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-        GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-        GameManager::soundEngine->update();
 
         physicsFps = fpsLimiter.endFrame();
     }

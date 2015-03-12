@@ -30,7 +30,6 @@
 #include "RenderTask.h"
 #include "SoaEngine.h"
 #include "SoaState.h"
-#include "Sound.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
@@ -147,10 +146,6 @@ void GamePlayScreen::update(const vui::GameTime& gameTime) {
 void GamePlayScreen::updateECS() {
     SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
     GameSystem* gameSystem = m_soaState->gameSystem.get();
-
-    GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-    GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-    GameManager::soundEngine->update();
 
     m_soaState->time += m_soaState->timeStep;
     // TODO(Ben): Don't hardcode for a single player
