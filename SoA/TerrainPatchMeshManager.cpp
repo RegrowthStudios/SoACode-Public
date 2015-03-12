@@ -184,7 +184,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
         // Set up scattering uniforms
-        setScatterUniforms(waterProgram, relativePos, aCmp);
+        setScatterUniforms(waterProgram, f64v3(0, relativePos.y + radius, 0), aCmp);
 
         for (int i = 0; i < m_farWaterMeshes.size();) {
             auto& m = m_farWaterMeshes[i];
@@ -221,7 +221,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
         // Set up scattering uniforms
-        setScatterUniforms(program, relativePos, aCmp);
+        setScatterUniforms(program, f64v3(0, relativePos.y + radius, 0), aCmp);
 
         for (int i = 0; i < m_farMeshes.size();) {
             auto& m = m_farMeshes[i];

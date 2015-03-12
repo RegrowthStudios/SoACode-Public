@@ -51,13 +51,10 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     setMatrixTranslation(WVP, -relCamPos);
     WVP = VP * WVP;
 
-
     f32 camHeight = glm::length(relCamPos);
     f32 camHeight2 = camHeight * camHeight;
 
-    if (camHeight > aCmp.radius) {
-        vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
-    }
+    vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
 
     // Upload uniforms
     glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);

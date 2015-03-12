@@ -91,7 +91,7 @@ void SpaceSystemRenderStage::drawBodies() {
     }
 
     // Render atmospheres
- /*   for (auto& it : m_spaceSystem->m_atmosphereCT) {
+    for (auto& it : m_spaceSystem->m_atmosphereCT) {
         auto& atCmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
 
@@ -104,9 +104,9 @@ void SpaceSystemRenderStage::drawBodies() {
 
             f32v3 lightDir(glm::normalize(l.first - *pos));
 
-            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), *pos, lightDir, l.second);
+            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
         }
-    }*/
+    }
 
     // Render far terrain
     if (m_farTerrainCamera) {
