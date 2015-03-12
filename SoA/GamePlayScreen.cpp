@@ -8,6 +8,7 @@
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/utils.h>
 
+#include "soaUtils.h"
 #include "App.h"
 #include "ChunkMesh.h"
 #include "ChunkMeshManager.h"
@@ -154,6 +155,7 @@ void GamePlayScreen::updateECS() {
     auto& parentNpCmp = spaceSystem->m_namePositionCT.get(parentNpCmpId);
     // Calculate non-relative space position
     f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
+
     m_spaceSystemUpdater->update(spaceSystem, gameSystem, m_soaState,
                                  trueSpacePosition,
                                  m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);

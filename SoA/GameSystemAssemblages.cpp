@@ -15,7 +15,7 @@ vecs::EntityID GameSystemAssemblages::createPlayer(GameSystem* gameSystem, const
     vecs::EntityID id = gameSystem->addEntity();
 
     vecs::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation,
-                                                  parentGravComponent, parentSphericalTerrainComponent);
+                                                 parentEntity, parentGravComponent, parentSphericalTerrainComponent);
 
     vecs::ComponentID pyCmpId = addPhysics(gameSystem, id, massKg, initialVel, spCmpId);
 

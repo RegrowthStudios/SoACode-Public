@@ -121,8 +121,8 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
     // Get the position component
     auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
-    // Apply gravity
 
+    // Apply gravity
     // TODO(Ben): Optimize and fix with timestep
     if (spCmp.parentGravityID) {
         auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID);

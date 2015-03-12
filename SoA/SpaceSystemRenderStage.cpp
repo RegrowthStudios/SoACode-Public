@@ -104,7 +104,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
             f32v3 lightDir(glm::normalize(l.first - *pos));
 
-            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
+            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), *pos, lightDir, l.second);
         }
     }*/
 

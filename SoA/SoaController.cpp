@@ -29,10 +29,12 @@ void SoaController::startGame(OUT SoaState* state) {
     SpaceSystem* spaceSystem = state->spaceSystem.get();
 
     if (state->isNewGame) {
-
+ 
         auto& svcmp = spaceSystem->m_sphericalVoxelCT.getFromEntity(state->startingPlanet);
         auto& arcmp = spaceSystem->m_axisRotationCT.getFromEntity(state->startingPlanet);
         auto& npcmp = spaceSystem->m_namePositionCT.getFromEntity(state->startingPlanet);
+
+        auto& np2 = spaceSystem->m_namePositionCT.get(spaceSystem->m_sphericalGravityCT.get(spaceSystem->m_sphericalGravityCT.getComponentID(state->startingPlanet)).namePositionComponent);
 
         // Create the player entity and make the initial planet his parent
         state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem.get(), state->startSpacePos,

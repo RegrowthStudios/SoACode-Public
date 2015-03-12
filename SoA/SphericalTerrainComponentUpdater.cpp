@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponentUpdater.h"
 
+#include "soaUtils.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
@@ -15,8 +16,8 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
       
         SphericalTerrainComponent& stCmp = it.second;
-        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.getFromEntity(it.first);
-        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
+        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
+        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
         /// Calculate camera distance
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
         f64 distance = glm::length(relativeCameraPos);

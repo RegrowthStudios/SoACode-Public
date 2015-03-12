@@ -5,6 +5,7 @@
 #include "SpaceSystemComponents.h"
 #include "TerrainPatchMeshManager.h"
 #include "TerrainPatch.h"
+#include "soaUtils.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -36,6 +37,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
         }
         
         f64v3 relativeCameraPos = camera->getPosition() - position;
+        
         // Draw spherical patches
         if (cmp.alpha > 0.0f) {
             cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
