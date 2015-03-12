@@ -32,7 +32,7 @@ AtmosphereComponentRenderer::~AtmosphereComponentRenderer() {
 }
 
 void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
-                                       const Camera* camera,
+                                       const f32m4& VP,
                                        const f32v3& relCamPos,
                                        const f32v3& lightDir,
                                        const SpaceLightComponent* spComponent) {
@@ -49,7 +49,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     f32m4 WVP(1.0);
     setMatrixScale(WVP, f32v3(aCmp.radius));
     setMatrixTranslation(WVP, -relCamPos);
-    WVP = camera->getViewProjectionMatrix() * WVP;
+    WVP = VP * WVP;
 
 
     f32 camHeight = glm::length(relCamPos);

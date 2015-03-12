@@ -150,7 +150,7 @@ void GamePlayScreen::updateECS() {
     m_soaState->time += m_soaState->timeStep;
     // TODO(Ben): Don't hardcode for a single player
     auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
-    auto parentNpCmpId = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId).namePositionComponent;
+    auto parentNpCmpId = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID).namePositionComponent;
     auto& parentNpCmp = spaceSystem->m_namePositionCT.get(parentNpCmpId);
     // Calculate non-relative space position
     f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;

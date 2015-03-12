@@ -17,12 +17,12 @@
 
 #include <Vorb/VorbPreDecl.inl>
 
+class Camera;
+struct AtmosphereComponent;
 struct AxisRotationComponent;
 struct NamePositionComponent;
 struct SpaceLightComponent;
 struct SphericalTerrainComponent;
-struct AtmosphereComponent;
-class Camera;
 
 DECL_VG(class GLProgram);
 

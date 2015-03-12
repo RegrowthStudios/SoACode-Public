@@ -23,6 +23,7 @@
 #include "FarTerrainComponentRenderer.h"
 #include "AtmosphereComponentRenderer.h"
 #include "SystemARRenderer.h"
+#include "Camera.h"
 
 class App;
 class GameSystem;

@@ -20,10 +20,10 @@
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;
-struct PlanetGenData;
-struct TerrainPatchData;
 class TerrainPatchMesh;
 struct AtmosphereComponent;
+struct PlanetGenData;
+struct TerrainPatchData;
 
 DECL_VG(class TextureRecycler;
         class GLProgram)
@@ -45,22 +45,24 @@ public:
     /// @param waterProgram: Shader program for rendering water
     /// @param lightDir: Normalized direction to light source
     /// @param aCmp: Atmosphere component for rendering
-    void drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
-              const f64q& orientation,
-              vg::GLProgram* program, vg::GLProgram* waterProgram,
-              const f32v3& lightDir,
-              float alpha,
-              const AtmosphereComponent* aCmp);
+    void drawSphericalMeshes(const f64v3& relativePos,
+                             const Camera* camera,
+                             const f64q& orientation,
+                             vg::GLProgram* program, vg::GLProgram* waterProgram,
+                             const f32v3& lightDir,
+                             float alpha,
+                             const AtmosphereComponent* aCmp);
     /// Draws the far meshes
     /// @param relativePos: Relative position of the camera
-    /// @param Camera: The camera
+    /// @param Camera: The camera state
     /// @param orientation: Orientation quaternion
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
     /// @param lightDir: Normalized direction to light source
     /// @param radius: Radius of the planet in KM
     /// @param aCmp: Atmosphere component for rendering
-    void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
+    void drawFarMeshes(const f64v3& relativePos,
+                       const Camera* camera,
                        vg::GLProgram* program, vg::GLProgram* waterProgram,
                        const f32v3& lightDir,
                        float alpha, float radius,
