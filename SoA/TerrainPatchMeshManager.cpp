@@ -17,12 +17,13 @@
 #include "TerrainPatchMesh.h"
 #include "soaUtils.h"
 
-void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
-                                       const f64q& orientation, vg::GLProgram* program,
-                                       vg::GLProgram* waterProgram,
-                                       const f32v3& lightDir,
-                                       float alpha,
-                                       const AtmosphereComponent* aCmp) {
+void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
+                                                  const Camera* camera,
+                                                  const f64q& orientation, vg::GLProgram* program,
+                                                  vg::GLProgram* waterProgram,
+                                                  const f32v3& lightDir,
+                                                  float alpha,
+                                                  const AtmosphereComponent* aCmp) {
     
     static float dt = 0.0;
     dt += 0.001;
@@ -69,7 +70,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
               
             } else {
                 // TODO(Ben): Horizon and frustum culling for water too
-                m->drawWater(relativePos, camera, rotationMatrix, waterProgram);
+                m->drawWater(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, waterProgram);
                 i++;
             }
         }
@@ -120,7 +121,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos, cons
                     f32v3 relSpherePos = orientationF32 * m->m_aabbCenter - f32v3(relativePos);
                     if (camera->sphereInFrustum(relSpherePos,
                         m->m_boundingSphereRadius)) {
-                        m->draw(relativePos, camera, rotationMatrix, program);
+                        m->draw(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, program);
                     }
                 }
                 i++;
@@ -156,7 +157,8 @@ void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) 
 
 }
 
-void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Camera* camera,
+void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
+                                            const Camera* camera,
                                             vg::GLProgram* program, vg::GLProgram* waterProgram,
                                             const f32v3& lightDir,
                                             float alpha, float radius,
@@ -198,7 +200,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
                 m_farWaterMeshes.pop_back();
 
             } else {
-                m->drawWater(relativePos, camera, rot, waterProgram);
+                m->drawWater(relativePos, camera->getViewProjectionMatrix(), rot, waterProgram);
                 i++;
             }
         }
@@ -248,7 +250,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos, const Came
                     f64v3 closestPoint = m->getClosestPoint(relativePos);
                     if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,
                         m_planetGenData->radius)) {
-                        m->draw(relativePos, camera, rot, program);
+                        m->draw(relativePos, camera->getViewProjectionMatrix(), rot, program);
                     }
                 }
                 i++;

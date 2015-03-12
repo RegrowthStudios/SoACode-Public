@@ -46,7 +46,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     // Get the position component
     auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
     // Check for removal of spherical voxel component
-    auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
+    auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainID);
     if (stCmp.sphericalVoxelComponent == 0) {
         // We need to transition to space
         pyCmp.voxelPositionComponent = 0;
@@ -61,8 +61,8 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
     // Apply gravity
-    if (spCmp.parentGravityId) {
-        auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
+    if (spCmp.parentGravityID) {
+        auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID);
         f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
         f64 fgrav = M_G * gravCmp.mass / (height * height);
         // We don't account mass since we only calculate force on the object
@@ -98,8 +98,8 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
 
     // Check transition to Space
     // TODO(Ben): This assumes a single player entity!
-    if (spCmp.parentSphericalTerrainId) {
-        auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
+    if (spCmp.parentSphericalTerrainID) {
+        auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainID);
 
         f64 distance = glm::length(spCmp.position);
         if (distance > stCmp.sphericalTerrainData->radius * EXIT_RADIUS_MULT) {
@@ -124,8 +124,8 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
     // Apply gravity
 
     // TODO(Ben): Optimize and fix with timestep
-    if (spCmp.parentGravityId) {
-        auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityId);
+    if (spCmp.parentGravityID) {
+        auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID);
         pyCmp.velocity += calculateGravityAcceleration(-spCmp.position, gravCmp.mass);
     } else {
         // TODO(Ben): Check gravity on all planets? check transition to parent?
@@ -136,8 +136,8 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
     // Check transition to planet
     // TODO(Ben): This assumes a single player entity!
-    if (spCmp.parentSphericalTerrainId) {
-        auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainId);
+    if (spCmp.parentSphericalTerrainID) {
+        auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainID);
         auto& npCmp = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
 
         f64 distance = glm::length(spCmp.position);

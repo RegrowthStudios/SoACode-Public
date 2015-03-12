@@ -28,7 +28,9 @@ namespace GameSystemAssemblages {
     /// Player entity
     extern vecs::EntityID createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
                                       const f64q& orientation, f32 massKg, const f64v3& initialVel,
-                                      f32 fov, f32 aspectRatio, vecs::ComponentID parentGravComponent,
+                                      f32 fov, f32 aspectRatio,
+                                      vecs::EntityID parentEntity,
+                                      vecs::ComponentID parentGravComponent,
                                       vecs::ComponentID parentSphericalTerrainComponent,
                                       f32 znear = 0.01, f32 zfar = 100000.0f);
     extern void destroyPlayer(GameSystem* gameSystem, vecs::EntityID playerEntity);
@@ -49,6 +51,7 @@ namespace GameSystemAssemblages {
     /// Space position component
     extern vecs::ComponentID addSpacePosition(GameSystem* gameSystem, vecs::EntityID entity,
                                                const f64v3& position, const f64q& orientation,
+                                               vecs::EntityID parentEntity,
                                                vecs::ComponentID parentGravComponent = 0,
                                                vecs::ComponentID parentSphericalTerrainComponent = 0);
     extern void removeSpacePosition(GameSystem* gameSystem, vecs::EntityID entity);

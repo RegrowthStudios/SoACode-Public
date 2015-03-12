@@ -52,6 +52,7 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 }
 
 void SpaceSystemRenderStage::draw() {
+
     drawBodies();
     m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
@@ -93,15 +94,17 @@ void SpaceSystemRenderStage::drawBodies() {
     for (auto& it : m_spaceSystem->m_atmosphereCT) {
         auto& atCmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
-        f32v3 relCamPos(m_spaceCamera->getPosition() - npCmp.position);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+
         if (glm::length(relCamPos) < 50000.0f) {
             auto& l = lightCache[it.first];
 
-            pos = getBodyPosition(npCmp, it.first);
-
             f32v3 lightDir(glm::normalize(l.first - *pos));
 
-            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera, relCamPos, lightDir, l.second);
+            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
         }
     }
 
@@ -118,7 +121,7 @@ void SpaceSystemRenderStage::drawBodies() {
             auto& l = lightCache[it.first];
             f64v3 lightDir = glm::normalize(l.first - *pos);
 
-            m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
+            m_farTerrainComponentRenderer.draw(cmp, m_spaceCamera,
                                                lightDir,
                                                l.second,
                                                &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first),

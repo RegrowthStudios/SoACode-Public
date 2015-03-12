@@ -63,19 +63,11 @@ public:
     void recycleNormalMap(vg::TextureRecycler* recycler);
 
     /// Draws the terrain mesh
-    /// @param cameraPos: Relative position of the camera
-    /// @param camera: The camera
-    /// @param rot: Rotation matrix
-    /// @param program: Shader program for rendering
-    void draw(const f64v3& relativePos, const Camera* camera,
+    void draw(const f64v3& relativePos, const f32m4& VP,
               const f32m4& rot, vg::GLProgram* program) const;
 
     /// Draws the water mesh
-    /// @param relativePos: Relative position of the camera
-    /// @param camera: The camera
-    /// @param rot: Rotation matrix
-    /// @param program: Shader program for rendering
-    void drawWater(const f64v3& relativePos, const Camera* camera,
+    void drawWater(const f64v3& relativePos, const f32m4& VP,
                    const f32m4& rot, vg::GLProgram* program) const;
 
     /// Gets the point closest to the observer

@@ -52,6 +52,8 @@ public:
     const float& getAspectRatio() const { return m_aspectRatio; }
     const float& getFocalLength() const { return m_focalLength; }
 
+    const Frustum& getFrustum() const { return m_frustum; }
+
 protected:
     void normalizeAngles();
     void updateView();

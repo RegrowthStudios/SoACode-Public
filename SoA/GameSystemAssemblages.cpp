@@ -7,7 +7,9 @@
 
 vecs::EntityID GameSystemAssemblages::createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
                                                     const f64q& orientation, f32 massKg, const f64v3& initialVel,
-                                                    f32 fov, f32 aspectRatio, vecs::ComponentID parentGravComponent,
+                                                    f32 fov, f32 aspectRatio,
+                                                    vecs::EntityID parentEntity,
+                                                    vecs::ComponentID parentGravComponent,
                                                     vecs::ComponentID parentSphericalTerrainComponent,
                                                     f32 znear, f32 zfar) {
     vecs::EntityID id = gameSystem->addEntity();
@@ -63,14 +65,16 @@ void GameSystemAssemblages::removePhysics(GameSystem* gameSystem, vecs::EntityID
 
 vecs::ComponentID GameSystemAssemblages::addSpacePosition(GameSystem* gameSystem, vecs::EntityID entity,
                                                            const f64v3& position, const f64q& orientation,
+                                                           vecs::EntityID parentEntity,
                                                            vecs::ComponentID parentGravComponent /* = 0 */,
                                                            vecs::ComponentID parentSphericalTerrainComponent /* = 0 */) {
     vecs::ComponentID spCmpId = gameSystem->addComponent("SpacePosition", entity);
     auto& spCmp = gameSystem->spacePosition.get(spCmpId);
     spCmp.position = position;
     spCmp.orientation = orientation;
-    spCmp.parentGravityId = parentGravComponent;
-    spCmp.parentSphericalTerrainId = parentSphericalTerrainComponent;
+    spCmp.parentEntityID = parentEntity;
+    spCmp.parentGravityID = parentGravComponent;
+    spCmp.parentSphericalTerrainID = parentSphericalTerrainComponent;
     return spCmpId;
 }
 

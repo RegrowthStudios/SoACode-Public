@@ -311,11 +311,10 @@ void GamePlayRenderPipeline::updateCameras() {
     }
     // Player is relative to a planet, so add position if needed
     auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
-    if (spcmp.parentGravityId) {
-        auto& parentSgCmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityId);
-        auto& parentNpCmp = ss->m_namePositionCT.get(parentSgCmp.namePositionComponent);
-        // TODO(Ben): Could get better precision by not using + parentNpCmp.position here?
-        m_spaceCamera.setPosition(m_renderState->spaceCameraPos + parentNpCmp.position);
+    if (spcmp.parentGravityID) {
+        auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntityID);
+
+        m_spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
     } else {
         m_spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
