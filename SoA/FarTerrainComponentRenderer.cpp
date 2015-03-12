@@ -11,6 +11,23 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/utils.h>
 
+namespace {
+    void printShaderError(Sender s, nString n) {
+        puts("Shader Error: ");
+        puts(n.c_str());
+    }
+    void printLogError(Sender s, nString n) {
+        puts("Link Error: ");
+        puts(n.c_str());
+        vg::GLProgram* p = (vg::GLProgram*)s;
+        char buf[256];
+        GLsizei len;
+        glGetProgramInfoLog(p->getID(), 255, &len, buf);
+        buf[len] = 0;
+        puts(buf);
+    }
+}
+
 FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
     if (m_farTerrainProgram) {
         m_farTerrainProgram->dispose();
@@ -78,6 +95,8 @@ void FarTerrainComponentRenderer::buildShaders() {
     iom.readFileToString("Shaders/SphericalTerrain/FarTerrain.vert", vertSource);
     iom.readFileToString("Shaders/SphericalTerrain/SphericalTerrain.frag", fragSource);
     m_farTerrainProgram = new vg::GLProgram(true);
+    m_farTerrainProgram->onShaderCompilationError += makeDelegate(printShaderError);
+    m_farTerrainProgram->onProgramLinkError += makeDelegate(printLogError);
     m_farTerrainProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_farTerrainProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farTerrainProgram->setAttributes(sphericalAttribs);
@@ -96,6 +115,8 @@ void FarTerrainComponentRenderer::buildShaders() {
     iom.readFileToString("Shaders/SphericalTerrain/FarWater.vert", vertSource);
     iom.readFileToString("Shaders/SphericalTerrain/SphericalWater.frag", fragSource);
     m_farWaterProgram = new vg::GLProgram(true);
+    m_farWaterProgram->onShaderCompilationError += makeDelegate(printShaderError);
+    m_farWaterProgram->onProgramLinkError += makeDelegate(printLogError);
     m_farWaterProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_farWaterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farWaterProgram->setAttributes(sphericalWaterAttribs);
