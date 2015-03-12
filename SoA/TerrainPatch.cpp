@@ -103,7 +103,7 @@ void TerrainPatch::update(const f64v3& cameraPos) {
             if (deleteMesh) {
                 // Children are renderable, free mesh.
                 // Render thread will deallocate.
-                m_mesh->m_shouldDelete = true;
+               m_mesh->m_shouldDelete = true;
                 m_mesh = nullptr;
             }
         }
