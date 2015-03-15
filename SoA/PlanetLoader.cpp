@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 #include "PlanetData.h"
-#include "BlockPack.h"
 
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/Events.hpp>
 #include <Vorb/io/YAML.h>
+#include <Vorb/RPC.h>
 
 #include "Errors.h"
 
@@ -21,6 +21,7 @@ PlanetLoader::~PlanetLoader() {
 }
 
 PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManager* glrpc /* = nullptr */) {
+    m_glRpc = glrpc;
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
@@ -62,9 +63,9 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
         } else if (type == "blockLayers") {
             parseBlockLayers(reader, value, genData);
         } else if (type == "liquidBlock") {
-            genData->liquidBlock = Blocks[keg::convert<nString>(value)].ID;
+            genData->blockInfo.liquidBlockName = keg::convert<nString>(value);
         } else if (type == "surfaceBlock") {
-            genData->surfaceBlock = Blocks[keg::convert<nString>(value)].ID;
+            genData->blockInfo.surfaceBlockName = keg::convert<nString>(value);
         }
     });
     reader.forAllInMap(node, f);
@@ -153,20 +154,42 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
                                                                    &vg::SamplerState::POINT_CLAMP,
                                                                    vg::TextureInternalFormat::R8,
                                                                    vg::TextureFormat::RED, 0);
-        // Generate array textures
-        glGenTextures(1, &genData->biomeArrayTexture);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);
-        //Allocate the storage.
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-        // Set up base lookup textures
-        for (auto& it : m_biomeLookupMap) {
-            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
-                            1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());
-        }
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // Handle RPC for texture upload
+        if (m_glRpc) {
+            vcore::RPC rpc;
+            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                // Generate array textures
+                glGenTextures(1, &genData->biomeArrayTexture);
+                glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);
+                //Allocate the storage.
+                glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+                // Set up base lookup textures
+                for (auto& it : m_biomeLookupMap) {
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
+                                    1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());
+                }
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            });
+            m_glRpc->invoke(&rpc, true);
+        } else {
+            // Generate array textures
+            glGenTextures(1, &genData->biomeArrayTexture);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);
+            //Allocate the storage.
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+            // Set up base lookup textures
+            for (auto& it : m_biomeLookupMap) {
+                glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
+                                1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());
+            }
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }     
     }
     // Free memory
     std::map<ui32, BiomeLookupTexture>().swap(m_biomeLookupMap);
@@ -217,22 +240,41 @@ void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, Pla
 
     if (kegProps.colorPath.size()) {
         vg::BitmapResource pixelData;
-        genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_CLAMP);
+        // Handle RPC for texture upload
+        if (m_glRpc) {
+            vcore::RPC rpc;
+            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            });
+            m_glRpc->invoke(&rpc, true);
+        } else {
+            genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        }
+        // Turn into a color map
         if (genData->liquidColorMap.id) {
             if (genData->liquidColorMap.width != 256 ||
                 genData->liquidColorMap.height != 256) {
                 std::cerr << "Liquid color map needs to be 256x256";
             } else {
-                genData->colorMaps.colorMaps.emplace_back(std::make_unique<vg::BitmapResource>());
+                genData->colorMaps.colorMaps.emplace_back(new vg::BitmapResource);
                 *genData->colorMaps.colorMaps.back() = pixelData;
-                genData->colorMaps.colorMapTable["liquid"] = genData->colorMaps.colorMaps.back().get();
+                genData->colorMaps.colorMapTable["liquid"] = genData->colorMaps.colorMaps.back();
             }
         } else {
             vg::ImageIO::free(pixelData);
         }
     }
     if (kegProps.texturePath.size()) {
-        genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        // Handle RPC for texture upload
+        if (m_glRpc) {
+            vcore::RPC rpc;
+            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            });
+            m_glRpc->invoke(&rpc, true);
+        } else {
+            genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        }
     }
     genData->liquidFreezeTemp = kegProps.freezeTemp;
     genData->liquidDepthScale = kegProps.depthScale;
@@ -255,23 +297,43 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
     }
 
     if (kegProps.colorPath.size()) {
+        // TODO(Ben): "biome" color map will conflict with other planets
         vg::BitmapResource pixelData;
-        genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_CLAMP);
+        // Handle RPC for texture upload
+        if (m_glRpc) {
+            vcore::RPC rpc;
+            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            });
+            m_glRpc->invoke(&rpc, true);
+        } else {
+            genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        }
+        // Turn into a color map
         if (genData->terrainColorMap.id) {
             if (genData->terrainColorMap.width != 256 ||
                 genData->terrainColorMap.height != 256) {
                 std::cerr << "Terrain color map needs to be 256x256";
             } else {
-                genData->colorMaps.colorMaps.emplace_back(std::make_unique<vg::BitmapResource>());
+                genData->colorMaps.colorMaps.emplace_back(new vg::BitmapResource);
                 *genData->colorMaps.colorMaps.back() = pixelData;
-                genData->colorMaps.colorMapTable["biome"] = genData->colorMaps.colorMaps.back().get();
+                genData->colorMaps.colorMapTable["biome"] = genData->colorMaps.colorMaps.back();
             }
         } else {
             vg::ImageIO::free(pixelData);
         }
     }
     if (kegProps.texturePath.size()) {
-        genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        // Handle RPC for texture upload
+        if (m_glRpc) {
+            vcore::RPC rpc;
+            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            });
+            m_glRpc->invoke(&rpc, true);
+        } else {
+            genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        }
     }
     genData->terrainTint = kegProps.tint;
 }
@@ -284,12 +346,10 @@ void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, Pla
 
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
         // Add a block
+        genData->blockInfo.blockLayerNames.emplace_back(name);
         genData->blockLayers.emplace_back();
+
         BlockLayer& l = genData->blockLayers.back();
-
-        // Set name to key
-        l.block = Blocks[name].ID;
-
         // Load data
         keg::parse((ui8*)&l, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockLayer));
     });

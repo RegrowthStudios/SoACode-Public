@@ -155,10 +155,10 @@ vg::BitmapResource* TexturePackLoader::getColorMap(const nString& name) {
         // Load pixel data
         rs = vg::ImageIO().load(texPath, vg::ImageIOFormat::RGB_UI8);
         // Add to color map
-        m_colorMaps->colorMaps.emplace_back(std::make_unique<vg::BitmapResource>());
+        m_colorMaps->colorMaps.emplace_back(new vg::BitmapResource);
         *m_colorMaps->colorMaps.back() = rs;
-        m_colorMaps->colorMapTable["liquid"] = m_colorMaps->colorMaps.back().get();
-        return m_colorMaps->colorMaps.back().get();
+        m_colorMaps->colorMapTable["liquid"] = m_colorMaps->colorMaps.back();
+        return m_colorMaps->colorMaps.back();
     }
 }
 

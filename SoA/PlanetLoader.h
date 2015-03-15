@@ -97,6 +97,8 @@ private:
     vg::TextureCache m_textureCache; ///< Texture cache for re-using textures
 
     NoiseShaderGenerator m_shaderGenerator; ///< Generates the generation shaders
+
+    vcore::RPCManager* m_glRpc = nullptr;
 };
 
 #endif // PlanetLoader_h__

@@ -81,8 +81,11 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     _monitor.setDep("BlockData", "GameManager");
 
+    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_soaState.get()));
+
     addLoadTask("Textures", "Textures", new LoadTaskTextures);
     _monitor.setDep("Textures", "BlockData");
+    _monitor.setDep("Textures", "SpaceSystem");
 
     // Start the tasks
     _monitor.start();
@@ -160,9 +163,6 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
 
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
-
-        LoadTaskStarSystem loadTaskStarSystem(nullptr, "StarSystems/Trinity", m_soaState.get());
-        loadTaskStarSystem.load();
 
         _state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;

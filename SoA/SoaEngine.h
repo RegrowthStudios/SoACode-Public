@@ -81,11 +81,9 @@ private:
     /// @param filePath: Path to body
     /// @param sysProps: Keg properties for the system
     /// @param body: The body to fill
-    /// @param glrpc: Optional RPCManager.
     /// @return true on success
     static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body,
-                                   vcore::RPCManager* glrpc = nullptr);
+                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body);
 
     static void calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary);
 

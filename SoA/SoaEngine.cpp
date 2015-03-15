@@ -24,6 +24,7 @@ struct SpaceSystemLoadParams {
     vio::IOManager* ioManager = nullptr;
     nString dirPath;
     PlanetLoader* planetLoader = nullptr;
+    vcore::RPCManager* glrpc = nullptr;
 
     std::map<nString, Binary*> binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
@@ -89,6 +90,7 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
 
     // Load system
     SpaceSystemLoadParams spaceSystemLoadParams;
+    spaceSystemLoadParams.glrpc = glrpc;
     spaceSystemLoadParams.dirPath = loadData.filePath;
     spaceSystemLoadParams.spaceSystem = state->spaceSystem.get();
     spaceSystemLoadParams.ioManager = state->systemIoManager.get();
@@ -236,8 +238,7 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
 }
 
 bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body,
-                                   vcore::RPCManager* glrpc /* = nullptr */) {
+                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body) {
 
 #define KEG_CHECK \
     if (error != keg::Error::NONE) { \
@@ -272,9 +273,9 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
-                properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, glrpc);
+                properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
-                properties.planetGenData = pr.planetLoader->getDefaultGenData(glrpc);
+                properties.planetGenData = pr.planetLoader->getDefaultGenData(pr.glrpc);
             }
 
             // Set the radius for use later

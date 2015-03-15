@@ -80,7 +80,14 @@ KEG_TYPE_DECL(NoiseBase);
 // For storing color maps
 struct ColorMaps {
     std::map <nString, vg::BitmapResource*> colorMapTable; ///< For looking up block color maps by name
-    std::vector <std::unique_ptr<vg::BitmapResource> > colorMaps; ///< Storage for the block color maps
+    std::vector <vg::BitmapResource*> colorMaps; ///< Storage for the block color maps
+};
+
+// Info about what blocks a planet needs
+struct PlanetBlockInfo {
+    std::vector<nString> blockLayerNames; ///< Names of blocks that the planet needs
+    nString liquidBlockName = "";
+    nString surfaceBlockName = "";
 };
 
 struct PlanetGenData {
@@ -98,6 +105,7 @@ struct PlanetGenData {
     f32 humHeightFalloff = 0.0f;
     VGTexture biomeArrayTexture = 0;
     VGTexture baseBiomeLookupTexture = 0;
+    PlanetBlockInfo blockInfo;
     std::vector<Biome> biomes;
     std::vector<BlockLayer> blockLayers;
     ui32 liquidBlock = 0;
@@ -109,7 +117,7 @@ struct PlanetGenData {
     NoiseBase tempTerrainFuncs;
     NoiseBase humTerrainFuncs;
 
-    ColorMaps colorMaps;
+    static ColorMaps colorMaps;
 };
 
 #endif // PlanetData_h__
