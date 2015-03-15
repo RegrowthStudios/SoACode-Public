@@ -64,7 +64,6 @@ void SpaceSystemRenderStage::drawBodies() {
     glEnable(GL_CULL_FACE);
 
     // TODO(Ben): Try to optimize out getFromEntity
-
     f64v3 lightPos;
     // For caching light for far terrain
     std::map<vecs::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
@@ -91,22 +90,22 @@ void SpaceSystemRenderStage::drawBodies() {
     }
 
     // Render atmospheres
-    for (auto& it : m_spaceSystem->m_atmosphereCT) {
-        auto& atCmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
+    /*  for (auto& it : m_spaceSystem->m_atmosphereCT) {
+          auto& atCmp = it.second;
+          auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
 
-        pos = getBodyPosition(npCmp, it.first);
+          pos = getBodyPosition(npCmp, it.first);
 
-        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+          f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
 
-        if (glm::length(relCamPos) < 50000.0f) {
-            auto& l = lightCache[it.first];
+          if (glm::length(relCamPos) < 50000.0f) {
+          auto& l = lightCache[it.first];
 
-            f32v3 lightDir(glm::normalize(l.first - *pos));
+          f32v3 lightDir(glm::normalize(l.first - *pos));
 
-            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
-        }
-    }
+          m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
+          }
+          }*/
 
     // Render far terrain
     if (m_farTerrainCamera) {

@@ -131,7 +131,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
         }
 
         if (gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
-         // TODO(Ben): Implement perfect fade
+            // TODO(Ben): Implement perfect fade
             //  if (cm->distance2 < fadeDist + 12.5){
                 cm->inFrustum = 1;
                 ChunkRenderer::drawChunkBlocks(cm, program, position,
@@ -387,48 +387,50 @@ void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
     program->unuse();
 }
 
-void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
+void ChunkRenderer::drawChunkBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
-    if (CMI->vboID == 0) return;
-
-    setMatrixTranslation(worldMatrix, f64v3(CMI->position), PlayerPos);
+    if (cm->vboID == 0) {
+        //printf("VBO is 0 in drawChunkBlocks\n");
+        return;
+    }
+    setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
 
     f32m4 MVP = VP * worldMatrix;
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
-    glBindVertexArray(CMI->vaoID);
+    glBindVertexArray(cm->vaoID);
 
-    const ChunkMeshRenderData& chunkMeshInfo = CMI->meshInfo;
-
+    const ChunkMeshRenderData& chunkMeshInfo = cm->meshInfo;
+    
     //top
     if (chunkMeshInfo.pyVboSize){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pyVboOff * 6 * sizeof(GLuint)) / 4));
     }
 
     //front
-    if (chunkMeshInfo.pzVboSize && PlayerPos.z > CMI->position.z + chunkMeshInfo.lowestZ){
+    if (chunkMeshInfo.pzVboSize && PlayerPos.z > cm->position.z + chunkMeshInfo.lowestZ){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pzVboOff * 6 * sizeof(GLuint)) / 4));
     }
 
     //back
-    if (chunkMeshInfo.nzVboSize && PlayerPos.z < CMI->position.z + chunkMeshInfo.highestZ){
+    if (chunkMeshInfo.nzVboSize && PlayerPos.z < cm->position.z + chunkMeshInfo.highestZ){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nzVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nzVboOff * 6 * sizeof(GLuint)) / 4));
     }
 
     //left
-    if (chunkMeshInfo.nxVboSize && PlayerPos.x < CMI->position.x + chunkMeshInfo.highestX){
+    if (chunkMeshInfo.nxVboSize && PlayerPos.x < cm->position.x + chunkMeshInfo.highestX){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nxVboOff * 6 * sizeof(GLuint)) / 4));
     }
 
     //right
-    if (chunkMeshInfo.pxVboSize && PlayerPos.x > CMI->position.x + chunkMeshInfo.lowestX){
+    if (chunkMeshInfo.pxVboSize && PlayerPos.x > cm->position.x + chunkMeshInfo.lowestX){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pxVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pxVboOff * 6 * sizeof(GLuint)) / 4));
     }
 
     //bottom
-    if (chunkMeshInfo.nyVboSize && PlayerPos.y < CMI->position.y + chunkMeshInfo.highestY){
+    if (chunkMeshInfo.nyVboSize && PlayerPos.y < cm->position.y + chunkMeshInfo.highestY){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nyVboOff * 6 * sizeof(GLuint)) / 4));
     }
     
@@ -436,69 +438,69 @@ void ChunkRenderer::drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* p
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
-    if (CMI->transVaoID == 0) return;
+void ChunkRenderer::drawChunkTransparentBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
+    if (cm->transVaoID == 0) return;
 
-    setMatrixTranslation(worldMatrix, f64v3(CMI->position), playerPos);
-
-    f32m4 MVP = VP * worldMatrix;
-
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
-
-    glBindVertexArray(CMI->transVaoID);
-
-    glDrawElements(GL_TRIANGLES, CMI->meshInfo.transVboSize, GL_UNSIGNED_INT, nullptr);
-
-    glBindVertexArray(0);
-
-}
-
-void ChunkRenderer::drawChunkCutoutBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
-    if (CMI->cutoutVaoID == 0) return;
-
-    setMatrixTranslation(worldMatrix, f64v3(CMI->position), playerPos);
+    setMatrixTranslation(worldMatrix, f64v3(cm->position), playerPos);
 
     f32m4 MVP = VP * worldMatrix;
 
     glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
-    glBindVertexArray(CMI->cutoutVaoID);
+    glBindVertexArray(cm->transVaoID);
 
-    glDrawElements(GL_TRIANGLES, CMI->meshInfo.cutoutVboSize, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, cm->meshInfo.transVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
 
 }
 
-void ChunkRenderer::drawChunkWater(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
+void ChunkRenderer::drawChunkCutoutBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
+    if (cm->cutoutVaoID == 0) return;
+
+    setMatrixTranslation(worldMatrix, f64v3(cm->position), playerPos);
+
+    f32m4 MVP = VP * worldMatrix;
+
+    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+
+    glBindVertexArray(cm->cutoutVaoID);
+
+    glDrawElements(GL_TRIANGLES, cm->meshInfo.cutoutVboSize, GL_UNSIGNED_INT, nullptr);
+
+    glBindVertexArray(0);
+
+}
+
+void ChunkRenderer::drawChunkWater(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
     //use drawWater bool to avoid checking frustum twice
-    if (CMI->inFrustum && CMI->waterVboID){
+    if (cm->inFrustum && cm->waterVboID){
 
-        setMatrixTranslation(worldMatrix, f64v3(CMI->position), PlayerPos);
+        setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
 
         f32m4 MVP = VP * worldMatrix;
 
         glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
         glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
-        glBindVertexArray(CMI->waterVaoID);
+        glBindVertexArray(cm->waterVaoID);
 
-        glDrawElements(GL_TRIANGLES, CMI->meshInfo.waterIndexSize, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, cm->meshInfo.waterIndexSize, GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
     }
 }
 
-void ChunkRenderer::bindTransparentVao(ChunkMesh *CMI)
+void ChunkRenderer::bindTransparentVao(ChunkMesh *cm)
 {
-    if (CMI->transVaoID == 0) glGenVertexArrays(1, &(CMI->transVaoID));
-    glBindVertexArray(CMI->transVaoID);
+    if (cm->transVaoID == 0) glGenVertexArrays(1, &(cm->transVaoID));
+    glBindVertexArray(cm->transVaoID);
 
-    glBindBuffer(GL_ARRAY_BUFFER, CMI->transVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CMI->transIndexID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm->transVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm->transIndexID);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);
@@ -524,12 +526,12 @@ void ChunkRenderer::bindTransparentVao(ChunkMesh *CMI)
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::bindCutoutVao(ChunkMesh *CMI)
+void ChunkRenderer::bindCutoutVao(ChunkMesh *cm)
 {
-    if (CMI->cutoutVaoID == 0) glGenVertexArrays(1, &(CMI->cutoutVaoID));
-    glBindVertexArray(CMI->cutoutVaoID);
+    if (cm->cutoutVaoID == 0) glGenVertexArrays(1, &(cm->cutoutVaoID));
+    glBindVertexArray(cm->cutoutVaoID);
 
-    glBindBuffer(GL_ARRAY_BUFFER, CMI->cutoutVboID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm->cutoutVboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (int i = 0; i < 8; i++) {
@@ -557,11 +559,11 @@ void ChunkRenderer::bindCutoutVao(ChunkMesh *CMI)
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::bindVao(ChunkMesh *CMI)
+void ChunkRenderer::bindVao(ChunkMesh *cm)
 {
-    if (CMI->vaoID == 0) glGenVertexArrays(1, &(CMI->vaoID));
-    glBindVertexArray(CMI->vaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, CMI->vboID);
+    if (cm->vaoID == 0) glGenVertexArrays(1, &(cm->vaoID));
+    glBindVertexArray(cm->vaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm->vboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (int i = 0; i < 8; i++) {
@@ -588,11 +590,11 @@ void ChunkRenderer::bindVao(ChunkMesh *CMI)
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::bindWaterVao(ChunkMesh *CMI)
+void ChunkRenderer::bindWaterVao(ChunkMesh *cm)
 {
-    if (CMI->waterVaoID == 0) glGenVertexArrays(1, &(CMI->waterVaoID));
-    glBindVertexArray(CMI->waterVaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, CMI->waterVboID);
+    if (cm->waterVaoID == 0) glGenVertexArrays(1, &(cm->waterVaoID));
+    glBindVertexArray(cm->waterVaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm->waterVboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     glEnableVertexAttribArray(0);
@@ -600,7 +602,7 @@ void ChunkRenderer::bindWaterVao(ChunkMesh *CMI)
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
 
-    glBindBuffer(GL_ARRAY_BUFFER, CMI->waterVboID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm->waterVboID);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
     //uvs_texUnit_texIndex

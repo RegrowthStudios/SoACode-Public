@@ -18,16 +18,16 @@ public:
     static void drawTransparentBlocks(const GameRenderParams* gameRenderParams);
     static void drawWater(const GameRenderParams* gameRenderParams);
 
-    static void bindTransparentVao(ChunkMesh *CMI);
-    static void bindCutoutVao(ChunkMesh *CMI);
-    static void bindVao(ChunkMesh *CMI);
-    static void bindWaterVao(ChunkMesh *CMI);
+    static void bindTransparentVao(ChunkMesh *cm);
+    static void bindCutoutVao(ChunkMesh *cm);
+    static void bindVao(ChunkMesh *cm);
+    static void bindWaterVao(ChunkMesh *cm);
    
 private:
-    static void drawChunkBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
-    static void drawChunkTransparentBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawChunkCutoutBlocks(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawChunkWater(const ChunkMesh *CMI, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+    static void drawChunkBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+    static void drawChunkTransparentBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawChunkCutoutBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawChunkWater(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
 
     static f32m4 worldMatrix; ///< Reusable world matrix for chunks
 };

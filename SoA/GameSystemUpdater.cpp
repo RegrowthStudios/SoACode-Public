@@ -21,7 +21,7 @@ GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputManager* input
     m_inputManager(inputManager) {
 
     // Forward event
-    addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [this] (Sender s, ui32 a) -> void {
+    addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveForward = true;

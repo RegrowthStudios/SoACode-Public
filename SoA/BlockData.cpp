@@ -48,14 +48,14 @@ KEG_ENUM_DEF(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e) {
     e.addValue("bottom", ConnectedTextureReducedMethod::BOTTOM);
 }
 KEG_ENUM_DEF(BlendType, BlendType, e) {
-    //e.addValue("add", BlendType::ADD);
-    //e.addValue("multiply", BlendType::MULTIPLY);
-    //e.addValue("replace", BlendType::ALPHA);
-    //e.addValue("subtract", BlendType::SUBTRACT);
+    e.addValue("add", BlendType::ADD);
+    e.addValue("multiply", BlendType::MULTIPLY);
+    e.addValue("replace", BlendType::ALPHA);
+    e.addValue("subtract", BlendType::SUBTRACT);
 }
 
 KEG_TYPE_DEF_SAME_NAME(BlockTextureLayer, kt) {
-    /*  kt.addValue("method", keg::Value::custom(offsetof(BlockTextureLayer, method), "ConnectedTextureMethods", true));
+      kt.addValue("method", keg::Value::custom(offsetof(BlockTextureLayer, method), "ConnectedTextureMethods", true));
       kt.addValue("reducedMethod", keg::Value::custom(offsetof(BlockTextureLayer, reducedMethod), "ConnectedTextureReducedMethod", true));
       KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, size, I32_V2);
       kt.addValue("symmetry", keg::Value::custom(offsetof(BlockTextureLayer, symmetry), "ConnectedTextureSymmetry", true));
@@ -67,17 +67,17 @@ KEG_TYPE_DEF_SAME_NAME(BlockTextureLayer, kt) {
       KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, numTiles, I32);
       kt.addValue("weights", keg::Value::array(offsetof(BlockTextureLayer, weights), keg::BasicType::I32));
       KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, textureIndex, I32);
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, path, STRING);*/
+      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, path, STRING);
 }
 
 KEG_TYPE_DEF_SAME_NAME(BlockTexture, kt) {
-    //kt.addValue("base", keg::Value::custom(offsetof(BlockTexture, base), "BlockTextureLayer"));
-    //kt.addValue("overlay", keg::Value::custom(offsetof(BlockTexture, overlay), "BlockTextureLayer"));
-    //kt.addValue("blendMode", keg::Value::custom(offsetof(BlockTexture, blendMode), "BlendType", true));
+    kt.addValue("base", keg::Value::custom(offsetof(BlockTexture, base), "BlockTextureLayer"));
+    kt.addValue("overlay", keg::Value::custom(offsetof(BlockTexture, overlay), "BlockTextureLayer"));
+    kt.addValue("blendMode", keg::Value::custom(offsetof(BlockTexture, blendMode), "BlendType", true));
 }
 
 KEG_TYPE_DEF_SAME_NAME(Block, kt) {
- /*   kt.addValue("ID", keg::Value::basic(offsetof(Block, ID), keg::BasicType::UI16));
+    kt.addValue("ID", keg::Value::basic(offsetof(Block, ID), keg::BasicType::UI16));
     kt.addValue("burnTransformID", keg::Value::basic(offsetof(Block, burnTransformID), keg::BasicType::UI16));
     kt.addValue("waveEffect", keg::Value::basic(offsetof(Block, waveEffect), keg::BasicType::I16));
     kt.addValue("lightColor", keg::Value::basic(offsetof(Block, lightColor), keg::BasicType::UI8_V3));
@@ -110,7 +110,7 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
     kt.addValue("textureFront", keg::Value::basic(offsetof(Block, frontTexName), keg::BasicType::STRING));
     kt.addValue("textureBack", keg::Value::basic(offsetof(Block, backTexName), keg::BasicType::STRING));
     kt.addValue("textureTop", keg::Value::basic(offsetof(Block, topTexName), keg::BasicType::STRING));
-    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, bottomTexName), keg::BasicType::STRING));*/
+    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, bottomTexName), keg::BasicType::STRING));
 }
 
 std::vector <int> TextureUnitIndices;
