@@ -12,6 +12,8 @@
 #include "VoxelNavigation.inl"
 #include "VoxelUtils.h"
 
+#include "VoxelUpdateOrder.inl"
+
 void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk)
 {
     if (!chunk->isAccessible) return;

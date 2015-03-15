@@ -13,9 +13,12 @@
 #include "PhysicsBlocks.h"
 #include "RenderUtils.h"
 #include "global.h"
+#include "soaUtils.h"
 
 const float sonarDistance = 200;
 const float sonarWidth = 30;
+
+#define CHUNK_DIAGONAL_LENGTH 28.0f
 
 f32m4 ChunkRenderer::worldMatrix(1.0);
 
@@ -101,7 +104,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
     float fadeDist;
     if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
+        fadeDist = (GLfloat)100000000000.0f;
     } else{
         fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
     }
@@ -110,30 +113,16 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
-    glLineWidth(3);
-
+    //TODO(Ben): REMOVE THIS
     glDisable(GL_CULL_FACE);
 
-    f64v3 cpos;
-
-    static GLuint saveTicks = SDL_GetTicks();
-    bool save = 0;
-    if (SDL_GetTicks() - saveTicks >= 60000){ //save once per minute
-        save = 1;
-        saveTicks = SDL_GetTicks();
-    }
-
-    int mx, my, mz;
-    double cx, cy, cz;
-    double dx, dy, dz;
-    mx = (int)position.x;
-    my = (int)position.y;
-    mz = (int)position.z;
-    ChunkMesh *cm;
+    f64v3 closestPoint;
+    static const f64v3 boxDims(CHUNK_WIDTH);
+    static const f64v3 boxDims_2(CHUNK_WIDTH / 2);
 
     for (int i = chunkMeshes.size() - 1; i >= 0; i--)
     {
-        cm = chunkMeshes[i];
+        ChunkMesh* cm = chunkMeshes[i];
 
         // Check for lazy deallocation
         if (cm->needsDestroy) {
@@ -141,25 +130,15 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
             continue;
         }
 
-        const glm::ivec3 &cmPos = cm->position;
-
-        //calculate distance
-        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
-        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
-        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
-        dx = cx - mx;
-        dy = cy - my;
-        dz = cz - mz;
-        cm->distance2 = sqrt(dx*dx + dy*dy + dz*dz);
-
-        if (gameRenderParams->chunkCamera->sphereInFrustum(f32v3(f64v3(cmPos) + f64v3(CHUNK_WIDTH / 2) - position), 28.0f)) {
-            if (cm->distance2 < fadeDist + 12.5){
+        if (gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
+         // TODO(Ben): Implement perfect fade
+            //  if (cm->distance2 < fadeDist + 12.5){
                 cm->inFrustum = 1;
                 ChunkRenderer::drawChunkBlocks(cm, program, position,
                                                gameRenderParams->chunkCamera->getViewProjectionMatrix());
-            } else{
-                cm->inFrustum = 0;
-            }
+         //   } else{
+        //        cm->inFrustum = 0;
+         //   }
         } else{
             cm->inFrustum = 0;
         }

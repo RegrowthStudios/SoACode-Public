@@ -131,9 +131,6 @@ void GamePlayScreen::update(const vui::GameTime& gameTime) {
     m_soaState->chunkMeshManager->update(f64v3(0.0), false);
 
     globalRenderAccumulationTimer.start("Process Messages");
-    // Update the input
-    // TODO(Ben): Is this the right thread to use this on?
-    handleInput();
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -331,6 +328,9 @@ void GamePlayScreen::updateThreadFunc() {
 
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
+
+        // Update the input
+        handleInput();
 
         updateECS();
         updateMTRenderState();

@@ -1231,5 +1231,8 @@
     <None Include="AwesomiumInterface.inl">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
     </None>
+    <None Include="VoxelUpdateOrder.inl">
+      <Filter>SOA Files\Voxel</Filter>
+    </None>
   </ItemGroup>
 </Project>

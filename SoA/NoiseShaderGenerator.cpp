@@ -56,7 +56,7 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
         dumpShaderCode(std::cout, fSource, true);
         std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
     }
-    dumpShaderCode(std::cout, fSource, true);
+    //dumpShaderCode(std::cout, fSource, true);
 
     return gen.program;
 }

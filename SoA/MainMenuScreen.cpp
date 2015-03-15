@@ -161,9 +161,8 @@ void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 void MainMenuScreen::initInput() {
     m_inputManager = new InputManager;
     initInputs(m_inputManager);
-
     // Reload space system event
-    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [&](Sender s, ui32 a) {
+    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         SoaEngine::destroySpaceSystem(m_soaState);
         SoaEngine::SpaceSystemLoadData loadData;
         loadData.filePath = "StarSystems/Trinity";

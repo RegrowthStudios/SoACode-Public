@@ -1,6 +1,7 @@
 #pragma once
 #include "OpenGLStructs.h"
 #include "BlockTextureMethods.h"
+#include <Vorb/graphics/gtypes.h>
 
 enum class MeshType {
     NONE, 
@@ -119,16 +120,16 @@ public:
 
     ChunkMeshRenderData meshInfo;
 
-    GLuint vboID = 0;
-    GLuint vaoID = 0;
-    GLuint transVboID = 0;
-    GLuint transVaoID = 0;
-    GLuint cutoutVboID = 0;
-    GLuint cutoutVaoID = 0;
-    GLuint waterVboID = 0;
-    GLuint waterVaoID = 0;
-    float distance2 = 32.0f;
-    glm::ivec3 position;
+    VGVertexBuffer vboID = 0;
+    VGVertexArray vaoID = 0;
+    VGVertexBuffer transVboID = 0;
+    VGVertexArray transVaoID = 0;
+    VGVertexBuffer cutoutVboID = 0;
+    VGVertexArray cutoutVaoID = 0;
+    VGVertexBuffer waterVboID = 0;
+    VGVertexArray waterVaoID = 0;
+    f64 distance2 = 32.0f;
+    f64v3 position;
     bool inFrustum = false;
     bool needsSort = true;
     bool needsDestroy = false;
@@ -136,7 +137,7 @@ public:
     bool inMeshList = false;
 
     //*** Transparency info for sorting ***
-    GLuint transIndexID = 0;
+    VGIndexBuffer transIndexID = 0;
     std::vector <i8v3> transQuadPositions;
     std::vector <ui32> transQuadIndices;
 };
