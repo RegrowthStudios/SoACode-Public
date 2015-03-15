@@ -165,6 +165,8 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
+        // Post process the planets
+        SoaEngine::setPlanetBlocks(m_soaState.get());
         _state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
         

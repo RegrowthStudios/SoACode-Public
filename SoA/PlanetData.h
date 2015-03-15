@@ -84,8 +84,8 @@ struct ColorMaps {
 };
 
 // Info about what blocks a planet needs
-struct PlanetBlockInfo {
-    std::vector<nString> blockLayerNames; ///< Names of blocks that the planet needs
+struct PlanetBlockInitInfo {
+    std::vector<nString> blockLayerNames;
     nString liquidBlockName = "";
     nString surfaceBlockName = "";
 };
@@ -105,7 +105,7 @@ struct PlanetGenData {
     f32 humHeightFalloff = 0.0f;
     VGTexture biomeArrayTexture = 0;
     VGTexture baseBiomeLookupTexture = 0;
-    PlanetBlockInfo blockInfo;
+    PlanetBlockInitInfo blockInfo;
     std::vector<Biome> biomes;
     std::vector<BlockLayer> blockLayers;
     ui32 liquidBlock = 0;

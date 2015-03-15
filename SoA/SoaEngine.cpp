@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SoaEngine.h"
 
+#include "BlockData.h"
+#include "BlockPack.h"
 #include "ChunkMeshManager.h"
 #include "Constants.h"
 #include "DebugRenderer.h"
@@ -31,7 +33,7 @@ struct SpaceSystemLoadParams {
     std::map<nString, vecs::EntityID> bodyLookupMap;
 };
 
-void SoaEngine::initState(OUT SoaState* state) {
+void SoaEngine::initState(SoaState* state) {
     state->glProgramManager = std::make_unique<vg::GLProgramManager>();
     state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
     state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
@@ -48,7 +50,7 @@ vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOMa
     return src;
 }
 
-bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
+bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
 
     AutoDelegatePool pool;
     vpath path = "SoASpace.log";
@@ -102,13 +104,41 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     return true;
 }
 
-bool SoaEngine::loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData) {
+bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadData) {
     // TODO(Ben): Implement
     state->gameSystem = std::make_unique<GameSystem>();
     return true;
 }
 
-void SoaEngine::destroyAll(OUT SoaState* state) {
+void SoaEngine::setPlanetBlocks(SoaState* state) {
+    SpaceSystem* ss = state->spaceSystem.get();
+    for (auto& it : ss->m_sphericalTerrainCT) {
+        auto& cmp = it.second;
+        PlanetBlockInitInfo& blockInfo = cmp.planetGenData->blockInfo;
+        // TODO(Ben): Biomes too!
+        if (cmp.planetGenData) {
+            // Set all block layers
+            for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
+                ui16 blockID = Blocks[blockInfo.blockLayerNames[i]].ID;
+                cmp.planetGenData->blockLayers[i].block = blockID;
+            }
+            // Clear memory
+            std::vector<nString>().swap(blockInfo.blockLayerNames);
+            // Set liquid block
+            if (blockInfo.liquidBlockName.length()) {
+                cmp.planetGenData->liquidBlock = Blocks[blockInfo.liquidBlockName].ID;
+                nString().swap(blockInfo.liquidBlockName); // clear memory
+            }
+            // Set surface block
+            if (blockInfo.surfaceBlockName.length()) {
+                cmp.planetGenData->surfaceBlock = Blocks[blockInfo.surfaceBlockName].ID;
+                nString().swap(blockInfo.surfaceBlockName); // clear memory
+            }
+        }
+    }
+}
+
+void SoaEngine::destroyAll(SoaState* state) {
     state->glProgramManager.reset();
     state->debugRenderer.reset();
     state->meshManager.reset();
@@ -117,11 +147,11 @@ void SoaEngine::destroyAll(OUT SoaState* state) {
     destroySpaceSystem(state);
 }
 
-void SoaEngine::destroyGameSystem(OUT SoaState* state) {
+void SoaEngine::destroyGameSystem(SoaState* state) {
     state->gameSystem.reset();
 }
 
-void SoaEngine::addStarSystem(OUT SpaceSystemLoadParams& pr) {
+void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
     pr.ioManager->setSearchDirectory((pr.dirPath + "/").c_str());
 
     // Load the system
@@ -180,7 +210,7 @@ void SoaEngine::addStarSystem(OUT SpaceSystemLoadParams& pr) {
     }
 }
 
-bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
+bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     nString data;
     pr.ioManager->readFileToString("SystemProperties.yml", data);
 
@@ -238,7 +268,7 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
 }
 
 bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body) {
+                                   const SystemBodyKegProperties* sysProps, SystemBody* body) {
 
 #define KEG_CHECK \
     if (error != keg::Error::NONE) { \
