@@ -146,49 +146,35 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     delete f;
     reader.dispose();
 
-    if (m_biomeLookupMap.size()) {
+    // Code for uploading biome texture
+#define BIOME_TEX_CODE \
+    genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),\
+                                                                   LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,\
+                                                                   &vg::SamplerState::POINT_CLAMP,\
+                                                                   vg::TextureInternalFormat::R8,\
+                                                                   vg::TextureFormat::RED, 0);\
+    glGenTextures(1, &genData->biomeArrayTexture);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);\
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);\
+    for (auto& it : m_biomeLookupMap) {\
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,\
+                        1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());\
+    }\
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);\
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);\
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);\
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        // Generate base biome lookup texture
-        genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),
-                                                                   LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
-                                                                   &vg::SamplerState::POINT_CLAMP,
-                                                                   vg::TextureInternalFormat::R8,
-                                                                   vg::TextureFormat::RED, 0);
+    if (m_biomeLookupMap.size()) {
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                // Generate array textures
-                glGenTextures(1, &genData->biomeArrayTexture);
-                glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);
-                //Allocate the storage.
-                glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-                // Set up base lookup textures
-                for (auto& it : m_biomeLookupMap) {
-                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
-                                    1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());
-                }
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                BIOME_TEX_CODE
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            // Generate array textures
-            glGenTextures(1, &genData->biomeArrayTexture);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);
-            //Allocate the storage.
-            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-            // Set up base lookup textures
-            for (auto& it : m_biomeLookupMap) {
-                glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,
-                                1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());
-            }
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            BIOME_TEX_CODE
         }     
     }
     // Free memory
@@ -244,11 +230,11 @@ void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, Pla
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
         // Turn into a color map
         if (genData->liquidColorMap.id) {
@@ -303,11 +289,11 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
         // Turn into a color map
         if (genData->terrainColorMap.id) {

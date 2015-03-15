@@ -28,9 +28,9 @@
 #include "TerrainGenTextures.h"
 #include "TerrainPatchMesher.h"
 
-class TerrainGenDelegate;
 class ChunkGridData;
 class SphericalTerrainGpuGenerator;
+class TerrainGenDelegate;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
@@ -112,6 +112,8 @@ public:
     HeightmapGenRpcDispatcher heightmapGenRpcDispatcher;
 
 private:
+    /// Lazy initialization function
+    void init();
     /// Updates terrain patch generation
     void updatePatchGeneration();
     /// Updates raw heightmap generation
@@ -138,6 +140,7 @@ private:
     vcore::RPCManager m_patchRpcManager; /// RPC manager for mesh height maps
     vcore::RPCManager m_rawRpcManager; /// RPC manager for raw height data requests
 
+    TerrainPatchMeshManager* m_meshManager = nullptr; ///< Handles meshes for terrain patches
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::GLProgram* m_genProgram = nullptr; ///< Generation program
     vg::GLProgram* m_normalProgram = nullptr; ///< Normal map gen program
@@ -156,7 +159,7 @@ private:
 
     vg::FullQuadVBO m_quad; ///< Quad for rendering
 
-    TerrainPatchMesher m_mesher; ///< Creates patch meshes
+    std::unique_ptr<TerrainPatchMesher> m_mesher = nullptr; ///< Creates patch meshes
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]; ///< Stores height data
 };
