@@ -230,11 +230,21 @@ void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, Pla
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
+                                                                    pixelData,
+                                                                    vg::ImageIOFormat::RGB_UI8,
+                                                                    &vg::SamplerState::LINEAR_CLAMP,
+                                                                    vg::TextureInternalFormat::RGB8,
+                                                                    vg::TextureFormat::RGB);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
+                                                                pixelData,
+                                                                vg::ImageIOFormat::RGB_UI8,
+                                                                &vg::SamplerState::LINEAR_CLAMP,
+                                                                vg::TextureInternalFormat::RGB8,
+                                                                vg::TextureFormat::RGB);
         }
         // Turn into a color map
         if (genData->liquidColorMap.id) {
@@ -289,11 +299,21 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
+                                                                     pixelData,
+                                                                     vg::ImageIOFormat::RGB_UI8,
+                                                                     &vg::SamplerState::LINEAR_CLAMP,
+                                                                     vg::TextureInternalFormat::RGB8,
+                                                                     vg::TextureFormat::RGB);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
+                                                                 pixelData,
+                                                                 vg::ImageIOFormat::RGB_UI8,
+                                                                 &vg::SamplerState::LINEAR_CLAMP,
+                                                                 vg::TextureInternalFormat::RGB8,
+                                                                 vg::TextureFormat::RGB);
         }
         // Turn into a color map
         if (genData->terrainColorMap.id) {

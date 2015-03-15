@@ -28,6 +28,10 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
     // Add biome code
     addBiomes(fSource, genData);
 
+    // Clamp temp and hum
+    fSource += N_TEMP + "= clamp(" + N_TEMP + ", 0.0, 255.0);\n";
+    fSource += N_HUM + "= clamp(" + N_HUM + ", 0.0, 255.0);\n";
+
     // Add final brace
     fSource += "}";
 
