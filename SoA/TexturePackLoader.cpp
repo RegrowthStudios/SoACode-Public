@@ -6,6 +6,7 @@
 
 #include "FileSystem.h"
 #include "Options.h"
+#include "PlanetData.h"
 
 /// yml definition for TexturePackInfo
 KEG_TYPE_DEF_SAME_NAME(TexturePackInfo, kt) {
@@ -142,58 +143,22 @@ TexturePackInfo TexturePackLoader::loadPackFile(const nString& filePath) {
     return rv;
 }
 
-ColorRGB8* TexturePackLoader::getColorMap(const nString& name) {
-    auto it = _blockColorMapLookupTable.find(name);
-    if (it != _blockColorMapLookupTable.end()) {
-        return _blockColorMaps[it->second];
-    } else {
-        _blockColorMapLookupTable[name] = _blockColorMaps.size();
-        _blockColorMaps.push_back(new ColorRGB8[256 * 256]);
-        return _blockColorMaps.back();
-    }
-}
-
-ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
-
-#define MAP_WIDTH 256
-
-    auto it = _blockColorMapLookupTable.find(name);
-    if (it != _blockColorMapLookupTable.end()) {
+vg::BitmapResource* TexturePackLoader::getColorMap(const nString& name) {
+    auto it = m_colorMaps->colorMapTable.find(name);
+    if (it != m_colorMaps->colorMapTable.end()) {
         return it->second;
     } else {
-        _blockColorMapLookupTable[name] = _blockColorMaps.size();
-        _blockColorMaps.push_back(new ColorRGB8[256 * 256]);
-        ColorRGB8* colorMap = _blockColorMaps.back();
-
-        // TODO(Ben): Implement
-        // Load the color map into a buffer
-       // std::vector<ui8> buffer;
-        //ui32 width, height;
-        
-        // TODO(Ben): Same as above
-        //vpath texPath; _ioManager.resolvePath(name, texPath);
-       // vg::ImageIO().loadPng(texPath.getString(), buffer, width, height);
-
-        // TODO(Ben): Implement
-        //// Error checking
-        //if (width != MAP_WIDTH) {
-        //    pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));
-        //    return _blockColorMaps.size() - 1;
-        //}
-        //if (height != MAP_WIDTH) {
-        //    pError("Error color map " + name + " must have a height of " + to_string(MAP_WIDTH));
-        //    return _blockColorMaps.size() - 1;
-        //}
-
-        //// Set the data
-        //for (int y = 0; y < MAP_WIDTH; y++){
-        //    for (int x = 0; x < MAP_WIDTH; x++) {
-        //        colorMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[(y * MAP_WIDTH + x) * 3],
-        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 1],
-        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 2]);
-        //    }
-        //}
-        return _blockColorMaps.size() - 1;
+        // Get absolute path
+        vio::Path texPath;
+        _ioManager.resolvePath(name, texPath);
+        vg::BitmapResource rs;
+        // Load pixel data
+        rs = vg::ImageIO().load(texPath, vg::ImageIOFormat::RGB_UI8);
+        // Add to color map
+        m_colorMaps->colorMaps.emplace_back(std::make_unique<vg::BitmapResource>());
+        *m_colorMaps->colorMaps.back() = rs;
+        m_colorMaps->colorMapTable["liquid"] = m_colorMaps->colorMaps.back().get();
+        return m_colorMaps->colorMaps.back().get();
     }
 }
 
@@ -214,13 +179,6 @@ void TexturePackLoader::destroy() {
     
     std::map <nString, BlockTextureData>().swap(_blockTextureLoadDatas);
     std::set <BlockTextureLayer>().swap(_blockTextureLayers);
-
-    for (auto& color : _blockColorMaps) {
-        delete[] color;
-    }
-
-    std::map <nString, ui32>().swap(_blockColorMapLookupTable); 
-    std::vector <ColorRGB8*>().swap(_blockColorMaps);
 
     // Make sure to free all pixel data
     for (auto& bitmap : _pixelCache) {
@@ -325,12 +283,12 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
                 }
             }
 
-            // Get ColorMap indices
+            // Get ColorMaps
             if (rv->base.useMapColor.length()) {
-                rv->base.colorMapIndex = getColorMapIndex(rv->base.useMapColor);
+                rv->base.colorMap = getColorMap(rv->base.useMapColor);
             }
             if (rv->overlay.useMapColor.length()) {
-                rv->overlay.colorMapIndex = getColorMapIndex(rv->overlay.useMapColor);
+                rv->overlay.colorMap = getColorMap(rv->overlay.useMapColor);
             }
             return true;
         }

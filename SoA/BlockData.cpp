@@ -181,13 +181,12 @@ lightColor(0, 0, 0) {
 void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
 {
     //base color
-    if (!blockTexture.base.useMapColor.empty()){
-        GameManager::texturePackLoader->getColorMapColor(blockTexture.base.colorMapIndex, baseColor, temperature, rainfall);
-     
+    if (blockTexture.base.colorMap) {
+        ui8* bytes = &blockTexture.base.colorMap->bytesUI8[rainfall * 256 + temperature];
         //Average the map color with the base color
-        baseColor.r = (GLubyte)(((float)baseColor.r * (float)color.r) / 255.0f);
-        baseColor.g = (GLubyte)(((float)baseColor.g * (float)color.g) / 255.0f);
-        baseColor.b = (GLubyte)(((float)baseColor.b * (float)color.b) / 255.0f);
+        baseColor.r = (ui8)(((float)Block::color.r * (float)bytes[0]) / 255.0f);
+        baseColor.g = (ui8)(((float)Block::color.g * (float)bytes[1]) / 255.0f);
+        baseColor.b = (ui8)(((float)Block::color.b * (float)bytes[2]) / 255.0f);
     } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         baseColor = altColors[flags - 1];
     } else{
@@ -195,13 +194,12 @@ void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint 
     }
 
     //overlay color
-    if (!blockTexture.overlay.useMapColor.empty()){
-        GameManager::texturePackLoader->getColorMapColor(blockTexture.overlay.colorMapIndex, overlayColor, temperature, rainfall);
-
+    if (blockTexture.overlay.colorMap) {
+        ui8* bytes = &blockTexture.overlay.colorMap->bytesUI8[rainfall * 256 + temperature];
         //Average the map color with the base color
-        overlayColor.r = (GLubyte)(((float)overlayColor.r * (float)Block::overlayColor.r) / 255.0f);
-        overlayColor.g = (GLubyte)(((float)overlayColor.g * (float)Block::overlayColor.g) / 255.0f);
-        overlayColor.b = (GLubyte)(((float)overlayColor.b * (float)Block::overlayColor.b) / 255.0f);
+        overlayColor.r = (ui8)(((float)Block::overlayColor.r * (float)bytes[0]) / 255.0f);
+        overlayColor.g = (ui8)(((float)Block::overlayColor.g * (float)bytes[1]) / 255.0f);
+        overlayColor.b = (ui8)(((float)Block::overlayColor.b * (float)bytes[2]) / 255.0f);
     } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         overlayColor= altColors[flags - 1];
     } else{
@@ -212,14 +210,12 @@ void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint 
 void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
 {
     //base color
-    if (!blockTexture.base.useMapColor.empty()){
-
-        GameManager::texturePackLoader->getColorMapColor(blockTexture.base.colorMapIndex, baseColor, temperature, rainfall);
-
+    if (blockTexture.base.colorMap) {
+        ui8* bytes = &blockTexture.base.colorMap->bytesUI8[rainfall * 256 + temperature];
         //Average the map color with the base color
-        baseColor.r = (GLubyte)(((float)baseColor.r * (float)color.r) / 255.0f);
-        baseColor.g = (GLubyte)(((float)baseColor.g * (float)color.g) / 255.0f);
-        baseColor.b = (GLubyte)(((float)baseColor.b * (float)color.b) / 255.0f);
+        baseColor.r = (ui8)(((float)Block::color.r * (float)bytes[0]) / 255.0f);
+        baseColor.g = (ui8)(((float)Block::color.g * (float)bytes[1]) / 255.0f);
+        baseColor.b = (ui8)(((float)Block::color.b * (float)bytes[2]) / 255.0f);
     } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         baseColor = altColors[flags - 1];
     } else{

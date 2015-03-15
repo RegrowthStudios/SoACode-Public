@@ -21,7 +21,7 @@
 
 #include "Biome.h"
 
-DECL_VG(class GLProgram);
+DECL_VG(class GLProgram; class BitmapResource);
 
 struct LiquidColorKegProperties {
     nString colorPath = "";
@@ -31,7 +31,6 @@ struct LiquidColorKegProperties {
     f32 freezeTemp = -1.0f;
 };
 KEG_TYPE_DECL(LiquidColorKegProperties);
-
 
 struct TerrainColorKegProperties {
     nString colorPath = "";
@@ -78,6 +77,12 @@ struct NoiseBase {
 };
 KEG_TYPE_DECL(NoiseBase);
 
+// For storing color maps
+struct ColorMaps {
+    std::map <nString, vg::BitmapResource*> colorMapTable; ///< For looking up block color maps by name
+    std::vector <std::unique_ptr<vg::BitmapResource> > colorMaps; ///< Storage for the block color maps
+};
+
 struct PlanetGenData {
     vg::Texture terrainColorMap = 0;
     vg::Texture liquidColorMap = 0;
@@ -104,8 +109,7 @@ struct PlanetGenData {
     NoiseBase tempTerrainFuncs;
     NoiseBase humTerrainFuncs;
 
-    std::map <nString, ui32> blockColorMapLookupTable; ///< For looking up the index for the block color maps
-    std::vector <color3*> blockColorMaps; ///< Storage for the block color maps
+    ColorMaps colorMaps;
 };
 
 #endif // PlanetData_h__

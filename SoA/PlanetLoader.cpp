@@ -216,7 +216,20 @@ void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, Pla
     }
 
     if (kegProps.colorPath.size()) {
+        vg::BitmapResource pixelData;
         genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_CLAMP);
+        if (genData->liquidColorMap.id) {
+            if (genData->liquidColorMap.width != 256 ||
+                genData->liquidColorMap.height != 256) {
+                std::cerr << "Liquid color map needs to be 256x256";
+            } else {
+                genData->colorMaps.colorMaps.emplace_back(std::make_unique<vg::BitmapResource>());
+                *genData->colorMaps.colorMaps.back() = pixelData;
+                genData->colorMaps.colorMapTable["liquid"] = genData->colorMaps.colorMaps.back().get();
+            }
+        } else {
+            vg::ImageIO::free(pixelData);
+        }
     }
     if (kegProps.texturePath.size()) {
         genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
@@ -237,12 +250,25 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
     keg::Error error;
     error = keg::parse((ui8*)&kegProps, node, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainColorKegProperties));
     if (error != keg::Error::NONE) {
-        fprintf(stderr, "Keg error %d in parseLiquidColor()\n", (int)error);
+        fprintf(stderr, "Keg error %d in parseTerrainColor()\n", (int)error);
         return;
     }
 
     if (kegProps.colorPath.size()) {
-        genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, &vg::SamplerState::LINEAR_CLAMP);
+        vg::BitmapResource pixelData;
+        genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath, pixelData, &vg::SamplerState::LINEAR_CLAMP);
+        if (genData->terrainColorMap.id) {
+            if (genData->terrainColorMap.width != 256 ||
+                genData->terrainColorMap.height != 256) {
+                std::cerr << "Terrain color map needs to be 256x256";
+            } else {
+                genData->colorMaps.colorMaps.emplace_back(std::make_unique<vg::BitmapResource>());
+                *genData->colorMaps.colorMaps.back() = pixelData;
+                genData->colorMaps.colorMapTable["biome"] = genData->colorMaps.colorMaps.back().get();
+            }
+        } else {
+            vg::ImageIO::free(pixelData);
+        }
     }
     if (kegProps.texturePath.size()) {
         genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);

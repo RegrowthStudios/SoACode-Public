@@ -58,7 +58,6 @@ i32 GamePlayScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
 
-
 void GamePlayScreen::build() {
     // Empty
 }

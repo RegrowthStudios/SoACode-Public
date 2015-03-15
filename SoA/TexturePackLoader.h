@@ -41,6 +41,8 @@ public:
 
 class ZipFile;
 
+struct ColorMaps;
+
 /// This class is designed so that textures are loaded in two passes.
 /// First all textures that should be loaded must be registered.
 /// In the first pass, textures are loaded into buffers with loadAllTextures().
@@ -53,6 +55,8 @@ public:
     /// @param textureCache: The texture cache where textures will be stored
     TexturePackLoader(vg::TextureCache* textureCache);
     ~TexturePackLoader();
+
+    void setColorMaps(ColorMaps* colorMaps) { m_colorMaps = colorMaps; }
 
     /// Register a texture to be loaded
     /// @param filePath: The path of the texture
@@ -93,15 +97,7 @@ public:
     /// Gets a color map, does not load the color map if it doesn't exist
     /// @param name: The name of the color map, should be a filepath if not a default
     /// @return Pointer to the color map data
-    ColorRGB8* getColorMap(const nString& name);
-    /// Gets a color map, does not load the color map if it doesn't exist
-    /// @param name: The name of the color map, should be a filepath if not a default
-    /// @return Pointer to the color map data
-    ColorRGB8* getColorMap(ui32 index) { return _blockColorMaps.at(index); }
-    /// Gets a color map, loads the color map if it doesn't exist
-    /// @param name: The name of the color map, should be a filepath if not a default
-    /// @return The color map index for fast lookup
-    ui32 getColorMapIndex(const nString& name);
+    vg::BitmapResource* getColorMap(const nString& name);
 
     /// Clears caches of textures to load. Use this before you want to
     /// reload a different set of block textures. If you don't call this
@@ -117,9 +113,6 @@ public:
 
     /// Getters
     TexturePackInfo getTexturePackInfo()  const { return _packInfo; }
-    void getColorMapColor(ui32 colorMapIndex, ColorRGB8& color, int temperature, int rainfall) {
-        color = _blockColorMaps[colorMapIndex][rainfall * 256 + temperature];
-    }
 
 private:
 
@@ -177,8 +170,7 @@ private:
     
     TexturePackInfo _packInfo; ///< Information of the texture pack, such as resolution and name
 
-    std::map <nString, ui32> _blockColorMapLookupTable; ///< For looking up the index for the block color maps
-    std::vector <ColorRGB8*> _blockColorMaps; ///< Storage for the block color maps
+    ColorMaps* m_colorMaps = nullptr;
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
 

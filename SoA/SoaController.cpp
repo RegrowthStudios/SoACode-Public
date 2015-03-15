@@ -48,7 +48,7 @@ void SoaController::startGame(OUT SoaState* state) {
 
         const f64v3& spacePos = state->startSpacePos;
 
-        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 260.0;
+        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 30.0;
     } else {
         // TODO(Ben): This
     }

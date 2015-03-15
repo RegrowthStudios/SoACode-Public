@@ -301,7 +301,7 @@ void GamePlayRenderPipeline::updateCameras() {
 
         // Far terrain camera is exactly like voxel camera except for clip plane
         m_farTerrainCamera = m_voxelCamera;
-        m_farTerrainCamera.setClippingPlane(1.0f, 100000.0f);
+        m_farTerrainCamera.setClippingPlane(0.1f, 100000.0f);
         m_farTerrainCamera.update();
 
         m_voxelsActive = true;
