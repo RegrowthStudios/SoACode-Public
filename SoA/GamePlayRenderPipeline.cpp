@@ -135,11 +135,10 @@ void GamePlayRenderPipeline::render() {
 
     if (m_voxelsActive) {
         glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ZERO);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
         _opaqueVoxelRenderStage->draw();
        // _physicsBlockRenderStage->draw();
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _cutoutVoxelRenderStage->draw();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;

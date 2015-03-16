@@ -15,12 +15,13 @@
 #include "global.h"
 #include "soaUtils.h"
 
-const float sonarDistance = 200;
-const float sonarWidth = 30;
+const f32 sonarDistance = 200;
+const f32 sonarWidth = 30;
 
 #define CHUNK_DIAGONAL_LENGTH 28.0f
 
 f32m4 ChunkRenderer::worldMatrix(1.0);
+volatile f32 ChunkRenderer::fadeDist = 0.0f;
 
 void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 {
@@ -43,12 +44,6 @@ void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
     glUniform1f(program->getUniform("waveWidth"), sonarWidth);
     glUniform1f(program->getUniform("dt"), sonarDt);
 
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
-    } else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
     glUniform1f(program->getUniform("fadeDistance"), fadeDist);
 
     glDisable(GL_CULL_FACE);
@@ -98,23 +93,12 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
     glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
-    float blockAmbient = 0.000f;
+    f32 blockAmbient = 0.000f;
     glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
     glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)100000000000.0f;
-    } else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
-
     glUniform1f(program->getUniform("fadeDistance"), fadeDist);
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    //TODO(Ben): REMOVE THIS
-    glDisable(GL_CULL_FACE);
 
     f64v3 closestPoint;
     static const f64v3 boxDims(CHUNK_WIDTH);
@@ -132,18 +116,13 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
 
         if (gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
             // TODO(Ben): Implement perfect fade
-            //  if (cm->distance2 < fadeDist + 12.5){
-                cm->inFrustum = 1;
-                ChunkRenderer::drawChunkBlocks(cm, program, position,
-                                               gameRenderParams->chunkCamera->getViewProjectionMatrix());
-         //   } else{
-        //        cm->inFrustum = 0;
-         //   }
+            cm->inFrustum = 1;
+            ChunkRenderer::drawChunkBlocks(cm, program, position,
+                                           gameRenderParams->chunkCamera->getViewProjectionMatrix());
         } else{
             cm->inFrustum = 0;
         }
     }
-    glEnable(GL_CULL_FACE);
 
     program->unuse();
 }
@@ -183,15 +162,7 @@ void ChunkRenderer::drawCutoutBlocks(const GameRenderParams* gameRenderParams)
     glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
     glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
-    } else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
-
     glUniform1f(program->getUniform("fadeDistance"), fadeDist);
-
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
@@ -266,15 +237,7 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
     glUniform3f(program->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
     glUniform3fv(program->getUniform("lightColor"), 1, &(gameRenderParams->sunlightColor[0]));
 
-    float fadeDist;
-    if (NoChunkFade){
-        fadeDist = (GLfloat)10000.0f;
-    } else{
-        fadeDist = (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f;
-    }
-
     glUniform1f(program->getUniform("fadeDistance"), fadeDist);
-
 
     glLineWidth(3);
 

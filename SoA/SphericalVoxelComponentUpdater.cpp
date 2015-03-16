@@ -149,12 +149,19 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
     }
     const std::vector<Chunk*>& chunks = m_cmp->chunkMemoryManager->getActiveChunks();
 
+    static const f64 INIT_FADE = 10000000000000000.0;
+    f64 fadeDist = INIT_FADE;
     for (int i = (int)chunks.size() - 1; i >= 0; i--) { //update distances for all chunks
         Chunk* chunk = chunks[i];
         if (chunk->freeWaiting) continue;
 
         chunk->calculateDistance2(intPosition);
 
+        // Check fade for rendering
+        if (chunk->numNeighbors != 6 && chunk->distance2 < fadeDist || chunk->_state < ChunkStates::MESH) {
+            fadeDist = chunk->distance2;
+        }
+        // Check for container update
         if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
             chunk->updateContainers();
         }
@@ -205,6 +212,14 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
                 m_cmp->chunkIo->addToSaveList(chunk);
             }
         }
+    }
+    // Fading for voxels
+    static const f32 FADE_SPEED = 0.2f;
+    if (fadeDist == INIT_FADE) {
+        ChunkRenderer::fadeDist = 0.0f;
+    } else {
+        f32 target = (f32)sqrt(fadeDist) - (f32)CHUNK_WIDTH;
+        ChunkRenderer::fadeDist += (target - ChunkRenderer::fadeDist) * FADE_SPEED;
     }
 }
 

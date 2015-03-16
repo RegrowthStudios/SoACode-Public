@@ -23,6 +23,7 @@ public:
     static void bindVao(ChunkMesh *cm);
     static void bindWaterVao(ChunkMesh *cm);
    
+    volatile static f32 fadeDist;
 private:
     static void drawChunkBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
     static void drawChunkTransparentBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);

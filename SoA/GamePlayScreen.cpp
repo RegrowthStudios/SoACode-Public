@@ -127,7 +127,9 @@ void GamePlayScreen::update(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Update Meshes");
 
     // TODO(Ben): Move to glUpdate for voxel component
-    m_soaState->chunkMeshManager->update(f64v3(0.0), false);
+    // TODO(Ben): Don't hardcode for a single player
+    auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
+    m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, false);
 
     globalRenderAccumulationTimer.start("Process Messages");
 

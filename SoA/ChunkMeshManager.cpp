@@ -187,6 +187,6 @@ void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
         //calculate distance
         f64v3 closestPoint = getClosestPointOnAABB(cameraPosition, cm->position, CHUNK_DIMS);
         // Omit sqrt for faster calculation
-        cm->distance2 = selfDot(closestPoint);
+        cm->distance2 = selfDot(closestPoint - cameraPosition);
     }
 }
