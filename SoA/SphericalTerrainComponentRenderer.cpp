@@ -37,7 +37,9 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
         }
         
         f64v3 relativeCameraPos = camera->getPosition() - position;
-        
+
+        // Sort meshes
+        cmp.meshManager->sortSpericalMeshes(relativeCameraPos);
         // Draw spherical patches
         if (cmp.alpha > 0.0f) {
             cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,

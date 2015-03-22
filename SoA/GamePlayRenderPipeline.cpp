@@ -287,24 +287,26 @@ void GamePlayRenderPipeline::updateCameras() {
     const GameSystem* gs = m_soaState->gameSystem.get();
     const SpaceSystem* ss = m_soaState->spaceSystem.get();
 
-    float sNearClip = 20.0f; ///< temporary until dynamic clipping plane works
+    // For dynamic clipping plane to minimize Z fighting
+    float dynamicZNear = m_spaceSystemRenderStage->getDynamicNearPlane(m_spaceCamera.getFieldOfView(),
+                                                                       m_spaceCamera.getAspectRatio());
+    if (dynamicZNear < 0.1f) dynamicZNear = 0.1f; // Clamp to 1/10 KM
 
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        m_voxelCamera.setClippingPlane(0.2f, 10000.0f);
+        m_voxelCamera.setClippingPlane(0.1f, 10000.0f);
         m_voxelCamera.setPosition(vpcmp.gridPosition.pos);
         m_voxelCamera.setOrientation(vpcmp.orientation);
         m_voxelCamera.update();
 
         // Far terrain camera is exactly like voxel camera except for clip plane
         m_farTerrainCamera = m_voxelCamera;
-        m_farTerrainCamera.setClippingPlane(0.1f, 100000.0f);
+        m_farTerrainCamera.setClippingPlane(dynamicZNear, 100000.0f);
         m_farTerrainCamera.update();
 
         m_voxelsActive = true;
-        sNearClip = 0.05;
     } else {
         m_voxelsActive = false;
     }
@@ -323,7 +325,7 @@ void GamePlayRenderPipeline::updateCameras() {
         m_spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
     //printVec("POSITION: ", spcmp.position);
-    m_spaceCamera.setClippingPlane(sNearClip, 999999999.0f);
+    m_spaceCamera.setClippingPlane(dynamicZNear, 100000000000.0f);
    
     m_spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
     m_spaceCamera.update();

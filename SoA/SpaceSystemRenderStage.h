@@ -50,6 +50,12 @@ public:
     void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
     virtual void draw() override;
+
+    /// Gets the desired near clipping plane based on distances of planets
+    /// Returns 0 when it cannot be calculated
+    /// @param verticalFOV: vertical fov of camera in degrees
+    /// @param aspectRatio: camera aspect ratio
+    f32 getDynamicNearPlane(float verticalFOV, float aspectRatio);
 private:
     /// Renders the space bodies
     /// @param camera: Camera for rendering
@@ -80,6 +86,7 @@ private:
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
     AtmosphereComponentRenderer m_atmosphereComponentRenderer;
+    f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
 };
 
 #endif // SpaceSystemRenderStage_h__

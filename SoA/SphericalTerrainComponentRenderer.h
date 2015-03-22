@@ -36,7 +36,6 @@ public:
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent* arComponent,
               const AtmosphereComponent* aComponent);
-
 private:
     void buildShaders();
 

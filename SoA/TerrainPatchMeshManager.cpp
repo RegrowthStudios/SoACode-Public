@@ -22,10 +22,10 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   const f64q& orientation, vg::GLProgram* program,
                                                   vg::GLProgram* waterProgram,
                                                   const f32v3& lightDir,
-                                                  float alpha,
+                                                  f32 alpha,
                                                   const AtmosphereComponent* aCmp) {
     
-    static float dt = 0.0;
+    static f32 dt = 0.0;
     dt += 0.001;
     bool drawSkirts = true;
 
@@ -97,6 +97,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
 
         for (int i = 0; i < m_meshes.size();) {
             auto& m = m_meshes[i];
+
             if (m->m_shouldDelete) {
                 m->recycleNormalMap(m_normalMapRecycler);
 
@@ -160,13 +161,49 @@ void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) 
 
 }
 
+bool meshComparator(TerrainPatchMesh* m1, TerrainPatchMesh* m2) {
+    return (m1->distance2 < m2->distance2);
+}
+
+void TerrainPatchMeshManager::sortSpericalMeshes(const f64v3& relPos) {
+    m_closestSphericalDistance2 = DOUBLE_SENTINEL;
+    // Calculate squared distances
+    for (auto& mesh : m_meshes) {
+        f64v3 distVec = mesh->getClosestPoint(relPos) - relPos;
+        mesh->distance2 = selfDot(distVec);
+        // Useful for dynamic clipping plane
+        if (mesh->distance2 < m_closestSphericalDistance2) m_closestSphericalDistance2 = mesh->distance2;
+    }
+
+    // Not sorting water since it would be of minimal benifit
+    std::sort(m_meshes.begin(), m_meshes.end(), [](TerrainPatchMesh* m1, TerrainPatchMesh* m2) -> bool {
+        return (m1->distance2 < m2->distance2);
+    });
+}
+
+void TerrainPatchMeshManager::sortFarMeshes(const f64v3& relPos) {
+    m_closestFarDistance2 = DOUBLE_SENTINEL;
+    // Calculate squared distances
+    for (auto& mesh : m_farMeshes) {
+        f64v3 distVec = mesh->getClosestPoint(relPos) - relPos;
+        mesh->distance2 = selfDot(distVec);
+        // Useful for dynamic clipping plane
+        if (mesh->distance2 < m_closestFarDistance2) m_closestFarDistance2 = mesh->distance2;
+    }
+
+    // Not sorting water since it would be of minimal benifit
+    std::sort(m_farMeshes.begin(), m_farMeshes.end(), [](TerrainPatchMesh* m1, TerrainPatchMesh* m2) -> bool {
+        return (m1->distance2 < m2->distance2);
+    });
+}
+
 void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                                             const Camera* camera,
                                             vg::GLProgram* program, vg::GLProgram* waterProgram,
                                             const f32v3& lightDir,
-                                            float alpha, float radius,
+                                            f32 alpha, f32 radius,
                                             const AtmosphereComponent* aCmp) {
-    static float dt = 0.0;
+    static f32 dt = 0.0;
     dt += 0.001;
     bool drawSkirts = true;
 
@@ -272,7 +309,7 @@ void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram* program, const f
     // Set up scattering uniforms
     if (aCmp) {
         f32v3 relPosF(relPos);
-        float camHeight = glm::length(relPosF);
+        f32 camHeight = glm::length(relPosF);
         glUniform3fv(program->getUniform("unCameraPos"), 1, &relPosF[0]);
         glUniform3fv(program->getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
         glUniform1f(program->getUniform("unCameraHeight2"), camHeight * camHeight);
@@ -283,7 +320,7 @@ void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram* program, const f
         glUniform1f(program->getUniform("unKmESun"), aCmp->kmEsun);
         glUniform1f(program->getUniform("unKr4PI"), aCmp->kr4PI);
         glUniform1f(program->getUniform("unKm4PI"), aCmp->km4PI);
-        float scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
+        f32 scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
         glUniform1f(program->getUniform("unScale"), scale);
         glUniform1f(program->getUniform("unScaleDepth"), aCmp->scaleDepth);
         glUniform1f(program->getUniform("unScaleOverScaleDepth"), scale / aCmp->scaleDepth);

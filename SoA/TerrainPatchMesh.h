@@ -76,6 +76,8 @@ public:
     /// @return the closest point on the aabb
     f32v3 getClosestPoint(const f32v3& camPos) const;
     f64v3 getClosestPoint(const f64v3& camPos) const;
+
+    f64 distance2 = 100000000000.0;
 private:
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object

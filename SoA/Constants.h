@@ -48,4 +48,10 @@ const f64 M_PER_VOXEL = 0.5;
 const f64 VOXELS_PER_M = 2.0;
 const f64 VOXELS_PER_KM = 2000.0;
 
+// Useful sentinal value to use in place of DBL_MAX for distance checks and such,
+// since DBL_MAX is just too damn big and can overflow with any math
+const f64 DOUBLE_SENTINEL = 10000000000000000000000000000000000000000000.0;
+
+const f64 DEG_TO_RAD = M_PI / 180.0;
+
 #endif // Constants_h__

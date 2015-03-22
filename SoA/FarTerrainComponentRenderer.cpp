@@ -55,8 +55,10 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
     if (!m_farTerrainProgram) {
         buildShaders();
     }
-    glDisable(GL_CULL_FACE);
     f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
+    
+    // Sort meshes
+    cmp.meshManager->sortFarMeshes(relativeCameraPos);
     // Draw far patches
     if (cmp.alpha > 0.0f) {
         cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
@@ -66,7 +68,6 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        cmp.planetGenData->radius,
                                        aComponent);
     }
-    glEnable(GL_CULL_FACE);
 }
 
 void FarTerrainComponentRenderer::buildShaders() {

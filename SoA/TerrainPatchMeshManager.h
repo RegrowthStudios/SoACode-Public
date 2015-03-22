@@ -50,7 +50,7 @@ public:
                              const f64q& orientation,
                              vg::GLProgram* program, vg::GLProgram* waterProgram,
                              const f32v3& lightDir,
-                             float alpha,
+                             f32 alpha,
                              const AtmosphereComponent* aCmp);
     /// Draws the far meshes
     /// @param relativePos: Relative position of the camera
@@ -65,13 +65,24 @@ public:
                        const Camera* camera,
                        vg::GLProgram* program, vg::GLProgram* waterProgram,
                        const f32v3& lightDir,
-                       float alpha, float radius,
+                       f32 alpha, f32 radius,
                        const AtmosphereComponent* aCmp);
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add
     void addMesh(TerrainPatchMesh* mesh, bool isSpherical);
 
+    /// Updates distances and Sorts meshes
+    void sortSpericalMeshes(const f64v3& relPos);
+
+    /// Updates distances and Sorts meshes
+    void sortFarMeshes(const f64v3& relPos);
+
+    /// Returns the squared distance of the closest mesh determined on most recent call
+    /// to sortSphericalMeshes()
+    /// Returns 0 when there is no mesh
+    f64 getClosestSphericalDistance2() const { return m_meshes.empty() ? DOUBLE_SENTINEL : m_closestSphericalDistance2; }
+    f64 getClosestFarDistance2() const { return m_farMeshes.empty() ? DOUBLE_SENTINEL : m_closestFarDistance2; }
 private:
     void setScatterUniforms(vg::GLProgram* program, const f64v3& relPos, const AtmosphereComponent* aCmp);
 
@@ -81,6 +92,8 @@ private:
     std::vector<TerrainPatchMesh*> m_waterMeshes; ///< Meshes with water active
     std::vector<TerrainPatchMesh*> m_farMeshes; ///< All meshes
     std::vector<TerrainPatchMesh*> m_farWaterMeshes; ///< Meshes with water active
+    f64 m_closestSphericalDistance2 = DOUBLE_SENTINEL;
+    f64 m_closestFarDistance2 = DOUBLE_SENTINEL;
 };
 
 #endif // TerrainPatchMeshManager_h__

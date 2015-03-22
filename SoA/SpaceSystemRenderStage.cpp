@@ -15,7 +15,10 @@
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
+#include "TerrainPatchMeshManager.h"
+#include "soaUtils.h"
 
+#define ATMO_LOAD_DIST 50000.0f
 
 const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(0.0, 0.0, 0.0)), // TOP
@@ -60,8 +63,23 @@ void SpaceSystemRenderStage::draw() {
    
 }
 
+f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {
+    if (m_closestPatchDistance2 == DOUBLE_SENTINEL) return 0.0f;
+    f32 radFOV = verticalFOV * (f32)DEG_TO_RAD;
+
+    // This is just algebra using the formulas at
+    // http://gamedev.stackexchange.com/a/19801
+    // We have to solve for Z
+    f32 planeDist = (f32)sqrt(m_closestPatchDistance2);
+    f32 g = tan(radFOV / 2.0f);
+    f32 g2 = g * g;
+    f32 a = g * planeDist / sqrt(g2 * aspectRatio * aspectRatio + g2 + 1);
+    return a / g; // Return Z
+}
+
 void SpaceSystemRenderStage::drawBodies() {
-    glEnable(GL_CULL_FACE);
+
+    m_closestPatchDistance2 = DOUBLE_SENTINEL;
 
     // TODO(Ben): Try to optimize out getFromEntity
     f64v3 lightPos;
@@ -80,13 +98,16 @@ void SpaceSystemRenderStage::drawBodies() {
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
         f32v3 lightDir(glm::normalize(lightPos - *pos));
-
+    
         m_sphericalTerrainComponentRenderer.draw(cmp, m_spaceCamera,
                                                  lightDir,
                                                  *pos,
                                                  lightCmp,
                                                  &m_spaceSystem->m_axisRotationCT.get(cmp.axisRotationComponent),
                                                  &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
+        
+        f64 dist = cmp.meshManager->getClosestSphericalDistance2();
+        if (dist < m_closestPatchDistance2) m_closestPatchDistance2 = dist;
     }
 
     // Render atmospheres
@@ -98,7 +119,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
          f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
 
-         if (glm::length(relCamPos) < 50000.0f) {
+         if (glm::length(relCamPos) < ATMO_LOAD_DIST) {
              auto& l = lightCache[it.first];
 
              f32v3 lightDir(glm::normalize(l.first - *pos));
@@ -125,6 +146,9 @@ void SpaceSystemRenderStage::drawBodies() {
                                                l.second,
                                                &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first),
                                                &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
+            
+            f64 dist = cmp.meshManager->getClosestFarDistance2();
+            if (dist < m_closestPatchDistance2) m_closestPatchDistance2 = dist;
         }
     }
 
