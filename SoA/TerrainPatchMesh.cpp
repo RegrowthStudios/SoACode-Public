@@ -37,7 +37,8 @@ void TerrainPatchMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
 }
 
 void TerrainPatchMesh::draw(const f64v3& relativePos, const f32m4& VP,
-                                const f32m4& rot, vg::GLProgram* program) const {
+                                const f32m4& rot, vg::GLProgram* program,
+                                bool drawSkirts) const {
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -relativePos);
@@ -74,7 +75,11 @@ void TerrainPatchMesh::draw(const f64v3& relativePos, const f32m4& VP,
                           offsetptr(TerrainVertex, temperature));
 
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glDrawElements(GL_TRIANGLES, PATCH_INDICES, GL_UNSIGNED_SHORT, 0);
+    if (drawSkirts) {
+        glDrawElements(GL_TRIANGLES, PATCH_INDICES, GL_UNSIGNED_SHORT, 0);
+    } else {
+        glDrawElements(GL_TRIANGLES, PATCH_INDICES_NO_SKIRTS, GL_UNSIGNED_SHORT, 0);
+    }
     //   glBindVertexArray(0);
 }
 

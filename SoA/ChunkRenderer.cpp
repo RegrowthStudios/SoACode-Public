@@ -88,9 +88,7 @@ void ChunkRenderer::drawBlocks(const GameRenderParams* gameRenderParams)
     glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
 
     glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
-
     glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
-
     glUniform1f(program->getUniform("alphaMult"), 1.0f);
 
     f32 blockAmbient = 0.000f;

@@ -27,6 +27,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
     
     static float dt = 0.0;
     dt += 0.001;
+    bool drawSkirts = true;
 
     const f64v3 rotpos = glm::inverse(orientation) * relativePos;
     // Convert f64q to f32q
@@ -89,6 +90,8 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         program->enableVertexAttribArrays();
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
+        // Only render skirts when opaque
+        if (alpha < 1.0f) drawSkirts = false;
         // Set up scattering uniforms
         setScatterUniforms(program, relativePos, aCmp);
 
@@ -121,7 +124,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                     f32v3 relSpherePos = orientationF32 * m->m_aabbCenter - f32v3(relativePos);
                     if (camera->sphereInFrustum(relSpherePos,
                         m->m_boundingSphereRadius)) {
-                        m->draw(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, program);
+                        m->draw(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, program, drawSkirts);
                     }
                 }
                 i++;
@@ -165,6 +168,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                                             const AtmosphereComponent* aCmp) {
     static float dt = 0.0;
     dt += 0.001;
+    bool drawSkirts = true;
 
     glm::mat4 rot(1.0f); // no rotation
 
@@ -220,6 +224,9 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glUniform1f(program->getUniform("unRadius"), radius); // TODO(Ben): Use real radius
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
+        // Only render skirts when opaque
+        if (alpha < 1.0f) drawSkirts = false;
+
         // Set up scattering uniforms
         setScatterUniforms(program, f64v3(0, relativePos.y + radius, 0), aCmp);
 
@@ -250,7 +257,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                     f64v3 closestPoint = m->getClosestPoint(relativePos);
                     if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,
                         m_planetGenData->radius)) {
-                        m->draw(relativePos, camera->getViewProjectionMatrix(), rot, program);
+                        m->draw(relativePos, camera->getViewProjectionMatrix(), rot, program, drawSkirts);
                     }
                 }
                 i++;

@@ -35,7 +35,6 @@ FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
         delete m_farTerrainProgram;
         delete m_farWaterProgram;
     }
-    
 }
 
 void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,

@@ -64,7 +64,8 @@ public:
 
     /// Draws the terrain mesh
     void draw(const f64v3& relativePos, const f32m4& VP,
-              const f32m4& rot, vg::GLProgram* program) const;
+              const f32m4& rot, vg::GLProgram* program,
+              bool drawSkirts) const;
 
     /// Draws the water mesh
     void drawWater(const f64v3& relativePos, const f32m4& VP,
