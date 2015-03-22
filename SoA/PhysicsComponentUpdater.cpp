@@ -93,6 +93,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
 
     // Compute the relative space position and orientation from voxel position and orientation
     spCmp.position = arcmp.currentOrientation * VoxelSpaceConversions::voxelToWorld(vpcmp.gridPosition, svcmp.voxelRadius) * KM_PER_VOXEL;
+
     // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
     spCmp.orientation = arcmp.currentOrientation * VoxelSpaceUtils::calculateVoxelToSpaceQuat(vpcmp.gridPosition, svcmp.voxelRadius) * vpcmp.orientation;
 
