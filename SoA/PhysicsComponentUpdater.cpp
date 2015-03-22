@@ -106,7 +106,8 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
         if (distance > stCmp.sphericalTerrainData->radius * EXIT_RADIUS_MULT) {
             if (stCmp.needsVoxelComponent) {
                 stCmp.needsVoxelComponent = false;
-                stCmp.alpha = 0.0f;
+                // Begin fade transition
+                stCmp.alpha = TERRAIN_INC_START_ALPHA;
             }
         } else if (didTransition) {
             stCmp.transitionFace = vpcmp.gridPosition.face;
@@ -149,6 +150,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                 stCmp.startVoxelPosition = VoxelSpaceConversions::worldToVoxel(arCmp.invCurrentOrientation * spCmp.position * VOXELS_PER_KM,
                                                                                stCmp.sphericalTerrainData->radius * VOXELS_PER_KM);
                 stCmp.needsVoxelComponent = true;
+                // Start the fade transition
                 stCmp.alpha = TERRAIN_DEC_START_ALPHA;
             } else if (!pyCmp.voxelPositionComponent && stCmp.sphericalVoxelComponent) { // Check if we need to create the voxelPosition component
 

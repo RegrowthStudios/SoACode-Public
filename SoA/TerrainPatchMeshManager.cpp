@@ -23,11 +23,11 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   vg::GLProgram* waterProgram,
                                                   const f32v3& lightDir,
                                                   f32 alpha,
-                                                  const AtmosphereComponent* aCmp) {
+                                                  const AtmosphereComponent* aCmp,
+                                                  bool drawSkirts) {
     
     static f32 dt = 0.0;
     dt += 0.001;
-    bool drawSkirts = true;
 
     const f64v3 rotpos = glm::inverse(orientation) * relativePos;
     // Convert f64q to f32q
@@ -90,8 +90,6 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         program->enableVertexAttribArrays();
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
-        // Only render skirts when opaque
-        if (alpha < 1.0f) drawSkirts = false;
         // Set up scattering uniforms
         setScatterUniforms(program, relativePos, aCmp);
 
@@ -202,10 +200,10 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                                             vg::GLProgram* program, vg::GLProgram* waterProgram,
                                             const f32v3& lightDir,
                                             f32 alpha, f32 radius,
-                                            const AtmosphereComponent* aCmp) {
+                                            const AtmosphereComponent* aCmp,
+                                            bool drawSkirts) {
     static f32 dt = 0.0;
     dt += 0.001;
-    bool drawSkirts = true;
 
     glm::mat4 rot(1.0f); // no rotation
 
@@ -261,8 +259,6 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glUniform1f(program->getUniform("unRadius"), radius); // TODO(Ben): Use real radius
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
-        // Only render skirts when opaque
-        if (alpha < 1.0f) drawSkirts = false;
 
         // Set up scattering uniforms
         setScatterUniforms(program, f64v3(0, relativePos.y + radius, 0), aCmp);

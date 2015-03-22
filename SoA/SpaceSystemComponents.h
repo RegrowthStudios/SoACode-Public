@@ -45,10 +45,11 @@ DECL_VVOX(class VoxelPlanetMapper);
 DECL_VIO(class IOManager);
 
 /// For far and spherical terrain patch blending on transitions
-const float TERRAIN_ALPHA_BEFORE_FADE = 12.0f;
-const float TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + 2.0f;
-const float TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
-const float TERRAIN_ALPHA_STEP = 0.05f;
+const f32 TERRAIN_FADE_LENGTH = 2.0f;
+const f32 TERRAIN_ALPHA_BEFORE_FADE = 2.0f;
+const f32 TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + TERRAIN_FADE_LENGTH;
+const f32 TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
+const f32 TERRAIN_ALPHA_STEP = 0.01f;
 
 struct AtmosphereComponent {
     vecs::ComponentID namePositionComponent = 0;

@@ -81,6 +81,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
     m_closestPatchDistance2 = DOUBLE_SENTINEL;
 
+    bool needsDepthClear = false;
     // TODO(Ben): Try to optimize out getFromEntity
     f64v3 lightPos;
     // For caching light for far terrain
@@ -93,6 +94,11 @@ void SpaceSystemRenderStage::drawBodies() {
 
         // If we are using MTRenderState, get position from it
         pos = getBodyPosition(npCmp, it.first);
+
+        // Need to clear depth on fade transitions
+        if (cmp.farTerrainComponent && (cmp.alpha > 0.0f && cmp.alpha < TERRAIN_FADE_LENGTH)) {
+            needsDepthClear = true;
+        }
 
         SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
@@ -128,8 +134,12 @@ void SpaceSystemRenderStage::drawBodies() {
          }
      }
 
-    // Render far terrain
     if (m_farTerrainCamera) {
+
+        if (needsDepthClear) {
+            glClear(GL_DEPTH_BUFFER_BIT);
+        }
+
         for (auto& it : m_spaceSystem->m_farTerrainCT) {
             auto& cmp = it.second;
             auto& npCmp = m_spaceSystem->m_namePositionCT.getFromEntity(it.first);

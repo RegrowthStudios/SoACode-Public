@@ -66,7 +66,8 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        f32v3(relLightDir),
                                        glm::min(cmp.alpha, 1.0f),
                                        cmp.planetGenData->radius,
-                                       aComponent);
+                                       aComponent,
+                                       (cmp.alpha >= 1.0f));
     }
 }
 
