@@ -15,8 +15,8 @@
 // TODO(Ben): This is temporary for gravity
 #define FPS 60.0
 // Exit is slightly bigger to prevent oscillation
-#define ENTRY_RADIUS_MULT 1.05
-#define EXIT_RADIUS_MULT 1.051
+#define ENTRY_RADIUS_MULT 1.02
+#define EXIT_RADIUS_MULT 1.0205
 
 // TODO(Ben): Timestep
 void PhysicsComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem) {
