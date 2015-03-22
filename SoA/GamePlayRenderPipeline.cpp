@@ -130,6 +130,13 @@ void GamePlayRenderPipeline::render() {
     m_spaceSystemRenderStage->setRenderState(m_renderState);
     m_spaceSystemRenderStage->draw();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Check for face transition animation state
+    if (m_spaceSystemRenderStage->needsFaceTransitionAnimation) {
+        m_spaceSystemRenderStage->needsFaceTransitionAnimation = false;
+        
+    }
+
     // Clear the depth buffer so we can draw the voxel passes
     glClear(GL_DEPTH_BUFFER_BIT);
 

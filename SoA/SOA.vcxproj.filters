@@ -737,6 +737,9 @@
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="ColoredFullQuadRenderer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1202,6 +1205,7 @@
     <ClCompile Include="LoadTaskShaders.cpp">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClCompile>
+    <ClCompile Include="ColoredFullQuadRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

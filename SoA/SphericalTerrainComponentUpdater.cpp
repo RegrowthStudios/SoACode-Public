@@ -87,6 +87,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
                 auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
                 ftCmp.transitionFace = stCmp.transitionFace;
                 stCmp.transitionFace = FACE_NONE;
+                stCmp.needsFaceTransitionAnimation = true;
             }
         } else {
             // Check for deleting components

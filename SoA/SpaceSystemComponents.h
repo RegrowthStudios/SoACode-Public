@@ -164,6 +164,7 @@ struct SphericalTerrainComponent {
     bool needsVoxelComponent = false;
     WorldCubeFace transitionFace = FACE_NONE;
     float alpha = 0.0f; ///< Alpha blending coefficient
+    volatile bool needsFaceTransitionAnimation = false;
 };
 
 struct FarTerrainComponent {

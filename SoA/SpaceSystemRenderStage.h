@@ -56,6 +56,8 @@ public:
     /// @param verticalFOV: vertical fov of camera in degrees
     /// @param aspectRatio: camera aspect ratio
     f32 getDynamicNearPlane(float verticalFOV, float aspectRatio);
+
+    bool needsFaceTransitionAnimation = false; ///< true when we need to fade out camera for transition between faces
 private:
     /// Renders the space bodies
     /// @param camera: Camera for rendering

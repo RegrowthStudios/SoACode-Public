@@ -92,6 +92,12 @@ void SpaceSystemRenderStage::drawBodies() {
         auto& cmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent);
 
+        // Indicate the need for face transition animation
+        if (cmp.needsFaceTransitionAnimation) {
+            cmp.needsFaceTransitionAnimation = false;
+            needsFaceTransitionAnimation = true;
+        }
+
         // If we are using MTRenderState, get position from it
         pos = getBodyPosition(npCmp, it.first);
 
