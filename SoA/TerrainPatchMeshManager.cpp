@@ -205,8 +205,6 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
     static f32 dt = 0.0;
     dt += 0.001;
 
-    glm::mat4 rot(1.0f); // no rotation
-
     if (m_farWaterMeshes.size()) {
         // Bind textures
         glActiveTexture(GL_TEXTURE1);
@@ -239,7 +237,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                 m_farWaterMeshes.pop_back();
 
             } else {
-                m->drawWater(relativePos, camera->getViewProjectionMatrix(), rot, waterProgram);
+                m->drawWaterAsFarTerrain(relativePos, camera->getViewProjectionMatrix(), waterProgram);
                 i++;
             }
         }
@@ -290,7 +288,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                     f64v3 closestPoint = m->getClosestPoint(relativePos);
                     if (!FarTerrainPatch::isOverHorizon(relativePos, closestPoint,
                         m_planetGenData->radius)) {
-                        m->draw(relativePos, camera->getViewProjectionMatrix(), rot, program, drawSkirts);
+                        m->drawAsFarTerrain(relativePos, camera->getViewProjectionMatrix(), program, drawSkirts);
                     }
                 }
                 i++;

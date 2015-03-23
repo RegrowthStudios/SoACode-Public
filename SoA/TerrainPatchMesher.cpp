@@ -175,6 +175,14 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     mesh->m_boundingSphereRadius = glm::length(mesh->m_aabbCenter - mesh->m_aabbPos);
     // Build the skirts for crack hiding
     buildSkirts();
+
+    // Make all vertices relative to the aabb pos for far terrain
+    if (!m_isSpherical) {
+        for (int i = 0; i < m_index; i++) {
+            verts[i].position = f32v3(f64v3(verts[i].position) - f64v3(mesh->m_aabbPos));
+        }
+    }
+
     // Generate the buffers and upload data
     vg::GpuMemory::createBuffer(mesh->m_vbo);
     vg::GpuMemory::bindBuffer(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER);
@@ -186,6 +194,13 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
     // Add water mesh
     if (m_waterIndexCount) {
+        // Make all vertices relative to the aabb pos for far terrain
+        if (!m_isSpherical) {
+            for (int i = 0; i < m_index; i++) {
+                waterVerts[i].position -= mesh->m_aabbPos;
+            }
+        }
+
         mesh->m_waterIndexCount = m_waterIndexCount;
         vg::GpuMemory::createBuffer(mesh->m_wvbo);
         vg::GpuMemory::bindBuffer(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER);

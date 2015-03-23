@@ -71,6 +71,16 @@ public:
     void drawWater(const f64v3& relativePos, const f32m4& VP,
                    const f32m4& rot, vg::GLProgram* program) const;
 
+    /// Draws the terrain mesh as a far terrain mesh
+    void drawAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
+                          vg::GLProgram* program,
+                          bool drawSkirts) const;
+
+    /// Draws the water mesh as a far terrain mesh
+    void drawWaterAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
+                               vg::GLProgram* program) const;
+
+
     /// Gets the point closest to the observer
     /// @param camPos: Position of observer
     /// @return the closest point on the aabb
