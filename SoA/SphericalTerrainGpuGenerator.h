@@ -155,7 +155,6 @@ private:
     VGUniform unRadius;
     VGUniform unHeightMap;
     VGUniform unWidth;
-    VGUniform unTexelWidth;
 
     vg::FullQuadVBO m_quad; ///< Quad for rendering
 

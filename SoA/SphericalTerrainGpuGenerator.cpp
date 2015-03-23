@@ -85,7 +85,6 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(TerrainPatchMeshManag
     unRadius(m_genProgram->getUniform("unRadius")),
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
     unWidth(m_normalProgram->getUniform("unWidth")),
-    unTexelWidth(m_normalProgram->getUniform("unTexelWidth")),
     heightmapGenRpcDispatcher(this) {
     // Empty
 }
@@ -138,10 +137,10 @@ void SphericalTerrainGpuGenerator::update() {
     glDisable(GL_DEPTH_TEST);
     m_rawRpcManager.processRequests(RAW_PER_FRAME);
     m_patchRpcManager.processRequests(PATCHES_PER_FRAME);
+    TerrainGenTextures::unuse();
 
     m_genProgram->disableVertexAttribArrays();
     m_genProgram->unuse();
-    checkGlError("UPDATE");
 
     // Restore state
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -156,6 +155,9 @@ void SphericalTerrainGpuGenerator::update() {
 
 void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data) {
   
+    // TODO(Ben): Precision begins to be lost at 8,388,608
+    // Aldrin has coordinates that go up to 4,600,000
+
     int &patchCounter = m_patchCounter[m_dBufferIndex];
 
     // Check for early delete
@@ -169,6 +171,10 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     m_patchDelegates[m_dBufferIndex][patchCounter] = data;
 
     f32v3 cornerPos = data->startPos;
+    // Get padded position
+    cornerPos.x -= (0.5f / PATCH_HEIGHTMAP_WIDTH) * data->width;
+    cornerPos.z -= (0.5f / PATCH_HEIGHTMAP_WIDTH) * data->width;
+
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     const f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
 
@@ -177,15 +183,11 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     cornerPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)data->cubeFace];
     cornerPos.z *= coordMults.y;
 
-    // Get padded position
-    cornerPos[coordMapping.x] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
-    cornerPos[coordMapping.z] -= (1.0f / PATCH_HEIGHTMAP_WIDTH) * data->width;
-
     // Send uniforms
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
-    glUniform1f(unPatchWidth, data->width);
+    glUniform1f(unPatchWidth, data->width + (2.0f / PATCH_HEIGHTMAP_WIDTH) * data->width);
     glUniform1f(unRadius, m_planetGenData->radius);
 
     m_quad.draw();
@@ -196,8 +198,6 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     glReadPixels(0, 0, PATCH_HEIGHTMAP_WIDTH, PATCH_HEIGHTMAP_WIDTH, GL_RGBA, GL_FLOAT, 0);
 
     vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
-
-    TerrainGenTextures::unuse();
 
     patchCounter++;
 }
@@ -233,8 +233,6 @@ void SphericalTerrainGpuGenerator::generateRawHeightmap(RawHeightGenerator* data
     glReadPixels(0, 0, data->width, data->width, GL_RGBA, GL_FLOAT, 0);
 
     vg::GpuMemory::bindBuffer(0, vg::BufferTarget::PIXEL_PACK_BUFFER);
-
-    TerrainGenTextures::unuse();
 
     rawCounter++;
 }
@@ -285,6 +283,12 @@ void SphericalTerrainGpuGenerator::init() {
         }
     }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+    // Set up normal map uniforms
+    m_normalProgram->use();
+    glUniform1f(m_normalProgram->getUniform("unTexelWidth"), 1.0f / (float)PATCH_HEIGHTMAP_WIDTH);
+    glUniform1f(m_normalProgram->getUniform("unNormalmapWidth"), (float)PATCH_NORMALMAP_WIDTH / (float)PATCH_HEIGHTMAP_WIDTH);
+    m_normalProgram->unuse();
 }
 
 void SphericalTerrainGpuGenerator::updatePatchGeneration() {
@@ -332,9 +336,8 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         // Bind texture for normal map gen
         glBindTexture(GL_TEXTURE_2D, m_patchTextures[m_dBufferIndex][i].getTextureIDs().height_temp_hum);
 
-        // Set uniforms
+        // Set uniform
         glUniform1f(unWidth, (data->width / PATCH_HEIGHTMAP_WIDTH) * M_PER_KM);
-        glUniform1f(unTexelWidth, (float)PATCH_HEIGHTMAP_WIDTH);
 
         // Generate normal map
         m_quad.draw();

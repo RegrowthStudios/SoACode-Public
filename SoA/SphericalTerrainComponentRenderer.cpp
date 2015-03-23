@@ -89,7 +89,8 @@ void SphericalTerrainComponentRenderer::buildShaders() {
     glUniform1i(m_terrainProgram->getUniform("unNormalMap"), 0);
     glUniform1i(m_terrainProgram->getUniform("unColorMap"), 1);
     glUniform1i(m_terrainProgram->getUniform("unTexture"), 2);
-    glUniform1f(m_terrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
+    glUniform1f(m_terrainProgram->getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
+    glUniform1f(m_terrainProgram->getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
     m_terrainProgram->unuse();
 
     // Build water shader

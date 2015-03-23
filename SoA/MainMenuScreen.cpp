@@ -127,7 +127,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
     m_awesomiumInterface.update();
 
-    m_soaState->time += m_soaState->timeStep;
+    //m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
     m_mainMenuSystemViewer->update();
@@ -153,7 +153,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 
-    updateWorldCameraClip();
+    m_camera.updateProjection();
 
     m_renderPipeline.render();
 }
@@ -228,24 +228,6 @@ void MainMenuScreen::updateThreadFunc() {
 
         physicsFps = fpsLimiter.endFrame();
     }
-}
-
-void MainMenuScreen::updateWorldCameraClip() {
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-    //double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    //if (nearClip < 0.1) nearClip = 0.1;
-    //double a = 0.0;
-    //// TODO(Ben): This is crap fix it (Sorry Brian)
-    //a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    //if (a < 0) a = 0;
-
-    //double clip = MAX(nearClip / planetScale * 0.5, a);
-    double clip = 10000.0;
-    // The world camera has a dynamic clipping plane
-//    _camera.setClippingPlane(1.0f, 200.0f);
- //   _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    m_camera.updateProjection();
 }
 
 void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {

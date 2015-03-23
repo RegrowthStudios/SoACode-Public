@@ -121,8 +121,8 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             v.texCoords.y = v.position[m_coordMapping.z];
 
             // Set normal map texture coordinates
-            v.normTexCoords.x = (ui8)(((float)x / (float)PATCH_WIDTH) * 255.0f);
-            v.normTexCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
+            v.normTexCoords.x = (ui8)(((float)x / (float)(PATCH_WIDTH - 1)) * 255.0f);
+            v.normTexCoords.y = (ui8)(((float)z / (float)(PATCH_WIDTH - 1)) * 255.0f);
 
             // Spherify it!
             f32v3 normal;

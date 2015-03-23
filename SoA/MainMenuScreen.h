@@ -82,9 +82,6 @@ private:
     /// loading the planet in the background.
     void updateThreadFunc();
 
-    /// Updates the dynamic clipping plane for the world camera
-    void updateWorldCameraClip();
-
     /// Sets up iomanager and makes save file directories if they don't exist
     void initSaveIomanager(const vio::Path& savePath);
 
