@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PdaAwesomiumAPI.h"
 
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 
 void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
 
@@ -21,7 +21,7 @@ void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScree
 }
 
 void PdaAwesomiumAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
-    _ownerScreen = static_cast<GamePlayScreen*>(ownerScreen);
+    _ownerScreen = static_cast<GameplayScreen*>(ownerScreen);
 }
 
 Awesomium::JSValue PdaAwesomiumAPI::getInventory(const Awesomium::JSArray& args) {

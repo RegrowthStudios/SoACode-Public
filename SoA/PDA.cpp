@@ -3,7 +3,7 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 
 PDA::PDA() {
     // Empty
@@ -12,7 +12,7 @@ PDA::~PDA() {
     // Empty
 }
 
-void PDA::init(GamePlayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager) {
+void PDA::init(GameplayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager) {
     // Initialize the user interface
     _awesomiumInterface.init("UI/PDA/", 
                              "PDA_UI",

@@ -20,7 +20,7 @@
 #include <Vorb/ui/IGameScreen.h>
 
 #include "AwesomiumInterface.h"
-#include "GamePlayRenderPipeline.h"
+#include "GameplayRenderPipeline.h"
 #include "LoadMonitor.h"
 #include "MTRenderStateManager.h"
 #include "PDA.h"
@@ -59,12 +59,12 @@ enum DevUiModes {
     DEVUIMODE_ALL
 };
 
-class GamePlayScreen : public vui::IAppScreen<App> {
+class GameplayScreen : public vui::IAppScreen<App> {
     friend class PauseMenuAwesomiumAPI;
     friend class PdaAwesomiumAPI;
 public:
-    GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
-    ~GamePlayScreen();
+    GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
+    ~GameplayScreen();
 
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
@@ -128,7 +128,7 @@ private:
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
+    GameplayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
     MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
     const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw

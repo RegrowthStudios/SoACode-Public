@@ -31,6 +31,7 @@ class SoaState;
 DECL_VVOX(class VoxelPlanetMapData);
 
 class GameSystemUpdater {
+    friend class GameSystemEvents;
 public:
     GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager);
     ~GameSystemUpdater();
@@ -65,7 +66,8 @@ private:
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 
-    /// Delegates
+    // Events
+    std::unique_ptr<GameSystemEvents> m_events = nullptr;
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     std::vector<EventData> m_events;
 

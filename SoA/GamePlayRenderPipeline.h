@@ -52,10 +52,10 @@ class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 
-class GamePlayRenderPipeline : public vg::IRenderPipeline {
+class GameplayRenderPipeline : public vg::IRenderPipeline {
 public:
-    GamePlayRenderPipeline();
-    ~GamePlayRenderPipeline();
+    GameplayRenderPipeline();
+    ~GameplayRenderPipeline();
 
     /// Initializes the pipeline and passes dependencies
     /// @param viewport: The viewport to draw to.

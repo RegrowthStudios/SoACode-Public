@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GamePlayRenderPipeline.h"
+#include "GameplayRenderPipeline.h"
 
 #include <Vorb/graphics/GLStates.h>
 
@@ -30,12 +30,12 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-GamePlayRenderPipeline::GamePlayRenderPipeline() :
+GameplayRenderPipeline::GameplayRenderPipeline() :
     m_drawMode(GL_FILL) {
     // Empty
 }
 
-void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
+void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
                                   const PDA* pda,
                                   SpaceSystem* spaceSystem,
                                   GameSystem* gameSystem,
@@ -103,15 +103,15 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     _chunkGridRenderStage->setIsVisible(false);
 }
 
-void GamePlayRenderPipeline::setRenderState(const MTRenderState* renderState) {
+void GameplayRenderPipeline::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-GamePlayRenderPipeline::~GamePlayRenderPipeline() {
+GameplayRenderPipeline::~GameplayRenderPipeline() {
     destroy();
 }
 
-void GamePlayRenderPipeline::render() {
+void GameplayRenderPipeline::render() {
     const GameSystem* gameSystem = m_soaState->gameSystem.get();
     const SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
 
@@ -199,7 +199,7 @@ void GamePlayRenderPipeline::render() {
     checkGlError("GamePlayRenderPipeline::render()");
 }
 
-void GamePlayRenderPipeline::destroy() {
+void GameplayRenderPipeline::destroy() {
     // Make sure everything is freed here!
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
@@ -243,11 +243,11 @@ void GamePlayRenderPipeline::destroy() {
     _quad.dispose();
 }
 
-void GamePlayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
+void GameplayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
     _devHudRenderStage->cycleMode(offset);
 }
 
-void GamePlayRenderPipeline::toggleNightVision() {
+void GameplayRenderPipeline::toggleNightVision() {
     if (!_nightVisionRenderStage->isVisible()) {
         _nightVisionRenderStage->setIsVisible(true);
         _nvIndex = 0;
@@ -261,7 +261,7 @@ void GamePlayRenderPipeline::toggleNightVision() {
         }
     }
 }
-void GamePlayRenderPipeline::loadNightVision() {
+void GameplayRenderPipeline::loadNightVision() {
     _nightVisionRenderStage->setIsVisible(false);
 
     _nvIndex = 0;
@@ -287,11 +287,11 @@ void GamePlayRenderPipeline::loadNightVision() {
     }
 }
 
-void GamePlayRenderPipeline::toggleChunkGrid() {
+void GameplayRenderPipeline::toggleChunkGrid() {
     _chunkGridRenderStage->setIsVisible(!_chunkGridRenderStage->isVisible());
 }
 
-void GamePlayRenderPipeline::cycleDrawMode() {
+void GameplayRenderPipeline::cycleDrawMode() {
     switch (m_drawMode) {
     case GL_FILL:
         m_drawMode = GL_LINE;
@@ -306,7 +306,7 @@ void GamePlayRenderPipeline::cycleDrawMode() {
     }
 }
 
-void GamePlayRenderPipeline::updateCameras() {
+void GameplayRenderPipeline::updateCameras() {
     const GameSystem* gs = m_soaState->gameSystem.get();
     const SpaceSystem* ss = m_soaState->spaceSystem.get();
 

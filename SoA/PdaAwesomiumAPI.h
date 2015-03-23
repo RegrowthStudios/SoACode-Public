@@ -18,7 +18,7 @@
 #include "IAwesomiumAPI.h"
 
 class IGameScreen;
-class GamePlayScreen;
+class GameplayScreen;
 
 /// Awesomium API for PDA
 class PdaAwesomiumAPI : public IAwesomiumAPI<PdaAwesomiumAPI>
@@ -46,7 +46,7 @@ private:
     /// args[1] should be the name of the item.
     void selectItem(const Awesomium::JSArray& args);
 
-    GamePlayScreen* _ownerScreen; ///< Handle to the main menu screen
+    GameplayScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 
 #endif // PDAAWESOMIUMAPI_H_

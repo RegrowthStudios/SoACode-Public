@@ -17,7 +17,7 @@
 
 #include "IAwesomiumAPI.h"
 
-class GamePlayScreen;
+class GameplayScreen;
 
 class PauseMenuAwesomiumAPI : public IAwesomiumAPI<PauseMenuAwesomiumAPI> {
 public:
@@ -38,7 +38,7 @@ private:
     /// @param args: Empty argument list
     void exitGame(const Awesomium::JSArray& args);
 
-    GamePlayScreen* _ownerScreen; ///< Handle to the main menu screen
+    GameplayScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 
 #endif // PauseMenuAwesomiumAPI_h__

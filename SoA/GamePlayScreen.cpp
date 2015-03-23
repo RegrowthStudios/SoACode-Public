@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 
 #include <Vorb/colors.h>
 #include <Vorb/Events.hpp>
@@ -37,7 +37,7 @@
 #include "TexturePackLoader.h"
 #include "VoxelEditor.h"
 
-GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
+GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
     m_mainMenuScreen(mainMenuScreen),
     m_updateThread(nullptr),
@@ -46,27 +46,27 @@ GamePlayScreen::GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScr
     // Empty
 }
 
-GamePlayScreen::~GamePlayScreen() {
+GameplayScreen::~GameplayScreen() {
     // Empty
 }
 
-i32 GamePlayScreen::getNextScreen() const {
+i32 GameplayScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
 
-i32 GamePlayScreen::getPreviousScreen() const {
+i32 GameplayScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
 
-void GamePlayScreen::build() {
+void GameplayScreen::build() {
     // Empty
 }
 
-void GamePlayScreen::destroy(const vui::GameTime& gameTime) {
+void GameplayScreen::destroy(const vui::GameTime& gameTime) {
     // Destruction happens in onExit
 }
 
-void GamePlayScreen::onEntry(const vui::GameTime& gameTime) {
+void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
     initInput();
 
@@ -89,12 +89,12 @@ void GamePlayScreen::onEntry(const vui::GameTime& gameTime) {
     initRenderPipeline();
 
     // Initialize and run the update thread
-    m_updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
+    m_updateThread = new std::thread(&GameplayScreen::updateThreadFunc, this);
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
-void GamePlayScreen::onExit(const vui::GameTime& gameTime) {
+void GameplayScreen::onExit(const vui::GameTime& gameTime) {
 
     m_inputManager->stopInput();
     m_hooks.dispose();
@@ -111,7 +111,7 @@ void GamePlayScreen::onExit(const vui::GameTime& gameTime) {
 
 
 /// This update function runs on the render thread
-void GamePlayScreen::update(const vui::GameTime& gameTime) {
+void GameplayScreen::update(const vui::GameTime& gameTime) {
 
     globalRenderAccumulationTimer.start("Space System");
 
@@ -142,7 +142,7 @@ void GamePlayScreen::update(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.stop();
 }
 
-void GamePlayScreen::updateECS() {
+void GameplayScreen::updateECS() {
     SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
     GameSystem* gameSystem = m_soaState->gameSystem.get();
 
@@ -161,7 +161,7 @@ void GamePlayScreen::updateECS() {
     m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
 }
 
-void GamePlayScreen::updateMTRenderState() {
+void GameplayScreen::updateMTRenderState() {
     MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
 
     SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
@@ -177,7 +177,7 @@ void GamePlayScreen::updateMTRenderState() {
     m_renderStateManager.finishUpdating();
 }
 
-void GamePlayScreen::draw(const vui::GameTime& gameTime) {
+void GameplayScreen::draw(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
     updateWorldCameraClip();
 
@@ -203,21 +203,21 @@ void GamePlayScreen::draw(const vui::GameTime& gameTime) {
       }*/
 }
 
-void GamePlayScreen::unPause() { 
+void GameplayScreen::unPause() { 
     m_pauseMenu.close(); 
     SDL_SetRelativeMouseMode(SDL_TRUE);
     m_soaState->isInputEnabled = true;
 }
 
-i32 GamePlayScreen::getWindowWidth() const {
+i32 GameplayScreen::getWindowWidth() const {
     return _app->getWindow().getWidth();
 }
 
-i32 GamePlayScreen::getWindowHeight() const {
+i32 GameplayScreen::getWindowHeight() const {
     return _app->getWindow().getHeight();
 }
 
-void GamePlayScreen::initInput() {
+void GameplayScreen::initInput() {
 
     m_inputManager = new InputManager;
     initInputs(m_inputManager);
@@ -278,7 +278,7 @@ void GamePlayScreen::initInput() {
     m_inputManager->startInput();
 }
 
-void GamePlayScreen::initRenderPipeline() {
+void GameplayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, m_soaState,
@@ -288,7 +288,7 @@ void GamePlayScreen::initRenderPipeline() {
                           &m_pauseMenu);
 }
 
-void GamePlayScreen::handleInput() {
+void GameplayScreen::handleInput() {
 
     // Update inputManager internal state
     m_inputManager->update();
@@ -319,7 +319,7 @@ void GamePlayScreen::handleInput() {
 //}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 
 /// This is the update thread
-void GamePlayScreen::updateThreadFunc() {
+void GameplayScreen::updateThreadFunc() {
     m_threadRunning = true;
 
     FpsLimiter fpsLimiter;
@@ -345,7 +345,7 @@ void GamePlayScreen::updateThreadFunc() {
     }
 }
 
-void GamePlayScreen::updateWorldCameraClip() {
+void GameplayScreen::updateWorldCameraClip() {
     //far znear for maximum Terrain Patch z buffer precision
     //this is currently incorrect
     double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;

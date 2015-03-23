@@ -4,7 +4,7 @@
 #include <Vorb/ui/MainGame.h>
 
 #include "App.h"
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 
 void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
 
@@ -24,7 +24,7 @@ void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGam
 }
 
 void PauseMenuAwesomiumAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
-    _ownerScreen = static_cast<GamePlayScreen*>(ownerScreen);
+    _ownerScreen = static_cast<GameplayScreen*>(ownerScreen);
 }
 
 void PauseMenuAwesomiumAPI::continueGame(const Awesomium::JSArray& args) {

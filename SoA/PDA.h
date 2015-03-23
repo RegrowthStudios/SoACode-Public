@@ -22,7 +22,7 @@
 #include "Computer.h"
 #include "PdaAwesomiumAPI.h"
 
-class GamePlayScreen;
+class GameplayScreen;
 
 DECL_VG(class GLProgramManager);
 
@@ -36,7 +36,7 @@ public:
 
     /// Initializes the PDA
     /// @param ownerScreen: The screen that owns this PDA
-    void init(GamePlayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager);
+    void init(GameplayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager);
 
     /// Opens the PDA
     void open();

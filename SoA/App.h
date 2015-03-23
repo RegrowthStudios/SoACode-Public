@@ -9,7 +9,7 @@ class DevScreen;
 class InitScreen;
 class LoadScreen;
 class MainMenuScreen;
-class GamePlayScreen;
+class GameplayScreen;
 class TexturePackLoader;
 
 class App : public vui::MainGame {
@@ -24,7 +24,7 @@ public:
     InitScreen* scrInit = nullptr;
     LoadScreen* scrLoad = nullptr;
     MainMenuScreen* scrMainMenu = nullptr;
-    GamePlayScreen* scrGamePlay = nullptr;
+    GameplayScreen* scrGamePlay = nullptr;
 
     DevScreen* scrDev = nullptr;
     std::vector<vui::IGameScreen*> scrTests;
