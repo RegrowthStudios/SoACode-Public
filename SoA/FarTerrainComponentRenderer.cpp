@@ -47,15 +47,16 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
     VoxelPosition3D pos;
     pos.pos = camera->getPosition();
     pos.face = cmp.face;
-    // Calculate relative light position
-    f64v3 relLightDir = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(pos, cmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * lightDir;
-    relLightDir = glm::inverse(arComponent->currentOrientation) * relLightDir;
 
     // Lazy shader init
     if (!m_farTerrainProgram) {
         buildShaders();
     }
     f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
+
+    // Calculate relative light position
+    f64v3 relLightDir = glm::inverse(arComponent->currentOrientation) * lightDir;
+    relLightDir = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(pos, cmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * relLightDir;
     
     // Sort meshes
     cmp.meshManager->sortFarMeshes(relativeCameraPos);
