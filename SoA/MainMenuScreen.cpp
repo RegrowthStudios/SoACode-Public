@@ -162,19 +162,9 @@ void MainMenuScreen::initInput() {
     m_inputManager = new InputManager;
     initInputs(m_inputManager);
     // Reload space system event
-    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
-        SoaEngine::destroySpaceSystem(m_soaState);
-        SoaEngine::SpaceSystemLoadData loadData;
-        loadData.filePath = "StarSystems/Trinity";
-        SoaEngine::loadSpaceSystem(m_soaState, loadData);
-        CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
-        m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                        &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
-        m_camera = tmp; // Restore old camera
-        m_renderPipeline.destroy();
-        m_renderPipeline = MainMenuRenderPipeline();
-        initRenderPipeline();
-    });
+
+    onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
+    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, &onReloadSystemDel);
 }
 
 void MainMenuScreen::initRenderPipeline() {
@@ -271,4 +261,18 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
     ioManager.makeDirectory("players");
     ioManager.makeDirectory("system");
     ioManager.makeDirectory("cache");
+}
+
+void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
+    SoaEngine::destroySpaceSystem(m_soaState);
+    SoaEngine::SpaceSystemLoadData loadData;
+    loadData.filePath = "StarSystems/Trinity";
+    SoaEngine::loadSpaceSystem(m_soaState, loadData);
+    CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+    m_camera = tmp; // Restore old camera
+    m_renderPipeline.destroy();
+    m_renderPipeline = MainMenuRenderPipeline();
+    initRenderPipeline();
 }

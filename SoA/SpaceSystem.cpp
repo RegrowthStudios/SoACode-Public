@@ -21,7 +21,7 @@ SpaceSystem::SpaceSystem() : vecs::ECS() {
     #define MAX_NORMAL_MAPS 512U
     normalMapRecycler = std::make_unique<vg::TextureRecycler>((ui32)PATCH_NORMALMAP_WIDTH,
                                                   (ui32)PATCH_NORMALMAP_WIDTH,
-                                                  &vg::SamplerState::POINT_CLAMP,
+                                                  &vg::SamplerState::LINEAR_CLAMP,
                                                   0,
                                                   vg::TextureInternalFormat::RGB8,
                                                   MAX_NORMAL_MAPS);

@@ -13,7 +13,6 @@
 #include "SphericalTerrainComponentUpdater.h"
 #include "TerrainPatchMeshManager.h"
 
-
 void RawHeightGenerator::invoke(Sender s, void* data) {
     generator->generateRawHeightmap(this);
 }

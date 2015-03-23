@@ -88,6 +88,9 @@ private:
     /// Sets up iomanager and makes save file directories if they don't exist
     void initSaveIomanager(const vio::Path& savePath);
 
+    void onReloadSystem(Sender s, ui32 a);
+    Delegate<Sender, ui32> onReloadSystemDel;
+
     const LoadScreen* m_loadScreen = nullptr;
     SoaState* m_soaState = nullptr;
 
