@@ -23,7 +23,7 @@ DECL_VG(class GLProgram);
 class ColoredFullQuadRenderer {
 public:
     ~ColoredFullQuadRenderer();
-    void draw(vg::FullQuadVBO& quad, const f32v3& color);
+    void draw(vg::FullQuadVBO& quad, const f32v4& color);
 private:
     vg::GLProgram* m_program = nullptr;
 };

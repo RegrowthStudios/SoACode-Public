@@ -16,17 +16,30 @@
 #include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
 
+//TODO(Ben): Temporary?
+void GameSystemUpdater::inputForward(Sender s, ui32 a) {
+    if (!m_soaState->isInputEnabled) return;
+    for (auto& it : m_soaState->gameSystem->freeMoveInput) {
+        it.second.tryMoveForward = true;
+    }
+}
+
 GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager) :
     m_soaState(soaState),
     m_inputManager(inputManager) {
 
     // Forward event
-    addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    forwardDel = makeDelegate(*this, &GameSystemUpdater::inputForward);
+    m_inputManager->subscribe(INPUT_FORWARD, InputManager::EventType::DOWN, &forwardDel);
+    m_events.emplace_back(INPUT_FORWARD, InputManager::EventType::DOWN, &forwardDel);
+
+
+   /* addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveForward = true;
         }
-    });
+    });*/
     addEvent(INPUT_FORWARD, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveForward = false;

@@ -134,7 +134,8 @@ void GamePlayRenderPipeline::render() {
     // Check for face transition animation state
     if (m_spaceSystemRenderStage->needsFaceTransitionAnimation) {
         m_spaceSystemRenderStage->needsFaceTransitionAnimation = false;
-        
+        m_increaseQuadAlpha = true;
+        m_coloredQuadAlpha = 0.0f;
     }
 
     // Clear the depth buffer so we can draw the voxel passes
@@ -178,6 +179,21 @@ void GamePlayRenderPipeline::render() {
     _devHudRenderStage->draw();
     _pdaRenderStage->draw();
     _pauseMenuRenderStage->draw();
+
+    // Cube face fade animation
+    if (m_increaseQuadAlpha) {
+        static const f32 FADE_INC = 0.07f;
+        m_coloredQuadAlpha += FADE_INC;
+        if (m_coloredQuadAlpha >= 3.5f) {
+            m_coloredQuadAlpha = 3.5f;
+            m_increaseQuadAlpha = false;
+        }
+        m_coloredQuadRenderer.draw(_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+    } else if (m_coloredQuadAlpha > 0.0f) {
+        static const float FADE_DEC = 0.01f;  
+        m_coloredQuadRenderer.draw(_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+        m_coloredQuadAlpha -= FADE_DEC;
+    }
 
     // Check for errors, just in case
     checkGlError("GamePlayRenderPipeline::render()");

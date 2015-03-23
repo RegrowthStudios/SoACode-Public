@@ -60,6 +60,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(vpcmp.parentVoxelComponent);
     auto& npcmp = spaceSystem->m_namePositionCT.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->m_axisRotationCT.get(svcmp.axisRotationComponent);
+
     // Apply gravity
     if (spCmp.parentGravityID) {
         auto& gravCmp = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID);
@@ -68,26 +69,25 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
         // We don't account mass since we only calculate force on the object
         pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
     }
-
     // Update position
     vpcmp.gridPosition.pos += pyCmp.velocity;
+    // Store old position in case of transition
+    VoxelPositionComponent oldVPCmp = vpcmp;
+    SpacePositionComponent oldSPCmp = spCmp;
+
     // Check transition to new face
     bool didTransition = false;
     if (vpcmp.gridPosition.pos.x < -svcmp.voxelRadius) {
         didTransition = true;
-        std::cout << "-X transition";
         transitionNegX(vpcmp, pyCmp, svcmp.voxelRadius);
     } else if (vpcmp.gridPosition.pos.x > svcmp.voxelRadius) {
         didTransition = true;
-        std::cout << "+X transition";
         transitionPosX(vpcmp, pyCmp, svcmp.voxelRadius);
     } else if (vpcmp.gridPosition.pos.z < -svcmp.voxelRadius) {
         didTransition = true;
-        std::cout << "-Z transition";
         transitionNegZ(vpcmp, pyCmp, svcmp.voxelRadius);
     } else if (vpcmp.gridPosition.pos.z > svcmp.voxelRadius) {
         didTransition = true;
-        std::cout << "+Z transition";
         transitionPosZ(vpcmp, pyCmp, svcmp.voxelRadius);
     }
 
@@ -97,23 +97,38 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     // TODO(Ben): This is expensive as fuck. Make sure you only do this for components that actually need it
     spCmp.orientation = arcmp.currentOrientation * VoxelSpaceUtils::calculateVoxelToSpaceQuat(vpcmp.gridPosition, svcmp.voxelRadius) * vpcmp.orientation;
 
-    // Check transition to Space
+    // Check transitions
     // TODO(Ben): This assumes a single player entity!
     if (spCmp.parentSphericalTerrainID) {
         auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(spCmp.parentSphericalTerrainID);
 
         f64 distance = glm::length(spCmp.position);
+        // Check transition to Space
         if (distance > stCmp.sphericalTerrainData->radius * EXIT_RADIUS_MULT) {
             if (stCmp.needsVoxelComponent) {
                 stCmp.needsVoxelComponent = false;
                 // Begin fade transition
                 stCmp.alpha = TERRAIN_INC_START_ALPHA;
             }
-        } else if (didTransition) {
-            stCmp.transitionFace = vpcmp.gridPosition.face;
+        } else if (didTransition) { // Check face transition
+            // Check face-to-face transition cases
+            if (stCmp.transitionFace == FACE_NONE && !stCmp.isFaceTransitioning) {
+                stCmp.transitionFace = vpcmp.gridPosition.face;
+                stCmp.isFaceTransitioning = true;
+                vpcmp = oldVPCmp;
+                spCmp = oldSPCmp;
+            } else if (stCmp.isFaceTransitioning) {
+                // Check for transition end
+                if (stCmp.faceTransTime < 0.2f) {
+                    stCmp.isFaceTransitioning = false;
+                } else {
+                    vpcmp = oldVPCmp;
+                    spCmp = oldSPCmp;
+                }
+            }
         }
     } else {
-        // This really shouldnt happen
+        // This really shouldn't happen
         std::cerr << "Missing parent spherical terrain ID in updateVoxelPhysics\n";
     }
 }

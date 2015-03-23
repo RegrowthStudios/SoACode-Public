@@ -60,6 +60,9 @@ private:
         if (rv) m_events.emplace_back(axisID, eventType, rv);
     }
 
+    void inputForward(Sender s, ui32 a);
+    Delegate<Sender, ui32> forwardDel;
+
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 
     /// Delegates

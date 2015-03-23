@@ -51,6 +51,8 @@ const f32 TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + TERRAIN_FADE_LEN
 const f32 TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
 const f32 TERRAIN_ALPHA_STEP = 0.01f;
 
+const f32 START_FACE_TRANS = 1.0f;
+
 struct AtmosphereComponent {
     vecs::ComponentID namePositionComponent = 0;
     f32 planetRadius;
@@ -163,7 +165,9 @@ struct SphericalTerrainComponent {
     VoxelPosition3D startVoxelPosition;
     bool needsVoxelComponent = false;
     WorldCubeFace transitionFace = FACE_NONE;
-    float alpha = 0.0f; ///< Alpha blending coefficient
+    f32 alpha = 0.0f; ///< Alpha blending coefficient
+    f32 faceTransTime = START_FACE_TRANS; ///< For animation on fade
+    bool isFaceTransitioning = false;
     volatile bool needsFaceTransitionAnimation = false;
 };
 
@@ -183,7 +187,7 @@ struct FarTerrainComponent {
     i32v2 center = i32v2(0); ///< Center, in units of patch width, where camera is
     i32v2 origin = i32v2(0); ///< Specifies which patch is the origin (back left corner) on the grid
     WorldCubeFace transitionFace = FACE_NONE;
-    float alpha = 1.0f; ///< Alpha blending coefficient
+    f32 alpha = 1.0f; ///< Alpha blending coefficient
     bool shouldFade = false; ///< When this is true we fade out
 };
 
