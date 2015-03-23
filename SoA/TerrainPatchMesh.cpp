@@ -42,12 +42,10 @@ void TerrainPatchMesh::draw(const f64v3& relativePos, const f32m4& VP,
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -relativePos);
-
     W *= rot;
     f32m4 WVP = VP * W;
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
 
     // TODO: Using a VAO makes it not work??
     // glBindVertexArray(m_vao);
@@ -88,12 +86,10 @@ void TerrainPatchMesh::drawWater(const f64v3& relativePos, const f32m4& VP,
     // Set up matrix
     f32m4 W(1.0);
     setMatrixTranslation(W, -relativePos);
-   
     W *= rot;
     f32m4 WVP = VP * W;
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("unW"), 1, GL_FALSE, &W[0][0]);
 
     // TODO: Using a VAO makes it not work??
     // glBindVertexArray(m_vao);

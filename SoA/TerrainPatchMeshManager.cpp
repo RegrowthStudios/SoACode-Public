@@ -29,7 +29,9 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
     static f32 dt = 0.0;
     dt += 0.001;
 
-    const f64v3 rotpos = glm::inverse(orientation) * relativePos;
+    f64q invOrientation = glm::inverse(orientation);
+    const f64v3 rotpos = invOrientation * relativePos;
+    const f32v3 rotLightDir = f32v3(invOrientation * f64v3(lightDir));
     // Convert f64q to f32q
     f32q orientationF32;
     orientationF32.x = (f32)orientation.x;
@@ -51,10 +53,10 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         glUniform1f(waterProgram->getUniform("unDt"), dt);
         glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
-        glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
         glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
         // Set up scattering uniforms
-        setScatterUniforms(waterProgram, relativePos, aCmp);
+        setScatterUniforms(waterProgram, rotpos, aCmp);
 
         for (int i = 0; i < m_waterMeshes.size();) {
             auto& m = m_waterMeshes[i];
@@ -88,10 +90,10 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         glActiveTexture(GL_TEXTURE0);
         program->use();
         program->enableVertexAttribArrays();
-        glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform3fv(program->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
         // Set up scattering uniforms
-        setScatterUniforms(program, relativePos, aCmp);
+        setScatterUniforms(program, rotpos, aCmp);
 
         for (int i = 0; i < m_meshes.size();) {
             auto& m = m_meshes[i];
