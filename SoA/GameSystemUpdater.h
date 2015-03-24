@@ -67,7 +67,7 @@ private:
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 
     // Events
-    std::unique_ptr<GameSystemEvents> m_events = nullptr;
+    //std::unique_ptr<GameSystemEvents> m_events = nullptr;
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     std::vector<EventData> m_events;
 

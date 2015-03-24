@@ -204,8 +204,9 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                                             f32 alpha, f32 radius,
                                             const AtmosphereComponent* aCmp,
                                             bool drawSkirts) {
-    static f32 dt = 0.0;
-    dt += 0.001;
+    // TODO(Ben): This will lose precision over time
+    static f32 dt = 0.0f;
+    dt += 0.0001f;
 
     if (m_farWaterMeshes.size()) {
         // Bind textures

@@ -46,7 +46,7 @@ public:
     /// Constructor.
     InputManager();
 
-    /// Declassor.
+    /// Destructor.
     ~InputManager();
 
     /// Get the value of the current axis.

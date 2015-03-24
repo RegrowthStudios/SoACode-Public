@@ -737,11 +737,11 @@
     <ClInclude Include="ColoredFullQuadRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystemEvents.h">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="GameplayRenderPipeline.h">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemEvents.h">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1208,11 +1208,11 @@
     <ClCompile Include="ColoredFullQuadRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="GameSystemEvents.cpp">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClCompile>
     <ClCompile Include="GameplayRenderPipeline.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemEvents.cpp">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
