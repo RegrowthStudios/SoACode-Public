@@ -24,14 +24,14 @@ void GameSystemUpdater::inputForward(Sender s, ui32 a) {
     }
 }
 
-GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager) :
+GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputMapper* inputManager) :
     m_soaState(soaState),
     m_inputManager(inputManager) {
 
     // Forward event
     forwardDel = makeDelegate(*this, &GameSystemUpdater::inputForward);
-    m_inputManager->subscribe(INPUT_FORWARD, InputManager::EventType::DOWN, &forwardDel);
-    m_events.emplace_back(INPUT_FORWARD, InputManager::EventType::DOWN, &forwardDel);
+    m_inputManager->subscribe(INPUT_FORWARD, InputMapper::EventType::DOWN, &forwardDel);
+    m_events.emplace_back(INPUT_FORWARD, InputMapper::EventType::DOWN, &forwardDel);
 
 
    /* addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
@@ -40,103 +40,103 @@ GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputManager* input
             it.second.tryMoveForward = true;
         }
     });*/
-    addEvent(INPUT_FORWARD, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_FORWARD, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveForward = false;
         }
     });
     // Left event
-    addEvent(INPUT_LEFT, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_LEFT, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveLeft = true;
         }
     });
-    addEvent(INPUT_LEFT, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_LEFT, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveLeft = false;
         }
     });
     // Right event
-    addEvent(INPUT_RIGHT, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_RIGHT, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveRight = true;
         }
     });
-    addEvent(INPUT_RIGHT, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_RIGHT, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveRight = false;
         }
     });
     // Backward event
-    addEvent(INPUT_BACKWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_BACKWARD, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveBackward = true;
         }
     });
-    addEvent(INPUT_BACKWARD, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_BACKWARD, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveBackward = false;
         }
     });
     // Jump event
-    addEvent(INPUT_JUMP, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_JUMP, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveUp = true;
         }
     });
-    addEvent(INPUT_JUMP, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_JUMP, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveUp = false;
         }
     });
     // Crouch event
-    addEvent(INPUT_CROUCH, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_CROUCH, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveDown = true;
         }
     });
-    addEvent(INPUT_CROUCH, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_CROUCH, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveDown = false;
         }
     });
     // Left roll event
-    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_LEFT_ROLL, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollLeft = true;
         }
     });
-    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_LEFT_ROLL, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollLeft = false;
         }
     });
     // Right roll event
-    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_RIGHT_ROLL, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollRight = true;
         }
     });
-    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_RIGHT_ROLL, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollRight = false;
         }
     });
     // Mega speed event
-    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_MEGA_SPEED, InputMapper::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.superSpeed = true;
         }
     });
-    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+    addEvent(INPUT_MEGA_SPEED, InputMapper::EventType::UP, [this](Sender s, ui32 a) -> void {
         for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.superSpeed = false;
         }

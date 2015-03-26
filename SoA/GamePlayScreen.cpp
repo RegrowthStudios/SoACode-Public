@@ -20,7 +20,7 @@
 #include "GameManager.h"
 #include "GameSystem.h"
 #include "GameSystemUpdater.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
@@ -219,17 +219,17 @@ i32 GameplayScreen::getWindowHeight() const {
 
 void GameplayScreen::initInput() {
 
-    m_inputManager = new InputManager;
+    m_inputManager = new InputMapper;
     initInputs(m_inputManager);
 
-    m_inputManager->subscribeFunctor(INPUT_PAUSE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_PAUSE, InputMapper::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_soaState->isInputEnabled = false;
     });
-    m_inputManager->subscribeFunctor(INPUT_GRID, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_GRID, InputMapper::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.toggleChunkGrid();
     });
-    m_inputManager->subscribeFunctor(INPUT_INVENTORY, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_INVENTORY, InputMapper::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -242,18 +242,18 @@ void GameplayScreen::initInput() {
             SDL_StopTextInput();
         }
     });
-    m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputMapper::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         if (isInGame()) {
             m_renderPipeline.toggleNightVision();
         }
     });
-    m_inputManager->subscribeFunctor(INPUT_HUD, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_HUD, InputMapper::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDevHud();
     });
-    m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputMapper::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.loadNightVision();
     });
-    m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputMapper::EventType::DOWN, [&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {

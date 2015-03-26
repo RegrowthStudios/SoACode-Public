@@ -59,9 +59,9 @@ extern i32 INPUT_VERTICAL;
 extern i32 INPUT_WATER_UPDATE;
 extern i32 INPUT_ZOOM;
 
-class InputManager;
+class InputMapper;
 
 // Initialize Input IDs At Runtime
-extern void initInputs(InputManager* inputManager);
+extern void initInputs(InputMapper* inputManager);
 
 #endif // Inputs_h__

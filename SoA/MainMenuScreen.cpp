@@ -19,7 +19,7 @@
 #include "GameplayScreen.h"
 #include "IAwesomiumAPI.h"
 #include "IAwesomiumAPI.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadScreen.h"
 #include "LoadTaskShaders.h"
@@ -159,12 +159,12 @@ void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::initInput() {
-    m_inputManager = new InputManager;
+    m_inputManager = new InputMapper;
     initInputs(m_inputManager);
     // Reload space system event
 
     onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, &onReloadSystemDel);
+    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputMapper::EventType::DOWN, &onReloadSystemDel);
 }
 
 void MainMenuScreen::initRenderPipeline() {

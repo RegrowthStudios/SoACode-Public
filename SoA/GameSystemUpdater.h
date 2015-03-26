@@ -18,7 +18,7 @@
 #include "CollisionComponentUpdater.h"
 #include "FreeMoveComponentUpdater.h"
 #include "FrustumComponentUpdater.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "PhysicsComponentUpdater.h"
 #include "VoxelCoordinateSpaces.h"
 #include <Vorb/Events.hpp>
@@ -33,7 +33,7 @@ DECL_VVOX(class VoxelPlanetMapData);
 class GameSystemUpdater {
     friend class GameSystemEvents;
 public:
-    GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager);
+    GameSystemUpdater(OUT SoaState* soaState, InputMapper* inputManager);
     ~GameSystemUpdater();
     /// Updates the game system, and also updates voxel components for space system
     /// planet transitions.
@@ -43,12 +43,12 @@ public:
 private:
     /// Struct that holds event info for destruction
     struct EventData {
-        EventData(i32 aid, InputManager::EventType etype, Delegate<Sender, ui32>* F) :
+        EventData(i32 aid, InputMapper::EventType etype, Delegate<Sender, ui32>* F) :
             axisID(aid), eventType(etype), f(F) {
             // Empty
         }
         i32 axisID;
-        InputManager::EventType eventType;
+        InputMapper::EventType eventType;
         Delegate<Sender, ui32>* f;
     };
     /// Adds an event and tracks it for destruction
@@ -56,7 +56,7 @@ private:
     /// @param eventType: The event to subscribe the functor to.
     /// @param f: The functor to subscribe to the axes' event.
     template<typename F>
-    void addEvent(i32 axisID, InputManager::EventType eventType, F f) {
+    void addEvent(i32 axisID, InputMapper::EventType eventType, F f) {
         Delegate<Sender, ui32>* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
         if (rv) m_events.emplace_back(axisID, eventType, rv);
     }
@@ -78,7 +78,7 @@ private:
     FrustumComponentUpdater m_frustumUpdater;
 
     const SoaState* m_soaState = nullptr;
-    InputManager* m_inputManager = nullptr;
+    InputMapper* m_inputManager = nullptr;
 };
 
 #endif // GameSystemUpdater_h__

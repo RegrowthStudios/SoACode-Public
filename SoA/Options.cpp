@@ -6,7 +6,7 @@
 
 #include "FileSystem.h"
 #include "GameManager.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 
 KEG_TYPE_DEF(GraphicsOptions, GraphicsOptions, kt) {
     kt.addValue("enableParticles", keg::Value::basic(offsetof(GraphicsOptions, enableParticles), keg::BasicType::BOOL));

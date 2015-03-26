@@ -31,7 +31,7 @@ class App;
 class GameStartState;
 class GameSystem;
 class GameSystemUpdater;
-class InputManager;
+class InputMapper;
 class MainMenuScreen;
 class SoaState;
 class SpaceSystemUpdater;
@@ -114,7 +114,7 @@ private:
     const MainMenuScreen* m_mainMenuScreen = nullptr;
     SoaState* m_soaState = nullptr;
 
-    InputManager* m_inputManager = nullptr;
+    InputMapper* m_inputManager = nullptr;
 
     PDA m_pda; ///< The PDA
 

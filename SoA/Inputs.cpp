@@ -2,7 +2,7 @@
 #include "Inputs.h"
 
 #include "GameManager.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 
 // Input Commands Sorted Alphabetically
 i32 INPUT_BACKWARD = -1;
@@ -55,7 +55,7 @@ i32 INPUT_ZOOM = -1;
     VAR = inputManager->createAxis(#ID, KEY_NEG, KEY_POS);
 
 // Generate Input Handles
-void initInputs(InputManager* inputManager) {
+void initInputs(InputMapper* inputManager) {
     CREATE_INPUT(Random Debug, VKEY_6, INPUT_RANDOM_DEBUG);
 
     // The Greatest Input In The Cosmos

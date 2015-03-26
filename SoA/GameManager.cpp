@@ -13,7 +13,7 @@
 #include "ChunkIOManager.h"
 #include "DebugRenderer.h"
 #include "FileSystem.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "Inputs.h"
 #include "Options.h"
 #include "Particles.h"
