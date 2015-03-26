@@ -25,7 +25,7 @@
 /// @author Frank McCoy
 class InputMapper {
 public:
-    typedef Delegate<Sender, ui32> Listener;
+    typedef Event<ui32>::Listener Listener;
     typedef i32 InputID;
 
     /// The possible event types that can be subscribed to.
@@ -96,25 +96,32 @@ public:
     /// @param eventType: The event to subscribe the funtor to.
     /// @param f: The delegate to subscribe to the axes' event.
     /// @return The newly made delegate.
-    Listener* subscribe(const i32 inputID, EventType eventType, Listener* f);
+    void subscribe(const i32 inputID, EventType eventType, Listener f);
 
     /// Subscribes a functor to one of the axes' events.
     /// Returns nullptr if inputID is invalid or eventType is invalid.
     /// @see Event::addFunctor
     /// @param inputID: The input to subscribe the functor to.
-    /// @param eventType: The event to subscribe the funtor to.
+    /// @param eventType: The event to subscribe the functor to.
     /// @param f: The functor to subscribe to the axes' event.
     /// @return The newly made delegate.
     template<typename F>
-    Listener* subscribeFunctor(const i32 inputID, EventType eventType, F f) {
-        return subscribe(inputID, eventType, makeFunctor<Sender, ui32>(f));
+    Listener* subscribeFunctor(const InputID id, EventType eventType, F f) {
+        if (id < 0 || id >= m_inputs.size()) return nullptr;
+        switch (eventType) {
+            case UP:
+                return m_inputs[id]->upEvent.addFunctor(f);
+            case DOWN:
+                return m_inputs[id]->downEvent.addFunctor(f);
+        }
+        return nullptr;
     }
 
     /// Unsubscribes a delegate from a Axes' event.
     /// @see Event::remove
     /// @param inputID: The id of the input to remove the delegate from
     /// @param eventType: The event to remove the delegate from
-    void unsubscribe(const i32 inputID, EventType eventType, Listener* f);
+    void unsubscribe(const InputID id, EventType eventType, Listener f);
 
     /// The data for a single Axis.
     class Input {
@@ -136,7 +143,7 @@ private:
     static const nString DEFAULT_CONFIG_LOCATION;
    
     InputList m_inputs; ///< All the stored axes.
-    std::unordered_map<nString, i32> m_inputLookup; ///< A map of input names to input IDs for quick look up.
+    std::unordered_map<nString, InputID> m_inputLookup; ///< A map of input names to input IDs for quick look up.
     std::unordered_map<ui16, InputList> m_keyCodeMap; ///< Map of keycodes to active input
 
     bool m_keyStates[VKEY_HIGHEST_VALUE] = {}; ///< The state of the keys and mouse buttons this frame.

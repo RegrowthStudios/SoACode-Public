@@ -30,8 +30,8 @@ GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputMapper* inputM
 
     // Forward event
     forwardDel = makeDelegate(*this, &GameSystemUpdater::inputForward);
-    m_inputManager->subscribe(INPUT_FORWARD, InputMapper::EventType::DOWN, &forwardDel);
-    m_events.emplace_back(INPUT_FORWARD, InputMapper::EventType::DOWN, &forwardDel);
+    m_inputManager->subscribe(INPUT_FORWARD, InputMapper::EventType::DOWN, forwardDel);
+    m_events.emplace_back(INPUT_FORWARD, InputMapper::EventType::DOWN, forwardDel);
 
 
    /* addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {

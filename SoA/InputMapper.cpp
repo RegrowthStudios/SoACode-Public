@@ -65,10 +65,17 @@ InputMapper::InputID InputMapper::getInputID(const nString& inputName) const {
     }
 }
 
-void InputMapper::loadInputs(const std::string &location /* = INPUTMAPPER_DEFAULT_CONFIG_LOCATION */) {
-    vio::IOManager ioManager; //TODO PASS IN
+void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CONFIG_LOCATION */) {
+    vio::IOManager iom; //TODO PASS IN
     nString data;
-    ioManager.readFileToString(location.c_str(), data);
+
+    // If the file doesn't exist, just make it with defaults
+    if (!iom.fileExists(location)) {
+        saveInputs(location);
+        return;
+    }
+
+    iom.readFileToString(location.c_str(), data);
    
     if (data.length() == 0) {
         fprintf(stderr, "Failed to load %s", location.c_str());
@@ -86,10 +93,21 @@ void InputMapper::loadInputs(const std::string &location /* = INPUTMAPPER_DEFAUL
 
     // Manually parse yml file
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+        InputKegArray kegArray;
+        
+        keg::parse((ui8*)&kegArray, value, reader, keg::getGlobalEnvironment(), &KEG_GET_TYPE(InputKegArray));
+        
+        // TODO(Ben): Somehow do multikey support
+        // Right now its only using the first key
         Input* curInput = new Input();
         curInput->name = name;
-        keg::parse((ui8*)curInput, value, reader, keg::getGlobalEnvironment(), &KEG_GET_TYPE(Input));
-        
+        curInput->defaultKey = kegArray.defaultKey[0];
+        if (kegArray.key.size()) {
+            curInput->key = kegArray.key[0];
+        } else {
+            curInput->key = curInput->defaultKey;
+        }
+
         curInput->upEvent = Event<ui32>(curInput);
         curInput->downEvent = Event<ui32>(curInput);
 
@@ -114,43 +132,51 @@ void InputMapper::stopInput() {
     vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
 }
 
-InputMapper::Listener* InputMapper::subscribe(const i32 inputID, EventType eventType, InputMapper::Listener* f) {
-    if(inputID < 0 || inputID >= m_inputs.size() || f == nullptr || m_inputs[inputID]->type != InputType::SINGLE_KEY) return nullptr;
+void InputMapper::subscribe(const InputID id, EventType eventType, Listener f) {
+    if (id < 0 || id >= m_inputs.size()) return;
     switch (eventType) {
     case UP:
-        m_inputs[inputID]->upEvent.add(*f);
-        return f;
+        m_inputs[id]->upEvent.add(f);
     case DOWN:
-        m_inputs[inputID]->downEvent.add(*f);
-        return f;
+        m_inputs[id]->downEvent.add(f);
     }
-    return nullptr;
 }
 
-void InputMapper::unsubscribe(const i32 inputID, EventType eventType, InputMapper::Listener* f) {
-    if(inputID < 0 || inputID >= m_inputs.size() || f == nullptr || m_inputs[inputID]->type != InputType::SINGLE_KEY) return;
+void InputMapper::unsubscribe(const InputID id, EventType eventType, Listener f) {
+    if (id < 0 || id >= m_inputs.size()) return;
     switch(eventType) {
     case UP:
-        m_inputs[inputID]->upEvent.remove(*f);
+        m_inputs[id]->upEvent.remove(f);
     case DOWN:
-        m_inputs[inputID]->downEvent.remove(*f);
+        m_inputs[id]->downEvent.remove(f);
     }
 }
 
 void InputMapper::saveInputs(const nString &filePath /* = DEFAULT_CONFIG_LOCATION */) {
     //TODO(Ben): Implement
+   // vio::IOManager iom;
+    // Just build the data string manually then write it
+   
+   /* bool tmp;
+    keg::Enum enm;
+    nString data = "";
+    for (auto& input : m_inputs) {
+        data += input->name + ":\n";
+        data += "  defaultKey:\n";
+        data += "    - " + keg::getEnum(tmp, .getValue()
+    }*/
 }
 
-VirtualKey InputMapper::getKey(const i32 inputID) {
+VirtualKey InputMapper::getKey(const InputID inputID) {
     if (inputID < 0 || inputID >= m_inputs.size()) return VKEY_HIGHEST_VALUE;
     return m_inputs.at(inputID)->key;
 }
 
-void InputMapper::setKey(const i32 inputID, VirtualKey key) {
+void InputMapper::setKey(const InputID inputID, VirtualKey key) {
     m_inputs.at(inputID)->key = key;
 }
 
-void InputMapper::setKeyToDefault(const i32 inputID) {
+void InputMapper::setKeyToDefault(const InputID inputID) {
     if(inputID < 0 || inputID >= m_inputs.size()) return;
     Input* input = m_inputs.at(inputID);
     input->key = input->defaultKey;

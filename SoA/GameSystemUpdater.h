@@ -43,22 +43,23 @@ public:
 private:
     /// Struct that holds event info for destruction
     struct EventData {
-        EventData(i32 aid, InputMapper::EventType etype, Delegate<Sender, ui32>* F) :
+        EventData(i32 aid, InputMapper::EventType etype, InputMapper::Listener F) :
             axisID(aid), eventType(etype), f(F) {
             // Empty
         }
         i32 axisID;
         InputMapper::EventType eventType;
-        Delegate<Sender, ui32>* f;
+        InputMapper::Listener f;
     };
+
     /// Adds an event and tracks it for destruction
     /// @param axisID: The axis to subscribe the functor to.
     /// @param eventType: The event to subscribe the functor to.
     /// @param f: The functor to subscribe to the axes' event.
     template<typename F>
     void addEvent(i32 axisID, InputMapper::EventType eventType, F f) {
-        Delegate<Sender, ui32>* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
-        if (rv) m_events.emplace_back(axisID, eventType, rv);
+        InputMapper::Listener* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
+        m_events.emplace_back(axisID, eventType, *rv);
     }
 
     void inputForward(Sender s, ui32 a);

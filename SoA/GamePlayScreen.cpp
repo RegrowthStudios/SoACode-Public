@@ -262,6 +262,7 @@ void GameplayScreen::initInput() {
             m_soaState->isInputEnabled = true;
         }
     });
+
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
             //TODO(Ben): Edit voxels
@@ -290,8 +291,6 @@ void GameplayScreen::initRenderPipeline() {
 
 void GameplayScreen::handleInput() {
 
-    // Update inputManager internal state
-    m_inputManager->update();
 }
 
 // TODO(Ben): Collision

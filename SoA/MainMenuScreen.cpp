@@ -131,9 +131,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
     m_mainMenuSystemViewer->update();
-   
 
-    m_inputManager->update(); // TODO: Remove
 
     // Check for shader reload
     //if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
@@ -164,7 +162,7 @@ void MainMenuScreen::initInput() {
     // Reload space system event
 
     onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputMapper::EventType::DOWN, &onReloadSystemDel);
+    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputMapper::EventType::DOWN, onReloadSystemDel);
 }
 
 void MainMenuScreen::initRenderPipeline() {
