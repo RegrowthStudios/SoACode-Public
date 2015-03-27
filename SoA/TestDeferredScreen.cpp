@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TestDeferredScreen.h"
 
-#include <glm/gtc/matrix_transform.hpp>
+
 #include <Vorb/colors.h>
 #include <Vorb/graphics/GLStates.h>
 #include <Vorb/graphics/GLRenderTarget.h>
@@ -41,6 +41,8 @@ void TestDeferredScreen::destroy(const GameTime& gameTime) {
 }
 
 void TestDeferredScreen::onEntry(const GameTime& gameTime) {
+    m_eyePos = glm::vec3(0, 0, 4);
+
     buildGeometry();
     buildLightMaps();
 
@@ -143,6 +145,10 @@ void TestDeferredScreen::onEvent(const SDL_Event& e) {
 }
 void TestDeferredScreen::update(const GameTime& gameTime) {
     // Empty
+    glm::vec4 rotated = glm::vec4(m_eyePos, 1) * glm::rotate(glm::mat4(), (float)(10 * gameTime.elapsed), glm::vec3(0, 1, 0));
+    m_eyePos.x = rotated.x;
+    m_eyePos.y = rotated.y;
+    m_eyePos.z = rotated.z;
 }
 void TestDeferredScreen::draw(const GameTime& gameTime) {
     /************************************************************************/
@@ -156,8 +162,7 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     m_deferredPrograms.clear.use();
     m_quad.draw();
     
-    f32v3 eyePos(0, 0, 4);
-    f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(eyePos, f32v3(0, 0, 0), f32v3(0, 1, 0));
+    f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(m_eyePos, f32v3(0, 0, 0), f32v3(0, 1, 0));
     f32m4 mVPInv = glm::inverse(mVP);
 
     DepthState::FULL.set();
@@ -180,19 +185,19 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     f32m3 mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     mW = glm::translate(f32m4(1.0f), f32v3(1.3f, 1, 0));
     mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     mW = glm::translate(f32m4(1.0f), f32v3(0, 0, -2));
     mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -221,7 +226,7 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_envMap);
         glUniform1i(progLight.getUniform("unTexEnvironment"), 2);
         glUniformMatrix4fv(progLight.getUniform("unVPInv"), 1, false, (f32*)&mVPInv[0][0]);
-        glUniform3f(progLight.getUniform("unEyePosition"), eyePos.x, eyePos.y, eyePos.z);
+        glUniform3f(progLight.getUniform("unEyePosition"), m_eyePos.x, m_eyePos.y, m_eyePos.z);
         glUniform1f(progLight.getUniform("unRoughness"), m_roughness);
         glUniform1f(progLight.getUniform("unReflectance"), m_reflectance * 0.96f + 0.04f);
         glUniform1f(progLight.getUniform("unMetalness"), m_metalness);

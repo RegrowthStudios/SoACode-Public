@@ -19,6 +19,7 @@
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
 #include "TestMappingScreen.h"
+#include "TestGasGiantScreen.h"
 
 
 void App::addScreens() {
@@ -51,10 +52,12 @@ void App::addScreens() {
     scrTests.push_back(new TestBlockView);
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(VKEY_B, scrTests.back());
-
+    scrTests.push_back(new TestGasGiantScreen);
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_G, scrTests.back());
 
     // Start from dev screen for convenience
-    _screenList->setScreen(scrInit->getIndex());
+    _screenList->setScreen(scrDev->getIndex());
 }
 
 void App::onInit() {
