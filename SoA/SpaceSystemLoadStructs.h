@@ -32,7 +32,7 @@ struct SystemBody {
     nString name = "";
     nString parentName = "";
     SystemBody* parent = nullptr;
-    vcore::EntityID entity = 0;
+    vecs::EntityID entity = 0;
     BodyType type = BodyType::NONE;
 };
 

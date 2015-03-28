@@ -7,13 +7,13 @@
 
 #include "DevScreen.h"
 #include "GameManager.h"
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "Options.h"
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 #include "SpaceSystem.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
@@ -25,7 +25,7 @@ void App::addScreens() {
     scrInit = new InitScreen(this);
     scrLoad = new LoadScreen(this);
     scrMainMenu = new MainMenuScreen(this, scrLoad);
-    scrGamePlay = new GamePlayScreen(this, scrMainMenu);
+    scrGamePlay = new GameplayScreen(this, scrMainMenu);
 
     _screenList->addScreen(scrInit);
     _screenList->addScreen(scrLoad);
@@ -62,13 +62,13 @@ void App::onInit() {
     // Load the graphical options
     loadOptions("Data/Options.yml");
 
-    SamplerState::initPredefined();
+    vg::SamplerState::initPredefined();
 }
 
 void App::onExit() {
     // Delete cache if it exists
 
-    SpriteBatch::disposeProgram();
+    vg::SpriteBatch::disposeProgram();
 }
 
 App::~App() {

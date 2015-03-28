@@ -9,8 +9,8 @@
 #include "LoadMonitor.h"
 #include "ProgramGenDelegate.h"
 
-DECL_VG(class, GLProgramManager);
-DECL_VIO(class, IOManager);
+DECL_VG(class GLProgramManager);
+DECL_VIO(class IOManager);
 
 class OnReloadShaderKeyDown;
 
@@ -20,7 +20,7 @@ class OnReloadShaderKeyDown;
 class LoadTaskShaders : public ILoadTask {
     // So that these classes can call load()
     friend class LoadScreen;
-    friend class GamePlayScreen;
+    friend class GameplayScreen;
     friend class OnReloadShadersKeyDown;
     friend class OnMainMenuReloadShadersKeyDown;
     friend class MainMenuScreen;

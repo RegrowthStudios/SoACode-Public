@@ -16,124 +16,136 @@
 #include <Vorb/utils.h>
 #include <Vorb/IntersectionUtils.inl>
 
+//TODO(Ben): Temporary?
+void GameSystemUpdater::inputForward(Sender s, ui32 a) {
+    if (!m_soaState->isInputEnabled) return;
+    for (auto& it : m_soaState->gameSystem->freeMoveInput) {
+        it.second.tryMoveForward = true;
+    }
+}
+
 GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager) :
     m_soaState(soaState),
     m_inputManager(inputManager) {
 
-    GameSystem* gameSystem = soaState->gameSystem.get();
     // Forward event
-    addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    forwardDel = makeDelegate(*this, &GameSystemUpdater::inputForward);
+    m_inputManager->subscribe(INPUT_FORWARD, InputManager::EventType::DOWN, &forwardDel);
+    m_events.emplace_back(INPUT_FORWARD, InputManager::EventType::DOWN, &forwardDel);
+
+
+   /* addEvent(INPUT_FORWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveForward = true;
         }
-    });
-    addEvent(INPUT_FORWARD, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    });*/
+    addEvent(INPUT_FORWARD, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveForward = false;
         }
     });
     // Left event
-    addEvent(INPUT_LEFT, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_LEFT, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveLeft = true;
         }
     });
-    addEvent(INPUT_LEFT, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_LEFT, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveLeft = false;
         }
     });
     // Right event
-    addEvent(INPUT_RIGHT, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_RIGHT, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveRight = true;
         }
     });
-    addEvent(INPUT_RIGHT, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_RIGHT, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveRight = false;
         }
     });
     // Backward event
-    addEvent(INPUT_BACKWARD, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_BACKWARD, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveBackward = true;
         }
     });
-    addEvent(INPUT_BACKWARD, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_BACKWARD, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveBackward = false;
         }
     });
     // Jump event
-    addEvent(INPUT_JUMP, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_JUMP, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveUp = true;
         }
     });
-    addEvent(INPUT_JUMP, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_JUMP, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveUp = false;
         }
     });
     // Crouch event
-    addEvent(INPUT_CROUCH, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_CROUCH, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveDown = true;
         }
     });
-    addEvent(INPUT_CROUCH, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_CROUCH, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryMoveDown = false;
         }
     });
     // Left roll event
-    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollLeft = true;
         }
     });
-    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_LEFT_ROLL, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollLeft = false;
         }
     });
     // Right roll event
-    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollRight = true;
         }
     });
-    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_RIGHT_ROLL, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.tryRollRight = false;
         }
     });
     // Mega speed event
-    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, [=](Sender s, ui32 a) -> void {
+    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::DOWN, [this](Sender s, ui32 a) -> void {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.superSpeed = true;
         }
     });
-    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::UP, [=](Sender s, ui32 a) -> void {
-        for (auto& it : gameSystem->freeMoveInput) {
+    addEvent(INPUT_MEGA_SPEED, InputManager::EventType::UP, [this](Sender s, ui32 a) -> void {
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
             it.second.superSpeed = false;
         }
     });
 
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [this](Sender s, const vui::MouseMotionEvent& e) {
         if (!m_soaState->isInputEnabled) return;
-        for (auto& it : gameSystem->freeMoveInput) {
-            FreeMoveComponentUpdater::rotateFromMouse(gameSystem, it.second, -e.dx, e.dy, 0.1f);
+        for (auto& it : m_soaState->gameSystem->freeMoveInput) {
+            FreeMoveComponentUpdater::rotateFromMouse(m_soaState->gameSystem.get(), it.second, -e.dx, e.dy, 0.1f);
         }
     });
 }

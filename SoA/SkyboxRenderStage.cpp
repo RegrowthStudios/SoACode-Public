@@ -33,9 +33,9 @@ void SkyboxRenderStage::draw() {
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
-    DepthState::NONE.set();
+    vg::DepthState::NONE.set();
     _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
-    DepthState::FULL.set();
+    vg::DepthState::FULL.set();
 }
 
 // Ben: This is terrible but I don't feel like fixing it since its temporary

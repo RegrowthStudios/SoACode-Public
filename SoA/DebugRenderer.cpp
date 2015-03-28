@@ -52,7 +52,7 @@ DebugRenderer::~DebugRenderer() {
 }
 
 void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w /* = f32m4(1.0) */) {
-    RasterizerState::CULL_NONE.set();
+    vg::RasterizerState::CULL_NONE.set();
 
     _previousTimePoint = _currentTimePoint;
     _currentTimePoint = std::chrono::high_resolution_clock::now();

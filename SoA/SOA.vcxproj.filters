@@ -93,14 +93,8 @@
     <Filter Include="SOA Files\Screens\Init">
       <UniqueIdentifier>{27507245-c888-4a05-b0ca-9890d99db1a2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Screens\Load\Tasks">
-      <UniqueIdentifier>{d4b19aff-5e0f-4ac5-a831-548286691b82}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\Screens\Menu">
       <UniqueIdentifier>{0d210193-9560-40f1-a16b-af80064b7293}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\GamePlay">
-      <UniqueIdentifier>{67ff73ec-bf0a-46da-a71d-8821a7acbd76}</UniqueIdentifier>
     </Filter>
     <Filter Include="SOA Files\Game\Tools">
       <UniqueIdentifier>{da75023d-4b8b-4790-af72-c6535569b583}</UniqueIdentifier>
@@ -167,6 +161,12 @@
     </Filter>
     <Filter Include="SOA Files\Rendering\Universe">
       <UniqueIdentifier>{cbcce115-6609-45f8-8bf5-9f86d0c7358f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\Load\Tasks">
+      <UniqueIdentifier>{3d4b1864-12e0-42f6-93e0-9dd41f775f53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Screens\Gameplay">
+      <UniqueIdentifier>{67ff73ec-bf0a-46da-a71d-8821a7acbd76}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -323,9 +323,6 @@
     <ClInclude Include="SimplexNoise.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
-    <ClInclude Include="Sound.h">
-      <Filter>SOA Files\Sound</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
@@ -386,20 +383,8 @@
     <ClInclude Include="InitScreen.h">
       <Filter>SOA Files\Screens\Init</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskGameManager.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskShaders.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskBlockData.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskSound.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="TexturePackLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
@@ -413,14 +398,8 @@
     <ClInclude Include="MainMenuAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
-    <ClInclude Include="GamePlayScreen.h">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
-    </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskTextures.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -464,9 +443,6 @@
     <ClInclude Include="SkyboxRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="GamePlayRenderPipeline.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
     <ClInclude Include="PdaRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -507,10 +483,10 @@
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
     <ClInclude Include="PauseMenu.h">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
+      <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="PauseMenuAwesomiumAPI.h">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
+      <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="PauseMenuRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -668,9 +644,6 @@
     <ClInclude Include="PlanetData.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskStarSystem.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="NoiseShaderCode.hpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
@@ -745,6 +718,30 @@
     </ClInclude>
     <ClInclude Include="ChunkMemoryManager.h">
       <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="AtmosphereComponentRenderer.h">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskStarSystem.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskShaders.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskTextures.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayScreen.h">
+      <Filter>SOA Files\Screens\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="ColoredFullQuadRenderer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayRenderPipeline.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemEvents.h">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -862,9 +859,6 @@
     <ClCompile Include="SimplexNoise.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
-    <ClCompile Include="Sound.cpp">
-      <Filter>SOA Files\Sound</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
@@ -934,9 +928,6 @@
     <ClCompile Include="MainMenuAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
-    <ClCompile Include="GamePlayScreen.cpp">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
-    </ClCompile>
     <ClCompile Include="MeshManager.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
@@ -979,9 +970,6 @@
     <ClCompile Include="GameRenderParams.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="GamePlayRenderPipeline.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
     <ClCompile Include="PdaRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
@@ -1013,19 +1001,16 @@
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
     <ClCompile Include="PauseMenuAwesomiumAPI.cpp">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
+      <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClCompile>
     <ClCompile Include="PauseMenu.cpp">
-      <Filter>SOA Files\Screens\GamePlay</Filter>
+      <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClCompile>
     <ClCompile Include="PauseMenuRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="VoxPool.cpp">
       <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadTaskShaders.cpp">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClCompile>
     <ClCompile Include="DevScreen.cpp">
       <Filter>SOA Files\Screens\Dev</Filter>
@@ -1211,6 +1196,24 @@
     <ClCompile Include="ChunkMemoryManager.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
+    <ClCompile Include="AtmosphereComponentRenderer.cpp">
+      <Filter>SOA Files\ECS\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadTaskShaders.cpp">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayScreen.cpp">
+      <Filter>SOA Files\Screens\Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="ColoredFullQuadRenderer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayRenderPipeline.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemEvents.cpp">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -1239,6 +1242,9 @@
     </None>
     <None Include="AwesomiumInterface.inl">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
+    </None>
+    <None Include="VoxelUpdateOrder.inl">
+      <Filter>SOA Files\Voxel</Filter>
     </None>
   </ItemGroup>
 </Project>

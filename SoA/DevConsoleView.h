@@ -1,12 +1,14 @@
 #pragma once
 #include <Vorb/RingBuffer.hpp>
 #include <SDL/SDL.h>
+#include <Vorb/VorbPreDecl.inl>
 
 #include "GLProgramManager.h"
 
 class DevConsole;
-class SpriteBatch;
-class SpriteFont;
+
+DECL_VG(class SpriteBatch;
+        class SpriteFont)
 
 typedef vorb::ring_buffer<nString> StringRing;
 
@@ -32,8 +34,8 @@ private:
     DevConsole* _console;
     void(*_fHook) (void*, const nString&);
 
-    SpriteBatch* _batch;
-    SpriteFont* _font;
+    vg::SpriteBatch* _batch;
+    vg::SpriteFont* _font;
     bool _isViewModified;
 
     i32 _linesToRender;

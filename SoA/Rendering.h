@@ -2,8 +2,8 @@
 #include "Constants.h"
 #include <Vorb/VorbPreDecl.inl>
 
-DECL_VG(class, GLProgram);
-DECL_VG(class, GLProgramManager);
+DECL_VG(class GLProgram);
+DECL_VG(class GLProgramManager);
 
 extern int renderMode;
 

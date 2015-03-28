@@ -12,8 +12,8 @@
 // Number cells per row/column in a single grid
 const ui32 CELLS = 20;
 
-DepthState dsLightPoint(true, DepthFunction::GREATER_EQUAL, false);
-DepthState dsLightDirectional(true, DepthFunction::NOT_EQUAL, false);
+vg::DepthState dsLightPoint(true, vg::DepthFunction::GREATER, false);
+vg::DepthState dsLightDirectional(true, vg::DepthFunction::NOTEQUAL, false);
 
 struct DefVertex {
 public:
@@ -36,11 +36,11 @@ i32 TestDeferredScreen::getPreviousScreen() const {
 void TestDeferredScreen::build() {
     // Empty
 }
-void TestDeferredScreen::destroy(const GameTime& gameTime) {
+void TestDeferredScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void TestDeferredScreen::onEntry(const GameTime& gameTime) {
+void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     buildGeometry();
     buildLightMaps();
 
@@ -110,7 +110,7 @@ void TestDeferredScreen::onEntry(const GameTime& gameTime) {
     }
     m_quad.init(0);
 
-    m_hooks.addAutoHook(&vui::InputDispatcher::key.onKeyDown, [&] (Sender s, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender s, const vui::KeyEvent& e) {
         switch (e.keyCode) {
         case VKEY_I: if(m_roughness < 0.96) m_roughness += 0.05f; break;
         case VKEY_J: if (m_roughness > 0.04) m_roughness -= 0.05f; break;
@@ -129,7 +129,7 @@ void TestDeferredScreen::onEntry(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void TestDeferredScreen::onExit(const GameTime& gameTime) {
+void TestDeferredScreen::onExit(const vui::GameTime& gameTime) {
     glDeleteBuffers(1, &m_verts);
     glDeleteBuffers(1, &m_inds);
     m_deferredPrograms.dispose();
@@ -138,13 +138,10 @@ void TestDeferredScreen::onExit(const GameTime& gameTime) {
     m_gbuffer.dispose();
 }
 
-void TestDeferredScreen::onEvent(const SDL_Event& e) {
+void TestDeferredScreen::update(const vui::GameTime& gameTime) {
     // Empty
 }
-void TestDeferredScreen::update(const GameTime& gameTime) {
-    // Empty
-}
-void TestDeferredScreen::draw(const GameTime& gameTime) {
+void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     /************************************************************************/
     /* Deferred pass                                                        */
     /************************************************************************/
@@ -152,7 +149,7 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
 
     // Clear the GBuffer
     glBlendFunc(GL_ONE, GL_ZERO);
-    DepthState::WRITE.set();
+    vg::DepthState::WRITE.set();
     m_deferredPrograms.clear.use();
     m_quad.draw();
     
@@ -160,8 +157,8 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(eyePos, f32v3(0, 0, 0), f32v3(0, 1, 0));
     f32m4 mVPInv = glm::inverse(mVP);
 
-    DepthState::FULL.set();
-    RasterizerState::CULL_CLOCKWISE.set();
+    vg::DepthState::FULL.set();
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 
     vg::GLProgram& progGeo = m_deferredPrograms.geometry["Basic"];
     progGeo.use();
@@ -293,7 +290,7 @@ void TestDeferredScreen::draw(const GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBlendFunc(GL_ONE, GL_ZERO);
-    DepthState::WRITE.set();
+    vg::DepthState::WRITE.set();
     m_deferredPrograms.composition.use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().color);
@@ -400,7 +397,8 @@ void TestDeferredScreen::buildLightMaps() {
     std::vector<ui8> pixels;
     ui32v2 size;
     
-    vio::ImageIO imageLoader;
+    // TODO(Ben): Cristian you can update this :P
+    /*vg::ImageIO imageLoader;
     imageLoader.loadPng("Textures/Test/nx.png", pixels, size.x, size.y);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     pixels.swap(std::vector<ui8>());
@@ -427,6 +425,6 @@ void TestDeferredScreen::buildLightMaps() {
         (VGEnum)vg::TextureWrapMode::REPEAT,
         (VGEnum)vg::TextureWrapMode::REPEAT
         );
-    ss.set(GL_TEXTURE_CUBE_MAP);
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    ss.set(GL_TEXTURE_CUBE_MAP); 
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP); */
 }

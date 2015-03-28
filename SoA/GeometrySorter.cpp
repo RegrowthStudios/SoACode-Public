@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GeometrySorter.h"
 
+#include "soaUtils.h"
 #include <Vorb/utils.h>
 
 #include "ChunkRenderer.h"
@@ -9,10 +10,6 @@ std::vector <Distanceclass> GeometrySorter::_distBuffer;
 
 i32 convertData(Distanceclass* data) {
     return data->distance;
-}
-
-inline i32 getSquaredDist(i32v3 vec) {
-    return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
 }
 
 bool comparator(const Distanceclass& i, const Distanceclass& j) { 
@@ -28,7 +25,7 @@ void GeometrySorter::sortTransparentBlocks(ChunkMesh* cm, const i32v3& cameraPos
         _distBuffer[i].quadIndex = i; 
         //We multiply by 2 because we need twice the precision of integers per block
         //we subtract by 1 in order to ensure that the camera position is centered on a block
-        _distBuffer[i].distance = getSquaredDist((cm->position - cameraPos) * 2 - i32v3(1) + i32v3(cm->transQuadPositions[i]));
+        _distBuffer[i].distance = selfDot(((i32v3(cm->position) - cameraPos) << 1) - 1 + i32v3(cm->transQuadPositions[i]));
     }
 
    // radixSort<Distanceclass, 8>(&(_distBuffer[0]), _distBuffer.size(), convertData, 31);

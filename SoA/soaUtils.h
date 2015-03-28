@@ -68,4 +68,30 @@ inline f64v3 getClosestPointOnAABB(const f64v3& pos, const f64v3& aabbPos,
            (aabbPos.z + aabbDims.z) : pos.z));
 }
 
+/// Gets dot product with self, cheaper than glm::dot because less copy
+inline f32 selfDot(const f32v3& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+inline f32 selfDot(const f32v4& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+inline f64 selfDot(const f64v3& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+inline f64 selfDot(const f64v4& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+inline i32 selfDot(const i32v3& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+inline i32 selfDot(const i32v4& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+inline ui32 selfDot(const ui32v3& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+inline ui32 selfDot(const ui32v4& v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+
 #endif // soaUtils_h__

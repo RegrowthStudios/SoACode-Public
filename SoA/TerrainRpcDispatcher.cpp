@@ -23,7 +23,6 @@ TerrainPatchMesh* TerrainRpcDispatcher::dispatchTerrainGen(const f32v3& startPos
         auto& gen = m_generators[counter];
         // Mark the generator as in use
         gen.inUse = true;
-        gen.rpc.data.f = &gen;
         mesh = new TerrainPatchMesh(cubeFace);
         // Set the data
         gen.startPos = startPos;

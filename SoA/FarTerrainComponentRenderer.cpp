@@ -11,6 +11,23 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/utils.h>
 
+namespace {
+    void printShaderError(Sender s, nString n) {
+        puts("Shader Error: ");
+        puts(n.c_str());
+    }
+    void printLogError(Sender s, nString n) {
+        puts("Link Error: ");
+        puts(n.c_str());
+        vg::GLProgram* p = (vg::GLProgram*)s;
+        char buf[256];
+        GLsizei len;
+        glGetProgramInfoLog(p->getID(), 255, &len, buf);
+        buf[len] = 0;
+        puts(buf);
+    }
+}
+
 FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
     if (m_farTerrainProgram) {
         m_farTerrainProgram->dispose();
@@ -18,37 +35,41 @@ FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
         delete m_farTerrainProgram;
         delete m_farWaterProgram;
     }
-    
 }
 
-void FarTerrainComponentRenderer::draw(FarTerrainComponent& cmp,
+void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        const Camera* camera,
                                        const f64v3& lightDir,
                                        const SpaceLightComponent* spComponent,
-                                       const AxisRotationComponent* arComponent) {
+                                       const AxisRotationComponent* arComponent,
+                                       const AtmosphereComponent* aComponent) {
     // Get voxel position for quaternion calculation
     VoxelPosition3D pos;
     pos.pos = camera->getPosition();
     pos.face = cmp.face;
-    // Calculate relative light position
-    f64v3 relLightDir = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(pos, cmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * lightDir;
-    relLightDir = glm::inverse(arComponent->currentOrientation) * relLightDir;
 
     // Lazy shader init
     if (!m_farTerrainProgram) {
         buildShaders();
     }
-    glDisable(GL_CULL_FACE);
     f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
+
+    // Calculate relative light position
+    f64v3 relLightDir = glm::inverse(arComponent->currentOrientation) * lightDir;
+    relLightDir = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(pos, cmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * relLightDir;
+    
+    // Sort meshes
+    cmp.meshManager->sortFarMeshes(relativeCameraPos);
     // Draw far patches
     if (cmp.alpha > 0.0f) {
         cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
                                        m_farTerrainProgram, m_farWaterProgram,
                                        f32v3(relLightDir),
                                        glm::min(cmp.alpha, 1.0f),
-                                       cmp.planetGenData->radius);
+                                       cmp.planetGenData->radius,
+                                       aComponent,
+                                       (cmp.alpha >= 1.0f));
     }
-    glEnable(GL_CULL_FACE);
 }
 
 void FarTerrainComponentRenderer::buildShaders() {
@@ -76,6 +97,8 @@ void FarTerrainComponentRenderer::buildShaders() {
     iom.readFileToString("Shaders/SphericalTerrain/FarTerrain.vert", vertSource);
     iom.readFileToString("Shaders/SphericalTerrain/SphericalTerrain.frag", fragSource);
     m_farTerrainProgram = new vg::GLProgram(true);
+    m_farTerrainProgram->onShaderCompilationError += makeDelegate(printShaderError);
+    m_farTerrainProgram->onProgramLinkError += makeDelegate(printLogError);
     m_farTerrainProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_farTerrainProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farTerrainProgram->setAttributes(sphericalAttribs);
@@ -87,13 +110,16 @@ void FarTerrainComponentRenderer::buildShaders() {
     glUniform1i(m_farTerrainProgram->getUniform("unNormalMap"), 0);
     glUniform1i(m_farTerrainProgram->getUniform("unColorMap"), 1);
     glUniform1i(m_farTerrainProgram->getUniform("unTexture"), 2);
-    glUniform1f(m_farTerrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
+    glUniform1f(m_farTerrainProgram->getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
+    glUniform1f(m_farTerrainProgram->getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
     m_farTerrainProgram->unuse();
 
     // Build water shader
     iom.readFileToString("Shaders/SphericalTerrain/FarWater.vert", vertSource);
     iom.readFileToString("Shaders/SphericalTerrain/SphericalWater.frag", fragSource);
     m_farWaterProgram = new vg::GLProgram(true);
+    m_farWaterProgram->onShaderCompilationError += makeDelegate(printShaderError);
+    m_farWaterProgram->onProgramLinkError += makeDelegate(printLogError);
     m_farWaterProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
     m_farWaterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
     m_farWaterProgram->setAttributes(sphericalWaterAttribs);

@@ -8,7 +8,7 @@ class ParticleEmitter;
 class ParticleMesh;
 class ParticleEngine;
 
-DECL_VG(class, GLProgram);
+DECL_VG(class GLProgram);
 
 class ParticleBatch {
 public:

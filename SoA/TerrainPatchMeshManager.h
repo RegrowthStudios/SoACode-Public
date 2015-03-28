@@ -20,9 +20,10 @@
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;
+class TerrainPatchMesh;
+struct AtmosphereComponent;
 struct PlanetGenData;
 struct TerrainPatchData;
-class TerrainPatchMesh;
 
 DECL_VG(class TextureRecycler;
         class GLProgram)
@@ -43,29 +44,51 @@ public:
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
     /// @param lightDir: Normalized direction to light source
-    void drawSphericalMeshes(const f64v3& relativePos, const Camera* camera,
-              const f64q& orientation,
-              vg::GLProgram* program, vg::GLProgram* waterProgram,
-              const f32v3& lightDir,
-              float alpha);
+    /// @param aCmp: Atmosphere component for rendering
+    /// @param drawSkirts: True when you want to also draw skirts
+    void drawSphericalMeshes(const f64v3& relativePos,
+                             const Camera* camera,
+                             const f64q& orientation,
+                             vg::GLProgram* program, vg::GLProgram* waterProgram,
+                             const f32v3& lightDir,
+                             f32 alpha,
+                             const AtmosphereComponent* aCmp,
+                             bool drawSkirts);
     /// Draws the far meshes
     /// @param relativePos: Relative position of the camera
-    /// @param Camera: The camera
+    /// @param Camera: The camera state
     /// @param orientation: Orientation quaternion
     /// @param program: Shader program for rendering terrain
     /// @param waterProgram: Shader program for rendering water
     /// @param lightDir: Normalized direction to light source
     /// @param radius: Radius of the planet in KM
-    void drawFarMeshes(const f64v3& relativePos, const Camera* camera,
+    /// @param aCmp: Atmosphere component for rendering
+    /// @param drawSkirts: True when you want to also draw skirts
+    void drawFarMeshes(const f64v3& relativePos,
+                       const Camera* camera,
                        vg::GLProgram* program, vg::GLProgram* waterProgram,
                        const f32v3& lightDir,
-                       float alpha, float radius);
+                       f32 alpha, f32 radius,
+                       const AtmosphereComponent* aCmp,
+                       bool drawSkirts);
 
     /// Adds a mesh 
     /// @param mesh: Mesh to add
     void addMesh(TerrainPatchMesh* mesh, bool isSpherical);
 
+    /// Updates distances and Sorts meshes
+    void sortSpericalMeshes(const f64v3& relPos);
+
+    /// Updates distances and Sorts meshes
+    void sortFarMeshes(const f64v3& relPos);
+
+    /// Returns the squared distance of the closest mesh determined on most recent call
+    /// to sortSphericalMeshes()
+    /// Returns 0 when there is no mesh
+    f64 getClosestSphericalDistance2() const { return m_meshes.empty() ? DOUBLE_SENTINEL : m_closestSphericalDistance2; }
+    f64 getClosestFarDistance2() const { return m_farMeshes.empty() ? DOUBLE_SENTINEL : m_closestFarDistance2; }
 private:
+    void setScatterUniforms(vg::GLProgram* program, const f64v3& relPos, const AtmosphereComponent* aCmp);
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps
@@ -73,6 +96,8 @@ private:
     std::vector<TerrainPatchMesh*> m_waterMeshes; ///< Meshes with water active
     std::vector<TerrainPatchMesh*> m_farMeshes; ///< All meshes
     std::vector<TerrainPatchMesh*> m_farWaterMeshes; ///< Meshes with water active
+    f64 m_closestSphericalDistance2 = DOUBLE_SENTINEL;
+    f64 m_closestFarDistance2 = DOUBLE_SENTINEL;
 };
 
 #endif // TerrainPatchMeshManager_h__

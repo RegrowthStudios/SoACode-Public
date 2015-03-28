@@ -15,8 +15,8 @@
 #include "FileSystem.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "GamePlayScreen.h"
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
+#include "GameplayScreen.h"
 #include "IAwesomiumAPI.h"
 #include "IAwesomiumAPI.h"
 #include "InputManager.h"
@@ -29,7 +29,6 @@
 #include "Options.h"
 #include "SoAState.h"
 #include "SoaEngine.h"
-#include "Sound.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
@@ -59,11 +58,11 @@ void MainMenuScreen::build() {
     // Empty
 }
 
-void MainMenuScreen::destroy(const GameTime& gameTime) {
+void MainMenuScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void MainMenuScreen::onEntry(const GameTime& gameTime) {
+void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Get the state handle
     m_soaState = m_loadScreen->getSoAState();
@@ -104,7 +103,7 @@ void MainMenuScreen::onEntry(const GameTime& gameTime) {
     m_inputManager->startInput();
 }
 
-void MainMenuScreen::onExit(const GameTime& gameTime) {
+void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_inputManager->stopInput();
 
     m_mainMenuSystemViewer.reset();
@@ -124,27 +123,11 @@ void MainMenuScreen::onExit(const GameTime& gameTime) {
     delete m_engine;
 }
 
-void MainMenuScreen::onEvent(const SDL_Event& e) {
-
-    // Check for reloading the UI
-    if (m_inputManager->getKeyDown(INPUT_RELOAD_UI)) {
-        std::cout << "\n\nReloading MainMenu UI...\n\n";
-        m_awesomiumInterface.destroy();
-        m_awesomiumInterface.init("UI/MainMenu/",
-                                 "MainMenu_UI", 
-                                 "index.html",
-                                 _app->getWindow().getWidth(),
-                                 _app->getWindow().getHeight(),
-                                 this);
-    }
-
-}
-
-void MainMenuScreen::update(const GameTime& gameTime) {
+void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
     m_awesomiumInterface.update();
 
-    m_soaState->time += m_soaState->timeStep;
+    //m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
     m_mainMenuSystemViewer->update();
@@ -168,9 +151,9 @@ void MainMenuScreen::update(const GameTime& gameTime) {
     m_engine->update(vsound::Listener());
 }
 
-void MainMenuScreen::draw(const GameTime& gameTime) {
+void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 
-    updateWorldCameraClip();
+    m_camera.updateProjection();
 
     m_renderPipeline.render();
 }
@@ -178,21 +161,10 @@ void MainMenuScreen::draw(const GameTime& gameTime) {
 void MainMenuScreen::initInput() {
     m_inputManager = new InputManager;
     initInputs(m_inputManager);
-
     // Reload space system event
-    m_inputManager->subscribeFunctor(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
-        SoaEngine::destroySpaceSystem(m_soaState);
-        SoaEngine::SpaceSystemLoadData loadData;
-        loadData.filePath = "StarSystems/Trinity";
-        SoaEngine::loadSpaceSystem(m_soaState, loadData);
-        CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
-        m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                        &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
-        m_camera = tmp; // Restore old camera
-        m_renderPipeline.destroy();
-        m_renderPipeline = MainMenuRenderPipeline();
-        initRenderPipeline();
-    });
+
+    onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
+    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, &onReloadSystemDel);
 }
 
 void MainMenuScreen::initRenderPipeline() {
@@ -216,7 +188,7 @@ void MainMenuScreen::loadGame(const nString& fileName) {
         return;
     }
 
-    _state = ScreenState::CHANGE_NEXT;
+    _state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::newGame(const nString& fileName) {
@@ -234,7 +206,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     initSaveIomanager(fileName);  
 
-    _state = ScreenState::CHANGE_NEXT;
+    _state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::updateThreadFunc() {
@@ -254,30 +226,8 @@ void MainMenuScreen::updateThreadFunc() {
 
         fpsLimiter.beginFrame();
 
-        GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-        GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-        GameManager::soundEngine->update();
-
         physicsFps = fpsLimiter.endFrame();
     }
-}
-
-void MainMenuScreen::updateWorldCameraClip() {
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-    //double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    //if (nearClip < 0.1) nearClip = 0.1;
-    //double a = 0.0;
-    //// TODO(Ben): This is crap fix it (Sorry Brian)
-    //a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    //if (a < 0) a = 0;
-
-    //double clip = MAX(nearClip / planetScale * 0.5, a);
-    double clip = 10000.0;
-    // The world camera has a dynamic clipping plane
-//    _camera.setClippingPlane(1.0f, 200.0f);
- //   _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    m_camera.updateProjection();
 }
 
 void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
@@ -293,4 +243,18 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
     ioManager.makeDirectory("players");
     ioManager.makeDirectory("system");
     ioManager.makeDirectory("cache");
+}
+
+void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
+    SoaEngine::destroySpaceSystem(m_soaState);
+    SoaEngine::SpaceSystemLoadData loadData;
+    loadData.filePath = "StarSystems/Trinity";
+    SoaEngine::loadSpaceSystem(m_soaState, loadData);
+    CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+    m_camera = tmp; // Restore old camera
+    m_renderPipeline.destroy();
+    m_renderPipeline = MainMenuRenderPipeline();
+    initRenderPipeline();
 }

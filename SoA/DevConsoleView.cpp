@@ -33,10 +33,11 @@ void DevConsoleView::init(DevConsole* console, i32 linesToRender, vg::GLProgramM
     _console->addListener(_fHook, this);
     _isViewModified = true;
 
-    _batch = new SpriteBatch(true, true);
-
-    _font = new SpriteFont("Fonts\\chintzy.ttf", 32);
+    _batch = new vg::SpriteBatch(true, true);
+    _font = new vg::SpriteFont();
+    _font->init("Fonts\\chintzy.ttf", 32);
 }
+
 void DevConsoleView::dispose() {
     if (_batch) {
         _batch->dispose();
@@ -80,7 +81,7 @@ void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
         0, 0, 1, 0,
         position.x, position.y, 0, 1
         );
-    _batch->renderBatch(mTranslate, screenSize, &SamplerState::POINT_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+    _batch->renderBatch(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
 }
 
 void DevConsoleView::onNewCommand(const nString& str) {
@@ -116,5 +117,5 @@ void DevConsoleView::redrawBatch() {
 
     // TODO: Draw Input
 
-    _batch->end(SpriteSortMode::BACK_TO_FRONT);
+    _batch->end(vg::SpriteSortMode::BACK_TO_FRONT);
 }

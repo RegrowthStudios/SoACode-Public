@@ -17,8 +17,9 @@
 
 #include <Vorb/Events.hpp>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/ui/KeyboardEventDispatcher.h>
 
-class DevScreen : public IGameScreen {
+class DevScreen : public vui::IGameScreen {
 public:
     /************************************************************************/
     /* IGameScreen functionality                                            */
@@ -26,21 +27,20 @@ public:
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
     virtual void build() override;
-    virtual void destroy(const GameTime& gameTime) override;
-    virtual void onEntry(const GameTime& gameTime) override;
-    virtual void onExit(const GameTime& gameTime) override;
-    virtual void onEvent(const SDL_Event& e) override;
-    virtual void update(const GameTime& gameTime) override;
-    virtual void draw(const GameTime& gameTime) override;
+    virtual void destroy(const vui::GameTime& gameTime) override;
+    virtual void onEntry(const vui::GameTime& gameTime) override;
+    virtual void onExit(const vui::GameTime& gameTime) override;
+    virtual void update(const vui::GameTime& gameTime) override;
+    virtual void draw(const vui::GameTime& gameTime) override;
 
     /// Registers a screen that developers can access
     /// @param vKey: Key code used to access the screen
     /// @param s: Screen
-    void addScreen(const ui8& vKey, IGameScreen* s);
+    void addScreen(VirtualKey vKey, vui::IGameScreen* s);
 private:
-    std::map<ui8, IGameScreen*> m_screenMapping; ///< Stores available screen targets
+    std::map<VirtualKey, vui::IGameScreen*> m_screenMapping; ///< Stores available screen targets
     AutoDelegatePool m_delegatePool; ///< Input hooks reservoir
-    IGameScreen* m_nextScreen = nullptr; ///< The next screen
+    vui::IGameScreen* m_nextScreen = nullptr; ///< The next screen
 };
 
 #endif // DevScreen_h__

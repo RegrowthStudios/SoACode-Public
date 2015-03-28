@@ -9,7 +9,6 @@
 #include "GameManager.h"
 #include "Particles.h"
 #include "PhysicsBlocks.h"
-#include "Sound.h"
 #include "VoxelLightEngine.h"
 #include "VoxelRay.h"
 
@@ -75,7 +74,7 @@ void PhysicsEngine::explosion(const glm::dvec3 &pos, int numRays, double power, 
     if (numRays > _precomputedExplosionDirs.size()) numRays = _precomputedExplosionDirs.size();
 
     //particleEngine.AddAnimatedParticles(1, pos, PARTICLE_EXPLOSION, 0, 0, 0, glm::vec4(255.0, 255.0f, 255.0f, 255.0), 7, 0, 1.0f, 160, glm::vec3(0.0f, 0.05f, 0.0f)); //explosion effect
-    GameManager::soundEngine->PlayExistingSound("Explosion", 0, 0.65f, 0, glm::dvec3(pos.x, pos.y, pos.z));
+    //GameManager::soundEngine->PlayExistingSound("Explosion", 0, 0.65f, 0, glm::dvec3(pos.x, pos.y, pos.z));
 
     if (k + numRays >= _precomputedExplosionDirs.size()){ //prevent overflow and numerous if checks
         k = 0;

@@ -5,6 +5,7 @@
 #include "SpaceSystemComponents.h"
 #include "TerrainPatchMeshManager.h"
 #include "TerrainPatch.h"
+#include "soaUtils.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -26,7 +27,8 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const f32v3& lightDir,
                                              const f64v3& position,
                                              const SpaceLightComponent* spComponent,
-                                             const AxisRotationComponent* arComponent) {
+                                             const AxisRotationComponent* arComponent,
+                                             const AtmosphereComponent* aComponent) {
 
     if (cmp.patches) {
         // Lazy shader init
@@ -35,13 +37,18 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
         }
         
         f64v3 relativeCameraPos = camera->getPosition() - position;
+
+        // Sort meshes
+        cmp.meshManager->sortSpericalMeshes(relativeCameraPos);
         // Draw spherical patches
-        if (cmp.alpha > 0.0f) {
+        if (cmp.alpha >= 1.0f) {
             cmp.meshManager->drawSphericalMeshes(relativeCameraPos, camera,
                                                  arComponent->currentOrientation,
                                                  m_terrainProgram, m_waterProgram,
                                                  lightDir,
-                                                 glm::min(cmp.alpha, 1.0f));
+                                                 1.0f,
+                                                 aComponent,
+                                                 true);
         }
     }
 }
@@ -82,7 +89,8 @@ void SphericalTerrainComponentRenderer::buildShaders() {
     glUniform1i(m_terrainProgram->getUniform("unNormalMap"), 0);
     glUniform1i(m_terrainProgram->getUniform("unColorMap"), 1);
     glUniform1i(m_terrainProgram->getUniform("unTexture"), 2);
-    glUniform1f(m_terrainProgram->getUniform("unTexelWidth"), (float)PATCH_NORMALMAP_WIDTH);
+    glUniform1f(m_terrainProgram->getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
+    glUniform1f(m_terrainProgram->getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
     m_terrainProgram->unuse();
 
     // Build water shader

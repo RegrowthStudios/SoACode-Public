@@ -20,7 +20,7 @@
 #include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
 
-class TerrainFuncs;
+class NoiseBase;
 
 class SphericalTerrainCpuGenerator {
 public:
@@ -45,7 +45,7 @@ private:
     /// @param pos: Position to sample noise from
     /// @Param funcs: The terrain functions to use
     /// @return the noise value
-    float getNoiseValue(const f32v3& pos, const TerrainFuncs& funcs);
+    float getNoiseValue(const f32v3& pos, const NoiseBase& funcs);
 
     TerrainPatchMesher m_mesher; ///< Creates patch meshes
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data

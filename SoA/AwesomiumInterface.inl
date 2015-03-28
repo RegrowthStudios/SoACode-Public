@@ -135,14 +135,14 @@ void AwesomiumInterface<C>::destroy() {
     _webView->Destroy();
 
     // Unregister events
-    vui::InputDispatcher::mouse.onFocusGained -= (IDelegate<const MouseEvent&>*)m_delegatePool[0];
-    vui::InputDispatcher::mouse.onFocusLost -= (IDelegate<const MouseEvent&>*)m_delegatePool[1];
-    vui::InputDispatcher::mouse.onMotion -= (IDelegate<const MouseMotionEvent&>*)m_delegatePool[2];
-    vui::InputDispatcher::mouse.onButtonUp -= (IDelegate<const MouseButtonEvent&>*)m_delegatePool[3];
-    vui::InputDispatcher::mouse.onButtonDown -= (IDelegate<const MouseButtonEvent&>*)m_delegatePool[4];
-    vui::InputDispatcher::key.onKeyUp -= (IDelegate<const KeyEvent&>*)m_delegatePool[5];
-    vui::InputDispatcher::key.onKeyDown -= (IDelegate<const KeyEvent&>*)m_delegatePool[6];
-    vui::InputDispatcher::key.onText -= (IDelegate<const TextEvent&>*)m_delegatePool[7];
+    vui::InputDispatcher::mouse.onFocusGained -= *(Delegate<Sender, const MouseEvent&>*)m_delegatePool[0];
+    vui::InputDispatcher::mouse.onFocusLost -= *(Delegate<Sender, const MouseEvent&>*)m_delegatePool[1];
+    vui::InputDispatcher::mouse.onMotion -= *(Delegate<Sender, const MouseMotionEvent&>*)m_delegatePool[2];
+    vui::InputDispatcher::mouse.onButtonUp -= *(Delegate<Sender, const MouseButtonEvent&>*)m_delegatePool[3];
+    vui::InputDispatcher::mouse.onButtonDown -= *(Delegate<Sender, const MouseButtonEvent&>*)m_delegatePool[4];
+    vui::InputDispatcher::key.onKeyUp -= *(Delegate<Sender, const KeyEvent&>*)m_delegatePool[5];
+    vui::InputDispatcher::key.onKeyDown -= *(Delegate<Sender, const KeyEvent&>*)m_delegatePool[6];
+    vui::InputDispatcher::key.onText -= *(Delegate<Sender, const TextEvent&>*)m_delegatePool[7];
     for (auto& p : m_delegatePool) delete p;
     m_delegatePool.clear();
 

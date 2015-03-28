@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PauseMenu.h"
 
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 
 PauseMenu::PauseMenu() {
     // Empty
@@ -11,7 +11,7 @@ PauseMenu::~PauseMenu() {
     // Empty
 }
 
-void PauseMenu::init(GamePlayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager) {
+void PauseMenu::init(GameplayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager) {
     // Initialize the user interface
     _awesomiumInterface.init("UI/PauseMenu/",
                              "PAUSE_UI",

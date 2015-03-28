@@ -34,14 +34,14 @@ void ChunkGridRenderStage::draw() {
     // Shader that is lazily initialized
     static vg::GLProgram* chunkLineProgram = nullptr;
     // The mesh that is built from the chunks
-    vcore::Mesh mesh;
+    vg::Mesh mesh;
     mesh.init(vg::PrimitiveType::LINES, true);
     // Reserve the number of vertices and indices we think we will need
     mesh.reserve(chunks.size() * 8, chunks.size() * 24);
     // Build the mesh
     ColorRGBA8 color;
     // Used to build each grid
-    std::vector<vcore::MeshVertex> vertices(8);
+    std::vector<vg::MeshVertex> vertices(8);
     std::vector<ui32> indices(24);
     int numVertices = 0;
 
@@ -111,9 +111,9 @@ void ChunkGridRenderStage::draw() {
         // Lazily initialize shader
         if (chunkLineProgram == nullptr) {
             chunkLineProgram = new vg::GLProgram(true);
-            chunkLineProgram->addShader(vg::ShaderType::VERTEX_SHADER, vcore::Mesh::defaultVertexShaderSource);
-            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, vcore::Mesh::defaultFragmentShaderSource);
-            chunkLineProgram->setAttributes(vcore::Mesh::defaultShaderAttributes);
+            chunkLineProgram->addShader(vg::ShaderType::VERTEX_SHADER, vg::Mesh::defaultVertexShaderSource);
+            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, vg::Mesh::defaultFragmentShaderSource);
+            chunkLineProgram->setAttributes(vg::Mesh::defaultShaderAttributes);
             chunkLineProgram->link();
             chunkLineProgram->initUniforms();
         }

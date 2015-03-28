@@ -97,7 +97,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             v.color = m_planetGenData->terrainTint;
             // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
 
-            // TODO(Ben): This is temporary debugging stuff
+            // TODO(Ben): This is temporary edge debugging stuff
             const float delta = 100.0f;
             if (abs(v.position[m_coordMapping.x]) >= m_radius - delta
                 || abs(v.position[m_coordMapping.z]) >= m_radius - delta) {
@@ -121,8 +121,8 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             v.texCoords.y = v.position[m_coordMapping.z];
 
             // Set normal map texture coordinates
-            v.normTexCoords.x = (ui8)(((float)x / (float)PATCH_WIDTH) * 255.0f);
-            v.normTexCoords.y = (ui8)(((float)z / (float)PATCH_WIDTH) * 255.0f);
+            v.normTexCoords.x = (ui8)(((float)x / (float)(PATCH_WIDTH - 1)) * 255.0f);
+            v.normTexCoords.y = (ui8)(((float)z / (float)(PATCH_WIDTH - 1)) * 255.0f);
 
             // Spherify it!
             f32v3 normal;
@@ -139,9 +139,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             }
 
             angle = computeAngleFromNormal(normal);
-
-            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[zIndex][xIndex][1]);
-            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[zIndex][xIndex][2]);
+            // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
+            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[zIndex][xIndex][1] - glm::max(0.0f, m_planetGenData->tempHeightFalloff * h));
+            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[zIndex][xIndex][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));
 
             // Compute tangent
             tmpPos[m_coordMapping.x] = ((x + 1) * m_vertWidth + m_startPos.x) * m_coordMults.x;
@@ -175,6 +175,14 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     mesh->m_boundingSphereRadius = glm::length(mesh->m_aabbCenter - mesh->m_aabbPos);
     // Build the skirts for crack hiding
     buildSkirts();
+
+    // Make all vertices relative to the aabb pos for far terrain
+    if (!m_isSpherical) {
+        for (int i = 0; i < m_index; i++) {
+            verts[i].position = f32v3(f64v3(verts[i].position) - f64v3(mesh->m_aabbPos));
+        }
+    }
+
     // Generate the buffers and upload data
     vg::GpuMemory::createBuffer(mesh->m_vbo);
     vg::GpuMemory::bindBuffer(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER);
@@ -186,6 +194,13 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
     // Add water mesh
     if (m_waterIndexCount) {
+        // Make all vertices relative to the aabb pos for far terrain
+        if (!m_isSpherical) {
+            for (int i = 0; i < m_index; i++) {
+                waterVerts[i].position -= mesh->m_aabbPos;
+            }
+        }
+
         mesh->m_waterIndexCount = m_waterIndexCount;
         vg::GpuMemory::createBuffer(mesh->m_wvbo);
         vg::GpuMemory::bindBuffer(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
@@ -218,7 +233,7 @@ ui8 TerrainPatchMesher::calculateHumidity(float range, float angle, float baseHu
     float cos3x = cos(3.0f * angle);
     float humFalloff = 1.0f - (-0.25f * angle + 1.0f) * (cos3x * cos3x);
     float hum = baseHum - humFalloff * range;
-    return (ui8)(glm::clamp(hum, 0.0f, 255.0f));
+    return (ui8)(255.0f - glm::clamp(hum, 0.0f, 255.0f));
 }
 
 void TerrainPatchMesher::buildSkirts() {
@@ -336,7 +351,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
 
         zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
         xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-        float d = heightData[zIndex][xIndex][0] * KM_PER_M;
+        float d = heightData[zIndex][xIndex][0];
         if (d < 0) {
             v.depth = -d;
         } else {

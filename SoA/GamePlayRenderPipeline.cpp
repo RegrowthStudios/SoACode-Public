@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GamePlayRenderPipeline.h"
+#include "GameplayRenderPipeline.h"
 
 #include <Vorb/graphics/GLStates.h>
 
@@ -30,12 +30,12 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-GamePlayRenderPipeline::GamePlayRenderPipeline() :
+GameplayRenderPipeline::GameplayRenderPipeline() :
     m_drawMode(GL_FILL) {
     // Empty
 }
 
-void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
+void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
                                   const PDA* pda,
                                   SpaceSystem* spaceSystem,
                                   GameSystem* gameSystem,
@@ -103,15 +103,15 @@ void GamePlayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     _chunkGridRenderStage->setIsVisible(false);
 }
 
-void GamePlayRenderPipeline::setRenderState(const MTRenderState* renderState) {
+void GameplayRenderPipeline::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-GamePlayRenderPipeline::~GamePlayRenderPipeline() {
+GameplayRenderPipeline::~GameplayRenderPipeline() {
     destroy();
 }
 
-void GamePlayRenderPipeline::render() {
+void GameplayRenderPipeline::render() {
     const GameSystem* gameSystem = m_soaState->gameSystem.get();
     const SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
 
@@ -130,16 +130,23 @@ void GamePlayRenderPipeline::render() {
     m_spaceSystemRenderStage->setRenderState(m_renderState);
     m_spaceSystemRenderStage->draw();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Check for face transition animation state
+    if (m_spaceSystemRenderStage->needsFaceTransitionAnimation) {
+        m_spaceSystemRenderStage->needsFaceTransitionAnimation = false;
+        m_increaseQuadAlpha = true;
+        m_coloredQuadAlpha = 0.0f;
+    }
+
     // Clear the depth buffer so we can draw the voxel passes
     glClear(GL_DEPTH_BUFFER_BIT);
 
     if (m_voxelsActive) {
         glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ZERO);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
         _opaqueVoxelRenderStage->draw();
        // _physicsBlockRenderStage->draw();
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _cutoutVoxelRenderStage->draw();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
@@ -173,11 +180,26 @@ void GamePlayRenderPipeline::render() {
     _pdaRenderStage->draw();
     _pauseMenuRenderStage->draw();
 
+    // Cube face fade animation
+    if (m_increaseQuadAlpha) {
+        static const f32 FADE_INC = 0.07f;
+        m_coloredQuadAlpha += FADE_INC;
+        if (m_coloredQuadAlpha >= 3.5f) {
+            m_coloredQuadAlpha = 3.5f;
+            m_increaseQuadAlpha = false;
+        }
+        m_coloredQuadRenderer.draw(_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+    } else if (m_coloredQuadAlpha > 0.0f) {
+        static const float FADE_DEC = 0.01f;  
+        m_coloredQuadRenderer.draw(_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+        m_coloredQuadAlpha -= FADE_DEC;
+    }
+
     // Check for errors, just in case
     checkGlError("GamePlayRenderPipeline::render()");
 }
 
-void GamePlayRenderPipeline::destroy() {
+void GameplayRenderPipeline::destroy() {
     // Make sure everything is freed here!
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
@@ -221,11 +243,11 @@ void GamePlayRenderPipeline::destroy() {
     _quad.dispose();
 }
 
-void GamePlayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
+void GameplayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
     _devHudRenderStage->cycleMode(offset);
 }
 
-void GamePlayRenderPipeline::toggleNightVision() {
+void GameplayRenderPipeline::toggleNightVision() {
     if (!_nightVisionRenderStage->isVisible()) {
         _nightVisionRenderStage->setIsVisible(true);
         _nvIndex = 0;
@@ -239,7 +261,7 @@ void GamePlayRenderPipeline::toggleNightVision() {
         }
     }
 }
-void GamePlayRenderPipeline::loadNightVision() {
+void GameplayRenderPipeline::loadNightVision() {
     _nightVisionRenderStage->setIsVisible(false);
 
     _nvIndex = 0;
@@ -252,9 +274,9 @@ void GamePlayRenderPipeline::loadNightVision() {
         keg::YAMLReader reader;
         reader.init(nvData);
         keg::Node node = reader.getFirst();
-        Keg::Value v = Keg::Value::array(0, Keg::Value::custom("NightVisionRenderParams", 0, false));
-        Keg::evalData((ui8*)&arr, &v, node, reader, Keg::getGlobalEnvironment());
-        for (i32 i = 0; i < arr.getLength(); i++) {
+        keg::Value v = keg::Value::array(0, keg::Value::custom(0, "NightVisionRenderParams", false));
+        keg::evalData((ui8*)&arr, &v, node, reader, keg::getGlobalEnvironment());
+        for (i32 i = 0; i < arr.size(); i++) {
             _nvParams.push_back(arr[i]);
         }
         reader.dispose();
@@ -265,11 +287,11 @@ void GamePlayRenderPipeline::loadNightVision() {
     }
 }
 
-void GamePlayRenderPipeline::toggleChunkGrid() {
+void GameplayRenderPipeline::toggleChunkGrid() {
     _chunkGridRenderStage->setIsVisible(!_chunkGridRenderStage->isVisible());
 }
 
-void GamePlayRenderPipeline::cycleDrawMode() {
+void GameplayRenderPipeline::cycleDrawMode() {
     switch (m_drawMode) {
     case GL_FILL:
         m_drawMode = GL_LINE;
@@ -284,43 +306,49 @@ void GamePlayRenderPipeline::cycleDrawMode() {
     }
 }
 
-void GamePlayRenderPipeline::updateCameras() {
+void GameplayRenderPipeline::updateCameras() {
     const GameSystem* gs = m_soaState->gameSystem.get();
     const SpaceSystem* ss = m_soaState->spaceSystem.get();
 
-    float sNearClip = 20.0f; ///< temporary until dynamic clipping plane works
+    // For dynamic clipping plane to minimize Z fighting
+    float dynamicZNear = m_spaceSystemRenderStage->getDynamicNearPlane(m_spaceCamera.getFieldOfView(),
+                                                                       m_spaceCamera.getAspectRatio());
+    if (dynamicZNear < 0.1f) dynamicZNear = 0.1f; // Clamp to 1/10 KM
 
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        m_voxelCamera.setClippingPlane(0.2f, 10000.0f);
+        m_voxelCamera.setClippingPlane(0.1f, 10000.0f);
         m_voxelCamera.setPosition(vpcmp.gridPosition.pos);
         m_voxelCamera.setOrientation(vpcmp.orientation);
         m_voxelCamera.update();
 
         // Far terrain camera is exactly like voxel camera except for clip plane
         m_farTerrainCamera = m_voxelCamera;
-        m_farTerrainCamera.setClippingPlane(1.0f, 100000.0f);
+        m_farTerrainCamera.setClippingPlane(dynamicZNear, 100000.0f);
         m_farTerrainCamera.update();
 
         m_voxelsActive = true;
-        sNearClip = 0.05;
     } else {
         m_voxelsActive = false;
     }
     // Player is relative to a planet, so add position if needed
     auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
-    if (spcmp.parentGravityId) {
-        auto& parentSgCmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityId);
-        auto& parentNpCmp = ss->m_namePositionCT.get(parentSgCmp.namePositionComponent);
-        // TODO(Ben): Could get better precision by not using + parentNpCmp.position here?
-        m_spaceCamera.setPosition(m_renderState->spaceCameraPos + parentNpCmp.position);
+    if (spcmp.parentGravityID) {
+        auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntityID);
+        if (it != m_renderState->spaceBodyPositions.end()) {
+            m_spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
+        } else {
+            auto& gcmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityID);
+            auto& npcmp = ss->m_namePositionCT.get(gcmp.namePositionComponent);
+            m_spaceCamera.setPosition(m_renderState->spaceCameraPos + npcmp.position);
+        }
     } else {
         m_spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
     //printVec("POSITION: ", spcmp.position);
-    m_spaceCamera.setClippingPlane(sNearClip, 999999999.0f);
+    m_spaceCamera.setClippingPlane(dynamicZNear, 100000000000.0f);
    
     m_spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
     m_spaceCamera.update();

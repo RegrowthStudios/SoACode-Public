@@ -25,11 +25,11 @@ i32 InitScreen::getPreviousScreen() const {
 void InitScreen::build() {
     // Empty
 }
-void InitScreen::destroy(const GameTime& gameTime) {
+void InitScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void InitScreen::onEntry(const GameTime& gameTime) {
+void InitScreen::onEntry(const vui::GameTime& gameTime) {
     buildSpriteResources();
 
     checkRequirements();
@@ -38,31 +38,26 @@ void InitScreen::onEntry(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
 }
-void InitScreen::onExit(const GameTime& gameTime) {
+void InitScreen::onExit(const vui::GameTime& gameTime) {
     destroySpriteResources();
 }
 
-void InitScreen::onEvent(const SDL_Event& e) {
-    // Go To Next Screen When Key Is Pressed
-    if (e.type == SDL_KEYDOWN) {
-        _state = _canContinue ? ScreenState::CHANGE_NEXT : ScreenState::EXIT_APPLICATION;
-    }
-}
-void InitScreen::update(const GameTime& gameTime) {
+void InitScreen::update(const vui::GameTime& gameTime) {
     // Immediatly move to next state
-    _state = ScreenState::CHANGE_NEXT;
+    _state = vui::ScreenState::CHANGE_NEXT;
 }
-void InitScreen::draw(const GameTime& gameTime) {
-    const GameWindow* w = &_game->getWindow();
+void InitScreen::draw(const vui::GameTime& gameTime) {
+    const vui::GameWindow* w = &_game->getWindow();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::FULL, &RasterizerState::CULL_NONE);
+    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::FULL, &vg::RasterizerState::CULL_NONE);
 }
 
 void InitScreen::buildSpriteResources() {
-    _sb = new SpriteBatch(true, true);
-    _font = new SpriteFont(INIT_SCREEN_FONT, INIT_SCREEN_FONT_SIZE);
+    _sb = new vg::SpriteBatch(true, true);
+    _font = new vg::SpriteFont();
+    _font->init(INIT_SCREEN_FONT, INIT_SCREEN_FONT_SIZE);
 }
 void InitScreen::destroySpriteResources() {
     _sb->dispose();
@@ -80,7 +75,7 @@ void InitScreen::checkRequirements() {
 
     _canContinue = true;
 
-    const GameWindow* w = &_game->getWindow();
+    const vui::GameWindow* w = &_game->getWindow();
 
     f32v2 pos(0, 0);
     f32v2 rectSize(w->getWidth(), textSize + textOffset * 2.0f);
@@ -97,7 +92,7 @@ void InitScreen::checkRequirements() {
     } \
     pos.y += rectSize.y;
 
-    const GraphicsDeviceProperties gdProps = GraphicsDevice::getCurrent()->getProperties();
+    const vg::GraphicsDeviceProperties gdProps = vg::GraphicsDevice::getCurrent()->getProperties();
     _sb->begin();
     if (gdProps.glVersionMajor < 3) INIT_BRANCH("OpenGL Version");
     if (!GLEW_VERSION_2_1) INIT_BRANCH("GLEW 2.1");
@@ -113,7 +108,7 @@ void InitScreen::checkRequirements() {
         _sb->drawString(_font, "Application Will Now Exit", pos + textOff, textSize, 1.0f, color::White, 0.0f);
     }
     _sb->drawString(_font, "Press Any Key To Continue", f32v2(10.0f, w->getHeight() - 30.0f), 24.0f, 1.0f, color::LightGray, 0.0f);
-    _sb->end(SpriteSortMode::TEXTURE);
+    _sb->end(vg::SpriteSortMode::TEXTURE);
 
 #ifdef DEBUG
     printf("System Met Minimum Requirements\n");

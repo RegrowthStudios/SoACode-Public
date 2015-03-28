@@ -23,6 +23,7 @@
 #include "GLProgramManager.h"
 #include "GameRenderParams.h"
 #include "NightVisionRenderStage.h"
+#include "ColoredFullQuadRenderer.h"
 
 /// Forward declarations
 class App;
@@ -51,10 +52,10 @@ class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 
-class GamePlayRenderPipeline : public vg::IRenderPipeline {
+class GameplayRenderPipeline : public vg::IRenderPipeline {
 public:
-    GamePlayRenderPipeline();
-    ~GamePlayRenderPipeline();
+    GameplayRenderPipeline();
+    ~GameplayRenderPipeline();
 
     /// Initializes the pipeline and passes dependencies
     /// @param viewport: The viewport to draw to.
@@ -103,6 +104,8 @@ private:
     HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
     SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Render space and planets
 
+    ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
+
     vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
     vg::FullQuadVBO _quad; ///< Quad used for post-processing
@@ -123,6 +126,8 @@ private:
     ChunkMeshManager* _meshManager; ///< Handle to the meshes
     const MTRenderState* m_renderState = nullptr; ///< The current MT render state
     bool m_voxelsActive = false;
+    float m_coloredQuadAlpha = 0.0f;
+    bool m_increaseQuadAlpha = false;
 };
 
 #endif // GamePlayRenderPipeline_h__

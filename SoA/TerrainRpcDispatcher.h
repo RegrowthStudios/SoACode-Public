@@ -22,13 +22,20 @@ class SphericalTerrainGpuGenerator;
 class SphericalTerrainCpuGenerator;
 class TerrainPatchMesh;
 
-class TerrainGenDelegate : public IDelegate < void* > {
+class TerrainGenDelegate {
 public:
-    virtual void invoke(Sender sender, void* userData) override;
+    void invoke(Sender sender, void* userData);
+
+    TerrainGenDelegate() {
+        del = makeDelegate(*this, &TerrainGenDelegate::invoke);
+        rpc.data.f = &del;
+    }
+
     void release();
     volatile bool inUse = false;
 
     vcore::RPC rpc;
+    Delegate<Sender, void*> del;
 
     f32v3 startPos;
     WorldCubeFace cubeFace;

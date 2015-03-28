@@ -31,6 +31,7 @@
 #define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
 #define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 #define SPACE_SYSTEM_CT_SPACELIGHT_NAME "SpaceLight"
+#define SPACE_SYSTEM_CT_ATMOSPHERE_NAME "Atmosphere"
 
 class App;
 class Binary;
@@ -50,20 +51,21 @@ DECL_VG(class TextureRecycler)
 DECL_VG(class GLProgram)
 
 //TODO(Ben): This should be POD, split it up
-class SpaceSystem : public vcore::ECS {
+class SpaceSystem : public vecs::ECS {
     friend class SpaceSystemRenderStage;
     friend class MainMenuSystemViewer;
 public:
     SpaceSystem();
     ~SpaceSystem();
 
-    vcore::ComponentTable<NamePositionComponent> m_namePositionCT;
-    vcore::ComponentTable<AxisRotationComponent> m_axisRotationCT;
-    vcore::ComponentTable<OrbitComponent> m_orbitCT;
-    vcore::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
-    vcore::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
-    vcore::ComponentTable<FarTerrainComponent> m_farTerrainCT;
-    vcore::ComponentTable<SpaceLightComponent> m_spaceLightCT;
+    vecs::ComponentTable<NamePositionComponent> m_namePositionCT;
+    vecs::ComponentTable<AxisRotationComponent> m_axisRotationCT;
+    vecs::ComponentTable<OrbitComponent> m_orbitCT;
+    vecs::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
+    vecs::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;
+    vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
+    vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
 
     nString systemDescription; ///< textual description of the system

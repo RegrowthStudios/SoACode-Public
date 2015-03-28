@@ -87,8 +87,8 @@ float snoise(vec3 v)
   const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
 
 // First corner
-  vec3 i  = floor(v + dot(v, C.yyy) );
-  vec3 x0 =   v - i + dot(i, C.xxx) ;
+  vec3 i = floor(v + dot(v, C.yyy) );
+  vec3 x0 = v - i + dot(i, C.xxx) ;
 
 // Other corners
   vec3 g = step(x0.yzx, x0.xyz);
@@ -160,7 +160,8 @@ void main() {
 float total;
     float amplitude;
     float maxAmplitude;
-float frequency;
+    float frequency;
+    float tmp;
 
     pOutput.a = 0.0f;
 

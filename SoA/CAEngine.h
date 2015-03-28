@@ -6,7 +6,7 @@
 #include "Constants.h"
 #include "LiquidData.h"
 
-DECL_VIO(class, IOManager)
+DECL_VIO(class IOManager)
 
 class ChunkManager;
 class Chunk;

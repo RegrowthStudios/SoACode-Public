@@ -20,13 +20,12 @@ void Camera::init(float aspectRatio) {
 
 void Camera::offsetPosition(glm::dvec3 offset) {
     m_position += offset;
-    m_viewChanged = 1;
+    m_viewChanged = true;
 }
 
 void Camera::offsetPosition(glm::vec3 offset) {
     m_position += offset;
-    m_viewChanged = 1;
-
+    m_viewChanged = true;
 }
 
 void Camera::update() {

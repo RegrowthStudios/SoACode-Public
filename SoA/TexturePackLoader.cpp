@@ -6,14 +6,14 @@
 
 #include "FileSystem.h"
 #include "Options.h"
+#include "PlanetData.h"
 
 /// yml definition for TexturePackInfo
-KEG_TYPE_INIT_BEGIN_DEF_VAR(TexturePackInfo)
-KEG_TYPE_INIT_ADD_MEMBER(TexturePackInfo, STRING, name);
-KEG_TYPE_INIT_ADD_MEMBER(TexturePackInfo, UI32, resolution);
-KEG_TYPE_INIT_ADD_MEMBER(TexturePackInfo, STRING, description);
-KEG_TYPE_INIT_END
-
+KEG_TYPE_DEF_SAME_NAME(TexturePackInfo, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TexturePackInfo, name, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TexturePackInfo, resolution, UI32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TexturePackInfo, description, STRING);
+}
 
 // Used for error checking
 #define CONNECTED_WIDTH 12
@@ -45,18 +45,14 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
 
     ui32 width, height;
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
-        // Load the data
-        std::vector<ui8>* pixelStore = new std::vector<ui8>();
         // TODO: Use iom to get a path
         vpath texPath; _ioManager.resolvePath(_texturePackPath + it->first, texPath);
-        vio::ImageIO().loadPng(texPath.getString(), *pixelStore, width, height);
-        if (pixelStore->size()) {
+        vg::BitmapResource res = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGBA_UI8);
+        if (res.data) {
             // Add the data to the cache and get non-const reference to pixels
-            Pixels* pixels = &(_pixelCache.insert(std::make_pair(it->first, Pixels(pixelStore, width, height))).first->second);
+            _pixelCache.insert(std::make_pair(it->first, res));
             // Store the reference to the pixels and samplerstate so we can upload it in uploadTextures
-            _texturesToUpload[it->first] = TextureToUpload(pixels, it->second);
-        } else {
-            delete pixelStore;
+            _texturesToUpload[it->first] = TextureToUpload(res, it->second);
         }
     }
 
@@ -92,7 +88,7 @@ void TexturePackLoader::uploadTextures() {
     // Upload all the non block textures
     for (auto it = _texturesToUpload.begin(); it != _texturesToUpload.end(); ++it) {
         TextureToUpload& texture = it->second;
-        _textureCache->addTexture(it->first, texture.pixels->data->data(), texture.pixels->width, texture.pixels->height, texture.samplerState);
+        _textureCache->addTexture(it->first, texture.bitmap.bytesUI8, texture.bitmap.width, texture.bitmap.height, texture.samplerState);
     }
 
     // TODO(Ben): This could be done better
@@ -114,10 +110,10 @@ void TexturePackLoader::uploadTextures() {
     std::vector <BlockLayerLoadData>().swap(_layersToLoad);
 
     // Make sure to free all pixel data
-    for (auto& pixels : _pixelCache) {
-        delete pixels.second.data;
+    for (auto& it : _pixelCache) {
+        vg::ImageIO::free(it.second);
     }
-    std::map <nString, Pixels>().swap(_pixelCache);
+    std::map <nString, vg::BitmapResource>().swap(_pixelCache);
 }
 
 void TexturePackLoader::setBlockTextures(BlockPack& blocks) {
@@ -139,7 +135,7 @@ TexturePackInfo TexturePackLoader::loadPackFile(const nString& filePath) {
     nString data;
     _ioManager.readFileToString(filePath.c_str(), data);
     if (data.length()) {
-        if (Keg::parse(&rv, data.c_str(), "TexturePackInfo") == Keg::Error::NONE) {
+        if (keg::parse(&rv, data.c_str(), "TexturePackInfo") == keg::Error::NONE) {
             return rv;
         }
     }
@@ -147,62 +143,27 @@ TexturePackInfo TexturePackLoader::loadPackFile(const nString& filePath) {
     return rv;
 }
 
-ColorRGB8* TexturePackLoader::getColorMap(const nString& name) {
-    auto it = _blockColorMapLookupTable.find(name);
-    if (it != _blockColorMapLookupTable.end()) {
-        return _blockColorMaps[it->second];
-    } else {
-        _blockColorMapLookupTable[name] = _blockColorMaps.size();
-        _blockColorMaps.push_back(new ColorRGB8[256 * 256]);
-        return _blockColorMaps.back();
-    }
-}
-
-ui32 TexturePackLoader::getColorMapIndex(const nString& name) {
-
-#define MAP_WIDTH 256
-
-    auto it = _blockColorMapLookupTable.find(name);
-    if (it != _blockColorMapLookupTable.end()) {
+vg::BitmapResource* TexturePackLoader::getColorMap(const nString& name) {
+    auto it = m_colorMaps->colorMapTable.find(name);
+    if (it != m_colorMaps->colorMapTable.end()) {
         return it->second;
     } else {
-        _blockColorMapLookupTable[name] = _blockColorMaps.size();
-        _blockColorMaps.push_back(new ColorRGB8[256 * 256]);
-        ColorRGB8* colorMap = _blockColorMaps.back();
-
-        // Load the color map into a buffer
-        std::vector<ui8> buffer;
-        ui32 width, height;
-        
-        // TODO: Same as above
-        vpath texPath; _ioManager.resolvePath(name, texPath);
-        vio::ImageIO().loadPng(texPath.getString(), buffer, width, height);
-
-        // TODO: Implement
-        //// Error checking
-        //if (width != MAP_WIDTH) {
-        //    pError("Error color map " + name + " must have a width of " + to_string(MAP_WIDTH));
-        //    return _blockColorMaps.size() - 1;
-        //}
-        //if (height != MAP_WIDTH) {
-        //    pError("Error color map " + name + " must have a height of " + to_string(MAP_WIDTH));
-        //    return _blockColorMaps.size() - 1;
-        //}
-
-        //// Set the data
-        //for (int y = 0; y < MAP_WIDTH; y++){
-        //    for (int x = 0; x < MAP_WIDTH; x++) {
-        //        colorMap[(MAP_WIDTH - y - 1) * MAP_WIDTH + x] = ColorRGB8(buffer[(y * MAP_WIDTH + x) * 3],
-        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 1],
-        //                                                                  buffer[(y * MAP_WIDTH + x) * 3 + 2]);
-        //    }
-        //}
-        return _blockColorMaps.size() - 1;
+        // Get absolute path
+        vio::Path texPath;
+        _ioManager.resolvePath(name, texPath);
+        vg::BitmapResource rs;
+        // Load pixel data
+        rs = vg::ImageIO().load(texPath, vg::ImageIOFormat::RGB_UI8);
+        // Add to color map
+        m_colorMaps->colorMaps.emplace_back(new vg::BitmapResource);
+        *m_colorMaps->colorMaps.back() = rs;
+        m_colorMaps->colorMapTable["liquid"] = m_colorMaps->colorMaps.back();
+        return m_colorMaps->colorMaps.back();
     }
 }
 
 void TexturePackLoader::clearToloadCaches() {
-    std::map <nString, SamplerState*>().swap(_texturesToLoad);
+    std::map <nString, vg::SamplerState*>().swap(_texturesToLoad);
     std::set <nString>().swap(_blockTexturesToLoad);
 }
 
@@ -213,24 +174,17 @@ void TexturePackLoader::destroy() {
     std::map <nString, TextureToUpload>().swap(_texturesToUpload);
     std::vector <BlockLayerLoadData>().swap(_layersToLoad);
     
-    std::map <nString, SamplerState*>().swap(_texturesToLoad);
+    std::map <nString, vg::SamplerState*>().swap(_texturesToLoad);
     std::set <nString>().swap(_blockTexturesToLoad);
     
     std::map <nString, BlockTextureData>().swap(_blockTextureLoadDatas);
     std::set <BlockTextureLayer>().swap(_blockTextureLayers);
 
-    for (auto& color : _blockColorMaps) {
-        delete[] color;
-    }
-
-    std::map <nString, ui32>().swap(_blockColorMapLookupTable); 
-    std::vector <ColorRGB8*>().swap(_blockColorMaps);
-
     // Make sure to free all pixel data
-    for (auto& pixels : _pixelCache) {
-        delete pixels.second.data;
+    for (auto& bitmap : _pixelCache) {
+        vg::ImageIO::free(bitmap.second);
     }
-    std::map <nString, Pixels>().swap(_pixelCache);
+    std::map <nString, vg::BitmapResource>().swap(_pixelCache);
     _numAtlasPages = 0;
 }
 
@@ -259,7 +213,7 @@ void TexturePackLoader::loadAllBlockTextures() {
     // Used to get the texture pixel dimensions
     ui32 width, height;
 
-    ui8* pixels;
+    vg::BitmapResource bitmap;
 
     // Free _blockTextureLayers in case a pack has been loaded before
     std::set <BlockTextureLayer>().swap(_blockTextureLayers);
@@ -283,18 +237,18 @@ void TexturePackLoader::loadAllBlockTextures() {
         if (blockTexture.base.path.empty()) blockTexture.base.path = texturePath;
 
         // Get pixels for the base texture
-        pixels = getPixels(blockTexture.base.path, width, height);
+        bitmap = getPixels(blockTexture.base.path);
         // Store handle to the layer, do postprocessing, add layer to load
-        blockTextureLoadData.base = postProcessLayer(pixels, blockTexture.base, width, height);
+        blockTextureLoadData.base = postProcessLayer(bitmap, blockTexture.base);
         // Init the func
         if (blockTextureLoadData.base) blockTextureLoadData.base->initBlockTextureFunc();
 
         // Check if we have an overlay
         if (blockTexture.overlay.path.empty() == false) {
             // Get pixels for the overlay texture
-            pixels = getPixels(blockTexture.overlay.path, width, height);
+            bitmap = getPixels(blockTexture.overlay.path);
             // Store handle to the layer, do postprocessing, add layer to load
-            blockTextureLoadData.overlay = postProcessLayer(pixels, blockTexture.overlay, width, height);
+            blockTextureLoadData.overlay = postProcessLayer(bitmap, blockTexture.overlay);
             // Init the func
             if (blockTextureLoadData.overlay) blockTextureLoadData.overlay->initBlockTextureFunc();
         }
@@ -315,26 +269,26 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
     nString data;
     _ioManager.readFileToString(fileName.c_str(), data);
     if (data.length()) {
-        if (Keg::parse(rv, data.c_str(), "BlockTexture") == Keg::Error::NONE) {
-            if (rv->base.weights.getLength() > 0) {
+        if (keg::parse(rv, data.c_str(), "BlockTexture") == keg::Error::NONE) {
+            if (rv->base.weights.size() > 0) {
                 rv->base.totalWeight = 0;
-                for (i32 i = 0; i < rv->base.weights.getLength(); i++) {
+                for (i32 i = 0; i < rv->base.weights.size(); i++) {
                     rv->base.totalWeight += rv->base.weights[i];
                 }
             }
-            if (rv->overlay.weights.getLength() > 0) {
+            if (rv->overlay.weights.size() > 0) {
                 rv->overlay.totalWeight = 0;
-                for (i32 i = 0; i < rv->overlay.weights.getLength(); i++) {
+                for (i32 i = 0; i < rv->overlay.weights.size(); i++) {
                     rv->overlay.totalWeight += rv->overlay.weights[i];
                 }
             }
 
-            // Get ColorMap indices
+            // Get ColorMaps
             if (rv->base.useMapColor.length()) {
-                rv->base.colorMapIndex = getColorMapIndex(rv->base.useMapColor);
+                rv->base.colorMap = getColorMap(rv->base.useMapColor);
             }
             if (rv->overlay.useMapColor.length()) {
-                rv->overlay.colorMapIndex = getColorMapIndex(rv->overlay.useMapColor);
+                rv->overlay.colorMap = getColorMap(rv->overlay.useMapColor);
             }
             return true;
         }
@@ -342,30 +296,30 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
     return false;
 }
 
-BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height) {
+BlockTextureLayer* TexturePackLoader::postProcessLayer(vg::BitmapResource& bitmap, BlockTextureLayer& layer) {
    
     ui32 floraRows;
 
     // Helper for checking dimensions
 #define DIM_CHECK(w, cw, h, ch, method) \
-    if (width != _packInfo.resolution * cw) { \
+    if (bitmap.width != _packInfo.resolution * cw) { \
         pError("Texture " + layer.path + " is " #method " but width is not " + std::to_string(cw)); \
         return nullptr; \
     } \
-    if (height != _packInfo.resolution * ch) {  \
+    if (bitmap.height != _packInfo.resolution * ch) {  \
         pError("Texture " + layer.path + " is " #method " but height is not " + std::to_string(ch)); \
         return nullptr; \
     }
 
-    // Pixels must be != nullptr
-    if (!pixels) return nullptr;
+    // Pixels must exist
+    if (!bitmap.data) return nullptr;
 
     // Check that the texture is sized in units of _packInfo.resolution
-    if (width % _packInfo.resolution) {
+    if (bitmap.width % _packInfo.resolution) {
         pError("Texture " + layer.path + " width must be a multiple of " + std::to_string(_packInfo.resolution));
         return nullptr;
     }
-    if (height % _packInfo.resolution) {
+    if (bitmap.height % _packInfo.resolution) {
         pError("Texture " + layer.path + " height must be a multiple of " + std::to_string(_packInfo.resolution));
         return nullptr;
     }
@@ -374,56 +328,56 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
     switch (layer.method) {
         // Need to set up numTiles and totalWeight for RANDOM method
         case ConnectedTextureMethods::CONNECTED:
-            DIM_CHECK(width, CONNECTED_WIDTH, height, CONNECTED_HEIGHT, CONNECTED);
+            DIM_CHECK(width, CONNECTED_WIDTH, bitmap.height, CONNECTED_HEIGHT, CONNECTED);
             break;
         case ConnectedTextureMethods::RANDOM:
-            layer.numTiles = width / height;
-            if (layer.weights.getLength() == 0) {
+            layer.numTiles = bitmap.width / bitmap.height;
+            if (layer.weights.size() == 0) {
                 layer.totalWeight = layer.numTiles;
             } else { // Need to check if there is the right number of weights
-                if (layer.weights.getLength() * _packInfo.resolution != width) {
+                if (layer.weights.size() * _packInfo.resolution != bitmap.width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " + 
-                        std::to_string(layer.weights.getLength()) + " but there are " + std::to_string(width / _packInfo.resolution) + " columns.");
+                           std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / _packInfo.resolution) + " columns.");
                     return nullptr;
                 }
             }
             break;
         case ConnectedTextureMethods::GRASS:
-            DIM_CHECK(width, GRASS_WIDTH, height, GRASS_HEIGHT, GRASS);
+            DIM_CHECK(width, GRASS_WIDTH, bitmap.height, GRASS_HEIGHT, GRASS);
             break;
         case ConnectedTextureMethods::HORIZONTAL:
-            DIM_CHECK(width, HORIZONTAL_WIDTH, height, HORIZONTAL_HEIGHT, HORIZONTAL);
+            DIM_CHECK(width, HORIZONTAL_WIDTH, bitmap.height, HORIZONTAL_HEIGHT, HORIZONTAL);
             break;
         case ConnectedTextureMethods::VERTICAL:
-            DIM_CHECK(width, HORIZONTAL_HEIGHT, height, HORIZONTAL_WIDTH, VERTICAL);
+            DIM_CHECK(width, HORIZONTAL_HEIGHT, bitmap.height, HORIZONTAL_WIDTH, VERTICAL);
             break;
         case ConnectedTextureMethods::REPEAT:
-            DIM_CHECK(width, layer.size.x, height, layer.size.y, REPEAT);
+            DIM_CHECK(width, layer.size.x, bitmap.height, layer.size.y, REPEAT);
             break;
         case ConnectedTextureMethods::FLORA:
             floraRows = BlockTextureLayer::getFloraRows(layer.floraHeight);
-            if (height != _packInfo.resolution * floraRows) {
+            if (bitmap.height != _packInfo.resolution * floraRows) {
                 pError("Texture " + layer.path + " texture height must be equal to (maxFloraHeight^2 + maxFloraHeight) / 2 * resolution = " +
-                    std::to_string(height) + " but it is " + std::to_string(_packInfo.resolution * floraRows));
+                       std::to_string(bitmap.height) + " but it is " + std::to_string(_packInfo.resolution * floraRows));
                 return nullptr;
             }
             // If no weights, they are all equal
-            if (layer.weights.getLength() == 0) {
-                layer.totalWeight = width / _packInfo.resolution;
+            if (layer.weights.size() == 0) {
+                layer.totalWeight = bitmap.width / _packInfo.resolution;
             } else { // Need to check if there is the right number of weights
-                if (layer.weights.getLength() * _packInfo.resolution != width) {
+                if (layer.weights.size() * _packInfo.resolution != bitmap.width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
-                        std::to_string(layer.weights.getLength()) + " but there are " + std::to_string(width / _packInfo.resolution) + " columns.");
+                           std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / _packInfo.resolution) + " columns.");
                     return nullptr;
                 }
             }
             // Tile dimensions and count
-            layer.size.x = width / _packInfo.resolution;
+            layer.size.x = bitmap.width / _packInfo.resolution;
             layer.size.y = floraRows;
             layer.numTiles = layer.size.x * layer.size.y;
             break;
         case ConnectedTextureMethods::NONE:
-            DIM_CHECK(width, 1, height, 1, NONE);
+            DIM_CHECK(bitmap.width, 1, bitmap.height, 1, NONE);
             break;
         default:
             break;
@@ -432,7 +386,7 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(ui8* pixels, BlockTexture
     // Grab non-const reference to the block texture layer
     BlockTextureLayer* layerToLoad = (BlockTextureLayer*)&(*_blockTextureLayers.insert(layer).first);
     // Mark this layer for load
-    _layersToLoad.emplace_back(pixels, layerToLoad);
+    _layersToLoad.emplace_back(bitmap.bytesUI8, layerToLoad);
 
     // Return pointer
     return layerToLoad;
@@ -455,30 +409,26 @@ void TexturePackLoader::mapTexturesToAtlases() {
     _textureAtlasStitcher.buildPixelData(_layersToLoad, _packInfo.resolution);
 }
 
-ui8* TexturePackLoader::getPixels(const nString& filePath, ui32& width, ui32& height) {
+vg::BitmapResource TexturePackLoader::getPixels(const nString& filePath) {
 
-    if (filePath.empty()) return nullptr;
+    vg::BitmapResource rv = {};
+
+    if (filePath.empty()) return rv;
 
     // Check the cache
     auto& it = _pixelCache.find(filePath);
 
     if (it == _pixelCache.end()) {
-        // Load the data
-        std::vector<ui8>* pixelStore = new std::vector<ui8>();
-
         vpath texPath; _ioManager.resolvePath(_texturePackPath + filePath, texPath);
-        vio::ImageIO().loadPng(texPath.getString(), *pixelStore, width, height);
-        if (pixelStore->size()) {
+        // TODO(Ben): Maybe RGB_UI8
+        rv = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGBA_UI8);
+        if (rv.data) {
             // Add the data to the cache
-            _pixelCache[filePath] = Pixels(pixelStore, width, height);
-            return pixelStore->data();
+            _pixelCache[filePath] = rv;
         }
-        delete pixelStore;
-        return nullptr;
     } else {
         // Return the Cached data
-        width = it->second.width;
-        height = it->second.height;
-        return it->second.data->data();
+        return it->second;
     }
+    return rv;
 }

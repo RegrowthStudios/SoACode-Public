@@ -2,8 +2,9 @@
 #include "ChunkMeshManager.h"
 
 #include "ChunkMesh.h"
-#include "RenderTask.h"
 #include "ChunkRenderer.h"
+#include "RenderTask.h"
+#include "soaUtils.h"
 
 #define MAX_UPDATES_PER_FRAME 100
 
@@ -24,7 +25,7 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
         }
     }
 
-  //  updateMeshDistances(cameraPosition);
+    updateMeshDistances(cameraPosition);
     if (shouldSort) {
         // TODO(Ben): std::sort
     }
@@ -170,17 +171,6 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
             break;
     }
 
-    //If this mesh isn't in use anymore, delete it
-    //if ((cm->vboID == 0 && cm->waterVboID == 0 && cm->transVboID == 0 && cm->cutoutVboID == 0) || cm->needsDestroy) {
-    //    if (cm->inMeshList) {
-    //        // If its already in the list, mark it for lazy deallocation
-    //        cm->needsDestroy = true;
-    //    } else {
-    //        // Otherwise just delete it
-    //        deleteMesh(cm);
-    //    }
-    //}
-
     // TODO(Ben): We are adding empty meshes here
     if (!cm->inMeshList) {
         m_chunkMeshes.push_back(cm);
@@ -191,24 +181,12 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 }
 
 void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
-    ChunkMesh *cm;
-    int mx, my, mz;
-    double dx, dy, dz;
-    double cx, cy, cz;
+    static const f64v3 CHUNK_DIMS(CHUNK_WIDTH);
 
-    mx = (int)cameraPosition.x;
-    my = (int)cameraPosition.y;
-    mz = (int)cameraPosition.z;
-
-    for (int i = 0; i < m_chunkMeshes.size(); i++) { //update distances for all chunk meshes
-        cm = m_chunkMeshes[i];
-        const glm::ivec3 &cmPos = cm->position;
-        cx = (mx <= cmPos.x) ? cmPos.x : ((mx > cmPos.x + CHUNK_WIDTH) ? (cmPos.x + CHUNK_WIDTH) : mx);
-        cy = (my <= cmPos.y) ? cmPos.y : ((my > cmPos.y + CHUNK_WIDTH) ? (cmPos.y + CHUNK_WIDTH) : my);
-        cz = (mz <= cmPos.z) ? cmPos.z : ((mz > cmPos.z + CHUNK_WIDTH) ? (cmPos.z + CHUNK_WIDTH) : mz);
-        dx = cx - mx;
-        dy = cy - my;
-        dz = cz - mz;
-        cm->distance2 = dx*dx + dy*dy + dz*dz;
+    for (auto& cm : m_chunkMeshes) { //update distances for all chunk meshes
+        //calculate distance
+        f64v3 closestPoint = getClosestPointOnAABB(cameraPosition, cm->position, CHUNK_DIMS);
+        // Omit sqrt for faster calculation
+        cm->distance2 = selfDot(closestPoint - cameraPosition);
     }
 }

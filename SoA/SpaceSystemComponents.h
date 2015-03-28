@@ -19,6 +19,7 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
 
+#include "Constants.h"
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
@@ -40,14 +41,35 @@ class TerrainRpcDispatcher;
 struct PlanetGenData;
 struct TerrainPatchData;
 
-DECL_VVOX(class, VoxelPlanetMapper);
-DECL_VIO(class, IOManager);
+DECL_VVOX(class VoxelPlanetMapper);
+DECL_VIO(class IOManager);
 
 /// For far and spherical terrain patch blending on transitions
-const float TERRAIN_ALPHA_BEFORE_FADE = 3.0f;
-const float TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + 2.0f;
-const float TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
-const float TERRAIN_ALPHA_STEP = 0.05f;
+const f32 TERRAIN_FADE_LENGTH = 2.0f;
+const f32 TERRAIN_ALPHA_BEFORE_FADE = 2.0f;
+const f32 TERRAIN_DEC_START_ALPHA = TERRAIN_ALPHA_BEFORE_FADE + TERRAIN_FADE_LENGTH;
+const f32 TERRAIN_INC_START_ALPHA = -TERRAIN_ALPHA_BEFORE_FADE;
+const f32 TERRAIN_ALPHA_STEP = 0.01f;
+
+const f32 START_FACE_TRANS = 1.0f;
+
+struct AtmosphereComponent {
+    vecs::ComponentID namePositionComponent = 0;
+    f32 planetRadius;
+    f32 radius;
+    f32 kr = 0.0025f;
+    f32 km = 0.0020f;
+    f32 esun = 30.0f; // TODO(Ben): This should be dynamic
+    f32 krEsun = kr * esun;
+    f32 kmEsun = km * esun;
+    f32 kr4PI = kr * 4.0f * M_PI;
+    f32 km4PI = km * 4.0f * M_PI;
+    f32 g = -0.99f;
+    f32 scaleDepth = 0.25f;
+    f32v3 invWavelength4 = f32v3(1.0f / powf(0.65f, 4.0f),
+                                 1.0f / powf(0.57f, 4.0f),
+                                 1.0f / powf(0.475f, 4.0f));
+};
 
 struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
@@ -63,7 +85,7 @@ struct NamePositionComponent {
 };
 
 struct SpaceLightComponent {
-    vcore::ComponentID parentNpId; ///< Component ID of parent NamePosition component
+    vecs::ComponentID parentNpId; ///< Component ID of parent NamePosition component
     color3 color; ///< Color of the light
     f32 intensity; ///< Intensity of the light
 };
@@ -77,12 +99,12 @@ struct OrbitComponent {
     f64 r1 = 0.0; ///< Closest distance to focal point
     f64q orientation = f64q(0.0, 0.0, 0.0, 0.0); ///< Orientation of the orbit path
     ui8v4 pathColor = ui8v4(255); ///< Color of the path
-    vcore::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
+    vecs::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
     VGBuffer vbo = 0; ///< vbo for the ellipse
 };
 
 struct SphericalGravityComponent {
-    vcore::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
+    vecs::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
     f64 radius = 0.0; ///< Radius in KM
     f64 mass = 0.0; ///< Mass in KG
 };
@@ -107,10 +129,10 @@ struct SphericalVoxelComponent {
 
     const vio::IOManager* saveFileIom = nullptr;
 
-    vcore::ComponentID sphericalTerrainComponent = 0;
-    vcore::ComponentID farTerrainComponent = 0;
-    vcore::ComponentID namePositionComponent = 0;
-    vcore::ComponentID axisRotationComponent = 0;
+    vecs::ComponentID sphericalTerrainComponent = 0;
+    vecs::ComponentID farTerrainComponent = 0;
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
 
     // WorldCubeFace transitionFace = FACE_NONE;
 
@@ -125,10 +147,10 @@ struct SphericalVoxelComponent {
 };
 
 struct SphericalTerrainComponent {
-    vcore::ComponentID namePositionComponent = 0;
-    vcore::ComponentID axisRotationComponent = 0;
-    vcore::ComponentID sphericalVoxelComponent = 0;
-    vcore::ComponentID farTerrainComponent = 0;
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
+    vecs::ComponentID sphericalVoxelComponent = 0;
+    vecs::ComponentID farTerrainComponent = 0;
 
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
@@ -143,7 +165,10 @@ struct SphericalTerrainComponent {
     VoxelPosition3D startVoxelPosition;
     bool needsVoxelComponent = false;
     WorldCubeFace transitionFace = FACE_NONE;
-    float alpha = 0.0f; ///< Alpha blending coefficient
+    f32 alpha = 0.0f; ///< Alpha blending coefficient
+    f32 faceTransTime = START_FACE_TRANS; ///< For animation on fade
+    bool isFaceTransitioning = false;
+    volatile bool needsFaceTransitionAnimation = false;
 };
 
 struct FarTerrainComponent {
@@ -162,7 +187,7 @@ struct FarTerrainComponent {
     i32v2 center = i32v2(0); ///< Center, in units of patch width, where camera is
     i32v2 origin = i32v2(0); ///< Specifies which patch is the origin (back left corner) on the grid
     WorldCubeFace transitionFace = FACE_NONE;
-    float alpha = 1.0f; ///< Alpha blending coefficient
+    f32 alpha = 1.0f; ///< Alpha blending coefficient
     bool shouldFade = false; ///< When this is true we fade out
 };
 

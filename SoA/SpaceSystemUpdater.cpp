@@ -20,7 +20,7 @@ void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* 
     m_sphericalVoxelComponentUpdater.update(spaceSystem, gameSystem, soaState);
 
     // Update Orbits ( Do this last)
-    m_orbitComponentUpdater.update(spaceSystem, soaState->time);
+    m_orbitComponentUpdater.update(spaceSystem, 0.0);
 }
 
 void SpaceSystemUpdater::glUpdate(OUT SpaceSystem* spaceSystem) {

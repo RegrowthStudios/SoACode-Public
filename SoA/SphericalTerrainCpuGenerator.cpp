@@ -63,20 +63,21 @@ float SphericalTerrainCpuGenerator::getTerrainHeight(const VoxelPosition2D& face
     return getNoiseValue(pos, m_genData->baseTerrainFuncs);
 }
 
-float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const TerrainFuncs& funcs) {
+float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const NoiseBase& funcs) {
 
 #define SCALE_CODE rv += (total / maxAmplitude) * (fn.high - fn.low) * 0.5f + (fn.high + fn.low) * 0.5f
 
-    float rv = funcs.baseHeight;
+    float rv = funcs.base;
     float total;
     float amplitude;
     float maxAmplitude;
     float frequency;
 
     // NOTE: Make sure this implementation matches NoiseShaderGenerator::addNoiseFunctions()
-    for (auto& fn : funcs.funcs) {
+    for (int f = 0; f < funcs.funcs.size(); f++) {
+        auto& fn = funcs.funcs[f];
         switch (fn.func) {
-            case TerrainFunction::NOISE:
+            case TerrainStage::NOISE:
                 total = 0.0f;
                 amplitude = 1.0f;
                 maxAmplitude = 0.0f;
@@ -90,7 +91,7 @@ float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const Terrai
                 }
                 SCALE_CODE;
                 break;
-            case TerrainFunction::RIDGED_NOISE:
+            case TerrainStage::RIDGED_NOISE:
                 total = 0.0f;
                 amplitude = 1.0f;
                 maxAmplitude = 0.0f;

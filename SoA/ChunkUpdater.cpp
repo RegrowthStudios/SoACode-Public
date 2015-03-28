@@ -12,6 +12,8 @@
 #include "VoxelNavigation.inl"
 #include "VoxelUtils.h"
 
+#include "VoxelUpdateOrder.inl"
+
 void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk)
 {
     if (!chunk->isAccessible) return;
@@ -61,6 +63,10 @@ void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk
             newState = ChunkStates::MESH;
         } else if (blockID == DIRTGRASS){
             int bt = GETBLOCKID(vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner));
+            // Tmp debugging           
+            if (bt > Blocks.size()) {
+                pError("Invalid block in update!" + std::to_string(bt));
+            }
             if ((Blocks[bt].collide && bt != LEAVES1) || bt >= LOWWATER){
                 chunk->setBlockDataSafe(lockedChunk, blockIndex, DIRT);
                 needsSetup = true;

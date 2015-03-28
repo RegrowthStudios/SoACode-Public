@@ -24,7 +24,7 @@
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/ui/IGameScreen.h>
 
-class TestDeferredScreen : public IGameScreen {
+class TestDeferredScreen : public vui::IGameScreen {
 public:
     /// 
     TestDeferredScreen();
@@ -35,12 +35,11 @@ public:
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
     virtual void build() override;
-    virtual void destroy(const GameTime& gameTime) override;
-    virtual void onEntry(const GameTime& gameTime) override;
-    virtual void onExit(const GameTime& gameTime) override;
-    virtual void onEvent(const SDL_Event& e) override;
-    virtual void update(const GameTime& gameTime) override;
-    virtual void draw(const GameTime& gameTime) override;
+    virtual void destroy(const vui::GameTime& gameTime) override;
+    virtual void onEntry(const vui::GameTime& gameTime) override;
+    virtual void onExit(const vui::GameTime& gameTime) override;
+    virtual void update(const vui::GameTime& gameTime) override;
+    virtual void draw(const vui::GameTime& gameTime) override;
 private:
     void buildGeometry();
     void buildLightMaps();
@@ -51,7 +50,7 @@ private:
     vg::DeferredShaders m_deferredPrograms; ///< Basic rendering programs
     vg::FullQuadVBO m_quad; ///< Used for GBuffer clearing operations
     vg::GBuffer m_gbuffer; ///< Geometry buffer of deferred rendering
-    SpriteBatch m_sb; ///< Debug SpriteBatch
+    vg::SpriteBatch m_sb; ///< Debug SpriteBatch
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     VGTexture m_envMap; ///< Environment map
     f32 m_roughness, m_reflectance, m_metalness; ///< Temp test values

@@ -2,7 +2,7 @@
 #include <map>
 #include <Vorb/VorbPreDecl.inl>
 
-DECL_VG(class, GLProgram);
+DECL_VG(class GLProgram);
 
 class ChunkManager;
 class PhysicsEngine;

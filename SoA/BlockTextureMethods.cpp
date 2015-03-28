@@ -21,7 +21,7 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
     f32 totalWeight = 0;
 
     // TODO(Ben): Binary search?
-    if (blockTexInfo->weights.getLength()) {
+    if (blockTexInfo->weights.size()) {
         for (int i = 0; i < blockTexInfo->numTiles; i++) {
             totalWeight += blockTexInfo->weights[i];
             if (r <= totalWeight) {
@@ -56,7 +56,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
     int column;
 
     // TODO(Ben): Binary search?
-    if (blockTexInfo->weights.getLength()) {
+    if (blockTexInfo->weights.size()) {
         for (int i = 0; i < blockTexInfo->size.x; i++) {
             totalWeight += blockTexInfo->weights[i];
             if (r <= totalWeight) {

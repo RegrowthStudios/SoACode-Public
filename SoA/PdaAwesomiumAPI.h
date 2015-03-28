@@ -18,7 +18,7 @@
 #include "IAwesomiumAPI.h"
 
 class IGameScreen;
-class GamePlayScreen;
+class GameplayScreen;
 
 /// Awesomium API for PDA
 class PdaAwesomiumAPI : public IAwesomiumAPI<PdaAwesomiumAPI>
@@ -27,11 +27,11 @@ public:
     /// Initializes the API and hooks up all functions
     /// @oaram interfaceObject: The object that the API will talk to
     /// @param ownerScreen: The GamePlayScreen that owns this interface
-    void init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) override;
+    void init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) override;
 
     // Sets the owner screen. Should be a GamePlayScreen type
     /// @param ownerScreen: The screen
-    void setOwnerScreen(IGameScreen* ownerScreen) override;
+    void setOwnerScreen(vui::IGameScreen* ownerScreen) override;
 
 private:
 
@@ -46,7 +46,7 @@ private:
     /// args[1] should be the name of the item.
     void selectItem(const Awesomium::JSArray& args);
 
-    GamePlayScreen* _ownerScreen; ///< Handle to the main menu screen
+    GameplayScreen* _ownerScreen; ///< Handle to the main menu screen
 };
 
 #endif // PDAAWESOMIUMAPI_H_
