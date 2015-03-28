@@ -6,17 +6,18 @@
 #include "BlockData.h"
 #include "CAEngine.h"
 
-DECL_VIO(class, IOManager)
+DECL_VIO(class IOManager)
 
 class BlockPack;
 class TexturePackLoader;
 
-
-class GameBlockPostProcess : public IDelegate<ui16> {
+class GameBlockPostProcess {
 public:
     GameBlockPostProcess(const vio::IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache);
 
-    virtual void invoke(Sender s, ui16 id) override;
+    void invoke(Sender s, ui16 id);
+
+    Delegate<Sender, ui16> del;
 private:
     TexturePackLoader* m_texPackLoader; ///< Texture pack loader
     const vio::IOManager* m_iom; ///< IO workspace

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponentUpdater.h"
 
+#include "soaUtils.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
@@ -15,8 +16,8 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
       
         SphericalTerrainComponent& stCmp = it.second;
-        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.getFromEntity(it.first);
-        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.getFromEntity(it.first);
+        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
+        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
         /// Calculate camera distance
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
         f64 distance = glm::length(relativeCameraPos);
@@ -71,21 +72,30 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
             // Far terrain face transition
             if (stCmp.transitionFace != FACE_NONE) {
-                // TODO(Ben): maybe tell voxels to switch to new face
-                //spaceSystem->m_sphericalVoxelCT.get(stCmp.sphericalVoxelComponent).transitionFace = stCmp.transitionFace;
-                SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
-                // Add spherical voxel component (SERVER SIDE)
-                stCmp.sphericalVoxelComponent = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, it.first,
-                                                                                                   spaceSystem->m_sphericalTerrainCT.getComponentID(it.first),
-                                                                                                   stCmp.farTerrainComponent,
-                                                                                                   stCmp.axisRotationComponent,
-                                                                                                   stCmp.namePositionComponent,
-                                                                                                   stCmp.startVoxelPosition.face,
-                                                                                                   state);
-                // Reload the terrain
-                auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
-                ftCmp.transitionFace = stCmp.transitionFace;
-                stCmp.transitionFace = FACE_NONE;
+                static const f32 FACE_TRANS_DEC = 0.02f;
+                if (stCmp.faceTransTime == START_FACE_TRANS) stCmp.needsFaceTransitionAnimation = true;
+                stCmp.faceTransTime -= FACE_TRANS_DEC;
+                if (stCmp.faceTransTime <= 0.0f) {
+                    // TODO(Ben): maybe tell voxels to switch to new face rather than just deleting
+                    //spaceSystem->m_sphericalVoxelCT.get(stCmp.sphericalVoxelComponent).transitionFace = stCmp.transitionFace;
+                    SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, it.first);
+                    // Add spherical voxel component (SERVER SIDE)
+                    stCmp.sphericalVoxelComponent = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, it.first,
+                                                                                                       spaceSystem->m_sphericalTerrainCT.getComponentID(it.first),
+                                                                                                       stCmp.farTerrainComponent,
+                                                                                                       stCmp.axisRotationComponent,
+                                                                                                       stCmp.namePositionComponent,
+                                                                                                       stCmp.startVoxelPosition.face,
+                                                                                                       state);
+                    // Reload the terrain
+                    auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
+                    ftCmp.transitionFace = stCmp.transitionFace;
+                    stCmp.transitionFace = FACE_NONE;
+                    stCmp.faceTransTime = 0.0f;
+                    std::cout << " RE-INIT\n";
+                }
+            } else if (!stCmp.needsFaceTransitionAnimation) {
+                stCmp.faceTransTime = 1.0f;
             }
         } else {
             // Check for deleting components

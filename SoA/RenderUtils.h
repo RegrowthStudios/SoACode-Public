@@ -19,9 +19,9 @@
 
 /// Sets translation for a matrix relative to relativePos. Will overwrite existing translation
 inline void setMatrixTranslation(f32m4& matrix, const f64v3 &position, const f64v3& relativePos) {
-    matrix[3][0] = (float)(position.x - relativePos.x);
-    matrix[3][1] = (float)(position.y - relativePos.y);
-    matrix[3][2] = (float)(position.z - relativePos.z);
+    matrix[3][0] = (f32)(position.x - relativePos.x);
+    matrix[3][1] = (f32)(position.y - relativePos.y);
+    matrix[3][2] = (f32)(position.z - relativePos.z);
 }
 
 /// Sets translation for a matrix relative to relativePos. Will overwrite existing translation
@@ -33,13 +33,13 @@ inline void setMatrixTranslation(f32m4& matrix, const f32v3 &position, const f32
 
 /// Sets translation for a matrix relative to relativePos. Will overwrite existing translation
 inline void setMatrixTranslation(f32m4& matrix, const f32v3 &position, const f64v3& relativePos) {
-    matrix[3][0] = (float)((double)position.x - relativePos.x);
-    matrix[3][1] = (float)((double)position.y - relativePos.y);
-    matrix[3][2] = (float)((double)position.z - relativePos.z);
+    matrix[3][0] = (f32)((f64)position.x - relativePos.x);
+    matrix[3][1] = (f32)((f64)position.y - relativePos.y);
+    matrix[3][2] = (f32)((f64)position.z - relativePos.z);
 }
 
 /// Sets translation for a matrix. Will overwrite existing translation
-inline void setMatrixTranslation(f32m4& matrix, const float x, const float y, const float z) {
+inline void setMatrixTranslation(f32m4& matrix, const f32 x, const f32 y, const f32 z) {
     matrix[3][0] = x;
     matrix[3][1] = y;
     matrix[3][2] = z;
@@ -47,16 +47,23 @@ inline void setMatrixTranslation(f32m4& matrix, const float x, const float y, co
 
 /// Sets translation for a matrix. Will overwrite existing translation
 inline void setMatrixTranslation(f32m4& matrix, const double x, const double y, const double z) {
-    matrix[3][0] = (float)x;
-    matrix[3][1] = (float)y;
-    matrix[3][2] = (float)z;
+    matrix[3][0] = (f32)x;
+    matrix[3][1] = (f32)y;
+    matrix[3][2] = (f32)z;
+}
+
+/// Sets translation for a matrix. Will overwrite existing translation
+inline void setMatrixTranslation(f32m4& matrix, const f32v3& trans) {
+    matrix[3][0] = trans.x;
+    matrix[3][1] = trans.y;
+    matrix[3][2] = trans.z;
 }
 
 /// Sets translation for a matrix. Will overwrite existing translation
 inline void setMatrixTranslation(f32m4& matrix, const f64v3& trans) {
-    matrix[3][0] = (float)trans.x;
-    matrix[3][1] = (float)trans.y;
-    matrix[3][2] = (float)trans.z;
+    matrix[3][0] = (f32)trans.x;
+    matrix[3][1] = (f32)trans.y;
+    matrix[3][2] = (f32)trans.z;
 }
 
 /// Sets scale for a matrix. Will overwrite existing scale
@@ -67,7 +74,7 @@ inline void setMatrixScale(f32m4& matrix, const f32v3 &scale) {
 }
 
 /// Sets scale for a matrix. Will overwrite existing scale
-inline void setMatrixScale(f32m4& matrix, const float scaleX, const float scaleY, const float scaleZ) {
+inline void setMatrixScale(f32m4& matrix, const f32 scaleX, const f32 scaleY, const f32 scaleZ) {
     matrix[0][0] = scaleX;
     matrix[1][1] = scaleY;
     matrix[2][2] = scaleZ;

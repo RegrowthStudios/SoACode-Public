@@ -19,7 +19,6 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"
-#include "Sound.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"
 #include "VRayHelper.h"
@@ -36,7 +35,6 @@ float GameManager::fogStart, GameManager::fogEnd;
 Uint32 GameManager::maxLodTicks = 8;
 
 VoxelEditor* GameManager::voxelEditor = nullptr;
-SoundEngine *GameManager::soundEngine = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
 TexturePackLoader* GameManager::texturePackLoader = nullptr;
@@ -45,7 +43,6 @@ vg::TextureCache* GameManager::textureCache = nullptr;
 void GameManager::initializeSystems() {
     if (_systemsInitialized == false) {
         voxelEditor = new VoxelEditor();
-        soundEngine = new SoundEngine();
         wsoAtlas = new WSOAtlas();
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
@@ -59,12 +56,12 @@ void GameManager::initializeSystems() {
 void GameManager::registerTexturesForLoad() {
 
     texturePackLoader->registerTexture("FarTerrain/location_marker.png");
-    texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+    texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
     texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
     texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
     texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
-    texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+    texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 
     texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
     texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
@@ -73,7 +70,7 @@ void GameManager::registerTexturesForLoad() {
     texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
     texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
 
-    texturePackLoader->registerTexture("FarTerrain/water_noise.png", &SamplerState::LINEAR_WRAP_MIPMAP);
+    texturePackLoader->registerTexture("FarTerrain/water_noise.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     texturePackLoader->registerTexture("Particle/ball_mask.png");
 
     texturePackLoader->registerTexture("GUI/crosshair.png");
@@ -104,14 +101,9 @@ void GameManager::getTextureHandles() {
     // TODO(Ben): Parallelize this
     logoTexture = textureCache->addTexture("Textures/logo.png");
     sunTexture = textureCache->addTexture("Textures/sun_texture.png");
-    BlankTextureID = textureCache->addTexture("Textures/blank.png", &SamplerState::POINT_CLAMP);
+    BlankTextureID = textureCache->addTexture("Textures/blank.png", &vg::SamplerState::POINT_CLAMP);
     explosionTexture = textureCache->addTexture("Textures/explosion.png");
     fireTexture = textureCache->addTexture("Textures/fire.png");
-}
-
-void GameManager::initializeSound() {
-    soundEngine->Initialize();
-    soundEngine->LoadAllSounds();
 }
 
 void GameManager::saveState() {

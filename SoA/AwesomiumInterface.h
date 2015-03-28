@@ -53,7 +53,7 @@ private:
 /// The template argument should be the API class derived from
 /// IAwesomiumAPI
 template <class C>
-class AwesomiumInterface : public IAwesomiumInterface{
+class AwesomiumInterface : public IAwesomiumInterface {
 public:
     AwesomiumInterface();
     ~AwesomiumInterface();
@@ -65,7 +65,7 @@ public:
     /// @param width: The width of the UI window
     /// @param height: The height of the UI window
     /// @return true on success, false on failure
-    bool init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, IGameScreen* ownerScreen);
+    bool init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, vui::IGameScreen* ownerScreen);
 
     /// Frees all resources
     void destroy() override;

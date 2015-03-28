@@ -17,14 +17,13 @@ bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
-
     GameBlockPostProcess bpp(&iom, GameManager::texturePackLoader, &CaPhysicsType::typesCache);
-    pack->onBlockAddition += &bpp;
+    pack->onBlockAddition += bpp.del;
     if (!BlockLoader::load(&iom, filePath.c_str(), pack)) {
-        pack->onBlockAddition -= &bpp;
+        pack->onBlockAddition -= bpp.del;
         return false;
     }
-    pack->onBlockAddition -= &bpp;
+    pack->onBlockAddition -= bpp.del;
 
     // Set up the water blocks
     std::vector<Block> waterBlocks;
@@ -55,7 +54,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
             // Write the block data now
             writer.push(keg::WriterParam::VALUE);
             writer.push(keg::WriterParam::BEGIN_MAP);
-            Keg::write((ui8*)&(blocks[i]), writer, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+            keg::write((ui8*)&(blocks[i]), writer, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
             writer.push(keg::WriterParam::END_MAP);
         }
     }
@@ -99,7 +98,7 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
 
     // Load all block nodes
     std::vector<Block> loadedBlocks;
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         // Add a block
         loadedBlocks.emplace_back();
         Block& b = loadedBlocks.back();
@@ -108,7 +107,7 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
         b.name = name;
         
         // Load data
-        Keg::parse((ui8*)&b, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+        keg::parse((ui8*)&b, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
     });
     reader.forAllInMap(node, f);
     delete f;
@@ -126,7 +125,7 @@ GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, TexturePac
     m_iom(iom),
     m_texPackLoader(tpl),
     m_caCache(caCache) {
-    // Empty
+    del = makeDelegate(*this, &GameBlockPostProcess::invoke);
 }
 
 void GameBlockPostProcess::invoke(Sender s, ui16 id) {

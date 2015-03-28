@@ -9,10 +9,10 @@ class DevScreen;
 class InitScreen;
 class LoadScreen;
 class MainMenuScreen;
-class GamePlayScreen;
+class GameplayScreen;
 class TexturePackLoader;
 
-class App : public MainGame {
+class App : public vui::MainGame {
 public:
     virtual ~App();
 
@@ -24,10 +24,10 @@ public:
     InitScreen* scrInit = nullptr;
     LoadScreen* scrLoad = nullptr;
     MainMenuScreen* scrMainMenu = nullptr;
-    GamePlayScreen* scrGamePlay = nullptr;
+    GameplayScreen* scrGamePlay = nullptr;
 
     DevScreen* scrDev = nullptr;
-    std::vector<IGameScreen*> scrTests;
+    std::vector<vui::IGameScreen*> scrTests;
 };
 
 #endif // App_h_

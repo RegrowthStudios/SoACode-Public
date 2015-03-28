@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SoaEngine.h"
 
+#include "BlockData.h"
+#include "BlockPack.h"
 #include "ChunkMeshManager.h"
 #include "Constants.h"
 #include "DebugRenderer.h"
@@ -14,7 +16,7 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
-#include <Vorb/io/Keg.h>
+#include <Vorb/io/keg.h>
 #include <Vorb/RPC.h>
 
 #define M_PER_KM 1000.0
@@ -24,13 +26,14 @@ struct SpaceSystemLoadParams {
     vio::IOManager* ioManager = nullptr;
     nString dirPath;
     PlanetLoader* planetLoader = nullptr;
+    vcore::RPCManager* glrpc = nullptr;
 
     std::map<nString, Binary*> binaries; ///< Contains all binary systems
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
-    std::map<nString, vcore::EntityID> bodyLookupMap;
+    std::map<nString, vecs::EntityID> bodyLookupMap;
 };
 
-void SoaEngine::initState(OUT SoaState* state) {
+void SoaEngine::initState(SoaState* state) {
     state->glProgramManager = std::make_unique<vg::GLProgramManager>();
     state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
     state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
@@ -47,7 +50,7 @@ vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOMa
     return src;
 }
 
-bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
+bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
 
     AutoDelegatePool pool;
     vpath path = "SoASpace.log";
@@ -58,12 +61,12 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
-    pool.addAutoHook(&state->spaceSystem->onEntityAdded, [=] (Sender, vcore::EntityID eid) {
+    pool.addAutoHook(state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
         fs.write("Entity added: %d\n", eid);
     });
     for (auto namedTable : state->spaceSystem->getComponents()) {
         auto table = state->spaceSystem->getComponentTable(namedTable.first);
-        pool.addAutoHook(&table->onEntityAdded, [=] (Sender, vcore::ComponentID cid, vcore::EntityID eid) {
+        pool.addAutoHook(table->onEntityAdded, [=] (Sender, vecs::ComponentID cid, vecs::EntityID eid) {
             fs.write("Component \"%s\" added: %d -> Entity %d\n", namedTable.first.c_str(), cid, eid);
         });
     }
@@ -89,6 +92,7 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
 
     // Load system
     SpaceSystemLoadParams spaceSystemLoadParams;
+    spaceSystemLoadParams.glrpc = glrpc;
     spaceSystemLoadParams.dirPath = loadData.filePath;
     spaceSystemLoadParams.spaceSystem = state->spaceSystem.get();
     spaceSystemLoadParams.ioManager = state->systemIoManager.get();
@@ -100,13 +104,41 @@ bool SoaEngine::loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& 
     return true;
 }
 
-bool SoaEngine::loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData) {
+bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadData) {
     // TODO(Ben): Implement
     state->gameSystem = std::make_unique<GameSystem>();
     return true;
 }
 
-void SoaEngine::destroyAll(OUT SoaState* state) {
+void SoaEngine::setPlanetBlocks(SoaState* state) {
+    SpaceSystem* ss = state->spaceSystem.get();
+    for (auto& it : ss->m_sphericalTerrainCT) {
+        auto& cmp = it.second;
+        PlanetBlockInitInfo& blockInfo = cmp.planetGenData->blockInfo;
+        // TODO(Ben): Biomes too!
+        if (cmp.planetGenData) {
+            // Set all block layers
+            for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
+                ui16 blockID = Blocks[blockInfo.blockLayerNames[i]].ID;
+                cmp.planetGenData->blockLayers[i].block = blockID;
+            }
+            // Clear memory
+            std::vector<nString>().swap(blockInfo.blockLayerNames);
+            // Set liquid block
+            if (blockInfo.liquidBlockName.length()) {
+                cmp.planetGenData->liquidBlock = Blocks[blockInfo.liquidBlockName].ID;
+                nString().swap(blockInfo.liquidBlockName); // clear memory
+            }
+            // Set surface block
+            if (blockInfo.surfaceBlockName.length()) {
+                cmp.planetGenData->surfaceBlock = Blocks[blockInfo.surfaceBlockName].ID;
+                nString().swap(blockInfo.surfaceBlockName); // clear memory
+            }
+        }
+    }
+}
+
+void SoaEngine::destroyAll(SoaState* state) {
     state->glProgramManager.reset();
     state->debugRenderer.reset();
     state->meshManager.reset();
@@ -115,11 +147,11 @@ void SoaEngine::destroyAll(OUT SoaState* state) {
     destroySpaceSystem(state);
 }
 
-void SoaEngine::destroyGameSystem(OUT SoaState* state) {
+void SoaEngine::destroyGameSystem(SoaState* state) {
     state->gameSystem.reset();
 }
 
-void SoaEngine::addStarSystem(OUT SpaceSystemLoadParams& pr) {
+void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
     pr.ioManager->setSearchDirectory((pr.dirPath + "/").c_str());
 
     // Load the system
@@ -131,7 +163,7 @@ void SoaEngine::addStarSystem(OUT SpaceSystemLoadParams& pr) {
         Binary* bin = it.second;
 
         // Loop through all children
-        for (int i = 0; i < bin->bodies.getLength(); i++) {
+        for (int i = 0; i < bin->bodies.size(); i++) {
             // Find the body
             auto& body = pr.systemBodies.find(std::string(bin->bodies[i]));
             if (body != pr.systemBodies.end()) {
@@ -178,7 +210,7 @@ void SoaEngine::addStarSystem(OUT SpaceSystemLoadParams& pr) {
     }
 }
 
-bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
+bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     nString data;
     pr.ioManager->readFileToString("SystemProperties.yml", data);
 
@@ -192,15 +224,15 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
     }
 
     bool goodParse = true;
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
         // Parse based on the name
         if (name == "description") {
             pr.spaceSystem->systemDescription = name;
         } else if (name == "Binary") {
             // Binary systems
             Binary* newBinary = new Binary;
-            Keg::Error err = Keg::parse((ui8*)newBinary, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
-            if (err != Keg::Error::NONE) {
+            keg::Error err = keg::parse((ui8*)newBinary, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
+            if (err != keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
                 goodParse = false;
             }
@@ -210,8 +242,8 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
             // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
             properties.pathColor = ui8v4(rand() % 255, rand() % 255, rand() % 255, 255);
-            Keg::Error err = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
-            if (err != Keg::Error::NONE) {
+            keg::Error err = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
+            if (err != keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
                 goodParse = false;
             }
@@ -236,17 +268,16 @@ bool SoaEngine::loadSystemProperties(OUT SpaceSystemLoadParams& pr) {
 }
 
 bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body,
-                                   vcore::RPCManager* glrpc /* = nullptr */) {
+                                   const SystemBodyKegProperties* sysProps, SystemBody* body) {
 
 #define KEG_CHECK \
-    if (error != Keg::Error::NONE) { \
-        fprintf(stderr, "Keg error %d for %s\n", (int)error, filePath); \
+    if (error != keg::Error::NONE) { \
+        fprintf(stderr, "keg error %d for %s\n", (int)error, filePath); \
         goodParse = false; \
         return;  \
     }
 
-    Keg::Error error;
+    keg::Error error;
     nString data;
     pr.ioManager->readFileToString(filePath.c_str(), data);
 
@@ -261,20 +292,20 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
 
     bool goodParse = true;
     bool foundOne = false;
-    auto f = createDelegate<const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         if (foundOne) return;
 
         // Parse based on type
         if (type == "planet") {
             PlanetKegProperties properties;
-            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
+            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
             KEG_CHECK;
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
-                properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, glrpc);
+                properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
-                properties.planetGenData = pr.planetLoader->getDefaultGenData(glrpc);
+                properties.planetGenData = pr.planetLoader->getDefaultGenData(pr.glrpc);
             }
 
             // Set the radius for use later
@@ -285,12 +316,12 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
         } else if (type == "star") {
             StarKegProperties properties;
-            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
+            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
             SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
-            error = Keg::parse((ui8*)&properties, value, reader, Keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
+            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
         }
@@ -307,7 +338,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
     return goodParse;
 }
 
-void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary) {
+void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary) {
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
 
     f64 per = orbitC.orbitalPeriod;

@@ -21,7 +21,9 @@
 
 #include "SphericalTerrainComponentRenderer.h"
 #include "FarTerrainComponentRenderer.h"
+#include "AtmosphereComponentRenderer.h"
 #include "SystemARRenderer.h"
+#include "Camera.h"
 
 class App;
 class GameSystem;
@@ -48,6 +50,14 @@ public:
     void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
     virtual void draw() override;
+
+    /// Gets the desired near clipping plane based on distances of planets
+    /// Returns 0 when it cannot be calculated
+    /// @param verticalFOV: vertical fov of camera in degrees
+    /// @param aspectRatio: camera aspect ratio
+    f32 getDynamicNearPlane(float verticalFOV, float aspectRatio);
+
+    bool needsFaceTransitionAnimation = false; ///< true when we need to fade out camera for transition between faces
 private:
     /// Renders the space bodies
     /// @param camera: Camera for rendering
@@ -61,6 +71,10 @@ private:
     /// @return brightest light source relative to cmp
     SpaceLightComponent* getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos);
 
+    /// Gets the position of a body using MTRenderState if needed
+    /// @return pointer to the position
+    const f64v3* getBodyPosition(NamePositionComponent& npCmp, vecs::EntityID eid);
+
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
     GameSystem* m_gameSystem = nullptr;
@@ -73,6 +87,8 @@ private:
     SystemARRenderer m_systemARRenderer;
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
+    AtmosphereComponentRenderer m_atmosphereComponentRenderer;
+    f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
 };
 
 #endif // SpaceSystemRenderStage_h__

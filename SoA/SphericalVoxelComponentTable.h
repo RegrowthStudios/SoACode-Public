@@ -18,9 +18,9 @@
 #include <Vorb/ecs/ComponentTable.hpp>
 #include "SpaceSystemComponents.h"
 
-class SphericalVoxelComponentTable : public vcore::ComponentTable<SphericalVoxelComponent> {
+class SphericalVoxelComponentTable : public vecs::ComponentTable<SphericalVoxelComponent> {
 public:
-    virtual void disposeComponent(vcore::ComponentID cID, vcore::EntityID eID) override;
+    virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override;
 };
 
 

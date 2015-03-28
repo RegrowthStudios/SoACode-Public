@@ -20,7 +20,7 @@
 #include <Vorb/ui/LuaDevConsole.h>
 #include <Vorb/ui/TextInputListener.hpp>
 
-class TestConsoleScreen : public IGameScreen {
+class TestConsoleScreen : public vui::IGameScreen {
 public:
     /************************************************************************/
     /* IGameScreen functionality                                            */
@@ -28,12 +28,11 @@ public:
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
     virtual void build() override;
-    virtual void destroy(const GameTime& gameTime) override;
-    virtual void onEntry(const GameTime& gameTime) override;
-    virtual void onExit(const GameTime& gameTime) override;
-    virtual void onEvent(const SDL_Event& e) override;
-    virtual void update(const GameTime& gameTime) override;
-    virtual void draw(const GameTime& gameTime) override;
+    virtual void destroy(const vui::GameTime& gameTime) override;
+    virtual void onEntry(const vui::GameTime& gameTime) override;
+    virtual void onExit(const vui::GameTime& gameTime) override;
+    virtual void update(const vui::GameTime& gameTime) override;
+    virtual void draw(const vui::GameTime& gameTime) override;
 private:
     vui::LuaDevConsole m_console; ///< Console used for testing
     vui::TextInputListener<char> m_text; ///< Text input

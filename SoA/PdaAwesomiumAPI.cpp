@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "PdaAwesomiumAPI.h"
 
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 
-void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) {
+void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &PdaAwesomiumAPI::##a)
@@ -18,11 +18,10 @@ void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, IGameScreen* ow
     ADDFUNC(getInventory);
     ADDFUNC(print);
     ADDFUNC(selectItem);
-  
 }
 
-void PdaAwesomiumAPI::setOwnerScreen(IGameScreen* ownerScreen) {
-    _ownerScreen = static_cast<GamePlayScreen*>(ownerScreen);
+void PdaAwesomiumAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
+    _ownerScreen = static_cast<GameplayScreen*>(ownerScreen);
 }
 
 Awesomium::JSValue PdaAwesomiumAPI::getInventory(const Awesomium::JSArray& args) {

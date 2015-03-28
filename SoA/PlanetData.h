@@ -21,7 +21,7 @@
 
 #include "Biome.h"
 
-DECL_VG(class GLProgram);
+DECL_VG(class GLProgram; class BitmapResource);
 
 struct LiquidColorKegProperties {
     nString colorPath = "";
@@ -32,7 +32,6 @@ struct LiquidColorKegProperties {
 };
 KEG_TYPE_DECL(LiquidColorKegProperties);
 
-
 struct TerrainColorKegProperties {
     nString colorPath = "";
     nString texturePath = "";
@@ -40,26 +39,55 @@ struct TerrainColorKegProperties {
 };
 KEG_TYPE_DECL(TerrainColorKegProperties);
 
-enum class TerrainFunction {
+enum class TerrainStage {
     NOISE,
-    RIDGED_NOISE
+    RIDGED_NOISE,
+    ABS_NOISE,
+    SQUARED_NOISE,
+    CUBED_NOISE,
+    CONSTANT,
+    PASS_THROUGH
 };
-KEG_ENUM_DECL(TerrainFunction);
+KEG_ENUM_DECL(TerrainStage);
+
+enum class TerrainOp {
+    ADD = 0,
+    SUB,
+    MUL,
+    DIV
+};
+KEG_ENUM_DECL(TerrainOp);
 
 struct TerrainFuncKegProperties {
-    TerrainFunction func;
+    TerrainStage func = TerrainStage::NOISE;
+    TerrainOp op = TerrainOp::ADD;
     int octaves = 1;
     f32 persistence = 1.0f;
     f32 frequency = 1.0f;
     f32 low = -1.0f;
     f32 high = 1.0f;
+    f32v2 clamp = f32v2(0.0f);
     Array<TerrainFuncKegProperties> children;
 };
 KEG_TYPE_DECL(TerrainFuncKegProperties);
 
-struct TerrainFuncs {
-    std::vector<TerrainFuncKegProperties> funcs;
-    f32 baseHeight = 0.0f;
+struct NoiseBase {
+    f32 base = 0.0f;
+    Array<TerrainFuncKegProperties> funcs;
+};
+KEG_TYPE_DECL(NoiseBase);
+
+// For storing color maps
+struct ColorMaps {
+    std::map <nString, vg::BitmapResource*> colorMapTable; ///< For looking up block color maps by name
+    std::vector <vg::BitmapResource*> colorMaps; ///< Storage for the block color maps
+};
+
+// Info about what blocks a planet needs
+struct PlanetBlockInitInfo {
+    std::vector<nString> blockLayerNames;
+    nString liquidBlockName = "";
+    nString surfaceBlockName = "";
 };
 
 struct PlanetGenData {
@@ -72,9 +100,12 @@ struct PlanetGenData {
     f32 liquidDepthScale = 1000.0f;
     f32 liquidFreezeTemp = -1.0f;
     f32 tempLatitudeFalloff = 0.0f;
+    f32 tempHeightFalloff = 0.0f;
     f32 humLatitudeFalloff = 0.0f;
+    f32 humHeightFalloff = 0.0f;
     VGTexture biomeArrayTexture = 0;
     VGTexture baseBiomeLookupTexture = 0;
+    PlanetBlockInitInfo blockInfo;
     std::vector<Biome> biomes;
     std::vector<BlockLayer> blockLayers;
     ui32 liquidBlock = 0;
@@ -82,12 +113,11 @@ struct PlanetGenData {
     vg::GLProgram* program = nullptr;
     f64 radius = 0.0;
 
-    TerrainFuncs baseTerrainFuncs;
-    TerrainFuncs tempTerrainFuncs;
-    TerrainFuncs humTerrainFuncs;
+    NoiseBase baseTerrainFuncs;
+    NoiseBase tempTerrainFuncs;
+    NoiseBase humTerrainFuncs;
 
-    std::map <nString, ui32> blockColorMapLookupTable; ///< For looking up the index for the block color maps
-    std::vector <color3*> blockColorMaps; ///< Storage for the block color maps
+    static ColorMaps colorMaps;
 };
 
 #endif // PlanetData_h__

@@ -26,7 +26,7 @@ class ParticleMesh;
 class PhysicsBlockMesh;
 class TerrainPatchMesh;
 
-DECL_VG(class, GLProgramManager);
+DECL_VG(class GLProgramManager);
 
 class MeshManager
 {

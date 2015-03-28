@@ -55,6 +55,6 @@ void TerrainGenTextures::destroy() {
 void TerrainGenTextures::initTarget(const ui32v2& size, const ui32& texID, const vg::TextureInternalFormat& format, const ui32& attachment) {
     glBindTexture(GL_TEXTURE_2D, texID);
     glTexImage2D(GL_TEXTURE_2D, 0, (VGEnum)format, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
+    vg::SamplerState::POINT_CLAMP.set(GL_TEXTURE_2D);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, GL_TEXTURE_2D, texID, 0);
 }

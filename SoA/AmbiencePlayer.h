@@ -22,7 +22,7 @@
 
 #include "AmbienceStream.h"
 
-DECL_VSOUND(class, Engine)
+DECL_VSOUND(class Engine)
 class AmbienceLibrary;
 
 /// Mixes ambient music for a game

@@ -27,11 +27,11 @@ public:
     /// Initializes the API and hooks up all functions
     /// @oaram interfaceObject: The object that the API will talk to
     /// @param ownerScreen: The MainMenuScreen that owns this interface
-    void init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen);
+    void init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen);
 
     // Sets the owner screen. Should be a MainMenuScreen type
     /// @param ownerScreen: The screen
-    void setOwnerScreen(IGameScreen* ownerScreen);
+    void setOwnerScreen(vui::IGameScreen* ownerScreen);
 
 private:
     /// Gets the camera position

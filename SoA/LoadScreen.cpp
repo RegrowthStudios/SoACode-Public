@@ -17,7 +17,6 @@
 #include "LoadTaskBlockData.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskShaders.h"
-#include "LoadTaskSound.h"
 #include "LoadTaskStarSystem.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
@@ -55,11 +54,11 @@ i32 LoadScreen::getPreviousScreen() const {
 void LoadScreen::build() {
     // Empty
 }
-void LoadScreen::destroy(const GameTime& gameTime) {
+void LoadScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void LoadScreen::onEntry(const GameTime& gameTime) {
+void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     SoaFileSystem fs;
     fs.init();
     MusicPlayer mp;
@@ -69,8 +68,9 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     SoaEngine::initState(m_soaState.get());
 
     // Make LoadBar Resources
-    _sb = new SpriteBatch(true, true);
-    _sf = new SpriteFont("Fonts/orbitron_bold-webfont.ttf", 32);
+    _sb = new vg::SpriteBatch(true, true);
+    _sf = new vg::SpriteFont();
+    _sf->init("Fonts/orbitron_bold-webfont.ttf", 32);
 
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
@@ -78,14 +78,15 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc, m_soaState->glProgramManager.get()));
     _monitor.setDep("Shaders", "GameManager");
 
-    addLoadTask("Sound", "Sound", new LoadTaskSound);
-    _monitor.setDep("Sound", "GameManager");
-
     addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     _monitor.setDep("BlockData", "GameManager");
 
+    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_soaState.get()));
+    _monitor.setDep("SpaceSystem", "GameManager");
+
     addLoadTask("Textures", "Textures", new LoadTaskTextures);
     _monitor.setDep("Textures", "BlockData");
+    _monitor.setDep("Textures", "SpaceSystem");
 
     // Start the tasks
     _monitor.start();
@@ -94,7 +95,7 @@ void LoadScreen::onEntry(const GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void LoadScreen::onExit(const GameTime& gameTime) {
+void LoadScreen::onExit(const vui::GameTime& gameTime) {
     _sf->dispose();
     delete _sf;
     _sf = nullptr;
@@ -114,13 +115,10 @@ void LoadScreen::onExit(const GameTime& gameTime) {
     std::vector<ILoadTask*>().swap(_loadTasks);
 
     // Restore default rasterizer state
-    RasterizerState::CULL_CLOCKWISE.set();
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 }
 
-void LoadScreen::onEvent(const SDL_Event& e) {
-    // Empty
-}
-void LoadScreen::update(const GameTime& gameTime) {
+void LoadScreen::update(const vui::GameTime& gameTime) {
     static ui64 fCounter = 0;
 
     for (ui32 i = 0; i < _loadTasks.size(); i++) {
@@ -167,17 +165,16 @@ void LoadScreen::update(const GameTime& gameTime) {
         // It has no texture
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
-        LoadTaskStarSystem loadTaskStarSystem(nullptr, "StarSystems/Trinity", m_soaState.get());
-        loadTaskStarSystem.load();
-
-        _state = ScreenState::CHANGE_NEXT;
+        // Post process the planets
+        SoaEngine::setPlanetBlocks(m_soaState.get());
+        _state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
         
         
     }
 }
-void LoadScreen::draw(const GameTime& gameTime) {
-    const GameWindow* w = &_game->getWindow();
+void LoadScreen::draw(const vui::GameTime& gameTime) {
+    const vui::GameWindow* w = &_game->getWindow();
 
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,9 +184,9 @@ void LoadScreen::draw(const GameTime& gameTime) {
         _loadBars[i].draw(_sb, _sf, 0, 0.8f);
     }
 
-    _sb->end(SpriteSortMode::BACK_TO_FRONT);
+    _sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
 
-    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &SamplerState::LINEAR_WRAP, &DepthState::NONE, &RasterizerState::CULL_NONE);
+    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
     checkGlError("Draw()");
     
 }

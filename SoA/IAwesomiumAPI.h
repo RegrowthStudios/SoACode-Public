@@ -36,11 +36,11 @@ public:
     /// Initializes the API and hooks up all functions
     /// @oaram interfaceObject: The object that the API will talk to
     /// @param ownerScreen: The screen that owns this interface
-    virtual void init(Awesomium::JSObject* interfaceObject, IGameScreen* ownerScreen) = 0;
+    virtual void init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) = 0;
 
     /// Sets the screen that owns this API
     /// @param ownerScreen: The screen
-    virtual void setOwnerScreen(IGameScreen* ownerScreen) = 0;
+    virtual void setOwnerScreen(vui::IGameScreen* ownerScreen) = 0;
 
     /// Gets the non-void function associated with a name
     /// @param name: The name of the function

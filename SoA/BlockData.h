@@ -73,7 +73,6 @@ public:
         symmetry(ConnectedTextureSymmetry::NONE),
         reducedMethod(ConnectedTextureReducedMethod::NONE),
         useMapColor(""),
-        colorMapIndex(0),
         floraHeight(0),
         totalWeight(0),
         numTiles(1),
@@ -128,7 +127,7 @@ public:
     ConnectedTextureSymmetry symmetry;
     ConnectedTextureReducedMethod reducedMethod;
     nString useMapColor;
-    ui32 colorMapIndex;
+    vg::BitmapResource* colorMap = nullptr;
     ui32 floraHeight;
     Array<i32> weights;
     i32 totalWeight;

@@ -23,7 +23,6 @@ public:
     static void registerTexturesForLoad();
     static void getTextureHandles();
 
-    static void initializeSound();
     static void saveState();
     static void savePlayerState();
 
@@ -33,7 +32,6 @@ public:
     static void endSession();
 
     static class VoxelEditor* voxelEditor;
-    static class SoundEngine* soundEngine;
 
     static bool gameInitialized;
     static float fogStart, fogEnd;

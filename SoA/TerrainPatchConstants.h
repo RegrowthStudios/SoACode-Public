@@ -23,7 +23,9 @@ const int PATCH_HEIGHTMAP_WIDTH = PATCH_NORMALMAP_WIDTH + 2; ///< Width of heigh
 
 const int PATCH_MAX_LOD = 25; ///< Absolute maximum depth of subdivision // TODO(Ben): This should differ per planet?
 
+const int NUM_SKIRTS = 4;
 const int INDICES_PER_QUAD = 6; ///< Indices used to render a quad with glDrawElements
-const int PATCH_INDICES = (PATCH_WIDTH - 1) * (PATCH_WIDTH + 3) * INDICES_PER_QUAD; ///< Total indices in a patch
+const int PATCH_INDICES = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1 + NUM_SKIRTS) * INDICES_PER_QUAD; ///< Total indices in a patch
+const int PATCH_INDICES_NO_SKIRTS = (PATCH_WIDTH - 1) * (PATCH_WIDTH - 1) * INDICES_PER_QUAD; ///< Total indices in a patch with no skirts
 
 #endif // TerrainPatchConstants_h__

@@ -24,7 +24,7 @@
 struct MTRenderState {
     f64q spaceCameraOrientation; ///< Orientation in space
     f64v3 spaceCameraPos; ///< Position in space, relative to parent body
-    std::map<vcore::EntityID, f64v3> spaceBodyPositions; ///< Space entity positions
+    std::map<vecs::EntityID, f64v3> spaceBodyPositions; ///< Space entity positions
 };
 
 #endif // MTRenderState_h__

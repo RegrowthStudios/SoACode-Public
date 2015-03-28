@@ -31,6 +31,7 @@ class SoaState;
 DECL_VVOX(class VoxelPlanetMapData);
 
 class GameSystemUpdater {
+    friend class GameSystemEvents;
 public:
     GameSystemUpdater(OUT SoaState* soaState, InputManager* inputManager);
     ~GameSystemUpdater();
@@ -42,13 +43,13 @@ public:
 private:
     /// Struct that holds event info for destruction
     struct EventData {
-        EventData(i32 aid, InputManager::EventType etype, IDelegate<ui32>* F) :
+        EventData(i32 aid, InputManager::EventType etype, Delegate<Sender, ui32>* F) :
             axisID(aid), eventType(etype), f(F) {
             // Empty
         }
         i32 axisID;
         InputManager::EventType eventType;
-        IDelegate<ui32>* f;
+        Delegate<Sender, ui32>* f;
     };
     /// Adds an event and tracks it for destruction
     /// @param axisID: The axis to subscribe the functor to.
@@ -56,13 +57,17 @@ private:
     /// @param f: The functor to subscribe to the axes' event.
     template<typename F>
     void addEvent(i32 axisID, InputManager::EventType eventType, F f) {
-        IDelegate<ui32>* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
+        Delegate<Sender, ui32>* rv = m_inputManager->subscribeFunctor(axisID, eventType, f);
         if (rv) m_events.emplace_back(axisID, eventType, rv);
     }
 
+    void inputForward(Sender s, ui32 a);
+    Delegate<Sender, ui32> forwardDel;
+
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 
-    /// Delegates
+    // Events
+    //std::unique_ptr<GameSystemEvents> m_events = nullptr;
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     std::vector<EventData> m_events;
 

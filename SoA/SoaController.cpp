@@ -29,15 +29,18 @@ void SoaController::startGame(OUT SoaState* state) {
     SpaceSystem* spaceSystem = state->spaceSystem.get();
 
     if (state->isNewGame) {
-
+ 
         auto& svcmp = spaceSystem->m_sphericalVoxelCT.getFromEntity(state->startingPlanet);
         auto& arcmp = spaceSystem->m_axisRotationCT.getFromEntity(state->startingPlanet);
         auto& npcmp = spaceSystem->m_namePositionCT.getFromEntity(state->startingPlanet);
+
+        auto& np2 = spaceSystem->m_namePositionCT.get(spaceSystem->m_sphericalGravityCT.get(spaceSystem->m_sphericalGravityCT.getComponentID(state->startingPlanet)).namePositionComponent);
 
         // Create the player entity and make the initial planet his parent
         state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem.get(), state->startSpacePos,
                                                                   f64q(), 73.0f,
                                                                   f64v3(0.0), graphicsOptions.fov, m_app->getWindow().getAspectRatio(),
+                                                                  state->startingPlanet,
                                                                   spaceSystem->m_sphericalGravityCT.getComponentID(state->startingPlanet),
                                                                   spaceSystem->m_sphericalTerrainCT.getComponentID(state->startingPlanet));
 
@@ -45,7 +48,7 @@ void SoaController::startGame(OUT SoaState* state) {
 
         const f64v3& spacePos = state->startSpacePos;
 
-        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 260.0;
+        spcmp.position = arcmp.currentOrientation * spacePos + glm::normalize(arcmp.currentOrientation * spacePos) * 20.0;
     } else {
         // TODO(Ben): This
     }

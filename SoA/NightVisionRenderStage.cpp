@@ -10,15 +10,15 @@
 
 #include "Options.h"
 
-KEG_TYPE_INIT_BEGIN(NightVisionRenderParams, NightVisionRenderParams, kt)
-using namespace Keg;
-kt->addValue("Color", Value::basic(BasicType::F32_V3, offsetof(NightVisionRenderParams, color)));
-kt->addValue("Contrast", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceExponent)));
-kt->addValue("Filter", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceTare)));
-kt->addValue("Brightness", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, colorAmplification)));
-kt->addValue("Noise", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, noisePower)));
-kt->addValue("ColorNoise", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, noiseColor)));
-KEG_ENUM_INIT_END
+KEG_TYPE_DEF_SAME_NAME(NightVisionRenderParams, kt) {
+    using namespace keg;
+    kt.addValue("Color", Value::basic(offsetof(NightVisionRenderParams, color), BasicType::F32_V3));
+    kt.addValue("Contrast", Value::basic(offsetof(NightVisionRenderParams, luminanceExponent), BasicType::F32));
+    kt.addValue("Filter", Value::basic(offsetof(NightVisionRenderParams, luminanceTare), BasicType::F32));
+    kt.addValue("Brightness", Value::basic(offsetof(NightVisionRenderParams, colorAmplification), BasicType::F32));
+    kt.addValue("Noise", Value::basic(offsetof(NightVisionRenderParams, noisePower), BasicType::F32));
+    kt.addValue("ColorNoise", Value::basic(offsetof(NightVisionRenderParams, noiseColor), BasicType::F32));
+}
 
 NightVisionRenderParams NightVisionRenderParams::createDefault() {
     NightVisionRenderParams v = {};
@@ -49,7 +49,7 @@ NightVisionRenderStage::NightVisionRenderStage(vg::GLProgram* glProgram, vg::Ful
     glGenTextures(1, &_texNoise.id);
     glBindTexture(GL_TEXTURE_2D, _texNoise.id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _texNoise.width, _texNoise.height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
-    SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
+    vg::SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     delete[] data;
 

@@ -41,6 +41,8 @@ public:
 
 class ZipFile;
 
+struct ColorMaps;
+
 /// This class is designed so that textures are loaded in two passes.
 /// First all textures that should be loaded must be registered.
 /// In the first pass, textures are loaded into buffers with loadAllTextures().
@@ -54,11 +56,13 @@ public:
     TexturePackLoader(vg::TextureCache* textureCache);
     ~TexturePackLoader();
 
+    void setColorMaps(ColorMaps* colorMaps) { m_colorMaps = colorMaps; }
+
     /// Register a texture to be loaded
     /// @param filePath: The path of the texture
     /// @param ss: The sampler state for loading the texture
     void registerTexture(const nString& filePath,
-                         SamplerState* ss = &SamplerState::LINEAR_CLAMP_MIPMAP) {
+                         vg::SamplerState* ss = &vg::SamplerState::LINEAR_CLAMP_MIPMAP) {
         _texturesToLoad[filePath] = ss;
     }
 
@@ -93,15 +97,7 @@ public:
     /// Gets a color map, does not load the color map if it doesn't exist
     /// @param name: The name of the color map, should be a filepath if not a default
     /// @return Pointer to the color map data
-    ColorRGB8* getColorMap(const nString& name);
-    /// Gets a color map, does not load the color map if it doesn't exist
-    /// @param name: The name of the color map, should be a filepath if not a default
-    /// @return Pointer to the color map data
-    ColorRGB8* getColorMap(ui32 index) { return _blockColorMaps.at(index); }
-    /// Gets a color map, loads the color map if it doesn't exist
-    /// @param name: The name of the color map, should be a filepath if not a default
-    /// @return The color map index for fast lookup
-    ui32 getColorMapIndex(const nString& name);
+    vg::BitmapResource* getColorMap(const nString& name);
 
     /// Clears caches of textures to load. Use this before you want to
     /// reload a different set of block textures. If you don't call this
@@ -117,9 +113,6 @@ public:
 
     /// Getters
     TexturePackInfo getTexturePackInfo()  const { return _packInfo; }
-    void getColorMapColor(ui32 colorMapIndex, ColorRGB8& color, int temperature, int rainfall) {
-        color = _blockColorMaps[colorMapIndex][rainfall * 256 + temperature];
-    }
 
 private:
 
@@ -135,47 +128,28 @@ private:
 
     /// Does error checking and postprocessing to the layer and adds it to 
     /// _blockTextureLayers and _layersToLoad.
-    /// @param layer: The block texture layer to process
-    /// @param width: The width of the texture in pixels
-    /// @param height: The height of the texture in pixels
     /// @return Pointer to the BlockTextureLayer that gets stored
-    BlockTextureLayer* postProcessLayer(ui8* pixels, BlockTextureLayer& layer, ui32 width, ui32 height);
+    BlockTextureLayer* postProcessLayer(vg::BitmapResource& bitmap, BlockTextureLayer& layer);
 
     /// Maps all the layers in _blockTextureLayers to an atlas array
     void mapTexturesToAtlases();
 
     /// Gets the pixels for an image by loading it or grabbing it from cache.
-    /// @param filePath: The texture path
-    /// @param width: Texture width gets stored here
-    /// @param height: Texture height gets stored here
-    /// @return Pointer to the pixel data
-    ui8* getPixels(const nString& filePath, ui32& width, ui32& height);
-
-    /// class used for cacheing pixels
-    class Pixels {
-    public:
-        Pixels() : data(nullptr), width(0), height(0) {};
-        Pixels(std::vector<ui8>* Data, ui32 Width, ui32 Height) : data(Data), width(Width), height(Height) {
-            // Empty
-        }
-        std::vector<ui8>* data;
-        ui32 width;
-        ui32 height;
-    };
+    vg::BitmapResource getPixels(const nString& filePath);
 
     /// class used for storing texture upload state
     class TextureToUpload {
     public:
-        TextureToUpload() : pixels(nullptr), samplerState(nullptr) {};
-        TextureToUpload(Pixels* p, SamplerState* ss) :
-            pixels(p), samplerState(ss) {
+        TextureToUpload() { };
+        TextureToUpload(vg::BitmapResource rs, vg::SamplerState* ss) :
+            bitmap(rs), samplerState(ss) {
             // Empty
         }
-        Pixels* pixels;
-        SamplerState* samplerState;
+        vg::BitmapResource bitmap;
+        vg::SamplerState* samplerState = nullptr;
     };
 
-    std::map <nString, SamplerState*> _texturesToLoad; ///< Map of all unique non-block texture paths to load
+    std::map <nString, vg::SamplerState*> _texturesToLoad; ///< Map of all unique non-block texture paths to load
     std::map <nString, TextureToUpload> _texturesToUpload; ///< Map of textures to upload
 
     std::set <nString> _blockTexturesToLoad; ///< Set of all unique block texture paths to load
@@ -186,7 +160,7 @@ private:
 
     std::map <nString, BlockTextureData> _blockTextureLoadDatas; ///< Map of all texture datas we need to load
 
-    std::map <nString, Pixels> _pixelCache; ///< Cache of texture pixel data
+    std::map <nString, vg::BitmapResource> _pixelCache; ///< Cache of texture pixel data
 
     TextureAtlasStitcher _textureAtlasStitcher; ///< Class responsible for doing the mapping to the atlas array
 
@@ -196,8 +170,7 @@ private:
     
     TexturePackInfo _packInfo; ///< Information of the texture pack, such as resolution and name
 
-    std::map <nString, ui32> _blockColorMapLookupTable; ///< For looking up the index for the block color maps
-    std::vector <ColorRGB8*> _blockColorMaps; ///< Storage for the block color maps
+    ColorMaps* m_colorMaps = nullptr;
 
     bool _hasLoaded; ///< True after loadAllTextures finishes
 

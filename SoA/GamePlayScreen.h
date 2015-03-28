@@ -20,7 +20,7 @@
 #include <Vorb/ui/IGameScreen.h>
 
 #include "AwesomiumInterface.h"
-#include "GamePlayRenderPipeline.h"
+#include "GameplayRenderPipeline.h"
 #include "LoadMonitor.h"
 #include "MTRenderStateManager.h"
 #include "PDA.h"
@@ -40,7 +40,6 @@ class SpriteFont;
 class TerrainMeshMessage;
 
 template<typename... Params>
-class IDelegate;
 class GamePlayScreenDelegate;
 class OnPauseKeyDown;
 class OnFlyKeyDown;
@@ -60,25 +59,24 @@ enum DevUiModes {
     DEVUIMODE_ALL
 };
 
-class GamePlayScreen : public IAppScreen<App> {
+class GameplayScreen : public vui::IAppScreen<App> {
     friend class PauseMenuAwesomiumAPI;
     friend class PdaAwesomiumAPI;
 public:
-    GamePlayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
-    ~GamePlayScreen();
+    GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
+    ~GameplayScreen();
 
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
 
     virtual void build() override;
-    virtual void destroy(const GameTime& gameTime) override;
+    virtual void destroy(const vui::GameTime& gameTime) override;
 
-    virtual void onEntry(const GameTime& gameTime) override;
-    virtual void onExit(const GameTime& gameTime) override;
+    virtual void onEntry(const vui::GameTime& gameTime) override;
+    virtual void onExit(const vui::GameTime& gameTime) override;
 
-    virtual void onEvent(const SDL_Event& e) override;
-    virtual void update(const GameTime& gameTime) override;
-    virtual void draw(const GameTime& gameTime) override;
+    virtual void update(const vui::GameTime& gameTime) override;
+    virtual void draw(const vui::GameTime& gameTime) override;
 
     void unPause();
 
@@ -130,7 +128,7 @@ private:
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    GamePlayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
+    GameplayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
 
     MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
     const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw

@@ -20,6 +20,7 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GBuffer.h>
 #include <Vorb/RPC.h>
+#include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
 #include "VoxelSpaceConversions.h"
@@ -27,20 +28,26 @@
 #include "TerrainGenTextures.h"
 #include "TerrainPatchMesher.h"
 
-class TerrainGenDelegate;
-class RawGenDelegate;
 class ChunkGridData;
 class SphericalTerrainGpuGenerator;
+class TerrainGenDelegate;
 struct PlanetGenData;
 DECL_VG(class TextureRecycler)
 
-class RawGenDelegate : public IDelegate < void* > {
+class RawHeightGenerator {
 public:
-    virtual void invoke(Sender sender, void* userData) override;
+    void invoke(Sender sender, void* userData);
+
+    RawHeightGenerator() {
+        del = makeDelegate(*this, &RawHeightGenerator::invoke);
+        rpc.data.f = &del;
+    }
+
     void release();
     volatile bool inUse = false;
 
     vcore::RPC rpc;
+    Delegate<Sender, void*> del;
 
     f32v3 startPos;
     WorldCubeFace cubeFace;
@@ -64,7 +71,7 @@ private:
 
     SphericalTerrainGpuGenerator* m_generator = nullptr;
 
-    RawGenDelegate *m_generators = nullptr;
+    RawHeightGenerator *m_generators = nullptr;
 };
 
 class SphericalTerrainGpuGenerator {
@@ -84,7 +91,7 @@ public:
 
     /// Generates a raw heightmap
     /// @param data: The delegate data
-    void generateRawHeightmap(RawGenDelegate* data);
+    void generateRawHeightmap(RawHeightGenerator* data);
 
     /// Invokes a raw heighmap generation with RPC
     /// @so: The RPC
@@ -105,6 +112,8 @@ public:
     HeightmapGenRpcDispatcher heightmapGenRpcDispatcher;
 
 private:
+    /// Lazy initialization function
+    void init();
     /// Updates terrain patch generation
     void updatePatchGeneration();
     /// Updates raw heightmap generation
@@ -122,7 +131,7 @@ private:
 
     int m_rawCounter[2]; ///< Double buffered raw counter
     TerrainGenTextures m_rawTextures[2][RAW_PER_FRAME]; ///< Double buffered textures for raw gen
-    RawGenDelegate* m_rawDelegates[2][RAW_PER_FRAME]; ///< Double buffered delegates for raw gen
+    RawHeightGenerator* m_rawDelegates[2][RAW_PER_FRAME]; ///< Double buffered delegates for raw gen
     VGBuffer m_rawPbos[2][RAW_PER_FRAME]; ///< Double bufferd PBOs for raw gen
 
     VGFramebuffer m_normalFbo = 0; ///< FBO for normal map generation
@@ -131,6 +140,7 @@ private:
     vcore::RPCManager m_patchRpcManager; /// RPC manager for mesh height maps
     vcore::RPCManager m_rawRpcManager; /// RPC manager for raw height data requests
 
+    TerrainPatchMeshManager* m_meshManager = nullptr; ///< Handles meshes for terrain patches
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::GLProgram* m_genProgram = nullptr; ///< Generation program
     vg::GLProgram* m_normalProgram = nullptr; ///< Normal map gen program
@@ -145,11 +155,10 @@ private:
     VGUniform unRadius;
     VGUniform unHeightMap;
     VGUniform unWidth;
-    VGUniform unTexelWidth;
 
     vg::FullQuadVBO m_quad; ///< Quad for rendering
 
-    TerrainPatchMesher m_mesher; ///< Creates patch meshes
+    std::unique_ptr<TerrainPatchMesher> m_mesher = nullptr; ///< Creates patch meshes
 
     static float m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]; ///< Stores height data
 };

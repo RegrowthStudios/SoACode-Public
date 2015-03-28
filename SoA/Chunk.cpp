@@ -17,7 +17,6 @@
 #include "RenderTask.h"
 #include "Rendering.h"
 #include "SimplexNoise.h"
-#include "Sound.h"
 #include "SphericalTerrainGpuGenerator.h"
 #include "TerrainGenerator.h"
 #include "VoxelUtils.h"
@@ -26,15 +25,6 @@
 GLuint Chunk::vboIndicesID = 0;
 
 std::vector<MineralData*> Chunk::possibleMinerals;
-
-void RawGenDelegate::invoke(Sender sender, void* userData) {
-    generator->generateRawHeightmap(this);
-}
-
-void RawGenDelegate::release() {
-    inUse = false;
-    gridData.reset();
-}
 
 void Chunk::init(const ChunkPosition3D &chunkPos) {
 	loadStatus = 0;

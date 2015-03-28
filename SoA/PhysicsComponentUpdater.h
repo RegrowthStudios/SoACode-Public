@@ -37,9 +37,9 @@ public:
     static f64v3 calculateGravityAcceleration(f64v3 relativePosition, f64 mass);
 private:
     void updateVoxelPhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
-                            PhysicsComponent& pyCmp, vcore::EntityID entity);
+                            PhysicsComponent& pyCmp, vecs::EntityID entity);
     void updateSpacePhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
-                            PhysicsComponent& pyCmp, vcore::EntityID entity);
+                            PhysicsComponent& pyCmp, vecs::EntityID entity);
     void transitionPosX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius);
     void transitionNegX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius);
     void transitionPosZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius);

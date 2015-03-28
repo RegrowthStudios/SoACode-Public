@@ -65,7 +65,7 @@ void LoadBar::update(f32 dt) {
     }
 }
 
-void LoadBar::draw(SpriteBatch* sb, SpriteFont* sf, ui32 backTexture, f32 depth) {
+void LoadBar::draw(vg::SpriteBatch* sb, vg::SpriteFont* sf, ui32 backTexture, f32 depth) {
     f32v2 endPos = _startPosition + (_commonProps.offsetDirection * _lerpAmount);
     sb->draw(backTexture, endPos, _commonProps.size, _colorBackground, depth);
     endPos += _commonProps.textOffset;

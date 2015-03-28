@@ -38,8 +38,8 @@ public:
     std::unique_ptr<SpaceSystem> spaceSystem;
     std::unique_ptr<GameSystem> gameSystem;
 
-    vcore::EntityID startingPlanet = 0;
-    vcore::EntityID playerEntity = 0;
+    vecs::EntityID startingPlanet = 0;
+    vecs::EntityID playerEntity = 0;
 
     std::unique_ptr<vg::GLProgramManager> glProgramManager;
     std::unique_ptr<DebugRenderer> debugRenderer;

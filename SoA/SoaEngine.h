@@ -40,31 +40,35 @@ public:
     };
     /// Initializes SoaState resources
     /// @param state: The SoaState
-    static void initState(OUT SoaState* state);
+    static void initState(SoaState* state);
     
     /// Loads and initializes the SpaceSystem
     /// @param state: The SoaState that holds the space system
     /// @param loadData: Parameters for loading space system
     /// @param glrpc: Optional RPCManager. If nullptr, then loadSpaceSystem will load the shader.
     ///   otherwise, it will ask glrpc to load the shader and block until finished.
-    static bool loadSpaceSystem(OUT SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc = nullptr);
+    static bool loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc = nullptr);
 
     /// Loads and initializes the GameSystem
     /// @param state: The SoaState that holds the space system
     /// @param loadData: Parameters for loading game system
-    static bool loadGameSystem(OUT SoaState* state, const GameSystemLoadData& loadData);
+    static bool loadGameSystem(SoaState* state, const GameSystemLoadData& loadData);
+
+    /// Sets block IDs for planet data
+    /// @param state: The SoaState
+    static void setPlanetBlocks(SoaState* state);
 
     /// Destroys the SoaState
     /// @param state: The SoaState
-    static void destroyAll(OUT SoaState* state);
+    static void destroyAll(SoaState* state);
 
     /// Destroys the Game System
     /// @param state: The SoaState
-    static void destroyGameSystem(OUT SoaState* state);
+    static void destroyGameSystem(SoaState* state);
 
     /// Destroys the Space System
     /// @param state: The SoaState
-    static void destroySpaceSystem(OUT SoaState* state);
+    static void destroySpaceSystem(SoaState* state);
 
 private:
     /// Loads and adds a star system to the SpaceSystem
@@ -81,13 +85,11 @@ private:
     /// @param filePath: Path to body
     /// @param sysProps: Keg properties for the system
     /// @param body: The body to fill
-    /// @param glrpc: Optional RPCManager.
     /// @return true on success
     static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body,
-                                   vcore::RPCManager* glrpc = nullptr);
+                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body);
 
-    static void calculateOrbit(SpaceSystem* spaceSystem, vcore::EntityID entity, f64 parentMass, bool isBinary);
+    static void calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary);
 
 };
 

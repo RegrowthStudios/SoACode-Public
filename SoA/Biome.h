@@ -37,7 +37,7 @@ public:
 struct BlockLayer {
     ui32 start;
     ui32 width;
-    ui32 block;
+    ui32 block = 0;
 };
 KEG_TYPE_DECL(BlockLayer);
 
