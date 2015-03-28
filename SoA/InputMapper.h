@@ -28,12 +28,6 @@ public:
     typedef Event<ui32>::Listener Listener;
     typedef i32 InputID;
 
-    /// The possible event types that can be subscribed to.
-    enum EventType {
-        UP, ///< Event when a button is released.
-        DOWN ///< Event when a button is pressed.
-    };
-
     /// Constructor.
     InputMapper();
 
@@ -109,46 +103,13 @@ public:
     /// Stops receiving input events from dispatcher
     void stopInput();
 
-    Input& get(i32 i) {
+    // Gets the input associated with the InputID
+    Input& get(InputID i) {
         return m_inputs[i];
     }
-
-    Input& operator[](i32 i) {
+    Input& operator[](InputID i) {
         return m_inputs[i];
     }
-    /// Subscribes a delegate to one of the axes' events.
-    /// Returns nullptr if inputID is invalid or eventType is invalid.
-    /// @see Event::add
-    /// @param inputID: The input to subscribe the functor to.
-    /// @param eventType: The event to subscribe the funtor to.
-    /// @param f: The delegate to subscribe to the axes' event.
-    /// @return The newly made delegate.
-    void subscribe(const i32 inputID, EventType eventType, Listener f);
-
-    /// Subscribes a functor to one of the axes' events.
-    /// Returns nullptr if inputID is invalid or eventType is invalid.
-    /// @see Event::addFunctor
-    /// @param inputID: The input to subscribe the functor to.
-    /// @param eventType: The event to subscribe the functor to.
-    /// @param f: The functor to subscribe to the axes' event.
-    /// @return The newly made delegate.
-    template<typename F>
-    Listener* subscribeFunctor(const InputID id, EventType eventType, F f) {
-        if (id < 0 || id >= m_inputs.size()) return nullptr;
-        switch (eventType) {
-            case UP:
-                return m_inputs[id].upEvent.addFunctor(f);
-            case DOWN:
-                return m_inputs[id].downEvent.addFunctor(f);
-        }
-        return nullptr;
-    }
-
-    /// Unsubscribes a delegate from a Axes' event.
-    /// @see Event::remove
-    /// @param inputID: The id of the input to remove the delegate from
-    /// @param eventType: The event to remove the delegate from
-    void unsubscribe(const InputID id, EventType eventType, Listener f);
 
 private:
     void onMouseButtonDown(Sender, const vui::MouseButtonEvent& e);

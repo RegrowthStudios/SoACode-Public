@@ -9,8 +9,8 @@
 
 // To cut down on code
 #define ADD_INPUT(input, name) \
-addEvent(INPUT_##input, InputMapper::DOWN, &GameSystemEvents::on##name##Down); \
-addEvent(INPUT_##input, InputMapper::UP, &GameSystemEvents::on##name##Up);
+addEvent(INPUT_##input, &GameSystemEvents::on##name##Down, &GameSystemEvents::on##name##Up);
+
 
 GameSystemEvents::GameSystemEvents(GameSystemUpdater* owner) :
     m_owner(owner),
@@ -44,7 +44,11 @@ void GameSystemEvents::unsubscribeEvents() {
     if (!m_isSubscribed) return;
 
     for (auto& evnt : m_events) {
-        m_inputMapper->unsubscribe(evnt.id, evnt.eventType, evnt.l);
+        if (evnt.isDown) {
+            m_inputMapper->get(evnt.id).downEvent -= evnt.l;
+        } else {
+            m_inputMapper->get(evnt.id).upEvent -= evnt.l;
+        }
     }
     std::vector<EventData>().swap(m_events);
 

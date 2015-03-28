@@ -118,26 +118,6 @@ void InputMapper::stopInput() {
     vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
 }
 
-void InputMapper::subscribe(const InputID id, EventType eventType, Listener f) {
-    if (id < 0 || id >= m_inputs.size()) return;
-    switch (eventType) {
-    case UP:
-        m_inputs[id].upEvent.add(f);
-    case DOWN:
-        m_inputs[id].downEvent.add(f);
-    }
-}
-
-void InputMapper::unsubscribe(const InputID id, EventType eventType, Listener f) {
-    if (id < 0 || id >= m_inputs.size()) return;
-    switch(eventType) {
-    case UP:
-        m_inputs[id].upEvent.remove(f);
-    case DOWN:
-        m_inputs[id].downEvent.remove(f);
-    }
-}
-
 void InputMapper::saveInputs(const nString &filePath /* = DEFAULT_CONFIG_LOCATION */) {
     //TODO(Ben): Implement
    // vio::IOManager iom;

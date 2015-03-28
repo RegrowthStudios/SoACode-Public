@@ -54,21 +54,29 @@ private:
 
     /// Struct that holds event info for unsubscribing
     struct EventData {
-        EventData(InputMapper::InputID iid, InputMapper::EventType etype, InputMapper::Listener L) :
-            id(iid), eventType(etype), l(L) {
+        EventData(InputMapper::InputID iid, InputMapper::Listener L, bool IsDown) :
+            id(iid), l(L), isDown(IsDown) {
             // Empty
         }
         InputMapper::InputID id;
-        InputMapper::EventType eventType;
         InputMapper::Listener l;
+        bool isDown;
     };
 
     /// Adds an event and tracks it for unsubscribing
     template<typename F>
-    void addEvent(i32 axisID, InputMapper::EventType eventType, F f) {
-        InputMapper::Listener l = makeDelegate(*this, f);
-        m_inputMapper->subscribe(axisID, eventType, l);
-        m_events.emplace_back(axisID, eventType, l);
+    void addEvent(i32 axisID, F downF, F upF) {
+        InputMapper::Listener l;
+        if (downF) {
+            l = makeDelegate(*this, downF);
+            m_inputMapper->get(axisID).downEvent += l;
+            m_events.emplace_back(axisID, l, true);
+        }
+        if (upF) {
+            l = makeDelegate(*this, upF);
+            m_inputMapper->get(axisID).upEvent += l;
+            m_events.emplace_back(axisID, l, false);
+        }
     }
 
     std::vector<EventData> m_events;

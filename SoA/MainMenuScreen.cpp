@@ -162,7 +162,7 @@ void MainMenuScreen::initInput() {
     // Reload space system event
 
     onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputMapper::EventType::DOWN, onReloadSystemDel);
+    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += onReloadSystemDel;
 }
 
 void MainMenuScreen::initRenderPipeline() {
