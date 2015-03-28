@@ -289,10 +289,6 @@ void GameplayScreen::initRenderPipeline() {
                           &m_pauseMenu);
 }
 
-void GameplayScreen::handleInput() {
-
-}
-
 // TODO(Ben): Collision
 //void GamePlayScreen::updatePlayer() {
 
@@ -328,9 +324,6 @@ void GameplayScreen::updateThreadFunc() {
 
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
-
-        // Update the input
-        handleInput();
 
         updateECS();
         updateMTRenderState();

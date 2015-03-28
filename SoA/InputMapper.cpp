@@ -41,7 +41,8 @@ InputMapper::InputID InputMapper::createInput(const nString& inputName, VirtualK
     if (id >= 0) return id;
     id = m_inputs.size();
     m_inputLookup[inputName] = id;
-    m_inputs.emplace_back(inputName, defaultKey, this);
+    m_inputs.emplace_back(id, inputName, defaultKey, this);
+    m_keyCodeMap[m_inputs.back().key].push_back(id);
     return id;
 }
 
@@ -90,7 +91,9 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
         // TODO(Ben): Somehow do multikey support
         // Right now its only using the first key
         InputID id = m_inputs.size();
-        m_inputs.emplace_back(name, kegArray.defaultKey[0], this);
+        m_inputs.emplace_back(id, name, kegArray.defaultKey[0], this);
+        m_keyCodeMap[m_inputs.back().key].push_back(id);
+
         if (kegArray.key.size()) {
             m_inputs.back().key = kegArray.key[0];
         } else {
@@ -110,12 +113,14 @@ void InputMapper::startInput() {
     vui::InputDispatcher::mouse.onButtonUp += makeDelegate(*this, &InputMapper::onMouseButtonDown);
     vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &InputMapper::onKeyDown);
     vui::InputDispatcher::key.onKeyUp += makeDelegate(*this, &InputMapper::onKeyUp);
+    m_receivingInput = true;
 }
 void InputMapper::stopInput() {
     vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
     vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
     vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &InputMapper::onKeyDown);
     vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
+    m_receivingInput = false;
 }
 
 void InputMapper::saveInputs(const nString &filePath /* = DEFAULT_CONFIG_LOCATION */) {
@@ -133,20 +138,32 @@ void InputMapper::saveInputs(const nString &filePath /* = DEFAULT_CONFIG_LOCATIO
     }*/
 }
 
-VirtualKey InputMapper::getKey(const InputID inputID) {
-    if (inputID < 0 || inputID >= m_inputs.size()) return VKEY_HIGHEST_VALUE;
-    return m_inputs.at(inputID).key;
+VirtualKey InputMapper::getKey(const InputID id) {
+    if (id < 0 || id >= m_inputs.size()) return VKEY_HIGHEST_VALUE;
+    return m_inputs.at(id).key;
 }
 
-void InputMapper::setKey(const InputID inputID, VirtualKey key) {
-    m_inputs.at(inputID).key = key;
+void InputMapper::setKey(const InputID id, VirtualKey key) {
+    // Need to remove old key state
+    VirtualKey oldKey = m_inputs.at(id).key;
+    auto& it = m_keyCodeMap.find(oldKey);
+    auto& vec = it->second;
+    for (int i = 0; i < vec.size(); i++) {
+        // Remove the input from the vector keyed on VirtualKey
+        if (vec[i] == id) {
+            vec[i] = vec.back();
+            vec.pop_back();
+            break;
+        }
+    }
+    // Set new key
+    m_keyCodeMap[key].push_back(id);
+    m_inputs[id].key = key;
 }
 
-void InputMapper::setKeyToDefault(const InputID inputID) {
-    // TODO(Ben): Change the key map here too
-    if(inputID < 0 || inputID >= m_inputs.size()) return;
-    Input& input = m_inputs.at(inputID);
-    input.key = input.defaultKey;
+void InputMapper::setKeyToDefault(const InputID id) {
+    if (id < 0 || id >= m_inputs.size()) return;
+    setKey(id, m_inputs.at(id).defaultKey);
 }
 
 void InputMapper::onMouseButtonDown(Sender, const vui::MouseButtonEvent& e) {
@@ -161,6 +178,7 @@ void InputMapper::onMouseButtonDown(Sender, const vui::MouseButtonEvent& e) {
         break;
     }
 }
+
 void InputMapper::onMouseButtonUp(Sender, const vui::MouseButtonEvent& e) {
     switch (e.button) {
     case vui::MouseButton::LEFT:
@@ -173,9 +191,27 @@ void InputMapper::onMouseButtonUp(Sender, const vui::MouseButtonEvent& e) {
         break;
     }
 }
+
 void InputMapper::onKeyDown(Sender, const vui::KeyEvent& e) {
-    m_keyStates[e.keyCode] = true;
+    if (!m_keyStates[e.keyCode]) {
+        m_keyStates[e.keyCode] = true;
+        auto& it = m_keyCodeMap.find((VirtualKey)e.keyCode);
+        if (it != m_keyCodeMap.end()) {
+            // Call all events mapped to that virtual key
+            for (auto& id : it->second) {
+                m_inputs[id].downEvent(e.keyCode);
+            }
+        }
+    }
 }
+
 void InputMapper::onKeyUp(Sender, const vui::KeyEvent& e) {
     m_keyStates[e.keyCode] = false;
+    auto& it = m_keyCodeMap.find((VirtualKey)e.keyCode);
+    if (it != m_keyCodeMap.end()) {
+        // Call all events mapped to that virtual key
+        for (auto& id : it->second) {
+            m_inputs[id].upEvent(e.keyCode);
+        }
+    } 
 }

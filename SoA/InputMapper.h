@@ -37,7 +37,8 @@ public:
     /// The data for a single Input.
     class Input {
     public:
-        Input(const nString& nm, VirtualKey defKey, InputMapper* parent) :
+        Input(InputID ID, const nString& nm, VirtualKey defKey, InputMapper* parent) :
+        id(ID),
         name(nm),
         defaultKey(defKey),
         key(defKey),
@@ -45,7 +46,7 @@ public:
         downEvent(parent){
             // Empty
         }
-
+        InputID id;
         nString name; ///< The name of the input.
         VirtualKey defaultKey; ///< The default key.
         VirtualKey key; ///< The actual key.
@@ -56,7 +57,7 @@ public:
 
 
     /// Returns the state of an input
-    /// @param inputID: The id of the input which is being looked up.
+    /// @param id: The id of the input which is being looked up.
     /// @return The state of the positive key in the input.
     bool getInputState(const InputID id);
 
@@ -70,18 +71,18 @@ public:
 
     /// Get the positive key of the supplied input.
     /// If the input does not exist return UINT32_MAX.
-    /// @param inputID: The id of the input to look up.
+    /// @param id: The id of the input to look up.
     /// @return The id of the positive key of the input.
-    VirtualKey getKey(const i32 inputID);
+    VirtualKey getKey(const i32 id);
 
     /// Set the positive key of the supplied input.
-    /// @param inputID: The id of the input to look up.
+    /// @param id: The id of the input to look up.
     /// @param key: The key to set the keys' positive key to.
-    void setKey(const InputID inputID, VirtualKey key);
+    void setKey(const InputID id, VirtualKey key);
 
     /// Resets the axes' positive key to the default.
-    /// @param inputID: The input to reset to default.
-    void setKeyToDefault(const InputID inputID);
+    /// @param id: The input to reset to default.
+    void setKeyToDefault(const InputID id);
 
     /// Gets the input ID for the supplied input.
     /// If supplied an invalid inputName the function returns -1.
@@ -121,7 +122,7 @@ private:
    
     InputList m_inputs; ///< All the stored axes.
     std::unordered_map<nString, InputID> m_inputLookup; ///< A map of input names to input IDs for quick look up.
-    std::unordered_map<ui16, InputList> m_keyCodeMap; ///< Map of keycodes to active input
+    std::unordered_map<VirtualKey, std::vector<InputID> > m_keyCodeMap; ///< Map of keycodes to active input
 
     bool m_keyStates[VKEY_HIGHEST_VALUE] = {}; ///< The state of the keys and mouse buttons this frame.
   

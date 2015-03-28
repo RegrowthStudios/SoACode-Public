@@ -95,9 +95,6 @@ private:
     /// Initializes the rendering
     void initRenderPipeline();
 
-    /// Handles updating state based on input
-    void handleInput();
-
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
