@@ -40,6 +40,26 @@ public:
     /// Destructor.
     ~InputMapper();
 
+    /// The data for a single Input.
+    class Input {
+    public:
+        Input(const nString& nm, VirtualKey defKey, InputMapper* parent) :
+        name(nm),
+        defaultKey(defKey),
+        key(defKey),
+        upEvent(parent),
+        downEvent(parent){
+            // Empty
+        }
+
+        nString name; ///< The name of the input.
+        VirtualKey defaultKey; ///< The default key.
+        VirtualKey key; ///< The actual key.
+        Event<ui32> upEvent; ///< The event for when the key is released
+        Event<ui32> downEvent; ///< The event for when the key is pressed
+    };
+    typedef std::vector<Input> InputList;
+
 
     /// Returns the state of an input
     /// @param inputID: The id of the input which is being looked up.
@@ -89,6 +109,13 @@ public:
     /// Stops receiving input events from dispatcher
     void stopInput();
 
+    Input& get(i32 i) {
+        return m_inputs[i];
+    }
+
+    Input& operator[](i32 i) {
+        return m_inputs[i];
+    }
     /// Subscribes a delegate to one of the axes' events.
     /// Returns nullptr if inputID is invalid or eventType is invalid.
     /// @see Event::add
@@ -110,9 +137,9 @@ public:
         if (id < 0 || id >= m_inputs.size()) return nullptr;
         switch (eventType) {
             case UP:
-                return m_inputs[id]->upEvent.addFunctor(f);
+                return m_inputs[id].upEvent.addFunctor(f);
             case DOWN:
-                return m_inputs[id]->downEvent.addFunctor(f);
+                return m_inputs[id].downEvent.addFunctor(f);
         }
         return nullptr;
     }
@@ -122,17 +149,6 @@ public:
     /// @param inputID: The id of the input to remove the delegate from
     /// @param eventType: The event to remove the delegate from
     void unsubscribe(const InputID id, EventType eventType, Listener f);
-
-    /// The data for a single Axis.
-    class Input {
-    public:
-        nString name; ///< The name of the input.
-        VirtualKey defaultKey; ///< The default key.
-        VirtualKey key; ///< The actual key.
-        Event<ui32> upEvent; ///< The event for when the key is released
-        Event<ui32> downEvent; ///< The event for when the key is pressed
-    };
-    typedef std::vector<Input*> InputList;
 
 private:
     void onMouseButtonDown(Sender, const vui::MouseButtonEvent& e);

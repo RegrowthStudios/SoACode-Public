@@ -27,31 +27,21 @@ InputMapper::InputMapper() {
 }
 
 InputMapper::~InputMapper() {
-    for (unsigned int i = 0; i < m_inputs.size(); i++) {
-        delete m_inputs[i];
-    }
+    // Empty
 }
 
-bool InputMapper::getInputState(const InputMapper::InputID id) {
+bool InputMapper::getInputState(const InputID id) {
     // Check Input
     if (id < 0 || id >= m_inputs.size()) return false;
-
-    Input* input = m_inputs.at(id);
-    return m_keyStates[input->key];
+    return m_keyStates[m_inputs.at(id).key];
 }
 
 InputMapper::InputID InputMapper::createInput(const nString& inputName, VirtualKey defaultKey) {
-    InputMapper::InputID id = getInputID(inputName);
+    InputID id = getInputID(inputName);
     if (id >= 0) return id;
     id = m_inputs.size();
     m_inputLookup[inputName] = id;
-    Input *input = new Input();
-    input->name = inputName;
-    input->defaultKey = defaultKey;
-    input->key = defaultKey;
-    input->upEvent = Event<ui32>(this);
-    input->downEvent = Event<ui32>(this);
-    m_inputs.push_back(input);
+    m_inputs.emplace_back(inputName, defaultKey, this);
     return id;
 }
 
@@ -99,20 +89,16 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
         
         // TODO(Ben): Somehow do multikey support
         // Right now its only using the first key
-        Input* curInput = new Input();
-        curInput->name = name;
-        curInput->defaultKey = kegArray.defaultKey[0];
+        InputID id = m_inputs.size();
+        m_inputs.emplace_back(name, kegArray.defaultKey[0], this);
         if (kegArray.key.size()) {
-            curInput->key = kegArray.key[0];
+            m_inputs.back().key = kegArray.key[0];
         } else {
-            curInput->key = curInput->defaultKey;
+            m_inputs.back().key = kegArray.defaultKey[0];
         }
 
-        curInput->upEvent = Event<ui32>(curInput);
-        curInput->downEvent = Event<ui32>(curInput);
+        m_inputLookup[name] = id;
 
-        m_inputLookup[curInput->name] = m_inputs.size();
-        m_inputs.push_back(curInput);
     });
     reader.forAllInMap(node, f);
     delete f;
@@ -136,9 +122,9 @@ void InputMapper::subscribe(const InputID id, EventType eventType, Listener f) {
     if (id < 0 || id >= m_inputs.size()) return;
     switch (eventType) {
     case UP:
-        m_inputs[id]->upEvent.add(f);
+        m_inputs[id].upEvent.add(f);
     case DOWN:
-        m_inputs[id]->downEvent.add(f);
+        m_inputs[id].downEvent.add(f);
     }
 }
 
@@ -146,9 +132,9 @@ void InputMapper::unsubscribe(const InputID id, EventType eventType, Listener f)
     if (id < 0 || id >= m_inputs.size()) return;
     switch(eventType) {
     case UP:
-        m_inputs[id]->upEvent.remove(f);
+        m_inputs[id].upEvent.remove(f);
     case DOWN:
-        m_inputs[id]->downEvent.remove(f);
+        m_inputs[id].downEvent.remove(f);
     }
 }
 
@@ -169,17 +155,18 @@ void InputMapper::saveInputs(const nString &filePath /* = DEFAULT_CONFIG_LOCATIO
 
 VirtualKey InputMapper::getKey(const InputID inputID) {
     if (inputID < 0 || inputID >= m_inputs.size()) return VKEY_HIGHEST_VALUE;
-    return m_inputs.at(inputID)->key;
+    return m_inputs.at(inputID).key;
 }
 
 void InputMapper::setKey(const InputID inputID, VirtualKey key) {
-    m_inputs.at(inputID)->key = key;
+    m_inputs.at(inputID).key = key;
 }
 
 void InputMapper::setKeyToDefault(const InputID inputID) {
+    // TODO(Ben): Change the key map here too
     if(inputID < 0 || inputID >= m_inputs.size()) return;
-    Input* input = m_inputs.at(inputID);
-    input->key = input->defaultKey;
+    Input& input = m_inputs.at(inputID);
+    input.key = input.defaultKey;
 }
 
 void InputMapper::onMouseButtonDown(Sender, const vui::MouseButtonEvent& e) {
