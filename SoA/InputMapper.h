@@ -30,7 +30,6 @@ public:
 
     /// Constructor.
     InputMapper();
-
     /// Destructor.
     ~InputMapper();
 
@@ -54,7 +53,6 @@ public:
         Event<ui32> downEvent; ///< The event for when the key is pressed
     };
     typedef std::vector<Input> InputList;
-
 
     /// Returns the state of an input
     /// @param id: The id of the input which is being looked up.
@@ -95,14 +93,15 @@ public:
     void loadInputs(const nString& filePath = INPUTMAPPER_DEFAULT_CONFIG_LOCATION);
 
     /// Saves currently stored axes to the given file path.
-
     /// @param filePath: The local filePath to the file to save the loaded axes into.
-    void saveInputs(const nString& filePath = DEFAULT_CONFIG_LOCATION);
+    void saveInputs(const nString& filePath = INPUTMAPPER_DEFAULT_CONFIG_LOCATION);
 
     /// Begins receiving input events from dispatcher
     void startInput();
     /// Stops receiving input events from dispatcher
     void stopInput();
+
+    const bool& isRecievingInput() const { return m_receivingInput; }
 
     // Gets the input associated with the InputID
     Input& get(InputID i) {
@@ -117,8 +116,6 @@ private:
     void onMouseButtonUp(Sender, const vui::MouseButtonEvent& e);
     void onKeyDown(Sender, const vui::KeyEvent& e);
     void onKeyUp(Sender, const vui::KeyEvent& e);
-
-    static const nString DEFAULT_CONFIG_LOCATION;
    
     InputList m_inputs; ///< All the stored axes.
     std::unordered_map<nString, InputID> m_inputLookup; ///< A map of input names to input IDs for quick look up.

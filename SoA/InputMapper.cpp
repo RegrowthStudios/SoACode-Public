@@ -123,7 +123,7 @@ void InputMapper::stopInput() {
     m_receivingInput = false;
 }
 
-void InputMapper::saveInputs(const nString &filePath /* = DEFAULT_CONFIG_LOCATION */) {
+void InputMapper::saveInputs(const nString &filePath /* = INPUTMAPPER_DEFAULT_CONFIG_LOCATION */) {
     //TODO(Ben): Implement
    // vio::IOManager iom;
     // Just build the data string manually then write it
