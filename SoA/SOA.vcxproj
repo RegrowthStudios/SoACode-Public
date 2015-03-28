@@ -307,7 +307,6 @@ EXIT 0</Command>
     <ClInclude Include="GameSystem.h" />
     <ClInclude Include="GameSystemComponents.h" />
     <ClInclude Include="GameSystemAssemblages.h" />
-    <ClInclude Include="GameSystemEvents.h" />
     <ClInclude Include="GameSystemUpdater.h" />
     <ClInclude Include="GasGiantRenderer.h" />
     <ClInclude Include="HardCodedIDs.h" />
@@ -495,7 +494,6 @@ EXIT 0</Command>
     <ClCompile Include="FrustumComponentUpdater.cpp" />
     <ClCompile Include="GameplayRenderPipeline.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
-    <ClCompile Include="GameSystemEvents.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
     <ClCompile Include="GameSystem.cpp" />
     <ClCompile Include="GameSystemAssemblages.cpp" />
