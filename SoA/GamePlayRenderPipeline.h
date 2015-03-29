@@ -16,7 +16,7 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
-#include <Vorb/graphics/IRenderPipeline.h>
+#include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 
 #include "Camera.h"
@@ -52,7 +52,7 @@ class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 
-class GameplayRenderPipeline : public vg::IRenderPipeline {
+class GameplayRenderPipeline : public vg::RenderPipeline {
 public:
     GameplayRenderPipeline();
     ~GameplayRenderPipeline();
@@ -74,7 +74,7 @@ public:
     virtual void render() override;
 
     /// Frees all resources
-    virtual void destroy() override;
+    virtual void destroy(bool shouldDisposeStages) override;
 
     /// Cycles the dev hud
     /// @param offset: How much to offset the current mode

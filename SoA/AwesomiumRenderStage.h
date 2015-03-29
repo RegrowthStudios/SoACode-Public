@@ -27,7 +27,7 @@ public:
     AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface, vg::GLProgram* glProgram);
 
     // Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
     IAwesomiumInterface* _awesomiumInterface; ///< The user interface handle
     vg::GLProgram* _glProgram; ///< The texture GLSL program

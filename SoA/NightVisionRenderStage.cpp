@@ -64,7 +64,7 @@ NightVisionRenderStage::~NightVisionRenderStage() {
     glDeleteTextures(1, &_texNoise.id);
 }
 
-void NightVisionRenderStage::draw() {
+void NightVisionRenderStage::render() {
     _et += NIGHT_VISION_DEFAULT_NOISE_TIME_STEP;
 
     //_visionColorHSL.r = fmod(_visionColorHSL.r = 0.005f, 6.28f);

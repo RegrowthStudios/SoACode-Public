@@ -10,7 +10,7 @@
 
 SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
                                      const Camera* camera) :
-                                     IRenderStage(camera),
+                                     IRenderStage("Skybox", camera),
                                      _skyboxRenderer(new SkyboxRenderer()),
                                      _glProgram(glProgram) {
 
@@ -22,14 +22,14 @@ SkyboxRenderStage::~SkyboxRenderStage() {
     delete _skyboxRenderer;
 }
 
-void SkyboxRenderStage::draw() {
+void SkyboxRenderStage::render() {
     // Check if FOV or Aspect Ratio changed
-    if (_fieldOfView != _camera->getFieldOfView() ||
-        _aspectRatio != _camera->getAspectRatio()) {
+    if (_fieldOfView != m_camera->getFieldOfView() ||
+        _aspectRatio != m_camera->getAspectRatio()) {
         updateProjectionMatrix();
     }
     // Draw using custom proj and camera view
-    drawSpace(_projectionMatrix * _camera->getViewMatrix());
+    drawSpace(_projectionMatrix * m_camera->getViewMatrix());
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
@@ -131,8 +131,8 @@ void SkyboxRenderStage::updateProjectionMatrix() {
     #define SKYBOX_ZNEAR 0.01f
     #define SKYBOX_ZFAR 300.0f
 
-    _fieldOfView = _camera->getFieldOfView();
-    _aspectRatio = _camera->getAspectRatio();
+    _fieldOfView = m_camera->getFieldOfView();
+    _aspectRatio = m_camera->getAspectRatio();
 
     // Set up projection matrix
     _projectionMatrix = glm::perspective(_fieldOfView, _aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);

@@ -11,7 +11,7 @@ CutoutVoxelRenderStage::CutoutVoxelRenderStage(const GameRenderParams* gameRende
 }
 
 
-void CutoutVoxelRenderStage::draw() {
+void CutoutVoxelRenderStage::render() {
     ChunkRenderer::drawCutoutBlocks(_gameRenderParams);
 }
 

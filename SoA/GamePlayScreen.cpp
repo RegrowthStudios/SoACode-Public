@@ -105,7 +105,7 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     m_pda.destroy();
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
     m_pauseMenu.destroy();
 }
 

@@ -16,7 +16,7 @@ HdrRenderStage::HdrRenderStage(const vg::GLProgramManager* glPM, vg::FullQuadVBO
     // Empty
 }
 
-void HdrRenderStage::draw() {
+void HdrRenderStage::render() {
     f32m4 oldVP = _oldVP;
     f32m4 vp = _camera->getProjectionMatrix() * _camera->getViewMatrix();
     _oldVP = vp;

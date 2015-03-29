@@ -11,7 +11,7 @@ SonarRenderStage::SonarRenderStage(const GameRenderParams* gameRenderParams) :
     // Empty
 }
 
-void SonarRenderStage::draw() {
+void SonarRenderStage::render() {
     glDisable(GL_DEPTH_TEST);
     ChunkRenderer::drawSonar(_gameRenderParams);
     glEnable(GL_DEPTH_TEST);

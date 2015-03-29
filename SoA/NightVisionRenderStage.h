@@ -58,7 +58,7 @@ public:
     void setParams(NightVisionRenderParams* params);
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
     vg::GLProgram* _glProgram; ///< Stores the program we use to render
     vg::FullQuadVBO* _quad; ///< For use in processing through data

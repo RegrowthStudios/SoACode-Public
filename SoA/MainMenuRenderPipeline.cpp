@@ -17,7 +17,7 @@ MainMenuRenderPipeline::MainMenuRenderPipeline() {
 
 
 MainMenuRenderPipeline::~MainMenuRenderPipeline() {
-    destroy();
+    destroy(true);
 }
 
 void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
@@ -67,8 +67,8 @@ void MainMenuRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Main render passes
-    _skyboxRenderStage->draw();
-    m_spaceSystemRenderStage->draw();
+    _skyboxRenderStage->render();
+    m_spaceSystemRenderStage->render();
 
     // Post processing
     _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -81,15 +81,15 @@ void MainMenuRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
-    _hdrRenderStage->draw();
+    _hdrRenderStage->render();
 
-    _awesomiumRenderStage->draw();
+    _awesomiumRenderStage->render();
 
     // Check for errors, just in case
     checkGlError("MainMenuRenderPipeline::render()");
 }
 
-void MainMenuRenderPipeline::destroy() {
+void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;
 

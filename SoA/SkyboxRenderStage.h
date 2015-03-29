@@ -31,7 +31,7 @@ public:
     ~SkyboxRenderStage();
 
     // Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
     void drawSpace(glm::mat4 &VP);
     // Temporary until we have an actual sun

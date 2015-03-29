@@ -23,8 +23,8 @@ ChunkGridRenderStage::~ChunkGridRenderStage() {
 
 /// NOTE: There is a race condition with _chunkSlots here, but since _chunkSlots is a read only vector,
 /// it should not cause a crash. However data may be partially incorrect.
-void ChunkGridRenderStage::draw() {
-    if (!_isVisible) return;
+void ChunkGridRenderStage::render() {
+    if (!m_isVisible) return;
     if (!m_chunkMemoryManager) return;
 
     const std::vector<Chunk*>& chunks = m_chunkMemoryManager->getActiveChunks();

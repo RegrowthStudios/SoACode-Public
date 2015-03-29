@@ -16,7 +16,7 @@ PhysicsBlockRenderStage::PhysicsBlockRenderStage(GameRenderParams* gameRenderPar
     // Empty
 }
 
-void PhysicsBlockRenderStage::draw() {
+void PhysicsBlockRenderStage::render() {
 
     _glProgram->use();
 

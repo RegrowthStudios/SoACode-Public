@@ -32,7 +32,7 @@ public:
     HdrRenderStage(const vg::GLProgramManager* glPM, vg::FullQuadVBO* quad, const Camera* camera);
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
     vg::GLProgram* _glProgramDefault; ///< Stores the program we use to render
     vg::GLProgram* _glProgramBlur; ///< Motion blur enabled

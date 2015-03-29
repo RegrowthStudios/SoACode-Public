@@ -10,7 +10,7 @@ LiquidVoxelRenderStage::LiquidVoxelRenderStage(const GameRenderParams* gameRende
     // Empty
 }
 
-void LiquidVoxelRenderStage::draw() {
+void LiquidVoxelRenderStage::render() {
     // Render water meshes
     ChunkRenderer::drawWater(_gameRenderParams);
 }

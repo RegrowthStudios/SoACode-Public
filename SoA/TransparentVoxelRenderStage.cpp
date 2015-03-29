@@ -10,7 +10,7 @@ TransparentVoxelRenderStage::TransparentVoxelRenderStage(const GameRenderParams*
     // Empty
 }
 
-void TransparentVoxelRenderStage::draw() {
+void TransparentVoxelRenderStage::render() {
     glDepthMask(GL_FALSE);
     ChunkRenderer::drawTransparentBlocks(_gameRenderParams);
     glDepthMask(GL_TRUE);

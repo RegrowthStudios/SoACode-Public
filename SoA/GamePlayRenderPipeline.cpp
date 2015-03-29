@@ -108,7 +108,7 @@ void GameplayRenderPipeline::setRenderState(const MTRenderState* renderState) {
 }
 
 GameplayRenderPipeline::~GameplayRenderPipeline() {
-    destroy();
+    destroy(true);
 }
 
 void GameplayRenderPipeline::render() {
@@ -125,10 +125,10 @@ void GameplayRenderPipeline::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
-    _skyboxRenderStage->draw();
+    _skyboxRenderStage->render();
     glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
     m_spaceSystemRenderStage->setRenderState(m_renderState);
-    m_spaceSystemRenderStage->draw();
+    m_spaceSystemRenderStage->render();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Check for face transition animation state
@@ -145,15 +145,15 @@ void GameplayRenderPipeline::render() {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
-        _opaqueVoxelRenderStage->draw();
+        _opaqueVoxelRenderStage->render();
        // _physicsBlockRenderStage->draw();
-        _cutoutVoxelRenderStage->draw();
+        _cutoutVoxelRenderStage->render();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
         _chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
-        _chunkGridRenderStage->draw();
-        _liquidVoxelRenderStage->draw();
-        _transparentVoxelRenderStage->draw();
+        _chunkGridRenderStage->render();
+        _liquidVoxelRenderStage->render();
+        _transparentVoxelRenderStage->render();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
@@ -162,7 +162,7 @@ void GameplayRenderPipeline::render() {
 
     // TODO: More Effects
     if (_nightVisionRenderStage->isVisible()) {
-        _nightVisionRenderStage->draw();
+        _nightVisionRenderStage->render();
         _swapChain->swap();
         _swapChain->use(0, false);
     }
@@ -173,12 +173,12 @@ void GameplayRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
-    _hdrRenderStage->draw();
+    _hdrRenderStage->render();
 
     // UI
-    _devHudRenderStage->draw();
-    _pdaRenderStage->draw();
-    _pauseMenuRenderStage->draw();
+    _devHudRenderStage->render();
+    _pdaRenderStage->render();
+    _pauseMenuRenderStage->render();
 
     // Cube face fade animation
     if (m_increaseQuadAlpha) {
@@ -199,7 +199,7 @@ void GameplayRenderPipeline::render() {
     checkGlError("GamePlayRenderPipeline::render()");
 }
 
-void GameplayRenderPipeline::destroy() {
+void GameplayRenderPipeline::destroy(bool shouldDisposeStages) {
     // Make sure everything is freed here!
     delete _skyboxRenderStage;
     _skyboxRenderStage = nullptr;

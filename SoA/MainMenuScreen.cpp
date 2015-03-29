@@ -112,7 +112,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     m_awesomiumInterface.destroy();
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
 
     delete m_inputManager;
 
@@ -252,7 +252,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
     m_camera = tmp; // Restore old camera
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
     m_renderPipeline = MainMenuRenderPipeline();
     initRenderPipeline();
 }

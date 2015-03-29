@@ -16,7 +16,7 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
-#include <Vorb/graphics/IRenderPipeline.h>
+#include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 
 #include "GLProgramManager.h"
@@ -31,7 +31,7 @@ class SpaceSystem;
 class SpaceSystemRenderStage;
 class MainMenuSystemViewer;
 
-class MainMenuRenderPipeline : public vg::IRenderPipeline 
+class MainMenuRenderPipeline : public vg::RenderPipeline 
 {
 public:
     MainMenuRenderPipeline();
@@ -55,7 +55,7 @@ public:
     virtual void render() override;
 
     /// Frees all resources
-    virtual void destroy() override;
+    virtual void destroy(bool shouldDisposeStages) override;
 private:
     SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
     AwesomiumRenderStage* _awesomiumRenderStage = nullptr; ///< Renders the UI

@@ -31,7 +31,7 @@ public:
     TransparentVoxelRenderStage(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
     const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
 };

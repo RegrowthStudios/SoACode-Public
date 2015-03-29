@@ -18,6 +18,8 @@
 #include "TerrainPatchMeshManager.h"
 #include "soaUtils.h"
 
+#include <Vorb/Timing.h>
+
 #define ATMO_LOAD_DIST 50000.0f
 
 const f64q FACE_ORIENTATIONS[6] = {
@@ -54,9 +56,14 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-void SpaceSystemRenderStage::draw() {
+void SpaceSystemRenderStage::render() {
 
+    glFinish();
+    PreciseTimer timer;
+    timer.start();
     drawBodies();
+    glFinish();
+    printf("ms: %f\n", timer.stop());
     m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
                             m_viewport);
