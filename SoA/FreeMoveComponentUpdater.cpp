@@ -4,11 +4,12 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "SpaceSystem.h"
 #include "GameSystem.h"
 #include "Constants.h"
 
-void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
-
+void FreeMoveComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem) {
+    //TODO(Ben): A lot of temporary code here
     f64v3 forward, right, up;
 
     for (auto& it : gameSystem->freeMoveInput) {
@@ -22,15 +23,21 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem) {
             // No acceleration on voxels
             physcmp.velocity = f64v3(0.0);
             acceleration = 1.0;
-            orientation = &gameSystem->voxelPosition.get(physcmp.voxelPositionComponent).orientation;
+            auto& vpCmp = gameSystem->voxelPosition.get(physcmp.voxelPositionComponent);
+            f64 radius = spaceSystem->m_sphericalGravityCT.get(vpCmp.parentVoxelComponent).radius;
+            orientation = &vpCmp.orientation;
             if (fmcmp.superSpeed) {
-                acceleration *= 500.0; // temporary
+                static const f64 SS_Mult = 0.01;
+                acceleration *= glm::min(600.0, glm::max(2.0, (SS_Mult * vpCmp.gridPosition.pos.y))); // temporary
             }
         } else {
-            orientation = &gameSystem->spacePosition.get(physcmp.spacePositionComponent).orientation;
+            auto& spCmp = gameSystem->spacePosition.get(physcmp.spacePositionComponent);
+            f64 radius = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID).radius;
+            orientation = &spCmp.orientation;
             acceleration *= KM_PER_VOXEL;
             if (fmcmp.superSpeed) {
-                acceleration *= 20.0; // temporary
+                static const f64 SS_Mult = 0.1;
+                acceleration *= glm::max(2.0, (SS_Mult * (glm::length(spCmp.position) - radius))); // temporary, assumes a parent
             }
         }
        
