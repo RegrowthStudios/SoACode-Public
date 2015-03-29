@@ -26,16 +26,16 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
                                   const MainMenuSystemViewer* systemViewer,
                                   const vg::GLProgramManager* glProgramManager) {
     // Set the viewport
-    _viewport = viewport;
+    m_viewport = viewport;
 
     // Check to make sure we aren't leaking memory
-    if (_skyboxRenderStage != nullptr) {
+    if (m_skyboxRenderStage != nullptr) {
         pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
     }
 
     // Construct framebuffer
-    _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
-    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
+    m_hdrFrameBuffer = new vg::GLRenderTarget(m_viewport.z, m_viewport.w);
+    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
     } else {
@@ -43,35 +43,36 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
     }
 
     // Make swap chain
-    _swapChain = new vg::RTSwapChain<2>(_viewport.z, _viewport.w);
-    _swapChain->init(vg::TextureInternalFormat::RGBA8);
-    _quad.init();
+    m_swapChain = new vg::RTSwapChain<2>(m_viewport.z, m_viewport.w);
+    m_swapChain->init(vg::TextureInternalFormat::RGBA8);
+    m_quad.init();
+
+    // Helpful macro to reduce code size
+#define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
     // Init render stages
-    _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), camera);
-    _awesomiumRenderStage = new AwesomiumRenderStage(awesomiumInterface, glProgramManager->getProgram("Texture2D"));
-
-    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, camera);
+    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, glProgramManager->getProgram("Texture"), camera);
+    m_awesomiumRenderStage = ADD_STAGE(AwesomiumRenderStage, awesomiumInterface, glProgramManager->getProgram("Texture2D"));
+    m_hdrRenderStage = ADD_STAGE(HdrRenderStage, glProgramManager, &m_quad, camera);
     // TODO(Ben): Use texture pack iomanager
-    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(_viewport.z, _viewport.w),
+    m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, ui32v2(m_viewport.z, m_viewport.w),
                                                           spaceSystem, nullptr, systemViewer, camera, nullptr,
                                                           GameManager::textureCache->addTexture("Textures/selector.png").id);
-
 }
 
 void MainMenuRenderPipeline::render() {
     
     // Bind the FBO
-    _hdrFrameBuffer->use();
+    m_hdrFrameBuffer->use();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Main render passes
-    _skyboxRenderStage->render();
+    m_skyboxRenderStage->render();
     m_spaceSystemRenderStage->render();
 
     // Post processing
-    _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
+    m_swapChain->reset(0, m_hdrFrameBuffer, graphicsOptions.msaa > 0, false);
 
     // TODO: More Effects?
 
@@ -80,33 +81,20 @@ void MainMenuRenderPipeline::render() {
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
-    _hdrRenderStage->render();
+    glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
+    m_hdrRenderStage->render();
 
-    _awesomiumRenderStage->render();
+    m_awesomiumRenderStage->render();
 
     // Check for errors, just in case
     checkGlError("MainMenuRenderPipeline::render()");
 }
 
 void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
-    delete _skyboxRenderStage;
-    _skyboxRenderStage = nullptr;
+    RenderPipeline::destroy(shouldDisposeStages);
 
-    delete _awesomiumRenderStage;
-    _awesomiumRenderStage = nullptr;
+    delete m_swapChain;
+    m_swapChain = nullptr;
 
-    delete _hdrRenderStage;
-    _hdrRenderStage = nullptr;
-
-    delete m_spaceSystemRenderStage;
-    m_spaceSystemRenderStage = nullptr;
-
-    delete _hdrFrameBuffer;
-    _hdrFrameBuffer = nullptr;
-
-    delete _swapChain;
-    _swapChain = nullptr;
-
-    _quad.dispose();
+    m_quad.dispose();
 }
