@@ -85,7 +85,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
                                                                                                        stCmp.farTerrainComponent,
                                                                                                        stCmp.axisRotationComponent,
                                                                                                        stCmp.namePositionComponent,
-                                                                                                       stCmp.startVoxelPosition.face,
+                                                                                                       stCmp.transitionFace,
                                                                                                        state);
                     // Reload the terrain
                     auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);

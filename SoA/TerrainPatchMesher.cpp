@@ -373,6 +373,15 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
         v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
         v.color = m_planetGenData->liquidTint;
+
+        // TODO(Ben): This is temporary edge debugging stuff
+        const float delta = 100.0f;
+        if (abs(v.position[m_coordMapping.x]) >= m_radius - delta
+            || abs(v.position[m_coordMapping.z]) >= m_radius - delta) {
+            v.color.r = 255;
+            v.color.g = 0;
+            v.color.b = 0;
+        }
         m_waterIndex++;
     }
 }
