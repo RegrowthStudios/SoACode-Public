@@ -13,7 +13,7 @@ const f32 MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
 const f32 MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
 
 MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera,
-                                           SpaceSystem* spaceSystem, InputManager* inputManager) :
+                                           SpaceSystem* spaceSystem, InputMapper* inputManager) :
         m_viewport(viewport),
         m_camera(camera),
         m_spaceSystem(spaceSystem),

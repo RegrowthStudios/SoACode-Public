@@ -65,7 +65,7 @@ void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk
             int bt = GETBLOCKID(vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner));
             // Tmp debugging           
             if (bt > Blocks.size()) {
-                pError("Invalid block in update!" + std::to_string(bt));
+                pError("Invalid block in update!: " + std::to_string(bt));
             }
             if ((Blocks[bt].collide && bt != LEAVES1) || bt >= LOWWATER){
                 chunk->setBlockDataSafe(lockedChunk, blockIndex, DIRT);

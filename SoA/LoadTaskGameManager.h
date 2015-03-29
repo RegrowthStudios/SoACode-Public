@@ -2,7 +2,7 @@
 #include <SDL/SDL.h>
 
 #include "GameManager.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "LoadMonitor.h"
 
 // Sample Dependency Task

@@ -31,7 +31,7 @@ class App;
 class GameStartState;
 class GameSystem;
 class GameSystemUpdater;
-class InputManager;
+class InputMapper;
 class MainMenuScreen;
 class SoaState;
 class SpaceSystemUpdater;
@@ -95,9 +95,6 @@ private:
     /// Initializes the rendering
     void initRenderPipeline();
 
-    /// Handles updating state based on input
-    void handleInput();
-
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
@@ -114,7 +111,7 @@ private:
     const MainMenuScreen* m_mainMenuScreen = nullptr;
     SoaState* m_soaState = nullptr;
 
-    InputManager* m_inputManager = nullptr;
+    InputMapper* m_inputManager = nullptr;
 
     PDA m_pda; ///< The PDA
 

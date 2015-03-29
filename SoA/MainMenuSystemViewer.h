@@ -24,12 +24,12 @@
 #include "VoxelCoordinateSpaces.h"
 
 class CinematicCamera;
-class InputManager;
+class InputMapper;
 class SpaceSystem;
 
 class MainMenuSystemViewer {
 public:
-    MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputManager* inputManager);
+    MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputMapper* inputManager);
     ~MainMenuSystemViewer();
 
     void setViewport(const ui32v2& viewPort) { m_viewport = viewPort; }
@@ -109,7 +109,7 @@ private:
 
     CinematicCamera* m_camera = nullptr;
     SpaceSystem* m_spaceSystem = nullptr;
-    InputManager* m_inputManager = nullptr;
+    InputMapper* m_inputManager = nullptr;
 };
 
 #endif // MainMenuSystemViewer_h__
