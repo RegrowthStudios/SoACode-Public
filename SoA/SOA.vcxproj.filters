@@ -716,6 +716,12 @@
     <ClInclude Include="ChunkMemoryManager.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
+    <ClInclude Include="TestGasGiantScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="GasGiantRenderer.h">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClInclude>
     <ClInclude Include="AtmosphereComponentRenderer.h">
       <Filter>SOA Files\ECS\Renderers</Filter>
     </ClInclude>
@@ -737,11 +743,11 @@
     <ClInclude Include="GameplayRenderPipeline.h">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystemEvents.h">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClInclude>
     <ClInclude Include="InputMapper.h">
-      <Filter>SOA Files\Ext\Input</Filter>
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemEvents.h">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1193,6 +1199,12 @@
     <ClCompile Include="ChunkMemoryManager.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
+    <ClCompile Include="TestGasGiantScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="GasGiantRenderer.cpp">
+      <Filter>SOA Files\Rendering\Universe</Filter>
+    </ClCompile>
     <ClCompile Include="AtmosphereComponentRenderer.cpp">
       <Filter>SOA Files\ECS\Renderers</Filter>
     </ClCompile>
@@ -1208,11 +1220,11 @@
     <ClCompile Include="GameplayRenderPipeline.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClCompile>
-    <ClCompile Include="GameSystemEvents.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
     <ClCompile Include="InputMapper.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemEvents.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

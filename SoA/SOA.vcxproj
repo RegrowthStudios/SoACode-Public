@@ -309,6 +309,7 @@ EXIT 0</Command>
     <ClInclude Include="GameSystemAssemblages.h" />
     <ClInclude Include="GameSystemEvents.h" />
     <ClInclude Include="GameSystemUpdater.h" />
+    <ClInclude Include="GasGiantRenderer.h" />
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
@@ -376,6 +377,7 @@ EXIT 0</Command>
     <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
+    <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
@@ -493,11 +495,12 @@ EXIT 0</Command>
     <ClCompile Include="FrustumComponentUpdater.cpp" />
     <ClCompile Include="GameplayRenderPipeline.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
-    <ClCompile Include="GameSystemEvents.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
     <ClCompile Include="GameSystem.cpp" />
     <ClCompile Include="GameSystemAssemblages.cpp" />
+    <ClCompile Include="GameSystemEvents.cpp" />
     <ClCompile Include="GameSystemUpdater.cpp" />
+    <ClCompile Include="GasGiantRenderer.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="HardCodedIDs.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
@@ -559,6 +562,7 @@ EXIT 0</Command>
     <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
+    <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
