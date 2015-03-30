@@ -23,8 +23,7 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
 void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
                                   IAwesomiumInterface* awesomiumInterface,
                                   SpaceSystem* spaceSystem,
-                                  const MainMenuSystemViewer* systemViewer,
-                                  const vg::GLProgramManager* glProgramManager) {
+                                  const MainMenuSystemViewer* systemViewer) {
     // Set the viewport
     m_viewport = viewport;
 

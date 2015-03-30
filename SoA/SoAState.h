@@ -41,7 +41,6 @@ public:
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;
 
-    std::unique_ptr<vg::GLProgramManager> glProgramManager;
     std::unique_ptr<DebugRenderer> debugRenderer;
     std::unique_ptr<MeshManager> meshManager;
     std::unique_ptr<ChunkMeshManager> chunkMeshManager;

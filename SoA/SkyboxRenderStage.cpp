@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Vorb/graphics/DepthState.h>
+#include <Vorb/io/IOManager.h>
 
 #include "Camera.h"
 #include "SkyboxRenderer.h"
@@ -11,7 +12,7 @@
 SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
                                      const Camera* camera) :
                                      IRenderStage("Skybox", camera),
-                                     _skyboxRenderer(new SkyboxRenderer()),
+                                     m_skyboxRenderer(new SkyboxRenderer()),
                                      _glProgram(glProgram) {
 
    updateProjectionMatrix();
@@ -19,22 +20,43 @@ SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
 
 
 SkyboxRenderStage::~SkyboxRenderStage() {
-    delete _skyboxRenderer;
+    delete m_skyboxRenderer;
 }
 
 void SkyboxRenderStage::render() {
+
+    // Lazy shader init
+    if (!m_program) {
+        buildShaders();
+    }
+
     // Check if FOV or Aspect Ratio changed
-    if (_fieldOfView != m_camera->getFieldOfView() ||
-        _aspectRatio != m_camera->getAspectRatio()) {
+    if (m_fieldOfView != m_camera->getFieldOfView() ||
+        m_aspectRatio != m_camera->getAspectRatio()) {
         updateProjectionMatrix();
     }
     // Draw using custom proj and camera view
-    drawSpace(_projectionMatrix * m_camera->getViewMatrix());
+    drawSpace(m_projectionMatrix * m_camera->getViewMatrix());
+}
+
+void SkyboxRenderStage::buildShaders() {
+    vio::IOManager iom; // TODO(Ben): Maybe pass in instead
+    m_program = new vg::GLProgram(true);
+    m_program->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
+    m_program->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
+
+    std::vector<nString> attribs;
+    attribs.push_back("vPosition");
+    m_program->setAttributes(attribs);
+
+    m_program->link();
+    m_program->initAttributes();
+    m_program->initUniforms();
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
     vg::DepthState::NONE.set();
-    _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
+    m_skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
     vg::DepthState::FULL.set();
 }
 
@@ -131,9 +153,9 @@ void SkyboxRenderStage::updateProjectionMatrix() {
     #define SKYBOX_ZNEAR 0.01f
     #define SKYBOX_ZFAR 300.0f
 
-    _fieldOfView = m_camera->getFieldOfView();
-    _aspectRatio = m_camera->getAspectRatio();
+    m_fieldOfView = m_camera->getFieldOfView();
+    m_aspectRatio = m_camera->getAspectRatio();
 
     // Set up projection matrix
-    _projectionMatrix = glm::perspective(_fieldOfView, _aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
+    m_projectionMatrix = glm::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
 }
