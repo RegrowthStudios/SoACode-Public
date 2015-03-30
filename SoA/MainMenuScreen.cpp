@@ -19,7 +19,7 @@
 #include "GameplayScreen.h"
 #include "IAwesomiumAPI.h"
 #include "IAwesomiumAPI.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadScreen.h"
 #include "LoadTaskShaders.h"
@@ -131,9 +131,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
     m_mainMenuSystemViewer->update();
-   
 
-    m_inputManager->update(); // TODO: Remove
 
     // Check for shader reload
     //if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
@@ -159,12 +157,12 @@ void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::initInput() {
-    m_inputManager = new InputManager;
+    m_inputManager = new InputMapper;
     initInputs(m_inputManager);
     // Reload space system event
 
     onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->subscribe(INPUT_RELOAD_SYSTEM, InputManager::EventType::DOWN, &onReloadSystemDel);
+    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += onReloadSystemDel;
 }
 
 void MainMenuScreen::initRenderPipeline() {

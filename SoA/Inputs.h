@@ -16,52 +16,52 @@
 #ifndef Inputs_h__
 #define Inputs_h__
 
-// These can not be an enum. They are very likely to change values at runtime!
-extern i32 INPUT_BACKWARD;
-extern i32 INPUT_BLOCK_DRAG;
-extern i32 INPUT_BLOCK_SCANNER;
-extern i32 INPUT_CROUCH;
-extern i32 INPUT_DEBUG;
-extern i32 INPUT_DRAW_MODE;
-extern i32 INPUT_FLASH_LIGHT;
-extern i32 INPUT_FLY;
-extern i32 INPUT_FORWARD;
-extern i32 INPUT_GRID;
-extern i32 INPUT_HORIZONTAL;
-extern i32 INPUT_HUD;
-extern i32 INPUT_INVENTORY;
-extern i32 INPUT_JUMP;
-extern i32 INPUT_LEFT;
-extern i32 INPUT_LEFT_ROLL;
-extern i32 INPUT_MARKER;
-extern i32 INPUT_MEGA_SPEED;
-extern i32 INPUT_MOUSE_LEFT;
-extern i32 INPUT_MOUSE_RIGHT;
-extern i32 INPUT_NIGHT_VISION;
-extern i32 INPUT_NIGHT_VISION_RELOAD;
-extern i32 INPUT_PAUSE;
-extern i32 INPUT_PHYSICS_BLOCK_UPDATES;
-extern i32 INPUT_PLANET_DRAW_MODE;
-extern i32 INPUT_PLANET_ROTATION;
-extern i32 INPUT_RANDOM_DEBUG;
-extern i32 INPUT_RELOAD_BLOCKS;
-extern i32 INPUT_RELOAD_SHADERS;
-extern i32 INPUT_RELOAD_SYSTEM;
-extern i32 INPUT_RELOAD_TEXTURES;
-extern i32 INPUT_RELOAD_UI;
-extern i32 INPUT_RIGHT;
-extern i32 INPUT_RIGHT_ROLL;
-extern i32 INPUT_SCAN_WSO;
-extern i32 INPUT_SONAR;
-extern i32 INPUT_SPRINT;
-extern i32 INPUT_UPDATE_FRUSTUM;
-extern i32 INPUT_VERTICAL;
-extern i32 INPUT_WATER_UPDATE;
-extern i32 INPUT_ZOOM;
+#include "InputMapper.h"
 
-class InputManager;
+// These can not be an enum. They are very likely to change values at runtime!
+extern InputMapper::InputID INPUT_BACKWARD;
+extern InputMapper::InputID INPUT_BLOCK_DRAG;
+extern InputMapper::InputID INPUT_BLOCK_SCANNER;
+extern InputMapper::InputID INPUT_CROUCH;
+extern InputMapper::InputID INPUT_DEBUG;
+extern InputMapper::InputID INPUT_DRAW_MODE;
+extern InputMapper::InputID INPUT_FLASH_LIGHT;
+extern InputMapper::InputID INPUT_FLY;
+extern InputMapper::InputID INPUT_FORWARD;
+extern InputMapper::InputID INPUT_GRID;
+extern InputMapper::InputID INPUT_HUD;
+extern InputMapper::InputID INPUT_INVENTORY;
+extern InputMapper::InputID INPUT_JUMP;
+extern InputMapper::InputID INPUT_LEFT;
+extern InputMapper::InputID INPUT_LEFT_ROLL;
+extern InputMapper::InputID INPUT_MARKER;
+extern InputMapper::InputID INPUT_MEGA_SPEED;
+extern InputMapper::InputID INPUT_MOUSE_LEFT;
+extern InputMapper::InputID INPUT_MOUSE_RIGHT;
+extern InputMapper::InputID INPUT_NIGHT_VISION;
+extern InputMapper::InputID INPUT_NIGHT_VISION_RELOAD;
+extern InputMapper::InputID INPUT_PAUSE;
+extern InputMapper::InputID INPUT_PHYSICS_BLOCK_UPDATES;
+extern InputMapper::InputID INPUT_PLANET_DRAW_MODE;
+extern InputMapper::InputID INPUT_PLANET_ROTATION;
+extern InputMapper::InputID INPUT_RANDOM_DEBUG;
+extern InputMapper::InputID INPUT_RELOAD_BLOCKS;
+extern InputMapper::InputID INPUT_RELOAD_SHADERS;
+extern InputMapper::InputID INPUT_RELOAD_SYSTEM;
+extern InputMapper::InputID INPUT_RELOAD_TEXTURES;
+extern InputMapper::InputID INPUT_RELOAD_UI;
+extern InputMapper::InputID INPUT_RIGHT;
+extern InputMapper::InputID INPUT_RIGHT_ROLL;
+extern InputMapper::InputID INPUT_SCAN_WSO;
+extern InputMapper::InputID INPUT_SONAR;
+extern InputMapper::InputID INPUT_SPRINT;
+extern InputMapper::InputID INPUT_UPDATE_FRUSTUM;
+extern InputMapper::InputID INPUT_WATER_UPDATE;
+extern InputMapper::InputID INPUT_ZOOM;
+extern InputMapper::InputID INPUT_TIME_FORWARD;
+extern InputMapper::InputID INPUT_TIME_BACKWARD;
 
 // Initialize Input IDs At Runtime
-extern void initInputs(InputManager* inputManager);
+extern void initInputs(InputMapper* inputManager);
 
 #endif // Inputs_h__

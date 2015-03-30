@@ -12,7 +12,7 @@
 #include "DebugRenderer.h"
 #include "FileSystem.h"
 #include "GameManager.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadTaskBlockData.h"
 #include "LoadTaskGameManager.h"

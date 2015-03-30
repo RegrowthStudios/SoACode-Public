@@ -428,7 +428,7 @@ EXIT 0</Command>
     <ClInclude Include="WSOScanner.h" />
     <ClInclude Include="WSOData.h" />
     <ClInclude Include="Inputs.h" />
-    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="InputMapper.h" />
     <ClInclude Include="atomicops.h" />
     <ClInclude Include="BlockData.h" />
     <ClInclude Include="Camera.h" />
@@ -577,7 +577,7 @@ EXIT 0</Command>
     <ClCompile Include="CAEngine.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="FragFile.cpp" />
-    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="InputMapper.cpp" />
     <ClCompile Include="BlockData.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Chunk.cpp" />
@@ -641,6 +641,7 @@ EXIT 0</Command>
     <None Include="AwesomiumInterface.inl" />
     <None Include="Chunk.inl" />
     <None Include="IAwesomiumAPI.inl" />
+    <None Include="VirtualKeyKegDef.inl" />
     <None Include="VoxelIntervalTree.inl" />
     <None Include="VoxelUpdateOrder.inl" />
   </ItemGroup>

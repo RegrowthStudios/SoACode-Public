@@ -20,7 +20,7 @@
 #include "GameManager.h"
 #include "GameSystem.h"
 #include "GameSystemUpdater.h"
-#include "InputManager.h"
+#include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
@@ -219,17 +219,17 @@ i32 GameplayScreen::getWindowHeight() const {
 
 void GameplayScreen::initInput() {
 
-    m_inputManager = new InputManager;
+    m_inputManager = new InputMapper;
     initInputs(m_inputManager);
 
-    m_inputManager->subscribeFunctor(INPUT_PAUSE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_soaState->isInputEnabled = false;
     });
-    m_inputManager->subscribeFunctor(INPUT_GRID, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.toggleChunkGrid();
     });
-    m_inputManager->subscribeFunctor(INPUT_INVENTORY, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -242,18 +242,18 @@ void GameplayScreen::initInput() {
             SDL_StopTextInput();
         }
     });
-    m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         if (isInGame()) {
             m_renderPipeline.toggleNightVision();
         }
     });
-    m_inputManager->subscribeFunctor(INPUT_HUD, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDevHud();
     });
-    m_inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.loadNightVision();
     });
-    m_inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&](Sender s, ui32 a) -> void {
+    m_inputManager->get(INPUT_DRAW_MODE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
@@ -262,6 +262,7 @@ void GameplayScreen::initInput() {
             m_soaState->isInputEnabled = true;
         }
     });
+
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
             //TODO(Ben): Edit voxels
@@ -286,12 +287,6 @@ void GameplayScreen::initRenderPipeline() {
                           m_soaState->spaceSystem.get(),
                           m_soaState->gameSystem.get(),
                           &m_pauseMenu);
-}
-
-void GameplayScreen::handleInput() {
-
-    // Update inputManager internal state
-    m_inputManager->update();
 }
 
 // TODO(Ben): Collision
@@ -329,9 +324,6 @@ void GameplayScreen::updateThreadFunc() {
 
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
-
-        // Update the input
-        handleInput();
 
         updateECS();
         updateMTRenderState();

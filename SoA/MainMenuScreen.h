@@ -28,7 +28,7 @@
 
 class App;
 
-class InputManager;
+class InputMapper;
 class LoadScreen;
 class MainMenuSystemViewer;
 class SoaState;
@@ -95,7 +95,7 @@ private:
     
     vio::IOManager m_ioManager; ///< Helper class for IO operations
 
-    InputManager* m_inputManager = nullptr;
+    InputMapper* m_inputManager = nullptr;
 
     CinematicCamera m_camera; ///< The camera that looks at the planet from space
 

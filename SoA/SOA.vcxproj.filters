@@ -245,9 +245,6 @@
     <ClInclude Include="global.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputManager.h">
-      <Filter>SOA Files\Ext\Input</Filter>
-    </ClInclude>
     <ClInclude Include="Inputs.h">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClInclude>
@@ -814,9 +811,6 @@
     <ClCompile Include="global.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>SOA Files\Ext\Input</Filter>
-    </ClCompile>
     <ClCompile Include="Inputs.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClCompile>
@@ -1220,6 +1214,12 @@
     <ClCompile Include="GameplayRenderPipeline.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClCompile>
+    <ClCompile Include="GameSystemEvents.cpp">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMapper.cpp">
+      <Filter>SOA Files\Ext\Input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
@@ -1251,6 +1251,9 @@
     </None>
     <None Include="VoxelUpdateOrder.inl">
       <Filter>SOA Files\Voxel</Filter>
+    </None>
+    <None Include="VirtualKeyKegDef.inl">
+      <Filter>SOA Files\Ext\Input</Filter>
     </None>
   </ItemGroup>
 </Project>
