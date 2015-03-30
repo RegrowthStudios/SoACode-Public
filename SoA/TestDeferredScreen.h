@@ -15,6 +15,8 @@
 #ifndef TestDeferredScreen_h__
 #define TestDeferredScreen_h__
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/DeferredShaders.h>
 #include <Vorb/graphics/FullQuadVBO.h>
@@ -43,6 +45,8 @@ public:
 private:
     void buildGeometry();
     void buildLightMaps();
+
+    glm::vec3 m_eyePos;
 
     VGVertexBuffer m_verts; ///< Sphere's vertex buffer (of positions)
     VGIndexBuffer m_inds; ///< Sphere's index buffer

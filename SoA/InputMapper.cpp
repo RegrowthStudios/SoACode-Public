@@ -23,7 +23,7 @@ KEG_TYPE_DEF(InputKegArray, InputKegArray, kt) {
     kt.addValue("key", Value::array(offsetof(InputKegArray, key), Value::custom(0, "VirtualKey", true)));
 }
 InputMapper::InputMapper() {
-    // Empty
+    memset(m_keyStates, 0, VKEY_HIGHEST_VALUE * sizeof(bool));
 }
 
 InputMapper::~InputMapper() {
