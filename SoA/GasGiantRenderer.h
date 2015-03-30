@@ -7,6 +7,7 @@
 #include <Vorb/graphics/GLProgram.h>
 
 DECL_VG(class GLProgramManager);
+DECL_VIO(class IOManager);
 
 class GasGiantVertex {
 public:
@@ -41,20 +42,23 @@ public:
 
 class GasGiantRenderer {
 public:
-    GasGiantRenderer(const vg::GLProgramManager* glProgramManager);
+    GasGiantRenderer();
     ~GasGiantRenderer();
 
     void drawGasGiant(f32m4& mvp);
 
     void setColorBandLookupTexture(VGTexture texture) { m_mesh->colorBandLookup = texture; }
 
+    void reloadShader();
+
 private:
     void initMesh();
-
-    const vg::GLProgramManager* m_glProgramManager = nullptr;
+    vg::ShaderSource createShaderCode(std::vector<const cString>& filesToDelete, const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr);
 
     vg::GLProgram* m_shaderProgram;
     GasGiantMesh* m_mesh;
+
+    
 };
 
 #endif

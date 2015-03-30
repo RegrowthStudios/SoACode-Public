@@ -10,6 +10,7 @@
 #include <Vorb\BufferUtils.inl>
 
 #include "GLProgramManager.h"
+#include <Vorb\graphics\GLProgram.h>
 
 #include <iostream>
 
@@ -21,11 +22,11 @@ void GasGiantMesh::bind() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), (void*)sizeof(f32v3));
 }
 
-GasGiantRenderer::GasGiantRenderer(const vg::GLProgramManager* glProgramManager):
-    m_glProgramManager(glProgramManager),
-    m_shaderProgram(glProgramManager->getProgram("GasGiant")), 
+GasGiantRenderer::GasGiantRenderer():
+    m_shaderProgram(nullptr), 
     m_mesh(nullptr)
 {
+    reloadShader();
     initMesh();
 }
 
@@ -58,7 +59,7 @@ void GasGiantRenderer::drawGasGiant(f32m4& mvp) {
 void GasGiantRenderer::initMesh() {
     std::vector<f32v3> positions;
     std::vector<ui32> indices;
-    vmesh::generateIcosphereMesh(0, indices, positions);
+    vmesh::generateIcosphereMesh(5, indices, positions);
 
     std::vector<GasGiantVertex> vertices;
     for(int i = 0; i < positions.size(); i++) {
@@ -87,4 +88,59 @@ void GasGiantRenderer::initMesh() {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void GasGiantRenderer::reloadShader() {
+    std::vector<const cString> filesToDelete;
+    if(m_shaderProgram) {
+        m_shaderProgram->dispose();
+        delete m_shaderProgram;
+    }
+    m_shaderProgram = new vg::GLProgram(true);
+
+    std::vector<nString> gasGiantAttribs;
+    gasGiantAttribs.push_back("vPosition");
+    gasGiantAttribs.push_back("vNormal");
+    gasGiantAttribs.push_back("vUV");
+
+    vio::IOManager iom;
+    nString name = "GasGiant";
+    if(!m_shaderProgram->addShader(createShaderCode(filesToDelete, vg::ShaderType::VERTEX_SHADER, iom, "Shaders/GasGiant/GasGiant.vert"))) {
+        std::cout << "Vertex shader for " + name + " failed to compile." << std::endl;
+        m_shaderProgram->dispose();
+        delete m_shaderProgram;
+        m_shaderProgram = nullptr;
+        return;
+    }
+    if(!m_shaderProgram->addShader(createShaderCode(filesToDelete, vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/GasGiant/GasGiant.frag"))) {
+        std::cout << "Fragment shader for " + name + " failed to compile.";
+        m_shaderProgram->dispose();
+        delete m_shaderProgram;
+        m_shaderProgram = nullptr;
+        return;
+    }
+    m_shaderProgram->setAttributes(gasGiantAttribs);
+
+    if(!m_shaderProgram->link()) {
+        std::cout << name + " failed to link.";
+        m_shaderProgram->dispose();
+        delete m_shaderProgram;
+        m_shaderProgram = nullptr;
+        return;
+    }
+    m_shaderProgram->initAttributes();
+    m_shaderProgram->initUniforms();
+
+    // Delete loaded files
+    for(auto& code : filesToDelete) delete[] code;
+}
+
+vg::ShaderSource GasGiantRenderer::createShaderCode(std::vector<const cString>& filesToDelete, const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines /*= nullptr*/) {
+    vg::ShaderSource src;
+    src.stage = stage;
+    if(defines) src.sources.push_back(defines);
+    const cString code = iom.readFileToString(path);
+    src.sources.push_back(code);
+    filesToDelete.push_back(code);
+    return src;
 }
