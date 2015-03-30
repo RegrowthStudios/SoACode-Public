@@ -743,6 +743,12 @@
     <ClInclude Include="GameplayRenderPipeline.h">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
+    <ClInclude Include="InputMapper.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemEvents.h">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1214,11 +1220,11 @@
     <ClCompile Include="GameplayRenderPipeline.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClCompile>
-    <ClCompile Include="GameSystemEvents.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
     <ClCompile Include="InputMapper.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemEvents.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
