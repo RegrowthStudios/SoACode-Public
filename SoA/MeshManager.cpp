@@ -11,8 +11,7 @@
 #include "GameManager.h"
 
 
-MeshManager::MeshManager(const vg::GLProgramManager* glProgramManager) :
-    m_glProgramManager(glProgramManager) {
+MeshManager::MeshManager() {
     // Empty
 }
 

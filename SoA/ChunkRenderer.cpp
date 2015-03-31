@@ -20,9 +20,6 @@ const f32 sonarWidth = 30;
 
 #define CHUNK_DIAGONAL_LENGTH 28.0f
 
-f32m4 ChunkRenderer::worldMatrix(1.0);
-volatile f32 ChunkRenderer::fadeDist = 0.0f;
-
 void ChunkRenderer::drawSonar(const GameRenderParams* gameRenderParams)
 {
     ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;

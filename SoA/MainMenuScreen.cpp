@@ -170,8 +170,7 @@ void MainMenuScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
                           m_soaState->spaceSystem.get(),
-                          m_mainMenuSystemViewer.get(),
-                          m_soaState->glProgramManager.get());
+                          m_mainMenuSystemViewer.get());
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {

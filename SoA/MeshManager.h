@@ -31,7 +31,7 @@ DECL_VG(class GLProgramManager);
 class MeshManager
 {
 public:
-    MeshManager(const vg::GLProgramManager* glProgramManager);
+    MeshManager();
 
     /// Updates a particle mesh
     /// @param pmm: The ParticleMeshMessage sent by the update thread

@@ -74,9 +74,6 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
-  
-    addLoadTask("Shaders", "Shaders", new LoadTaskShaders(&m_glrpc, m_soaState->glProgramManager.get()));
-    _monitor.setDep("Shaders", "GameManager");
 
     addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     _monitor.setDep("BlockData", "GameManager");

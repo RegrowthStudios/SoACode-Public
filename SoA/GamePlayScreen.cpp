@@ -80,10 +80,10 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputManager);
 
     // Initialize the PDA
-    m_pda.init(this, m_soaState->glProgramManager.get());
+    m_pda.init(this);
 
     // Initialize the Pause Menu
-    m_pauseMenu.init(this, m_soaState->glProgramManager.get());
+    m_pauseMenu.init(this);
 
     // Set up the rendering
     initRenderPipeline();

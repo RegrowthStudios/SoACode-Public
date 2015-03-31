@@ -28,7 +28,6 @@ public:
     const Camera* chunkCamera;
     ChunkMeshManager* chunkMeshmanager;
     bool isUnderwater;
-    const vg::GLProgramManager* glProgramManager = nullptr;
 private:
     void calculateFog(float theta, bool isUnderwater);
     void calculateSunlight(float theta);

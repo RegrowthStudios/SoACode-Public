@@ -73,15 +73,11 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     m_spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
     m_voxelCamera.setAspectRatio(windowDims.x / windowDims.y);
 
-    // Set up shared params
-    const vg::GLProgramManager* glProgramManager = soaState->glProgramManager.get();
-    m_gameRenderParams.glProgramManager = glProgramManager;
-
     // Helpful macro to reduce code size
 #define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
     // Init and track render stages
-    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, glProgramManager->getProgram("Texture"), &m_spaceCamera);
+    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, &m_spaceCamera);
     m_opaqueVoxelRenderStage = ADD_STAGE(OpaqueVoxelRenderStage, &m_gameRenderParams);
     m_cutoutVoxelRenderStage = ADD_STAGE(CutoutVoxelRenderStage, &m_gameRenderParams);
     m_chunkGridRenderStage = ADD_STAGE(ChunkGridRenderStage, &m_gameRenderParams);
@@ -90,8 +86,8 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     m_devHudRenderStage = ADD_STAGE(DevHudRenderStage, "Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, app, windowDims);
     m_pdaRenderStage = ADD_STAGE(PdaRenderStage, pda);
     m_pauseMenuRenderStage = ADD_STAGE(PauseMenuRenderStage, pauseMenu);
-    m_nightVisionRenderStage = ADD_STAGE(NightVisionRenderStage, glProgramManager->getProgram("NightVision"), &m_quad);
-    m_hdrRenderStage = ADD_STAGE(HdrRenderStage, glProgramManager, &m_quad, &m_voxelCamera);
+    m_nightVisionRenderStage = ADD_STAGE(NightVisionRenderStage, &m_quad);
+    m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, &m_voxelCamera);
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, ui32v2(windowDims),
         spaceSystem, gameSystem,
         nullptr, &m_spaceCamera,
