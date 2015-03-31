@@ -294,57 +294,6 @@ void ChunkRenderer::drawTransparentBlocks(const GameRenderParams* gameRenderPara
 
 }
 
-void ChunkRenderer::drawWater(const GameRenderParams* gameRenderParams)
-{
-    ChunkMeshManager* cmm = gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
-    if (chunkMeshes.empty()) return;
-
-    vg::GLProgram* program = gameRenderParams->glProgramManager->getProgram("Water");
-    program->use();
-
-    glUniform1f(program->getUniform("sunVal"), gameRenderParams->sunlightIntensity);
-
-    glUniform1f(program->getUniform("FogEnd"), gameRenderParams->fogEnd);
-    glUniform1f(program->getUniform("FogStart"), gameRenderParams->fogStart);
-    glUniform3fv(program->getUniform("FogColor"), 1, &(gameRenderParams->fogColor[0]));
-
-    glUniform3fv(program->getUniform("LightPosition_worldspace"), 1, &(gameRenderParams->sunlightDirection[0]));
-
-    if (NoChunkFade){
-        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)10000.0f);
-    } else{
-        glUniform1f(program->getUniform("FadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
-    }
-
-    float blockAmbient = 0.000f;
-    glUniform3f(program->getUniform("AmbientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3fv(program->getUniform("LightColor"), 1, &(gameRenderParams->sunlightColor[0]));
-
-    glUniform1f(program->getUniform("dt"), (GLfloat)bdt);
-
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
-    glUniform1i(program->getUniform("normalMap"), 6);
-
-    if (gameRenderParams->isUnderwater) glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
-    {
-        ChunkRenderer::drawChunkWater(chunkMeshes[i], program,
-                                      gameRenderParams->chunkCamera->getPosition(), 
-                                      gameRenderParams->chunkCamera->getViewProjectionMatrix());
-    }
-
-    glDepthMask(GL_TRUE);
-    if (gameRenderParams->isUnderwater) glEnable(GL_CULL_FACE);
-
-    program->unuse();
-}
-
 void ChunkRenderer::drawChunkBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
     if (cm->vboID == 0) {
@@ -430,26 +379,6 @@ void ChunkRenderer::drawChunkCutoutBlocks(const ChunkMesh *cm, const vg::GLProgr
 
     glBindVertexArray(0);
 
-}
-
-void ChunkRenderer::drawChunkWater(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
-{
-    //use drawWater bool to avoid checking frustum twice
-    if (cm->inFrustum && cm->waterVboID){
-
-        setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
-
-        f32m4 MVP = VP * worldMatrix;
-
-        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
-
-        glBindVertexArray(cm->waterVaoID);
-
-        glDrawElements(GL_TRIANGLES, cm->meshInfo.waterIndexSize, GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(0);
-    }
 }
 
 void ChunkRenderer::bindTransparentVao(ChunkMesh *cm)
