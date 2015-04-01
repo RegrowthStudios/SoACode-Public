@@ -345,6 +345,7 @@ EXIT 0</Command>
     <ClInclude Include="PlanetData.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
+    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SoaController.h" />
     <ClInclude Include="SoaEngine.h" />
@@ -530,6 +531,7 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
     <ClCompile Include="PlanetData.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SoaController.cpp" />
     <ClCompile Include="SoaEngine.cpp" />

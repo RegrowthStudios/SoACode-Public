@@ -743,6 +743,9 @@
     <ClInclude Include="GameSystemEvents.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderLoader.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1213,6 +1216,9 @@
     </ClCompile>
     <ClCompile Include="GameSystemEvents.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLoader.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
