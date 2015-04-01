@@ -9,8 +9,6 @@ class ChunkMesh;
 class Camera;
 class ChunkMeshManager;
 
-DECL_VG(class GLProgramManager);
-
 class GameRenderParams {
 public:
     void calculateParams(const f64v3& worldCameraPos,

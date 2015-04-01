@@ -16,7 +16,6 @@
 #include "Inputs.h"
 #include "LoadTaskBlockData.h"
 #include "LoadTaskGameManager.h"
-#include "LoadTaskShaders.h"
 #include "LoadTaskStarSystem.h"
 #include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"

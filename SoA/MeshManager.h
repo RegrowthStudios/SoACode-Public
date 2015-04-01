@@ -26,7 +26,6 @@ class ParticleMesh;
 class PhysicsBlockMesh;
 class TerrainPatchMesh;
 
-DECL_VG(class GLProgramManager);
 
 class MeshManager
 {
@@ -52,7 +51,6 @@ private:
 
     std::vector <ParticleMesh *> _particleMeshes;
     std::vector <PhysicsBlockMesh *> _physicsBlockMeshes;
-    const vg::GLProgramManager* m_glProgramManager = nullptr;
 };
 
 #endif // MESHMANAGER_H_

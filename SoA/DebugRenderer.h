@@ -4,8 +4,6 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class GLProgramManager);
-
 const static float GOLDEN_RATIO = 1.61803398875f;
 
 const static int NUM_CUBE_VERTICES = 8;

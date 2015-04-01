@@ -316,7 +316,6 @@ EXIT 0</Command>
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
-    <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
@@ -505,7 +504,6 @@ EXIT 0</Command>
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
-    <ClCompile Include="LoadTaskShaders.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
     <ClCompile Include="MainMenuRenderPipeline.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />

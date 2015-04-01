@@ -6,7 +6,6 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class GLProgramManager);
 DECL_VIO(class IOManager);
 
 class GasGiantVertex {

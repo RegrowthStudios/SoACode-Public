@@ -725,9 +725,6 @@
     <ClInclude Include="LoadTaskStarSystem.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskShaders.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -1201,9 +1198,6 @@
     </ClCompile>
     <ClCompile Include="AtmosphereComponentRenderer.cpp">
       <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadTaskShaders.cpp">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClCompile>
     <ClCompile Include="GameplayScreen.cpp">
       <Filter>SOA Files\Screens\Gameplay</Filter>

@@ -250,7 +250,7 @@ GLuint MakeBlockVbo(Block *block){
     return vboID;
 }
 
-void Draw3DCube(vg::GLProgramManager* glProgramManager, Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation) {
+void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation) {
 
     /*
     const float eyeDir[3] = { 0.0f, 0.0f, -1.0f };
