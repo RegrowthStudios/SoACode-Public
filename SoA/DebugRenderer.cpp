@@ -9,7 +9,6 @@
 #include <Vorb/graphics/ShaderManager.h>
 
 #include "GameManager.h"
-#include "GLProgramManager.h"
 #include "global.h"
 #include "RenderUtils.h"
 

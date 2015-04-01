@@ -5,7 +5,6 @@
 #include "Chunk.h"
 #include "ChunkMeshManager.h"
 #include "Frustum.h"
-#include "GLProgramManager.h"
 #include "GameManager.h"
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"

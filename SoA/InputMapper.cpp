@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "InputMapper.h"
 
-#include <SDL\SDL_keyboard.h>
-#include <SDL\SDL_mouse.h>
 #include <Vorb/io/Keg.h>
+#include <Vorb/io/IOManager.h>
 
 #include "global.h"
 #include "FileSystem.h"

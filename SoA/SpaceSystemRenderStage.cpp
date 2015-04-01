@@ -9,7 +9,6 @@
 #include "Camera.h"
 #include "DebugRenderer.h"
 #include "Errors.h"
-#include "GLProgramManager.h"
 #include "MTRenderState.h"
 #include "MainMenuSystemViewer.h"
 #include "RenderUtils.h"

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "LoadTaskShaders.h"
 
-#include "GLProgramManager.h"
+#include <Vorb/io/IOManager.h>
 #include "GameManager.h"
 
 vg::ShaderSource LoadTaskShaders::createShaderCode(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines /*= nullptr*/) {

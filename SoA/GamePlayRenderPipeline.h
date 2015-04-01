@@ -20,7 +20,6 @@
 #include <Vorb/graphics/RTSwapChain.hpp>
 
 #include "Camera.h"
-#include "GLProgramManager.h"
 #include "GameRenderParams.h"
 #include "NightVisionRenderStage.h"
 #include "ColoredFullQuadRenderer.h"

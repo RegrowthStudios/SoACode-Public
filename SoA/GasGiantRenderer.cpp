@@ -5,12 +5,11 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Vorb\MeshGenerators.h>
-#include <Vorb\graphics\GpuMemory.h>
-#include <Vorb\BufferUtils.inl>
-
-#include "GLProgramManager.h"
-#include <Vorb\graphics\GLProgram.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/BufferUtils.inl>
+#include <Vorb/MeshGenerators.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/GpuMemory.h>
 
 #include <iostream>
 

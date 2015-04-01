@@ -19,8 +19,6 @@
 #include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 
-#include "GLProgramManager.h"
-
 /// Forward declarations
 class AwesomiumRenderStage;
 class Camera;

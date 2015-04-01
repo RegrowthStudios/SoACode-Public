@@ -19,8 +19,6 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/IRenderStage.h>
 
-#include "GLProgramManager.h"
-
 class Camera;
 
 class HdrRenderStage : public vg::IRenderStage {

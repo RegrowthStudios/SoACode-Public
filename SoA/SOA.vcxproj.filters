@@ -389,9 +389,6 @@
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="GLProgramManager.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
@@ -924,9 +921,6 @@
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="GLProgramManager.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="MainMenuAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>

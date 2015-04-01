@@ -313,7 +313,6 @@ EXIT 0</Command>
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
-    <ClInclude Include="GLProgramManager.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
@@ -505,7 +504,6 @@ EXIT 0</Command>
     <ClCompile Include="HardCodedIDs.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
-    <ClCompile Include="GLProgramManager.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="LoadTaskShaders.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />

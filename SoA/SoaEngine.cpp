@@ -7,7 +7,6 @@
 #include "Constants.h"
 #include "DebugRenderer.h"
 #include "Errors.h"
-#include "GLProgramManager.h"
 #include "MeshManager.h"
 #include "PlanetData.h"
 #include "PlanetLoader.h"
