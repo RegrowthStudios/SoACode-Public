@@ -32,7 +32,7 @@ public:
     // Draws the render stage
     virtual void render() override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Handle to shared parameters
+    const GameRenderParams* m_gameRenderParams; ///< Handle to shared parameters
 };
 
 #endif // SonarRenderStage_h__

@@ -30,7 +30,6 @@ public:
     /// Draws the render stage
     virtual void render() override;
 private:
-    void drawChunk(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
     
     const GameRenderParams* m_gameRenderParams; ///< Some shared rendering parameters
 };

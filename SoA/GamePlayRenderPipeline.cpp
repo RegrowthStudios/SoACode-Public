@@ -220,16 +220,17 @@ void GameplayRenderPipeline::toggleNightVision() {
     if (!m_nightVisionRenderStage->isVisible()) {
         m_nightVisionRenderStage->setIsVisible(true);
         m_nvIndex = 0;
-        m_nightVisionRenderStage->setParams(&m_nvParams[m_nvIndex]);
+        m_nightVisionRenderStage->setParams(m_nvParams[m_nvIndex]);
     } else {
         m_nvIndex++;
         if (m_nvIndex >= m_nvParams.size()) {
             m_nightVisionRenderStage->setIsVisible(false);
         } else {
-            m_nightVisionRenderStage->setParams(&m_nvParams[m_nvIndex]);
+            m_nightVisionRenderStage->setParams(m_nvParams[m_nvIndex]);
         }
     }
 }
+
 void GameplayRenderPipeline::loadNightVision() {
     m_nightVisionRenderStage->setIsVisible(false);
 

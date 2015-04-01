@@ -31,7 +31,7 @@ public:
     /// Draws the render stage
     virtual void render() override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
+    const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
 };
 
 #endif // OpaqueVoxelRenderStage_h__
