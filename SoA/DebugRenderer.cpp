@@ -9,8 +9,9 @@
 #include <Vorb/graphics/ShaderManager.h>
 
 #include "GameManager.h"
-#include "global.h"
 #include "RenderUtils.h"
+#include "ShaderLoader.h"
+#include "global.h"
 
 f32m4 DebugRenderer::_modelMatrix(1.0);
 
@@ -61,7 +62,7 @@ void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, cons
     std::chrono::duration<double> elapsedTime = _currentTimePoint - _previousTimePoint;
     double deltaT = elapsedTime.count();
 
-    if (!m_program) m_program = vg::ShaderManager::createProgramFromFile("Shaders/BasicShading/BasicColorShading.vert",
+    if (!m_program) m_program = ShaderLoader::createProgramFromFile("Shaders/BasicShading/BasicColorShading.vert",
                                                                          "Shaders/BasicShading/BasicColorShading.frag");
 
     m_program->use();

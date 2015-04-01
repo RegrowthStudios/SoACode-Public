@@ -2,7 +2,6 @@
 #include "TransparentVoxelRenderStage.h"
 
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/ShaderManager.h>
 #include "Camera.h"
 #include "Chunk.h"
 #include "ChunkMeshManager.h"
@@ -12,6 +11,7 @@
 #include "MeshManager.h"
 #include "Options.h"
 #include "RenderUtils.h"
+#include "ShaderLoader.h"
 
 TransparentVoxelRenderStage::TransparentVoxelRenderStage(const GameRenderParams* gameRenderParams) :
     m_gameRenderParams(gameRenderParams) {
@@ -27,7 +27,7 @@ void TransparentVoxelRenderStage::render() {
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
 
     if (!m_program) {
-        m_program = vg::ShaderManager::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+        m_program = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
                                                              "Shaders/BlockShading/cutoutShading.frag");
     }
     m_program->use();

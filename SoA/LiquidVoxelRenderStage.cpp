@@ -2,7 +2,6 @@
 #include "LiquidVoxelRenderStage.h"
 
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/ShaderManager.h>
 #include "Camera.h"
 #include "Chunk.h"
 #include "ChunkMeshManager.h"
@@ -11,6 +10,7 @@
 #include "MeshManager.h"
 #include "Options.h"
 #include "RenderUtils.h"
+#include "ShaderLoader.h"
 
 LiquidVoxelRenderStage::LiquidVoxelRenderStage(const GameRenderParams* gameRenderParams) :
     m_gameRenderParams(gameRenderParams) {
@@ -23,7 +23,7 @@ void LiquidVoxelRenderStage::render() {
     if (chunkMeshes.empty()) return;
 
     if (!m_program) {
-        m_program = vg::ShaderManager::createProgramFromFile("Shaders/WaterShading/WaterShading.vert",
+        m_program = ShaderLoader::createProgramFromFile("Shaders/WaterShading/WaterShading.vert",
                                                              "Shaders/WaterShading/WaterShading.frag");
     }
     m_program->use();

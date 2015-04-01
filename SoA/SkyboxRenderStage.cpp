@@ -3,11 +3,11 @@
 
 #include <GL/glew.h>
 #include <Vorb/graphics/DepthState.h>
-#include <Vorb/graphics/ShaderManager.h>
 #include <Vorb/io/IOManager.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
+#include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
 
 SkyboxRenderStage::SkyboxRenderStage(const Camera* camera) :
@@ -40,16 +40,8 @@ void SkyboxRenderStage::render() {
 
 void SkyboxRenderStage::buildShaders() {
     vio::IOManager iom; // TODO(Ben): Maybe pass in instead
-    m_program = vg::ShaderManager::createProgramFromFile("Shaders/TextureShading/TextureShading.vert",
-                                                         "Shaders/TextureShading/TextureShading.frag");
-
-    std::vector<nString> attribs;
-    attribs.push_back("vPosition");
-    m_program->setAttributes(attribs);
-
-    m_program->link();
-    m_program->initAttributes();
-    m_program->initUniforms();
+    m_program = ShaderLoader::createProgramFromFile("Shaders/TextureShading/TextureShading.vert",
+                                                    "Shaders/TextureShading/TextureShading.frag");
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {

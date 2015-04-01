@@ -2,8 +2,7 @@
 #include "PauseMenu.h"
 
 #include "GameplayScreen.h"
-
-#include <Vorb/graphics/ShaderManager.h>
+#include "ShaderLoader.h"
 
 PauseMenu::PauseMenu() {
     // Empty
@@ -40,7 +39,7 @@ void PauseMenu::update() {
 }
 
 void PauseMenu::draw() const {
-    if (!m_program) vg::ShaderManager::createProgramFromFile("Shaders/TextureShading/Texture2dShader.vert",
+    if (!m_program) ShaderLoader::createProgramFromFile("Shaders/TextureShading/Texture2dShader.vert",
                                                              "Shaders/TextureShading/Texture2dShader.frag");
     _awesomiumInterface.draw(m_program);
 }

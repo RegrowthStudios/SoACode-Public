@@ -7,7 +7,7 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/Random.h>
 #include <Vorb/graphics/SamplerState.h>
-#include <Vorb/graphics/ShaderManager.h>
+#include "ShaderLoader.h"
 
 #include "Options.h"
 
@@ -65,7 +65,7 @@ void NightVisionRenderStage::setParams(NightVisionRenderParams& params) {
 }
 
 void NightVisionRenderStage::reloadShader() {
-    NightVisionRenderStage::reloadShader();
+    IRenderStage::reloadShader();
     if (m_texNoise.id) {
         glDeleteTextures(1, &m_texNoise.id);
         m_texNoise.id = 0;
@@ -73,7 +73,7 @@ void NightVisionRenderStage::reloadShader() {
 }
 
 void NightVisionRenderStage::dispose() {
-    NightVisionRenderStage::dispose();
+    IRenderStage::dispose();
     if (m_texNoise.id) {
         glDeleteTextures(1, &m_texNoise.id);
         m_texNoise.id = 0;
@@ -89,7 +89,7 @@ void NightVisionRenderStage::render() {
     glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
 
     if (!m_program) {
-        m_program = vg::ShaderManager::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
+        m_program = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                              "Shaders/PostProcessing/NightVision.frag");
         m_program->use();
         glUniform1i(m_program->getUniform("unTexColor"), NIGHT_VISION_TEXTURE_SLOT_COLOR);

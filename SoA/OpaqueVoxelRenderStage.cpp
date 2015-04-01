@@ -11,6 +11,7 @@
 #include "MeshManager.h"
 #include "Options.h"
 #include "RenderUtils.h"
+#include "ShaderLoader.h"
 
 OpaqueVoxelRenderStage::OpaqueVoxelRenderStage(const GameRenderParams* gameRenderParams) :
     m_gameRenderParams(gameRenderParams)
@@ -26,7 +27,7 @@ void OpaqueVoxelRenderStage::render() {
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
 
     if (!m_program) {
-        m_program = vg::ShaderManager::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+        m_program = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
                                                              "Shaders/BlockShading/standardShading.frag");
     }
     m_program->use();

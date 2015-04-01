@@ -13,6 +13,7 @@
 #include "MeshManager.h"
 #include "Options.h"
 #include "RenderUtils.h"
+#include "ShaderLoader.h"
 
 HdrRenderStage::HdrRenderStage(vg::FullQuadVBO* quad, const Camera* camera) : IRenderStage("HDR", camera),
     m_quad(quad),
@@ -44,14 +45,14 @@ void HdrRenderStage::render() {
     
     if (graphicsOptions.motionBlur > 0) {
         if (!m_glProgramBlur) {
-            m_glProgramBlur = vg::ShaderManager::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
+            m_glProgramBlur = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                        "Shaders/PostProcessing/MotionBlur.frag",
                                                                        nullptr, "#define MOTION_BLUR\n");
         }
         program = m_glProgramBlur;
     } else {
         if (!m_program) {
-            m_program = vg::ShaderManager::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
+            m_program = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                  "Shaders/PostProcessing/MotionBlur.frag");
         }
         program = m_program;
