@@ -51,6 +51,8 @@ public:
     /// Draws the render stage
     virtual void render() override;
 
+    virtual void reloadShader() override;
+
     /// Gets the desired near clipping plane based on distances of planets
     /// Returns 0 when it cannot be calculated
     /// @param verticalFOV: vertical fov of camera in degrees

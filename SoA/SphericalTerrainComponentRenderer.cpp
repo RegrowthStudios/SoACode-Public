@@ -10,17 +10,13 @@
 
 #include <glm/gtx/quaternion.hpp>
 
-#include <Vorb/io/IOManager.h>
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/io/IOManager.h>
 #include <Vorb/utils.h>
 
 SphericalTerrainComponentRenderer::~SphericalTerrainComponentRenderer() {
-    if (m_terrainProgram) {
-        m_terrainProgram->dispose();
-        m_waterProgram->dispose();
-        delete m_terrainProgram;
-        delete m_waterProgram;
-    }
+    disposeShaders();
 }
 
 void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
@@ -30,7 +26,6 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const SpaceLightComponent* spComponent,
                                              const AxisRotationComponent* arComponent,
                                              const AtmosphereComponent* aComponent) {
-
     if (cmp.patches) {
         // Lazy shader init
         if (!m_terrainProgram) {
@@ -51,6 +46,15 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                                  aComponent,
                                                  true);
         }
+    }
+}
+
+void SphericalTerrainComponentRenderer::disposeShaders() {
+    if (m_terrainProgram) {
+        vg::ShaderManager::destroyProgram(&m_terrainProgram);
+    }
+    if (m_waterProgram) {
+        vg::ShaderManager::destroyProgram(&m_waterProgram);
     }
 }
 

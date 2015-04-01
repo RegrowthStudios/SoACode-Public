@@ -255,6 +255,9 @@ void GameplayScreen::initInput() {
     m_inputManager->get(INPUT_DRAW_MODE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
+    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderPipeline.reloadShaders();
+    });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);

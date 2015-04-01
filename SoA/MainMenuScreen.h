@@ -87,7 +87,7 @@ private:
     void initSaveIomanager(const vio::Path& savePath);
 
     void onReloadSystem(Sender s, ui32 a);
-    Delegate<Sender, ui32> onReloadSystemDel;
+    void onReloadShaders(Sender s, ui32 a);
 
     const LoadScreen* m_loadScreen = nullptr;
     SoaState* m_soaState = nullptr;

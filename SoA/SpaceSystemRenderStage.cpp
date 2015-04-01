@@ -69,6 +69,12 @@ void SpaceSystemRenderStage::render() {
    
 }
 
+void SpaceSystemRenderStage::reloadShader() {
+    m_sphericalTerrainComponentRenderer.disposeShaders();
+    m_farTerrainComponentRenderer.disposeShaders();
+    m_atmosphereComponentRenderer.disposeShader();
+}
+
 f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {
     if (m_closestPatchDistance2 == DOUBLE_SENTINEL) return 0.0f;
     f32 radFOV = verticalFOV * (f32)DEG_TO_RAD;

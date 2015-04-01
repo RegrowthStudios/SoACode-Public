@@ -8,17 +8,13 @@
 #include "TerrainPatchMeshManager.h"
 #include "VoxelSpaceUtils.h"
 
-#include <Vorb/io/IOManager.h>
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/io/IOManager.h>
 #include <Vorb/utils.h>
 
 FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
-    if (m_farTerrainProgram) {
-        m_farTerrainProgram->dispose();
-        m_farWaterProgram->dispose();
-        delete m_farTerrainProgram;
-        delete m_farWaterProgram;
-    }
+    disposeShaders();
 }
 
 void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
@@ -53,6 +49,15 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        cmp.planetGenData->radius,
                                        aComponent,
                                        (cmp.alpha >= 1.0f));
+    }
+}
+
+void FarTerrainComponentRenderer::disposeShaders() {
+    if (m_farTerrainProgram) {
+        vg::ShaderManager::destroyProgram(&m_farTerrainProgram);
+    }
+    if (m_farWaterProgram) {
+        vg::ShaderManager::destroyProgram(&m_farWaterProgram);
     }
 }
 

@@ -160,8 +160,8 @@ void MainMenuScreen::initInput() {
     initInputs(m_inputManager);
     // Reload space system event
 
-    onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += onReloadSystemDel;
+    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
+    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
 }
 
 void MainMenuScreen::initRenderPipeline() {
@@ -253,4 +253,8 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     m_renderPipeline.destroy(true);
     m_renderPipeline = MainMenuRenderPipeline();
     initRenderPipeline();
+}
+
+void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
+    m_renderPipeline.reloadShaders();
 }
