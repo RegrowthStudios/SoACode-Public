@@ -47,6 +47,10 @@ void GasGiantRenderer::drawGasGiant(f32m4& mvp) {
     glUniform1i(m_mesh->unColorBandLookup, 0);
     
     glUniformMatrix4fv(m_mesh->unWVP, 1, GL_FALSE, (f32*)&mvp[0][0]);
+
+    static float dt = 1.0f;
+    dt += 0.001f;
+    glUniform1f(m_shaderProgram->getUniform("unDt"), dt);
     
     glCullFace(GL_BACK);
     glDrawElements(GL_TRIANGLES, m_mesh->numIndices, GL_UNSIGNED_INT, 0);
