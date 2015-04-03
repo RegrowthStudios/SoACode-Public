@@ -56,13 +56,7 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 }
 
 void SpaceSystemRenderStage::render() {
-
-    glFinish();
-    PreciseTimer timer;
-    timer.start();
     drawBodies();
-    glFinish();
-    printf("ms: %f\n", timer.stop());
     m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
                             m_viewport);
