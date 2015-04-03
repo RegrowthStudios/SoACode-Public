@@ -104,7 +104,8 @@ void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem, vecs::EntityID
 vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
                                       const SystemBodyKegProperties* sysProps,
                                       const GasGiantKegProperties* properties,
-                                      SystemBody* body) {
+                                      SystemBody* body,
+                                      VGTexture colorMap) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
@@ -115,7 +116,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, 1.0f, properties->diameter / 2.0);
+    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, 1.0f, properties->diameter / 2.0, colorMap);
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
@@ -262,7 +263,8 @@ vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(OUT SpaceSystem* 
                                                                vecs::ComponentID npComp,
                                                                vecs::ComponentID arComp,
                                                                f32 oblateness,
-                                                               f64 radius) {
+                                                               f64 radius,
+                                                               VGTexture colorMap) {
     vecs::ComponentID ggCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_GASGIANT_NAME, entity);
     auto& ggCmp = spaceSystem->m_gasGiantCT.get(ggCmpId);
 
@@ -270,6 +272,7 @@ vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(OUT SpaceSystem* 
     ggCmp.axisRotationComponent = arComp;
     ggCmp.oblateness = oblateness;
     ggCmp.radius = radius;
+    ggCmp.colorMap = colorMap;
     return ggCmpId;
 }
 void SpaceSystemAssemblages::removeGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity) {

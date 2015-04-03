@@ -89,6 +89,8 @@ struct GasGiantKegProperties {
     f64v3 axis;
     f64 angularSpeed = 0.0;
     f64 rotationalPeriod = 0.0;
+    f32 oblateness = 0.0;
+    nString colorMap = "";
     nString displayName = "";
 };
 KEG_TYPE_DECL(GasGiantKegProperties);

@@ -15,8 +15,10 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
-#include <Vorb/io/keg.h>
 #include <Vorb/RPC.h>
+#include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/graphics/ImageIO.h>
+#include <Vorb/io/keg.h>
 
 #define M_PER_KM 1000.0
 
@@ -272,7 +274,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         fprintf(stderr, "keg error %d for %s\n", (int)error, filePath); \
         goodParse = false; \
         return;  \
-    }
+        }
 
     keg::Error error;
     nString data;
@@ -314,13 +316,13 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         } else if (type == "star") {
             StarKegProperties properties;
             error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
-            SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
+            SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
             error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
-            SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, &properties, body);
             KEG_CHECK;
+            createGasGiant(pr, sysProps, &properties, body);
         }
 
         pr.bodyLookupMap[body->name] = body->entity;
@@ -333,6 +335,43 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
     reader.dispose();
 
     return goodParse;
+}
+
+void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
+                               const SystemBodyKegProperties* sysProps,
+                               const GasGiantKegProperties* properties,
+                               SystemBody* body) {
+
+    // Load the texture
+    VGTexture colorMap = 0;
+    if (properties->colorMap.size()) {
+        if (pr.glrpc) {
+            vcore::RPC rpc;
+            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                vg::BitmapResource b = vg::ImageIO().load(properties->colorMap, vg::ImageIOFormat::RGB_UI8); 
+                if (b.data) {
+                    colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
+                                                            b.width, b.height,
+                                                            &vg::SamplerState::LINEAR_CLAMP_MIPMAP,
+                                                            vg::TextureInternalFormat::RGB8,
+                                                            vg::TextureFormat::RGB);
+                    vg::ImageIO().free(b);
+                }
+            });
+            pr.glrpc->invoke(&rpc, true);
+        } else {
+            vg::BitmapResource b = vg::ImageIO().load(properties->colorMap, vg::ImageIOFormat::RGB_UI8);
+            if (b.data) {
+                colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
+                                                        b.width, b.height,
+                                                        &vg::SamplerState::LINEAR_CLAMP_MIPMAP,
+                                                        vg::TextureInternalFormat::RGB8,
+                                                        vg::TextureFormat::RGB);
+                vg::ImageIO().free(b);
+            }
+        }
+    }
+    SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, properties, body, colorMap);
 }
 
 void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary) {

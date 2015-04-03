@@ -49,6 +49,8 @@ KEG_TYPE_DEF_SAME_NAME(GasGiantKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, mass, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, axis, F32_V3);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, angularSpeed, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, oblateness, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, colorMap, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, displayName, STRING);
 }
 

@@ -153,7 +153,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
                                                                    &vg::SamplerState::POINT_CLAMP,\
                                                                    vg::TextureInternalFormat::R8,\
                                                                    vg::TextureFormat::RED, 0);\
-    glGenTextures(1, &genData->biomeArrayTexture);
+    glGenTextures(1, &genData->biomeArrayTexture); \
     glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);\
     glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);\
     for (auto& it : m_biomeLookupMap) {\

@@ -20,6 +20,7 @@ class SpaceSystem;
 #include "VoxelCoordinateSpaces.h"
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/gtypes.h>
 
 struct PlanetGenData;
 class SoaState;
@@ -59,7 +60,8 @@ namespace SpaceSystemAssemblages {
     extern vecs::EntityID createGasGiant(OUT SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
                                         const GasGiantKegProperties* properties,
-                                        SystemBody* body);
+                                        SystemBody* body,
+                                        VGTexture colorMap);
     extern void destroyGasGiant(OUT SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /************************************************************************/
@@ -102,7 +104,8 @@ namespace SpaceSystemAssemblages {
                                                   vecs::ComponentID npComp,
                                                   vecs::ComponentID arComp,
                                                   f32 oblateness,
-                                                  f64 radius);
+                                                  f64 radius,
+                                                  VGTexture colorMap);
     extern void removeGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Far terrain component
