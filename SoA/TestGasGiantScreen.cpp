@@ -81,7 +81,7 @@ void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
     
     PreciseTimer timer;
     timer.start();
-    m_gasGiantRenderer->drawGasGiant(mvp);
+    m_gasGiantRenderer->render(mvp);
     glFinish();
     std::cout << timer.stop() << std::endl;
 }

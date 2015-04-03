@@ -115,6 +115,8 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
+    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, 1.0f, properties->diameter / 2.0);
+
     addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
     makeOrbitFromProps(spaceSystem, id, sysProps);
@@ -256,7 +258,25 @@ void SpaceSystemAssemblages::removeSphericalTerrainComponent(SpaceSystem* spaceS
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
 }
 
-/// Spherical terrain component
+vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                               vecs::ComponentID npComp,
+                                                               vecs::ComponentID arComp,
+                                                               f32 oblateness,
+                                                               f64 radius) {
+    vecs::ComponentID ggCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_GASGIANT_NAME, entity);
+    auto& ggCmp = spaceSystem->m_gasGiantCT.get(ggCmpId);
+
+    ggCmp.namePositionComponent = npComp;
+    ggCmp.axisRotationComponent = arComp;
+    ggCmp.oblateness = oblateness;
+    ggCmp.radius = radius;
+    return ggCmpId;
+}
+void SpaceSystemAssemblages::removeGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity) {
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_GASGIANT_NAME, entity);
+}
+
+
 vecs::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                   SphericalTerrainComponent& parentCmp,
                                                                   WorldCubeFace face) {

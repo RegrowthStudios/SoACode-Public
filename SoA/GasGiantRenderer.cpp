@@ -31,7 +31,7 @@ GasGiantRenderer::~GasGiantRenderer() {
     dispose();
 }
 
-void GasGiantRenderer::drawGasGiant(f32m4& mvp) {
+void GasGiantRenderer::render(f32m4& mvp) {
     // Lazy init
     if (!m_program) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/GasGiant/GasGiant.vert",

@@ -29,6 +29,7 @@
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 #define SPACE_SYSTEM_CT_FARTERRAIN_NAME "FarTerrain"
 #define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
+#define SPACE_SYSTEM_CT_GASGIANT_NAME "GasGiant"
 #define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 #define SPACE_SYSTEM_CT_SPACELIGHT_NAME "SpaceLight"
 #define SPACE_SYSTEM_CT_ATMOSPHERE_NAME "Atmosphere"
@@ -63,6 +64,7 @@ public:
     vecs::ComponentTable<OrbitComponent> m_orbitCT;
     vecs::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
     vecs::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    vecs::ComponentTable<GasGiantComponent> m_gasGiantCT;
     vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;
     vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
     vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;

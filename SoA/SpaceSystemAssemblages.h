@@ -97,7 +97,15 @@ namespace SpaceSystemAssemblages {
                                                            vg::TextureRecycler* normalMapRecycler);
     extern void removeSphericalTerrainComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
 
-    /// Spherical terrain component
+    /// Gas giant component
+    extern vecs::ComponentID addGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                  vecs::ComponentID npComp,
+                                                  vecs::ComponentID arComp,
+                                                  f32 oblateness,
+                                                  f64 radius);
+    extern void removeGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity);
+
+    /// Far terrain component
     extern vecs::ComponentID addFarTerrainComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                      SphericalTerrainComponent& parentCmp,
                                                      WorldCubeFace face);

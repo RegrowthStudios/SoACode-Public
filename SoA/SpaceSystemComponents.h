@@ -171,6 +171,14 @@ struct SphericalTerrainComponent {
     volatile bool needsFaceTransitionAnimation = false;
 };
 
+struct GasGiantComponent {
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
+    f64 radius = 0.0;
+    f32 oblateness = 1.0f;
+    VGTexture colorMap = 0;
+};
+
 struct FarTerrainComponent {
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 

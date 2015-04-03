@@ -12,17 +12,13 @@ class GasGiantVertex {
 public:
     GasGiantVertex():
         position(0, 0, 0),
-        normal(0, 0, 0),
-        uv(0, 0)
-    {}
+        uv(0, 0) { }
 
-    GasGiantVertex(f32v3 position, f32v3 normal, f32v2 uv):
+    GasGiantVertex(f32v3 position, f32v2 uv):
         position(position),
-        normal(normal) 
-    {}
+        uv(uv) { }
 
     f32v3 position;
-    f32v3 normal;
     f32v2 uv;
 };
 
@@ -33,8 +29,6 @@ public:
     VGVertexBuffer vbo;
     VGIndexBuffer ibo;
     VGTexture colorBandLookup;
-    VGUniform unWVP;
-    VGUniform unColorBandLookup;
 
     void bind();
 };
@@ -44,7 +38,7 @@ public:
     GasGiantRenderer();
     ~GasGiantRenderer();
 
-    void drawGasGiant(f32m4& mvp);
+    void render(GasGiantMesh* mesh, f32m4& mvp);
 
     void setColorBandLookupTexture(VGTexture texture) { colorBand = texture; }
 
@@ -57,6 +51,9 @@ private:
     VGTexture colorBand;
     vg::GLProgram* m_program = nullptr;
     GasGiantMesh* m_mesh = nullptr;
+
+    VGUniform unWVP;
+    VGUniform unColorBandLookup;
 };
 
 #endif
