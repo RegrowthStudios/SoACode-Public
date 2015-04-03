@@ -5,11 +5,13 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Vorb/io/IOManager.h>
+#include "ShaderLoader.h"
 #include <Vorb/BufferUtils.inl>
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/io/IOManager.h>
 
 #include <iostream>
 
@@ -21,24 +23,30 @@ void GasGiantMesh::bind() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), (void*)sizeof(f32v3));
 }
 
-GasGiantRenderer::GasGiantRenderer():
-    m_shaderProgram(nullptr), 
-    m_mesh(nullptr)
-{
-    reloadShader();
-    initMesh();
+GasGiantRenderer::GasGiantRenderer() {
+   // Empty
 }
 
-GasGiantRenderer::~GasGiantRenderer() {}
+GasGiantRenderer::~GasGiantRenderer() {
+    dispose();
+}
 
 void GasGiantRenderer::drawGasGiant(f32m4& mvp) {
-    m_shaderProgram->use();
-    m_shaderProgram->enableVertexAttribArrays();
+    // Lazy init
+    if (!m_program) {
+        m_program = ShaderLoader::createProgramFromFile("Shaders/GasGiant/GasGiant.vert",
+                                                             "Shaders/GasGiant/GasGiant.frag");
+    }
+    if (!m_mesh) buildMesh();
+    m_mesh->colorBandLookup = colorBand;
+
+    m_program->use();
+    m_program->enableVertexAttribArrays();
     m_mesh->bind();
 
-    glVertexAttribPointer(m_shaderProgram->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, position));
-    glVertexAttribPointer(m_shaderProgram->getAttribute("vNormal"), 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, normal));
-    glVertexAttribPointer(m_shaderProgram->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, uv));
+    glVertexAttribPointer(m_program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, position));
+    glVertexAttribPointer(m_program->getAttribute("vNormal"), 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, normal));
+    glVertexAttribPointer(m_program->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, uv));
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_mesh->colorBandLookup);
@@ -50,16 +58,28 @@ void GasGiantRenderer::drawGasGiant(f32m4& mvp) {
 
     static float dt = 1.0f;
     dt += 0.001f;
-    glUniform1f(m_shaderProgram->getUniform("unDt"), dt);
+    glUniform1f(m_program->getUniform("unDt"), dt);
     
     glCullFace(GL_BACK);
     glDrawElements(GL_TRIANGLES, m_mesh->numIndices, GL_UNSIGNED_INT, 0);
 
-    m_shaderProgram->disableVertexAttribArrays();
-    m_shaderProgram->unuse();
+    m_program->disableVertexAttribArrays();
+    m_program->unuse();
 }
 
-void GasGiantRenderer::initMesh() {
+void GasGiantRenderer::dispose() {
+    disposeShader();
+    delete m_mesh;
+    m_mesh = nullptr;
+}
+
+void GasGiantRenderer::disposeShader() {
+    if (m_program) {
+        vg::ShaderManager::destroyProgram(&m_program);
+    }
+}
+
+void GasGiantRenderer::buildMesh() {
     std::vector<f32v3> positions;
     std::vector<ui32> indices;
     vmesh::generateIcosphereMesh(5, indices, positions);
@@ -86,64 +106,9 @@ void GasGiantRenderer::initMesh() {
     vg::GpuMemory::bindBuffer(m_mesh->ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(m_mesh->ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data());
 
-    m_mesh->unWVP = m_shaderProgram->getUniform("unWVP");
-    m_mesh->unColorBandLookup = m_shaderProgram->getUniform("unColorBandLookup");
+    m_mesh->unWVP = m_program->getUniform("unWVP");
+    m_mesh->unColorBandLookup = m_program->getUniform("unColorBandLookup");
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-void GasGiantRenderer::reloadShader() {
-    std::vector<const cString> filesToDelete;
-    if(m_shaderProgram) {
-        m_shaderProgram->dispose();
-        delete m_shaderProgram;
-    }
-    m_shaderProgram = new vg::GLProgram(true);
-
-    std::vector<nString> gasGiantAttribs;
-    gasGiantAttribs.push_back("vPosition");
-    gasGiantAttribs.push_back("vNormal");
-    gasGiantAttribs.push_back("vUV");
-
-    vio::IOManager iom;
-    nString name = "GasGiant";
-    if(!m_shaderProgram->addShader(createShaderCode(filesToDelete, vg::ShaderType::VERTEX_SHADER, iom, "Shaders/GasGiant/GasGiant.vert"))) {
-        std::cout << "Vertex shader for " + name + " failed to compile." << std::endl;
-        m_shaderProgram->dispose();
-        delete m_shaderProgram;
-        m_shaderProgram = nullptr;
-        return;
-    }
-    if(!m_shaderProgram->addShader(createShaderCode(filesToDelete, vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/GasGiant/GasGiant.frag"))) {
-        std::cout << "Fragment shader for " + name + " failed to compile.";
-        m_shaderProgram->dispose();
-        delete m_shaderProgram;
-        m_shaderProgram = nullptr;
-        return;
-    }
-    m_shaderProgram->setAttributes(gasGiantAttribs);
-
-    if(!m_shaderProgram->link()) {
-        std::cout << name + " failed to link.";
-        m_shaderProgram->dispose();
-        delete m_shaderProgram;
-        m_shaderProgram = nullptr;
-        return;
-    }
-    m_shaderProgram->initAttributes();
-    m_shaderProgram->initUniforms();
-
-    // Delete loaded files
-    for(auto& code : filesToDelete) delete[] code;
-}
-
-vg::ShaderSource GasGiantRenderer::createShaderCode(std::vector<const cString>& filesToDelete, const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines /*= nullptr*/) {
-    vg::ShaderSource src;
-    src.stage = stage;
-    if(defines) src.sources.push_back(defines);
-    const cString code = iom.readFileToString(path);
-    src.sources.push_back(code);
-    filesToDelete.push_back(code);
-    return src;
 }

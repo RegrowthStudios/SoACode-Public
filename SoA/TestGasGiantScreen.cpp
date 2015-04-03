@@ -33,8 +33,7 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
  
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if(e.keyCode == VKEY_F1) {
-            m_gasGiantRenderer->reloadShader();
-            std::cout << "LOL\n";
+            m_gasGiantRenderer->dispose();
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {

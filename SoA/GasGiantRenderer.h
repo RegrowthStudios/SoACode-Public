@@ -46,18 +46,17 @@ public:
 
     void drawGasGiant(f32m4& mvp);
 
-    void setColorBandLookupTexture(VGTexture texture) { m_mesh->colorBandLookup = texture; }
+    void setColorBandLookupTexture(VGTexture texture) { colorBand = texture; }
 
-    void reloadShader();
+    void dispose();
+
+    void disposeShader();
 
 private:
-    void initMesh();
-    vg::ShaderSource createShaderCode(std::vector<const cString>& filesToDelete, const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr);
-
-    vg::GLProgram* m_shaderProgram;
-    GasGiantMesh* m_mesh;
-
-    
+    void buildMesh();
+    VGTexture colorBand;
+    vg::GLProgram* m_program = nullptr;
+    GasGiantMesh* m_mesh = nullptr;
 };
 
 #endif
