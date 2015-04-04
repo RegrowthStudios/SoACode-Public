@@ -112,7 +112,7 @@ void SpaceSystemRenderStage::drawBodies() {
             needsDepthClear = true;
         }
 
-        SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
+        SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
         f32v3 lightDir(glm::normalize(lightPos - *pos));
@@ -126,6 +126,22 @@ void SpaceSystemRenderStage::drawBodies() {
         
         f64 dist = cmp.meshManager->getClosestSphericalDistance2();
         if (dist < m_closestPatchDistance2) m_closestPatchDistance2 = dist;
+    }
+    // Render gas giants
+    for (auto& it : m_spaceSystem->m_gasGiantCT) {
+        auto& ggCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(ggCmp.namePositionComponent);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+
+        SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
+        lightCache[it.first] = std::make_pair(lightPos, lightCmp);
+
+        f32v3 lightDir(glm::normalize(lightPos - *pos));
+
+        m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, lightCmp);
     }
 
     // Render atmospheres
@@ -177,13 +193,13 @@ void SpaceSystemRenderStage::drawBodies() {
     vg::DepthState::FULL.set();
 }
 
-SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos) {
+SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(NamePositionComponent& npCmp, OUT f64v3& pos) {
     SpaceLightComponent* rv = nullptr;
     f64 closestDist = 9999999999999999.0;
     for (auto& it : m_spaceSystem->m_spaceLightCT) {
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(it.second.parentNpId);
+        auto& lightNpCmp = m_spaceSystem->m_namePositionCT.get(it.second.parentNpId);
         // TODO(Ben): Optimize out sqrt
-        f64 dist = glm::length(npCmp.position - m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent).position);
+        f64 dist = glm::length(lightNpCmp.position - npCmp.position);
         if (dist < closestDist) {
             closestDist = dist;
             rv = &it.second;

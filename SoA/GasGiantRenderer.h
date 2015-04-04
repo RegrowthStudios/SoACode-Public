@@ -47,6 +47,7 @@ public:
     void disposeShader();
 
 private:
+    
     void buildMesh();
     VGTexture colorBand;
     vg::GLProgram* m_program = nullptr;

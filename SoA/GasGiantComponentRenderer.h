@@ -25,6 +25,11 @@ DECL_VG(class GLProgram)
 struct GasGiantComponent;
 struct SpaceLightComponent;
 
+struct GasGiantVertex {
+    f32v3 position;
+    f32v2 uv;
+};
+
 class GasGiantComponentRenderer {
 public:
     GasGiantComponentRenderer();
@@ -37,13 +42,17 @@ public:
               const SpaceLightComponent* spComponent);
     void disposeShader();
 private:
-    void buildShaders();
+    void buildShader();
     void buildMesh();
 
     vg::GLProgram* m_program = nullptr;
-    VGBuffer m_icoVbo = 0;
-    VGIndexBuffer m_icoIbo = 0;
+    VGBuffer m_vbo = 0;
+    VGIndexBuffer m_ibo = 0;
     int m_numIndices = 0;
+
+    VGUniform unWVP;
+    VGUniform unDT;
+    VGUniform unLightDir;
 };
 
 #endif // GasGiantComponentRenderer_h__

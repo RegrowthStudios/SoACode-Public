@@ -19,11 +19,12 @@
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/VorbPreDecl.inl>
 
-#include "SphericalTerrainComponentRenderer.h"
-#include "FarTerrainComponentRenderer.h"
 #include "AtmosphereComponentRenderer.h"
-#include "SystemARRenderer.h"
 #include "Camera.h"
+#include "FarTerrainComponentRenderer.h"
+#include "GasGiantComponentRenderer.h"
+#include "SphericalTerrainComponentRenderer.h"
+#include "SystemARRenderer.h"
 
 class App;
 class GameSystem;
@@ -68,10 +69,10 @@ private:
     void drawBodies();
 
     /// Gets light source relative to a component
-    /// @param cmp: Spherical terrain component to query for
-    /// @param pos: Position of brightest light
+    /// @param cmp: position component 
+    /// @param pos: Returned position of brightest light
     /// @return brightest light source relative to cmp
-    SpaceLightComponent* getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos);
+    SpaceLightComponent* getBrightestLight(NamePositionComponent& npCmp, OUT f64v3& pos);
 
     /// Gets the position of a body using MTRenderState if needed
     /// @return pointer to the position
@@ -89,6 +90,7 @@ private:
     SystemARRenderer m_systemARRenderer;
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
+    GasGiantComponentRenderer m_gasGiantComponentRenderer;
     AtmosphereComponentRenderer m_atmosphereComponentRenderer;
     f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
 };
