@@ -746,6 +746,9 @@
     <ClInclude Include="ShaderLoader.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="GasGiantComponentRenderer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1220,6 +1223,7 @@
     <ClCompile Include="ShaderLoader.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
+    <ClCompile Include="GasGiantComponentRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

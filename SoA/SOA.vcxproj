@@ -309,6 +309,7 @@ EXIT 0</Command>
     <ClInclude Include="GameSystemAssemblages.h" />
     <ClInclude Include="GameSystemEvents.h" />
     <ClInclude Include="GameSystemUpdater.h" />
+    <ClInclude Include="GasGiantComponentRenderer.h" />
     <ClInclude Include="GasGiantRenderer.h" />
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
@@ -499,6 +500,7 @@ EXIT 0</Command>
     <ClCompile Include="GameSystemAssemblages.cpp" />
     <ClCompile Include="GameSystemEvents.cpp" />
     <ClCompile Include="GameSystemUpdater.cpp" />
+    <ClCompile Include="GasGiantComponentRenderer.cpp" />
     <ClCompile Include="GasGiantRenderer.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="HardCodedIDs.cpp" />

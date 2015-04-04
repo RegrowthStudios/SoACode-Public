@@ -1,19 +1,19 @@
 ///
-/// AtmosphereComponentRenderer.h
+/// GasGiantComponentRenderer.h
 /// Seed of Andromeda
 ///
-/// Created by Benjamin Arnold on 8 Mar 2015
+/// Created by Benjamin Arnold on 3 Apr 2015
 /// Copyright 2014 Regrowth Studios
 /// All Rights Reserved
 ///
 /// Summary:
-/// Renders atmosphere components
+/// Renders gas giant components
 ///
 
 #pragma once
 
-#ifndef AtmosphereComponentRenderer_h__
-#define AtmosphereComponentRenderer_h__
+#ifndef GasGiantComponentRenderer_h__
+#define GasGiantComponentRenderer_h__
 
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/ecs/ComponentTable.hpp>
@@ -22,21 +22,22 @@
 
 DECL_VG(class GLProgram)
 
-struct AtmosphereComponent;
+struct GasGiantComponent;
 struct SpaceLightComponent;
 
-class AtmosphereComponentRenderer {
+class GasGiantComponentRenderer {
 public:
-    AtmosphereComponentRenderer();
-    ~AtmosphereComponentRenderer();
+    GasGiantComponentRenderer();
+    ~GasGiantComponentRenderer();
 
-    void draw(const AtmosphereComponent& aCmp,
+    void draw(const GasGiantComponent& ggCmp,
               const f32m4& VP,
               const f32v3& relCamPos,
               const f32v3& lightDir,
               const SpaceLightComponent* spComponent);
     void disposeShader();
 private:
+    void buildShaders();
     void buildMesh();
 
     vg::GLProgram* m_program = nullptr;
@@ -45,5 +46,5 @@ private:
     int m_numIndices = 0;
 };
 
-#endif // AtmosphereComponentRenderer_h__
+#endif // GasGiantComponentRenderer_h__
 

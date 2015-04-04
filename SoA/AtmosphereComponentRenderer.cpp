@@ -4,14 +4,13 @@
 #include "SpaceSystem.h"
 #include "RenderUtils.h"
 #include "soaUtils.h"
+#include "ShaderLoader.h"
 
-#include "Camera.h"
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
-#include <Vorb/io/IOManager.h>
 
 #define ICOSPHERE_SUBDIVISIONS 6
 
@@ -36,9 +35,10 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
                                        const SpaceLightComponent* spComponent) {
     // Lazily construct buffer and shaders
     if (!m_program) {
-        buildShaders();
-        buildMesh();
+        m_program = ShaderLoader::createProgramFromFile("Shaders/AtmosphereShading/Sky.vert",
+                                                        "Shaders/AtmosphereShading/Sky.frag");
     }
+    if (!m_icoVbo) buildMesh();
 
     m_program->use();
     m_program->enableVertexAttribArrays();
@@ -92,30 +92,6 @@ void AtmosphereComponentRenderer::disposeShader() {
     if (m_program) {
         vg::ShaderManager::destroyProgram(&m_program);
     }
-}
-
-void AtmosphereComponentRenderer::buildShaders() {
-    // Attributes for spherical terrain
-    std::vector<nString> attribs;
-    attribs.push_back("vPosition");
-
-    vio::IOManager iom;
-    nString vertSource;
-    nString fragSource;
-    // Build terrain shader
-    iom.readFileToString("Shaders/AtmosphereShading/Sky.vert", vertSource);
-    iom.readFileToString("Shaders/AtmosphereShading/Sky.frag", fragSource);
-    m_program = new vg::GLProgram(true);
-    m_program->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
-    m_program->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
-    m_program->setAttributes(attribs);
-    m_program->link();
-    m_program->initAttributes();
-    m_program->initUniforms();
-    // Set constant uniforms
-   // m_program->use();
-   
-   // m_program->unuse();
 }
 
 void AtmosphereComponentRenderer::buildMesh() {
