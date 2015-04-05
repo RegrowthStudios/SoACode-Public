@@ -16,6 +16,7 @@
 /// Abstract class that allows you to hold a handle to a a generic AwesomiumInterface<C>
 class IAwesomiumInterface {
 public:
+    virtual ~IAwesomiumInterface() {}
     /// Frees all resources
     virtual void destroy() = 0;
 
@@ -41,12 +42,12 @@ public:
 
 protected:
     /// Awesomium variables
-    Awesomium::DataSource* _data_source;
-    Awesomium::WebSession* _webSession;
-    Awesomium::WebCore* _webCore;
-    Awesomium::WebView* _webView;
-    Awesomium::JSValue _gameInterface;
-    Awesomium::JSValue _window;
+    Awesomium::DataSource* m_data_source = nullptr;
+    Awesomium::WebSession* m_webSession = nullptr;
+    Awesomium::WebCore* m_webCore = nullptr;
+    Awesomium::WebView* m_webView = nullptr;
+    Awesomium::JSValue m_gameInterface;
+    Awesomium::JSValue m_window;
 };
 
 #endif // IAwesomiumInterface_h__
