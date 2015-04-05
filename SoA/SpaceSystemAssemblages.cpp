@@ -25,23 +25,6 @@
 
 #define SEC_PER_DAY 86400.0
 
-vecs::ComponentID makeOrbitFromProps(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
-                        const SystemBodyKegProperties* sysProps) {
-    
-    f64q orientation;
-    // Calculate orbit orientation from normal
-    const f64v3 right(1.0, 0.0, 0.0);
-    if (right == -sysProps->orbitNormal) {
-        f64v3 eulers(0.0, M_PI, 0.0);
-        orientation = f64q(eulers);
-    } else if (right != sysProps->orbitNormal) {
-        orientation = quatBetweenVectors(right, sysProps->orbitNormal);
-    }
-
-    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, entity, sysProps->eccentricity,
-                                                     sysProps->period, sysProps->pathColor, orientation);
-}
-
 vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                     const SystemBodyKegProperties* sysProps,
                                     const PlanetKegProperties* properties,
@@ -66,7 +49,9 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
 
     addAtmosphereComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 1.025));
 
-    makeOrbitFromProps(spaceSystem, id, sysProps);
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+                                              sysProps->t, sysProps->o, sysProps->p,
+                                              sysProps->i, sysProps->pathColor);
 
     return id;
 }
@@ -91,7 +76,9 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
-    makeOrbitFromProps(spaceSystem, id, sysProps);
+    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+                                                     sysProps->t, sysProps->o, sysProps->p,
+                                                     sysProps->i, sysProps->pathColor);
 
     return id;
 }
@@ -120,7 +107,9 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
 
-    makeOrbitFromProps(spaceSystem, id, sysProps);
+    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+                                                     sysProps->t, sysProps->o, sysProps->p,
+                                                     sysProps->i, sysProps->pathColor);
 
     return id;
 }
@@ -259,7 +248,7 @@ void SpaceSystemAssemblages::removeSphericalTerrainComponent(SpaceSystem* spaceS
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
 }
 
-vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity,
+vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                vecs::ComponentID npComp,
                                                                vecs::ComponentID arComp,
                                                                f32 oblateness,
@@ -275,7 +264,7 @@ vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(OUT SpaceSystem* 
     ggCmp.colorMap = colorMap;
     return ggCmpId;
 }
-void SpaceSystemAssemblages::removeGasGiantComponent(OUT SpaceSystem* spaceSystem, vecs::EntityID entity) {
+void SpaceSystemAssemblages::removeGasGiantComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_GASGIANT_NAME, entity);
 }
 
@@ -336,14 +325,20 @@ void SpaceSystemAssemblages::removeNamePositionComponent(SpaceSystem* spaceSyste
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addOrbitComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                           f64 eccentricity, f64 orbitalPeriod,
-                                                           const ui8v4& pathColor, const f64q& orientation) {
+                                                            vecs::ComponentID npComp,
+                                                            f64 eccentricity, f64 orbitalPeriod,
+                                                            f64 ascendingLong, f64 periapsisLong,
+                                                            f64 inclination,
+                                                            const ui8v4& pathColor) {
     vecs::ComponentID oCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
     auto& oCmp = spaceSystem->m_orbitCT.get(oCmpId);
-    oCmp.eccentricity = eccentricity;
-    oCmp.orbitalPeriod = orbitalPeriod;
+    oCmp.e = eccentricity;
+    oCmp.t = orbitalPeriod;
     oCmp.pathColor = pathColor;
-    oCmp.orientation = orientation;
+    oCmp.npID = npComp;
+    oCmp.o = ascendingLong;
+    oCmp.p = periapsisLong;
+    oCmp.i = inclination;
     return oCmpId;
 }
 

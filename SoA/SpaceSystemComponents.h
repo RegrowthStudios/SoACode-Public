@@ -91,14 +91,17 @@ struct SpaceLightComponent {
 };
 
 struct OrbitComponent {
-    f64 semiMajor = 0.0; ///< Semi-major of the ellipse
-    f64 semiMinor = 0.0; ///< Semi-minor of the ellipse
-    f64 orbitalPeriod = 0.0; ///< Period in seconds of a full orbit
-    f64 parentMass = 0.0; ///< Mass of the parent
-    f64 eccentricity = 0.0; ///< Shape of orbit, 0-1
-    f64 r1 = 0.0; ///< Closest distance to focal point
-    f64v3 velocity = f64v3(0.0); ///< Current velocity relative to space
-    f64v3 relativeVelocity = f64v3(0.0); ///< Current velocity relative to parent
+    f64 a = 0.0; ///< Semi-major of the ellipse in KM
+    f64 b = 0.0; ///< Semi-minor of the ellipse in KM
+    f64 t = 0.0; ///< Period of a full orbit in sec
+    f64 parentMass = 0.0; ///< Mass of the parent in KG
+    f64 e = 0.0; ///< Shape of orbit, 0-1
+    f64 o = 0.0; ///< Longitude of the ascending node in rad
+    f64 p = 0.0; ///< Longitude of the periapsis in rad
+    f64 i = 0.0; ///< Inclination in rad
+    f64 r1 = 0.0; ///< Closest distance to focal point in KM
+    f64v3 velocity = f64v3(0.0); ///< Current velocity relative to space in KM/s
+    f64v3 relativeVelocity = f64v3(0.0); ///< Current velocity relative to parent in KM/s
     ui8v4 pathColor = ui8v4(255); ///< Color of the path
     vecs::ComponentID npID = 0; ///< Component ID of NamePosition component
     vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent

@@ -26,7 +26,7 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     /// Calculates position as a function of time
     /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
     // 1. Calculate the mean anomaly
-    f64 meanAnomaly = (M_2_PI / cmp.orbitalPeriod) * time;
+    f64 meanAnomaly = (M_2_PI / cmp.t) * time;
 
     // 2. Solve Kepler's equation to compute eccentric anomaly 
     // using Newton's method
@@ -34,25 +34,25 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
 #define ITERATIONS 3
     f64 eccentricAnomaly, F;
     eccentricAnomaly = meanAnomaly;
-    F = eccentricAnomaly - cmp.eccentricity * sin(meanAnomaly) - meanAnomaly;
+    F = eccentricAnomaly - cmp.e * sin(meanAnomaly) - meanAnomaly;
     for (int n = 0; n < ITERATIONS; n++) {
         eccentricAnomaly = eccentricAnomaly -
-            F / (1.0 - cmp.eccentricity * cos(eccentricAnomaly));
+            F / (1.0 - cmp.e * cos(eccentricAnomaly));
         F = eccentricAnomaly -
-            cmp.eccentricity * sin(eccentricAnomaly) - meanAnomaly;
+            cmp.e * sin(eccentricAnomaly) - meanAnomaly;
     }
     // 3. Calculate true anomaly
-    f64 v = 2.0 * atan2(sqrt(1.0 - cmp.eccentricity) * cos(eccentricAnomaly / 2.0),
-                                  sqrt(1.0 + cmp.eccentricity) * sin(eccentricAnomaly / 2.0));
+    f64 v = 2.0 * atan2(sqrt(1.0 - cmp.e) * cos(eccentricAnomaly / 2.0),
+                                  sqrt(1.0 + cmp.e) * sin(eccentricAnomaly / 2.0));
 
     // 4. Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html
-    f64 r = cmp.semiMajor * (1.0 - cmp.eccentricity * cmp.eccentricity) / (1.0 + cmp.eccentricity * cos(v));
+    f64 r = cmp.a * (1.0 - cmp.e * cmp.e) / (1.0 + cmp.e * cos(v));
     
     f64 i = 0.0; // Inclination TODO(Ben): This
     f64 o = 0.0; // Ascending node longitude 
     f64 p = 0.0; // Periapsis longitude
-    f64 w = p - o;
+    f64 w = cmp.p - cmp.o;
 
     // Finally calculate position
     f64v3 position;
@@ -67,7 +67,7 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     position.z = r * (sino * cosv + coso * sinv * cosi);
 
     // Calculate velocity
-    f64 g = sqrt(M_G * KM_PER_M * cmp.parentMass * (2.0 / r - 1.0 / cmp.semiMajor)) * KM_PER_M;
+    f64 g = sqrt(M_G * KM_PER_M * cmp.parentMass * (2.0 / r - 1.0 / cmp.a)) * KM_PER_M;
     f64 sinwv = sin(w + v);
     cmp.relativeVelocity.x = -g * sinwv * cosi;
     cmp.relativeVelocity.y = g * sinwv * sini;

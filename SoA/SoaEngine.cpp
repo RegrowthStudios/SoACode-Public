@@ -385,20 +385,20 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
 void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary) {
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
 
-    f64 per = orbitC.orbitalPeriod;
+    f64 per = orbitC.t;
     f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
     if (isBinary) parentMass -= mass;
-    orbitC.semiMajor = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
+    orbitC.a = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
                            (mass + parentMass), 1.0 / 3.0) * KM_PER_M;
-    orbitC.semiMinor = orbitC.semiMajor *
-        sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
+    orbitC.b = orbitC.a *
+        sqrt(1.0 - orbitC.e * orbitC.e);
     orbitC.parentMass = parentMass;
     if (isBinary) {
         //  orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
         //      mass / (orbitC.totalMass);
-        orbitC.r1 = orbitC.semiMajor;
+        orbitC.r1 = orbitC.a;
     } else {
-        orbitC.r1 = orbitC.semiMajor * (1.0 - orbitC.eccentricity);
+        orbitC.r1 = orbitC.a * (1.0 - orbitC.e);
     }
 }
 

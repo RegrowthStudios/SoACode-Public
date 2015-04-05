@@ -10,10 +10,12 @@ KEG_ENUM_DEF(BodyType, BodyType, kt) {
 KEG_TYPE_DEF_SAME_NAME(SystemBodyKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, parent, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, path, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, eccentricity, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, period, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, startOrbit, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, orbitNormal, F64_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, e, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, t, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, meanAnomaly, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, o, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, p, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, i, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, pathColor, UI8_V4);
 }
 

@@ -39,11 +39,13 @@ struct SystemBody {
 struct SystemBodyKegProperties {
     nString parent = "";
     nString path = "";
-    f64 eccentricity = 0.0;
-    f64 period = 0.0;
-    f64 startOrbit = 0.0;
-    f64v3 orbitNormal = f64v3(1.0, 0.0, 0.0);
-    ui8v4 pathColor = ui8v4(255);
+    f64 e = 0.0; ///< Shape of orbit, 0-1
+    f64 t = 0.0; ///< Period of a full orbit in sec
+    f64 meanAnomaly = 0.0; ///< Start mean anomaly in deg
+    f64 o = 0.0; ///< Longitude of the ascending node in deg
+    f64 p = 0.0; ///< Longitude of the periapsis in deg
+    f64 i = 0.0; ///< Inclination in deg
+    ui8v4 pathColor = ui8v4(255); ///< Color of rendered path
 };
 KEG_TYPE_DECL(SystemBodyKegProperties);
 

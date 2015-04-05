@@ -38,16 +38,16 @@ void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp) {
 #define DEGTORAD (M_PI / 180.0)
 
     // Need to offset the ellipse mesh based on eccentricity
-    f64 xOffset = cmp.semiMajor - cmp.r1;
+    f64 xOffset = cmp.a - cmp.r1;
     std::vector<f32v3> verts;
     verts.reserve(DEGREES * VERTS_PER_DEGREE + 1);
 
     // Generate all the verts
     for (int i = 0; i < DEGREES * VERTS_PER_DEGREE; i++) {
         f64 rad = ((double)i / VERTS_PER_DEGREE) * DEGTORAD;
-        verts.emplace_back(cos(rad)*cmp.semiMajor - xOffset,
+        verts.emplace_back(cos(rad)*cmp.a - xOffset,
                            0.0,
-                           sin(rad)*cmp.semiMinor);
+                           sin(rad)*cmp.b);
     }
     // First vertex is duplicated
     verts.push_back(verts.front());
