@@ -38,6 +38,12 @@ const i32 OBJECT_LIST_SIZE = 24096;
 #ifndef M_PI
 #define M_PI    3.14159265358979323846264338327950288   /* pi */
 #endif
+#ifndef M_2_PI
+#define M_2_PI 6.283185307179586476925286766559 /* 2 * pi */
+#endif
+#ifndef M_PI_2
+#define M_PI_2    1.5707963267948966192313216916398   /* pi / 2 */
+#endif
 #define M_G 0.0000000000667384
 
 /*** Helpful conversion factors ***/

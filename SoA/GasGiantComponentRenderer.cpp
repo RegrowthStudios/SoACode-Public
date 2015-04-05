@@ -24,6 +24,9 @@ GasGiantComponentRenderer::~GasGiantComponentRenderer() {
     if (m_ibo) {
         vg::GpuMemory::freeBuffer(m_ibo);
     }
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+    }
 }
 
 void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
@@ -51,13 +54,9 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(unLightDir, 1, &lightDir[0]);
    
-    // Bind buffers
-    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
-    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, position));
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, uv));
-
+    // Bind VAO
+    glBindVertexArray(m_vao);
+   
     // Bind lookup texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ggCmp.colorMap);
@@ -102,16 +101,23 @@ void GasGiantComponentRenderer::buildMesh() {
         vertices[i].uv.y = (positions[i].y + 1.0f) / 2.0f;
     }
 
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+
     vg::GpuMemory::createBuffer(m_vbo);
     vg::GpuMemory::createBuffer(m_ibo);
 
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(m_vbo, vg::BufferTarget::ARRAY_BUFFER, vertices.size() * sizeof(GasGiantVertex),
                                     vertices.data(), vg::BufferUsageHint::STATIC_DRAW);
-    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ARRAY_BUFFER);
 
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(ui32),
                                     indices.data(), vg::BufferUsageHint::STATIC_DRAW);
-    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+
+    m_program->enableVertexAttribArrays();
+    glVertexAttribPointer(m_program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, position));
+    glVertexAttribPointer(m_program->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, uv));
+
+    glBindVertexArray(0);
 }
