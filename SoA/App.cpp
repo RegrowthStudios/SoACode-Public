@@ -56,8 +56,13 @@ void App::addScreens() {
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(VKEY_G, scrTests.back());
 
-    // Start from dev screen for convenience
+    // Uncomment to start from dev screen for testing other screens
+//#define START_AT_DEV_SCREEN
+#ifdef START_AT_DEV_SCREEN
     _screenList->setScreen(scrDev->getIndex());
+#else
+    _screenList->setScreen(scrInit->getIndex());
+#endif
 }
 
 void App::onInit() {

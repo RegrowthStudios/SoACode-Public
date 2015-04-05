@@ -39,7 +39,6 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     if (!m_vbo) buildMesh();
 
     m_program->use();
-    m_program->enableVertexAttribArrays();
 
     // Set up matrix
     f32m4 WVP(1.0);
@@ -65,7 +64,8 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
     vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
 
-    m_program->disableVertexAttribArrays();
+    glBindVertexArray(0);
+
     m_program->unuse();
 }
 

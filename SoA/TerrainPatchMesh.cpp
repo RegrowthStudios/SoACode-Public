@@ -24,6 +24,9 @@ TerrainPatchMesh::~TerrainPatchMesh() {
     if (m_vao) {
         glDeleteVertexArrays(1, &m_vao);
     }
+    if (m_wvao) {
+        glDeleteVertexArrays(1, &m_wvao);
+    }
     if (m_normalMap) {
         glDeleteTextures(1, &m_normalMap);
     }
@@ -47,38 +50,16 @@ void TerrainPatchMesh::draw(const f64v3& relativePos, const f32m4& VP,
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
 
-    // TODO: Using a VAO makes it not work??
-    // glBindVertexArray(m_vao);
+    glBindVertexArray(m_vao);
 
     glBindTexture(GL_TEXTURE_2D, m_normalMap);
 
-    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, position));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, tangent));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, texCoords));
-    glVertexAttribPointer(3, 3, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, color));
-    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, normTexCoords));
-    glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, temperature));
-
-    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     if (drawSkirts) {
         glDrawElements(GL_TRIANGLES, PATCH_INDICES, GL_UNSIGNED_SHORT, 0);
     } else {
         glDrawElements(GL_TRIANGLES, PATCH_INDICES_NO_SKIRTS, GL_UNSIGNED_SHORT, 0);
     }
-    //   glBindVertexArray(0);
+    glBindVertexArray(0);
 }
 
 void TerrainPatchMesh::drawWater(const f64v3& relativePos, const f32m4& VP,
@@ -91,31 +72,11 @@ void TerrainPatchMesh::drawWater(const f64v3& relativePos, const f32m4& VP,
 
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
 
-    // TODO: Using a VAO makes it not work??
-    // glBindVertexArray(m_vao);
+    glBindVertexArray(m_wvao);
 
-    vg::GpuMemory::bindBuffer(m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, position));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, tangent));
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, color));
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, texCoords));
-    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, depth));
-
-
-    vg::GpuMemory::bindBuffer(m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glDrawElements(GL_TRIANGLES, m_waterIndexCount, GL_UNSIGNED_SHORT, 0);
 
-    //   glBindVertexArray(0);
+    glBindVertexArray(0);
 }
 
 void TerrainPatchMesh::drawAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
@@ -127,37 +88,17 @@ void TerrainPatchMesh::drawAsFarTerrain(const f64v3& relativePos, const f32m4& V
     glUniformMatrix4fv(program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     glUniform3fv(program->getUniform("unTranslation"), 1, &translation[0]);
 
-    // TODO: Using a VAO makes it not work??
-    // glBindVertexArray(m_vao);
+    glBindVertexArray(m_vao);
 
     glBindTexture(GL_TEXTURE_2D, m_normalMap);
 
-    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, position));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, tangent));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, texCoords));
-    glVertexAttribPointer(3, 3, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, color));
-    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, normTexCoords));
-    glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, temperature));
-
-    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     if (drawSkirts) {
         glDrawElements(GL_TRIANGLES, PATCH_INDICES, GL_UNSIGNED_SHORT, 0);
     } else {
         glDrawElements(GL_TRIANGLES, PATCH_INDICES_NO_SKIRTS, GL_UNSIGNED_SHORT, 0);
     }
+
+    glBindVertexArray(0);
 }
 
 /// Draws the water mesh as a far terrain mesh
@@ -169,31 +110,11 @@ void TerrainPatchMesh::drawWaterAsFarTerrain(const f64v3& relativePos, const f32
     glUniformMatrix4fv(program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     glUniform3fv(program->getUniform("unTranslation"), 1, &translation[0]);
 
-    // TODO: Using a VAO makes it not work??
-    // glBindVertexArray(m_vao);
+    glBindVertexArray(m_wvao);
 
-    vg::GpuMemory::bindBuffer(m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, position));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, tangent));
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, color));
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, texCoords));
-    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE,
-                          sizeof(WaterVertex),
-                          offsetptr(WaterVertex, depth));
-
-
-    vg::GpuMemory::bindBuffer(m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glDrawElements(GL_TRIANGLES, m_waterIndexCount, GL_UNSIGNED_SHORT, 0);
 
-    //   glBindVertexArray(0);
+    glBindVertexArray(0);
 }
 
 f32v3 TerrainPatchMesh::getClosestPoint(const f32v3& camPos) const {

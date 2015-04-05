@@ -47,8 +47,8 @@ TerrainPatchMesher::~TerrainPatchMesher() {
 }
 
 void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
-                                            float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
-                                            bool isSpherical) {
+                                   float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
+                                   bool isSpherical) {
 
     m_isSpherical = isSpherical;
     m_cubeFace = cubeFace;
@@ -182,6 +182,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             verts[i].position = f32v3(f64v3(verts[i].position) - f64v3(mesh->m_aabbPos));
         }
     }
+    // Make VAO
+    glGenVertexArrays(1, &mesh->m_vao);
+    glBindVertexArray(mesh->m_vao);
 
     // Generate the buffers and upload data
     vg::GpuMemory::createBuffer(mesh->m_vbo);
@@ -190,7 +193,33 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                                     VERTS_SIZE * sizeof(TerrainVertex),
                                     verts);
     // Reusable IBO
-    mesh->m_ibo = m_sharedIbo;
+    vg::GpuMemory::bindBuffer(m_sharedIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+
+    // Vertex attribute pointers
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, position));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, tangent));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, texCoords));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, color));
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, normTexCoords));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+                          sizeof(TerrainVertex),
+                          offsetptr(TerrainVertex, temperature));
 
     // Add water mesh
     if (m_waterIndexCount) {
@@ -200,6 +229,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                 waterVerts[i].position -= mesh->m_aabbPos;
             }
         }
+        // Make VAO
+        glGenVertexArrays(1, &mesh->m_wvao);
+        glBindVertexArray(mesh->m_wvao);
 
         mesh->m_waterIndexCount = m_waterIndexCount;
         vg::GpuMemory::createBuffer(mesh->m_wvbo);
@@ -212,13 +244,31 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
         vg::GpuMemory::uploadBufferData(mesh->m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
                                         m_waterIndexCount * sizeof(ui16),
                                         waterIndices);
+        // Vertex attribute pointers
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(WaterVertex),
+                              offsetptr(WaterVertex, position));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(WaterVertex),
+                              offsetptr(WaterVertex, tangent));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE,
+                              sizeof(WaterVertex),
+                              offsetptr(WaterVertex, color));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE,
+                              sizeof(WaterVertex),
+                              offsetptr(WaterVertex, texCoords));
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE,
+                              sizeof(WaterVertex),
+                              offsetptr(WaterVertex, depth));
     }
-
+    glBindVertexArray(0);
     // Finally, add to the mesh manager
     m_meshManager->addMesh(mesh, isSpherical);
-
-    // TODO: Using a VAO makes it not work??
-    //    glBindVertexArray(0);
 }
 
 // Thanks to tetryds for these

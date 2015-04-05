@@ -20,12 +20,9 @@ AtmosphereComponentRenderer::AtmosphereComponentRenderer() {
 
 AtmosphereComponentRenderer::~AtmosphereComponentRenderer() {
     disposeShader();
-    if (m_icoVbo) {
-        vg::GpuMemory::freeBuffer(m_icoVbo);
-    }
-    if (m_icoIbo) {
-        vg::GpuMemory::freeBuffer(m_icoIbo);
-    }
+    if (m_icoVbo) vg::GpuMemory::freeBuffer(m_icoVbo);
+    if (m_icoIbo) vg::GpuMemory::freeBuffer(m_icoIbo);
+    if (m_vao) glDeleteVertexArrays(1, &m_vao);
 }
 
 void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
@@ -76,14 +73,13 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     glUniform1f(m_program->getUniform("unG"), aCmp.g);
     glUniform1f(m_program->getUniform("unG2"), aCmp.g * aCmp.g);
 
-    // Bind buffers
-    glBindBuffer(GL_ARRAY_BUFFER, m_icoVbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_icoIbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // Bind VAO
+    glBindVertexArray(m_vao);
+   
     // Render
     glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
 
-    m_program->disableVertexAttribArrays();
+    glBindVertexArray(0);
     m_program->unuse();
     vg::RasterizerState::CULL_CLOCKWISE.set();
 }
@@ -102,16 +98,22 @@ void AtmosphereComponentRenderer::buildMesh() {
     vmesh::generateIcosphereMesh(ICOSPHERE_SUBDIVISIONS, indices, positions);
     m_numIndices = indices.size();
 
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+
     vg::GpuMemory::createBuffer(m_icoVbo);
     vg::GpuMemory::createBuffer(m_icoIbo);
 
     vg::GpuMemory::bindBuffer(m_icoVbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(m_icoVbo, vg::BufferTarget::ARRAY_BUFFER, positions.size() * sizeof(f32v3),
                                     positions.data(), vg::BufferUsageHint::STATIC_DRAW);
-    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ARRAY_BUFFER);
 
     vg::GpuMemory::bindBuffer(m_icoIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(m_icoIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(ui32),
                                     indices.data(), vg::BufferUsageHint::STATIC_DRAW);
-    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    m_program->enableVertexAttribArrays();
+
+    glBindVertexArray(0);
 }

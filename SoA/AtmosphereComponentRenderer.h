@@ -42,6 +42,7 @@ private:
     vg::GLProgram* m_program = nullptr;
     VGBuffer m_icoVbo = 0;
     VGIndexBuffer m_icoIbo = 0;
+    VGVertexArray m_vao = 0;
     int m_numIndices = 0;
 };
 
