@@ -392,7 +392,7 @@ void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, 
                            (mass + parentMass), 1.0 / 3.0) * KM_PER_M;
     orbitC.semiMinor = orbitC.semiMajor *
         sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
-    orbitC.totalMass = mass + parentMass;
+    orbitC.parentMass = parentMass;
     if (isBinary) {
         //  orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
         //      mass / (orbitC.totalMass);

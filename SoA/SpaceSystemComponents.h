@@ -94,12 +94,14 @@ struct OrbitComponent {
     f64 semiMajor = 0.0; ///< Semi-major of the ellipse
     f64 semiMinor = 0.0; ///< Semi-minor of the ellipse
     f64 orbitalPeriod = 0.0; ///< Period in seconds of a full orbit
-    f64 totalMass = 0.0; ///< Mass of this body + parent
+    f64 parentMass = 0.0; ///< Mass of the parent
     f64 eccentricity = 0.0; ///< Shape of orbit, 0-1
     f64 r1 = 0.0; ///< Closest distance to focal point
-    f64q orientation = f64q(0.0, 0.0, 0.0, 0.0); ///< Orientation of the orbit path
+    f64v3 velocity = f64v3(0.0); ///< Current velocity relative to space
+    f64v3 relativeVelocity = f64v3(0.0); ///< Current velocity relative to parent
     ui8v4 pathColor = ui8v4(255); ///< Color of the path
-    vecs::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
+    vecs::ComponentID npID = 0; ///< Component ID of NamePosition component
+    vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent
     VGBuffer vbo = 0; ///< vbo for the ellipse
 };
 
