@@ -60,7 +60,6 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
 
     // Bind lookup texture
     glActiveTexture(GL_TEXTURE0);
-    glUniform1i(m_program->getUniform("unColorBandLookup"), 0);
     glBindTexture(GL_TEXTURE_2D, ggCmp.colorMap);
 
     vg::RasterizerState::CULL_CLOCKWISE.set();

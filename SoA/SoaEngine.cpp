@@ -211,7 +211,9 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
 
 bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     nString data;
-    pr.ioManager->readFileToString("SystemProperties.yml", data);
+    if (!pr.ioManager->readFileToString("SystemProperties.yml", data)) {
+        pError("Couldn't find " + pr.dirPath +  "/SystemProperties.yml");
+    }
 
     keg::YAMLReader reader;
     reader.init(data.c_str());
@@ -345,29 +347,35 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
     // Load the texture
     VGTexture colorMap = 0;
     if (properties->colorMap.size()) {
+        vio::Path colorPath;
+        if (!pr.ioManager->resolvePath(properties->colorMap, colorPath)) {
+            fprintf(stderr, "Failed to resolve %s\n", properties->colorMap.c_str());
+            return;
+        }
         if (pr.glrpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                vg::BitmapResource b = vg::ImageIO().load(properties->colorMap, vg::ImageIOFormat::RGB_UI8); 
+                vg::BitmapResource b = vg::ImageIO().load(colorPath); 
                 if (b.data) {
                     colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
                                                             b.width, b.height,
-                                                            &vg::SamplerState::LINEAR_CLAMP,
-                                                            vg::TextureInternalFormat::RGB8,
-                                                            vg::TextureFormat::RGB);
+                                                            &vg::SamplerState::LINEAR_CLAMP);
                     vg::ImageIO().free(b);
+                } else {
+                    fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
                 }
             });
             pr.glrpc->invoke(&rpc, true);
         } else {
-            vg::BitmapResource b = vg::ImageIO().load(properties->colorMap, vg::ImageIOFormat::RGB_UI8);
+            vg::BitmapResource b = vg::ImageIO().load(properties->colorMap);
             if (b.data) {
                 colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
                                                         b.width, b.height,
-                                                        &vg::SamplerState::LINEAR_CLAMP,
-                                                        vg::TextureInternalFormat::RGB8,
-                                                        vg::TextureFormat::RGB);
+                                                        &vg::SamplerState::LINEAR_CLAMP);
                 vg::ImageIO().free(b);
+            } else {
+                fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
+                return;
             }
         }
     }
