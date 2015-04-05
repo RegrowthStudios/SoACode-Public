@@ -352,7 +352,7 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
                 if (b.data) {
                     colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
                                                             b.width, b.height,
-                                                            &vg::SamplerState::LINEAR_CLAMP_MIPMAP,
+                                                            &vg::SamplerState::LINEAR_CLAMP,
                                                             vg::TextureInternalFormat::RGB8,
                                                             vg::TextureFormat::RGB);
                     vg::ImageIO().free(b);
@@ -364,7 +364,7 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
             if (b.data) {
                 colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
                                                         b.width, b.height,
-                                                        &vg::SamplerState::LINEAR_CLAMP_MIPMAP,
+                                                        &vg::SamplerState::LINEAR_CLAMP,
                                                         vg::TextureInternalFormat::RGB8,
                                                         vg::TextureFormat::RGB);
                 vg::ImageIO().free(b);

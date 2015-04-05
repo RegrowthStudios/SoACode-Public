@@ -21,6 +21,7 @@
 class GameSystem;
 class SoaState;
 class SpaceSystem;
+struct GasGiantKegProperties;
 struct SpaceSystemLoadParams;
 struct SystemBody;
 struct SystemBodyKegProperties;

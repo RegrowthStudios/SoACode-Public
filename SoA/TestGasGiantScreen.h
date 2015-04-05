@@ -3,6 +3,8 @@
 #ifndef TestGasGiantScreen_h__
 #define TestGasGiantScreen_h__
 
+#include "GasGiantComponentRenderer.h"
+#include "SpaceSystemComponents.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
@@ -31,9 +33,11 @@ public:
     virtual void draw(const vui::GameTime& gameTime) override;
 
 private:
-    GasGiantRenderer* m_gasGiantRenderer;
+    GasGiantComponentRenderer m_gasGiantRenderer;
     f32v3 m_eyePos;
     vg::TextureCache m_textureCache;
+    GasGiantComponent m_ggCmp;
+    SpaceLightComponent m_slCmp;
 
     AutoDelegatePool m_hooks;
 };

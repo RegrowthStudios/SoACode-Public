@@ -60,11 +60,12 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
 
     // Bind lookup texture
     glActiveTexture(GL_TEXTURE0);
+    glUniform1i(m_program->getUniform("unColorBandLookup"), 0);
     glBindTexture(GL_TEXTURE_2D, ggCmp.colorMap);
 
-    vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
-    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
     vg::RasterizerState::CULL_CLOCKWISE.set();
+    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
+    vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
 
     m_program->disableVertexAttribArrays();
     m_program->unuse();
@@ -84,6 +85,7 @@ void GasGiantComponentRenderer::buildShader() {
     unWVP = m_program->getUniform("unWVP");
     unDT = m_program->getUniform("unDT");
     unLightDir = m_program->getUniform("unLightDir");
+    m_program->unuse();
 }
 
 void GasGiantComponentRenderer::buildMesh() {
