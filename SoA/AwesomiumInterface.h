@@ -111,7 +111,7 @@ private:
     void onKeyUp(Sender sender, const KeyEvent& e);
     void onKeyDown(Sender sender, const KeyEvent& e);
     void onText(Sender sender, const TextEvent& e);
-    std::vector<void*> m_delegatePool; ///< Listeners that must be freed
+    AutoDelegatePool m_delegatePool; ///< Listeners that must be freed
 
     bool _isInitialized; ///< true when initialized
 

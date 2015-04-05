@@ -63,6 +63,7 @@ private:
     vg::FullQuadVBO m_quad; ///< Quad used for post-processing
 
     ui32v4 m_viewport; ///< Viewport to draw to
+    bool m_isInitialized = false;
 };
 
 #endif // MainMenuRenderPipeline_h__

@@ -86,12 +86,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
 
     // Initialize the user interface
-    m_awesomiumInterface.init("UI/MainMenu/",
-                             "MainMenu_UI",
-                             "index.html", 
-                             _app->getWindow().getWidth(), 
-                             _app->getWindow().getHeight(),
-                             this);
+    initUI();
 
     // Init rendering
     initRenderPipeline();
@@ -124,6 +119,11 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
 
 void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
+    // Check for UI reload
+    if (m_shouldReloadUI) {
+        reloadUI();
+    }
+
     m_awesomiumInterface.update();
 
     m_soaState->time += m_soaState->timeStep;
@@ -131,17 +131,6 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
     m_mainMenuSystemViewer->update();
-
-
-    // Check for shader reload
-    //if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-    //    GameManager::glProgramManager->destroy();
-    //    LoadTaskShaders shaderTask(nullptr);
-    //    shaderTask.load();
-    //    // Reload the pipeline with new shaders
-    //    m_renderPipeline.destroy();
-    //    initRenderPipeline();
-    //}
 
     bdt += glSpeedFactor * 0.01;
 
@@ -161,6 +150,7 @@ void MainMenuScreen::initInput() {
     initInputs(m_inputManager);
     // Reload space system event
 
+    m_inputManager->get(INPUT_RELOAD_UI).downEvent.addFunctor( [&] (Sender s, ui32 i) { m_shouldReloadUI = true; });
     m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
     m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
 }
@@ -171,6 +161,15 @@ void MainMenuScreen::initRenderPipeline() {
     m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
                           m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
+}
+
+void MainMenuScreen::initUI() {
+    m_awesomiumInterface.init("UI/MainMenu/",
+                              "MainMenu_UI",
+                              "index.html",
+                              _app->getWindow().getWidth(),
+                              _app->getWindow().getHeight(),
+                              this);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -240,6 +239,15 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
     ioManager.makeDirectory("players");
     ioManager.makeDirectory("system");
     ioManager.makeDirectory("cache");
+}
+
+void MainMenuScreen::reloadUI() {
+    m_awesomiumInterface.destroy();
+    initUI();
+    m_renderPipeline.destroy(true);
+    initRenderPipeline();
+    m_shouldReloadUI = false;
+    printf("UI was reloaded.\n");
 }
 
 void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {

@@ -71,6 +71,9 @@ private:
     /// Initializes the rendering
     void initRenderPipeline();
 
+    /// Initializes user interface
+    void initUI();
+
     /// Loads a save file and prepares to play the game
     /// @param fileName: The name of the save file
     void loadGame(const nString& fileName);
@@ -86,8 +89,13 @@ private:
     /// Sets up iomanager and makes save file directories if they don't exist
     void initSaveIomanager(const vio::Path& savePath);
 
+    /// Reloads the user interface
+    void reloadUI();
+
+    // --------------- Event handlers ---------------
     void onReloadSystem(Sender s, ui32 a);
     void onReloadShaders(Sender s, ui32 a);
+    // ----------------------------------------------
 
     const LoadScreen* m_loadScreen = nullptr;
     SoaState* m_soaState = nullptr;
@@ -113,6 +121,8 @@ private:
     vsound::Engine* m_engine;
     AmbienceLibrary* m_ambLibrary;
     AmbiencePlayer* m_ambPlayer;
+
+    bool m_shouldReloadUI = false;
 };
 
 #endif // MAINMENUSCREEN_H_

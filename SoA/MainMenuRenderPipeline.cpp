@@ -27,9 +27,12 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
     // Set the viewport
     m_viewport = viewport;
 
-    // Check to make sure we aren't leaking memory
-    if (m_skyboxRenderStage != nullptr) {
+    // Check to make sure we don't double init
+    if (m_isInitialized) {
         pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
+        return;
+    } else {
+        m_isInitialized = true;
     }
 
     // Construct framebuffer
@@ -92,8 +95,11 @@ void MainMenuRenderPipeline::render() {
 void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
     RenderPipeline::destroy(shouldDisposeStages);
 
+    m_swapChain->dispose();
     delete m_swapChain;
     m_swapChain = nullptr;
 
     m_quad.dispose();
+
+    m_isInitialized = false;
 }

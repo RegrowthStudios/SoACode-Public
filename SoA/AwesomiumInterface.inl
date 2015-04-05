@@ -116,14 +116,14 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     }
 
     // Add input registration
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onFocusGained.addFunctor([=] (Sender s, const MouseEvent& e) { onMouseFocusGained(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onFocusLost.addFunctor([=] (Sender s, const MouseEvent& e) { onMouseFocusLost(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onMotion.addFunctor([=] (Sender s, const MouseMotionEvent& e) { onMouseMotion(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onButtonUp.addFunctor([=] (Sender s, const MouseButtonEvent& e) { onMouseButtonUp(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onButtonDown.addFunctor([=] (Sender s, const MouseButtonEvent& e) { onMouseButtonDown(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::key.onKeyUp.addFunctor([=] (Sender s, const KeyEvent& e) { onKeyUp(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::key.onKeyDown.addFunctor([=] (Sender s, const KeyEvent& e) { onKeyDown(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::key.onText.addFunctor([=] (Sender s, const TextEvent& e) { onText(s, e); }));
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onFocusGained, [=] (Sender s, const MouseEvent& e) { onMouseFocusGained(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [=](Sender s, const MouseEvent& e) { onMouseFocusLost(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const MouseMotionEvent& e) { onMouseMotion(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const MouseButtonEvent& e) { onMouseButtonUp(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const MouseButtonEvent& e) { onMouseButtonDown(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onKeyUp, [=](Sender s, const KeyEvent& e) { onKeyUp(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onKeyDown, [=](Sender s, const KeyEvent& e) { onKeyDown(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onText, [=](Sender s, const TextEvent& e) { onText(s, e); });
 
     _isInitialized = true;
     return true;
@@ -135,16 +135,7 @@ void AwesomiumInterface<C>::destroy() {
     _webView->Destroy();
 
     // Unregister events
-    vui::InputDispatcher::mouse.onFocusGained -= *(Delegate<Sender, const MouseEvent&>*)m_delegatePool[0];
-    vui::InputDispatcher::mouse.onFocusLost -= *(Delegate<Sender, const MouseEvent&>*)m_delegatePool[1];
-    vui::InputDispatcher::mouse.onMotion -= *(Delegate<Sender, const MouseMotionEvent&>*)m_delegatePool[2];
-    vui::InputDispatcher::mouse.onButtonUp -= *(Delegate<Sender, const MouseButtonEvent&>*)m_delegatePool[3];
-    vui::InputDispatcher::mouse.onButtonDown -= *(Delegate<Sender, const MouseButtonEvent&>*)m_delegatePool[4];
-    vui::InputDispatcher::key.onKeyUp -= *(Delegate<Sender, const KeyEvent&>*)m_delegatePool[5];
-    vui::InputDispatcher::key.onKeyDown -= *(Delegate<Sender, const KeyEvent&>*)m_delegatePool[6];
-    vui::InputDispatcher::key.onText -= *(Delegate<Sender, const TextEvent&>*)m_delegatePool[7];
-    for (auto& p : m_delegatePool) delete p;
-    m_delegatePool.clear();
+    m_delegatePool.dispose();
 
     delete _openglSurfaceFactory;
     delete _data_source;
