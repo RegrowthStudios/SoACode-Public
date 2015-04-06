@@ -32,36 +32,34 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     // using Newton's method
     // http://www.jgiesen.de/kepler/kepler.html
 #define ITERATIONS 3
-    f64 eccentricAnomaly, F;
-    eccentricAnomaly = meanAnomaly;
-    F = eccentricAnomaly - cmp.e * sin(meanAnomaly) - meanAnomaly;
+    f64 E; ///< Eccentric Anomaly
+    f64 F;
+    E = meanAnomaly;
+    F = E - cmp.e * sin(meanAnomaly) - meanAnomaly;
     for (int n = 0; n < ITERATIONS; n++) {
-        eccentricAnomaly = eccentricAnomaly -
-            F / (1.0 - cmp.e * cos(eccentricAnomaly));
-        F = eccentricAnomaly -
-            cmp.e * sin(eccentricAnomaly) - meanAnomaly;
+        E = E -
+            F / (1.0 - cmp.e * cos(E));
+        F = E -
+            cmp.e * sin(E) - meanAnomaly;
     }
     // 3. Calculate true anomaly
-    f64 v = 2.0 * atan2(sqrt(1.0 - cmp.e) * cos(eccentricAnomaly / 2.0),
-                                  sqrt(1.0 + cmp.e) * sin(eccentricAnomaly / 2.0));
+    f64 fak = sqrt(1.0 - cmp.e * cmp.e);
+    f64 v = atan2(fak * sin(E), cos(E) - cmp.e);
 
     // 4. Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html
     f64 r = cmp.a * (1.0 - cmp.e * cmp.e) / (1.0 + cmp.e * cos(v));
     
-    f64 i = 0.0; // Inclination TODO(Ben): This
-    f64 o = 0.0; // Ascending node longitude 
-    f64 p = 0.0; // Periapsis longitude
-    f64 w = cmp.p - cmp.o;
+    f64 w = cmp.p - cmp.o; ///< Argument of periapsis
 
     // Finally calculate position
     f64v3 position;
-    f64 cosv = cos(v + p - o);
-    f64 sinv = sin(v + p - o);
-    f64 coso = cos(o);
-    f64 sino = sin(o);
-    f64 cosi = cos(i);
-    f64 sini = sin(i);
+    f64 cosv = cos(v + cmp.p - cmp.o);
+    f64 sinv = sin(v + cmp.p - cmp.o);
+    f64 coso = cos(cmp.o);
+    f64 sino = sin(cmp.o);
+    f64 cosi = cos(cmp.i);
+    f64 sini = sin(cmp.i);
     position.x = r * (coso * cosv - sino * sinv * cosi);
     position.y = r * (sinv * sini);
     position.z = r * (sino * cosv + coso * sinv * cosi);
@@ -73,11 +71,16 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     cmp.relativeVelocity.y = g * sinwv * sini;
     cmp.relativeVelocity.z = g * cos(w + v);
 
+    if (npComponent->name == "Aldrin") {
+        std::cout << meanAnomaly / M_2_PI << " " << E / M_2_PI << " " << v / M_2_PI << std::endl;
+    }
+
     // If this planet has a parent, add parent's position
     if (parentNpComponent) {
-        //cmp.relativeVelocity = 
+        cmp.velocity = parentOrbComponent->velocity + cmp.relativeVelocity;
         npComponent->position = position + parentNpComponent->position;
     } else {
+        cmp.velocity = cmp.relativeVelocity;
         npComponent->position = position;
     }
 }
