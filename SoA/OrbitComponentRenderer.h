@@ -26,7 +26,7 @@ DECL_VG(class GLProgram)
 class OrbitComponentRenderer {
 public:
     /// Draws the ellipse
-    void drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent,
+    void drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& WVP, NamePositionComponent* npComponent,
                   const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent = nullptr);
 private:
     void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp);

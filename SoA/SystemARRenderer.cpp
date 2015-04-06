@@ -101,9 +101,10 @@ void SystemARRenderer::drawPaths() {
         }
 
         auto& cmp = it.second;
-        if (cmp.parentNpId) {
+        if (cmp.parentOrbId) {
+            OrbitComponent& pOrbCmp = m_spaceSystem->m_orbitCT.get(cmp.parentOrbId);
             m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
-                                              m_camera->getPosition(), alpha, &m_spaceSystem->m_namePositionCT.get(cmp.parentNpId));
+                                              m_camera->getPosition(), alpha, &m_spaceSystem->m_namePositionCT.get(pOrbCmp.npID));
         } else {
             m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                                               m_camera->getPosition(), alpha);

@@ -14,13 +14,13 @@
 
 void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent /*= nullptr*/) {
     f32v4 color(f32v4(cmp.pathColor) / 255.0f);
-    f32m4 transMatrix(1.0f);
+    f32m4 w(1.0f);
     if (parentNpComponent) {
-        setMatrixTranslation(transMatrix, parentNpComponent->position - camPos);
+        setMatrixTranslation(w, parentNpComponent->position - camPos);
     } else {
-        setMatrixTranslation(transMatrix, -camPos);
+        setMatrixTranslation(w, -camPos);
     }
-    f32m4 pathMatrix = wvp * transMatrix * glm::mat4(glm::toMat4(cmp.orientation));
+    f32m4 pathMatrix = wvp * w;
     glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, alpha);
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 

@@ -184,8 +184,8 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
                 body->parent = p->second;
 
                 // Provide the orbit component with it's parent
-                pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentNpId =
-                    pr.spaceSystem->m_namePositionCT.getComponentID(body->parent->entity);
+                pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
+                    pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
 
 
                 // Calculate the orbit using parent mass
