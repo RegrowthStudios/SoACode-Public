@@ -43,8 +43,7 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
             cmp.e * sin(E) - meanAnomaly;
     }
     // 3. Calculate true anomaly
-    f64 fak = sqrt(1.0 - cmp.e * cmp.e);
-    f64 v = atan2(fak * sin(E), cos(E) - cmp.e);
+    f64 v = atan2(sqrt(1.0 - cmp.e * cmp.e) * sin(E), cos(E) - cmp.e);
 
     // 4. Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html
@@ -52,7 +51,7 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     
     f64 w = cmp.p - cmp.o; ///< Argument of periapsis
 
-    // Finally calculate position
+    // Calculate position
     f64v3 position;
     f64 cosv = cos(v + cmp.p - cmp.o);
     f64 sinv = sin(v + cmp.p - cmp.o);
@@ -71,12 +70,8 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
     cmp.relativeVelocity.y = g * sinwv * sini;
     cmp.relativeVelocity.z = g * cos(w + v);
 
-    if (npComponent->name == "Aldrin") {
-        std::cout << meanAnomaly / M_2_PI << " " << E / M_2_PI << " " << v / M_2_PI << std::endl;
-    }
-
-    // If this planet has a parent, add parent's position
-    if (parentNpComponent) {
+    // If this planet has a parent, make it parent relative
+    if (parentOrbComponent) {
         cmp.velocity = parentOrbComponent->velocity + cmp.relativeVelocity;
         npComponent->position = position + parentNpComponent->position;
     } else {

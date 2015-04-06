@@ -328,7 +328,7 @@ vecs::ComponentID SpaceSystemAssemblages::addOrbitComponent(SpaceSystem* spaceSy
                                                             vecs::ComponentID npComp,
                                                             f64 eccentricity, f64 orbitalPeriod,
                                                             f64 ascendingLong, f64 periapsisLong,
-                                                            f64 inclination,
+                                                            f64 inclination, f64 trueAnomaly,
                                                             const ui8v4& pathColor) {
     vecs::ComponentID oCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
     auto& oCmp = spaceSystem->m_orbitCT.get(oCmpId);
@@ -336,9 +336,10 @@ vecs::ComponentID SpaceSystemAssemblages::addOrbitComponent(SpaceSystem* spaceSy
     oCmp.t = orbitalPeriod;
     oCmp.pathColor = pathColor;
     oCmp.npID = npComp;
-    oCmp.o = ascendingLong;
-    oCmp.p = periapsisLong;
-    oCmp.i = inclination;
+    oCmp.o = ascendingLong * DEG_TO_RAD;
+    oCmp.p = periapsisLong * DEG_TO_RAD;
+    oCmp.i = inclination * DEG_TO_RAD;
+    oCmp.startTrueAnomaly = trueAnomaly * DEG_TO_RAD;
     return oCmpId;
 }
 
