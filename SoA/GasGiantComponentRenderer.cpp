@@ -33,7 +33,8 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
                                      const f32m4& VP,
                                      const f32v3& relCamPos,
                                      const f32v3& lightDir,
-                                     const SpaceLightComponent* spComponent) {
+                                     const SpaceLightComponent* spCmp,
+                                     const AtmosphereComponent* aCmp) {
     // Lazily construct buffer and shaders
     if (!m_program) buildShader();
     if (!m_vbo) buildMesh();
@@ -51,7 +52,28 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     dt += 0.001f;
     glUniform1f(unDT, dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
-    glUniform3fv(unLightDir, 1, &lightDir[0]);
+    // Scattering uniforms
+    f32 camHeight = glm::length(relCamPos);
+    glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
+    glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
+    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+    glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
+    glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight * camHeight);
+    glUniform1f(m_program->getUniform("unOuterRadius"), aCmp->radius);
+    glUniform1f(m_program->getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
+    glUniform1f(m_program->getUniform("unInnerRadius"), aCmp->planetRadius);
+    glUniform1f(m_program->getUniform("unKrESun"), aCmp->kr * aCmp->esun);
+    glUniform1f(m_program->getUniform("unKmESun"), aCmp->km * aCmp->esun);
+    glUniform1f(m_program->getUniform("unKr4PI"), aCmp->kr * M_4_PI);
+    glUniform1f(m_program->getUniform("unKm4PI"), aCmp->km * M_4_PI);
+    float scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
+    glUniform1f(m_program->getUniform("unScale"), scale);
+    glUniform1f(m_program->getUniform("unScaleDepth"), aCmp->scaleDepth);
+    glUniform1f(m_program->getUniform("unScaleOverScaleDepth"), scale / aCmp->scaleDepth);
+    glUniform1i(m_program->getUniform("unNumSamples"), 3);
+    glUniform1f(m_program->getUniform("unNumSamplesF"), 3.0f);
+    glUniform1f(m_program->getUniform("unG"), aCmp->g);
+    glUniform1f(m_program->getUniform("unG2"), aCmp->g * aCmp->g);
    
     // Bind VAO
     glBindVertexArray(m_vao);
@@ -82,7 +104,6 @@ void GasGiantComponentRenderer::buildShader() {
     glUniform1i(m_program->getUniform("unColorBandLookup"), 0);
     unWVP = m_program->getUniform("unWVP");
     unDT = m_program->getUniform("unDT");
-    unLightDir = m_program->getUniform("unLightDir");
     m_program->unuse();
 }
 

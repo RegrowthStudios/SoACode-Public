@@ -141,7 +141,8 @@ void SpaceSystemRenderStage::drawBodies() {
 
         f32v3 lightDir(glm::normalize(lightPos - *pos));
 
-        m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, lightCmp);
+        m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, lightCmp,
+                                         &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
 
     // Render atmospheres

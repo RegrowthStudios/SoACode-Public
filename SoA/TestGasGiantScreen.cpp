@@ -56,6 +56,7 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
     // Set up components
     m_ggCmp.radius = 1.0;
     m_ggCmp.colorMap = colorBandLookup;
+    m_aCmp.scaleDepth = 0.2f;
 }
 
 void TestGasGiantScreen::onExit(const vui::GameTime& gameTime) {
@@ -77,7 +78,7 @@ void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
     PreciseTimer timer;
     timer.start();
     m_gasGiantRenderer.draw(m_ggCmp, glm::perspectiveFov(90.0f, 1280.0f, 720.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0.0f), -m_eyePos, f32v3(0.0f, 1.0f, 0.0f)),
-                            m_eyePos, f32v3(-1.0f, 0.0f, 0.0f), &m_slCmp);
+                            m_eyePos, f32v3(-1.0f, 0.0f, 0.0f), &m_slCmp, &m_aCmp);
     glFinish();
     std::cout << timer.stop() << std::endl;
     checkGlError("TestGasGiantScreen::draw");

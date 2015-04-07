@@ -24,6 +24,7 @@ DECL_VG(class GLProgram)
 
 struct GasGiantComponent;
 struct SpaceLightComponent;
+struct AtmosphereComponent;
 
 struct GasGiantVertex {
     f32v3 position;
@@ -39,7 +40,8 @@ public:
               const f32m4& VP,
               const f32v3& relCamPos,
               const f32v3& lightDir,
-              const SpaceLightComponent* spComponent);
+              const SpaceLightComponent* spCmp,
+              const AtmosphereComponent* aCmp);
     void disposeShader();
 private:
     void buildShader();
@@ -51,9 +53,9 @@ private:
     VGVertexArray m_vao = 0;
     int m_numIndices = 0;
 
+    // TODO(Ben): UBO
     VGUniform unWVP;
     VGUniform unDT;
-    VGUniform unLightDir;
 };
 
 #endif // GasGiantComponentRenderer_h__

@@ -12,7 +12,7 @@
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
 
-#define ICOSPHERE_SUBDIVISIONS 6
+#define ICOSPHERE_SUBDIVISIONS 5
 
 AtmosphereComponentRenderer::AtmosphereComponentRenderer() {
     // Empty
@@ -38,7 +38,6 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     if (!m_icoVbo) buildMesh();
 
     m_program->use();
-    m_program->enableVertexAttribArrays();
 
     // Set up matrix
     f32m4 WVP(1.0);
@@ -54,7 +53,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     // Upload uniforms
     glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
-    glUniform3fv(m_program->getUniform("unLightPos"), 1, &lightDir[0]);
+    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
     glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &aCmp.invWavelength4[0]);
     glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight2);
     glUniform1f(m_program->getUniform("unOuterRadius"), aCmp.radius);

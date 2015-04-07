@@ -38,6 +38,7 @@ private:
     vg::TextureCache m_textureCache;
     GasGiantComponent m_ggCmp;
     SpaceLightComponent m_slCmp;
+    AtmosphereComponent m_aCmp;
 
     AutoDelegatePool m_hooks;
 };
