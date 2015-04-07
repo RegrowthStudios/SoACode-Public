@@ -12,6 +12,7 @@
 
 #include "FarTerrainPatch.h"
 #include "PlanetData.h"
+#include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMesh.h"
@@ -40,6 +41,10 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
     orientationF32.w = (f32)orientation.w;
     // Convert to matrix
     f32m4 rotationMatrix = glm::toMat4(orientationF32);
+    f32m4 W(1.0);
+    setMatrixTranslation(W, -relativePos);
+    W *= rotationMatrix;
+    f32m4 WVP = camera->getViewProjectionMatrix() * W;
 
     if (m_waterMeshes.size()) {
         // Bind textures
@@ -73,7 +78,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
               
             } else {
                 // TODO(Ben): Horizon and frustum culling for water too
-                m->drawWater(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, waterProgram);
+                m->drawWater(WVP, waterProgram);
                 i++;
             }
         }
@@ -125,7 +130,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                     f32v3 relSpherePos = orientationF32 * m->m_aabbCenter - f32v3(relativePos);
                     if (camera->sphereInFrustum(relSpherePos,
                         m->m_boundingSphereRadius)) {
-                        m->draw(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, program, drawSkirts);
+                        m->draw(WVP, program, drawSkirts);
                     }
                 }
                 i++;

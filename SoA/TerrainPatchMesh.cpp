@@ -39,15 +39,8 @@ void TerrainPatchMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
     }
 }
 
-void TerrainPatchMesh::draw(const f64v3& relativePos, const f32m4& VP,
-                                const f32m4& rot, vg::GLProgram* program,
-                                bool drawSkirts) const {
-    // Set up matrix
-    f32m4 W(1.0);
-    setMatrixTranslation(W, -relativePos);
-    W *= rot;
-    f32m4 WVP = VP * W;
-
+void TerrainPatchMesh::draw(const f32m4& WVP, vg::GLProgram* program,
+                            bool drawSkirts) const {
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
 
     glBindVertexArray(m_vao);
@@ -62,14 +55,7 @@ void TerrainPatchMesh::draw(const f64v3& relativePos, const f32m4& VP,
     glBindVertexArray(0);
 }
 
-void TerrainPatchMesh::drawWater(const f64v3& relativePos, const f32m4& VP,
-                                     const f32m4& rot, vg::GLProgram* program) const {
-    // Set up matrix
-    f32m4 W(1.0);
-    setMatrixTranslation(W, -relativePos);
-    W *= rot;
-    f32m4 WVP = VP * W;
-
+void TerrainPatchMesh::drawWater(const f32m4& WVP, vg::GLProgram* program) const {
     glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
 
     glBindVertexArray(m_wvao);
