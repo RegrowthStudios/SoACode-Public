@@ -82,18 +82,26 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ggCmp.colorMap);
 
-    vg::RasterizerState::CULL_CLOCKWISE.set();
     glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
-    vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
 
     glBindVertexArray(0);
-
     m_program->unuse();
 }
 
 void GasGiantComponentRenderer::disposeShader() {
     if (m_program) {
         vg::ShaderManager::destroyProgram(&m_program);
+    }
+    // Dispose buffers too for proper reload
+    if (m_vbo) {
+        vg::GpuMemory::freeBuffer(m_vbo);
+    }
+    if (m_ibo) {
+        vg::GpuMemory::freeBuffer(m_ibo);
+    }
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+        m_vao = 0;
     }
 }
 

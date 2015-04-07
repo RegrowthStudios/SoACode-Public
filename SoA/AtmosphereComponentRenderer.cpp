@@ -48,8 +48,6 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     f32 camHeight = glm::length(relCamPos);
     f32 camHeight2 = camHeight * camHeight;
 
-    vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
-
     // Upload uniforms
     glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
@@ -76,11 +74,12 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     glBindVertexArray(m_vao);
    
     // Render
+    vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
     glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 
     glBindVertexArray(0);
-    m_program->unuse();
-    vg::RasterizerState::CULL_CLOCKWISE.set();
+    m_program->unuse(); 
 }
 
 void AtmosphereComponentRenderer::disposeShader() {
