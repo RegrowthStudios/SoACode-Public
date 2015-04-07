@@ -36,12 +36,21 @@ struct SystemBody {
     BodyType type = BodyType::NONE;
 };
 
+struct AtmosphereKegProperties {
+    f32 kr = 0.0025f;
+    f32 km = 0.0020f;
+    f32 g = -0.99f;
+    f32 scaleDepth = 0.25f;
+    f32v3 waveLength = f32v3(0.65, 0.57, 0.475);
+};
+KEG_TYPE_DECL(AtmosphereKegProperties);
+
 struct SystemBodyKegProperties {
     nString parent = "";
     nString path = "";
     f64 e = 0.0; ///< Shape of orbit, 0-1
     f64 t = 0.0; ///< Period of a full orbit in sec
-    f64 meanAnomaly = 0.0; ///< Start mean anomaly in deg
+    f64 trueAnomaly = 0.0; ///< Start true anomaly in deg
     f64 o = 0.0; ///< Longitude of the ascending node in deg
     f64 p = 0.0; ///< Longitude of the periapsis in deg
     f64 i = 0.0; ///< Inclination in deg
@@ -59,6 +68,7 @@ struct PlanetKegProperties {
     nString displayName = "";
     nString generation = "";
     PlanetGenData* planetGenData = nullptr;
+    AtmosphereKegProperties atmosphere;
 };
 KEG_TYPE_DECL(PlanetKegProperties);
 
@@ -94,6 +104,7 @@ struct GasGiantKegProperties {
     f32 oblateness = 0.0;
     nString colorMap = "";
     nString displayName = "";
+    AtmosphereKegProperties atmosphere;
 };
 KEG_TYPE_DECL(GasGiantKegProperties);
 

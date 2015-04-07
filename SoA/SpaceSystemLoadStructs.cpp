@@ -12,11 +12,19 @@ KEG_TYPE_DEF_SAME_NAME(SystemBodyKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, path, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, e, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, t, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, meanAnomaly, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, trueAnomaly, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, o, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, p, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, i, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, pathColor, UI8_V4);
+}
+
+KEG_TYPE_DEF_SAME_NAME(AtmosphereKegProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, kr, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, km, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, g, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, scaleDepth, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, waveLength, F32_V3);
 }
 
 KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
@@ -28,6 +36,7 @@ KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, rotationalPeriod, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, displayName, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, generation, STRING);
+    kt.addValue("atmosphere", keg::Value::custom(offsetof(PlanetKegProperties, atmosphere), "AtmosphereKegProperties", false));
 }
 
 KEG_TYPE_DEF_SAME_NAME(StarKegProperties, kt) {
@@ -54,6 +63,7 @@ KEG_TYPE_DEF_SAME_NAME(GasGiantKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, oblateness, F32);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, colorMap, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, displayName, STRING);
+    kt.addValue("atmosphere", keg::Value::custom(offsetof(GasGiantKegProperties, atmosphere), "AtmosphereKegProperties", false));
 }
 
 bool Binary::containsBody(const SystemBody* body) {

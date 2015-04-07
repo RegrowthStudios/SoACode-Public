@@ -43,7 +43,7 @@ void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, Nam
             cmp.e * sin(E) - meanAnomaly;
     }
     // 3. Calculate true anomaly
-    f64 v = atan2(sqrt(1.0 - cmp.e * cmp.e) * sin(E), cos(E) - cmp.e);
+    f64 v = atan2(sqrt(1.0 - cmp.e * cmp.e) * sin(E), cos(E) - cmp.e) + cmp.startTrueAnomaly;
 
     // 4. Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html

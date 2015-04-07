@@ -51,9 +51,9 @@ public:
     bool isNewGame = true;
     f64v3 startSpacePos = f64v3(0.0f);
     int startFace = 0;
-    f64 time = 4500.0;
+    f64 time = 0.0;
     bool isInputEnabled = true;
-    float timeStep = 200.016f;
+    float timeStep = 0.016f;
 };
 
 #endif // SoAState_h__

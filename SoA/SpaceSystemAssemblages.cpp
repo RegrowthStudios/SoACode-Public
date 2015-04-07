@@ -47,11 +47,17 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     f64 planetRadius = properties->diameter / 2.0;
     addSphericalGravityComponent(spaceSystem, id, npCmp, planetRadius, properties->mass);
 
-    addAtmosphereComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 1.025));
+    const AtmosphereKegProperties& at = properties->atmosphere;
+    // Check if its active
+    if (at.scaleDepth != -1.0f) {
+        addAtmosphereComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 1.025),
+                               at.kr, at.km, at.g, at.waveLength);
+    }
 
     SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                               sysProps->t, sysProps->o, sysProps->p,
-                                              sysProps->i, sysProps->pathColor);
+                                              sysProps->i, sysProps->trueAnomaly,
+                                              sysProps->pathColor);
 
     return id;
 }
@@ -78,7 +84,8 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                                      sysProps->t, sysProps->o, sysProps->p,
-                                                     sysProps->i, sysProps->pathColor);
+                                                     sysProps->i, sysProps->trueAnomaly,
+                                                     sysProps->pathColor);
 
     return id;
 }
@@ -109,7 +116,8 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                                      sysProps->t, sysProps->o, sysProps->p,
-                                                     sysProps->i, sysProps->pathColor);
+                                                     sysProps->i, sysProps->trueAnomaly,
+                                                     sysProps->pathColor);
 
     return id;
 }
@@ -120,12 +128,18 @@ void SpaceSystemAssemblages::destroyGasGiant(SpaceSystem* gameSystem, vecs::Enti
 
 vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                  vecs::ComponentID namePositionComponent, f32 planetRadius,
-                                                                 f32 radius) {
+                                                                 f32 radius, f32 kr, f32 km, f32 g, f32v3 wavelength) {
     vecs::ComponentID aCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, entity);
     auto& aCmp = spaceSystem->m_atmosphereCT.get(aCmpId);
     aCmp.namePositionComponent = namePositionComponent;
     aCmp.planetRadius = planetRadius;
     aCmp.radius = radius;
+    aCmp.kr = kr;
+    aCmp.km = km;
+    aCmp.g = g;
+    aCmp.invWavelength4 = f32v3(1.0f / powf(wavelength.r, 4.0f),
+                                1.0f / powf(wavelength.g, 4.0f),
+                                1.0f / powf(wavelength.b, 4.0f));
     return aCmpId;
 }
 

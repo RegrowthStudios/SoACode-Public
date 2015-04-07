@@ -60,10 +60,6 @@ struct AtmosphereComponent {
     f32 kr = 0.0025f;
     f32 km = 0.0020f;
     f32 esun = 30.0f; // TODO(Ben): This should be dynamic
-    f32 krEsun = kr * esun;
-    f32 kmEsun = km * esun;
-    f32 kr4PI = kr * 4.0f * M_PI;
-    f32 km4PI = km * 4.0f * M_PI;
     f32 g = -0.99f;
     f32 scaleDepth = 0.25f;
     f32v3 invWavelength4 = f32v3(1.0f / powf(0.65f, 4.0f),
@@ -95,6 +91,7 @@ struct OrbitComponent {
     f64 b = 0.0; ///< Semi-minor of the ellipse in KM
     f64 t = 0.0; ///< Period of a full orbit in sec
     f64 parentMass = 0.0; ///< Mass of the parent in KG
+    f64 startTrueAnomaly = 0.0; ///< Start true anomaly in rad
     f64 e = 0.0; ///< Shape of orbit, 0-1
     f64 o = 0.0; ///< Longitude of the ascending node in rad
     f64 p = 0.0; ///< Longitude of the periapsis in rad

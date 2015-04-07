@@ -313,10 +313,10 @@ void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram* program, const f
         glUniform1f(program->getUniform("unInnerRadius"), aCmp->planetRadius);
         glUniform1f(program->getUniform("unOuterRadius"), aCmp->radius);
         glUniform1f(program->getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
-        glUniform1f(program->getUniform("unKrESun"), aCmp->krEsun);
-        glUniform1f(program->getUniform("unKmESun"), aCmp->kmEsun);
-        glUniform1f(program->getUniform("unKr4PI"), aCmp->kr4PI);
-        glUniform1f(program->getUniform("unKm4PI"), aCmp->km4PI);
+        glUniform1f(program->getUniform("unKrESun"), aCmp->kr * aCmp->esun);
+        glUniform1f(program->getUniform("unKmESun"), aCmp->km * aCmp->esun);
+        glUniform1f(program->getUniform("unKr4PI"), aCmp->kr * M_4_PI);
+        glUniform1f(program->getUniform("unKm4PI"), aCmp->km * M_4_PI);
         f32 scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
         glUniform1f(program->getUniform("unScale"), scale);
         glUniform1f(program->getUniform("unScaleDepth"), aCmp->scaleDepth);
