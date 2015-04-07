@@ -51,7 +51,8 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     // Check if its active
     if (at.scaleDepth != -1.0f) {
         addAtmosphereComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 1.025),
-                               at.kr, at.km, at.g, at.waveLength);
+                               at.kr, at.km, at.g, at.scaleDepth,
+                               at.waveLength);
     }
 
     SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
@@ -110,9 +111,18 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, 1.0f, properties->diameter / 2.0, colorMap);
+    f64 radius = properties->diameter / 2.0;
+    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, 1.0f, radius, colorMap);
 
-    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
+    addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
+
+    const AtmosphereKegProperties& at = properties->atmosphere;
+    // Check if its active
+    if (at.scaleDepth != -1.0f) {
+        addAtmosphereComponent(spaceSystem, id, npCmp, (f32)radius, (f32)(radius * 1.025),
+                               at.kr, at.km, at.g, at.scaleDepth,
+                               at.waveLength);
+    }
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                                      sysProps->t, sysProps->o, sysProps->p,
@@ -128,7 +138,8 @@ void SpaceSystemAssemblages::destroyGasGiant(SpaceSystem* gameSystem, vecs::Enti
 
 vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                  vecs::ComponentID namePositionComponent, f32 planetRadius,
-                                                                 f32 radius, f32 kr, f32 km, f32 g, f32v3 wavelength) {
+                                                                 f32 radius, f32 kr, f32 km, f32 g, f32 scaleDepth,
+                                                                 f32v3 wavelength) {
     vecs::ComponentID aCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, entity);
     auto& aCmp = spaceSystem->m_atmosphereCT.get(aCmpId);
     aCmp.namePositionComponent = namePositionComponent;
@@ -137,6 +148,7 @@ vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* sp
     aCmp.kr = kr;
     aCmp.km = km;
     aCmp.g = g;
+    aCmp.scaleDepth = scaleDepth;
     aCmp.invWavelength4 = f32v3(1.0f / powf(wavelength.r, 4.0f),
                                 1.0f / powf(wavelength.g, 4.0f),
                                 1.0f / powf(wavelength.b, 4.0f));

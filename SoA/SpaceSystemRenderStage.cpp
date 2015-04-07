@@ -56,11 +56,10 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 }
 
 void SpaceSystemRenderStage::render() {
-    drawBodies();
     m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
                             m_viewport);
-   
+    drawBodies();
 }
 
 void SpaceSystemRenderStage::reloadShader() {
@@ -154,7 +153,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
          f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
 
-         if (glm::length(relCamPos) < ATMO_LOAD_DIST) {
+         if (glm::length(relCamPos) < atCmp.radius * 11.0f) {
              auto& l = lightCache[it.first];
 
              f32v3 lightDir(glm::normalize(l.first - *pos));
