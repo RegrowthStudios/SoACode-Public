@@ -93,11 +93,14 @@ void MainMenuRenderPipeline::render() {
 }
 
 void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
+    if (!m_isInitialized) return;
     RenderPipeline::destroy(shouldDisposeStages);
 
-    m_swapChain->dispose();
-    delete m_swapChain;
-    m_swapChain = nullptr;
+    if (m_swapChain) {
+        m_swapChain->dispose();
+        delete m_swapChain;
+        m_swapChain = nullptr;
+    }
 
     m_quad.dispose();
 

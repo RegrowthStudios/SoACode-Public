@@ -367,7 +367,7 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
             });
             pr.glrpc->invoke(&rpc, true);
         } else {
-            vg::BitmapResource b = vg::ImageIO().load(properties->colorMap);
+            vg::BitmapResource b = vg::ImageIO().load(colorPath);
             if (b.data) {
                 colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
                                                         b.width, b.height,
@@ -402,6 +402,6 @@ void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, 
     }
 }
 
-void SoaEngine::destroySpaceSystem(OUT SoaState* state) {
+void SoaEngine::destroySpaceSystem(SoaState* state) {
     state->spaceSystem.reset();
 }

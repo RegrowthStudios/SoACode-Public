@@ -116,7 +116,7 @@ void SpaceSystemRenderStage::drawBodies() {
         SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
-        f32v3 lightDir(- glm::normalize(lightPos - *pos));
+        f32v3 lightDir(glm::normalize(lightPos - *pos));
     
         m_sphericalTerrainComponentRenderer.draw(cmp, m_spaceCamera,
                                                  lightDir,
@@ -140,7 +140,7 @@ void SpaceSystemRenderStage::drawBodies() {
         SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
-        f32v3 lightDir(-glm::normalize(lightPos - *pos));
+        f32v3 lightDir(glm::normalize(lightPos - *pos));
 
         m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, lightCmp);
     }
@@ -157,7 +157,7 @@ void SpaceSystemRenderStage::drawBodies() {
          if (glm::length(relCamPos) < ATMO_LOAD_DIST) {
              auto& l = lightCache[it.first];
 
-             f32v3 lightDir(-glm::normalize(l.first - *pos));
+             f32v3 lightDir(glm::normalize(l.first - *pos));
 
              m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
          }
@@ -178,7 +178,7 @@ void SpaceSystemRenderStage::drawBodies() {
             pos = getBodyPosition(npCmp, it.first);
 
             auto& l = lightCache[it.first];
-            f64v3 lightDir = -glm::normalize(l.first - *pos);
+            f64v3 lightDir = glm::normalize(l.first - *pos);
 
             m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
                                                lightDir,
