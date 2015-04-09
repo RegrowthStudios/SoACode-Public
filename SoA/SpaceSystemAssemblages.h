@@ -21,6 +21,7 @@ class SpaceSystem;
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/gtypes.h>
+#include <Vorb/graphics/ImageIO.h>
 
 struct PlanetGenData;
 class SoaState;
@@ -99,6 +100,14 @@ namespace SpaceSystemAssemblages {
                                                            vg::GLProgram* normalProgram,
                                                            vg::TextureRecycler* normalMapRecycler);
     extern void removeSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
+
+    /// Star Component
+    extern vecs::ComponentID addStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                              vecs::ComponentID npComp,
+                                              vecs::ComponentID arComp,
+                                              f64 radius,
+                                              vg::BitmapResource colorData);
+    extern void removeStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Gas giant component
     extern vecs::ComponentID addGasGiantComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,

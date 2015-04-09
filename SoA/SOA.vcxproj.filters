@@ -746,6 +746,9 @@
     <ClInclude Include="SphericalTerrainComponentRenderer.h">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClInclude>
+    <ClInclude Include="StarComponentRenderer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1220,6 +1223,7 @@
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClCompile>
+    <ClCompile Include="StarComponentRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

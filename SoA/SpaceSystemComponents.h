@@ -181,6 +181,13 @@ struct GasGiantComponent {
     VGTexture colorMap = 0;
 };
 
+struct StarComponent {
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
+    f64 radius = 0.0;
+    vg::BitmapResource colorData;
+};
+
 struct FarTerrainComponent {
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
 

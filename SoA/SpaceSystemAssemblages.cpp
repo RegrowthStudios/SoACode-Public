@@ -274,6 +274,26 @@ void SpaceSystemAssemblages::removeSphericalTerrainComponent(SpaceSystem* spaceS
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
 }
 
+/// Star Component
+vecs::ComponentID SpaceSystemAssemblages::addStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                          vecs::ComponentID npComp,
+                                          vecs::ComponentID arComp,
+                                          f64 radius,
+                                          vg::BitmapResource colorData) {
+    vecs::ComponentID sCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_STAR_NAME, entity);
+    auto& sCmp = spaceSystem->m_starCT.get(sCmpId);
+
+    sCmp.namePositionComponent = npComp;
+    sCmp.axisRotationComponent = arComp;
+    sCmp.radius = radius;
+    sCmp.colorData = colorData;
+
+    return sCmpId;
+}
+void SpaceSystemAssemblages::removeStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_STAR_NAME, entity);
+}
+
 vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                vecs::ComponentID npComp,
                                                                vecs::ComponentID arComp,
