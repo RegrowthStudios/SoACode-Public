@@ -1,14 +1,19 @@
 #include "stdafx.h"
 #include "GasGiantComponentRenderer.h"
 
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include "ShaderLoader.h"
 #include "SpaceSystemComponents.h"
 #include "RenderUtils.h"
+
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
+
 
 #define ICOSPHERE_SUBDIVISIONS 5
 
@@ -31,6 +36,7 @@ GasGiantComponentRenderer::~GasGiantComponentRenderer() {
 
 void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
                                      const f32m4& VP,
+                                     const f64q& orientation,
                                      const f32v3& relCamPos,
                                      const f32v3& lightDir,
                                      const SpaceLightComponent* spCmp,
@@ -41,11 +47,25 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
 
     m_program->use();
 
+    // Convert f64q to f32q
+    f32q orientationF32;
+    orientationF32.x = (f32)orientation.x;
+    orientationF32.y = (f32)orientation.y;
+    orientationF32.z = (f32)orientation.z;
+    orientationF32.w = (f32)orientation.w;
+
+    // Get rotated light direction
+    const f32v3 rotLightDir = glm::inverse(orientationF32) * lightDir;
+
+    // Convert to matrix
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
+
     // Set up matrix
     f32m4 WVP(1.0);
-    setMatrixScale(WVP, f32v3(ggCmp.radius));
     setMatrixTranslation(WVP, -relCamPos);
-    WVP = VP * WVP;
+    WVP = VP * WVP * glm::scale(f32v3(ggCmp.radius)) * rotationMatrix;
+
+    f32v3 rotRelCamPos = relCamPos * orientationF32;
 
     // Upload uniforms
     static float dt = 1.0f;
@@ -55,8 +75,8 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     // Scattering uniforms
     f32 camHeight = glm::length(relCamPos);
     glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
-    glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
-    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+    glUniform3fv(m_program->getUniform("unCameraPos"), 1, &rotRelCamPos[0]);
+    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
     glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
     glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight * camHeight);
     glUniform1f(m_program->getUniform("unOuterRadius"), aCmp->radius);

@@ -56,10 +56,10 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 }
 
 void SpaceSystemRenderStage::render() {
+    drawBodies();
     m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
                             m_viewport);
-    drawBodies();
 }
 
 void SpaceSystemRenderStage::reloadShader() {
@@ -88,7 +88,7 @@ void SpaceSystemRenderStage::drawBodies() {
     m_closestPatchDistance2 = DOUBLE_SENTINEL;
 
     bool needsDepthClear = false;
-    // TODO(Ben): Try to optimize out getFromEntity
+    // TODO(Ben): Optimize out getFromEntity
     f64v3 lightPos;
     // For caching light for far terrain
     std::map<vecs::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
@@ -141,7 +141,9 @@ void SpaceSystemRenderStage::drawBodies() {
 
         f32v3 lightDir(glm::normalize(lightPos - *pos));
 
-        m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, lightCmp,
+        m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(),
+                                         m_spaceSystem->m_axisRotationCT.getFromEntity(it.first).currentOrientation,
+                                         relCamPos, lightDir, lightCmp,
                                          &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
 

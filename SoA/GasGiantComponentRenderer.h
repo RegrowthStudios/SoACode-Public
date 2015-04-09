@@ -38,6 +38,7 @@ public:
 
     void draw(const GasGiantComponent& ggCmp,
               const f32m4& VP,
+              const f64q& orientation,
               const f32v3& relCamPos,
               const f32v3& lightDir,
               const SpaceLightComponent* spCmp,

@@ -83,7 +83,6 @@ void SystemARRenderer::drawPaths() {
     // Draw paths
     m_colorProgram->use();
     m_colorProgram->enableVertexAttribArrays();
-    glDepthMask(GL_FALSE);
     glLineWidth(3.0f);
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
@@ -112,7 +111,6 @@ void SystemARRenderer::drawPaths() {
     }
     m_colorProgram->disableVertexAttribArrays();
     m_colorProgram->unuse();
-    glDepthMask(GL_TRUE);
 }
 
 void SystemARRenderer::drawHUD() {

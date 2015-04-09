@@ -43,8 +43,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
     f32m4 rotationMatrix = glm::toMat4(orientationF32);
     f32m4 W(1.0);
     setMatrixTranslation(W, -relativePos);
-    W *= rotationMatrix;
-    f32m4 WVP = camera->getViewProjectionMatrix() * W;
+    f32m4 WVP = camera->getViewProjectionMatrix() * W * rotationMatrix;
 
     if (m_waterMeshes.size()) {
         // Bind textures
