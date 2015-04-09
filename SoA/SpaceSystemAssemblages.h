@@ -18,10 +18,9 @@
 class SpaceSystem;
 
 #include "VoxelCoordinateSpaces.h"
-#include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
-#include <Vorb/graphics/ImageIO.h>
 
 struct PlanetGenData;
 class SoaState;
@@ -105,8 +104,7 @@ namespace SpaceSystemAssemblages {
     extern vecs::ComponentID addStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                               vecs::ComponentID npComp,
                                               vecs::ComponentID arComp,
-                                              f64 radius,
-                                              vg::BitmapResource colorData);
+                                              f64 radius);
     extern void removeStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Gas giant component

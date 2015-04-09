@@ -81,7 +81,10 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    addSphericalGravityComponent(spaceSystem, id, npCmp, properties->diameter / 2.0, properties->mass);
+    f64 radius = properties->diameter / 2.0;
+    addStarComponent(spaceSystem, id, npCmp, arCmp, radius);
+
+    addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                                      sysProps->t, sysProps->o, sysProps->p,
@@ -278,15 +281,13 @@ void SpaceSystemAssemblages::removeSphericalTerrainComponent(SpaceSystem* spaceS
 vecs::ComponentID SpaceSystemAssemblages::addStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                           vecs::ComponentID npComp,
                                           vecs::ComponentID arComp,
-                                          f64 radius,
-                                          vg::BitmapResource colorData) {
+                                          f64 radius) {
     vecs::ComponentID sCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_STAR_NAME, entity);
     auto& sCmp = spaceSystem->m_starCT.get(sCmpId);
 
     sCmp.namePositionComponent = npComp;
     sCmp.axisRotationComponent = arComp;
     sCmp.radius = radius;
-    sCmp.colorData = colorData;
 
     return sCmpId;
 }
