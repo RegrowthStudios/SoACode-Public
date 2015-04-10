@@ -29,19 +29,35 @@ public:
     StarComponentRenderer();
     ~StarComponentRenderer();
 
-    void draw(const StarComponent& ggCmp,
+    void draw(const StarComponent& sCmp,
               const f32m4& VP,
+              const f32m4& V,
               const f64q& orientation,
               const f32v3& relCamPos);
-    void disposeShader();
+    void disposeShaders();
 private:
-    void buildShader();
+    void disposeBuffers();
+    void drawStar(const StarComponent& sCmp,
+                  const f32m4& VP,
+                  const f64q& orientation,
+                  const f32v3& relCamPos);
+    void drawCorona(const StarComponent& sCmp,
+                    const f32m4& VP,
+                    const f32m4& V,
+                    const f32v3& relCamPos);
+    void buildShaders();
     void buildMesh();
 
-    vg::GLProgram* m_program = nullptr;
-    VGBuffer m_vbo = 0;
-    VGIndexBuffer m_ibo = 0;
-    VGVertexArray m_vao = 0;
+    vg::GLProgram* m_starProgram = nullptr;
+    vg::GLProgram* m_coronaProgram = nullptr;
+    // Star
+    VGBuffer m_sVbo = 0;
+    VGIndexBuffer m_sIbo = 0;
+    VGVertexArray m_sVao = 0;
+    // Corona
+    VGBuffer m_cVbo = 0;
+    VGIndexBuffer m_cIbo = 0;
+    VGVertexArray m_cVao = 0;
     int m_numIndices = 0;
 
     // TODO(Ben): UBO

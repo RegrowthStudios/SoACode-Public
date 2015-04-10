@@ -22,24 +22,57 @@ StarComponentRenderer::StarComponentRenderer() {
 }
 
 StarComponentRenderer::~StarComponentRenderer() {
-    disposeShader();
-    if (m_vbo) {
-        vg::GpuMemory::freeBuffer(m_vbo);
+    disposeShaders();
+}
+
+void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, const f32m4& V, const f64q& orientation, const f32v3& relCamPos) {
+    // Lazily construct buffer and shaders
+    if (!m_starProgram) buildShaders();
+    if (!m_sVbo) buildMesh();
+
+    drawStar(sCmp, VP, orientation, relCamPos);
+    drawCorona(sCmp, VP, V, relCamPos);
+}
+
+void StarComponentRenderer::disposeShaders() {
+    if (m_starProgram) {
+        vg::ShaderManager::destroyProgram(&m_starProgram);
     }
-    if (m_ibo) {
-        vg::GpuMemory::freeBuffer(m_ibo);
+    if (m_coronaProgram) {
+        vg::ShaderManager::destroyProgram(&m_coronaProgram);
     }
-    if (m_vao) {
-        glDeleteVertexArrays(1, &m_vao);
+    disposeBuffers();
+}
+
+void StarComponentRenderer::disposeBuffers() {
+    // Dispose buffers too for proper reload
+    if (m_sVbo) {
+        vg::GpuMemory::freeBuffer(m_sVbo);
+    }
+    if (m_sIbo) {
+        vg::GpuMemory::freeBuffer(m_sIbo);
+    }
+    if (m_sVao) {
+        glDeleteVertexArrays(1, &m_sVao);
+        m_sVao = 0;
+    }
+    if (m_cVbo) {
+        vg::GpuMemory::freeBuffer(m_cVbo);
+    }
+    if (m_cIbo) {
+        vg::GpuMemory::freeBuffer(m_cIbo);
+    }
+    if (m_cVao) {
+        glDeleteVertexArrays(1, &m_cVao);
+        m_cVao = 0;
     }
 }
 
-void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, const f64q& orientation, const f32v3& relCamPos) {
-    // Lazily construct buffer and shaders
-    if (!m_program) buildShader();
-    if (!m_vbo) buildMesh();
-
-    m_program->use();
+void StarComponentRenderer::drawStar(const StarComponent& sCmp,
+              const f32m4& VP,
+              const f64q& orientation,
+              const f32v3& relCamPos) {
+    m_starProgram->use();
 
     // Convert f64q to f32q
     f32q orientationF32;
@@ -59,47 +92,63 @@ void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, con
     f32v3 rotRelCamPos = relCamPos * orientationF32;
 
     // Upload uniforms
-    static float dt = 1.0f;
+    static f32 dt = 1.0f;
     dt += 0.001f;
     glUniform1f(unDT, dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
-  
+
     // Bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_sVao);
 
     glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);
-    m_program->unuse();
+    m_starProgram->unuse();
 }
 
-void StarComponentRenderer::disposeShader() {
-    if (m_program) {
-        vg::ShaderManager::destroyProgram(&m_program);
-    }
-    // Dispose buffers too for proper reload
-    if (m_vbo) {
-        vg::GpuMemory::freeBuffer(m_vbo);
-    }
-    if (m_ibo) {
-        vg::GpuMemory::freeBuffer(m_ibo);
-    }
-    if (m_vao) {
-        glDeleteVertexArrays(1, &m_vao);
-        m_vao = 0;
-    }
+void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
+                                       const f32m4& VP,
+                                       const f32m4& V,
+                                       const f32v3& relCamPos) {
+    m_coronaProgram->use();
+
+    f32v3 center(-relCamPos);
+    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
+    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
+    glUniform3fv(m_coronaProgram->getUniform("unCameraRight"), 1, &camRight[0]);
+    glUniform3fv(m_coronaProgram->getUniform("unCameraUp"), 1, &camUp[0]);
+    glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
+    glUniform1f(m_coronaProgram->getUniform("unSize"), (f32)(sCmp.radius * 4.0));
+
+    // Upload uniforms
+    static f32 dt = 1.0f;
+    dt += 0.001f;
+  //  glUniform1f(unDT, dt);
+    glUniformMatrix4fv(m_coronaProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
+
+    // Bind VAO
+    glBindVertexArray(m_cVao);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+    glBindVertexArray(0);
+    m_coronaProgram->unuse();
 }
 
-void StarComponentRenderer::buildShader() {
-    m_program = ShaderLoader::createProgramFromFile("Shaders/Star/Star.vert",
-                                                    "Shaders/Star/Star.frag");
-    m_program->use();
-    unWVP = m_program->getUniform("unWVP");
-    unDT = m_program->getUniform("unDT");
-    m_program->unuse();
+void StarComponentRenderer::buildShaders() {
+    m_starProgram = ShaderLoader::createProgramFromFile("Shaders/Star/star.vert",
+                                                        "Shaders/Star/star.frag");
+    m_starProgram->use();
+    unWVP = m_starProgram->getUniform("unWVP");
+    unDT = m_starProgram->getUniform("unDT");
+    m_starProgram->unuse();
+
+    m_coronaProgram = ShaderLoader::createProgramFromFile("Shaders/Star/corona.vert",
+                                                          "Shaders/Star/corona.frag");
 }
 
 void StarComponentRenderer::buildMesh() {
+    // Build star mesh
     std::vector<ui32> indices;
     std::vector<f32v3> positions;
 
@@ -107,22 +156,50 @@ void StarComponentRenderer::buildMesh() {
     vmesh::generateIcosphereMesh(ICOSPHERE_SUBDIVISIONS, indices, positions);
     m_numIndices = indices.size();
 
-    glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
+    glGenVertexArrays(1, &m_sVao);
+    glBindVertexArray(m_sVao);
 
-    vg::GpuMemory::createBuffer(m_vbo);
-    vg::GpuMemory::createBuffer(m_ibo);
+    vg::GpuMemory::createBuffer(m_sVbo);
+    vg::GpuMemory::createBuffer(m_sIbo);
 
-    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
-    vg::GpuMemory::uploadBufferData(m_vbo, vg::BufferTarget::ARRAY_BUFFER, positions.size() * sizeof(f32v3),
+    vg::GpuMemory::bindBuffer(m_sVbo, vg::BufferTarget::ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(m_sVbo, vg::BufferTarget::ARRAY_BUFFER, positions.size() * sizeof(f32v3),
                                     positions.data(), vg::BufferUsageHint::STATIC_DRAW);
 
-    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(ui32),
+    vg::GpuMemory::bindBuffer(m_sIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(m_sIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(ui32),
                                     indices.data(), vg::BufferUsageHint::STATIC_DRAW);
 
-    m_program->enableVertexAttribArrays();
-    glVertexAttribPointer(m_program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
-   
+    m_starProgram->enableVertexAttribArrays();
+    glVertexAttribPointer(m_starProgram->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
+  
+
+    // Build corona mesh
+    glGenVertexArrays(1, &m_cVao);
+    glBindVertexArray(m_cVao);
+
+    vg::GpuMemory::createBuffer(m_cVbo);
+    vg::GpuMemory::createBuffer(m_cIbo);
+
+    f32v2 cPositions[4] = {
+        f32v2(-1.0f, 1.0f),
+        f32v2(-1.0f, -1.0f),
+        f32v2(1.0f, -1.0f),
+        f32v2(1.0f, 1.0f)
+    };
+
+    ui16 cIndices[6] = { 0, 1, 2, 2, 3, 0 };
+
+    vg::GpuMemory::bindBuffer(m_cVbo, vg::BufferTarget::ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(m_cVbo, vg::BufferTarget::ARRAY_BUFFER, sizeof(cPositions),
+                                    cPositions, vg::BufferUsageHint::STATIC_DRAW);
+
+    vg::GpuMemory::bindBuffer(m_cIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(m_cIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(cIndices),
+                                    cIndices, vg::BufferUsageHint::STATIC_DRAW);
+
+    m_coronaProgram->enableVertexAttribArrays();
+    glVertexAttribPointer(m_coronaProgram->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+
     glBindVertexArray(0);
 }
