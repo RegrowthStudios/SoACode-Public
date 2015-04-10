@@ -35,7 +35,6 @@ public:
 private:
     GasGiantComponentRenderer m_gasGiantRenderer;
     f32v3 m_eyePos;
-    vg::TextureCache m_textureCache;
     GasGiantComponent m_ggCmp;
     SpaceLightComponent m_slCmp;
     AtmosphereComponent m_aCmp;

@@ -83,6 +83,3 @@ void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
     std::cout << timer.stop() << std::endl;
     checkGlError("TestGasGiantScreen::draw");
 }
-
-
-//pColor = vec4(texture(unColorBandLookup, vec2(0.5, fPosition.y)).rgb, 1.0);

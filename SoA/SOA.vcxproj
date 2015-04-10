@@ -379,6 +379,7 @@ EXIT 0</Command>
     <ClInclude Include="TestDeferredScreen.h" />
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
+    <ClInclude Include="TestStarScreen.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="InitScreen.h" />
@@ -564,6 +565,7 @@ EXIT 0</Command>
     <ClCompile Include="TestDeferredScreen.cpp" />
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
+    <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
