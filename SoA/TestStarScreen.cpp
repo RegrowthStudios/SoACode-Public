@@ -49,6 +49,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Set up components
     m_sCmp.radius = 1.0;
+    m_sCmp.temperature = 5853.0;
 }
 
 void TestStarScreen::onExit(const vui::GameTime& gameTime) {

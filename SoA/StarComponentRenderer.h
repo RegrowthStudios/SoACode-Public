@@ -19,6 +19,7 @@
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/gtypes.h>
+#include <Vorb/graphics/ImageIO.h>
 
 DECL_VG(class GLProgram)
 
@@ -40,13 +41,16 @@ private:
     void drawStar(const StarComponent& sCmp,
                   const f32m4& VP,
                   const f64q& orientation,
-                  const f32v3& relCamPos);
+                  const f32v3& relCamPos,
+                  const f32v3& tColor);
     void drawCorona(const StarComponent& sCmp,
                     const f32m4& VP,
                     const f32m4& V,
-                    const f32v3& relCamPos);
+                    const f32v3& relCamPos,
+                    const f32v3& tColor);
     void buildShaders();
     void buildMesh();
+    void loadTempColorMap();
 
     vg::GLProgram* m_starProgram = nullptr;
     vg::GLProgram* m_coronaProgram = nullptr;
@@ -58,6 +62,8 @@ private:
     VGBuffer m_cVbo = 0;
     VGIndexBuffer m_cIbo = 0;
     VGVertexArray m_cVao = 0;
+    
+    vg::BitmapResource m_tempColorMap;
     int m_numIndices = 0;
 
     // TODO(Ben): UBO

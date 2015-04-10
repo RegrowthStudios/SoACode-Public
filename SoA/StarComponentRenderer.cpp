@@ -18,7 +18,7 @@
 #define ICOSPHERE_SUBDIVISIONS 5
 
 StarComponentRenderer::StarComponentRenderer() {
-    // Empty
+    m_tempColorMap.width = -1;
 }
 
 StarComponentRenderer::~StarComponentRenderer() {
@@ -29,9 +29,19 @@ void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, con
     // Lazily construct buffer and shaders
     if (!m_starProgram) buildShaders();
     if (!m_sVbo) buildMesh();
+    if (m_tempColorMap.width == -1) loadTempColorMap();
 
-    drawStar(sCmp, VP, orientation, relCamPos);
-    drawCorona(sCmp, VP, V, relCamPos);
+    // Calculate temperature color
+#define MIN_TMP 800.0
+#define TMP_RANGE 29200.0
+    f32 scale = (sCmp.temperature - 800.0) / TMP_RANGE;
+    int index = scale * m_tempColorMap.width;
+    index = glm::clamp(index, 0, (int)m_tempColorMap.width);
+    const ui8v4& bytes = m_tempColorMap.bytesUI8v4[index];
+    f32v3 tColor(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
+
+    drawStar(sCmp, VP, orientation, relCamPos, tColor);
+    drawCorona(sCmp, VP, V, relCamPos, tColor);
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -71,7 +81,8 @@ void StarComponentRenderer::disposeBuffers() {
 void StarComponentRenderer::drawStar(const StarComponent& sCmp,
               const f32m4& VP,
               const f64q& orientation,
-              const f32v3& relCamPos) {
+              const f32v3& relCamPos,
+              const f32v3& tColor) {
     m_starProgram->use();
 
     // Convert f64q to f32q
@@ -96,6 +107,7 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     dt += 0.001f;
     glUniform1f(unDT, dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
+    glUniform3fv(m_starProgram->getUniform("unColor"), 1, &tColor[0]);
 
     // Bind VAO
     glBindVertexArray(m_sVao);
@@ -109,7 +121,8 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
 void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
                                        const f32m4& VP,
                                        const f32m4& V,
-                                       const f32v3& relCamPos) {
+                                       const f32v3& relCamPos,
+                                       const f32v3& tColor) {
     m_coronaProgram->use();
 
     f32v3 center(-relCamPos);
@@ -119,6 +132,7 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
     glUniform3fv(m_coronaProgram->getUniform("unCameraUp"), 1, &camUp[0]);
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform1f(m_coronaProgram->getUniform("unSize"), (f32)(sCmp.radius * 4.0));
+    glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
 
     // Upload uniforms
     static f32 dt = 1.0f;
@@ -202,4 +216,8 @@ void StarComponentRenderer::buildMesh() {
     glVertexAttribPointer(m_coronaProgram->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     glBindVertexArray(0);
+}
+
+void StarComponentRenderer::loadTempColorMap() {
+    m_tempColorMap = vg::ImageIO().load("StarSystems/star_spectrum.png");
 }

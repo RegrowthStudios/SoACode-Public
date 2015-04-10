@@ -104,7 +104,8 @@ namespace SpaceSystemAssemblages {
     extern vecs::ComponentID addStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                               vecs::ComponentID npComp,
                                               vecs::ComponentID arComp,
-                                              f64 radius);
+                                              f64 radius,
+                                              f64 temperature);
     extern void removeStarComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Gas giant component
