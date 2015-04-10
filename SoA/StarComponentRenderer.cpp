@@ -17,7 +17,8 @@
 
 #define ICOSPHERE_SUBDIVISIONS 5
 
-StarComponentRenderer::~StarComponentRenderer() {
+StarComponentRenderer::StarComponentRenderer() {
+    // Empty
 }
 
 StarComponentRenderer::~StarComponentRenderer() {
@@ -93,7 +94,6 @@ void StarComponentRenderer::buildShader() {
     m_program = ShaderLoader::createProgramFromFile("Shaders/Star/Star.vert",
                                                     "Shaders/Star/Star.frag");
     m_program->use();
-    glUniform1i(m_program->getUniform("unColorBandLookup"), 0);
     unWVP = m_program->getUniform("unWVP");
     unDT = m_program->getUniform("unDT");
     m_program->unuse();
