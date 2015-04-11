@@ -14,7 +14,8 @@
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
 
-
+#define MIN_TMP 800.0
+#define TMP_RANGE 29200.0
 #define ICOSPHERE_SUBDIVISIONS 5
 
 StarComponentRenderer::StarComponentRenderer() {
@@ -32,16 +33,20 @@ void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, con
     if (m_tempColorMap.width == -1) loadTempColorMap();
 
     // Calculate temperature color
-#define MIN_TMP 800.0
-#define TMP_RANGE 29200.0
-    f32 scale = (sCmp.temperature - 800.0) / TMP_RANGE;
+    f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
     int index = scale * m_tempColorMap.width;
     index = glm::clamp(index, 0, (int)m_tempColorMap.width);
     const ui8v4& bytes = m_tempColorMap.bytesUI8v4[index];
-    f32v3 tColor(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
+    f32 tempMod = sCmp.temperature * (0.041 / 255.0);
+    // Star color
+    f32v3 sColor(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
+    sColor += tempMod;
+    // Corona color
+    f32v3 cColor = f32v3(0.9f);
+    cColor += tempMod;
 
-    drawStar(sCmp, VP, orientation, relCamPos, tColor);
-    drawCorona(sCmp, VP, V, relCamPos, tColor);
+    drawStar(sCmp, VP, orientation, relCamPos, sColor);
+    drawCorona(sCmp, VP, V, relCamPos, cColor);
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -125,19 +130,26 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
                                        const f32v3& tColor) {
     m_coronaProgram->use();
 
+    // Upload uniforms
     f32v3 center(-relCamPos);
     f32v3 camRight(V[0][0], V[1][0], V[2][0]);
     f32v3 camUp(V[0][1], V[1][1], V[2][1]);
     glUniform3fv(m_coronaProgram->getUniform("unCameraRight"), 1, &camRight[0]);
     glUniform3fv(m_coronaProgram->getUniform("unCameraUp"), 1, &camUp[0]);
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
-    glUniform1f(m_coronaProgram->getUniform("unSize"), (f32)(sCmp.radius * 4.0));
     glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
-
-    // Upload uniforms
+    // Size
+    f32 maxCoronaSize = (f32)(sCmp.radius * 4.0);
+    f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
+    f32 coronaSize = scale * maxCoronaSize;
+    coronaSize = glm::clamp(coronaSize, 0.1f, maxCoronaSize);
+    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), maxCoronaSize);
+    glUniform1f(m_coronaProgram->getUniform("unStarRadius"), sCmp.radius);
+   // glUniform1f(m_coronaProgram->getUniform("unSize"), coronaSize);
+    // Time
     static f32 dt = 1.0f;
     dt += 0.001f;
-  //  glUniform1f(unDT, dt);
+    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
     glUniformMatrix4fv(m_coronaProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
 
     // Bind VAO

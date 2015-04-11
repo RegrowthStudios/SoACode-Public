@@ -39,7 +39,8 @@ private:
     StarComponentRenderer m_starRenderer;
     f32v3 m_eyePos;
     StarComponent m_sCmp;
-
+    bool m_isUpDown = false;
+    bool m_isDownDown = false;
     AutoDelegatePool m_hooks;
 };
 
