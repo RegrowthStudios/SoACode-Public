@@ -13,6 +13,7 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/graphics/SamplerState.h>
 
 #define MIN_TMP 800.0
 #define TMP_RANGE 29200.0
@@ -24,13 +25,16 @@ StarComponentRenderer::StarComponentRenderer() {
 
 StarComponentRenderer::~StarComponentRenderer() {
     disposeShaders();
+    vg::ImageIO().free(m_tempColorMap);
+    vg::GpuMemory::freeTexture(m_glowTexture);
 }
 
 void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, const f32m4& V, const f64q& orientation, const f32v3& relCamPos) {
-    // Lazily construct buffer and shaders
+    // Lazily load everything
     if (!m_starProgram) buildShaders();
     if (!m_sVbo) buildMesh();
     if (m_tempColorMap.width == -1) loadTempColorMap();
+    if (m_glowTexture == 0) loadGlowTexture();
 
     // Calculate temperature color
     f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
@@ -47,6 +51,7 @@ void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, con
 
     drawStar(sCmp, VP, orientation, relCamPos, sColor);
     drawCorona(sCmp, VP, V, relCamPos, cColor);
+    drawGlow(sCmp, VP, V, relCamPos, sColor);
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -55,6 +60,9 @@ void StarComponentRenderer::disposeShaders() {
     }
     if (m_coronaProgram) {
         vg::ShaderManager::destroyProgram(&m_coronaProgram);
+    }
+    if (m_glowProgram) {
+        vg::ShaderManager::destroyProgram(&m_glowProgram);
     }
     disposeBuffers();
 }
@@ -80,6 +88,10 @@ void StarComponentRenderer::disposeBuffers() {
     if (m_cVao) {
         glDeleteVertexArrays(1, &m_cVao);
         m_cVao = 0;
+    }
+    if (m_gVao) {
+        glDeleteVertexArrays(1, &m_gVao);
+        m_gVao = 0;
     }
 }
 
@@ -139,13 +151,8 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
     // Size
-    f32 maxCoronaSize = (f32)(sCmp.radius * 4.0);
-    f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
-    f32 coronaSize = scale * maxCoronaSize;
-    coronaSize = glm::clamp(coronaSize, 0.1f, maxCoronaSize);
-    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), maxCoronaSize);
+    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0);
     glUniform1f(m_coronaProgram->getUniform("unStarRadius"), sCmp.radius);
-   // glUniform1f(m_coronaProgram->getUniform("unSize"), coronaSize);
     // Time
     static f32 dt = 1.0f;
     dt += 0.001f;
@@ -155,10 +162,50 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
     // Bind VAO
     glBindVertexArray(m_cVao);
 
+    glDepthMask(GL_FALSE);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    glDepthMask(GL_TRUE);
 
     glBindVertexArray(0);
     m_coronaProgram->unuse();
+}
+
+void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
+                                     const f32m4& VP,
+                                     const f32m4& V,
+                                     const f32v3& relCamPos,
+                                     const f32v3& tColor) {
+    m_glowProgram->use();
+    // Upload uniforms
+    f32v3 center(-relCamPos);
+    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
+    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
+    glUniform3fv(m_glowProgram->getUniform("unCameraRight"), 1, &camRight[0]);
+    glUniform3fv(m_glowProgram->getUniform("unCameraUp"), 1, &camUp[0]);
+    glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
+    glUniform3fv(m_glowProgram->getUniform("unColor"), 1, &tColor[0]);
+    // Size
+    f32 size = (f32)(sCmp.radius * 32.0);
+    // f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
+    glUniform1f(m_glowProgram->getUniform("unSize"), size);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_glowTexture);
+
+    // Time
+    static f32 dt = 1.0f;
+    dt += 0.0001f;
+    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
+
+  //  glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
+
+    glUniformMatrix4fv(m_glowProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
+    // Bind VAO
+    glBindVertexArray(m_gVao);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+    glBindVertexArray(0);
+    m_glowProgram->unuse();
 }
 
 void StarComponentRenderer::buildShaders() {
@@ -171,6 +218,9 @@ void StarComponentRenderer::buildShaders() {
 
     m_coronaProgram = ShaderLoader::createProgramFromFile("Shaders/Star/corona.vert",
                                                           "Shaders/Star/corona.frag");
+
+    m_glowProgram = ShaderLoader::createProgramFromFile("Shaders/Star/glow.vert",
+                                                          "Shaders/Star/glow.frag");
 }
 
 void StarComponentRenderer::buildMesh() {
@@ -200,7 +250,7 @@ void StarComponentRenderer::buildMesh() {
     glVertexAttribPointer(m_starProgram->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
   
 
-    // Build corona mesh
+    // Build corona and glow mesh
     glGenVertexArrays(1, &m_cVao);
     glBindVertexArray(m_cVao);
 
@@ -227,9 +277,32 @@ void StarComponentRenderer::buildMesh() {
     m_coronaProgram->enableVertexAttribArrays();
     glVertexAttribPointer(m_coronaProgram->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, 0, 0);
 
+    // Build glow VAO
+    glGenVertexArrays(1, &m_gVao);
+    glBindVertexArray(m_gVao);
+
+    vg::GpuMemory::bindBuffer(m_cVbo, vg::BufferTarget::ARRAY_BUFFER);
+    vg::GpuMemory::bindBuffer(m_cIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+
+    m_glowProgram->enableVertexAttribArrays();
+    glVertexAttribPointer(m_glowProgram->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+
     glBindVertexArray(0);
 }
 
 void StarComponentRenderer::loadTempColorMap() {
     m_tempColorMap = vg::ImageIO().load("StarSystems/star_spectrum.png");
+    if (!m_tempColorMap.data) {
+        fprintf(stderr, "ERROR: Failed to load StarSystems/star_spectrum.png\n");
+    }
+}
+
+void StarComponentRenderer::loadGlowTexture() {
+    vg::BitmapResource rs = vg::ImageIO().load("Textures/nostalgic_glow.png");
+    if (!m_tempColorMap.data) {
+        fprintf(stderr, "ERROR: Failed to load StarSystems/nostalgic_glow.png\n");
+    } else {
+        m_glowTexture = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        vg::ImageIO().free(rs);
+    }
 }

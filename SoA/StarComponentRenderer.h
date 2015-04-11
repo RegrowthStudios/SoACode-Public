@@ -48,12 +48,19 @@ private:
                     const f32m4& V,
                     const f32v3& relCamPos,
                     const f32v3& tColor);
+    void drawGlow(const StarComponent& sCmp,
+                  const f32m4& VP,
+                  const f32m4& V,
+                  const f32v3& relCamPos,
+                  const f32v3& tColor);
     void buildShaders();
     void buildMesh();
     void loadTempColorMap();
+    void loadGlowTexture();
 
     vg::GLProgram* m_starProgram = nullptr;
     vg::GLProgram* m_coronaProgram = nullptr;
+    vg::GLProgram* m_glowProgram = nullptr;
     // Star
     VGBuffer m_sVbo = 0;
     VGIndexBuffer m_sIbo = 0;
@@ -62,6 +69,8 @@ private:
     VGBuffer m_cVbo = 0;
     VGIndexBuffer m_cIbo = 0;
     VGVertexArray m_cVao = 0;
+    // Glow
+    VGBuffer m_gVao = 0;
     
     vg::BitmapResource m_tempColorMap;
     int m_numIndices = 0;
@@ -69,6 +78,8 @@ private:
     // TODO(Ben): UBO
     VGUniform unWVP;
     VGUniform unDT;
+
+    VGTexture m_glowTexture = 0;
 };
 
 #endif // StarComponentRenderer_h__

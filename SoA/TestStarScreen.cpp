@@ -70,7 +70,7 @@ void TestStarScreen::onExit(const vui::GameTime& gameTime) {
 void TestStarScreen::update(const vui::GameTime& gameTime) {
     m_eyePos = f32v3(0, 0, eyePos);
 
-    const float TMP_INC = 10.0;
+    const float TMP_INC = 25.0;
 
     if (m_isDownDown) {
         m_sCmp.temperature -= TMP_INC;
