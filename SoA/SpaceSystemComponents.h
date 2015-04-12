@@ -184,7 +184,8 @@ struct GasGiantComponent {
 struct StarComponent {
     vecs::ComponentID namePositionComponent = 0;
     vecs::ComponentID axisRotationComponent = 0;
-    f64 radius = 0.0; ///< in KM
+    f64 mass = 0.0; ///< In KM
+    f64 radius = 0.0; ///< In KM
     f64 temperature = 0.0; ///< In kelvin
 };
 

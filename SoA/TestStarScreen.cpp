@@ -122,7 +122,9 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     f32v3 fEyePos(m_eyePos);
     m_starRenderer.drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
     m_starRenderer.drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
-    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos, m_camera.getAspectRatio());
+    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
+                                          m_camera.getAspectRatio(), m_camera.getDirection(),
+                                          m_camera.getRight());
 
     if (m_isHDR) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

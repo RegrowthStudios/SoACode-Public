@@ -116,7 +116,9 @@ f32v3 hdrs(f32v3 v) {
 void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
                                      const f32m4& VP,
                                      const f64v3& relCamPos,
-                                     float aspectRatio) {
+                                     float aspectRatio,
+                                     const f32v3& viewDirW,
+                                     const f32v3& viewRightW) {
     
     // Size
     f64 apparentBrightness = sCmp.temperature;
@@ -126,6 +128,8 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     // Compute desired size based on distance, scaled 0-2ish
     // Plug into https://www.wolframalpha.com/ to see curve
     f64 s = 2.0 - 1.0 / (1.0 + pow(10.0, 8.0 - d)) - pow(d, 1.4) * 0.05;
+
+    //raySize = whateverValueLooksGoodAt1AUfortheSun * d ^ (-1 / 2) *[m(star) / m(sun)]
 
     if (s <= 0.0) return;
 
@@ -145,6 +149,9 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_glowTexture);
     glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
+    // For sparkles
+    f32v3 vs = viewDirW - viewRightW;
+    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z) * 0.1f);
 
     // Time
     static f32 dt = 1.0f;

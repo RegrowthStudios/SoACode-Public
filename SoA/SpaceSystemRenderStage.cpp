@@ -67,6 +67,7 @@ void SpaceSystemRenderStage::reloadShader() {
     m_farTerrainComponentRenderer.disposeShaders();
     m_atmosphereComponentRenderer.disposeShader();
     m_gasGiantComponentRenderer.disposeShader();
+    m_starRenderer.disposeShaders();
 }
 
 f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {
@@ -160,7 +161,9 @@ void SpaceSystemRenderStage::drawBodies() {
         // Render the star
         m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos);
         m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos);
-        m_starRenderer.drawGlow(sCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, m_spaceCamera->getAspectRatio());
+        m_starRenderer.drawGlow(sCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos,
+                                m_spaceCamera->getAspectRatio(), m_spaceCamera->getDirection(),
+                                m_spaceCamera->getRight());
     }
 
     // Render atmospheres
