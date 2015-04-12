@@ -24,34 +24,140 @@ StarComponentRenderer::StarComponentRenderer() {
 }
 
 StarComponentRenderer::~StarComponentRenderer() {
-    disposeShaders();
-    vg::ImageIO().free(m_tempColorMap);
-    vg::GpuMemory::freeTexture(m_glowTexture);
+    dispose();
 }
 
-void StarComponentRenderer::draw(const StarComponent& sCmp, const f32m4& VP, const f32m4& V, const f64q& orientation, const f32v3& relCamPos) {
-    // Lazily load everything
-    if (!m_starProgram) buildShaders();
-    if (!m_sVbo) buildMesh();
-    if (m_tempColorMap.width == -1) loadTempColorMap();
-    if (m_glowTexture == 0) loadGlowTexture();
+void StarComponentRenderer::drawStar(const StarComponent& sCmp,
+                                     const f32m4& VP,
+                                     const f64q& orientation,
+                                     const f32v3& relCamPos) {
+    checkLazyLoad();
 
-    // Calculate temperature color
-    f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
-    int index = scale * m_tempColorMap.width;
-    index = glm::clamp(index, 0, (int)m_tempColorMap.width);
-    const ui8v4& bytes = m_tempColorMap.bytesUI8v4[index];
-    f32 tempMod = sCmp.temperature * (0.041 / 255.0);
-    // Star color
-    f32v3 sColor(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
-    sColor += tempMod;
+    m_starProgram->use();
+
+    // Calculate color
+    f32v3 tColor = calculateStarColor(sCmp);
+
+    // Convert f64q to f32q
+    f32q orientationF32;
+    orientationF32.x = (f32)orientation.x;
+    orientationF32.y = (f32)orientation.y;
+    orientationF32.z = (f32)orientation.z;
+    orientationF32.w = (f32)orientation.w;
+
+    // Convert to matrix
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
+
+    // Set up matrix
+    f32m4 WVP(1.0);
+    setMatrixTranslation(WVP, -relCamPos);
+    WVP = VP * WVP * glm::scale(f32v3(sCmp.radius)) * rotationMatrix;
+
+    f32v3 rotRelCamPos = relCamPos * orientationF32;
+
+    // Upload uniforms
+    static f32 dt = 1.0f;
+    dt += 0.001f;
+    glUniform1f(unDT, dt);
+    glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
+    glUniform3fv(m_starProgram->getUniform("unColor"), 1, &tColor[0]);
+
+    // Bind VAO
+    glBindVertexArray(m_sVao);
+
+    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
+
+    glBindVertexArray(0);
+    m_starProgram->unuse();
+}
+
+void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
+                                       const f32m4& VP,
+                                       const f32m4& V,
+                                       const f32v3& relCamPos) {
+    m_coronaProgram->use();
+
     // Corona color
-    f32v3 cColor = f32v3(0.9f);
-    cColor += tempMod;
+    f32v3 tColor = f32v3(0.9f);
+    tColor += getTempBrightnessMod(sCmp);
 
-    drawStar(sCmp, VP, orientation, relCamPos, sColor);
-    drawCorona(sCmp, VP, V, relCamPos, cColor);
-    drawGlow(sCmp, VP, V, relCamPos, sColor);
+    // Upload uniforms
+    f32v3 center(-relCamPos);
+    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
+    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
+    glUniform3fv(m_coronaProgram->getUniform("unCameraRight"), 1, &camRight[0]);
+    glUniform3fv(m_coronaProgram->getUniform("unCameraUp"), 1, &camUp[0]);
+    glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
+    glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
+    // Size
+    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0);
+    glUniform1f(m_coronaProgram->getUniform("unStarRadius"), sCmp.radius);
+    // Time
+    static f32 dt = 1.0f;
+    dt += 0.001f;
+    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
+    glUniformMatrix4fv(m_coronaProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
+
+    // Bind VAO
+    glBindVertexArray(m_cVao);
+
+    glDepthMask(GL_FALSE);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    glDepthMask(GL_TRUE);
+
+    glBindVertexArray(0);
+    m_coronaProgram->unuse();
+}
+
+void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
+                                     const f32m4& VP,
+                                     const f32m4& V,
+                                     const f32v3& relCamPos) {
+    m_glowProgram->use();
+
+    // Calculate color
+    f32v3 tColor = calculateStarColor(sCmp);
+
+    // Upload uniforms
+    f32v3 center(-relCamPos);
+    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
+    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
+    glUniform3fv(m_glowProgram->getUniform("unCameraRight"), 1, &camRight[0]);
+    glUniform3fv(m_glowProgram->getUniform("unCameraUp"), 1, &camUp[0]);
+    glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
+    glUniform3fv(m_glowProgram->getUniform("unColor"), 1, &tColor[0]);
+    // Size
+    f32 size = (f32)(sCmp.radius * 32.0);
+    // f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
+    glUniform1f(m_glowProgram->getUniform("unSize"), size);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_glowTexture);
+
+    // Time
+    static f32 dt = 1.0f;
+    dt += 0.0001f;
+    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
+
+    //  glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
+
+    glUniformMatrix4fv(m_glowProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
+    // Bind VAO
+    glBindVertexArray(m_gVao);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+    glBindVertexArray(0);
+    m_glowProgram->unuse();
+}
+
+void StarComponentRenderer::dispose() {
+    disposeShaders();
+    disposeBuffers();
+    if (m_tempColorMap.data) {
+        vg::ImageIO().free(m_tempColorMap);
+        m_tempColorMap.data = nullptr;
+    }
+    if (m_glowTexture) vg::GpuMemory::freeTexture(m_glowTexture);
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -95,117 +201,11 @@ void StarComponentRenderer::disposeBuffers() {
     }
 }
 
-void StarComponentRenderer::drawStar(const StarComponent& sCmp,
-              const f32m4& VP,
-              const f64q& orientation,
-              const f32v3& relCamPos,
-              const f32v3& tColor) {
-    m_starProgram->use();
-
-    // Convert f64q to f32q
-    f32q orientationF32;
-    orientationF32.x = (f32)orientation.x;
-    orientationF32.y = (f32)orientation.y;
-    orientationF32.z = (f32)orientation.z;
-    orientationF32.w = (f32)orientation.w;
-
-    // Convert to matrix
-    f32m4 rotationMatrix = glm::toMat4(orientationF32);
-
-    // Set up matrix
-    f32m4 WVP(1.0);
-    setMatrixTranslation(WVP, -relCamPos);
-    WVP = VP * WVP * glm::scale(f32v3(sCmp.radius)) * rotationMatrix;
-
-    f32v3 rotRelCamPos = relCamPos * orientationF32;
-
-    // Upload uniforms
-    static f32 dt = 1.0f;
-    dt += 0.001f;
-    glUniform1f(unDT, dt);
-    glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
-    glUniform3fv(m_starProgram->getUniform("unColor"), 1, &tColor[0]);
-
-    // Bind VAO
-    glBindVertexArray(m_sVao);
-
-    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
-
-    glBindVertexArray(0);
-    m_starProgram->unuse();
-}
-
-void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
-                                       const f32m4& VP,
-                                       const f32m4& V,
-                                       const f32v3& relCamPos,
-                                       const f32v3& tColor) {
-    m_coronaProgram->use();
-
-    // Upload uniforms
-    f32v3 center(-relCamPos);
-    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
-    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
-    glUniform3fv(m_coronaProgram->getUniform("unCameraRight"), 1, &camRight[0]);
-    glUniform3fv(m_coronaProgram->getUniform("unCameraUp"), 1, &camUp[0]);
-    glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
-    glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
-    // Size
-    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0);
-    glUniform1f(m_coronaProgram->getUniform("unStarRadius"), sCmp.radius);
-    // Time
-    static f32 dt = 1.0f;
-    dt += 0.001f;
-    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
-    glUniformMatrix4fv(m_coronaProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
-
-    // Bind VAO
-    glBindVertexArray(m_cVao);
-
-    glDepthMask(GL_FALSE);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-    glDepthMask(GL_TRUE);
-
-    glBindVertexArray(0);
-    m_coronaProgram->unuse();
-}
-
-void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
-                                     const f32m4& VP,
-                                     const f32m4& V,
-                                     const f32v3& relCamPos,
-                                     const f32v3& tColor) {
-    m_glowProgram->use();
-    // Upload uniforms
-    f32v3 center(-relCamPos);
-    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
-    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
-    glUniform3fv(m_glowProgram->getUniform("unCameraRight"), 1, &camRight[0]);
-    glUniform3fv(m_glowProgram->getUniform("unCameraUp"), 1, &camUp[0]);
-    glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
-    glUniform3fv(m_glowProgram->getUniform("unColor"), 1, &tColor[0]);
-    // Size
-    f32 size = (f32)(sCmp.radius * 32.0);
-    // f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
-    glUniform1f(m_glowProgram->getUniform("unSize"), size);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_glowTexture);
-
-    // Time
-    static f32 dt = 1.0f;
-    dt += 0.0001f;
-    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
-
-  //  glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
-
-    glUniformMatrix4fv(m_glowProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
-    // Bind VAO
-    glBindVertexArray(m_gVao);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-
-    glBindVertexArray(0);
-    m_glowProgram->unuse();
+void StarComponentRenderer::checkLazyLoad() {
+    if (!m_starProgram) buildShaders();
+    if (!m_sVbo) buildMesh();
+    if (m_tempColorMap.width == -1) loadTempColorMap();
+    if (m_glowTexture == 0) loadGlowTexture();
 }
 
 void StarComponentRenderer::buildShaders() {
@@ -305,4 +305,21 @@ void StarComponentRenderer::loadGlowTexture() {
         m_glowTexture = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
         vg::ImageIO().free(rs);
     }
+}
+
+f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
+    // Calculate temperature color
+    f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
+    int index = scale * m_tempColorMap.width;
+    index = glm::clamp(index, 0, (int)m_tempColorMap.width);
+    const ui8v4& bytes = m_tempColorMap.bytesUI8v4[index];
+    f32 tempMod = getTempBrightnessMod(sCmp);
+    // Star color
+    f32v3 sColor(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
+    sColor += tempMod;
+    return sColor;
+}
+
+f32 StarComponentRenderer::getTempBrightnessMod(const StarComponent& sCmp) {
+    return sCmp.temperature * (0.041 / 255.0);
 }

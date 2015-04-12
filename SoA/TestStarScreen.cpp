@@ -45,6 +45,8 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
             m_isDownDown = true;
         } else if (e.keyCode == VKEY_H) {
             m_isHDR = !m_isHDR;
+        } else if (e.keyCode == VKEY_G) {
+            m_isGlow = !m_isGlow;
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
@@ -93,7 +95,6 @@ void TestStarScreen::update(const vui::GameTime& gameTime) {
     } else if (m_isUpDown) {
         m_sCmp.temperature += TMP_INC;
     }
-    printf("Temp: %lf\n", m_sCmp.temperature);
 }
 
 void TestStarScreen::draw(const vui::GameTime& gameTime) {
@@ -116,8 +117,10 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
     m_camera.update();
 
-    m_starRenderer.draw(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(),
-                            f64q(), m_eyePos);
+    // Render the star
+    m_starRenderer.drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), m_eyePos);
+    m_starRenderer.drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), m_eyePos);
+    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), m_eyePos);
 
     if (m_isHDR) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -140,6 +143,11 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
         m_spriteBatch.drawString(&m_spriteFont, "HDR: Enabled", f32v2(30.0f, 65.0f), f32v2(1.0f), color::AliceBlue);
     } else {
         m_spriteBatch.drawString(&m_spriteFont, "HDR: Disabled", f32v2(30.0f, 65.0f), f32v2(1.0f), color::AliceBlue);
+    }
+    if (m_isGlow) {
+        m_spriteBatch.drawString(&m_spriteFont, "Glow: Enabled", f32v2(30.0f, 100.0f), f32v2(1.0f), color::AliceBlue);
+    } else {
+        m_spriteBatch.drawString(&m_spriteFont, "Glow: Disabled", f32v2(30.0f, 100.0f), f32v2(1.0f), color::AliceBlue);
     }
     
     m_spriteBatch.end();

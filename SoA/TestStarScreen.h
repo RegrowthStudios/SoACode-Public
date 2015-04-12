@@ -56,6 +56,7 @@ private:
     Camera m_camera;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
     bool m_isHDR = true;
+    bool m_isGlow = true;
 };
 
 #endif // TestStarScreen_h__

@@ -30,33 +30,30 @@ public:
     StarComponentRenderer();
     ~StarComponentRenderer();
 
-    void draw(const StarComponent& sCmp,
-              const f32m4& VP,
-              const f32m4& V,
-              const f64q& orientation,
-              const f32v3& relCamPos);
-    void disposeShaders();
-private:
-    void disposeBuffers();
     void drawStar(const StarComponent& sCmp,
                   const f32m4& VP,
                   const f64q& orientation,
-                  const f32v3& relCamPos,
-                  const f32v3& tColor);
+                  const f32v3& relCamPos);
     void drawCorona(const StarComponent& sCmp,
                     const f32m4& VP,
                     const f32m4& V,
-                    const f32v3& relCamPos,
-                    const f32v3& tColor);
+                    const f32v3& relCamPos);
     void drawGlow(const StarComponent& sCmp,
                   const f32m4& VP,
                   const f32m4& V,
-                  const f32v3& relCamPos,
-                  const f32v3& tColor);
+                  const f32v3& relCamPos);
+
+    void dispose();
+    void disposeShaders();
+    void disposeBuffers();
+private:
+    void checkLazyLoad();
     void buildShaders();
     void buildMesh();
     void loadTempColorMap();
     void loadGlowTexture();
+    f32v3 calculateStarColor(const StarComponent& sCmp);
+    f32 getTempBrightnessMod(const StarComponent& sCmp);
 
     vg::GLProgram* m_starProgram = nullptr;
     vg::GLProgram* m_coronaProgram = nullptr;
