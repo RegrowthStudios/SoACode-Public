@@ -37,7 +37,7 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     m_starProgram->use();
 
     // Calculate color
-    f32v3 tColor = calculateStarColor(sCmp);
+    f32v3 tColor = calculateStarColor(sCmp) + getTempColorShift(sCmp);
 
     // Convert f64q to f32q
     f32q orientationF32;
@@ -79,8 +79,7 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
     m_coronaProgram->use();
 
     // Corona color
-    f32v3 tColor = f32v3(0.9f);
-    tColor += getTempBrightnessMod(sCmp);
+    f32v3 tColor = f32v3(0.9f) + getTempColorShift(sCmp);
 
     // Upload uniforms
     f32v3 center(-relCamPos);
@@ -91,8 +90,8 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
     // Size
-    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0);
-    glUniform1f(m_coronaProgram->getUniform("unStarRadius"), sCmp.radius);
+    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0f);
+    glUniform1f(m_coronaProgram->getUniform("unStarRadius"), (f32)sCmp.radius);
     // Time
     static f32 dt = 1.0f;
     dt += 0.001f;
@@ -108,6 +107,10 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
 
     glBindVertexArray(0);
     m_coronaProgram->unuse();
+}
+
+f32v3 hdrs(f32v3 v) {
+    return f32v3(1.0f) - glm::exp(v * -3.0f);
 }
 
 void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
@@ -128,24 +131,29 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_glowProgram->getUniform("unColor"), 1, &tColor[0]);
     // Size
-    f32 size = (f32)(sCmp.radius * 32.0);
-    // f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
+    f64 apparentBrightness = sCmp.temperature;
+    f64 ldist = glm::log(glm::length(relCamPos));
+
+    f64 size = 32.0 * sCmp.radius;
+    if (size < 1.0) size = 1.0;
+
     glUniform1f(m_glowProgram->getUniform("unSize"), size);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_glowTexture);
+    glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
 
     // Time
     static f32 dt = 1.0f;
     dt += 0.0001f;
-    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
-
-    //  glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
+   // glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
 
     glUniformMatrix4fv(m_glowProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
     // Bind VAO
     glBindVertexArray(m_gVao);
 
+    glDepthMask(GL_FALSE);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    glDepthMask(GL_TRUE);
 
     glBindVertexArray(0);
     m_glowProgram->unuse();
@@ -250,7 +258,6 @@ void StarComponentRenderer::buildMesh() {
     m_starProgram->enableVertexAttribArrays();
     glVertexAttribPointer(m_starProgram->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
   
-
     // Build corona and glow mesh
     glGenVertexArrays(1, &m_cVao);
     glBindVertexArray(m_cVao);
@@ -299,9 +306,9 @@ void StarComponentRenderer::loadTempColorMap() {
 }
 
 void StarComponentRenderer::loadGlowTexture() {
-    vg::BitmapResource rs = vg::ImageIO().load("Textures/nostalgic_glow.png");
+    vg::BitmapResource rs = vg::ImageIO().load("Textures/star_glow.png");
     if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load StarSystems/nostalgic_glow.png\n");
+        fprintf(stderr, "ERROR: Failed to load StarSystems/star_glow.png\n");
     } else {
         m_glowTexture = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
         vg::ImageIO().free(rs);
@@ -315,6 +322,10 @@ f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     scale = glm::clamp(scale, 0.0f, (f32)m_tempColorMap.width);
     int rScale = (int)(scale + 0.5f);
     int iScale = (int)scale;
+
+    if (rScale >= m_tempColorMap.width) rScale = m_tempColorMap.width - 1;
+
+    return getColor(rScale);
 
     if (iScale < rScale) { // Interpolate down
         if (iScale == 0) {
@@ -330,7 +341,7 @@ f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
         }
     }
     
-    return tColor + getTempBrightnessMod(sCmp);
+    return tColor;
 }
 
 f32v3 StarComponentRenderer::getColor(int index) {
@@ -338,6 +349,9 @@ f32v3 StarComponentRenderer::getColor(int index) {
     return f32v3(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
 }
 
-f32 StarComponentRenderer::getTempBrightnessMod(const StarComponent& sCmp) {
-    return sCmp.temperature * (0.021 / 255.0);
+f32v3 StarComponentRenderer::getTempColorShift(const StarComponent& sCmp) {
+    return f32v3(sCmp.temperature * (0.0534 / 255.0) - (43.0 / 255.0),
+                 sCmp.temperature * (0.0628 / 255.0) - (77.0 / 255.0),
+                 sCmp.temperature * (0.0735 / 255.0) - (115.0 / 255.0));
+
 }

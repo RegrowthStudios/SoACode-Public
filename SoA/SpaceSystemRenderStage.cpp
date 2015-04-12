@@ -147,6 +147,21 @@ void SpaceSystemRenderStage::drawBodies() {
                                          &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
 
+    // Render stars
+    for (auto& it : m_spaceSystem->m_starCT) {
+        auto& sCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(sCmp.namePositionComponent);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+
+        // Render the star
+        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), relCamPos);
+        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), relCamPos);
+        m_starRenderer.drawGlow(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), relCamPos);
+    }
+
     // Render atmospheres
     for (auto& it : m_spaceSystem->m_atmosphereCT) {
         auto& atCmp = it.second;
@@ -165,6 +180,7 @@ void SpaceSystemRenderStage::drawBodies() {
         }
     }
 
+    // Render far terrain
     if (m_farTerrainCamera) {
 
         if (needsDepthClear) {

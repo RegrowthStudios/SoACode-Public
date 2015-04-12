@@ -26,6 +26,9 @@ void HdrRenderStage::reloadShader() {
     if (m_glProgramBlur) {
         vg::ShaderManager::destroyProgram(&m_glProgramBlur);
     }
+    if (m_glProgramDoFBlur) {
+        vg::ShaderManager::destroyProgram(&m_glProgramDoFBlur);
+    }
 }
 
 void HdrRenderStage::dispose() {
@@ -65,7 +68,7 @@ void HdrRenderStage::render() {
     program->enableVertexAttribArrays();
 
     glUniform1i(program->getUniform("unTex"), 0);
-    glUniform1f(program->getUniform("unGamma"), 1.0f / graphicsOptions.gamma);
+    glUniform1f(program->getUniform("unGamma"), graphicsOptions.gamma);
     glUniform1f(program->getUniform("unExposure"), graphicsOptions.hdrExposure);
     if (graphicsOptions.motionBlur > 0) {
         f32m4 newInverseVP = glm::inverse(vp);

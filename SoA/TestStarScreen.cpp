@@ -19,6 +19,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+const f64 STAR_RADIUS = 1693000.0 / 2.0;
+
 i32 TestStarScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -33,12 +35,13 @@ void TestStarScreen::build() {
 void TestStarScreen::destroy(const vui::GameTime& gameTime) {
 
 }
-static float eyePos = 1.5f;
+static f32 eyePos = (f32)STAR_RADIUS;
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
             m_starRenderer.disposeShaders();
+            m_hdr->reloadShader();
         } else if (e.keyCode == VKEY_UP) {
             m_isUpDown = true;
         } else if (e.keyCode == VKEY_DOWN) {
@@ -64,11 +67,11 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     glClearColor(0, 0, 0, 1);
     glClearDepth(1.0);
 
-    m_eyePos = f32v3(0, 0, eyePos);
+    m_eyePos = f32v3(0, 0, STAR_RADIUS + 100.0 + eyePos);
 
     // Set up components
-    m_sCmp.radius = 1.0;
-    m_sCmp.temperature = 5853.0;
+    m_sCmp.radius = STAR_RADIUS;
+    m_sCmp.temperature = 3525.0;
 
     m_spriteBatch.init();
     m_spriteFont.init("Fonts/orbitron_black-webfont.ttf", 32);
@@ -86,7 +89,7 @@ void TestStarScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void TestStarScreen::update(const vui::GameTime& gameTime) {
-    m_eyePos = f32v3(0, 0, eyePos);
+    m_eyePos = f32v3(0, 0, STAR_RADIUS + 100.0 + eyePos);
 
     const float TMP_INC = 25.0;
 
@@ -110,7 +113,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     timer.start();
 
     m_camera.setAspectRatio(width / height);
-    m_camera.setClippingPlane(0.1f, 1000.0f);
+    m_camera.setClippingPlane(eyePos, (f32)(STAR_RADIUS * 100.0));
     m_camera.setFieldOfView(90.0f);
     m_camera.setPosition(f64v3(m_eyePos));
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));

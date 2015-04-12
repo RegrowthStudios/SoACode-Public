@@ -24,6 +24,7 @@
 #include "FarTerrainComponentRenderer.h"
 #include "GasGiantComponentRenderer.h"
 #include "SphericalTerrainComponentRenderer.h"
+#include "StarComponentRenderer.h"
 #include "SystemARRenderer.h"
 
 class App;
@@ -91,6 +92,7 @@ private:
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
     GasGiantComponentRenderer m_gasGiantComponentRenderer;
+    StarComponentRenderer m_starRenderer;
     AtmosphereComponentRenderer m_atmosphereComponentRenderer;
     f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
 };
