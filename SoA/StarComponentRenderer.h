@@ -53,6 +53,7 @@ private:
     void loadTempColorMap();
     void loadGlowTexture();
     f32v3 calculateStarColor(const StarComponent& sCmp);
+    f32v3 getColor(int index);
     f32 getTempBrightnessMod(const StarComponent& sCmp);
 
     vg::GLProgram* m_starProgram = nullptr;

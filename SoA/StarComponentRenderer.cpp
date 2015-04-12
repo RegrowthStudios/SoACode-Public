@@ -14,6 +14,7 @@
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include <Vorb/graphics/SamplerState.h>
+#include <Vorb/utils.h>
 
 #define MIN_TMP 800.0
 #define TMP_RANGE 29200.0
@@ -309,17 +310,34 @@ void StarComponentRenderer::loadGlowTexture() {
 
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     // Calculate temperature color
-    f32 scale = (sCmp.temperature - MIN_TMP) / TMP_RANGE;
-    int index = scale * m_tempColorMap.width;
-    index = glm::clamp(index, 0, (int)m_tempColorMap.width);
+    f32v3 tColor;
+    f32 scale = m_tempColorMap.width * (sCmp.temperature - MIN_TMP) / TMP_RANGE;
+    scale = glm::clamp(scale, 0.0f, (f32)m_tempColorMap.width);
+    int rScale = (int)(scale + 0.5f);
+    int iScale = (int)scale;
+
+    if (iScale < rScale) { // Interpolate down
+        if (iScale == 0) {
+            tColor = getColor(iScale);
+        } else {
+            tColor = lerp(getColor(iScale), getColor(rScale), scale - (f32)iScale);
+        }
+    } else { // Interpolate up
+        if (rScale >= (int)m_tempColorMap.width-1) {
+            tColor = getColor((int)m_tempColorMap.width - 1);
+        } else {
+            tColor = lerp(getColor(rScale), getColor(rScale + 1), scale - (f32)rScale);
+        }
+    }
+    
+    return tColor + getTempBrightnessMod(sCmp);
+}
+
+f32v3 StarComponentRenderer::getColor(int index) {
     const ui8v4& bytes = m_tempColorMap.bytesUI8v4[index];
-    f32 tempMod = getTempBrightnessMod(sCmp);
-    // Star color
-    f32v3 sColor(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
-    sColor += tempMod;
-    return sColor;
+    return f32v3(bytes.r / 255.0f, bytes.g / 255.0f, bytes.b / 255.0f);
 }
 
 f32 StarComponentRenderer::getTempBrightnessMod(const StarComponent& sCmp) {
-    return sCmp.temperature * (0.041 / 255.0);
+    return sCmp.temperature * (0.021 / 255.0);
 }
