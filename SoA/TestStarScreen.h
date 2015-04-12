@@ -17,9 +17,16 @@
 
 #include "StarComponentRenderer.h"
 #include "SpaceSystemComponents.h"
+#include "Camera.h"
 #include <Vorb/Events.hpp>
+#include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/GLRenderTarget.h>
+#include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/ui/IGameScreen.h>
+
+class HdrRenderStage;
 
 class TestStarScreen : public vui::IGameScreen {
 public:
@@ -42,6 +49,13 @@ private:
     bool m_isUpDown = false;
     bool m_isDownDown = false;
     AutoDelegatePool m_hooks;
+    vg::SpriteBatch m_spriteBatch;
+    vg::SpriteFont m_spriteFont;
+    HdrRenderStage* m_hdr = nullptr;
+    vg::FullQuadVBO m_quad;
+    Camera m_camera;
+    vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
+    bool m_isHDR = true;
 };
 
 #endif // TestStarScreen_h__
