@@ -40,8 +40,8 @@ public:
                     const f32v3& relCamPos);
     void drawGlow(const StarComponent& sCmp,
                   const f32m4& VP,
-                  const f32m4& V,
-                  const f32v3& relCamPos);
+                  const f64v3& relCamPos,
+                  float aspectRatio);
 
     void dispose();
     void disposeShaders();

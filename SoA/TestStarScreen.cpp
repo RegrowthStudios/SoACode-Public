@@ -19,8 +19,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-const f64 STAR_RADIUS = 1693000.0 / 2.0;
-
 i32 TestStarScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -35,7 +33,7 @@ void TestStarScreen::build() {
 void TestStarScreen::destroy(const vui::GameTime& gameTime) {
 
 }
-static f32 eyePos = (f32)STAR_RADIUS;
+
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
@@ -60,14 +58,14 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
-        eyePos += -e.dy * 0.025f * glm::length(eyePos);
+        m_eyeDist += -e.dy * 0.025 * glm::length(m_eyeDist);
     });
     glEnable(GL_DEPTH_TEST);
 
     glClearColor(0, 0, 0, 1);
     glClearDepth(1.0);
 
-    m_eyePos = f32v3(0, 0, STAR_RADIUS + 100.0 + eyePos);
+    m_eyePos = f32v3(0, 0, STAR_RADIUS + 100.0 + m_eyeDist);
 
     // Set up components
     m_sCmp.radius = STAR_RADIUS;
@@ -81,6 +79,13 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_quad.init();
     m_hdr = new HdrRenderStage(&m_quad, &m_camera);
+
+    m_camera.setFieldOfView(90.0f);
+    f32 width = _game->getWindow().getWidth();
+    f32 height = _game->getWindow().getHeight();
+    m_camera.setAspectRatio(width / height);
+    m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
+    m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
 }
 
 void TestStarScreen::onExit(const vui::GameTime& gameTime) {
@@ -89,7 +94,7 @@ void TestStarScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void TestStarScreen::update(const vui::GameTime& gameTime) {
-    m_eyePos = f32v3(0, 0, STAR_RADIUS + 100.0 + eyePos);
+    m_eyePos = f32v3(0, 0, STAR_RADIUS + 100.0 + m_eyeDist);
 
     const float TMP_INC = 25.0;
 
@@ -104,26 +109,20 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     if (m_isHDR) m_hdrFrameBuffer->use();
 
-    f32 width = _game->getWindow().getWidth();
-    f32 height = _game->getWindow().getHeight();
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     PreciseTimer timer;
     timer.start();
-
-    m_camera.setAspectRatio(width / height);
-    m_camera.setClippingPlane(eyePos, (f32)(STAR_RADIUS * 100.0));
-    m_camera.setFieldOfView(90.0f);
-    m_camera.setPosition(f64v3(m_eyePos));
-    m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
-    m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
+ 
+    m_camera.setClippingPlane((f32)(m_eyeDist / 2.0), (f32)(m_eyeDist + STAR_RADIUS * 10.0));
+    m_camera.setPosition(f64v3(m_eyePos)); 
     m_camera.update();
 
     // Render the star
-    m_starRenderer.drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), m_eyePos);
-    m_starRenderer.drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), m_eyePos);
-    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), m_eyePos);
+    f32v3 fEyePos(m_eyePos);
+    m_starRenderer.drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
+    m_starRenderer.drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
+    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos, m_camera.getAspectRatio());
 
     if (m_isHDR) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -152,9 +151,17 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     } else {
         m_spriteBatch.drawString(&m_spriteFont, "Glow: Disabled", f32v2(30.0f, 100.0f), f32v2(1.0f), color::AliceBlue);
     }
+    sprintf(buf, "Distance (KM): %.1lf", m_eyeDist + 100.0);
+    m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
+    sprintf(buf, "Distance (AU): %.1lf", (m_eyeDist + 100.0) * 0.00000000668458712);
+    m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
     
     m_spriteBatch.end();
+
+    f32 width = _game->getWindow().getWidth();
+    f32 height = _game->getWindow().getHeight();
     m_spriteBatch.renderBatch(f32v2(width, height));
+
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
 }

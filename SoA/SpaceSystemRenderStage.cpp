@@ -154,12 +154,13 @@ void SpaceSystemRenderStage::drawBodies() {
 
         pos = getBodyPosition(npCmp, it.first);
 
-        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+        f64v3 relCamPos = m_spaceCamera->getPosition() - *pos;
+        f32v3 fRelCamPos(relCamPos);
 
         // Render the star
-        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), relCamPos);
-        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), relCamPos);
-        m_starRenderer.drawGlow(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), relCamPos);
+        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos);
+        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos);
+        m_starRenderer.drawGlow(sCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, m_spaceCamera->getAspectRatio());
     }
 
     // Render atmospheres

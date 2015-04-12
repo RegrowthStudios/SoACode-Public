@@ -43,8 +43,11 @@ public:
     virtual void draw(const vui::GameTime& gameTime) override;
 
 private:
+    const f64 STAR_RADIUS = 1693000.0 / 2.0;
+
     StarComponentRenderer m_starRenderer;
-    f32v3 m_eyePos;
+    f64v3 m_eyePos;
+    f64 m_eyeDist = STAR_RADIUS;
     StarComponent m_sCmp;
     bool m_isUpDown = false;
     bool m_isDownDown = false;

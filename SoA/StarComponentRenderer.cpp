@@ -115,8 +115,23 @@ f32v3 hdrs(f32v3 v) {
 
 void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
                                      const f32m4& VP,
-                                     const f32m4& V,
-                                     const f32v3& relCamPos) {
+                                     const f64v3& relCamPos,
+                                     float aspectRatio) {
+    
+    // Size
+    f64 apparentBrightness = sCmp.temperature;
+    // Ratio of distance to star radius
+    f64 d = (glm::length(relCamPos)) * 0.0000000001;
+
+    // Compute desired size based on distance, scaled 0-2ish
+    // Plug into https://www.wolframalpha.com/ to see curve
+    f64 s = 2.0 - 1.0 / (1.0 + pow(10.0, 8.0 - d)) - pow(d, 1.4) * 0.05;
+
+    if (s <= 0.0) return;
+
+    f32v2 dims(s, s * aspectRatio);
+    // Don't render if its too small
+   
     m_glowProgram->use();
 
     // Calculate color
@@ -124,20 +139,9 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
 
     // Upload uniforms
     f32v3 center(-relCamPos);
-    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
-    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
-    glUniform3fv(m_glowProgram->getUniform("unCameraRight"), 1, &camRight[0]);
-    glUniform3fv(m_glowProgram->getUniform("unCameraUp"), 1, &camUp[0]);
     glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_glowProgram->getUniform("unColor"), 1, &tColor[0]);
-    // Size
-    f64 apparentBrightness = sCmp.temperature;
-    f64 ldist = glm::log(glm::length(relCamPos));
-
-    f64 size = 32.0 * sCmp.radius;
-    if (size < 1.0) size = 1.0;
-
-    glUniform1f(m_glowProgram->getUniform("unSize"), size);
+    glUniform2fv(m_glowProgram->getUniform("unDims"), 1, &dims[0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_glowTexture);
     glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
@@ -147,7 +151,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     dt += 0.0001f;
    // glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
 
-    glUniformMatrix4fv(m_glowProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
+    glUniformMatrix4fv(m_glowProgram->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     // Bind VAO
     glBindVertexArray(m_gVao);
 
@@ -324,8 +328,6 @@ f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     int iScale = (int)scale;
 
     if (rScale >= m_tempColorMap.width) rScale = m_tempColorMap.width - 1;
-
-    return getColor(rScale);
 
     if (iScale < rScale) { // Interpolate down
         if (iScale == 0) {
