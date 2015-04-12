@@ -48,6 +48,7 @@ const i32 OBJECT_LIST_SIZE = 24096;
 #define M_PI_2 1.5707963267948966192313216916398   /* pi / 2 */
 #endif
 #define M_G 0.0000000000667384
+#define M_SOL 1989100000000000000000000000000.0
 
 /*** Helpful conversion factors ***/
 const f64 KM_PER_M = 0.001;

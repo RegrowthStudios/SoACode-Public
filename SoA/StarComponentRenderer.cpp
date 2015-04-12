@@ -125,11 +125,8 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     // Ratio of distance to star radius
     f64 d = (glm::length(relCamPos)) * 0.0000000001;
 
-    // Compute desired size based on distance, scaled 0-2ish
-    // Plug into https://www.wolframalpha.com/ to see curve
-    f64 s = 2.0 - 1.0 / (1.0 + pow(10.0, 8.0 - d)) - pow(d, 1.4) * 0.05;
-
-    //raySize = whateverValueLooksGoodAt1AUfortheSun * d ^ (-1 / 2) *[m(star) / m(sun)]
+    // Compute desired size based on distance and ratio of mass to Sol mass
+    f64 s = 0.1 * pow(d, -0.5) * sCmp.mass / M_SOL - 0.03;
 
     if (s <= 0.0) return;
 

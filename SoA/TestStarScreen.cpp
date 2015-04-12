@@ -69,7 +69,8 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Set up components
     m_sCmp.radius = STAR_RADIUS;
-    m_sCmp.temperature = 3525.0;
+    m_sCmp.temperature = 5813.0;
+    m_sCmp.mass = 2.1872e30;
 
     m_spriteBatch.init();
     m_spriteFont.init("Fonts/orbitron_black-webfont.ttf", 32);
