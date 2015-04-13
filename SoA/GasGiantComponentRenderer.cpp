@@ -68,8 +68,8 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     f32v3 rotRelCamPos = relCamPos * orientationF32;
 
     // Upload uniforms
-    static float dt = 1.0f;
-    dt += 0.001f;
+    static float dt = 0.0f;
+    dt += 0.00006f;
     glUniform1f(unDT, dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     // Scattering uniforms
@@ -146,8 +146,7 @@ void GasGiantComponentRenderer::buildMesh() {
     std::vector<GasGiantVertex> vertices(positions.size());
     for (int i = 0; i < positions.size(); i++) {
         vertices[i].position = positions[i];
-        vertices[i].uv.x = 0.5f;
-        vertices[i].uv.y = (positions[i].y + 1.0f) / 2.0f;
+        vertices[i].texCoord = (positions[i].y + 1.0f) / 2.0f;
     }
 
     glGenVertexArrays(1, &m_vao);
@@ -166,7 +165,7 @@ void GasGiantComponentRenderer::buildMesh() {
 
     m_program->enableVertexAttribArrays();
     glVertexAttribPointer(m_program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, position));
-    glVertexAttribPointer(m_program->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, uv));
+    glVertexAttribPointer(m_program->getAttribute("vTexCoord"), 1, GL_FLOAT, GL_FALSE, sizeof(GasGiantVertex), offsetptr(GasGiantVertex, texCoord));
 
     glBindVertexArray(0);
 }

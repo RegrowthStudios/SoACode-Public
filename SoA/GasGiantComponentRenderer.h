@@ -28,7 +28,7 @@ struct AtmosphereComponent;
 
 struct GasGiantVertex {
     f32v3 position;
-    f32v2 uv;
+    f32 texCoord;
 };
 
 class GasGiantComponentRenderer {
