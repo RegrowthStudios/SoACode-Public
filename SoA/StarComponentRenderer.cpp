@@ -126,7 +126,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     f64 d = (glm::length(relCamPos)) * 0.0000000001;
 
     // Compute desired size based on distance and ratio of mass to Sol mass
-    f64 s = 0.1 * pow(d, -0.5) * sCmp.mass / M_SOL - 0.03;
+    f64 s = 0.16 * pow(d, -0.5) * sCmp.mass / M_SOL - 0.03;
 
     if (s <= 0.0) return;
 
@@ -159,9 +159,11 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     // Bind VAO
     glBindVertexArray(m_gVao);
 
+    glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
     glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
 
     glBindVertexArray(0);
     m_glowProgram->unuse();

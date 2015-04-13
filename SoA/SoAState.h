@@ -51,7 +51,7 @@ public:
     bool isNewGame = true;
     f64v3 startSpacePos = f64v3(0.0f);
     int startFace = 0;
-    f64 time = 0.0;
+    f64 time = 15000.0;
     bool isInputEnabled = true;
     float timeStep = 0.016f;
 };
