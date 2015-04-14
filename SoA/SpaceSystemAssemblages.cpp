@@ -56,8 +56,8 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     }
 
     SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
-                                              sysProps->t, sysProps->o, sysProps->p,
-                                              sysProps->i, sysProps->trueAnomaly,
+                                              sysProps->t, sysProps->n, sysProps->p,
+                                              sysProps->i, sysProps->a,
                                               sysProps->pathColor);
 
     return id;
@@ -87,8 +87,8 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
-                                                     sysProps->t, sysProps->o, sysProps->p,
-                                                     sysProps->i, sysProps->trueAnomaly,
+                                                     sysProps->t, sysProps->n, sysProps->p,
+                                                     sysProps->i, sysProps->a,
                                                      sysProps->pathColor);
 
     return id;
@@ -128,8 +128,8 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     }
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
-                                                     sysProps->t, sysProps->o, sysProps->p,
-                                                     sysProps->i, sysProps->trueAnomaly,
+                                                     sysProps->t, sysProps->n, sysProps->p,
+                                                     sysProps->i, sysProps->a,
                                                      sysProps->pathColor);
 
     return id;

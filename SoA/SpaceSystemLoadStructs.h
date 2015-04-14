@@ -28,12 +28,33 @@ enum class BodyType {
 };
 KEG_TYPE_DECL(BodyType);
 
+enum class ObjectType {
+    NONE,
+    BARYCENTER,
+    STAR,
+    PLANET,
+    DWARF_PLANET,
+    MOON,
+    DWARF_MOON,
+    ASTEROID,
+    COMET
+};
+KEG_TYPE_DECL(ObjectType);
+
+enum class TrojanType {
+    NONE,
+    L4,
+    L5
+};
+KEG_TYPE_DECL(TrojanType);
+
 struct SystemBody {
     nString name = "";
     nString parentName = "";
     SystemBody* parent = nullptr;
     vecs::EntityID entity = 0;
     BodyType type = BodyType::NONE;
+    std::vector<nString> comps; ///< Child components for barycenters
 };
 
 struct AtmosphereKegProperties {
@@ -46,15 +67,23 @@ struct AtmosphereKegProperties {
 KEG_TYPE_DECL(AtmosphereKegProperties);
 
 struct SystemBodyKegProperties {
-    nString parent = "";
-    nString path = "";
+    ObjectType type = ObjectType::NONE;
+    TrojanType trojan = TrojanType::NONE;
+    Array<const char*> comps;
+    nString par = ""; ///< Parent name
+    nString path = ""; ///< Path to properties
+    nString ref = ""; ///< Orbital period reference body
     f64 e = 0.0; ///< Shape of orbit, 0-1
     f64 t = 0.0; ///< Period of a full orbit in sec
-    f64 trueAnomaly = 0.0; ///< Start true anomaly in deg
-    f64 o = 0.0; ///< Longitude of the ascending node in deg
+    f64 a = 0.0; ///< Start true anomaly in deg
+    f64 n = 0.0; ///< Longitude of the ascending node in deg
     f64 p = 0.0; ///< Longitude of the periapsis in deg
     f64 i = 0.0; ///< Inclination in deg
-    ui8v4 pathColor = ui8v4(255); ///< Color of rendered path
+    f64 RA = 0.0; ///< Right ascension relative to sol
+    f64 dec = 0.0; ///< Declination relative to sol
+    f64 dist = 0.0; ///< Distance from sol
+    f64 td = 1.0; ///< Reference body period divisor
+    f64 tf = 1.0; ///< Reference body period factor
 };
 KEG_TYPE_DECL(SystemBodyKegProperties);
 
@@ -83,16 +112,6 @@ struct StarKegProperties {
     nString displayName = "";
 };
 KEG_TYPE_DECL(StarKegProperties);
-
-struct Binary {
-
-    bool containsBody(const SystemBody* body); //TODO: no
-
-    nString name;
-    Array<const char*> bodies; ///< Temporary due to bug
-    f64 mass = 0.0;
-};
-KEG_TYPE_DECL(Binary);
 
 struct GasGiantKegProperties {
     f64 diameter = 0.0;

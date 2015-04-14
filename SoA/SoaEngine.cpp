@@ -29,7 +29,7 @@ struct SpaceSystemLoadParams {
     PlanetLoader* planetLoader = nullptr;
     vcore::RPCManager* glrpc = nullptr;
 
-    std::map<nString, Binary*> binaries; ///< Contains all binary systems
+    std::map<nString, SystemBody*> barycenters; ///< Contains all barycenter objects
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
     std::map<nString, vecs::EntityID> bodyLookupMap;
 };
@@ -157,14 +157,14 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
     loadSystemProperties(pr);
 
     // Set up binary masses
-    for (auto& it : pr.binaries) {
+    for (auto& it : pr.barycenters) {
         f64 mass = 0.0;
-        Binary* bin = it.second;
+        SystemBodyKegProperties* bary = it.second;
 
         // Loop through all children
-        for (int i = 0; i < bin->bodies.size(); i++) {
+        for (int i = 0; i < bary->comps.size(); i++) {
             // Find the body
-            auto& body = pr.systemBodies.find(std::string(bin->bodies[i]));
+            auto& body = pr.systemBodies.find(std::string(bary->bodies[i]));
             if (body != pr.systemBodies.end()) {
                 // Get the mass
                 mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->second->entity).mass;
@@ -192,8 +192,8 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
                 calculateOrbit(pr.spaceSystem, body->entity,
                                pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass, false);
             } else {
-                auto& b = pr.binaries.find(parent);
-                if (b != pr.binaries.end()) {
+                auto& b = pr.barycenters.find(parent);
+                if (b != pr.barycenters.end()) {
                     f64 mass = b->second->mass;
                     // If this body is part of the system, subtract it's mass
                     if (b->second->containsBody(it.second)) {
@@ -229,20 +229,8 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
         // Parse based on the name
         if (name == "description") {
             pr.spaceSystem->systemDescription = name;
-        } else if (name == "Binary") {
-            // Binary systems
-            Binary* newBinary = new Binary;
-            keg::Error err = keg::parse((ui8*)newBinary, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
-            if (err != keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
-                goodParse = false;
-            }
-
-            pr.binaries[newBinary->name] = newBinary;
         } else {
-            // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
-            properties.pathColor = ui8v4(rand() % 255, rand() % 255, rand() % 255, 255);
             keg::Error err = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
@@ -256,8 +244,18 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
             // Allocate the body
             SystemBody* body = new SystemBody;
             body->name = name;
-            body->parentName = properties.parent;
-            loadBodyProperties(pr, properties.path, &properties, body);
+            body->parentName = properties.par;
+            if (properties.path.size()) {
+                loadBodyProperties(pr, properties.path, &properties, body);
+            }
+            if (properties.type == ObjectType::BARYCENTER) {
+                     pr.barycenters[name] = body;
+            }
+            // Copy over component strings
+            for (int i = 0; i < properties.comps.size(); i++) {
+                body->comps.push_back(nString(properties.comps[i]));
+                delete[] properties.comps[i];
+            }
             pr.systemBodies[name] = body;
         }
     });
