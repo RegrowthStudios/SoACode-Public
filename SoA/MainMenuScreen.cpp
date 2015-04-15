@@ -100,10 +100,36 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
-        if (e.keyCode == VKEY_ESCAPE) {
-            SoaEngine::destroyAll(m_soaState);
-            exit(0);
+        switch (e.keyCode) {
+            case VKEY_ESCAPE:
+                SoaEngine::destroyAll(m_soaState);
+                exit(0);
+            case VKEY_LEFT:
+                m_isLeftPressed = true;
+                break;
+            case VKEY_RIGHT:
+                m_isRightPressed = true;
+                break;
+            case VKEY_U:
+                m_renderPipeline.toggleUI();
+                break;
+            case VKEY_LCTRL:
+                m_isCtrlPressed = true;
+                break;
         }
+    });
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
+        switch (e.keyCode) {
+            case VKEY_LEFT:
+                m_isLeftPressed = false;
+                break;
+            case VKEY_RIGHT:
+                m_isRightPressed = false;
+                break;
+            case VKEY_LCTRL:
+                m_isCtrlPressed = false;
+                break;
+        }   
     });
 
     m_inputManager->startInput();
@@ -134,6 +160,12 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     // Check for UI reload
     if (m_shouldReloadUI) {
         reloadUI();
+    }
+
+    { // Handle time warp
+        const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_isCtrlPressed * 10000.0;
+        if (m_isLeftPressed) m_soaState->time -= TIME_WARP_SPEED;
+        if (m_isRightPressed) m_soaState->time += TIME_WARP_SPEED;
     }
 
     m_awesomiumInterface.update();

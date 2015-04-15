@@ -389,6 +389,8 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
     SpaceSystem* spaceSystem = pr.spaceSystem;
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
 
+    orbitC.startTrueAnomaly = body->properties.a;
+
     if (!body->properties.ref.empty()) {
         auto it = pr.systemBodies.find(body->properties.ref);
         if (it != pr.systemBodies.end()) {
@@ -397,10 +399,6 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
         } else {
             fprintf(stderr, "Failed to find ref body %s\n", body->properties.ref.c_str());
         }
-    }
-
-    if (body->name == "Hyperion") {
-        std::cout << "LOL";
     }
 
     f64 per = orbitC.t;

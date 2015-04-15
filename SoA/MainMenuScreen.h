@@ -125,6 +125,9 @@ private:
     AutoDelegatePool m_hooks;
 
     bool m_shouldReloadUI = false;
+    bool m_isLeftPressed = false;
+    bool m_isRightPressed = false;
+    bool m_isCtrlPressed = false;
 };
 
 #endif // MAINMENUSCREEN_H_
