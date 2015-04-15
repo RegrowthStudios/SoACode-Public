@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Component table for SphericalVoxelComponent
+/// File for component tables that need custom deletion
 ///
 
 #pragma once
@@ -23,6 +23,14 @@ public:
     virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override;
 };
 
+class SphericalTerrainComponentTable : public vecs::ComponentTable < SphericalTerrainComponent > {
+public:
+    virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override;
+};
 
+class OrbitComponentTable : public vecs::ComponentTable < OrbitComponent > {
+public:
+    virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override;
+};
 
 #endif // SpaceSystemComponentTables_h__

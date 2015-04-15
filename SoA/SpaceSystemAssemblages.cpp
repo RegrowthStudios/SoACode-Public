@@ -310,11 +310,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
 void SpaceSystemAssemblages::removeSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
     auto& stcmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(entity);
 
-    delete stcmp.meshManager;
-    delete stcmp.gpuGenerator;
-    delete stcmp.cpuGenerator;
-    delete stcmp.rpcDispatcher;
-    delete stcmp.sphericalTerrainData;
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
 }
 
@@ -356,10 +351,10 @@ vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(SpaceSystem* spac
     ggCmp.colorMap = colorMap;
     return ggCmpId;
 }
+
 void SpaceSystemAssemblages::removeGasGiantComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_GASGIANT_NAME, entity);
 }
-
 
 vecs::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                   SphericalTerrainComponent& parentCmp,

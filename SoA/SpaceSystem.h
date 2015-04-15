@@ -62,9 +62,9 @@ public:
 
     vecs::ComponentTable<NamePositionComponent> m_namePositionCT;
     vecs::ComponentTable<AxisRotationComponent> m_axisRotationCT;
-    vecs::ComponentTable<OrbitComponent> m_orbitCT;
+    OrbitComponentTable m_orbitCT;
     vecs::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
-    vecs::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    SphericalTerrainComponentTable m_sphericalTerrainCT;
     vecs::ComponentTable<GasGiantComponent> m_gasGiantCT;
     vecs::ComponentTable<StarComponent> m_starCT;
     vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;

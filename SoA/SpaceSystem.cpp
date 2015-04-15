@@ -33,4 +33,13 @@ SpaceSystem::~SpaceSystem() {
     if (normalMapGenProgram) {
         normalMapGenProgram->dispose();
     }
+    for (auto& it : m_sphericalVoxelCT) {
+        m_sphericalVoxelCT.disposeComponent(m_sphericalVoxelCT.getComponentID(it.first), it.first);
+    }
+    for (auto& it : m_orbitCT) {
+        m_orbitCT.disposeComponent(m_orbitCT.getComponentID(it.first), it.first);
+    }
+    for (auto& it : m_sphericalTerrainCT) {
+        m_sphericalTerrainCT.disposeComponent(m_sphericalTerrainCT.getComponentID(it.first), it.first);
+    }
 }
