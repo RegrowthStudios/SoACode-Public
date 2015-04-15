@@ -25,6 +25,45 @@
 
 #define SEC_PER_DAY 86400.0
 
+ui8v4 getOrbitPathColor(const SystemBodyKegProperties* props) {
+    switch (props->type) {
+        case ObjectType::BARYCENTER:
+            return ui8v4(255, 0, 0, 0);
+        case ObjectType::STAR:
+            return ui8v4(255, 255, 0, 128);
+        case ObjectType::PLANET:
+            return ui8v4(0, 255, 0, 128);
+        case ObjectType::DWARF_PLANET:
+            return ui8v4(0, 128, 0, 64);
+        case ObjectType::MOON:
+            return ui8v4(96, 128, 255, 128);
+        case ObjectType::DWARF_MOON:
+            return ui8v4(48, 64, 128, 64);
+        case ObjectType::ASTEROID:
+            return ui8v4(128, 128, 128, 128);
+        case ObjectType::COMET:
+            return ui8v4(255, 255, 255, 128);
+        default:
+            return ui8v4(80, 80, 80, 128);
+    }
+}
+
+vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
+                           const SystemBodyKegProperties* sysProps,
+                           SystemBody* body) {
+    body->entity = spaceSystem->addEntity();
+    const vecs::EntityID& id = body->entity;
+
+    f64v3 tmpPos(0.0);
+    vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
+
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+                                              sysProps->t, sysProps->n, sysProps->p,
+                                              sysProps->i, sysProps->a,
+                                              getOrbitPathColor(sysProps));
+    return id;
+}
+
 vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                     const SystemBodyKegProperties* sysProps,
                                     const PlanetKegProperties* properties,
@@ -58,7 +97,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                               sysProps->t, sysProps->n, sysProps->p,
                                               sysProps->i, sysProps->a,
-                                              sysProps->pathColor);
+                                              getOrbitPathColor(sysProps));
 
     return id;
 }
@@ -89,7 +128,7 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
                                                      sysProps->i, sysProps->a,
-                                                     sysProps->pathColor);
+                                                     getOrbitPathColor(sysProps));
 
     return id;
 }
@@ -130,7 +169,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
                                                      sysProps->i, sysProps->a,
-                                                     sysProps->pathColor);
+                                                     getOrbitPathColor(sysProps));
 
     return id;
 }

@@ -8,7 +8,7 @@ KEG_ENUM_DEF(BodyType, BodyType, kt) {
 }
 
 KEG_ENUM_DEF(ObjectType, ObjectType, kt) {
-    kt.addValue("BaryCenter", ObjectType::BARYCENTER);
+    kt.addValue("Barycenter", ObjectType::BARYCENTER);
     kt.addValue("Star", ObjectType::STAR);
     kt.addValue("Planet", ObjectType::PLANET);
     kt.addValue("DwarfPlanet", ObjectType::DWARF_PLANET);
@@ -24,8 +24,8 @@ KEG_ENUM_DEF(TrojanType, TrojanType, kt) {
 }
 
 KEG_TYPE_DEF_SAME_NAME(SystemBodyKegProperties, kt) {
-    kt.addValue("type", keg::Value::custom(offsetof(SystemBodyKegProperties, type), "ObjectType", false));
-    kt.addValue("trojan", keg::Value::custom(offsetof(SystemBodyKegProperties, trojan), "TrojanType", false));
+    kt.addValue("type", keg::Value::custom(offsetof(SystemBodyKegProperties, type), "ObjectType", true));
+    kt.addValue("trojan", keg::Value::custom(offsetof(SystemBodyKegProperties, trojan), "TrojanType", true));
     kt.addValue("bodies", keg::Value::array(offsetof(SystemBodyKegProperties, comps), keg::BasicType::C_STRING));
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, par, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, path, STRING);

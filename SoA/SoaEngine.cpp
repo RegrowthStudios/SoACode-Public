@@ -159,12 +159,12 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
     // Set up binary masses
     for (auto& it : pr.barycenters) {
         f64 mass = 0.0;
-        SystemBodyKegProperties* bary = it.second;
+        SystemBody* bary = it.second;
 
         // Loop through all children
-        for (int i = 0; i < bary->comps.size(); i++) {
+        for (int i = 0; i < bary->properties.comps.size(); i++) {
             // Find the body
-            auto& body = pr.systemBodies.find(std::string(bary->bodies[i]));
+            auto& body = pr.systemBodies.find(std::string(bary->properties.comps[i]));
             if (body != pr.systemBodies.end()) {
                 // Get the mass
                 mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->second->entity).mass;
@@ -187,22 +187,28 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
                 pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
                     pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
 
-
-                // Calculate the orbit using parent mass
-                calculateOrbit(pr.spaceSystem, body->entity,
-                               pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass, false);
-            } else {
                 auto& b = pr.barycenters.find(parent);
                 if (b != pr.barycenters.end()) {
-                    f64 mass = b->second->mass;
-                    // If this body is part of the system, subtract it's mass
-                    if (b->second->containsBody(it.second)) {
+                    SystemBody* baryBody = b->second;
+                    // Determine if we are component of parent barycenter
+                    bool isComponent = false;
+                    for (int i = 0; i < baryBody->properties.comps.size(); i++) {
+                        if (baryBody->properties.comps[i] == body->name) {
+                            isComponent = true; break;
+                        }
+                    }
+                    if (isComponent) {
                         // Calculate the orbit using parent mass
-                        calculateOrbit(pr.spaceSystem, body->entity, mass, true);
+                        calculateOrbit(pr, body->entity, baryBody->mass, body, true);
                     } else {
                         // Calculate the orbit using parent mass
-                        calculateOrbit(pr.spaceSystem, body->entity, mass, false);
+                        calculateOrbit(pr, body->entity, baryBody->mass, body, false);
                     }
+                } else {
+                    // Calculate the orbit using parent mass
+                    calculateOrbit(pr, body->entity,
+                                   pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
+                                   body, false);
                 }
             }
         }
@@ -237,24 +243,18 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
                 goodParse = false;
             }
 
-            if (properties.path.empty()) {
-                fprintf(stderr, "Missing path: for node %s in %s\n", name.c_str(), pr.dirPath.c_str());
-                goodParse = false;
-            }
             // Allocate the body
             SystemBody* body = new SystemBody;
             body->name = name;
             body->parentName = properties.par;
+            body->properties = properties;
             if (properties.path.size()) {
                 loadBodyProperties(pr, properties.path, &properties, body);
+            } else {
+                SpaceSystemAssemblages::createOrbit(pr.spaceSystem, &properties, body);
             }
             if (properties.type == ObjectType::BARYCENTER) {
-                     pr.barycenters[name] = body;
-            }
-            // Copy over component strings
-            for (int i = 0; i < properties.comps.size(); i++) {
-                body->comps.push_back(nString(properties.comps[i]));
-                delete[] properties.comps[i];
+                pr.barycenters[name] = body;
             }
             pr.systemBodies[name] = body;
         }
@@ -262,7 +262,6 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     reader.forAllInMap(node, f);
     delete f;
     reader.dispose();
-
     return goodParse;
 }
 
@@ -313,16 +312,19 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             }
 
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
+            body->type = BodyType::PLANET;
         } else if (type == "star") {
             StarKegProperties properties;
             error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
             KEG_CHECK;
             SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
+            body->type = BodyType::STAR;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
             error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             KEG_CHECK;
             createGasGiant(pr, sysProps, &properties, body);
+            body->type = BodyType::GAS_GIANT;
         }
 
         pr.bodyLookupMap[body->name] = body->entity;
@@ -371,6 +373,7 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
                                                         b.width, b.height,
                                                         &vg::SamplerState::LINEAR_CLAMP);
                 vg::ImageIO().free(b);
+                
             } else {
                 fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
                 return;
@@ -380,8 +383,24 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
     SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, properties, body, colorMap);
 }
 
-void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary) {
+void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
+                               const SystemBody* body, bool isBinary) {
+    SpaceSystem* spaceSystem = pr.spaceSystem;
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
+
+    if (!body->properties.ref.empty()) {
+        auto it = pr.systemBodies.find(body->properties.ref);
+        if (it != pr.systemBodies.end()) {
+            SystemBody* ref = it->second;
+            orbitC.t = ref->properties.t * body->properties.tf / body->properties.td;
+        } else {
+            fprintf(stderr, "Failed to find ref body %s\n", body->properties.ref.c_str());
+        }
+    }
+
+    if (body->name == "Hyperion") {
+        std::cout << "LOL";
+    }
 
     f64 per = orbitC.t;
     f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;

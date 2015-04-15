@@ -22,7 +22,7 @@ void OrbitComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
 void OrbitComponentUpdater::calculatePosition(OrbitComponent& cmp, f64 time, NamePositionComponent* npComponent,
                                               OrbitComponent* parentOrbComponent /* = nullptr */,
                                               NamePositionComponent* parentNpComponent /* = nullptr */) {
-
+    if (cmp.a == 0.0) return;
     /// Calculates position as a function of time
     /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
     // 1. Calculate the mean anomaly

@@ -48,15 +48,6 @@ enum class TrojanType {
 };
 KEG_TYPE_DECL(TrojanType);
 
-struct SystemBody {
-    nString name = "";
-    nString parentName = "";
-    SystemBody* parent = nullptr;
-    vecs::EntityID entity = 0;
-    BodyType type = BodyType::NONE;
-    std::vector<nString> comps; ///< Child components for barycenters
-};
-
 struct AtmosphereKegProperties {
     f32 kr = 0.0025f;
     f32 km = 0.0020f;
@@ -86,6 +77,16 @@ struct SystemBodyKegProperties {
     f64 tf = 1.0; ///< Reference body period factor
 };
 KEG_TYPE_DECL(SystemBodyKegProperties);
+
+struct SystemBody {
+    nString name = "";
+    nString parentName = "";
+    SystemBody* parent = nullptr;
+    vecs::EntityID entity = 0;
+    BodyType type = BodyType::NONE;
+    SystemBodyKegProperties properties;
+    f64 mass = 0.0;
+};
 
 struct PlanetKegProperties {
     f64 diameter = 0.0;

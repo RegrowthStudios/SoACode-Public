@@ -95,7 +95,8 @@ private:
                                const GasGiantKegProperties* properties,
                                SystemBody* body);
 
-    static void calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary);
+    static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
+                               const SystemBody* body, bool isBinary);
 
 };
 

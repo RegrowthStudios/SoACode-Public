@@ -180,6 +180,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Free memory
     std::map<ui32, BiomeLookupTexture>().swap(m_biomeLookupMap);
     std::vector<ui8>().swap(m_baseBiomeLookupTextureData);
+    m_biomeCount = 0;
 }
 
 void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {

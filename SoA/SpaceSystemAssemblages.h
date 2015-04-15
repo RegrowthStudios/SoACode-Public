@@ -42,6 +42,11 @@ namespace SpaceSystemAssemblages {
     /* Entity Factories                                                     */
     /************************************************************************/
    
+    // Plain orbit entity
+    extern vecs::EntityID createOrbit(SpaceSystem* spaceSystem,
+                                       const SystemBodyKegProperties* sysProps,
+                                       SystemBody* body);
+
     /// Planet entity
     extern vecs::EntityID createPlanet(SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
