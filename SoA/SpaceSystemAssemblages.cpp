@@ -123,6 +123,8 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
     f64 radius = properties->diameter / 2.0;
     addStarComponent(spaceSystem, id, npCmp, arCmp, properties->mass, radius, properties->surfaceTemperature);
 
+    addSpaceLightComponent(spaceSystem, id, npCmp, color3(255, 255, 255), 1.0f);
+
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
@@ -442,7 +444,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSpaceLightComponent(SpaceSystem* sp
     auto& slCmp = spaceSystem->m_spaceLightCT.get(slCmpId);
     slCmp.color = color;
     slCmp.intensity = intensity;
-    slCmp.parentNpId = npCmp;
+    slCmp.npID = npCmp;
     return slCmpId;
 }
 

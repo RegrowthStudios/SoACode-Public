@@ -218,15 +218,14 @@ void SpaceSystemRenderStage::drawBodies() {
 
 SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(NamePositionComponent& npCmp, OUT f64v3& pos) {
     SpaceLightComponent* rv = nullptr;
-    f64 closestDist = 9999999999999999.0;
+    f64 closestDist = 999999999999999999999999999999999999999999999.0;
     for (auto& it : m_spaceSystem->m_spaceLightCT) {
-        auto& lightNpCmp = m_spaceSystem->m_namePositionCT.get(it.second.parentNpId);
-        pos = lightNpCmp.position;
-        // TODO(Ben): Optimize out sqrt
-        f64 dist = glm::length(lightNpCmp.position - npCmp.position);
+        auto& lightNpCmp = m_spaceSystem->m_namePositionCT.get(it.second.npID);    
+        f64 dist = selfDot(lightNpCmp.position - npCmp.position);
         if (dist < closestDist) {
             closestDist = dist;
             rv = &it.second;
+            pos = lightNpCmp.position;
         }
     }
     return rv;

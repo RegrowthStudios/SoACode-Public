@@ -81,7 +81,7 @@ struct NamePositionComponent {
 };
 
 struct SpaceLightComponent {
-    vecs::ComponentID parentNpId; ///< Component ID of parent NamePosition component
+    vecs::ComponentID npID; ///< Component ID of parent NamePosition component
     color3 color; ///< Color of the light
     f32 intensity; ///< Intensity of the light
 };
