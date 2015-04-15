@@ -94,6 +94,18 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     // Run the update thread for updating the planet
     m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_U) {
+            m_renderPipeline.toggleUI();
+        }
+    });
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_ESCAPE) {
+            SoaEngine::destroyAll(m_soaState);
+            exit(0);
+        }
+    });
+
     m_inputManager->startInput();
 }
 

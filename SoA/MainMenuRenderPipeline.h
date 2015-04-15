@@ -52,6 +52,8 @@ public:
 
     /// Frees all resources
     virtual void destroy(bool shouldDisposeStages) override;
+
+    void toggleUI() { m_showUI = !m_showUI; } 
 private:
     SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
     AwesomiumRenderStage* m_awesomiumRenderStage = nullptr; ///< Renders the UI
@@ -64,6 +66,7 @@ private:
 
     ui32v4 m_viewport; ///< Viewport to draw to
     bool m_isInitialized = false;
+    bool m_showUI = true;
 };
 
 #endif // MainMenuRenderPipeline_h__

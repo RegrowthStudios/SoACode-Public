@@ -135,6 +135,12 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
         m_hdr->render();
     }
 
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_ESCAPE) {
+            exit(0);
+        }
+    });
+
     glFinish();
   //  std::cout << timer.stop() << std::endl;
     checkGlError("TestStarScreen::draw");

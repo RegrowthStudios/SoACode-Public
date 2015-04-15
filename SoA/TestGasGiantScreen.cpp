@@ -39,6 +39,11 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
         m_eyeDist += -e.dy * 0.025 * glm::length(m_eyeDist);
     });
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_ESCAPE) {
+            exit(0);
+        }
+    });
     glEnable(GL_DEPTH_TEST);
 
     vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/GasGiantLookup2.png");

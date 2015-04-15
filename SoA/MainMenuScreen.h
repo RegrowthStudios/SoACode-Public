@@ -122,6 +122,8 @@ private:
     AmbienceLibrary* m_ambLibrary;
     AmbiencePlayer* m_ambPlayer;
 
+    AutoDelegatePool m_hooks;
+
     bool m_shouldReloadUI = false;
 };
 
