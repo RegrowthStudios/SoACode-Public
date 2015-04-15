@@ -1,5 +1,5 @@
 ///
-/// SphericalVoxelComponentTable.h
+/// SpaceSystemComponentTables.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 15 Jan 2015
@@ -12,8 +12,8 @@
 
 #pragma once
 
-#ifndef SphericalVoxelComponentTable_h__
-#define SphericalVoxelComponentTable_h__
+#ifndef SpaceSystemComponentTables_h__
+#define SpaceSystemComponentTables_h__
 
 #include <Vorb/ecs/ComponentTable.hpp>
 #include "SpaceSystemComponents.h"
@@ -25,4 +25,4 @@ public:
 
 
 
-#endif // SphericalVoxelComponentTable_h__
+#endif // SpaceSystemComponentTables_h__

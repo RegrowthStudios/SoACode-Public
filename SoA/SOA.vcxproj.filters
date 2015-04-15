@@ -572,9 +572,6 @@
     <ClInclude Include="OpenglSurfaceFactory.h">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalVoxelComponentTable.h">
-      <Filter>SOA Files\ECS\ComponentTables</Filter>
-    </ClInclude>
     <ClInclude Include="SpaceSystemComponents.h">
       <Filter>SOA Files\ECS\Components</Filter>
     </ClInclude>
@@ -751,6 +748,9 @@
     </ClInclude>
     <ClInclude Include="TestStarScreen.h">
       <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemComponentTables.h">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1073,9 +1073,6 @@
     <ClCompile Include="OpenglSurfaceFactory.cpp">
       <Filter>SOA Files\Rendering\Awesomium</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalVoxelComponentTable.cpp">
-      <Filter>SOA Files\ECS\ComponentTables</Filter>
-    </ClCompile>
     <ClCompile Include="GameSystem.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
@@ -1228,6 +1225,9 @@
     </ClCompile>
     <ClCompile Include="StarComponentRenderer.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
+    <ClCompile Include="SpaceSystemComponentTables.cpp">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

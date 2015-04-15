@@ -16,7 +16,7 @@
 #define SpaceSystem_h__
 
 #include "SpaceSystemComponents.h"
-#include "SphericalVoxelComponentTable.h"
+#include "SpaceSystemComponentTables.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/ComponentTable.hpp>

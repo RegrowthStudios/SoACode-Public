@@ -367,7 +367,7 @@ EXIT 0</Command>
     <ClInclude Include="StarComponentRenderer.h" />
     <ClInclude Include="SystemARRenderer.h" />
     <ClInclude Include="TerrainPatchMeshManager.h" />
-    <ClInclude Include="SphericalVoxelComponentTable.h" />
+    <ClInclude Include="SpaceSystemComponentTables.h" />
     <ClInclude Include="SphericalVoxelComponentUpdater.h" />
     <ClInclude Include="TerrainGenTextures.h" />
     <ClInclude Include="TerrainPatchMesher.h" />
@@ -554,7 +554,7 @@ EXIT 0</Command>
     <ClCompile Include="StarComponentRenderer.cpp" />
     <ClCompile Include="SystemARRenderer.cpp" />
     <ClCompile Include="TerrainPatchMeshManager.cpp" />
-    <ClCompile Include="SphericalVoxelComponentTable.cpp" />
+    <ClCompile Include="SpaceSystemComponentTables.cpp" />
     <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
     <ClCompile Include="TerrainGenTextures.cpp" />
     <ClCompile Include="TerrainPatchMesher.cpp" />

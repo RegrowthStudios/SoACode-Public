@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SphericalVoxelComponentTable.h"
+#include "SpaceSystemComponentTables.h"
 
 #include "ChunkGrid.h"
 #include "ChunkIOManager.h"
