@@ -14,6 +14,7 @@
 #include "SoaState.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
+#include "OrbitComponentUpdater.h"
 
 #include <Vorb/RPC.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -416,6 +417,30 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
         orbitC.r1 = orbitC.a;
     } else {
         orbitC.r1 = orbitC.a * (1.0 - orbitC.e);
+    }
+
+    { // Make the ellipse with stepwise simulation
+        OrbitComponentUpdater updater;
+        static const int NUM_VERTS = 2880;
+        orbitC.verts.resize(NUM_VERTS + 1);
+        f64 timePerDeg = orbitC.t / (f64)NUM_VERTS;
+        NamePositionComponent& npCmp = spaceSystem->m_namePositionCT.get(orbitC.npID);
+        f64v3 startPos = npCmp.position;
+        for (int i = 0; i < NUM_VERTS; i++) {
+
+            if (orbitC.parentOrbId) {
+                OrbitComponent* pOrbC = &spaceSystem->m_orbitCT.get(orbitC.parentOrbId);
+                updater.updatePosition(orbitC, i * timePerDeg, &npCmp,
+                               pOrbC,
+                               &spaceSystem->m_namePositionCT.get(pOrbC->npID));
+            } else {
+                updater.updatePosition(orbitC, i * timePerDeg, &npCmp);
+            }
+
+            orbitC.verts[i] = npCmp.position;
+        }
+        orbitC.verts.back() = orbitC.verts.front();
+        npCmp.position = startPos;
     }
 }
 

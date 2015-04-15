@@ -24,13 +24,12 @@ class OrbitComponentUpdater {
 public:
     void update(SpaceSystem* spaceSystem, f64 time);
 
-private:
     /// Updates the position based on time and parent position
     /// @param cmp: The component to update
     /// @param time: Time in seconds
     /// @param npComponent: The positional component of this component
     /// @param parentNpComponent: The parents positional component
-    void calculatePosition(OrbitComponent& cmp, f64 time, NamePositionComponent* npComponent,
+    void updatePosition(OrbitComponent& cmp, f64 time, NamePositionComponent* npComponent,
                            OrbitComponent* parentOrbComponent = nullptr,
                            NamePositionComponent* parentNpComponent = nullptr);
 };

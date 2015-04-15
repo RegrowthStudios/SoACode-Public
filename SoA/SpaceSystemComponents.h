@@ -103,6 +103,8 @@ struct OrbitComponent {
     vecs::ComponentID npID = 0; ///< Component ID of NamePosition component
     vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent
     VGBuffer vbo = 0; ///< vbo for the ellipse
+    ui32 numVerts = 0;
+    std::vector<f32v3> verts; ///< Vertices for the ellipse
 };
 
 struct SphericalGravityComponent {
