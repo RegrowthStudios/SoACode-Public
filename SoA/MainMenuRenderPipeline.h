@@ -53,9 +53,13 @@ public:
     /// Frees all resources
     virtual void destroy(bool shouldDisposeStages) override;
 
+    void takeScreenshot() { m_shouldScreenshot = true; }
+
     void toggleUI() { m_showUI = !m_showUI; }
     void toggleAR() { m_showAR = !m_showAR; }
 private:
+    void dumpScreenshot();
+
     SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
     AwesomiumRenderStage* m_awesomiumRenderStage = nullptr; ///< Renders the UI
     HdrRenderStage* m_hdrRenderStage = nullptr; ///< Renders HDR post-processing
@@ -69,6 +73,7 @@ private:
     bool m_isInitialized = false;
     bool m_showUI = true;
     bool m_showAR = true;
+    bool m_shouldScreenshot = false;
 };
 
 #endif // MainMenuRenderPipeline_h__

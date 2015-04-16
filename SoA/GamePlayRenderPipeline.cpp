@@ -192,6 +192,8 @@ void GameplayRenderPipeline::render() {
         m_coloredQuadAlpha -= FADE_DEC;
     }
 
+    if (m_shouldScreenshot) dumpScreenshot();
+
     // Check for errors, just in case
     checkGlError("GamePlayRenderPipeline::render()");
 }
@@ -322,4 +324,12 @@ void GameplayRenderPipeline::updateCameras() {
    
     m_spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
     m_spaceCamera.update();
+}
+
+void GameplayRenderPipeline::dumpScreenshot() {
+    // Make screenshots directory
+    vio::IOManager().makeDirectory("Screenshots");
+    // Take screenshot
+    dumpFramebufferImage("Screenshots/", m_viewport);
+    m_shouldScreenshot = false;
 }

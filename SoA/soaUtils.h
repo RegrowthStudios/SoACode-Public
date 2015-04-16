@@ -15,8 +15,15 @@
 #ifndef soaUtils_h__
 #define soaUtils_h__
 
-#include <cstdio>
+#include <Vorb/graphics/ImageIO.h>
+#include <Vorb/io/IOManager.h>
 #include <Vorb/types.h>
+#include <chrono>
+#include <cstdio>
+#include <ctime> 
+#include <iomanip>
+#include <sstream>
+#include <string> 
 
 /************************************************************************/
 /* Debugging Utilities                                                  */
@@ -92,6 +99,28 @@ inline ui32 selfDot(const ui32v3& v) {
 }
 inline ui32 selfDot(const ui32v4& v) {
     return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+
+inline bool dumpFramebufferImage(const nString& rootDir, const ui32v4& viewport) {
+    std::vector<ui8v4> pixels;
+    int width = (viewport.z - viewport.x);
+    int height = (viewport.w - viewport.y);
+    pixels.resize(width * height);
+    // Read pixels from framebuffer
+    glReadPixels(viewport.x, viewport.y, viewport.z, viewport.w, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+    // Use time to get file path
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d-%X");
+    nString path = rootDir + "img-" + ss.str() + ".png";
+    std::replace(path.begin(), path.end(), ':', '-');
+    // Save screenshot
+    if (!vg::ImageIO().save(path, pixels.data(), width, height, vg::ImageIOFormat::RGBA_UI8)) return false;
+
+    printf("Made screenshot %s\n", path.c_str());
+    return true;
 }
 
 #endif // soaUtils_h__

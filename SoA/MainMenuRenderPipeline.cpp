@@ -2,14 +2,16 @@
 #include "MainMenuRenderPipeline.h"
 
 #include <Vorb/graphics/TextureCache.h>
+#include <Vorb/io/IOManager.h>
 
 #include "AwesomiumRenderStage.h"
 #include "Errors.h"
+#include "GameManager.h"
 #include "HdrRenderStage.h"
 #include "Options.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
-#include "GameManager.h"
+#include "soaUtils.h"
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() {
     // Empty
@@ -94,6 +96,8 @@ void MainMenuRenderPipeline::render() {
 
     if (m_showUI) m_awesomiumRenderStage->render();
 
+    if (m_shouldScreenshot) dumpScreenshot();
+
     // Check for errors, just in case
     checkGlError("MainMenuRenderPipeline::render()");
 }
@@ -111,4 +115,12 @@ void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
     m_quad.dispose();
 
     m_isInitialized = false;
+}
+
+void MainMenuRenderPipeline::dumpScreenshot() {
+    // Make screenshots directory
+    vio::IOManager().makeDirectory("Screenshots");
+    // Take screenshot
+    dumpFramebufferImage("Screenshots/", m_viewport);
+    m_shouldScreenshot = false;
 }

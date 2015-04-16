@@ -114,6 +114,9 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
             case VKEY_A:
                 m_renderPipeline.toggleAR();
                 break;
+            case VKEY_F2:
+                m_renderPipeline.takeScreenshot();
+                break;
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {

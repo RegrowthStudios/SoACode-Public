@@ -282,6 +282,8 @@ void GameplayScreen::initInput() {
         if (e.keyCode == VKEY_ESCAPE) {
             SoaEngine::destroyAll(m_soaState);
             exit(0);
+        } else if (e.keyCode == VKEY_F2) {
+            m_renderPipeline.takeScreenshot();
         }
     });
 
