@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 #include "PlanetData.h"
+#include "PlanetGenerator.h"
 
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -98,7 +99,7 @@ PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = null
     // Lazily construct default data
 
         // Allocate data
-    PlanetGenData* genData = new PlanetGenData;
+    PlanetGenData* genData = PlanetGenerator::generateRandomPlanet(ObjectType::PLANET);
 
     //genData->
 

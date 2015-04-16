@@ -304,7 +304,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             if (properties.generation.length()) {
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
-                properties.planetGenData = pr.planetLoader->getDefaultGenData(pr.glrpc);
+                properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
             }
 
             // Set the radius for use later

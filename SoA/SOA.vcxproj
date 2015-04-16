@@ -343,6 +343,7 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PhysicsComponentUpdater.h" />
     <ClInclude Include="PlanetData.h" />
+    <ClInclude Include="PlanetGenerator.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="ShaderLoader.h" />
@@ -532,6 +533,7 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
     <ClCompile Include="PlanetData.cpp" />
+    <ClCompile Include="PlanetGenerator.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />

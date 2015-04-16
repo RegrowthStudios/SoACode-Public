@@ -752,6 +752,9 @@
     <ClInclude Include="SpaceSystemComponentTables.h">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClInclude>
+    <ClInclude Include="PlanetGenerator.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1228,6 +1231,7 @@
     <ClCompile Include="SpaceSystemComponentTables.cpp">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
+    <ClCompile Include="PlanetGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
