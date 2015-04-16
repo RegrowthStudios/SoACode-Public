@@ -65,6 +65,8 @@ public:
     /// @param aspectRatio: camera aspect ratio
     f32 getDynamicNearPlane(float verticalFOV, float aspectRatio);
 
+    void setShowAR(bool showAR) { m_showAR = showAR; }
+
     bool needsFaceTransitionAnimation = false; ///< true when we need to fade out camera for transition between faces
 private:
     /// Renders the space bodies
@@ -101,6 +103,7 @@ private:
     f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
 
     std::vector<std::pair<StarComponent, f64v3> > m_starGlowsToRender;
+    bool m_showAR = true;
 };
 
 #endif // SpaceSystemRenderStage_h__

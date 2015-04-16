@@ -111,6 +111,9 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
             case VKEY_LCTRL:
                 m_isCtrlPressed = true;
                 break;
+            case VKEY_A:
+                m_renderPipeline.toggleAR();
+                break;
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {

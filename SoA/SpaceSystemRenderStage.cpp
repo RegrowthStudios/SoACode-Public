@@ -57,7 +57,7 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 
 void SpaceSystemRenderStage::render() {
     drawBodies();
-    m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
+    if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
                             m_viewport);
 }

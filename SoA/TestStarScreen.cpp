@@ -134,9 +134,6 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    PreciseTimer timer;
-    timer.start();
- 
     m_camera.setClippingPlane((f32)(m_eyeDist / 2.0), (f32)(m_eyeDist + STAR_RADIUS * 10.0));
     m_camera.setPosition(f64v3(m_eyePos)); 
     m_camera.update();
@@ -166,8 +163,6 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
                                           m_camera.getRight());
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glFinish();
-  //  std::cout << timer.stop() << std::endl;
     checkGlError("TestStarScreen::draw");
 
     // Draw the temperature and HDR

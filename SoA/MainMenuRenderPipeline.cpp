@@ -71,6 +71,7 @@ void MainMenuRenderPipeline::render() {
 
     // Main render passes
     m_skyboxRenderStage->render();
+    m_spaceSystemRenderStage->setShowAR(m_showAR);
     m_spaceSystemRenderStage->render();
 
     // Post processing
