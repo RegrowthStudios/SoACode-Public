@@ -49,6 +49,10 @@ public:
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
     PlanetGenData* getDefaultGenData(vcore::RPCManager* glrpc = nullptr);
+    /// Returns a default planetGenData
+    /// @param glrpc: Optional RPC if you want to load on a non-render thread
+    /// @return planet gen data
+    PlanetGenData* getRandomGenData(vcore::RPCManager* glrpc = nullptr);
 private:
     /// Loads the biomes from file
     /// @param filePath: Path to the biome file

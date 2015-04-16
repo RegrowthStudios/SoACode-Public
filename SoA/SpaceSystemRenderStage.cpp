@@ -62,6 +62,15 @@ void SpaceSystemRenderStage::render() {
                             m_viewport);
 }
 
+void SpaceSystemRenderStage::renderStarGlows() {
+    for (auto& it : m_starGlowsToRender) {
+        m_starRenderer.drawGlow(it.first, m_spaceCamera->getViewProjectionMatrix(), it.second,
+                                m_spaceCamera->getAspectRatio(), m_spaceCamera->getDirection(),
+                                m_spaceCamera->getRight());
+    }
+}
+
+
 void SpaceSystemRenderStage::reloadShader() {
     m_sphericalTerrainComponentRenderer.disposeShaders();
     m_farTerrainComponentRenderer.disposeShaders();
@@ -149,6 +158,7 @@ void SpaceSystemRenderStage::drawBodies() {
     }
 
     // Render stars
+    m_starGlowsToRender.clear();
     for (auto& it : m_spaceSystem->m_starCT) {
         auto& sCmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(sCmp.namePositionComponent);
@@ -161,9 +171,7 @@ void SpaceSystemRenderStage::drawBodies() {
         // Render the star
         m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos);
         m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos);
-        m_starRenderer.drawGlow(sCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos,
-                                m_spaceCamera->getAspectRatio(), m_spaceCamera->getDirection(),
-                                m_spaceCamera->getRight());
+        m_starGlowsToRender.emplace_back(sCmp, relCamPos);
     }
 
     // Render atmospheres

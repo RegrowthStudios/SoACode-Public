@@ -76,6 +76,7 @@ void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
                                        const f32m4& VP,
                                        const f32m4& V,
                                        const f32v3& relCamPos) {
+    checkLazyLoad();
     m_coronaProgram->use();
 
     // Corona color

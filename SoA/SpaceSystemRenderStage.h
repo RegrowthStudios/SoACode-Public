@@ -23,6 +23,7 @@
 #include "Camera.h"
 #include "FarTerrainComponentRenderer.h"
 #include "GasGiantComponentRenderer.h"
+#include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentRenderer.h"
 #include "StarComponentRenderer.h"
 #include "SystemARRenderer.h"
@@ -52,6 +53,9 @@ public:
     void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
     virtual void render() override;
+
+    /// Renders star glows requested in the render call. Call after HDR
+    void renderStarGlows();
 
     virtual void reloadShader() override;
 
@@ -95,6 +99,8 @@ private:
     StarComponentRenderer m_starRenderer;
     AtmosphereComponentRenderer m_atmosphereComponentRenderer;
     f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
+
+    std::vector<std::pair<StarComponent, f64v3> > m_starGlowsToRender;
 };
 
 #endif // SpaceSystemRenderStage_h__

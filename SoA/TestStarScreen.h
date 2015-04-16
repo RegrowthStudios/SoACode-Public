@@ -60,6 +60,10 @@ private:
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
     bool m_isHDR = true;
     bool m_isGlow = true;
+    bool m_is1Pressed = false;
+    bool m_is2Pressed = false;
+    bool m_is3Pressed = false;
+    bool m_is4Pressed = false;
 };
 
 #endif // TestStarScreen_h__

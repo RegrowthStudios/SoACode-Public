@@ -85,6 +85,12 @@ void MainMenuRenderPipeline::render() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
+
+    // Render stuff that doesn't want HDR
+    glBlendFunc(GL_ONE, GL_ONE);
+    m_spaceSystemRenderStage->renderStarGlows();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     if (m_showUI) m_awesomiumRenderStage->render();
 
     // Check for errors, just in case

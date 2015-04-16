@@ -94,6 +94,28 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
     return m_defaultGenData;
 }
 
+PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = nullptr */) {
+    // Lazily construct default data
+
+        // Allocate data
+    PlanetGenData* genData = new PlanetGenData;
+
+    //genData->
+
+    // Generate the program
+    vg::GLProgram* program = m_shaderGenerator.generateProgram(genData, glrpc);
+
+    if (program != nullptr) {
+        genData->program = program;
+        return genData;
+    }
+    delete genData;
+    return nullptr;
+
+    
+    return m_defaultGenData;
+}
+
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
