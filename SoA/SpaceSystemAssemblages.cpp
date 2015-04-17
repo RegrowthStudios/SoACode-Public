@@ -328,6 +328,8 @@ vecs::ComponentID SpaceSystemAssemblages::addStarComponent(SpaceSystem* spaceSys
     sCmp.radius = radius;
     sCmp.temperature = temperature;
     sCmp.mass = mass;
+    sCmp.occlusionQuery[0] = 0;
+    sCmp.occlusionQuery[1] = 0;
 
     return sCmpId;
 }

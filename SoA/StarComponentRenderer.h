@@ -34,7 +34,7 @@ public:
                   const f32m4& VP,
                   const f64q& orientation,
                   const f32v3& relCamPos);
-    void drawCorona(const StarComponent& sCmp,
+    void drawCorona(StarComponent& sCmp,
                     const f32m4& VP,
                     const f32m4& V,
                     const f32v3& relCamPos);
@@ -44,6 +44,9 @@ public:
                   float aspectRatio,
                   const f32v3& viewDirW,
                   const f32v3& viewRightW);
+    void updateOcclusionQuery(StarComponent& sCmp,
+                              const f32m4& VP,
+                              const f64v3& relCamPos);
 
     void dispose();
     void disposeShaders();
@@ -54,6 +57,7 @@ private:
     void buildMesh();
     void loadTempColorMap();
     void loadGlowTexture();
+    f64 calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos);
     f32v3 calculateStarColor(const StarComponent& sCmp);
     f32v3 getColor(int index);
     f32v3 getTempColorShift(const StarComponent& sCmp);
@@ -61,6 +65,7 @@ private:
     vg::GLProgram* m_starProgram = nullptr;
     vg::GLProgram* m_coronaProgram = nullptr;
     vg::GLProgram* m_glowProgram = nullptr;
+    vg::GLProgram* m_occlusionProgram = nullptr;
     // Star
     VGBuffer m_sVbo = 0;
     VGIndexBuffer m_sIbo = 0;

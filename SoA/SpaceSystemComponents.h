@@ -189,6 +189,8 @@ struct StarComponent {
     f64 mass = 0.0; ///< In KG
     f64 radius = 0.0; ///< In KM
     f64 temperature = 0.0; ///< In kelvin
+    VGQuery occlusionQuery[2]; ///< TODO(Ben): Delete this
+    f32 visibility = 1.0;
 };
 
 struct FarTerrainComponent {

@@ -157,23 +157,6 @@ void SpaceSystemRenderStage::drawBodies() {
                                          &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
 
-    // Render stars
-    m_starGlowsToRender.clear();
-    for (auto& it : m_spaceSystem->m_starCT) {
-        auto& sCmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(sCmp.namePositionComponent);
-
-        pos = getBodyPosition(npCmp, it.first);
-
-        f64v3 relCamPos = m_spaceCamera->getPosition() - *pos;
-        f32v3 fRelCamPos(relCamPos);
-
-        // Render the star
-        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos);
-        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos);
-        m_starGlowsToRender.emplace_back(sCmp, relCamPos);
-    }
-
     // Render atmospheres
     for (auto& it : m_spaceSystem->m_atmosphereCT) {
         auto& atCmp = it.second;
@@ -219,6 +202,25 @@ void SpaceSystemRenderStage::drawBodies() {
             f64 dist = cmp.meshManager->getClosestFarDistance2();
             if (dist < m_closestPatchDistance2) m_closestPatchDistance2 = dist;
         }
+    }
+
+    // Render stars
+    m_starGlowsToRender.clear();
+    for (auto& it : m_spaceSystem->m_starCT) {
+        auto& sCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(sCmp.namePositionComponent);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f64v3 relCamPos = m_spaceCamera->getPosition() - *pos;
+        f32v3 fRelCamPos(relCamPos);
+
+        // Render the star
+        m_starRenderer.updateOcclusionQuery(sCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos);
+        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos);
+        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos);
+        
+        m_starGlowsToRender.emplace_back(sCmp, relCamPos);
     }
 
     vg::DepthState::FULL.set();

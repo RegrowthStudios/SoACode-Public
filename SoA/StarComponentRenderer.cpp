@@ -7,6 +7,7 @@
 #include "ShaderLoader.h"
 #include "SpaceSystemComponents.h"
 #include "RenderUtils.h"
+#include "Errors.h"
 
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/GLProgram.h>
@@ -19,6 +20,28 @@
 #define MIN_TMP 800.0
 #define TMP_RANGE 29200.0
 #define ICOSPHERE_SUBDIVISIONS 5
+
+namespace {
+    cString OCCLUSION_VERT_SRC = R"(
+uniform mat4 unVP;
+uniform vec3 unCenter;
+uniform float unSize;
+in vec2 vPosition;
+void main() {
+    gl_Position = unVP * vec4(unCenter, 1.0);
+    gl_Position /= gl_Position.w;
+    // Move the vertex in screen space.
+    gl_Position.xy += vPosition * unSize;
+}
+
+)";
+    cString OCCLUSION_FRAG_SRC = R"(
+out vec4 pColor;
+void main() {
+    pColor = vec4(0.0, 0.0, 0.0, 0.0);
+}
+)";
+}
 
 StarComponentRenderer::StarComponentRenderer() {
     m_tempColorMap.width = -1;
@@ -33,6 +56,7 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
                                      const f64q& orientation,
                                      const f32v3& relCamPos) {
     checkLazyLoad();
+    if (sCmp.visibility == 0.0f) return;
 
     m_starProgram->use();
 
@@ -72,20 +96,24 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     m_starProgram->unuse();
 }
 
-void StarComponentRenderer::drawCorona(const StarComponent& sCmp,
+void StarComponentRenderer::drawCorona(StarComponent& sCmp,
                                        const f32m4& VP,
                                        const f32m4& V,
                                        const f32v3& relCamPos) {
     checkLazyLoad();
+
+    f32v3 center(-relCamPos);
+    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
+    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
+
+    if (sCmp.visibility == 0.0f) return;
+
     m_coronaProgram->use();
 
     // Corona color
     f32v3 tColor = f32v3(0.9f) + getTempColorShift(sCmp);
 
     // Upload uniforms
-    f32v3 center(-relCamPos);
-    f32v3 camRight(V[0][0], V[1][0], V[2][0]);
-    f32v3 camUp(V[0][1], V[1][1], V[2][1]);
     glUniform3fv(m_coronaProgram->getUniform("unCameraRight"), 1, &camRight[0]);
     glUniform3fv(m_coronaProgram->getUniform("unCameraUp"), 1, &camUp[0]);
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
@@ -120,15 +148,11 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
                                      float aspectRatio,
                                      const f32v3& viewDirW,
                                      const f32v3& viewRightW) {
-    
-    // Size
-    f64 apparentBrightness = sCmp.temperature;
-    // Ratio of distance to star radius
-    f64 d = (glm::length(relCamPos)) * 0.0000000001;
 
+    if (sCmp.visibility == 0.0f) return;
+  
     // Compute desired size based on distance and ratio of mass to Sol mass
-    f64 s = 0.16 * pow(d, -0.5) * sCmp.mass / M_SOL - 0.03;
-
+    f64 s = calculateGlowSize(sCmp, relCamPos) * sCmp.visibility;
     if (s <= 0.0) return;
 
     f32v2 dims(s, s * aspectRatio);
@@ -169,6 +193,57 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glBindVertexArray(0);
     m_glowProgram->unuse();
 }
+
+void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
+                                                 const f32m4& VP,
+                                                 const f64v3& relCamPos) {
+    checkLazyLoad();
+    if (m_occlusionProgram == nullptr) {
+        m_occlusionProgram = vg::ShaderManager::createProgram(OCCLUSION_VERT_SRC, OCCLUSION_FRAG_SRC);
+    }
+    if (sCmp.occlusionQuery[0] == 0) {
+        glGenQueries(2, sCmp.occlusionQuery);
+    } else {
+        int totalSamples = 0;
+        int samplesPassed = 0;
+        glGetQueryObjectiv(sCmp.occlusionQuery[0], GL_QUERY_RESULT, &totalSamples);
+        glGetQueryObjectiv(sCmp.occlusionQuery[1], GL_QUERY_RESULT, &samplesPassed);
+        if (samplesPassed == 0) {
+            sCmp.visibility = 0.0f;
+        } else {
+            sCmp.visibility = glm::min(1.0f, (f32)samplesPassed / (f32)totalSamples);
+        }
+    }
+    f32v3 center(-relCamPos);
+
+    f64 s = calculateGlowSize(sCmp, relCamPos) / 128.0;
+
+    m_occlusionProgram->use();
+    m_occlusionProgram->enableVertexAttribArrays();
+
+    glUniform3fv(m_occlusionProgram->getUniform("unCenter"), 1, &center[0]);
+    glUniform1f(m_occlusionProgram->getUniform("unSize"), (f32)s);
+    glUniformMatrix4fv(m_occlusionProgram->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
+
+    vg::GpuMemory::bindBuffer(m_cVbo, vg::BufferTarget::ARRAY_BUFFER);
+    vg::GpuMemory::bindBuffer(m_cIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    glVertexAttribPointer(m_occlusionProgram->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glDepthMask(GL_FALSE);
+    glBeginQuery(GL_SAMPLES_PASSED, sCmp.occlusionQuery[0]);
+    glDisable(GL_DEPTH_TEST);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    glEnable(GL_DEPTH_TEST);
+    glEndQuery(GL_SAMPLES_PASSED);
+    glBeginQuery(GL_SAMPLES_PASSED, sCmp.occlusionQuery[1]);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    glEndQuery(GL_SAMPLES_PASSED);
+    glDepthMask(GL_TRUE);
+
+    m_occlusionProgram->unuse();
+    m_occlusionProgram->disableVertexAttribArrays();
+}
+
 
 void StarComponentRenderer::dispose() {
     disposeShaders();
@@ -325,6 +400,18 @@ void StarComponentRenderer::loadGlowTexture() {
         vg::ImageIO().free(rs);
     }
 }
+
+f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos) {
+    f64 apparentBrightness = sCmp.temperature;
+    // Ratio of distance to star radius
+    f64 d = (glm::length(relCamPos)) * 0.0000000001;
+
+    // Compute desired size based on distance and ratio of mass to Sol mass
+    f64 s = (0.16 * pow(d, -0.5) * sCmp.mass / M_SOL - 0.03);
+
+    return s;
+}
+
 
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     // Calculate temperature color
