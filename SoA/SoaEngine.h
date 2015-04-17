@@ -90,6 +90,12 @@ private:
     static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
                                    const SystemBodyKegProperties* sysProps, OUT SystemBody* body);
 
+    // Sets up mass parameters for binaries
+    static void initBinaries(SpaceSystemLoadParams& pr);
+
+    // Initializes orbits and parent connections
+    static void initOrbits(SpaceSystemLoadParams& pr);
+
     static void createGasGiant(SpaceSystemLoadParams& pr,
                                const SystemBodyKegProperties* sysProps,
                                const GasGiantKegProperties* properties,

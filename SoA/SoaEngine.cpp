@@ -158,62 +158,10 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
     loadSystemProperties(pr);
 
     // Set up binary masses
-    for (auto& it : pr.barycenters) {
-        f64 mass = 0.0;
-        SystemBody* bary = it.second;
-
-        // Loop through all children
-        for (int i = 0; i < bary->properties.comps.size(); i++) {
-            // Find the body
-            auto& body = pr.systemBodies.find(std::string(bary->properties.comps[i]));
-            if (body != pr.systemBodies.end()) {
-                // Get the mass
-                mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->second->entity).mass;
-            }
-        }
-        it.second->mass = mass;
-    }
+    initBinaries(pr);
 
     // Set up parent connections and orbits
-    for (auto& it : pr.systemBodies) {
-        SystemBody* body = it.second;
-        const nString& parent = body->parentName;
-        if (parent.length()) {
-            // Check for parent
-            auto& p = pr.systemBodies.find(parent);
-            if (p != pr.systemBodies.end()) {
-                body->parent = p->second;
-
-                // Provide the orbit component with it's parent
-                pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
-                    pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
-
-                auto& b = pr.barycenters.find(parent);
-                if (b != pr.barycenters.end()) {
-                    SystemBody* baryBody = b->second;
-                    // Determine if we are component of parent barycenter
-                    bool isComponent = false;
-                    for (int i = 0; i < baryBody->properties.comps.size(); i++) {
-                        if (baryBody->properties.comps[i] == body->name) {
-                            isComponent = true; break;
-                        }
-                    }
-                    if (isComponent) {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(pr, body->entity, baryBody->mass, body, true);
-                    } else {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(pr, body->entity, baryBody->mass, body, false);
-                    }
-                } else {
-                    // Calculate the orbit using parent mass
-                    calculateOrbit(pr, body->entity,
-                                   pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
-                                   body, false);
-                }
-            }
-        }
-    }
+    initOrbits(pr);
 }
 
 bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
@@ -338,6 +286,66 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
     reader.dispose();
 
     return goodParse;
+}
+
+void SoaEngine::initBinaries(SpaceSystemLoadParams& pr) {
+    for (auto& it : pr.barycenters) {
+        f64 mass = 0.0;
+        SystemBody* bary = it.second;
+
+        // Loop through all children
+        for (int i = 0; i < bary->properties.comps.size(); i++) {
+            // Find the body
+            auto& body = pr.systemBodies.find(std::string(bary->properties.comps[i]));
+            if (body != pr.systemBodies.end()) {
+                // Get the mass
+                mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->second->entity).mass;
+            }
+        }
+        it.second->mass = mass;
+    }
+}
+
+void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
+    for (auto& it : pr.systemBodies) {
+        SystemBody* body = it.second;
+        const nString& parent = body->parentName;
+        if (parent.length()) {
+            // Check for parent
+            auto& p = pr.systemBodies.find(parent);
+            if (p != pr.systemBodies.end()) {
+                body->parent = p->second;
+
+                // Provide the orbit component with it's parent
+                pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
+                    pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
+
+                auto& b = pr.barycenters.find(parent);
+                if (b != pr.barycenters.end()) {
+                    SystemBody* baryBody = b->second;
+                    // Determine if we are component of parent barycenter
+                    bool isComponent = false;
+                    for (int i = 0; i < baryBody->properties.comps.size(); i++) {
+                        if (baryBody->properties.comps[i] == body->name) {
+                            isComponent = true; break;
+                        }
+                    }
+                    if (isComponent) {
+                        // Calculate the orbit using parent mass
+                        calculateOrbit(pr, body->entity, baryBody->mass, body, true);
+                    } else {
+                        // Calculate the orbit using parent mass
+                        calculateOrbit(pr, body->entity, baryBody->mass, body, false);
+                    }
+                } else {
+                    // Calculate the orbit using parent mass
+                    calculateOrbit(pr, body->entity,
+                                   pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
+                                   body, false);
+                }
+            }
+        }
+    }
 }
 
 void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
