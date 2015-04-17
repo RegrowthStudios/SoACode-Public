@@ -5,6 +5,7 @@
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/colors.h>
+#include <Vorb/ui/KeyStrings.h>
 
 #define DEV_SCREEN_FONT "Fonts/orbitron_bold-webfont.ttf"
 #define DEV_SCREEN_FONT_SIZE 32
@@ -85,5 +86,5 @@ void DevScreen::draw(const vui::GameTime& gameTime) {
 
 void DevScreen::addScreen(VirtualKey vKey, vui::IGameScreen* s, const nString& name) {
     m_screenMapping[vKey] = s;
-    m_screenNames[vKey] = name;
+    m_screenNames[vKey] = nString(VirtualKeyStrings[vKey]) + ": " + name;
 }
