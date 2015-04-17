@@ -104,7 +104,7 @@ private:
     
     vio::IOManager m_ioManager; ///< Helper class for IO operations
 
-    InputMapper* m_inputManager = nullptr;
+    InputMapper* m_inputMapper = nullptr;
 
     CinematicCamera m_camera; ///< The camera that looks at the planet from space
 
@@ -122,12 +122,7 @@ private:
     AmbienceLibrary* m_ambLibrary;
     AmbiencePlayer* m_ambPlayer;
 
-    AutoDelegatePool m_hooks;
-
     bool m_shouldReloadUI = false;
-    bool m_isLeftPressed = false;
-    bool m_isRightPressed = false;
-    bool m_isCtrlPressed = false;
 };
 
 #endif // MAINMENUSCREEN_H_

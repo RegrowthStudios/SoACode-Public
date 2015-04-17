@@ -71,7 +71,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     initInput();
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
@@ -94,50 +94,10 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     // Run the update thread for updating the planet
     m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
-        switch (e.keyCode) {
-            case VKEY_ESCAPE:
-                SoaEngine::destroyAll(m_soaState);
-                exit(0);
-            case VKEY_LEFT:
-                m_isLeftPressed = true;
-                break;
-            case VKEY_RIGHT:
-                m_isRightPressed = true;
-                break;
-            case VKEY_U:
-                m_renderPipeline.toggleUI();
-                break;
-            case VKEY_LCTRL:
-                m_isCtrlPressed = true;
-                break;
-            case VKEY_A:
-                m_renderPipeline.toggleAR();
-                break;
-            case VKEY_F2:
-                m_renderPipeline.takeScreenshot();
-                break;
-        }
-    });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
-        switch (e.keyCode) {
-            case VKEY_LEFT:
-                m_isLeftPressed = false;
-                break;
-            case VKEY_RIGHT:
-                m_isRightPressed = false;
-                break;
-            case VKEY_LCTRL:
-                m_isCtrlPressed = false;
-                break;
-        }   
-    });
-
-    m_inputManager->startInput();
 }
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
-    m_inputManager->stopInput();
+    m_inputMapper->stopInput();
 
     m_mainMenuSystemViewer.reset();
 
@@ -147,7 +107,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_awesomiumInterface.destroy();
     m_renderPipeline.destroy(true);
 
-    delete m_inputManager;
+    delete m_inputMapper;
 
     m_ambPlayer->dispose();
     m_engine->dispose();
@@ -164,9 +124,9 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     }
 
     { // Handle time warp
-        const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_isCtrlPressed * 10000.0;
-        if (m_isLeftPressed) m_soaState->time -= TIME_WARP_SPEED;
-        if (m_isRightPressed) m_soaState->time += TIME_WARP_SPEED;
+        const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
+        if (m_inputMapper->getInputState(INPUT_TIME_BACK)) m_soaState->time -= TIME_WARP_SPEED;
+        if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) m_soaState->time += TIME_WARP_SPEED;
     }
 
     m_awesomiumInterface.update();
@@ -190,13 +150,24 @@ void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::initInput() {
-    m_inputManager = new InputMapper;
-    initInputs(m_inputManager);
+    m_inputMapper = new InputMapper;
+    initInputs(m_inputMapper);
     // Reload space system event
+  
+    m_inputMapper->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
+    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
+    m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s, ui32 i) { m_shouldReloadUI = true; });
+    m_inputMapper->get(INPUT_EXIT).downEvent.addFunctor([&](Sender s, ui32 i) {
+        SoaEngine::destroyAll(m_soaState);
+        exit(0); });
+    m_inputMapper->get(INPUT_TOGGLE_UI).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.toggleUI(); });
+    m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.toggleAR(); });
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.takeScreenshot(); });
 
-    m_inputManager->get(INPUT_RELOAD_UI).downEvent.addFunctor( [&] (Sender s, ui32 i) { m_shouldReloadUI = true; });
-    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
+    m_inputMapper->startInput();
 }
 
 void MainMenuScreen::initRenderPipeline() {
@@ -301,7 +272,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
     CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_camera = tmp; // Restore old camera
     m_renderPipeline.destroy(true);
     m_renderPipeline = MainMenuRenderPipeline();
