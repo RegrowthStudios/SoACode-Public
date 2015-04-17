@@ -57,10 +57,12 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_selectorTexture = selectorTexture;
     m_viewport = viewport;
 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     drawPaths();
     if (m_systemViewer) {
         drawHUD();
     }
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void SystemARRenderer::buildShader() {

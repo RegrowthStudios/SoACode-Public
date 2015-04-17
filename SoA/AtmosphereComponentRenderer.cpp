@@ -74,8 +74,10 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     glBindVertexArray(m_vao);
    
     // Render
+    glDepthMask(GL_FALSE);
     vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
     glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
+    glDepthMask(GL_TRUE);
     vg::RasterizerState::CULL_CLOCKWISE.set();
 
     glBindVertexArray(0);

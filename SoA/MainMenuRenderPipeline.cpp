@@ -3,6 +3,7 @@
 
 #include <Vorb/graphics/TextureCache.h>
 #include <Vorb/io/IOManager.h>
+#include <Vorb/io/FileOps.h>
 
 #include "AwesomiumRenderStage.h"
 #include "Errors.h"
@@ -119,7 +120,7 @@ void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
 
 void MainMenuRenderPipeline::dumpScreenshot() {
     // Make screenshots directory
-    vio::IOManager().makeDirectory("Screenshots");
+    vio::buildDirectoryTree("Screenshots");
     // Take screenshot
     dumpFramebufferImage("Screenshots/", m_viewport);
     m_shouldScreenshot = false;
