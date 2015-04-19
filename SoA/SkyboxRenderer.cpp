@@ -44,17 +44,18 @@ in vec4 vPosition;
 in vec3 vUVW;
 out vec3 fUVW;
 void main() {
-  fUV = vUV;
+  fUVW = vUVW;
   gl_Position = unWVP * vPosition;
 }
 )";
     const cString FRAG_SRC = R"(
-uniform sampler3D unTex;
-in vec2 fUVW;
+uniform sampler2DArray unTex;
+in vec3 fUVW;
 out vec4 pColor;
 void main() {
-  pColor = texture(unTex, fUVW);
+  pColor = texture(unTex, vec3(fUVW.xy, 0.0));
   pColor.rgb *= 2.5; // Brighten for HDR
+  pColor.a = 1.0;
 })";
 }
 
@@ -78,6 +79,7 @@ void SkyboxRenderer::drawSkybox(const f32m4& VP, VGTexture textureArray) {
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray);
     // Upload VP matrix
     glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
     
@@ -87,14 +89,11 @@ void SkyboxRenderer::drawSkybox(const f32m4& VP, VGTexture textureArray) {
     }
 
     glBindVertexArray(m_vao);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray);
     glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD * 6, GL_UNSIGNED_SHORT, (void*)0); //offset
+    glBindVertexArray(0);
 
     // Unbind shader
-    m_program->unuse();
-
-    // Always unbind the vao
-    glBindVertexArray(0);
+    m_program->unuse();  
 }
 
 void SkyboxRenderer::destroy() {
@@ -116,7 +115,7 @@ void SkyboxRenderer::destroy() {
 }
 
 void SkyboxRenderer::initShader() {
-    m_program = ShaderLoader::createProgram(VERT_SRC, FRAG_SRC);
+    m_program = ShaderLoader::createProgram("Skybox", VERT_SRC, FRAG_SRC);
 
     // Constant uniforms
     m_program->use();

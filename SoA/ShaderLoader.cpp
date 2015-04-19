@@ -42,7 +42,7 @@ CALLER_DELETE vg::GLProgram* ShaderLoader::createProgramFromFile(const vio::Path
     return program;
 }
 
-CALLER_DELETE vg::GLProgram* ShaderLoader::createProgram(const cString vertSrc, const cString fragSrc, vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
+CALLER_DELETE vg::GLProgram* ShaderLoader::createProgram(const cString displayName, const cString vertSrc, const cString fragSrc, vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
     vg::ShaderManager::onFileIOFailure += makeDelegate(printFileIOError);
     vg::ShaderManager::onShaderCompilationError += makeDelegate(printShaderError);
     vg::ShaderManager::onProgramLinkError += makeDelegate(printLinkError);
@@ -52,7 +52,7 @@ CALLER_DELETE vg::GLProgram* ShaderLoader::createProgram(const cString vertSrc, 
         program = vg::ShaderManager::createProgram(vertSrc, fragSrc, iom, iom, defines);
         if (program) break;
 
-        printf("Enter any key to try recompiling with Vertex Shader: %s and Fragment Shader %s\nEnter Z to abort.\n", vertPath.getCString(), fragPath.getCString());
+        printf("Enter any key to try recompiling with %s shader.\nEnter Z to abort.\n", displayName);
         char tmp;
         std::cin >> tmp;
         if (tmp == 'Z' || tmp == 'z') break;

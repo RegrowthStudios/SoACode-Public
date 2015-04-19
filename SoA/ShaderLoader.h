@@ -31,7 +31,7 @@ public:
 
     /// Creates a program using passed code, and does error checking
     /// Does not register with global cache
-    static CALLER_DELETE vg::GLProgram* createProgram(const cString vertSrc, const cString fragSrc,
+    static CALLER_DELETE vg::GLProgram* createProgram(const cString displayName, const cString vertSrc, const cString fragSrc,
                                                       vio::IOManager* iom = nullptr, cString defines = nullptr);
 };
 
