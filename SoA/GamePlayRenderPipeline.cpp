@@ -77,7 +77,7 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
 #define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
     // Init and track render stages
-    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, &m_spaceCamera);
+    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, &m_spaceCamera, &soaState->texturePackIom);
     m_opaqueVoxelRenderStage = ADD_STAGE(OpaqueVoxelRenderStage, &m_gameRenderParams);
     m_cutoutVoxelRenderStage = ADD_STAGE(CutoutVoxelRenderStage, &m_gameRenderParams);
     m_chunkGridRenderStage = ADD_STAGE(ChunkGridRenderStage, &m_gameRenderParams);

@@ -8,13 +8,14 @@
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "MeshManager.h"
+#include "Options.h"
+#include "OrbitComponentUpdater.h"
 #include "PlanetData.h"
 #include "PlanetLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoaState.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
-#include "OrbitComponentUpdater.h"
 
 #include <Vorb/RPC.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -40,6 +41,7 @@ void SoaEngine::initState(SoaState* state) {
     state->meshManager = std::make_unique<MeshManager>();
     state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
     state->systemIoManager = std::make_unique<vio::IOManager>();
+    state->texturePackIom.setSearchDirectory("Textures/TexturePacks/" + graphicsOptions.texturePackString + "/");
 }
 // TODO: A vorb helper would be nice.
 vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr) {

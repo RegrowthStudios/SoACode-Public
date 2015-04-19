@@ -24,10 +24,11 @@ class AwesomiumRenderStage;
 class Camera;
 class HdrRenderStage;
 class IAwesomiumInterface;
+class MainMenuSystemViewer;
 class SkyboxRenderStage;
+class SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
-class MainMenuSystemViewer;
 
 class MainMenuRenderPipeline : public vg::RenderPipeline 
 {
@@ -36,13 +37,8 @@ public:
     ~MainMenuRenderPipeline();
 
     /// Initializes the pipeline and passes dependencies
-    /// @param viewport: The viewport to draw to.
-    /// @param camera: The camera used for rendering.
-    /// @param awesomiumInterface: The user interface
-    /// @param spaceSystem: The space system for rendering
-    /// @param systemViewer: System viewing controller for main menu
-    /// GLPrograms
-    void init(const ui32v4& viewport, Camera* camera,
+    void init(const SoaState* soaState, const ui32v4& viewport,
+              Camera* camera,
               IAwesomiumInterface* awesomiumInterface,
               SpaceSystem* spaceSystem,
               const MainMenuSystemViewer* systemViewer);

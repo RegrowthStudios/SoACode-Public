@@ -14,36 +14,41 @@
 #ifndef SkyboxRenderStage_h__
 #define SkyboxRenderStage_h__
 
+#include "SkyboxRenderer.h"
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/IRenderStage.h>
+#include <Vorb/VorbPreDecl.inl>
 
-class SkyboxRenderer;
 class Camera;
+
+DECL_VIO(class IOManager);
 
 class SkyboxRenderStage : public vg::IRenderStage
 {
 public:
     /// Constructor which injects dependencies
-    /// @param camera: Handle to the camera used to render the stage
-    SkyboxRenderStage(const Camera* camera);
+    SkyboxRenderStage(const Camera* camera, const vio::IOManager* texturePackIOM);
     ~SkyboxRenderStage();
 
     // Draws the render stage
     virtual void render() override;
+
+    void reloadShader() override;
 private:
-    void buildShaders();
+    void loadSkyboxTexture();
     void drawSpace(glm::mat4 &VP);
-    // Temporary until we have an actual sun
-    void drawSun(float theta, glm::mat4 &MVP);
     // Update projection matrix
     void updateProjectionMatrix();
 
-    SkyboxRenderer* m_skyboxRenderer; ///< Renders the skybox
+    SkyboxRenderer m_skyboxRenderer; ///< Renders the skybox
     vg::GLProgram* m_program = nullptr; ///< Program used for rendering
 
     f32m4 m_projectionMatrix; ///< Projection matrix for the skybox
     float m_fieldOfView; ///< Current field of view for the camera
     float m_aspectRatio; ///< Current aspect ratio for the camera
+
+    VGTexture m_skyboxTextureArray = 0; ///< Texture array for skybox
+    const vio::IOManager* m_texturePackIOM = nullptr;
 };
 
 #endif // SkyboxRenderStage_h__

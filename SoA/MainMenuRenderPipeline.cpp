@@ -11,6 +11,7 @@
 #include "HdrRenderStage.h"
 #include "Options.h"
 #include "SkyboxRenderStage.h"
+#include "SoaState.h"
 #include "SpaceSystemRenderStage.h"
 #include "soaUtils.h"
 
@@ -23,7 +24,8 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
     destroy(true);
 }
 
-void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
+void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewport,
+                                  Camera* camera,
                                   IAwesomiumInterface* awesomiumInterface,
                                   SpaceSystem* spaceSystem,
                                   const MainMenuSystemViewer* systemViewer) {
@@ -56,7 +58,7 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
 #define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
     // Init render stages
-    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera);
+    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera, &soaState->texturePackIom);
     m_awesomiumRenderStage = ADD_STAGE(AwesomiumRenderStage, awesomiumInterface);
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
     // TODO(Ben): Use texture pack iomanager

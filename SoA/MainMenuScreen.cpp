@@ -173,7 +173,7 @@ void MainMenuScreen::initInput() {
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
+    m_renderPipeline.init(m_soaState, viewport, &m_camera, &m_awesomiumInterface,
                           m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
 }

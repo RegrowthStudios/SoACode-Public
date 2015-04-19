@@ -133,8 +133,6 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
     fCounter++;
     m_glrpc.processRequests(1);
 
-    
-
     // Defer texture loading
     // TODO(BEN): Uncomment after demo build
     if (_monitor.isTaskFinished("SpaceSystem")) {

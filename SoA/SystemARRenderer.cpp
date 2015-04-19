@@ -13,7 +13,8 @@
 #include <Vorb/colors.h>
 #include <Vorb/utils.h>
 
-const cString VERT_SRC = R"(
+namespace {
+    const cString VERT_SRC = R"(
 uniform mat4 unWVP;
 in vec4 vPosition;
 void main() {
@@ -21,13 +22,14 @@ void main() {
 }
 )";
 
-const cString FRAG_SRC = R"(
+    const cString FRAG_SRC = R"(
 uniform vec4 unColor;
 out vec4 pColor;
 void main() {
     pColor = unColor;
 }
 )";
+}
 
 SystemARRenderer::~SystemARRenderer() {
     if (m_colorProgram) {

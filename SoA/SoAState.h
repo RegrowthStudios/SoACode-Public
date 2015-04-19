@@ -48,6 +48,7 @@ public:
     std::unique_ptr<PlanetLoader> planetLoader;
 
     vio::IOManager saveFileIom;
+    vio::IOManager texturePackIom;
     bool isNewGame = true;
     f64v3 startSpacePos = f64v3(0.0f);
     int startFace = 0;

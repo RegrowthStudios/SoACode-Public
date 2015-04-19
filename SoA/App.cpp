@@ -69,7 +69,7 @@ void App::addScreens() {
 
 void App::onInit() {
     
-    // Load the graphical options
+    // Load the game options
     loadOptions("Data/Options.yml");
 
     vg::SamplerState::initPredefined();
