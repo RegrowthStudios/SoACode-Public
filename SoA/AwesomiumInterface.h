@@ -41,8 +41,8 @@ public:
     Awesomium::JSValue OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args);
 
     /// The interface objects for the JS and the game
-    Awesomium::JSObject *gameInterface, *jsInterface;
-
+    Awesomium::JSObject *gameInterface;
+    std::map<ui32, Awesomium::JSObject> m_customObjects;
 private:
     C* m_api = nullptr; ///< The current function call API to use
 };

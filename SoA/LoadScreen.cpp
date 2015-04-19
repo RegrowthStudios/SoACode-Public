@@ -73,16 +73,17 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
-
-    addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
-    _monitor.setDep("BlockData", "GameManager");
+    // TODO(Ben): Uncomment after demo build!
+    //addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
+    //_monitor.setDep("BlockData", "GameManager");
 
     addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_soaState.get()));
     _monitor.setDep("SpaceSystem", "GameManager");
 
-    addLoadTask("Textures", "Textures", new LoadTaskTextures);
-    _monitor.setDep("Textures", "BlockData");
-    _monitor.setDep("Textures", "SpaceSystem");
+    // TODO(Ben): Uncomment after demo build!
+   // addLoadTask("Textures", "Textures", new LoadTaskTextures);
+   // _monitor.setDep("Textures", "BlockData");
+   // _monitor.setDep("Textures", "SpaceSystem");
 
     // Start the tasks
     _monitor.start();
@@ -132,42 +133,48 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
     fCounter++;
     m_glrpc.processRequests(1);
 
+    
+
     // Defer texture loading
-    static bool loadedTextures = false;
-    if (!loadedTextures && _monitor.isTaskFinished("Textures")) {
-        GameManager::texturePackLoader->uploadTextures();
-        GameManager::texturePackLoader->writeDebugAtlases();
-        GameManager::texturePackLoader->setBlockTextures(Blocks);
-
-        GameManager::getTextureHandles();
-
-        SetBlockAvgTexColors();
-
-        //load the emitters
-        for (int i = 0; i < Blocks.size(); i++) {
-            if (Blocks[i].active) {
-                if (Blocks[i].emitterName.size()) {
-                //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
-                }
-                if (Blocks[i].emitterOnBreakName.size()) {
-               //     Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
-                }
-                if (Blocks[i].emitterRandomName.size()) {
-                //    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
-                }
-            }
-        }
-
-        // It has no texture
-        for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
-
-        // Post process the planets
-        SoaEngine::setPlanetBlocks(m_soaState.get());
+    // TODO(BEN): Uncomment after demo build
+    if (_monitor.isTaskFinished("SpaceSystem")) {
         _state = vui::ScreenState::CHANGE_NEXT;
-        loadedTextures = true;
-        
-        
     }
+    //static bool loadedTextures = false;
+    //if (!loadedTextures && _monitor.isTaskFinished("Textures")) {
+    //    GameManager::texturePackLoader->uploadTextures();
+    //    GameManager::texturePackLoader->writeDebugAtlases();
+    //    GameManager::texturePackLoader->setBlockTextures(Blocks);
+
+    //    GameManager::getTextureHandles();
+
+    //    SetBlockAvgTexColors();
+
+    //    //load the emitters
+    //    for (int i = 0; i < Blocks.size(); i++) {
+    //        if (Blocks[i].active) {
+    //            if (Blocks[i].emitterName.size()) {
+    //            //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
+    //            }
+    //            if (Blocks[i].emitterOnBreakName.size()) {
+    //           //     Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
+    //            }
+    //            if (Blocks[i].emitterRandomName.size()) {
+    //            //    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
+    //            }
+    //        }
+    //    }
+
+    //    // It has no texture
+    //    for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
+
+    //    // Post process the planets
+    //    SoaEngine::setPlanetBlocks(m_soaState.get());
+    //    _state = vui::ScreenState::CHANGE_NEXT;
+    //    loadedTextures = true;
+    //    
+    //    
+    //}
 }
 void LoadScreen::draw(const vui::GameTime& gameTime) {
     const vui::GameWindow* w = &_game->getWindow();

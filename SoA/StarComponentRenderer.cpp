@@ -81,9 +81,10 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     f32v3 rotRelCamPos = relCamPos * orientationF32;
 
     // Upload uniforms
-    static f32 dt = 1.0f;
-    dt += 0.001f;
-    glUniform1f(unDT, dt);
+    // Upload uniforms
+    static f64 dt = 0.0;
+    dt += 0.00001;
+    glUniform1f(unDT, (f32)dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_starProgram->getUniform("unColor"), 1, &tColor[0]);
 
@@ -122,9 +123,9 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
     glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0f);
     glUniform1f(m_coronaProgram->getUniform("unStarRadius"), (f32)sCmp.radius);
     // Time
-    static f32 dt = 1.0f;
-    dt += 0.001f;
-    glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
+    static f64 dt = 0.0;
+    dt += 0.00001;
+    glUniform1f(m_coronaProgram->getUniform("unDT"), (f32)dt);
     glUniformMatrix4fv(m_coronaProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
 
     // Bind VAO
@@ -217,6 +218,7 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     f32v3 center(-relCamPos);
 
     f64 s = calculateGlowSize(sCmp, relCamPos) / 128.0;
+    s = glm::max(0.005, s); // make sure it never gets too small
 
     m_occlusionProgram->use();
     m_occlusionProgram->enableVertexAttribArrays();

@@ -62,16 +62,6 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     }
     // Sleep a bit to give time for initialization
     Sleep(50);
-    // Set up the Game interface
-    m_gameInterface = m_webView->CreateGlobalJavascriptObject(Awesomium::WSLit("App"));
-    if (m_gameInterface.IsObject()){
-        m_methodHandler.gameInterface = &m_gameInterface.ToObject();
-
-        //Initialize the callback API
-        m_awesomiumAPI.init(m_methodHandler.gameInterface, ownerScreen);
-    } else {
-        puts("Awesomium Error: Failed to create app object.");
-    }
 
     m_webView->LoadURL(url);
 
@@ -100,6 +90,18 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     m_window = m_webView->ExecuteJavascriptWithResult(Awesomium::WSLit("window"), Awesomium::WSLit(""));
     if (!m_window.IsObject()) {
         puts("Awesomium Error: No window object.");
+    }
+   
+    // Set up the Game interface
+    Sleep(10);
+    m_gameInterface = m_webView->CreateGlobalJavascriptObject(Awesomium::WSLit("App"));
+    if (m_gameInterface.IsObject()) {
+        m_methodHandler.gameInterface = &m_gameInterface.ToObject();
+
+        //Initialize the callback API
+        m_awesomiumAPI.init(m_webView, &m_methodHandler, ownerScreen);
+    } else {
+        puts("Awesomium Error: Failed to create app object.");
     }
 
     // Add input registration

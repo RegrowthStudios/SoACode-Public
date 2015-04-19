@@ -5,13 +5,15 @@
 #include "MainMenuScreen.h"
 #include "GameManager.h"
 
-void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
+void MainMenuAPI::init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>* methodHandler,
+                       vui::IGameScreen* ownerScreen) {
 
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &MainMenuAPI::##a)
 
     // Set up the interface object so we can talk to the JS
-    _interfaceObject = interfaceObject;
+    m_methodHandler = methodHandler;
+    m_webView = webView;
 
     // Set up our screen handle so we can talk to the game
     setOwnerScreen(ownerScreen);
@@ -27,6 +29,26 @@ void MainMenuAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* o
     ADDFUNC(print);
     ADDFUNC(loadSaveGame);
     ADDFUNC(newSaveGame);
+
+    // Add a test control
+    addObject("ListItemGenerator", 0);
+    Awesomium::JSObject obj = getObject(0);
+    Awesomium::JSArray args;
+    args.Push(Awesomium::WSLit("ROFL"));
+    args.Push(Awesomium::WSLit("#"));
+    args.Push(Awesomium::WSLit(""));
+    args.Push(Awesomium::WSLit("wat"));
+    args.Push(Awesomium::JSValue(4)); 
+    args.Push(Awesomium::WSLit(""));
+    if (!obj.HasMethod(Awesomium::WSLit("generateClickable"))) {
+        std::cout << "DOESN'T HAVE METHOD!\n";
+    }
+    obj.Invoke(Awesomium::WSLit("generateClickable"), args);
+
+    args = obj.GetMethodNames();
+    for (int i = 0; i < args.size(); i++) {
+        std::cout << "ARG: " << args[i].ToString() << std::endl;
+    }
 }
 
 void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {

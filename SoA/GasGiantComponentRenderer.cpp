@@ -68,9 +68,9 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     f32v3 rotRelCamPos = relCamPos * orientationF32;
 
     // Upload uniforms
-    static float dt = 0.0f;
-    dt += 0.00006f;
-    glUniform1f(unDT, dt);
+    static f64 dt = 0.0;
+    dt += 0.00000001;
+    glUniform1f(unDT, (f32)dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     // Scattering uniforms
     f32 camHeight = glm::length(relCamPos);

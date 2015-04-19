@@ -22,9 +22,8 @@ class GameplayScreen;
 class PauseMenuAwesomiumAPI : public IAwesomiumAPI<PauseMenuAwesomiumAPI> {
 public:
     /// Initializes the API and hooks up all functions
-    /// @oaram interfaceObject: The object that the API will talk to
-    /// @param ownerScreen: The GamePlayScreen that owns this interface
-    void init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) override;
+    void init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<PauseMenuAwesomiumAPI>* methodHandler,
+              vui::IGameScreen* ownerScreen) override;
 
     /// Sets the owner screen. Should be a GamePlayScreen type
     /// @param ownerScreen: The screen
