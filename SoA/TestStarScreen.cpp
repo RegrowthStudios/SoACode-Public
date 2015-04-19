@@ -5,6 +5,7 @@
 #include "Errors.h"
 #include "HdrRenderStage.h"
 #include "Options.h"
+#include "SoaState.h"
 #include <Vorb/Timing.h>
 #include <Vorb/colors.h>
 #include <Vorb/graphics/DepthState.h>
@@ -32,14 +33,14 @@ void TestStarScreen::build() {
 
 }
 void TestStarScreen::destroy(const vui::GameTime& gameTime) {
-
+    delete m_starRenderer;
 }
 
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
-
+    m_starRenderer = new StarComponentRenderer(&m_soaState->texturePathResolver);
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
-            m_starRenderer.disposeShaders();
+            m_starRenderer->disposeShaders();
             m_hdr->reloadShader();
         } else if (e.keyCode == VKEY_UP) {
             m_isUpDown = true;
@@ -140,7 +141,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     // Render the star
     f32v3 fEyePos(m_eyePos);
-    m_starRenderer.drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
+    m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
 
     if (m_isHDR) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -156,9 +157,9 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
         }
     });
 
-    m_starRenderer.drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
+    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
     glBlendFunc(GL_ONE, GL_ONE);
-    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
+    if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
                                           m_camera.getAspectRatio(), m_camera.getDirection(),
                                           m_camera.getRight());
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -197,5 +198,10 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
+}
+
+TestStarScreen::TestStarScreen(const App* app, const SoaState* state) :
+    IAppScreen<App>(app) {
+    m_soaState = state;
 }
 

@@ -30,15 +30,17 @@
 
 class App;
 class GameSystem;
-struct MTRenderState;
 class MainMenuSystemViewer;
+class SoaState;
 class SpaceSystem;
 class SpriteBatch;
 class SpriteFont;
+struct MTRenderState;
 
 class SpaceSystemRenderStage : public vg::IRenderStage {
 public:
-    SpaceSystemRenderStage(ui32v2 viewport,
+    SpaceSystemRenderStage(const SoaState* soaState,
+                           ui32v2 viewport,
                            SpaceSystem* spaceSystem,
                            GameSystem* gameSystem,
                            const MainMenuSystemViewer* systemViewer,

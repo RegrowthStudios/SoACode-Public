@@ -4,10 +4,11 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include "Errors.h"
+#include "ModPathResolver.h"
+#include "RenderUtils.h"
 #include "ShaderLoader.h"
 #include "SpaceSystemComponents.h"
-#include "RenderUtils.h"
-#include "Errors.h"
 
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/GLProgram.h>
@@ -43,7 +44,8 @@ void main() {
 )";
 }
 
-StarComponentRenderer::StarComponentRenderer() {
+StarComponentRenderer::StarComponentRenderer(const ModPathResolver* textureResolver) :
+    m_textureResolver(textureResolver) {
     m_tempColorMap.width = -1;
 }
 
@@ -387,14 +389,18 @@ void StarComponentRenderer::buildMesh() {
 }
 
 void StarComponentRenderer::loadTempColorMap() {
-    m_tempColorMap = vg::ImageIO().load("StarSystems/star_spectrum.png");
+    vio::Path path;
+    m_textureResolver->resolvePath("Sky/Star/star_spectrum.png", path);
+    m_tempColorMap = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load StarSystems/star_spectrum.png\n");
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum.png\n");
     }
 }
 
 void StarComponentRenderer::loadGlowTexture() {
-    vg::BitmapResource rs = vg::ImageIO().load("Textures/star_glow.png");
+    vio::Path path;
+    m_textureResolver->resolvePath("Sky/Star/star_glow.png", path);
+    vg::BitmapResource rs = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
         fprintf(stderr, "ERROR: Failed to load StarSystems/star_glow.png\n");
     } else {

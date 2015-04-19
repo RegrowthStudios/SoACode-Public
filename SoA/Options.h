@@ -31,9 +31,8 @@ public:
     bool needsFullscreenToggle = false;
     bool enableParticles = true;
 
-    nString texturePackString = "Default";
-    nString currTexturePack = texturePackString;
-    nString defaultTexturePack = texturePackString;
+    nString defaultTexturePack = "Default";
+    nString currTexturePack = defaultTexturePack; 
 };
 extern GraphicsOptions graphicsOptions;
 

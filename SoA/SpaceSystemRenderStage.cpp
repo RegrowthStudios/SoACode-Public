@@ -12,6 +12,7 @@
 #include "MTRenderState.h"
 #include "MainMenuSystemViewer.h"
 #include "RenderUtils.h"
+#include "SoaState.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
@@ -30,7 +31,8 @@ const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
 };
 
-SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
+SpaceSystemRenderStage::SpaceSystemRenderStage(const SoaState* soaState,
+                                               ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
                                                GameSystem* gameSystem,
                                                const MainMenuSystemViewer* systemViewer,
@@ -43,7 +45,8 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
     m_mainMenuSystemViewer(systemViewer),
     m_spaceCamera(spaceCamera),
     m_farTerrainCamera(farTerrainCamera),
-    m_selectorTexture(selectorTexture) {
+    m_selectorTexture(selectorTexture),
+    m_starRenderer(&soaState->texturePathResolver){
     // Empty
 }
 

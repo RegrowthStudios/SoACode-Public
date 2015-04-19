@@ -27,9 +27,13 @@
 #include <Vorb/ui/IGameScreen.h>
 
 class HdrRenderStage;
+class SoaState;
+class App;
 
-class TestStarScreen : public vui::IGameScreen {
+class TestStarScreen : public vui::IAppScreen<App> {
 public:
+    TestStarScreen(const App* app, const SoaState* state);
+    ~TestStarScreen();
     /************************************************************************/
     /* IGameScreen functionality                                            */
     /************************************************************************/
@@ -45,7 +49,7 @@ public:
 private:
     const f64 STAR_RADIUS = 1693000.0 / 2.0;
 
-    StarComponentRenderer m_starRenderer;
+    StarComponentRenderer* m_starRenderer = nullptr;
     f64v3 m_eyePos;
     f64 m_eyeDist = STAR_RADIUS;
     StarComponent m_sCmp;
@@ -58,6 +62,7 @@ private:
     vg::FullQuadVBO m_quad;
     Camera m_camera;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
+    const SoaState* m_soaState = nullptr;
     bool m_isHDR = true;
     bool m_isGlow = true;
     bool m_is1Pressed = false;

@@ -14,7 +14,7 @@ KEG_TYPE_DEF(GraphicsOptions, GraphicsOptions, kt) {
     kt.addValue("gamma", keg::Value::basic(offsetof(GraphicsOptions, gamma), keg::BasicType::F32));
     kt.addValue("voxelRenderDistance", keg::Value::basic(offsetof(GraphicsOptions, voxelRenderDistance), keg::BasicType::I32));
     kt.addValue("terrainQuality", keg::Value::basic(offsetof(GraphicsOptions, lodDetail), keg::BasicType::I32));
-    kt.addValue("texturePack", keg::Value::basic(offsetof(GraphicsOptions, texturePackString), keg::BasicType::STRING));
+    kt.addValue("texturePack", keg::Value::basic(offsetof(GraphicsOptions, currTexturePack), keg::BasicType::STRING));
     kt.addValue("maxFps", keg::Value::basic(offsetof(GraphicsOptions, maxFPS), keg::BasicType::F32));
     kt.addValue("motionBlur", keg::Value::basic(offsetof(GraphicsOptions, motionBlur), keg::BasicType::I32));
     kt.addValue("msaa", keg::Value::basic(offsetof(GraphicsOptions, msaa), keg::BasicType::I32));

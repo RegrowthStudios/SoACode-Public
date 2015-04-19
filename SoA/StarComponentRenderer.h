@@ -22,12 +22,13 @@
 #include <Vorb/graphics/ImageIO.h>
 
 DECL_VG(class GLProgram)
+class ModPathResolver;
 
 struct StarComponent;
 
 class StarComponentRenderer {
 public:
-    StarComponentRenderer();
+    StarComponentRenderer(const ModPathResolver* textureResolver);
     ~StarComponentRenderer();
 
     void drawStar(const StarComponent& sCmp,
@@ -85,6 +86,8 @@ private:
     VGUniform unDT;
 
     VGTexture m_glowTexture = 0;
+
+    const ModPathResolver* m_textureResolver = nullptr;
 };
 
 #endif // StarComponentRenderer_h__

@@ -17,17 +17,15 @@
 #include "SkyboxRenderer.h"
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/IRenderStage.h>
-#include <Vorb/VorbPreDecl.inl>
 
 class Camera;
-
-DECL_VIO(class IOManager);
+class ModPathResolver;
 
 class SkyboxRenderStage : public vg::IRenderStage
 {
 public:
     /// Constructor which injects dependencies
-    SkyboxRenderStage(const Camera* camera, const vio::IOManager* texturePackIOM);
+    SkyboxRenderStage(const Camera* camera, const ModPathResolver* textureResolver);
     ~SkyboxRenderStage();
 
     // Draws the render stage
@@ -48,7 +46,7 @@ private:
     float m_aspectRatio; ///< Current aspect ratio for the camera
 
     VGTexture m_skyboxTextureArray = 0; ///< Texture array for skybox
-    const vio::IOManager* m_texturePackIOM = nullptr;
+    const ModPathResolver* m_textureResolver = nullptr;
 };
 
 #endif // SkyboxRenderStage_h__

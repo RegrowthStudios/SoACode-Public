@@ -41,7 +41,9 @@ void SoaEngine::initState(SoaState* state) {
     state->meshManager = std::make_unique<MeshManager>();
     state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
     state->systemIoManager = std::make_unique<vio::IOManager>();
-    state->texturePackIom.setSearchDirectory("Textures/TexturePacks/" + graphicsOptions.texturePackString + "/");
+    state->texturePathResolver.init("Textures/TexturePacks/" + graphicsOptions.defaultTexturePack + "/",
+                                    "Textures/TexturePacks/" + graphicsOptions.currTexturePack + "/");
+   
 }
 // TODO: A vorb helper would be nice.
 vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr) {

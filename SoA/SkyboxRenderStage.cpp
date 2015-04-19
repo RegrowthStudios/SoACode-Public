@@ -8,12 +8,13 @@
 
 #include "Camera.h"
 #include "Errors.h"
+#include "ModPathResolver.h"
 #include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
 
-SkyboxRenderStage::SkyboxRenderStage(const Camera* camera, const vio::IOManager* texturePackIOM) :
+SkyboxRenderStage::SkyboxRenderStage(const Camera* camera, const ModPathResolver* textureResolver) :
                                      IRenderStage("Skybox", camera),
-                                     m_texturePackIOM(texturePackIOM) {
+                                     m_textureResolver(textureResolver) {
 
    updateProjectionMatrix();
 }
@@ -50,24 +51,24 @@ void SkyboxRenderStage::loadSkyboxTexture() {
 
     vio::Path path;
     // TODO(Ben): Error check for dimensions
-    m_texturePackIOM->resolvePath("Sky/StarSkybox/front.png", path);
+    m_textureResolver->resolvePath("Sky/Skybox/front.png", path);
     vg::BitmapResource frontRes = vg::ImageIO().load(path);
-    if (frontRes.data == nullptr) pError("Failed to load Sky/StarSkybox/front.png");
-    m_texturePackIOM->resolvePath("Sky/StarSkybox/right.png", path);
+    if (frontRes.data == nullptr) pError("Failed to load Sky/Skybox/front.png");
+    m_textureResolver->resolvePath("Sky/Skybox/right.png", path);
     vg::BitmapResource rightRes = vg::ImageIO().load(path);
-    if (rightRes.data == nullptr) pError("Failed to load Sky/StarSkybox/right.png");
-    m_texturePackIOM->resolvePath("Sky/StarSkybox/top.png", path);
+    if (rightRes.data == nullptr) pError("Failed to load Sky/Skybox/right.png");
+    m_textureResolver->resolvePath("Sky/Skybox/top.png", path);
     vg::BitmapResource topRes = vg::ImageIO().load(path);
-    if (topRes.data == nullptr) pError("Failed to load Sky/StarSkybox/top.png");
-    m_texturePackIOM->resolvePath("Sky/StarSkybox/left.png", path);
+    if (topRes.data == nullptr) pError("Failed to load Sky/Skybox/top.png");
+    m_textureResolver->resolvePath("Sky/Skybox/left.png", path);
     vg::BitmapResource leftRes = vg::ImageIO().load(path);
-    if (leftRes.data == nullptr) pError("Failed to load Sky/StarSkybox/left.png");
-    m_texturePackIOM->resolvePath("Sky/StarSkybox/bottom.png", path);
+    if (leftRes.data == nullptr) pError("Failed to load Sky/Skybox/left.png");
+    m_textureResolver->resolvePath("Sky/Skybox/bottom.png", path);
     vg::BitmapResource botRes = vg::ImageIO().load(path);
-    if (botRes.data == nullptr) pError("Failed to load Sky/StarSkybox/bottom.png");
-    m_texturePackIOM->resolvePath("Sky/StarSkybox/back.png", path);
+    if (botRes.data == nullptr) pError("Failed to load Sky/Skybox/bottom.png");
+    m_textureResolver->resolvePath("Sky/Skybox/back.png", path);
     vg::BitmapResource backRes = vg::ImageIO().load(path);
-    if (backRes.data == nullptr) pError("Failed to load Sky/StarSkybox/back.png");
+    if (backRes.data == nullptr) pError("Failed to load Sky/Skybox/back.png");
 
     if (frontRes.width != frontRes.height) {
         pError("Skybox textures must have equal width and height!");

@@ -28,7 +28,7 @@ public:
     void setModDir(const vio::Path& path);
     /// Gets the absolute path. If not in Mod, checks in default.
     /// @return false on failure
-    bool resolvePath(const vio::Path& path, vio::Path& resultAbsolutePath, bool printModNotFound = false);
+    bool resolvePath(const vio::Path& path, vio::Path& resultAbsolutePath, bool printModNotFound = false) const;
 
     vio::IOManager defaultIom;
     vio::IOManager modIom;

@@ -18,7 +18,8 @@
 #include "SpaceSystem.h"
 #include "GameSystem.h"
 
-#include "PlanetLoader.h" //Why is this needed here??
+#include "PlanetLoader.h" // TODO(Ben): Why is this needed here for unique_ptr?
+#include "ModPathResolver.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
@@ -48,7 +49,7 @@ public:
     std::unique_ptr<PlanetLoader> planetLoader;
 
     vio::IOManager saveFileIom;
-    vio::IOManager texturePackIom;
+    ModPathResolver texturePathResolver;
     bool isNewGame = true;
     f64v3 startSpacePos = f64v3(0.0f);
     int startFace = 0;
