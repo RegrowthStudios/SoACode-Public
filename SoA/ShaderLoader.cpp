@@ -41,3 +41,25 @@ CALLER_DELETE vg::GLProgram* ShaderLoader::createProgramFromFile(const vio::Path
     vg::ShaderManager::onProgramLinkError -= makeDelegate(printLinkError);
     return program;
 }
+
+CALLER_DELETE vg::GLProgram* ShaderLoader::createProgram(const cString vertSrc, const cString fragSrc, vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
+    vg::ShaderManager::onFileIOFailure += makeDelegate(printFileIOError);
+    vg::ShaderManager::onShaderCompilationError += makeDelegate(printShaderError);
+    vg::ShaderManager::onProgramLinkError += makeDelegate(printLinkError);
+
+    vg::GLProgram* program = nullptr;
+    while (true) {
+        program = vg::ShaderManager::createProgram(vertSrc, fragSrc, iom, iom, defines);
+        if (program) break;
+
+        printf("Enter any key to try recompiling with Vertex Shader: %s and Fragment Shader %s\nEnter Z to abort.\n", vertPath.getCString(), fragPath.getCString());
+        char tmp;
+        std::cin >> tmp;
+        if (tmp == 'Z' || tmp == 'z') break;
+    }
+
+    vg::ShaderManager::onFileIOFailure -= makeDelegate(printFileIOError);
+    vg::ShaderManager::onShaderCompilationError -= makeDelegate(printShaderError);
+    vg::ShaderManager::onProgramLinkError -= makeDelegate(printLinkError);
+    return program;
+}

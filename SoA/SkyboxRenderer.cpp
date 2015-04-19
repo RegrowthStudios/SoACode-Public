@@ -5,6 +5,8 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/ShaderManager.h>
 
+#include "ShaderLoader.h"
+
 // Skybox Cube //
 //    v6----- v5
 //   /|      /|
@@ -114,7 +116,7 @@ void SkyboxRenderer::destroy() {
 }
 
 void SkyboxRenderer::initShader() {
-    m_program = vg::ShaderManager::createProgram(VERT_SRC, FRAG_SRC);
+    m_program = ShaderLoader::createProgram(VERT_SRC, FRAG_SRC);
 
     // Constant uniforms
     m_program->use();
