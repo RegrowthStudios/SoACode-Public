@@ -755,6 +755,9 @@
     <ClInclude Include="PlanetGenerator.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="ModPathResolver.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1232,6 +1235,7 @@
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
     <ClCompile Include="PlanetGenerator.cpp" />
+    <ClCompile Include="ModPathResolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
