@@ -26,7 +26,7 @@ KEG_ENUM_DEF(TrojanType, TrojanType, kt) {
 KEG_TYPE_DEF_SAME_NAME(SystemBodyKegProperties, kt) {
     kt.addValue("type", keg::Value::custom(offsetof(SystemBodyKegProperties, type), "ObjectType", true));
     kt.addValue("trojan", keg::Value::custom(offsetof(SystemBodyKegProperties, trojan), "TrojanType", true));
-    kt.addValue("bodies", keg::Value::array(offsetof(SystemBodyKegProperties, comps), keg::BasicType::C_STRING));
+    kt.addValue("comps", keg::Value::array(offsetof(SystemBodyKegProperties, comps), keg::BasicType::C_STRING));
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, par, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, path, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, ref, STRING);

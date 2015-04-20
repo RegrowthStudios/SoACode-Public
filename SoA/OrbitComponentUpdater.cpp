@@ -26,7 +26,7 @@ void OrbitComponentUpdater::updatePosition(OrbitComponent& cmp, f64 time, NamePo
     /// Calculates position as a function of time
     /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
     // 1. Calculate the mean anomaly
-    f64 meanAnomaly = (M_2_PI / cmp.t) * time;
+    f64 meanAnomaly = (M_2_PI / cmp.t) * time + cmp.startTrueAnomaly;
 
     // 2. Solve Kepler's equation to compute eccentric anomaly 
     // using Newton's method
@@ -43,7 +43,7 @@ void OrbitComponentUpdater::updatePosition(OrbitComponent& cmp, f64 time, NamePo
             cmp.e * sin(E) - meanAnomaly;
     }
     // 3. Calculate true anomaly
-    f64 v = atan2(sqrt(1.0 - cmp.e * cmp.e) * sin(E), cos(E) - cmp.e) + cmp.startTrueAnomaly;
+    f64 v = atan2(sqrt(1.0 - cmp.e * cmp.e) * sin(E), cos(E) - cmp.e);
 
     // 4. Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html

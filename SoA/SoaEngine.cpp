@@ -297,15 +297,37 @@ void SoaEngine::initBinaries(SpaceSystemLoadParams& pr) {
         f64 mass = 0.0;
         SystemBody* bary = it.second;
 
-        // Loop through all children
-        for (int i = 0; i < bary->properties.comps.size(); i++) {
-            // Find the body
-            auto& body = pr.systemBodies.find(std::string(bary->properties.comps[i]));
-            if (body != pr.systemBodies.end()) {
-                // Get the mass
-                mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->second->entity).mass;
-            }
-        }
+        if (bary->properties.comps.size() != 2) return;
+        // A component
+        auto& bodyA = pr.systemBodies.find(std::string(bary->properties.comps[0]));
+        if (bodyA == pr.systemBodies.end()) return;
+        auto& aProps = bodyA->second->properties;
+        // Get the mass
+        mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyA->second->entity).mass;
+
+        // B component
+        auto& bodyB = pr.systemBodies.find(std::string(bary->properties.comps[1]));
+        if (bodyB == pr.systemBodies.end()) return;
+        auto& bProps = bodyB->second->properties;
+        // Get the mass
+        mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyB->second->entity).mass;
+        // Use orbit parameters relative to A component
+        bProps.ref = bodyA->second->name;
+        bProps.td = 1.0f;
+        bProps.tf = 1.0f;
+        bProps.e = aProps.e;
+        bProps.i = aProps.i;
+        bProps.n = aProps.n;
+        bProps.p = aProps.p + 180.0;
+        bProps.a = aProps.a;
+        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyB->second->entity);
+        oCmp.e = bProps.e;
+        oCmp.i = bProps.i * DEG_TO_RAD;
+        oCmp.p = bProps.p * DEG_TO_RAD;
+        oCmp.o = bProps.n * DEG_TO_RAD;
+        oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
+        
+        // Set the barycenter mass
         it.second->mass = mass;
     }
 }
@@ -324,29 +346,11 @@ void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
                 pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
                     pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
 
-                auto& b = pr.barycenters.find(parent);
-                if (b != pr.barycenters.end()) {
-                    SystemBody* baryBody = b->second;
-                    // Determine if we are component of parent barycenter
-                    bool isComponent = false;
-                    for (int i = 0; i < baryBody->properties.comps.size(); i++) {
-                        if (baryBody->properties.comps[i] == body->name) {
-                            isComponent = true; break;
-                        }
-                    }
-                    if (isComponent) {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(pr, body->entity, baryBody->mass, body, true);
-                    } else {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(pr, body->entity, baryBody->mass, body, false);
-                    }
-                } else {
-                    // Calculate the orbit using parent mass
-                    calculateOrbit(pr, body->entity,
-                                   pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
-                                   body, false);
-                }
+                // Calculate the orbit using parent mass
+                calculateOrbit(pr, body->entity,
+                                pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
+                                body, false);
+              
             }
         }
     }
@@ -400,8 +404,6 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
                                const SystemBody* body, bool isBinary) {
     SpaceSystem* spaceSystem = pr.spaceSystem;
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
-
-    orbitC.startTrueAnomaly = body->properties.a;
 
     if (!body->properties.ref.empty()) {
         auto it = pr.systemBodies.find(body->properties.ref);

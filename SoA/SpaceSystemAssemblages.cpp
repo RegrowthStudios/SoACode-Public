@@ -28,23 +28,23 @@
 ui8v4 getOrbitPathColor(const SystemBodyKegProperties* props) {
     switch (props->type) {
         case ObjectType::BARYCENTER:
-            return ui8v4(255, 0, 0, 0);
+            return ui8v4(255, 0, 0, 255);
         case ObjectType::STAR:
-            return ui8v4(255, 255, 0, 128);
+            return ui8v4(255, 255, 0, 255);
         case ObjectType::PLANET:
-            return ui8v4(0, 255, 0, 128);
+            return ui8v4(0, 255, 0, 255);
         case ObjectType::DWARF_PLANET:
-            return ui8v4(0, 128, 0, 64);
+            return ui8v4(0, 128, 0, 255);
         case ObjectType::MOON:
-            return ui8v4(96, 128, 255, 128);
+            return ui8v4(96, 128, 255, 255);
         case ObjectType::DWARF_MOON:
-            return ui8v4(48, 64, 128, 64);
+            return ui8v4(48, 64, 128, 255);
         case ObjectType::ASTEROID:
-            return ui8v4(128, 128, 128, 128);
+            return ui8v4(80, 80, 80, 255);
         case ObjectType::COMET:
-            return ui8v4(255, 255, 255, 128);
+            return ui8v4(80, 104, 128, 255);
         default:
-            return ui8v4(80, 80, 80, 128);
+            return ui8v4(80, 80, 80, 255);
     }
 }
 
