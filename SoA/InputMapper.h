@@ -53,6 +53,7 @@ public:
         Event<ui32> downEvent; ///< The event for when the key is pressed
     };
     typedef std::vector<Input> InputList;
+    typedef std::unordered_map<nString, InputID> InputMap;
 
     /// Returns the state of an input
     /// @param id: The id of the input which is being looked up.
@@ -111,6 +112,8 @@ public:
         return m_inputs[i];
     }
 
+    const InputMap& getInputLookup() const { return m_inputLookup; }
+
 private:
     void onMouseButtonDown(Sender, const vui::MouseButtonEvent& e);
     void onMouseButtonUp(Sender, const vui::MouseButtonEvent& e);
@@ -118,7 +121,7 @@ private:
     void onKeyUp(Sender, const vui::KeyEvent& e);
    
     InputList m_inputs; ///< All the stored axes.
-    std::unordered_map<nString, InputID> m_inputLookup; ///< A map of input names to input IDs for quick look up.
+    InputMap m_inputLookup; ///< A map of input names to input IDs for quick look up.
     std::unordered_map<VirtualKey, std::vector<InputID> > m_keyCodeMap; ///< Map of keycodes to active input
     
     bool m_keyStates[VKEY_HIGHEST_VALUE]; ///< The state of the keys and mouse buttons this frame.

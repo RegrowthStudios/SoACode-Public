@@ -35,17 +35,13 @@ public:
     void setOwnerScreen(vui::IGameScreen* ownerScreen) override;
 
 private:
-    void initIndexControls();
-    void initVideoOptionsControls();
+    void initMainMenu();
+    void initVideoOptionsMenu();
+    void initControlsMenu();
     /// Gets the camera position
     /// @param args: Empty arguments.
     /// @return float[3] position
     Awesomium::JSValue getCameraPosition(const Awesomium::JSArray& args);
-
-    /// Gets the current planet radius
-    /// @param args: Empty arguments.
-    /// @return float radius
-    Awesomium::JSValue getPlanetRadius(const Awesomium::JSArray& args);
 
     /// Gets a list of all save games
     /// @param args: Empty arguments.

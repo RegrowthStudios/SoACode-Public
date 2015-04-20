@@ -2,9 +2,11 @@
 #include "MainMenuAPI.h"
 
 #include <Vorb/io/IOManager.h>
+#include <Vorb/ui/KeyStrings.h>
 #include "App.h"
-#include "MainMenuScreen.h"
 #include "GameManager.h"
+#include "InputMapper.h"
+#include "MainMenuScreen.h"
 #include "TerrainPatch.h"
 
 using namespace Awesomium;
@@ -30,7 +32,6 @@ void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>
 
     // Add functions here
     ADDFUNC(getCameraPosition);
-    ADDFUNC(getPlanetRadius);
     ADDFUNC(getSaveFiles);
     
     ADDFUNC(setCameraFocalLength);
@@ -44,15 +45,16 @@ void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>
 
     // Add controls
     addExistingObject("ListItemGenerator", ITEM_GEN_ID);
-    initVideoOptionsControls();
-    initIndexControls();  
+    initVideoOptionsMenu();
+    initMainMenu();  
+    initControlsMenu();
 }
 
 void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<MainMenuScreen*>(ownerScreen);
 }
 
-void MainMenuAPI::initIndexControls() {
+void MainMenuAPI::initMainMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
 
     { // Add options sublist
@@ -101,7 +103,7 @@ void MainMenuAPI::initIndexControls() {
     }
 }
 
-void MainMenuAPI::initVideoOptionsControls() {
+void MainMenuAPI::initVideoOptionsMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
 
     { // Add quality slider
@@ -144,18 +146,34 @@ void MainMenuAPI::initVideoOptionsControls() {
     }
 }
 
+void MainMenuAPI::initControlsMenu() {
+    JSObject obj = getObject(ITEM_GEN_ID);
+
+    InputMapper* inputMapper = _ownerScreen->m_inputMapper;
+    const InputMapper::InputMap &inputMap = inputMapper->getInputLookup();
+    char buf[256];
+    // Add buttons for each input
+    for (auto& it : inputMap) {
+        JSArray args;
+        InputMapper::Input& in = inputMapper->get(it.second);
+        sprintf(buf, "%20s | %10s", it.first.c_str(), VirtualKeyStrings[in.key]);
+        args.Push(WSLit(buf));
+        args.Push(WSLit("#"));
+        args.Push(WSLit(""));
+        args.Push(WSLit(""));
+        args.Push(JSValue(4));
+        args.Push(WSLit(""));
+        obj.Invoke(WSLit("generateClickable"), args);
+    }
+}
+
 JSValue MainMenuAPI::getCameraPosition(const JSArray& args) {
     JSArray rv;
     const f64v3& pos = _ownerScreen->getCamera().getPosition();
-    rv.Push(::JSValue(pos.x));
-    rv.Push(::JSValue(pos.y));
-    rv.Push(::JSValue(pos.z));
-    return ::JSValue(rv);
-}
-
-JSValue MainMenuAPI::getPlanetRadius(const JSArray& args) {
-  //  return ::JSValue(GameManager::planet->getRadius());
-    return JSValue();
+    rv.Push(JSValue(pos.x));
+    rv.Push(JSValue(pos.y));
+    rv.Push(JSValue(pos.z));
+    return JSValue(rv);
 }
 
 JSValue MainMenuAPI::getSaveFiles(const JSArray& args) {
