@@ -5,6 +5,7 @@
 #include "App.h"
 #include "MainMenuScreen.h"
 #include "GameManager.h"
+#include "TerrainPatch.h"
 
 using namespace Awesomium;
 
@@ -12,6 +13,7 @@ const ui32 ITEM_GEN_ID = 0;
 
 const int BORDERLESS_ID = 1;
 const int FULLSCREEN_ID = 2;
+const int PLANET_QUALITY_ID = 3;
 
 void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>* methodHandler,
                        vui::IGameScreen* ownerScreen) {
@@ -105,13 +107,13 @@ void MainMenuAPI::initVideoOptionsControls() {
     { // Add quality slider
         JSArray args;
         args.Push(WSLit("Planet Quality")); // name
-        args.Push(JSValue(0)); // min
-        args.Push(JSValue(10)); // max
-        args.Push(JSValue(5)); // initialVal
+        args.Push(JSValue(1)); // min
+        args.Push(JSValue(5)); // max
+        args.Push(JSValue(1)); // initialVal
         args.Push(JSValue(1)); // intervalRes
         args.Push(WSLit("")); // category
         args.Push(WSLit("Adjust planet terrain quality")); // description
-        args.Push(JSValue(6)); // ID
+        args.Push(JSValue(PLANET_QUALITY_ID)); // ID
         args.Push(WSLit("App.optionUpdate")); // updateCallback
         args.Push(JSValue(true)); // updateInRealTime
         obj.Invoke(WSLit("generateSlider"), args);
@@ -234,6 +236,9 @@ void MainMenuAPI::optionUpdate(const JSArray& args) {
             break;
         case FULLSCREEN_ID:
             gameWindow->setFullscreen(Awesomium::ToString(args[1].ToString()) == "on");
+            break;
+        case PLANET_QUALITY_ID:
+            TerrainPatch::setQuality(args[1].ToInteger());
             break;
     }
 }
