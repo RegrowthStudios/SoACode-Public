@@ -95,6 +95,7 @@ private:
     // --------------- Event handlers ---------------
     void onReloadSystem(Sender s, ui32 a);
     void onReloadShaders(Sender s, ui32 a);
+    void onQuit(Sender s, ui32 a);
     // ----------------------------------------------
 
     const LoadScreen* m_loadScreen = nullptr;

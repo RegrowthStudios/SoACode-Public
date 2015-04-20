@@ -67,7 +67,7 @@ protected:
     /// Adds a JS object to be tracked
     /// @param name: The name of the function
     /// @param id: ID of the object
-    virtual void addObject(const cString name, ui32 id);
+    virtual void addExistingObject(const cString name, ui32 id);
 
     /// Returns the object associated with the id
     virtual Awesomium::JSObject getObject(ui32 id);

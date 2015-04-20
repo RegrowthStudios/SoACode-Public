@@ -157,9 +157,7 @@ void MainMenuScreen::initInput() {
     m_inputMapper->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
     m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
     m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s, ui32 i) { m_shouldReloadUI = true; });
-    m_inputMapper->get(INPUT_EXIT).downEvent.addFunctor([&](Sender s, ui32 i) {
-        SoaEngine::destroyAll(m_soaState);
-        exit(0); });
+    m_inputMapper->get(INPUT_EXIT).downEvent += makeDelegate(*this, &MainMenuScreen::onQuit);
     m_inputMapper->get(INPUT_TOGGLE_UI).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.toggleUI(); });
     m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
@@ -281,4 +279,9 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
 
 void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
     m_renderPipeline.reloadShaders();
+}
+
+void MainMenuScreen::onQuit(Sender s, ui32 a) {
+    SoaEngine::destroyAll(m_soaState);
+    exit(0);
 }

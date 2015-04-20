@@ -35,6 +35,8 @@ public:
     void setOwnerScreen(vui::IGameScreen* ownerScreen) override;
 
 private:
+    void initIndexControls();
+    void initVideoOptionsControls();
     /// Gets the camera position
     /// @param args: Empty arguments.
     /// @return float[3] position
@@ -77,6 +79,12 @@ private:
     /// doesn't already exist.
     /// @param args: Argument should be the string name
     void newSaveGame(const Awesomium::JSArray& args);
+
+    // Updates an option
+    void optionUpdate(const Awesomium::JSArray& args);
+
+    /// Exits the game
+    void quit(const Awesomium::JSArray& args);
 
     MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen
 };

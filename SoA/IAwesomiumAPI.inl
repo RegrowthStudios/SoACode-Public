@@ -31,18 +31,12 @@ void IAwesomiumAPI<C>::addFunction(const nString& name, typename IAwesomiumAPI<C
 }
 
 template <class C>
-void IAwesomiumAPI<C>::addObject(const cString name, ui32 id) {
+void IAwesomiumAPI<C>::addExistingObject(const cString name, ui32 id) {
     Awesomium::JSValue val = m_webView->ExecuteJavascriptWithResult(Awesomium::WSLit(name), Awesomium::WSLit(""));
     if (val.IsObject()) {
-        Awesomium::JSObject& object = val.ToObject();
-        Awesomium::JSArray args = object.GetMethodNames();
-        std::cout << "DERE IS " << args.size() << " ARGS IN " << name << std::endl;
-        for (int i = 0; i < args.size(); i++) {
-            std::cout << "ARG: " << args[i].ToString() << std::endl;
-        }
         m_methodHandler->m_customObjects[id] = val.ToObject();
     } else {
-        printf("Failed to make JS object %s\n", name);
+        printf("Failed to get JS object %s\n", name);
     }
 }
 
@@ -80,7 +74,7 @@ void IAwesomiumAPI<C>::print(const Awesomium::JSArray& args) {
     if (args[0].IsDouble()) {
         printf("%lf\n", args[0].ToDouble());
     } else if (args[0].IsString()) {
-        printf("%s\n", args[0].ToString());
+        printf("%s\n", Awesomium::ToString(args[0].ToString()).c_str());
     } else if (args[0].IsInteger()) {
         printf("%d\n", args[0].ToInteger());
     } else if (args[0].IsBoolean()) {
