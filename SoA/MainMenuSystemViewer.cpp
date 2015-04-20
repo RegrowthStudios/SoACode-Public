@@ -141,7 +141,7 @@ f64v3 MainMenuSystemViewer::getTargetPosition() {
 }
 
 f64 MainMenuSystemViewer::getTargetRadius() {
-    return m_spaceSystem->m_sphericalGravityCT.get(m_targetComponent).radius;
+    return m_spaceSystem->m_sphericalGravityCT.getFromEntity(m_targetEntity).radius;
 }
 
 nString MainMenuSystemViewer::getTargetName() {
