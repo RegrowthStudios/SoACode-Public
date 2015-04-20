@@ -94,8 +94,8 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Set up components
     m_sCmp.radius = STAR_RADIUS;
-    m_sCmp.temperature = 5813.0;
-    m_sCmp.mass = 2.1872e30;
+    m_sCmp.temperature = 3525.0;
+    m_sCmp.mass = 6.56172e29;
 
     m_spriteBatch.init();
     m_spriteFont.init("Fonts/orbitron_black-webfont.ttf", 32);
@@ -148,6 +148,9 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     // Render the star
     f32v3 fEyePos(m_eyePos);
+
+    // TODO(Ben): render star first and figure out why depth testing is failing
+    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
     m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
 
     if (m_isHDR) {
@@ -163,8 +166,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
             exit(0);
         }
     });
-
-    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
+    
     glBlendFunc(GL_ONE, GL_ONE);
     if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
                                           m_camera.getAspectRatio(), m_camera.getDirection(),

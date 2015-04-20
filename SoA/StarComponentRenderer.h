@@ -79,6 +79,7 @@ private:
     VGBuffer m_gVao = 0;
     
     vg::BitmapResource m_tempColorMap;
+    VGTexture m_glowColorMap = 0;
     int m_numIndices = 0;
 
     // TODO(Ben): UBO
