@@ -21,6 +21,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+TestStarScreen::TestStarScreen(const App* app) :
+IAppScreen<App>(app) {
+    m_modPathResolver.init("Textures/TexturePacks/" + graphicsOptions.defaultTexturePack + "/",
+                           "Textures/TexturePacks/" + graphicsOptions.currTexturePack + "/");
+}
+
+
 i32 TestStarScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -37,7 +44,7 @@ void TestStarScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
-    m_starRenderer = new StarComponentRenderer(&m_soaState->texturePathResolver);
+    m_starRenderer = new StarComponentRenderer(&m_modPathResolver);
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
             m_starRenderer->disposeShaders();
@@ -76,7 +83,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
-        m_eyeDist += -e.dy * 0.025 * glm::length(m_eyeDist);
+        m_eyeDist += -e.dy * 0.05 * glm::length(m_eyeDist);
     });
     glEnable(GL_DEPTH_TEST);
 
@@ -198,10 +205,5 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
-}
-
-TestStarScreen::TestStarScreen(const App* app, const SoaState* state) :
-    IAppScreen<App>(app) {
-    m_soaState = state;
 }
 

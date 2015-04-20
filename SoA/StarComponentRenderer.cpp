@@ -390,10 +390,10 @@ void StarComponentRenderer::buildMesh() {
 
 void StarComponentRenderer::loadTempColorMap() {
     vio::Path path;
-    m_textureResolver->resolvePath("Sky/Star/star_spectrum.png", path);
+    m_textureResolver->resolvePath("Sky/Star/star_spectrum_1.png", path);
     m_tempColorMap = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum.png\n");
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_1.png\n");
     }
 }
 
@@ -402,7 +402,7 @@ void StarComponentRenderer::loadGlowTexture() {
     m_textureResolver->resolvePath("Sky/Star/star_glow.png", path);
     vg::BitmapResource rs = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load StarSystems/star_glow.png\n");
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow.png\n");
     } else {
         m_glowTexture = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
         vg::ImageIO().free(rs);
@@ -419,7 +419,6 @@ f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f6
 
     return s;
 }
-
 
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     // Calculate temperature color

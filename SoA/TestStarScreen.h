@@ -18,6 +18,7 @@
 #include "StarComponentRenderer.h"
 #include "SpaceSystemComponents.h"
 #include "Camera.h"
+#include "ModPathResolver.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
@@ -32,7 +33,7 @@ class App;
 
 class TestStarScreen : public vui::IAppScreen<App> {
 public:
-    TestStarScreen(const App* app, const SoaState* state);
+    TestStarScreen(const App* app);
     ~TestStarScreen();
     /************************************************************************/
     /* IGameScreen functionality                                            */
@@ -62,7 +63,7 @@ private:
     vg::FullQuadVBO m_quad;
     Camera m_camera;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
-    const SoaState* m_soaState = nullptr;
+    ModPathResolver m_modPathResolver;
     bool m_isHDR = true;
     bool m_isGlow = true;
     bool m_is1Pressed = false;
