@@ -20,6 +20,8 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/gtypes.h>
 #include <Vorb/graphics/ImageIO.h>
+#include <Vorb/script/Function.h>
+#include <Vorb/script/Environment.h>
 
 DECL_VG(class GLProgram)
 class ModPathResolver;
@@ -88,6 +90,8 @@ private:
     VGTexture m_glowTexture = 0;
 
     const ModPathResolver* m_textureResolver = nullptr;
+    vscript::Environment m_scripts;
+    vscript::RFunction<f64> m_glowFunc;
 };
 
 #endif // StarComponentRenderer_h__
